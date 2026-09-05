@@ -17,7 +17,11 @@
   h1 { font-size: 28px; font-weight: 700; letter-spacing: -.01em; margin: 0; }
   .tally { font-family: 'Courier New', monospace; font-size: 12px; color: #8A8574;
            letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
-  .lede { color: #6B6555; font-size: 14px; margin: 0 0 24px; }
+  .lede { color: #6B6555; font-size: 14px; margin: 0 0 6px; }
+  .mode { font-size: 12px; color: #A8A290; margin: 0 0 24px; }
+  .mode[hidden] { display: none; }
+  .mode.warn { color: #8A5A16; }
+  .spacer { height: 18px; }
 
   .alert { display: flex; align-items: center; gap: 8px; background: #FBE7E3; color: #8A3327;
            padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; }
@@ -69,6 +73,7 @@
     <span class="tally" id="tally"></span>
   </div>
   <p class="lede">Log it when you put it away. Cross it off when it's gone.</p>
+  <p class="mode sans" id="mode" hidden></p>
 
   <div id="alert"></div>
 
@@ -92,6 +97,11 @@
 </div>
 
 <script>
+  // Paste the Worker URL here to share one list across the house.
+  // Leave it empty and the app just saves to this device.
+  const API = '';
+
+  const POLL_MS = 20000;
   const KEY = 'leftovers.items';
   const SIZES = ['Small', 'Medium', 'Large', 'Family-size'];
   const WARN_DAYS = 7, AGING_DAYS = 4;
@@ -120,8 +130,18 @@
     return s;
   }
 
+  // localStorage is the offline cache when API is set, and the only store when it isn't.
   const load = () => { try { const v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) ? v : []; } catch { return []; } };
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); setErr(''); } catch { setErr("Couldn't save — try again."); } };
+  const cache = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch {} };
+
+  async function api(path, opts) {
+    const r = await fetch(API.replace(/\/$/, '') + path,
+      Object.assign({ headers: { 'Content-Type': 'application/json' }, cache: 'no-store' }, opts));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (!d || !Array.isArray(d.items)) throw new Error('Bad response');
+    return d.items;
+  }
 
   const todayStr = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
   const daysBetween = s => { const then = new Date(s + 'T00:00:00'); const now = new Date(); now.setHours(0, 0, 0, 0); return Math.floor((now - then) / 86400000); };
@@ -132,8 +152,15 @@
   let items = load();
 
   const $ = id => document.getElementById(id);
-  const errEl = $('err'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally');
+  const errEl = $('err'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally'), modeEl = $('mode');
   const setErr = m => { errEl.textContent = m; errEl.hidden = !m; };
+
+  // Only speak up when sync ISN'T working — silence means the house list is fine.
+  function setMode(state) {
+    if (!API) { modeEl.textContent = 'Saved on this iPad only.'; modeEl.className = 'mode sans'; modeEl.hidden = false; }
+    else if (state === 'offline') { modeEl.textContent = "Can't reach the house list — showing the last copy saved here."; modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
+    else { modeEl.hidden = true; }
+  }
 
   SIZES.forEach(s => { const o = document.createElement('option'); o.value = o.textContent = s; $('size').append(o); });
   $('size').value = SIZES[1];
@@ -198,7 +225,7 @@
       done.title = 'Mark used up';
       done.setAttribute('aria-label', 'Mark ' + it.name + ' used up');
       done.append(svg('check', 18, 2.4));
-      done.onclick = () => { items = items.filter(x => x.id !== it.id); save(); render(); };
+      done.onclick = () => removeItem(it.id);
       right.append(chip, done);
 
       body.append(info, right);
@@ -208,19 +235,48 @@
     listEl.append(grid);
   }
 
-  $('add').onsubmit = e => {
+  $('add').onsubmit = async e => {
     e.preventDefault();
     const name = $('name').value.trim();
     if (!name) return;
-    items.push({
+    const item = {
       id: Date.now() + '-' + Math.random().toString(36).slice(2, 7),
       name, size: $('size').value, dateLogged: $('date').value || todayStr(),
-    });
+    };
+
     $('name').value = ''; $('name').blur();
     $('size').value = SIZES[1];
     $('date').value = todayStr();
-    save(); render();
+
+    items.push(item); cache(); render();          // show it straight away
+    if (!API) return;
+    try {
+      items = await api('/items', { method: 'POST', body: JSON.stringify(item) });
+      cache(); render(); setErr(''); setMode('ok');
+    } catch {
+      items = items.filter(i => i.id !== item.id); cache(); render();
+      setErr("Couldn't save — try again.");
+    }
   };
+
+  async function removeItem(id) {
+    const prev = items;
+    items = items.filter(x => x.id !== id); cache(); render();
+    if (!API) return;
+    try {
+      items = await api('/items/' + encodeURIComponent(id), { method: 'DELETE' });
+      cache(); render(); setErr(''); setMode('ok');
+    } catch {
+      items = prev; cache(); render();
+      setErr("Couldn't remove — try again.");
+    }
+  }
+
+  async function refresh() {
+    if (!API) return;
+    try { items = await api('/items'); cache(); render(); setMode('ok'); }
+    catch { setMode('offline'); }
+  }
 
   function buildHearthText() {
     const due = [...items].sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged))
@@ -255,11 +311,15 @@
   };
   setCopy('idle');
 
-  // "Nd ago" rolls over at midnight; refresh when left open or returned to.
+  // "Nd ago" rolls over at midnight; re-render even with no new data.
   setInterval(render, 60000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+  // Pick up what everyone else logged.
+  if (API) setInterval(refresh, POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); refresh(); } });
 
-  render();
+  setMode('ok');
+  render();      // paint the cached list immediately, then reconcile with the house
+  refresh();
 </script>
 </body>
 </html>

@@ -69,9 +69,27 @@ until [ "$(curl -s -o /dev/null -w '%{http_code}' https://vantrix117.github.io/h
 Also check `https://vantrix117.github.io/house-hub/apps.json` reflects the new entry.
 Report the result of that check, not just that the push succeeded.
 
+## The one app with a backend
+
+`apps/leftovers.html` (Larder Ledger) is the exception to "no network requests". It syncs a
+shared household list through a Cloudflare Worker + D1 database — see [`worker/README.md`](worker/README.md).
+
+- Its `API` constant near the top of the `<script>` block holds the Worker URL. Empty means
+  local-only, and the app still works that way; it just says "Saved on this iPad only."
+- It still obeys every other rule: one file, no build step, no external scripts, plain `fetch`.
+- `localStorage` is its offline cache, not its source of truth.
+- The Worker lives in `worker/`. It is deployed from the Cloudflare dashboard, not from this
+  repo — editing `worker/leftovers-worker.js` here changes nothing until it's pasted in and
+  redeployed. Say so rather than implying a push deploys it.
+
+**New apps should still default to localStorage-only.** Only add a backend when the app
+genuinely needs to be shared between people, and ask first — it's a real dependency.
+
 ## Do not touch
 
 - `index.html` — the hub shell. Leave it alone unless explicitly asked to change the hub itself.
 - `apps/tally.html`, `apps/timer.html` — the starter apps.
+- The Larder Ledger's visual design — it's a port of an artifact the owner picked deliberately.
+  Fix bugs, but don't restyle it.
 - `.nojekyll` — required, keeps GitHub Pages from running Jekyll and dropping files.
 - `manifest.json`, `icon.svg` — Home Screen install metadata.
