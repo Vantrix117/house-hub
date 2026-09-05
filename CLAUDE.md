@@ -76,6 +76,12 @@ shared household list through a Cloudflare Worker + D1 database — see [`worker
 
 - Its `API` constant near the top of the `<script>` block holds the Worker URL. Empty means
   local-only, and the app still works that way; it just says "Saved on this iPad only."
+- Requests carry an `X-House-Key` header holding the household passphrase, kept in
+  `localStorage` under `house.key` — hub-wide, so a future shared app reuses it. A `401`
+  clears the stored key and shows the unlock screen.
+- **Never put the passphrase in this repo.** It's a Cloudflare secret (`HOUSE_KEY`) on the
+  server and a per-device `localStorage` value on the client. If you add a shared app,
+  reuse `house.key` rather than inventing a second passphrase.
 - It still obeys every other rule: one file, no build step, no external scripts, plain `fetch`.
 - `localStorage` is its offline cache, not its source of truth.
 - The Worker lives in `worker/`. It is deployed from the Cloudflare dashboard, not from this

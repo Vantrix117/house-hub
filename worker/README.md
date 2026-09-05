@@ -71,13 +71,37 @@ Commit and push. Within a minute every iPad in the house is on the same list.
 - Items are added and deleted one at a time, so two people editing at once don't
   overwrite each other's changes.
 
+## The passphrase
+
+Every request needs an `X-House-Key` header matching the `HOUSE_KEY` secret. Without it the
+Worker returns `401` and the app shows its unlock screen.
+
+The passphrase is **not in this repo** and never should be. It lives in two places:
+
+- On the server, as a Cloudflare secret. Set or change it with:
+  ```
+  npx wrangler secret put HOUSE_KEY
+  ```
+  Run that from this folder; it prompts for the value and doesn't echo it.
+- On each device, in `localStorage` under `house.key`, after being typed once.
+
+The key is stored hub-wide rather than per-app, so any future shared app reuses it and
+nobody has to enter it twice.
+
+**Changing it** locks everyone out until each device enters the new one. The app handles this
+cleanly: a rejected key is discarded and the unlock screen reappears with an explanation.
+
+If `HOUSE_KEY` is unset the Worker fails closed with a `500` naming the problem — it will
+never serve the list unprotected.
+
 ## Worth knowing
 
-**The endpoint is open.** Anyone who has the URL can read or change the list. It's in the
-page's JavaScript and this repo is public, so treat it as discoverable. For a fridge list
-that's a fine trade — the worst case is a list you clear in a few taps. If it ever matters,
-two options: add a shared passphrase the Worker checks, or move hosting to Cloudflare Pages
-or Netlify from a private repo (both free) so the URL isn't in public source.
+**The URL itself is still public** — it's in the page's JavaScript and this repo. That's fine
+now: knowing the URL gets you a `401`. The passphrase is what protects the data.
+
+**The hub and the other apps are not protected.** Anyone with the site link can open the hub
+and use the tally counter and timer; those keep their data on the device. Only the shared
+fridge list is gated.
 
 **No credentials live in this repo.** The Worker URL is not a secret key; the database is
 only reachable through the Worker.

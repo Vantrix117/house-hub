@@ -59,6 +59,14 @@
   .empty p { margin: 0; }
   .empty svg { margin-bottom: 10px; opacity: .5; }
 
+  .lock { background: #fff; border: 1px solid #E3DECF; border-radius: 14px; padding: 22px; display: grid; gap: 14px; }
+  .lock h2 { font-size: 19px; font-weight: 700; margin: 0; }
+  .lock p { font-size: 13.5px; color: #6B6555; margin: 0; line-height: 1.5; }
+  .lock input { border: 1px solid #E3DECF; border-radius: 8px; padding: 12px 14px; font-size: 17px;
+                background: #FBF9F4; color: #2A2E28; min-height: 56px; width: 100%; outline: none; }
+  .lock input:focus { border-color: #3D5A3D; }
+  .lock .err { color: #B14B3F; font-size: 13px; }
+
   .hearth { margin-top: 32px; padding-top: 20px; border-top: 1px solid #E3DECF; }
   .hearth p { font-size: 13px; color: #6B6555; margin: 0 0 12px; }
   .copy { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #D8D2C0; background: #FBF9F4;
@@ -74,6 +82,15 @@
   </div>
   <p class="lede">Log it when you put it away. Cross it off when it's gone.</p>
   <p class="mode sans" id="mode" hidden></p>
+
+  <form id="unlock" class="lock sans" hidden>
+    <h2>This fridge list is locked</h2>
+    <p>Enter the house passphrase once and this iPad will remember it.</p>
+    <input type="password" id="key" placeholder="House passphrase" autocomplete="current-password"
+           enterkeyhint="go" aria-label="House passphrase">
+    <button type="submit" class="log">Unlock</button>
+    <span class="err" id="keyerr" hidden></span>
+  </form>
 
   <div id="alert"></div>
 
@@ -134,9 +151,19 @@
   const load = () => { try { const v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) ? v : []; } catch { return []; } };
   const cache = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch {} };
 
+  // Hub-wide on purpose: any future shared app reuses this, so it's entered once per device.
+  const KEY_STORE = 'house.key';
+  const getKey = () => { try { return localStorage.getItem(KEY_STORE) || ''; } catch { return ''; } };
+  const setKey = k => { try { k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); } catch {} };
+
+  class Unauthorized extends Error {}
+
   async function api(path, opts) {
-    const r = await fetch(API.replace(/\/$/, '') + path,
-      Object.assign({ headers: { 'Content-Type': 'application/json' }, cache: 'no-store' }, opts));
+    const r = await fetch(API.replace(/\/$/, '') + path, Object.assign({
+      headers: { 'Content-Type': 'application/json', 'X-House-Key': getKey() },
+      cache: 'no-store',
+    }, opts));
+    if (r.status === 401) throw new Unauthorized();
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
     if (!d || !Array.isArray(d.items)) throw new Error('Bad response');
@@ -155,6 +182,20 @@
   const errEl = $('err'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally'), modeEl = $('mode');
   const setErr = m => { errEl.textContent = m; errEl.hidden = !m; };
 
+  // When the server rejects the passphrase, swap the whole page for the unlock panel.
+  function setLocked(locked, message) {
+    $('unlock').hidden = !locked;
+    $('add').hidden = locked;
+    listEl.hidden = locked;
+    document.querySelector('.hearth').hidden = locked;
+    alertEl.hidden = locked;
+    modeEl.hidden = modeEl.hidden || locked;
+    const ke = $('keyerr');
+    ke.textContent = message || '';
+    ke.hidden = !message;
+    if (locked) $('key').focus();
+  }
+
   // Only speak up when sync ISN'T working — silence means the house list is fine.
   function setMode(state) {
     if (!API) { modeEl.textContent = 'Saved on this iPad only.'; modeEl.className = 'mode sans'; modeEl.hidden = false; }
@@ -167,7 +208,7 @@
   $('date').value = todayStr();
   $('date').max = todayStr();
 
-  const logBtn = document.querySelector('.log');
+  const logBtn = document.querySelector('#add .log');   // not the unlock button, which shares the class
   logBtn.textContent = '';
   logBtn.append(svg('plus', 18), document.createTextNode(' Log leftover'));
 
@@ -253,9 +294,10 @@
     try {
       items = await api('/items', { method: 'POST', body: JSON.stringify(item) });
       cache(); render(); setErr(''); setMode('ok');
-    } catch {
+    } catch (e) {
       items = items.filter(i => i.id !== item.id); cache(); render();
-      setErr("Couldn't save — try again.");
+      if (e instanceof Unauthorized) lockOut();
+      else setErr("Couldn't save — try again.");
     }
   };
 
@@ -266,17 +308,45 @@
     try {
       items = await api('/items/' + encodeURIComponent(id), { method: 'DELETE' });
       cache(); render(); setErr(''); setMode('ok');
-    } catch {
+    } catch (e) {
       items = prev; cache(); render();
-      setErr("Couldn't remove — try again.");
+      if (e instanceof Unauthorized) lockOut();
+      else setErr("Couldn't remove — try again.");
     }
   }
 
   async function refresh() {
     if (!API) return;
-    try { items = await api('/items'); cache(); render(); setMode('ok'); }
-    catch { setMode('offline'); }
+    try { items = await api('/items'); cache(); render(); setMode('ok'); setLocked(false); }
+    catch (e) {
+      if (e instanceof Unauthorized) lockOut();
+      else setMode('offline');
+    }
   }
+
+  // A stored passphrase that stopped working is worse than none — drop it and re-ask.
+  function lockOut() {
+    const had = !!getKey();
+    setKey('');
+    setLocked(true, had ? 'That passphrase was rejected. Try again.' : '');
+  }
+
+  $('unlock').onsubmit = async e => {
+    e.preventDefault();
+    const entered = $('key').value.trim();
+    if (!entered) return;
+    setKey(entered);
+    try {
+      items = await api('/items');
+      $('key').value = ''; $('key').blur();
+      cache(); setLocked(false); render(); setMode('ok');
+    } catch (err) {
+      setKey('');
+      setLocked(true, err instanceof Unauthorized
+        ? 'That passphrase was rejected. Try again.'
+        : "Couldn't reach the house list — check the connection.");
+    }
+  };
 
   function buildHearthText() {
     const due = [...items].sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged))
