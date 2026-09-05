@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Hub</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1B1D21">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1B1D21;
+    --surface: #26292E;
+    --ink: #ECEAE4;
+    --ink-dim: #9A9891;
+    --accent: #E0B454;
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Bricolage Grotesque", system-ui, -apple-system, sans-serif;
+    font-optical-sizing: auto;
+    overscroll-behavior: none;
+    -webkit-user-select: none; user-select: none;
+    touch-action: manipulation;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  button:focus-visible, .tile:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  /* ---------- Hub ---------- */
+  #hub {
+    min-height: 100dvh;
+    padding: calc(var(--safe-t) + 28px) calc(var(--safe-r) + 32px) calc(var(--safe-b) + 32px) calc(var(--safe-l) + 32px);
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 36px;
+  }
+  #hub[hidden] { display: none; }
+  .masthead { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .clock {
+    font-size: clamp(56px, 11vw, 132px);
+    font-weight: 300;
+    line-height: .9;
+    letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums;
+    font-optical-sizing: auto;
+  }
+  .clock .ampm { font-size: .28em; font-weight: 500; letter-spacing: 0; margin-left: .18em; color: var(--ink-dim); }
+  .date { font-size: clamp(16px, 2vw, 22px); color: var(--ink-dim); margin-top: 10px; font-weight: 400; }
+  .house { font-size: clamp(16px, 2vw, 22px); font-weight: 600; color: var(--accent); text-align: right; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 18px;
+    align-content: start;
+  }
+  .tile {
+    position: relative;
+    aspect-ratio: 1.15;
+    border-radius: 22px;
+    padding: 20px;
+    display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
+    background: var(--tile, var(--surface));
+    color: #fff;
+    text-align: left;
+    transition: transform .12s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .tile:active { transform: scale(.96); }
+  .tile .glyph { font-size: 44px; line-height: 1; font-weight: 500; opacity: .95; }
+  .tile .name { font-size: 22px; font-weight: 600; line-height: 1.1; letter-spacing: -.01em; }
+  .tile .recent {
+    position: absolute; top: 16px; right: 18px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 0 4px rgba(224,180,84,.25);
+  }
+  .empty {
+    grid-column: 1 / -1;
+    padding: 28px; border-radius: 22px; background: var(--surface);
+    color: var(--ink-dim); font-size: 18px; line-height: 1.5; max-width: 60ch;
+  }
+  .empty code { color: var(--ink); background: rgba(255,255,255,.07); padding: 2px 6px; border-radius: 6px; }
+
+  /* ---------- App view ---------- */
+  #app { position: fixed; inset: 0; background: var(--bg); }
+  #app[hidden] { display: none; }
+  #frame { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+  #frame.dark { background: var(--bg); }
+
+  #pill {
+    position: fixed;
+    left: 50%;
+    bottom: calc(var(--safe-b) + 14px);
+    transform: translateX(-50%);
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px 10px 14px;
+    border-radius: 999px;
+    background: rgba(27,29,33,.82);
+    color: var(--ink);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    box-shadow: 0 6px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12);
+    font-size: 16px; font-weight: 600;
+    z-index: 5;
+  }
+  #pill .dots { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  #pill .dots i { width: 6px; height: 6px; border-radius: 2px; background: var(--accent); display: block; }
+  #pill:active { transform: translateX(-50%) scale(.95); }
+
+  /* ---------- Switcher sheet ---------- */
+  #sheet {
+    position: fixed; inset: auto 0 0 0; margin: 0; width: 100%; max-width: none;
+    padding: 20px calc(var(--safe-r) + 20px) calc(var(--safe-b) + 20px) calc(var(--safe-l) + 20px);
+    border: 0; border-radius: 26px 26px 0 0;
+    background: var(--surface); color: var(--ink);
+    box-shadow: 0 -12px 40px rgba(0,0,0,.45);
+  }
+  #sheet::backdrop { background: rgba(0,0,0,.45); }
+  #sheet[open] { animation: rise .18s ease-out; }
+  @keyframes rise { from { transform: translateY(40px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { #sheet[open] { animation: none; } .tile, #pill { transition: none; } }
+  .sheet-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+  .sheet-row::-webkit-scrollbar { display: none; }
+  .sheet-row .tile { flex: 0 0 150px; aspect-ratio: 1.05; padding: 16px; border-radius: 18px; }
+  .sheet-row .tile .glyph { font-size: 34px; }
+  .sheet-row .tile .name { font-size: 17px; }
+  .sheet-row .tile.current { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .sheet-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .act {
+    flex: 1; padding: 16px; border-radius: 16px;
+    background: rgba(255,255,255,.07); font-size: 17px; font-weight: 600;
+  }
+  .act.home { background: var(--accent); color: #1B1D21; }
+  .act:active { opacity: .8; }
+</style>
+</head>
+<body>
+
+<main id="hub">
+  <header class="masthead">
+    <div>
+      <div class="clock" id="clock">--:--</div>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="house" id="house"></div>
+  </header>
+  <section class="grid" id="grid" aria-label="Apps"></section>
+</main>
+
+<section id="app" hidden aria-label="Running app">
+  <iframe id="frame" title="App"></iframe>
+  <button id="pill" aria-haspopup="dialog" aria-controls="sheet">
+    <span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span id="pillName">Apps</span>
+  </button>
+</section>
+
+<dialog id="sheet" aria-label="Switch app">
+  <div class="sheet-row" id="sheetRow"></div>
+  <div class="sheet-actions">
+    <button class="act home" id="goHome">Home</button>
+    <button class="act" id="reload">Reload app</button>
+    <button class="act" id="closeSheet">Close</button>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const hub = $('#hub'), appView = $('#app'), frame = $('#frame'),
+        grid = $('#grid'), sheet = $('#sheet'), sheetRow = $('#sheetRow'),
+        pill = $('#pill'), pillName = $('#pillName');
+
+  const RECENT_KEY = 'hub.recent';
+  let apps = [], current = null;
+
+  // ---- Registry ----
+  async function loadApps() {
+    try {
+      const r = await fetch('apps.json?ts=' + Date.now(), { cache: 'no-store' });
+      const data = await r.json();
+      apps = data.apps || [];
+      $('#house').textContent = data.title || '';
+      document.title = data.title ? data.title + ' hub' : 'Hub';
+    } catch (e) {
+      apps = [];
+    }
+  }
+
+  function recent() { try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || {}; } catch { return {}; } }
+  function touch(id) { const r = recent(); r[id] = Date.now(); localStorage.setItem(RECENT_KEY, JSON.stringify(r)); }
+  function ordered() {
+    const r = recent();
+    return [...apps].sort((a, b) => (r[b.id] || 0) - (r[a.id] || 0));
+  }
+  function mostRecentId() {
+    const r = recent(); let best = null, t = 0;
+    for (const [id, ts] of Object.entries(r)) if (ts > t && apps.some(a => a.id === id)) { best = id; t = ts; }
+    return best;
+  }
+
+  function tile(app, opts = {}) {
+    const b = document.createElement('button');
+    b.className = 'tile' + (opts.current ? ' current' : '');
+    b.style.setProperty('--tile', app.color || '#3A3E45');
+    b.innerHTML = `<span class="glyph" aria-hidden="true"></span><span class="name"></span>`;
+    b.querySelector('.glyph').textContent = app.icon || '◻';
+    b.querySelector('.name').textContent = app.name;
+    if (opts.recent) { const d = document.createElement('span'); d.className = 'recent'; d.title = 'Last used'; b.append(d); }
+    b.addEventListener('click', () => open(app.id));
+    return b;
+  }
+
+  function renderHub() {
+    grid.replaceChildren();
+    if (!apps.length) {
+      const e = document.createElement('div'); e.className = 'empty';
+      e.innerHTML = 'No apps yet. Drop an HTML file in <code>apps/</code> and add it to <code>apps.json</code>.';
+      grid.append(e); return;
+    }
+    const last = mostRecentId();
+    for (const a of ordered()) grid.append(tile(a, { recent: a.id === last }));
+  }
+
+  function renderSheet() {
+    sheetRow.replaceChildren();
+    for (const a of ordered()) sheetRow.append(tile(a, { current: current && a.id === current.id }));
+  }
+
+  // ---- Navigation ----
+  function open(id) {
+    const app = apps.find(a => a.id === id);
+    if (!app) return home();
+    current = app;
+    touch(id);
+    frame.src = app.file;
+    frame.classList.toggle('dark', !!app.dark);
+    pillName.textContent = app.name;
+    hub.hidden = true; appView.hidden = false;
+    if (sheet.open) sheet.close();
+    if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+  }
+  function home() {
+    current = null;
+    frame.src = 'about:blank';
+    appView.hidden = true; hub.hidden = false;
+    if (sheet.open) sheet.close();
+    history.replaceState(null, '', location.pathname);
+    renderHub();
+  }
+
+  pill.addEventListener('click', () => { renderSheet(); sheet.showModal(); });
+  $('#goHome').addEventListener('click', home);
+  $('#reload').addEventListener('click', () => { if (current) frame.src = current.file + '?r=' + Date.now(); sheet.close(); });
+  $('#closeSheet').addEventListener('click', () => sheet.close());
+  sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.close(); });
+  window.addEventListener('hashchange', () => { const id = location.hash.slice(1); id ? open(id) : home(); });
+
+  // ---- Clock ----
+  function tick() {
+    const d = new Date();
+    let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0');
+    const ampm = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
+    $('#clock').innerHTML = `${h}:${m}<span class="ampm">${ampm}</span>`;
+    $('#date').textContent = d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+  tick(); setInterval(tick, 15000);
+
+  // ---- Keep screen awake (Safari 16.4+) ----
+  let lock = null;
+  async function wake() {
+    if (!('wakeLock' in navigator)) return;
+    try { lock = await navigator.wakeLock.request('screen'); } catch {}
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') wake(); });
+  document.addEventListener('click', wake, { once: true });
+
+  // ---- Boot ----
+  loadApps().then(() => {
+    const id = location.hash.slice(1);
+    if (id && apps.some(a => a.id === id)) open(id); else { renderHub(); }
+    wake();
+  });
+})();
+</script>
+</body>
+</html>

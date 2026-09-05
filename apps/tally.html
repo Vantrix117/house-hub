@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Tally counter</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body { background: #4C7B6A; color: #fff; font-family: system-ui, -apple-system, sans-serif;
+         display: grid; place-items: center; user-select: none; -webkit-user-select: none; }
+  main { text-align: center; }
+  .count { font-size: clamp(120px, 30vw, 320px); font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; }
+  .row { display: flex; gap: 18px; justify-content: center; margin-top: 32px; }
+  button { font: inherit; font-size: 32px; width: 110px; height: 110px; border-radius: 50%; border: 0;
+           background: rgba(255,255,255,.18); color: #fff; }
+  button:active { background: rgba(255,255,255,.32); }
+  button.big { width: 160px; height: 160px; font-size: 56px; background: #fff; color: #4C7B6A; }
+  .reset { margin-top: 28px; font-size: 16px; opacity: .7; background: none; width: auto; height: auto; border-radius: 8px; padding: 8px 14px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="count" id="n">0</div>
+  <div class="row">
+    <button id="minus" aria-label="Subtract one">−</button>
+    <button id="plus" class="big" aria-label="Add one">+</button>
+  </div>
+  <button class="reset" id="reset">Reset to zero</button>
+</main>
+<script>
+  const KEY = 'tally.count';
+  let n = Number(localStorage.getItem(KEY)) || 0;
+  const el = document.getElementById('n');
+  const show = () => { el.textContent = n; localStorage.setItem(KEY, n); };
+  document.getElementById('plus').onclick = () => { n++; show(); };
+  document.getElementById('minus').onclick = () => { n = Math.max(0, n - 1); show(); };
+  document.getElementById('reset').onclick = () => { n = 0; show(); };
+  show();
+</script>
+</body>
+</html>
