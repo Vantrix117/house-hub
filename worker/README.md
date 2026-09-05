@@ -1,5 +1,11 @@
 # Shared list backend (Cloudflare Worker + D1)
 
+> **Already deployed and live** — nothing below needs doing.
+> Worker: `https://house-hub-api.catalystfarm1.workers.dev`
+> D1 database: `house-hub` (`c5410eee-9095-4092-84b0-dc534aded0d8`, region ENAM)
+> Deploy changes with `npx wrangler deploy` from this folder.
+> The steps below are kept as a rebuild reference.
+
 Until this is set up, the Larder Ledger saves to whatever device you're on and says
 "Saved on this iPad only." Once it's wired up, everyone in the house sees one list.
 
@@ -39,7 +45,7 @@ Deploy again after adding the binding.
 
 ## 5. Point the app at it
 
-Copy the Worker's URL — it looks like `https://house-hub-api.<your-subdomain>.workers.dev`.
+Copy the Worker's URL — it looks like `https://house-hub-api.catalystfarm1.workers.dev`.
 
 Check it works by opening `<that URL>/items` in a browser. You should see:
 
@@ -51,7 +57,7 @@ Then in [`../apps/leftovers.html`](../apps/leftovers.html), put it in the `API` 
 the top of the `<script>` block:
 
 ```js
-const API = 'https://house-hub-api.your-subdomain.workers.dev';
+const API = 'https://house-hub-api.catalystfarm1.workers.dev';
 ```
 
 Commit and push. Within a minute every iPad in the house is on the same list.
