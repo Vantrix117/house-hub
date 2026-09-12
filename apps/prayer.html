@@ -1461,7 +1461,12 @@ el('f-clearpin').addEventListener('click', () => {
     onSave(){ D.pin = null; save(); toast('PIN removed.'); }});
 });
 el('pinGo').addEventListener('click', () => {
-  if(el('pinIn').value === D.pin){ LOCKED = false; el('lock').classList.remove('on'); go('today'); }
+  if(el('pinIn').value === D.pin){
+    // The lock only guards the private list, so unlocking always lands there —
+    // including when it was reached from the switcher while on the family list.
+    LOCKED = false; D.activeList = 'personal'; save(); el('pinIn').value = '';
+    el('lock').classList.remove('on'); renderCatAdmin(); renderPlans(); go('today');
+  }
   else { el('pinNote').textContent = 'That is not the PIN.'; el('pinIn').value = ''; }
 });
 el('pinShared').addEventListener('click', () => {
