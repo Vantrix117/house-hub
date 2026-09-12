@@ -430,6 +430,8 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   <p class="err" id="f-titleErr"></p>
   <label for="f-for">Who is it for?</label>
   <input type="text" id="f-for" placeholder="Optional">
+  <label for="f-detail">Detail</label>
+  <textarea id="f-detail" placeholder="Optional. Anything you want to remember when you pray."></textarea>
   <label for="f-phone">Their number, to tell them you prayed</label>
   <input type="tel" id="f-phone" placeholder="Optional">
   <label for="f-cat">Category</label>
@@ -1354,11 +1356,11 @@ el('f-save').addEventListener('click', () => {
   const days = [...document.querySelectorAll('#fday .chip[aria-pressed="true"]')].map(b => b.dataset.fday);
   if(cad === 'weekly' && !days.length){ el('f-daysErr').textContent = 'Pick at least one day.'; return; }
   L().prayers.push({id:nextId(), title, for:el('f-for').value.trim(), phone:el('f-phone').value.trim(),
-    detail:'', category:el('f-cat').value || 'Personal', cadence:cad, days: cad === 'weekly' ? days : [],
+    detail:el('f-detail').value.trim(), category:el('f-cat').value || 'Personal', cadence:cad, days: cad === 'weekly' ? days : [],
     status:'active', createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[],
     sharedFrom:null, prayedBy:{}, updatedAt:new Date().toISOString()});
   save(); queueSync();
-  el('f-title').value = ''; el('f-for').value = ''; el('f-phone').value = '';
+  el('f-title').value = ''; el('f-for').value = ''; el('f-phone').value = ''; el('f-detail').value = '';
   document.querySelectorAll('#fday .chip').forEach(b => b.setAttribute('aria-pressed','false'));
   renderCatAdmin(); go('today');
 });
