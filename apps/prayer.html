@@ -268,6 +268,7 @@ nav button svg{width:20px;height:20px;display:block}
 nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft)}
 
 .empty{color:var(--muted);padding:38px 0;max-width:32ch;font-size:15.5px}
+.empty button{display:block;margin-top:16px}
 .note{font-size:14px;color:var(--muted);margin-top:12px;max-width:46ch;line-height:1.55}
 .warn{font-size:14px;font-weight:500;color:var(--gold);margin-top:16px;max-width:46ch}
 .sync{font-size:14px;color:var(--muted);margin-top:14px;max-width:46ch}
@@ -810,7 +811,11 @@ function renderToday(){
 
   el('todayList').innerHTML = set.length
     ? (plan.groupByCategory ? groupedHTML(set,true) : '<ul class="list">'+set.map(rowHTML).join('')+'</ul>')
-    : '<p class="empty">Nothing scheduled for today under this plan. Change the plan under More.</p>';
+    : L().prayers.some(p => p.status === 'active')
+      ? '<div class="empty">Nothing scheduled for today under this plan.'
+        + '<button class="act ghost small" data-go="more">Change the plan</button></div>'
+      : '<div class="empty">Nothing on this list yet.'
+        + '<button class="act ghost small" data-go="add">Add a request</button></div>';
 
   const ann = plan.show.anniversaries ? anniversaries() : [];
   el('anniv').innerHTML = ann.length
@@ -828,7 +833,9 @@ function renderAll(){
   let act = L().prayers.filter(p => p.status === 'active');
   if(q) act = act.filter(p => (p.title+' '+p.for+' '+p.category+' '+p.detail).toLowerCase().includes(q));
   el('allList').innerHTML = act.length ? groupedHTML(act, !!q)
-    : '<p class="empty">' + (q ? 'Nothing matches that.' : 'Nothing active. Add a request from the Add tab.') + '</p>';
+    : q ? '<p class="empty">Nothing matches that.</p>'
+    : '<div class="empty">Nothing on the list yet.'
+      + '<button class="act ghost small" data-go="add">Add a request</button></div>';
 }
 
 function renderRecord(){
@@ -847,7 +854,7 @@ function renderRecord(){
           + '<div class="what">' + esc(p.title) + '</div>'
           + (p.answerNote ? '<div class="ansnote">' + esc(p.answerNote) + '</div>' : '')
           + '</div>').join('')
-    : '<p class="empty">No answered prayers recorded yet.</p>';
+    : '<p class="empty">Nothing answered yet \u2014 it will come.</p>';
 }
 
 function renderReview(){
