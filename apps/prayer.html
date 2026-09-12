@@ -865,7 +865,7 @@ function sheetFor(id){
       + (p.lastPrayedAt ? 'Last prayed ' + pretty(p.lastPrayedAt) : 'Not prayed through yet')
       + ' &middot; on the list since ' + pretty(p.createdAt) + '</div>'
     + (p.status === 'answered'
-        ? '<div style="margin-top:20px"><div style="font-size:14px;color:var(--brass)">Answered '
+        ? '<div style="margin-top:20px"><div style="font-size:14px;font-weight:600;color:var(--gold)">Answered '
           + pretty(p.answeredAt) + '</div><div class="ansnote">' + esc(p.answerNote) + '</div></div>' : '')
     + hist
     + '<div class="rowbtns">'
@@ -877,8 +877,61 @@ function sheetFor(id){
               ? '<button class="act ghost small" data-share="' + p.id + '">Send to family list</button>' : '')
           + '<button class="act small" data-answer="' + p.id + '">Mark answered</button>'
         : '<button class="act ghost small" data-reopen="' + p.id + '">Put back on the list</button>')
-    + '</div>';
+    + '</div>'
+    + '<div class="rowbtns" style="margin-top:14px">'
+    + '<button class="act ghost small" data-edit="' + p.id + '">Edit</button>'
+    + '<button class="act ghost small" data-delete="' + p.id + '">Delete</button></div>';
   openSheet();
+}
+
+/* ── edit form, in the same sheet ───────────────────────────── */
+function dayChips(id, days){
+  return '<div class="chips" id="' + id + '">' + DOW.map(d => '<button class="chip" data-' + id + '="' + d
+    + '" aria-pressed="' + (days||[]).includes(d) + '">' + d + '</button>').join('') + '</div>';
+}
+function editSheet(id){
+  const p = byId(id); if(!p) return;
+  el('sheetInner').innerHTML =
+      '<button class="close" data-open="' + p.id + '">Cancel</button>'
+    + '<h1 style="margin-top:4px">Edit</h1>'
+    + '<label for="e-title" style="margin-top:18px">What are you praying for?</label>'
+    + '<input type="text" id="e-title" value="' + esc(p.title) + '"><p class="err" id="e-titleErr"></p>'
+    + '<label for="e-for">Who is it for?</label><input type="text" id="e-for" value="' + esc(p.for) + '" placeholder="Optional">'
+    + '<label for="e-phone">Their number, to tell them you prayed</label><input type="tel" id="e-phone" value="' + esc(p.phone) + '" placeholder="Optional">'
+    + '<label for="e-detail">Detail</label><textarea id="e-detail" placeholder="Optional">' + esc(p.detail) + '</textarea>'
+    + '<label for="e-cat">Category</label><select id="e-cat">'
+    + [...L().categories, ...(L().categories.includes(p.category) ? [] : [p.category])].map(c =>
+        '<option value="' + esc(c) + '"' + (c === p.category ? ' selected' : '') + '>' + esc(c) + '</option>').join('')
+    + '</select>'
+    + '<label>How often</label><div class="chips" id="e-cad">'
+    + [['daily','Every day'],['weekly','On certain days'],['rotation','In rotation']].map(c =>
+        '<button class="chip" data-ecad="' + c[0] + '" aria-pressed="' + (p.cadence === c[0]) + '">' + c[1] + '</button>').join('')
+    + '</div>'
+    + '<div id="e-daysWrap"' + (p.cadence === 'weekly' ? '' : ' hidden') + '><label>Which days</label>'
+    + dayChips('eday', p.days) + '<p class="err" id="e-daysErr"></p></div>'
+    + '<div class="rowbtns"><button class="act small" data-esave="' + p.id + '">Save</button>'
+    + '<button class="act ghost small" data-open="' + p.id + '">Cancel</button></div>';
+  openSheet(); el('sheet').scrollTop = 0;
+}
+function saveEdit(id){
+  const p = byId(id); if(!p) return;
+  const title = el('e-title').value.trim();
+  if(!title){ el('e-titleErr').textContent = 'Add a few words about what you are praying for.'; return; }
+  const cad = (document.querySelector('#e-cad .chip[aria-pressed="true"]') || {dataset:{}}).dataset.ecad || 'daily';
+  const days = [...document.querySelectorAll('#eday .chip[aria-pressed="true"]')].map(b => b.dataset.eday);
+  if(cad === 'weekly' && !days.length){ el('e-daysErr').textContent = 'Pick at least one day.'; return; }
+  const wasCat = p.category;
+  Object.assign(p, { title, for:el('e-for').value.trim(), phone:el('e-phone').value.trim(),
+    detail:el('e-detail').value.trim(), category:el('e-cat').value || p.category, cadence:cad,
+    days: cad === 'weekly' ? days : [] });
+  if(p.cadence !== 'rotation' || wasCat !== p.category) L().rotationFor = null;
+  stamp(p); save(); queueSync(); renderCatAdmin(); renderAllScreens(); sheetFor(p.id);
+}
+function deletePrayer(id){
+  const S = L();
+  S.prayers = S.prayers.filter(p => p.id !== id);
+  if(S.rotationFor) S.rotationFor.ids = S.rotationFor.ids.filter(x => x !== id);
+  save(); queueSync(); shutSheet(); renderCatAdmin(); renderAllScreens(); toast('Removed from the list.');
 }
 const openSheet = () => { closeAsk(); el('sheet').classList.add('on'); el('veil').classList.add('on'); };
 const shutSheet = () => { closeAsk(); el('sheet').classList.remove('on'); el('veil').classList.remove('on'); };
@@ -1027,8 +1080,29 @@ function renderPlans(){
 
 /* ── events ─────────────────────────────────────────────────── */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan]');
+  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday]');
   if(!t) return;
+
+  if(t.dataset.edit){ editSheet(t.dataset.edit); return; }
+  if(t.dataset.esave){ saveEdit(t.dataset.esave); return; }
+  if(t.dataset.ecad){
+    [...t.parentElement.children].forEach(c => c.setAttribute('aria-pressed','false'));
+    t.setAttribute('aria-pressed','true');
+    el('e-daysWrap').hidden = t.dataset.ecad !== 'weekly'; return;
+  }
+  if(t.dataset.eday){
+    t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') !== 'true');
+    el('e-daysErr').textContent = ''; return;
+  }
+  if(t.dataset.delete){
+    const p = byId(t.dataset.delete);
+    ask(t, {kind:'confirm', danger:true, save:'Delete',
+      label:'Delete "' + p.title + '"? ' + (D.activeList === 'shared'
+        ? 'Sync does not carry deletions, so it can come back from another device.'
+        : (p.status === 'answered' ? 'It comes off the record too.' : 'The family copy, if there is one, stays.')),
+      onSave(){ deletePrayer(p.id); }});
+    return;
+  }
 
   if(t.dataset.pray){ setPrayed(byId(t.dataset.pray)); renderToday(); renderAll(); renderReview(); return; }
   if(t.dataset.open){ sheetFor(t.dataset.open); return; }
