@@ -865,11 +865,25 @@ function renderToday(){
     ? '<div class="ledger"><b>Answered recently</b>' + recent.map(p => esc(p.title)).join('<br>') + '</div>' : '';
 }
 
+function ansHTML(p){
+  return '<div class="ans" data-open="' + p.id + '">'
+    + '<div class="when">' + pretty(p.answeredAt) + '</div>'
+    + '<div class="what">' + esc(p.title) + '</div>'
+    + (p.answerNote ? '<div class="ansnote">' + esc(p.answerNote) + '</div>' : '')
+    + '</div>';
+}
 function renderAll(){
   const q = (el('f-search').value || '').toLowerCase().trim();
+  const hit = p => (p.title+' '+p.for+' '+p.category+' '+p.detail+' '+(p.answerNote||'')).toLowerCase().includes(q);
   let act = L().prayers.filter(p => p.status === 'active');
-  if(q) act = act.filter(p => (p.title+' '+p.for+' '+p.category+' '+p.detail).toLowerCase().includes(q));
-  el('allList').innerHTML = act.length ? groupedHTML(act, !!q)
+  if(q) act = act.filter(hit);
+  // Answered prayers only surface when searching, in their own group after the active ones.
+  const ans = q ? L().prayers.filter(p => p.status === 'answered' && hit(p))
+    .sort((a,b) => String(b.answeredAt).localeCompare(String(a.answeredAt))) : [];
+  el('allList').innerHTML = (act.length || ans.length)
+    ? groupedHTML(act, !!q) + (ans.length
+        ? '<details class="cat" open><summary><span>Answered</span><span class="n">' + ans.length
+          + '</span></summary>' + ans.map(ansHTML).join('') + '</details>' : '')
     : q ? '<p class="empty">Nothing matches that.</p>'
     : '<div class="empty">Nothing on the list yet.'
       + '<button class="act ghost small" data-go="add">Add a request</button></div>';
@@ -885,12 +899,7 @@ function renderRecord(){
     + '<span><b>' + monthDays() + '</b> days this month</span>'
     + '<span><b>' + ans.length + '</b> answered</span></div>' + calendarHTML();
   el('answeredList').innerHTML = ans.length
-    ? ans.slice().sort((a,b) => String(b.answeredAt).localeCompare(String(a.answeredAt)))
-        .map(p => '<div class="ans" data-open="' + p.id + '">'
-          + '<div class="when">' + pretty(p.answeredAt) + '</div>'
-          + '<div class="what">' + esc(p.title) + '</div>'
-          + (p.answerNote ? '<div class="ansnote">' + esc(p.answerNote) + '</div>' : '')
-          + '</div>').join('')
+    ? ans.slice().sort((a,b) => String(b.answeredAt).localeCompare(String(a.answeredAt))).map(ansHTML).join('')
     : '<p class="empty">Nothing answered yet \u2014 it will come.</p>';
 }
 
