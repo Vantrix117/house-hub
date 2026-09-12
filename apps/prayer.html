@@ -82,8 +82,9 @@ h3{font-size:13px;font-weight:600;margin:30px 0 0;color:var(--muted);letter-spac
 header{padding:38px 0 14px}
 
 /* ── list switcher ────────────────────────────────────────── */
-.switch{display:inline-flex;margin:20px 0 0;padding:3px;border-radius:999px;background:var(--sunk)}
-.switch button{font-family:inherit;font-size:14px;font-weight:600;padding:8px 18px;border:none;
+.hdr{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:44px}
+.switch{display:inline-flex;margin:0;padding:3px;border-radius:999px;background:var(--sunk);flex:0 0 auto}
+.switch button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;min-height:38px;border:none;
   cursor:pointer;background:transparent;color:var(--muted);border-radius:999px;
   letter-spacing:-.01em;transition:background .2s,color .2s,box-shadow .2s}
 .switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
@@ -361,12 +362,14 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
 
 <section id="s-today" class="screen on">
   <header>
-    <div class="date" id="todayDate"></div>
-    <h1 id="todayLine"></h1>
-    <div class="switch" id="listSwitch">
-      <button data-list="personal" aria-pressed="true">My list</button>
-      <button data-list="shared" aria-pressed="false">Family list</button>
+    <div class="hdr">
+      <div class="date" id="todayDate"></div>
+      <div class="switch" id="listSwitch">
+        <button data-list="personal" aria-pressed="true">Mine</button>
+        <button data-list="shared" aria-pressed="false">Family</button>
+      </div>
     </div>
+    <h1 id="todayLine"></h1>
   </header>
   <div class="meter" id="meterWrap"><i id="meterFill"></i></div>
   <div class="strip" id="todayStrip"></div>
