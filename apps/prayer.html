@@ -655,8 +655,22 @@ function migrate(){
     if(!Array.isArray(L.prayerDays)) L.prayerDays = [];
     if(!Array.isArray(L.plans) || !L.plans.length) L.plans = [emptyPlan('Everything')];
     if(!L.activePlan || !L.plans.some(p => p.id === L.activePlan)) L.activePlan = L.plans[0].id;
+    if(L.rotationFor === undefined) L.rotationFor = null;
+    L.plans.forEach(pl => {                       // older plans may predate a switch or a day
+      const base = emptyPlan(pl.name);
+      pl.show = Object.assign(base.show, pl.show || {});
+      pl.dayMap = Object.assign(base.dayMap, pl.dayMap || {});
+      if(pl.groupByCategory === undefined) pl.groupByCategory = false;
+      if(pl.includeDaily === undefined) pl.includeDaily = true;
+      if(!pl.rotationSize) pl.rotationSize = 3;
+    });
+    if(!Array.isArray(L.prayers)) L.prayers = [];
     L.prayers.forEach(p => { if(!Array.isArray(p.updates)) p.updates = [];
       if(p.phone === undefined) p.phone = ''; if(p.sharedFrom === undefined) p.sharedFrom = null;
+      if(typeof p.detail !== 'string') p.detail = '';
+      if(typeof p.for !== 'string') p.for = '';
+      if(!Array.isArray(p.days)) p.days = [];
+      if(!['daily','weekly','rotation'].includes(p.cadence)) p.cadence = 'daily';
       if(!p.prayedBy || typeof p.prayedBy !== 'object') p.prayedBy = {};
       if(!p.updatedAt) p.updatedAt = (p.createdAt || TODAY) + 'T00:00:00.000Z'; });
   }
