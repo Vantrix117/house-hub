@@ -32,6 +32,9 @@
   --teal:#137F77;  --teal-soft:#DCECEA;
   --terra:#BC5A38; --terra-soft:#F7E3DA;
   --dim:#2A231C;
+  /* category dots: tints of the four accents, no new hues */
+  --d0:#8A6A4B; --d1:#137F77; --d2:#5B8143; --d3:#B4861B;
+  --d4:#B39271; --d5:#4EA39B; --d6:#8AAA72; --d7:#D2AB4E;
   --lift:0 1px 2px rgba(58,46,36,.04), 0 4px 14px -6px rgba(58,46,36,.10);
   --lift-lg:0 2px 8px rgba(58,46,36,.06), 0 24px 56px -20px rgba(58,46,36,.28);
   --r:14px; --r-sm:10px;
@@ -48,6 +51,8 @@
     --teal:#5EC2B8;  --teal-soft:#12241F;
     --terra:#E28A66; --terra-soft:#2B1D17;
     --dim:#14100D;
+    --d0:#CBA77E; --d1:#5EC2B8; --d2:#9DC183; --d3:#E0B25A;
+    --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;
     --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
     --lift-lg:0 2px 8px rgba(0,0,0,.45), 0 28px 64px -22px rgba(0,0,0,.8);
   }
@@ -130,6 +135,10 @@ details.cat > summary{cursor:pointer;list-style:none;padding:16px 0;display:flex
   justify-content:space-between;align-items:center;gap:12px;
   font-size:14.5px;font-weight:600;color:var(--ink2);letter-spacing:-.012em}
 details.cat > summary::-webkit-details-marker{display:none}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:9px;vertical-align:2px;
+  background:var(--d0);flex:0 0 auto}
+.dot.d1{background:var(--d1)}.dot.d2{background:var(--d2)}.dot.d3{background:var(--d3)}
+.dot.d4{background:var(--d4)}.dot.d5{background:var(--d5)}.dot.d6{background:var(--d6)}.dot.d7{background:var(--d7)}
 details.cat > summary .n{font-size:12.5px;font-weight:600;color:var(--muted);
   background:var(--sunk);border-radius:999px;padding:3px 10px}
 details.cat > summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -749,12 +758,18 @@ function rowHTML(p){
     + (last ? '<div class="upd">' + esc(last.note) + '</div>' : '')
     + '</div></li>';
 }
+// A 6px dot tinted by the category's position; a deleted category hashes its name instead.
+function dot(c){
+  let i = L().categories.indexOf(c);
+  if(i < 0){ i = 0; for(const ch of String(c)) i = (i * 31 + ch.charCodeAt(0)) >>> 0; }
+  return '<i class="dot d' + (i % 8) + '"></i>';
+}
 function groupedHTML(items, open){
   const cats = L().categories.filter(c => items.some(p => p.category === c));
   const orph = [...new Set(items.filter(p => !L().categories.includes(p.category)).map(p => p.category))];
   return [...cats,...orph].map(c => {
     const rows = items.filter(p => p.category === c);
-    return '<details class="cat"' + (open?' open':'') + '><summary><span>' + esc(c)
+    return '<details class="cat"' + (open?' open':'') + '><summary><span>' + dot(c) + esc(c)
       + '</span><span class="n">' + rows.length + '</span></summary>'
       + '<ul class="list">' + rows.map(rowHTML).join('') + '</ul></details>';
   }).join('');
@@ -856,7 +871,7 @@ function sheetFor(id){
     : '<p class="note">No updates yet.</p>';
   el('sheetInner').innerHTML =
       '<button class="close" data-shut>Done</button>'
-    + '<div class="meta" style="margin:0">' + esc(p.category)
+    + '<div class="meta" style="margin:0">' + dot(p.category) + esc(p.category)
       + (p.sharedFrom ? '<span class="pill">shared</span>' : '') + '</div>'
     + '<h1 style="margin-top:4px">' + esc(p.title) + '</h1>'
     + (p.for ? '<div class="meta">For ' + esc(p.for) + '</div>' : '')
@@ -1025,7 +1040,7 @@ function catOptions(sel, current){
 function renderCatAdmin(){
   const act = L().prayers.filter(p => p.status === 'active');
   el('catAdmin').innerHTML = L().categories.map((c,i) =>
-    '<div class="catrow"><span>' + esc(c) + ' <span style="color:var(--muted);font-size:15px">'
+    '<div class="catrow"><span>' + dot(c) + esc(c) + ' <span style="color:var(--muted);font-size:15px">'
     + act.filter(p => p.category === c).length + '</span></span>'
     + '<span><button data-rencat="' + i + '">Rename</button>'
     + '<button data-delcat="' + i + '">Remove</button></span></div>').join('');
