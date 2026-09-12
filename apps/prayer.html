@@ -437,8 +437,10 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   <label>How often</label>
   <div class="chips" id="f-cad">
     <button class="chip" data-cad="daily" aria-pressed="true">Every day</button>
+    <button class="chip" data-cad="weekly" aria-pressed="false">On certain days</button>
     <button class="chip" data-cad="rotation" aria-pressed="false">In rotation</button>
   </div>
+  <div id="f-daysWrap" hidden></div>
   <button class="act" id="f-save">Add to the list</button>
   <p class="note">Tap a field and use the microphone on the keyboard to speak it instead of typing.</p>
 </section>
@@ -1157,7 +1159,7 @@ function renderPlans(){
 
 /* ── events ─────────────────────────────────────────────────── */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-look]');
+  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-look],[data-fday]');
   if(!t) return;
 
   if(t.dataset.edit){ editSheet(t.dataset.edit); return; }
@@ -1289,7 +1291,12 @@ document.addEventListener('click', e => {
 
   if(t.dataset.cad){
     [...t.parentElement.children].forEach(c => c.setAttribute('aria-pressed','false'));
-    t.setAttribute('aria-pressed','true'); return;
+    t.setAttribute('aria-pressed','true');
+    el('f-daysWrap').hidden = t.dataset.cad !== 'weekly'; return;
+  }
+  if(t.dataset.fday){
+    t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') !== 'true');
+    el('f-daysErr').textContent = ''; return;
   }
   if(t.dataset.mode){ PL().mode = t.dataset.mode; L().rotationFor = null; save(); renderPlans(); renderToday(); return; }
   if(t.dataset.rot){ PL().rotationSize = +t.dataset.rot; L().rotationFor = null; save(); renderPlans(); renderToday(); return; }
@@ -1344,11 +1351,15 @@ el('f-save').addEventListener('click', () => {
   if(!title){ el('f-titleErr').textContent = 'Add a few words about what you are praying for.'; el('f-title').focus(); return; }
   el('f-titleErr').textContent = '';
   const cad = (document.querySelector('#f-cad .chip[aria-pressed="true"]') || {dataset:{}}).dataset.cad || 'daily';
+  const days = [...document.querySelectorAll('#fday .chip[aria-pressed="true"]')].map(b => b.dataset.fday);
+  if(cad === 'weekly' && !days.length){ el('f-daysErr').textContent = 'Pick at least one day.'; return; }
   L().prayers.push({id:nextId(), title, for:el('f-for').value.trim(), phone:el('f-phone').value.trim(),
-    detail:'', category:el('f-cat').value || 'Personal', cadence:cad, days:[], status:'active',
-    createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[], sharedFrom:null});
-  save();
+    detail:'', category:el('f-cat').value || 'Personal', cadence:cad, days: cad === 'weekly' ? days : [],
+    status:'active', createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[],
+    sharedFrom:null, prayedBy:{}, updatedAt:new Date().toISOString()});
+  save(); queueSync();
   el('f-title').value = ''; el('f-for').value = ''; el('f-phone').value = '';
+  document.querySelectorAll('#fday .chip').forEach(b => b.setAttribute('aria-pressed','false'));
   renderCatAdmin(); go('today');
 });
 
@@ -1718,6 +1729,7 @@ LOCKED = !!D.pin && D.activeList === 'personal';
 if(LOCKED) el('lock').classList.add('on');
 catOptions(el('f-cat'), 'Personal');
 catOptions(el('f-pastecat'), 'Personal');
+el('f-daysWrap').innerHTML = '<label>Which days</label>' + dayChips('fday', []) + '<p class="err" id="f-daysErr"></p>';
 applyTheme(); renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today');
 if(SYNC.ready()) SYNC.pull();
 
