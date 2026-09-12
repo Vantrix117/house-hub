@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Prayer">
+<meta name="theme-color" content="#E9EBE4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111615" media="(prefers-color-scheme: dark)">
+<title>Prayer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   Light brown, modern. Sand and mocha neutrals, four saturated
+   accents with exactly one job each:
+     gold = answered   olive = progress and the prayed mark
+     teal = family list   terracotta = wants attention
+   ══════════════════════════════════════════════════════════════ */
+:root{
+  --paper:#F7F2EB; --raised:#FFFCF8; --sunk:#EFE7DC; --hover:#F2EADF;
+  --ink:#3A2E24; --ink2:#6E6054; --muted:#9A8C7F;
+  --rule:#E6DCCE; --rule-soft:#F0E8DC;
+  --mocha:#8A6A4B; --mocha-soft:#F0E6D9;
+  --gold:#B4861B;  --gold-soft:#F6EBD0;
+  --olive:#5B8143; --olive-soft:#E6EEDD;
+  --teal:#137F77;  --teal-soft:#DCECEA;
+  --terra:#BC5A38; --terra-soft:#F7E3DA;
+  --dim:#2A231C;
+  --lift:0 1px 2px rgba(58,46,36,.04), 0 4px 14px -6px rgba(58,46,36,.10);
+  --lift-lg:0 2px 8px rgba(58,46,36,.06), 0 24px 56px -20px rgba(58,46,36,.28);
+  --r:14px; --r-sm:10px;
+  --accent:var(--mocha); --accent-soft:var(--mocha-soft);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
+    --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
+    --rule:#332B24; --rule-soft:#2A231E;
+    --mocha:#CBA77E; --mocha-soft:#2E251C;
+    --gold:#E0B25A;  --gold-soft:#2C2416;
+    --olive:#9DC183; --olive-soft:#1E2718;
+    --teal:#5EC2B8;  --teal-soft:#12241F;
+    --terra:#E28A66; --terra-soft:#2B1D17;
+    --dim:#14100D;
+    --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
+    --lift-lg:0 2px 8px rgba(0,0,0,.45), 0 28px 64px -22px rgba(0,0,0,.8);
+  }
+}
+body.shared{ --accent:var(--teal); --accent-soft:var(--teal-soft); }
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:17px; line-height:1.55; font-weight:400; letter-spacing:-.008em;
+  padding-bottom:calc(96px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:33rem;margin:0 auto;padding:0 22px}
+
+/* ── type ─────────────────────────────────────────────────── */
+h1{font-size:31px;font-weight:600;line-height:1.18;margin:10px 0 0;max-width:20ch;
+   letter-spacing:-.032em}
+h2{font-size:19px;font-weight:600;margin:46px 0 0;letter-spacing:-.022em}
+h3{font-size:13px;font-weight:600;margin:30px 0 0;color:var(--muted);letter-spacing:-.005em}
+.date{font-size:14px;font-weight:500;color:var(--muted);letter-spacing:-.005em}
+.screen{display:none}
+.screen.on{display:block;animation:rise .3s cubic-bezier(.22,.9,.3,1)}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+header{padding:38px 0 14px}
+
+/* ── list switcher ────────────────────────────────────────── */
+.switch{display:inline-flex;margin:20px 0 0;padding:3px;border-radius:999px;background:var(--sunk)}
+.switch button{font-family:inherit;font-size:14px;font-weight:600;padding:8px 18px;border:none;
+  cursor:pointer;background:transparent;color:var(--muted);border-radius:999px;
+  letter-spacing:-.01em;transition:background .2s,color .2s,box-shadow .2s}
+.switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
+
+/* ── progress + stats ─────────────────────────────────────── */
+.meter{height:6px;border-radius:999px;background:var(--sunk);margin:24px 0 14px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:999px;background:var(--olive);width:0;
+  transition:width .5s cubic-bezier(.3,.9,.3,1)}
+.strip{display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;padding-bottom:4px;
+  font-size:13.5px;font-weight:500;color:var(--muted);letter-spacing:-.008em}
+.strip b{display:inline-block;font-weight:700;font-size:19px;color:var(--ink);
+  margin-right:5px;letter-spacing:-.03em}
+.cheer{font-size:15.5px;font-weight:500;color:var(--gold);margin-top:6px;min-height:1.4em}
+
+/* ── rows ─────────────────────────────────────────────────── */
+ul.list{list-style:none;margin:0;padding:0}
+li.row{display:flex;gap:15px;align-items:flex-start;padding:16px 0;
+  border-top:1px solid var(--rule-soft)}
+ul.list li.row:first-child{border-top:none}
+.mark{flex:0 0 auto;width:30px;height:30px;margin-top:2px;border-radius:50%;
+  border:1.75px solid var(--rule);background:transparent;cursor:pointer;
+  display:grid;place-items:center;padding:0;color:#fff;
+  transition:border-color .2s,background .2s,transform .18s}
+.mark:hover{border-color:var(--olive)}
+.mark:active{transform:scale(.86)}
+.mark:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.mark svg{width:15px;height:15px;opacity:0;transform:scale(.4);
+  transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+.mark[aria-pressed="true"]{background:var(--olive);border-color:var(--olive)}
+.mark[aria-pressed="true"] svg{opacity:1;transform:scale(1)}
+@media (prefers-color-scheme: dark){ .mark[aria-pressed="true"] svg path{stroke:#1C1714} }
+.body{flex:1 1 auto;min-width:0;cursor:pointer}
+.title{font-size:17.5px;font-weight:500;line-height:1.42;letter-spacing:-.012em}
+.row.done .title{color:var(--muted);font-weight:400}
+.meta{font-size:13.5px;font-weight:500;color:var(--muted);margin-top:4px;letter-spacing:-.005em}
+.upd{font-size:15.5px;color:var(--ink2);margin-top:7px}
+.cold{color:var(--terra)}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;
+  background:var(--teal-soft);color:var(--teal);margin-left:8px;vertical-align:2px;
+  letter-spacing:.01em}
+.who{display:inline-flex;gap:4px;margin-left:8px;vertical-align:1px}
+.who span{font-size:10.5px;font-weight:700;width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+
+/* ── category sections ────────────────────────────────────── */
+details.cat{border-top:1px solid var(--rule-soft)}
+details.cat[open]{padding-bottom:10px}
+details.cat > summary{cursor:pointer;list-style:none;padding:16px 0;display:flex;
+  justify-content:space-between;align-items:center;gap:12px;
+  font-size:14.5px;font-weight:600;color:var(--ink2);letter-spacing:-.012em}
+details.cat > summary::-webkit-details-marker{display:none}
+details.cat > summary .n{font-size:12.5px;font-weight:600;color:var(--muted);
+  background:var(--sunk);border-radius:999px;padding:3px 10px}
+details.cat > summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ── answered ─────────────────────────────────────────────── */
+.ans{border-top:1px solid var(--rule-soft);padding:22px 0;cursor:pointer}
+#answeredList .ans:first-child{border-top:none}
+.ans .when{font-size:12.5px;font-weight:600;color:var(--gold);letter-spacing:-.002em}
+.ans .what{font-size:20px;font-weight:500;margin-top:5px;line-height:1.3;letter-spacing:-.02em}
+.ansnote{font-family:"Instrument Serif",Georgia,serif;font-size:20px;font-style:italic;
+  color:var(--ink2);margin-top:12px;padding-left:16px;border-left:2px solid var(--gold);
+  letter-spacing:0;line-height:1.45}
+.ledger{background:var(--gold-soft);border-radius:var(--r);padding:16px 18px;margin:30px 0 4px;
+  font-size:15.5px;line-height:1.6}
+.ledger b{display:block;font-weight:600;color:var(--gold);margin-bottom:6px;font-size:13px}
+.recall{border-left:2px solid var(--gold);padding:4px 0 4px 16px;margin:28px 0 0;
+  font-size:15.5px;cursor:pointer}
+.recall b{display:block;font-weight:600;color:var(--gold);font-size:12.5px;margin-bottom:3px}
+.prompt{background:var(--accent-soft);border-radius:var(--r);padding:15px 18px;margin:26px 0 0;
+  font-size:15.5px;font-weight:500;display:flex;justify-content:space-between;gap:14px;
+  align-items:center;flex-wrap:wrap}
+
+/* ── calendar ─────────────────────────────────────────────── */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;margin:18px 0 4px}
+.cal span{aspect-ratio:1;border-radius:7px;background:var(--sunk)}
+.cal span.on{background:var(--olive)}
+.cal span.today{box-shadow:0 0 0 2px var(--gold)}
+.cal span.blank{background:transparent}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;
+  font-size:11.5px;font-weight:600;color:var(--muted);text-align:center;margin-top:10px}
+
+/* ── forms ────────────────────────────────────────────────── */
+label{display:block;font-size:14px;font-weight:600;color:var(--ink2);margin:26px 0 8px;
+  letter-spacing:-.01em}
+input[type=text],input[type=tel],input[type=password],textarea,select{
+  width:100%;font-family:inherit;font-size:16.5px;color:var(--ink);background:var(--raised);
+  border:1.5px solid var(--rule);border-radius:var(--r-sm);padding:13px 15px;line-height:1.5;
+  -webkit-appearance:none;appearance:none;transition:border-color .18s,box-shadow .18s}
+select[multiple]{padding:8px;min-height:200px}
+select:not([multiple]){padding-right:44px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
+    linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 21px) 23px,calc(100% - 15px) 23px;
+  background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+textarea{min-height:120px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 4px var(--accent-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:inherit;font-size:14.5px;font-weight:600;padding:9px 16px;border-radius:999px;
+  cursor:pointer;background:var(--sunk);border:1.5px solid transparent;color:var(--ink2);
+  letter-spacing:-.01em;transition:background .18s,color .18s,border-color .18s}
+.chip:hover{background:var(--hover)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--raised)}
+@media (prefers-color-scheme: dark){ .chip[aria-pressed="true"]{color:#1C1714} }
+button.act{font-family:inherit;font-size:16.5px;font-weight:600;padding:15px 22px;
+  border-radius:var(--r-sm);cursor:pointer;background:var(--accent);color:var(--raised);
+  border:1.5px solid var(--accent);width:100%;margin-top:28px;letter-spacing:-.012em;
+  transition:transform .16s,opacity .2s,background .2s}
+@media (prefers-color-scheme: dark){ button.act{color:#1C1714} }
+button.act:active{transform:translateY(1px)}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+@media (prefers-color-scheme: dark){ button.ghost{color:var(--ink)} }
+button.ghost:hover{background:var(--hover);border-color:var(--accent)}
+button.small{width:auto;margin-top:0;font-size:14.5px;padding:11px 18px}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+button:disabled{opacity:.35;cursor:default}
+.rowbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.catrow{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  border-top:1px solid var(--rule-soft);padding:13px 0;font-size:15.5px;font-weight:500}
+.catrow button{background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;
+  color:var(--muted);cursor:pointer;padding:5px 3px}
+.catrow button:hover{color:var(--accent)}
+
+/* ── sheet ────────────────────────────────────────────────── */
+.veil{position:fixed;inset:0;background:rgba(42,35,28,.42);backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);display:none;z-index:20}
+.veil.on{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--paper);
+  border-radius:26px 26px 0 0;max-height:88vh;overflow:auto;display:none;
+  box-shadow:var(--lift-lg);padding:14px 22px calc(32px + env(safe-area-inset-bottom))}
+.sheet.on{display:block;animation:slide .32s cubic-bezier(.22,.9,.3,1)}
+@keyframes slide{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+.sheet .inner{max-width:33rem;margin:0 auto}
+.sheet .inner::before{content:"";display:block;width:40px;height:4px;border-radius:999px;
+  background:var(--rule);margin:0 auto 16px}
+.sheet h1{font-size:25px}
+.close{float:right;background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;
+  color:var(--muted);cursor:pointer;padding:6px 0 6px 14px}
+.hist{list-style:none;padding:0;margin:24px 0 0}
+.hist li{border-top:1px solid var(--rule-soft);padding:13px 0;font-size:15.5px}
+.hist .d{font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:3px}
+
+/* ── toast ────────────────────────────────────────────────── */
+.toast{position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(108px + env(safe-area-inset-bottom));z-index:30;
+  background:var(--dim);color:#F7F2EB;padding:13px 20px;border-radius:999px;
+  font-size:15px;font-weight:500;display:none;align-items:center;gap:18px;max-width:92vw;
+  box-shadow:var(--lift-lg)}
+.toast.on{display:flex;animation:slide .28s cubic-bezier(.22,.9,.3,1)}
+.toast button{background:none;border:none;color:var(--gold);font-family:inherit;
+  font-size:14px;font-weight:700;cursor:pointer;padding:0}
+
+/* ── nav ──────────────────────────────────────────────────── */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--raised);
+  border-top:1px solid var(--rule-soft);padding-bottom:env(safe-area-inset-bottom)}
+nav .inner{max-width:33rem;margin:0 auto;display:flex;padding:8px 8px}
+nav button{flex:1;background:none;border:none;font-family:inherit;font-size:13px;font-weight:600;
+  color:var(--muted);padding:12px 2px;cursor:pointer;border-radius:999px;letter-spacing:-.01em;
+  transition:background .2s,color .2s}
+nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft)}
+
+.empty{color:var(--muted);padding:38px 0;max-width:32ch;font-size:15.5px}
+.note{font-size:14px;color:var(--muted);margin-top:12px;max-width:46ch;line-height:1.55}
+.warn{font-size:14px;font-weight:500;color:var(--gold);margin-top:16px;max-width:46ch}
+.sync{font-size:14px;color:var(--muted);margin-top:14px;max-width:46ch}
+.sync.bad{color:var(--terra)}
+.pending{display:flex;gap:14px;align-items:center;border-top:1px solid var(--rule-soft);padding:14px 0}
+
+/* ── lock ─────────────────────────────────────────────────── */
+#lock{position:fixed;inset:0;background:var(--paper);z-index:40;display:none;
+  place-items:center;padding:24px}
+#lock.on{display:grid}
+#lock .inner{max-width:19rem;width:100%;text-align:center}
+#lock input{text-align:center;letter-spacing:.4em}
+
+/* ── prayer mode ──────────────────────────────────────────── */
+#pray{position:fixed;inset:0;background:var(--paper);z-index:35;display:none;
+  flex-direction:column;touch-action:pan-y;
+  padding:calc(26px + env(safe-area-inset-top)) 26px calc(26px + env(safe-area-inset-bottom))}
+#pray.on{display:flex;animation:fade .3s ease}
+#pray .top{display:flex;justify-content:space-between;align-items:center;
+  font-size:13.5px;font-weight:600;color:var(--muted)}
+#pray .top button{background:none;border:none;font-family:inherit;font-size:13.5px;
+  font-weight:600;color:var(--muted);cursor:pointer;padding:6px}
+#pray .card{flex:1;display:flex;flex-direction:column;justify-content:center;
+  max-width:31rem;margin:0 auto;width:100%}
+#pray .cat{font-size:13.5px;font-weight:600;color:var(--accent)}
+#pray .big{font-size:clamp(30px,5.2vw,44px);line-height:1.16;font-weight:600;
+  margin:16px 0 0;letter-spacing:-.035em}
+#pray .for{font-size:17.5px;color:var(--muted);margin-top:16px;font-weight:500}
+#pray .last{font-family:"Instrument Serif",Georgia,serif;font-size:21px;font-style:italic;
+  color:var(--ink2);margin-top:26px;padding-left:18px;border-left:2px solid var(--rule);
+  letter-spacing:0;line-height:1.45}
+#pray .bar{height:6px;border-radius:999px;background:var(--sunk);margin-top:20px;overflow:hidden}
+#pray .bar i{display:block;height:100%;border-radius:999px;background:var(--olive);width:0;
+  transition:width .4s cubic-bezier(.3,.9,.3,1)}
+#pray .ctrl{display:flex;gap:10px;max-width:31rem;margin:18px auto 0;width:100%}
+#pray .ctrl button{flex:1;font-family:inherit;font-size:15.5px;font-weight:600;padding:17px 10px;
+  border-radius:var(--r-sm);cursor:pointer;border:1.5px solid var(--rule);background:transparent;
+  color:var(--ink);transition:transform .16s,background .2s}
+#pray .ctrl button:active{transform:translateY(1px)}
+#pray .ctrl button:disabled{opacity:.3}
+#pray .ctrl button.go{background:var(--accent);border-color:var(--accent);color:var(--raised);
+  flex:2;font-size:16.5px}
+@media (prefers-color-scheme: dark){ #pray .ctrl button.go{color:#1C1714} }
+
+/* ── kitchen view ─────────────────────────────────────────── */
+#kitchen{position:fixed;inset:0;background:var(--paper);z-index:34;display:none;
+  overflow:auto;padding:calc(30px + env(safe-area-inset-top)) 32px 48px}
+#kitchen.on{display:block;animation:fade .28s ease}
+#kitchen h1{font-size:36px;margin:0;letter-spacing:-.035em}
+#kitchen .date{margin-top:8px}
+#kitchen .k-cat{font-size:13.5px;font-weight:700;color:var(--accent);margin:34px 0 8px}
+#kitchen .k-item{font-size:24px;font-weight:500;line-height:1.34;padding:7px 0;
+  letter-spacing:-.022em}
+#kitchen .k-for{font-size:16.5px;font-weight:400;color:var(--muted)}
+#kitchen .close{position:fixed;top:calc(20px + env(safe-area-inset-top));right:22px;
+  background:var(--raised);border:1.5px solid var(--rule)}
+
+/* ── print ────────────────────────────────────────────────── */
+@media print{
+  nav,.veil,.sheet,.toast,.switch,.meter,.strip,.cheer,.prompt,#pray,#kitchen,
+  #lock,button,input,textarea,select,label,.note,.warn{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt;padding:0}
+  .wrap{max-width:none;padding:0}
+  .screen{display:none!important}
+  #printArea{display:block!important}
+  #printArea h1{font-size:20pt;font-weight:600;letter-spacing:-.03em;margin:0 0 4pt}
+  #printArea .p-sub{font-size:9.5pt;font-weight:600;color:#555;margin-bottom:16pt}
+  #printArea .p-cat{font-size:9.5pt;font-weight:700;margin:15pt 0 5pt;
+    border-bottom:.5pt solid #bbb;padding-bottom:3pt;break-after:avoid}
+  #printArea .p-item{font-size:10.5pt;padding:3pt 0;break-inside:avoid}
+  #printArea .p-box{display:inline-block;width:9pt;height:9pt;border:.75pt solid #333;
+    border-radius:2pt;margin-right:9pt;vertical-align:-1pt}
+  #printArea .p-for{color:#666}
+}
+#printArea{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div id="lock"><div class="inner">
+  <h1 style="margin-bottom:10px">Private list</h1>
+  <input type="password" id="pinIn" inputmode="numeric" placeholder="PIN" style="text-align:center">
+  <button class="act" id="pinGo">Unlock</button>
+  <p class="note" id="pinNote" style="margin-left:auto;margin-right:auto">Not real security. It keeps the list off the screen, nothing more.</p>
+  <button class="act ghost small" id="pinShared" style="margin-top:16px">Open the family list instead</button>
+</div></div>
+
+<div class="wrap">
+
+<section id="s-today" class="screen on">
+  <header>
+    <div class="date" id="todayDate"></div>
+    <h1 id="todayLine"></h1>
+    <div class="switch" id="listSwitch">
+      <button data-list="personal" aria-pressed="true">My list</button>
+      <button data-list="shared" aria-pressed="false">Family list</button>
+    </div>
+  </header>
+  <div class="meter" id="meterWrap"><i id="meterFill"></i></div>
+  <div class="strip" id="todayStrip"></div>
+  <div class="cheer" id="cheer"></div>
+  <div id="reviewPrompt"></div>
+  <div class="rowbtns" style="margin-top:18px"><button class="act ghost small" id="startPray">Pray through the list</button><button class="act ghost small" id="openKitchen">Kitchen view</button><button class="act ghost small" id="doPrint">Print</button></div>
+  <div id="todayList"></div>
+  <div id="anniv"></div>
+  <div id="todayAnswered"></div>
+</section>
+
+<section id="s-all" class="screen">
+  <header><h1>Everything on the list</h1></header>
+  <label for="f-search" style="margin-top:0">Search</label>
+  <input type="text" id="f-search" placeholder="Name, word, category">
+  <div id="allList"></div>
+</section>
+
+<section id="s-answered" class="screen">
+  <header><h1>The record</h1></header>
+  <div id="record"></div>
+  <h2>Answered</h2>
+  <div id="answeredList"></div>
+</section>
+
+<section id="s-add" class="screen">
+  <header><h1>Add a request</h1></header>
+  <label for="f-title">What are you praying for?</label>
+  <input type="text" id="f-title" placeholder="Healing for...">
+  <label for="f-for">Who is it for?</label>
+  <input type="text" id="f-for" placeholder="Optional">
+  <label for="f-phone">Their number, to tell them you prayed</label>
+  <input type="tel" id="f-phone" placeholder="Optional">
+  <label for="f-cat">Category</label>
+  <select id="f-cat"></select>
+  <label>How often</label>
+  <div class="chips" id="f-cad">
+    <button class="chip" data-cad="daily" aria-pressed="true">Every day</button>
+    <button class="chip" data-cad="rotation" aria-pressed="false">In rotation</button>
+  </div>
+  <button class="act" id="f-save">Add to the list</button>
+  <p class="note">Tap a field and use the microphone on the keyboard to speak it instead of typing.</p>
+</section>
+
+<section id="s-review" class="screen">
+  <header><h1>Review</h1></header>
+  <div id="reviewBody"></div>
+</section>
+
+<section id="s-more" class="screen">
+  <header><h1>Settings</h1></header>
+
+  <h2>Prayer plan</h2>
+  <label for="f-plan">Active plan</label>
+  <select id="f-plan"></select>
+  <div id="planEditor"></div>
+  <button class="act ghost small" id="f-newplan" style="margin-top:18px">New plan</button>
+
+  <h2>Paste a list</h2>
+  <p class="note" style="margin-top:4px">A line ending in a colon becomes the category for the lines under it. "Name - request" splits into who and what.</p>
+  <textarea id="f-paste" placeholder="Health Needs:&#10;Sam - recovery after surgery&#10;Aunt Ruth&#10;&#10;Missionaries - Abroad:&#10;The Carters in Peru"></textarea>
+  <label for="f-pastecat">Category for lines with no heading</label>
+  <select id="f-pastecat"></select>
+  <button class="act ghost" id="f-parse">Read these lines</button>
+  <div id="parsed"></div>
+
+  <h2>Categories</h2>
+  <div id="catAdmin"></div>
+  <label for="f-newcat">Add a category</label>
+  <input type="text" id="f-newcat" placeholder="Name it whatever you like">
+  <button class="act ghost small" id="f-addcat" style="margin-top:12px">Add category</button>
+
+  <h2>Privacy</h2>
+  <p class="note" style="margin-top:4px">A PIN on the private list keeps it off a shared screen. It is not encryption — anyone who can open the browser's storage can read it.</p>
+  <div class="rowbtns" style="margin-top:14px">
+    <button class="act ghost small" id="f-setpin">Set or change PIN</button>
+    <button class="act ghost small" id="f-clearpin">Remove PIN</button>
+  </div>
+
+  <h2>This device</h2>
+  <label for="f-me">Who is using it</label>
+  <input type="text" id="f-me" placeholder="Your name">
+  <p class="note">On the family list, marking something prayed records these initials so the house can see who has prayed for what today.</p>
+
+  <h2>Family list sync</h2>
+  <p class="note" style="margin-top:4px">Syncs the family list through a JSON file in a GitHub repo. Reading needs nothing. Writing needs a token, which stays on this device and is never written into the page. Anything in a public repo is public — keep the private list out of it.</p>
+  <div class="chips" id="f-syncmode" style="margin-top:14px">
+    <button class="chip" data-sync="off" aria-pressed="true">This device only</button>
+    <button class="chip" data-sync="github" aria-pressed="false">Sync through GitHub</button>
+  </div>
+  <div id="syncFields">
+    <label for="f-owner">GitHub user or org</label>
+    <input type="text" id="f-owner" placeholder="vantrix117">
+    <label for="f-repo">Repository</label>
+    <input type="text" id="f-repo" placeholder="house-hub">
+    <label for="f-path">File path in the repo</label>
+    <input type="text" id="f-path" placeholder="data/family-prayers.json">
+    <label for="f-branch">Branch</label>
+    <input type="text" id="f-branch" placeholder="main">
+    <label for="f-token">Write token for this device, leave blank for read-only</label>
+    <input type="password" id="f-token" placeholder="github_pat_...">
+    <div class="rowbtns">
+      <button class="act ghost small" id="f-syncnow">Sync now</button>
+      <button class="act ghost small" id="f-syncsave">Save settings</button>
+    </div>
+    <p class="sync" id="syncStatus"></p>
+  </div>
+
+  <h2>Backup</h2>
+  <div class="rowbtns">
+    <button class="act ghost small" id="f-export">Export both lists</button>
+    <button class="act ghost small" id="f-import">Import a backup</button>
+  </div>
+  <p class="warn" id="backupWarn"></p>
+</section>
+
+</div>
+
+
+<div id="pray">
+  <div class="top"><span id="prayCount"></span><button id="prayShut">Close</button></div>
+  <div class="card">
+    <div class="cat" id="prayCat"></div>
+    <div class="big" id="prayBig"></div>
+    <div class="for" id="prayFor"></div>
+    <div class="last" id="prayLast"></div>
+  </div>
+  <div class="bar"><i id="prayBar"></i></div>
+  <div class="ctrl" style="margin-top:18px">
+    <button id="prayBack">Back</button>
+    <button class="go" id="prayNext">Prayed</button>
+    <button id="praySkip">Skip</button>
+  </div>
+</div>
+
+<div id="kitchen">
+  <button class="act ghost small close" id="kitchenShut">Close</button>
+  <div id="kitchenBody"></div>
+</div>
+
+<div id="printArea"></div>
+
+<div class="veil" id="veil"></div>
+<div class="sheet" id="sheet"><div class="inner" id="sheetInner"></div></div>
+<div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAct"></button></div>
+
+<nav><div class="inner">
+  <button data-go="today" aria-current="true">Today</button>
+  <button data-go="all">List</button>
+  <button data-go="answered">Record</button>
+  <button data-go="add">Add</button>
+  <button data-go="review">Review</button>
+  <button data-go="more">More</button>
+</div></nav>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   STORAGE LAYER. USE_LOCAL_STORAGE is true when served from GitHub
+   Pages; check.js flips it to false so tests never touch real storage.
+   ───────────────────────────────────────────────────────────── */
+const USE_LOCAL_STORAGE = true;
+const KEY = 'prayer-data-v3';
+
+const CATEGORIES = [
+  "Spiritual Needs","Personal","Family","Friends","Coworkers",
+  "Those Who Are Lost - Family","Those Who Are Lost - Friends","Those Who Are Lost - Coworkers and Other",
+  "Health Needs","Grief and Loss","Marriage","Children and Youth","Expecting and New Parents",
+  "Widows and Elderly","Financial Needs","Work and Job Search","Wisdom and Decisions",
+  "Church Leadership","Missionaries - USA","Missionaries - Abroad","Persecuted Church",
+  "Schools and Students","Military and First Responders","Government","Nation",
+  "World and Disaster Relief","Neighbors","Praise and Thanksgiving"
+];
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function emptyPlan(name){
+  return { id:'pl'+Math.random().toString(36).slice(2,8), name:name||'Everything',
+    mode:'everything', focusCategory:'', includeDaily:true, rotationSize:3,
+    groupByCategory:false,
+    dayMap:{Sun:[],Mon:[],Tue:[],Wed:[],Thu:[],Fri:[],Sat:[]},
+    show:{meter:true,streak:true,answered:true,anniversaries:true,review:true} };
+}
+function emptyList(label){
+  return { label, categories:CATEGORIES.slice(), prayers:[], prayerDays:[],
+    plans:[emptyPlan('Everything')], activePlan:null, rotationFor:null };
+}
+
+const SEED_PRAYERS = [
+["p001","Salvation for a friend and her daughter","A friend","Those Who Are Lost - Friends","rotation","active"],
+["p002","Salvation for a family member","Family member","Those Who Are Lost - Family","rotation","active"],
+["p003","Salvation for a cousin","Cousin","Those Who Are Lost - Family","rotation","active"],
+["p004","Healing after surgery","A church friend","Health Needs","daily","active"],
+["p005","Healing through treatment","A neighbour","Health Needs","daily","active"],
+["p006","Recovery at home","An older friend","Health Needs","daily","active"],
+["p007","Peace during a hard season","A friend","Spiritual Needs","daily","active"],
+["p008","College classes this semester","A student","Schools and Students","rotation","active"],
+["p009","Safe delivery of their first child","A young couple","Expecting and New Parents","daily","active"],
+["p010","A new job","A friend","Work and Job Search","rotation","active"],
+["p011","My financial situation","Me","Financial Needs","daily","active"],
+["p012","Family health, physical and spiritual","Family","Family","daily","active"],
+["p013","Healing for a stomach illness","My wife","Health Needs","daily","answered"],
+["p014","A family moving home from out of state","Friends","Friends","rotation","answered"]
+];
+
+let D, LOCKED = false;
+
+function freshData(){
+  const d = { version:3, activeList:'personal', pin:null, lastExport:null, me:'',
+    sync:{ mode:'off', owner:'', repo:'', path:'data/family-prayers.json', branch:'main', sha:null },
+    lists:{ personal: emptyList('My list'), shared: emptyList('Family list') } };
+  const P = d.lists.personal;
+  P.prayers = SEED_PRAYERS.map(r => ({
+    id:r[0], title:r[1], for:r[2], phone:'', detail:'', category:r[3],
+    cadence:r[4], days:[], status:r[5], createdAt:'2026-09-10',
+    lastPrayedAt:null, answeredAt:(r[5]==='answered'?'2026-09-10':null),
+    answerNote:(r[5]==='answered'
+      ? (r[0]==='p013' ? 'Healed within a week. Sample entry — replace with your own.'
+                       : 'They made it back safely. Sample entry — replace with your own.')
+      : null),
+    updates:[], sharedFrom:null }));
+  P.activePlan = P.plans[0].id;
+  d.lists.shared.activePlan = d.lists.shared.plans[0].id;
+  return d;
+}
+
+function load(){
+  if(USE_LOCAL_STORAGE){
+    try{ const r = localStorage.getItem(KEY); D = r ? JSON.parse(r) : freshData(); }
+    catch(e){ D = freshData(); }
+  } else { D = freshData(); }
+  migrate();
+  // The hub's reload button appends ?r=… after the file name, so tolerate "shared?r=123".
+  const q = (new URLSearchParams(location.search).get('list') || '').split('?')[0];
+  if(q === 'shared' || q === 'personal') D.activeList = q;
+}
+function migrate(){
+  if(!D.lists) D = freshData();
+  if(D.me === undefined) D.me = '';
+  if(!D.sync) D.sync = { mode:'off', owner:'', repo:'', path:'data/family-prayers.json', branch:'main', sha:null };
+  for(const k of ['personal','shared']){
+    const L = D.lists[k] || (D.lists[k] = emptyList(k==='shared'?'Family list':'My list'));
+    if(!Array.isArray(L.categories) || !L.categories.length) L.categories = CATEGORIES.slice();
+    if(!Array.isArray(L.prayerDays)) L.prayerDays = [];
+    if(!Array.isArray(L.plans) || !L.plans.length) L.plans = [emptyPlan('Everything')];
+    if(!L.activePlan || !L.plans.some(p => p.id === L.activePlan)) L.activePlan = L.plans[0].id;
+    L.prayers.forEach(p => { if(!Array.isArray(p.updates)) p.updates = [];
+      if(p.phone === undefined) p.phone = ''; if(p.sharedFrom === undefined) p.sharedFrom = null;
+      if(!p.prayedBy || typeof p.prayedBy !== 'object') p.prayedBy = {};
+      if(!p.updatedAt) p.updatedAt = (p.createdAt || TODAY) + 'T00:00:00.000Z'; });
+  }
+}
+function save(){ if(USE_LOCAL_STORAGE){ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} } }
+
+const L  = () => D.lists[D.activeList];
+const PL = () => L().plans.find(p => p.id === L().activePlan) || L().plans[0];
+
+const pad = n => String(n).padStart(2,'0');
+const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const TODAY = iso(new Date());
+const dObj = s => new Date(s+'T12:00:00');
+const daysSince = s => s ? Math.round((dObj(TODAY) - dObj(s))/86400000) : 9999;
+const shift = (s,n) => { const d = dObj(s); d.setDate(d.getDate()+n); return iso(d); };
+const pretty = s => s ? dObj(s).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'}) : '';
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const byId = id => L().prayers.find(p => p.id === id);
+const nextId = () => { let n = L().prayers.length + 1;
+  while(L().prayers.some(p => p.id === 'p'+String(n).padStart(3,'0'))) n++;
+  return 'p'+String(n).padStart(3,'0'); };
+const el = id => document.getElementById(id);
+
+/* ── record ─────────────────────────────────────────────────── */
+function markDay(){ const d = L().prayerDays;
+  if(!d.includes(TODAY)){ d.push(TODAY); d.sort(); } }
+function currentStreak(){
+  const set = new Set(L().prayerDays);
+  let c = set.has(TODAY) ? TODAY : shift(TODAY,-1);
+  if(!set.has(c)) return 0;
+  let n = 0; while(set.has(c)){ n++; c = shift(c,-1); } return n;
+}
+function longestStreak(){
+  const days = L().prayerDays.slice().sort();
+  let best = 0, run = 0, prev = null;
+  for(const d of days){ run = (prev && shift(prev,1) === d) ? run+1 : 1;
+    best = Math.max(best,run); prev = d; }
+  return best;
+}
+function monthDays(){
+  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
+  return L().prayerDays.filter(d => { const t = dObj(d);
+    return t.getFullYear() === y && t.getMonth() === m; }).length;
+}
+function calendarHTML(){
+  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
+  const first = new Date(y,m,1).getDay(), total = new Date(y,m+1,0).getDate();
+  const set = new Set(L().prayerDays);
+  let cells = '';
+  for(let i=0;i<first;i++) cells += '<span class="blank"></span>';
+  for(let d=1; d<=total; d++){
+    const k = y+'-'+pad(m+1)+'-'+pad(d);
+    cells += '<span class="'+(set.has(k)?'on ':'')+(k===TODAY?'today':'')+'" title="'+k+'"></span>';
+  }
+  return '<div class="cal">'+cells+'</div><div class="dow">'
+    + DOW.map(d=>'<span>'+d[0]+'</span>').join('') + '</div>';
+}
+function milestone(){
+  const s = currentStreak(), a = L().prayers.filter(p=>p.status==='answered').length;
+  if(s===7) return 'A full week of showing up.';
+  if(s===30) return 'Thirty days straight.';
+  if(s===100) return 'One hundred days.';
+  if(s===365) return 'A full year.';
+  if(a===10) return 'Ten answered prayers on the record.';
+  if(a===25) return 'Twenty-five answered prayers on the record.';
+  if(s>1) return s + ' days in a row.';
+  return '';
+}
+
+/* ── anniversaries ──────────────────────────────────────────── */
+function anniversaries(){
+  const md = TODAY.slice(5), out = [];
+  for(const p of L().prayers){
+    if(p.createdAt && p.createdAt.slice(5) === md && p.createdAt.slice(0,4) !== TODAY.slice(0,4)){
+      const y = +TODAY.slice(0,4) - +p.createdAt.slice(0,4);
+      out.push({id:p.id, text:(y===1?'A year':y+' years') + ' ago today you started praying for this.', title:p.title});
+    }
+    if(p.answeredAt && p.answeredAt.slice(5) === md && p.answeredAt.slice(0,4) !== TODAY.slice(0,4)){
+      const y = +TODAY.slice(0,4) - +p.answeredAt.slice(0,4);
+      out.push({id:p.id, text:(y===1?'A year':y+' years') + ' ago today this was answered.', title:p.title});
+    }
+  }
+  return out;
+}
+
+/* ── review ─────────────────────────────────────────────────── */
+function reviewItems(){
+  const act = L().prayers.filter(p => p.status === 'active');
+  return {
+    cold: act.filter(p => daysSince(p.lastPrayedAt) > 30 && daysSince(p.createdAt) > 30),
+    silent: act.filter(p => daysSince(p.createdAt) > 90
+      && (!p.updates.length || daysSince(p.updates[p.updates.length-1].date) > 90)),
+    fresh: act.filter(p => daysSince(p.createdAt) <= 7)
+  };
+}
+function reviewDue(){
+  const r = reviewItems();
+  return (new Date().getDay() === 0) || r.cold.length >= 3;
+}
+
+/* ── today ──────────────────────────────────────────────────── */
+function todaySet(){
+  const plan = PL(), act = L().prayers.filter(p => p.status === 'active');
+  const dow = DOW[new Date().getDay()];
+  let picked;
+
+  if(plan.mode === 'focus'){
+    picked = act.filter(p => p.category === plan.focusCategory);
+  } else if(plan.mode === 'byDay'){
+    const cats = plan.dayMap[dow] || [];
+    picked = act.filter(p => cats.includes(p.category)
+      || (plan.includeDaily && p.cadence === 'daily'));
+  } else {
+    const daily  = act.filter(p => p.cadence === 'daily');
+    const weekly = act.filter(p => p.cadence === 'weekly' && (p.days||[]).includes(dow));
+    // Rotation is picked once per day and frozen. Without this, marking one
+    // prayed re-sorts the list and pulls in a fresh entry, so it never ends.
+    const key = D.activeList + '|' + plan.id;
+    if(!L().rotationFor || L().rotationFor.date !== TODAY
+       || L().rotationFor.size !== plan.rotationSize || L().rotationFor.key !== key){
+      L().rotationFor = { date:TODAY, size:plan.rotationSize, key,
+        ids: act.filter(p => p.cadence === 'rotation')
+          .sort((a,b) => daysSince(b.lastPrayedAt) - daysSince(a.lastPrayedAt))
+          .slice(0, plan.rotationSize).map(p => p.id) };
+      save();
+    }
+    const rot = L().rotationFor.ids.map(byId).filter(p => p && p.status === 'active');
+    picked = [...daily, ...weekly, ...rot];
+  }
+  return [...new Map(picked.map(p => [p.id,p])).values()];
+}
+
+function rowHTML(p){
+  const done = p.lastPrayedAt === TODAY;
+  const last = p.updates.length ? p.updates[p.updates.length-1] : null;
+  const cold = p.cadence === 'rotation' && p.lastPrayedAt && daysSince(p.lastPrayedAt) > 20;
+  return '<li class="row ' + (done?'done':'') + '">'
+    + '<button class="mark" aria-pressed="' + done + '" data-pray="' + p.id + '" aria-label="Mark prayed">'
+    + '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    + '</button><div class="body" data-open="' + p.id + '">'
+    + '<div class="title">' + esc(p.title)
+      + (p.sharedFrom ? '<span class="pill">shared</span>' : '') + whoHTML(p) + '</div>'
+    + '<div class="meta">' + esc(p.category)
+      + (cold ? ' &middot; <span class="cold">not prayed in ' + daysSince(p.lastPrayedAt) + ' days</span>' : '') + '</div>'
+    + (last ? '<div class="upd">' + esc(last.note) + '</div>' : '')
+    + '</div></li>';
+}
+function groupedHTML(items, open){
+  const cats = L().categories.filter(c => items.some(p => p.category === c));
+  const orph = [...new Set(items.filter(p => !L().categories.includes(p.category)).map(p => p.category))];
+  return [...cats,...orph].map(c => {
+    const rows = items.filter(p => p.category === c);
+    return '<details class="cat"' + (open?' open':'') + '><summary><span>' + esc(c)
+      + '</span><span class="n">' + rows.length + '</span></summary>'
+      + '<ul class="list">' + rows.map(rowHTML).join('') + '</ul></details>';
+  }).join('');
+}
+
+function renderToday(){
+  document.body.classList.toggle('shared', D.activeList === 'shared');
+  document.querySelectorAll('#listSwitch button').forEach(b =>
+    b.setAttribute('aria-pressed', b.dataset.list === D.activeList));
+  const plan = PL();
+  el('todayDate').textContent =
+    new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})
+    + ' · ' + plan.name;
+
+  const set = todaySet();
+  const done = set.filter(p => p.lastPrayedAt === TODAY).length;
+  const left = set.length - done;
+  el('todayLine').textContent =
+      set.length === 0 ? 'Nothing on the list today.'
+    : left === 0 ? 'You have prayed through the whole list.'
+    : left === 1 ? 'One left to pray through.'
+    : left + ' to pray through this morning.';
+
+  el('meterWrap').style.display = plan.show.meter ? '' : 'none';
+  el('meterFill').style.width = (set.length ? Math.round(done/set.length*100) : 0) + '%';
+
+  const s = currentStreak();
+  el('todayStrip').innerHTML = plan.show.streak
+    ? '<span><b>' + done + '/' + set.length + '</b> today</span>'
+      + '<span><b>' + s + '</b> day' + (s===1?'':'s') + ' in a row</span>'
+      + '<span><b>' + monthDays() + '</b> days this month</span>'
+      + '<span><b>' + L().prayers.filter(p=>p.status==='answered').length + '</b> answered</span>' : '';
+  el('cheer').textContent = (plan.show.streak && left === 0) ? milestone() : '';
+
+  el('reviewPrompt').innerHTML = (plan.show.review && reviewDue())
+    ? '<div class="prompt"><span>Some of the list has gone quiet.</span>'
+      + '<button class="act ghost small" data-go="review">Review it</button></div>' : '';
+
+  el('todayList').innerHTML = set.length
+    ? (plan.groupByCategory ? groupedHTML(set,true) : '<ul class="list">'+set.map(rowHTML).join('')+'</ul>')
+    : '<p class="empty">Nothing scheduled for today under this plan. Change the plan under More.</p>';
+
+  const ann = plan.show.anniversaries ? anniversaries() : [];
+  el('anniv').innerHTML = ann.length
+    ? ann.map(a => '<div class="recall" data-open="' + a.id + '"><b>' + esc(a.text)
+        + '</b>' + esc(a.title) + '</div>').join('') : '';
+
+  const recent = plan.show.answered
+    ? L().prayers.filter(p => p.status === 'answered' && daysSince(p.answeredAt) <= 30) : [];
+  el('todayAnswered').innerHTML = recent.length
+    ? '<div class="ledger"><b>Answered recently</b>' + recent.map(p => esc(p.title)).join('<br>') + '</div>' : '';
+}
+
+function renderAll(){
+  const q = (el('f-search').value || '').toLowerCase().trim();
+  let act = L().prayers.filter(p => p.status === 'active');
+  if(q) act = act.filter(p => (p.title+' '+p.for+' '+p.category+' '+p.detail).toLowerCase().includes(q));
+  el('allList').innerHTML = act.length ? groupedHTML(act, !!q)
+    : '<p class="empty">' + (q ? 'Nothing matches that.' : 'Nothing active. Add a request from the Add tab.') + '</p>';
+}
+
+function renderRecord(){
+  const ans = L().prayers.filter(p => p.status === 'answered');
+  const s = currentStreak(), lg = longestStreak();
+  el('record').innerHTML =
+      '<div class="strip" style="margin-top:16px">'
+    + '<span><b>' + s + '</b> day' + (s===1?'':'s') + ' in a row</span>'
+    + '<span><b>' + lg + '</b> best run</span>'
+    + '<span><b>' + monthDays() + '</b> days this month</span>'
+    + '<span><b>' + ans.length + '</b> answered</span></div>' + calendarHTML();
+  el('answeredList').innerHTML = ans.length
+    ? ans.slice().sort((a,b) => String(b.answeredAt).localeCompare(String(a.answeredAt)))
+        .map(p => '<div class="ans" data-open="' + p.id + '">'
+          + '<div class="when">' + pretty(p.answeredAt) + '</div>'
+          + '<div class="what">' + esc(p.title) + '</div>'
+          + (p.answerNote ? '<div class="ansnote">' + esc(p.answerNote) + '</div>' : '')
+          + '</div>').join('')
+    : '<p class="empty">No answered prayers recorded yet.</p>';
+}
+
+function renderReview(){
+  const r = reviewItems();
+  const block = (title, note, items) => items.length
+    ? '<h3>' + title + '</h3><p class="note">' + note + '</p><ul class="list">'
+      + items.map(rowHTML).join('') + '</ul>' : '';
+  const body = block('Gone quiet','Not prayed through in over a month. Pray one now, update it, or let it go.', r.cold)
+    + block('No news in a while','On the list over three months with no update. Worth asking how they are.', r.silent)
+    + block('Added recently','New this week. Check they are filed where you want them.', r.fresh);
+  el('reviewBody').innerHTML = body || '<p class="empty">Nothing needs attention. The list is current.</p>';
+}
+
+/* ── detail sheet ───────────────────────────────────────────── */
+function sheetFor(id){
+  const p = byId(id); if(!p) return;
+  const hist = p.updates.length
+    ? '<ul class="hist">' + p.updates.slice().reverse().map(u =>
+        '<li><div class="d">' + pretty(u.date) + '</div>' + esc(u.note) + '</li>').join('') + '</ul>'
+    : '<p class="note">No updates yet.</p>';
+  el('sheetInner').innerHTML =
+      '<button class="close" data-shut>Done</button>'
+    + '<div class="meta" style="margin:0">' + esc(p.category)
+      + (p.sharedFrom ? '<span class="pill">shared</span>' : '') + '</div>'
+    + '<h1 style="margin-top:4px">' + esc(p.title) + '</h1>'
+    + (p.for ? '<div class="meta">For ' + esc(p.for) + '</div>' : '')
+    + (p.detail ? '<p>' + esc(p.detail) + '</p>' : '')
+    + '<div class="meta" style="margin-top:14px">'
+      + (p.lastPrayedAt ? 'Last prayed ' + pretty(p.lastPrayedAt) : 'Not prayed through yet')
+      + ' &middot; on the list since ' + pretty(p.createdAt) + '</div>'
+    + (p.status === 'answered'
+        ? '<div style="margin-top:20px"><div style="font-size:14px;color:var(--brass)">Answered '
+          + pretty(p.answeredAt) + '</div><div class="ansnote">' + esc(p.answerNote) + '</div></div>' : '')
+    + hist
+    + '<div class="rowbtns">'
+    + (p.status === 'active'
+        ? '<button class="act ghost small" data-update="' + p.id + '">Add an update</button>'
+          + '<button class="act ghost small" data-tell="' + p.id + '">Tell them you prayed</button>'
+          + '<button class="act ghost small" data-recat="' + p.id + '">Change category</button>'
+          + (D.activeList === 'personal'
+              ? '<button class="act ghost small" data-share="' + p.id + '">Send to family list</button>' : '')
+          + '<button class="act small" data-answer="' + p.id + '">Mark answered</button>'
+        : '<button class="act ghost small" data-reopen="' + p.id + '">Put back on the list</button>')
+    + '</div>';
+  openSheet();
+}
+const openSheet = () => { el('sheet').classList.add('on'); el('veil').classList.add('on'); };
+const shutSheet = () => { el('sheet').classList.remove('on'); el('veil').classList.remove('on'); };
+
+let undoFn = null;
+function toast(msg, actionLabel, fn){
+  el('toastMsg').textContent = msg;
+  el('toastAct').textContent = actionLabel || '';
+  el('toastAct').style.display = actionLabel ? '' : 'none';
+  undoFn = fn || null;
+  el('toast').classList.add('on');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el('toast').classList.remove('on'), 6000);
+}
+
+function renderAllScreens(){ renderToday(); renderAll(); renderRecord(); renderReview(); }
+function go(name){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  el('s-'+name).classList.add('on');
+  document.querySelectorAll('nav button').forEach(b =>
+    b.setAttribute('aria-current', b.dataset.go === name ? 'true' : 'false'));
+  renderAllScreens(); window.scrollTo(0,0);
+}
+
+/* ── categories & plans UI ──────────────────────────────────── */
+function catOptions(sel, current){
+  if(!sel) return;
+  sel.innerHTML = L().categories.map(c =>
+    '<option value="' + esc(c) + '"' + (c === current ? ' selected' : '') + '>' + esc(c) + '</option>').join('');
+}
+function renderCatAdmin(){
+  const act = L().prayers.filter(p => p.status === 'active');
+  el('catAdmin').innerHTML = L().categories.map((c,i) =>
+    '<div class="catrow"><span>' + esc(c) + ' <span style="color:var(--muted);font-size:15px">'
+    + act.filter(p => p.category === c).length + '</span></span>'
+    + '<span><button data-rencat="' + i + '">Rename</button>'
+    + '<button data-delcat="' + i + '">Remove</button></span></div>').join('');
+  catOptions(el('f-cat'), el('f-cat').value);
+  catOptions(el('f-pastecat'), el('f-pastecat').value);
+}
+function renderPlans(){
+  const cur = PL();
+  el('f-plan').innerHTML = L().plans.map(p =>
+    '<option value="' + p.id + '"' + (p.id === cur.id ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('');
+  const dow = DOW[new Date().getDay()];
+  let h = '<label>What Today shows</label><div class="chips" id="p-mode">'
+    + [['everything','Daily plus rotation'],['byDay','A set of categories each day'],['focus','One category only']]
+        .map(m => '<button class="chip" data-mode="' + m[0] + '" aria-pressed="'
+          + (cur.mode===m[0]) + '">' + m[1] + '</button>').join('') + '</div>';
+
+  if(cur.mode === 'everything'){
+    h += '<label>How many rotation requests surface each day</label><div class="chips" id="p-rot">'
+      + [2,3,4,5,6,8].map(n => '<button class="chip" data-rot="' + n + '" aria-pressed="'
+        + (cur.rotationSize===n) + '">' + n + '</button>').join('') + '</div>';
+  }
+  if(cur.mode === 'focus'){
+    h += '<label for="p-focus">Category</label><select id="p-focus">'
+      + L().categories.map(c => '<option value="' + esc(c) + '"'
+        + (c===cur.focusCategory?' selected':'') + '>' + esc(c) + '</option>').join('') + '</select>';
+  }
+  if(cur.mode === 'byDay'){
+    h += '<label>Day to edit</label><div class="chips" id="p-day">'
+      + DOW.map(d => '<button class="chip" data-day="' + d + '" aria-pressed="'
+        + (d===(renderPlans._day||dow)) + '">' + d + '</button>').join('') + '</div>'
+      + '<label for="p-cats">Categories on ' + (renderPlans._day||dow)
+        + ' <span style="color:var(--muted)">(tap to toggle)</span></label>'
+      + '<select id="p-cats" multiple size="9">'
+      + L().categories.map(c => '<option value="' + esc(c) + '"'
+        + ((cur.dayMap[renderPlans._day||dow]||[]).includes(c)?' selected':'') + '>'
+        + esc(c) + '</option>').join('') + '</select>'
+      + '<div class="chips" style="margin-top:12px"><button class="chip" data-incd="1" aria-pressed="'
+        + (!!cur.includeDaily) + '">Always include every-day requests</button></div>';
+  }
+  h += '<label>Layout and extras</label><div class="chips" id="p-show">'
+    + [['group','Group by category',cur.groupByCategory],
+       ['meter','Progress bar',cur.show.meter],
+       ['streak','Streak and counts',cur.show.streak],
+       ['answered','Recently answered',cur.show.answered],
+       ['anniversaries','Anniversaries',cur.show.anniversaries],
+       ['review','Review nudge',cur.show.review]]
+      .map(x => '<button class="chip" data-show="' + x[0] + '" aria-pressed="' + !!x[2] + '">'
+        + x[1] + '</button>').join('') + '</div>'
+    + '<div class="rowbtns"><button class="act ghost small" data-renplan="1">Rename plan</button>'
+    + (L().plans.length > 1 ? '<button class="act ghost small" data-delplan="1">Delete plan</button>' : '')
+    + '</div>';
+  el('planEditor').innerHTML = h;
+}
+
+/* ── events ─────────────────────────────────────────────────── */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan]');
+  if(!t) return;
+
+  if(t.dataset.pray){ setPrayed(byId(t.dataset.pray)); renderToday(); renderAll(); renderReview(); return; }
+  if(t.dataset.open){ sheetFor(t.dataset.open); return; }
+  if(t.dataset.go){ shutSheet(); go(t.dataset.go); return; }
+  if(t.hasAttribute('data-shut')){ shutSheet(); return; }
+
+  if(t.dataset.list){
+    if(t.dataset.list === 'personal' && D.pin && LOCKED){ el('lock').classList.add('on'); return; }
+    D.activeList = t.dataset.list; save();
+    renderCatAdmin(); renderPlans(); go('today'); return;
+  }
+
+  if(t.dataset.update){
+    const p = byId(t.dataset.update);
+    const note = prompt('What is the update?');
+    if(note && note.trim()){ p.updates.push({date:TODAY, note:note.trim()}); save(); renderAllScreens(); sheetFor(p.id); }
+    return;
+  }
+  if(t.dataset.tell){
+    const p = byId(t.dataset.tell);
+    const who = (p.for || '').split(/[&,]/)[0].trim();
+    const draft = prompt('Send this to ' + (who || 'them') + '?',
+      (who ? who + ', ' : '') + 'just prayed for you this morning. Thinking of you.');
+    if(!draft) return;
+    if(p.phone){ location.href = 'sms:' + p.phone.replace(/[^0-9+]/g,'') + '&body=' + encodeURIComponent(draft); }
+    else if(navigator.clipboard){ navigator.clipboard.writeText(draft)
+      .then(()=>toast('Copied. Paste it into Messages.')) .catch(()=>prompt('Copy this:', draft)); }
+    else { prompt('Copy this:', draft); }
+    p.updates.push({date:TODAY, note:'Told ' + (who||'them') + ' I was praying.'});
+    save(); renderAllScreens(); return;
+  }
+  if(t.dataset.recat){
+    const p = byId(t.dataset.recat);
+    const c = prompt('Move to which category?\n\n' + L().categories.join('\n'), p.category);
+    if(c && L().categories.includes(c.trim())){ p.category = c.trim(); save(); renderAllScreens(); sheetFor(p.id); }
+    else if(c){ alert('No category by that name. Add it under More first.'); }
+    return;
+  }
+  if(t.dataset.share){
+    const p = byId(t.dataset.share);
+    const title = prompt('How should this read on the family list?\n\nEveryone in the house can see it.', p.title);
+    if(!title || !title.trim()) return;
+    const S = D.lists.shared;
+    if(!S.categories.includes(p.category)) S.categories.push(p.category);
+    let n = S.prayers.length + 1;
+    while(S.prayers.some(x => x.id === 's'+String(n).padStart(3,'0'))) n++;
+    S.prayers.push({id:'s'+String(n).padStart(3,'0'), title:title.trim(), for:p.for, phone:'',
+      detail:'', category:p.category, cadence:p.cadence, days:[], status:'active',
+      createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null,
+      updates:[], sharedFrom:p.id});
+    save(); toast('Added to the family list.', 'Open it', () => {
+      D.activeList = 'shared'; save(); renderCatAdmin(); renderPlans(); go('today'); });
+    return;
+  }
+  if(t.dataset.answer){
+    const p = byId(t.dataset.answer);
+    const note = prompt('How was it answered? This is the part worth keeping.');
+    if(note === null) return;
+    if(!note.trim()){ alert('Write something before marking it answered. This is the record.'); return; }
+    const prev = {status:p.status, answeredAt:p.answeredAt, answerNote:p.answerNote};
+    p.status = 'answered'; p.answeredAt = TODAY; p.answerNote = note.trim();
+    save(); shutSheet(); go('answered');
+    toast('Moved to the record.', 'Undo', () => { Object.assign(p, prev); save(); go('today'); });
+    return;
+  }
+  if(t.dataset.reopen){
+    const p = byId(t.dataset.reopen);
+    p.status = 'active'; p.answeredAt = null; p.answerNote = null;
+    save(); shutSheet(); go('today'); return;
+  }
+
+  if(t.dataset.rencat){
+    const i = +t.dataset.rencat, old = L().categories[i];
+    const name = prompt('Rename this category', old);
+    if(!name || !name.trim() || name.trim() === old) return;
+    L().prayers.forEach(p => { if(p.category === old) p.category = name.trim(); });
+    L().plans.forEach(pl => { DOW.forEach(d => {
+      pl.dayMap[d] = (pl.dayMap[d]||[]).map(c => c === old ? name.trim() : c); });
+      if(pl.focusCategory === old) pl.focusCategory = name.trim(); });
+    L().categories[i] = name.trim(); save(); renderCatAdmin(); renderPlans(); renderAllScreens(); return;
+  }
+  if(t.dataset.delcat){
+    const i = +t.dataset.delcat, name = L().categories[i];
+    const inUse = L().prayers.filter(p => p.category === name).length;
+    if(inUse && !confirm(inUse + ' request' + (inUse>1?'s are':' is') + ' in "' + name
+      + '". Remove it and move them to Personal?')) return;
+    L().prayers.forEach(p => { if(p.category === name) p.category = 'Personal'; });
+    L().plans.forEach(pl => { DOW.forEach(d => {
+      pl.dayMap[d] = (pl.dayMap[d]||[]).filter(c => c !== name); }); });
+    L().categories.splice(i,1);
+    if(!L().categories.includes('Personal')) L().categories.unshift('Personal');
+    save(); renderCatAdmin(); renderPlans(); renderAllScreens(); return;
+  }
+
+  if(t.dataset.cad){
+    [...t.parentElement.children].forEach(c => c.setAttribute('aria-pressed','false'));
+    t.setAttribute('aria-pressed','true'); return;
+  }
+  if(t.dataset.mode){ PL().mode = t.dataset.mode; L().rotationFor = null; save(); renderPlans(); renderToday(); return; }
+  if(t.dataset.rot){ PL().rotationSize = +t.dataset.rot; L().rotationFor = null; save(); renderPlans(); renderToday(); return; }
+  if(t.dataset.day){ renderPlans._day = t.dataset.day; renderPlans(); return; }
+  if(t.dataset.incd){ PL().includeDaily = !PL().includeDaily; save(); renderPlans(); renderToday(); return; }
+  if(t.dataset.show){
+    const k = t.dataset.show, pl = PL();
+    if(k === 'group') pl.groupByCategory = !pl.groupByCategory; else pl.show[k] = !pl.show[k];
+    save(); renderPlans(); renderToday(); return;
+  }
+  if(t.dataset.renplan){
+    const name = prompt('Name this plan', PL().name);
+    if(name && name.trim()){ PL().name = name.trim(); save(); renderPlans(); renderToday(); }
+    return;
+  }
+  if(t.dataset.delplan){
+    if(L().plans.length < 2) return;
+    if(!confirm('Delete the plan "' + PL().name + '"? Requests are not affected.')) return;
+    L().plans = L().plans.filter(p => p.id !== L().activePlan);
+    L().activePlan = L().plans[0].id; L().rotationFor = null;
+    save(); renderPlans(); renderToday(); return;
+  }
+});
+
+el('f-plan').addEventListener('change', e => {
+  L().activePlan = e.target.value; L().rotationFor = null; save(); renderPlans(); renderToday(); });
+el('planEditor').addEventListener('change', e => {
+  if(e.target.id === 'p-focus'){ PL().focusCategory = e.target.value; save(); renderToday(); }
+  if(e.target.id === 'p-cats'){
+    const day = renderPlans._day || DOW[new Date().getDay()];
+    PL().dayMap[day] = [...e.target.selectedOptions].map(o => o.value);
+    save(); renderToday();
+  }
+});
+el('f-newplan').addEventListener('click', () => {
+  const name = prompt('Name the new plan', 'Weekday plan');
+  if(!name || !name.trim()) return;
+  const p = emptyPlan(name.trim());
+  L().plans.push(p); L().activePlan = p.id; L().rotationFor = null;
+  save(); renderPlans(); renderToday();
+});
+el('f-search').addEventListener('input', renderAll);
+el('toastAct').addEventListener('click', () => {
+  el('toast').classList.remove('on'); if(undoFn){ undoFn(); undoFn = null; } });
+
+el('f-save').addEventListener('click', () => {
+  const title = el('f-title').value.trim();
+  if(!title){ alert('Add a few words about what you are praying for.'); return; }
+  const cad = (document.querySelector('#f-cad .chip[aria-pressed="true"]') || {dataset:{}}).dataset.cad || 'daily';
+  L().prayers.push({id:nextId(), title, for:el('f-for').value.trim(), phone:el('f-phone').value.trim(),
+    detail:'', category:el('f-cat').value || 'Personal', cadence:cad, days:[], status:'active',
+    createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[], sharedFrom:null});
+  save();
+  el('f-title').value = ''; el('f-for').value = ''; el('f-phone').value = '';
+  renderCatAdmin(); go('today');
+});
+
+el('f-addcat').addEventListener('click', () => {
+  const name = el('f-newcat').value.trim();
+  if(!name) return;
+  if(L().categories.includes(name)){ alert('That category already exists.'); return; }
+  L().categories.push(name); el('f-newcat').value = ''; save(); renderCatAdmin(); renderPlans();
+});
+
+/* paste parser: "Heading:" sets the category, "Name - request" splits who/what */
+function parsePaste(text, fallback){
+  const out = []; let cat = fallback;
+  for(let raw of text.split('\n')){
+    let line = raw.replace(/^[\s*\-\u2022\u00b7]+/,'').trim();
+    if(!line) continue;
+    if(/^[^:]{2,48}:$/.test(line)){
+      const name = line.slice(0,-1).trim();
+      const hit = L().categories.find(c => c.toLowerCase() === name.toLowerCase());
+      cat = hit || name; continue;
+    }
+    let who = '', what = line;
+    const m = line.match(/^([A-Z][^\-\u2013]{1,40}?)\s+[\-\u2013]\s+(.+)$/);
+    if(m){ who = m[1].trim(); what = m[2].trim(); }
+    out.push({title: what, for: who, category: cat});
+  }
+  return out;
+}
+el('f-parse').addEventListener('click', () => {
+  const items = parsePaste(el('f-paste').value, el('f-pastecat').value || 'Personal');
+  const box = el('parsed');
+  if(!items.length){ box.innerHTML = '<p class="note">Nothing to read yet. Paste some lines above.</p>'; return; }
+  const newCats = [...new Set(items.map(i => i.category))].filter(c => !L().categories.includes(c));
+  box.innerHTML = '<p class="note">' + items.length + ' request' + (items.length>1?'s':'') + ' found'
+    + (newCats.length ? '. New categories will be created: ' + esc(newCats.join(', ')) : '') + '.</p>'
+    + items.map((it,i) => '<div class="pending"><div class="body"><div class="title">' + esc(it.title)
+        + '</div><div class="meta">' + esc(it.category) + (it.for ? ' &middot; ' + esc(it.for) : '')
+        + '</div></div><button class="act ghost small" data-keep="' + i + '">Keep</button></div>').join('')
+    + '<button class="act ghost small" id="keepAll" style="margin-top:18px">Keep all</button>';
+  const add = it => {
+    if(!L().categories.includes(it.category)) L().categories.push(it.category);
+    L().prayers.push({id:nextId(), title:it.title, for:it.for, phone:'', detail:'',
+      category:it.category, cadence:'daily', days:[], status:'active', createdAt:TODAY,
+      lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[], sharedFrom:null});
+  };
+  box.querySelectorAll('[data-keep]').forEach(btn => btn.addEventListener('click', () => {
+    add(items[+btn.dataset.keep]); save(); btn.textContent = 'Added'; btn.disabled = true;
+    renderCatAdmin(); renderAllScreens();
+  }));
+  el('keepAll').addEventListener('click', () => {
+    box.querySelectorAll('[data-keep]').forEach(b => { if(!b.disabled){ b.click(); } });
+  });
+});
+
+el('f-setpin').addEventListener('click', () => {
+  const p = prompt('Set a PIN for the private list. Leave blank to cancel.');
+  if(!p || !p.trim()) return;
+  D.pin = p.trim(); save(); alert('PIN set. It applies the next time the app opens.');
+});
+el('f-clearpin').addEventListener('click', () => { D.pin = null; save(); alert('PIN removed.'); });
+el('pinGo').addEventListener('click', () => {
+  if(el('pinIn').value === D.pin){ LOCKED = false; el('lock').classList.remove('on'); go('today'); }
+  else { el('pinNote').textContent = 'That is not the PIN.'; el('pinIn').value = ''; }
+});
+el('pinShared').addEventListener('click', () => {
+  D.activeList = 'shared'; LOCKED = true; el('lock').classList.remove('on');
+  renderCatAdmin(); renderPlans(); go('today');
+});
+
+el('f-export').addEventListener('click', () => {
+  D.lastExport = TODAY; save();
+  const blob = new Blob([JSON.stringify(D,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'prayers-' + TODAY + '.json';
+  a.click(); URL.revokeObjectURL(a.href); backupNudge();
+});
+el('f-import').addEventListener('click', () => {
+  const txt = prompt('Paste the contents of a backup file. This replaces both lists.');
+  if(!txt) return;
+  try{
+    const d = JSON.parse(txt);
+    if(d.lists) D = d;
+    else if(Array.isArray(d.prayers)){                      // v2 single-list backup
+      D = freshData(); D.lists.personal.prayers = d.prayers;
+      D.lists.personal.categories = d.categories || CATEGORIES.slice();
+      D.lists.personal.prayerDays = d.prayerDays || [];
+    } else throw new Error('shape');
+    migrate(); save(); renderCatAdmin(); renderPlans(); go('today');
+  }catch(err){ alert('That did not read as a prayer backup. Check you pasted the whole file.'); }
+});
+function backupNudge(){
+  const e = el('backupWarn');
+  if(!D.lastExport) e.textContent = 'No backup taken yet. On a real iPad, Safari can clear this app\u2019s data after about a week unused.';
+  else { const n = daysSince(D.lastExport);
+    e.textContent = n > 14 ? 'Last backup was ' + n + ' days ago.' : 'Last backup ' + pretty(D.lastExport) + '.'; }
+}
+
+
+/* ── identity, stamping, and marking ────────────────────────── */
+function stamp(p){ p.updatedAt = new Date().toISOString(); }
+function initials(name){
+  return (name||'').trim().split(/\s+/).filter(Boolean)
+    .map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+function whoHTML(p){
+  if(D.activeList !== 'shared') return '';
+  const names = (p.prayedBy && p.prayedBy[TODAY]) || [];
+  if(!names.length) return '';
+  return '<span class="who">' + names.map(n =>
+    '<span title="' + esc(n) + '">' + esc(initials(n) || '?') + '</span>').join('') + '</span>';
+}
+function setPrayed(p, force){
+  if(!p) return;
+  const on = force === undefined ? (p.lastPrayedAt !== TODAY) : !!force;
+  p.lastPrayedAt = on ? TODAY : null;
+  if(D.activeList === 'shared'){
+    p.prayedBy = p.prayedBy || {};
+    const who = (D.me || '').trim();
+    const list = new Set(p.prayedBy[TODAY] || []);
+    if(on && who) list.add(who); else if(!on && who) list.delete(who);
+    if(list.size) p.prayedBy[TODAY] = [...list]; else delete p.prayedBy[TODAY];
+  }
+  if(on) markDay();
+  stamp(p); save(); queueSync();
+}
+
+/* ── prayer mode ────────────────────────────────────────────── */
+let prayList = [], prayIdx = 0;
+function startPrayMode(){
+  const set = todaySet();
+  prayList = set.filter(p => p.lastPrayedAt !== TODAY);
+  if(!prayList.length) prayList = set;
+  if(!prayList.length){ toast('Nothing on the list today.'); return; }
+  prayIdx = 0; renderPray(); el('pray').classList.add('on');
+}
+function renderPray(){
+  const p = prayList[prayIdx];
+  if(!p) return closePray(true);
+  el('prayCount').textContent = (prayIdx+1) + ' of ' + prayList.length;
+  el('prayCat').textContent = p.category;
+  el('prayBig').textContent = p.title;
+  el('prayFor').textContent = p.for ? 'For ' + p.for : '';
+  const last = p.updates.length ? p.updates[p.updates.length-1] : null;
+  el('prayLast').textContent = last ? last.note : '';
+  el('prayLast').style.display = last ? '' : 'none';
+  el('prayBar').style.width = Math.round(prayIdx/prayList.length*100) + '%';
+  el('prayBack').disabled = prayIdx === 0;
+  el('prayNext').textContent = prayIdx === prayList.length-1 ? 'Prayed, finish' : 'Prayed';
+}
+function prayStep(n){
+  prayIdx += n;
+  if(prayIdx >= prayList.length) return closePray(true);
+  if(prayIdx < 0) prayIdx = 0;
+  renderPray();
+}
+function closePray(finished){
+  el('pray').classList.remove('on');
+  renderAllScreens();
+  if(finished){ const m = milestone(); toast(m || 'Prayed through the list.'); }
+}
+
+/* ── kitchen view ───────────────────────────────────────────── */
+function openKitchen(){
+  const act = L().prayers.filter(p => p.status === 'active');
+  const cats = L().categories.filter(c => act.some(p => p.category === c));
+  el('kitchenBody').innerHTML = '<h1>' + esc(L().label) + '</h1>'
+    + '<div class="date">' + new Date().toLocaleDateString(undefined,
+        {weekday:'long',month:'long',day:'numeric'}) + '</div>'
+    + (act.length ? cats.map(c => '<div class="k-cat">' + esc(c) + '</div>'
+        + act.filter(p => p.category === c).map(p => '<div class="k-item">' + esc(p.title)
+          + (p.for ? ' <span class="k-for">' + esc(p.for) + '</span>' : '') + '</div>').join('')).join('')
+      : '<p class="empty">Nothing on this list yet.</p>');
+  el('kitchen').classList.add('on');
+}
+
+/* ── print ──────────────────────────────────────────────────── */
+function buildPrint(){
+  const act = L().prayers.filter(p => p.status === 'active');
+  const cats = L().categories.filter(c => act.some(p => p.category === c));
+  const ans = L().prayers.filter(p => p.status === 'answered' && daysSince(p.answeredAt) <= 90);
+  el('printArea').innerHTML = '<h1>' + esc(L().label) + '</h1>'
+    + '<div class="p-sub">' + new Date().toLocaleDateString(undefined,
+        {weekday:'long',month:'long',day:'numeric',year:'numeric'})
+    + ' &middot; ' + act.length + ' requests</div>'
+    + cats.map(c => '<div class="p-cat">' + esc(c) + '</div>'
+        + act.filter(p => p.category === c).map(p => '<div class="p-item"><span class="p-box"></span>'
+          + esc(p.title) + (p.for ? ' <span class="p-for">&mdash; ' + esc(p.for) + '</span>' : '')
+          + '</div>').join('')).join('')
+    + (ans.length ? '<div class="p-cat">Answered, last 90 days</div>'
+        + ans.map(p => '<div class="p-item">' + esc(p.title)
+          + ' <span class="p-for">&mdash; ' + pretty(p.answeredAt) + '</span></div>').join('') : '');
+}
+
+/* ── sync ───────────────────────────────────────────────────── */
+const SYNC = {
+  cfg(){ return D.sync; },
+  token(){ try{ return localStorage.getItem('prayer-sync-token') || ''; }catch(e){ return ''; } },
+  setToken(t){ try{ t ? localStorage.setItem('prayer-sync-token', t)
+    : localStorage.removeItem('prayer-sync-token'); }catch(e){} },
+  ready(){ const c = this.cfg(); return c.mode === 'github' && c.owner && c.repo && c.path; },
+  raw(){ const c = this.cfg();
+    return 'https://raw.githubusercontent.com/' + c.owner + '/' + c.repo + '/'
+      + (c.branch||'main') + '/' + c.path + '?t=' + Date.now(); },
+  api(){ const c = this.cfg();
+    return 'https://api.github.com/repos/' + c.owner + '/' + c.repo + '/contents/' + c.path; },
+  b64(str){ const bytes = new TextEncoder().encode(str);
+    let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b)); return btoa(bin); },
+  async pull(loud){
+    if(!this.ready()) return;
+    status('Checking for changes...');
+    try{
+      const r = await fetch(this.raw(), {cache:'no-store'});
+      if(r.status === 404){ status('No shared file yet. Save one with Sync now.'); return; }
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      mergeShared(await r.json());
+      save(); renderAllScreens();
+      status('Up to date as of ' + new Date().toLocaleTimeString());
+    }catch(e){ status('Could not read the shared file: ' + e.message, true); }
+  },
+  async push(){
+    if(!this.ready()) return;
+    const tok = this.token();
+    if(!tok){ status('Read-only on this device. Add a token to make changes stick.', true); return; }
+    status('Sending changes...');
+    try{
+      const S = D.lists.shared;
+      const payload = { version:3, updatedAt:new Date().toISOString(), label:S.label,
+        categories:S.categories, prayers:S.prayers, prayerDays:S.prayerDays };
+      const head = {Authorization:'Bearer '+tok, Accept:'application/vnd.github+json'};
+      let sha = D.sync.sha;
+      const probe = await fetch(this.api()+'?ref='+(D.sync.branch||'main'), {headers:head, cache:'no-store'});
+      if(probe.ok){ sha = (await probe.json()).sha; }
+      else if(probe.status !== 404) throw new Error('HTTP ' + probe.status);
+      else sha = null;
+      const put = await fetch(this.api(), { method:'PUT', headers:head,
+        body: JSON.stringify({ message:'Update family prayer list',
+          content:this.b64(JSON.stringify(payload,null,2)),
+          branch:D.sync.branch||'main', ...(sha?{sha}:{}) }) });
+      if(!put.ok) throw new Error('HTTP ' + put.status);
+      D.sync.sha = (await put.json()).content.sha; save();
+      status('Saved for everyone at ' + new Date().toLocaleTimeString());
+    }catch(e){ status('Could not save: ' + e.message, true); }
+  }
+};
+function status(msg, bad){
+  const e = el('syncStatus'); if(!e) return;
+  e.textContent = msg; e.classList.toggle('bad', !!bad);
+}
+function mergePrayer(older, newer){
+  const out = Object.assign({}, newer);
+  const seen = new Set();
+  out.updates = [...(older.updates||[]), ...(newer.updates||[])].filter(u => {
+    const k = u.date + '|' + u.note; if(seen.has(k)) return false; seen.add(k); return true;
+  }).sort((a,b) => String(a.date).localeCompare(String(b.date)));
+  out.prayedBy = Object.assign({}, older.prayedBy || {});
+  for(const d of Object.keys(newer.prayedBy || {}))
+    out.prayedBy[d] = [...new Set([...(out.prayedBy[d]||[]), ...newer.prayedBy[d]])];
+  out.lastPrayedAt = [older.lastPrayedAt, newer.lastPrayedAt].filter(Boolean).sort().pop() || null;
+  return out;
+}
+function mergeShared(remote){
+  const S = D.lists.shared;
+  S.categories = [...new Set([...S.categories, ...(remote.categories||[])])];
+  const map = new Map(S.prayers.map(p => [p.id, p]));
+  for(const r of (remote.prayers||[])){
+    const l = map.get(r.id);
+    if(!l){ map.set(r.id, r); continue; }
+    const rNew = String(r.updatedAt||'') > String(l.updatedAt||'');
+    map.set(r.id, rNew ? mergePrayer(l, r) : mergePrayer(r, l));
+  }
+  S.prayers = [...map.values()];
+  S.prayerDays = [...new Set([...S.prayerDays, ...(remote.prayerDays||[])])].sort();
+}
+let syncTimer = null;
+function queueSync(){
+  if(D.activeList !== 'shared' || !SYNC.ready() || !SYNC.token()) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => SYNC.push(), 2500);
+}
+function renderSyncUI(){
+  const c = D.sync;
+  document.querySelectorAll('#f-syncmode .chip').forEach(b =>
+    b.setAttribute('aria-pressed', b.dataset.sync === c.mode));
+  el('syncFields').style.display = c.mode === 'github' ? '' : 'none';
+  el('f-owner').value = c.owner || ''; el('f-repo').value = c.repo || '';
+  el('f-path').value = c.path || ''; el('f-branch').value = c.branch || 'main';
+  el('f-token').value = SYNC.token();
+  el('f-me').value = D.me || '';
+  if(c.mode === 'github' && !SYNC.ready()) status('Fill in the repo details, then Save settings.');
+}
+
+/* ── new wiring ─────────────────────────────────────────────── */
+el('startPray').addEventListener('click', startPrayMode);
+el('prayShut').addEventListener('click', () => closePray(false));
+el('prayNext').addEventListener('click', () => { setPrayed(prayList[prayIdx], true); prayStep(1); });
+el('praySkip').addEventListener('click', () => prayStep(1));
+el('prayBack').addEventListener('click', () => prayStep(-1));
+document.addEventListener('keydown', e => {
+  if(!el('pray').classList.contains('on')) return;
+  if(e.key === 'Escape') closePray(false);
+  if(e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); setPrayed(prayList[prayIdx], true); prayStep(1); }
+  if(e.key === 'ArrowLeft') prayStep(-1);
+});
+let tx = 0;
+el('pray').addEventListener('touchstart', e => { tx = e.changedTouches[0].clientX; }, {passive:true});
+el('pray').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if(dx < -60) prayStep(1); else if(dx > 60) prayStep(-1);
+}, {passive:true});
+
+el('openKitchen').addEventListener('click', openKitchen);
+el('kitchenShut').addEventListener('click', () => el('kitchen').classList.remove('on'));
+el('doPrint').addEventListener('click', () => { buildPrint(); window.print(); });
+
+el('f-me').addEventListener('change', e => { D.me = e.target.value.trim(); save(); renderToday(); });
+document.querySelectorAll('#f-syncmode .chip').forEach(b => b.addEventListener('click', () => {
+  D.sync.mode = b.dataset.sync; save(); renderSyncUI();
+  if(D.sync.mode === 'github' && SYNC.ready()) SYNC.pull();
+}));
+el('f-syncsave').addEventListener('click', () => {
+  D.sync.owner = el('f-owner').value.trim();
+  D.sync.repo = el('f-repo').value.trim();
+  D.sync.path = el('f-path').value.trim() || 'data/family-prayers.json';
+  D.sync.branch = el('f-branch').value.trim() || 'main';
+  D.sync.sha = null;
+  SYNC.setToken(el('f-token').value.trim());
+  save(); renderSyncUI();
+  if(SYNC.ready()) SYNC.pull(true); else status('Owner, repo and path are all needed.', true);
+});
+el('f-syncnow').addEventListener('click', async () => {
+  if(!SYNC.ready()){ status('Fill in the repo details and save first.', true); return; }
+  await SYNC.pull(true);
+  if(SYNC.token()) await SYNC.push();
+});
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden && SYNC.ready()) SYNC.pull();
+});
+setInterval(() => { if(SYNC.ready() && !document.hidden) SYNC.pull(); }, 90000);
+
+load();
+LOCKED = !!D.pin && D.activeList === 'personal';
+if(LOCKED) el('lock').classList.add('on');
+catOptions(el('f-cat'), 'Personal');
+catOptions(el('f-pastecat'), 'Personal');
+renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today');
+if(SYNC.ready()) SYNC.pull();
+
+</script>
+</body>
+</html>
