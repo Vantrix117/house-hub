@@ -273,6 +273,16 @@ button:disabled{opacity:.35;cursor:default}
 .toast button{background:none;border:none;color:var(--gold);font-family:inherit;
   font-size:14px;font-weight:700;cursor:pointer;padding:0}
 
+/* ── floating add ─────────────────────────────────────────── */
+.fab{position:fixed;right:calc(22px + env(safe-area-inset-right));
+  bottom:calc(86px + env(safe-area-inset-bottom));z-index:12;width:56px;height:56px;
+  border-radius:50%;border:none;background:var(--accent);color:var(--on-accent);
+  box-shadow:var(--lift-lg);cursor:pointer;display:none;place-items:center;padding:0;
+  transition:transform .16s,background .2s}
+.fab.on{display:grid}
+.fab:active{transform:scale(.94)}
+.fab svg{width:26px;height:26px}
+
 /* ── nav ──────────────────────────────────────────────────── */
 nav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--raised);
   border-top:1px solid var(--rule-soft);padding-bottom:env(safe-area-inset-bottom)}
@@ -344,7 +354,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
 
 /* ── print ────────────────────────────────────────────────── */
 @media print{
-  nav,.veil,.sheet,.toast,.switch,.meter,.strip,.cheer,.prompt,#pray,#kitchen,
+  nav,.veil,.sheet,.toast,.switch,.meter,.strip,.cheer,.prompt,#pray,#kitchen,.fab,
   #lock,button,input,textarea,select,label,.note,.warn{display:none!important}
   body{background:#fff;color:#000;font-size:11pt;padding:0}
   .wrap{max-width:none;padding:0}
@@ -534,6 +544,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
 
 <div id="printArea"></div>
 
+<button class="fab" id="fab" data-go="add" aria-label="Add a request"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="veil" id="veil"></div>
 <div class="sheet" id="sheet"><div class="inner" id="sheetInner"></div></div>
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAct"></button></div>
@@ -981,8 +992,14 @@ function deletePrayer(id){
   if(S.rotationFor) S.rotationFor.ids = S.rotationFor.ids.filter(x => x !== id);
   save(); queueSync(); shutSheet(); renderCatAdmin(); renderAllScreens(); toast('Removed from the list.');
 }
-const openSheet = () => { closeAsk(); el('sheet').classList.add('on'); el('veil').classList.add('on'); };
-const shutSheet = () => { closeAsk(); el('sheet').classList.remove('on'); el('veil').classList.remove('on'); };
+const openSheet = () => { closeAsk(); el('sheet').classList.add('on'); el('veil').classList.add('on'); updateFab(); };
+const shutSheet = () => { closeAsk(); el('sheet').classList.remove('on'); el('veil').classList.remove('on'); updateFab(); };
+// The + button shows on Today and List only, and never over a sheet, overlay or the lock.
+let screenName = 'today';
+function updateFab(){
+  const covered = ['sheet','pray','kitchen','lock'].some(id => el(id).classList.contains('on'));
+  el('fab').classList.toggle('on', (screenName === 'today' || screenName === 'all') && !covered);
+}
 
 /* ── inline form ─────────────────────────────────────────────
    One panel that opens where the button that asked was. Replaces
@@ -1061,6 +1078,7 @@ function go(name){
     b.setAttribute('aria-current', b.dataset.go === name ? 'true' : 'false'));
   // Needs-attention opens itself when review is due; otherwise it stays folded.
   if(name === 'answered') el('reviewWrap').open = reviewDue();
+  screenName = name; updateFab();
   renderAllScreens(); window.scrollTo(0,0);
 }
 
@@ -1161,7 +1179,7 @@ document.addEventListener('click', e => {
   if(t.hasAttribute('data-shut')){ shutSheet(); return; }
 
   if(t.dataset.list){
-    if(t.dataset.list === 'personal' && D.pin && LOCKED){ el('lock').classList.add('on'); return; }
+    if(t.dataset.list === 'personal' && D.pin && LOCKED){ el('lock').classList.add('on'); updateFab(); return; }
     D.activeList = t.dataset.list; save();
     renderCatAdmin(); renderPlans(); go('today'); return;
   }
@@ -1480,7 +1498,7 @@ function startPrayMode(){
   prayList = set.filter(p => p.lastPrayedAt !== TODAY);
   if(!prayList.length) prayList = set;
   if(!prayList.length){ toast('Nothing on the list today.'); return; }
-  prayIdx = 0; renderPray(); el('pray').classList.add('on');
+  prayIdx = 0; renderPray(); el('pray').classList.add('on'); updateFab();
 }
 function renderPray(){
   const p = prayList[prayIdx];
@@ -1503,7 +1521,7 @@ function prayStep(n){
   renderPray();
 }
 function closePray(finished){
-  el('pray').classList.remove('on');
+  el('pray').classList.remove('on'); updateFab();
   renderAllScreens();
   if(finished){ const m = milestone(); toast(m || 'Prayed through the list.'); }
 }
@@ -1519,7 +1537,7 @@ function openKitchen(){
         + act.filter(p => p.category === c).map(p => '<div class="k-item">' + esc(p.title)
           + (p.for ? ' <span class="k-for">' + esc(p.for) + '</span>' : '') + '</div>').join('')).join('')
       : '<p class="empty">Nothing on this list yet.</p>');
-  el('kitchen').classList.add('on');
+  el('kitchen').classList.add('on'); updateFab();
 }
 
 /* ── print ──────────────────────────────────────────────────── */
@@ -1658,7 +1676,7 @@ el('pray').addEventListener('touchend', e => {
 }, {passive:true});
 
 el('openKitchen').addEventListener('click', openKitchen);
-el('kitchenShut').addEventListener('click', () => el('kitchen').classList.remove('on'));
+el('kitchenShut').addEventListener('click', () => { el('kitchen').classList.remove('on'); updateFab(); });
 el('doPrint').addEventListener('click', () => { buildPrint(); window.print(); });
 
 el('f-me').addEventListener('change', e => { D.me = e.target.value.trim(); save(); renderToday(); });
