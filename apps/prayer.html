@@ -6,8 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Prayer">
-<meta name="theme-color" content="#E9EBE4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111615" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" id="themeColor" content="#F7F2EB">
 <title>Prayer</title>
 <link rel="apple-touch-icon" href="prayer-icon.png">
 <link rel="apple-touch-icon" sizes="512x512" href="prayer-icon-512.png">
@@ -39,9 +38,13 @@
   --lift-lg:0 2px 8px rgba(58,46,36,.06), 0 24px 56px -20px rgba(58,46,36,.28);
   --r:14px; --r-sm:10px;
   --accent:var(--mocha); --accent-soft:var(--mocha-soft);
+  --on-accent:var(--raised);
 }
+/* Dark: applies from the system setting unless the user picked Light,
+   and always when the user picked Dark (data-theme on <html>). */
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-theme="light"]){
+
     --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
     --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
     --rule:#332B24; --rule-soft:#2A231E;
@@ -55,7 +58,25 @@
     --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;
     --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
     --lift-lg:0 2px 8px rgba(0,0,0,.45), 0 28px 64px -22px rgba(0,0,0,.8);
+    --on-accent:#1C1714;
   }
+}
+:root[data-theme="dark"]{
+
+    --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
+    --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
+    --rule:#332B24; --rule-soft:#2A231E;
+    --mocha:#CBA77E; --mocha-soft:#2E251C;
+    --gold:#E0B25A;  --gold-soft:#2C2416;
+    --olive:#9DC183; --olive-soft:#1E2718;
+    --teal:#5EC2B8;  --teal-soft:#12241F;
+    --terra:#E28A66; --terra-soft:#2B1D17;
+    --dim:#14100D;
+    --d0:#CBA77E; --d1:#5EC2B8; --d2:#9DC183; --d3:#E0B25A;
+    --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;
+    --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
+    --lift-lg:0 2px 8px rgba(0,0,0,.45), 0 28px 64px -22px rgba(0,0,0,.8);
+    --on-accent:#1C1714;
 }
 body.shared{ --accent:var(--teal); --accent-soft:var(--teal-soft); }
 
@@ -106,7 +127,7 @@ li.row{display:flex;gap:15px;align-items:flex-start;padding:16px 0;
 ul.list li.row:first-child{border-top:none}
 .mark{flex:0 0 auto;width:30px;height:30px;margin-top:2px;border-radius:50%;
   border:1.75px solid var(--rule);background:transparent;cursor:pointer;
-  display:grid;place-items:center;padding:0;color:#fff;
+  display:grid;place-items:center;padding:0;color:var(--on-accent);
   transition:border-color .2s,background .2s,transform .18s}
 .mark:hover{border-color:var(--olive)}
 .mark:active{transform:scale(.86)}
@@ -115,7 +136,6 @@ ul.list li.row:first-child{border-top:none}
   transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
 .mark[aria-pressed="true"]{background:var(--olive);border-color:var(--olive)}
 .mark[aria-pressed="true"] svg{opacity:1;transform:scale(1)}
-@media (prefers-color-scheme: dark){ .mark[aria-pressed="true"] svg path{stroke:#1C1714} }
 .body{flex:1 1 auto;min-width:0;cursor:pointer}
 .title{font-size:17.5px;font-weight:500;line-height:1.42;letter-spacing:-.012em}
 .row.done .title{color:var(--muted);font-weight:400}
@@ -192,20 +212,16 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
   cursor:pointer;background:var(--sunk);border:1.5px solid transparent;color:var(--ink2);
   letter-spacing:-.01em;transition:background .18s,color .18s,border-color .18s}
 .chip:hover{background:var(--hover)}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--raised)}
-@media (prefers-color-scheme: dark){ .chip[aria-pressed="true"]{color:#1C1714} }
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 button.act{font-family:inherit;font-size:16.5px;font-weight:600;padding:15px 22px;
-  border-radius:var(--r-sm);cursor:pointer;background:var(--accent);color:var(--raised);
+  border-radius:var(--r-sm);cursor:pointer;background:var(--accent);color:var(--on-accent);
   border:1.5px solid var(--accent);width:100%;margin-top:28px;letter-spacing:-.012em;
   transition:transform .16s,opacity .2s,background .2s}
-@media (prefers-color-scheme: dark){ button.act{color:#1C1714} }
 button.act:active{transform:translateY(1px)}
 button.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
-@media (prefers-color-scheme: dark){ button.ghost{color:var(--ink)} }
 button.ghost:hover{background:var(--hover);border-color:var(--accent)}
 button.small{width:auto;margin-top:0;font-size:14.5px;padding:11px 18px}
 button.act.danger{background:var(--terra);border-color:var(--terra)}
-@media (prefers-color-scheme: dark){ button.act.danger{color:#1C1714} }
 button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 button:disabled{opacity:.35;cursor:default}
 .rowbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
@@ -310,9 +326,8 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   color:var(--ink);transition:transform .16s,background .2s}
 #pray .ctrl button:active{transform:translateY(1px)}
 #pray .ctrl button:disabled{opacity:.3}
-#pray .ctrl button.go{background:var(--accent);border-color:var(--accent);color:var(--raised);
+#pray .ctrl button.go{background:var(--accent);border-color:var(--accent);color:var(--on-accent);
   flex:2;font-size:16.5px}
-@media (prefers-color-scheme: dark){ #pray .ctrl button.go{color:#1C1714} }
 
 /* ── kitchen view ─────────────────────────────────────────── */
 #kitchen{position:fixed;inset:0;background:var(--paper);z-index:34;display:none;
@@ -449,6 +464,13 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
     <button class="act ghost small" id="f-clearpin">Remove PIN</button>
   </div>
 
+  <h2>Appearance</h2>
+  <div class="chips" id="f-theme" style="margin-top:14px">
+    <button class="chip" data-look="system" aria-pressed="true">System</button>
+    <button class="chip" data-look="light" aria-pressed="false">Light</button>
+    <button class="chip" data-look="dark" aria-pressed="false">Dark</button>
+  </div>
+
   <h2>This device</h2>
   <label for="f-me">Who is using it</label>
   <input type="text" id="f-me" placeholder="Your name">
@@ -575,7 +597,7 @@ const SEED_PRAYERS = [
 let D, LOCKED = false;
 
 function freshData(){
-  const d = { version:3, activeList:'personal', pin:null, lastExport:null, me:'',
+  const d = { version:3, activeList:'personal', pin:null, lastExport:null, me:'', theme:'system',
     sync:{ mode:'off', owner:'', repo:'', path:'data/family-prayers.json', branch:'main', sha:null },
     lists:{ personal: emptyList('My list'), shared: emptyList('Family list') } };
   const P = d.lists.personal;
@@ -606,6 +628,7 @@ function load(){
 function migrate(){
   if(!D.lists) D = freshData();
   if(D.me === undefined) D.me = '';
+  if(!['system','light','dark'].includes(D.theme)) D.theme = 'system';
   if(!D.sync) D.sync = { mode:'off', owner:'', repo:'', path:'data/family-prayers.json', branch:'main', sha:null };
   for(const k of ['personal','shared']){
     const L = D.lists[k] || (D.lists[k] = emptyList(k==='shared'?'Family list':'My list'));
@@ -1107,7 +1130,7 @@ function renderPlans(){
 
 /* ── events ─────────────────────────────────────────────────── */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday]');
+  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-look]');
   if(!t) return;
 
   if(t.dataset.edit){ editSheet(t.dataset.edit); return; }
@@ -1121,6 +1144,7 @@ document.addEventListener('click', e => {
     t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') !== 'true');
     el('e-daysErr').textContent = ''; return;
   }
+  if(t.dataset.look){ D.theme = t.dataset.look; save(); applyTheme(); return; }
   if(t.dataset.delete){
     const p = byId(t.dataset.delete);
     ask(t, {kind:'confirm', danger:true, save:'Delete',
@@ -1399,7 +1423,7 @@ el('f-import').addEventListener('click', () => {
       catch(e){ return 'That did not read as a prayer backup. Check you pasted the whole file.'; } },
     onSave(txt){
       D = readBackup(txt); migrate(); save();
-      renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today'); toast('Backup restored.');
+      applyTheme(); renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today'); toast('Backup restored.');
     }});
 });
 function backupNudge(){
@@ -1409,6 +1433,17 @@ function backupNudge(){
     e.textContent = n > 14 ? 'Last backup was ' + n + ' days ago.' : 'Last backup ' + pretty(D.lastExport) + '.'; }
 }
 
+
+/* ── theme ──────────────────────────────────────────────────── */
+function applyTheme(){
+  const t = D.theme || 'system';
+  document.documentElement.setAttribute('data-theme', t);
+  const dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const m = el('themeColor'); if(m) m.setAttribute('content', dark ? '#1C1714' : '#F7F2EB');
+  document.querySelectorAll('#f-theme .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === t));
+}
+const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
+if(darkMQ.addEventListener) darkMQ.addEventListener('change', applyTheme);
 
 /* ── identity, stamping, and marking ────────────────────────── */
 function stamp(p){ p.updatedAt = new Date().toISOString(); }
@@ -1656,7 +1691,7 @@ LOCKED = !!D.pin && D.activeList === 'personal';
 if(LOCKED) el('lock').classList.add('on');
 catOptions(el('f-cat'), 'Personal');
 catOptions(el('f-pastecat'), 'Personal');
-renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today');
+applyTheme(); renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today');
 if(SYNC.ready()) SYNC.pull();
 
 </script>
