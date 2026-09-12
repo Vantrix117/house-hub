@@ -162,6 +162,10 @@ details.cat > summary::-webkit-details-marker{display:none}
 .dot.d4{background:var(--d4)}.dot.d5{background:var(--d5)}.dot.d6{background:var(--d6)}.dot.d7{background:var(--d7)}
 details.cat > summary .n{font-size:12.5px;font-weight:600;color:var(--muted);
   background:var(--sunk);border-radius:999px;padding:3px 10px}
+details.cat > summary .end{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
+.copybtn{background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:600;
+  color:var(--muted);cursor:pointer;padding:11px 10px;min-height:44px;border-radius:999px}
+.copybtn:hover{color:var(--accent)}
 details.cat > summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 /* ── answered ─────────────────────────────────────────────── */
@@ -400,7 +404,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   <div class="strip" id="todayStrip"></div>
   <div class="cheer" id="cheer"></div>
   <div id="reviewPrompt"></div>
-  <div class="rowbtns" style="margin-top:18px"><button class="act ghost small" id="startPray">Pray through the list</button><button class="act ghost small" id="openKitchen">Kitchen view</button><button class="act ghost small" id="doPrint">Print</button></div>
+  <div class="rowbtns" style="margin-top:18px"><button class="act ghost small" id="startPray">Pray through the list</button><button class="act ghost small" id="openKitchen">Kitchen view</button><button class="act ghost small" id="doPrint">Print</button><button class="act ghost small" id="copyToday">Copy as text</button></div>
   <div id="todayList"></div>
   <div id="anniv"></div>
   <div id="todayAnswered"></div>
@@ -812,7 +816,8 @@ function groupedHTML(items, open){
   return [...cats,...orph].map(c => {
     const rows = items.filter(p => p.category === c);
     return '<details class="cat"' + (open?' open':'') + '><summary><span>' + dot(c) + esc(c)
-      + '</span><span class="n">' + rows.length + '</span></summary>'
+      + '</span><span class="end"><button class="copybtn" data-copycat="' + esc(c) + '" aria-label="Copy ' + esc(c) + ' as text">Copy</button>'
+      + '<span class="n">' + rows.length + '</span></span></summary>'
       + '<ul class="list">' + rows.map(rowHTML).join('') + '</ul></details>';
   }).join('');
 }
@@ -1046,7 +1051,7 @@ function ask(trigger, o){
     + esc(o.save || 'Save') + '</button><button class="act ghost small" id="askCancel">'
     + esc(o.cancel || 'Cancel') + '</button></div>';
   // Sit below the button's row so a flex row of buttons is not split.
-  const anchor = trigger.closest('.rowbtns, .catrow') || trigger;
+  const anchor = trigger.closest('.rowbtns, .catrow, details.cat') || trigger;
   trigger.hidden = true; anchor.insertAdjacentElement('afterend', panel);
   askOpen = { panel, trigger };
   const inp = panel.querySelector('#askIn'), saveBtn = panel.querySelector('#askSave');
@@ -1061,6 +1066,10 @@ function ask(trigger, o){
   });
   if(inp && o.kind !== 'select') inp.focus();
   if(panel.scrollIntoView) panel.scrollIntoView({block:'nearest'});
+}
+// Plain-text list for pasting into a message: heading, then one line per request.
+function asText(heading, items){
+  return heading + '\n' + items.map(p => '\u2022 ' + p.title + (p.for ? ' \u2014 ' + p.for : '')).join('\n');
 }
 // Copies text to the clipboard; falls back to a selectable panel when the browser refuses.
 async function copyText(text, trigger, done){
@@ -1161,7 +1170,15 @@ function renderPlans(){
 
 /* ── events ─────────────────────────────────────────────────── */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-look],[data-fday]');
+  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-look],[data-fday],[data-copycat]');
+
+  if(t.dataset.copycat){
+    e.preventDefault();                       // a button inside <summary> must not toggle it
+    const c = t.dataset.copycat;
+    const items = L().prayers.filter(p => p.status === 'active' && p.category === c);
+    copyText(asText(c, items), t, 'Copied ' + items.length + ' request' + (items.length===1?'':'s') + '.');
+    return;
+  }
   if(!t) return;
 
   if(t.dataset.edit){ editSheet(t.dataset.edit); return; }
@@ -1700,6 +1717,12 @@ el('pray').addEventListener('touchend', e => {
 el('openKitchen').addEventListener('click', openKitchen);
 el('kitchenShut').addEventListener('click', () => { el('kitchen').classList.remove('on'); updateFab(); });
 el('doPrint').addEventListener('click', () => { buildPrint(); window.print(); });
+el('copyToday').addEventListener('click', () => {
+  const items = todaySet();
+  if(!items.length){ toast('Nothing on the list today.'); return; }
+  const heading = L().label + ' \u2014 ' + new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+  copyText(asText(heading, items), el('copyToday'), 'Copied ' + items.length + ' request' + (items.length===1?'':'s') + '.');
+});
 
 el('f-me').addEventListener('change', e => { D.me = e.target.value.trim(); save(); renderToday(); });
 document.querySelectorAll('#f-syncmode .chip').forEach(b => b.addEventListener('click', () => {
