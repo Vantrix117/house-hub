@@ -375,6 +375,9 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
 
 <section id="s-answered" class="screen">
   <header><h1>The record</h1></header>
+  <details class="cat" id="reviewWrap"><summary><span>Needs attention</span><span class="n" id="reviewCount"></span></summary>
+    <div id="reviewBody"></div>
+  </details>
   <div id="record"></div>
   <h2>Answered</h2>
   <div id="answeredList"></div>
@@ -398,11 +401,6 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   </div>
   <button class="act" id="f-save">Add to the list</button>
   <p class="note">Tap a field and use the microphone on the keyboard to speak it instead of typing.</p>
-</section>
-
-<section id="s-review" class="screen">
-  <header><h1>Review</h1></header>
-  <div id="reviewBody"></div>
 </section>
 
 <section id="s-more" class="screen">
@@ -508,7 +506,6 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   <button data-go="all">List</button>
   <button data-go="answered">Record</button>
   <button data-go="add">Add</button>
-  <button data-go="review">Review</button>
   <button data-go="more">More</button>
 </div></nav>
 
@@ -792,7 +789,7 @@ function renderToday(){
 
   el('reviewPrompt').innerHTML = (plan.show.review && reviewDue())
     ? '<div class="prompt"><span>Some of the list has gone quiet.</span>'
-      + '<button class="act ghost small" data-go="review">Review it</button></div>' : '';
+      + '<button class="act ghost small" data-go="answered">See what</button></div>' : '';
 
   el('todayList').innerHTML = set.length
     ? (plan.groupByCategory ? groupedHTML(set,true) : '<ul class="list">'+set.map(rowHTML).join('')+'</ul>')
@@ -845,6 +842,7 @@ function renderReview(){
     + block('No news in a while','On the list over three months with no update. Worth asking how they are.', r.silent)
     + block('Added recently','New this week. Check they are filed where you want them.', r.fresh);
   el('reviewBody').innerHTML = body || '<p class="empty">Nothing needs attention. The list is current.</p>';
+  el('reviewCount').textContent = r.cold.length + r.silent.length + r.fresh.length;
 }
 
 /* ── detail sheet ───────────────────────────────────────────── */
@@ -1011,6 +1009,8 @@ function go(name){
   el('s-'+name).classList.add('on');
   document.querySelectorAll('nav button').forEach(b =>
     b.setAttribute('aria-current', b.dataset.go === name ? 'true' : 'false'));
+  // Needs-attention opens itself when review is due; otherwise it stays folded.
+  if(name === 'answered') el('reviewWrap').open = reviewDue();
   renderAllScreens(); window.scrollTo(0,0);
 }
 
