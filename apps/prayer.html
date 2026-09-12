@@ -194,6 +194,8 @@ button.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
 @media (prefers-color-scheme: dark){ button.ghost{color:var(--ink)} }
 button.ghost:hover{background:var(--hover);border-color:var(--accent)}
 button.small{width:auto;margin-top:0;font-size:14.5px;padding:11px 18px}
+button.act.danger{background:var(--terra);border-color:var(--terra)}
+@media (prefers-color-scheme: dark){ button.act.danger{color:#1C1714} }
 button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 button:disabled{opacity:.35;cursor:default}
 .rowbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
@@ -202,6 +204,18 @@ button:disabled{opacity:.35;cursor:default}
 .catrow button{background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;
   color:var(--muted);cursor:pointer;padding:5px 3px}
 .catrow button:hover{color:var(--accent)}
+
+/* ── inline form: replaces every native dialog ────────────── */
+.ask{background:var(--sunk);border-radius:var(--r);padding:4px 18px 18px;margin-top:14px;
+  flex:1 1 100%;width:100%;animation:rise .25s cubic-bezier(.22,.9,.3,1)}
+.ask.danger{background:var(--terra-soft)}
+.ask label{margin-top:14px}
+.ask .line{font-size:15.5px;font-weight:500;padding-top:14px;line-height:1.5}
+.ask .rowbtns{margin-top:16px}
+.ask input,.ask textarea,.ask select{background:var(--raised)}
+.ask textarea{min-height:96px}
+.err{font-size:14px;font-weight:500;color:var(--terra);margin:8px 0 0}
+.err:empty{display:none}
 
 /* ── sheet ────────────────────────────────────────────────── */
 .veil{position:fixed;inset:0;background:rgba(42,35,28,.42);backdrop-filter:blur(6px);
@@ -370,6 +384,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   <header><h1>Add a request</h1></header>
   <label for="f-title">What are you praying for?</label>
   <input type="text" id="f-title" placeholder="Healing for...">
+  <p class="err" id="f-titleErr"></p>
   <label for="f-for">Who is it for?</label>
   <input type="text" id="f-for" placeholder="Optional">
   <label for="f-phone">Their number, to tell them you prayed</label>
@@ -411,6 +426,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   <div id="catAdmin"></div>
   <label for="f-newcat">Add a category</label>
   <input type="text" id="f-newcat" placeholder="Name it whatever you like">
+  <p class="err" id="f-newcatErr"></p>
   <button class="act ghost small" id="f-addcat" style="margin-top:12px">Add category</button>
 
   <h2>Privacy</h2>
@@ -864,8 +880,66 @@ function sheetFor(id){
     + '</div>';
   openSheet();
 }
-const openSheet = () => { el('sheet').classList.add('on'); el('veil').classList.add('on'); };
-const shutSheet = () => { el('sheet').classList.remove('on'); el('veil').classList.remove('on'); };
+const openSheet = () => { closeAsk(); el('sheet').classList.add('on'); el('veil').classList.add('on'); };
+const shutSheet = () => { closeAsk(); el('sheet').classList.remove('on'); el('veil').classList.remove('on'); };
+
+/* ── inline form ─────────────────────────────────────────────
+   One panel that opens where the button that asked was. Replaces
+   prompt/alert/confirm, which iPad Safari renders badly inside an
+   iframe. kind: text | textarea | select | password | confirm.
+   ───────────────────────────────────────────────────────────── */
+let askOpen = null;
+function closeAsk(){
+  if(!askOpen) return;
+  askOpen.panel.remove(); askOpen.trigger.hidden = false; askOpen = null;
+}
+function ask(trigger, o){
+  closeAsk();
+  const panel = document.createElement('div');
+  panel.className = 'ask' + (o.danger ? ' danger' : '');
+  const v = esc(o.value || ''), ph = esc(o.placeholder || '');
+  const field =
+      o.kind === 'textarea' ? '<textarea id="askIn" placeholder="' + ph + '">' + v + '</textarea>'
+    : o.kind === 'select'   ? '<select id="askIn">' + (o.options || []).map(x => '<option value="' + esc(x) + '"'
+                                + (x === o.value ? ' selected' : '') + '>' + esc(x) + '</option>').join('') + '</select>'
+    : o.kind === 'password' ? '<input type="password" id="askIn" inputmode="numeric" autocomplete="off" placeholder="' + ph + '">'
+    : o.kind === 'confirm'  ? ''
+    : '<input type="text" id="askIn" value="' + v + '" placeholder="' + ph + '">';
+  panel.innerHTML =
+      (o.kind === 'confirm' ? '<div class="line">' + esc(o.label) + '</div>'
+        : (o.label ? '<label for="askIn">' + esc(o.label) + '</label>' : ''))
+    + field
+    + (o.help ? '<p class="note">' + esc(o.help) + '</p>' : '')
+    + '<p class="err" id="askErr"></p>'
+    + '<div class="rowbtns"><button class="act small' + (o.danger ? ' danger' : '') + '" id="askSave">'
+    + esc(o.save || 'Save') + '</button><button class="act ghost small" id="askCancel">'
+    + esc(o.cancel || 'Cancel') + '</button></div>';
+  // Sit below the button's row so a flex row of buttons is not split.
+  const anchor = trigger.closest('.rowbtns, .catrow') || trigger;
+  trigger.hidden = true; anchor.insertAdjacentElement('afterend', panel);
+  askOpen = { panel, trigger };
+  const inp = panel.querySelector('#askIn'), saveBtn = panel.querySelector('#askSave');
+  const val = () => inp ? inp.value : '';
+  const check = () => { if(o.required && inp) saveBtn.disabled = !val().trim(); };
+  check(); if(inp) inp.addEventListener('input', check);
+  panel.querySelector('#askCancel').addEventListener('click', () => { closeAsk(); if(o.onCancel) o.onCancel(); });
+  saveBtn.addEventListener('click', () => {
+    const x = val(), err = o.validate ? o.validate(x) : '';
+    if(err){ panel.querySelector('#askErr').textContent = err; return; }
+    closeAsk(); o.onSave(x);
+  });
+  if(inp && o.kind !== 'select') inp.focus();
+  if(panel.scrollIntoView) panel.scrollIntoView({block:'nearest'});
+}
+// Copies text to the clipboard; falls back to a selectable panel when the browser refuses.
+async function copyText(text, trigger, done){
+  try{ await navigator.clipboard.writeText(text); toast(done || 'Copied.'); return true; }
+  catch(e){
+    if(trigger) ask(trigger, {kind:'textarea', label:'Copy this yourself', value:text, save:'Done', onSave(){}});
+    else toast('Could not copy on this device.');
+    return false;
+  }
+}
 
 let undoFn = null;
 function toast(msg, actionLabel, fn){
@@ -969,34 +1043,37 @@ document.addEventListener('click', e => {
 
   if(t.dataset.update){
     const p = byId(t.dataset.update);
-    const note = prompt('What is the update?');
-    if(note && note.trim()){ p.updates.push({date:TODAY, note:note.trim()}); save(); renderAllScreens(); sheetFor(p.id); }
+    ask(t, {kind:'textarea', label:'What is the update?', required:true, onSave(note){
+      p.updates.push({date:TODAY, note:note.trim()}); stamp(p); save(); queueSync(); renderAllScreens(); sheetFor(p.id); }});
     return;
   }
   if(t.dataset.tell){
     const p = byId(t.dataset.tell);
     const who = (p.for || '').split(/[&,]/)[0].trim();
-    const draft = prompt('Send this to ' + (who || 'them') + '?',
-      (who ? who + ', ' : '') + 'just prayed for you this morning. Thinking of you.');
-    if(!draft) return;
-    if(p.phone){ location.href = 'sms:' + p.phone.replace(/[^0-9+]/g,'') + '&body=' + encodeURIComponent(draft); }
-    else if(navigator.clipboard){ navigator.clipboard.writeText(draft)
-      .then(()=>toast('Copied. Paste it into Messages.')) .catch(()=>prompt('Copy this:', draft)); }
-    else { prompt('Copy this:', draft); }
-    p.updates.push({date:TODAY, note:'Told ' + (who||'them') + ' I was praying.'});
-    save(); renderAllScreens(); return;
+    ask(t, {kind:'textarea', label:'Send this to ' + (who || 'them') + '?', required:true,
+      value:(who ? who + ', ' : '') + 'just prayed for you this morning. Thinking of you.',
+      help: p.phone ? 'Opens Messages with the text filled in.' : 'No number stored, so this copies the text for you to paste.',
+      save: p.phone ? 'Open Messages' : 'Copy', onSave(draft){
+        draft = draft.trim();
+        if(p.phone){ location.href = 'sms:' + p.phone.replace(/[^0-9+]/g,'') + '&body=' + encodeURIComponent(draft); }
+        else copyText(draft, t, 'Copied. Paste it into Messages.');
+        p.updates.push({date:TODAY, note:'Told ' + (who||'them') + ' I was praying.'});
+        stamp(p); save(); queueSync(); renderAllScreens();
+      }});
+    return;
   }
   if(t.dataset.recat){
     const p = byId(t.dataset.recat);
-    const c = prompt('Move to which category?\n\n' + L().categories.join('\n'), p.category);
-    if(c && L().categories.includes(c.trim())){ p.category = c.trim(); save(); renderAllScreens(); sheetFor(p.id); }
-    else if(c){ alert('No category by that name. Add it under More first.'); }
+    ask(t, {kind:'select', label:'Move to which category?', options:L().categories, value:p.category,
+      save:'Move', onSave(c){
+        if(!L().categories.includes(c)) return;
+        p.category = c; stamp(p); save(); queueSync(); renderAllScreens(); sheetFor(p.id); }});
     return;
   }
   if(t.dataset.share){
     const p = byId(t.dataset.share);
-    const title = prompt('How should this read on the family list?\n\nEveryone in the house can see it.', p.title);
-    if(!title || !title.trim()) return;
+    ask(t, {kind:'text', label:'How should this read on the family list?', value:p.title, required:true,
+      help:'Everyone in the house can see it.', save:'Send', onSave(title){
     const S = D.lists.shared;
     if(!S.categories.includes(p.category)) S.categories.push(p.category);
     let n = S.prayers.length + 1;
@@ -1004,49 +1081,58 @@ document.addEventListener('click', e => {
     S.prayers.push({id:'s'+String(n).padStart(3,'0'), title:title.trim(), for:p.for, phone:'',
       detail:'', category:p.category, cadence:p.cadence, days:[], status:'active',
       createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null,
-      updates:[], sharedFrom:p.id});
+      updates:[], sharedFrom:p.id, prayedBy:{}, updatedAt:new Date().toISOString()});
     save(); toast('Added to the family list.', 'Open it', () => {
       D.activeList = 'shared'; save(); renderCatAdmin(); renderPlans(); go('today'); });
+      }});
     return;
   }
   if(t.dataset.answer){
     const p = byId(t.dataset.answer);
-    const note = prompt('How was it answered? This is the part worth keeping.');
-    if(note === null) return;
-    if(!note.trim()){ alert('Write something before marking it answered. This is the record.'); return; }
-    const prev = {status:p.status, answeredAt:p.answeredAt, answerNote:p.answerNote};
-    p.status = 'answered'; p.answeredAt = TODAY; p.answerNote = note.trim();
-    save(); shutSheet(); go('answered');
-    toast('Moved to the record.', 'Undo', () => { Object.assign(p, prev); save(); go('today'); });
+    ask(t, {kind:'textarea', label:'How was it answered?', required:true,
+      help:'This is the part worth keeping, so it cannot be left blank.', save:'Mark answered', onSave(note){
+        const prev = {status:p.status, answeredAt:p.answeredAt, answerNote:p.answerNote};
+        p.status = 'answered'; p.answeredAt = TODAY; p.answerNote = note.trim();
+        stamp(p); save(); queueSync(); shutSheet(); go('answered');
+        toast('Moved to the record.', 'Undo', () => { Object.assign(p, prev); stamp(p); save(); queueSync(); go('today'); });
+      }});
     return;
   }
   if(t.dataset.reopen){
     const p = byId(t.dataset.reopen);
     p.status = 'active'; p.answeredAt = null; p.answerNote = null;
-    save(); shutSheet(); go('today'); return;
+    stamp(p); save(); queueSync(); shutSheet(); go('today'); return;
   }
 
   if(t.dataset.rencat){
     const i = +t.dataset.rencat, old = L().categories[i];
-    const name = prompt('Rename this category', old);
-    if(!name || !name.trim() || name.trim() === old) return;
-    L().prayers.forEach(p => { if(p.category === old) p.category = name.trim(); });
-    L().plans.forEach(pl => { DOW.forEach(d => {
-      pl.dayMap[d] = (pl.dayMap[d]||[]).map(c => c === old ? name.trim() : c); });
-      if(pl.focusCategory === old) pl.focusCategory = name.trim(); });
-    L().categories[i] = name.trim(); save(); renderCatAdmin(); renderPlans(); renderAllScreens(); return;
+    ask(t, {kind:'text', label:'Rename this category', value:old, required:true,
+      validate:v => (L().categories.includes(v.trim()) && v.trim() !== old) ? 'There is already a category with that name.' : '',
+      onSave(name){
+        name = name.trim(); if(name === old) return;
+        L().prayers.forEach(p => { if(p.category === old){ p.category = name; stamp(p); } });
+        L().plans.forEach(pl => { DOW.forEach(d => {
+          pl.dayMap[d] = (pl.dayMap[d]||[]).map(c => c === old ? name : c); });
+          if(pl.focusCategory === old) pl.focusCategory = name; });
+        L().categories[i] = name; save(); queueSync(); renderCatAdmin(); renderPlans(); renderAllScreens();
+      }});
+    return;
   }
   if(t.dataset.delcat){
     const i = +t.dataset.delcat, name = L().categories[i];
     const inUse = L().prayers.filter(p => p.category === name).length;
-    if(inUse && !confirm(inUse + ' request' + (inUse>1?'s are':' is') + ' in "' + name
-      + '". Remove it and move them to Personal?')) return;
-    L().prayers.forEach(p => { if(p.category === name) p.category = 'Personal'; });
-    L().plans.forEach(pl => { DOW.forEach(d => {
-      pl.dayMap[d] = (pl.dayMap[d]||[]).filter(c => c !== name); }); });
-    L().categories.splice(i,1);
-    if(!L().categories.includes('Personal')) L().categories.unshift('Personal');
-    save(); renderCatAdmin(); renderPlans(); renderAllScreens(); return;
+    ask(t, {kind:'confirm', danger:true, save:'Remove',
+      label: inUse ? inUse + ' request' + (inUse>1?'s are':' is') + ' in "' + name + '". Remove it and move them to Personal?'
+                   : 'Remove "' + name + '"?',
+      onSave(){
+        L().prayers.forEach(p => { if(p.category === name){ p.category = 'Personal'; stamp(p); } });
+        L().plans.forEach(pl => { DOW.forEach(d => {
+          pl.dayMap[d] = (pl.dayMap[d]||[]).filter(c => c !== name); }); });
+        L().categories.splice(i,1);
+        if(!L().categories.includes('Personal')) L().categories.unshift('Personal');
+        save(); queueSync(); renderCatAdmin(); renderPlans(); renderAllScreens();
+      }});
+    return;
   }
 
   if(t.dataset.cad){
@@ -1063,16 +1149,19 @@ document.addEventListener('click', e => {
     save(); renderPlans(); renderToday(); return;
   }
   if(t.dataset.renplan){
-    const name = prompt('Name this plan', PL().name);
-    if(name && name.trim()){ PL().name = name.trim(); save(); renderPlans(); renderToday(); }
+    ask(t, {kind:'text', label:'Name this plan', value:PL().name, required:true, onSave(name){
+      PL().name = name.trim(); save(); renderPlans(); renderToday(); }});
     return;
   }
   if(t.dataset.delplan){
     if(L().plans.length < 2) return;
-    if(!confirm('Delete the plan "' + PL().name + '"? Requests are not affected.')) return;
-    L().plans = L().plans.filter(p => p.id !== L().activePlan);
-    L().activePlan = L().plans[0].id; L().rotationFor = null;
-    save(); renderPlans(); renderToday(); return;
+    ask(t, {kind:'confirm', danger:true, save:'Delete',
+      label:'Delete the plan "' + PL().name + '"? Requests are not affected.', onSave(){
+        L().plans = L().plans.filter(p => p.id !== L().activePlan);
+        L().activePlan = L().plans[0].id; L().rotationFor = null;
+        save(); renderPlans(); renderToday();
+      }});
+    return;
   }
 });
 
@@ -1087,11 +1176,12 @@ el('planEditor').addEventListener('change', e => {
   }
 });
 el('f-newplan').addEventListener('click', () => {
-  const name = prompt('Name the new plan', 'Weekday plan');
-  if(!name || !name.trim()) return;
-  const p = emptyPlan(name.trim());
-  L().plans.push(p); L().activePlan = p.id; L().rotationFor = null;
-  save(); renderPlans(); renderToday();
+  ask(el('f-newplan'), {kind:'text', label:'Name the new plan', value:'Weekday plan', required:true,
+    save:'Create', onSave(name){
+      const p = emptyPlan(name.trim());
+      L().plans.push(p); L().activePlan = p.id; L().rotationFor = null;
+      save(); renderPlans(); renderToday();
+    }});
 });
 el('f-search').addEventListener('input', renderAll);
 el('toastAct').addEventListener('click', () => {
@@ -1099,7 +1189,8 @@ el('toastAct').addEventListener('click', () => {
 
 el('f-save').addEventListener('click', () => {
   const title = el('f-title').value.trim();
-  if(!title){ alert('Add a few words about what you are praying for.'); return; }
+  if(!title){ el('f-titleErr').textContent = 'Add a few words about what you are praying for.'; el('f-title').focus(); return; }
+  el('f-titleErr').textContent = '';
   const cad = (document.querySelector('#f-cad .chip[aria-pressed="true"]') || {dataset:{}}).dataset.cad || 'daily';
   L().prayers.push({id:nextId(), title, for:el('f-for').value.trim(), phone:el('f-phone').value.trim(),
     detail:'', category:el('f-cat').value || 'Personal', cadence:cad, days:[], status:'active',
@@ -1111,10 +1202,13 @@ el('f-save').addEventListener('click', () => {
 
 el('f-addcat').addEventListener('click', () => {
   const name = el('f-newcat').value.trim();
-  if(!name) return;
-  if(L().categories.includes(name)){ alert('That category already exists.'); return; }
-  L().categories.push(name); el('f-newcat').value = ''; save(); renderCatAdmin(); renderPlans();
+  if(!name){ el('f-newcatErr').textContent = 'Give the category a name first.'; return; }
+  if(L().categories.includes(name)){ el('f-newcatErr').textContent = 'That category already exists.'; return; }
+  el('f-newcatErr').textContent = '';
+  L().categories.push(name); el('f-newcat').value = ''; save(); queueSync(); renderCatAdmin(); renderPlans();
 });
+el('f-newcat').addEventListener('input', () => { el('f-newcatErr').textContent = ''; });
+el('f-title').addEventListener('input', () => { el('f-titleErr').textContent = ''; });
 
 /* paste parser: "Heading:" sets the category, "Name - request" splits who/what */
 function parsePaste(text, fallback){
@@ -1161,11 +1255,15 @@ el('f-parse').addEventListener('click', () => {
 });
 
 el('f-setpin').addEventListener('click', () => {
-  const p = prompt('Set a PIN for the private list. Leave blank to cancel.');
-  if(!p || !p.trim()) return;
-  D.pin = p.trim(); save(); alert('PIN set. It applies the next time the app opens.');
+  ask(el('f-setpin'), {kind:'password', label:'PIN for the private list', placeholder:'Numbers are easiest', required:true,
+    help:'Not encryption. It keeps the list off a shared screen, nothing more.', save:'Set PIN', onSave(p){
+      D.pin = p.trim(); save(); toast('PIN set. It applies the next time the app opens.'); }});
 });
-el('f-clearpin').addEventListener('click', () => { D.pin = null; save(); alert('PIN removed.'); });
+el('f-clearpin').addEventListener('click', () => {
+  if(!D.pin){ toast('There is no PIN set.'); return; }
+  ask(el('f-clearpin'), {kind:'confirm', danger:true, label:'Remove the PIN from the private list?', save:'Remove',
+    onSave(){ D.pin = null; save(); toast('PIN removed.'); }});
+});
 el('pinGo').addEventListener('click', () => {
   if(el('pinIn').value === D.pin){ LOCKED = false; el('lock').classList.remove('on'); go('today'); }
   else { el('pinNote').textContent = 'That is not the PIN.'; el('pinIn').value = ''; }
@@ -1182,19 +1280,26 @@ el('f-export').addEventListener('click', () => {
   a.href = URL.createObjectURL(blob); a.download = 'prayers-' + TODAY + '.json';
   a.click(); URL.revokeObjectURL(a.href); backupNudge();
 });
+function readBackup(txt){
+  const d = JSON.parse(txt);
+  if(d.lists) return d;
+  if(Array.isArray(d.prayers)){                             // v2 single-list backup
+    const n = freshData(); n.lists.personal.prayers = d.prayers;
+    n.lists.personal.categories = d.categories || CATEGORIES.slice();
+    n.lists.personal.prayerDays = d.prayerDays || [];
+    return n;
+  }
+  throw new Error('shape');
+}
 el('f-import').addEventListener('click', () => {
-  const txt = prompt('Paste the contents of a backup file. This replaces both lists.');
-  if(!txt) return;
-  try{
-    const d = JSON.parse(txt);
-    if(d.lists) D = d;
-    else if(Array.isArray(d.prayers)){                      // v2 single-list backup
-      D = freshData(); D.lists.personal.prayers = d.prayers;
-      D.lists.personal.categories = d.categories || CATEGORIES.slice();
-      D.lists.personal.prayerDays = d.prayerDays || [];
-    } else throw new Error('shape');
-    migrate(); save(); renderCatAdmin(); renderPlans(); go('today');
-  }catch(err){ alert('That did not read as a prayer backup. Check you pasted the whole file.'); }
+  ask(el('f-import'), {kind:'textarea', label:'Paste the contents of a backup file', required:true,
+    help:'This replaces both lists on this device.', save:'Import',
+    validate:txt => { try{ readBackup(txt); return ''; }
+      catch(e){ return 'That did not read as a prayer backup. Check you pasted the whole file.'; } },
+    onSave(txt){
+      D = readBackup(txt); migrate(); save();
+      renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today'); toast('Backup restored.');
+    }});
 });
 function backupNudge(){
   const e = el('backupWarn');
