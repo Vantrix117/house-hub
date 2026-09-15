@@ -8,7 +8,7 @@
 <title>F260 Reading Plan</title>
 <style>
 /* Same sand-and-mocha family as the Prayer app, system fonts only.
-   slate = links and the current week   olive = done   gold = journal + memory verses */
+   slate = links and the current week   olive = done   gold = journal + memory verses   terra = streak */
 :root{
   --paper:#F7F2EB; --raised:#FFFCF8; --sunk:#EFE7DC; --hover:#F2EADF;
   --ink:#3A2E24; --ink2:#6E6054; --muted:#9A8C7F;
@@ -18,10 +18,14 @@
   --gold:#B4861B;  --gold-soft:#F6EBD0;
   --terra:#BC5A38; --terra-soft:#F7E3DA;
   --lift:0 1px 2px rgba(58,46,36,.04), 0 4px 14px -6px rgba(58,46,36,.10);
+  --lift-lg:0 2px 8px rgba(58,46,36,.06), 0 24px 56px -20px rgba(58,46,36,.28);
   --r:14px; --r-sm:10px;
+  --serif:"New York",Georgia,"Times New Roman",serif;
   /* book groups: Law, History, Wisdom, Prophets, Gospels+Acts, Epistles+Revelation */
   --g-law:#C1893A; --g-hist:#B39271; --g-wis:#5B8143; --g-pro:#137F77; --g-gos:#4F5D8C; --g-epi:#8A6A4B;
 }
+/* New Testament weeks: the paper cools a touch */
+body.nt{--paper:#F2F3F0; --raised:#FCFCFA; --sunk:#E8EAE5; --hover:#ECEEE9; --rule:#DDE0D8; --rule-soft:#E8EAE4}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
@@ -32,11 +36,12 @@
     --gold:#E0B25A;  --gold-soft:#2C2416;
     --terra:#E28A66; --terra-soft:#2B1D17;
     --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
+    --lift-lg:0 2px 8px rgba(0,0,0,.45), 0 28px 64px -22px rgba(0,0,0,.8);
     --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
   }
+  :root:not([data-theme="light"]) body.nt{--paper:#171A1A; --raised:#20242A; --sunk:#111314; --hover:#262B30; --rule:#2C3238; --rule-soft:#232830}
 }
 :root[data-theme="dark"]{
-    --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
     --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
     --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
     --rule:#332B24; --rule-soft:#2A231E;
@@ -45,7 +50,10 @@
     --gold:#E0B25A;  --gold-soft:#2C2416;
     --terra:#E28A66; --terra-soft:#2B1D17;
     --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
+    --lift-lg:0 2px 8px rgba(0,0,0,.45), 0 28px 64px -22px rgba(0,0,0,.8);
+    --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
 }
+:root[data-theme="dark"] body.nt{--paper:#171A1A; --raised:#20242A; --sunk:#111314; --hover:#262B30; --rule:#2C3238; --rule-soft:#232830}
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
@@ -54,12 +62,14 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",sans-serif;
   font-size:17px; line-height:1.5; letter-spacing:-.008em;
   padding-bottom:calc(60px + env(safe-area-inset-bottom));
-  -webkit-font-smoothing:antialiased; touch-action:manipulation;
+  -webkit-font-smoothing:antialiased; touch-action:manipulation; transition:background .5s;
 }
 .wrap{max-width:44rem;margin:0 auto;padding:0 22px}
 button{font-family:inherit;font-size:inherit;cursor:pointer;touch-action:manipulation;color:inherit}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--slate);outline-offset:3px}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--slate);outline-offset:3px}
 [hidden]{display:none !important}
+.ico{width:18px;height:18px;flex:0 0 auto;vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.big{zoom:1.15}
 
 /* ── header ───────────────────────────────────────────────── */
 header{padding:30px 0 10px}
@@ -70,89 +80,117 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .switch button{font-size:15px;font-weight:600;padding:0 18px;min-height:44px;border:none;
   background:transparent;color:var(--muted);border-radius:999px;transition:background .2s,color .2s,box-shadow .2s}
 .switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
-.meter{height:8px;border-radius:999px;background:var(--sunk);margin:22px 0 12px;overflow:hidden}
-.meter i{display:block;height:100%;border-radius:999px;background:var(--olive);width:0;
-  transition:width .5s cubic-bezier(.3,.9,.3,1)}
-.strip{display:flex;gap:22px;align-items:baseline;flex-wrap:wrap;
-  font-size:14px;font-weight:500;color:var(--muted)}
-.strip b{display:inline-block;font-weight:700;font-size:21px;color:var(--ink);
-  margin-right:5px;letter-spacing:-.03em}
-.days{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0 0;font-size:12.5px;font-weight:600;color:var(--muted)}
-.days .d{width:18px;height:18px;border-radius:5px;background:var(--sunk);flex:0 0 auto}
-.days .d.on{background:var(--olive)}
-.days .d.today{box-shadow:0 0 0 2px var(--gold)}
-.days .lbl2{flex-basis:100%;margin-top:2px}
-body.big{zoom:1.15}
-.hero{margin:16px 0 0;padding:16px 18px 16px;border:1.5px solid var(--rule);border-radius:var(--r);background:var(--raised);
-  box-shadow:var(--lift);position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--olive)}
-.hero-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.hero .k{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--olive);
-  background:var(--olive-soft);border-radius:999px;padding:4px 10px}
-.hero .streak{font-size:13.5px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
-.hero .streak b{font-size:18px;font-weight:800;color:var(--terra);letter-spacing:-.02em}
-.hero-title{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.2;margin:10px 0 2px;overflow-wrap:anywhere}
-.hero-meta{font-size:14px;font-weight:500;color:var(--muted)}
-.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.hero-actions .btn{min-height:52px;text-decoration:none}
+
+/* ── progress block ───────────────────────────────────────── */
+.meter{height:8px;border-radius:999px;background:var(--sunk);margin:22px 0 10px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:999px;background:var(--olive);width:0;transition:width .5s cubic-bezier(.3,.9,.3,1)}
+.meter.ch{height:5px;margin:0 0 12px}
+.meter.ch i{background:var(--gold)}
+.strip{display:flex;gap:18px 22px;align-items:baseline;flex-wrap:wrap;font-size:14px;font-weight:500;color:var(--muted)}
+.strip b{display:inline-block;font-weight:700;font-size:21px;color:var(--ink);margin-right:5px;letter-spacing:-.03em}
+.strip .chs b{color:var(--gold)}
+/* journey through the books */
+.journey{margin:16px 0 0}
+.jlbl{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;font-weight:600;color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+.jlbl b{color:var(--ink);font-weight:700}
+.jbar{display:flex;gap:2px;height:14px}
+.jbar button{flex:var(--n) 1 0;min-width:3px;min-height:0;height:14px;border:0;padding:0;background:var(--sunk);position:relative;overflow:hidden;
+  border-radius:2px;cursor:pointer;-webkit-appearance:none;appearance:none}
+.jbar button i{position:absolute;left:0;top:0;bottom:0;width:var(--p);background:var(--gc)}
+.jbar button.cur{box-shadow:0 0 0 2px var(--slate);z-index:1}
+.jbar button:first-child{border-radius:7px 2px 2px 7px}.jbar button:last-child{border-radius:2px 7px 7px 2px}
 .ygrid{display:grid;grid-template-columns:repeat(26,1fr);gap:5px;margin:14px 0 0}
-.ygrid button{height:18px;min-height:0;width:100%;border:0;padding:0;border-radius:4px;background:var(--sunk);
-  position:relative;cursor:pointer;-webkit-appearance:none;appearance:none}
-@media (max-width:600px){ .ygrid{grid-template-columns:repeat(13,1fr)} .ygrid button{height:20px} }
+.ygrid button{height:18px;min-height:0;width:100%;border:0;padding:0;border-radius:4px;background:var(--sunk);position:relative;cursor:pointer;-webkit-appearance:none;appearance:none}
 .ygrid button.part{background:linear-gradient(to top,var(--olive) 0 var(--p),var(--sunk) var(--p) 100%)}
 .ygrid button.done{background:var(--olive)}
 .ygrid button.cur{box-shadow:0 0 0 2px var(--slate)}
 .ygrid button:active{transform:scale(.9)}
+@media (max-width:600px){ .ygrid{grid-template-columns:repeat(13,1fr)} .ygrid button{height:20px} }
 .ylbl{font-size:12.5px;font-weight:600;color:var(--muted);margin-top:6px}
+/* 12-week reading heatmap: one column per week, rows Mon–Sun */
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,12px);grid-template-columns:repeat(12,1fr);gap:4px;margin:12px 0 0;max-width:340px}
+.heat span{border-radius:3px;background:var(--sunk)}
+.heat span.on{background:var(--olive)}
+.heat span.rest{background:var(--paper);box-shadow:inset 0 0 0 1.5px var(--olive-soft)}
+.heat span.today{box-shadow:0 0 0 2px var(--gold)}
+.heat span.future{opacity:.35}
+.hlbl{font-size:12.5px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* ── hero ─────────────────────────────────────────────────── */
+.hero{margin:16px 0 0;padding:16px 18px 16px;border:1.5px solid var(--rule);border-radius:var(--r);background:var(--raised);box-shadow:var(--lift);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--olive)}
+.hero.quiet::before{background:var(--gold)}
+.hero-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.hero .k{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--olive);background:var(--olive-soft);border-radius:999px;padding:4px 10px}
+.hero.quiet .k{color:var(--gold);background:var(--gold-soft)}
+.hero .streak{font-size:13.5px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hero .streak b{font-size:18px;font-weight:800;color:var(--terra);letter-spacing:-.02em}
+.hero .streak small{font-weight:600;color:var(--muted)}
+.hero-title{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.2;margin:10px 0 2px;overflow-wrap:anywhere}
+.hero-meta{font-size:14px;font-weight:500;color:var(--muted)}
+.hero-pace{font-size:13.5px;font-weight:600;margin-top:6px;color:var(--olive)}
+.hero-pace.behind{color:var(--terra)}.hero-pace.ahead{color:var(--slate)}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.hero-actions .btn{min-height:52px;text-decoration:none}
+
+/* ── milestones ───────────────────────────────────────────── */
+.miles{display:flex;gap:10px;overflow-x:auto;padding:14px 2px 6px;margin:0 -2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.miles::-webkit-scrollbar{display:none}
+.mile{flex:0 0 auto;width:112px;text-align:center;padding:10px 6px;border-radius:var(--r-sm);border:1.5px solid var(--rule-soft);background:var(--raised);opacity:.55}
+.mile.on{opacity:1;border-color:var(--gold);box-shadow:var(--lift)}
+.mile .mi{width:40px;height:40px;border-radius:50%;margin:0 auto 6px;display:grid;place-items:center;background:var(--sunk);font-size:18px;color:var(--muted)}
+.mile.on .mi{background:var(--gold-soft);color:var(--gold)}
+.mile .mn{font-size:12.5px;font-weight:700;line-height:1.25;color:var(--ink2)}
+.mile .md{font-size:11.5px;color:var(--muted);margin-top:3px}
+.mile.on .md{color:var(--gold);font-weight:600}
+.mlbl{font-size:13.5px;font-weight:700;color:var(--ink2);margin:16px 0 0;display:flex;justify-content:space-between;align-items:baseline}
+.mlbl span{font-size:12.5px;font-weight:600;color:var(--muted)}
 
 /* ── toolbar ──────────────────────────────────────────────── */
 .tools{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 6px}
-.btn{min-height:48px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--rule);
-  background:var(--raised);color:var(--ink);font-size:15.5px;font-weight:600;
-  display:inline-flex;align-items:center;gap:8px;letter-spacing:-.01em;box-shadow:var(--lift)}
+.btn{min-height:48px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--rule);background:var(--raised);color:var(--ink);font-size:15.5px;font-weight:600;
+  display:inline-flex;align-items:center;gap:8px;letter-spacing:-.01em;box-shadow:var(--lift);text-decoration:none}
 .btn:active{background:var(--hover);transform:scale(.98)}
 .btn.primary{background:var(--slate);border-color:var(--slate);color:#fff}
 .btn.quiet{border-color:transparent;box-shadow:none;background:transparent;color:var(--ink2)}
 .btn.danger{color:var(--terra)}
 .btn[disabled]{opacity:.5;pointer-events:none}
-.wkpick{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--rule);
-  border-radius:999px;background:var(--raised);box-shadow:var(--lift);overflow:hidden}
-.wkpick button{min-width:48px;min-height:48px;border:0;background:transparent;color:var(--ink);
-  font-size:22px;font-weight:500;padding:0}
+.wkpick{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--rule);border-radius:999px;background:var(--raised);box-shadow:var(--lift);overflow:hidden}
+.wkpick button{min-width:48px;min-height:48px;border:0;background:transparent;color:var(--ink);font-size:22px;font-weight:500;padding:0}
 .wkpick button:active{background:var(--hover)}
 .wkpick label{font-size:14px;font-weight:600;color:var(--ink2);padding:0 4px;white-space:nowrap}
-.wkpick select{font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:transparent;
-  border:0;padding:12px 2px;min-height:48px;-webkit-appearance:none;appearance:none;text-align:center}
+.wkpick select{font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:transparent;border:0;padding:12px 2px;min-height:48px;-webkit-appearance:none;appearance:none;text-align:center}
 
 /* ── settings sheet ───────────────────────────────────────── */
-.sheet{display:none;background:var(--raised);border:1.5px solid var(--rule);border-radius:var(--r);
-  padding:16px 18px;margin:12px 0 0;box-shadow:var(--lift)}
+.sheet{display:none;background:var(--raised);border:1.5px solid var(--rule);border-radius:var(--r);padding:16px 18px;margin:12px 0 0;box-shadow:var(--lift)}
 .sheet.on{display:block}
 .sheet h2{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--ink2)}
-.sheet h2 + .seg{margin-bottom:2px}
 .sheet .sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule-soft)}
 .seg{display:flex;gap:8px;flex-wrap:wrap}
-.seg button{min-height:48px;padding:10px 16px;border-radius:999px;border:1.5px solid var(--rule);
-  background:transparent;color:var(--ink2);font-size:15px;font-weight:600}
+.seg button{min-height:48px;padding:10px 16px;border-radius:999px;border:1.5px solid var(--rule);background:transparent;color:var(--ink2);font-size:15px;font-weight:600}
 .seg button[aria-pressed="true"]{background:var(--slate-soft);border-color:var(--slate);color:var(--slate)}
 .seg button.danger{color:var(--terra)}
 .hint{font-size:13.5px;color:var(--muted);margin:10px 0 0}
 
 /* ── weeks ────────────────────────────────────────────────── */
 .weeks{margin-top:18px;margin-left:-13px}
-.week{border-top:1px solid var(--rule-soft);scroll-margin-top:12px;border-left:3px solid var(--gc,transparent);padding-left:10px;
-  transition:background .3s}
+.week{border-top:1px solid var(--rule-soft);scroll-margin-top:12px;border-left:3px solid var(--gc,transparent);padding-left:10px;transition:background .3s}
 .week:first-child{border-top:none}
 .week[data-g="law"]{--gc:var(--g-law)}.week[data-g="hist"]{--gc:var(--g-hist)}.week[data-g="wis"]{--gc:var(--g-wis)}
 .week[data-g="pro"]{--gc:var(--g-pro)}.week[data-g="gos"]{--gc:var(--g-gos)}.week[data-g="epi"]{--gc:var(--g-epi)}
 .week.complete:not(.current) .wk-head{opacity:.6}
 .week.celebrate{background:var(--olive-soft)}
-.wk-head{width:100%;display:flex;align-items:center;gap:14px;padding:16px 4px;border:0;
-  background:transparent;color:var(--ink);text-align:left;min-height:60px;border-radius:var(--r-sm)}
+.wk-head{width:100%;display:flex;align-items:center;gap:14px;padding:16px 4px;border:0;background:transparent;color:var(--ink);text-align:left;min-height:60px;border-radius:var(--r-sm)}
 .wk-head:active{background:var(--hover)}
+.week.current .wk-head{position:sticky;top:0;z-index:3;background:var(--paper)}
 .wk-head .num{font-size:18px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
-.wk-head .span{flex:1 1 auto;min-width:0;font-size:14.5px;color:var(--muted);font-weight:500;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-head .span{flex:1 1 auto;min-width:0;font-size:14.5px;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-head .jn{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--gold);background:var(--gold-soft);border-radius:999px;padding:3px 9px}
+.wk-head .jn .ico{width:13px;height:13px}
+.wk-head .chev{width:12px;height:12px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .2s;flex:0 0 auto;margin-right:4px}
+.week.open .wk-head .chev{transform:rotate(45deg)}
+.week.current .wk-head .num{color:var(--slate)}
+.week.current .wk-head .num::after{content:"now";font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--slate);background:var(--slate-soft);border-radius:999px;padding:3px 8px;margin-left:10px;vertical-align:2px}
 .ring{position:relative;width:32px;height:32px;flex:0 0 auto}
 .ring svg{width:32px;height:32px;transform:rotate(-90deg);display:block}
 .ring .bg{fill:none;stroke:var(--sunk);stroke-width:3.5}
@@ -161,116 +199,210 @@ body.big{zoom:1.15}
 .ring .rc{position:absolute;inset:0;display:none;place-items:center;color:#fff}
 .ring .rc svg{width:16px;height:16px;transform:none}
 .week.complete .ring .bg{stroke:var(--olive);fill:var(--olive)}
-.week.complete .ring .fg{display:none}
-.week.complete .ring .rn{display:none}
+.week.complete .ring .fg,.week.complete .ring .rn{display:none}
 .week.complete .ring .rc{display:grid}
 .ring.pop{animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
-.cf{position:absolute;left:13px;top:13px;width:6px;height:6px;border-radius:2px;pointer-events:none;
-  animation:cf .9s cubic-bezier(.2,.7,.3,1) forwards}
+.cf{position:absolute;left:13px;top:13px;width:6px;height:6px;border-radius:2px;pointer-events:none;animation:cf .9s cubic-bezier(.2,.7,.3,1) forwards}
 @keyframes cf{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(220deg);opacity:0}}
-.wk-head .chev{width:12px;height:12px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
-  transform:rotate(-45deg);transition:transform .2s;flex:0 0 auto;margin-right:4px}
-.week.open .wk-head .chev{transform:rotate(45deg)}
-.week.current .wk-head .num{color:var(--slate)}
-.week.current .wk-head .num::after{content:"now";font-size:11px;font-weight:700;letter-spacing:.04em;
-  text-transform:uppercase;color:var(--slate);background:var(--slate-soft);border-radius:999px;
-  padding:3px 8px;margin-left:10px;vertical-align:2px}
 .wk-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}
 .wk-in{overflow:hidden;min-height:0}
 .wk-pad{padding:0 4px 18px}
 .week.open .wk-body{grid-template-rows:1fr}
 .week:not(.open) .wk-in{visibility:hidden;transition:visibility 0s .22s}
-.day{display:flex;gap:15px;align-items:center;padding:8px 0;min-height:60px;border-radius:var(--r-sm);
-  scroll-margin-top:12px}
+.day{display:flex;gap:15px;align-items:center;padding:8px 0;min-height:60px;border-radius:var(--r-sm);scroll-margin-top:72px}
 .day:active{background:var(--hover)}
 .day.flash{animation:flash 1.6s ease-out}
 @keyframes flash{0%,40%{background:var(--olive-soft)}100%{background:transparent}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
-@media (hover:hover) and (pointer:fine){
-  .btn:hover{background:var(--hover)}
-  .btn.primary:hover{filter:brightness(1.08);background:var(--slate)}
-  .wk-head:hover,.day:hover,.mv:hover{background:var(--hover)}
-  .refs a:hover{border-bottom-color:var(--slate)}
-  .mark:hover,.mkm:hover{border-color:var(--olive)}
-  .jbtn:hover,.wnbtn:hover{border-color:var(--slate);color:var(--slate)}
-  .ygrid button:hover{filter:brightness(.92)}
-  .switch button:hover,.seg button:hover{color:var(--ink)}
-  .jcard .jc-ft button:hover,.jr .jft button:hover{text-decoration:underline}
-}
-.mark{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--rule);
-  background:transparent;display:grid;place-items:center;padding:0;color:#fff;
-  transition:border-color .2s,background .2s,transform .18s}
+.mark{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--rule);background:transparent;display:grid;place-items:center;padding:0;color:#fff;transition:border-color .2s,background .2s,transform .18s}
 .mark:active{transform:scale(.9)}
-.mark svg{width:20px;height:20px;opacity:0;transform:scale(.4);
-  transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+.mark svg{width:20px;height:20px;opacity:0;transform:scale(.4);transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
 .day.done .mark{background:var(--olive);border-color:var(--olive)}
 .day.done .mark svg{opacity:1;transform:scale(1)}
-.day .lbl{flex:0 0 auto;width:52px;font-size:13px;font-weight:700;color:var(--muted);
-  letter-spacing:.02em;text-transform:uppercase}
-.refs{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;
-  font-size:18px;font-weight:500;line-height:1.35}
+.day .lbl{flex:0 0 auto;width:52px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em;text-transform:uppercase}
+.refs{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:18px;font-weight:500;line-height:1.35}
 .day.done .refs{color:var(--muted)}
-.refs a{color:var(--slate);text-decoration:none;padding:6px 2px;margin:-6px 0;
-  border-bottom:1.5px solid var(--slate-soft);display:inline-block;min-height:44px;line-height:32px}
+.refs a{color:var(--slate);text-decoration:none;padding:6px 2px;margin:-6px 0;border-bottom:1.5px solid var(--slate-soft);display:inline-block;min-height:44px;line-height:32px}
 .refs a:active{background:var(--slate-soft);border-radius:6px}
-.day.done .refs a{color:var(--muted);border-color:transparent}
+.day.done .refs a{color:var(--muted);border-color:transparent;text-decoration:line-through;text-decoration-color:var(--rule);text-decoration-thickness:1.5px}
 .refs .sep{color:var(--muted);font-weight:400}
-.mem{display:flex;gap:15px;align-items:center;padding:8px 0 4px;margin-top:8px;
-  border-top:1px dashed var(--rule)}
-.mem .lbl{flex:0 0 auto;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
-  background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:800}
+.mem{display:flex;gap:15px;align-items:center;padding:8px 0 4px;margin-top:8px;border-top:1px dashed var(--rule)}
+.mem .lbl{flex:0 0 auto;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:800}
+.mem .refs{font-size:17px}
+.mem .refs a{color:var(--gold);border-bottom-color:var(--gold-soft)}
+.mem .title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.02em;width:52px;flex:0 0 auto}
 .mvs{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
 .mv{display:inline-flex;align-items:center;gap:10px;min-height:44px;border-radius:var(--r-sm);padding-right:6px}
 .mv:active{background:var(--hover)}
-.mkm{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:2px solid var(--rule);background:transparent;
-  display:grid;place-items:center;padding:0;color:#fff;transition:border-color .2s,background .2s,transform .18s}
+.mkm{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:2px solid var(--rule);background:transparent;display:grid;place-items:center;padding:0;color:#fff;transition:border-color .2s,background .2s,transform .18s}
 .mkm:active{transform:scale(.9)}
 .mkm svg{width:16px;height:16px;opacity:0;transform:scale(.4);transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
 .mv.memd .mkm{background:var(--gold);border-color:var(--gold)}
 .mv.memd .mkm svg{opacity:1;transform:scale(1)}
 .mv.memd .refs a{color:var(--muted);border-color:transparent}
-.mem .refs{font-size:17px}
-.mem .refs a{color:var(--gold);border-bottom-color:var(--gold-soft)}
-.mem .title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;
-  letter-spacing:.02em;width:52px;flex:0 0 auto}
-.nextwk{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;animation:rise .35s ease;
-  padding:12px 16px;border-radius:var(--r);background:var(--olive-soft);color:var(--olive);font-weight:600;font-size:15.5px}
-.week.complete.current .nextwk{display:flex}
+.mv .pr{display:none;font-size:11.5px;font-weight:700;color:var(--gold);background:var(--gold-soft);border-radius:999px;padding:3px 8px;margin-left:2px}
+.mv.memd .pr{display:inline-block}
+.mv.memd.notyet .pr{color:var(--terra);background:var(--terra-soft)}
+.recallrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 0 4px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.recallrow button{min-height:40px;padding:6px 12px;border-radius:999px;border:1.5px solid var(--terra);background:var(--terra-soft);color:var(--terra);font-size:14px;font-weight:700}
+.nextwk{display:none;flex-direction:column;gap:10px;margin-top:14px;padding:14px 16px;border-radius:var(--r);background:var(--olive-soft);color:var(--olive);font-weight:600;font-size:15.5px;animation:rise .35s ease}
+.week.complete.current .nextwk,.week.complete .nextwk.keep{display:flex}
+.nextwk .sumt{font-size:14px;color:var(--ink2);font-weight:500}
+.nextwk .sumt b{color:var(--olive)}
+.nextwk .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 .nextwk .btn{background:var(--olive);border-color:var(--olive);color:#fff;min-height:44px;padding:8px 16px}
+.nextwk .btn.ghost{background:transparent;color:var(--olive);border-color:var(--olive)}
 
 /* ── HEAR journal (per day) ───────────────────────────────── */
-.jbtn{flex:0 0 auto;min-width:44px;height:44px;border-radius:999px;border:1.5px solid var(--rule);
-  background:transparent;color:var(--muted);display:grid;place-items:center;padding:0 10px;
-  font-size:12px;font-weight:800;letter-spacing:.04em}
+.jbtn{flex:0 0 auto;min-width:44px;height:44px;border-radius:999px;border:1.5px solid var(--rule);background:transparent;color:var(--muted);display:grid;place-items:center;padding:0 10px;font-size:12px;font-weight:800;letter-spacing:.04em}
 .jbtn:active{background:var(--hover)}
 .jbtn.has{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
 .day.jopen .jbtn{border-color:var(--slate);color:var(--slate);background:var(--slate-soft)}
-.jr{display:none;margin:0 0 10px 59px;padding:14px 16px 6px;background:var(--raised);border:1.5px solid var(--rule);
-  border-radius:var(--r);box-shadow:var(--lift)}
+.jr{display:none;margin:0 0 10px 59px;padding:14px 16px 6px;background:var(--raised);border:1.5px solid var(--rule);border-radius:var(--r);box-shadow:var(--lift)}
 .jr.on{display:block;animation:rise .2s ease}
-.jr .jhd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:4px}
+.jr .jhd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
 .jr .jhd b{font-size:15px;font-weight:700;color:var(--ink2)}
 .jr .jhd span{font-size:13px;color:var(--muted)}
-.jf{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--rule-soft)}
-.jf:first-of-type{border-top:none}
-.jf .k{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
-  background:var(--gold-soft);color:var(--gold);font-size:16px;font-weight:800;margin-top:2px}
+.jprompt{font-family:var(--serif);font-style:italic;font-size:16.5px;color:var(--ink2);background:var(--gold-soft);border-left:2px solid var(--gold);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:9px 12px;margin:0 0 6px}
+.jprompt small{display:block;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.jf{display:flex;gap:12px;align-items:flex-start;padding:10px 0;position:relative}
+.jf::before{content:"";position:absolute;left:19px;top:0;bottom:0;width:2px;background:var(--gold-soft)}
+.jf:first-of-type::before{top:24px}.jf:last-of-type::before{bottom:auto;height:24px}
+.jf .k{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--gold-soft);color:var(--gold);font-size:16px;font-weight:800;margin-top:2px;position:relative;z-index:1;box-shadow:0 0 0 3px var(--raised)}
 .jf .body{flex:1 1 auto;min-width:0}
 .jf label{display:block;font-size:14px;font-weight:700;color:var(--ink2);margin:0 0 4px}
 .jf label small{font-weight:500;color:var(--muted);margin-left:6px}
-.jf textarea{display:block;width:100%;font:inherit;font-size:17px;line-height:1.45;color:var(--ink);
-  background:var(--sunk);border:1.5px solid transparent;border-radius:var(--r-sm);padding:10px 12px;
-  min-height:56px;resize:none;overflow:hidden;-webkit-appearance:none;appearance:none}
+.jf textarea{display:block;width:100%;font:inherit;font-size:17px;line-height:1.45;color:var(--ink);background:var(--sunk);border:1.5px solid transparent;border-radius:var(--r-sm);padding:10px 12px;min-height:56px;resize:none;overflow:hidden;-webkit-appearance:none;appearance:none}
 .jf textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}
-.jr .jft{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:2px;
-  font-size:13px;color:var(--muted)}
+.jr .jft{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:2px;font-size:13px;color:var(--muted)}
 .jr .jft button{background:none;border:0;color:var(--slate);font-weight:600;font-size:14px;min-height:44px;padding:0 6px}
-.locked{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:6px 0 10px;
-  font-size:15px;color:var(--ink2)}
+.locked{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0 10px;font-size:15px;color:var(--ink2)}
+.locked .il{width:40px;height:40px;flex:0 0 auto;color:var(--muted)}
+.locked span{flex:1 1 160px}
 .locked .btn{min-height:44px}
 @media (max-width:600px){ .jr{margin-left:0} }
+
+/* ── week note ────────────────────────────────────────────── */
+.wn{margin-top:10px}
+.wnbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);background:transparent;color:var(--muted);font-size:14px;font-weight:700}
+.wnbtn:active{background:var(--hover)}
+.wnbtn.has{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.wn.on .wnbtn{border-color:var(--slate);color:var(--slate);background:var(--slate-soft)}
+.wnbody{display:none;margin-top:10px;padding:14px 16px 6px;background:var(--raised);border:1.5px solid var(--rule);border-radius:var(--r);box-shadow:var(--lift)}
+.wn.on .wnbody{display:block;animation:rise .2s ease}
+.wnbody label{display:block;font-size:14px;font-weight:700;color:var(--ink2);margin:0 0 4px}
+.wnbody label small{font-weight:500;color:var(--muted);margin-left:6px}
+.wnbody textarea{display:block;width:100%;font:inherit;font-size:17px;line-height:1.45;color:var(--ink);background:var(--sunk);border:1.5px solid transparent;border-radius:var(--r-sm);padding:10px 12px;min-height:72px;resize:none;overflow:hidden;-webkit-appearance:none;appearance:none}
+.wnbody textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}
+
+/* ── journal view ─────────────────────────────────────────── */
+.jview{display:none}
+.jview.on{display:block}
+.jtop{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 6px}
+.jtop .search{flex:1 1 220px;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;border:1.5px solid var(--rule);border-radius:999px;background:var(--raised);box-shadow:var(--lift);color:var(--muted)}
+.jtop .search input{flex:1 1 auto;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;color:var(--ink);min-height:44px;-webkit-appearance:none;appearance:none}
+.jtop .search input::placeholder{color:var(--muted)}
+.jtop .search button{border:0;background:transparent;color:var(--muted);font-size:20px;min-width:36px;min-height:44px;padding:0}
+.jstat{font-size:14px;color:var(--muted);margin:10px 0 0;display:flex;gap:16px;flex-wrap:wrap}
+.jstat .js b{color:var(--terra);font-weight:800}
+.jcard{background:var(--raised);border:1.5px solid var(--rule);border-radius:var(--r);padding:16px 18px 6px;margin-top:14px;box-shadow:var(--lift)}
+.jcard .jc-hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.jcard .jc-hd b{font-size:15px;font-weight:700;color:var(--ink2)}
+.jcard .jc-hd .ref{font-size:18px;font-weight:600;color:var(--slate);margin-left:8px}
+.jcard .jc-hd .when{font-size:13px;color:var(--muted)}
+.jcard dl{margin:10px 0 0}
+.jcard dl > div{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--rule-soft)}
+.jcard dt{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:800;margin-top:1px}
+.jcard dd,.jcard .txt{margin:0;flex:1 1 auto;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--serif);font-size:18px;line-height:1.5;letter-spacing:0}
+.jcard .txt{margin:10px 0 0;padding-top:9px;border-top:1px solid var(--rule-soft)}
+.jcard mark{background:var(--gold-soft);color:inherit;border-radius:3px;padding:0 1px}
+.jcard .jc-ft{display:flex;justify-content:flex-end;gap:4px;margin-top:4px}
+.jcard .jc-ft button{background:none;border:0;color:var(--slate);font-weight:600;font-size:14px;min-height:44px;padding:0 10px}
+.jcard.note .jc-hd b{color:var(--gold)}
+.empty{padding:36px 20px;text-align:center;color:var(--muted);font-size:16px}
+.empty .il{width:84px;height:84px;margin:0 auto 12px;color:var(--muted);display:block}
+.empty b{display:block;color:var(--ink2);font-size:18px;margin-bottom:6px}
+
+/* ── modals ───────────────────────────────────────────────── */
+.modal{display:none;position:fixed;inset:0;background:rgba(58,46,36,.45);z-index:20;align-items:flex-start;justify-content:center;padding:max(24px, 8vh) 24px 24px;overflow:auto}
+.modal.on{display:flex}
+.modal .card{background:var(--raised);border-radius:var(--r);padding:24px;max-width:24rem;width:100%;box-shadow:var(--lift-lg);animation:rise .25s ease}
+.modal .card.wide{max-width:30rem}
+.modal h2{margin:0 0 8px;font-size:20px}
+.modal p{margin:0 0 18px;color:var(--ink2);font-size:15.5px;line-height:1.5}
+.modal .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.modal .btn{min-height:52px}
+.modal .btn.danger{background:var(--terra);border-color:var(--terra);color:#fff}
+.modal .row .btn.alt{margin-right:auto}
+.modal input[type="password"],.modal input[type="text"]{display:block;width:100%;font:inherit;font-size:20px;letter-spacing:.06em;min-height:56px;padding:10px 14px;border:1.5px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);color:var(--ink);margin:0 0 12px;-webkit-appearance:none;appearance:none}
+.modal input:focus{outline:none;border-color:var(--slate);background:var(--raised)}
+.modal .err{color:var(--terra);font-size:14.5px;font-weight:600;min-height:1.4em;margin:-4px 0 10px}
+.modal .showpw{display:flex;align-items:center;gap:10px;font-size:14.5px;color:var(--ink2);margin:0 0 14px;min-height:44px}
+.modal .showpw input{width:22px;height:22px;margin:0}
+.modal textarea{display:block;width:100%;font:inherit;font-size:15px;line-height:1.45;color:var(--ink);min-height:120px;padding:10px 12px;border:1.5px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);margin:0 0 12px;resize:none;-webkit-appearance:none;appearance:none;overflow-wrap:anywhere}
+.modal textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}
+/* plan complete */
+.done-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 18px}
+.done-stats div{background:var(--sunk);border-radius:var(--r-sm);padding:12px 14px}
+.done-stats b{display:block;font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--olive)}
+.done-stats span{font-size:12.5px;font-weight:600;color:var(--muted)}
+.done-hd{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--olive);background:var(--olive-soft);border-radius:999px;padding:4px 10px;display:inline-block;margin-bottom:10px}
+/* memory verse practice */
+.pr-ref{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:0 0 12px;color:var(--gold)}
+.pr-text{font-family:var(--serif);font-size:20px;line-height:1.5;background:var(--sunk);border-radius:var(--r-sm);padding:14px 16px;margin:0 0 14px;white-space:pre-wrap;min-height:72px;letter-spacing:0}
+.pr-text.hidden-text{color:transparent;text-shadow:0 0 14px rgba(58,46,36,.35);user-select:none;-webkit-user-select:none}
+.pr-hint{font-size:13.5px;color:var(--muted);margin:-6px 0 14px}
+.modal .btn.got{background:var(--olive);border-color:var(--olive);color:#fff}
+.modal .btn.notyet{color:var(--terra)}
+
+/* ── toast ────────────────────────────────────────────────── */
+.toasts{position:fixed;top:calc(12px + env(safe-area-inset-top));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:30;pointer-events:none;padding:0 16px}
+.toast{background:var(--ink);color:var(--paper);font-size:15px;font-weight:600;padding:12px 18px;border-radius:999px;box-shadow:var(--lift-lg);animation:toast 3.4s ease forwards;max-width:100%;display:inline-flex;gap:8px;align-items:center}
+@keyframes toast{0%{opacity:0;transform:translateY(-10px)}10%,85%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-6px)}}
+
+/* ── reading mode ─────────────────────────────────────────── */
+.readbar{display:none;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 0;position:sticky;top:0;z-index:4;background:var(--paper);padding:8px 0}
+.readmode .readbar{display:flex}
+.readbar .btn{min-height:52px}
+.readbar .rt{font-size:18px;font-weight:700;letter-spacing:-.02em;text-align:center;flex:1 1 auto}
+.readbar .rt small{display:block;font-size:12.5px;font-weight:600;color:var(--muted)}
+.readmode .side,.readmode .week:not(.reading){display:none}
+.readmode .weeks{margin-left:0}
+.readmode .week.reading{border-left:0;padding-left:0;border-top:0}
+.readmode .wk-head{pointer-events:none;padding-top:8px}
+.readmode .wk-head .chev{display:none}
+.readmode .wk-head .num{font-size:24px}
+.readmode .week.current .wk-head{position:static}
+.readmode .wk-body{grid-template-rows:1fr !important}
+.readmode .wk-in{visibility:visible !important}
+.readmode .day{min-height:76px;padding:12px 0}
+.readmode .refs{font-size:26px;line-height:1.3}
+.readmode .refs a{line-height:40px;min-height:52px}
+.readmode .day .lbl{font-size:15px;width:64px}
+.readmode .mark{width:52px;height:52px}
+.readmode .mem .refs{font-size:22px}
+.readmode .jr .jf textarea{font-size:19px}
+
+/* ── layout: two-pane on wide screens, bottom tabs on phones ── */
+.planview{display:block}
+@media (min-width:1024px){
+  .wrap{max-width:78rem}
+  .planview{display:grid;grid-template-columns:380px minmax(0,1fr);gap:36px;align-items:start}
+  .planview.readmode{display:block}
+  .side{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:6px;scrollbar-width:thin}
+  .weeks{margin-top:0}
+  .meter{margin-top:6px}
+  .miles{flex-wrap:wrap;overflow:visible}
+  .mile{width:calc(33.33% - 7px)}
+}
+@media (max-width:600px){
+  .hdr{justify-content:flex-start}
+  .switch{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:15;display:flex;box-shadow:var(--lift-lg);border:1.5px solid var(--rule)}
+  .switch button{flex:1 1 0;min-height:52px}
+  body{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+  .modal{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+}
 @media (max-width:480px){
   .wrap{padding:0 16px}
   .weeks{margin-left:-9px}.week{padding-left:6px}
@@ -280,110 +412,53 @@ body.big{zoom:1.15}
   .mem{gap:10px}.mem .title{width:auto}
   .hero-title{font-size:23px}
   h1{font-size:26px}
+  .readmode .refs{font-size:22px}
 }
-
-/* ── week note ────────────────────────────────────────────── */
-.wn{margin-top:10px}
-.wnbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;
-  border:1.5px solid var(--rule);background:transparent;color:var(--muted);font-size:14px;font-weight:700}
-.wnbtn:active{background:var(--hover)}
-.wnbtn.has{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
-.wn.on .wnbtn{border-color:var(--slate);color:var(--slate);background:var(--slate-soft)}
-.wnbody{display:none;margin-top:10px;padding:14px 16px 6px;background:var(--raised);border:1.5px solid var(--rule);
-  border-radius:var(--r);box-shadow:var(--lift)}
-.wn.on .wnbody{display:block;animation:rise .2s ease}
-.wnbody label{display:block;font-size:14px;font-weight:700;color:var(--ink2);margin:0 0 4px}
-.wnbody label small{font-weight:500;color:var(--muted);margin-left:6px}
-.wnbody textarea{display:block;width:100%;font:inherit;font-size:17px;line-height:1.45;color:var(--ink);
-  background:var(--sunk);border:1.5px solid transparent;border-radius:var(--r-sm);padding:10px 12px;
-  min-height:72px;resize:none;overflow:hidden;-webkit-appearance:none;appearance:none}
-.wnbody textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}
-.modal textarea{display:block;width:100%;font:inherit;font-size:14px;line-height:1.4;color:var(--ink);min-height:120px;
-  padding:10px 12px;border:1.5px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);margin:0 0 12px;
-  resize:none;-webkit-appearance:none;appearance:none;overflow-wrap:anywhere}
-.modal textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}
-.modal .row .btn.alt{margin-right:auto}
-.jcard.note .jc-hd b{color:var(--gold)}
-.jcard.note .txt{margin:10px 0 0;padding-top:9px;border-top:1px solid var(--rule-soft);white-space:pre-wrap;overflow-wrap:anywhere;font-size:16.5px;line-height:1.5}
-
-/* ── journal view ─────────────────────────────────────────── */
-.jview{display:none}
-.jview.on{display:block}
-.jtop{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 6px}
-.jtop .search{flex:1 1 220px;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;
-  border:1.5px solid var(--rule);border-radius:999px;background:var(--raised);box-shadow:var(--lift)}
-.jtop .search input{flex:1 1 auto;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;
-  color:var(--ink);min-height:44px;-webkit-appearance:none;appearance:none}
-.jtop .search input::placeholder{color:var(--muted)}
-.jtop .search button{border:0;background:transparent;color:var(--muted);font-size:20px;min-width:36px;min-height:44px;padding:0}
-.jstat{font-size:14px;color:var(--muted);margin:10px 0 0}
-.jcard{background:var(--raised);border:1.5px solid var(--rule);border-radius:var(--r);padding:16px 18px 6px;
-  margin-top:14px;box-shadow:var(--lift)}
-.jcard .jc-hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.jcard .jc-hd b{font-size:15px;font-weight:700;color:var(--ink2)}
-.jcard .jc-hd .ref{font-size:18px;font-weight:600;color:var(--slate);margin-left:8px}
-.jcard .jc-hd .when{font-size:13px;color:var(--muted)}
-.jcard dl{margin:10px 0 0}
-.jcard dl > div{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--rule-soft)}
-.jcard dt{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
-  background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:800;margin-top:1px}
-.jcard dd{margin:0;flex:1 1 auto;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:16.5px;line-height:1.5}
-.jcard mark{background:var(--gold-soft);color:inherit;border-radius:3px;padding:0 1px}
-.jcard .jc-ft{display:flex;justify-content:flex-end;gap:4px;margin-top:4px}
-.jcard .jc-ft button{background:none;border:0;color:var(--slate);font-weight:600;font-size:14px;min-height:44px;padding:0 10px}
-.empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:16px}
-.empty b{display:block;color:var(--ink2);font-size:18px;margin-bottom:6px}
-
-/* ── modal (reset confirm, passcode) ──────────────────────── */
-.modal{display:none;position:fixed;inset:0;background:rgba(58,46,36,.45);z-index:20;
-  align-items:flex-start;justify-content:center;padding:max(24px, 10vh) 24px 24px;overflow:auto}
-.modal.on{display:flex}
-.modal .card{background:var(--raised);border-radius:var(--r);padding:24px;max-width:24rem;width:100%;
-  box-shadow:var(--lift)}
-.modal h2{margin:0 0 8px;font-size:20px}
-.modal p{margin:0 0 18px;color:var(--ink2);font-size:15.5px;line-height:1.5}
-.modal .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
-.modal .btn{min-height:52px}
-.modal .btn.danger{background:var(--terra);border-color:var(--terra);color:#fff}
-.modal input[type="password"],.modal input[type="text"]{display:block;width:100%;font:inherit;font-size:20px;letter-spacing:.06em;
-  min-height:56px;padding:10px 14px;border:1.5px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);
-  color:var(--ink);margin:0 0 12px;-webkit-appearance:none;appearance:none}
-.modal input:focus{outline:none;border-color:var(--slate);background:var(--raised)}
-.modal .err{color:var(--terra);font-size:14.5px;font-weight:600;min-height:1.4em;margin:-4px 0 10px}
-.modal .showpw{display:flex;align-items:center;gap:10px;font-size:14.5px;color:var(--ink2);margin:0 0 14px;min-height:44px}
-.modal .showpw input{width:22px;height:22px;margin:0}
 .foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--rule-soft);font-size:13.5px;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{background:var(--hover)}
+  .btn.primary:hover{filter:brightness(1.08);background:var(--slate)}
+  .wk-head:hover,.day:hover,.mv:hover{background:var(--hover)}
+  .week.current .wk-head:hover{background:var(--hover)}
+  .refs a:hover{border-bottom-color:var(--slate)}
+  .mark:hover,.mkm:hover{border-color:var(--olive)}
+  .jbtn:hover,.wnbtn:hover{border-color:var(--slate);color:var(--slate)}
+  .ygrid button:hover,.jbar button:hover{filter:brightness(.92)}
+  .switch button:hover,.seg button:hover{color:var(--ink)}
+  .jcard .jc-ft button:hover,.jr .jft button:hover{text-decoration:underline}
+}
 
 /* ── print ────────────────────────────────────────────────── */
 .print-only{display:none}
 @media print{
   @page{margin:10mm}
-  :root,:root[data-theme="dark"]{--paper:#fff;--raised:#fff;--ink:#000;--ink2:#000;--muted:#333;--rule:#bbb;--rule-soft:#ddd;
-    --slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
+  :root,:root[data-theme="dark"],body.nt{--paper:#fff;--raised:#fff;--ink:#000;--ink2:#000;--muted:#333;--rule:#bbb;--rule-soft:#ddd;--slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
   body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
+  .big{zoom:1}
   .wrap{max-width:none;padding:0}
-  header .hdr,.meter,.strip,.days,.hero,.ygrid,.ylbl,.ring,.cf,.tools,.sheet,.modal,.mark,.mkm,.chev,.foot,.day .lbl,.mem .lbl,.jbtn,.jr,.nextwk,.jview,.wn{display:none !important}
-  body.big{zoom:1}
-  .mvs{display:inline}.mv{display:inline;padding:0;min-height:0}.mv.memd .refs a{color:#000}
-  .mem .title::after{content:": "}.mv + .mv::before{content:" · ";color:#000}
+  header .hdr,.side,.readbar,.toasts,.modal,.mark,.mkm,.chev,.ring,.cf,.foot,.day .lbl,.mem .lbl,.mem .title,.jbtn,.jr,.nextwk,.jview,.wn,.jn,.recallrow,.mv .pr,.switch{display:none !important}
   .planview{display:block !important}
+  .weeks .week{display:block !important}
   header{padding:0 0 8pt}
   .print-only{display:block;font-size:16pt;font-weight:700;margin:0 0 2pt}
   .print-sub{font-size:9pt;color:#333;margin:0 0 8pt}
   .weeks{column-count:4;column-gap:14pt;column-fill:auto;margin:0}
   .week{border:0;break-inside:avoid;page-break-inside:avoid;padding:0 0 6pt;margin:0;background:none}
   .week.complete:not(.current) .wk-head{opacity:1}
-  .wk-in{visibility:visible !important;overflow:visible}
-  .wk-pad{padding:0}
+  .week.current .wk-head{position:static}
   .week.current .wk-head .num::after{content:none}
   .wk-head{display:block;padding:0 0 1pt;min-height:0;border-bottom:1px solid #999;margin-bottom:2pt}
   .wk-head .num{font-size:10pt;font-weight:700;color:#000}
   .wk-head .span{display:none}
   .wk-body{display:block !important;padding:0;grid-template-rows:none}
+  .wk-in{visibility:visible !important;overflow:visible}
+  .wk-pad{padding:0}
   .day,.mem{display:flex;align-items:baseline;gap:4pt;min-height:0;padding:1pt 0;margin:0;border:0}
   .mem{display:block;padding-top:2pt}
-  .mem .title{display:inline;width:auto;font-size:8pt;font-weight:700;color:#333;text-transform:none;letter-spacing:0}
-  .mem .title::after{content:":"}
+  .mem::before{content:"Memory: ";font-size:8pt;font-weight:700;color:#333}
+  .mvs{display:inline}.mv{display:inline;padding:0;min-height:0}.mv.memd .refs a{color:#000}
+  .mv + .mv::before{content:" · ";color:#000}
   .refs,.mem .refs{display:inline;font-size:9pt;font-weight:400;color:#000;line-height:1.2}
   .day.done .refs,.day.done .refs a{color:#000}
   .refs a,.refs a:link,.refs a:visited,.mem .refs a,.day.done .refs a{color:#000 !important;text-decoration:none;border:0;padding:0;margin:0;min-height:0;line-height:inherit;display:inline;background:none}
@@ -393,6 +468,20 @@ body.big{zoom:1.15}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-lockbook" viewBox="0 0 64 64"><path d="M10 50V12a4 4 0 0 1 4-4h34a4 4 0 0 1 4 4v22"/><path d="M10 50a5 5 0 0 1 5-5h23"/><path d="M14 8v37"/><path d="M20 18h22M20 26h22M20 34h12"/><rect x="40" y="42" width="18" height="14" rx="3"/><path d="M44 42v-4a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-openbook" viewBox="0 0 64 64"><path d="M6 14c8-3 16-3 26 4 10-7 18-7 26-4v36c-8-3-16-3-26 4-10-7-18-7-26-4z"/><path d="M32 18v40"/><path d="M12 24c6-2 10-2 16 1M12 32c6-2 10-2 16 1M12 40c6-2 10-2 16 1M36 25c6-3 10-3 16-1M36 33c6-3 10-3 16-1M36 41c6-3 10-3 16-1"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+</svg>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="wrap">
   <header>
     <div class="print-only">F260 Bible Reading Plan</div>
@@ -411,110 +500,131 @@ body.big{zoom:1.15}
 
   <!-- ── Plan view ─────────────────────────────────────────── -->
   <section class="planview" id="planView">
-    <div class="meter"><i id="meterFill"></i></div>
-    <div class="strip">
-      <span><b id="doneCount">0</b>of 260 readings</span>
-      <span><b id="curWeekLbl">1</b>current week</span>
-      <span><b id="memCount">0</b>of 104 verses memorized</span>
-      <span id="pct"></span>
+    <div class="side">
+      <div class="meter"><i id="meterFill"></i></div>
+      <div class="meter ch" title="Chapters"><i id="chFill"></i></div>
+      <div class="strip">
+        <span><b id="doneCount">0</b>of 260 readings</span>
+        <span class="chs"><b id="chCount">0</b>of <span id="chTotal">0</span> chapters</span>
+        <span><b id="curWeekLbl">1</b>current week</span>
+        <span><b id="memCount">0</b>of 104 verses memorized</span>
+        <span id="pct"></span>
+      </div>
+      <div class="journey">
+        <div class="jlbl"><span id="jWhere"></span><span id="jBooks"></span></div>
+        <div class="jbar" id="jbar" aria-label="Books of the plan"></div>
+      </div>
+      <div class="ygrid" id="ygrid" aria-label="The 52 weeks"></div>
+      <div class="ylbl">52 weeks · tap one to open it</div>
+      <div class="heat" id="heat" aria-label="Reading days, last 12 weeks"></div>
+      <div class="hlbl" id="hlbl">last 12 weeks · 2 rest days between readings keep the streak</div>
+      <div class="hero" id="hero">
+        <div class="hero-top"><span class="k" id="heroKind">Next up</span><span class="streak" id="streak"></span></div>
+        <div class="hero-title" id="heroTitle"></div>
+        <div class="hero-meta" id="heroMeta"></div>
+        <div class="hero-pace" id="heroPace"></div>
+        <div class="hero-actions">
+          <button class="btn primary" id="nextUp">Go to reading</button>
+          <a class="btn" id="heroOpen" target="_blank" rel="noopener" hidden>Open passage ↗</a>
+          <button class="btn" id="readBtn"><svg class="ico"><use href="#i-open"/></svg> Reading mode</button>
+        </div>
+      </div>
+      <div class="mlbl">Milestones <span id="mileCount"></span></div>
+      <div class="miles" id="miles"></div>
+      <div class="tools">
+        <button class="btn primary" id="jumpBtn">Jump to current week</button>
+        <span class="wkpick" aria-label="Set current week">
+          <button id="wkMinus" aria-label="Previous week">−</button>
+          <label for="wkSel">Week</label>
+          <select id="wkSel"></select>
+          <button id="wkPlus" aria-label="Next week">+</button>
+        </span>
+        <button class="btn" id="printBtn"><svg class="ico"><use href="#i-print"/></svg> Print plan</button>
+        <button class="btn quiet" id="settingsBtn" aria-expanded="false"><svg class="ico"><use href="#i-gear"/></svg> Settings</button>
+      </div>
+      <div class="sheet" id="sheet">
+        <h2>Open passages in</h2>
+        <div class="seg" id="srcSeg">
+          <button data-src="gateway">BibleGateway</button>
+          <button data-src="youversion">Bible.com / YouVersion</button>
+          <button data-src="esv">ESV.org</button>
+        </div>
+        <p class="hint" id="srcHint"></p>
+        <div class="sec">
+          <h2>Weeks</h2>
+          <div class="seg">
+            <button id="expandAll">Expand all</button>
+            <button id="collapseAll">Collapse all</button>
+            <button class="danger" id="resetBtn">Reset progress…</button>
+          </div>
+        </div>
+        <div class="sec">
+          <h2>Theme</h2>
+          <div class="seg" id="themeSeg">
+            <button data-theme="system">System</button>
+            <button data-theme="light">Light</button>
+            <button data-theme="dark">Dark</button>
+          </div>
+        </div>
+        <div class="sec">
+          <h2>Text size</h2>
+          <div class="seg" id="sizeSeg">
+            <button data-big="0">Normal</button>
+            <button data-big="1">Large</button>
+          </div>
+        </div>
+        <div class="sec">
+          <h2>Journal passcode</h2>
+          <div class="seg">
+            <button id="lockBtn">Lock now</button>
+            <button id="changePassBtn">Change passcode</button>
+            <button class="danger" id="eraseBtn">Erase journal…</button>
+          </div>
+          <p class="hint" id="vaultHint"></p>
+        </div>
+        <div class="sec">
+          <h2>Auto-lock journal after</h2>
+          <div class="seg" id="autoSeg">
+            <button data-min="5">5 min</button>
+            <button data-min="15">15 min</button>
+            <button data-min="30">30 min</button>
+            <button data-min="0">Never</button>
+          </div>
+          <p class="hint">Idle time with the journal open. It always locks when the app is reopened.</p>
+        </div>
+        <div class="sec">
+          <h2>Face ID / Touch ID</h2>
+          <div class="seg">
+            <button id="bioOn">Enable</button>
+            <button id="bioOff">Turn off</button>
+          </div>
+          <p class="hint" id="bioHint"></p>
+        </div>
+        <div class="sec">
+          <h2>Backup</h2>
+          <div class="seg">
+            <button id="backupBtn">Copy encrypted backup</button>
+            <button id="restoreBtn">Restore from backup…</button>
+          </div>
+          <p class="hint">The backup is text: paste it into Notes, an email to yourself, or a password manager. It holds the encrypted journal (still needing your passcode) plus reading progress. Restore it on a new device from the same place.</p>
+        </div>
+      </div>
     </div>
-    <div class="ygrid" id="ygrid" aria-label="The 52 weeks"></div>
-    <div class="ylbl">52 weeks · tap one to open it</div>
-    <div class="days" id="days" aria-label="Reading days, last two weeks"></div>
-    <div class="hero" id="hero">
-      <div class="hero-top"><span class="k" id="heroKind">Next up</span><span class="streak" id="streak"></span></div>
-      <div class="hero-title" id="heroTitle"></div>
-      <div class="hero-meta" id="heroMeta"></div>
-      <div class="hero-actions">
-        <button class="btn primary" id="nextUp">Go to reading</button>
-        <a class="btn" id="heroOpen" target="_blank" rel="noopener" hidden>Open passage ↗</a>
+    <div>
+      <div class="readbar" id="readbar">
+        <button class="btn" id="readPrev" aria-label="Previous week"><svg class="ico"><use href="#i-left"/></svg></button>
+        <div class="rt" id="readTitle"></div>
+        <button class="btn" id="readNext" aria-label="Next week"><svg class="ico"><use href="#i-right"/></svg></button>
+        <button class="btn primary" id="readExit">Done</button>
       </div>
+      <main class="weeks" id="weeks"></main>
     </div>
-    <div class="tools">
-      <button class="btn primary" id="jumpBtn">Jump to current week</button>
-      <span class="wkpick" aria-label="Set current week">
-        <button id="wkMinus" aria-label="Previous week">−</button>
-        <label for="wkSel">Week</label>
-        <select id="wkSel"></select>
-        <button id="wkPlus" aria-label="Next week">+</button>
-      </span>
-      <button class="btn" id="printBtn">🖨 Print plan</button>
-      <button class="btn quiet" id="settingsBtn" aria-expanded="false">⚙︎ Settings</button>
-    </div>
-    <div class="sheet" id="sheet">
-      <h2>Open passages in</h2>
-      <div class="seg" id="srcSeg">
-        <button data-src="gateway">BibleGateway</button>
-        <button data-src="youversion">Bible.com / YouVersion</button>
-        <button data-src="esv">ESV.org</button>
-      </div>
-      <p class="hint" id="srcHint"></p>
-      <div class="sec">
-        <h2>Weeks</h2>
-        <div class="seg">
-          <button id="expandAll">Expand all</button>
-          <button id="collapseAll">Collapse all</button>
-          <button class="danger" id="resetBtn">Reset progress…</button>
-        </div>
-      </div>
-      <div class="sec">
-        <h2>Theme</h2>
-        <div class="seg" id="themeSeg">
-          <button data-theme="system">System</button>
-          <button data-theme="light">Light</button>
-          <button data-theme="dark">Dark</button>
-        </div>
-      </div>
-      <div class="sec">
-        <h2>Text size</h2>
-        <div class="seg" id="sizeSeg">
-          <button data-big="0">Normal</button>
-          <button data-big="1">Large</button>
-        </div>
-      </div>
-      <div class="sec">
-        <h2>Auto-lock journal after</h2>
-        <div class="seg" id="autoSeg">
-          <button data-min="5">5 min</button>
-          <button data-min="15">15 min</button>
-          <button data-min="30">30 min</button>
-          <button data-min="0">Never</button>
-        </div>
-        <p class="hint">Idle time with the journal open. It always locks when the app is reopened.</p>
-      </div>
-      <div class="sec">
-        <h2>Journal passcode</h2>
-        <div class="seg">
-          <button id="lockBtn">Lock now</button>
-          <button id="changePassBtn">Change passcode</button>
-          <button class="danger" id="eraseBtn">Erase journal…</button>
-        </div>
-        <p class="hint" id="vaultHint"></p>
-      </div>
-      <div class="sec">
-        <h2>Face ID / Touch ID</h2>
-        <div class="seg">
-          <button id="bioOn">Enable</button>
-          <button id="bioOff">Turn off</button>
-        </div>
-        <p class="hint" id="bioHint"></p>
-      </div>
-      <div class="sec">
-        <h2>Backup</h2>
-        <div class="seg">
-          <button id="backupBtn">Copy encrypted backup</button>
-          <button id="restoreBtn">Restore from backup…</button>
-        </div>
-        <p class="hint">The backup is text: paste it into Notes, an email to yourself, or a password manager. It holds the encrypted journal (still needing your passcode) plus reading progress. Restore it on a new iPad from the same place.</p>
-      </div>
-    </div>
-    <main class="weeks" id="weeks"></main>
   </section>
 
   <!-- ── Journal view ──────────────────────────────────────── -->
   <section class="jview" id="journalView">
     <div class="jtop">
-      <label class="search"><span aria-hidden="true">⌕</span><input type="search" id="jSearch" placeholder="Search entries" autocomplete="off" autocorrect="off"><button type="button" id="jClear" aria-label="Clear search" hidden>×</button></label>
+      <label class="search"><svg class="ico"><use href="#i-search"/></svg><input type="search" id="jSearch" placeholder="Search entries" autocomplete="off" autocorrect="off"><button type="button" id="jClear" aria-label="Clear search" hidden>×</button></label>
       <button class="btn" id="jSort" aria-pressed="false">Newest first</button>
       <button class="btn" id="jCopyAll">Copy all</button>
       <button class="btn quiet" id="jLock">Lock</button>
@@ -523,7 +633,7 @@ body.big{zoom:1.15}
     <div id="jList"></div>
   </section>
 
-  <p class="foot">Foundations plan by Replicate Ministries (replicate.org). Progress and journal entries are saved on this device; the journal is encrypted with your passcode. Use Settings → Backup now and then so it isn’t lost with the iPad.</p>
+  <p class="foot">Foundations plan by Replicate Ministries (replicate.org). Progress and journal entries are saved on this device; the journal is encrypted with your passcode. Use Settings → Backup now and then so it isn’t lost with the device.</p>
 </div>
 
 <div class="modal" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
@@ -556,7 +666,7 @@ body.big{zoom:1.15}
 <div class="modal" id="restore" role="dialog" aria-modal="true" aria-labelledby="restoreTitle">
   <form class="card" id="restoreForm">
     <h2 id="restoreTitle">Restore from backup</h2>
-    <p>Paste a backup you copied earlier. It replaces the journal and reading progress on this iPad; you’ll unlock the restored journal with the passcode you had when the backup was made.</p>
+    <p>Paste a backup you copied earlier. It replaces the journal and reading progress on this device; you’ll unlock the restored journal with the passcode you had when the backup was made.</p>
     <textarea id="restoreText" placeholder="F260BACKUP1.…" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
     <div class="err" id="restoreErr"></div>
     <div class="row">
@@ -564,6 +674,27 @@ body.big{zoom:1.15}
       <button type="submit" class="btn danger" id="restoreOk">Replace and restore</button>
     </div>
   </form>
+</div>
+
+<div class="modal" id="complete" role="dialog" aria-modal="true" aria-labelledby="completeTitle">
+  <div class="card wide">
+    <span class="done-hd">Plan complete</span>
+    <h2 id="completeTitle">Genesis to Revelation 🎉</h2>
+    <p id="completeText"></p>
+    <div class="done-stats" id="doneStats"></div>
+    <div class="row">
+      <button class="btn alt" id="completeCopy">Copy summary</button>
+      <button class="btn primary" id="completeClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="practice" role="dialog" aria-modal="true" aria-labelledby="prRef">
+  <div class="card">
+    <span class="done-hd" style="background:var(--gold-soft);color:var(--gold)">Memory verse</span>
+    <h2 class="pr-ref" id="prRef"></h2>
+    <div id="prBody"></div>
+  </div>
 </div>
 
 <script>
@@ -644,41 +775,79 @@ const BOOKS = {
   "1 John":"1JN","2 John":"2JN","3 John":"3JN","Jude":"JUD","Revelation":"REV"
 };
 
+// Journal prompts: one per week, cycling
+const PROMPTS = [
+  'What does this passage show me about who God is?',
+  'Where do I see grace in today’s reading?',
+  'What would obedience to this look like tomorrow morning?',
+  'Which character do I most resemble here — and why?',
+  'What promise can I hold on to this week?',
+  'What is God asking me to let go of?',
+  'How would I explain this passage to a child?',
+  'What surprised me? What did I expect instead?',
+  'Where is Jesus in this passage, even before He arrives?',
+  'What does this reveal about the human heart — including mine?',
+  'What would change if I really believed this?',
+  'Who needs to hear this from me this week?',
+  'What am I tempted to skip over, and why?',
+  'What is one sentence I want to remember from today?',
+  'How does this passage lead me to pray?',
+  'What does faithfulness look like in this passage?',
+  'Where do I see God keeping His word?',
+  'What warning here is meant for me?',
+  'What comfort here is meant for me?',
+  'How does this connect to last week’s reading?',
+  'What does this teach about waiting on God?',
+  'Where is repentance needed — in the passage, and in me?',
+  'What is God building here that I can’t yet see?',
+  'What would I ask the writer if I could?',
+  'How does this passage shape how I treat people today?',
+  'What am I thankful for after reading this?'
+];
+
 // ── storage (namespaced: f260.*) ────────────────────────────────
-// f260.journal.vault holds the HEAR journal encrypted with a passcode-derived key
-// (PBKDF2-SHA256 → AES-256-GCM). The key lives only in memory, so the journal
-// locks whenever the app is reopened. f260.journal (plaintext, from the first
-// version) is migrated into the vault the moment a passcode is set.
+// f260.journal.vault holds the HEAR journal encrypted with a passcode-derived key; see the vault section.
 const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open', view: 'f260.view',
-            mem: 'f260.mem', log: 'f260.log', weekStart: 'f260.weekStart', autolock: 'f260.autolock', big: 'f260.big', theme: 'f260.theme',
+            mem: 'f260.mem', log: 'f260.log', weekStart: 'f260.weekStart', weekDone: 'f260.weekDone', autolock: 'f260.autolock',
+            big: 'f260.big', theme: 'f260.theme', best: 'f260.best', miles: 'f260.miles', jstats: 'f260.jstats',
+            verses: 'f260.verses', recall: 'f260.recall', finished: 'f260.finished', read: 'f260.read',
             legacy: 'f260.journal', vault: 'f260.journal.vault' };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const drop = k => { try { localStorage.removeItem(k); } catch (e) {} };
+const obj = v => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
 
-let done = load(K.done, {});          // { "12-3": true }  week-day
+let done = obj(load(K.done, {}));            // { "12-3": true }  week-day
 let curWeek = load(K.week, 1);
 let source = load(K.src, 'gateway');
-let openWeeks = load(K.open, null);   // null = first run: only the current week open
+let openWeeks = load(K.open, null);          // null = first run: only the current week open
 let view = load(K.view, 'plan');
-if (typeof done !== 'object' || done === null) done = {};
 curWeek = Math.min(52, Math.max(1, +curWeek || 1));
 if (!['gateway', 'youversion', 'esv'].includes(source)) source = 'gateway';
 if (!Array.isArray(openWeeks)) openWeeks = [curWeek];
 if (!['plan', 'journal'].includes(view)) view = 'plan';
-let mem = load(K.mem, {});            // { "12-1": true }  week-verse  memorized
-let log = load(K.log, {});            // { "2026-09-14": true }  days with at least one reading checked
-let weekStart = load(K.weekStart, {});// { "3": "2026-09-14" }  date each week was started
+let mem = obj(load(K.mem, {}));              // { "12-1": true }  week-verse  memorized
+let log = obj(load(K.log, {}));              // { "2026-09-14": true }  days with at least one reading checked
+let weekStart = obj(load(K.weekStart, {}));  // { "3": "2026-09-14" }  date each week was started
+let weekDone = obj(load(K.weekDone, {}));    // { "3": "2026-09-20" }  date each week was completed
 let autolockMin = load(K.autolock, 15);
 let big = !!load(K.big, false);
 let theme = load(K.theme, 'system'); if (!['system', 'light', 'dark'].includes(theme)) theme = 'system';
-if (typeof mem !== 'object' || mem === null) mem = {};
-if (typeof log !== 'object' || log === null) log = {};
-if (typeof weekStart !== 'object' || weekStart === null) weekStart = {};
+let best = obj(load(K.best, {}));            // { n, at }  best streak
+let miles = obj(load(K.miles, {}));          // { id: "2026-09-14" }  earned milestones
+let jstats = obj(load(K.jstats, {}));        // { entries, days:{date:true} }  journal activity, no content
+let verses = obj(load(K.verses, {}));        // { "12-1": "verse text" }  pasted once for practice (not secret)
+let recall = obj(load(K.recall, {}));        // { "12-1": { s:'got'|'not', t } }
+let finished = load(K.finished, null);       // date the 260th reading was ticked
+let readMode = !!load(K.read, false), readWeek = curWeek;
 if (![0, 5, 15, 30].includes(autolockMin)) autolockMin = 15;
+jstats.days = obj(jstats.days); jstats.entries = +jstats.entries || 0;
 const dayKey = d => { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 const shiftDay = (key, n) => { const [y, m, d] = key.split('-').map(Number); return dayKey(new Date(y, m - 1, d + n)); };
+const daysBetween = (a, b) => { const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number); return Math.round((new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1)) / 86400000); };
 const fmtKey = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); };
+const fmtKeyY = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); };
+const fmtMonth = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }); };
 if (!weekStart[curWeek]) { weekStart[curWeek] = dayKey(); save(K.weekStart, weekStart); }
 
 let journal = null;                   // { "12-3": { h, e, a, r, t }, _w: { "12": { n, t } } } while unlocked, else null
@@ -727,7 +896,6 @@ function refUrl(ref) {
   if (m && m[2]) { v = '.' + m[2]; if (m[3]) v += '-' + m[3]; }
   return 'https://www.bible.com/bible/59/' + code + '.' + ch + v + '.ESV';
 }
-
 // ── journal vault (encryption) ──────────────────────────────────
 // Layout (v2): { v:2, iv, ct,                     journal JSON encrypted with a random data key (AES-256-GCM)
 //                pass: { salt, iter, iv, wk },     data key wrapped with a PBKDF2-SHA256 key from the passcode
@@ -840,7 +1008,7 @@ const B_PREFIX = 'F260BACKUP1.';
 function backupText() {
   const blob = vaultBlob(); let vaultCopy = null;
   if (blob) { vaultCopy = Object.assign({}, blob); delete vaultCopy.bio; }   // the biometric wrap is bound to this device
-  const b = { f260: 2, made: Date.now(), vault: vaultCopy, progress: { done, mem, log, weekStart, week: curWeek } };
+  const b = { f260: 2, made: Date.now(), vault: vaultCopy, progress: { done, mem, log, weekStart, week: curWeek, weekDone, best, miles, jstats, verses, recall, finished } };
   return B_PREFIX + btoa(unescape(encodeURIComponent(JSON.stringify(b))));
 }
 function parseBackup(text) {
@@ -860,11 +1028,13 @@ function restoreBackup(b) {
   log = (p.log && typeof p.log === 'object') ? p.log : {};
   weekStart = (p.weekStart && typeof p.weekStart === 'object') ? p.weekStart : {};
   curWeek = Math.min(52, Math.max(1, +p.week || 1));
+  weekDone = obj(p.weekDone); best = obj(p.best); miles = obj(p.miles); jstats = obj(p.jstats); jstats.days = obj(jstats.days); jstats.entries = +jstats.entries || 0;
+  verses = obj(p.verses); recall = obj(p.recall); finished = p.finished || null;
   save(K.done, done); save(K.mem, mem); save(K.log, log); save(K.weekStart, weekStart); save(K.week, curWeek);
+  save(K.weekDone, weekDone); save(K.best, best); save(K.miles, miles); save(K.jstats, jstats); save(K.verses, verses); save(K.recall, recall); if (finished) save(K.finished, finished); else drop(K.finished);
   openWeeks = [curWeek]; save(K.open, openWeeks);
   render();
 }
-
 // ── passcode dialog ─────────────────────────────────────────────
 // mode: 'set' | 'unlock' | 'change'; resolves true on success, false on cancel
 let passResolve = null, passMode = 'unlock';
@@ -920,25 +1090,18 @@ async function ensureUnlocked() {
   if (ok) render();
   return ok;
 }
-
-// ── render ──────────────────────────────────────────────────────
+// ── derived plan data ───────────────────────────────────────────
 function $(id) { return document.getElementById(id); }
-const weeksEl = $('weeks');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const CHECK = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg>';
-
-function refsHtml(str) {
-  return splitRefs(str).map((r, i) =>
-    (i ? '<span class="sep">·</span>' : '') +
-    '<a href="' + esc(refUrl(r)) + '" target="_blank" rel="noopener" data-ref>' + esc(r.text) + '</a>'
-  ).join('');
-}
+const ICO = id => '<svg class="ico"><use href="#' + id + '"/></svg>';
 const GROUPS = { law: ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy'],
   hist: ['Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther'],
   wis: ['Job', 'Psalm', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon'],
   pro: ['Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'],
   gos: ['Matthew', 'Mark', 'Luke', 'John', 'Acts'] };
 const bookGroup = book => Object.keys(GROUPS).find(g => GROUPS[g].includes(book)) || 'epi';
+const normBook = b => b === 'Psalm' ? 'Psalms' : b;
 // rough chapter count for a day's reading (partial chapters count as one); ~4 min per chapter
 function chapterCount(str) {
   return splitRefs(str).reduce((n, r) => {
@@ -949,6 +1112,63 @@ function chapterCount(str) {
     if (v1 && !v2) return n + 1;                                // "119:49-128" = verses in one chapter
     return n + Math.max(1, +x - +c1 + 1);                       // "1-2" or "29-30:24"
   }, 0);
+}
+const DAY_CH = {}; let CH_TOTAL = 0;
+PLAN.forEach(wk => wk.r.forEach((r, d) => { DAY_CH[wk.w + '-' + d] = chapterCount(r); CH_TOTAL += DAY_CH[wk.w + '-' + d]; }));
+// books in order of first appearance, with the days that touch each
+const BOOKS_IN_PLAN = (() => {
+  const m = new Map();
+  const add = (b, id, w) => { b = normBook(b); if (!m.has(b)) m.set(b, { book: b, days: [], first: w, g: bookGroup(b) }); const e = m.get(b); if (!e.days.includes(id)) e.days.push(id); };
+  PLAN.forEach(wk => wk.r.forEach((r, d) => { const id = wk.w + '-' + d;
+    splitRefs(r).forEach(x => { if (/[–—]/.test(x.text)) x.text.split(/\s*[–—]\s*/).forEach(p => { const mm = p.match(BOOK_RE); if (mm) add(mm[1], id, wk.w); }); else if (x.book) add(x.book, id, wk.w); }); }));
+  return [...m.values()];
+})();
+const bookDone = e => e.days.every(id => done[id]);
+const readingsDone = () => Object.keys(done).filter(k => done[k]).length;
+const weekCount = w => PLAN[w - 1].r.filter((_, d) => done[w + '-' + d]).length;
+
+// milestones — gentle, no points
+const MILES = [
+  { id: 'first-reading', name: 'First reading', icon: '📖', test: s => s.readings >= 1 },
+  { id: 'first-entry', name: 'First journal entry', icon: '✎', test: s => s.entries >= 1 },
+  { id: 'first-verse', name: 'First verse memorized', icon: '♥', test: s => s.mem >= 1 },
+  { id: 'first-book', name: 'First book finished', icon: '✓', test: s => s.booksDone >= 1 },
+  { id: 'streak-7', name: '7-day streak', icon: '🔥', test: s => s.best >= 7 },
+  { id: 'pentateuch', name: 'Pentateuch done', icon: '⛰', test: s => GROUPS.law.every(b => s.bookDone[b]) },
+  { id: 'readings-100', name: '100 readings', icon: '💯', test: s => s.readings >= 100 },
+  { id: 'streak-30', name: '30-day streak', icon: '🔥', test: s => s.best >= 30 },
+  { id: 'psalms', name: 'Psalms done', icon: '♪', test: s => !!s.bookDone['Psalms'] },
+  { id: 'halfway', name: 'Halfway — week 26', icon: '◐', test: s => s.weeks26 },
+  { id: 'nt', name: 'Into the New Testament', icon: '✝', test: s => s.ntStarted },
+  { id: 'entries-50', name: '50 journal entries', icon: '📓', test: s => s.entries >= 50 },
+  { id: 'verses-104', name: 'All 104 verses', icon: '★', test: s => s.mem >= 104 },
+  { id: 'complete', name: 'Plan complete', icon: '🏁', test: s => s.readings >= 260 }
+];
+function statsNow() {
+  const bd = {}; BOOKS_IN_PLAN.forEach(e => { bd[e.book] = bookDone(e); });
+  return { readings: readingsDone(), entries: jstats.entries, mem: Object.keys(mem).filter(k => mem[k]).length, best: best.n || 0,
+    bookDone: bd, booksDone: Object.keys(bd).filter(b => bd[b]).length,
+    weeks26: PLAN.slice(0, 26).every(wk => weekCount(wk.w) === 5),
+    ntStarted: Object.keys(done).some(k => done[k] && +k.split('-')[0] >= 31) };
+}
+let booted = false;
+function checkMilestones() {
+  const s = statsNow(); let changed = false;
+  MILES.forEach(m => { if (!miles[m.id] && m.test(s)) { miles[m.id] = dayKey(); changed = true; if (booted) toast(m.icon + ' Milestone: ' + m.name); } });
+  if (changed) save(K.miles, miles);
+  const n = Object.keys(miles).length;
+  $('mileCount').textContent = n + ' of ' + MILES.length;
+  $('miles').innerHTML = MILES.map(m => '<div class="mile' + (miles[m.id] ? ' on' : '') + '"><div class="mi">' + m.icon + '</div><div class="mn">' + m.name + '</div><div class="md">' + (miles[m.id] ? fmtKey(miles[m.id]) : '—') + '</div></div>').join('');
+}
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; $('toasts').appendChild(t); setTimeout(() => t.remove(), 3500); }
+
+// ── render ──────────────────────────────────────────────────────
+const weeksEl = $('weeks');
+function refsHtml(str) {
+  return splitRefs(str).map((r, i) =>
+    (i ? '<span class="sep">·</span>' : '') +
+    '<a href="' + esc(refUrl(r)) + '" target="_blank" rel="noopener" data-ref>' + esc(r.text) + '</a>'
+  ).join('');
 }
 function spanOf(wk) {
   const a = splitRefs(wk.r[0])[0], b = splitRefs(wk.r[4]); const last = b[b.length - 1];
@@ -963,55 +1183,33 @@ const HEAR = [
 ];
 const hasJournal = id => { const j = journal && journal[id]; return !!j && HEAR.some(f => (j[f[0]] || '').trim()); };
 const fmtDate = t => { try { return new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch (e) { return ''; } };
-function journalHtml(id, ref) {
-  const st = vaultState();
-  let inner;
+const weekNote = w => (journal && journal._w && journal._w[w] && (journal._w[w].n || '').trim()) ? journal._w[w] : null;
+const weekEntries = w => journal ? PLAN[w - 1].r.filter((_, d) => hasJournal(w + '-' + d)).length + (weekNote(w) ? 1 : 0) : 0;
+const lockedHtml = (what) => { const st = vaultState();
+  return '<div class="locked"><svg class="il"><use href="#i-lock"/></svg><span>' + (st === 'none' ? 'Set a passcode to keep your ' + what + ' private.' : st === 'nocrypto' ? 'This browser can’t encrypt your ' + what + '.' : 'Your ' + what + ' is locked.') + '</span>' +
+    '<button type="button" class="btn primary" data-unlock>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></div>'; };
+function journalHtml(id, ref, w) {
+  const st = vaultState(); let inner;
   if (st === 'open') {
     const j = journal[id] || {};
-    inner = HEAR.map(f => '<div class="jf"><span class="k">' + f[1] + '</span><div class="body">' +
+    inner = '<div class="jprompt"><small>Prompt of the week</small>' + esc(PROMPTS[(w - 1) % PROMPTS.length]) + '</div>' +
+      HEAR.map(f => '<div class="jf"><span class="k">' + f[1] + '</span><div class="body">' +
       '<label for="jf-' + id + '-' + f[0] + '">' + f[2] + '<small>' + f[3] + '</small></label>' +
       '<textarea id="jf-' + id + '-' + f[0] + '" data-jf="' + f[0] + '" rows="2" autocapitalize="sentences">' + esc(j[f[0]] || '') + '</textarea></div></div>').join('') +
       '<div class="jft"><span class="jsaved">' + (j.t ? 'Saved ' + fmtDate(j.t) : '') + '</span><button type="button" data-jcopy="' + id + '">Copy</button></div>';
-  } else {
-    inner = '<div class="locked"><span>' + (st === 'none' ? 'Set a passcode to keep your journal private.' : st === 'nocrypto' ? 'This browser can’t encrypt the journal.' : 'Journal is locked.') + '</span>' +
-      '<button type="button" class="btn primary" data-unlock>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></div>';
-  }
+  } else inner = lockedHtml('journal');
   return '<div class="jr' + (openJournals.has(id) ? ' on' : '') + '" id="jr-' + id + '" data-jrpanel="' + id + '">' +
     '<div class="jhd"><b>HEAR journal</b><span>' + esc(ref) + '</span></div>' + inner + '</div>';
 }
-const weekNote = w => (journal && journal._w && journal._w[w] && (journal._w[w].n || '').trim()) ? journal._w[w] : null;
 function weekNoteHtml(w) {
   const st = vaultState(), open = openNotes.has(w), note = weekNote(w);
   let inner;
   if (st === 'open') inner = '<label for="wn-' + w + '">Week ' + w + ' note<small>anything that doesn’t fit a single day</small></label>' +
     '<textarea id="wn-' + w + '" data-wntext="' + w + '" rows="3" autocapitalize="sentences">' + esc(note ? note.n : '') + '</textarea>' +
     '<div class="jft"><span class="jsaved">' + (note && note.t ? 'Saved ' + fmtDate(note.t) : '') + '</span><button type="button" data-wncopy="' + w + '">Copy</button></div>';
-  else inner = '<div class="locked"><span>' + (st === 'none' ? 'Set a passcode to keep notes private.' : st === 'nocrypto' ? 'This browser can’t encrypt notes.' : 'Notes are locked.') + '</span>' +
-    '<button type="button" class="btn primary" data-unlock>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></div>';
-  return '<div class="wn' + (open ? ' on' : '') + '" data-wn="' + w + '"><button type="button" class="wnbtn' + (note ? ' has' : '') + '" data-wntoggle="' + w + '" aria-expanded="' + open + '">✎ Week note' + (note ? ' •' : '') + '</button>' +
+  else inner = lockedHtml('notes');
+  return '<div class="wn' + (open ? ' on' : '') + '" data-wn="' + w + '"><button type="button" class="wnbtn' + (note ? ' has' : '') + '" data-wntoggle="' + w + '" aria-expanded="' + open + '">' + ICO('i-pen') + ' Week note' + (note ? ' •' : '') + '</button>' +
     '<div class="wnbody" data-wnpanel="' + w + '">' + inner + '</div></div>';
-}
-function weekHtml(wk) {
-  const isOpen = openWeeks.includes(wk.w);
-  const n = wk.r.filter((_, d) => done[wk.w + '-' + d]).length;
-  return '<section class="week' + (isOpen ? ' open' : '') + (n === 5 ? ' complete' : '') + (wk.w === curWeek ? ' current' : '') + '" id="week-' + wk.w + '" data-w="' + wk.w + '" data-g="' + bookGroup(splitRefs(wk.r[0])[0].book) + '">' +
-    '<button class="wk-head" aria-expanded="' + isOpen + '" data-toggle="' + wk.w + '">' +
-      '<span class="chev"></span><span class="num">Week ' + wk.w + '</span>' +
-      '<span class="span">' + esc(spanOf(wk)) + (wk.w === curWeek && weekStart[wk.w] ? ' · started ' + fmtKey(weekStart[wk.w]) : '') + '</span>' + ringHtml(n) + '</button>' +
-    '<div class="wk-body"><div class="wk-in"><div class="wk-pad">' +
-      wk.r.map((r, d) => '<div class="day' + (done[wk.w + '-' + d] ? ' done' : '') + (openJournals.has(wk.w + '-' + d) ? ' jopen' : '') + '" data-day="' + wk.w + '-' + d + '">' +
-        '<button class="mark" aria-pressed="' + !!done[wk.w + '-' + d] + '" aria-label="Done: ' + esc(r) + '">' + CHECK + '</button>' +
-        '<span class="lbl">Day ' + (d + 1) + '</span><span class="refs">' + refsHtml(r) + '</span>' +
-        '<button class="jbtn' + (hasJournal(wk.w + '-' + d) ? ' has' : '') + '" data-jr="' + wk.w + '-' + d + '" aria-label="HEAR journal for ' + esc(r) + '" aria-expanded="' + openJournals.has(wk.w + '-' + d) + '">HEAR</button></div>' +
-        journalHtml(wk.w + '-' + d, r)).join('') +
-      '<div class="mem"><span class="lbl">MV</span><span class="title">Memory</span><span class="mvs">' +
-        wk.m.map((v, i) => '<span class="mv' + (mem[wk.w + '-' + i] ? ' memd' : '') + '" data-mem="' + wk.w + '-' + i + '">' +
-          '<button class="mkm" aria-pressed="' + !!mem[wk.w + '-' + i] + '" aria-label="Memorized: ' + esc(v) + '">' + CHECK + '</button>' +
-          '<span class="refs">' + refsHtml(v) + '</span></span>').join('') + '</span></div>' +
-      weekNoteHtml(wk.w) +
-      (wk.w < 52 ? '<div class="nextwk"><span>Week ' + wk.w + ' done 🎉</span><button class="btn" data-next="' + (wk.w + 1) + '">Start week ' + (wk.w + 1) + '</button></div>'
-                 : '<div class="nextwk"><span>Plan complete — Genesis to Revelation 🎉</span></div>') +
-    '</div></div></div></section>';
 }
 const RING_C = 2 * Math.PI * 13;
 function ringHtml(n) {
@@ -1036,88 +1234,161 @@ function celebrate(sec) {
     p.style.background = colors[i % 4]; r.appendChild(p); setTimeout(() => p.remove(), 1000);
   }
 }
+function badgeHtml(w) { const n = weekEntries(w); return n ? '<span class="jn">' + ICO('i-pen') + n + '</span>' : ''; }
+function summaryText(w) {
+  const took = weekStart[w] && weekDone[w] ? daysBetween(weekStart[w], weekDone[w]) + 1 : null;
+  const parts = ['5 of 5 readings'];
+  if (took) parts.push('done in ' + took + (took === 1 ? ' day' : ' days'));
+  if (journal) { const e = weekEntries(w); parts.push(e + (e === 1 ? ' journal entry' : ' journal entries')); }
+  const mv = [0, 1].filter(i => mem[w + '-' + i]).length; parts.push(mv + ' of 2 verses memorized');
+  return parts.join(' · ');
+}
+function summaryCopy(w) { return 'F260 — Week ' + w + ' (' + spanOf(PLAN[w - 1]) + ')' + (weekDone[w] ? ' · finished ' + fmtKeyY(weekDone[w]) : '') + '\n' + summaryText(w); }
+function nextwkHtml(wk) {
+  const w = wk.w, complete = weekCount(w) === 5;
+  return '<div class="nextwk' + (complete && w !== curWeek ? ' keep' : '') + '"><div class="row"><span>Week ' + w + ' done 🎉</span><button type="button" class="btn ghost" data-wsum="' + w + '">Copy summary</button></div>' +
+    '<div class="sumt">' + esc(summaryText(w)) + '</div>' +
+    (w < 52 ? (w === curWeek ? '<div class="row"><span></span><button type="button" class="btn" data-next="' + (w + 1) + '">Start week ' + (w + 1) + '</button></div>' : '')
+            : '<div class="row"><span>Genesis to Revelation — the whole plan.</span><button type="button" class="btn" data-complete>See your year</button></div>') + '</div>';
+}
+function recallRowHtml() {
+  const ids = Object.keys(recall).filter(id => recall[id].s === 'not' && mem[id]);
+  if (!ids.length) return '';
+  return '<div class="recallrow"><span>Practice again:</span>' + ids.map(id => { const [w, i] = id.split('-').map(Number); return '<button type="button" data-practice="' + id + '">' + esc(PLAN[w - 1].m[i]) + '</button>'; }).join('') + '</div>';
+}
+function weekHtml(wk) {
+  const isOpen = openWeeks.includes(wk.w) || (readMode && wk.w === readWeek);
+  const n = weekCount(wk.w);
+  return '<section class="week' + (isOpen ? ' open' : '') + (n === 5 ? ' complete' : '') + (wk.w === curWeek ? ' current' : '') + (readMode && wk.w === readWeek ? ' reading' : '') + '" id="week-' + wk.w + '" data-w="' + wk.w + '" data-g="' + bookGroup(splitRefs(wk.r[0])[0].book) + '">' +
+    '<button class="wk-head" aria-expanded="' + isOpen + '" data-toggle="' + wk.w + '">' +
+      '<span class="chev"></span><span class="num">Week ' + wk.w + '</span>' +
+      '<span class="span">' + esc(spanOf(wk)) + (wk.w === curWeek && weekStart[wk.w] ? ' · started ' + fmtKey(weekStart[wk.w]) : '') + '</span>' + badgeHtml(wk.w) + ringHtml(n) + '</button>' +
+    '<div class="wk-body"><div class="wk-in"><div class="wk-pad">' +
+      (wk.w === curWeek ? recallRowHtml() : '') +
+      wk.r.map((r, d) => '<div class="day' + (done[wk.w + '-' + d] ? ' done' : '') + (openJournals.has(wk.w + '-' + d) ? ' jopen' : '') + '" data-day="' + wk.w + '-' + d + '">' +
+        '<button class="mark" aria-pressed="' + !!done[wk.w + '-' + d] + '" aria-label="Done: ' + esc(r) + '">' + CHECK + '</button>' +
+        '<span class="lbl">Day ' + (d + 1) + '</span><span class="refs">' + refsHtml(r) + '</span>' +
+        '<button class="jbtn' + (hasJournal(wk.w + '-' + d) ? ' has' : '') + '" data-jr="' + wk.w + '-' + d + '" aria-label="HEAR journal for ' + esc(r) + '" aria-expanded="' + openJournals.has(wk.w + '-' + d) + '">HEAR</button></div>' +
+        journalHtml(wk.w + '-' + d, r, wk.w)).join('') +
+      '<div class="mem"><span class="lbl">MV</span><span class="title">Memory</span><span class="mvs">' +
+        wk.m.map((v, i) => { const id = wk.w + '-' + i; const rc = recall[id]; return '<span class="mv' + (mem[id] ? ' memd' : '') + (rc && rc.s === 'not' ? ' notyet' : '') + '" data-mem="' + id + '">' +
+          '<button class="mkm" aria-pressed="' + !!mem[id] + '" aria-label="Memorized: ' + esc(v) + '">' + CHECK + '</button>' +
+          '<span class="refs">' + refsHtml(v) + '</span><span class="pr">' + (rc ? (rc.s === 'got' ? 'got it' : 'again') : 'practice') + '</span></span>'; }).join('') + '</span></div>' +
+      weekNoteHtml(wk.w) + nextwkHtml(wk) +
+    '</div></div></div></section>';
+}
 function render() {
   weeksEl.innerHTML = PLAN.map(weekHtml).join('');
   openJournals.forEach(id => { const p = $('jr-' + id); if (p) p.querySelectorAll('textarea').forEach(autosize); });
   openNotes.forEach(w => { const t = $('wn-' + w); if (t) autosize(t); });
-  updateStats(); paintVault(); renderJournalView();
+  updateStats(); paintVault(); renderJournalView(); paintRead();
 }
-function updateStats() {
-  const n = Object.keys(done).filter(k => done[k]).length;
-  $('doneCount').textContent = n;
-  $('curWeekLbl').textContent = curWeek;
-  $('pct').textContent = Math.round(n / 260 * 100) + '% complete';
-  $('meterFill').style.width = (n / 260 * 100) + '%';
-  $('wkSel').value = curWeek;
-  $('memCount').textContent = Object.keys(mem).filter(k => mem[k]).length;
-  // streak: reading days, walking back from today; up to 2 rest days in a row are allowed (5 readings a week),
-  // so the streak only breaks after 3 days without a reading
-  const today = dayKey(); let cursor = today, streak = 0, gap = 0, started = false;
-  for (let i = 0; i < 400; i++) {
-    if (log[cursor]) { streak++; gap = 0; started = true; }
-    else { gap++; if (gap > 2) break; }
-    cursor = shiftDay(cursor, -1);
-  }
-  if (!started) streak = 0;
-  const days = Object.keys(log).filter(k => log[k]).sort(), last = days[days.length - 1];
-  $('streak').innerHTML = streak ? '🔥 <b>' + streak + '</b>day streak' : (last ? 'Last read ' + fmtKey(last) : '');
-  $('days').innerHTML = Array.from({ length: 14 }, (_, i) => { const k = shiftDay(today, i - 13);
-    return '<span class="d' + (log[k] ? ' on' : '') + (k === today ? ' today' : '') + '" title="' + fmtKey(k) + '"></span>'; }).join('') +
-    '<span class="lbl2">last 14 days · 2 rest days between readings keep the streak</span>';
-  // year grid
-  $('ygrid').innerHTML = PLAN.map(wk => { const k = wk.r.filter((_, d) => done[wk.w + '-' + d]).length;
-    return '<button type="button" data-ygo="' + wk.w + '" class="' + (k === 5 ? 'done' : k ? 'part' : '') + (wk.w === curWeek ? ' cur' : '') + '"' +
-      (k && k < 5 ? ' style="--p:' + (k * 20) + '%"' : '') + ' aria-label="Week ' + wk.w + ', ' + k + ' of 5"></button>'; }).join('');
-  // "Next up": first unchecked reading in the current week
-  const wk = PLAN[curWeek - 1]; const d = wk.r.findIndex((_, i) => !done[curWeek + '-' + i]);
-  const startedTxt = weekStart[curWeek] ? ' · started ' + fmtKey(weekStart[curWeek]) : '';
-  if (d >= 0) {
-    const ch = chapterCount(wk.r[d]);
-    $('heroKind').textContent = 'Next up';
-    $('heroTitle').textContent = wk.r[d];
-    $('heroMeta').textContent = 'Week ' + curWeek + ' · Day ' + (d + 1) + ' · ' + ch + (ch === 1 ? ' chapter' : ' chapters') + ' · ~' + (ch * 4) + ' min' + startedTxt;
-    $('nextUp').textContent = 'Go to reading'; $('nextUp').dataset.target = curWeek + '-' + d;
-    const first = splitRefs(wk.r[d])[0]; $('heroOpen').href = refUrl(first); $('heroOpen').hidden = false;
-  } else {
-    $('heroKind').textContent = 'Week ' + curWeek + ' done';
-    $('heroTitle').textContent = curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'Plan complete 🎉';
-    $('heroMeta').textContent = curWeek < 52 ? spanOf(PLAN[curWeek]) + ' is next' + startedTxt : 'Genesis to Revelation, all 260 readings.';
-    $('nextUp').textContent = curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'Back to the top'; $('nextUp').dataset.target = curWeek < 52 ? 'week:' + (curWeek + 1) : 'top';
-    $('heroOpen').hidden = true;
-  }
-}
-$('ygrid').addEventListener('click', e => { const b = e.target.closest('[data-ygo]'); if (!b) return; const w = +b.dataset.ygo; toggleWeek(w, true); $('week-' + w).scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 function refreshWeek(w) {
   const old = $('week-' + w); if (!old) return;
   const tmp = document.createElement('div'); tmp.innerHTML = weekHtml(PLAN[w - 1]);
   old.replaceWith(tmp.firstElementChild);
   openJournals.forEach(id => { if (id.startsWith(w + '-')) { const p = $('jr-' + id); if (p) p.querySelectorAll('textarea').forEach(autosize); } });
+  if (openNotes.has(w)) { const t = $('wn-' + w); if (t) autosize(t); }
 }
-function paintVault() {
-  const st = vaultState();
-  $('lockBtn').disabled = st !== 'open'; $('changePassBtn').disabled = st !== 'open';
-  $('eraseBtn').disabled = !(vaultBlob() || legacyBlob());
-  $('vaultHint').textContent = st === 'open' ? 'Journal is unlocked. It locks again whenever the app is reopened.'
-    : st === 'locked' ? 'Journal is locked. Open any HEAR panel or the Journal tab to unlock.'
-    : st === 'none' ? 'No passcode yet — you’ll be asked to set one the first time you open a HEAR panel.'
-    : 'Encryption is unavailable in this browser (needs https).';
-  $('jLock').hidden = st !== 'open';
-  const sup = bioSupported(), on = bioEnabled();
-  $('bioOn').disabled = !(sup && st === 'open' && !on); $('bioOff').disabled = !on;
-  $('bioHint').textContent = !sup ? 'Not available in this browser.'
-    : on ? 'On. The Unlock dialog offers Face ID / Touch ID; your passcode always works too.'
-    : st === 'open' ? 'Experimental. Adds a Face ID / Touch ID option to the Unlock dialog on this iPad (needs iPadOS 18 or newer).'
-    : 'Unlock the journal with your passcode first, then enable it here.';
-  $('backupBtn').disabled = !(vaultBlob() || Object.keys(done).length);
+function paintBadge(w) { const sec = $('week-' + w); if (!sec) return; const old = sec.querySelector('.jn'); if (old) old.remove(); const html = badgeHtml(w); if (html) sec.querySelector('.ring').insertAdjacentHTML('beforebegin', html); const s = sec.querySelector('.sumt'); if (s) s.textContent = summaryText(w); }
+
+// streak with rest days: walk back from today; up to 2 rest days in a row keep it alive
+function streakInfo(days) {
+  const today = dayKey(); let cursor = today, streak = 0, gap = 0, started = false; const restDays = new Set();
+  for (let i = 0; i < 400; i++) {
+    if (days[cursor]) { streak++; gap = 0; started = true; }
+    else { gap++; if (gap > 2) break; restDays.add(cursor); }
+    cursor = shiftDay(cursor, -1);
+  }
+  if (!started) { streak = 0; restDays.clear(); }
+  const all = Object.keys(days).filter(k => days[k]).sort();
+  return { streak, restDays, last: all[all.length - 1] || null };
+}
+function paceInfo() {
+  const starts = Object.values(weekStart).filter(Boolean).sort(); if (!starts.length) return null;
+  const start = starts[0], today = dayKey(), elapsed = Math.max(0, daysBetween(start, today)), n = readingsDone();
+  const covered = n * 7 / 5, diff = covered - elapsed;
+  let label, cls = '';
+  if (n >= 260) { label = 'Finished'; }
+  else if (Math.abs(diff) < 2) label = 'On pace';
+  else if (diff >= 7) { label = Math.round(diff / 7) + (diff >= 14 ? ' weeks ahead' : ' week ahead'); cls = 'ahead'; }
+  else if (diff > 0) { label = Math.round(diff) + ' days ahead'; cls = 'ahead'; }
+  else if (diff <= -7) { label = Math.round(-diff / 7) + (diff <= -14 ? ' weeks behind' : ' week behind'); cls = 'behind'; }
+  else { label = Math.round(-diff) + ' days behind'; cls = 'behind'; }
+  const rate = (elapsed >= 7 && n > 0) ? n / elapsed : 5 / 7;
+  const finish = n >= 260 ? (finished || today) : shiftDay(today, Math.round((260 - n) / rate));
+  return { label, cls, finish, start };
+}
+function updateStats() {
+  const n = readingsDone();
+  $('doneCount').textContent = n;
+  $('curWeekLbl').textContent = curWeek;
+  $('pct').textContent = Math.round(n / 260 * 100) + '% complete';
+  $('meterFill').style.width = (n / 260 * 100) + '%';
+  const ch = Object.keys(done).filter(k => done[k]).reduce((a, k) => a + (DAY_CH[k] || 0), 0);
+  $('chCount').textContent = ch; $('chTotal').textContent = CH_TOTAL; $('chFill').style.width = (ch / CH_TOTAL * 100) + '%';
+  $('wkSel').value = curWeek;
+  $('memCount').textContent = Object.keys(mem).filter(k => mem[k]).length;
+  document.body.classList.toggle('nt', curWeek >= 31);
+  // streak + best
+  const si = streakInfo(log);
+  if (si.streak > (best.n || 0)) { best = { n: si.streak, at: dayKey() }; save(K.best, best); }
+  const today = dayKey();
+  $('streak').innerHTML = si.streak ? '🔥 <b>' + si.streak + '</b>day streak' + (best.n > si.streak ? '<small>· best ' + best.n + '</small>' : '<small>· your best</small>') : (si.last ? 'Last read ' + fmtKey(si.last) + (best.n ? ' <small>· best streak ' + best.n + '</small>' : '') : '');
+  // 12-week heatmap, one column per week ending this week (rows Mon–Sun)
+  const dow = (new Date().getDay() + 6) % 7;                      // 0 = Monday
+  const first = shiftDay(today, -(dow + 77));
+  $('heat').innerHTML = Array.from({ length: 84 }, (_, i) => { const k = shiftDay(first, i);
+    return '<span class="' + (log[k] ? 'on' : si.restDays.has(k) ? 'rest' : '') + (k === today ? ' today' : '') + (k > today ? ' future' : '') + '" title="' + fmtKey(k) + '"></span>'; }).join('');
+  // year grid
+  $('ygrid').innerHTML = PLAN.map(wk => { const k = weekCount(wk.w);
+    return '<button type="button" data-ygo="' + wk.w + '" class="' + (k === 5 ? 'done' : k ? 'part' : '') + (wk.w === curWeek ? ' cur' : '') + '"' +
+      (k && k < 5 ? ' style="--p:' + (k * 20) + '%"' : '') + ' aria-label="Week ' + wk.w + ', ' + k + ' of 5"></button>'; }).join('');
+  // journey through the books
+  const wk = PLAN[curWeek - 1]; const d = wk.r.findIndex((_, i) => !done[curWeek + '-' + i]);
+  const curBook = normBook(splitRefs(wk.r[d >= 0 ? d : 4])[0].book);
+  const booksFinished = BOOKS_IN_PLAN.filter(bookDone).length;
+  $('jbar').innerHTML = BOOKS_IN_PLAN.map(e => { const p = Math.round(e.days.filter(id => done[id]).length / e.days.length * 100);
+    return '<button type="button" data-jgo="' + e.first + '" class="' + (e.book === curBook ? 'cur' : '') + '" style="--n:' + e.days.length + ';--p:' + p + '%;--gc:var(--g-' + e.g + ')" title="' + esc(e.book) + ' · ' + p + '%" aria-label="' + esc(e.book) + ', ' + p + '% read"><i></i></button>'; }).join('');
+  $('jWhere').innerHTML = n >= 260 ? '<b>Finished</b> — the whole plan' : 'You’re in <b>' + esc(curBook) + '</b>';
+  $('jBooks').textContent = booksFinished + ' of ' + BOOKS_IN_PLAN.length + ' books finished';
+  // hero
+  const startedTxt = weekStart[curWeek] ? ' · started ' + fmtKey(weekStart[curWeek]) : '';
+  const quiet = d >= 0 && si.last && si.streak === 0 && daysBetween(si.last, today) >= 3 && n < 260;
+  $('hero').classList.toggle('quiet', !!quiet);
+  if (d >= 0) {
+    const chs = DAY_CH[curWeek + '-' + d];
+    $('heroKind').textContent = quiet ? 'Pick up where you left off' : 'Next up';
+    $('heroTitle').textContent = wk.r[d];
+    $('heroMeta').textContent = (quiet ? 'About ' + (chs * 4) + ' minutes · last read ' + fmtKey(si.last) + ' · ' : '') + 'Week ' + curWeek + ' · Day ' + (d + 1) + ' · ' + chs + (chs === 1 ? ' chapter' : ' chapters') + (quiet ? '' : ' · ~' + (chs * 4) + ' min') + startedTxt;
+    $('nextUp').textContent = 'Go to reading'; $('nextUp').dataset.target = curWeek + '-' + d;
+    $('heroOpen').href = refUrl(splitRefs(wk.r[d])[0]); $('heroOpen').hidden = false;
+  } else {
+    $('heroKind').textContent = 'Week ' + curWeek + ' done';
+    $('heroTitle').textContent = curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'Plan complete 🎉';
+    $('heroMeta').textContent = curWeek < 52 ? spanOf(PLAN[curWeek]) + ' is next' + startedTxt : 'Genesis to Revelation, all 260 readings.';
+    $('nextUp').textContent = curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'See your year'; $('nextUp').dataset.target = curWeek < 52 ? 'week:' + (curWeek + 1) : 'complete';
+    $('heroOpen').hidden = true;
+  }
+  const pc = paceInfo();
+  $('heroPace').className = 'hero-pace' + (pc ? ' ' + pc.cls : '');
+  $('heroPace').textContent = pc ? (pc.label + (n >= 260 ? '' : ' · projected finish ' + fmtMonth(pc.finish))) : '';
+  checkMilestones();
 }
 
 // ── interactions (plan) ─────────────────────────────────────────
 weeksEl.addEventListener('click', e => {
   if (e.target.closest('a[data-ref]')) { e.stopPropagation(); return; }   // links never toggle
   const head = e.target.closest('[data-toggle]');
-  if (head) { toggleWeek(+head.dataset.toggle); return; }
+  if (head) { if (!readMode) toggleWeek(+head.dataset.toggle); return; }
   const nx = e.target.closest('[data-next]');
   if (nx) { setCurrent(+nx.dataset.next); jump(); return; }
+  const cp = e.target.closest('[data-complete]');
+  if (cp) { showComplete(); return; }
+  const ws = e.target.closest('[data-wsum]');
+  if (ws) { copyText(summaryCopy(+ws.dataset.wsum), ws, 'Copy summary'); return; }
+  const pr = e.target.closest('[data-practice]');
+  if (pr) { openPractice(pr.dataset.practice); return; }
   const jb = e.target.closest('[data-jr]');
   if (jb) { toggleJournal(jb.dataset.jr); return; }
   const ul = e.target.closest('[data-unlock]');
@@ -1128,10 +1399,12 @@ weeksEl.addEventListener('click', e => {
   if (wt) { toggleNote(+wt.dataset.wntoggle); return; }
   const wc = e.target.closest('[data-wncopy]');
   if (wc) { copyText(noteText(+wc.dataset.wncopy), wc); return; }
-  if (e.target.closest('[data-jrpanel]') || e.target.closest('[data-wnpanel]')) return;   // typing areas never toggle
+  if (e.target.closest('[data-jrpanel]') || e.target.closest('[data-wnpanel]') || e.target.closest('.nextwk')) return;   // typing areas never toggle
   const mv = e.target.closest('[data-mem]');
   if (mv) {
-    const id = mv.dataset.mem; mem[id] = !mem[id]; if (!mem[id]) delete mem[id];
+    const id = mv.dataset.mem;
+    if (mem[id] && !e.target.closest('.mkm')) { openPractice(id); return; }           // memorized: tap the verse to practise
+    mem[id] = !mem[id]; if (!mem[id]) delete mem[id];
     save(K.mem, mem); mv.classList.toggle('memd', !!mem[id]); mv.querySelector('.mkm').setAttribute('aria-pressed', !!mem[id]);
     updateStats(); return;
   }
@@ -1144,10 +1417,14 @@ weeksEl.addEventListener('click', e => {
     day.classList.toggle('done', !!done[id]);
     day.querySelector('.mark').setAttribute('aria-pressed', !!done[id]);
     const w = +id.split('-')[0], sec = $('week-' + w);
-    const n = PLAN[w - 1].r.filter((_, d) => done[w + '-' + d]).length;
-    const wasComplete = sec.classList.contains('complete');
+    const n = weekCount(w), wasComplete = sec.classList.contains('complete');
     setRing(sec, n); sec.classList.toggle('complete', n === 5);
-    if (n === 5 && !wasComplete) celebrate(sec);
+    if (n === 5 && !wasComplete) {
+      weekDone[w] = dayKey(); save(K.weekDone, weekDone);
+      flushPending(); refreshWeek(w); celebrate($('week-' + w));
+      if (readingsDone() >= 260 && !finished) { finished = dayKey(); save(K.finished, finished); setTimeout(showComplete, 900); }
+    } else if (n < 5 && wasComplete) { delete weekDone[w]; save(K.weekDone, weekDone); flushPending(); refreshWeek(w); }
+    else { const s = sec.querySelector('.sumt'); if (s) s.textContent = summaryText(w); }
     updateStats();
   }
 });
@@ -1160,21 +1437,25 @@ function toggleWeek(w, force) {
 function setCurrent(w) {
   const prev = curWeek; curWeek = Math.min(52, Math.max(1, w)); save(K.week, curWeek);
   if (!weekStart[curWeek]) { weekStart[curWeek] = dayKey(); save(K.weekStart, weekStart); }
-  refreshWeek(prev); refreshWeek(curWeek); updateStats();
+  flushPending(); refreshWeek(prev); refreshWeek(curWeek); updateStats();
+  if (readMode) { readWeek = curWeek; paintRead(); }
 }
 function jump() {
+  if (readMode) { readWeek = curWeek; paintRead(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   toggleWeek(curWeek, true);
   $('week-' + curWeek).scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function goToDay(id, openJr) {                                // expand the week, scroll to the day, flash it
   const w = +id.split('-')[0];
-  showView('plan'); toggleWeek(w, true);
+  showView('plan'); if (readMode) { readWeek = w; paintRead(); } else toggleWeek(w, true);
   if (openJr) toggleJournal(id, true);
   const day = weeksEl.querySelector('[data-day="' + id + '"]'); if (!day) return;
   setTimeout(() => { day.scrollIntoView({ behavior: 'smooth', block: 'center' });
     day.classList.remove('flash'); void day.offsetWidth; day.classList.add('flash'); }, 240);
 }
-$('nextUp').onclick = () => { const t = $('nextUp').dataset.target; if (!t) return; if (t === 'top') window.scrollTo({ top: 0, behavior: 'smooth' }); else if (t.startsWith('week:')) { setCurrent(+t.slice(5)); jump(); } else goToDay(t); };
+$('nextUp').onclick = () => { const t = $('nextUp').dataset.target; if (!t) return; if (t === 'complete') showComplete(); else if (t.startsWith('week:')) { setCurrent(+t.slice(5)); jump(); } else goToDay(t); };
+$('ygrid').addEventListener('click', e => { const b = e.target.closest('[data-ygo]'); if (!b) return; const w = +b.dataset.ygo; if (readMode) { readWeek = w; paintRead(); } else { toggleWeek(w, true); $('week-' + w).scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
+$('jbar').addEventListener('click', e => { const b = e.target.closest('[data-jgo]'); if (!b) return; const w = +b.dataset.jgo; if (readMode) { readWeek = w; paintRead(); } else { toggleWeek(w, true); $('week-' + w).scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
 $('jumpBtn').onclick = jump;
 $('wkMinus').onclick = () => { setCurrent(curWeek - 1); jump(); };
 $('wkPlus').onclick = () => { setCurrent(curWeek + 1); jump(); };
@@ -1194,6 +1475,35 @@ $('srcSeg').addEventListener('click', e => {
   source = b.dataset.src; save(K.src, source); paintSource(); render();
 });
 
+// ── reading mode: one week per screen, big type, swipe ──────────
+function paintRead() {
+  $('planView').classList.toggle('readmode', readMode);
+  document.querySelectorAll('.week.reading').forEach(s => s.classList.remove('reading'));
+  if (!readMode) return;
+  const sec = $('week-' + readWeek); if (sec) sec.classList.add('reading');
+  $('readTitle').innerHTML = 'Week ' + readWeek + '<small>' + esc(spanOf(PLAN[readWeek - 1])) + (readWeek === curWeek ? ' · current week' : '') + '</small>';
+  $('readPrev').disabled = readWeek <= 1; $('readNext').disabled = readWeek >= 52;
+  $('readBtn').textContent = 'Exit reading mode';
+}
+function setReadMode(on) { readMode = on; save(K.read, readMode); if (on) readWeek = curWeek; flushPending(); render(); if (on) window.scrollTo({ top: 0 }); $('readBtn').innerHTML = ICO('i-open') + ' Reading mode'; if (on) $('readBtn').textContent = 'Exit reading mode'; }
+function readStep(n) { readWeek = Math.min(52, Math.max(1, readWeek + n)); paintRead(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+$('readBtn').onclick = () => setReadMode(!readMode);
+$('readExit').onclick = () => setReadMode(false);
+$('readPrev').onclick = () => readStep(-1);
+$('readNext').onclick = () => readStep(1);
+let swipeX = null, swipeY = null;
+weeksEl.addEventListener('touchstart', e => { if (!readMode || e.touches.length !== 1) return; swipeX = e.touches[0].clientX; swipeY = e.touches[0].clientY; }, { passive: true });
+weeksEl.addEventListener('touchend', e => {
+  if (!readMode || swipeX == null) return;
+  const t = e.changedTouches[0], dx = t.clientX - swipeX, dy = t.clientY - swipeY; swipeX = swipeY = null;
+  if (e.target.closest('textarea') || Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+  readStep(dx < 0 ? 1 : -1);
+}, { passive: true });
+document.addEventListener('keydown', e => {
+  if (!readMode || e.target.matches('input,textarea,select')) return;
+  if (e.key === 'ArrowRight') readStep(1); else if (e.key === 'ArrowLeft') readStep(-1);
+});
+
 // ── confirm dialog (reset / erase) ──────────────────────────────
 let confirmAction = null;
 function confirmModal(title, text, okLabel, fn) {
@@ -1204,15 +1514,33 @@ $('cancelConfirm').onclick = () => $('confirm').classList.remove('on');
 $('confirm').addEventListener('click', e => { if (e.target === $('confirm')) $('confirm').classList.remove('on'); });
 $('doConfirm').onclick = () => { $('confirm').classList.remove('on'); if (confirmAction) confirmAction(); confirmAction = null; };
 $('resetBtn').onclick = () => confirmModal('Reset all progress?',
-  'Every checkmark, memorized verse, week start date and the reading streak will be cleared. Your HEAR journal entries stay. This can’t be undone.',
-  'Reset', () => { done = {}; mem = {}; log = {}; weekStart = {}; curWeek = 1; weekStart[1] = dayKey();
-    save(K.done, done); save(K.mem, mem); save(K.log, log); save(K.weekStart, weekStart); save(K.week, curWeek); render(); });
+  'Every checkmark, memorized verse, milestone, week date and the reading streak will be cleared. Your HEAR journal entries stay. This can’t be undone.',
+  'Reset', () => { done = {}; mem = {}; log = {}; weekStart = {}; weekDone = {}; best = {}; miles = {}; recall = {}; finished = null; curWeek = 1; weekStart[1] = dayKey();
+    [K.done, K.mem, K.log, K.weekStart, K.weekDone, K.best, K.miles, K.recall, K.finished].forEach(drop);
+    save(K.weekStart, weekStart); save(K.week, curWeek); render(); });
 $('eraseBtn').onclick = () => confirmModal('Erase the whole journal?',
-  'Every HEAR entry and the passcode will be deleted from this iPad. Reading progress stays. This can’t be undone — copy anything you want to keep first.',
-  'Erase journal', eraseJournal);
+  'Every HEAR entry and the passcode will be deleted from this device. Reading progress stays. This can’t be undone — copy anything you want to keep first.',
+  'Erase journal', () => { eraseJournal(); jstats = { entries: 0, days: {} }; save(K.jstats, jstats); });
 $('lockBtn').onclick = lock;
 $('jLock').onclick = lock;
 $('changePassBtn').onclick = async () => { if (vaultState() === 'open' && await askPasscode('change')) paintVault(); };
+function paintVault() {
+  const st = vaultState();
+  $('lockBtn').disabled = st !== 'open'; $('changePassBtn').disabled = st !== 'open';
+  $('eraseBtn').disabled = !(vaultBlob() || legacyBlob());
+  $('vaultHint').textContent = st === 'open' ? 'Journal is unlocked. It locks again whenever the app is reopened.'
+    : st === 'locked' ? 'Journal is locked. Open any HEAR panel or the Journal tab to unlock.'
+    : st === 'none' ? 'No passcode yet — you’ll be asked to set one the first time you open a HEAR panel.'
+    : 'Encryption is unavailable in this browser (needs https).';
+  $('jLock').hidden = st !== 'open';
+  const sup = bioSupported(), on = bioEnabled();
+  $('bioOn').disabled = !(sup && st === 'open' && !on); $('bioOff').disabled = !on;
+  $('bioHint').textContent = !sup ? 'Not available in this browser.'
+    : on ? 'On. The Unlock dialog offers Face ID / Touch ID; your passcode always works too.'
+    : st === 'open' ? 'Experimental. Adds a Face ID / Touch ID option to the Unlock dialog on this device (needs iPadOS 18 or newer).'
+    : 'Unlock the journal with your passcode first, then enable it here.';
+  $('backupBtn').disabled = !(vaultBlob() || Object.keys(done).length);
+}
 
 // ── HEAR journal (per day) ──────────────────────────────────────
 async function toggleJournal(id, force) {
@@ -1236,20 +1564,14 @@ async function toggleNote(w, force) {
   box.classList.toggle('on', open); box.querySelector('[data-wntoggle]').setAttribute('aria-expanded', open);
   if (open) { openNotes.add(w); const t = $('wn-' + w); if (t) { autosize(t); } } else openNotes.delete(w);
 }
-function saveNote(w, panel) {
-  clearTimeout(saveTimer); savePending = null;
+function bumpJournalStats() {                                 // counts only — no content leaves the vault
   if (!journal) return;
-  const t = panel.querySelector('textarea'); if (!t) return;
-  journal._w = journal._w || {};
-  if (t.value.trim()) journal._w[w] = { n: t.value, t: Date.now() }; else delete journal._w[w];
-  if (!Object.keys(journal._w).length) delete journal._w;
-  persistJournal();
-  const note = weekNote(w), b = weeksEl.querySelector('[data-wntoggle="' + w + '"]');
-  if (b) { b.classList.toggle('has', !!note); b.textContent = '✎ Week note' + (note ? ' •' : ''); }
-  const s = panel.querySelector('.jsaved'); if (s) s.textContent = note ? 'Saved ' + fmtDate(note.t) : '';
-  if (view === 'journal') renderJournalView();
+  const entries = Object.keys(journal).filter(k => k !== '_w' && hasJournal(k)).length + Object.keys(journal._w || {}).filter(w => weekNote(+w)).length;
+  const today = dayKey(); const changed = jstats.entries !== entries || !jstats.days[today];
+  jstats.entries = entries; jstats.days[today] = true;
+  const keys = Object.keys(jstats.days).sort(); keys.slice(0, Math.max(0, keys.length - 400)).forEach(k => delete jstats.days[k]);
+  save(K.jstats, jstats); if (changed) checkMilestones();
 }
-const noteText = w => { const n = weekNote(w); return 'Week ' + w + ' \u2014 note' + (n && n.t ? ' (' + fmtDate(n.t) + ')' : '') + '\n' + (n ? n.n.trim() : ''); };
 let saveTimer = null, savePending = null;
 function saveJournal(id, panel) {
   clearTimeout(saveTimer); savePending = null;
@@ -1261,8 +1583,24 @@ function saveJournal(id, panel) {
   const has = hasJournal(id);
   const b = weeksEl.querySelector('[data-jr="' + id + '"]'); if (b) b.classList.toggle('has', has);
   const s = panel.querySelector('.jsaved'); if (s) s.textContent = has ? 'Saved ' + fmtDate(journal[id].t) : '';
+  paintBadge(+id.split('-')[0]); bumpJournalStats();
   if (view === 'journal') renderJournalView();
 }
+function saveNote(w, panel) {
+  clearTimeout(saveTimer); savePending = null;
+  if (!journal) return;
+  const t = panel.querySelector('textarea'); if (!t) return;
+  journal._w = journal._w || {};
+  if (t.value.trim()) journal._w[w] = { n: t.value, t: Date.now() }; else delete journal._w[w];
+  if (!Object.keys(journal._w).length) delete journal._w;
+  persistJournal();
+  const note = weekNote(w), b = weeksEl.querySelector('[data-wntoggle="' + w + '"]');
+  if (b) { b.classList.toggle('has', !!note); b.innerHTML = ICO('i-pen') + ' Week note' + (note ? ' •' : ''); }
+  const s = panel.querySelector('.jsaved'); if (s) s.textContent = note ? 'Saved ' + fmtDate(note.t) : '';
+  paintBadge(w); bumpJournalStats();
+  if (view === 'journal') renderJournalView();
+}
+const noteText = w => { const n = weekNote(w); return 'Week ' + w + ' — note' + (n && n.t ? ' (' + fmtDate(n.t) + ')' : '') + '\n' + (n ? n.n.trim() : ''); };
 // savePending = [id, panel] for a day entry, or ['w' + week, panel] for a week note
 const flushPending = () => { if (!savePending) return; const [id, panel] = savePending; if (String(id).startsWith('w')) saveNote(+id.slice(1), panel); else saveJournal(id, panel); };
 weeksEl.addEventListener('input', e => {
@@ -1287,7 +1625,8 @@ function entryText(id) {
     HEAR.filter(f => (j[f[0]] || '').trim()).map(f => f[2] + ': ' + j[f[0]].trim()).join('\n');
 }
 function copyText(text, btn, label) {
-  const ok = () => { const was = label || btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = was; }, 1500); };
+  const was = label != null ? null : btn.innerHTML;
+  const ok = () => { btn.textContent = 'Copied'; setTimeout(() => { if (label != null) btn.textContent = label; else btn.innerHTML = was; }, 1500); };
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, () => fallbackCopy(text, ok));
   else fallbackCopy(text, ok);
 }
@@ -1296,6 +1635,54 @@ function fallbackCopy(text, ok) {
   const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
   document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); ok(); } catch (e) {} ta.remove();
 }
+
+// ── memory verse practice ───────────────────────────────────────
+let prId = null, prRevealed = false;
+function openPractice(id) {
+  prId = id; prRevealed = false;
+  const [w, i] = id.split('-').map(Number); const ref = PLAN[w - 1].m[i];
+  $('prRef').textContent = ref; paintPractice(); $('practice').classList.add('on');
+}
+function paintPractice() {
+  const [w, i] = prId.split('-').map(Number); const ref = PLAN[w - 1].m[i]; const text = verses[prId];
+  const link = refUrl(splitRefs(ref)[0]);
+  if (!text) {
+    $('prBody').innerHTML = '<p>Paste the verse text once so you can practise it here. Open it, copy, and paste below.</p>' +
+      '<textarea id="prPaste" placeholder="Verse text…" autocapitalize="sentences"></textarea>' +
+      '<div class="row"><a class="btn alt" href="' + esc(link) + '" target="_blank" rel="noopener">Open passage ↗</a><button type="button" class="btn" data-prclose>Cancel</button><button type="button" class="btn primary" data-prsave>Save</button></div>';
+    setTimeout(() => { const t = $('prPaste'); if (t) t.focus(); }, 50);
+    return;
+  }
+  $('prBody').innerHTML = '<div class="pr-text' + (prRevealed ? '' : ' hidden-text') + '">' + esc(text) + '</div>' +
+    (prRevealed ? '<p class="pr-hint">How did it go?</p><div class="row"><button type="button" class="btn alt quiet" data-predit>Edit text</button><button type="button" class="btn notyet" data-prmark="not">Not yet</button><button type="button" class="btn got" data-prmark="got">Got it</button></div>'
+                : '<p class="pr-hint">Say it from memory, then reveal.</p><div class="row"><button type="button" class="btn alt quiet" data-prclose>Close</button><button type="button" class="btn primary" data-prreveal>Reveal</button></div>');
+}
+$('practice').addEventListener('click', e => {
+  if (e.target === $('practice') || e.target.closest('[data-prclose]')) { $('practice').classList.remove('on'); return; }
+  if (e.target.closest('[data-prreveal]')) { prRevealed = true; paintPractice(); return; }
+  if (e.target.closest('[data-predit]')) { const t = verses[prId]; delete verses[prId]; paintPractice(); const ta = $('prPaste'); if (ta) ta.value = t || ''; verses[prId] = t; return; }
+  if (e.target.closest('[data-prsave]')) { const v = ($('prPaste').value || '').trim(); if (!v) return; verses[prId] = v; save(K.verses, verses); prRevealed = false; paintPractice(); return; }
+  const mk = e.target.closest('[data-prmark]');
+  if (mk) { recall[prId] = { s: mk.dataset.prmark, t: Date.now() }; save(K.recall, recall); $('practice').classList.remove('on');
+    const w = +prId.split('-')[0]; flushPending(); refreshWeek(w); if (w !== curWeek) refreshWeek(curWeek); toast(mk.dataset.prmark === 'got' ? '★ Got it — ' + PLAN[w - 1].m[+prId.split('-')[1]] : 'Added to practice again'); }
+});
+
+// ── plan complete ───────────────────────────────────────────────
+function completeStats() {
+  const starts = Object.values(weekStart).filter(Boolean).sort(); const start = starts[0] || null; const end = finished || dayKey();
+  return { start, end, days: start ? daysBetween(start, end) + 1 : null, best: best.n || 0, entries: jstats.entries, mem: Object.keys(mem).filter(k => mem[k]).length, chapters: CH_TOTAL };
+}
+function showComplete() {
+  const s = completeStats();
+  $('completeText').textContent = 'All 260 readings, ' + s.chapters + ' chapters.' + (s.start ? ' Started ' + fmtKeyY(s.start) + ', finished ' + fmtKeyY(s.end) + '.' : '');
+  $('doneStats').innerHTML = [[s.days != null ? s.days : '—', 'days'], [s.best, 'best streak'], [s.entries, 'journal entries'], [s.mem + ' / 104', 'verses memorized']]
+    .map(([v, l]) => '<div><b>' + v + '</b><span>' + l + '</span></div>').join('');
+  $('complete').classList.add('on');
+}
+$('completeClose').onclick = () => $('complete').classList.remove('on');
+$('complete').addEventListener('click', e => { if (e.target === $('complete')) $('complete').classList.remove('on'); });
+$('completeCopy').onclick = () => { const s = completeStats();
+  copyText('F260 Reading Plan — complete 🎉\n' + (s.start ? 'Started ' + fmtKeyY(s.start) + ' · finished ' + fmtKeyY(s.end) + ' · ' + s.days + ' days\n' : '') + 'Best streak ' + s.best + ' days · ' + s.entries + ' journal entries · ' + s.mem + ' of 104 verses memorized', $('completeCopy'), 'Copy summary'); };
 
 // ── journal view (all entries) ──────────────────────────────────
 let jNewest = false, jQuery = '';
@@ -1315,18 +1702,20 @@ function renderJournalView() {
   const controls = st === 'open';
   ['jSearch', 'jSort', 'jCopyAll'].forEach(id => { $(id).disabled = !controls; });
   $('jSort').setAttribute('aria-pressed', jNewest);
+  const js = streakInfo(jstats.days);
+  const jsHtml = '<span class="js">' + (js.streak ? '✎ <b>' + js.streak + '</b>-day journal streak' : (js.last ? 'Last entry ' + fmtKey(js.last) : '')) + '</span>';
   if (st !== 'open') {
-    stat.textContent = '';
-    list.innerHTML = '<div class="empty"><b>' + (st === 'none' ? 'Your journal is private' : st === 'nocrypto' ? 'Encryption unavailable' : 'Journal is locked') + '</b>' +
-      (st === 'none' ? 'Set a passcode to start journaling. Entries are encrypted on this iPad and only readable with it.' : st === 'nocrypto' ? 'This browser can’t encrypt the journal (needs an https page).' : 'Enter your passcode to read your entries.') +
+    stat.innerHTML = jsHtml;
+    list.innerHTML = '<div class="empty"><svg class="il"><use href="#i-lockbook"/></svg><b>' + (st === 'none' ? 'Your journal is private' : st === 'nocrypto' ? 'Encryption unavailable' : 'Journal is locked') + '</b>' +
+      (st === 'none' ? 'Set a passcode to start journaling. Entries are encrypted on this device and only readable with it.' : st === 'nocrypto' ? 'This browser can’t encrypt the journal (needs an https page).' : 'Enter your passcode to read your entries.') +
       '<p><button type="button" class="btn primary" data-unlock-view>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></p></div>';
     return;
   }
   const all = entryItems(); const q = jQuery.trim().toLowerCase();
   const items = q ? all.filter(it => itemSearch(it).toLowerCase().includes(q)) : all;
-  stat.textContent = all.length === 0 ? '' : (q ? items.length + ' of ' + all.length : all.length) + (all.length === 1 ? ' entry' : ' entries') + (jNewest ? ' · newest first' : ' · in plan order');
-  if (!all.length) { list.innerHTML = '<div class="empty"><b>No entries yet</b>Open a reading in the Plan tab and tap HEAR to write your first one.</div>'; return; }
-  if (!items.length) { list.innerHTML = '<div class="empty"><b>Nothing matches</b>Try a different word.</div>'; return; }
+  stat.innerHTML = (all.length === 0 ? '' : '<span>' + (q ? items.length + ' of ' + all.length : all.length) + (all.length === 1 ? ' entry' : ' entries') + (jNewest ? ' · newest first' : ' · in plan order') + '</span>') + jsHtml;
+  if (!all.length) { list.innerHTML = '<div class="empty"><svg class="il"><use href="#i-openbook"/></svg><b>No entries yet</b>Open a reading in the Plan tab and tap HEAR to write your first one.</div>'; return; }
+  if (!items.length) { list.innerHTML = '<div class="empty"><svg class="il"><use href="#i-search"/></svg><b>Nothing matches</b>Try a different word.</div>'; return; }
   list.innerHTML = items.map(it => {
     if (it.kind === 'week') { const n = journal._w[it.w];
       return '<article class="jcard note"><div class="jc-hd"><div><b>Week ' + it.w + ' · note</b></div><span class="when">' + (n.t ? fmtDate(n.t) : '') + '</span></div>' +
@@ -1343,7 +1732,7 @@ $('jList').addEventListener('click', e => {
   const u = e.target.closest('[data-unlock-view]'); if (u) { ensureUnlocked(); return; }
   const ed = e.target.closest('[data-jedit]'); if (ed) { goToDay(ed.dataset.jedit, true); return; }
   const cp = e.target.closest('[data-jcopy2]'); if (cp) { copyText(entryText(cp.dataset.jcopy2), cp); return; }
-  const we = e.target.closest('[data-wedit]'); if (we) { const w = +we.dataset.wedit; showView('plan'); toggleWeek(w, true); toggleNote(w, true); setTimeout(() => { const box = weeksEl.querySelector('[data-wn="' + w + '"]'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 240); return; }
+  const we = e.target.closest('[data-wedit]'); if (we) { const w = +we.dataset.wedit; showView('plan'); if (readMode) { readWeek = w; paintRead(); } else toggleWeek(w, true); toggleNote(w, true); setTimeout(() => { const box = weeksEl.querySelector('[data-wn="' + w + '"]'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 240); return; }
   const wc = e.target.closest('[data-wcopy]'); if (wc) { copyText(noteText(+wc.dataset.wcopy), wc); }
 });
 $('jSearch').addEventListener('input', () => { jQuery = $('jSearch').value; $('jClear').hidden = !jQuery; renderJournalView(); });
@@ -1380,7 +1769,7 @@ $('restoreForm').onsubmit = e => {
   $('restore').classList.remove('on');
   const when = b.made ? fmtDate(b.made) : 'unknown date';
   confirmModal('Replace everything with this backup?',
-    'Backup from ' + when + (b.vault ? ', with an encrypted journal' : ', progress only') + '. The journal and reading progress currently on this iPad will be replaced. This can’t be undone.',
+    'Backup from ' + when + (b.vault ? ', with an encrypted journal' : ', progress only') + '. The journal and reading progress currently on this device will be replaced. This can’t be undone.',
     'Restore', () => { restoreBackup(b); showView('plan'); });
 };
 function paintTheme() {
@@ -1409,16 +1798,20 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) idle
 function paintAuto() { document.querySelectorAll('#autoSeg button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.min === autolockMin)); }
 $('autoSeg').addEventListener('click', e => { const b = e.target.closest('[data-min]'); if (!b) return; autolockMin = +b.dataset.min; save(K.autolock, autolockMin); paintAuto(); touch(); });
 
-document.addEventListener("keydown", e => {
-  if (e.key !== "Escape") return;
-  if ($("pass").classList.contains("on")) closePass(false);
-  else if ($("restore").classList.contains("on")) $("restore").classList.remove("on");
-  else if ($("confirm").classList.contains("on")) $("confirm").classList.remove("on");
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if ($('pass').classList.contains('on')) closePass(false);
+  else if ($('restore').classList.contains('on')) $('restore').classList.remove('on');
+  else if ($('confirm').classList.contains('on')) $('confirm').classList.remove('on');
+  else if ($('complete').classList.contains('on')) $('complete').classList.remove('on');
+  else if ($('practice').classList.contains('on')) $('practice').classList.remove('on');
 });
 
 paintSource(); paintSize(); paintAuto(); paintTheme();
 render();
+booted = true;
 showView(view);
+if (readMode) $('readBtn').textContent = 'Exit reading mode';
 </script>
 </body>
 </html>
