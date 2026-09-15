@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="F260">
+<title>F260 Reading Plan</title>
+<style>
+/* Same sand-and-mocha family as the Prayer app, system fonts only.
+   slate = links and the current week   olive = done   gold = memory verses */
+:root{
+  --paper:#F7F2EB; --raised:#FFFCF8; --sunk:#EFE7DC; --hover:#F2EADF;
+  --ink:#3A2E24; --ink2:#6E6054; --muted:#9A8C7F;
+  --rule:#E6DCCE; --rule-soft:#F0E8DC;
+  --slate:#4F5D8C; --slate-soft:#E4E7F1;
+  --olive:#5B8143; --olive-soft:#E6EEDD;
+  --gold:#B4861B;  --gold-soft:#F6EBD0;
+  --terra:#BC5A38; --terra-soft:#F7E3DA;
+  --lift:0 1px 2px rgba(58,46,36,.04), 0 4px 14px -6px rgba(58,46,36,.10);
+  --r:14px; --r-sm:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
+    --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
+    --rule:#332B24; --rule-soft:#2A231E;
+    --slate:#A5B0DC; --slate-soft:#232738;
+    --olive:#9DC183; --olive-soft:#1E2718;
+    --gold:#E0B25A;  --gold-soft:#2C2416;
+    --terra:#E28A66; --terra-soft:#2B1D17;
+    --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
+  }
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",sans-serif;
+  font-size:17px; line-height:1.5; letter-spacing:-.008em;
+  padding-bottom:calc(60px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased; touch-action:manipulation;
+}
+.wrap{max-width:44rem;margin:0 auto;padding:0 22px}
+button{font-family:inherit;font-size:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible,a:focus-visible{outline:2px solid var(--slate);outline-offset:3px}
+
+/* ── header ───────────────────────────────────────────────── */
+header{padding:34px 0 10px}
+.hdr{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03em}
+.sub{font-size:14px;font-weight:500;color:var(--muted);margin-top:4px}
+.meter{height:8px;border-radius:999px;background:var(--sunk);margin:22px 0 12px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:999px;background:var(--olive);width:0;
+  transition:width .5s cubic-bezier(.3,.9,.3,1)}
+.strip{display:flex;gap:22px;align-items:baseline;flex-wrap:wrap;
+  font-size:14px;font-weight:500;color:var(--muted)}
+.strip b{display:inline-block;font-weight:700;font-size:21px;color:var(--ink);
+  margin-right:5px;letter-spacing:-.03em}
+
+/* ── toolbar ──────────────────────────────────────────────── */
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
+.btn{min-height:48px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--rule);
+  background:var(--raised);color:var(--ink);font-size:15.5px;font-weight:600;
+  display:inline-flex;align-items:center;gap:8px;letter-spacing:-.01em;box-shadow:var(--lift)}
+.btn:active{background:var(--hover);transform:scale(.98)}
+.btn.primary{background:var(--slate);border-color:var(--slate);color:#fff}
+.btn.quiet{border-color:transparent;box-shadow:none;background:transparent;color:var(--ink2)}
+.btn.danger{color:var(--terra)}
+.wkpick{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--rule);
+  border-radius:999px;background:var(--raised);box-shadow:var(--lift);overflow:hidden}
+.wkpick button{min-width:48px;min-height:48px;border:0;background:transparent;color:var(--ink);
+  font-size:22px;font-weight:500;padding:0}
+.wkpick button:active{background:var(--hover)}
+.wkpick label{font-size:14px;font-weight:600;color:var(--ink2);padding:0 4px;white-space:nowrap}
+.wkpick select{font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:transparent;
+  border:0;padding:12px 2px;min-height:48px;-webkit-appearance:none;appearance:none;text-align:center}
+
+/* ── settings sheet ───────────────────────────────────────── */
+.sheet{display:none;background:var(--raised);border:1.5px solid var(--rule);border-radius:var(--r);
+  padding:16px 18px;margin:12px 0 0;box-shadow:var(--lift)}
+.sheet.on{display:block}
+.sheet h2{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--ink2)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{min-height:48px;padding:10px 16px;border-radius:999px;border:1.5px solid var(--rule);
+  background:transparent;color:var(--ink2);font-size:15px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--slate-soft);border-color:var(--slate);color:var(--slate)}
+.hint{font-size:13.5px;color:var(--muted);margin:10px 0 0}
+
+/* ── weeks ────────────────────────────────────────────────── */
+.weeks{margin-top:18px}
+.week{border-top:1px solid var(--rule-soft);scroll-margin-top:12px}
+.week:first-child{border-top:none}
+.wk-head{width:100%;display:flex;align-items:center;gap:14px;padding:16px 4px;border:0;
+  background:transparent;color:var(--ink);text-align:left;min-height:60px;border-radius:var(--r-sm)}
+.wk-head:active{background:var(--hover)}
+.wk-head .num{font-size:18px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.wk-head .span{flex:1 1 auto;min-width:0;font-size:14.5px;color:var(--muted);font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-head .n{font-size:13px;font-weight:700;color:var(--muted);background:var(--sunk);
+  border-radius:999px;padding:4px 11px;white-space:nowrap}
+.week.complete .wk-head .n{background:var(--olive-soft);color:var(--olive)}
+.wk-head .chev{width:12px;height:12px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(-45deg);transition:transform .2s;flex:0 0 auto;margin-right:4px}
+.week.open .wk-head .chev{transform:rotate(45deg)}
+.week.current .wk-head .num{color:var(--slate)}
+.week.current .wk-head .num::after{content:"now";font-size:11px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--slate);background:var(--slate-soft);border-radius:999px;
+  padding:3px 8px;margin-left:10px;vertical-align:2px}
+.wk-body{display:none;padding:0 4px 18px}
+.week.open .wk-body{display:block}
+.day{display:flex;gap:15px;align-items:center;padding:8px 0;min-height:60px;border-radius:var(--r-sm)}
+.day:active{background:var(--hover)}
+.mark{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--rule);
+  background:transparent;display:grid;place-items:center;padding:0;color:#fff;
+  transition:border-color .2s,background .2s,transform .18s}
+.mark:active{transform:scale(.9)}
+.mark svg{width:20px;height:20px;opacity:0;transform:scale(.4);
+  transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+.day.done .mark{background:var(--olive);border-color:var(--olive)}
+.day.done .mark svg{opacity:1;transform:scale(1)}
+.day .lbl{flex:0 0 auto;width:52px;font-size:13px;font-weight:700;color:var(--muted);
+  letter-spacing:.02em;text-transform:uppercase}
+.refs{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;
+  font-size:18px;font-weight:500;line-height:1.35}
+.day.done .refs{color:var(--muted)}
+.refs a{color:var(--slate);text-decoration:none;padding:6px 2px;margin:-6px 0;
+  border-bottom:1.5px solid var(--slate-soft);display:inline-block;min-height:44px;line-height:32px}
+.refs a:active{background:var(--slate-soft);border-radius:6px}
+.day.done .refs a{color:var(--muted);border-color:transparent}
+.refs .sep{color:var(--muted);font-weight:400}
+.mem{display:flex;gap:15px;align-items:center;padding:8px 0 4px;margin-top:8px;
+  border-top:1px dashed var(--rule)}
+.mem .lbl{flex:0 0 auto;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:800}
+.mem .refs{font-size:17px}
+.mem .refs a{color:var(--gold);border-bottom-color:var(--gold-soft)}
+.mem .title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.02em;width:52px;flex:0 0 auto}
+
+/* ── reset confirm ────────────────────────────────────────── */
+.confirm{display:none;position:fixed;inset:0;background:rgba(58,46,36,.45);z-index:20;
+  align-items:center;justify-content:center;padding:24px}
+.confirm.on{display:flex}
+.confirm .card{background:var(--raised);border-radius:var(--r);padding:24px;max-width:22rem;width:100%;
+  box-shadow:var(--lift)}
+.confirm h2{margin:0 0 8px;font-size:20px}
+.confirm p{margin:0 0 20px;color:var(--ink2);font-size:15.5px}
+.confirm .row{display:flex;gap:10px;justify-content:flex-end}
+.confirm .btn{min-height:52px}
+.confirm .btn.danger{background:var(--terra);border-color:var(--terra);color:#fff}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--rule-soft);font-size:13.5px;color:var(--muted)}
+
+/* ── print ────────────────────────────────────────────────── */
+.print-only{display:none}
+@media print{
+  @page{margin:10mm}
+  :root{--paper:#fff;--raised:#fff;--ink:#000;--ink2:#000;--muted:#333;--rule:#bbb;--rule-soft:#ddd;
+    --slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
+  body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
+  .wrap{max-width:none;padding:0}
+  header .hdr,.meter,.strip,.tools,.sheet,.confirm,.mark,.chev,.wk-head .n,.foot,.day .lbl,.mem .lbl{display:none !important}
+  header{padding:0 0 8pt}
+  .print-only{display:block;font-size:16pt;font-weight:700;margin:0 0 2pt}
+  .print-sub{font-size:9pt;color:#333;margin:0 0 8pt}
+  .weeks{column-count:4;column-gap:14pt;column-fill:auto;margin:0}
+  .week{border:0;break-inside:avoid;page-break-inside:avoid;padding:0 0 6pt;margin:0}
+  .week.current .wk-head .num::after{content:none}
+  .wk-head{display:block;padding:0 0 1pt;min-height:0;border-bottom:1px solid #999;margin-bottom:2pt}
+  .wk-head .num{font-size:10pt;font-weight:700;color:#000}
+  .wk-head .span{display:none}
+  .wk-body{display:block !important;padding:0}
+  .day,.mem{display:flex;align-items:baseline;gap:4pt;min-height:0;padding:1pt 0;margin:0;border:0}
+  .mem{display:block;padding-top:2pt}
+  .mem .title{display:inline;width:auto;font-size:8pt;font-weight:700;color:#333;text-transform:none;letter-spacing:0}
+  .mem .title::after{content:":"}
+  .refs,.mem .refs{display:inline;font-size:9pt;font-weight:400;color:#000;line-height:1.2}
+  .day.done .refs,.day.done .refs a{color:#000}
+  .refs a,.refs a:link,.refs a:visited,.mem .refs a,.day.done .refs a{color:#000 !important;text-decoration:none;border:0;padding:0;margin:0;min-height:0;line-height:inherit;display:inline;background:none}
+  a[href]::after{content:none !important}
+  .refs .sep{color:#000;margin:0 3pt}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="print-only">F260 Bible Reading Plan</div>
+    <div class="print-only print-sub">52 weeks · 5 readings + 2 memory verses each week · Foundations plan, Genesis to Revelation</div>
+    <div class="hdr">
+      <div>
+        <h1>F260 Reading Plan</h1>
+        <div class="sub">52 weeks · 5 readings a week · 2 memory verses</div>
+      </div>
+      <button class="btn quiet" id="settingsBtn" aria-expanded="false">⚙︎ Settings</button>
+    </div>
+    <div class="meter"><i id="meterFill"></i></div>
+    <div class="strip">
+      <span><b id="doneCount">0</b>of 260 readings</span>
+      <span><b id="curWeekLbl">1</b>current week</span>
+      <span id="pct"></span>
+    </div>
+    <div class="tools">
+      <button class="btn primary" id="jumpBtn">Jump to current week</button>
+      <span class="wkpick" aria-label="Set current week">
+        <button id="wkMinus" aria-label="Previous week">−</button>
+        <label for="wkSel">Week</label>
+        <select id="wkSel"></select>
+        <button id="wkPlus" aria-label="Next week">+</button>
+      </span>
+      <button class="btn" id="printBtn">🖨 Print plan</button>
+    </div>
+    <div class="sheet" id="sheet">
+      <h2>Open passages in</h2>
+      <div class="seg" id="srcSeg">
+        <button data-src="gateway">BibleGateway</button>
+        <button data-src="youversion">Bible.com / YouVersion</button>
+        <button data-src="esv">ESV.org</button>
+      </div>
+      <p class="hint" id="srcHint"></p>
+      <div class="seg" style="margin-top:14px">
+        <button id="expandAll">Expand all weeks</button>
+        <button id="collapseAll">Collapse all</button>
+        <button class="danger" id="resetBtn">Reset progress…</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="weeks" id="weeks"></main>
+
+  <p class="foot">Foundations plan by Replicate Ministries (replicate.org). Progress is saved on this device.</p>
+</div>
+
+<div class="confirm" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="card">
+    <h2 id="confirmTitle">Reset all progress?</h2>
+    <p>Every checkmark on all 52 weeks will be cleared. The current-week setting stays. This can't be undone.</p>
+    <div class="row">
+      <button class="btn" id="cancelReset">Keep it</button>
+      <button class="btn danger" id="doReset">Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// PLAN DATA — edit here; the layout code below never needs to change.
+// F260 Foundations reading plan (Replicate Ministries, adult version).
+// One entry per week: five daily readings, then two memory verses.
+// Multiple passages in one day are separated with "," or ";" exactly as
+// printed; a spanning range like "Genesis 50 – Exodus 1" is ONE reading.
+// ═══════════════════════════════════════════════════════════════
+const PLAN = [
+  { w: 1,  r: ["Genesis 1-2", "Genesis 3-4", "Genesis 6-7", "Genesis 8-9", "Job 1-2"], m: ["Genesis 1:27", "Hebrews 11:7"] },
+  { w: 2,  r: ["Job 38-39", "Job 40-42", "Genesis 11-12", "Genesis 15", "Genesis 16-17"], m: ["Hebrews 11:6", "Hebrews 11:8-10"] },
+  { w: 3,  r: ["Genesis 18-19", "Genesis 20-21", "Genesis 22", "Genesis 24", "Genesis 25:19-34, 26"], m: ["Romans 4:20-22", "Hebrews 11:17-19"] },
+  { w: 4,  r: ["Genesis 27-28", "Genesis 29-30:24", "Genesis 31-32", "Genesis 33, 35", "Genesis 37"], m: ["2 Corinthians 10:12", "1 John 3:18"] },
+  { w: 5,  r: ["Genesis 39-40", "Genesis 41", "Genesis 42-43", "Genesis 44-45", "Genesis 46-47"], m: ["Romans 8:28-30", "Ephesians 3:20-21"] },
+  { w: 6,  r: ["Genesis 48-49", "Genesis 50 – Exodus 1", "Exodus 2-3", "Exodus 4-5", "Exodus 6-7"], m: ["Genesis 50:20", "Hebrews 11:24-26"] },
+  { w: 7,  r: ["Exodus 8-9", "Exodus 10-11", "Exodus 12", "Exodus 13:17-14", "Exodus 16-17"], m: ["John 1:29", "Hebrews 9:22"] },
+  { w: 8,  r: ["Exodus 19-20", "Exodus 24-25", "Exodus 26-27", "Exodus 28-29", "Exodus 30-31"], m: ["Exodus 20:1-3", "Galatians 5:14"] },
+  { w: 9,  r: ["Exodus 32-33", "Exodus 34-36:1", "Exodus 40", "Leviticus 8-9", "Leviticus 16-17"], m: ["Exodus 33:16", "Matthew 22:37-39"] },
+  { w: 10, r: ["Leviticus 23", "Leviticus 26", "Numbers 11-12", "Numbers 13-14", "Numbers 16-17"], m: ["Leviticus 26:13", "Deuteronomy 31:7-8"] },
+  { w: 11, r: ["Numbers 20, 27:12-23", "Numbers 34-35", "Deuteronomy 1-2", "Deuteronomy 3-4", "Deuteronomy 6-7"], m: ["Deuteronomy 4:7", "Deuteronomy 6:4-9"] },
+  { w: 12, r: ["Deuteronomy 8-9", "Deuteronomy 30-31", "Deuteronomy 32:48-52, 34", "Joshua 1-2", "Joshua 3-4"], m: ["Joshua 1:8-9", "Psalm 1:1-2"] },
+  { w: 13, r: ["Joshua 5:10-15, 6", "Joshua 7-8", "Joshua 23-24", "Judges 2-3", "Judges 4"], m: ["Joshua 24:14-15", "Judges 2:12"] },
+  { w: 14, r: ["Judges 6-7", "Judges 13-14", "Judges 15-16", "Ruth 1-2", "Ruth 3-4"], m: ["Psalm 19:14", "Galatians 4:4-5"] },
+  { w: 15, r: ["1 Samuel 1-2", "1 Samuel 3, 8", "1 Samuel 9-10", "1 Samuel 13-14", "1 Samuel 15-16"], m: ["1 Samuel 15:22", "1 Samuel 16:7"] },
+  { w: 16, r: ["1 Samuel 17-18", "1 Samuel 19-20", "1 Samuel 21-22", "Psalm 22, 1 Samuel 24-25:1", "1 Samuel 28; 31"], m: ["1 Samuel 17:46-47", "2 Timothy 4:17a"] },
+  { w: 17, r: ["2 Samuel 1, 2:1-7", "2 Samuel 3:1, 5, Psalm 23", "2 Samuel 6-7", "Psalm 18, 2 Samuel 9", "2 Samuel 11-12"], m: ["Psalm 23:1-3", "Psalm 51:10-13"] },
+  { w: 18, r: ["Psalm 51", "2 Samuel 24, Psalm 24", "Psalms 1, 19", "Psalms 103, 119:1-48", "Psalms 119:49-128"], m: ["Psalm 1:1-7", "Psalm 119:7-11"] },
+  { w: 19, r: ["Psalms 119:129-176, 139", "Psalms 148-150", "1 Kings 2", "1 Kings 3, 6", "1 Kings 8, 9:1-9"], m: ["Psalm 139:1-3", "Psalm 139:15-16"] },
+  { w: 20, r: ["Proverbs 1-2", "Proverbs 3-4", "Proverbs 16-18", "Proverbs 31", "1 Kings 11-12"], m: ["Proverbs 1:7", "Proverbs 3:5-6"] },
+  { w: 21, r: ["1 Kings 16:29-34, 17", "1 Kings 18-19", "1 Kings 21-22", "2 Kings 2", "2 Kings 5, 6:1-23"], m: ["Psalm 17:15", "Psalm 63:1"] },
+  { w: 22, r: ["Jonah 1-2", "Jonah 3-4", "Hosea 1-3", "Amos 1:1, 9", "Joel 1-3"], m: ["Psalm 16:11", "John 11:25-26"] },
+  { w: 23, r: ["Isaiah 6, 9", "Isaiah 44-45", "Isaiah 52-53", "Isaiah 65-66", "Micah 1, 4:6-13, 5"], m: ["Isaiah 53:5-6", "1 Peter 2:23-24"] },
+  { w: 24, r: ["2 Kings 17-18", "2 Kings 19-21", "2 Kings 22-23", "Jeremiah 1-3:5", "Jeremiah 25, 29"], m: ["Proverbs 29:18", "Jeremiah 1:15"] },
+  { w: 25, r: ["Jeremiah 31:31-40, 32-33", "Jeremiah 52, 2 Kings 24-25", "Ezekiel 1:1-3, 36:16-38, 37", "Daniel 1-2", "Daniel 3-4"], m: ["Ezekiel 36:26-27", "Daniel 4:35"] },
+  { w: 26, r: ["Daniel 5-6", "Daniel 9-10, 12", "Ezra 1-2", "Ezra 3-4", "Ezra 5-6"], m: ["Daniel 6:26-27", "Daniel 9:19"] },
+  { w: 27, r: ["Zechariah 1:1-6, 2, 12", "Ezra 7-8", "Ezra 9-10", "Esther 1-2", "Esther 3-4"], m: ["Zephaniah 3:17", "1 Peter 3:15"] },
+  { w: 28, r: ["Esther 5-7", "Esther 8-10", "Nehemiah 1-2", "Nehemiah 3-4", "Nehemiah 5-6"], m: ["Deuteronomy 29:29", "Psalm 101:3-4"] },
+  { w: 29, r: ["Nehemiah 7-8", "Nehemiah 9", "Nehemiah 10", "Nehemiah 11", "Nehemiah 12"], m: ["Nehemiah 6:9", "Nehemiah 9:6"] },
+  { w: 30, r: ["Nehemiah 13", "Malachi 1", "Malachi 2", "Malachi 3", "Malachi 4"], m: ["Psalm 51:17", "Colossians 1:19-20"] },
+  { w: 31, r: ["Luke 1", "Luke 2", "Matthew 1-2", "Mark 1", "John 1"], m: ["John 1:1-2", "John 1:14"] },
+  { w: 32, r: ["Matthew 3-4", "Matthew 5", "Matthew 6", "Matthew 7", "Matthew 8"], m: ["Matthew 5:16", "Matthew 6:33"] },
+  { w: 33, r: ["Luke 9:10-62", "Mark 9-10", "Luke 12", "John 3-4", "Luke 14"], m: ["Luke 14:26-27", "Luke 14:33"] },
+  { w: 34, r: ["John 6", "Matthew 19:16-30", "Luke 15-16", "Luke 17:11-37, 18", "Mark 10"], m: ["Mark 10:45", "John 6:37"] },
+  { w: 35, r: ["John 11, Matthew 21:1-13", "John 13", "John 14-15", "John 16", "Matthew 24:1-31"], m: ["John 13:34-35", "John 15:4-5"] },
+  { w: 36, r: ["Matthew 24:32-51", "John 17", "Matthew 26:35-27:31", "Matthew 27:32-66, Luke 23:26-56", "John 19"], m: ["Luke 23:34", "John 17:3"] },
+  { w: 37, r: ["Mark 16", "Luke 24", "John 20-21", "Matthew 28", "Acts 1"], m: ["Matthew 28:18-20", "Acts 1:8"] },
+  { w: 38, r: ["Acts 2-3", "Acts 4-5", "Acts 6", "Acts 7", "Acts 8-9"], m: ["Acts 2:42", "Acts 4:31"] },
+  { w: 39, r: ["Acts 10-11", "Acts 12", "Acts 13-14", "James 1-2", "James 3-5"], m: ["James 1:2-4", "James 2:17"] },
+  { w: 40, r: ["Acts 15-16", "Galatians 1-3", "Galatians 4-6", "Acts 17-18:17", "1 Thessalonians 1-2"], m: ["Acts 17:11", "Acts 17:24-25"] },
+  { w: 41, r: ["1 Thessalonians 3-5", "2 Thessalonians 1-3", "Acts 18:18-28, 19", "1 Corinthians 1-2", "1 Corinthians 3-4"], m: ["1 Corinthians 1:18", "1 Thessalonians 5:23-24"] },
+  { w: 42, r: ["1 Corinthians 5-6", "1 Corinthians 7-8", "1 Corinthians 9-10", "1 Corinthians 11-12", "1 Corinthians 13-14"], m: ["1 Corinthians 10:13", "1 Corinthians 13:13"] },
+  { w: 43, r: ["1 Corinthians 15-16", "2 Corinthians 1-2", "2 Corinthians 3-4", "2 Corinthians 5-6", "2 Corinthians 7-8"], m: ["Romans 1:16-17", "1 Corinthians 15:3-4"] },
+  { w: 44, r: ["2 Corinthians 9-10", "2 Corinthians 11-13", "Romans 1-2, Acts 20:1-3", "Romans 3-4", "Romans 5-6"], m: ["Romans 5:1", "2 Corinthians 10:4"] },
+  { w: 45, r: ["Romans 7-8", "Romans 9-10", "Romans 11-12", "Romans 13-14", "Romans 15-16"], m: ["Romans 8:1", "Romans 12:1-2"] },
+  { w: 46, r: ["Acts 20-21", "Acts 22-23", "Acts 24-25", "Acts 26-27", "Acts 28"], m: ["Acts 20:24", "2 Corinthians 4:7-10"] },
+  { w: 47, r: ["Colossians 1-2", "Colossians 3-4", "Ephesians 1-2", "Ephesians 3-4", "Ephesians 5-6"], m: ["Ephesians 2:8-10", "Colossians 2:6-7"] },
+  { w: 48, r: ["Philippians 1-2", "Philippians 3-4", "Hebrews 1-2", "Hebrews 3-4", "Hebrews 5-6"], m: ["Philippians 3:7-8", "Hebrews 4:14-16"] },
+  { w: 49, r: ["Hebrews 7", "Hebrews 8-9", "Hebrews 10", "Hebrews 11", "Hebrews 12"], m: ["Galatians 2:19-20", "2 Corinthians 5:17"] },
+  { w: 50, r: ["1 Timothy 1-3", "1 Timothy 4-6", "2 Timothy 1-2", "2 Timothy 3-4", "1 Peter 1-2"], m: ["2 Timothy 2:1-2", "2 Timothy 2:15"] },
+  { w: 51, r: ["1 Peter 3-4", "1 Peter 5, 2 Peter 1", "2 Peter 2-3", "1 John 1-3", "1 John 4-5"], m: ["1 Peter 2:11", "1 John 4:10-11"] },
+  { w: 52, r: ["Revelation 1", "Revelation 2-3", "Revelation 4-5", "Revelation 18-19", "Revelation 20-22"], m: ["Revelation 3:19", "Revelation 21:3-4"] },
+];
+
+// USFM book codes, used only for Bible.com / YouVersion deep links.
+const BOOKS = {
+  "Genesis":"GEN","Exodus":"EXO","Leviticus":"LEV","Numbers":"NUM","Deuteronomy":"DEU","Joshua":"JOS",
+  "Judges":"JDG","Ruth":"RUT","1 Samuel":"1SA","2 Samuel":"2SA","1 Kings":"1KI","2 Kings":"2KI",
+  "1 Chronicles":"1CH","2 Chronicles":"2CH","Ezra":"EZR","Nehemiah":"NEH","Esther":"EST","Job":"JOB",
+  "Psalm":"PSA","Psalms":"PSA","Proverbs":"PRO","Ecclesiastes":"ECC","Song of Solomon":"SNG","Isaiah":"ISA",
+  "Jeremiah":"JER","Lamentations":"LAM","Ezekiel":"EZK","Daniel":"DAN","Hosea":"HOS","Joel":"JOL","Amos":"AMO",
+  "Obadiah":"OBA","Jonah":"JON","Micah":"MIC","Nahum":"NAM","Habakkuk":"HAB","Zephaniah":"ZEP","Haggai":"HAG",
+  "Zechariah":"ZEC","Malachi":"MAL","Matthew":"MAT","Mark":"MRK","Luke":"LUK","John":"JHN","Acts":"ACT",
+  "Romans":"ROM","1 Corinthians":"1CO","2 Corinthians":"2CO","Galatians":"GAL","Ephesians":"EPH",
+  "Philippians":"PHP","Colossians":"COL","1 Thessalonians":"1TH","2 Thessalonians":"2TH","1 Timothy":"1TI",
+  "2 Timothy":"2TI","Titus":"TIT","Philemon":"PHM","Hebrews":"HEB","James":"JAS","1 Peter":"1PE","2 Peter":"2PE",
+  "1 John":"1JN","2 John":"2JN","3 John":"3JN","Jude":"JUD","Revelation":"REV"
+};
+
+// ── storage (namespaced: f260.*) ────────────────────────────────
+const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open' };
+const load = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+let done = load(K.done, {});          // { "12-3": true }  week-day
+let curWeek = load(K.week, 1);
+let source = load(K.src, 'gateway');
+let openWeeks = load(K.open, null);   // null = first run: only the current week open
+if (typeof done !== 'object' || done === null) done = {};
+curWeek = Math.min(52, Math.max(1, +curWeek || 1));
+if (!['gateway', 'youversion', 'esv'].includes(source)) source = 'gateway';
+if (!Array.isArray(openWeeks)) openWeeks = [curWeek];
+
+// ── reference splitting ─────────────────────────────────────────
+// "Psalm 22, 1 Samuel 24-25:1" → ["Psalm 22", "1 Samuel 24-25:1"]
+// "1 Samuel 28; 31"            → ["1 Samuel 28", "1 Samuel 31"]
+// "Micah 1, 4:6-13, 5"         → ["Micah 1", "Micah 4:6-13", "Micah 5"]
+// "Genesis 50 – Exodus 1"      → ["Genesis 50 – Exodus 1"]   (dash never splits)
+const BOOK_RE = /^((?:[1-3]\s+)?[A-Z][a-z]+(?:\s+of\s+[A-Z][a-z]+)?)\s+(.*)$/;
+function splitRefs(s) {
+  const out = []; let book = '';
+  s.split(/\s*[,;]\s*/).forEach(part => {
+    if (!part) return;
+    const m = part.match(BOOK_RE);
+    if (m) { book = m[1]; out.push({ book, rest: m[2], text: part }); }
+    else if (book) out.push({ book, rest: part, text: book + ' ' + part });
+    else out.push({ book: '', rest: part, text: part });
+  });
+  return out;
+}
+
+// ── link building ───────────────────────────────────────────────
+const SOURCES = {
+  gateway:    { name: 'BibleGateway', hint: 'Opens the passage on biblegateway.com (ESV). Handles every reference in this plan, including spans like Genesis 50 – Exodus 1.' },
+  youversion: { name: 'Bible.com / YouVersion', hint: 'Opens in the YouVersion app if it is installed, otherwise bible.com. Opens at the first chapter of a multi-chapter reading.' },
+  esv:        { name: 'ESV.org', hint: 'Opens the passage on esv.org. A span across two books opens at its first chapter.' }
+};
+function refUrl(ref) {
+  const plain = ref.text.replace(/\s*[–—]\s*/g, '-');           // "Genesis 50-Exodus 1"
+  if (source === 'gateway')
+    return 'https://www.biblegateway.com/passage/?search=' + encodeURIComponent(plain) + '&version=ESV';
+  // Everything else needs a single-book start point.
+  const crossBook = /[–—]/.test(ref.text);
+  let book = ref.book, rest = ref.rest;
+  if (crossBook) { const first = ref.text.split(/\s*[–—]\s*/)[0].match(BOOK_RE); if (first) { book = first[1]; rest = first[2]; } }
+  if (source === 'esv')
+    return 'https://www.esv.org/' + encodeURIComponent((book + ' ' + rest).replace(/\s+/g, '+')).replace(/%2B/g, '+') + '/';
+  // youversion: /bible/59/GEN.1.ESV or GEN.1.27.ESV or GEN.1.1-5.ESV
+  const code = BOOKS[book]; if (!code) return 'https://www.bible.com/search/bible?query=' + encodeURIComponent(book + ' ' + rest);
+  const m = rest.match(/^(\d+)(?::(\d+)(?:-(\d+))?)?/);
+  const ch = m ? m[1] : '1';
+  let v = '';
+  if (m && m[2]) { v = '.' + m[2]; if (m[3]) v += '-' + m[3]; }
+  return 'https://www.bible.com/bible/59/' + code + '.' + ch + v + '.ESV';
+}
+
+// ── render ──────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const weeksEl = $('weeks');
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const CHECK = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg>';
+
+function refsHtml(str) {
+  return splitRefs(str).map((r, i) =>
+    (i ? '<span class="sep">·</span>' : '') +
+    '<a href="' + esc(refUrl(r)) + '" target="_blank" rel="noopener" data-ref>' + esc(r.text) + '</a>'
+  ).join('');
+}
+function spanOf(wk) {
+  const a = splitRefs(wk.r[0])[0], b = splitRefs(wk.r[4]); const last = b[b.length - 1];
+  return a.book === last.book ? a.book : a.book + ' → ' + last.book;
+}
+function weekHtml(wk) {
+  const isOpen = openWeeks.includes(wk.w);
+  const n = wk.r.filter((_, d) => done[wk.w + '-' + d]).length;
+  return '<section class="week' + (isOpen ? ' open' : '') + (n === 5 ? ' complete' : '') + (wk.w === curWeek ? ' current' : '') + '" id="week-' + wk.w + '" data-w="' + wk.w + '">' +
+    '<button class="wk-head" aria-expanded="' + isOpen + '" data-toggle="' + wk.w + '">' +
+      '<span class="chev"></span><span class="num">Week ' + wk.w + '</span>' +
+      '<span class="span">' + esc(spanOf(wk)) + '</span><span class="n">' + n + ' / 5</span></button>' +
+    '<div class="wk-body">' +
+      wk.r.map((r, d) => '<div class="day' + (done[wk.w + '-' + d] ? ' done' : '') + '" data-day="' + wk.w + '-' + d + '">' +
+        '<button class="mark" aria-pressed="' + !!done[wk.w + '-' + d] + '" aria-label="Done: ' + esc(r) + '">' + CHECK + '</button>' +
+        '<span class="lbl">Day ' + (d + 1) + '</span><span class="refs">' + refsHtml(r) + '</span></div>').join('') +
+      '<div class="mem"><span class="lbl">MV</span><span class="title">Memory</span><span class="refs">' + refsHtml(wk.m[0]) + '<span class="sep">·</span>' + refsHtml(wk.m[1]) + '</span></div>' +
+    '</div></section>';
+}
+function render() { weeksEl.innerHTML = PLAN.map(weekHtml).join(''); updateStats(); }
+function updateStats() {
+  const n = Object.keys(done).filter(k => done[k]).length;
+  $('doneCount').textContent = n;
+  $('curWeekLbl').textContent = curWeek;
+  $('pct').textContent = Math.round(n / 260 * 100) + '% complete';
+  $('meterFill').style.width = (n / 260 * 100) + '%';
+  $('wkSel').value = curWeek;
+}
+function refreshWeek(w) {
+  const old = $('week-' + w); if (!old) return;
+  const tmp = document.createElement('div'); tmp.innerHTML = weekHtml(PLAN[w - 1]);
+  old.replaceWith(tmp.firstElementChild);
+}
+
+// ── interactions ────────────────────────────────────────────────
+weeksEl.addEventListener('click', e => {
+  if (e.target.closest('a[data-ref]')) { e.stopPropagation(); return; }   // links never toggle
+  const head = e.target.closest('[data-toggle]');
+  if (head) { toggleWeek(+head.dataset.toggle); return; }
+  const day = e.target.closest('[data-day]');
+  if (day) {
+    const id = day.dataset.day; done[id] = !done[id]; if (!done[id]) delete done[id];
+    save(K.done, done); refreshWeek(+id.split('-')[0]); updateStats();
+  }
+});
+function toggleWeek(w, force) {
+  const sec = $('week-' + w); const open = force == null ? !sec.classList.contains('open') : force;
+  sec.classList.toggle('open', open); sec.querySelector('.wk-head').setAttribute('aria-expanded', open);
+  openWeeks = openWeeks.filter(x => x !== w); if (open) openWeeks.push(w);
+  save(K.open, openWeeks);
+}
+function setCurrent(w) {
+  const prev = curWeek; curWeek = Math.min(52, Math.max(1, w)); save(K.week, curWeek);
+  refreshWeek(prev); refreshWeek(curWeek); updateStats();
+}
+function jump() {
+  toggleWeek(curWeek, true);
+  $('week-' + curWeek).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+$('jumpBtn').onclick = jump;
+$('wkMinus').onclick = () => { setCurrent(curWeek - 1); jump(); };
+$('wkPlus').onclick = () => { setCurrent(curWeek + 1); jump(); };
+const sel = $('wkSel');
+for (let i = 1; i <= 52; i++) { const o = document.createElement('option'); o.value = i; o.textContent = i; sel.appendChild(o); }
+sel.onchange = () => { setCurrent(+sel.value); jump(); };
+$('printBtn').onclick = () => window.print();
+$('settingsBtn').onclick = () => { const on = $('sheet').classList.toggle('on'); $('settingsBtn').setAttribute('aria-expanded', on); };
+$('expandAll').onclick = () => { openWeeks = PLAN.map(w => w.w); save(K.open, openWeeks); render(); };
+$('collapseAll').onclick = () => { openWeeks = []; save(K.open, openWeeks); render(); };
+$('resetBtn').onclick = () => $('confirm').classList.add('on');
+$('cancelReset').onclick = () => $('confirm').classList.remove('on');
+$('confirm').addEventListener('click', e => { if (e.target === $('confirm')) $('confirm').classList.remove('on'); });
+$('doReset').onclick = () => { done = {}; save(K.done, done); $('confirm').classList.remove('on'); render(); };
+function paintSource() {
+  document.querySelectorAll('#srcSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.src === source));
+  $('srcHint').textContent = SOURCES[source].hint;
+}
+$('srcSeg').addEventListener('click', e => {
+  const b = e.target.closest('[data-src]'); if (!b) return;
+  source = b.dataset.src; save(K.src, source); paintSource(); render();
+});
+
+paintSource();
+render();
+</script>
+</body>
+</html>
