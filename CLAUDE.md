@@ -19,14 +19,21 @@ Hard requirements:
 - **`localStorage` is allowed and encouraged** for persistence. Namespace keys by app id
   (e.g. `chores.items`) so apps do not collide. Wrap reads/writes in `try/catch` — Safari can throw
   in private browsing.
-- **Must work on iPad Safari.** This is the only target that matters. Assume touch, not mouse:
-  no hover-only affordances, no right-click, no keyboard shortcuts as the only path to an action.
+- **Must work on iPad Safari, iPhone Safari, and desktop browsers (Chrome/Edge/Safari on Mac
+  and Windows).** The hub is the family's one-stop shop and gets used on all three. Design
+  touch-first, then make sure it is also good with a mouse and keyboard:
+  - No hover-only affordances, no right-click, no keyboard shortcuts as the only path to an
+    action. Hover styles are welcome but only under `@media (hover: hover) and (pointer: fine)`.
+  - Layout must work from ~375px (phone portrait) through ~1400px (desktop) without horizontal
+    scrolling. Test at phone width, iPad width, and desktop width before calling it done.
+  - Inputs and dialogs should support Enter/Escape; anything tappable must also be focusable.
 - **Big touch targets.** Minimum 44×44 CSS px for anything tappable; 60px+ for primary buttons.
-  Generous spacing so a stray thumb does not hit the wrong control.
+  Generous spacing so a stray thumb does not hit the wrong control. Keep the same sizes on
+  desktop — they are fine with a mouse.
 - Include `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`.
 - Use `-webkit-tap-highlight-color: transparent` and `touch-action: manipulation` to avoid the
   double-tap zoom delay and grey flash.
-- Respect the safe area on iPad (`env(safe-area-inset-*)`) if the app has edge-anchored controls.
+- Respect the safe area on iPad and iPhone (`env(safe-area-inset-*)`) if the app has edge-anchored controls.
 - The app runs inside an iframe in the hub. Keep it working standalone too — do not depend on
   the parent frame.
 

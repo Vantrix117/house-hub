@@ -19,6 +19,8 @@
   --terra:#BC5A38; --terra-soft:#F7E3DA;
   --lift:0 1px 2px rgba(58,46,36,.04), 0 4px 14px -6px rgba(58,46,36,.10);
   --r:14px; --r-sm:10px;
+  /* book groups: Law, History, Wisdom, Prophets, Gospels+Acts, Epistles+Revelation */
+  --g-law:#C1893A; --g-hist:#B39271; --g-wis:#5B8143; --g-pro:#137F77; --g-gos:#4F5D8C; --g-epi:#8A6A4B;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -30,9 +32,11 @@
     --gold:#E0B25A;  --gold-soft:#2C2416;
     --terra:#E28A66; --terra-soft:#2B1D17;
     --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
+    --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
   }
 }
 :root[data-theme="dark"]{
+    --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
     --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
     --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
     --rule:#332B24; --rule-soft:#2A231E;
@@ -73,22 +77,33 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   font-size:14px;font-weight:500;color:var(--muted)}
 .strip b{display:inline-block;font-weight:700;font-size:21px;color:var(--ink);
   margin-right:5px;letter-spacing:-.03em}
-.strip .streak b{color:var(--terra)}
-.days{display:flex;align-items:center;gap:6px;margin:12px 0 0;font-size:12.5px;font-weight:600;color:var(--muted)}
+.days{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0 0;font-size:12.5px;font-weight:600;color:var(--muted)}
 .days .d{width:18px;height:18px;border-radius:5px;background:var(--sunk);flex:0 0 auto}
 .days .d.on{background:var(--olive)}
 .days .d.today{box-shadow:0 0 0 2px var(--gold)}
-.days .lbl2{margin-left:6px}
+.days .lbl2{flex-basis:100%;margin-top:2px}
 body.big{zoom:1.15}
-.nextup{display:flex;align-items:center;gap:12px;width:100%;margin:16px 0 0;padding:12px 16px;min-height:60px;
-  border:1.5px solid var(--rule);border-radius:var(--r);background:var(--raised);box-shadow:var(--lift);text-align:left}
-.nextup:active{background:var(--hover)}
-.nextup .k{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--olive);
-  background:var(--olive-soft);border-radius:999px;padding:4px 10px;flex:0 0 auto}
-.nextup .t{font-size:17px;font-weight:600;flex:1 1 auto;min-width:0}
-.nextup .t small{display:block;font-size:13.5px;font-weight:500;color:var(--muted)}
-.nextup .chev{width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
-  transform:rotate(-45deg);flex:0 0 auto;margin-right:4px}
+.hero{margin:16px 0 0;padding:16px 18px 16px;border:1.5px solid var(--rule);border-radius:var(--r);background:var(--raised);
+  box-shadow:var(--lift);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--olive)}
+.hero-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.hero .k{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--olive);
+  background:var(--olive-soft);border-radius:999px;padding:4px 10px}
+.hero .streak{font-size:13.5px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.hero .streak b{font-size:18px;font-weight:800;color:var(--terra);letter-spacing:-.02em}
+.hero-title{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.2;margin:10px 0 2px;overflow-wrap:anywhere}
+.hero-meta{font-size:14px;font-weight:500;color:var(--muted)}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.hero-actions .btn{min-height:52px;text-decoration:none}
+.ygrid{display:grid;grid-template-columns:repeat(26,1fr);gap:5px;margin:14px 0 0}
+.ygrid button{height:18px;min-height:0;width:100%;border:0;padding:0;border-radius:4px;background:var(--sunk);
+  position:relative;cursor:pointer;-webkit-appearance:none;appearance:none}
+@media (max-width:600px){ .ygrid{grid-template-columns:repeat(13,1fr)} .ygrid button{height:20px} }
+.ygrid button.part{background:linear-gradient(to top,var(--olive) 0 var(--p),var(--sunk) var(--p) 100%)}
+.ygrid button.done{background:var(--olive)}
+.ygrid button.cur{box-shadow:0 0 0 2px var(--slate)}
+.ygrid button:active{transform:scale(.9)}
+.ylbl{font-size:12.5px;font-weight:600;color:var(--muted);margin-top:6px}
 
 /* ── toolbar ──────────────────────────────────────────────── */
 .tools{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 6px}
@@ -124,18 +139,36 @@ body.big{zoom:1.15}
 .hint{font-size:13.5px;color:var(--muted);margin:10px 0 0}
 
 /* ── weeks ────────────────────────────────────────────────── */
-.weeks{margin-top:18px}
-.week{border-top:1px solid var(--rule-soft);scroll-margin-top:12px}
+.weeks{margin-top:18px;margin-left:-13px}
+.week{border-top:1px solid var(--rule-soft);scroll-margin-top:12px;border-left:3px solid var(--gc,transparent);padding-left:10px;
+  transition:background .3s}
 .week:first-child{border-top:none}
+.week[data-g="law"]{--gc:var(--g-law)}.week[data-g="hist"]{--gc:var(--g-hist)}.week[data-g="wis"]{--gc:var(--g-wis)}
+.week[data-g="pro"]{--gc:var(--g-pro)}.week[data-g="gos"]{--gc:var(--g-gos)}.week[data-g="epi"]{--gc:var(--g-epi)}
+.week.complete:not(.current) .wk-head{opacity:.6}
+.week.celebrate{background:var(--olive-soft)}
 .wk-head{width:100%;display:flex;align-items:center;gap:14px;padding:16px 4px;border:0;
   background:transparent;color:var(--ink);text-align:left;min-height:60px;border-radius:var(--r-sm)}
 .wk-head:active{background:var(--hover)}
 .wk-head .num{font-size:18px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
 .wk-head .span{flex:1 1 auto;min-width:0;font-size:14.5px;color:var(--muted);font-weight:500;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wk-head .n{font-size:13px;font-weight:700;color:var(--muted);background:var(--sunk);
-  border-radius:999px;padding:4px 11px;white-space:nowrap}
-.week.complete .wk-head .n{background:var(--olive-soft);color:var(--olive)}
+.ring{position:relative;width:32px;height:32px;flex:0 0 auto}
+.ring svg{width:32px;height:32px;transform:rotate(-90deg);display:block}
+.ring .bg{fill:none;stroke:var(--sunk);stroke-width:3.5}
+.ring .fg{fill:none;stroke:var(--olive);stroke-width:3.5;stroke-linecap:round;transition:stroke-dashoffset .35s ease}
+.ring .rn{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:800;color:var(--muted)}
+.ring .rc{position:absolute;inset:0;display:none;place-items:center;color:#fff}
+.ring .rc svg{width:16px;height:16px;transform:none}
+.week.complete .ring .bg{stroke:var(--olive);fill:var(--olive)}
+.week.complete .ring .fg{display:none}
+.week.complete .ring .rn{display:none}
+.week.complete .ring .rc{display:grid}
+.ring.pop{animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+.cf{position:absolute;left:13px;top:13px;width:6px;height:6px;border-radius:2px;pointer-events:none;
+  animation:cf .9s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes cf{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(220deg);opacity:0}}
 .wk-head .chev{width:12px;height:12px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
   transform:rotate(-45deg);transition:transform .2s;flex:0 0 auto;margin-right:4px}
 .week.open .wk-head .chev{transform:rotate(45deg)}
@@ -143,13 +176,29 @@ body.big{zoom:1.15}
 .week.current .wk-head .num::after{content:"now";font-size:11px;font-weight:700;letter-spacing:.04em;
   text-transform:uppercase;color:var(--slate);background:var(--slate-soft);border-radius:999px;
   padding:3px 8px;margin-left:10px;vertical-align:2px}
-.wk-body{display:none;padding:0 4px 18px}
-.week.open .wk-body{display:block}
+.wk-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}
+.wk-in{overflow:hidden;min-height:0}
+.wk-pad{padding:0 4px 18px}
+.week.open .wk-body{grid-template-rows:1fr}
+.week:not(.open) .wk-in{visibility:hidden;transition:visibility 0s .22s}
 .day{display:flex;gap:15px;align-items:center;padding:8px 0;min-height:60px;border-radius:var(--r-sm);
   scroll-margin-top:12px}
 .day:active{background:var(--hover)}
 .day.flash{animation:flash 1.6s ease-out}
 @keyframes flash{0%,40%{background:var(--olive-soft)}100%{background:transparent}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{background:var(--hover)}
+  .btn.primary:hover{filter:brightness(1.08);background:var(--slate)}
+  .wk-head:hover,.day:hover,.mv:hover{background:var(--hover)}
+  .refs a:hover{border-bottom-color:var(--slate)}
+  .mark:hover,.mkm:hover{border-color:var(--olive)}
+  .jbtn:hover,.wnbtn:hover{border-color:var(--slate);color:var(--slate)}
+  .ygrid button:hover{filter:brightness(.92)}
+  .switch button:hover,.seg button:hover{color:var(--ink)}
+  .jcard .jc-ft button:hover,.jr .jft button:hover{text-decoration:underline}
+}
 .mark{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--rule);
   background:transparent;display:grid;place-items:center;padding:0;color:#fff;
   transition:border-color .2s,background .2s,transform .18s}
@@ -186,7 +235,7 @@ body.big{zoom:1.15}
 .mem .refs a{color:var(--gold);border-bottom-color:var(--gold-soft)}
 .mem .title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;
   letter-spacing:.02em;width:52px;flex:0 0 auto}
-.nextwk{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;
+.nextwk{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;animation:rise .35s ease;
   padding:12px 16px;border-radius:var(--r);background:var(--olive-soft);color:var(--olive);font-weight:600;font-size:15.5px}
 .week.complete.current .nextwk{display:flex}
 .nextwk .btn{background:var(--olive);border-color:var(--olive);color:#fff;min-height:44px;padding:8px 16px}
@@ -200,7 +249,7 @@ body.big{zoom:1.15}
 .day.jopen .jbtn{border-color:var(--slate);color:var(--slate);background:var(--slate-soft)}
 .jr{display:none;margin:0 0 10px 59px;padding:14px 16px 6px;background:var(--raised);border:1.5px solid var(--rule);
   border-radius:var(--r);box-shadow:var(--lift)}
-.jr.on{display:block}
+.jr.on{display:block;animation:rise .2s ease}
 .jr .jhd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:4px}
 .jr .jhd b{font-size:15px;font-weight:700;color:var(--ink2)}
 .jr .jhd span{font-size:13px;color:var(--muted)}
@@ -222,6 +271,16 @@ body.big{zoom:1.15}
   font-size:15px;color:var(--ink2)}
 .locked .btn{min-height:44px}
 @media (max-width:600px){ .jr{margin-left:0} }
+@media (max-width:480px){
+  .wrap{padding:0 16px}
+  .weeks{margin-left:-9px}.week{padding-left:6px}
+  .day{gap:10px}.day .lbl{width:auto;font-size:11.5px}
+  .refs{font-size:17px}
+  .jbtn{min-width:40px;padding:0 8px;font-size:11px}
+  .mem{gap:10px}.mem .title{width:auto}
+  .hero-title{font-size:23px}
+  h1{font-size:26px}
+}
 
 /* ── week note ────────────────────────────────────────────── */
 .wn{margin-top:10px}
@@ -232,7 +291,7 @@ body.big{zoom:1.15}
 .wn.on .wnbtn{border-color:var(--slate);color:var(--slate);background:var(--slate-soft)}
 .wnbody{display:none;margin-top:10px;padding:14px 16px 6px;background:var(--raised);border:1.5px solid var(--rule);
   border-radius:var(--r);box-shadow:var(--lift)}
-.wn.on .wnbody{display:block}
+.wn.on .wnbody{display:block;animation:rise .2s ease}
 .wnbody label{display:block;font-size:14px;font-weight:700;color:var(--ink2);margin:0 0 4px}
 .wnbody label small{font-weight:500;color:var(--muted);margin-left:6px}
 .wnbody textarea{display:block;width:100%;font:inherit;font-size:17px;line-height:1.45;color:var(--ink);
@@ -303,7 +362,7 @@ body.big{zoom:1.15}
     --slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
   body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
   .wrap{max-width:none;padding:0}
-  header .hdr,.meter,.strip,.days,.nextup,.tools,.sheet,.modal,.mark,.mkm,.chev,.wk-head .n,.foot,.day .lbl,.mem .lbl,.jbtn,.jr,.nextwk,.jview,.wn{display:none !important}
+  header .hdr,.meter,.strip,.days,.hero,.ygrid,.ylbl,.ring,.cf,.tools,.sheet,.modal,.mark,.mkm,.chev,.foot,.day .lbl,.mem .lbl,.jbtn,.jr,.nextwk,.jview,.wn{display:none !important}
   body.big{zoom:1}
   .mvs{display:inline}.mv{display:inline;padding:0;min-height:0}.mv.memd .refs a{color:#000}
   .mem .title::after{content:": "}.mv + .mv::before{content:" · ";color:#000}
@@ -312,12 +371,15 @@ body.big{zoom:1.15}
   .print-only{display:block;font-size:16pt;font-weight:700;margin:0 0 2pt}
   .print-sub{font-size:9pt;color:#333;margin:0 0 8pt}
   .weeks{column-count:4;column-gap:14pt;column-fill:auto;margin:0}
-  .week{border:0;break-inside:avoid;page-break-inside:avoid;padding:0 0 6pt;margin:0}
+  .week{border:0;break-inside:avoid;page-break-inside:avoid;padding:0 0 6pt;margin:0;background:none}
+  .week.complete:not(.current) .wk-head{opacity:1}
+  .wk-in{visibility:visible !important;overflow:visible}
+  .wk-pad{padding:0}
   .week.current .wk-head .num::after{content:none}
   .wk-head{display:block;padding:0 0 1pt;min-height:0;border-bottom:1px solid #999;margin-bottom:2pt}
   .wk-head .num{font-size:10pt;font-weight:700;color:#000}
   .wk-head .span{display:none}
-  .wk-body{display:block !important;padding:0}
+  .wk-body{display:block !important;padding:0;grid-template-rows:none}
   .day,.mem{display:flex;align-items:baseline;gap:4pt;min-height:0;padding:1pt 0;margin:0;border:0}
   .mem{display:block;padding-top:2pt}
   .mem .title{display:inline;width:auto;font-size:8pt;font-weight:700;color:#333;text-transform:none;letter-spacing:0}
@@ -354,11 +416,20 @@ body.big{zoom:1.15}
       <span><b id="doneCount">0</b>of 260 readings</span>
       <span><b id="curWeekLbl">1</b>current week</span>
       <span><b id="memCount">0</b>of 104 verses memorized</span>
-      <span class="streak" id="streak"></span>
       <span id="pct"></span>
     </div>
+    <div class="ygrid" id="ygrid" aria-label="The 52 weeks"></div>
+    <div class="ylbl">52 weeks · tap one to open it</div>
     <div class="days" id="days" aria-label="Reading days, last two weeks"></div>
-    <button class="nextup" id="nextUp"><span class="k">Next up</span><span class="t" id="nextUpText"></span><span class="chev"></span></button>
+    <div class="hero" id="hero">
+      <div class="hero-top"><span class="k" id="heroKind">Next up</span><span class="streak" id="streak"></span></div>
+      <div class="hero-title" id="heroTitle"></div>
+      <div class="hero-meta" id="heroMeta"></div>
+      <div class="hero-actions">
+        <button class="btn primary" id="nextUp">Go to reading</button>
+        <a class="btn" id="heroOpen" target="_blank" rel="noopener" hidden>Open passage ↗</a>
+      </div>
+    </div>
     <div class="tools">
       <button class="btn primary" id="jumpBtn">Jump to current week</button>
       <span class="wkpick" aria-label="Set current week">
@@ -862,6 +933,23 @@ function refsHtml(str) {
     '<a href="' + esc(refUrl(r)) + '" target="_blank" rel="noopener" data-ref>' + esc(r.text) + '</a>'
   ).join('');
 }
+const GROUPS = { law: ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy'],
+  hist: ['Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah', 'Esther'],
+  wis: ['Job', 'Psalm', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Solomon'],
+  pro: ['Isaiah', 'Jeremiah', 'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'],
+  gos: ['Matthew', 'Mark', 'Luke', 'John', 'Acts'] };
+const bookGroup = book => Object.keys(GROUPS).find(g => GROUPS[g].includes(book)) || 'epi';
+// rough chapter count for a day's reading (partial chapters count as one); ~4 min per chapter
+function chapterCount(str) {
+  return splitRefs(str).reduce((n, r) => {
+    if (/[–—]/.test(r.text)) return n + 2;                     // spans two books
+    const m = r.rest.match(/^(\d+)(?::(\d+))?(?:-(\d+)(?::(\d+))?)?/); if (!m) return n + 1;
+    const [, c1, v1, x, v2] = m;
+    if (!x) return n + 1;                                       // "12" or "12:3-9"
+    if (v1 && !v2) return n + 1;                                // "119:49-128" = verses in one chapter
+    return n + Math.max(1, +x - +c1 + 1);                       // "1-2" or "29-30:24"
+  }, 0);
+}
 function spanOf(wk) {
   const a = splitRefs(wk.r[0])[0], b = splitRefs(wk.r[4]); const last = b[b.length - 1];
   return a.book === last.book ? a.book : a.book + ' → ' + last.book;
@@ -906,11 +994,11 @@ function weekNoteHtml(w) {
 function weekHtml(wk) {
   const isOpen = openWeeks.includes(wk.w);
   const n = wk.r.filter((_, d) => done[wk.w + '-' + d]).length;
-  return '<section class="week' + (isOpen ? ' open' : '') + (n === 5 ? ' complete' : '') + (wk.w === curWeek ? ' current' : '') + '" id="week-' + wk.w + '" data-w="' + wk.w + '">' +
+  return '<section class="week' + (isOpen ? ' open' : '') + (n === 5 ? ' complete' : '') + (wk.w === curWeek ? ' current' : '') + '" id="week-' + wk.w + '" data-w="' + wk.w + '" data-g="' + bookGroup(splitRefs(wk.r[0])[0].book) + '">' +
     '<button class="wk-head" aria-expanded="' + isOpen + '" data-toggle="' + wk.w + '">' +
       '<span class="chev"></span><span class="num">Week ' + wk.w + '</span>' +
-      '<span class="span">' + esc(spanOf(wk)) + (wk.w === curWeek && weekStart[wk.w] ? ' · started ' + fmtKey(weekStart[wk.w]) : '') + '</span><span class="n">' + n + ' / 5</span></button>' +
-    '<div class="wk-body">' +
+      '<span class="span">' + esc(spanOf(wk)) + (wk.w === curWeek && weekStart[wk.w] ? ' · started ' + fmtKey(weekStart[wk.w]) : '') + '</span>' + ringHtml(n) + '</button>' +
+    '<div class="wk-body"><div class="wk-in"><div class="wk-pad">' +
       wk.r.map((r, d) => '<div class="day' + (done[wk.w + '-' + d] ? ' done' : '') + (openJournals.has(wk.w + '-' + d) ? ' jopen' : '') + '" data-day="' + wk.w + '-' + d + '">' +
         '<button class="mark" aria-pressed="' + !!done[wk.w + '-' + d] + '" aria-label="Done: ' + esc(r) + '">' + CHECK + '</button>' +
         '<span class="lbl">Day ' + (d + 1) + '</span><span class="refs">' + refsHtml(r) + '</span>' +
@@ -923,7 +1011,30 @@ function weekHtml(wk) {
       weekNoteHtml(wk.w) +
       (wk.w < 52 ? '<div class="nextwk"><span>Week ' + wk.w + ' done 🎉</span><button class="btn" data-next="' + (wk.w + 1) + '">Start week ' + (wk.w + 1) + '</button></div>'
                  : '<div class="nextwk"><span>Plan complete — Genesis to Revelation 🎉</span></div>') +
-    '</div></section>';
+    '</div></div></div></section>';
+}
+const RING_C = 2 * Math.PI * 13;
+function ringHtml(n) {
+  return '<span class="ring" aria-label="' + n + ' of 5 done"><svg viewBox="0 0 32 32"><circle class="bg" cx="16" cy="16" r="13"/>' +
+    '<circle class="fg" cx="16" cy="16" r="13" stroke-dasharray="' + RING_C.toFixed(2) + '" stroke-dashoffset="' + (RING_C * (1 - n / 5)).toFixed(2) + '"/></svg>' +
+    '<span class="rn">' + n + '</span><span class="rc">' + CHECK + '</span></span>';
+}
+function setRing(sec, n) {
+  const r = sec.querySelector('.ring'); if (!r) return;
+  r.querySelector('.fg').setAttribute('stroke-dashoffset', (RING_C * (1 - n / 5)).toFixed(2));
+  r.querySelector('.rn').textContent = n; r.setAttribute('aria-label', n + ' of 5 done');
+}
+function celebrate(sec) {
+  const r = sec.querySelector('.ring'); if (!r) return;
+  r.classList.remove('pop'); void r.offsetWidth; r.classList.add('pop');
+  sec.classList.add('celebrate'); setTimeout(() => sec.classList.remove('celebrate'), 1200);
+  const colors = ['var(--olive)', 'var(--gold)', 'var(--slate)', 'var(--terra)'];
+  for (let i = 0; i < 10; i++) {
+    const p = document.createElement('i'); p.className = 'cf';
+    const a = (i / 10) * Math.PI * 2 + Math.random() * .5, d = 26 + Math.random() * 22;
+    p.style.setProperty('--dx', (Math.cos(a) * d).toFixed(1) + 'px'); p.style.setProperty('--dy', (Math.sin(a) * d).toFixed(1) + 'px');
+    p.style.background = colors[i % 4]; r.appendChild(p); setTimeout(() => p.remove(), 1000);
+  }
 }
 function render() {
   weeksEl.innerHTML = PLAN.map(weekHtml).join('');
@@ -939,20 +1050,43 @@ function updateStats() {
   $('meterFill').style.width = (n / 260 * 100) + '%';
   $('wkSel').value = curWeek;
   $('memCount').textContent = Object.keys(mem).filter(k => mem[k]).length;
-  // streak: consecutive reading days ending today (or yesterday, so it isn't lost before tonight's reading)
-  const today = dayKey(); let cursor = log[today] ? today : log[shiftDay(today, -1)] ? shiftDay(today, -1) : null, streak = 0;
-  while (cursor && log[cursor]) { streak++; cursor = shiftDay(cursor, -1); }
+  // streak: reading days, walking back from today; up to 2 rest days in a row are allowed (5 readings a week),
+  // so the streak only breaks after 3 days without a reading
+  const today = dayKey(); let cursor = today, streak = 0, gap = 0, started = false;
+  for (let i = 0; i < 400; i++) {
+    if (log[cursor]) { streak++; gap = 0; started = true; }
+    else { gap++; if (gap > 2) break; }
+    cursor = shiftDay(cursor, -1);
+  }
+  if (!started) streak = 0;
   const days = Object.keys(log).filter(k => log[k]).sort(), last = days[days.length - 1];
-  $('streak').innerHTML = streak ? '<b>' + streak + '</b>day streak' : (last ? 'Last read ' + fmtKey(last) : '');
+  $('streak').innerHTML = streak ? '🔥 <b>' + streak + '</b>day streak' : (last ? 'Last read ' + fmtKey(last) : '');
   $('days').innerHTML = Array.from({ length: 14 }, (_, i) => { const k = shiftDay(today, i - 13);
     return '<span class="d' + (log[k] ? ' on' : '') + (k === today ? ' today' : '') + '" title="' + fmtKey(k) + '"></span>'; }).join('') +
-    '<span class="lbl2">last 14 days</span>';
+    '<span class="lbl2">last 14 days · 2 rest days between readings keep the streak</span>';
+  // year grid
+  $('ygrid').innerHTML = PLAN.map(wk => { const k = wk.r.filter((_, d) => done[wk.w + '-' + d]).length;
+    return '<button type="button" data-ygo="' + wk.w + '" class="' + (k === 5 ? 'done' : k ? 'part' : '') + (wk.w === curWeek ? ' cur' : '') + '"' +
+      (k && k < 5 ? ' style="--p:' + (k * 20) + '%"' : '') + ' aria-label="Week ' + wk.w + ', ' + k + ' of 5"></button>'; }).join('');
   // "Next up": first unchecked reading in the current week
   const wk = PLAN[curWeek - 1]; const d = wk.r.findIndex((_, i) => !done[curWeek + '-' + i]);
-  const started = weekStart[curWeek] ? ' · started ' + fmtKey(weekStart[curWeek]) : '';
-  if (d >= 0) { $('nextUpText').innerHTML = esc(wk.r[d]) + '<small>Week ' + curWeek + ' · Day ' + (d + 1) + started + '</small>'; $('nextUp').dataset.target = curWeek + '-' + d; }
-  else { $('nextUpText').innerHTML = (curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'Plan complete') + '<small>Week ' + curWeek + ' is done</small>'; $('nextUp').dataset.target = curWeek < 52 ? 'week:' + (curWeek + 1) : ''; }
+  const startedTxt = weekStart[curWeek] ? ' · started ' + fmtKey(weekStart[curWeek]) : '';
+  if (d >= 0) {
+    const ch = chapterCount(wk.r[d]);
+    $('heroKind').textContent = 'Next up';
+    $('heroTitle').textContent = wk.r[d];
+    $('heroMeta').textContent = 'Week ' + curWeek + ' · Day ' + (d + 1) + ' · ' + ch + (ch === 1 ? ' chapter' : ' chapters') + ' · ~' + (ch * 4) + ' min' + startedTxt;
+    $('nextUp').textContent = 'Go to reading'; $('nextUp').dataset.target = curWeek + '-' + d;
+    const first = splitRefs(wk.r[d])[0]; $('heroOpen').href = refUrl(first); $('heroOpen').hidden = false;
+  } else {
+    $('heroKind').textContent = 'Week ' + curWeek + ' done';
+    $('heroTitle').textContent = curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'Plan complete 🎉';
+    $('heroMeta').textContent = curWeek < 52 ? spanOf(PLAN[curWeek]) + ' is next' + startedTxt : 'Genesis to Revelation, all 260 readings.';
+    $('nextUp').textContent = curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'Back to the top'; $('nextUp').dataset.target = curWeek < 52 ? 'week:' + (curWeek + 1) : 'top';
+    $('heroOpen').hidden = true;
+  }
 }
+$('ygrid').addEventListener('click', e => { const b = e.target.closest('[data-ygo]'); if (!b) return; const w = +b.dataset.ygo; toggleWeek(w, true); $('week-' + w).scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 function refreshWeek(w) {
   const old = $('week-' + w); if (!old) return;
   const tmp = document.createElement('div'); tmp.innerHTML = weekHtml(PLAN[w - 1]);
@@ -1011,8 +1145,9 @@ weeksEl.addEventListener('click', e => {
     day.querySelector('.mark').setAttribute('aria-pressed', !!done[id]);
     const w = +id.split('-')[0], sec = $('week-' + w);
     const n = PLAN[w - 1].r.filter((_, d) => done[w + '-' + d]).length;
-    sec.querySelector('.wk-head .n').textContent = n + ' / 5';
-    sec.classList.toggle('complete', n === 5);
+    const wasComplete = sec.classList.contains('complete');
+    setRing(sec, n); sec.classList.toggle('complete', n === 5);
+    if (n === 5 && !wasComplete) celebrate(sec);
     updateStats();
   }
 });
@@ -1036,10 +1171,10 @@ function goToDay(id, openJr) {                                // expand the week
   showView('plan'); toggleWeek(w, true);
   if (openJr) toggleJournal(id, true);
   const day = weeksEl.querySelector('[data-day="' + id + '"]'); if (!day) return;
-  day.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  day.classList.remove('flash'); void day.offsetWidth; day.classList.add('flash');
+  setTimeout(() => { day.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    day.classList.remove('flash'); void day.offsetWidth; day.classList.add('flash'); }, 240);
 }
-$('nextUp').onclick = () => { const t = $('nextUp').dataset.target; if (!t) return; if (t.startsWith('week:')) { setCurrent(+t.slice(5)); jump(); } else goToDay(t); };
+$('nextUp').onclick = () => { const t = $('nextUp').dataset.target; if (!t) return; if (t === 'top') window.scrollTo({ top: 0, behavior: 'smooth' }); else if (t.startsWith('week:')) { setCurrent(+t.slice(5)); jump(); } else goToDay(t); };
 $('jumpBtn').onclick = jump;
 $('wkMinus').onclick = () => { setCurrent(curWeek - 1); jump(); };
 $('wkPlus').onclick = () => { setCurrent(curWeek + 1); jump(); };
@@ -1208,7 +1343,7 @@ $('jList').addEventListener('click', e => {
   const u = e.target.closest('[data-unlock-view]'); if (u) { ensureUnlocked(); return; }
   const ed = e.target.closest('[data-jedit]'); if (ed) { goToDay(ed.dataset.jedit, true); return; }
   const cp = e.target.closest('[data-jcopy2]'); if (cp) { copyText(entryText(cp.dataset.jcopy2), cp); return; }
-  const we = e.target.closest('[data-wedit]'); if (we) { const w = +we.dataset.wedit; showView('plan'); toggleWeek(w, true); toggleNote(w, true); const box = weeksEl.querySelector('[data-wn="' + w + '"]'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  const we = e.target.closest('[data-wedit]'); if (we) { const w = +we.dataset.wedit; showView('plan'); toggleWeek(w, true); toggleNote(w, true); setTimeout(() => { const box = weeksEl.querySelector('[data-wn="' + w + '"]'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 240); return; }
   const wc = e.target.closest('[data-wcopy]'); if (wc) { copyText(noteText(+wc.dataset.wcopy), wc); }
 });
 $('jSearch').addEventListener('input', () => { jQuery = $('jSearch').value; $('jClear').hidden = !jQuery; renderJournalView(); });
@@ -1273,6 +1408,13 @@ setInterval(idleCheck, 15000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) idleCheck(); });
 function paintAuto() { document.querySelectorAll('#autoSeg button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.min === autolockMin)); }
 $('autoSeg').addEventListener('click', e => { const b = e.target.closest('[data-min]'); if (!b) return; autolockMin = +b.dataset.min; save(K.autolock, autolockMin); paintAuto(); touch(); });
+
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if ($("pass").classList.contains("on")) closePass(false);
+  else if ($("restore").classList.contains("on")) $("restore").classList.remove("on");
+  else if ($("confirm").classList.contains("on")) $("confirm").classList.remove("on");
+});
 
 paintSource(); paintSize(); paintAuto(); paintTheme();
 render();
