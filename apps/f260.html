@@ -133,6 +133,37 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .hero-actions .btn{min-height:52px;text-decoration:none}
 
+/* ── this week's reflections ──────────────────────────────── */
+.hero-ref{margin-top:12px;padding:10px 12px;border-radius:var(--r-sm);background:var(--gold-soft);font-family:var(--serif);font-size:16.5px;line-height:1.45;letter-spacing:0;color:var(--ink2);cursor:pointer}
+.hero-ref small{display:block;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.hero-ref b{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:700;color:var(--gold);font-size:13px;margin-right:4px}
+.hero-actions .btn.reflect{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.reflect{margin:16px 0 0;padding:16px 18px 10px;border:1.5px solid var(--rule);border-radius:var(--r);background:var(--raised);box-shadow:var(--lift);position:relative;overflow:hidden;scroll-margin-top:12px}
+.reflect::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--gold)}
+.reflect .rf-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.reflect .rf-top .k{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);border-radius:999px;padding:4px 10px}
+.reflect .rf-top .rf-sub{font-size:13.5px;font-weight:600;color:var(--muted);flex:1 1 auto}
+.reflect .rf-top button{background:none;border:0;color:var(--slate);font-weight:600;font-size:14px;min-height:44px;padding:0 6px}
+.rf-sec{font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:12px 0 2px}
+.rf-item{padding:12px 0 6px;border-top:1px solid var(--rule-soft)}
+.rf-item:first-of-type{border-top:0}
+.rf-hd{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;background:none;padding:0;min-height:44px;text-align:left;color:var(--ink);border-radius:var(--r-sm)}
+.rf-hd:active{background:var(--hover)}
+.rf-hd .rf-day{font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;flex:0 0 auto}
+.rf-hd .rf-ref{font-size:16px;font-weight:600;color:var(--slate);flex:1 1 auto;min-width:0}
+.rf-hd .rf-done{font-size:11.5px;font-weight:700;color:var(--olive);background:var(--olive-soft);border-radius:999px;padding:3px 8px;flex:0 0 auto}
+.rf-line{display:flex;gap:10px;margin-top:6px;font-family:var(--serif);font-size:16.5px;line-height:1.45;letter-spacing:0;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
+.rf-line b{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--gold-soft);color:var(--gold);font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:12px;font-weight:800;margin-top:2px}
+.rf-f{display:block;width:100%;font:inherit;font-size:15.5px;line-height:1.4;color:var(--ink);background:var(--sunk);border:1.5px solid transparent;border-radius:var(--r-sm);padding:9px 12px;min-height:44px;margin-top:10px;resize:none;overflow:hidden;-webkit-appearance:none;appearance:none}
+.rf-f:focus{outline:none;border-color:var(--gold);background:var(--raised)}
+.rf-f::placeholder{color:var(--muted)}
+.rf-empty{font-size:15px;color:var(--muted);padding:10px 0 6px}
+.readmode .side{display:block}
+.readmode .side > :not(#reflect){display:none}
+.readmode #reflect{margin-bottom:8px}
+.jcard .fu{display:flex;gap:10px;padding:9px 0;border-top:1px dashed var(--rule);font-family:var(--serif);font-size:17px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink2)}
+.jcard .fu b{flex:0 0 auto;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:12px;font-weight:800;color:var(--olive);background:var(--olive-soft);border-radius:999px;padding:3px 8px;height:fit-content;margin-top:2px}
+
 /* ── milestones ───────────────────────────────────────────── */
 .miles{display:flex;gap:10px;overflow-x:auto;padding:14px 2px 6px;margin:0 -2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .miles::-webkit-scrollbar{display:none}
@@ -437,7 +468,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
   .big{zoom:1}
   .wrap{max-width:none;padding:0}
-  header .hdr,.side,.readbar,.toasts,.modal,.mark,.mkm,.chev,.ring,.cf,.foot,.day .lbl,.mem .lbl,.mem .title,.jbtn,.jr,.nextwk,.jview,.wn,.jn,.recallrow,.mv .pr,.switch{display:none !important}
+  header .hdr,.side,.readbar,.toasts,.modal,.mark,.mkm,.chev,.ring,.cf,.foot,.day .lbl,.mem .lbl,.mem .title,.jbtn,.jr,.nextwk,.jview,.wn,.jn,.recallrow,.mv .pr,.switch,.reflect,.hero-ref{display:none !important}
   .planview{display:block !important}
   .weeks .week{display:block !important}
   header{padding:0 0 8pt}
@@ -523,11 +554,17 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
         <div class="hero-title" id="heroTitle"></div>
         <div class="hero-meta" id="heroMeta"></div>
         <div class="hero-pace" id="heroPace"></div>
+        <div class="hero-ref" id="heroRef" hidden></div>
         <div class="hero-actions">
           <button class="btn primary" id="nextUp">Go to reading</button>
           <a class="btn" id="heroOpen" target="_blank" rel="noopener" hidden>Open passage ↗</a>
+          <button class="btn reflect" id="reflectBtn" hidden>Reflect</button>
           <button class="btn" id="readBtn"><svg class="ico"><use href="#i-open"/></svg> Reading mode</button>
         </div>
+      </div>
+      <div class="reflect" id="reflect">
+        <div class="rf-top"><span class="k">This week</span><span class="rf-sub" id="rfSub"></span><button type="button" id="rfCopy" hidden>Copy</button></div>
+        <div id="rfBody"></div>
       </div>
       <div class="mlbl">Milestones <span id="mileCount"></span></div>
       <div class="miles" id="miles"></div>
@@ -1184,9 +1221,10 @@ const HEAR = [
 const hasJournal = id => { const j = journal && journal[id]; return !!j && HEAR.some(f => (j[f[0]] || '').trim()); };
 const fmtDate = t => { try { return new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch (e) { return ''; } };
 const weekNote = w => (journal && journal._w && journal._w[w] && (journal._w[w].n || '').trim()) ? journal._w[w] : null;
+const reflectItems = w => journal ? PLAN[w - 1].r.map((r, d) => ({ id: w + '-' + d, w, d, r, j: journal[w + '-' + d] })).filter(x => x.j && ((x.j.a || '').trim() || (x.j.r || '').trim())) : [];
 const weekEntries = w => journal ? PLAN[w - 1].r.filter((_, d) => hasJournal(w + '-' + d)).length + (weekNote(w) ? 1 : 0) : 0;
 const lockedHtml = (what) => { const st = vaultState();
-  return '<div class="locked"><svg class="il"><use href="#i-lock"/></svg><span>' + (st === 'none' ? 'Set a passcode to keep your ' + what + ' private.' : st === 'nocrypto' ? 'This browser can’t encrypt your ' + what + '.' : 'Your ' + what + ' is locked.') + '</span>' +
+  return '<div class="locked"><svg class="il"><use href="#i-lock"/></svg><span>' + (st === 'none' ? 'Set a passcode to keep your ' + what + ' private.' : st === 'nocrypto' ? 'This browser can’t encrypt your ' + what + '.' : 'Your ' + what + (what.endsWith('s') ? ' are locked.' : ' is locked.')) + '</span>' +
     '<button type="button" class="btn primary" data-unlock>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></div>'; };
 function journalHtml(id, ref, w) {
   const st = vaultState(); let inner;
@@ -1241,6 +1279,7 @@ function summaryText(w) {
   if (took) parts.push('done in ' + took + (took === 1 ? ' day' : ' days'));
   if (journal) { const e = weekEntries(w); parts.push(e + (e === 1 ? ' journal entry' : ' journal entries')); }
   const mv = [0, 1].filter(i => mem[w + '-' + i]).length; parts.push(mv + ' of 2 verses memorized');
+  if (journal) { const it = reflectItems(w); if (it.length) parts.push(it.filter(x => (x.j.f || '').trim()).length + ' of ' + it.length + ' followed up'); }
   return parts.join(' · ');
 }
 function summaryCopy(w) { return 'F260 — Week ' + w + ' (' + spanOf(PLAN[w - 1]) + ')' + (weekDone[w] ? ' · finished ' + fmtKeyY(weekDone[w]) : '') + '\n' + summaryText(w); }
@@ -1319,6 +1358,71 @@ function paceInfo() {
   const finish = n >= 260 ? (finished || today) : shiftDay(today, Math.round((260 - n) / rate));
   return { label, cls, finish, start };
 }
+function reflectItemHtml(x, carried) {
+  const fu = (x.j.f || '').trim();
+  return '<div class="rf-item" data-rfitem="' + x.id + '">' +
+    '<button type="button" class="rf-hd" data-rfgo="' + x.id + '"><span class="rf-day">' + (carried ? 'Wk ' + x.w + ' · ' : '') + 'Day ' + (x.d + 1) + '</span><span class="rf-ref">' + esc(x.r) + '</span>' + (fu ? '<span class="rf-done">followed up</span>' : '') + '</button>' +
+    ((x.j.a || '').trim() ? '<div class="rf-line"><b>A</b><span>' + esc(x.j.a.trim()) + '</span></div>' : '') +
+    ((x.j.r || '').trim() ? '<div class="rf-line"><b>R</b><span>' + esc(x.j.r.trim()) + '</span></div>' : '') +
+    '<textarea class="rf-f" data-rf="' + x.id + '" rows="1" placeholder="How’s it going?" autocapitalize="sentences">' + esc(x.j.f || '') + '</textarea></div>';
+}
+function reflectText(w) {
+  const items = reflectItems(w); if (!items.length) return '';
+  return 'F260 — Week ' + w + ' reflections (' + spanOf(PLAN[w - 1]) + ')\n\n' + items.map(x => 'Day ' + (x.d + 1) + ' — ' + x.r + '\n' +
+    ((x.j.a || '').trim() ? 'Apply: ' + x.j.a.trim() + '\n' : '') + ((x.j.r || '').trim() ? 'Respond: ' + x.j.r.trim() + '\n' : '') + ((x.j.f || '').trim() ? 'How it went: ' + x.j.f.trim() + '\n' : '')).join('\n');
+}
+function renderReflect() {
+  const st = vaultState(), body = $('rfBody');
+  $('rfSub').textContent = 'Week ' + curWeek + ' · Apply & Respond';
+  if (st !== 'open') { body.innerHTML = lockedHtml('reflections'); $('rfCopy').hidden = true; $('heroRef').hidden = true; $('reflectBtn').hidden = true; return; }
+  const items = reflectItems(curWeek);
+  const carried = curWeek > 1 ? reflectItems(curWeek - 1).filter(x => !(x.j.f || '').trim()) : [];
+  $('rfCopy').hidden = !items.length;
+  body.innerHTML = (items.length ? items.map(x => reflectItemHtml(x, false)).join('')
+      : '<div class="rf-empty">Nothing to reflect on yet — your Apply and Respond lines from this week’s HEAR entries will appear here, with room to note how each one is going.</div>') +
+    (carried.length ? '<div class="rf-sec">From last week — not yet followed up</div>' + carried.map(x => reflectItemHtml(x, true)).join('') : '');
+  body.querySelectorAll('textarea').forEach(t => { t.style.height = 'auto'; t.style.height = Math.max(44, t.scrollHeight + 2) + 'px'; });
+  // hero: one reflection in full, rotating daily
+  const all = items.concat(carried);
+  $('reflectBtn').hidden = !all.length;
+  if (all.length) {
+    const fu = items.filter(x => (x.j.f || '').trim()).length;
+    $('reflectBtn').textContent = 'Reflect · ' + items.length + (items.length === 1 ? ' application' : ' applications') + (items.length ? ' · ' + fu + ' followed up' : '');
+    const doy = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    const x = all[doy % all.length]; const line = (x.j.a || '').trim() ? ['A', x.j.a.trim()] : ['R', x.j.r.trim()];
+    $('heroRef').innerHTML = '<small>' + (log[dayKey()] ? 'Read today ✓ · reflection' : 'Reflection') + ' · Day ' + (x.d + 1) + ' · ' + esc(x.r) + '</small><b>' + line[0] + '</b>' + esc(line[1]);
+    $('heroRef').hidden = false; $('heroRef').dataset.go = x.id;
+  } else $('heroRef').hidden = true;
+}
+function saveFollowUp(id, t) {
+  clearTimeout(saveTimer); savePending = null;
+  if (!journal || !journal[id]) return;
+  const v = t.value; const was = (journal[id].f || '').trim();
+  journal[id].f = v; if (v.trim()) journal[id].ft = Date.now(); else { delete journal[id].f; delete journal[id].ft; }
+  persistJournal();
+  if (!!v.trim() !== !!was) {                                  // followed-up state changed: refresh marks without losing focus
+    const item = t.closest('[data-rfitem]'); const mark = item && item.querySelector('.rf-done');
+    if (v.trim() && !mark) item.querySelector('.rf-hd').insertAdjacentHTML('beforeend', '<span class="rf-done">followed up</span>');
+    else if (!v.trim() && mark) mark.remove();
+    const w = +id.split('-')[0]; const s = $('week-' + w) && $('week-' + w).querySelector('.sumt'); if (s) s.textContent = summaryText(w);
+    const n = reflectItems(curWeek), fu = n.filter(x => (x.j.f || '').trim()).length;
+    if (n.length) $('reflectBtn').textContent = 'Reflect · ' + n.length + (n.length === 1 ? ' application' : ' applications') + ' · ' + fu + ' followed up';
+  }
+  if (view === 'journal') renderJournalView();
+}
+$('reflect').addEventListener('input', e => {
+  const t = e.target; if (!t.matches('textarea[data-rf]')) return;
+  t.style.height = 'auto'; t.style.height = Math.max(44, t.scrollHeight + 2) + 'px';
+  clearTimeout(saveTimer); savePending = ['f' + t.dataset.rf, t]; saveTimer = setTimeout(() => saveFollowUp(t.dataset.rf, t), 300);
+});
+$('reflect').addEventListener('focusout', e => { const t = e.target; if (t.matches && t.matches('textarea[data-rf]')) saveFollowUp(t.dataset.rf, t); });
+$('reflect').addEventListener('click', e => {
+  const g = e.target.closest('[data-rfgo]'); if (g) { goToDay(g.dataset.rfgo, true); return; }
+  const u = e.target.closest('[data-unlock]'); if (u) ensureUnlocked();
+});
+$('rfCopy').onclick = () => copyText(reflectText(curWeek), $('rfCopy'), 'Copy');
+$('reflectBtn').onclick = () => { $('reflect').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+$('heroRef').onclick = () => { const id = $('heroRef').dataset.go; if (id) goToDay(id, true); };
 function updateStats() {
   const n = readingsDone();
   $('doneCount').textContent = n;
@@ -1373,7 +1477,7 @@ function updateStats() {
   const pc = paceInfo();
   $('heroPace').className = 'hero-pace' + (pc ? ' ' + pc.cls : '');
   $('heroPace').textContent = pc ? (pc.label + (n >= 260 ? '' : ' · projected finish ' + fmtMonth(pc.finish))) : '';
-  checkMilestones();
+  checkMilestones(); renderReflect();
 }
 
 // ── interactions (plan) ─────────────────────────────────────────
@@ -1584,6 +1688,7 @@ function saveJournal(id, panel) {
   const b = weeksEl.querySelector('[data-jr="' + id + '"]'); if (b) b.classList.toggle('has', has);
   const s = panel.querySelector('.jsaved'); if (s) s.textContent = has ? 'Saved ' + fmtDate(journal[id].t) : '';
   paintBadge(+id.split('-')[0]); bumpJournalStats();
+  const w = +id.split('-')[0]; if (w === curWeek || w === curWeek - 1) renderReflect();
   if (view === 'journal') renderJournalView();
 }
 function saveNote(w, panel) {
@@ -1602,7 +1707,7 @@ function saveNote(w, panel) {
 }
 const noteText = w => { const n = weekNote(w); return 'Week ' + w + ' — note' + (n && n.t ? ' (' + fmtDate(n.t) + ')' : '') + '\n' + (n ? n.n.trim() : ''); };
 // savePending = [id, panel] for a day entry, or ['w' + week, panel] for a week note
-const flushPending = () => { if (!savePending) return; const [id, panel] = savePending; if (String(id).startsWith('w')) saveNote(+id.slice(1), panel); else saveJournal(id, panel); };
+const flushPending = () => { if (!savePending) return; const [id, panel] = savePending; if (String(id).startsWith('f')) saveFollowUp(id.slice(1), panel); else if (String(id).startsWith('w')) saveNote(+id.slice(1), panel); else saveJournal(id, panel); };
 weeksEl.addEventListener('input', e => {
   const t = e.target;
   if (t.matches('textarea[data-jf]')) {
@@ -1622,7 +1727,8 @@ window.addEventListener('pagehide', flushPending);
 function entryText(id) {
   const [w, d] = id.split('-').map(Number); const j = (journal && journal[id]) || {};
   return 'Week ' + w + ', Day ' + (d + 1) + ' — ' + PLAN[w - 1].r[d] + (j.t ? ' (' + fmtDate(j.t) + ')' : '') + '\n' +
-    HEAR.filter(f => (j[f[0]] || '').trim()).map(f => f[2] + ': ' + j[f[0]].trim()).join('\n');
+    HEAR.filter(f => (j[f[0]] || '').trim()).map(f => f[2] + ': ' + j[f[0]].trim()).join('\n') +
+    ((j.f || '').trim() ? '\nHow it went: ' + j.f.trim() : '');
 }
 function copyText(text, btn, label) {
   const was = label != null ? null : btn.innerHTML;
@@ -1695,7 +1801,7 @@ function entryItems() {
   return items;
 }
 const itemText = it => it.kind === 'week' ? noteText(it.w) : entryText(it.id);
-const itemSearch = it => it.kind === 'week' ? 'week note ' + journal._w[it.w].n : PLAN[it.w - 1].r[it.d] + ' ' + HEAR.map(f => journal[it.id][f[0]] || '').join(' ');
+const itemSearch = it => it.kind === 'week' ? 'week note ' + journal._w[it.w].n : PLAN[it.w - 1].r[it.d] + ' ' + HEAR.map(f => journal[it.id][f[0]] || '').join(' ') + ' ' + (journal[it.id].f || '');
 const hl = (s, q) => { s = esc(s); if (!q) return s; const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig'); return s.replace(re, m => '<mark>' + m + '</mark>'); };
 function renderJournalView() {
   const st = vaultState(), list = $('jList'), stat = $('jStat');
@@ -1725,6 +1831,7 @@ function renderJournalView() {
     return '<article class="jcard" data-entry="' + id + '">' +
       '<div class="jc-hd"><div><b>Week ' + w + ' · Day ' + (d + 1) + '</b><span class="ref">' + hl(PLAN[w - 1].r[d], q) + '</span></div><span class="when">' + (j.t ? fmtDate(j.t) : '') + '</span></div>' +
       '<dl>' + HEAR.filter(f => (j[f[0]] || '').trim()).map(f => '<div><dt title="' + f[2] + '">' + f[1] + '</dt><dd>' + hl(j[f[0]].trim(), q) + '</dd></div>').join('') + '</dl>' +
+      ((j.f || '').trim() ? '<div class="fu"><b>How it went</b><span>' + hl(j.f.trim(), q) + '</span></div>' : '') +
       '<div class="jc-ft"><button type="button" data-jedit="' + id + '">Open in plan</button><button type="button" data-jcopy2="' + id + '">Copy</button></div></article>';
   }).join('');
 }
