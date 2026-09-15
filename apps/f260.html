@@ -21,7 +21,7 @@
   --r:14px; --r-sm:10px;
 }
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-theme="light"]){
     --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
     --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
     --rule:#332B24; --rule-soft:#2A231E;
@@ -31,6 +31,16 @@
     --terra:#E28A66; --terra-soft:#2B1D17;
     --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
   }
+}
+:root[data-theme="dark"]{
+    --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
+    --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
+    --rule:#332B24; --rule-soft:#2A231E;
+    --slate:#A5B0DC; --slate-soft:#232738;
+    --olive:#9DC183; --olive-soft:#1E2718;
+    --gold:#E0B25A;  --gold-soft:#2C2416;
+    --terra:#E28A66; --terra-soft:#2B1D17;
+    --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
 }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -213,6 +223,30 @@ body.big{zoom:1.15}
 .locked .btn{min-height:44px}
 @media (max-width:600px){ .jr{margin-left:0} }
 
+/* ── week note ────────────────────────────────────────────── */
+.wn{margin-top:10px}
+.wnbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;
+  border:1.5px solid var(--rule);background:transparent;color:var(--muted);font-size:14px;font-weight:700}
+.wnbtn:active{background:var(--hover)}
+.wnbtn.has{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+.wn.on .wnbtn{border-color:var(--slate);color:var(--slate);background:var(--slate-soft)}
+.wnbody{display:none;margin-top:10px;padding:14px 16px 6px;background:var(--raised);border:1.5px solid var(--rule);
+  border-radius:var(--r);box-shadow:var(--lift)}
+.wn.on .wnbody{display:block}
+.wnbody label{display:block;font-size:14px;font-weight:700;color:var(--ink2);margin:0 0 4px}
+.wnbody label small{font-weight:500;color:var(--muted);margin-left:6px}
+.wnbody textarea{display:block;width:100%;font:inherit;font-size:17px;line-height:1.45;color:var(--ink);
+  background:var(--sunk);border:1.5px solid transparent;border-radius:var(--r-sm);padding:10px 12px;
+  min-height:72px;resize:none;overflow:hidden;-webkit-appearance:none;appearance:none}
+.wnbody textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}
+.modal textarea{display:block;width:100%;font:inherit;font-size:14px;line-height:1.4;color:var(--ink);min-height:120px;
+  padding:10px 12px;border:1.5px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);margin:0 0 12px;
+  resize:none;-webkit-appearance:none;appearance:none;overflow-wrap:anywhere}
+.modal textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}
+.modal .row .btn.alt{margin-right:auto}
+.jcard.note .jc-hd b{color:var(--gold)}
+.jcard.note .txt{margin:10px 0 0;padding-top:9px;border-top:1px solid var(--rule-soft);white-space:pre-wrap;overflow-wrap:anywhere;font-size:16.5px;line-height:1.5}
+
 /* ── journal view ─────────────────────────────────────────── */
 .jview{display:none}
 .jview.on{display:block}
@@ -265,11 +299,11 @@ body.big{zoom:1.15}
 .print-only{display:none}
 @media print{
   @page{margin:10mm}
-  :root{--paper:#fff;--raised:#fff;--ink:#000;--ink2:#000;--muted:#333;--rule:#bbb;--rule-soft:#ddd;
+  :root,:root[data-theme="dark"]{--paper:#fff;--raised:#fff;--ink:#000;--ink2:#000;--muted:#333;--rule:#bbb;--rule-soft:#ddd;
     --slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
   body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
   .wrap{max-width:none;padding:0}
-  header .hdr,.meter,.strip,.days,.nextup,.tools,.sheet,.modal,.mark,.mkm,.chev,.wk-head .n,.foot,.day .lbl,.mem .lbl,.jbtn,.jr,.nextwk,.jview{display:none !important}
+  header .hdr,.meter,.strip,.days,.nextup,.tools,.sheet,.modal,.mark,.mkm,.chev,.wk-head .n,.foot,.day .lbl,.mem .lbl,.jbtn,.jr,.nextwk,.jview,.wn{display:none !important}
   body.big{zoom:1}
   .mvs{display:inline}.mv{display:inline;padding:0;min-height:0}.mv.memd .refs a{color:#000}
   .mem .title::after{content:": "}.mv + .mv::before{content:" · ";color:#000}
@@ -353,6 +387,14 @@ body.big{zoom:1.15}
         </div>
       </div>
       <div class="sec">
+        <h2>Theme</h2>
+        <div class="seg" id="themeSeg">
+          <button data-theme="system">System</button>
+          <button data-theme="light">Light</button>
+          <button data-theme="dark">Dark</button>
+        </div>
+      </div>
+      <div class="sec">
         <h2>Text size</h2>
         <div class="seg" id="sizeSeg">
           <button data-big="0">Normal</button>
@@ -378,6 +420,22 @@ body.big{zoom:1.15}
         </div>
         <p class="hint" id="vaultHint"></p>
       </div>
+      <div class="sec">
+        <h2>Face ID / Touch ID</h2>
+        <div class="seg">
+          <button id="bioOn">Enable</button>
+          <button id="bioOff">Turn off</button>
+        </div>
+        <p class="hint" id="bioHint"></p>
+      </div>
+      <div class="sec">
+        <h2>Backup</h2>
+        <div class="seg">
+          <button id="backupBtn">Copy encrypted backup</button>
+          <button id="restoreBtn">Restore from backup…</button>
+        </div>
+        <p class="hint">The backup is text: paste it into Notes, an email to yourself, or a password manager. It holds the encrypted journal (still needing your passcode) plus reading progress. Restore it on a new iPad from the same place.</p>
+      </div>
     </div>
     <main class="weeks" id="weeks"></main>
   </section>
@@ -394,7 +452,7 @@ body.big{zoom:1.15}
     <div id="jList"></div>
   </section>
 
-  <p class="foot">Foundations plan by Replicate Ministries (replicate.org). Progress and journal entries are saved on this device; the journal is encrypted with your passcode.</p>
+  <p class="foot">Foundations plan by Replicate Ministries (replicate.org). Progress and journal entries are saved on this device; the journal is encrypted with your passcode. Use Settings → Backup now and then so it isn’t lost with the iPad.</p>
 </div>
 
 <div class="modal" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
@@ -417,8 +475,22 @@ body.big{zoom:1.15}
     <div class="err" id="passErr"></div>
     <label class="showpw"><input type="checkbox" id="showPw"> Show passcode</label>
     <div class="row">
+      <button type="button" class="btn alt" id="passBio" hidden>Use Face ID</button>
       <button type="button" class="btn" id="passCancel">Cancel</button>
       <button type="submit" class="btn primary" id="passOk">Unlock</button>
+    </div>
+  </form>
+</div>
+
+<div class="modal" id="restore" role="dialog" aria-modal="true" aria-labelledby="restoreTitle">
+  <form class="card" id="restoreForm">
+    <h2 id="restoreTitle">Restore from backup</h2>
+    <p>Paste a backup you copied earlier. It replaces the journal and reading progress on this iPad; you’ll unlock the restored journal with the passcode you had when the backup was made.</p>
+    <textarea id="restoreText" placeholder="F260BACKUP1.…" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+    <div class="err" id="restoreErr"></div>
+    <div class="row">
+      <button type="button" class="btn" id="restoreCancel">Cancel</button>
+      <button type="submit" class="btn danger" id="restoreOk">Replace and restore</button>
     </div>
   </form>
 </div>
@@ -507,7 +579,7 @@ const BOOKS = {
 // locks whenever the app is reopened. f260.journal (plaintext, from the first
 // version) is migrated into the vault the moment a passcode is set.
 const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open', view: 'f260.view',
-            mem: 'f260.mem', log: 'f260.log', weekStart: 'f260.weekStart', autolock: 'f260.autolock', big: 'f260.big',
+            mem: 'f260.mem', log: 'f260.log', weekStart: 'f260.weekStart', autolock: 'f260.autolock', big: 'f260.big', theme: 'f260.theme',
             legacy: 'f260.journal', vault: 'f260.journal.vault' };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -528,6 +600,7 @@ let log = load(K.log, {});            // { "2026-09-14": true }  days with at le
 let weekStart = load(K.weekStart, {});// { "3": "2026-09-14" }  date each week was started
 let autolockMin = load(K.autolock, 15);
 let big = !!load(K.big, false);
+let theme = load(K.theme, 'system'); if (!['system', 'light', 'dark'].includes(theme)) theme = 'system';
 if (typeof mem !== 'object' || mem === null) mem = {};
 if (typeof log !== 'object' || log === null) log = {};
 if (typeof weekStart !== 'object' || weekStart === null) weekStart = {};
@@ -537,8 +610,9 @@ const shiftDay = (key, n) => { const [y, m, d] = key.split('-').map(Number); ret
 const fmtKey = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); };
 if (!weekStart[curWeek]) { weekStart[curWeek] = dayKey(); save(K.weekStart, weekStart); }
 
-let journal = null;                   // { "12-3": { h, e, a, r, t } } while unlocked, else null
+let journal = null;                   // { "12-3": { h, e, a, r, t }, _w: { "12": { n, t } } } while unlocked, else null
 const openJournals = new Set();       // days whose journal panel is open (not persisted)
+const openNotes = new Set();          // weeks whose note panel is open (not persisted)
 
 // ── reference splitting ─────────────────────────────────────────
 // "Psalm 22, 1 Samuel 24-25:1" → ["Psalm 22", "1 Samuel 24-25:1"]
@@ -584,57 +658,141 @@ function refUrl(ref) {
 }
 
 // ── journal vault (encryption) ──────────────────────────────────
+// Layout (v2): { v:2, iv, ct,                     journal JSON encrypted with a random data key (AES-256-GCM)
+//                pass: { salt, iter, iv, wk },     data key wrapped with a PBKDF2-SHA256 key from the passcode
+//                bio:  { id, salt, iv, wk } }      data key wrapped with a key from a WebAuthn PRF credential (optional)
+// v1 blobs (journal encrypted directly with the passcode key) are upgraded on the next passcode unlock.
 const subtle = (window.crypto && crypto.subtle) || null;
 const te = new TextEncoder(), td = new TextDecoder();
 const b64 = a => btoa(String.fromCharCode.apply(null, new Uint8Array(a)));
 const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const rand = n => crypto.getRandomValues(new Uint8Array(n));
 const ITER = 200000;
-let vault = { key: null, salt: null, iter: ITER };           // in-memory only
+let dek = null;                                               // data key, in memory only while unlocked
 const vaultBlob = () => load(K.vault, null);
 const legacyBlob = () => load(K.legacy, null);
 // 'nocrypto' | 'none' (no passcode yet) | 'locked' | 'open'
-const vaultState = () => !subtle ? 'nocrypto' : vault.key ? 'open' : vaultBlob() ? 'locked' : 'none';
-async function deriveKey(pass, salt, iter) {
+const vaultState = () => !subtle ? 'nocrypto' : dek ? 'open' : vaultBlob() ? 'locked' : 'none';
+const AES = { name: 'AES-GCM', length: 256 }, KEK_USES = ['wrapKey', 'unwrapKey', 'encrypt', 'decrypt'];
+async function passKek(pass, salt, iter) {
   const km = await subtle.importKey('raw', te.encode(pass), 'PBKDF2', false, ['deriveKey']);
-  return subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' }, km,
-    { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  return subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' }, km, AES, false, KEK_USES);
+}
+const newDek = () => subtle.generateKey(AES, true, ['encrypt', 'decrypt']);
+async function wrapDek(kek) { const iv = rand(12); return { iv: b64(iv), wk: b64(await subtle.wrapKey('raw', dek, kek, { name: 'AES-GCM', iv })) }; }
+const unwrapDek = (kek, w) => subtle.unwrapKey('raw', unb64(w.wk), kek, { name: 'AES-GCM', iv: unb64(w.iv) }, AES, true, ['encrypt', 'decrypt']);
+async function decryptJournal(key, blob) {
+  const pt = await subtle.decrypt({ name: 'AES-GCM', iv: unb64(blob.iv) }, key, unb64(blob.ct));
+  const j = JSON.parse(td.decode(pt)); return (typeof j === 'object' && j !== null) ? j : {};
 }
 let persistChain = Promise.resolve();
 function persistJournal() {                                   // serialised so writes never race
   persistChain = persistChain.then(async () => {
-    if (!vault.key || !journal) return;
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const ct = await subtle.encrypt({ name: 'AES-GCM', iv }, vault.key, te.encode(JSON.stringify(journal)));
-    save(K.vault, { v: 1, salt: b64(vault.salt), iter: vault.iter, iv: b64(iv), ct: b64(ct) });
+    if (!dek || !journal) return;
+    const iv = rand(12);
+    const ct = await subtle.encrypt({ name: 'AES-GCM', iv }, dek, te.encode(JSON.stringify(journal)));
+    const blob = vaultBlob() || {}; blob.v = 2; blob.iv = b64(iv); blob.ct = b64(ct);
+    delete blob.salt; delete blob.iter;                       // v1 leftovers
+    save(K.vault, blob);
   }).catch(() => {});
   return persistChain;
 }
 async function setPasscode(pass) {                            // first-time setup (migrates plaintext)
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  vault = { key: await deriveKey(pass, salt, ITER), salt, iter: ITER };
+  const salt = rand(16); const kek = await passKek(pass, salt, ITER);
+  dek = await newDek();
   const legacy = legacyBlob();
   journal = (legacy && typeof legacy === 'object') ? legacy : {};
+  save(K.vault, { v: 2, pass: Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek)) });
   await persistJournal();
   drop(K.legacy);
 }
 async function unlock(pass) {
   const blob = vaultBlob(); if (!blob) return false;
-  const salt = unb64(blob.salt);
-  const key = await deriveKey(pass, salt, blob.iter || ITER);
-  try {
-    const pt = await subtle.decrypt({ name: 'AES-GCM', iv: unb64(blob.iv) }, key, unb64(blob.ct));
-    journal = JSON.parse(td.decode(pt)); if (typeof journal !== 'object' || journal === null) journal = {};
-  } catch (e) { return false; }                               // wrong passcode → GCM tag fails
-  vault = { key, salt, iter: blob.iter || ITER };
+  if (blob.v === 2) {
+    const kek = await passKek(pass, unb64(blob.pass.salt), blob.pass.iter || ITER);
+    let d, j; try { d = await unwrapDek(kek, blob.pass); j = await decryptJournal(d, blob); } catch (e) { return false; }
+    dek = d; journal = j; return true;
+  }
+  // v1: journal encrypted straight with the passcode key → read it, then upgrade to v2
+  const key = await passKek(pass, unb64(blob.salt), blob.iter || ITER);
+  let j; try { j = await decryptJournal(key, blob); } catch (e) { return false; }
+  journal = j; dek = await newDek();
+  const salt = rand(16); const kek = await passKek(pass, salt, ITER);
+  save(K.vault, { v: 2, pass: Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek)) });
+  await persistJournal();
   return true;
 }
-async function changePasscode(pass) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  vault = { key: await deriveKey(pass, salt, ITER), salt, iter: ITER };
-  await persistJournal();
+async function changePasscode(pass) {                         // re-wrap only; the journal itself stays as is
+  const salt = rand(16); const kek = await passKek(pass, salt, ITER);
+  const blob = vaultBlob(); blob.pass = Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek)); save(K.vault, blob);
 }
-function lock() { vault = { key: null, salt: null, iter: ITER }; journal = null; openJournals.clear(); render(); }
-function eraseJournal() { drop(K.vault); drop(K.legacy); vault = { key: null, salt: null, iter: ITER }; journal = null; openJournals.clear(); render(); }
+function lock() { dek = null; journal = null; openJournals.clear(); openNotes.clear(); render(); }
+function eraseJournal() { drop(K.vault); drop(K.legacy); dek = null; journal = null; openJournals.clear(); openNotes.clear(); render(); }
+
+// ── Face ID / Touch ID (WebAuthn PRF) — experimental; the passcode always works too ──
+const bioSupported = () => !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.create && window.isSecureContext && location.hostname);
+const bioEnabled = () => { const b = vaultBlob(); return !!(b && b.bio); };
+async function prfEval(rawId, salt) {
+  const a = await navigator.credentials.get({ publicKey: {
+    challenge: rand(32), rpId: location.hostname, userVerification: 'required', timeout: 60000,
+    allowCredentials: [{ type: 'public-key', id: rawId }],
+    extensions: { prf: { eval: { first: salt } } } } });
+  const r = a.getClientExtensionResults();
+  if (!r.prf || !r.prf.results || !r.prf.results.first) throw new Error('This device did not return the key material (PRF) needed.');
+  return r.prf.results.first;
+}
+async function enableBio() {                                  // requires the vault to be open
+  const cred = await navigator.credentials.create({ publicKey: {
+    rp: { name: 'F260 Reading Plan', id: location.hostname },
+    user: { id: rand(16), name: 'F260 journal', displayName: 'F260 journal' },
+    challenge: rand(32), timeout: 60000,
+    pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+    authenticatorSelection: { authenticatorAttachment: 'platform', residentKey: 'preferred', userVerification: 'required' },
+    extensions: { prf: {} } } });
+  const ext = cred.getClientExtensionResults();
+  if (!ext.prf || !ext.prf.enabled) throw new Error('This device or browser does not support the PRF feature needed for biometric unlock.');
+  const salt = rand(32);
+  const out = await prfEval(cred.rawId, salt);
+  const kek = await subtle.importKey('raw', out, AES, false, ['wrapKey', 'unwrapKey']);
+  const blob = vaultBlob(); blob.bio = Object.assign({ id: b64(cred.rawId), salt: b64(salt) }, await wrapDek(kek)); save(K.vault, blob);
+}
+async function unlockBio() {
+  const blob = vaultBlob(); if (!blob || !blob.bio) return false;
+  const out = await prfEval(unb64(blob.bio.id), unb64(blob.bio.salt));
+  const kek = await subtle.importKey('raw', out, AES, false, ['wrapKey', 'unwrapKey']);
+  const d = await unwrapDek(kek, blob.bio); journal = await decryptJournal(d, blob); dek = d; return true;
+}
+function disableBio() { const blob = vaultBlob(); if (blob) { delete blob.bio; save(K.vault, blob); } }
+
+// ── backup / restore (clipboard text) ───────────────────────────
+const B_PREFIX = 'F260BACKUP1.';
+function backupText() {
+  const blob = vaultBlob(); let vaultCopy = null;
+  if (blob) { vaultCopy = Object.assign({}, blob); delete vaultCopy.bio; }   // the biometric wrap is bound to this device
+  const b = { f260: 2, made: Date.now(), vault: vaultCopy, progress: { done, mem, log, weekStart, week: curWeek } };
+  return B_PREFIX + btoa(unescape(encodeURIComponent(JSON.stringify(b))));
+}
+function parseBackup(text) {
+  text = (text || '').trim(); if (!text.startsWith(B_PREFIX)) throw new Error('That doesn’t look like an F260 backup (it should start with ' + B_PREFIX + ').');
+  let b; try { b = JSON.parse(decodeURIComponent(escape(atob(text.slice(B_PREFIX.length))))); } catch (e) { throw new Error('The backup text is damaged or incomplete.'); }
+  if (b.f260 !== 2 || typeof b !== 'object') throw new Error('Unrecognised backup version.');
+  if (b.vault && !(b.vault.ct && b.vault.iv && (b.vault.pass || b.vault.salt))) throw new Error('The journal part of this backup is incomplete.');
+  return b;
+}
+function restoreBackup(b) {
+  dek = null; journal = null; openJournals.clear(); openNotes.clear();
+  if (b.vault) save(K.vault, b.vault); else drop(K.vault);
+  drop(K.legacy);
+  const p = b.progress || {};
+  done = (p.done && typeof p.done === 'object') ? p.done : {};
+  mem = (p.mem && typeof p.mem === 'object') ? p.mem : {};
+  log = (p.log && typeof p.log === 'object') ? p.log : {};
+  weekStart = (p.weekStart && typeof p.weekStart === 'object') ? p.weekStart : {};
+  curWeek = Math.min(52, Math.max(1, +p.week || 1));
+  save(K.done, done); save(K.mem, mem); save(K.log, log); save(K.weekStart, weekStart); save(K.week, curWeek);
+  openWeeks = [curWeek]; save(K.open, openWeeks);
+  render();
+}
 
 // ── passcode dialog ─────────────────────────────────────────────
 // mode: 'set' | 'unlock' | 'change'; resolves true on success, false on cancel
@@ -652,12 +810,19 @@ function askPasscode(mode) {
   $('passOk').textContent = mode === 'unlock' ? 'Unlock' : 'Save passcode';
   $('pass1').value = ''; $('pass2').value = ''; $('passErr').textContent = ''; $('passOk').disabled = false;
   $('showPw').checked = false; $('pass1').type = $('pass2').type = 'password';
+  $('passBio').hidden = !(mode === 'unlock' && bioSupported() && bioEnabled());
   $('pass').classList.add('on');
   setTimeout(() => $('pass1').focus(), 50);
   return new Promise(res => { passResolve = res; });
 }
 function closePass(result) { $('pass').classList.remove('on'); if (passResolve) { const r = passResolve; passResolve = null; r(result); } }
 $('passCancel').onclick = () => closePass(false);
+$('passBio').onclick = async () => {
+  const err = $('passErr'); err.textContent = 'Waiting for Face ID…'; $('passOk').disabled = true;
+  try { if (await unlockBio()) { closePass(true); return; } err.textContent = 'Biometric unlock is not set up.'; }
+  catch (ex) { err.textContent = (ex && ex.name === 'NotAllowedError') ? 'Cancelled or not allowed — use your passcode.' : 'Face ID failed: ' + (ex && ex.message || ex); }
+  $('passOk').disabled = false;
+};
 $('pass').addEventListener('click', e => { if (e.target === $('pass')) closePass(false); });
 $('showPw').onchange = () => { $('pass1').type = $('pass2').type = $('showPw').checked ? 'text' : 'password'; };
 $('passForm').onsubmit = async e => {
@@ -726,6 +891,18 @@ function journalHtml(id, ref) {
   return '<div class="jr' + (openJournals.has(id) ? ' on' : '') + '" id="jr-' + id + '" data-jrpanel="' + id + '">' +
     '<div class="jhd"><b>HEAR journal</b><span>' + esc(ref) + '</span></div>' + inner + '</div>';
 }
+const weekNote = w => (journal && journal._w && journal._w[w] && (journal._w[w].n || '').trim()) ? journal._w[w] : null;
+function weekNoteHtml(w) {
+  const st = vaultState(), open = openNotes.has(w), note = weekNote(w);
+  let inner;
+  if (st === 'open') inner = '<label for="wn-' + w + '">Week ' + w + ' note<small>anything that doesn’t fit a single day</small></label>' +
+    '<textarea id="wn-' + w + '" data-wntext="' + w + '" rows="3" autocapitalize="sentences">' + esc(note ? note.n : '') + '</textarea>' +
+    '<div class="jft"><span class="jsaved">' + (note && note.t ? 'Saved ' + fmtDate(note.t) : '') + '</span><button type="button" data-wncopy="' + w + '">Copy</button></div>';
+  else inner = '<div class="locked"><span>' + (st === 'none' ? 'Set a passcode to keep notes private.' : st === 'nocrypto' ? 'This browser can’t encrypt notes.' : 'Notes are locked.') + '</span>' +
+    '<button type="button" class="btn primary" data-unlock>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></div>';
+  return '<div class="wn' + (open ? ' on' : '') + '" data-wn="' + w + '"><button type="button" class="wnbtn' + (note ? ' has' : '') + '" data-wntoggle="' + w + '" aria-expanded="' + open + '">✎ Week note' + (note ? ' •' : '') + '</button>' +
+    '<div class="wnbody" data-wnpanel="' + w + '">' + inner + '</div></div>';
+}
 function weekHtml(wk) {
   const isOpen = openWeeks.includes(wk.w);
   const n = wk.r.filter((_, d) => done[wk.w + '-' + d]).length;
@@ -743,6 +920,7 @@ function weekHtml(wk) {
         wk.m.map((v, i) => '<span class="mv' + (mem[wk.w + '-' + i] ? ' memd' : '') + '" data-mem="' + wk.w + '-' + i + '">' +
           '<button class="mkm" aria-pressed="' + !!mem[wk.w + '-' + i] + '" aria-label="Memorized: ' + esc(v) + '">' + CHECK + '</button>' +
           '<span class="refs">' + refsHtml(v) + '</span></span>').join('') + '</span></div>' +
+      weekNoteHtml(wk.w) +
       (wk.w < 52 ? '<div class="nextwk"><span>Week ' + wk.w + ' done 🎉</span><button class="btn" data-next="' + (wk.w + 1) + '">Start week ' + (wk.w + 1) + '</button></div>'
                  : '<div class="nextwk"><span>Plan complete — Genesis to Revelation 🎉</span></div>') +
     '</div></section>';
@@ -750,6 +928,7 @@ function weekHtml(wk) {
 function render() {
   weeksEl.innerHTML = PLAN.map(weekHtml).join('');
   openJournals.forEach(id => { const p = $('jr-' + id); if (p) p.querySelectorAll('textarea').forEach(autosize); });
+  openNotes.forEach(w => { const t = $('wn-' + w); if (t) autosize(t); });
   updateStats(); paintVault(); renderJournalView();
 }
 function updateStats() {
@@ -789,6 +968,13 @@ function paintVault() {
     : st === 'none' ? 'No passcode yet — you’ll be asked to set one the first time you open a HEAR panel.'
     : 'Encryption is unavailable in this browser (needs https).';
   $('jLock').hidden = st !== 'open';
+  const sup = bioSupported(), on = bioEnabled();
+  $('bioOn').disabled = !(sup && st === 'open' && !on); $('bioOff').disabled = !on;
+  $('bioHint').textContent = !sup ? 'Not available in this browser.'
+    : on ? 'On. The Unlock dialog offers Face ID / Touch ID; your passcode always works too.'
+    : st === 'open' ? 'Experimental. Adds a Face ID / Touch ID option to the Unlock dialog on this iPad (needs iPadOS 18 or newer).'
+    : 'Unlock the journal with your passcode first, then enable it here.';
+  $('backupBtn').disabled = !(vaultBlob() || Object.keys(done).length);
 }
 
 // ── interactions (plan) ─────────────────────────────────────────
@@ -804,7 +990,11 @@ weeksEl.addEventListener('click', e => {
   if (ul) { ensureUnlocked(); return; }
   const jc = e.target.closest('[data-jcopy]');
   if (jc) { copyJournal(jc.dataset.jcopy, jc); return; }
-  if (e.target.closest('[data-jrpanel]')) return;                            // typing area never toggles
+  const wt = e.target.closest('[data-wntoggle]');
+  if (wt) { toggleNote(+wt.dataset.wntoggle); return; }
+  const wc = e.target.closest('[data-wncopy]');
+  if (wc) { copyText(noteText(+wc.dataset.wncopy), wc); return; }
+  if (e.target.closest('[data-jrpanel]') || e.target.closest('[data-wnpanel]')) return;   // typing areas never toggle
   const mv = e.target.closest('[data-mem]');
   if (mv) {
     const id = mv.dataset.mem; mem[id] = !mem[id]; if (!mem[id]) delete mem[id];
@@ -904,6 +1094,27 @@ async function toggleJournal(id, force) {
   else openJournals.delete(id);
 }
 function autosize(t) { t.style.height = 'auto'; t.style.height = Math.max(56, t.scrollHeight + 2) + 'px'; }
+async function toggleNote(w, force) {
+  const box = weeksEl.querySelector('[data-wn="' + w + '"]');
+  const open = force == null ? !box.classList.contains('on') : force;
+  if (open && vaultState() !== 'open') { openNotes.add(w); if (!(await ensureUnlocked())) openNotes.delete(w); return; }
+  box.classList.toggle('on', open); box.querySelector('[data-wntoggle]').setAttribute('aria-expanded', open);
+  if (open) { openNotes.add(w); const t = $('wn-' + w); if (t) { autosize(t); } } else openNotes.delete(w);
+}
+function saveNote(w, panel) {
+  clearTimeout(saveTimer); savePending = null;
+  if (!journal) return;
+  const t = panel.querySelector('textarea'); if (!t) return;
+  journal._w = journal._w || {};
+  if (t.value.trim()) journal._w[w] = { n: t.value, t: Date.now() }; else delete journal._w[w];
+  if (!Object.keys(journal._w).length) delete journal._w;
+  persistJournal();
+  const note = weekNote(w), b = weeksEl.querySelector('[data-wntoggle="' + w + '"]');
+  if (b) { b.classList.toggle('has', !!note); b.textContent = '✎ Week note' + (note ? ' •' : ''); }
+  const s = panel.querySelector('.jsaved'); if (s) s.textContent = note ? 'Saved ' + fmtDate(note.t) : '';
+  if (view === 'journal') renderJournalView();
+}
+const noteText = w => { const n = weekNote(w); return 'Week ' + w + ' \u2014 note' + (n && n.t ? ' (' + fmtDate(n.t) + ')' : '') + '\n' + (n ? n.n.trim() : ''); };
 let saveTimer = null, savePending = null;
 function saveJournal(id, panel) {
   clearTimeout(saveTimer); savePending = null;
@@ -917,18 +1128,24 @@ function saveJournal(id, panel) {
   const s = panel.querySelector('.jsaved'); if (s) s.textContent = has ? 'Saved ' + fmtDate(journal[id].t) : '';
   if (view === 'journal') renderJournalView();
 }
+// savePending = [id, panel] for a day entry, or ['w' + week, panel] for a week note
+const flushPending = () => { if (!savePending) return; const [id, panel] = savePending; if (String(id).startsWith('w')) saveNote(+id.slice(1), panel); else saveJournal(id, panel); };
 weeksEl.addEventListener('input', e => {
-  const t = e.target; if (!t.matches('textarea[data-jf]')) return;
-  autosize(t);
-  const panel = t.closest('[data-jrpanel]'), id = panel.dataset.jrpanel;
-  clearTimeout(saveTimer); savePending = [id, panel];
-  saveTimer = setTimeout(() => saveJournal(id, panel), 300);
+  const t = e.target;
+  if (t.matches('textarea[data-jf]')) {
+    autosize(t); const panel = t.closest('[data-jrpanel]'), id = panel.dataset.jrpanel;
+    clearTimeout(saveTimer); savePending = [id, panel]; saveTimer = setTimeout(() => saveJournal(id, panel), 300);
+  } else if (t.matches('textarea[data-wntext]')) {
+    autosize(t); const panel = t.closest('[data-wnpanel]'), w = +panel.dataset.wnpanel;
+    clearTimeout(saveTimer); savePending = ['w' + w, panel]; saveTimer = setTimeout(() => saveNote(w, panel), 300);
+  }
 });
 weeksEl.addEventListener('focusout', e => {
-  const t = e.target; if (!t.matches || !t.matches('textarea[data-jf]')) return;
-  const panel = t.closest('[data-jrpanel]'); saveJournal(panel.dataset.jrpanel, panel);
+  const t = e.target; if (!t.matches) return;
+  if (t.matches('textarea[data-jf]')) { const panel = t.closest('[data-jrpanel]'); saveJournal(panel.dataset.jrpanel, panel); }
+  else if (t.matches('textarea[data-wntext]')) { const panel = t.closest('[data-wnpanel]'); saveNote(+panel.dataset.wnpanel, panel); }
 });
-window.addEventListener('pagehide', () => { if (savePending) saveJournal(savePending[0], savePending[1]); });
+window.addEventListener('pagehide', flushPending);
 function entryText(id) {
   const [w, d] = id.split('-').map(Number); const j = (journal && journal[id]) || {};
   return 'Week ' + w + ', Day ' + (d + 1) + ' — ' + PLAN[w - 1].r[d] + (j.t ? ' (' + fmtDate(j.t) + ')' : '') + '\n' +
@@ -947,13 +1164,16 @@ function fallbackCopy(text, ok) {
 
 // ── journal view (all entries) ──────────────────────────────────
 let jNewest = false, jQuery = '';
-const planIndex = id => { const [w, d] = id.split('-').map(Number); return w * 10 + d; };
-function entryIds() {
+// items: { kind:'day', id, w, d, t } and { kind:'week', w, t }; week notes sort before that week's days
+function entryItems() {
   if (!journal) return [];
-  const ids = Object.keys(journal).filter(hasJournal);
-  ids.sort((a, b) => jNewest ? (journal[b].t || 0) - (journal[a].t || 0) : planIndex(a) - planIndex(b));
-  return ids;
+  const items = Object.keys(journal).filter(k => k !== '_w' && hasJournal(k)).map(id => { const [w, d] = id.split('-').map(Number); return { kind: 'day', id, w, d, t: journal[id].t || 0 }; });
+  Object.keys(journal._w || {}).forEach(w => { if (weekNote(+w)) items.push({ kind: 'week', w: +w, t: journal._w[w].t || 0 }); });
+  items.sort((a, b) => jNewest ? b.t - a.t : (a.w * 10 + (a.kind === 'week' ? -1 : a.d)) - (b.w * 10 + (b.kind === 'week' ? -1 : b.d)));
+  return items;
 }
+const itemText = it => it.kind === 'week' ? noteText(it.w) : entryText(it.id);
+const itemSearch = it => it.kind === 'week' ? 'week note ' + journal._w[it.w].n : PLAN[it.w - 1].r[it.d] + ' ' + HEAR.map(f => journal[it.id][f[0]] || '').join(' ');
 const hl = (s, q) => { s = esc(s); if (!q) return s; const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig'); return s.replace(re, m => '<mark>' + m + '</mark>'); };
 function renderJournalView() {
   const st = vaultState(), list = $('jList'), stat = $('jStat');
@@ -967,14 +1187,17 @@ function renderJournalView() {
       '<p><button type="button" class="btn primary" data-unlock-view>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></p></div>';
     return;
   }
-  const all = entryIds(); const q = jQuery.trim().toLowerCase();
-  const ids = q ? all.filter(id => { const j = journal[id]; const [w, d] = id.split('-').map(Number);
-    return (PLAN[w - 1].r[d] + ' ' + HEAR.map(f => j[f[0]] || '').join(' ')).toLowerCase().includes(q); }) : all;
-  stat.textContent = all.length === 0 ? '' : (q ? ids.length + ' of ' + all.length : all.length) + (all.length === 1 ? ' entry' : ' entries') + (jNewest ? ' · newest first' : ' · in plan order');
+  const all = entryItems(); const q = jQuery.trim().toLowerCase();
+  const items = q ? all.filter(it => itemSearch(it).toLowerCase().includes(q)) : all;
+  stat.textContent = all.length === 0 ? '' : (q ? items.length + ' of ' + all.length : all.length) + (all.length === 1 ? ' entry' : ' entries') + (jNewest ? ' · newest first' : ' · in plan order');
   if (!all.length) { list.innerHTML = '<div class="empty"><b>No entries yet</b>Open a reading in the Plan tab and tap HEAR to write your first one.</div>'; return; }
-  if (!ids.length) { list.innerHTML = '<div class="empty"><b>Nothing matches</b>Try a different word.</div>'; return; }
-  list.innerHTML = ids.map(id => {
-    const [w, d] = id.split('-').map(Number); const j = journal[id];
+  if (!items.length) { list.innerHTML = '<div class="empty"><b>Nothing matches</b>Try a different word.</div>'; return; }
+  list.innerHTML = items.map(it => {
+    if (it.kind === 'week') { const n = journal._w[it.w];
+      return '<article class="jcard note"><div class="jc-hd"><div><b>Week ' + it.w + ' · note</b></div><span class="when">' + (n.t ? fmtDate(n.t) : '') + '</span></div>' +
+        '<div class="txt">' + hl(n.n.trim(), q) + '</div>' +
+        '<div class="jc-ft"><button type="button" data-wedit="' + it.w + '">Open in plan</button><button type="button" data-wcopy="' + it.w + '">Copy</button></div></article>'; }
+    const id = it.id, w = it.w, d = it.d, j = journal[id];
     return '<article class="jcard" data-entry="' + id + '">' +
       '<div class="jc-hd"><div><b>Week ' + w + ' · Day ' + (d + 1) + '</b><span class="ref">' + hl(PLAN[w - 1].r[d], q) + '</span></div><span class="when">' + (j.t ? fmtDate(j.t) : '') + '</span></div>' +
       '<dl>' + HEAR.filter(f => (j[f[0]] || '').trim()).map(f => '<div><dt title="' + f[2] + '">' + f[1] + '</dt><dd>' + hl(j[f[0]].trim(), q) + '</dd></div>').join('') + '</dl>' +
@@ -984,12 +1207,14 @@ function renderJournalView() {
 $('jList').addEventListener('click', e => {
   const u = e.target.closest('[data-unlock-view]'); if (u) { ensureUnlocked(); return; }
   const ed = e.target.closest('[data-jedit]'); if (ed) { goToDay(ed.dataset.jedit, true); return; }
-  const cp = e.target.closest('[data-jcopy2]'); if (cp) { copyText(entryText(cp.dataset.jcopy2), cp); }
+  const cp = e.target.closest('[data-jcopy2]'); if (cp) { copyText(entryText(cp.dataset.jcopy2), cp); return; }
+  const we = e.target.closest('[data-wedit]'); if (we) { const w = +we.dataset.wedit; showView('plan'); toggleWeek(w, true); toggleNote(w, true); const box = weeksEl.querySelector('[data-wn="' + w + '"]'); if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  const wc = e.target.closest('[data-wcopy]'); if (wc) { copyText(noteText(+wc.dataset.wcopy), wc); }
 });
 $('jSearch').addEventListener('input', () => { jQuery = $('jSearch').value; $('jClear').hidden = !jQuery; renderJournalView(); });
 $('jClear').onclick = () => { $('jSearch').value = ''; jQuery = ''; $('jClear').hidden = true; renderJournalView(); $('jSearch').focus(); };
 $('jSort').onclick = () => { jNewest = !jNewest; renderJournalView(); };
-$('jCopyAll').onclick = () => { const ids = entryIds(); if (!ids.length) return; copyText('F260 HEAR journal\n\n' + ids.map(entryText).join('\n\n'), $('jCopyAll'), 'Copy all'); };
+$('jCopyAll').onclick = () => { const items = entryItems(); if (!items.length) return; copyText('F260 HEAR journal\n\n' + items.map(itemText).join('\n\n'), $('jCopyAll'), 'Copy all'); };
 
 // ── view switching ──────────────────────────────────────────────
 function showView(v) {
@@ -1002,6 +1227,33 @@ function showView(v) {
 $('tabPlan').onclick = () => showView('plan');
 $('tabJournal').onclick = () => showView('journal');
 
+// ── Face ID / backup / theme settings ───────────────────────────
+$('bioOn').onclick = async () => {
+  if (vaultState() !== 'open') { ensureUnlocked(); return; }
+  $('bioHint').textContent = 'Follow the Face ID / Touch ID prompt…';
+  try { await enableBio(); } catch (ex) { paintVault(); $('bioHint').textContent = (ex && ex.name === 'NotAllowedError') ? 'Cancelled or not allowed.' : 'Couldn’t enable: ' + (ex && ex.message || ex); return; }
+  paintVault();
+};
+$('bioOff').onclick = () => { disableBio(); paintVault(); };
+$('backupBtn').onclick = () => copyText(backupText(), $('backupBtn'), 'Copy encrypted backup');
+$('restoreBtn').onclick = () => { $('restoreText').value = ''; $('restoreErr').textContent = ''; $('restore').classList.add('on'); setTimeout(() => $('restoreText').focus(), 50); };
+$('restoreCancel').onclick = () => $('restore').classList.remove('on');
+$('restore').addEventListener('click', e => { if (e.target === $('restore')) $('restore').classList.remove('on'); });
+$('restoreForm').onsubmit = e => {
+  e.preventDefault();
+  let b; try { b = parseBackup($('restoreText').value); } catch (ex) { $('restoreErr').textContent = ex.message; return; }
+  $('restore').classList.remove('on');
+  const when = b.made ? fmtDate(b.made) : 'unknown date';
+  confirmModal('Replace everything with this backup?',
+    'Backup from ' + when + (b.vault ? ', with an encrypted journal' : ', progress only') + '. The journal and reading progress currently on this iPad will be replaced. This can’t be undone.',
+    'Restore', () => { restoreBackup(b); showView('plan'); });
+};
+function paintTheme() {
+  if (theme === 'system') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = theme;
+  document.querySelectorAll('#themeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === theme));
+}
+$('themeSeg').addEventListener('click', e => { const b = e.target.closest('[data-theme]'); if (!b) return; theme = b.dataset.theme; save(K.theme, theme); paintTheme(); });
+
 // ── text size ───────────────────────────────────────────────────
 function paintSize() { document.body.classList.toggle('big', big); document.querySelectorAll('#sizeSeg button').forEach(b => b.setAttribute('aria-pressed', (b.dataset.big === '1') === big)); }
 $('sizeSeg').addEventListener('click', e => { const b = e.target.closest('[data-big]'); if (!b) return; big = b.dataset.big === '1'; save(K.big, big); paintSize(); });
@@ -1013,7 +1265,7 @@ const touch = () => { lastActive = Date.now(); };
 function idleCheck() {
   if (!autolockMin || vaultState() !== 'open') return;
   if (Date.now() - lastActive >= autolockMin * 60000) {
-    if (savePending) saveJournal(savePending[0], savePending[1]);       // flush a half-typed entry first
+    flushPending();                                                    // flush a half-typed entry first
     persistChain.then(lock);
   }
 }
@@ -1022,7 +1274,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) idle
 function paintAuto() { document.querySelectorAll('#autoSeg button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.min === autolockMin)); }
 $('autoSeg').addEventListener('click', e => { const b = e.target.closest('[data-min]'); if (!b) return; autolockMin = +b.dataset.min; save(K.autolock, autolockMin); paintAuto(); touch(); });
 
-paintSource(); paintSize(); paintAuto();
+paintSource(); paintSize(); paintAuto(); paintTheme();
 render();
 showView(view);
 </script>
