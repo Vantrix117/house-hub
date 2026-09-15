@@ -8,7 +8,7 @@
 <title>F260 Reading Plan</title>
 <style>
 /* Same sand-and-mocha family as the Prayer app, system fonts only.
-   slate = links and the current week   olive = done   gold = memory verses */
+   slate = links and the current week   olive = done   gold = journal + memory verses */
 :root{
   --paper:#F7F2EB; --raised:#FFFCF8; --sunk:#EFE7DC; --hover:#F2EADF;
   --ink:#3A2E24; --ink2:#6E6054; --muted:#9A8C7F;
@@ -43,14 +43,19 @@ body{
   -webkit-font-smoothing:antialiased; touch-action:manipulation;
 }
 .wrap{max-width:44rem;margin:0 auto;padding:0 22px}
-button{font-family:inherit;font-size:inherit;cursor:pointer;touch-action:manipulation}
-button:focus-visible,a:focus-visible{outline:2px solid var(--slate);outline-offset:3px}
+button{font-family:inherit;font-size:inherit;cursor:pointer;touch-action:manipulation;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--slate);outline-offset:3px}
+[hidden]{display:none !important}
 
 /* ── header ───────────────────────────────────────────────── */
-header{padding:34px 0 10px}
+header{padding:30px 0 10px}
 .hdr{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
 h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03em}
 .sub{font-size:14px;font-weight:500;color:var(--muted);margin-top:4px}
+.switch{display:inline-flex;margin:0;padding:3px;border-radius:999px;background:var(--sunk);flex:0 0 auto}
+.switch button{font-size:15px;font-weight:600;padding:0 18px;min-height:44px;border:none;
+  background:transparent;color:var(--muted);border-radius:999px;transition:background .2s,color .2s,box-shadow .2s}
+.switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
 .meter{height:8px;border-radius:999px;background:var(--sunk);margin:22px 0 12px;overflow:hidden}
 .meter i{display:block;height:100%;border-radius:999px;background:var(--olive);width:0;
   transition:width .5s cubic-bezier(.3,.9,.3,1)}
@@ -58,9 +63,18 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   font-size:14px;font-weight:500;color:var(--muted)}
 .strip b{display:inline-block;font-weight:700;font-size:21px;color:var(--ink);
   margin-right:5px;letter-spacing:-.03em}
+.nextup{display:flex;align-items:center;gap:12px;width:100%;margin:16px 0 0;padding:12px 16px;min-height:60px;
+  border:1.5px solid var(--rule);border-radius:var(--r);background:var(--raised);box-shadow:var(--lift);text-align:left}
+.nextup:active{background:var(--hover)}
+.nextup .k{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--olive);
+  background:var(--olive-soft);border-radius:999px;padding:4px 10px;flex:0 0 auto}
+.nextup .t{font-size:17px;font-weight:600;flex:1 1 auto;min-width:0}
+.nextup .t small{display:block;font-size:13.5px;font-weight:500;color:var(--muted)}
+.nextup .chev{width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(-45deg);flex:0 0 auto;margin-right:4px}
 
 /* ── toolbar ──────────────────────────────────────────────── */
-.tools{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 6px}
 .btn{min-height:48px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--rule);
   background:var(--raised);color:var(--ink);font-size:15.5px;font-weight:600;
   display:inline-flex;align-items:center;gap:8px;letter-spacing:-.01em;box-shadow:var(--lift)}
@@ -68,6 +82,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .btn.primary{background:var(--slate);border-color:var(--slate);color:#fff}
 .btn.quiet{border-color:transparent;box-shadow:none;background:transparent;color:var(--ink2)}
 .btn.danger{color:var(--terra)}
+.btn[disabled]{opacity:.5;pointer-events:none}
 .wkpick{display:inline-flex;align-items:center;gap:0;border:1.5px solid var(--rule);
   border-radius:999px;background:var(--raised);box-shadow:var(--lift);overflow:hidden}
 .wkpick button{min-width:48px;min-height:48px;border:0;background:transparent;color:var(--ink);
@@ -82,10 +97,13 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   padding:16px 18px;margin:12px 0 0;box-shadow:var(--lift)}
 .sheet.on{display:block}
 .sheet h2{font-size:15px;font-weight:700;margin:0 0 10px;color:var(--ink2)}
+.sheet h2 + .seg{margin-bottom:2px}
+.sheet .sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule-soft)}
 .seg{display:flex;gap:8px;flex-wrap:wrap}
 .seg button{min-height:48px;padding:10px 16px;border-radius:999px;border:1.5px solid var(--rule);
   background:transparent;color:var(--ink2);font-size:15px;font-weight:600}
 .seg button[aria-pressed="true"]{background:var(--slate-soft);border-color:var(--slate);color:var(--slate)}
+.seg button.danger{color:var(--terra)}
 .hint{font-size:13.5px;color:var(--muted);margin:10px 0 0}
 
 /* ── weeks ────────────────────────────────────────────────── */
@@ -110,8 +128,11 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   padding:3px 8px;margin-left:10px;vertical-align:2px}
 .wk-body{display:none;padding:0 4px 18px}
 .week.open .wk-body{display:block}
-.day{display:flex;gap:15px;align-items:center;padding:8px 0;min-height:60px;border-radius:var(--r-sm)}
+.day{display:flex;gap:15px;align-items:center;padding:8px 0;min-height:60px;border-radius:var(--r-sm);
+  scroll-margin-top:12px}
 .day:active{background:var(--hover)}
+.day.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%,40%{background:var(--olive-soft)}100%{background:transparent}}
 .mark{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--rule);
   background:transparent;display:grid;place-items:center;padding:0;color:#fff;
   transition:border-color .2s,background .2s,transform .18s}
@@ -138,8 +159,12 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .mem .refs a{color:var(--gold);border-bottom-color:var(--gold-soft)}
 .mem .title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;
   letter-spacing:.02em;width:52px;flex:0 0 auto}
+.nextwk{display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;
+  padding:12px 16px;border-radius:var(--r);background:var(--olive-soft);color:var(--olive);font-weight:600;font-size:15.5px}
+.week.complete.current .nextwk{display:flex}
+.nextwk .btn{background:var(--olive);border-color:var(--olive);color:#fff;min-height:44px;padding:8px 16px}
 
-/* ── HEAR journal ─────────────────────────────────────────── */
+/* ── HEAR journal (per day) ───────────────────────────────── */
 .jbtn{flex:0 0 auto;min-width:44px;height:44px;border-radius:999px;border:1.5px solid var(--rule);
   background:transparent;color:var(--muted);display:grid;place-items:center;padding:0 10px;
   font-size:12px;font-weight:800;letter-spacing:.04em}
@@ -166,19 +191,57 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .jr .jft{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:2px;
   font-size:13px;color:var(--muted)}
 .jr .jft button{background:none;border:0;color:var(--slate);font-weight:600;font-size:14px;min-height:44px;padding:0 6px}
+.locked{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:6px 0 10px;
+  font-size:15px;color:var(--ink2)}
+.locked .btn{min-height:44px}
 @media (max-width:600px){ .jr{margin-left:0} }
 
-/* ── reset confirm ────────────────────────────────────────── */
-.confirm{display:none;position:fixed;inset:0;background:rgba(58,46,36,.45);z-index:20;
-  align-items:center;justify-content:center;padding:24px}
-.confirm.on{display:flex}
-.confirm .card{background:var(--raised);border-radius:var(--r);padding:24px;max-width:22rem;width:100%;
+/* ── journal view ─────────────────────────────────────────── */
+.jview{display:none}
+.jview.on{display:block}
+.jtop{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 6px}
+.jtop .search{flex:1 1 220px;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;
+  border:1.5px solid var(--rule);border-radius:999px;background:var(--raised);box-shadow:var(--lift)}
+.jtop .search input{flex:1 1 auto;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;
+  color:var(--ink);min-height:44px;-webkit-appearance:none;appearance:none}
+.jtop .search input::placeholder{color:var(--muted)}
+.jtop .search button{border:0;background:transparent;color:var(--muted);font-size:20px;min-width:36px;min-height:44px;padding:0}
+.jstat{font-size:14px;color:var(--muted);margin:10px 0 0}
+.jcard{background:var(--raised);border:1.5px solid var(--rule);border-radius:var(--r);padding:16px 18px 6px;
+  margin-top:14px;box-shadow:var(--lift)}
+.jcard .jc-hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.jcard .jc-hd b{font-size:15px;font-weight:700;color:var(--ink2)}
+.jcard .jc-hd .ref{font-size:18px;font-weight:600;color:var(--slate);margin-left:8px}
+.jcard .jc-hd .when{font-size:13px;color:var(--muted)}
+.jcard dl{margin:10px 0 0}
+.jcard dl > div{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--rule-soft)}
+.jcard dt{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:800;margin-top:1px}
+.jcard dd{margin:0;flex:1 1 auto;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:16.5px;line-height:1.5}
+.jcard mark{background:var(--gold-soft);color:inherit;border-radius:3px;padding:0 1px}
+.jcard .jc-ft{display:flex;justify-content:flex-end;gap:4px;margin-top:4px}
+.jcard .jc-ft button{background:none;border:0;color:var(--slate);font-weight:600;font-size:14px;min-height:44px;padding:0 10px}
+.empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:16px}
+.empty b{display:block;color:var(--ink2);font-size:18px;margin-bottom:6px}
+
+/* ── modal (reset confirm, passcode) ──────────────────────── */
+.modal{display:none;position:fixed;inset:0;background:rgba(58,46,36,.45);z-index:20;
+  align-items:flex-start;justify-content:center;padding:max(24px, 10vh) 24px 24px;overflow:auto}
+.modal.on{display:flex}
+.modal .card{background:var(--raised);border-radius:var(--r);padding:24px;max-width:24rem;width:100%;
   box-shadow:var(--lift)}
-.confirm h2{margin:0 0 8px;font-size:20px}
-.confirm p{margin:0 0 20px;color:var(--ink2);font-size:15.5px}
-.confirm .row{display:flex;gap:10px;justify-content:flex-end}
-.confirm .btn{min-height:52px}
-.confirm .btn.danger{background:var(--terra);border-color:var(--terra);color:#fff}
+.modal h2{margin:0 0 8px;font-size:20px}
+.modal p{margin:0 0 18px;color:var(--ink2);font-size:15.5px;line-height:1.5}
+.modal .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.modal .btn{min-height:52px}
+.modal .btn.danger{background:var(--terra);border-color:var(--terra);color:#fff}
+.modal input[type="password"],.modal input[type="text"]{display:block;width:100%;font:inherit;font-size:20px;letter-spacing:.06em;
+  min-height:56px;padding:10px 14px;border:1.5px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);
+  color:var(--ink);margin:0 0 12px;-webkit-appearance:none;appearance:none}
+.modal input:focus{outline:none;border-color:var(--slate);background:var(--raised)}
+.modal .err{color:var(--terra);font-size:14.5px;font-weight:600;min-height:1.4em;margin:-4px 0 10px}
+.modal .showpw{display:flex;align-items:center;gap:10px;font-size:14.5px;color:var(--ink2);margin:0 0 14px;min-height:44px}
+.modal .showpw input{width:22px;height:22px;margin:0}
 .foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--rule-soft);font-size:13.5px;color:var(--muted)}
 
 /* ── print ────────────────────────────────────────────────── */
@@ -189,7 +252,8 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
     --slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
   body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
   .wrap{max-width:none;padding:0}
-  header .hdr,.meter,.strip,.tools,.sheet,.confirm,.mark,.chev,.wk-head .n,.foot,.day .lbl,.mem .lbl,.jbtn,.jr{display:none !important}
+  header .hdr,.meter,.strip,.nextup,.tools,.sheet,.modal,.mark,.chev,.wk-head .n,.foot,.day .lbl,.mem .lbl,.jbtn,.jr,.nextwk,.jview{display:none !important}
+  .planview{display:block !important}
   header{padding:0 0 8pt}
   .print-only{display:block;font-size:16pt;font-weight:700;margin:0 0 2pt}
   .print-sub{font-size:9pt;color:#333;margin:0 0 8pt}
@@ -222,14 +286,22 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
         <h1>F260 Reading Plan</h1>
         <div class="sub">52 weeks · 5 readings a week · 2 memory verses</div>
       </div>
-      <button class="btn quiet" id="settingsBtn" aria-expanded="false">⚙︎ Settings</button>
+      <div class="switch" role="tablist" aria-label="View">
+        <button id="tabPlan" role="tab" aria-pressed="true">Plan</button>
+        <button id="tabJournal" role="tab" aria-pressed="false">Journal</button>
+      </div>
     </div>
+  </header>
+
+  <!-- ── Plan view ─────────────────────────────────────────── -->
+  <section class="planview" id="planView">
     <div class="meter"><i id="meterFill"></i></div>
     <div class="strip">
       <span><b id="doneCount">0</b>of 260 readings</span>
       <span><b id="curWeekLbl">1</b>current week</span>
       <span id="pct"></span>
     </div>
+    <button class="nextup" id="nextUp"><span class="k">Next up</span><span class="t" id="nextUpText"></span><span class="chev"></span></button>
     <div class="tools">
       <button class="btn primary" id="jumpBtn">Jump to current week</button>
       <span class="wkpick" aria-label="Set current week">
@@ -239,6 +311,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
         <button id="wkPlus" aria-label="Next week">+</button>
       </span>
       <button class="btn" id="printBtn">🖨 Print plan</button>
+      <button class="btn quiet" id="settingsBtn" aria-expanded="false">⚙︎ Settings</button>
     </div>
     <div class="sheet" id="sheet">
       <h2>Open passages in</h2>
@@ -248,28 +321,66 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
         <button data-src="esv">ESV.org</button>
       </div>
       <p class="hint" id="srcHint"></p>
-      <div class="seg" style="margin-top:14px">
-        <button id="expandAll">Expand all weeks</button>
-        <button id="collapseAll">Collapse all</button>
-        <button class="danger" id="resetBtn">Reset progress…</button>
+      <div class="sec">
+        <h2>Weeks</h2>
+        <div class="seg">
+          <button id="expandAll">Expand all</button>
+          <button id="collapseAll">Collapse all</button>
+          <button class="danger" id="resetBtn">Reset progress…</button>
+        </div>
+      </div>
+      <div class="sec">
+        <h2>Journal passcode</h2>
+        <div class="seg">
+          <button id="lockBtn">Lock now</button>
+          <button id="changePassBtn">Change passcode</button>
+          <button class="danger" id="eraseBtn">Erase journal…</button>
+        </div>
+        <p class="hint" id="vaultHint"></p>
       </div>
     </div>
-  </header>
+    <main class="weeks" id="weeks"></main>
+  </section>
 
-  <main class="weeks" id="weeks"></main>
+  <!-- ── Journal view ──────────────────────────────────────── -->
+  <section class="jview" id="journalView">
+    <div class="jtop">
+      <label class="search"><span aria-hidden="true">⌕</span><input type="search" id="jSearch" placeholder="Search entries" autocomplete="off" autocorrect="off"><button type="button" id="jClear" aria-label="Clear search" hidden>×</button></label>
+      <button class="btn" id="jSort" aria-pressed="false">Newest first</button>
+      <button class="btn" id="jCopyAll">Copy all</button>
+      <button class="btn quiet" id="jLock">Lock</button>
+    </div>
+    <p class="jstat" id="jStat"></p>
+    <div id="jList"></div>
+  </section>
 
-  <p class="foot">Foundations plan by Replicate Ministries (replicate.org). Progress and journal entries are saved on this device.</p>
+  <p class="foot">Foundations plan by Replicate Ministries (replicate.org). Progress and journal entries are saved on this device; the journal is encrypted with your passcode.</p>
 </div>
 
-<div class="confirm" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+<div class="modal" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
   <div class="card">
     <h2 id="confirmTitle">Reset all progress?</h2>
-    <p>Every checkmark on all 52 weeks will be cleared. Your HEAR journal entries and the current-week setting stay. This can't be undone.</p>
+    <p id="confirmText"></p>
     <div class="row">
-      <button class="btn" id="cancelReset">Keep it</button>
-      <button class="btn danger" id="doReset">Reset</button>
+      <button class="btn" id="cancelConfirm">Keep it</button>
+      <button class="btn danger" id="doConfirm">Reset</button>
     </div>
   </div>
+</div>
+
+<div class="modal" id="pass" role="dialog" aria-modal="true" aria-labelledby="passTitle">
+  <form class="card" id="passForm" autocomplete="off">
+    <h2 id="passTitle">Unlock journal</h2>
+    <p id="passText"></p>
+    <input type="password" id="pass1" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Passcode" aria-label="Passcode">
+    <input type="password" id="pass2" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type it again" aria-label="Confirm passcode">
+    <div class="err" id="passErr"></div>
+    <label class="showpw"><input type="checkbox" id="showPw"> Show passcode</label>
+    <div class="row">
+      <button type="button" class="btn" id="passCancel">Cancel</button>
+      <button type="submit" class="btn primary" id="passOk">Unlock</button>
+    </div>
+  </form>
 </div>
 
 <script>
@@ -351,21 +462,29 @@ const BOOKS = {
 };
 
 // ── storage (namespaced: f260.*) ────────────────────────────────
-const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open', journal: 'f260.journal' };
+// f260.journal.vault holds the HEAR journal encrypted with a passcode-derived key
+// (PBKDF2-SHA256 → AES-256-GCM). The key lives only in memory, so the journal
+// locks whenever the app is reopened. f260.journal (plaintext, from the first
+// version) is migrated into the vault the moment a passcode is set.
+const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open', view: 'f260.view',
+            legacy: 'f260.journal', vault: 'f260.journal.vault' };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const drop = k => { try { localStorage.removeItem(k); } catch (e) {} };
 
 let done = load(K.done, {});          // { "12-3": true }  week-day
-let journal = load(K.journal, {});    // { "12-3": { h, e, a, r, t } }  HEAR entries per day
-if (typeof journal !== 'object' || journal === null) journal = {};
-const openJournals = new Set();       // days whose journal panel is open (not persisted)
 let curWeek = load(K.week, 1);
 let source = load(K.src, 'gateway');
 let openWeeks = load(K.open, null);   // null = first run: only the current week open
+let view = load(K.view, 'plan');
 if (typeof done !== 'object' || done === null) done = {};
 curWeek = Math.min(52, Math.max(1, +curWeek || 1));
 if (!['gateway', 'youversion', 'esv'].includes(source)) source = 'gateway';
 if (!Array.isArray(openWeeks)) openWeeks = [curWeek];
+if (!['plan', 'journal'].includes(view)) view = 'plan';
+
+let journal = null;                   // { "12-3": { h, e, a, r, t } } while unlocked, else null
+const openJournals = new Set();       // days whose journal panel is open (not persisted)
 
 // ── reference splitting ─────────────────────────────────────────
 // "Psalm 22, 1 Samuel 24-25:1" → ["Psalm 22", "1 Samuel 24-25:1"]
@@ -410,10 +529,112 @@ function refUrl(ref) {
   return 'https://www.bible.com/bible/59/' + code + '.' + ch + v + '.ESV';
 }
 
+// ── journal vault (encryption) ──────────────────────────────────
+const subtle = (window.crypto && crypto.subtle) || null;
+const te = new TextEncoder(), td = new TextDecoder();
+const b64 = a => btoa(String.fromCharCode.apply(null, new Uint8Array(a)));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const ITER = 200000;
+let vault = { key: null, salt: null, iter: ITER };           // in-memory only
+const vaultBlob = () => load(K.vault, null);
+const legacyBlob = () => load(K.legacy, null);
+// 'nocrypto' | 'none' (no passcode yet) | 'locked' | 'open'
+const vaultState = () => !subtle ? 'nocrypto' : vault.key ? 'open' : vaultBlob() ? 'locked' : 'none';
+async function deriveKey(pass, salt, iter) {
+  const km = await subtle.importKey('raw', te.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' }, km,
+    { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+let persistChain = Promise.resolve();
+function persistJournal() {                                   // serialised so writes never race
+  persistChain = persistChain.then(async () => {
+    if (!vault.key || !journal) return;
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await subtle.encrypt({ name: 'AES-GCM', iv }, vault.key, te.encode(JSON.stringify(journal)));
+    save(K.vault, { v: 1, salt: b64(vault.salt), iter: vault.iter, iv: b64(iv), ct: b64(ct) });
+  }).catch(() => {});
+  return persistChain;
+}
+async function setPasscode(pass) {                            // first-time setup (migrates plaintext)
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  vault = { key: await deriveKey(pass, salt, ITER), salt, iter: ITER };
+  const legacy = legacyBlob();
+  journal = (legacy && typeof legacy === 'object') ? legacy : {};
+  await persistJournal();
+  drop(K.legacy);
+}
+async function unlock(pass) {
+  const blob = vaultBlob(); if (!blob) return false;
+  const salt = unb64(blob.salt);
+  const key = await deriveKey(pass, salt, blob.iter || ITER);
+  try {
+    const pt = await subtle.decrypt({ name: 'AES-GCM', iv: unb64(blob.iv) }, key, unb64(blob.ct));
+    journal = JSON.parse(td.decode(pt)); if (typeof journal !== 'object' || journal === null) journal = {};
+  } catch (e) { return false; }                               // wrong passcode → GCM tag fails
+  vault = { key, salt, iter: blob.iter || ITER };
+  return true;
+}
+async function changePasscode(pass) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  vault = { key: await deriveKey(pass, salt, ITER), salt, iter: ITER };
+  await persistJournal();
+}
+function lock() { vault = { key: null, salt: null, iter: ITER }; journal = null; openJournals.clear(); render(); }
+function eraseJournal() { drop(K.vault); drop(K.legacy); vault = { key: null, salt: null, iter: ITER }; journal = null; openJournals.clear(); render(); }
+
+// ── passcode dialog ─────────────────────────────────────────────
+// mode: 'set' | 'unlock' | 'change'; resolves true on success, false on cancel
+let passResolve = null, passMode = 'unlock';
+function askPasscode(mode) {
+  passMode = mode;
+  const st = vaultState();
+  if (st === 'nocrypto') { $('passText').textContent = ''; alert('This browser cannot encrypt the journal (needs a secure https page).'); return Promise.resolve(false); }
+  $('passTitle').textContent = mode === 'set' ? 'Set a journal passcode' : mode === 'change' ? 'New passcode' : 'Unlock journal';
+  $('passText').textContent = mode === 'unlock'
+    ? 'Your HEAR journal is encrypted on this iPad. Enter your passcode to read or write it.'
+    : (mode === 'set' && legacyBlob() ? 'Your existing entries will be encrypted with it. ' : '') +
+      'At least 4 characters. It never leaves this device — and there is no way to recover it if forgotten, only to erase the journal and start over.';
+  $('pass2').hidden = mode === 'unlock';
+  $('passOk').textContent = mode === 'unlock' ? 'Unlock' : 'Save passcode';
+  $('pass1').value = ''; $('pass2').value = ''; $('passErr').textContent = ''; $('passOk').disabled = false;
+  $('showPw').checked = false; $('pass1').type = $('pass2').type = 'password';
+  $('pass').classList.add('on');
+  setTimeout(() => $('pass1').focus(), 50);
+  return new Promise(res => { passResolve = res; });
+}
+function closePass(result) { $('pass').classList.remove('on'); if (passResolve) { const r = passResolve; passResolve = null; r(result); } }
+$('passCancel').onclick = () => closePass(false);
+$('pass').addEventListener('click', e => { if (e.target === $('pass')) closePass(false); });
+$('showPw').onchange = () => { $('pass1').type = $('pass2').type = $('showPw').checked ? 'text' : 'password'; };
+$('passForm').onsubmit = async e => {
+  e.preventDefault();
+  const p1 = $('pass1').value, p2 = $('pass2').value, err = $('passErr');
+  if (passMode !== 'unlock') {
+    if (p1.length < 4) { err.textContent = 'Use at least 4 characters.'; return; }
+    if (p1 !== p2) { err.textContent = 'The two entries don’t match.'; $('pass2').focus(); return; }
+  } else if (!p1) { err.textContent = 'Enter your passcode.'; return; }
+  $('passOk').disabled = true; err.textContent = passMode === 'unlock' ? 'Unlocking…' : 'Encrypting…';
+  try {
+    if (passMode === 'set') await setPasscode(p1);
+    else if (passMode === 'change') await changePasscode(p1);
+    else if (!(await unlock(p1))) { err.textContent = 'Wrong passcode.'; $('passOk').disabled = false; $('pass1').select(); return; }
+  } catch (ex) { err.textContent = 'Something went wrong: ' + (ex && ex.message || ex); $('passOk').disabled = false; return; }
+  closePass(true);
+};
+// Unlock (or set up) the journal; returns true when it is open afterwards.
+async function ensureUnlocked() {
+  const st = vaultState();
+  if (st === 'open') return true;
+  if (st === 'nocrypto') { askPasscode('unlock'); return false; }
+  const ok = await askPasscode(st === 'none' ? 'set' : 'unlock');
+  if (ok) render();
+  return ok;
+}
+
 // ── render ──────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
+function $(id) { return document.getElementById(id); }
 const weeksEl = $('weeks');
-const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const CHECK = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5l4 4 8-9"/></svg>';
 
 function refsHtml(str) {
@@ -426,6 +647,31 @@ function spanOf(wk) {
   const a = splitRefs(wk.r[0])[0], b = splitRefs(wk.r[4]); const last = b[b.length - 1];
   return a.book === last.book ? a.book : a.book + ' → ' + last.book;
 }
+// HEAR journal: key, letter, name, hint
+const HEAR = [
+  ['h', 'H', 'Highlight', 'the verse or phrase that stood out'],
+  ['e', 'E', 'Explain', 'what it meant to the people it was written to'],
+  ['a', 'A', 'Apply', 'what it means for you today'],
+  ['r', 'R', 'Respond', 'a prayer, or what you will do about it']
+];
+const hasJournal = id => { const j = journal && journal[id]; return !!j && HEAR.some(f => (j[f[0]] || '').trim()); };
+const fmtDate = t => { try { return new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch (e) { return ''; } };
+function journalHtml(id, ref) {
+  const st = vaultState();
+  let inner;
+  if (st === 'open') {
+    const j = journal[id] || {};
+    inner = HEAR.map(f => '<div class="jf"><span class="k">' + f[1] + '</span><div class="body">' +
+      '<label for="jf-' + id + '-' + f[0] + '">' + f[2] + '<small>' + f[3] + '</small></label>' +
+      '<textarea id="jf-' + id + '-' + f[0] + '" data-jf="' + f[0] + '" rows="2" autocapitalize="sentences">' + esc(j[f[0]] || '') + '</textarea></div></div>').join('') +
+      '<div class="jft"><span class="jsaved">' + (j.t ? 'Saved ' + fmtDate(j.t) : '') + '</span><button type="button" data-jcopy="' + id + '">Copy</button></div>';
+  } else {
+    inner = '<div class="locked"><span>' + (st === 'none' ? 'Set a passcode to keep your journal private.' : st === 'nocrypto' ? 'This browser can’t encrypt the journal.' : 'Journal is locked.') + '</span>' +
+      '<button type="button" class="btn primary" data-unlock>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></div>';
+  }
+  return '<div class="jr' + (openJournals.has(id) ? ' on' : '') + '" id="jr-' + id + '" data-jrpanel="' + id + '">' +
+    '<div class="jhd"><b>HEAR journal</b><span>' + esc(ref) + '</span></div>' + inner + '</div>';
+}
 function weekHtml(wk) {
   const isOpen = openWeeks.includes(wk.w);
   const n = wk.r.filter((_, d) => done[wk.w + '-' + d]).length;
@@ -434,33 +680,21 @@ function weekHtml(wk) {
       '<span class="chev"></span><span class="num">Week ' + wk.w + '</span>' +
       '<span class="span">' + esc(spanOf(wk)) + '</span><span class="n">' + n + ' / 5</span></button>' +
     '<div class="wk-body">' +
-      wk.r.map((r, d) => '<div class="day' + (done[wk.w + '-' + d] ? ' done' : '') + '" data-day="' + wk.w + '-' + d + '">' +
+      wk.r.map((r, d) => '<div class="day' + (done[wk.w + '-' + d] ? ' done' : '') + (openJournals.has(wk.w + '-' + d) ? ' jopen' : '') + '" data-day="' + wk.w + '-' + d + '">' +
         '<button class="mark" aria-pressed="' + !!done[wk.w + '-' + d] + '" aria-label="Done: ' + esc(r) + '">' + CHECK + '</button>' +
         '<span class="lbl">Day ' + (d + 1) + '</span><span class="refs">' + refsHtml(r) + '</span>' +
-        '<button class="jbtn' + (hasJournal(wk.w + '-' + d) ? ' has' : '') + '" data-jr="' + wk.w + '-' + d + '" aria-label="HEAR journal for ' + esc(r) + '" aria-expanded="false">HEAR</button></div>' +
+        '<button class="jbtn' + (hasJournal(wk.w + '-' + d) ? ' has' : '') + '" data-jr="' + wk.w + '-' + d + '" aria-label="HEAR journal for ' + esc(r) + '" aria-expanded="' + openJournals.has(wk.w + '-' + d) + '">HEAR</button></div>' +
         journalHtml(wk.w + '-' + d, r)).join('') +
       '<div class="mem"><span class="lbl">MV</span><span class="title">Memory</span><span class="refs">' + refsHtml(wk.m[0]) + '<span class="sep">·</span>' + refsHtml(wk.m[1]) + '</span></div>' +
+      (wk.w < 52 ? '<div class="nextwk"><span>Week ' + wk.w + ' done 🎉</span><button class="btn" data-next="' + (wk.w + 1) + '">Start week ' + (wk.w + 1) + '</button></div>'
+                 : '<div class="nextwk"><span>Plan complete — Genesis to Revelation 🎉</span></div>') +
     '</div></section>';
 }
-// HEAR journal: key, letter, name, hint
-const HEAR = [
-  ['h', 'H', 'Highlight', 'the verse or phrase that stood out'],
-  ['e', 'E', 'Explain', 'what it meant to the people it was written to'],
-  ['a', 'A', 'Apply', 'what it means for you today'],
-  ['r', 'R', 'Respond', 'a prayer, or what you will do about it']
-];
-const hasJournal = id => { const j = journal[id]; return !!j && HEAR.some(f => (j[f[0]] || '').trim()); };
-const fmtDate = t => { try { return new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); } catch (e) { return ''; } };
-function journalHtml(id, ref) {
-  const j = journal[id] || {};
-  return '<div class="jr' + (openJournals.has(id) ? ' on' : '') + '" id="jr-' + id + '" data-jrpanel="' + id + '">' +
-    '<div class="jhd"><b>HEAR journal</b><span>' + esc(ref) + '</span></div>' +
-    HEAR.map(f => '<div class="jf"><span class="k">' + f[1] + '</span><div class="body">' +
-      '<label for="jf-' + id + '-' + f[0] + '">' + f[2] + '<small>' + f[3] + '</small></label>' +
-      '<textarea id="jf-' + id + '-' + f[0] + '" data-jf="' + f[0] + '" rows="2" autocapitalize="sentences">' + esc(j[f[0]] || '') + '</textarea></div></div>').join('') +
-    '<div class="jft"><span class="jsaved">' + (j.t ? 'Saved ' + fmtDate(j.t) : '') + '</span><button type="button" data-jcopy="' + id + '">Copy</button></div></div>';
+function render() {
+  weeksEl.innerHTML = PLAN.map(weekHtml).join('');
+  openJournals.forEach(id => { const p = $('jr-' + id); if (p) p.querySelectorAll('textarea').forEach(autosize); });
+  updateStats(); paintVault(); renderJournalView();
 }
-function render() { weeksEl.innerHTML = PLAN.map(weekHtml).join(''); updateStats(); }
 function updateStats() {
   const n = Object.keys(done).filter(k => done[k]).length;
   $('doneCount').textContent = n;
@@ -468,20 +702,39 @@ function updateStats() {
   $('pct').textContent = Math.round(n / 260 * 100) + '% complete';
   $('meterFill').style.width = (n / 260 * 100) + '%';
   $('wkSel').value = curWeek;
+  // "Next up": first unchecked reading in the current week
+  const wk = PLAN[curWeek - 1]; const d = wk.r.findIndex((_, i) => !done[curWeek + '-' + i]);
+  if (d >= 0) { $('nextUpText').innerHTML = esc(wk.r[d]) + '<small>Week ' + curWeek + ' · Day ' + (d + 1) + '</small>'; $('nextUp').dataset.target = curWeek + '-' + d; }
+  else { $('nextUpText').innerHTML = (curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'Plan complete') + '<small>Week ' + curWeek + ' is done</small>'; $('nextUp').dataset.target = curWeek < 52 ? 'week:' + (curWeek + 1) : ''; }
 }
 function refreshWeek(w) {
   const old = $('week-' + w); if (!old) return;
   const tmp = document.createElement('div'); tmp.innerHTML = weekHtml(PLAN[w - 1]);
   old.replaceWith(tmp.firstElementChild);
+  openJournals.forEach(id => { if (id.startsWith(w + '-')) { const p = $('jr-' + id); if (p) p.querySelectorAll('textarea').forEach(autosize); } });
+}
+function paintVault() {
+  const st = vaultState();
+  $('lockBtn').disabled = st !== 'open'; $('changePassBtn').disabled = st !== 'open';
+  $('eraseBtn').disabled = !(vaultBlob() || legacyBlob());
+  $('vaultHint').textContent = st === 'open' ? 'Journal is unlocked. It locks again whenever the app is reopened.'
+    : st === 'locked' ? 'Journal is locked. Open any HEAR panel or the Journal tab to unlock.'
+    : st === 'none' ? 'No passcode yet — you’ll be asked to set one the first time you open a HEAR panel.'
+    : 'Encryption is unavailable in this browser (needs https).';
+  $('jLock').hidden = st !== 'open';
 }
 
-// ── interactions ────────────────────────────────────────────────
+// ── interactions (plan) ─────────────────────────────────────────
 weeksEl.addEventListener('click', e => {
   if (e.target.closest('a[data-ref]')) { e.stopPropagation(); return; }   // links never toggle
   const head = e.target.closest('[data-toggle]');
   if (head) { toggleWeek(+head.dataset.toggle); return; }
+  const nx = e.target.closest('[data-next]');
+  if (nx) { setCurrent(+nx.dataset.next); jump(); return; }
   const jb = e.target.closest('[data-jr]');
   if (jb) { toggleJournal(jb.dataset.jr); return; }
+  const ul = e.target.closest('[data-unlock]');
+  if (ul) { ensureUnlocked(); return; }
   const jc = e.target.closest('[data-jcopy]');
   if (jc) { copyJournal(jc.dataset.jcopy, jc); return; }
   if (e.target.closest('[data-jrpanel]')) return;                            // typing area never toggles
@@ -499,52 +752,6 @@ weeksEl.addEventListener('click', e => {
     updateStats();
   }
 });
-
-// ── HEAR journal ────────────────────────────────────────────────
-function toggleJournal(id, force) {
-  const panel = $('jr-' + id), day = weeksEl.querySelector('[data-day="' + id + '"]');
-  const open = force == null ? !panel.classList.contains('on') : force;
-  panel.classList.toggle('on', open); day.classList.toggle('jopen', open);
-  day.querySelector('[data-jr]').setAttribute('aria-expanded', open);
-  if (open) { openJournals.add(id); panel.querySelectorAll('textarea').forEach(autosize); }
-  else openJournals.delete(id);
-}
-function autosize(t) { t.style.height = 'auto'; t.style.height = Math.max(56, t.scrollHeight + 2) + 'px'; }
-let saveTimer = null, savePending = null;
-function saveJournal(id, panel) {
-  clearTimeout(saveTimer); savePending = null;
-  const j = journal[id] || (journal[id] = {});
-  panel.querySelectorAll('textarea').forEach(t => { j[t.dataset.jf] = t.value; });
-  if (HEAR.some(f => (j[f[0]] || '').trim())) j.t = Date.now(); else delete journal[id];
-  save(K.journal, journal);
-  const has = hasJournal(id);
-  weeksEl.querySelector('[data-jr="' + id + '"]').classList.toggle('has', has);
-  panel.querySelector('.jsaved').textContent = has ? 'Saved ' + fmtDate(journal[id].t) : '';
-}
-weeksEl.addEventListener('input', e => {
-  const t = e.target; if (!t.matches('textarea[data-jf]')) return;
-  autosize(t);
-  const panel = t.closest('[data-jrpanel]'), id = panel.dataset.jrpanel;
-  clearTimeout(saveTimer); savePending = [id, panel];
-  saveTimer = setTimeout(() => saveJournal(id, panel), 300);
-});
-weeksEl.addEventListener('focusout', e => {
-  const t = e.target; if (!t.matches || !t.matches('textarea[data-jf]')) return;
-  const panel = t.closest('[data-jrpanel]'); saveJournal(panel.dataset.jrpanel, panel);
-});
-window.addEventListener('pagehide', () => { if (savePending) saveJournal(savePending[0], savePending[1]); });
-function copyJournal(id, btn) {
-  const [w, d] = id.split('-').map(Number); const j = journal[id] || {};
-  const text = 'Week ' + w + ', Day ' + (d + 1) + ' \u2014 ' + PLAN[w - 1].r[d] + '\n' +
-    HEAR.map(f => f[2] + ': ' + (j[f[0]] || '').trim()).join('\n');
-  const ok = () => { btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = 'Copy'; }, 1500); };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, () => fallbackCopy(text, ok));
-  else fallbackCopy(text, ok);
-}
-function fallbackCopy(text, ok) {
-  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-  document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); ok(); } catch (e) {} ta.remove();
-}
 function toggleWeek(w, force) {
   const sec = $('week-' + w); const open = force == null ? !sec.classList.contains('open') : force;
   sec.classList.toggle('open', open); sec.querySelector('.wk-head').setAttribute('aria-expanded', open);
@@ -559,6 +766,15 @@ function jump() {
   toggleWeek(curWeek, true);
   $('week-' + curWeek).scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+function goToDay(id, openJr) {                                // expand the week, scroll to the day, flash it
+  const w = +id.split('-')[0];
+  showView('plan'); toggleWeek(w, true);
+  if (openJr) toggleJournal(id, true);
+  const day = weeksEl.querySelector('[data-day="' + id + '"]'); if (!day) return;
+  day.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  day.classList.remove('flash'); void day.offsetWidth; day.classList.add('flash');
+}
+$('nextUp').onclick = () => { const t = $('nextUp').dataset.target; if (!t) return; if (t.startsWith('week:')) { setCurrent(+t.slice(5)); jump(); } else goToDay(t); };
 $('jumpBtn').onclick = jump;
 $('wkMinus').onclick = () => { setCurrent(curWeek - 1); jump(); };
 $('wkPlus').onclick = () => { setCurrent(curWeek + 1); jump(); };
@@ -569,10 +785,6 @@ $('printBtn').onclick = () => window.print();
 $('settingsBtn').onclick = () => { const on = $('sheet').classList.toggle('on'); $('settingsBtn').setAttribute('aria-expanded', on); };
 $('expandAll').onclick = () => { openWeeks = PLAN.map(w => w.w); save(K.open, openWeeks); render(); };
 $('collapseAll').onclick = () => { openWeeks = []; save(K.open, openWeeks); render(); };
-$('resetBtn').onclick = () => $('confirm').classList.add('on');
-$('cancelReset').onclick = () => $('confirm').classList.remove('on');
-$('confirm').addEventListener('click', e => { if (e.target === $('confirm')) $('confirm').classList.remove('on'); });
-$('doReset').onclick = () => { done = {}; save(K.done, done); $('confirm').classList.remove('on'); render(); };
 function paintSource() {
   document.querySelectorAll('#srcSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.src === source));
   $('srcHint').textContent = SOURCES[source].hint;
@@ -582,8 +794,141 @@ $('srcSeg').addEventListener('click', e => {
   source = b.dataset.src; save(K.src, source); paintSource(); render();
 });
 
+// ── confirm dialog (reset / erase) ──────────────────────────────
+let confirmAction = null;
+function confirmModal(title, text, okLabel, fn) {
+  $('confirmTitle').textContent = title; $('confirmText').textContent = text; $('doConfirm').textContent = okLabel;
+  confirmAction = fn; $('confirm').classList.add('on');
+}
+$('cancelConfirm').onclick = () => $('confirm').classList.remove('on');
+$('confirm').addEventListener('click', e => { if (e.target === $('confirm')) $('confirm').classList.remove('on'); });
+$('doConfirm').onclick = () => { $('confirm').classList.remove('on'); if (confirmAction) confirmAction(); confirmAction = null; };
+$('resetBtn').onclick = () => confirmModal('Reset all progress?',
+  'Every checkmark on all 52 weeks will be cleared. Your HEAR journal entries and the current-week setting stay. This can’t be undone.',
+  'Reset', () => { done = {}; save(K.done, done); render(); });
+$('eraseBtn').onclick = () => confirmModal('Erase the whole journal?',
+  'Every HEAR entry and the passcode will be deleted from this iPad. Reading progress stays. This can’t be undone — copy anything you want to keep first.',
+  'Erase journal', eraseJournal);
+$('lockBtn').onclick = lock;
+$('jLock').onclick = lock;
+$('changePassBtn').onclick = async () => { if (vaultState() === 'open' && await askPasscode('change')) paintVault(); };
+
+// ── HEAR journal (per day) ──────────────────────────────────────
+async function toggleJournal(id, force) {
+  const panel = $('jr-' + id), day = weeksEl.querySelector('[data-day="' + id + '"]');
+  const open = force == null ? !panel.classList.contains('on') : force;
+  if (open && vaultState() !== 'open') {                       // ask first, then open the live panel
+    openJournals.add(id);
+    if (!(await ensureUnlocked())) { openJournals.delete(id); return; }
+    return;                                                    // render() already drew it open
+  }
+  panel.classList.toggle('on', open); day.classList.toggle('jopen', open);
+  day.querySelector('[data-jr]').setAttribute('aria-expanded', open);
+  if (open) { openJournals.add(id); panel.querySelectorAll('textarea').forEach(autosize); }
+  else openJournals.delete(id);
+}
+function autosize(t) { t.style.height = 'auto'; t.style.height = Math.max(56, t.scrollHeight + 2) + 'px'; }
+let saveTimer = null, savePending = null;
+function saveJournal(id, panel) {
+  clearTimeout(saveTimer); savePending = null;
+  if (!journal) return;
+  const j = journal[id] || (journal[id] = {});
+  panel.querySelectorAll('textarea').forEach(t => { j[t.dataset.jf] = t.value; });
+  if (HEAR.some(f => (j[f[0]] || '').trim())) j.t = Date.now(); else delete journal[id];
+  persistJournal();
+  const has = hasJournal(id);
+  const b = weeksEl.querySelector('[data-jr="' + id + '"]'); if (b) b.classList.toggle('has', has);
+  const s = panel.querySelector('.jsaved'); if (s) s.textContent = has ? 'Saved ' + fmtDate(journal[id].t) : '';
+  if (view === 'journal') renderJournalView();
+}
+weeksEl.addEventListener('input', e => {
+  const t = e.target; if (!t.matches('textarea[data-jf]')) return;
+  autosize(t);
+  const panel = t.closest('[data-jrpanel]'), id = panel.dataset.jrpanel;
+  clearTimeout(saveTimer); savePending = [id, panel];
+  saveTimer = setTimeout(() => saveJournal(id, panel), 300);
+});
+weeksEl.addEventListener('focusout', e => {
+  const t = e.target; if (!t.matches || !t.matches('textarea[data-jf]')) return;
+  const panel = t.closest('[data-jrpanel]'); saveJournal(panel.dataset.jrpanel, panel);
+});
+window.addEventListener('pagehide', () => { if (savePending) saveJournal(savePending[0], savePending[1]); });
+function entryText(id) {
+  const [w, d] = id.split('-').map(Number); const j = (journal && journal[id]) || {};
+  return 'Week ' + w + ', Day ' + (d + 1) + ' — ' + PLAN[w - 1].r[d] + (j.t ? ' (' + fmtDate(j.t) + ')' : '') + '\n' +
+    HEAR.filter(f => (j[f[0]] || '').trim()).map(f => f[2] + ': ' + j[f[0]].trim()).join('\n');
+}
+function copyText(text, btn, label) {
+  const ok = () => { const was = label || btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = was; }, 1500); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, () => fallbackCopy(text, ok));
+  else fallbackCopy(text, ok);
+}
+function copyJournal(id, btn) { copyText(entryText(id), btn); }
+function fallbackCopy(text, ok) {
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); ok(); } catch (e) {} ta.remove();
+}
+
+// ── journal view (all entries) ──────────────────────────────────
+let jNewest = false, jQuery = '';
+const planIndex = id => { const [w, d] = id.split('-').map(Number); return w * 10 + d; };
+function entryIds() {
+  if (!journal) return [];
+  const ids = Object.keys(journal).filter(hasJournal);
+  ids.sort((a, b) => jNewest ? (journal[b].t || 0) - (journal[a].t || 0) : planIndex(a) - planIndex(b));
+  return ids;
+}
+const hl = (s, q) => { s = esc(s); if (!q) return s; const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig'); return s.replace(re, m => '<mark>' + m + '</mark>'); };
+function renderJournalView() {
+  const st = vaultState(), list = $('jList'), stat = $('jStat');
+  const controls = st === 'open';
+  ['jSearch', 'jSort', 'jCopyAll'].forEach(id => { $(id).disabled = !controls; });
+  $('jSort').setAttribute('aria-pressed', jNewest);
+  if (st !== 'open') {
+    stat.textContent = '';
+    list.innerHTML = '<div class="empty"><b>' + (st === 'none' ? 'Your journal is private' : st === 'nocrypto' ? 'Encryption unavailable' : 'Journal is locked') + '</b>' +
+      (st === 'none' ? 'Set a passcode to start journaling. Entries are encrypted on this iPad and only readable with it.' : st === 'nocrypto' ? 'This browser can’t encrypt the journal (needs an https page).' : 'Enter your passcode to read your entries.') +
+      '<p><button type="button" class="btn primary" data-unlock-view>' + (st === 'none' ? 'Set passcode' : 'Unlock') + '</button></p></div>';
+    return;
+  }
+  const all = entryIds(); const q = jQuery.trim().toLowerCase();
+  const ids = q ? all.filter(id => { const j = journal[id]; const [w, d] = id.split('-').map(Number);
+    return (PLAN[w - 1].r[d] + ' ' + HEAR.map(f => j[f[0]] || '').join(' ')).toLowerCase().includes(q); }) : all;
+  stat.textContent = all.length === 0 ? '' : (q ? ids.length + ' of ' + all.length : all.length) + (all.length === 1 ? ' entry' : ' entries') + (jNewest ? ' · newest first' : ' · in plan order');
+  if (!all.length) { list.innerHTML = '<div class="empty"><b>No entries yet</b>Open a reading in the Plan tab and tap HEAR to write your first one.</div>'; return; }
+  if (!ids.length) { list.innerHTML = '<div class="empty"><b>Nothing matches</b>Try a different word.</div>'; return; }
+  list.innerHTML = ids.map(id => {
+    const [w, d] = id.split('-').map(Number); const j = journal[id];
+    return '<article class="jcard" data-entry="' + id + '">' +
+      '<div class="jc-hd"><div><b>Week ' + w + ' · Day ' + (d + 1) + '</b><span class="ref">' + hl(PLAN[w - 1].r[d], q) + '</span></div><span class="when">' + (j.t ? fmtDate(j.t) : '') + '</span></div>' +
+      '<dl>' + HEAR.filter(f => (j[f[0]] || '').trim()).map(f => '<div><dt title="' + f[2] + '">' + f[1] + '</dt><dd>' + hl(j[f[0]].trim(), q) + '</dd></div>').join('') + '</dl>' +
+      '<div class="jc-ft"><button type="button" data-jedit="' + id + '">Open in plan</button><button type="button" data-jcopy2="' + id + '">Copy</button></div></article>';
+  }).join('');
+}
+$('jList').addEventListener('click', e => {
+  const u = e.target.closest('[data-unlock-view]'); if (u) { ensureUnlocked(); return; }
+  const ed = e.target.closest('[data-jedit]'); if (ed) { goToDay(ed.dataset.jedit, true); return; }
+  const cp = e.target.closest('[data-jcopy2]'); if (cp) { copyText(entryText(cp.dataset.jcopy2), cp); }
+});
+$('jSearch').addEventListener('input', () => { jQuery = $('jSearch').value; $('jClear').hidden = !jQuery; renderJournalView(); });
+$('jClear').onclick = () => { $('jSearch').value = ''; jQuery = ''; $('jClear').hidden = true; renderJournalView(); $('jSearch').focus(); };
+$('jSort').onclick = () => { jNewest = !jNewest; renderJournalView(); };
+$('jCopyAll').onclick = () => { const ids = entryIds(); if (!ids.length) return; copyText('F260 HEAR journal\n\n' + ids.map(entryText).join('\n\n'), $('jCopyAll'), 'Copy all'); };
+
+// ── view switching ──────────────────────────────────────────────
+function showView(v) {
+  view = v; save(K.view, view);
+  $('planView').style.display = v === 'plan' ? '' : 'none';
+  $('journalView').classList.toggle('on', v === 'journal');
+  $('tabPlan').setAttribute('aria-pressed', v === 'plan'); $('tabJournal').setAttribute('aria-pressed', v === 'journal');
+  if (v === 'journal') { renderJournalView(); if (vaultState() === 'locked' || vaultState() === 'none') ensureUnlocked(); }
+}
+$('tabPlan').onclick = () => showView('plan');
+$('tabJournal').onclick = () => showView('journal');
+
 paintSource();
 render();
+showView(view);
 </script>
 </body>
 </html>
