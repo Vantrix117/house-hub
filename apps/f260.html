@@ -63,6 +63,13 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   font-size:14px;font-weight:500;color:var(--muted)}
 .strip b{display:inline-block;font-weight:700;font-size:21px;color:var(--ink);
   margin-right:5px;letter-spacing:-.03em}
+.strip .streak b{color:var(--terra)}
+.days{display:flex;align-items:center;gap:6px;margin:12px 0 0;font-size:12.5px;font-weight:600;color:var(--muted)}
+.days .d{width:18px;height:18px;border-radius:5px;background:var(--sunk);flex:0 0 auto}
+.days .d.on{background:var(--olive)}
+.days .d.today{box-shadow:0 0 0 2px var(--gold)}
+.days .lbl2{margin-left:6px}
+body.big{zoom:1.15}
 .nextup{display:flex;align-items:center;gap:12px;width:100%;margin:16px 0 0;padding:12px 16px;min-height:60px;
   border:1.5px solid var(--rule);border-radius:var(--r);background:var(--raised);box-shadow:var(--lift);text-align:left}
 .nextup:active{background:var(--hover)}
@@ -155,6 +162,16 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   border-top:1px dashed var(--rule)}
 .mem .lbl{flex:0 0 auto;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
   background:var(--gold-soft);color:var(--gold);font-size:13px;font-weight:800}
+.mvs{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
+.mv{display:inline-flex;align-items:center;gap:10px;min-height:44px;border-radius:var(--r-sm);padding-right:6px}
+.mv:active{background:var(--hover)}
+.mkm{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:2px solid var(--rule);background:transparent;
+  display:grid;place-items:center;padding:0;color:#fff;transition:border-color .2s,background .2s,transform .18s}
+.mkm:active{transform:scale(.9)}
+.mkm svg{width:16px;height:16px;opacity:0;transform:scale(.4);transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+.mv.memd .mkm{background:var(--gold);border-color:var(--gold)}
+.mv.memd .mkm svg{opacity:1;transform:scale(1)}
+.mv.memd .refs a{color:var(--muted);border-color:transparent}
 .mem .refs{font-size:17px}
 .mem .refs a{color:var(--gold);border-bottom-color:var(--gold-soft)}
 .mem .title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;
@@ -252,7 +269,10 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
     --slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
   body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
   .wrap{max-width:none;padding:0}
-  header .hdr,.meter,.strip,.nextup,.tools,.sheet,.modal,.mark,.chev,.wk-head .n,.foot,.day .lbl,.mem .lbl,.jbtn,.jr,.nextwk,.jview{display:none !important}
+  header .hdr,.meter,.strip,.days,.nextup,.tools,.sheet,.modal,.mark,.mkm,.chev,.wk-head .n,.foot,.day .lbl,.mem .lbl,.jbtn,.jr,.nextwk,.jview{display:none !important}
+  body.big{zoom:1}
+  .mvs{display:inline}.mv{display:inline;padding:0;min-height:0}.mv.memd .refs a{color:#000}
+  .mem .title::after{content:": "}.mv + .mv::before{content:" · ";color:#000}
   .planview{display:block !important}
   header{padding:0 0 8pt}
   .print-only{display:block;font-size:16pt;font-weight:700;margin:0 0 2pt}
@@ -299,8 +319,11 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
     <div class="strip">
       <span><b id="doneCount">0</b>of 260 readings</span>
       <span><b id="curWeekLbl">1</b>current week</span>
+      <span><b id="memCount">0</b>of 104 verses memorized</span>
+      <span class="streak" id="streak"></span>
       <span id="pct"></span>
     </div>
+    <div class="days" id="days" aria-label="Reading days, last two weeks"></div>
     <button class="nextup" id="nextUp"><span class="k">Next up</span><span class="t" id="nextUpText"></span><span class="chev"></span></button>
     <div class="tools">
       <button class="btn primary" id="jumpBtn">Jump to current week</button>
@@ -328,6 +351,23 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
           <button id="collapseAll">Collapse all</button>
           <button class="danger" id="resetBtn">Reset progress…</button>
         </div>
+      </div>
+      <div class="sec">
+        <h2>Text size</h2>
+        <div class="seg" id="sizeSeg">
+          <button data-big="0">Normal</button>
+          <button data-big="1">Large</button>
+        </div>
+      </div>
+      <div class="sec">
+        <h2>Auto-lock journal after</h2>
+        <div class="seg" id="autoSeg">
+          <button data-min="5">5 min</button>
+          <button data-min="15">15 min</button>
+          <button data-min="30">30 min</button>
+          <button data-min="0">Never</button>
+        </div>
+        <p class="hint">Idle time with the journal open. It always locks when the app is reopened.</p>
       </div>
       <div class="sec">
         <h2>Journal passcode</h2>
@@ -467,6 +507,7 @@ const BOOKS = {
 // locks whenever the app is reopened. f260.journal (plaintext, from the first
 // version) is migrated into the vault the moment a passcode is set.
 const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open', view: 'f260.view',
+            mem: 'f260.mem', log: 'f260.log', weekStart: 'f260.weekStart', autolock: 'f260.autolock', big: 'f260.big',
             legacy: 'f260.journal', vault: 'f260.journal.vault' };
 const load = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -482,6 +523,19 @@ curWeek = Math.min(52, Math.max(1, +curWeek || 1));
 if (!['gateway', 'youversion', 'esv'].includes(source)) source = 'gateway';
 if (!Array.isArray(openWeeks)) openWeeks = [curWeek];
 if (!['plan', 'journal'].includes(view)) view = 'plan';
+let mem = load(K.mem, {});            // { "12-1": true }  week-verse  memorized
+let log = load(K.log, {});            // { "2026-09-14": true }  days with at least one reading checked
+let weekStart = load(K.weekStart, {});// { "3": "2026-09-14" }  date each week was started
+let autolockMin = load(K.autolock, 15);
+let big = !!load(K.big, false);
+if (typeof mem !== 'object' || mem === null) mem = {};
+if (typeof log !== 'object' || log === null) log = {};
+if (typeof weekStart !== 'object' || weekStart === null) weekStart = {};
+if (![0, 5, 15, 30].includes(autolockMin)) autolockMin = 15;
+const dayKey = d => { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const shiftDay = (key, n) => { const [y, m, d] = key.split('-').map(Number); return dayKey(new Date(y, m - 1, d + n)); };
+const fmtKey = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); };
+if (!weekStart[curWeek]) { weekStart[curWeek] = dayKey(); save(K.weekStart, weekStart); }
 
 let journal = null;                   // { "12-3": { h, e, a, r, t } } while unlocked, else null
 const openJournals = new Set();       // days whose journal panel is open (not persisted)
@@ -678,14 +732,17 @@ function weekHtml(wk) {
   return '<section class="week' + (isOpen ? ' open' : '') + (n === 5 ? ' complete' : '') + (wk.w === curWeek ? ' current' : '') + '" id="week-' + wk.w + '" data-w="' + wk.w + '">' +
     '<button class="wk-head" aria-expanded="' + isOpen + '" data-toggle="' + wk.w + '">' +
       '<span class="chev"></span><span class="num">Week ' + wk.w + '</span>' +
-      '<span class="span">' + esc(spanOf(wk)) + '</span><span class="n">' + n + ' / 5</span></button>' +
+      '<span class="span">' + esc(spanOf(wk)) + (wk.w === curWeek && weekStart[wk.w] ? ' · started ' + fmtKey(weekStart[wk.w]) : '') + '</span><span class="n">' + n + ' / 5</span></button>' +
     '<div class="wk-body">' +
       wk.r.map((r, d) => '<div class="day' + (done[wk.w + '-' + d] ? ' done' : '') + (openJournals.has(wk.w + '-' + d) ? ' jopen' : '') + '" data-day="' + wk.w + '-' + d + '">' +
         '<button class="mark" aria-pressed="' + !!done[wk.w + '-' + d] + '" aria-label="Done: ' + esc(r) + '">' + CHECK + '</button>' +
         '<span class="lbl">Day ' + (d + 1) + '</span><span class="refs">' + refsHtml(r) + '</span>' +
         '<button class="jbtn' + (hasJournal(wk.w + '-' + d) ? ' has' : '') + '" data-jr="' + wk.w + '-' + d + '" aria-label="HEAR journal for ' + esc(r) + '" aria-expanded="' + openJournals.has(wk.w + '-' + d) + '">HEAR</button></div>' +
         journalHtml(wk.w + '-' + d, r)).join('') +
-      '<div class="mem"><span class="lbl">MV</span><span class="title">Memory</span><span class="refs">' + refsHtml(wk.m[0]) + '<span class="sep">·</span>' + refsHtml(wk.m[1]) + '</span></div>' +
+      '<div class="mem"><span class="lbl">MV</span><span class="title">Memory</span><span class="mvs">' +
+        wk.m.map((v, i) => '<span class="mv' + (mem[wk.w + '-' + i] ? ' memd' : '') + '" data-mem="' + wk.w + '-' + i + '">' +
+          '<button class="mkm" aria-pressed="' + !!mem[wk.w + '-' + i] + '" aria-label="Memorized: ' + esc(v) + '">' + CHECK + '</button>' +
+          '<span class="refs">' + refsHtml(v) + '</span></span>').join('') + '</span></div>' +
       (wk.w < 52 ? '<div class="nextwk"><span>Week ' + wk.w + ' done 🎉</span><button class="btn" data-next="' + (wk.w + 1) + '">Start week ' + (wk.w + 1) + '</button></div>'
                  : '<div class="nextwk"><span>Plan complete — Genesis to Revelation 🎉</span></div>') +
     '</div></section>';
@@ -702,9 +759,19 @@ function updateStats() {
   $('pct').textContent = Math.round(n / 260 * 100) + '% complete';
   $('meterFill').style.width = (n / 260 * 100) + '%';
   $('wkSel').value = curWeek;
+  $('memCount').textContent = Object.keys(mem).filter(k => mem[k]).length;
+  // streak: consecutive reading days ending today (or yesterday, so it isn't lost before tonight's reading)
+  const today = dayKey(); let cursor = log[today] ? today : log[shiftDay(today, -1)] ? shiftDay(today, -1) : null, streak = 0;
+  while (cursor && log[cursor]) { streak++; cursor = shiftDay(cursor, -1); }
+  const days = Object.keys(log).filter(k => log[k]).sort(), last = days[days.length - 1];
+  $('streak').innerHTML = streak ? '<b>' + streak + '</b>day streak' : (last ? 'Last read ' + fmtKey(last) : '');
+  $('days').innerHTML = Array.from({ length: 14 }, (_, i) => { const k = shiftDay(today, i - 13);
+    return '<span class="d' + (log[k] ? ' on' : '') + (k === today ? ' today' : '') + '" title="' + fmtKey(k) + '"></span>'; }).join('') +
+    '<span class="lbl2">last 14 days</span>';
   // "Next up": first unchecked reading in the current week
   const wk = PLAN[curWeek - 1]; const d = wk.r.findIndex((_, i) => !done[curWeek + '-' + i]);
-  if (d >= 0) { $('nextUpText').innerHTML = esc(wk.r[d]) + '<small>Week ' + curWeek + ' · Day ' + (d + 1) + '</small>'; $('nextUp').dataset.target = curWeek + '-' + d; }
+  const started = weekStart[curWeek] ? ' · started ' + fmtKey(weekStart[curWeek]) : '';
+  if (d >= 0) { $('nextUpText').innerHTML = esc(wk.r[d]) + '<small>Week ' + curWeek + ' · Day ' + (d + 1) + started + '</small>'; $('nextUp').dataset.target = curWeek + '-' + d; }
   else { $('nextUpText').innerHTML = (curWeek < 52 ? 'Start week ' + (curWeek + 1) : 'Plan complete') + '<small>Week ' + curWeek + ' is done</small>'; $('nextUp').dataset.target = curWeek < 52 ? 'week:' + (curWeek + 1) : ''; }
 }
 function refreshWeek(w) {
@@ -738,10 +805,17 @@ weeksEl.addEventListener('click', e => {
   const jc = e.target.closest('[data-jcopy]');
   if (jc) { copyJournal(jc.dataset.jcopy, jc); return; }
   if (e.target.closest('[data-jrpanel]')) return;                            // typing area never toggles
+  const mv = e.target.closest('[data-mem]');
+  if (mv) {
+    const id = mv.dataset.mem; mem[id] = !mem[id]; if (!mem[id]) delete mem[id];
+    save(K.mem, mem); mv.classList.toggle('memd', !!mem[id]); mv.querySelector('.mkm').setAttribute('aria-pressed', !!mem[id]);
+    updateStats(); return;
+  }
   const day = e.target.closest('[data-day]');
   if (day) {
     const id = day.dataset.day; done[id] = !done[id]; if (!done[id]) delete done[id];
     save(K.done, done);
+    if (done[id]) { log[dayKey()] = true; const keys = Object.keys(log).sort(); keys.slice(0, Math.max(0, keys.length - 400)).forEach(k => delete log[k]); save(K.log, log); }
     // update in place so an open journal (and its focus) survives
     day.classList.toggle('done', !!done[id]);
     day.querySelector('.mark').setAttribute('aria-pressed', !!done[id]);
@@ -760,6 +834,7 @@ function toggleWeek(w, force) {
 }
 function setCurrent(w) {
   const prev = curWeek; curWeek = Math.min(52, Math.max(1, w)); save(K.week, curWeek);
+  if (!weekStart[curWeek]) { weekStart[curWeek] = dayKey(); save(K.weekStart, weekStart); }
   refreshWeek(prev); refreshWeek(curWeek); updateStats();
 }
 function jump() {
@@ -804,8 +879,9 @@ $('cancelConfirm').onclick = () => $('confirm').classList.remove('on');
 $('confirm').addEventListener('click', e => { if (e.target === $('confirm')) $('confirm').classList.remove('on'); });
 $('doConfirm').onclick = () => { $('confirm').classList.remove('on'); if (confirmAction) confirmAction(); confirmAction = null; };
 $('resetBtn').onclick = () => confirmModal('Reset all progress?',
-  'Every checkmark on all 52 weeks will be cleared. Your HEAR journal entries and the current-week setting stay. This can’t be undone.',
-  'Reset', () => { done = {}; save(K.done, done); render(); });
+  'Every checkmark, memorized verse, week start date and the reading streak will be cleared. Your HEAR journal entries stay. This can’t be undone.',
+  'Reset', () => { done = {}; mem = {}; log = {}; weekStart = {}; curWeek = 1; weekStart[1] = dayKey();
+    save(K.done, done); save(K.mem, mem); save(K.log, log); save(K.weekStart, weekStart); save(K.week, curWeek); render(); });
 $('eraseBtn').onclick = () => confirmModal('Erase the whole journal?',
   'Every HEAR entry and the passcode will be deleted from this iPad. Reading progress stays. This can’t be undone — copy anything you want to keep first.',
   'Erase journal', eraseJournal);
@@ -926,7 +1002,27 @@ function showView(v) {
 $('tabPlan').onclick = () => showView('plan');
 $('tabJournal').onclick = () => showView('journal');
 
-paintSource();
+// ── text size ───────────────────────────────────────────────────
+function paintSize() { document.body.classList.toggle('big', big); document.querySelectorAll('#sizeSeg button').forEach(b => b.setAttribute('aria-pressed', (b.dataset.big === '1') === big)); }
+$('sizeSeg').addEventListener('click', e => { const b = e.target.closest('[data-big]'); if (!b) return; big = b.dataset.big === '1'; save(K.big, big); paintSize(); });
+
+// ── auto-lock after idle ────────────────────────────────────────
+let lastActive = Date.now();
+const touch = () => { lastActive = Date.now(); };
+['pointerdown', 'keydown', 'input', 'scroll', 'touchstart'].forEach(ev => document.addEventListener(ev, touch, { passive: true, capture: true }));
+function idleCheck() {
+  if (!autolockMin || vaultState() !== 'open') return;
+  if (Date.now() - lastActive >= autolockMin * 60000) {
+    if (savePending) saveJournal(savePending[0], savePending[1]);       // flush a half-typed entry first
+    persistChain.then(lock);
+  }
+}
+setInterval(idleCheck, 15000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) idleCheck(); });
+function paintAuto() { document.querySelectorAll('#autoSeg button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.min === autolockMin)); }
+$('autoSeg').addEventListener('click', e => { const b = e.target.closest('[data-min]'); if (!b) return; autolockMin = +b.dataset.min; save(K.autolock, autolockMin); paintAuto(); touch(); });
+
+paintSource(); paintSize(); paintAuto();
 render();
 showView(view);
 </script>
