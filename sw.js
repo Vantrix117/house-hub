@@ -1,0 +1,46 @@
+/* House Hub service worker.
+   - Precaches the shell, design system, SDK, apps and icons so the hub opens offline.
+   - apps.json and anything under /api are network-first (fresh when online, cached copy when not).
+   - Precached files are served from cache and refreshed in the background (stale-while-revalidate),
+     so an edit shows up on the second open. Bump VERSION to force a clean cache.
+   - Phase 4 adds push + notificationclick. */
+const VERSION = 'hub-v3';
+const SHELL = [
+  './', 'index.html', 'manifest.json', 'icon.svg', 'sw.js',
+  'apps/design.css', 'apps/hub.js',
+  'apps/f260.html', 'apps/leftovers.html', 'apps/prayer.html', 'apps/tally.html', 'apps/timer.html',
+  'icons/f260.svg', 'icons/leftovers.svg', 'icons/prayer.svg', 'icons/tally.svg', 'icons/timer.svg',
+  'icons/reminders.svg', 'icons/chat.svg', 'icons/home.svg', 'icons/dollywood.svg', 'icons/dollywood-live.svg',
+  'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png',
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled(SHELL.map(u => c.add(u)))).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+});
+
+const isApi = url => /\/api\//.test(url.pathname) || url.hostname.endsWith('.workers.dev');
+const isRegistry = url => url.pathname.endsWith('/apps.json');
+
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (isApi(url)) return;   // the SDK handles its own offline queue; never serve API responses from cache
+  if (url.origin !== location.origin) return;   // Google Fonts etc.
+
+  if (isRegistry(url)) {
+    e.respondWith(fetch(req).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put('apps.json', copy)); return r; })
+      .catch(() => caches.match('apps.json')));
+    return;
+  }
+  // Ignore cache-busting query strings (?ts=, ?r=) when looking up the shell.
+  const key = url.pathname.endsWith('/') ? './' : url.pathname.replace(/^.*\/house-hub\//, '').replace(/^\//, '');
+  e.respondWith(caches.open(VERSION).then(async c => {
+    const cached = await c.match(key) || await c.match(req, { ignoreSearch: true });
+    const network = fetch(req).then(r => { if (r.ok) c.put(key, r.clone()); return r; }).catch(() => null);
+    return cached || (await network) || new Response('Offline', { status: 503 });
+  }));
+});

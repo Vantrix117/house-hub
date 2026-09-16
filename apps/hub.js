@@ -293,6 +293,23 @@
         if (ev.data.type === 'hub:pull') hub.pull();
         if (ev.data.type === 'hub:theme') applyTheme();
       });
+      // The hub shell and the app iframe are two copies of this SDK on one origin sharing one localStorage.
+      // When the other window writes a cache or queue we hold, reload it so neither side clobbers the other.
+      window.addEventListener('storage', ev => {
+        if (!ev.key || !ev.key.startsWith('hub.')) return;
+        if (ev.key === LS.theme) { applyTheme(); return; }
+        for (const ch of CH.keys()) {
+          const { app, scope } = CH.get(ch);
+          if (ev.key === LS.cache(app, scope, pid())) {
+            const sig = it => JSON.stringify(Object.keys(it).sort().map(k => [k, it[k].t, it[k].v]));
+            const before = sig((store[ch] || {}).items || {});
+            store[ch] = lsGet(ev.key, { items: {}, since: 0 });
+            if (sig(store[ch].items) !== before) {
+              for (const cb of listeners.change) { try { cb({ app, scope, key: null, value: null, updated_at: 0, remote: true, bulk: true }); } catch (e) { console.error(e); } }
+            }
+          } else if (ev.key === LS.queue(app, scope, pid())) { queue[ch] = lsGet(ev.key, {}); setSync({}); if (hub.sync.pending) scheduleFlush(500); }
+        }
+      });
       }
       return hub;
     })();
@@ -364,7 +381,7 @@
   hub.open = id => { tell({ type: 'hub:open', appId: id }); if (!inFrame) location.href = '../index.html#' + id; };
   hub.toast = (msg, ms = 2200) => {
     let el = document.getElementById('hub-toast');
-    if (!el) { el = document.createElement('div'); el.id = 'hub-toast'; el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    if (!el) { const w = document.createElement('div'); w.className = 'ds'; el = document.createElement('div'); el.id = 'hub-toast'; el.className = 'toast'; el.setAttribute('role', 'status'); w.appendChild(el); document.body.appendChild(w); }
     el.textContent = msg; el.hidden = false; clearTimeout(el._t); el._t = setTimeout(() => { el.hidden = true; }, ms);
   };
   hub.escape = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

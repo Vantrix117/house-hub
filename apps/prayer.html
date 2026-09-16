@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Prayer">
 <meta name="theme-color" id="themeColor" content="#F7F2EB">
+<link rel="stylesheet" href="design.css">
 <title>Prayer</title>
 <link rel="apple-touch-icon" href="prayer-icon.png">
 <link rel="apple-touch-icon" sizes="512x512" href="prayer-icon-512.png">
@@ -22,61 +23,30 @@
      teal = family list   terracotta = wants attention
    ══════════════════════════════════════════════════════════════ */
 :root{
-  --paper:#F7F2EB; --raised:#FFFCF8; --sunk:#EFE7DC; --hover:#F2EADF;
-  --ink:#3A2E24; --ink2:#6E6054; --muted:#9A8C7F;
-  --rule:#E6DCCE; --rule-soft:#F0E8DC;
-  --mocha:#8A6A4B; --mocha-soft:#F0E6D9;
-  --gold:#B4861B;  --gold-soft:#F6EBD0;
-  --olive:#5B8143; --olive-soft:#E6EEDD;
-  --teal:#137F77;  --teal-soft:#DCECEA;
-  --terra:#BC5A38; --terra-soft:#F7E3DA;
+  /* Neutrals, the four accents, shadows and radii come from design.css; this block only maps the names. */
+  --paper:var(--bg); --raised:var(--surface); --sunk:var(--surface-2);
+  --ink:var(--text); --ink2:var(--text-2);
+  --rule:var(--line); --rule-soft:var(--line-soft);
   --dim:#2A231C;
   /* category dots: tints of the four accents, no new hues */
   --d0:#8A6A4B; --d1:#137F77; --d2:#5B8143; --d3:#B4861B;
   --d4:#B39271; --d5:#4EA39B; --d6:#8AAA72; --d7:#D2AB4E;
-  --lift:0 1px 2px rgba(58,46,36,.04), 0 4px 14px -6px rgba(58,46,36,.10);
-  --lift-lg:0 2px 8px rgba(58,46,36,.06), 0 24px 56px -20px rgba(58,46,36,.28);
-  --r:14px; --r-sm:10px;
-  --accent:var(--mocha); --accent-soft:var(--mocha-soft);
-  --on-accent:var(--raised);
+  --lift:var(--shadow); --lift-lg:var(--shadow-lg);
+  /* --accent is the signed-in person's colour (set by hub.js); --accent-soft follows it */
 }
 /* Dark: applies from the system setting unless the user picked Light,
    and always when the user picked Dark (data-theme on <html>). */
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-
-    --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
-    --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
-    --rule:#332B24; --rule-soft:#2A231E;
-    --mocha:#CBA77E; --mocha-soft:#2E251C;
-    --gold:#E0B25A;  --gold-soft:#2C2416;
-    --olive:#9DC183; --olive-soft:#1E2718;
-    --teal:#5EC2B8;  --teal-soft:#12241F;
-    --terra:#E28A66; --terra-soft:#2B1D17;
     --dim:#14100D;
     --d0:#CBA77E; --d1:#5EC2B8; --d2:#9DC183; --d3:#E0B25A;
     --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;
-    --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
-    --lift-lg:0 2px 8px rgba(0,0,0,.45), 0 28px 64px -22px rgba(0,0,0,.8);
-    --on-accent:#1C1714;
   }
 }
 :root[data-theme="dark"]{
-
-    --paper:#1C1714; --raised:#25201B; --sunk:#161211; --hover:#2C261F;
-    --ink:#F3EDE5; --ink2:#C3B4A4; --muted:#96887A;
-    --rule:#332B24; --rule-soft:#2A231E;
-    --mocha:#CBA77E; --mocha-soft:#2E251C;
-    --gold:#E0B25A;  --gold-soft:#2C2416;
-    --olive:#9DC183; --olive-soft:#1E2718;
-    --teal:#5EC2B8;  --teal-soft:#12241F;
-    --terra:#E28A66; --terra-soft:#2B1D17;
     --dim:#14100D;
     --d0:#CBA77E; --d1:#5EC2B8; --d2:#9DC183; --d3:#E0B25A;
     --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;
-    --lift:0 1px 2px rgba(0,0,0,.35), 0 6px 18px -8px rgba(0,0,0,.6);
-    --lift-lg:0 2px 8px rgba(0,0,0,.45), 0 28px 64px -22px rgba(0,0,0,.8);
-    --on-accent:#1C1714;
 }
 body.shared{ --accent:var(--teal); --accent-soft:var(--teal-soft); }
 
@@ -375,17 +345,17 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
 }
 #printArea{display:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.voicerow{display:flex;gap:8px;align-items:stretch}
+.voicerow input{flex:1;min-width:0}
+.micbtn{flex:none;width:52px;border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.micbtn svg{width:22px;height:22px}
+.micbtn.on{background:var(--terra-soft);color:var(--terra);border-color:var(--terra);animation:micpulse 1s infinite}
+@keyframes micpulse{50%{transform:scale(.94)}}
+:root[data-kind="kiosk"] .fab, :root[data-kind="kiosk"] nav [data-go="add"]{display:none}
 </style>
 </head>
 <body>
 
-<div id="lock"><div class="inner">
-  <h1 style="margin-bottom:10px">Private list</h1>
-  <input type="password" id="pinIn" inputmode="numeric" placeholder="PIN" style="text-align:center">
-  <button class="act" id="pinGo">Unlock</button>
-  <p class="note" id="pinNote" style="margin-left:auto;margin-right:auto">Not real security. It keeps the list off the screen, nothing more.</p>
-  <button class="act ghost small" id="pinShared" style="margin-top:16px">Open the family list instead</button>
-</div></div>
 
 <div class="wrap">
 
@@ -430,7 +400,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
 <section id="s-add" class="screen">
   <header><h1>Add a request</h1></header>
   <label for="f-title">What are you praying for?</label>
-  <input type="text" id="f-title" placeholder="Healing for...">
+  <div class="voicerow"><input type="text" id="f-title" placeholder="Healing for..."><button type="button" class="micbtn" id="f-mic" aria-label="Say it instead" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></button></div>
   <p class="err" id="f-titleErr"></p>
   <label for="f-for">Who is it for?</label>
   <input type="text" id="f-for" placeholder="Optional">
@@ -448,7 +418,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   </div>
   <div id="f-daysWrap" hidden></div>
   <button class="act" id="f-save">Add to the list</button>
-  <p class="note">Tap a field and use the microphone on the keyboard to speak it instead of typing.</p>
+  <p class="note">Tap the microphone to say the request, or use the one on the keyboard.</p>
 </section>
 
 <section id="s-more" class="screen">
@@ -475,50 +445,14 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   <p class="err" id="f-newcatErr"></p>
   <button class="act ghost small" id="f-addcat" style="margin-top:12px">Add category</button>
 
-  <h2>Privacy</h2>
-  <p class="note" style="margin-top:4px">A PIN on the private list keeps it off a shared screen. It is not encryption — anyone who can open the browser's storage can read it.</p>
-  <div class="rowbtns" style="margin-top:14px">
-    <button class="act ghost small" id="f-setpin">Set or change PIN</button>
-    <button class="act ghost small" id="f-clearpin">Remove PIN</button>
-  </div>
 
-  <h2>Appearance</h2>
   <div class="chips" id="f-theme" style="margin-top:14px">
     <button class="chip" data-look="system" aria-pressed="true">System</button>
     <button class="chip" data-look="light" aria-pressed="false">Light</button>
     <button class="chip" data-look="dark" aria-pressed="false">Dark</button>
   </div>
 
-  <h2>This device</h2>
-  <label for="f-me">Who is using it</label>
-  <input type="text" id="f-me" placeholder="Your name">
-  <p class="note">On the family list, marking something prayed records these initials so the house can see who has prayed for what today.</p>
 
-  <h2>Family list sync</h2>
-  <p class="note" style="margin-top:4px">Syncs the family list through a JSON file in a GitHub repo. Reading needs nothing. Writing needs a token, which stays on this device and is never written into the page. Anything in a public repo is public — keep the private list out of it.</p>
-  <div class="chips" id="f-syncmode" style="margin-top:14px">
-    <button class="chip" data-sync="off" aria-pressed="true">This device only</button>
-    <button class="chip" data-sync="github" aria-pressed="false">Sync through GitHub</button>
-  </div>
-  <div id="syncFields">
-    <label for="f-owner">GitHub user or org</label>
-    <input type="text" id="f-owner" placeholder="vantrix117">
-    <label for="f-repo">Repository</label>
-    <input type="text" id="f-repo" placeholder="house-hub">
-    <label for="f-path">File path in the repo</label>
-    <input type="text" id="f-path" placeholder="data/family-prayers.json">
-    <label for="f-branch">Branch</label>
-    <input type="text" id="f-branch" placeholder="main">
-    <label for="f-token">Write token for this device, leave blank for read-only</label>
-    <input type="password" id="f-token" placeholder="github_pat_...">
-    <div class="rowbtns">
-      <button class="act ghost small" id="f-syncnow">Sync now</button>
-      <button class="act ghost small" id="f-syncsave">Save settings</button>
-    </div>
-    <p class="sync" id="syncStatus"></p>
-  </div>
-
-  <h2>Backup</h2>
   <div class="rowbtns">
     <button class="act ghost small" id="f-export">Export both lists</button>
     <button class="act ghost small" id="f-import">Import a backup</button>
@@ -565,13 +499,20 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   <button data-go="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>More</button>
 </div></nav>
 
+<script src="hub.js" data-app="prayer" data-scope="both"></script>
 <script>
 /* ─────────────────────────────────────────────────────────────
-   STORAGE LAYER. USE_LOCAL_STORAGE is true when served from GitHub
-   Pages; check.js flips it to false so tests never touch real storage.
+   STORAGE LAYER. Two lists, two scopes, both through hub.js:
+     lists.personal  <-  person scope of the signed-in profile
+     lists.shared    <-  family scope (everyone in the house)
+   Each prayer is its own row ('prayer:<id>') so two people editing at once
+   never overwrite each other. USE_LOCAL_STORAGE is flipped to false by
+   check.js, which then runs against freshData() in memory.
    ───────────────────────────────────────────────────────────── */
 const USE_LOCAL_STORAGE = true;
-const KEY = 'prayer-data-v3';
+const LEGACY_KEY = 'prayer-data-v3';
+const LIST_KEYS = ['label', 'categories', 'prayerDays', 'plans', 'activePlan', 'rotationFor'];
+const SCOPE = { personal: 'person', shared: 'family' };
 
 const CATEGORIES = [
   "Spiritual Needs","Personal","Family","Friends","Coworkers",
@@ -613,11 +554,10 @@ const SEED_PRAYERS = [
 ["p014","A family moving home from out of state","Friends","Friends","rotation","answered"]
 ];
 
-let D, LOCKED = false;
+let D;
 
 function freshData(){
-  const d = { version:3, activeList:'personal', pin:null, lastExport:null, me:'', theme:'system',
-    sync:{ mode:'off', owner:'', repo:'', path:'data/family-prayers.json', branch:'main', sha:null },
+  const d = { version:3, activeList:'personal', lastExport:null,
     lists:{ personal: emptyList('My list'), shared: emptyList('Family list') } };
   const P = d.lists.personal;
   P.prayers = SEED_PRAYERS.map(r => ({
@@ -634,21 +574,42 @@ function freshData(){
   return d;
 }
 
+// What was last written to (or read from) hub, per scope and key, so save() only sends real changes.
+const SNAP = { person:{}, family:{} };
+function listFromHub(scope, label){
+  const L = emptyList(label);
+  for(const k of LIST_KEYS){ const v = hub.get(k, {scope}); if(v !== undefined){ L[k] = v; SNAP[scope][k] = JSON.stringify(v); } }
+  L.prayers = hub.list('prayer:', {scope}).map(r => { SNAP[scope][r.key] = JSON.stringify(r.value); return r.value; });
+  return L;
+}
 function load(){
   if(USE_LOCAL_STORAGE){
-    try{ const r = localStorage.getItem(KEY); D = r ? JSON.parse(r) : freshData(); }
-    catch(e){ D = freshData(); }
+    migrateLegacy();
+    D = { version:3, activeList: hub.get('activeList', {scope:'person'}) || 'personal',
+      lastExport: hub.get('lastExport', {scope:'person'}) || null,
+      lists:{ personal: listFromHub('person', 'My list'), shared: listFromHub('family', 'Family list') } };
   } else { D = freshData(); }
   migrate();
-  // The hub's reload button appends ?r=… after the file name, so tolerate "shared?r=123".
-  const q = (new URLSearchParams(location.search).get('list') || '').split('?')[0];
-  if(q === 'shared' || q === 'personal') D.activeList = q;
+}
+// One-time: the pre-profiles localStorage blob (both lists) into this adult's person scope + the family scope.
+function migrateLegacy(){
+  const split = which => v => {
+    const L = v && v.lists && v.lists[which]; if(!L) return [];
+    const out = [];
+    for(const k of LIST_KEYS) if(L[k] !== undefined && L[k] !== null) out.push([k, L[k]]);
+    for(const p of (L.prayers || [])) if(p && p.id) out.push(['prayer:' + p.id, p]);
+    return out;
+  };
+  hub.migrate([{ from: LEGACY_KEY, scope: 'person', to: split('personal') },
+               { from: LEGACY_KEY, scope: 'family', to: split('shared') }]);
+}
+function put(scope, key, v){
+  const j = JSON.stringify(v);
+  if(SNAP[scope][key] === j) return;
+  SNAP[scope][key] = j; hub.set(key, v, {scope});
 }
 function migrate(){
   if(!D.lists) D = freshData();
-  if(D.me === undefined) D.me = '';
-  if(!['system','light','dark'].includes(D.theme)) D.theme = 'system';
-  if(!D.sync) D.sync = { mode:'off', owner:'', repo:'', path:'data/family-prayers.json', branch:'main', sha:null };
   for(const k of ['personal','shared']){
     const L = D.lists[k] || (D.lists[k] = emptyList(k==='shared'?'Family list':'My list'));
     if(!Array.isArray(L.categories) || !L.categories.length) L.categories = CATEGORIES.slice();
@@ -675,7 +636,27 @@ function migrate(){
       if(!p.updatedAt) p.updatedAt = (p.createdAt || TODAY) + 'T00:00:00.000Z'; });
   }
 }
-function save(){ if(USE_LOCAL_STORAGE){ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} } }
+function save(){
+  if(!USE_LOCAL_STORAGE || !hub.canWrite) return;
+  for(const which of ['personal','shared']){
+    const scope = SCOPE[which], L = D.lists[which];
+    for(const k of LIST_KEYS) put(scope, k, L[k]);
+    const seen = new Set();
+    for(const p of L.prayers){ seen.add('prayer:' + p.id); put(scope, 'prayer:' + p.id, p); }
+    for(const key of Object.keys(SNAP[scope])) if(key.startsWith('prayer:') && !seen.has(key)){ delete SNAP[scope][key]; hub.remove(key, {scope}); }
+  }
+  put('person', 'activeList', D.activeList);
+  put('person', 'lastExport', D.lastExport);
+}
+// Another device changed something: rebuild from hub and repaint, unless a form is mid-edit.
+let remoteDirty = false;
+function absorbRemote(){
+  if(!remoteDirty) return;
+  const busy = el('sheet').classList.contains('on') || el('pray').classList.contains('on')
+    || (document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
+  if(busy){ setTimeout(absorbRemote, 4000); return; }
+  remoteDirty = false; load(); renderCatAdmin(); renderPlans(); renderAllScreens();
+}
 
 const L  = () => D.lists[D.activeList];
 const PL = () => L().plans.find(p => p.id === L().activePlan) || L().plans[0];
@@ -1016,20 +997,20 @@ function saveEdit(id){
     detail:el('e-detail').value.trim(), category:el('e-cat').value || p.category, cadence:cad,
     days: cad === 'weekly' ? days : [] });
   if(p.cadence !== 'rotation' || wasCat !== p.category) L().rotationFor = null;
-  stamp(p); save(); queueSync(); renderCatAdmin(); renderAllScreens(); sheetFor(p.id);
+  stamp(p); save(); renderCatAdmin(); renderAllScreens(); sheetFor(p.id);
 }
 function deletePrayer(id){
   const S = L();
   S.prayers = S.prayers.filter(p => p.id !== id);
   if(S.rotationFor) S.rotationFor.ids = S.rotationFor.ids.filter(x => x !== id);
-  save(); queueSync(); shutSheet(); renderCatAdmin(); renderAllScreens(); toast('Removed from the list.');
+  save(); shutSheet(); renderCatAdmin(); renderAllScreens(); toast('Removed from the list.');
 }
 const openSheet = () => { closeAsk(); el('sheet').classList.add('on'); el('veil').classList.add('on'); updateFab(); };
 const shutSheet = () => { closeAsk(); el('sheet').classList.remove('on'); el('veil').classList.remove('on'); updateFab(); };
 // The + button shows on Today and List only, and never over a sheet, overlay or the lock.
 let screenName = 'today';
 function updateFab(){
-  const covered = ['sheet','pray','kitchen','lock'].some(id => el(id).classList.contains('on'));
+  const covered = ['sheet','pray','kitchen'].some(id => el(id).classList.contains('on'));
   el('fab').classList.toggle('on', (screenName === 'today' || screenName === 'all') && !covered);
 }
 
@@ -1185,6 +1166,7 @@ function renderPlans(){
 /* ── events ─────────────────────────────────────────────────── */
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-look],[data-fday],[data-copycat]');
+  if(!t) return;                            // a tap on plain text or an input is not an action
 
   if(t.dataset.copycat){
     e.preventDefault();                       // a button inside <summary> must not toggle it
@@ -1206,7 +1188,7 @@ document.addEventListener('click', e => {
     t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') !== 'true');
     el('e-daysErr').textContent = ''; return;
   }
-  if(t.dataset.look){ D.theme = t.dataset.look; save(); applyTheme(); return; }
+  if(t.dataset.look){ hub.setTheme(t.dataset.look); applyTheme(); return; }
   if(t.dataset.delete){
     const p = byId(t.dataset.delete);
     ask(t, {kind:'confirm', danger:true, save:'Delete',
@@ -1223,7 +1205,6 @@ document.addEventListener('click', e => {
   if(t.hasAttribute('data-shut')){ shutSheet(); return; }
 
   if(t.dataset.list){
-    if(t.dataset.list === 'personal' && D.pin && LOCKED){ el('lock').classList.add('on'); updateFab(); return; }
     D.activeList = t.dataset.list; save();
     renderCatAdmin(); renderPlans(); go('today'); return;
   }
@@ -1231,7 +1212,7 @@ document.addEventListener('click', e => {
   if(t.dataset.update){
     const p = byId(t.dataset.update);
     ask(t, {kind:'textarea', label:'What is the update?', required:true, onSave(note){
-      p.updates.push({date:TODAY, note:note.trim()}); stamp(p); save(); queueSync(); renderAllScreens(); sheetFor(p.id); }});
+      p.updates.push({date:TODAY, note:note.trim()}); stamp(p); save(); renderAllScreens(); sheetFor(p.id); }});
     return;
   }
   if(t.dataset.tell){
@@ -1245,7 +1226,7 @@ document.addEventListener('click', e => {
         if(p.phone){ location.href = 'sms:' + p.phone.replace(/[^0-9+]/g,'') + '&body=' + encodeURIComponent(draft); }
         else copyText(draft, t, 'Copied. Paste it into Messages.');
         p.updates.push({date:TODAY, note:'Told ' + (who||'them') + ' I was praying.'});
-        stamp(p); save(); queueSync(); renderAllScreens();
+        stamp(p); save(); renderAllScreens();
       }});
     return;
   }
@@ -1254,7 +1235,7 @@ document.addEventListener('click', e => {
     ask(t, {kind:'select', label:'Move to which category?', options:L().categories, value:p.category,
       save:'Move', onSave(c){
         if(!L().categories.includes(c)) return;
-        p.category = c; stamp(p); save(); queueSync(); renderAllScreens(); sheetFor(p.id); }});
+        p.category = c; stamp(p); save(); renderAllScreens(); sheetFor(p.id); }});
     return;
   }
   if(t.dataset.share){
@@ -1269,7 +1250,8 @@ document.addEventListener('click', e => {
       detail:'', category:p.category, cadence:p.cadence, days:[], status:'active',
       createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null,
       updates:[], sharedFrom:p.id, prayedBy:{}, updatedAt:new Date().toISOString()});
-    save(); toast('Added to the family list.', 'Open it', () => {
+    save(); hub.activity('Sent a request to the family list: ' + title.trim());
+    toast('Added to the family list.', 'Open it', () => {
       D.activeList = 'shared'; save(); renderCatAdmin(); renderPlans(); go('today'); });
       }});
     return;
@@ -1279,16 +1261,16 @@ document.addEventListener('click', e => {
     ask(t, {kind:'textarea', label:'How was it answered?', required:true,
       help:'This is the part worth keeping, so it cannot be left blank.', save:'Mark answered', onSave(note){
         const prev = {status:p.status, answeredAt:p.answeredAt, answerNote:p.answerNote};
-        p.status = 'answered'; p.answeredAt = TODAY; p.answerNote = note.trim();
-        stamp(p); save(); queueSync(); shutSheet(); go('answered');
-        toast('Moved to the record.', 'Undo', () => { Object.assign(p, prev); stamp(p); save(); queueSync(); go('today'); });
+        hub.activity('Answered: ' + p.title); p.status = 'answered'; p.answeredAt = TODAY; p.answerNote = note.trim();
+        stamp(p); save(); shutSheet(); go('answered');
+        toast('Moved to the record.', 'Undo', () => { Object.assign(p, prev); stamp(p); save(); go('today'); });
       }});
     return;
   }
   if(t.dataset.reopen){
     const p = byId(t.dataset.reopen);
     p.status = 'active'; p.answeredAt = null; p.answerNote = null;
-    stamp(p); save(); queueSync(); shutSheet(); go('today'); return;
+    stamp(p); save(); shutSheet(); go('today'); return;
   }
 
   if(t.dataset.rencat){
@@ -1301,7 +1283,7 @@ document.addEventListener('click', e => {
         L().plans.forEach(pl => { DOW.forEach(d => {
           pl.dayMap[d] = (pl.dayMap[d]||[]).map(c => c === old ? name : c); });
           if(pl.focusCategory === old) pl.focusCategory = name; });
-        L().categories[i] = name; save(); queueSync(); renderCatAdmin(); renderPlans(); renderAllScreens();
+        L().categories[i] = name; save(); renderCatAdmin(); renderPlans(); renderAllScreens();
       }});
     return;
   }
@@ -1317,7 +1299,7 @@ document.addEventListener('click', e => {
           pl.dayMap[d] = (pl.dayMap[d]||[]).filter(c => c !== name); }); });
         L().categories.splice(i,1);
         if(!L().categories.includes('Personal')) L().categories.unshift('Personal');
-        save(); queueSync(); renderCatAdmin(); renderPlans(); renderAllScreens();
+        save(); renderCatAdmin(); renderPlans(); renderAllScreens();
       }});
     return;
   }
@@ -1390,8 +1372,7 @@ el('f-save').addEventListener('click', () => {
     detail:el('f-detail').value.trim(), category:el('f-cat').value || 'Personal', cadence:cad, days: cad === 'weekly' ? days : [],
     status:'active', createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[],
     sharedFrom:null, prayedBy:{}, updatedAt:new Date().toISOString()});
-  save(); queueSync();
-  el('f-title').value = ''; el('f-for').value = ''; el('f-phone').value = ''; el('f-detail').value = '';
+  save(); el('f-title').value = ''; el('f-for').value = ''; el('f-phone').value = ''; el('f-detail').value = '';
   document.querySelectorAll('#fday .chip').forEach(b => b.setAttribute('aria-pressed','false'));
   renderCatAdmin(); go('today');
 });
@@ -1401,7 +1382,7 @@ el('f-addcat').addEventListener('click', () => {
   if(!name){ el('f-newcatErr').textContent = 'Give the category a name first.'; return; }
   if(L().categories.includes(name)){ el('f-newcatErr').textContent = 'That category already exists.'; return; }
   el('f-newcatErr').textContent = '';
-  L().categories.push(name); el('f-newcat').value = ''; save(); queueSync(); renderCatAdmin(); renderPlans();
+  L().categories.push(name); el('f-newcat').value = ''; save(); renderCatAdmin(); renderPlans();
 });
 el('f-newcat').addEventListener('input', () => { el('f-newcatErr').textContent = ''; });
 el('f-title').addEventListener('input', () => { el('f-titleErr').textContent = ''; });
@@ -1450,29 +1431,6 @@ el('f-parse').addEventListener('click', () => {
   });
 });
 
-el('f-setpin').addEventListener('click', () => {
-  ask(el('f-setpin'), {kind:'password', label:'PIN for the private list', placeholder:'Numbers are easiest', required:true,
-    help:'Not encryption. It keeps the list off a shared screen, nothing more.', save:'Set PIN', onSave(p){
-      D.pin = p.trim(); save(); toast('PIN set. It applies the next time the app opens.'); }});
-});
-el('f-clearpin').addEventListener('click', () => {
-  if(!D.pin){ toast('There is no PIN set.'); return; }
-  ask(el('f-clearpin'), {kind:'confirm', danger:true, label:'Remove the PIN from the private list?', save:'Remove',
-    onSave(){ D.pin = null; save(); toast('PIN removed.'); }});
-});
-el('pinGo').addEventListener('click', () => {
-  if(el('pinIn').value === D.pin){
-    // The lock only guards the private list, so unlocking always lands there —
-    // including when it was reached from the switcher while on the family list.
-    LOCKED = false; D.activeList = 'personal'; save(); el('pinIn').value = '';
-    el('lock').classList.remove('on'); renderCatAdmin(); renderPlans(); go('today');
-  }
-  else { el('pinNote').textContent = 'That is not the PIN.'; el('pinIn').value = ''; }
-});
-el('pinShared').addEventListener('click', () => {
-  D.activeList = 'shared'; LOCKED = true; el('lock').classList.remove('on');
-  renderCatAdmin(); renderPlans(); go('today');
-});
 
 el('f-export').addEventListener('click', () => {
   D.lastExport = TODAY; save();
@@ -1499,7 +1457,7 @@ el('f-import').addEventListener('click', () => {
       catch(e){ return 'That did not read as a prayer backup. Check you pasted the whole file.'; } },
     onSave(txt){
       D = readBackup(txt); migrate(); save();
-      applyTheme(); renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today'); toast('Backup restored.');
+      applyTheme(); renderCatAdmin(); renderPlans(); backupNudge(); go('today'); toast('Backup restored.');
     }});
 });
 function backupNudge(){
@@ -1512,8 +1470,7 @@ function backupNudge(){
 
 /* ── theme ──────────────────────────────────────────────────── */
 function applyTheme(){
-  const t = D.theme || 'system';
-  document.documentElement.setAttribute('data-theme', t);
+  const t = hub.theme();
   const dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const m = el('themeColor'); if(m) m.setAttribute('content', dark ? '#1C1714' : '#F7F2EB');
   document.querySelectorAll('#f-theme .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === t));
@@ -1540,13 +1497,14 @@ function setPrayed(p, force){
   p.lastPrayedAt = on ? TODAY : null;
   if(D.activeList === 'shared'){
     p.prayedBy = p.prayedBy || {};
-    const who = (D.me || '').trim();
+    const who = (hub.profile && hub.profile.name || '').trim();
     const list = new Set(p.prayedBy[TODAY] || []);
     if(on && who) list.add(who); else if(!on && who) list.delete(who);
     if(list.size) p.prayedBy[TODAY] = [...list]; else delete p.prayedBy[TODAY];
   }
   if(on) markDay();
-  stamp(p); save(); queueSync();
+  stamp(p); save();
+  if(on) hub.activity('Prayed for ' + p.title + (D.activeList === 'shared' ? ' (family list)' : ''));
 }
 
 /* ── prayer mode ────────────────────────────────────────────── */
@@ -1616,61 +1574,7 @@ function buildPrint(){
           + ' <span class="p-for">&mdash; ' + pretty(p.answeredAt) + '</span></div>').join('') : '');
 }
 
-/* ── sync ───────────────────────────────────────────────────── */
-const SYNC = {
-  cfg(){ return D.sync; },
-  token(){ try{ return localStorage.getItem('prayer-sync-token') || ''; }catch(e){ return ''; } },
-  setToken(t){ try{ t ? localStorage.setItem('prayer-sync-token', t)
-    : localStorage.removeItem('prayer-sync-token'); }catch(e){} },
-  ready(){ const c = this.cfg(); return c.mode === 'github' && c.owner && c.repo && c.path; },
-  raw(){ const c = this.cfg();
-    return 'https://raw.githubusercontent.com/' + c.owner + '/' + c.repo + '/'
-      + (c.branch||'main') + '/' + c.path + '?t=' + Date.now(); },
-  api(){ const c = this.cfg();
-    return 'https://api.github.com/repos/' + c.owner + '/' + c.repo + '/contents/' + c.path; },
-  b64(str){ const bytes = new TextEncoder().encode(str);
-    let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b)); return btoa(bin); },
-  async pull(loud){
-    if(!this.ready()) return;
-    status('Checking for changes...');
-    try{
-      const r = await fetch(this.raw(), {cache:'no-store'});
-      if(r.status === 404){ status('No shared file yet. Save one with Sync now.'); return; }
-      if(!r.ok) throw new Error('HTTP ' + r.status);
-      mergeShared(await r.json());
-      save(); renderAllScreens();
-      status('Up to date as of ' + new Date().toLocaleTimeString());
-    }catch(e){ status('Could not read the shared file: ' + e.message, true); }
-  },
-  async push(){
-    if(!this.ready()) return;
-    const tok = this.token();
-    if(!tok){ status('Read-only on this device. Add a token to make changes stick.', true); return; }
-    status('Sending changes...');
-    try{
-      const S = D.lists.shared;
-      const payload = { version:3, updatedAt:new Date().toISOString(), label:S.label,
-        categories:S.categories, prayers:S.prayers, prayerDays:S.prayerDays };
-      const head = {Authorization:'Bearer '+tok, Accept:'application/vnd.github+json'};
-      let sha = D.sync.sha;
-      const probe = await fetch(this.api()+'?ref='+(D.sync.branch||'main'), {headers:head, cache:'no-store'});
-      if(probe.ok){ sha = (await probe.json()).sha; }
-      else if(probe.status !== 404) throw new Error('HTTP ' + probe.status);
-      else sha = null;
-      const put = await fetch(this.api(), { method:'PUT', headers:head,
-        body: JSON.stringify({ message:'Update family prayer list',
-          content:this.b64(JSON.stringify(payload,null,2)),
-          branch:D.sync.branch||'main', ...(sha?{sha}:{}) }) });
-      if(!put.ok) throw new Error('HTTP ' + put.status);
-      D.sync.sha = (await put.json()).content.sha; save();
-      status('Saved for everyone at ' + new Date().toLocaleTimeString());
-    }catch(e){ status('Could not save: ' + e.message, true); }
-  }
-};
-function status(msg, bad){
-  const e = el('syncStatus'); if(!e) return;
-  e.textContent = msg; e.classList.toggle('bad', !!bad);
-}
+
 function mergePrayer(older, newer){
   const out = Object.assign({}, newer);
   const seen = new Set();
@@ -1695,23 +1599,6 @@ function mergeShared(remote){
   }
   S.prayers = [...map.values()];
   S.prayerDays = [...new Set([...S.prayerDays, ...(remote.prayerDays||[])])].sort();
-}
-let syncTimer = null;
-function queueSync(){
-  if(D.activeList !== 'shared' || !SYNC.ready() || !SYNC.token()) return;
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(() => SYNC.push(), 2500);
-}
-function renderSyncUI(){
-  const c = D.sync;
-  document.querySelectorAll('#f-syncmode .chip').forEach(b =>
-    b.setAttribute('aria-pressed', b.dataset.sync === c.mode));
-  el('syncFields').style.display = c.mode === 'github' ? '' : 'none';
-  el('f-owner').value = c.owner || ''; el('f-repo').value = c.repo || '';
-  el('f-path').value = c.path || ''; el('f-branch').value = c.branch || 'main';
-  el('f-token').value = SYNC.token();
-  el('f-me').value = D.me || '';
-  if(c.mode === 'github' && !SYNC.ready()) status('Fill in the repo details, then Save settings.');
 }
 
 /* ── new wiring ─────────────────────────────────────────────── */
@@ -1743,39 +1630,33 @@ el('copyToday').addEventListener('click', () => {
   copyText(asText(heading, items), el('copyToday'), 'Copied ' + items.length + ' request' + (items.length===1?'':'s') + '.');
 });
 
-el('f-me').addEventListener('change', e => { D.me = e.target.value.trim(); save(); renderToday(); });
-document.querySelectorAll('#f-syncmode .chip').forEach(b => b.addEventListener('click', () => {
-  D.sync.mode = b.dataset.sync; save(); renderSyncUI();
-  if(D.sync.mode === 'github' && SYNC.ready()) SYNC.pull();
-}));
-el('f-syncsave').addEventListener('click', () => {
-  D.sync.owner = el('f-owner').value.trim();
-  D.sync.repo = el('f-repo').value.trim();
-  D.sync.path = el('f-path').value.trim() || 'data/family-prayers.json';
-  D.sync.branch = el('f-branch').value.trim() || 'main';
-  D.sync.sha = null;
-  SYNC.setToken(el('f-token').value.trim());
-  save(); renderSyncUI();
-  if(SYNC.ready()) SYNC.pull(true); else status('Owner, repo and path are all needed.', true);
-});
-el('f-syncnow').addEventListener('click', async () => {
-  if(!SYNC.ready()){ status('Fill in the repo details and save first.', true); return; }
-  await SYNC.pull(true);
-  if(SYNC.token()) await SYNC.push();
-});
-document.addEventListener('visibilitychange', () => {
-  if(!document.hidden && SYNC.ready()) SYNC.pull();
-});
-setInterval(() => { if(SYNC.ready() && !document.hidden) SYNC.pull(); }, 90000);
 
+
+async function boot(){
+if(USE_LOCAL_STORAGE) await hub.ready();
 load();
-LOCKED = !!D.pin && D.activeList === 'personal';
-if(LOCKED) el('lock').classList.add('on');
 catOptions(el('f-cat'), 'Personal');
 catOptions(el('f-pastecat'), 'Personal');
 el('f-daysWrap').innerHTML = '<label>Which days</label>' + dayChips('fday', []) + '<p class="err" id="f-daysErr"></p>';
-applyTheme(); renderCatAdmin(); renderPlans(); renderSyncUI(); backupNudge(); go('today');
-if(SYNC.ready()) SYNC.pull();
+applyTheme(); renderCatAdmin(); renderPlans(); backupNudge(); go('today');
+if(USE_LOCAL_STORAGE){
+  hub.onChange(() => { remoteDirty = true; absorbRemote(); });
+  // Voice: say the request instead of typing it.
+  const mic = el('f-mic');
+  if(hub.voiceSupported && hub.canWrite){
+    mic.hidden = false; let rec = null;
+    mic.addEventListener('click', () => {
+      if(rec){ rec.stop(); return; }
+      rec = hub.voiceInput(text => { el('f-title').value = text; el('f-title').focus(); }, {
+        onEnd(){ rec = null; mic.classList.remove('on'); },
+        onError(){ rec = null; mic.classList.remove('on'); toast("Couldn't hear that — try again or type it."); } });
+      if(rec) mic.classList.add('on');
+    });
+  }
+  if(!hub.canWrite) toast('This profile can read the lists but not change them.');
+}
+}
+boot();
 
 </script>
 </body>

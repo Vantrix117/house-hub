@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Anderson House</title>
+<meta name="description" content="The Anderson family hub: reading plan, fridge list, prayers and reminders, one tap from the Home Screen.">
 <meta name="theme-color" content="#F7F2EB" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1C1714" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,14 +13,14 @@
 <meta name="apple-mobile-web-app-title" content="Hub">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="apps/design.css">
 <style>
   html, body { height: 100%; }
-  body { display: flex; flex-direction: column; min-height: 100dvh; }
+  body { display: flex; flex-direction: column; min-height: 100dvh; position: fixed; inset: 0; overflow: hidden; }
 
   /* ── gate (pairing / picker / pin) ─────────────────────────── */
-  #gate { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  #gate { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: auto;
     padding: calc(var(--sp-6) + var(--safe-top)) var(--sp-4) calc(var(--sp-6) + var(--safe-bottom)); }
   .gate-panel { width: 100%; max-width: 640px; }
   .gate-title { text-align: center; margin-bottom: var(--sp-6); }
@@ -33,8 +34,7 @@
     background: var(--surface); box-shadow: var(--shadow); color: var(--text); font: inherit; font-weight: 700; font-size: var(--fs-lg);
     cursor: pointer; transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
   .pcard:active { transform: scale(.96); }
-  .pcard .pemoji { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 34px;
-    background: var(--pc, var(--accent-soft)); }
+  .pemoji { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 34px; background: var(--pc, var(--accent-soft)); flex: none; }
   .pcard .psub { font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
   .pcard.last { border-color: var(--pcol, var(--accent)); }
   @media (hover: hover) and (pointer: fine) { .pcard:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); } }
@@ -42,7 +42,7 @@
 
   .pin-wrap { max-width: 360px; margin: 0 auto; text-align: center; }
   .pin-who { display: flex; align-items: center; justify-content: center; gap: var(--sp-3); margin-bottom: var(--sp-5); }
-  .pin-who .pemoji { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; background: var(--pc, var(--accent-soft)); }
+  .pin-who .pemoji { width: 48px; height: 48px; font-size: 26px; }
   .pin-dots { display: flex; justify-content: center; gap: 14px; min-height: 22px; margin: var(--sp-4) 0 var(--sp-5); }
   .pin-dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); }
   .pin-dots i.on { background: var(--accent); border-color: var(--accent); }
@@ -53,13 +53,18 @@
 
   /* ── shell ─────────────────────────────────────────────────── */
   #shell { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-  #views { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch;
-    padding: calc(var(--sp-4) + var(--safe-top)) max(var(--sp-4), var(--safe-right)) calc(var(--sp-4) + 72px + var(--safe-bottom)) max(var(--sp-4), var(--safe-left)); }
+  #views { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; position: relative;
+    padding: calc(var(--sp-4) + var(--safe-top)) max(var(--sp-4), var(--safe-right)) calc(var(--sp-4) + 76px + var(--safe-bottom)) max(var(--sp-4), var(--safe-left)); }
   .view { display: none; max-width: 860px; margin: 0 auto; }
   .view.on { display: block; animation: hub-fade var(--dur) var(--ease); }
-  .view-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-5); }
+  .view-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-5); min-height: 44px; }
   .view-title h1 { font-family: var(--font-serif); font-weight: 400; font-size: var(--fs-3xl); letter-spacing: 0; }
-  .view-title .date { color: var(--text-2); font-size: var(--fs-sm); text-align: right; }
+  #ptr { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: center; pointer-events: none; height: 0; overflow: visible; }
+  #ptr span { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow);
+    color: var(--accent); transform: translateY(-48px) rotate(0deg); transition: transform var(--dur) var(--ease); }
+  #ptr.arm span { transform: translateY(calc(var(--safe-top) + 12px)) rotate(180deg); }
+  #ptr.busy span { transform: translateY(calc(var(--safe-top) + 12px)); animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: translateY(calc(var(--safe-top) + 12px)) rotate(360deg); } }
 
   #tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; justify-content: center;
     padding: var(--sp-2) max(var(--sp-2), var(--safe-right)) calc(var(--sp-2) + var(--safe-bottom)) max(var(--sp-2), var(--safe-left));
@@ -77,24 +82,33 @@
   /* apps grid */
   .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-3); }
   @media (min-width: 700px) { .grid { grid-template-columns: repeat(6, 1fr); gap: var(--sp-4); } }
-  .tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-2);
+  .tile { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-2);
     aspect-ratio: 1; padding: var(--sp-2); border: 1px solid var(--line-soft); border-radius: var(--r-lg);
     background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text); font: inherit; font-size: var(--fs-xs); font-weight: 600;
     text-align: center; cursor: pointer; transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
   .tile:active { transform: scale(.95); }
-  .tile .ticon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 26px;
+  .ticon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 26px; flex: none;
     background: color-mix(in srgb, var(--tc, var(--accent)) 16%, var(--surface)); color: var(--tc, var(--accent)); }
-  .tile .ticon .icon { width: 28px; height: 28px; }
-  .tile .ticon .icon .duo { fill: var(--tc, var(--accent)); }
-  .tile .tlabel { line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .tile.wide { grid-column: span 2; aspect-ratio: auto; min-height: 96px; flex-direction: row; justify-content: flex-start; padding: var(--sp-3) var(--sp-4); gap: var(--sp-3); text-align: left; }
-  .tile.wide .twidget { flex: 1; min-width: 0; color: var(--text-2); font-weight: 500; }
+  .ticon .icon { width: 28px; height: 28px; }
+  .ticon .icon .duo { fill: var(--tc, var(--accent)); fill-opacity: .22; }
+  .tile .tlabel { line-height: 1.15; max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .tile .badge { position: absolute; top: 8px; right: 8px; }
+  .tile.wide { grid-column: span 2; aspect-ratio: auto; min-height: 104px; flex-direction: row; justify-content: flex-start; padding: var(--sp-3) var(--sp-4); gap: var(--sp-3); text-align: left; }
+  .tile.wide .twidget { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--sp-3); }
+  .tile.wide .tlabel { display: block; font-size: var(--fs-sm); }
+  .tile.wide .tsub { font-size: var(--fs-xs); color: var(--text-2); font-weight: 500; margin-top: 2px; }
+  .ring { width: 52px; height: 52px; flex: none; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 5; stroke-linecap: round; }
+  .ring .bg { stroke: var(--line); }
+  .ring .fg { stroke: var(--tc, var(--accent)); stroke-dasharray: 138; stroke-dashoffset: calc(138 - 138 * var(--p, 0)); transition: stroke-dashoffset .6s var(--ease); }
+  .ring-lbl { position: absolute; font-size: var(--fs-xs); font-weight: 700; color: var(--text); }
+  .ringwrap { position: relative; display: grid; place-items: center; flex: none; }
   @media (hover: hover) and (pointer: fine) { .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow); } }
   :root[data-kind="kid"] .grid { grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); }
   @media (min-width: 700px) { :root[data-kind="kid"] .grid { grid-template-columns: repeat(3, 1fr); } }
   :root[data-kind="kid"] .tile { font-size: var(--fs-md); border-radius: var(--r-xl); }
-  :root[data-kind="kid"] .tile .ticon { width: 84px; height: 84px; border-radius: 26px; font-size: 48px; }
-  :root[data-kind="kid"] .tile .ticon .icon { width: 52px; height: 52px; }
+  :root[data-kind="kid"] .ticon { width: 84px; height: 84px; border-radius: 26px; font-size: 48px; }
+  :root[data-kind="kid"] .ticon .icon { width: 52px; height: 52px; }
 
   /* home */
   .greet { font-family: var(--font-serif); font-size: var(--fs-3xl); line-height: 1.1; }
@@ -102,7 +116,16 @@
   .clock { font-size: var(--fs-4xl); font-weight: 700; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; }
   :root[data-kind="kiosk"] .clock { font-size: clamp(64px, 16vw, 160px); }
   :root[data-kind="kiosk"] .home-date { font-size: var(--fs-xl); }
+  .glance { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); margin: var(--sp-5) 0; }
+  @media (min-width: 700px) { .glance { grid-template-columns: 1fr 1fr; gap: var(--sp-4); } }
   .card h2 { font-size: var(--fs-lg); margin-bottom: var(--sp-3); display: flex; align-items: center; gap: var(--sp-2); }
+  .card h2 .icon { width: 22px; height: 22px; color: var(--tc, var(--accent)); }
+  .card h2 .icon .duo { fill: var(--tc, var(--accent)); fill-opacity: .22; }
+  .gcard { display: flex; flex-direction: column; min-height: 140px; }
+  .gcard .gbody { flex: 1; display: flex; align-items: center; gap: var(--sp-4); }
+  .gbig { font-size: var(--fs-xl); font-weight: 700; line-height: 1.2; min-height: 1.3em; }
+  .gsub { color: var(--text-2); font-size: var(--fs-sm); margin-top: 2px; }
+  .gcard .btn { align-self: flex-start; margin-top: var(--sp-3); }
   .rem-row { align-items: flex-start; }
   .rem-text { font-size: var(--fs-lg); }
   :root[data-kind="kiosk"] .rem-text { font-size: var(--fs-2xl); font-weight: 600; }
@@ -111,42 +134,61 @@
   .add-row { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); }
   .add-row .input { flex: 1; }
   .kiosk-switch { position: fixed; top: calc(var(--sp-2) + var(--safe-top)); right: calc(var(--sp-2) + var(--safe-right)); opacity: .55; }
+  .feed { list-style: none; margin: 0; padding: 0; }
+  .feed li { display: flex; gap: var(--sp-3); padding: var(--sp-3) 0; border-bottom: 1px solid var(--line-soft); }
+  .feed li:last-child { border-bottom: 0; }
+  .feed .pemoji { width: 40px; height: 40px; font-size: 20px; }
+  .feed .ftext { flex: 1; min-width: 0; }
+  .feed .fwho { font-weight: 600; }
+  .feed .fwhen { color: var(--muted); font-size: var(--fs-xs); white-space: nowrap; }
+  .kid-cta { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-5); border-radius: var(--r-xl); background: var(--accent-soft); color: var(--accent-strong); border: 0; width: 100%; font: inherit; font-weight: 700; font-size: var(--fs-xl); text-align: left; cursor: pointer; min-height: var(--tap-lg); }
+  .kid-cta .icon { width: 40px; height: 40px; }
 
-  /* me */
+  /* me + admin */
   .me-card { display: flex; align-items: center; gap: var(--sp-4); }
-  .me-card .pemoji { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 34px; background: var(--accent-soft); flex: none; }
   .seg { display: flex; background: var(--surface-2); border-radius: var(--r); padding: 4px; gap: 4px; }
   .seg button { flex: 1; min-height: var(--tap); border: 0; border-radius: 10px; background: transparent; color: var(--text-2); font: inherit; font-weight: 600; cursor: pointer; }
   .seg button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
   .kv { display: flex; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft); font-size: var(--fs-sm); }
   .kv:last-child { border-bottom: 0; }
   .kv b { color: var(--text-2); font-weight: 600; }
+  .prow .pemoji { width: 44px; height: 44px; font-size: 24px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .swatch { width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+  .swatch.on { border-color: var(--text); }
+  table.usage { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+  table.usage th, table.usage td { text-align: left; padding: var(--sp-2) var(--sp-1); border-bottom: 1px solid var(--line-soft); }
+  table.usage th { color: var(--text-2); font-weight: 600; }
 
   /* viewer */
   #viewer { position: fixed; inset: 0; z-index: 30; background: var(--bg); display: none; flex-direction: column; }
-  #viewer.on { display: flex; animation: hub-fade var(--dur) var(--ease); }
+  #viewer.on { display: flex; animation: viewer-in 220ms var(--ease); }
+  #viewer.closing { animation: viewer-out 180ms var(--ease) forwards; }
+  @keyframes viewer-in { from { opacity: 0; transform: translateY(24px) scale(.98); } }
+  @keyframes viewer-out { to { opacity: 0; transform: translateY(24px) scale(.98); } }
   #viewer.dark { background: #1B1D21; }
   #frame { flex: 1; width: 100%; border: 0; background: transparent; }
-  #pill { position: fixed; left: 50%; bottom: calc(var(--sp-3) + var(--safe-bottom)); transform: translateX(-50%); z-index: 31;
-    display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: var(--r-full);
-    background: color-mix(in srgb, var(--text) 88%, transparent); color: var(--bg); box-shadow: var(--shadow-lg);
-    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); opacity: .92; }
-  #pill button { min-width: 44px; min-height: 44px; border: 0; border-radius: var(--r-full); background: transparent; color: inherit; font: inherit; font-weight: 600; font-size: var(--fs-sm); padding: 0 var(--sp-3); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  /* A slim bar above the app, never over it — apps keep their own bottom navigation free. */
+  #pill { flex: none; display: flex; align-items: center; gap: var(--sp-1); min-height: 44px;
+    padding: var(--safe-top) max(var(--sp-1), var(--safe-right)) 0 max(var(--sp-1), var(--safe-left));
+    background: var(--surface); border-bottom: 1px solid var(--line-soft); color: var(--text-2); }
+  #pill button { min-width: 44px; min-height: 44px; border: 0; border-radius: var(--r-sm); background: transparent; color: inherit; font: inherit; font-weight: 600; font-size: var(--fs-sm); padding: 0 var(--sp-3); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  #pill #pill-name { flex: 1; justify-content: center; color: var(--text); }
   #pill .icon { width: 20px; height: 20px; }
-  #pill .sep { width: 1px; height: 22px; background: color-mix(in srgb, var(--bg) 25%, transparent); }
+  #pill .sep { display: none; }
+  @media (hover: hover) and (pointer: fine) { #pill button:hover { background: var(--hover); } }
+  .ds .toast { bottom: calc(84px + var(--safe-bottom)); }
+  .prow .btn { padding: 0 var(--sp-3); white-space: nowrap; }
   .switch-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--sp-2); margin-top: var(--sp-3); }
 </style>
 </head>
-<body>
+<body class="ds">
 
-<!-- ── gate ─────────────────────────────────────────────────── -->
-<div id="gate" hidden>
-  <div class="gate-panel" id="gate-panel"></div>
-</div>
+<div id="gate" hidden><div class="gate-panel" id="gate-panel"></div></div>
 
-<!-- ── shell ────────────────────────────────────────────────── -->
 <div id="shell" hidden>
   <main id="views">
+    <div id="ptr"><span><svg class="icon"><use href="#i-arrow"/></svg></span></div>
     <section class="view" id="view-home" aria-label="Home"></section>
     <section class="view" id="view-apps" aria-label="Apps">
       <div class="view-title"><h1>Apps</h1></div>
@@ -167,14 +209,12 @@
 </div>
 
 <div id="viewer">
-  <iframe id="frame" title="App" allow="microphone; camera; web-share"></iframe>
   <div id="pill">
-    <button id="pill-home" aria-label="Back to the hub"><svg class="icon"><use href="#i-home"/></svg></button>
-    <span class="sep"></span>
-    <button id="pill-name" aria-label="Switch app"><span id="pill-label">App</span><svg class="icon"><use href="#i-chev"/></svg></button>
-    <span class="sep"></span>
+    <button id="pill-home" aria-label="Back to the hub"><svg class="icon"><use href="#i-back"/></svg>Hub</button>
+    <button id="pill-name" aria-label="Switch app"><span id="pill-label">App</span><svg class="icon" style="transform:rotate(180deg)"><use href="#i-chev"/></svg></button>
     <button id="pill-reload" aria-label="Reload this app"><svg class="icon"><use href="#i-refresh"/></svg></button>
   </div>
+  <iframe id="frame" title="App" allow="microphone; camera; web-share"></iframe>
 </div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -184,10 +224,16 @@
   <symbol id="i-me" viewBox="0 0 24 24"><circle class="duo" cx="12" cy="8" r="4"/><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.3L3 16M3 21v-5h5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
-  <symbol id="i-bell" viewBox="0 0 24 24"><path class="duo" d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path class="duo" d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path class="duo" d="M12 6c-1.5-1.3-3.6-2-6-2v13c2.4 0 4.5.7 6 2 1.5-1.3 3.6-2 6-2V4c-2.4 0-4.5.7-6 2Z"/><path d="M12 6c-1.5-1.3-3.6-2-6-2v13c2.4 0 4.5.7 6 2 1.5-1.3 3.6-2 6-2V4c-2.4 0-4.5.7-6 2Z"/><path d="M12 6v13"/></symbol>
+  <symbol id="i-bowl" viewBox="0 0 24 24"><path class="duo" d="M4 11h16v2a8 8 0 0 1-16 0v-2Z"/><path d="M4 11h16v2a8 8 0 0 1-16 0v-2Z"/><path d="M6 11c0-3 2-5 6-5s6 2 6 5"/><path d="M12 6V4M9.5 4h5"/></symbol>
+  <symbol id="i-pray" viewBox="0 0 24 24"><path class="duo" d="M12 21c-3-2-6-5-6-9V7l6 4 6-4v5c0 4-3 7-6 9Z"/><path d="M12 21c-3-2-6-5-6-9V7l6 4 6-4v5c0 4-3 7-6 9Z"/><path d="M12 11v10"/><path d="M6 7 12 3l6 4"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path class="duo" d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .5 1.5 1.5 2 2 2 .5-3-1-5 1-8Z"/><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .5 1.5 1.5 2 2 2 .5-3-1-5 1-8Z"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path class="duo" d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
 </svg>
 
 <script src="apps/hub.js" data-app="hub" data-scope="family"></script>
@@ -199,11 +245,13 @@
     if (/iPad/.test(u) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'iPad';
     if (/iPhone/.test(u)) return 'iPhone'; if (/Android/.test(u)) return 'Android'; if (/Mac/.test(u)) return 'Mac';
     if (/Windows/.test(u)) return 'Windows PC'; return 'Device'; })();
+  const SWATCHES = ['#4F5D8C', '#BC5A38', '#137F77', '#B4861B', '#8A6A4B', '#3D5A3D', '#5B8143', '#4C4C58', '#8C4F7A', '#4C7B6A'];
   let registry = { title: 'Anderson House', apps: [] };
   let current = null;
   const svgCache = {};
 
-  hub.use('reminders', 'family');
+  // Data the dashboard reads from other apps (each app still owns its own keys).
+  hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person');
 
   // ── registry ──────────────────────────────────────────────────
   async function loadRegistry() {
@@ -216,14 +264,16 @@
     }
     document.title = registry.title || 'Anderson House';
   }
+  const appById = id => registry.apps.find(a => a.id === id);
   const visibleApps = () => {
     const p = hub.profile; if (!p || p.kind === 'kiosk') return [];
     return registry.apps.filter(a => !a.visibleTo || a.visibleTo.includes(p.id));
   };
+  const canSee = id => visibleApps().some(a => a.id === id);
   async function iconHtml(a) {
     const ic = a.icon || '';
     if (/\.svg$/i.test(ic)) {
-      if (!svgCache[ic]) { try { svgCache[ic] = await (await fetch(ic)).text(); } catch { svgCache[ic] = ''; } }
+      if (!svgCache[ic]) { try { const r = await fetch(ic); svgCache[ic] = r.ok ? await r.text() : ''; } catch { svgCache[ic] = ''; } }
       if (svgCache[ic]) return svgCache[ic].replace('<svg', '<svg class="icon"');
     }
     if (ic.trim().startsWith('<svg')) return ic.replace('<svg', '<svg class="icon"');
@@ -278,7 +328,6 @@
     });
     const focus = $('#profiles .pcard.last') || $('#profiles .pcard'); if (focus) focus.focus();
   }
-
   async function pick(p) {
     if (p.kind !== 'adult') {
       try { await hub.login(p.id); enterShell(); }
@@ -287,7 +336,6 @@
     }
     if (p.has_pin) showPinPad(p); else showCreatePin(p);
   }
-
   function padHtml(p, title, hint) {
     return `
       <div class="pin-wrap">
@@ -304,7 +352,6 @@
         <button class="btn btn-primary btn-lg btn-block" id="pingo" disabled>Continue</button>
       </div>`;
   }
-  // One keypad component for both flows. onSubmit(pin) returns a promise; reject → message.
   function keypad(p, title, hint, onSubmit) {
     showGate(padHtml(p, title, hint));
     let pin = '';
@@ -319,15 +366,15 @@
       const b = ev.target.closest('button'); if (!b) return;
       if (b.dataset.d !== undefined && pin.length < 8) { pin += b.dataset.d; draw(); }
       else if (b.dataset.a === 'del') { pin = pin.slice(0, -1); draw(); }
-      else if (b.dataset.a === 'back') showPicker();
+      else if (b.dataset.a === 'back') { stop(); showPicker(); }
     });
     go.addEventListener('click', submit);
     const onKey = ev => {
-      if (!gate.contains(document.activeElement) && document.activeElement !== document.body) return;
+      if (gate.hidden) return;
       if (/^\d$/.test(ev.key) && pin.length < 8) { pin += ev.key; draw(); }
       else if (ev.key === 'Backspace') { pin = pin.slice(0, -1); draw(); }
       else if (ev.key === 'Enter') submit();
-      else if (ev.key === 'Escape') showPicker();
+      else if (ev.key === 'Escape') { stop(); showPicker(); }
       else return;
       ev.preventDefault();
     };
@@ -335,14 +382,10 @@
     const stop = () => document.removeEventListener('keydown', onKey);
     return { setMessage: (t, ok) => { msg.textContent = t; msg.classList.toggle('ok', !!ok); }, reset: () => { pin = ''; draw(); }, stop, setHint: t => { $('#pinhint').textContent = t; } };
   }
-
   function showPinPad(p) {
     const k = keypad(p, p.name, 'Enter your PIN', async pin => {
       try { await hub.login(p.id, pin); k.stop(); enterShell(); }
-      catch (e) {
-        if (e.error === 'needs_pin_setup') { k.stop(); return showCreatePin(p); }
-        throw e;
-      }
+      catch (e) { if (e.error === 'needs_pin_setup') { k.stop(); return showCreatePin(p); } throw e; }
     });
   }
   function showCreatePin(p) {
@@ -363,74 +406,120 @@
   let tab = 'home';
   function enterShell() {
     gate.hidden = true; shell.hidden = false;
-    hub.reset(); hub.ready();
+    hub.reset(); hub.ready().then(() => { renderGrid(); if (tab === 'home') renderHome(); });
     renderMe(); renderGrid();
     const h = location.hash.slice(1);
     if (hub.isKiosk) { showTab('home'); return; }
-    if (registry.apps.some(a => a.id === h)) openApp(h);
+    if (appById(h)) { showTab('apps', true); openApp(h); }
     else showTab(TABS.includes(h) ? h : 'home');
   }
-  function showTab(t) {
-    tab = t; closeViewer();
+  function showTab(t, keepViewer) {
+    tab = t; if (!keepViewer) closeViewer();
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + t));
     document.querySelectorAll('.tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-current', b.dataset.tab === t ? 'page' : 'false'); });
-    if (location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
+    if (!keepViewer && location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
     if (t === 'home') renderHome();
     if (t === 'me') renderMe();
+    if (t === 'apps') renderGrid();
     $('#views').scrollTop = 0;
   }
   $('#tabbar').addEventListener('click', ev => { const b = ev.target.closest('.tab'); if (b) showTab(b.dataset.tab); });
   window.addEventListener('hashchange', () => {
     const h = location.hash.slice(1);
-    if (registry.apps.some(a => a.id === h)) { if (!current || current.id !== h) openApp(h); }
+    if (appById(h)) { if (!current || current.id !== h) openApp(h); }
     else if (TABS.includes(h)) { if (current || h !== tab) showTab(h); }
   });
 
-  // ── apps grid + viewer ────────────────────────────────────────
+  // ── pull to refresh ───────────────────────────────────────────
+  const views = $('#views'), ptr = $('#ptr');
+  let ptrY = null, ptrArmed = false, refreshing = false;
+  views.addEventListener('touchstart', e => { ptrY = views.scrollTop <= 0 && !current ? e.touches[0].clientY : null; ptrArmed = false; }, { passive: true });
+  views.addEventListener('touchmove', e => {
+    if (ptrY === null || refreshing) return;
+    const dy = e.touches[0].clientY - ptrY;
+    if (dy > 70 && views.scrollTop <= 0) { if (!ptrArmed) { ptrArmed = true; ptr.classList.add('arm'); } }
+    else if (ptrArmed) { ptrArmed = false; ptr.classList.remove('arm'); }
+  }, { passive: true });
+  views.addEventListener('touchend', () => { if (ptrArmed) refreshAll(); ptrY = null; ptrArmed = false; ptr.classList.remove('arm'); }, { passive: true });
+  async function refreshAll() {
+    if (refreshing) return; refreshing = true; ptr.classList.add('busy');
+    try { await Promise.all([hub.pull(), hub.flush(), loadFeed(true)]); }
+    finally { refreshing = false; ptr.classList.remove('busy'); if (tab === 'home') renderHome(); if (tab === 'me') renderMe(); }
+  }
+
+  // ── apps grid + widgets ───────────────────────────────────────
+  const ageDays = s => { const then = new Date(s + 'T00:00:00'); const now = new Date(); now.setHours(0, 0, 0, 0); return Math.floor((now - then) / 86400000); };
+  const fridgeDue = () => hub.list('item:', { app: 'leftovers', scope: 'family' }).map(r => r.value)
+    .map(i => ({ ...i, days: ageDays(i.dateLogged) })).filter(i => i.days >= 4).sort((a, b) => b.days - a.days);
+  function ringHtml(p, label, color) {
+    return `<span class="ringwrap"><svg class="ring" viewBox="0 0 52 52" style="--p:${p};--tc:${esc(color || '')}"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg><span class="ring-lbl">${esc(label)}</span></span>`;
+  }
+  function widgetHtml(a) {
+    if (a.id === 'f260') {
+      const s = hub.get('f260.summary', { app: 'f260', scope: 'person' });
+      if (!s) return `${ringHtml(0, '0/5', a.color)}<span style="min-width:0"><span class="tlabel">${esc(a.name)}</span><span class="tsub">${hub.sync.lastPull ? 'Start week 1' : '<span class="skeleton">loading</span>'}</span></span>`;
+      return `${ringHtml(s.weekDone / 5, s.weekDone + '/5', a.color)}<span style="min-width:0"><span class="tlabel">${esc(a.name)}</span><span class="tsub">Week ${s.week}${s.next ? ' · next: ' + esc(s.next.ref) : ' · done'}${s.streak ? ' · ' + s.streak + '-day streak' : ''}</span></span>`;
+    }
+    return `<span class="tlabel">${esc(a.name)}</span>`;
+  }
   async function renderGrid() {
     const apps = visibleApps();
     const grid = $('#grid');
     if (!apps.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No apps for this profile yet.</div>'; return; }
-    const parts = await Promise.all(apps.map(async a => `
-      <button class="tile${a.tile === 'wide' ? ' wide' : ''}" data-id="${esc(a.id)}" style="--tc:${esc(a.color || '#8A6A4B')}" aria-label="Open ${esc(a.name)}">
+    const parts = await Promise.all(apps.map(async a => {
+      const wide = a.tile === 'wide';
+      const badge = a.id === 'leftovers' ? fridgeDue().length : 0;
+      return `<button class="tile${wide ? ' wide' : ''}" data-id="${esc(a.id)}" style="--tc:${esc(a.color || '#8A6A4B')}" aria-label="Open ${esc(a.name)}">
         <span class="ticon">${await iconHtml(a)}</span>
-        <span class="tlabel">${esc(a.name)}</span>${a.tile === 'wide' ? '<span class="twidget" data-widget="' + esc(a.id) + '"></span>' : ''}
-      </button>`));
+        ${wide ? `<span class="twidget">${widgetHtml(a)}</span>` : `<span class="tlabel">${esc(a.name)}</span>`}
+        ${badge ? `<span class="badge" aria-label="${badge} to eat this week">${badge}</span>` : ''}
+      </button>`;
+    }));
     grid.innerHTML = parts.join('');
   }
   $('#grid').addEventListener('click', ev => { const b = ev.target.closest('.tile'); if (b) openApp(b.dataset.id); });
 
+  // ── viewer ────────────────────────────────────────────────────
   const viewer = $('#viewer'), frame = $('#frame');
   function openApp(id) {
-    const a = registry.apps.find(x => x.id === id); if (!a) return;
-    if (!visibleApps().some(x => x.id === id)) { hub.toast('That app is not available for this profile.'); return; }
+    const a = appById(id); if (!a) return;
+    if (!canSee(id)) { hub.toast('That app is not available for this profile.'); return; }
     current = a;
+    viewer.classList.remove('closing');
     viewer.classList.toggle('dark', !!a.dark);
     $('#pill-label').textContent = a.name;
     if (frame.dataset.id !== id) { frame.src = a.file; frame.dataset.id = id; }
     viewer.classList.add('on');
     if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
   }
-  function closeViewer() { if (!current) return; current = null; viewer.classList.remove('on'); frame.src = 'about:blank'; delete frame.dataset.id; }
+  function closeViewer() {
+    if (!current) return; current = null;
+    viewer.classList.add('closing');
+    setTimeout(() => { viewer.classList.remove('on', 'closing'); frame.src = 'about:blank'; delete frame.dataset.id; }, 180);
+    hub.flush(); hub.pull();
+  }
   $('#pill-home').addEventListener('click', () => showTab('apps'));
   $('#pill-reload').addEventListener('click', () => { if (current) frame.src = current.file + (current.file.includes('?') ? '&' : '?') + 'r=' + Date.now(); });
   $('#pill-name').addEventListener('click', () => {
     const others = visibleApps().filter(a => !current || a.id !== current.id);
-    sheet(`<h2>Switch app</h2><div class="switch-list">${others.map(a => `<button class="btn" data-open="${esc(a.id)}">${esc(a.icon && !/svg/.test(a.icon) ? a.icon + ' ' : '')}${esc(a.name)}</button>`).join('')}</div>
+    sheet(`<h2>Switch app</h2><div class="switch-list">${others.map(a => `<button class="btn" data-open="${esc(a.id)}">${esc(a.name)}</button>`).join('')}</div>
       <div class="hstack" style="margin-top:var(--sp-4)"><button class="btn grow" data-open-tab="home">Home</button><button class="btn grow" data-open-tab="me">Me</button></div>`);
   });
-  function sheet(html) {
+  function sheet(html, onClick) {
     const bd = document.createElement('div'); bd.className = 'sheet-backdrop';
     bd.innerHTML = `<div class="sheet" role="dialog">${html}</div>`;
     document.body.appendChild(bd);
-    const close = () => bd.remove();
+    const close = () => { bd.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = ev => { if (ev.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
     bd.addEventListener('click', ev => {
       if (ev.target === bd) return close();
-      const o = ev.target.closest('[data-open]'); if (o) { close(); openApp(o.dataset.open); }
-      const t = ev.target.closest('[data-open-tab]'); if (t) { close(); showTab(t.dataset.openTab); }
+      const o = ev.target.closest('[data-open]'); if (o) { close(); openApp(o.dataset.open); return; }
+      const t = ev.target.closest('[data-open-tab]'); if (t) { close(); showTab(t.dataset.openTab); return; }
+      if (ev.target.closest('[data-close]')) { close(); return; }
+      if (onClick) onClick(ev, close);
     });
-    document.addEventListener('keydown', function onKey(ev) { if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } });
-    return close;
+    return { close, el: bd.firstElementChild };
   }
 
   // ── messages from apps ────────────────────────────────────────
@@ -449,8 +538,31 @@
   // ── home ──────────────────────────────────────────────────────
   const fmtDate = d => d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   const fmtTime = d => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const ago = t => { const s = Math.max(0, (Date.now() - t) / 1000); return s < 60 ? 'just now' : s < 3600 ? Math.floor(s / 60) + 'm' : s < 86400 ? Math.floor(s / 3600) + 'h' : s < 7 * 86400 ? Math.floor(s / 86400) + 'd' : new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); };
+  const dayKey = d => { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
   function greeting() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
-  let clockTimer = null;
+  function prayerStreak() {
+    const days = new Set(hub.get('prayerDays', { app: 'prayer', scope: 'person', default: [] }));
+    if (!days.size) return 0;
+    let d = new Date(); let n = 0;
+    if (!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
+    while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+  let clockTimer = null, feed = null, feedLoading = false;
+  async function loadFeed(force) {
+    if (feedLoading) return; if (feed && !force) return;
+    feedLoading = true;
+    try { feed = await hub.activityFeed(30); } catch { feed = feed || []; }
+    finally { feedLoading = false; renderFeed(); }
+  }
+  function renderFeed() {
+    const ul = $('#feed'); if (!ul) return;
+    if (!feed) { ul.innerHTML = Array.from({ length: 4 }, () => '<li><span class="pemoji skeleton"></span><div class="ftext"><div class="skeleton" style="width:55%">x</div><div class="skeleton" style="width:80%;margin-top:6px">x</div></div></li>').join(''); return; }
+    if (!feed.length) { ul.innerHTML = '<li class="muted">Nothing has happened yet. Check off a reading or log a leftover and it shows up here.</li>'; return; }
+    ul.innerHTML = feed.map(a => `<li><span class="pemoji" style="--pc:color-mix(in srgb, ${esc(a.color || '#8A6A4B')} 22%, var(--surface))">${esc(a.emoji || '·')}</span>
+      <div class="ftext"><span class="fwho">${esc(a.name || 'Someone')}</span> <span class="fwhen">· ${esc(ago(a.created_at))}</span><div class="text-2">${esc(a.text)}</div></div></li>`).join('');
+  }
   function renderHome() {
     const v = $('#view-home'); const p = hub.profile; if (!p) return;
     clearInterval(clockTimer);
@@ -461,22 +573,60 @@
         <div class="card"><h2><svg class="icon"><use href="#i-bell"/></svg>Reminders</h2><ul class="list" id="remlist"></ul></div>`;
       $('#kiosk-switch').addEventListener('click', () => showPicker());
       clockTimer = setInterval(() => { const n = new Date(); $('#clock').textContent = fmtTime(n); $('#hdate').textContent = fmtDate(n); }, 1000);
-    } else {
-      v.innerHTML = `
-        <div style="margin-bottom:var(--sp-6)"><div class="greet">${greeting()}, ${esc(p.name)}.</div><div class="home-date">${esc(fmtDate(new Date()))}</div></div>
-        <div class="card"><h2><svg class="icon"><use href="#i-bell"/></svg>Reminders</h2><ul class="list" id="remlist"></ul>
-          ${p.kind === 'adult' ? `<form class="add-row" id="remform"><input class="input" id="remtext" placeholder="Add a reminder for the house" maxlength="140" autocomplete="off"><button class="btn btn-primary" type="submit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button></form>` : ''}
-        </div>`;
-      const f = $('#remform');
-      if (f) f.addEventListener('submit', ev => {
-        ev.preventDefault(); const t = $('#remtext').value.trim(); if (!t) return;
-        const id = hub.uid();
-        hub.set('item:' + id, { id, text: t, by: p.id, byName: p.name, createdAt: Date.now() }, { app: 'reminders', scope: 'family' });
-        hub.activity('Added a reminder: ' + t, 'reminders');
-        $('#remtext').value = ''; renderReminders();
-      });
+      renderReminders(); return;
     }
-    renderReminders();
+    const head = `<div class="view-title" style="display:block"><div class="greet">${greeting()}, ${esc(p.name)}.</div><div class="home-date">${esc(fmtDate(new Date()))}</div></div>`;
+    if (p.kind === 'kid') {
+      v.innerHTML = head + `
+        <div class="stack-lg">
+          <button class="kid-cta" id="kid-apps"><svg class="icon"><use href="#i-sparkle"/></svg>Let's play — open your apps</button>
+          <div class="card"><h2><svg class="icon"><use href="#i-bell"/></svg>Reminders</h2><ul class="list" id="remlist"></ul></div>
+        </div>`;
+      $('#kid-apps').addEventListener('click', () => showTab('apps'));
+      renderReminders(); return;
+    }
+    const loaded = !!hub.sync.lastPull || hub.sync.state === 'offline';
+    const sk = '<span class="skeleton">loading</span>';
+    const cards = [];
+    if (canSee('f260')) {
+      const f = hub.get('f260.summary', { app: 'f260', scope: 'person' }); const a = appById('f260');
+      cards.push(`<div class="card gcard" style="--tc:${a.color}"><h2><svg class="icon"><use href="#i-book"/></svg>Today's reading</h2>
+        <div class="gbody">${f ? ringHtml(f.weekDone / 5, f.weekDone + '/5', a.color) : ''}<div class="grow">
+          <div class="gbig">${!loaded && !f ? sk : f ? (f.next ? esc(f.next.ref) : 'Plan complete') : 'Start with Genesis 1-2'}</div>
+          <div class="gsub">${f ? `Week ${f.week}, day ${f.next ? f.next.day : 5}${f.readToday ? ' · read today ✓' : ''}${f.streak ? ' · ' + f.streak + '-day streak' : ''}` : 'Week 1 of 52'}</div>
+        </div></div><button class="btn btn-soft" data-open="f260">Open F260</button></div>`);
+    }
+    {
+      const due = fridgeDue(); const a = appById('leftovers');
+      cards.push(`<div class="card gcard" style="--tc:${a ? a.color : '#3D5A3D'}"><h2><svg class="icon"><use href="#i-bowl"/></svg>In the fridge</h2>
+        <div class="gbody"><div class="grow">
+          <div class="gbig">${!loaded ? sk : due.length ? due.length + ' to eat this week' : 'Nothing aging'}</div>
+          <div class="gsub">${due.slice(0, 3).map(i => esc(i.name) + ' (' + i.days + 'd)').join(' · ') || 'Log leftovers when you put them away.'}</div>
+        </div></div>${a && canSee('leftovers') ? '<button class="btn btn-soft" data-open="leftovers">Open the ledger</button>' : ''}</div>`);
+    }
+    if (canSee('prayer')) {
+      const n = prayerStreak(); const a = appById('prayer');
+      cards.push(`<div class="card gcard" style="--tc:${a.color}"><h2><svg class="icon"><use href="#i-pray"/></svg>Prayer</h2>
+        <div class="gbody"><div class="grow">
+          <div class="gbig">${!loaded ? sk : n ? n + '-day streak' : 'No streak yet'}</div>
+          <div class="gsub">${n ? 'Keep it going today.' : 'Pray through your list to start one.'}</div>
+        </div></div><button class="btn btn-soft" data-open="prayer">Open prayer</button></div>`);
+    }
+    v.innerHTML = head + `
+      <div class="glance">${cards.join('')}</div>
+      <div class="card"><h2><svg class="icon"><use href="#i-bell"/></svg>Reminders</h2><ul class="list" id="remlist"></ul>
+        <form class="add-row" id="remform"><input class="input" id="remtext" placeholder="Add a reminder for the house" maxlength="140" autocomplete="off"><button class="btn btn-primary" type="submit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button></form>
+      </div>
+      <div class="card" style="margin-top:var(--sp-4)"><h2><svg class="icon"><use href="#i-flame"/></svg>Around the house <button class="btn btn-ghost btn-round" id="feed-refresh" style="margin-left:auto" aria-label="Refresh"><svg class="icon"><use href="#i-refresh"/></svg></button></h2><ul class="feed" id="feed"></ul></div>`;
+    $('#remform').addEventListener('submit', ev => {
+      ev.preventDefault(); const t = $('#remtext').value.trim(); if (!t) return;
+      const id = hub.uid();
+      hub.set('item:' + id, { id, text: t, by: p.id, byName: p.name, createdAt: Date.now() }, { app: 'reminders', scope: 'family' });
+      hub.activity('Added a reminder: ' + t, 'reminders');
+      $('#remtext').value = ''; renderReminders();
+    });
+    $('#feed-refresh').addEventListener('click', () => refreshAll());
+    renderReminders(); renderFeed(); loadFeed();
   }
   function renderReminders() {
     const ul = $('#remlist'); if (!ul) return;
@@ -489,14 +639,20 @@
       ${canEdit ? `<button class="btn btn-ghost btn-round" data-done="${esc(r.id)}" aria-label="Done"><svg class="icon"><use href="#i-x"/></svg></button>` : ''}</li>`).join('');
   }
   $('#view-home').addEventListener('click', ev => {
+    const o = ev.target.closest('[data-open]'); if (o) { openApp(o.dataset.open); return; }
     const b = ev.target.closest('[data-done]'); if (!b) return;
     const it = hub.get('item:' + b.dataset.done, { app: 'reminders', scope: 'family' });
     hub.remove('item:' + b.dataset.done, { app: 'reminders', scope: 'family' });
     if (it) hub.activity('Cleared the reminder: ' + it.text, 'reminders');
     renderReminders();
   });
-  hub.onChange(ch => { if (ch.app === 'reminders') renderReminders(); });
-  hub.onSync(() => { if (tab === 'home') renderReminders(); });
+  hub.onChange(ch => {
+    if (ch.app === 'reminders') renderReminders();
+    else if (tab === 'home') renderHome();
+    if (tab === 'apps' && (ch.app === 'f260' || ch.app === 'leftovers')) renderGrid();
+  });
+  let lastPullSeen = 0;
+  hub.onSync(s => { if (s.lastPull && s.lastPull !== lastPullSeen) { lastPullSeen = s.lastPull; if (tab === 'home') renderHome(); if (tab === 'apps') renderGrid(); } });
 
   // ── me ────────────────────────────────────────────────────────
   function renderMe() {
@@ -509,6 +665,7 @@
           <button class="btn" id="switch">Switch profile</button></div>
         <div class="card"><h2>Appearance</h2><div class="seg" id="theme">
           ${['system', 'light', 'dark'].map(t => `<button class="${theme === t ? 'on' : ''}" data-theme="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>
+        ${p.kind !== 'kiosk' ? `<div class="card"><h2>Notifications</h2><div class="hstack"><div class="grow"><div>Reminders on this device</div><div class="help">Fridge warnings and reading nudges. Arrives in the next step.${/iPhone|iPad/.test(navigator.userAgent) ? ' On iPhone and iPad this only works after Add to Home Screen.' : ''}</div></div><button class="switch" role="switch" aria-checked="false" disabled aria-label="Notifications"></button></div></div>` : ''}
         <div class="card"><h2>Sync</h2>
           <div class="kv"><b>Status</b><span><span class="dot dot-${s.state}" style="display:inline-block;vertical-align:middle;margin-right:6px"></span>${s.state}${s.lastError ? ' · ' + esc(s.lastError) : ''}</span></div>
           <div class="kv"><b>Waiting to send</b><span>${s.pending}</span></div>
@@ -516,7 +673,7 @@
           <div class="kv"><b>This device</b><span>${esc(hub.device ? hub.device.name || DEVICE_NAME : '—')}</span></div>
           <div class="hstack" style="margin-top:var(--sp-3)"><button class="btn grow" id="syncnow">Check now</button><button class="btn btn-ghost" id="forget">Forget this device</button></div>
         </div>
-        ${p.isAdmin ? '<div class="card"><h2>Admin</h2><p class="text-2">Profile management, PIN resets and the pairing code arrive in the next step.</p></div>' : ''}
+        ${p.isAdmin ? '<div class="card" id="admin"><h2>Admin</h2><div id="admin-body"><div class="skeleton" style="height:120px">loading</div></div></div>' : ''}
       </div>`;
     $('#switch').addEventListener('click', async () => { closeViewer(); await hub.signOut(); showPicker(); });
     $('#theme').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; hub.setTheme(b.dataset.theme); renderMe(); try { frame.contentWindow.postMessage({ source: 'hubshell', type: 'hub:theme' }, location.origin); } catch {} });
@@ -526,6 +683,99 @@
       try { for (const k of Object.keys(localStorage)) if (k.startsWith('hub.')) localStorage.removeItem(k); } catch {}
       location.reload();
     });
+    if (p.isAdmin) renderAdmin();
+  }
+
+  // ── admin panel ───────────────────────────────────────────────
+  async function renderAdmin() {
+    const body = $('#admin-body'); if (!body) return;
+    let list, usage;
+    try { [list, usage] = await Promise.all([hub.profiles(), hub.request('/api/admin/usage')]); }
+    catch (e) { body.innerHTML = `<p class="text-2">Could not load admin data: ${esc(e.message)}</p>`; return; }
+    const kindLbl = k => ({ adult: 'Adult', kid: 'Kid', kiosk: 'Display' })[k] || k;
+    const day = t => new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const nameOf = id => (list.find(x => x.id === id) || {}).name || id || '—';
+    const chatRows = usage.chat.slice(0, 30), pushRows = usage.push.slice(0, 30);
+    const me = hub.device && hub.device.id;
+    body.innerHTML = `
+      <h3 style="margin:var(--sp-2) 0">Profiles</h3>
+      <ul class="list">${list.map(q => `<li class="row prow"><span class="pemoji" style="--pc:color-mix(in srgb, ${esc(q.color)} 22%, var(--surface))">${esc(q.emoji)}</span>
+        <div class="row-main"><div class="row-title">${esc(q.name)}${q.is_admin ? ' · admin' : ''}</div><div class="row-sub">${kindLbl(q.kind)}${q.kind === 'adult' ? (q.has_pin ? ' · PIN set' : ' · no PIN yet') : ''}</div></div>
+        <button class="btn" data-edit="${esc(q.id)}">Edit</button>${q.kind === 'adult' && q.has_pin ? `<button class="btn btn-ghost" data-resetpin="${esc(q.id)}">Reset PIN</button>` : ''}</li>`).join('')}</ul>
+      <h3 style="margin:var(--sp-5) 0 var(--sp-2)">Pairing code</h3>
+      <p class="help" style="margin:0 0 var(--sp-3)">New devices need it once. Rotating it does not unpair anything.</p>
+      <div class="hstack"><button class="btn" id="rotate-choose">Choose a new code</button><button class="btn btn-ghost" id="rotate-gen">Generate one</button></div>
+      <h3 style="margin:var(--sp-5) 0 var(--sp-2)">Devices</h3>
+      <ul class="list">${usage.devices.length ? usage.devices.map(d => `<li class="row"><div class="row-main"><div class="row-title">${esc(d.name || 'Unnamed')}</div><div class="row-sub">Paired ${day(d.paired_at)} · seen ${ago(d.last_seen).replace(/^(d)/, '$1 ')}${/^d/.test(ago(d.last_seen)) ? ' ago' : ''}${d.id === me ? ' · this device' : ''}</div></div>
+        ${d.id !== me ? `<button class="btn btn-ghost" data-unpair="${esc(d.id)}">Unpair</button>` : ''}</li>`).join('') : '<li class="row muted">No paired devices.</li>'}</ul>
+      <h3 style="margin:var(--sp-5) 0 var(--sp-2)">Usage (30 days)</h3>
+      <table class="usage"><thead><tr><th>Day</th><th>Who</th><th>Chat messages</th></tr></thead><tbody>
+        ${chatRows.length ? chatRows.map(r => `<tr><td>${esc(r.day)}</td><td>${esc(nameOf(r.profile_id))}</td><td>${r.messages}</td></tr>`).join('') : '<tr><td colspan="3" class="muted">No chat yet.</td></tr>'}
+      </tbody></table>
+      <table class="usage" style="margin-top:var(--sp-3)"><thead><tr><th>Day</th><th>Who</th><th>Push sent</th><th>Kind</th></tr></thead><tbody>
+        ${pushRows.length ? pushRows.map(r => `<tr><td>${esc(r.day)}</td><td>${esc(nameOf(r.profile_id))}</td><td>${r.ok}/${r.sends}</td><td>${esc(r.kind)}</td></tr>`).join('') : '<tr><td colspan="4" class="muted">No pushes yet.</td></tr>'}
+      </tbody></table>`;
+    body.onclick = async ev => {
+      const e = ev.target.closest('[data-edit]'); if (e) return editProfile(list.find(x => x.id === e.dataset.edit));
+      const r = ev.target.closest('[data-resetpin]'); if (r) {
+        const q = list.find(x => x.id === r.dataset.resetpin);
+        if (!confirm(`Reset ${q.name}'s PIN? They will create a new one next time they tap their name.`)) return;
+        try { await hub.request(`/api/admin/profiles/${q.id}/reset-pin`, { method: 'POST', body: {} }); hub.toast('PIN reset.'); renderAdmin(); } catch (err) { hub.toast(err.message); }
+        return;
+      }
+      const u = ev.target.closest('[data-unpair]'); if (u) {
+        if (!confirm('Unpair this device? It will need the pairing code again.')) return;
+        try { await hub.request(`/api/admin/devices/${u.dataset.unpair}`, { method: 'DELETE' }); hub.toast('Device unpaired.'); renderAdmin(); } catch (err) { hub.toast(err.message); }
+      }
+    };
+    $('#rotate-gen').onclick = async () => {
+      if (!confirm('Generate a new pairing code? The old one stops working for new devices.')) return;
+      try { const r = await hub.request('/api/admin/pairing-code/rotate', { method: 'POST', body: {} });
+        sheet(`<h2>New pairing code</h2><p class="text-2">Write it down — it is shown only once.</p><div class="well" style="font-family:var(--font-mono);font-size:var(--fs-2xl);text-align:center;letter-spacing:.08em;margin:var(--sp-4) 0">${esc(r.code)}</div><button class="btn btn-primary btn-block" data-close>Done</button>`);
+      } catch (err) { hub.toast(err.message); }
+    };
+    $('#rotate-choose').onclick = () => {
+      const sh = sheet(`<h2>Choose a pairing code</h2><form id="rotform" class="stack" style="margin-top:var(--sp-3)"><input class="input" id="rotcode" placeholder="6 to 64 characters" minlength="6" maxlength="64" required autocomplete="off"><input class="input" id="rotcode2" placeholder="Type it again" required autocomplete="off"><p class="pin-msg" id="rotmsg"></p><button class="btn btn-primary btn-block" type="submit">Set pairing code</button></form>`);
+      sh.el.querySelector('#rotform').addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const a = sh.el.querySelector('#rotcode').value, b = sh.el.querySelector('#rotcode2').value;
+        if (a !== b) { sh.el.querySelector('#rotmsg').textContent = "Those don't match."; return; }
+        try { await hub.request('/api/admin/pairing-code/rotate', { method: 'POST', body: { code: a } }); sh.close(); hub.toast('Pairing code updated.'); }
+        catch (err) { sh.el.querySelector('#rotmsg').textContent = err.message; }
+      });
+    };
+  }
+  function editProfile(q) {
+    let color = q.color;
+    const sh = sheet(`<h2>Edit ${esc(q.name)}</h2>
+      <form id="pform" class="stack" style="margin-top:var(--sp-3)">
+        <label class="field"><span class="label">Name</span><input class="input" id="pname" value="${esc(q.name)}" maxlength="40" required></label>
+        <label class="field"><span class="label">Emoji</span><input class="input" id="pemoji" value="${esc(q.emoji)}" maxlength="8" style="font-size:var(--fs-xl)"></label>
+        <div class="field"><span class="label">Colour</span><div class="swatches" id="swatches">${SWATCHES.map(c => `<button type="button" class="swatch${c === q.color ? ' on' : ''}" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div></div>
+        <label class="field"><span class="label">Kind</span><select class="select" id="pkind" ${q.is_admin ? 'disabled' : ''}>${['adult', 'kid', 'kiosk'].map(k => `<option value="${k}" ${q.kind === k ? 'selected' : ''}>${({ adult: 'Adult (PIN)', kid: 'Kid (no PIN, fewer apps)', kiosk: 'Display (read-only)' })[k]}</option>`).join('')}</select></label>
+        <p class="pin-msg" id="pmsg"></p>
+        <div class="hstack"><button class="btn btn-ghost grow" type="button" data-close>Cancel</button><button class="btn btn-primary grow" type="submit">Save</button></div>
+      </form>`);
+    sh.el.querySelector('#swatches').addEventListener('click', ev => { const b = ev.target.closest('.swatch'); if (!b) return; color = b.dataset.c; sh.el.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x === b)); });
+    sh.el.querySelector('#pform').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const body = { name: sh.el.querySelector('#pname').value.trim(), emoji: sh.el.querySelector('#pemoji').value.trim() || q.emoji, color, kind: sh.el.querySelector('#pkind').value };
+      try {
+        const r = await hub.request(`/api/admin/profiles/${q.id}`, { method: 'PUT', body });
+        if (hub.profile && hub.profile.id === q.id) hub.setSession({ token: hub.session.token, profile: { ...hub.session.profile, ...r.profile } });
+        sh.close(); hub.toast('Saved.'); renderMe();
+      } catch (err) { sh.el.querySelector('#pmsg').textContent = err.message; }
+    });
+  }
+
+  // ── service worker ────────────────────────────────────────────
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const w = reg.installing; if (!w) return;
+        w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) hub.toast('Hub updated — it will use the new version next time it opens.', 4000); });
+      });
+    }).catch(() => {});
   }
 
   // ── boot ──────────────────────────────────────────────────────

@@ -2,78 +2,70 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Larder Ledger</title>
+<link rel="stylesheet" href="design.css">
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-  /* Author rules like `form { display: grid }` outrank the UA's [hidden] rule, so restate it. */
-  [hidden] { display: none !important; }
-  html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; min-height: 100vh; background: #F6F3EC; color: #2A2E28;
-         font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
-         padding: 32px max(16px, env(safe-area-inset-right)) max(64px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  /* The ledger keeps its own look (serif, paper, olive) and takes colours from design.css tokens. */
+  :root { --ledger: #3D5A3D; --ledger-ink: #F6F3EC; --ledger-press: #32492F; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ledger: #8FB08A; --ledger-ink: #1C1714; --ledger-press: #7A9C76; } }
+  :root[data-theme="dark"] { --ledger: #8FB08A; --ledger-ink: #1C1714; --ledger-press: #7A9C76; }
+  body { min-height: 100vh; font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+         padding: 32px max(16px, var(--safe-right)) max(64px, var(--safe-bottom)) max(16px, var(--safe-left)); }
   .wrap { max-width: 560px; margin: 0 auto; }
-  .sans { font-family: system-ui, -apple-system, sans-serif; }
+  .sans { font-family: var(--font-sans); }
 
   .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
   h1 { font-size: 28px; font-weight: 700; letter-spacing: -.01em; margin: 0; }
-  .tally { font-family: 'Courier New', monospace; font-size: 12px; color: #8A8574;
-           letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
-  .lede { color: #6B6555; font-size: 14px; margin: 0 0 6px; }
-  .mode { font-size: 12px; color: #A8A290; margin: 0 0 24px; }
-  .mode[hidden] { display: none; }
-  .mode.warn { color: #8A5A16; }
-  .spacer { height: 18px; }
+  .tally { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+  .lede { color: var(--text-2); font-size: 14px; margin: 0 0 6px; }
+  .mode { font-size: 12px; color: var(--muted); margin: 0 0 24px; }
+  .mode.warn { color: var(--warn); }
 
-  .alert { display: flex; align-items: center; gap: 8px; background: #FBE7E3; color: #8A3327;
+  .alert { display: flex; align-items: center; gap: 8px; background: var(--danger-soft); color: var(--danger);
            padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; }
 
-  form { background: #fff; border: 1px solid #E3DECF; border-radius: 14px; padding: 18px;
+  form { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
          margin-bottom: 28px; display: grid; gap: 14px; }
   .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  input, select, button { font-family: inherit; }
-  #name { border: none; border-bottom: 2px solid #E3DECF; padding: 14px 2px; font-size: 17px;
-          outline: none; background: transparent; color: #2A2E28; min-height: 56px; width: 100%; }
-  #name:focus { border-bottom-color: #3D5A3D; }
-  #name::placeholder { color: #A8A290; }
-  select, #date { border: 1px solid #E3DECF; border-radius: 8px; padding: 10px 12px; font-size: 16px;
-                  background: #FBF9F4; color: #2A2E28; min-height: 56px; width: 100%; }
-  .log { display: flex; align-items: center; justify-content: center; gap: 8px; background: #3D5A3D;
-         color: #F6F3EC; border: none; border-radius: 8px; min-height: 60px; font-size: 17px; font-weight: 600; }
-  .log:active { background: #32492F; }
-  .err { color: #B14B3F; font-size: 12px; }
+  .namerow { display: flex; align-items: flex-end; gap: 8px; }
+  #name { flex: 1; border: none; border-bottom: 2px solid var(--line); padding: 14px 2px; font-size: 17px;
+          outline: none; background: transparent; color: var(--text); min-height: 56px; width: 100%; }
+  #name:focus { border-bottom-color: var(--ledger); box-shadow: none; }
+  #name::placeholder { color: var(--muted); }
+  select, #date { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 16px;
+                  background: var(--surface-2); color: var(--text); min-height: 56px; width: 100%; }
+  .log { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--ledger);
+         color: var(--ledger-ink); border: none; border-radius: 8px; min-height: 60px; font-size: 17px; font-weight: 600; cursor: pointer; }
+  .log:active { background: var(--ledger-press); }
+  .mic { width: 56px; height: 56px; flex: none; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2);
+         color: var(--ledger); display: grid; place-items: center; cursor: pointer; }
+  .mic.on { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { transform: scale(.94); } }
+  .err { color: var(--danger); font-size: 12px; }
 
   .list { display: grid; gap: 10px; }
-  .card { display: flex; align-items: stretch; background: #fff; border: 1px solid #E3DECF;
-          border-radius: 12px; overflow: hidden; }
+  .item { display: flex; align-items: stretch; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
   .bar { width: 5px; flex: none; background: var(--bar); }
   .body { flex: 1; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
   .nm { font-size: 16px; font-weight: 600; }
-  .meta { font-size: 12.5px; color: #8A8574; margin-top: 3px; }
+  .meta { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
   .right { display: flex; align-items: center; gap: 10px; flex: none; }
-  .chip { font-size: 11.5px; font-weight: 600; padding: 6px 11px; border-radius: 999px;
-          background: var(--chip); color: var(--chip-text); white-space: nowrap; }
-  .done { border: 1px solid #D8D2C0; background: #FBF9F4; border-radius: 10px; width: 52px; height: 52px;
-          display: flex; align-items: center; justify-content: center; color: #3D5A3D; flex: none; }
-  .done:active { background: #EFEADC; }
+  .status { font-size: 11.5px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: var(--chip); color: var(--chip-text); white-space: nowrap; }
+  .done { border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; width: 52px; height: 52px;
+          display: flex; align-items: center; justify-content: center; color: var(--ledger); flex: none; cursor: pointer; }
+  .done:active { background: var(--hover); }
 
-  .empty { text-align: center; padding: 48px 0; color: #8A8574; }
+  .empty { text-align: center; padding: 48px 0; color: var(--muted); }
   .empty p { margin: 0; }
   .empty svg { margin-bottom: 10px; opacity: .5; }
 
-  .lock { background: #fff; border: 1px solid #E3DECF; border-radius: 14px; padding: 22px; display: grid; gap: 14px; }
-  .lock h2 { font-size: 19px; font-weight: 700; margin: 0; }
-  .lock p { font-size: 13.5px; color: #6B6555; margin: 0; line-height: 1.5; }
-  .lock input { border: 1px solid #E3DECF; border-radius: 8px; padding: 12px 14px; font-size: 17px;
-                background: #FBF9F4; color: #2A2E28; min-height: 56px; width: 100%; outline: none; }
-  .lock input:focus { border-color: #3D5A3D; }
-  .lock .err { color: #B14B3F; font-size: 13px; }
-
-  .hearth { margin-top: 32px; padding-top: 20px; border-top: 1px solid #E3DECF; }
-  .hearth p { font-size: 13px; color: #6B6555; margin: 0 0 12px; }
-  .copy { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #D8D2C0; background: #FBF9F4;
-          border-radius: 8px; padding: 0 18px; min-height: 52px; font-size: 14px; color: #2A2E28; }
-  .copy:active { background: #EFEADC; }
+  .hearth { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .hearth p { font-size: 13px; color: var(--text-2); margin: 0 0 12px; }
+  .copy { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface-2);
+          border-radius: 8px; padding: 0 18px; min-height: 52px; font-size: 14px; color: var(--text); cursor: pointer; }
+  .copy:active { background: var(--hover); }
+  :root[data-kind="kiosk"] .hearth, :root[data-kind="kiosk"] #add { display: none; }
 </style>
 </head>
 <body>
@@ -85,19 +77,13 @@
   <p class="lede">Log it when you put it away. Cross it off when it's gone.</p>
   <p class="mode sans" id="mode" hidden></p>
 
-  <form id="unlock" class="lock sans" hidden>
-    <h2>This fridge list is locked</h2>
-    <p>Enter the house passphrase once and this iPad will remember it.</p>
-    <input type="password" id="key" placeholder="House passphrase" autocomplete="current-password"
-           enterkeyhint="go" aria-label="House passphrase">
-    <button type="submit" class="log">Unlock</button>
-    <span class="err" id="keyerr" hidden></span>
-  </form>
-
   <div id="alert"></div>
 
   <form id="add" class="sans">
-    <input id="name" placeholder="What is it? e.g. Chicken alfredo" autocomplete="off" enterkeyhint="done">
+    <div class="namerow">
+      <input id="name" placeholder="What is it? e.g. Chicken alfredo" autocomplete="off" enterkeyhint="done">
+      <button type="button" class="mic" id="mic" aria-label="Say the name" hidden></button>
+    </div>
     <div class="pair">
       <select id="size" aria-label="Container size"></select>
       <input type="date" id="date" aria-label="Date logged">
@@ -115,22 +101,16 @@
   </div>
 </div>
 
+<script src="hub.js" data-app="leftovers" data-scope="family"></script>
 <script>
-  // Paste the Worker URL here to share one list across the house.
-  // Leave it empty and the app just saves to this device.
-  const API = 'https://house-hub-api.catalystfarm1.workers.dev';
-
-  const POLL_MS = 20000;
-  const KEY = 'leftovers.items';
+(async () => {
   const SIZES = ['Small', 'Medium', 'Large', 'Family-size'];
   const WARN_DAYS = 7, AGING_DAYS = 4;
-
   const TONES = {
-    fresh:  { bar: '#5C7A5C', chip: '#EAF1E7', chipText: '#3D5A3D' },
-    warn:   { bar: '#C98A2E', chip: '#FBF0DC', chipText: '#8A5A16' },
-    urgent: { bar: '#B14B3F', chip: '#FBE7E3', chipText: '#8A3327' },
+    fresh:  { bar: 'var(--ok)',     chip: 'var(--ok-soft)',     chipText: 'var(--ok)' },
+    warn:   { bar: 'var(--warn)',   chip: 'var(--warn-soft)',   chipText: 'var(--warn)' },
+    urgent: { bar: 'var(--danger)', chip: 'var(--danger-soft)', chipText: 'var(--danger)' },
   };
-
   // Lucide glyphs, inlined — no icon library on a static host.
   const ICON = {
     plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
@@ -138,6 +118,7 @@
     refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
     alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
     utensils: '<path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="M2.1 21.8 13 11"/><path d="m9 11 3 3"/>',
+    mic: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
   };
   function svg(name, size, stroke) {
     const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -149,73 +130,39 @@
     return s;
   }
 
-  // localStorage is the offline cache when API is set, and the only store when it isn't.
-  const load = () => { try { const v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) ? v : []; } catch { return []; } };
-  const cache = () => { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch {} };
-
-  // Hub-wide on purpose: any future shared app reuses this, so it's entered once per device.
-  const KEY_STORE = 'house.key';
-  const getKey = () => { try { return localStorage.getItem(KEY_STORE) || ''; } catch { return ''; } };
-  const setKey = k => { try { k ? localStorage.setItem(KEY_STORE, k) : localStorage.removeItem(KEY_STORE); } catch {} };
-
-  class Unauthorized extends Error {}
-
-  async function api(path, opts) {
-    const r = await fetch(API.replace(/\/$/, '') + path, Object.assign({
-      headers: { 'Content-Type': 'application/json', 'X-House-Key': getKey() },
-      cache: 'no-store',
-    }, opts));
-    if (r.status === 401) throw new Unauthorized();
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    if (!d || !Array.isArray(d.items)) throw new Error('Bad response');
-    return d.items;
-  }
-
   const todayStr = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
   const daysBetween = s => { const then = new Date(s + 'T00:00:00'); const now = new Date(); now.setHours(0, 0, 0, 0); return Math.floor((now - then) / 86400000); };
   const statusFor = d => d >= WARN_DAYS ? { label: 'Use it up', tone: 'urgent' }
                        : d >= AGING_DAYS ? { label: 'Aging', tone: 'warn' }
                        : { label: 'Fresh', tone: 'fresh' };
 
-  let items = load();
+  await hub.ready();
+  // Family data lives on the server already; this only rescues an item cached on a device that never synced.
+  hub.migrate([{ from: 'leftovers.items', scope: 'family', to: v => (Array.isArray(v) ? v : []).filter(i => i && i.id).map(i => ['item:' + i.id, i]) }]);
 
+  const items = () => hub.list('item:').map(r => r.value);
   const $ = id => document.getElementById(id);
   const errEl = $('err'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally'), modeEl = $('mode');
   const setErr = m => { errEl.textContent = m; errEl.hidden = !m; };
-
-  // When the server rejects the passphrase, swap the whole page for the unlock panel.
-  function setLocked(locked, message) {
-    $('unlock').hidden = !locked;
-    $('add').hidden = locked;
-    listEl.hidden = locked;
-    document.querySelector('.hearth').hidden = locked;
-    alertEl.hidden = locked;
-    modeEl.hidden = modeEl.hidden || locked;
-    const ke = $('keyerr');
-    ke.textContent = message || '';
-    ke.hidden = !message;
-    if (locked) $('key').focus();
-  }
+  const canEdit = hub.canWrite;
 
   // Only speak up when sync ISN'T working — silence means the house list is fine.
-  function setMode(state) {
-    if (!API) { modeEl.textContent = 'Saved on this iPad only.'; modeEl.className = 'mode sans'; modeEl.hidden = false; }
-    else if (state === 'offline') { modeEl.textContent = "Can't reach the house list — showing the last copy saved here."; modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
-    else { modeEl.hidden = true; }
-  }
+  hub.onSync(s => {
+    if (s.state === 'offline') { modeEl.textContent = "Can't reach the house list — showing the last copy saved here." + (s.pending ? ' Your changes will send when it is back.' : ''); modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
+    else if (s.state === 'error') { modeEl.textContent = 'The house list had a problem: ' + (s.lastError || 'unknown') + '.'; modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
+    else modeEl.hidden = true;
+  });
 
   SIZES.forEach(s => { const o = document.createElement('option'); o.value = o.textContent = s; $('size').append(o); });
   $('size').value = SIZES[1];
   $('date').value = todayStr();
   $('date').max = todayStr();
 
-  const logBtn = document.querySelector('#add .log');   // not the unlock button, which shares the class
-  logBtn.textContent = '';
+  const logBtn = document.querySelector('#add .log');
   logBtn.append(svg('plus', 18), document.createTextNode(' Log leftover'));
 
   function render() {
-    const sorted = [...items].sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged));
+    const sorted = items().sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged));
     tallyEl.textContent = sorted.length + ' in the fridge';
 
     const warnCount = sorted.filter(i => daysBetween(i.dateLogged) >= WARN_DAYS).length;
@@ -247,30 +194,31 @@
       const t = TONES[tone];
 
       const card = document.createElement('div');
-      card.className = 'card';
+      card.className = 'item';
       card.style.setProperty('--bar', t.bar);
       card.style.setProperty('--chip', t.chip);
       card.style.setProperty('--chip-text', t.chipText);
 
       const bar = document.createElement('div'); bar.className = 'bar';
-
       const body = document.createElement('div'); body.className = 'body';
       const info = document.createElement('div');
       const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = it.name;
       const meta = document.createElement('div'); meta.className = 'meta';
-      meta.textContent = it.size + ' · logged ' + it.dateLogged + ' · ' + days + 'd ago';
+      meta.textContent = it.size + ' · logged ' + it.dateLogged + ' · ' + days + 'd ago' + (it.byName ? ' · ' + it.byName : '');
       info.append(nm, meta);
 
       const right = document.createElement('div'); right.className = 'right';
-      const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = label;
-      const done = document.createElement('button');
-      done.type = 'button'; done.className = 'done';
-      done.title = 'Mark used up';
-      done.setAttribute('aria-label', 'Mark ' + it.name + ' used up');
-      done.append(svg('check', 18, 2.4));
-      done.onclick = () => removeItem(it.id);
-      right.append(chip, done);
-
+      const chip = document.createElement('span'); chip.className = 'status'; chip.textContent = label;
+      right.append(chip);
+      if (canEdit) {
+        const done = document.createElement('button');
+        done.type = 'button'; done.className = 'done';
+        done.title = 'Mark used up';
+        done.setAttribute('aria-label', 'Mark ' + it.name + ' used up');
+        done.append(svg('check', 18, 2.4));
+        done.onclick = () => removeItem(it.id);
+        right.append(done);
+      }
       body.append(info, right);
       card.append(bar, body);
       grid.append(card);
@@ -278,80 +226,47 @@
     listEl.append(grid);
   }
 
-  $('add').onsubmit = async e => {
+  $('add').onsubmit = e => {
     e.preventDefault();
     const name = $('name').value.trim();
     if (!name) return;
+    if (!canEdit) { setErr('This profile can only look at the list.'); return; }
     const item = {
-      id: Date.now() + '-' + Math.random().toString(36).slice(2, 7),
-      name, size: $('size').value, dateLogged: $('date').value || todayStr(),
+      id: hub.uid(), name, size: $('size').value, dateLogged: $('date').value || todayStr(),
+      by: hub.profile.id, byName: hub.profile.name,
     };
-
     $('name').value = ''; $('name').blur();
     $('size').value = SIZES[1];
     $('date').value = todayStr();
-
-    items.push(item); cache(); render();          // show it straight away
-    if (!API) return;
-    try {
-      items = await api('/items', { method: 'POST', body: JSON.stringify(item) });
-      cache(); render(); setErr(''); setMode('ok');
-    } catch (e) {
-      items = items.filter(i => i.id !== item.id); cache(); render();
-      if (e instanceof Unauthorized) lockOut();
-      else setErr("Couldn't save — try again.");
-    }
+    hub.set('item:' + item.id, item);
+    hub.activity('Logged ' + item.name + ' (' + item.size + ') in the fridge');
+    setErr(''); render();
   };
 
-  async function removeItem(id) {
-    const prev = items;
-    items = items.filter(x => x.id !== id); cache(); render();
-    if (!API) return;
-    try {
-      items = await api('/items/' + encodeURIComponent(id), { method: 'DELETE' });
-      cache(); render(); setErr(''); setMode('ok');
-    } catch (e) {
-      items = prev; cache(); render();
-      if (e instanceof Unauthorized) lockOut();
-      else setErr("Couldn't remove — try again.");
-    }
+  function removeItem(id) {
+    const it = hub.get('item:' + id);
+    hub.remove('item:' + id);
+    if (it) hub.activity('Finished the ' + it.name);
+    render();
   }
 
-  async function refresh() {
-    if (!API) return;
-    try { items = await api('/items'); cache(); render(); setMode('ok'); setLocked(false); }
-    catch (e) {
-      if (e instanceof Unauthorized) lockOut();
-      else setMode('offline');
-    }
+  // Voice: tap, say the name, it lands in the box.
+  const mic = $('mic');
+  if (hub.voiceSupported && canEdit) {
+    mic.hidden = false; mic.append(svg('mic', 22));
+    let rec = null;
+    mic.onclick = () => {
+      if (rec) { rec.stop(); return; }
+      rec = hub.voiceInput(text => { $('name').value = text; $('name').focus(); }, {
+        onEnd: () => { rec = null; mic.classList.remove('on'); },
+        onError: () => { rec = null; mic.classList.remove('on'); setErr("Couldn't hear that — try again or type it."); },
+      });
+      if (rec) { mic.classList.add('on'); setErr(''); }
+    };
   }
-
-  // A stored passphrase that stopped working is worse than none — drop it and re-ask.
-  function lockOut() {
-    const had = !!getKey();
-    setKey('');
-    setLocked(true, had ? 'That passphrase was rejected. Try again.' : '');
-  }
-
-  $('unlock').onsubmit = async e => {
-    e.preventDefault();
-    const entered = $('key').value.trim();
-    if (!entered) return;
-    setKey(entered);
-    try {
-      items = await api('/items');
-      $('key').value = ''; $('key').blur();
-      cache(); setLocked(false); render(); setMode('ok');
-    } catch (err) {
-      setKey('');
-      setLocked(true, err instanceof Unauthorized
-        ? 'That passphrase was rejected. Try again.'
-        : "Couldn't reach the house list — check the connection.");
-    }
-  };
 
   function buildHearthText() {
-    const due = [...items].sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged))
+    const due = items().sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged))
       .filter(i => daysBetween(i.dateLogged) >= AGING_DAYS);
     if (!due.length) return "Nothing aging right now — fridge's in good shape.";
     const lines = due.map(i => {
@@ -385,13 +300,9 @@
 
   // "Nd ago" rolls over at midnight; re-render even with no new data.
   setInterval(render, 60000);
-  // Pick up what everyone else logged.
-  if (API) setInterval(refresh, POLL_MS);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); refresh(); } });
-
-  setMode('ok');
-  render();      // paint the cached list immediately, then reconcile with the house
-  refresh();
+  hub.onChange(render);   // someone else logged or finished something
+  render();
+})();
 </script>
 </body>
 </html>

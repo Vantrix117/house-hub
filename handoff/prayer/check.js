@@ -33,6 +33,10 @@ global.alert = ()=>{}; global.prompt = ()=>null; global.confirm = ()=>true; glob
 global.setTimeout = ()=>0; global.clearTimeout = ()=>0; global.setInterval = ()=>0;
 global.TextEncoder = require('util').TextEncoder;
 global.btoa = s => Buffer.from(s, 'binary').toString('base64');
+// hub.js stand-in: the app now stores through the House Hub SDK; with USE_LOCAL_STORAGE=false it never calls get/set.
+global.hub = { profile:{ id:'eli', name:'Eli Anderson', kind:'adult', isAdmin:true, color:'#4F5D8C', emoji:'x' }, canWrite:true,
+  ready:async()=>{}, get:()=>undefined, set(){}, remove(){}, list:()=>[], has:()=>false, onChange(){}, onSync(){}, migrate:()=>[],
+  activity(){}, theme:()=>'system', setTheme(){}, voiceSupported:false, voiceInput:()=>null, escape:s=>String(s), uid:()=>'id', toast(){} };
 
 let pass = 0, fail = 0;
 const ok = (name, cond, detail) => { if (cond) { pass++; console.log('  ok   ' + name); }
@@ -65,7 +69,7 @@ let n = 0; while (g('pray').classList.contains('on') && n++ < 60) { setPrayed(pr
 ok('prayer mode closes after the last request', !g('pray').classList.contains('on'));
 ok('prayer mode marked every request', prayList.every(p => p.lastPrayedAt === TODAY));
 // --- shared list + initials
-D.me = 'Eli Anderson'; D.activeList = 'shared';
+D.activeList = 'shared';   // who-prayed comes from hub.profile.name
 D.lists.shared.prayers.push({ id:'s001', title:'Check', for:'', phone:'', detail:'', category:'Health Needs',
   cadence:'daily', days:[], status:'active', createdAt:TODAY, lastPrayedAt:null, answeredAt:null,
   answerNote:null, updates:[], sharedFrom:null, prayedBy:{}, updatedAt:'' });
@@ -74,29 +78,7 @@ ok('shared list records who prayed', (D.lists.shared.prayers[0].prayedBy[TODAY]|
 ok('initials render on shared rows', g('todayList').innerHTML.includes('>EA<'));
 setPrayed(D.lists.shared.prayers[0], false);
 ok('unmarking removes only this person', !(D.lists.shared.prayers[0].prayedBy[TODAY]||[]).length);
-// --- merge
-D.lists.shared.prayers = [{ id:'s001', title:'local', updates:[{date:'2026-09-01',note:'a'}],
-  prayedBy:{'2026-09-11':['Eli']}, lastPrayedAt:'2026-09-11', updatedAt:'2026-09-11T01:00:00Z' }];
-mergeShared({ prayers:[{ id:'s001', title:'remote', updates:[{date:'2026-09-02',note:'b'}],
-  prayedBy:{'2026-09-11':['Christian']}, lastPrayedAt:'2026-09-12', updatedAt:'2026-09-12T01:00:00Z' },
-  { id:'s002', title:'from phone', updates:[], prayedBy:{}, updatedAt:'2026-09-12T02:00:00Z' }],
-  categories:['Brand New'], prayerDays:['2026-09-12'] });
-const m = D.lists.shared.prayers.find(p => p.id === 's001');
-ok('merge: newer record wins', m.title === 'remote');
-ok('merge: updates unioned', m.updates.length === 2);
-ok('merge: prayedBy unioned', m.prayedBy['2026-09-11'].length === 2);
-ok('merge: remote-only record added', D.lists.shared.prayers.some(p => p.id === 's002'));
-ok('merge: categories unioned', D.lists.shared.categories.includes('Brand New'));
-mergeShared({ prayers:[{ id:'s001', title:'stale', updatedAt:'2020-01-01T00:00:00Z', updates:[], prayedBy:{} }] });
-ok('merge: older remote does not clobber', D.lists.shared.prayers.find(p=>p.id==='s001').title === 'remote');
-// --- sync config
-ok('sync is off by default', !SYNC.ready());
-D.sync.mode = 'github'; D.sync.owner = 'x'; D.sync.repo = 'y'; D.sync.path = 'z.json';
-ok('sync ready once configured', !!SYNC.ready());
-SYNC.setToken('tok_test');
-ok('token never appears in an export', !JSON.stringify(D).includes('tok_test'));
-ok('utf-8 base64 round-trips', Buffer.from(SYNC.b64('Hylan — héllo'),'base64').toString('utf8') === 'Hylan — héllo');
-D.sync.mode = 'off'; D.activeList = 'personal';
+D.activeList = 'personal';
 // --- other screens
 renderAllScreens();
 ok('answered list renders', (g('answeredList').innerHTML.match(/class="ans"/g)||[]).length >= 2);
