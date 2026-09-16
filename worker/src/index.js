@@ -16,6 +16,7 @@ import {
   rateCheck, rateHit, rateClear,
 } from './auth.js';
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
+import { runCron, pushTo, vapidFrom } from './reminders.js';
 
 const PIN_RE = /^\d{4,8}$/;
 const MIN = 60000;
@@ -184,6 +185,10 @@ route('POST', '/api/activity', async c => {
 });
 
 // ── push ──────────────────────────────────────────────────────
+route('GET', '/api/push/config', async c => {
+  await c.auth();
+  return { public_key: c.env.VAPID_PUBLIC_KEY || null, enabled: !!vapidFrom(c.env) };
+});
 route('POST', '/api/push/subscribe', async c => {
   const auth = await c.auth();
   const p = requireProfile(auth);
@@ -255,6 +260,21 @@ route('GET', '/api/admin/usage', async c => {
   const devices = await c.env.DB.prepare('SELECT id, name, paired_at, last_seen FROM devices ORDER BY last_seen DESC').all();
   const subs = await c.env.DB.prepare('SELECT profile_id, COUNT(*) AS n FROM push_subscriptions GROUP BY profile_id').all();
   return { chat: chat.results, push: push.results, devices: devices.results, push_subscriptions: subs.results };
+});
+
+// Send a test notification to the caller (or, for the admin, any profile).
+route('POST', '/api/push/test', async c => {
+  const auth = await c.auth(); const me = requireProfile(auth);
+  const b = await c.body();
+  const target = b.profile_id && b.profile_id !== me.id ? (requireAdmin(auth), String(b.profile_id)) : me.id;
+  return pushTo(c.env, target, 'test', { title: 'Anderson House', body: 'Notifications are working on this device.', url: '#me', tag: 'test' }, { ttl: 600, urgency: 'high' });
+});
+// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening'}
+route('POST', '/api/admin/cron/run', async c => {
+  requireAdmin(await c.auth());
+  const { job } = await c.body();
+  if (!['morning', 'evening'].includes(job)) throw new HttpError(400, 'bad_job', "job must be 'morning' or 'evening'.");
+  return runCron(c.env, Date.now(), job);
 });
 
 route('DELETE', '/api/admin/devices/:id', async c => {
@@ -329,5 +349,9 @@ export async function handle(request, env, exec) {
 
 export default {
   fetch: (request, env, ctx) => handle(request, env, ctx),
-  // Phase 4 adds scheduled(event, env, ctx) for reminders.
+  // Cron (see wrangler.toml [triggers]). Locally: wrangler dev --test-scheduled, then GET /__scheduled?cron=0+12+*+*+*
+  async scheduled(event, env, ctx) {
+    const out = await runCron(env, Date.now());
+    console.log('cron', event.cron, JSON.stringify(out));
+  },
 };

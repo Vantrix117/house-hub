@@ -6,6 +6,9 @@ workers_dev = true
 [vars]
 # Browser origins allowed to call the API. The GitHub Pages site plus the local dev server.
 ALLOWED_ORIGINS = "https://vantrix117.github.io,http://localhost:8765,http://127.0.0.1:8765"
+# Web Push. The matching private key is a secret: npx wrangler secret put VAPID_PRIVATE_KEY
+VAPID_PUBLIC_KEY = "BDLrsVIp1lqTMsTI3FhtB4IGqHSLGRGiEi63gNOW-ofDmSO0fpdCbuTwv2Mkhoy69cJHT9mQCAVinCGrfrmVi4U"
+VAPID_SUBJECT = "mailto:catalystfarm1@gmail.com"
 
 [observability]
 enabled = true
@@ -15,3 +18,8 @@ enabled = true
 binding = "DB"
 database_name = "house-hub"
 database_id = "c5410eee-9095-4092-84b0-dc534aded0d8"
+
+# Reminders. Cron is UTC; both hours are listed so New York keeps 8:00 am / 8:00 pm across DST.
+# The handler checks the local hour and runs only the matching job.
+[triggers]
+crons = ["0 12,13 * * *", "0 0,1 * * *"]

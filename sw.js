@@ -3,8 +3,8 @@
    - apps.json and anything under /api are network-first (fresh when online, cached copy when not).
    - Precached files are served from cache and refreshed in the background (stale-while-revalidate),
      so an edit shows up on the second open. Bump VERSION to force a clean cache.
-   - Phase 4 adds push + notificationclick. */
-const VERSION = 'hub-v3';
+   - push: shows the notification the Worker sent; notificationclick deep-links into the app via the URL hash. */
+const VERSION = 'hub-v4';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'sw.js',
   'apps/design.css', 'apps/hub.js',
@@ -42,5 +42,25 @@ self.addEventListener('fetch', e => {
     const cached = await c.match(key) || await c.match(req, { ignoreSearch: true });
     const network = fetch(req).then(r => { if (r.ok) c.put(key, r.clone()); return r; }).catch(() => null);
     return cached || (await network) || new Response('Offline', { status: 503 });
+  }));
+});
+
+// ── push notifications ────────────────────────────────────────
+self.addEventListener('push', e => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch { data = { body: e.data ? e.data.text() : '' }; }
+  const title = data.title || 'Anderson House';
+  e.waitUntil(self.registration.showNotification(title, {
+    body: data.body || '', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png',
+    tag: data.tag || 'hub', renotify: !!data.tag, data: { url: data.url || '#home' },
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const target = new URL('index.html' + (e.notification.data && e.notification.data.url || '#home'), self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    const open = list.find(c => c.url.startsWith(self.registration.scope));
+    if (open) { open.postMessage({ source: 'hubsw', type: 'open', url: target }); return open.focus(); }
+    return self.clients.openWindow(target);
   }));
 });

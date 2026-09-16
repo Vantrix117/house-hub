@@ -251,7 +251,7 @@
   const svgCache = {};
 
   // Data the dashboard reads from other apps (each app still owns its own keys).
-  hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person');
+  hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person');
 
   // ── registry ──────────────────────────────────────────────────
   async function loadRegistry() {
@@ -665,7 +665,13 @@
           <button class="btn" id="switch">Switch profile</button></div>
         <div class="card"><h2>Appearance</h2><div class="seg" id="theme">
           ${['system', 'light', 'dark'].map(t => `<button class="${theme === t ? 'on' : ''}" data-theme="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>
-        ${p.kind !== 'kiosk' ? `<div class="card"><h2>Notifications</h2><div class="hstack"><div class="grow"><div>Reminders on this device</div><div class="help">Fridge warnings and reading nudges. Arrives in the next step.${/iPhone|iPad/.test(navigator.userAgent) ? ' On iPhone and iPad this only works after Add to Home Screen.' : ''}</div></div><button class="switch" role="switch" aria-checked="false" disabled aria-label="Notifications"></button></div></div>` : ''}
+        ${p.kind !== 'kiosk' ? `<div class="card" id="notif"><h2>Notifications</h2>
+          <div class="hstack"><div class="grow"><div>Reminders on this device</div><div class="help" id="notif-help">Checking…</div></div><button class="switch" id="notif-toggle" role="switch" aria-checked="false" aria-label="Notifications on this device" disabled></button></div>
+          <div id="notif-prefs" hidden style="margin-top:var(--sp-3)">
+            ${p.kind === 'adult' ? '<div class="kv"><b>Fridge warnings, 8 am</b><button class="switch" data-pref="leftovers" role="switch" aria-checked="true" aria-label="Fridge warnings"></button></div>' : ''}
+            ${canSee('f260') ? '<div class="kv"><b>Reading nudge, 8 pm</b><button class="switch" data-pref="f260" role="switch" aria-checked="true" aria-label="Reading nudge"></button></div>' : ''}
+            <button class="btn" id="notif-test" style="margin-top:var(--sp-3)">Send a test notification</button>
+          </div></div>` : ''}
         <div class="card"><h2>Sync</h2>
           <div class="kv"><b>Status</b><span><span class="dot dot-${s.state}" style="display:inline-block;vertical-align:middle;margin-right:6px"></span>${s.state}${s.lastError ? ' · ' + esc(s.lastError) : ''}</span></div>
           <div class="kv"><b>Waiting to send</b><span>${s.pending}</span></div>
@@ -684,7 +690,57 @@
       location.reload();
     });
     if (p.isAdmin) renderAdmin();
+    if (p.kind !== 'kiosk') renderNotif();
   }
+
+  // ── notifications (Web Push) ──────────────────────────────────
+  const IOS = /iPhone|iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && location.protocol === 'https:';
+  const b64ToBytes = s => Uint8Array.from(atob((s + '='.repeat((4 - s.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+  async function renderNotif() {
+    const help = $('#notif-help'), toggle = $('#notif-toggle'), prefsEl = $('#notif-prefs'); if (!help) return;
+    const prefs = { leftovers: true, f260: true, ...(hub.get('push_prefs', { app: 'hub', scope: 'person' }) || {}) };
+    prefsEl.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(prefs[b.dataset.pref] !== false)));
+    prefsEl.onclick = ev => {
+      const b = ev.target.closest('[data-pref]'); if (!b) return;
+      const next = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', String(next));
+      hub.set('push_prefs', { ...prefs, [b.dataset.pref]: next }, { app: 'hub', scope: 'person' }); prefs[b.dataset.pref] = next;
+    };
+    const test = $('#notif-test');
+    if (test) test.onclick = async () => {
+      test.disabled = true;
+      try { const r = await hub.request('/api/push/test', { method: 'POST', body: {} }); hub.toast(r.sent ? (r.ok ? 'Sent — it should appear in a moment.' : 'The push service refused it: ' + (r.details[0] && (r.details[0].status + ' ' + (r.details[0].error || '')))) : 'No subscription on the server for this device yet.', 4000); }
+      catch (e) { hub.toast(e.message); } finally { test.disabled = false; }
+    };
+    if (!pushSupported()) { help.textContent = IOS && !standalone() ? 'On iPhone and iPad, add the hub to your Home Screen first (Share → Add to Home Screen), then turn this on from there.' : 'This browser cannot receive push notifications.'; return; }
+    if (Notification.permission === 'denied') { help.textContent = 'Blocked in the browser settings for this site. Allow notifications there, then come back.'; return; }
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    const paint = () => { toggle.setAttribute('aria-checked', String(!!sub)); toggle.disabled = false; prefsEl.hidden = !sub;
+      help.textContent = sub ? 'On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.' : 'Fridge warnings and reading nudges, sent to this device.' + (IOS ? ' Works from the Home Screen app.' : ''); };
+    paint();
+    toggle.onclick = async () => {
+      toggle.disabled = true;
+      try {
+        if (sub) { await sub.unsubscribe(); try { await hub.request('/api/push/subscribe', { method: 'DELETE' }); } catch {} sub = null; hub.toast('Notifications off for this device.'); }
+        else {
+          const perm = await Notification.requestPermission();
+          if (perm !== 'granted') { help.textContent = 'Notifications were not allowed.'; toggle.disabled = false; return; }
+          const cfg = await hub.request('/api/push/config');
+          if (!cfg.enabled) { help.textContent = 'The house server has no push keys yet.'; toggle.disabled = false; return; }
+          sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(cfg.public_key) });
+          await hub.request('/api/push/subscribe', { method: 'POST', body: { subscription: sub.toJSON() } });
+          hub.toast('Notifications on for this device.');
+        }
+      } catch (e) { help.textContent = 'Could not change notifications: ' + e.message; }
+      paint();
+    };
+  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => {
+    if (!ev.data || ev.data.source !== 'hubsw') return;
+    if (ev.data.type === 'open') { const h = new URL(ev.data.url).hash; if (h && location.hash !== h) location.hash = h; else if (h) { const id = h.slice(1); appById(id) ? openApp(id) : showTab(TABS.includes(id) ? id : 'home'); } }
+  });
 
   // ── admin panel ───────────────────────────────────────────────
   async function renderAdmin() {
