@@ -17,6 +17,7 @@ import {
 } from './auth.js';
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
 import { runCron, pushTo, vapidFrom } from './reminders.js';
+import { chatHandler, chatHistory } from './chat.js';
 
 const PIN_RE = /^\d{4,8}$/;
 const MIN = 60000;
@@ -207,6 +208,10 @@ route('DELETE', '/api/push/subscribe', async c => {
   return { ok: true };
 });
 
+// ── chat ──────────────────────────────────────────────────────
+route('POST', '/api/chat', async c => { const auth = await c.auth(); const p = requireProfile(auth); if (p.kind === 'kiosk') throw new HttpError(403, 'no_chat', 'The display profile has no chat.'); return chatHandler(c, auth); });
+route('GET', '/api/chat/history', async c => { const auth = await c.auth(); requireProfile(auth); return chatHistory(c, auth); });
+
 // ── admin ─────────────────────────────────────────────────────
 route('POST', '/api/admin/profiles/:id/reset-pin', async c => {
   requireAdmin(await c.auth());
@@ -325,7 +330,7 @@ export async function handle(request, env, exec) {
   const url = new URL(request.url);
   let authCache = null;
   const c = {
-    request, env, exec, url, params: {},
+    request, env, exec, url, params: {}, cors,
     body: () => readJson(request),
     auth: () => (authCache ||= authenticate(request, env, exec)),
   };
@@ -336,7 +341,8 @@ export async function handle(request, env, exec) {
       if (!m) continue;
       if (r.method !== request.method) { methodMatched = true; continue; }
       c.params = Object.fromEntries(Object.entries(m.groups || {}).map(([k, v]) => [k, decodeURIComponent(v)]));
-      return json(await r.handler(c), 200, cors);
+      const out = await r.handler(c);
+      return out instanceof Response ? out : json(out, 200, cors);
     }
     if (methodMatched) throw new HttpError(405, 'method_not_allowed', 'Method not allowed');
     throw new HttpError(404, 'not_found', 'Not found');

@@ -144,6 +144,28 @@
   .kid-cta { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-5); border-radius: var(--r-xl); background: var(--accent-soft); color: var(--accent-strong); border: 0; width: 100%; font: inherit; font-weight: 700; font-size: var(--fs-xl); text-align: left; cursor: pointer; min-height: var(--tap-lg); }
   .kid-cta .icon { width: 40px; height: 40px; }
 
+  /* chat */
+  .chat { display: flex; flex-direction: column; gap: var(--sp-2); padding-bottom: 84px; min-height: 40vh; }
+  .msg { max-width: 86%; padding: var(--sp-3) var(--sp-4); border-radius: var(--r-lg); line-height: var(--lh); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.user { align-self: flex-end; background: var(--accent); color: var(--on-accent); border-bottom-right-radius: 6px; }
+  .msg.bot { align-self: flex-start; background: var(--surface); border: 1px solid var(--line-soft); border-bottom-left-radius: 6px; box-shadow: var(--shadow-sm); }
+  .msg.bot.err { border-color: var(--danger); color: var(--danger); }
+  .msg .chips { display: flex; flex-wrap: wrap; gap: var(--sp-1); margin-top: var(--sp-2); }
+  .msg .chips:first-child { margin-top: 0; }
+  .typing { display: inline-flex; gap: 4px; padding: 6px 2px; }
+  .typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite; }
+  .typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+  .chat-form { position: fixed; left: 0; right: 0; bottom: calc(72px + var(--safe-bottom)); z-index: 19; display: flex; gap: var(--sp-2); align-items: center;
+    width: min(100% - 2 * var(--sp-4), 860px); margin: 0 auto; padding: var(--sp-2); border-radius: var(--r-xl);
+    background: color-mix(in srgb, var(--surface) 92%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: var(--shadow-lg); border: 1px solid var(--line-soft); }
+  .chat-form .input { flex: 1; border: 0; background: transparent; min-height: var(--tap); }
+  .chat-form .input:focus { box-shadow: none; }
+  #chat-mic.on { background: var(--danger-soft); color: var(--danger); animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { transform: scale(.94); } }
+  .chat-note { text-align: center; color: var(--muted); font-size: var(--fs-sm); padding: var(--sp-4); }
+  :root[data-kind="kid"] .msg { font-size: var(--fs-lg); }
+
   /* me + admin */
   .me-card { display: flex; align-items: center; gap: var(--sp-4); }
   .seg { display: flex; background: var(--surface-2); border-radius: var(--r); padding: 4px; gap: 4px; }
@@ -195,8 +217,13 @@
       <div class="grid" id="grid"></div>
     </section>
     <section class="view" id="view-chat" aria-label="Chat">
-      <div class="view-title"><h1>Chat</h1></div>
-      <div class="empty"><svg class="icon"><use href="#i-chat"/></svg><p>Chat arrives in a later step.</p></div>
+      <div class="view-title"><h1>Chat</h1><span class="small muted" id="chat-cap"></span></div>
+      <div class="chat" id="chat-log" aria-live="polite"></div>
+      <form class="chat-form" id="chat-form" autocomplete="off" hidden>
+        <button type="button" class="btn btn-round" id="chat-mic" aria-label="Say it instead" hidden><svg class="icon"><use href="#i-mic"/></svg></button>
+        <input class="input" id="chat-in" placeholder="Ask or tell the house…" maxlength="2000" enterkeyhint="send">
+        <button class="btn btn-primary btn-round" type="submit" id="chat-send" aria-label="Send"><svg class="icon"><use href="#i-send"/></svg></button>
+      </form>
     </section>
     <section class="view" id="view-me" aria-label="Me"></section>
   </main>
@@ -233,6 +260,8 @@
   <symbol id="i-bowl" viewBox="0 0 24 24"><path class="duo" d="M4 11h16v2a8 8 0 0 1-16 0v-2Z"/><path d="M4 11h16v2a8 8 0 0 1-16 0v-2Z"/><path d="M6 11c0-3 2-5 6-5s6 2 6 5"/><path d="M12 6V4M9.5 4h5"/></symbol>
   <symbol id="i-pray" viewBox="0 0 24 24"><path class="duo" d="M12 21c-3-2-6-5-6-9V7l6 4 6-4v5c0 4-3 7-6 9Z"/><path d="M12 21c-3-2-6-5-6-9V7l6 4 6-4v5c0 4-3 7-6 9Z"/><path d="M12 11v10"/><path d="M6 7 12 3l6 4"/></symbol>
   <symbol id="i-flame" viewBox="0 0 24 24"><path class="duo" d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .5 1.5 1.5 2 2 2 .5-3-1-5 1-8Z"/><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .5 1.5 1.5 2 2 2 .5-3-1-5 1-8Z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path class="duo" d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-sparkle" viewBox="0 0 24 24"><path class="duo" d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
 </svg>
 
@@ -406,6 +435,7 @@
   let tab = 'home';
   function enterShell() {
     gate.hidden = true; shell.hidden = false;
+    chatLoaded = false; $('#chat-log').innerHTML = ''; $('#chat-in').disabled = false; $('#chat-in').placeholder = 'Ask or tell the house…';
     hub.reset(); hub.ready().then(() => { renderGrid(); if (tab === 'home') renderHome(); });
     renderMe(); renderGrid();
     const h = location.hash.slice(1);
@@ -415,12 +445,14 @@
   }
   function showTab(t, keepViewer) {
     tab = t; if (!keepViewer) closeViewer();
+    $('#chat-form').hidden = t !== 'chat';
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + t));
     document.querySelectorAll('.tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-current', b.dataset.tab === t ? 'page' : 'false'); });
     if (!keepViewer && location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
     if (t === 'home') renderHome();
     if (t === 'me') renderMe();
     if (t === 'apps') renderGrid();
+    if (t === 'chat') openChat();
     $('#views').scrollTop = 0;
   }
   $('#tabbar').addEventListener('click', ev => { const b = ev.target.closest('.tab'); if (b) showTab(b.dataset.tab); });
@@ -483,6 +515,7 @@
   const viewer = $('#viewer'), frame = $('#frame');
   function openApp(id) {
     const a = appById(id); if (!a) return;
+    $('#chat-form').hidden = true;
     if (!canSee(id)) { hub.toast('That app is not available for this profile.'); return; }
     current = a;
     viewer.classList.remove('closing');
@@ -691,6 +724,86 @@
     });
     if (p.isAdmin) renderAdmin();
     if (p.kind !== 'kiosk') renderNotif();
+  }
+
+  // ── chat ──────────────────────────────────────────────────────
+  const chatLog = $('#chat-log'), chatIn = $('#chat-in'), chatForm = $('#chat-form'), chatCap = $('#chat-cap');
+  let chatLoaded = false, chatBusy = false, chatEnabled = true;
+  const scrollChat = () => { views.scrollTop = views.scrollHeight; };
+  function bubble(role, text, chips) {
+    const d = document.createElement('div'); d.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+    if (text) d.append(document.createTextNode(text));
+    if (chips && chips.length) { const c = document.createElement('div'); c.className = 'chips'; for (const ch of chips) { const sp = document.createElement('span'); sp.className = 'chip chip-ok'; sp.textContent = ch; c.append(sp); } d.append(c); }
+    chatLog.append(d); scrollChat(); return d;
+  }
+  function chatNote(text) { const d = document.createElement('div'); d.className = 'chat-note'; d.textContent = text; chatLog.append(d); scrollChat(); return d; }
+  function setCap(used, cap) {
+    chatCap.textContent = used != null ? used + '/' + cap + ' today' : '';
+    if (used >= cap) { chatIn.disabled = true; chatIn.placeholder = 'Back tomorrow — that is enough for today.'; }
+  }
+  async function openChat() {
+    if (!hub.profile || hub.isKiosk) return;
+    if (chatLoaded) { scrollChat(); return; }
+    chatLoaded = true;
+    chatLog.innerHTML = '<div class="msg bot"><span class="skeleton" style="width:12em">loading</span></div>';
+    try {
+      const h = await hub.request('/api/chat/history');
+      chatLog.innerHTML = '';
+      chatEnabled = h.enabled;
+      if (!h.enabled) chatNote('The assistant is not set up yet — an API key is needed on the house server.');
+      else if (!h.messages.length) chatNote(hub.isKid ? 'Hi ' + hub.profile.name + '! Ask me something fun, or tell me what you did today.' : 'Ask about the fridge or your reading, or say things like "add milk to leftovers" or "remind everyone about the bins".');
+      for (const m of h.messages) {
+        if (m.role === 'assistant') {
+          const lines = m.content.split('\n');
+          const chips = lines.filter(l => l.startsWith('✓')).flatMap(l => l.split(' · '));
+          bubble('assistant', lines.filter(l => !l.startsWith('✓')).join('\n').trim(), chips);
+        } else bubble('user', m.content);
+      }
+      setCap(h.used, h.cap);
+    } catch (e) { chatLog.innerHTML = ''; chatNote('Could not load the chat: ' + e.message); }
+    scrollChat();
+  }
+  chatForm.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const text = chatIn.value.trim(); if (!text || chatBusy || !chatEnabled) return;
+    chatIn.value = ''; chatBusy = true; $('#chat-send').disabled = true;
+    bubble('user', text);
+    const bot = bubble('bot', '');
+    const typing = document.createElement('span'); typing.className = 'typing'; typing.innerHTML = '<i></i><i></i><i></i>'; bot.append(typing);
+    let textNode = null, chipsEl = null;
+    const apps = registry.apps.map(a => ({ id: a.id, name: a.name, scope: a.scope, visibleTo: a.visibleTo }));
+    const handle = (event, data) => {
+      if (event === 'text') { typing.remove(); if (!textNode) { textNode = document.createTextNode(''); bot.insertBefore(textNode, chipsEl); } textNode.data += data.text; scrollChat(); }
+      else if (event === 'tool') { if (!data.chip) return; if (!chipsEl) { chipsEl = document.createElement('div'); chipsEl.className = 'chips'; bot.append(chipsEl); } const sp = document.createElement('span'); sp.className = 'chip ' + (data.ok ? 'chip-ok' : 'chip-danger'); sp.textContent = data.chip; chipsEl.append(sp); hub.pull(); scrollChat(); }
+      else if (event === 'done') { typing.remove(); setCap(data.used, data.cap); if (!textNode && !chipsEl) bot.append(document.createTextNode('(no reply)')); }
+      else if (event === 'error') { typing.remove(); bot.classList.add('err'); bot.append(document.createTextNode(data.message || 'Something went wrong.')); }
+    };
+    try {
+      const r = await fetch(hub.api.replace(/\/$/, '') + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Token': hub.device.token, 'X-Profile-Token': hub.session.token }, body: JSON.stringify({ message: text, apps }) });
+      if (!r.ok) { const j = await r.json().catch(() => ({})); if (r.status === 429 && j.used != null) setCap(j.used, j.cap); throw new Error(j.message || ('HTTP ' + r.status)); }
+      const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
+      while (true) {
+        const { value, done } = await reader.read(); if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf('\n\n')) >= 0) {
+          const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+          let evName = 'message', data = null;
+          for (const line of chunk.split('\n')) { if (line.startsWith('event:')) evName = line.slice(6).trim(); else if (line.startsWith('data:')) { try { data = JSON.parse(line.slice(5)); } catch {} } }
+          if (data) handle(evName, data);
+        }
+      }
+    } catch (e) { typing.remove(); bot.classList.add('err'); bot.append(document.createTextNode(e.message)); }
+    finally { chatBusy = false; $('#chat-send').disabled = false; if (!chatIn.disabled) chatIn.focus(); }
+  });
+  {
+    const mic = $('#chat-mic'); let rec = null;
+    if (hub.voiceSupported) mic.hidden = false;
+    mic.addEventListener('click', () => {
+      if (rec) { rec.stop(); return; }
+      rec = hub.voiceInput(t => { chatIn.value = t; chatIn.focus(); }, { onEnd: () => { rec = null; mic.classList.remove('on'); }, onError: () => { rec = null; mic.classList.remove('on'); } });
+      if (rec) mic.classList.add('on');
+    });
   }
 
   // ── notifications (Web Push) ──────────────────────────────────
