@@ -14,14 +14,14 @@ export function checkKey(key) {
 }
 const owner = (scope, profile) => (scope === 'person' ? profile.id : null);
 
-/** Lists rows for one app. `since` (ms) makes it incremental; tombstones are included so clients can drop items. */
+/** Lists rows for one app. `since` (server ms, from a previous response's `now`) makes it incremental; tombstones are included so clients can drop items. */
 export async function listData(env, { appId, scope, profile, since = 0, prefix = '' }) {
   const pid = owner(scope, profile);
   const { results } = await env.DB.prepare(
     `SELECT key, value, updated_at FROM app_data
-      WHERE app_id = ? AND scope = ? AND profile_id IS ? AND updated_at > ? AND key LIKE ? ESCAPE '\\'
-      ORDER BY updated_at ASC`)
-    .bind(appId, scope, pid, since, prefix.replace(/[%_]/g, '\$&') + '%').all();
+      WHERE app_id = ? AND scope = ? AND profile_id IS ? AND synced_at > ? AND key LIKE ? ESCAPE '\\'
+      ORDER BY synced_at ASC, id ASC`)
+    .bind(appId, scope, pid, since, prefix.replace(/[\\%_]/g, '\\$&') + '%').all();
   return results.map(r => ({ key: r.key, value: r.value == null ? null : JSON.parse(r.value), updated_at: r.updated_at }));
 }
 
@@ -49,8 +49,8 @@ export async function putOne(env, { appId, scope, profile, key, value, updated_a
     if (!cur) {
       try {
         await env.DB.prepare(
-          'INSERT INTO app_data (scope, profile_id, app_id, key, value, updated_at) VALUES (?, ?, ?, ?, ?, ?)')
-          .bind(scope, pid, appId, key, json, ts).run();
+          'INSERT INTO app_data (scope, profile_id, app_id, key, value, updated_at, synced_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+          .bind(scope, pid, appId, key, json, ts, Date.now()).run();
         return { key, value, updated_at: ts, applied: true };
       } catch (e) {
         if (!/UNIQUE/i.test(String(e.message))) throw e;
@@ -58,7 +58,7 @@ export async function putOne(env, { appId, scope, profile, key, value, updated_a
       }
     }
     if (ts > cur.updated_at) {
-      await env.DB.prepare('UPDATE app_data SET value = ?, updated_at = ? WHERE id = ?').bind(json, ts, cur.id).run();
+      await env.DB.prepare('UPDATE app_data SET value = ?, updated_at = ?, synced_at = ? WHERE id = ?').bind(json, ts, Date.now(), cur.id).run();
       return { key, value, updated_at: ts, applied: true };
     }
     return { key, value: cur.value == null ? null : JSON.parse(cur.value), updated_at: cur.updated_at, applied: false };

@@ -132,8 +132,10 @@ route('GET', '/api/data/:appId', async c => {
   const since = +(c.url.searchParams.get('since') || 0) || 0;
   const prefix = c.url.searchParams.get('prefix') || '';
   const key = c.url.searchParams.get('key');
-  if (key) return { item: await getOne(c.env, { ...args, key: checkKey(key) }), now: Date.now() };
-  return { items: await listData(c.env, { ...args, since, prefix }), now: Date.now() };
+  // `now` is taken before the query so a client can safely use it as the next `since`.
+  const now = Date.now() - 1;
+  if (key) return { item: await getOne(c.env, { ...args, key: checkKey(key) }), now };
+  return { items: await listData(c.env, { ...args, since, prefix }), now };
 });
 
 route('PUT', '/api/data/:appId/:key', async c => {

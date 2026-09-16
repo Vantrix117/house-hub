@@ -2,298 +2,543 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Hub</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg">
-<link rel="apple-touch-icon" href="icon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anderson House</title>
+<meta name="theme-color" content="#F7F2EB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C1714" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#1B1D21">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hub">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="apps/design.css">
 <style>
-  :root {
-    --bg: #1B1D21;
-    --surface: #26292E;
-    --ink: #ECEAE4;
-    --ink-dim: #9A9891;
-    --accent: #E0B454;
-    --safe-t: env(safe-area-inset-top, 0px);
-    --safe-b: env(safe-area-inset-bottom, 0px);
-    --safe-l: env(safe-area-inset-left, 0px);
-    --safe-r: env(safe-area-inset-right, 0px);
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; margin: 0; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "Bricolage Grotesque", system-ui, -apple-system, sans-serif;
-    font-optical-sizing: auto;
-    overscroll-behavior: none;
-    -webkit-user-select: none; user-select: none;
-    touch-action: manipulation;
-  }
-  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
-  button:focus-visible, .tile:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  html, body { height: 100%; }
+  body { display: flex; flex-direction: column; min-height: 100dvh; }
 
-  /* ---------- Hub ---------- */
-  #hub {
-    min-height: 100dvh;
-    padding: calc(var(--safe-t) + 28px) calc(var(--safe-r) + 32px) calc(var(--safe-b) + 32px) calc(var(--safe-l) + 32px);
-    display: grid;
-    grid-template-rows: auto 1fr;
-    gap: 36px;
-  }
-  #hub[hidden] { display: none; }
-  .masthead { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  .clock {
-    font-size: clamp(56px, 11vw, 132px);
-    font-weight: 300;
-    line-height: .9;
-    letter-spacing: -.03em;
-    font-variant-numeric: tabular-nums;
-    font-optical-sizing: auto;
-  }
-  .clock .ampm { font-size: .28em; font-weight: 500; letter-spacing: 0; margin-left: .18em; color: var(--ink-dim); }
-  .date { font-size: clamp(16px, 2vw, 22px); color: var(--ink-dim); margin-top: 10px; font-weight: 400; }
-  .house { font-size: clamp(16px, 2vw, 22px); font-weight: 600; color: var(--accent); text-align: right; }
+  /* ── gate (pairing / picker / pin) ─────────────────────────── */
+  #gate { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: calc(var(--sp-6) + var(--safe-top)) var(--sp-4) calc(var(--sp-6) + var(--safe-bottom)); }
+  .gate-panel { width: 100%; max-width: 640px; }
+  .gate-title { text-align: center; margin-bottom: var(--sp-6); }
+  .gate-title h1 { font-family: var(--font-serif); font-weight: 400; font-size: var(--fs-3xl); letter-spacing: 0; }
+  .gate-title p { color: var(--text-2); margin-top: var(--sp-2); }
+  .profiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); }
+  @media (min-width: 560px) { .profiles { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 900px) { .profiles { grid-template-columns: repeat(4, 1fr); } }
+  .pcard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-2);
+    min-height: 132px; padding: var(--sp-4); border: 2px solid transparent; border-radius: var(--r-xl);
+    background: var(--surface); box-shadow: var(--shadow); color: var(--text); font: inherit; font-weight: 700; font-size: var(--fs-lg);
+    cursor: pointer; transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  .pcard:active { transform: scale(.96); }
+  .pcard .pemoji { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 34px;
+    background: var(--pc, var(--accent-soft)); }
+  .pcard .psub { font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
+  .pcard.last { border-color: var(--pcol, var(--accent)); }
+  @media (hover: hover) and (pointer: fine) { .pcard:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); } }
+  .pcard.skeleton { min-height: 132px; box-shadow: none; }
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 18px;
-    align-content: start;
-  }
-  .tile {
-    position: relative;
-    aspect-ratio: 1.15;
-    border-radius: 22px;
-    padding: 20px;
-    display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
-    background: var(--tile, var(--surface));
-    color: #fff;
-    text-align: left;
-    transition: transform .12s ease;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
-  }
-  .tile:active { transform: scale(.96); }
-  .tile .glyph { font-size: 44px; line-height: 1; font-weight: 500; opacity: .95; }
-  .tile .name { font-size: 22px; font-weight: 600; line-height: 1.1; letter-spacing: -.01em; }
-  .tile .recent {
-    position: absolute; top: 16px; right: 18px;
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 0 4px rgba(224,180,84,.25);
-  }
-  .empty {
-    grid-column: 1 / -1;
-    padding: 28px; border-radius: 22px; background: var(--surface);
-    color: var(--ink-dim); font-size: 18px; line-height: 1.5; max-width: 60ch;
-  }
-  .empty code { color: var(--ink); background: rgba(255,255,255,.07); padding: 2px 6px; border-radius: 6px; }
+  .pin-wrap { max-width: 360px; margin: 0 auto; text-align: center; }
+  .pin-who { display: flex; align-items: center; justify-content: center; gap: var(--sp-3); margin-bottom: var(--sp-5); }
+  .pin-who .pemoji { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; background: var(--pc, var(--accent-soft)); }
+  .pin-dots { display: flex; justify-content: center; gap: 14px; min-height: 22px; margin: var(--sp-4) 0 var(--sp-5); }
+  .pin-dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted); }
+  .pin-dots i.on { background: var(--accent); border-color: var(--accent); }
+  .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
+  .pin-pad .btn { min-height: 64px; font-size: var(--fs-xl); border-radius: var(--r-lg); }
+  .pin-msg { min-height: 24px; margin-top: var(--sp-3); color: var(--danger); font-weight: 600; }
+  .pin-msg.ok { color: var(--text-2); font-weight: 500; }
 
-  /* ---------- App view ---------- */
-  #app { position: fixed; inset: 0; background: var(--bg); }
-  #app[hidden] { display: none; }
-  #frame { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
-  #frame.dark { background: var(--bg); }
+  /* ── shell ─────────────────────────────────────────────────── */
+  #shell { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  #views { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch;
+    padding: calc(var(--sp-4) + var(--safe-top)) max(var(--sp-4), var(--safe-right)) calc(var(--sp-4) + 72px + var(--safe-bottom)) max(var(--sp-4), var(--safe-left)); }
+  .view { display: none; max-width: 860px; margin: 0 auto; }
+  .view.on { display: block; animation: hub-fade var(--dur) var(--ease); }
+  .view-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-5); }
+  .view-title h1 { font-family: var(--font-serif); font-weight: 400; font-size: var(--fs-3xl); letter-spacing: 0; }
+  .view-title .date { color: var(--text-2); font-size: var(--fs-sm); text-align: right; }
 
-  #pill {
-    position: fixed;
-    left: 50%;
-    bottom: calc(var(--safe-b) + 14px);
-    transform: translateX(-50%);
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 18px 10px 14px;
-    border-radius: 999px;
-    background: rgba(27,29,33,.82);
-    color: var(--ink);
-    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-    box-shadow: 0 6px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12);
-    font-size: 16px; font-weight: 600;
-    z-index: 5;
-  }
-  #pill .dots { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-  #pill .dots i { width: 6px; height: 6px; border-radius: 2px; background: var(--accent); display: block; }
-  #pill:active { transform: translateX(-50%) scale(.95); }
+  #tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; justify-content: center;
+    padding: var(--sp-2) max(var(--sp-2), var(--safe-right)) calc(var(--sp-2) + var(--safe-bottom)) max(var(--sp-2), var(--safe-left));
+    background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+    border-top: 1px solid var(--line-soft); }
+  #tabbar .tabs { display: flex; width: 100%; max-width: 560px; }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px;
+    border: 0; background: none; color: var(--muted); font: inherit; font-size: var(--fs-xs); font-weight: 600; border-radius: var(--r); cursor: pointer; position: relative; }
+  .tab .icon { width: 26px; height: 26px; }
+  .tab.on { color: var(--accent); }
+  .tab .dot { position: absolute; top: 8px; right: calc(50% - 22px); width: 9px; height: 9px; border: 2px solid var(--surface); }
+  :root[data-kind="kiosk"] #tabbar { display: none; }
+  :root[data-kind="kiosk"] #views { padding-bottom: calc(var(--sp-4) + var(--safe-bottom)); }
 
-  /* ---------- Switcher sheet ---------- */
-  #sheet {
-    position: fixed; inset: auto 0 0 0; margin: 0; width: 100%; max-width: none;
-    padding: 20px calc(var(--safe-r) + 20px) calc(var(--safe-b) + 20px) calc(var(--safe-l) + 20px);
-    border: 0; border-radius: 26px 26px 0 0;
-    background: var(--surface); color: var(--ink);
-    box-shadow: 0 -12px 40px rgba(0,0,0,.45);
-  }
-  #sheet::backdrop { background: rgba(0,0,0,.45); }
-  #sheet[open] { animation: rise .18s ease-out; }
-  @keyframes rise { from { transform: translateY(40px); opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { #sheet[open] { animation: none; } .tile, #pill { transition: none; } }
-  .sheet-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
-  .sheet-row::-webkit-scrollbar { display: none; }
-  .sheet-row .tile { flex: 0 0 150px; aspect-ratio: 1.05; padding: 16px; border-radius: 18px; }
-  .sheet-row .tile .glyph { font-size: 34px; }
-  .sheet-row .tile .name { font-size: 17px; }
-  .sheet-row .tile.current { outline: 3px solid var(--accent); outline-offset: 2px; }
-  .sheet-actions { display: flex; gap: 10px; margin-top: 16px; }
-  .act {
-    flex: 1; padding: 16px; border-radius: 16px;
-    background: rgba(255,255,255,.07); font-size: 17px; font-weight: 600;
-  }
-  .act.home { background: var(--accent); color: #1B1D21; }
-  .act:active { opacity: .8; }
+  /* apps grid */
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-3); }
+  @media (min-width: 700px) { .grid { grid-template-columns: repeat(6, 1fr); gap: var(--sp-4); } }
+  .tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-2);
+    aspect-ratio: 1; padding: var(--sp-2); border: 1px solid var(--line-soft); border-radius: var(--r-lg);
+    background: var(--surface); box-shadow: var(--shadow-sm); color: var(--text); font: inherit; font-size: var(--fs-xs); font-weight: 600;
+    text-align: center; cursor: pointer; transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+  .tile:active { transform: scale(.95); }
+  .tile .ticon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 26px;
+    background: color-mix(in srgb, var(--tc, var(--accent)) 16%, var(--surface)); color: var(--tc, var(--accent)); }
+  .tile .ticon .icon { width: 28px; height: 28px; }
+  .tile .ticon .icon .duo { fill: var(--tc, var(--accent)); }
+  .tile .tlabel { line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .tile.wide { grid-column: span 2; aspect-ratio: auto; min-height: 96px; flex-direction: row; justify-content: flex-start; padding: var(--sp-3) var(--sp-4); gap: var(--sp-3); text-align: left; }
+  .tile.wide .twidget { flex: 1; min-width: 0; color: var(--text-2); font-weight: 500; }
+  @media (hover: hover) and (pointer: fine) { .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow); } }
+  :root[data-kind="kid"] .grid { grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); }
+  @media (min-width: 700px) { :root[data-kind="kid"] .grid { grid-template-columns: repeat(3, 1fr); } }
+  :root[data-kind="kid"] .tile { font-size: var(--fs-md); border-radius: var(--r-xl); }
+  :root[data-kind="kid"] .tile .ticon { width: 84px; height: 84px; border-radius: 26px; font-size: 48px; }
+  :root[data-kind="kid"] .tile .ticon .icon { width: 52px; height: 52px; }
+
+  /* home */
+  .greet { font-family: var(--font-serif); font-size: var(--fs-3xl); line-height: 1.1; }
+  .home-date { color: var(--text-2); margin-top: var(--sp-1); }
+  .clock { font-size: var(--fs-4xl); font-weight: 700; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+  :root[data-kind="kiosk"] .clock { font-size: clamp(64px, 16vw, 160px); }
+  :root[data-kind="kiosk"] .home-date { font-size: var(--fs-xl); }
+  .card h2 { font-size: var(--fs-lg); margin-bottom: var(--sp-3); display: flex; align-items: center; gap: var(--sp-2); }
+  .rem-row { align-items: flex-start; }
+  .rem-text { font-size: var(--fs-lg); }
+  :root[data-kind="kiosk"] .rem-text { font-size: var(--fs-2xl); font-weight: 600; }
+  :root[data-kind="kiosk"] .rem-row { min-height: 84px; }
+  .rem-by { font-size: var(--fs-xs); color: var(--muted); margin-top: 2px; }
+  .add-row { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); }
+  .add-row .input { flex: 1; }
+  .kiosk-switch { position: fixed; top: calc(var(--sp-2) + var(--safe-top)); right: calc(var(--sp-2) + var(--safe-right)); opacity: .55; }
+
+  /* me */
+  .me-card { display: flex; align-items: center; gap: var(--sp-4); }
+  .me-card .pemoji { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 34px; background: var(--accent-soft); flex: none; }
+  .seg { display: flex; background: var(--surface-2); border-radius: var(--r); padding: 4px; gap: 4px; }
+  .seg button { flex: 1; min-height: var(--tap); border: 0; border-radius: 10px; background: transparent; color: var(--text-2); font: inherit; font-weight: 600; cursor: pointer; }
+  .seg button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+  .kv { display: flex; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft); font-size: var(--fs-sm); }
+  .kv:last-child { border-bottom: 0; }
+  .kv b { color: var(--text-2); font-weight: 600; }
+
+  /* viewer */
+  #viewer { position: fixed; inset: 0; z-index: 30; background: var(--bg); display: none; flex-direction: column; }
+  #viewer.on { display: flex; animation: hub-fade var(--dur) var(--ease); }
+  #viewer.dark { background: #1B1D21; }
+  #frame { flex: 1; width: 100%; border: 0; background: transparent; }
+  #pill { position: fixed; left: 50%; bottom: calc(var(--sp-3) + var(--safe-bottom)); transform: translateX(-50%); z-index: 31;
+    display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: var(--r-full);
+    background: color-mix(in srgb, var(--text) 88%, transparent); color: var(--bg); box-shadow: var(--shadow-lg);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); opacity: .92; }
+  #pill button { min-width: 44px; min-height: 44px; border: 0; border-radius: var(--r-full); background: transparent; color: inherit; font: inherit; font-weight: 600; font-size: var(--fs-sm); padding: 0 var(--sp-3); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  #pill .icon { width: 20px; height: 20px; }
+  #pill .sep { width: 1px; height: 22px; background: color-mix(in srgb, var(--bg) 25%, transparent); }
+  .switch-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--sp-2); margin-top: var(--sp-3); }
 </style>
 </head>
 <body>
 
-<main id="hub">
-  <header class="masthead">
-    <div>
-      <div class="clock" id="clock">--:--</div>
-      <div class="date" id="date"></div>
-    </div>
-    <div class="house" id="house"></div>
-  </header>
-  <section class="grid" id="grid" aria-label="Apps"></section>
-</main>
+<!-- ── gate ─────────────────────────────────────────────────── -->
+<div id="gate" hidden>
+  <div class="gate-panel" id="gate-panel"></div>
+</div>
 
-<section id="app" hidden aria-label="Running app">
-  <iframe id="frame" title="App"></iframe>
-  <button id="pill" aria-haspopup="dialog" aria-controls="sheet">
-    <span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-    <span id="pillName">Apps</span>
-  </button>
-</section>
+<!-- ── shell ────────────────────────────────────────────────── -->
+<div id="shell" hidden>
+  <main id="views">
+    <section class="view" id="view-home" aria-label="Home"></section>
+    <section class="view" id="view-apps" aria-label="Apps">
+      <div class="view-title"><h1>Apps</h1></div>
+      <div class="grid" id="grid"></div>
+    </section>
+    <section class="view" id="view-chat" aria-label="Chat">
+      <div class="view-title"><h1>Chat</h1></div>
+      <div class="empty"><svg class="icon"><use href="#i-chat"/></svg><p>Chat arrives in a later step.</p></div>
+    </section>
+    <section class="view" id="view-me" aria-label="Me"></section>
+  </main>
+  <nav id="tabbar" aria-label="Sections"><div class="tabs">
+    <button class="tab" data-tab="home"><svg class="icon"><use href="#i-home"/></svg>Home</button>
+    <button class="tab" data-tab="apps"><svg class="icon"><use href="#i-apps"/></svg>Apps</button>
+    <button class="tab" data-tab="chat"><svg class="icon"><use href="#i-chat"/></svg>Chat</button>
+    <button class="tab" data-tab="me"><svg class="icon"><use href="#i-me"/></svg><span class="dot dot-offline" id="syncdot" title="Sync"></span>Me</button>
+  </div></nav>
+</div>
 
-<dialog id="sheet" aria-label="Switch app">
-  <div class="sheet-row" id="sheetRow"></div>
-  <div class="sheet-actions">
-    <button class="act home" id="goHome">Home</button>
-    <button class="act" id="reload">Reload app</button>
-    <button class="act" id="closeSheet">Close</button>
+<div id="viewer">
+  <iframe id="frame" title="App" allow="microphone; camera; web-share"></iframe>
+  <div id="pill">
+    <button id="pill-home" aria-label="Back to the hub"><svg class="icon"><use href="#i-home"/></svg></button>
+    <span class="sep"></span>
+    <button id="pill-name" aria-label="Switch app"><span id="pill-label">App</span><svg class="icon"><use href="#i-chev"/></svg></button>
+    <span class="sep"></span>
+    <button id="pill-reload" aria-label="Reload this app"><svg class="icon"><use href="#i-refresh"/></svg></button>
   </div>
-</dialog>
+</div>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path class="duo" d="M4 10.5 12 4l8 6.5V20H4z"/><path d="M4 10.5 12 4l8 6.5V20H4z"/><path d="M10 20v-5h4v5"/></symbol>
+  <symbol id="i-apps" viewBox="0 0 24 24"><rect class="duo" x="4" y="4" width="7" height="7" rx="2"/><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect class="duo" x="13" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path class="duo" d="M4 5h16v11H9l-5 4z"/><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></symbol>
+  <symbol id="i-me" viewBox="0 0 24 24"><circle class="duo" cx="12" cy="8" r="4"/><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.3L3 16M3 21v-5h5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path class="duo" d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></symbol>
+</svg>
+
+<script src="apps/hub.js" data-app="hub" data-scope="family"></script>
 <script>
-(() => {
-  const $ = (s) => document.querySelector(s);
-  const hub = $('#hub'), appView = $('#app'), frame = $('#frame'),
-        grid = $('#grid'), sheet = $('#sheet'), sheetRow = $('#sheetRow'),
-        pill = $('#pill'), pillName = $('#pillName');
+(async function () {
+  const $ = s => document.querySelector(s);
+  const esc = hub.escape;
+  const DEVICE_NAME = (() => { const u = navigator.userAgent;
+    if (/iPad/.test(u) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'iPad';
+    if (/iPhone/.test(u)) return 'iPhone'; if (/Android/.test(u)) return 'Android'; if (/Mac/.test(u)) return 'Mac';
+    if (/Windows/.test(u)) return 'Windows PC'; return 'Device'; })();
+  let registry = { title: 'Anderson House', apps: [] };
+  let current = null;
+  const svgCache = {};
 
-  const RECENT_KEY = 'hub.recent';
-  let apps = [], current = null;
+  hub.use('reminders', 'family');
 
-  // ---- Registry ----
-  async function loadApps() {
+  // ── registry ──────────────────────────────────────────────────
+  async function loadRegistry() {
     try {
       const r = await fetch('apps.json?ts=' + Date.now(), { cache: 'no-store' });
-      const data = await r.json();
-      apps = data.apps || [];
-      $('#house').textContent = data.title || '';
-      document.title = data.title ? data.title + ' hub' : 'Hub';
+      registry = await r.json();
+      try { localStorage.setItem('hub.registry', JSON.stringify(registry)); } catch {}
+    } catch {
+      try { registry = JSON.parse(localStorage.getItem('hub.registry')) || registry; } catch {}
+    }
+    document.title = registry.title || 'Anderson House';
+  }
+  const visibleApps = () => {
+    const p = hub.profile; if (!p || p.kind === 'kiosk') return [];
+    return registry.apps.filter(a => !a.visibleTo || a.visibleTo.includes(p.id));
+  };
+  async function iconHtml(a) {
+    const ic = a.icon || '';
+    if (/\.svg$/i.test(ic)) {
+      if (!svgCache[ic]) { try { svgCache[ic] = await (await fetch(ic)).text(); } catch { svgCache[ic] = ''; } }
+      if (svgCache[ic]) return svgCache[ic].replace('<svg', '<svg class="icon"');
+    }
+    if (ic.trim().startsWith('<svg')) return ic.replace('<svg', '<svg class="icon"');
+    return esc(ic || a.name.slice(0, 1));
+  }
+
+  // ── gate ──────────────────────────────────────────────────────
+  const gate = $('#gate'), panel = $('#gate-panel'), shell = $('#shell');
+  function showGate(html) { shell.hidden = true; gate.hidden = false; panel.innerHTML = html; }
+
+  function showPairing(msg) {
+    showGate(`
+      <div class="gate-title"><h1>${esc(registry.title || 'Anderson House')}</h1><p>First time on this ${esc(DEVICE_NAME)}? Enter the house pairing code once.</p></div>
+      <form class="card stack" id="pairform" style="max-width:420px;margin:0 auto">
+        <label class="field"><span class="label">Pairing code</span><input class="input" id="paircode" type="password" autocomplete="off" autocapitalize="off" inputmode="text" required minlength="6" autofocus></label>
+        <label class="field"><span class="label">Name this device</span><input class="input" id="pairname" value="${esc(DEVICE_NAME)}" maxlength="40"></label>
+        <p class="pin-msg" id="pairmsg">${esc(msg || '')}</p>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Pair this device</button>
+      </form>`);
+    $('#pairform').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const btn = ev.target.querySelector('button'); btn.disabled = true; $('#pairmsg').textContent = '';
+      try { await hub.pair($('#paircode').value.trim(), $('#pairname').value.trim()); await showPicker(); }
+      catch (e) { $('#pairmsg').textContent = e.message; btn.disabled = false; }
+    });
+  }
+
+  let profiles = [];
+  async function showPicker(msg) {
+    hub.setSession(null);
+    const last = hub.lastProfile();
+    showGate(`
+      <div class="gate-title"><h1>${esc(registry.title || 'Anderson House')}</h1><p>Who's this?</p></div>
+      <p class="pin-msg" id="pickmsg" style="text-align:center">${esc(msg || '')}</p>
+      <div class="profiles" id="profiles">${'<div class="pcard skeleton"></div>'.repeat(8)}</div>`);
+    try {
+      profiles = await hub.profiles();
+      try { localStorage.setItem('hub.profiles', JSON.stringify(profiles)); } catch {}
     } catch (e) {
-      apps = [];
+      try { profiles = JSON.parse(localStorage.getItem('hub.profiles')) || []; } catch { profiles = []; }
+      if (!hub.device) return showPairing(e.message);
+      if (!profiles.length) { $('#pickmsg').textContent = e.message; return; }
     }
+    $('#profiles').innerHTML = profiles.map(p => `
+      <button class="pcard${p.id === last ? ' last' : ''}" data-id="${esc(p.id)}" style="--pc:color-mix(in srgb, ${esc(p.color)} 22%, var(--surface));--pcol:${esc(p.color)}">
+        <span class="pemoji">${esc(p.emoji)}</span><span>${esc(p.name)}</span>
+        <span class="psub">${p.kind === 'kid' ? 'Tap to start' : p.kind === 'kiosk' ? 'Display' : (p.has_pin ? 'PIN' : 'Create your PIN')}</span>
+      </button>`).join('');
+    $('#profiles').addEventListener('click', ev => {
+      const b = ev.target.closest('.pcard'); if (!b) return;
+      const p = profiles.find(x => x.id === b.dataset.id); if (p) pick(p);
+    });
+    const focus = $('#profiles .pcard.last') || $('#profiles .pcard'); if (focus) focus.focus();
   }
 
-  function recent() { try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || {}; } catch { return {}; } }
-  function touch(id) { const r = recent(); r[id] = Date.now(); localStorage.setItem(RECENT_KEY, JSON.stringify(r)); }
-  function ordered() {
-    const r = recent();
-    return [...apps].sort((a, b) => (r[b.id] || 0) - (r[a.id] || 0));
-  }
-  function mostRecentId() {
-    const r = recent(); let best = null, t = 0;
-    for (const [id, ts] of Object.entries(r)) if (ts > t && apps.some(a => a.id === id)) { best = id; t = ts; }
-    return best;
-  }
-
-  function tile(app, opts = {}) {
-    const b = document.createElement('button');
-    b.className = 'tile' + (opts.current ? ' current' : '');
-    b.style.setProperty('--tile', app.color || '#3A3E45');
-    b.innerHTML = `<span class="glyph" aria-hidden="true"></span><span class="name"></span>`;
-    b.querySelector('.glyph').textContent = app.icon || '◻';
-    b.querySelector('.name').textContent = app.name;
-    if (opts.recent) { const d = document.createElement('span'); d.className = 'recent'; d.title = 'Last used'; b.append(d); }
-    b.addEventListener('click', () => open(app.id));
-    return b;
-  }
-
-  function renderHub() {
-    grid.replaceChildren();
-    if (!apps.length) {
-      const e = document.createElement('div'); e.className = 'empty';
-      e.innerHTML = 'No apps yet. Drop an HTML file in <code>apps/</code> and add it to <code>apps.json</code>.';
-      grid.append(e); return;
+  async function pick(p) {
+    if (p.kind !== 'adult') {
+      try { await hub.login(p.id); enterShell(); }
+      catch (e) { $('#pickmsg').textContent = e.message; }
+      return;
     }
-    const last = mostRecentId();
-    for (const a of ordered()) grid.append(tile(a, { recent: a.id === last }));
+    if (p.has_pin) showPinPad(p); else showCreatePin(p);
   }
 
-  function renderSheet() {
-    sheetRow.replaceChildren();
-    for (const a of ordered()) sheetRow.append(tile(a, { current: current && a.id === current.id }));
+  function padHtml(p, title, hint) {
+    return `
+      <div class="pin-wrap">
+        <div class="pin-who"><span class="pemoji" style="--pc:color-mix(in srgb, ${esc(p.color)} 22%, var(--surface))">${esc(p.emoji)}</span><h2>${esc(title)}</h2></div>
+        <p class="text-2" id="pinhint">${esc(hint)}</p>
+        <div class="pin-dots" id="dots" aria-live="polite"></div>
+        <div class="pin-pad" id="pad">
+          ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="btn" data-d="${n}">${n}</button>`).join('')}
+          <button class="btn btn-ghost" data-a="back" aria-label="Back"><svg class="icon"><use href="#i-back"/></svg></button>
+          <button class="btn" data-d="0">0</button>
+          <button class="btn btn-ghost" data-a="del" aria-label="Delete"><svg class="icon"><use href="#i-x"/></svg></button>
+        </div>
+        <p class="pin-msg" id="pinmsg"></p>
+        <button class="btn btn-primary btn-lg btn-block" id="pingo" disabled>Continue</button>
+      </div>`;
+  }
+  // One keypad component for both flows. onSubmit(pin) returns a promise; reject → message.
+  function keypad(p, title, hint, onSubmit) {
+    showGate(padHtml(p, title, hint));
+    let pin = '';
+    const dots = $('#dots'), go = $('#pingo'), msg = $('#pinmsg');
+    const draw = () => { dots.innerHTML = Array.from({ length: Math.max(4, pin.length) }, (_, i) => `<i class="${i < pin.length ? 'on' : ''}"></i>`).join(''); go.disabled = pin.length < 4; };
+    draw();
+    const submit = async () => {
+      if (pin.length < 4) return; go.disabled = true; msg.textContent = ''; msg.classList.remove('ok');
+      try { await onSubmit(pin); } catch (e) { msg.textContent = e.message || String(e); pin = ''; draw(); }
+    };
+    $('#pad').addEventListener('click', ev => {
+      const b = ev.target.closest('button'); if (!b) return;
+      if (b.dataset.d !== undefined && pin.length < 8) { pin += b.dataset.d; draw(); }
+      else if (b.dataset.a === 'del') { pin = pin.slice(0, -1); draw(); }
+      else if (b.dataset.a === 'back') showPicker();
+    });
+    go.addEventListener('click', submit);
+    const onKey = ev => {
+      if (!gate.contains(document.activeElement) && document.activeElement !== document.body) return;
+      if (/^\d$/.test(ev.key) && pin.length < 8) { pin += ev.key; draw(); }
+      else if (ev.key === 'Backspace') { pin = pin.slice(0, -1); draw(); }
+      else if (ev.key === 'Enter') submit();
+      else if (ev.key === 'Escape') showPicker();
+      else return;
+      ev.preventDefault();
+    };
+    document.addEventListener('keydown', onKey);
+    const stop = () => document.removeEventListener('keydown', onKey);
+    return { setMessage: (t, ok) => { msg.textContent = t; msg.classList.toggle('ok', !!ok); }, reset: () => { pin = ''; draw(); }, stop, setHint: t => { $('#pinhint').textContent = t; } };
   }
 
-  // ---- Navigation ----
-  function open(id) {
-    const app = apps.find(a => a.id === id);
-    if (!app) return home();
-    current = app;
-    touch(id);
-    frame.src = app.file;
-    frame.classList.toggle('dark', !!app.dark);
-    pillName.textContent = app.name;
-    hub.hidden = true; appView.hidden = false;
-    if (sheet.open) sheet.close();
+  function showPinPad(p) {
+    const k = keypad(p, p.name, 'Enter your PIN', async pin => {
+      try { await hub.login(p.id, pin); k.stop(); enterShell(); }
+      catch (e) {
+        if (e.error === 'needs_pin_setup') { k.stop(); return showCreatePin(p); }
+        throw e;
+      }
+    });
+  }
+  function showCreatePin(p) {
+    let first = null;
+    const k = keypad(p, 'Create your PIN', 'Choose 4 to 8 digits. You will type it once more to confirm.', async pin => {
+      if (first === null) { first = pin; k.reset(); k.setHint('Type it again to confirm.'); k.setMessage('', true); return; }
+      if (pin !== first) { first = null; k.setHint('Choose 4 to 8 digits.'); throw new Error("Those didn't match — start again."); }
+      try { await hub.createPin(p.id, pin); k.stop(); enterShell(); }
+      catch (e) {
+        if (e.error === 'pin_already_set') { k.stop(); return showPinPad({ ...p, has_pin: true }); }
+        first = null; k.setHint('Choose 4 to 8 digits.'); throw e;
+      }
+    });
+  }
+
+  // ── shell ─────────────────────────────────────────────────────
+  const TABS = ['home', 'apps', 'chat', 'me'];
+  let tab = 'home';
+  function enterShell() {
+    gate.hidden = true; shell.hidden = false;
+    hub.reset(); hub.ready();
+    renderMe(); renderGrid();
+    const h = location.hash.slice(1);
+    if (hub.isKiosk) { showTab('home'); return; }
+    if (registry.apps.some(a => a.id === h)) openApp(h);
+    else showTab(TABS.includes(h) ? h : 'home');
+  }
+  function showTab(t) {
+    tab = t; closeViewer();
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + t));
+    document.querySelectorAll('.tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-current', b.dataset.tab === t ? 'page' : 'false'); });
+    if (location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
+    if (t === 'home') renderHome();
+    if (t === 'me') renderMe();
+    $('#views').scrollTop = 0;
+  }
+  $('#tabbar').addEventListener('click', ev => { const b = ev.target.closest('.tab'); if (b) showTab(b.dataset.tab); });
+  window.addEventListener('hashchange', () => {
+    const h = location.hash.slice(1);
+    if (registry.apps.some(a => a.id === h)) { if (!current || current.id !== h) openApp(h); }
+    else if (TABS.includes(h)) { if (current || h !== tab) showTab(h); }
+  });
+
+  // ── apps grid + viewer ────────────────────────────────────────
+  async function renderGrid() {
+    const apps = visibleApps();
+    const grid = $('#grid');
+    if (!apps.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No apps for this profile yet.</div>'; return; }
+    const parts = await Promise.all(apps.map(async a => `
+      <button class="tile${a.tile === 'wide' ? ' wide' : ''}" data-id="${esc(a.id)}" style="--tc:${esc(a.color || '#8A6A4B')}" aria-label="Open ${esc(a.name)}">
+        <span class="ticon">${await iconHtml(a)}</span>
+        <span class="tlabel">${esc(a.name)}</span>${a.tile === 'wide' ? '<span class="twidget" data-widget="' + esc(a.id) + '"></span>' : ''}
+      </button>`));
+    grid.innerHTML = parts.join('');
+  }
+  $('#grid').addEventListener('click', ev => { const b = ev.target.closest('.tile'); if (b) openApp(b.dataset.id); });
+
+  const viewer = $('#viewer'), frame = $('#frame');
+  function openApp(id) {
+    const a = registry.apps.find(x => x.id === id); if (!a) return;
+    if (!visibleApps().some(x => x.id === id)) { hub.toast('That app is not available for this profile.'); return; }
+    current = a;
+    viewer.classList.toggle('dark', !!a.dark);
+    $('#pill-label').textContent = a.name;
+    if (frame.dataset.id !== id) { frame.src = a.file; frame.dataset.id = id; }
+    viewer.classList.add('on');
     if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
   }
-  function home() {
-    current = null;
-    frame.src = 'about:blank';
-    appView.hidden = true; hub.hidden = false;
-    if (sheet.open) sheet.close();
-    history.replaceState(null, '', location.pathname);
-    renderHub();
-  }
-
-  pill.addEventListener('click', () => { renderSheet(); sheet.showModal(); });
-  $('#goHome').addEventListener('click', home);
-  $('#reload').addEventListener('click', () => { if (current) frame.src = current.file + '?r=' + Date.now(); sheet.close(); });
-  $('#closeSheet').addEventListener('click', () => sheet.close());
-  sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.close(); });
-  window.addEventListener('hashchange', () => { const id = location.hash.slice(1); id ? open(id) : home(); });
-
-  // ---- Clock ----
-  function tick() {
-    const d = new Date();
-    let h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0');
-    const ampm = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
-    $('#clock').innerHTML = `${h}:${m}<span class="ampm">${ampm}</span>`;
-    $('#date').textContent = d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  }
-  tick(); setInterval(tick, 15000);
-
-  // ---- Keep screen awake (Safari 16.4+) ----
-  let lock = null;
-  async function wake() {
-    if (!('wakeLock' in navigator)) return;
-    try { lock = await navigator.wakeLock.request('screen'); } catch {}
-  }
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') wake(); });
-  document.addEventListener('click', wake, { once: true });
-
-  // ---- Boot ----
-  loadApps().then(() => {
-    const id = location.hash.slice(1);
-    if (id && apps.some(a => a.id === id)) open(id); else { renderHub(); }
-    wake();
+  function closeViewer() { if (!current) return; current = null; viewer.classList.remove('on'); frame.src = 'about:blank'; delete frame.dataset.id; }
+  $('#pill-home').addEventListener('click', () => showTab('apps'));
+  $('#pill-reload').addEventListener('click', () => { if (current) frame.src = current.file + (current.file.includes('?') ? '&' : '?') + 'r=' + Date.now(); });
+  $('#pill-name').addEventListener('click', () => {
+    const others = visibleApps().filter(a => !current || a.id !== current.id);
+    sheet(`<h2>Switch app</h2><div class="switch-list">${others.map(a => `<button class="btn" data-open="${esc(a.id)}">${esc(a.icon && !/svg/.test(a.icon) ? a.icon + ' ' : '')}${esc(a.name)}</button>`).join('')}</div>
+      <div class="hstack" style="margin-top:var(--sp-4)"><button class="btn grow" data-open-tab="home">Home</button><button class="btn grow" data-open-tab="me">Me</button></div>`);
   });
+  function sheet(html) {
+    const bd = document.createElement('div'); bd.className = 'sheet-backdrop';
+    bd.innerHTML = `<div class="sheet" role="dialog">${html}</div>`;
+    document.body.appendChild(bd);
+    const close = () => bd.remove();
+    bd.addEventListener('click', ev => {
+      if (ev.target === bd) return close();
+      const o = ev.target.closest('[data-open]'); if (o) { close(); openApp(o.dataset.open); }
+      const t = ev.target.closest('[data-open-tab]'); if (t) { close(); showTab(t.dataset.openTab); }
+    });
+    document.addEventListener('keydown', function onKey(ev) { if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } });
+    return close;
+  }
+
+  // ── messages from apps ────────────────────────────────────────
+  window.addEventListener('message', ev => {
+    if (ev.origin !== location.origin || !ev.data || ev.data.source !== 'hub') return;
+    const m = ev.data;
+    if (m.type === 'hub:sync') setDot(m.sync.state);
+    if (m.type === 'hub:open') openApp(m.appId);
+    if (m.type === 'hub:reauth') { closeViewer(); hub.device ? showPicker(m.reason === 'signed_out' ? '' : 'Please choose your profile again.') : showPairing('This device was unpaired.'); }
+    if (m.type === 'hub:theme') hub.setTheme(m.theme);
+  });
+  function setDot(state) { const d = $('#syncdot'); d.className = 'dot dot-' + state; d.title = 'Sync: ' + state; }
+  hub.onSync(s => setDot(s.state));
+  hub.onAuthLoss(() => { closeViewer(); hub.device ? showPicker('Please choose your profile again.') : showPairing('This device was unpaired.'); });
+
+  // ── home ──────────────────────────────────────────────────────
+  const fmtDate = d => d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  const fmtTime = d => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  function greeting() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
+  let clockTimer = null;
+  function renderHome() {
+    const v = $('#view-home'); const p = hub.profile; if (!p) return;
+    clearInterval(clockTimer);
+    if (p.kind === 'kiosk') {
+      v.innerHTML = `
+        <button class="btn btn-ghost kiosk-switch" id="kiosk-switch">Switch</button>
+        <div style="text-align:center;padding:var(--sp-6) 0 var(--sp-8)"><div class="clock" id="clock">${fmtTime(new Date())}</div><div class="home-date" id="hdate">${esc(fmtDate(new Date()))}</div></div>
+        <div class="card"><h2><svg class="icon"><use href="#i-bell"/></svg>Reminders</h2><ul class="list" id="remlist"></ul></div>`;
+      $('#kiosk-switch').addEventListener('click', () => showPicker());
+      clockTimer = setInterval(() => { const n = new Date(); $('#clock').textContent = fmtTime(n); $('#hdate').textContent = fmtDate(n); }, 1000);
+    } else {
+      v.innerHTML = `
+        <div style="margin-bottom:var(--sp-6)"><div class="greet">${greeting()}, ${esc(p.name)}.</div><div class="home-date">${esc(fmtDate(new Date()))}</div></div>
+        <div class="card"><h2><svg class="icon"><use href="#i-bell"/></svg>Reminders</h2><ul class="list" id="remlist"></ul>
+          ${p.kind === 'adult' ? `<form class="add-row" id="remform"><input class="input" id="remtext" placeholder="Add a reminder for the house" maxlength="140" autocomplete="off"><button class="btn btn-primary" type="submit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button></form>` : ''}
+        </div>`;
+      const f = $('#remform');
+      if (f) f.addEventListener('submit', ev => {
+        ev.preventDefault(); const t = $('#remtext').value.trim(); if (!t) return;
+        const id = hub.uid();
+        hub.set('item:' + id, { id, text: t, by: p.id, byName: p.name, createdAt: Date.now() }, { app: 'reminders', scope: 'family' });
+        hub.activity('Added a reminder: ' + t, 'reminders');
+        $('#remtext').value = ''; renderReminders();
+      });
+    }
+    renderReminders();
+  }
+  function renderReminders() {
+    const ul = $('#remlist'); if (!ul) return;
+    const items = hub.list('item:', { app: 'reminders', scope: 'family' }).map(r => r.value).sort((a, b) => a.createdAt - b.createdAt);
+    const loading = !hub.sync.lastPull && hub.sync.state !== 'offline' && !items.length;
+    if (loading) { ul.innerHTML = '<li class="row"><span class="skeleton" style="width:60%">loading</span></li><li class="row"><span class="skeleton" style="width:40%">loading</span></li>'; return; }
+    if (!items.length) { ul.innerHTML = '<li class="row muted">Nothing to remember right now.</li>'; return; }
+    const canEdit = hub.profile && hub.profile.kind === 'adult';
+    ul.innerHTML = items.map(r => `<li class="row rem-row"><div class="row-main"><div class="rem-text">${esc(r.text)}</div><div class="rem-by">${esc(r.byName || r.by || '')}</div></div>
+      ${canEdit ? `<button class="btn btn-ghost btn-round" data-done="${esc(r.id)}" aria-label="Done"><svg class="icon"><use href="#i-x"/></svg></button>` : ''}</li>`).join('');
+  }
+  $('#view-home').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-done]'); if (!b) return;
+    const it = hub.get('item:' + b.dataset.done, { app: 'reminders', scope: 'family' });
+    hub.remove('item:' + b.dataset.done, { app: 'reminders', scope: 'family' });
+    if (it) hub.activity('Cleared the reminder: ' + it.text, 'reminders');
+    renderReminders();
+  });
+  hub.onChange(ch => { if (ch.app === 'reminders') renderReminders(); });
+  hub.onSync(() => { if (tab === 'home') renderReminders(); });
+
+  // ── me ────────────────────────────────────────────────────────
+  function renderMe() {
+    const v = $('#view-me'); const p = hub.profile; if (!p) return;
+    const s = hub.sync; const theme = hub.theme();
+    v.innerHTML = `
+      <div class="view-title"><h1>Me</h1></div>
+      <div class="stack-lg">
+        <div class="card me-card"><span class="pemoji">${esc(p.emoji)}</span><div class="grow"><h2 style="margin:0">${esc(p.name)}</h2><div class="text-2 small">${p.kind === 'kid' ? 'Kid' : p.kind === 'kiosk' ? 'Display' : (p.isAdmin ? 'Adult · Admin' : 'Adult')}</div></div>
+          <button class="btn" id="switch">Switch profile</button></div>
+        <div class="card"><h2>Appearance</h2><div class="seg" id="theme">
+          ${['system', 'light', 'dark'].map(t => `<button class="${theme === t ? 'on' : ''}" data-theme="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>
+        <div class="card"><h2>Sync</h2>
+          <div class="kv"><b>Status</b><span><span class="dot dot-${s.state}" style="display:inline-block;vertical-align:middle;margin-right:6px"></span>${s.state}${s.lastError ? ' · ' + esc(s.lastError) : ''}</span></div>
+          <div class="kv"><b>Waiting to send</b><span>${s.pending}</span></div>
+          <div class="kv"><b>Last checked</b><span>${s.lastPull ? fmtTime(new Date(s.lastPull)) : 'not yet'}</span></div>
+          <div class="kv"><b>This device</b><span>${esc(hub.device ? hub.device.name || DEVICE_NAME : '—')}</span></div>
+          <div class="hstack" style="margin-top:var(--sp-3)"><button class="btn grow" id="syncnow">Check now</button><button class="btn btn-ghost" id="forget">Forget this device</button></div>
+        </div>
+        ${p.isAdmin ? '<div class="card"><h2>Admin</h2><p class="text-2">Profile management, PIN resets and the pairing code arrive in the next step.</p></div>' : ''}
+      </div>`;
+    $('#switch').addEventListener('click', async () => { closeViewer(); await hub.signOut(); showPicker(); });
+    $('#theme').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; hub.setTheme(b.dataset.theme); renderMe(); try { frame.contentWindow.postMessage({ source: 'hubshell', type: 'hub:theme' }, location.origin); } catch {} });
+    $('#syncnow').addEventListener('click', async () => { await hub.pull(); await hub.flush(); renderMe(); hub.toast('Checked with the house.'); });
+    $('#forget').addEventListener('click', () => {
+      if (!confirm('Forget this device? You will need the pairing code to use the hub here again.')) return;
+      try { for (const k of Object.keys(localStorage)) if (k.startsWith('hub.')) localStorage.removeItem(k); } catch {}
+      location.reload();
+    });
+  }
+
+  // ── boot ──────────────────────────────────────────────────────
+  await loadRegistry();
+  if (!hub.device) showPairing();
+  else if (!hub.session) showPicker();
+  else enterShell();
+
+  // Keep the screen awake once the user has interacted (Safari needs a gesture).
+  let lock = null;
+  async function wake() { if (!('wakeLock' in navigator)) return; try { lock = await navigator.wakeLock.request('screen'); } catch {} }
+  document.addEventListener('pointerdown', wake, { once: true });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && lock) wake(); });
 })();
 </script>
 </body>

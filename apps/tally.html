@@ -2,41 +2,53 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tally counter</title>
+<link rel="stylesheet" href="design.css">
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; margin: 0; }
-  body { background: #4C7B6A; color: #fff; font-family: system-ui, -apple-system, sans-serif;
-         display: grid; place-items: center; user-select: none; -webkit-user-select: none; }
+  html, body { height: 100%; }
+  body { background: var(--accent); color: var(--on-accent); display: grid; place-items: center; user-select: none; -webkit-user-select: none;
+    padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left); }
   main { text-align: center; }
   .count { font-size: clamp(120px, 30vw, 320px); font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; }
-  .row { display: flex; gap: 18px; justify-content: center; margin-top: 32px; }
-  button { font: inherit; font-size: 32px; width: 110px; height: 110px; border-radius: 50%; border: 0;
-           background: rgba(255,255,255,.18); color: #fff; }
-  button:active { background: rgba(255,255,255,.32); }
-  button.big { width: 160px; height: 160px; font-size: 56px; background: #fff; color: #4C7B6A; }
-  .reset { margin-top: 28px; font-size: 16px; opacity: .7; background: none; width: auto; height: auto; border-radius: 8px; padding: 8px 14px; }
+  .row { display: flex; gap: var(--sp-5); justify-content: center; align-items: center; margin-top: var(--sp-8); }
+  .tbtn { font-size: var(--fs-2xl); width: 110px; height: 110px; border-radius: 50%; border: 0;
+    background: color-mix(in srgb, var(--on-accent) 18%, transparent); color: var(--on-accent); cursor: pointer; }
+  .tbtn:active { background: color-mix(in srgb, var(--on-accent) 32%, transparent); }
+  .tbtn.big { width: 160px; height: 160px; font-size: 56px; background: var(--on-accent); color: var(--accent); }
+  :root[data-kind="kid"] .tbtn { width: 130px; height: 130px; }
+  :root[data-kind="kid"] .tbtn.big { width: 190px; height: 190px; font-size: 72px; }
+  .reset { margin-top: var(--sp-6); background: none; border: 0; color: inherit; opacity: .75; font-size: var(--fs-md); padding: var(--sp-3) var(--sp-4); min-height: var(--tap); border-radius: var(--r-sm); cursor: pointer; }
+  .who { position: fixed; top: calc(var(--sp-3) + var(--safe-top)); left: 50%; transform: translateX(-50%); font-size: var(--fs-sm); opacity: .75; }
 </style>
 </head>
 <body>
+<div class="who" id="who"></div>
 <main>
   <div class="count" id="n">0</div>
   <div class="row">
-    <button id="minus" aria-label="Subtract one">−</button>
-    <button id="plus" class="big" aria-label="Add one">+</button>
+    <button class="tbtn" id="minus" aria-label="Subtract one">−</button>
+    <button class="tbtn big" id="plus" aria-label="Add one">+</button>
   </div>
   <button class="reset" id="reset">Reset to zero</button>
 </main>
+<script src="hub.js" data-app="tally" data-scope="person"></script>
 <script>
-  const KEY = 'tally.count';
-  let n = Number(localStorage.getItem(KEY)) || 0;
-  const el = document.getElementById('n');
-  const show = () => { el.textContent = n; localStorage.setItem(KEY, n); };
-  document.getElementById('plus').onclick = () => { n++; show(); };
-  document.getElementById('minus').onclick = () => { n = Math.max(0, n - 1); show(); };
-  document.getElementById('reset').onclick = () => { n = 0; show(); };
-  show();
+  (async () => {
+    await hub.ready();
+    // Legacy key from before profiles existed (goes to the first adult who opens the app on this device).
+    hub.migrate([{ from: 'tally.count', to: 'count', parse: raw => Number(raw) || 0 }]);
+    const el = document.getElementById('n');
+    document.getElementById('who').textContent = hub.profile.name + "'s counter";
+    const n = () => Number(hub.get('count', { default: 0 })) || 0;
+    const show = () => { el.textContent = n(); };
+    const set = v => { hub.set('count', Math.max(0, v)); show(); };
+    document.getElementById('plus').onclick = () => set(n() + 1);
+    document.getElementById('minus').onclick = () => set(n() - 1);
+    document.getElementById('reset').onclick = () => set(0);
+    hub.onChange(show);
+    show();
+  })();
 </script>
 </body>
 </html>

@@ -21,11 +21,12 @@ CREATE TABLE IF NOT EXISTS app_data (
   app_id     TEXT NOT NULL,
   key        TEXT NOT NULL,
   value      TEXT,
-  updated_at INTEGER NOT NULL
+  updated_at INTEGER NOT NULL,           -- writer's clock: decides last-write-wins
+  synced_at  INTEGER NOT NULL DEFAULT 0  -- server clock: what `?since=` filters on
 );
 -- SQLite treats NULLs as distinct in UNIQUE constraints, so family rows need the IFNULL.
 CREATE UNIQUE INDEX IF NOT EXISTS app_data_uq ON app_data (scope, IFNULL(profile_id, ''), app_id, key);
-CREATE INDEX IF NOT EXISTS app_data_pull ON app_data (app_id, scope, profile_id, updated_at);
+CREATE INDEX IF NOT EXISTS app_data_pull ON app_data (app_id, scope, profile_id, synced_at);
 
 CREATE TABLE IF NOT EXISTS devices (
   id         TEXT PRIMARY KEY,

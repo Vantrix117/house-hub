@@ -2,65 +2,75 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kitchen timer</title>
+<link rel="stylesheet" href="design.css">
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; margin: 0; }
-  body { background: #B8623A; color: #fff; font-family: system-ui, -apple-system, sans-serif;
-         display: grid; place-items: center; user-select: none; -webkit-user-select: none; transition: background .3s; }
-  body.done { background: #2E8B57; }
-  main { text-align: center; }
-  .time { font-size: clamp(100px, 26vw, 280px); font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; }
-  .presets, .row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
-  button { font: inherit; border: 0; border-radius: 16px; padding: 18px 26px; font-size: 22px;
-           background: rgba(255,255,255,.18); color: #fff; }
-  button:active { background: rgba(255,255,255,.32); }
-  button.go { background: #fff; color: #B8623A; font-weight: 600; min-width: 160px; }
+  html, body { height: 100%; }
+  body { display: grid; place-items: center; user-select: none; -webkit-user-select: none; transition: background .4s;
+    padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left); }
+  body.done { background: var(--danger-soft); }
+  main { text-align: center; width: min(100%, 560px); padding: var(--sp-4); }
+  .time { font-size: clamp(96px, 26vw, 260px); font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent-strong); }
+  body.done .time { color: var(--danger); animation: blink 1s steps(2) infinite; }
+  @keyframes blink { to { opacity: .3; } }
+  .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); margin-top: var(--sp-6); }
+  .presets .btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
+  .row { display: flex; gap: var(--sp-3); justify-content: center; margin-top: var(--sp-4); }
+  .row .btn-lg { flex: 1; }
 </style>
 </head>
 <body>
 <main>
   <div class="time" id="t">5:00</div>
-  <div class="presets">
-    <button data-s="60">1 min</button>
-    <button data-s="300">5 min</button>
-    <button data-s="600">10 min</button>
-    <button data-s="900">15 min</button>
-    <button data-s="1800">30 min</button>
+  <div class="presets" id="presets">
+    <button class="btn" data-s="60">1 min</button>
+    <button class="btn" data-s="180">3 min</button>
+    <button class="btn on" data-s="300">5 min</button>
+    <button class="btn" data-s="600">10 min</button>
+    <button class="btn" data-s="900">15 min</button>
+    <button class="btn" data-s="1800">30 min</button>
   </div>
   <div class="row">
-    <button class="go" id="go">Start</button>
-    <button id="reset">Reset</button>
+    <button class="btn btn-primary btn-lg" id="go">Start</button>
+    <button class="btn btn-lg" id="reset">Reset</button>
   </div>
 </main>
+<script src="hub.js" data-app="timer" data-scope="person"></script>
 <script>
-  let total = 300, left = total, tick = null, endAt = 0;
-  const t = document.getElementById('t'), go = document.getElementById('go');
-  const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  const show = () => { t.textContent = fmt(left); };
-  const stop = () => { clearInterval(tick); tick = null; go.textContent = 'Start'; };
-  function beep() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      [0, .3, .6].forEach(d => { const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination); o.frequency.value = 880;
-        g.gain.setValueAtTime(.4, ctx.currentTime + d); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + d + .25);
-        o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + .25); });
-    } catch {}
-  }
-  go.onclick = () => {
-    if (tick) return stop();
-    document.body.classList.remove('done');
-    endAt = Date.now() + left * 1000; go.textContent = 'Pause';
-    tick = setInterval(() => {
-      left = Math.max(0, Math.round((endAt - Date.now()) / 1000)); show();
-      if (left === 0) { stop(); document.body.classList.add('done'); beep(); }
-    }, 250);
-  };
-  document.getElementById('reset').onclick = () => { stop(); left = total; document.body.classList.remove('done'); show(); };
-  document.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { stop(); total = left = +b.dataset.s; document.body.classList.remove('done'); show(); });
-  show();
+  (async () => {
+    await hub.ready();
+    let total = Number(hub.get('lastPreset', { default: 300 })) || 300, left = total, tick = null, endAt = 0;
+    const t = document.getElementById('t'), go = document.getElementById('go');
+    const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    const show = () => { t.textContent = fmt(left); document.querySelectorAll('[data-s]').forEach(b => b.classList.toggle('on', +b.dataset.s === total)); };
+    const stop = () => { clearInterval(tick); tick = null; go.textContent = 'Start'; };
+    function beep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [0, .3, .6].forEach(d => { const o = ctx.createOscillator(), g = ctx.createGain();
+          o.connect(g); g.connect(ctx.destination); o.frequency.value = 880;
+          g.gain.setValueAtTime(.4, ctx.currentTime + d); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + d + .25);
+          o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + .25); });
+      } catch {}
+    }
+    go.onclick = () => {
+      if (tick) return stop();
+      document.body.classList.remove('done');
+      endAt = Date.now() + left * 1000; go.textContent = 'Pause';
+      tick = setInterval(() => {
+        left = Math.max(0, Math.round((endAt - Date.now()) / 1000)); show();
+        if (left === 0) { stop(); document.body.classList.add('done'); beep(); }
+      }, 250);
+    };
+    document.getElementById('reset').onclick = () => { stop(); left = total; document.body.classList.remove('done'); show(); };
+    document.getElementById('presets').addEventListener('click', ev => {
+      const b = ev.target.closest('[data-s]'); if (!b) return;
+      stop(); total = left = +b.dataset.s; document.body.classList.remove('done'); show();
+      if (hub.canWrite) hub.set('lastPreset', total);
+    });
+    show();
+  })();
 </script>
 </body>
 </html>
