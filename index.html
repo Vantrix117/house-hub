@@ -733,7 +733,7 @@
           await hub.request('/api/push/subscribe', { method: 'POST', body: { subscription: sub.toJSON() } });
           hub.toast('Notifications on for this device.');
         }
-      } catch (e) { help.textContent = 'Could not change notifications: ' + e.message; }
+      } catch (e) { toggle.disabled = false; toggle.setAttribute('aria-checked', String(!!sub)); help.textContent = 'Could not turn notifications on: ' + (e.message || e) + (/permission denied|push service/i.test(e.message || '') ? ' — this browser could not reach its push service.' : ''); return; }
       paint();
     };
   }
