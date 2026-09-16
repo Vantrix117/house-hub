@@ -1,116 +1,106 @@
-# Shared list backend (Cloudflare Worker + D1)
+# House Hub API (Cloudflare Worker + D1)
 
-> **Already deployed and live** — nothing below needs doing.
-> Worker: `https://house-hub-api.catalystfarm1.workers.dev`
-> D1 database: `house-hub` (`c5410eee-9095-4092-84b0-dc534aded0d8`, region ENAM)
-> Deploy changes with `npx wrangler deploy` from this folder.
-> The steps below are kept as a rebuild reference.
+> **Live:** `https://house-hub-api.catalystfarm1.workers.dev`
+> D1: `house-hub` (`c5410eee-9095-4092-84b0-dc534aded0d8`) · account `catalystfarm1@gmail.com`
+> Deploy: `npx wrangler deploy` **from this folder**. Editing files here changes nothing until you deploy.
 
-Until this is set up, the Larder Ledger saves to whatever device you're on and says
-"Saved on this iPad only." Once it's wired up, everyone in the house sees one list.
+Free tier throughout. One Worker serves every app; data is scoped per person or per family.
 
-Everything below is done in the Cloudflare dashboard — no command line, no install.
-Free tier throughout; a household uses a rounding error of the daily allowance.
+## Layout
 
-## 1. Cloudflare account
+| File | Purpose |
+|---|---|
+| `wrangler.toml` | Worker name, D1 binding (`DB`), `ALLOWED_ORIGINS` (CORS allow-list) |
+| `schema.sql` | Tables. Idempotent — `npx wrangler d1 execute house-hub --remote --file schema.sql` |
+| `seed.sql` | The eight household profiles (`INSERT OR IGNORE`, never overwrites admin edits) |
+| `migrate-leftovers.sql` | One-time copy of the legacy `leftovers` table into `app_data` (already run) |
+| `src/index.js` | Routes |
+| `src/auth.js` | PBKDF2 hashing, tokens, sessions, rate limits |
+| `src/data.js` | `app_data` last-write-wins upsert, listing, tombstones |
+| `../scripts/set-pairing-code.mjs` | Prompts for the pairing code and stores **only its hash** |
+| `../scripts/smoke-api.sh` | Curl walk-through of every endpoint (`smoke-api.sh <url> <pairing-code>`) |
 
-Sign up at [dash.cloudflare.com](https://dash.cloudflare.com). Free plan. You do not
-need a domain and you do not need to move your DNS anywhere.
+## Auth model
 
-## 2. Create the database
+1. **Pair the device** once: `POST /api/pair {code}` → `device_token`. Send it as `X-Device-Token` on every request.
+   The code is hashed in `settings.pairing_code_hash`; 10 wrong tries per IP per 15 min.
+2. **Sign in as a profile**: `POST /api/login {profile_id, pin?}` → `profile_token`, sent as `X-Profile-Token`.
+   - kids and the kiosk: no PIN
+   - adult with no PIN yet → `403 needs_pin_setup` → `POST /api/profiles/:id/pin {pin}` (4–8 digits, only while unset) signs them in
+   - 5 wrong PINs per profile per device → `429` for 15 min
+   - sessions last a year and are bound to the device that created them
+3. Person-scope reads, every write, and `/api/admin/*` need the profile token. Family-scope reads need only the device token (the kiosk uses this). Kiosk profiles cannot write (`403 read_only`).
 
-**Storage & Databases → D1 → Create database.** Name it `house-hub`.
+## Endpoints
 
-Open the new database's **Console** tab, paste the contents of [`schema.sql`](schema.sql),
-and run it. That creates the single `leftovers` table.
+```
+GET  /api/health
+POST /api/pair                          {code, name?}
+GET  /api/profiles                      (no hashes; has_pin flag)
+POST /api/login                         {profile_id, pin?}
+POST /api/profiles/:id/pin              {pin}
+GET  /api/me            POST /api/logout
 
-## 3. Create the Worker
+GET  /api/data/:appId?scope=person|family[&since=ms][&prefix=][&key=]
+PUT  /api/data/:appId/:key?scope=       {value, updated_at}   → {value, updated_at, applied}
+DELETE /api/data/:appId/:key?scope=     (writes a tombstone)
+POST /api/data/:appId/batch?scope=      {items:[{key,value,updated_at}]}
 
-**Compute / Workers & Pages → Create → Start from Hello World → Deploy.**
-Name it `house-hub-api`.
+GET  /api/activity?limit=30             POST /api/activity {app_id, text}
+POST /api/push/subscribe {subscription} DELETE /api/push/subscribe
 
-Then **Edit code**, delete the placeholder, paste all of
-[`leftovers-worker.js`](leftovers-worker.js), and **Deploy**.
+Admin (is_admin profile token):
+POST /api/admin/profiles/:id/reset-pin
+PUT  /api/admin/profiles/:id            {name?, emoji?, color?, kind?, sort_order?}
+POST /api/admin/pairing-code/rotate     {code?}  (omit code → one is generated and returned once)
+GET  /api/admin/usage                   chat messages / push sends per profile per day, devices
+DELETE /api/admin/devices/:id
 
-## 4. Connect the two
-
-This is the step that's easy to miss. In the Worker:
-
-**Settings → Bindings → Add → D1 database**
-
-- Variable name: **`DB`** — exactly this, uppercase. The Worker looks for `env.DB`.
-- D1 database: `house-hub`
-
-Deploy again after adding the binding.
-
-## 5. Point the app at it
-
-Copy the Worker's URL — it looks like `https://house-hub-api.catalystfarm1.workers.dev`.
-
-Check it works by opening `<that URL>/items` in a browser. You should see:
-
-```json
-{"items":[]}
+Legacy (until Phase 3): GET/POST /items, DELETE /items/:id with X-House-Key
 ```
 
-Then in [`../apps/leftovers.html`](../apps/leftovers.html), put it in the `API` line near
-the top of the `<script>` block:
+Errors are `{error: 'snake_code', message: 'plain English'}` with a matching HTTP status.
 
-```js
-const API = 'https://house-hub-api.catalystfarm1.workers.dev';
+### Data semantics
+
+- `updated_at` is milliseconds from the **writer's** clock. A `PUT` with an older `updated_at` than the stored row is
+  ignored and the server's row comes back with `applied: false`; clients adopt it.
+- Deleting writes `value: null` (a tombstone) so other devices learn about the delete on their next pull.
+  `GET …?since=<last pull>` returns only rows changed after that, tombstones included.
+- Values up to 900 KB. Keys: `[A-Za-z0-9_.:-/]`, up to 200 chars. Lists are stored one row per item (`item:<id>`)
+  so two people editing at once never overwrite each other's items.
+
+## Secrets
+
+Never in this repo. Set with `npx wrangler secret put NAME` from this folder:
+
+| Secret | Used by |
+|---|---|
+| `HOUSE_KEY` | legacy `/items` routes only (removed in Phase 3) |
+| `VAPID_PRIVATE_KEY` | push notifications (Phase 4) |
+| `ANTHROPIC_API_KEY` | chat (Phase 5) |
+
+The pairing code is not a secret binding — it is a hash in D1, rotated with `scripts/set-pairing-code.mjs` or the admin endpoint.
+
+## Local development
+
+```bash
+cd worker
+npx wrangler d1 execute house-hub --local --file schema.sql
+npx wrangler d1 execute house-hub --local --file seed.sql
+node ../scripts/set-pairing-code.mjs --local
+npx wrangler dev --port 8787
+../scripts/smoke-api.sh http://127.0.0.1:8787 <the code you typed>
 ```
 
-Commit and push. Within a minute every iPad in the house is on the same list.
-
-## How it behaves
-
-- Each device polls every 20 seconds, and immediately whenever the app is reopened.
-- Adding or removing shows instantly on the device that did it, then confirms with the server.
-- If the Worker can't be reached, the app keeps showing the last list it saw and says so.
-  A write attempted while offline is undone and reported rather than silently dropped.
-- Items are added and deleted one at a time, so two people editing at once don't
-  overwrite each other's changes.
-
-## The passphrase
-
-Every request needs an `X-House-Key` header matching the `HOUSE_KEY` secret. Without it the
-Worker returns `401` and the app shows its unlock screen.
-
-The passphrase is **not in this repo** and never should be. It lives in two places:
-
-- On the server, as a Cloudflare secret. Set or change it with:
-  ```
-  npx wrangler secret put HOUSE_KEY
-  ```
-  Run that from this folder; it prompts for the value and doesn't echo it.
-- On each device, in `localStorage` under `house.key`, after being typed once.
-
-The key is stored hub-wide rather than per-app, so any future shared app reuses it and
-nobody has to enter it twice.
-
-**Changing it** locks everyone out until each device enters the new one. The app handles this
-cleanly: a rejected key is discarded and the unlock screen reappears with an explanation.
-
-If `HOUSE_KEY` is unset the Worker fails closed with a `500` naming the problem — it will
-never serve the list unprotected.
-
-## Worth knowing
-
-**The URL itself is still public** — it's in the page's JavaScript and this repo. That's fine
-now: knowing the URL gets you a `401`. The passphrase is what protects the data.
-
-**The hub and the other apps are not protected.** Anyone with the site link can open the hub
-and use the tally counter and timer; those keep their data on the device. Only the shared
-fridge list is gated.
-
-**No credentials live in this repo.** The Worker URL is not a secret key; the database is
-only reachable through the Worker.
+Local state lives in `.wrangler/` (git-ignored).
 
 ## If something's wrong
 
 | What you see | Cause |
 |---|---|
-| `D1 binding "DB" is missing` | Step 4 — binding absent or not named exactly `DB` |
-| `no such table: leftovers` | Step 2 — `schema.sql` wasn't run in the D1 console |
-| App still says "Saved on this iPad only" | `API` in `apps/leftovers.html` is still empty, or the change isn't pushed yet |
-| "Can't reach the house list" | Worker URL wrong, or Worker not deployed |
+| `device_not_paired` | Device token missing/revoked — the hub shows the pairing screen |
+| `pairing_not_configured` (503) | Run `scripts/set-pairing-code.mjs` |
+| `profile_session_invalid` | Session expired, PIN was reset, or token from another device — pick the profile again |
+| `no such table` | Run `schema.sql` against `--remote` |
+| CORS error in the browser | Origin not in `ALLOWED_ORIGINS` in `wrangler.toml`; redeploy after editing |

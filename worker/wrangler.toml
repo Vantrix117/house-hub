@@ -1,9 +1,16 @@
 name = "house-hub-api"
-main = "leftovers-worker.js"
+main = "src/index.js"
 compatibility_date = "2026-09-05"
 workers_dev = true
 
-# The app reads env.DB — this binding name must stay "DB".
+[vars]
+# Browser origins allowed to call the API. The GitHub Pages site plus the local dev server.
+ALLOWED_ORIGINS = "https://vantrix117.github.io,http://localhost:8765,http://127.0.0.1:8765"
+
+[observability]
+enabled = true
+
+# The code reads env.DB — this binding name must stay "DB".
 [[d1_databases]]
 binding = "DB"
 database_name = "house-hub"
