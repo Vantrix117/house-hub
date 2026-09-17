@@ -83,6 +83,11 @@ Legend — **A** adults (Eli, Christian, Elizabeth, David, Mea) · **K** kids (E
 
 **22. Build-guide sync** (M · E) — hub.js person scope for progress/plot/theme, `hub.migrate` from localStorage, drop the private theme toggle. AC: tick on PC → ticked on iPad.
 
+**23. Guest profiles on demand** (M · A) — `worker/src/index.js`, `worker/seed.sql` (no change), `index.html` Me/admin, picker
+- Any adult creates a guest from Me → "Add a guest": name, a **choosable picture icon** (emoji grid, the illustrated avatar set from item 5, or a photo from item 6), colour; kind `adult` (full app access, never admin), PIN optional (guest can skip the PIN), optional expiry (tonight / a week / keep); appears in the picker on every paired device within one pull. Admin can remove guests; expired guests are hidden and their person-scope data kept 30 days then deleted.
+- Endpoints: `POST /api/profiles` (adult token) creates a profile with `is_guest`, `created_by`, `expires_at`; `DELETE /api/admin/profiles/:id`; profiles list carries `is_guest`/`expires_at`; login skips `needs_pin_setup` for guests with no PIN.
+- AC: Mea adds "Aunt Sue" with a chosen icon on the iPad; Sue signs in on Eli's phone without a PIN and can use F260/Prayer/Larder/chat like any adult; after expiry she is gone from the picker and Eli's admin panel can purge her data.
+
 ## Parked
 Shared grocery list · weekly meal plan · kid chore routines (Hearth owns these) · named multi-counter Tally.
 
