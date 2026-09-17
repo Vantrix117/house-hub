@@ -164,7 +164,8 @@ async function* anthropicStream(env, body) {
     body: JSON.stringify({ ...body, stream: true }),
   });
   if (!r.ok) {
-    let msg = 'HTTP ' + r.status; try { const j = await r.json(); msg = (j.error && j.error.message) || msg; } catch {}
+    let msg = 'HTTP ' + r.status; try { const raw = await r.text(); try { const j = JSON.parse(raw); msg = (j.error && j.error.message) || raw.slice(0, 300); } catch { msg = raw.slice(0, 300) || msg; } } catch {}
+    console.error('anthropic error', r.status, msg);
     throw new HttpError(r.status === 429 ? 503 : 502, 'upstream', 'The assistant is unavailable right now (' + msg + ').');
   }
   const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
