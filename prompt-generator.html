@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt generator — Christian apps &amp; games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E7ECF1;
+    --paper-deep:#D8DFE7;
+    --ink:#1B2633;
+    --ink-soft:#4A5866;
+    --line:#B9C3CE;
+    --navy:#24508F;
+    --navy-deep:#1A3D70;
+    --amber:#C9891C;
+    --amber-soft:#F3E3C2;
+    --white:#FBFCFD;
+    --radius:6px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:700;margin:0;letter-spacing:-0.01em}
+  h1{font-size:clamp(1.9rem,3.2vw,2.6rem);line-height:1.1}
+  h2{font-size:1.15rem;font-weight:600}
+  p{margin:0}
+  a{color:var(--navy)}
+  button{font:inherit;cursor:pointer}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 64px}
+  header{display:flex;flex-direction:column;gap:8px;margin-bottom:26px;max-width:62ch}
+  header p{color:var(--ink-soft)}
+  .grid{display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:26px;align-items:start}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+
+  /* form side */
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .panel + .panel{margin-top:16px}
+  .panel h2{margin-bottom:12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:8px 12px;border-radius:var(--radius)}
+  .seg button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+  .seg button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,.copy:focus-visible,.link:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+  label{display:block;font-weight:500;margin:14px 0 6px}
+  label:first-of-type{margin-top:0}
+  .hint{font-size:.9rem;color:var(--ink-soft);margin-top:4px}
+  select,input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:9px 10px}
+  textarea{min-height:88px;resize:vertical}
+  details{border-top:1px solid var(--line);padding-top:12px;margin-top:16px}
+  summary{cursor:pointer;font-weight:500;color:var(--navy)}
+  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  @media (max-width:500px){.settings-grid{grid-template-columns:1fr}}
+
+  /* output side */
+  .out{position:sticky;top:20px}
+  .out-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+  .out-head .meta{color:var(--ink-soft);font-size:.95rem}
+  .copy{background:var(--amber);color:var(--ink);border:0;padding:10px 16px;border-radius:var(--radius);font-weight:600}
+  .copy[data-done="true"]{background:var(--navy);color:#fff}
+  .prompt{background:var(--white);border:1px solid var(--line);border-left:6px solid var(--amber);border-radius:var(--radius);padding:20px 22px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.92rem;line-height:1.55;white-space:pre-wrap;word-wrap:break-word;min-height:320px;max-height:78vh;overflow:auto}
+  .prompt .fill{background:var(--amber-soft);border-radius:3px;padding:0 3px}
+  .next{margin-top:14px;padding:14px 16px;background:var(--paper-deep);border-radius:var(--radius);font-size:.95rem}
+  .next strong{font-weight:600}
+  @media (prefers-reduced-motion:no-preference){.copy{transition:background .15s ease,color .15s ease}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Prompt generator</h1>
+    <p>Pick the tool and the job, fill in the blanks, copy the prompt. Every prompt carries your project settings so Claude never has to be reminded what you're building.</p>
+  </header>
+
+  <div class="grid">
+    <div>
+      <section class="panel" aria-labelledby="tool-h">
+        <h2 id="tool-h">Which Claude are you talking to?</h2>
+        <div class="seg" id="tool-seg" role="group" aria-label="Tool">
+          <button type="button" data-tool="code" aria-pressed="true">Claude Code</button>
+          <button type="button" data-tool="cowork" aria-pressed="false">Cowork</button>
+          <button type="button" data-tool="chat" aria-pressed="false">Chat</button>
+        </div>
+        <p class="hint" id="tool-hint"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="task-h">
+        <h2 id="task-h">What do you need done?</h2>
+        <label for="phase">Phase of the plan</label>
+        <select id="phase"></select>
+        <label for="task">Job</label>
+        <select id="task"></select>
+        <div id="fields"></div>
+      </section>
+
+      <section class="panel">
+        <details id="settings">
+          <summary>Project settings (edit once, used in every prompt)</summary>
+          <div class="settings-grid">
+            <div><label for="s-app">App name</label><input id="s-app" value="Verse Keeper"></div>
+            <div><label for="s-brand">Brand / LLC name</label><input id="s-brand" value="[your brand]"></div>
+            <div><label for="s-trans">Translations</label><input id="s-trans" value="BSB (default) and KJV only"></div>
+            <div><label for="s-aud">Audience</label><input id="s-aud" value="kids 5–12 in Sunday school, and their parents"></div>
+          </div>
+          <label for="s-stack">Tech stack</label>
+          <input id="s-stack" value="Expo (React Native) with TypeScript and Expo Router; EAS Build from Windows; direct store billing via react-native-iap (no RevenueCat); Supabase only when a backend is truly needed">
+          <label for="s-rules">Standing rules</label>
+          <textarea id="s-rules">Works fully offline. No ads, no analytics SDKs, no third-party tracking (kids app, COPPA and Apple Kids rules). Keep it simple; do not add features I did not ask for. Bible text is bundled locally from public-domain sources, never fetched at runtime.</textarea>
+          <label for="s-style">How to work with me</label>
+          <textarea id="s-style">I'm a beginner. Work in small steps. After each step, tell me exactly how to test it on my iPhone with Expo Go, and explain what you changed in plain English. If something is ambiguous, ask one question, then proceed with your best guess.</textarea>
+        </details>
+      </section>
+    </div>
+
+    <div class="out">
+      <div class="out-head">
+        <div>
+          <h2 id="out-title">Your prompt</h2>
+          <p class="meta" id="out-meta"></p>
+        </div>
+        <button type="button" class="copy" id="copy" data-done="false">Copy prompt</button>
+      </div>
+      <div class="prompt" id="prompt" aria-live="polite"></div>
+      <div class="next" id="next"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const TOOL_HINTS = {
+    code: "Open a terminal in your project folder, run claude, paste the prompt.",
+    cowork: "Paste into Cowork with the relevant files attached or the folder connected.",
+    chat: "Paste into a normal Claude chat. Good for thinking and deciding before you build."
+  };
+
+  // Each task: tool, phase, label, fields, build(v, s) -> {body, next}
+  // v = field values, s = project settings
+  const TASKS = [
+    // ---------- Setup ----------
+    { tool:"chat", phase:"Setup", label:"Pick a brand name",
+      fields:[{k:"vibe",l:"Feel you want",p:"warm, simple, trustworthy, not churchy-corporate"}],
+      build:(v,s)=>({body:
+`I'm starting a small studio that makes Christian mobile apps and simple games for ${s.aud}. First product: a Bible verse memorization app.
+
+Give me 20 brand-name candidates. Feel: ${v.vibe||"warm, simple, trustworthy"}.
+Rules: one or two words, easy to spell out loud, works as an LLC name and a .com, no puns on real Bible apps, nothing that reads as a specific denomination.
+For each: the name, one line on why it fits, and any obvious problem (hard to spell, already a known brand, sounds like something else).
+Sort by your top pick first. I'll check availability myself.`,
+      next:"Check the top 5 on both app stores, a domain registrar, and the Tennessee Secretary of State business search before filing anything."})},
+
+    { tool:"chat", phase:"Setup", label:"Write the v1 spec",
+      fields:[{k:"packs",l:"Starter verse packs (names)",p:"Foundations, Promises, Kids' Favorites"},{k:"modes",l:"Practice modes you want",p:"fill-in-the-blank, first-letter, word scramble, type it out"}],
+      build:(v,s)=>({body:
+`Turn this into a one-page product spec I can paste into Claude Code.
+
+App: ${s.app}, a Bible verse memorization app for ${s.aud}.
+Translations: ${s.trans}.
+Starter packs: ${v.packs||"three packs of 20–30 verses each"}.
+Practice modes: ${v.modes||"fill-in-the-blank, first-letter, word scramble, type it out"}.
+Core loop: see a verse → practice it → spaced-repetition review → streaks and progress.
+Out of scope for v1: accounts, cloud sync, leaderboards, extra translations, social features. Local-only storage.
+Stack: ${s.stack}.
+Rules: ${s.rules}
+
+Format: Goal, Audience, Screens (one line each), Data model (plain English), Practice modes (how each works), Spaced repetition (which algorithm and why), Not in v1, Done-when checklist. Keep it under one page. No marketing language.`,
+      next:"Save the spec as SPEC.md in your project folder. Every Claude Code prompt can then say 'read SPEC.md first.'"})},
+
+    { tool:"code", phase:"Setup", label:"Set up my Windows dev toolchain",
+      fields:[{k:"name",l:"Name and email for git config",p:"Eli, you@yourbrand.com"}],
+      build:(v,s)=>({body:
+`I'm on Windows 11 and new to this. Set up my development toolchain for building an Expo (React Native) app. Claude Code is already installed.
+
+Install, using winget or npm, asking me before each install:
+- Git, and configure it with: ${v.name||"[name and email]"}
+- Node.js LTS
+- Visual Studio Code
+- EAS CLI (npm install -g eas-cli)
+- Android Studio, then one Pixel-class emulator image on the latest stable Android, and a script I can double-click to launch it
+- The GitHub CLI (gh)
+
+Then:
+- Run node -v, git --version, code --version, eas --version, gh --version and show me the output.
+- Tell me the two things I have to do myself: install Expo Go on my iPhone, and sign in with eas login and gh auth login.
+- Explain in plain English what each tool is for, one line each.
+Stop and tell me if anything fails; don't work around it silently.`,
+      next:"Do the two manual sign-ins, then run the Expo tutorial (docs.expo.dev/tutorial) once so you know what a screen and a build are."})},
+    { tool:"code", phase:"Setup", label:"Create the Expo project",
+      fields:[],
+      build:(v,s)=>({body:
+`Create a new Expo app in this folder called "${s.app}" using TypeScript and Expo Router. Use the latest stable Expo SDK.
+
+Set up:
+- A home screen with the app name and a placeholder list.
+- A settings screen reachable from home.
+- ESLint and Prettier with sensible defaults.
+- A README with the exact commands to run it in Expo Go on my iPhone.
+- A .gitignore and an initial git commit.
+
+Then tell me, step by step, how to open it on my iPhone with Expo Go, and what I should see.`,
+      next:"Run it on your phone before doing anything else. If it doesn't load, paste the exact error into the 'Fix an error' prompt."})},
+
+    { tool:"code", phase:"Setup", label:"Bundle the Bible text",
+      fields:[{k:"refs",l:"Verse references to include (or 'all of these packs')",p:"John 3:16, Psalm 23:1-6, Proverbs 3:5-6 ..."}],
+      build:(v,s)=>({body:
+`I need Bible text bundled inside the app, not fetched at runtime.
+
+Translations: ${s.trans}. Both are public domain; use a reputable open source (e.g. the official BSB download or a well-known GitHub dataset). Tell me which source you used and its license.
+
+Write a one-off script (scripts/build-verses.ts) that:
+- Pulls only these references: ${v.refs||"[list the verses or say 'all verses in the packs defined in SPEC.md']"}.
+- Outputs assets/verses.json with fields: id, reference, book, chapter, verse range, text per translation, pack name.
+- Normalizes punctuation and whitespace so word-by-word games work cleanly.
+
+Then wire the app to load verses.json. Add an About screen with the attribution line for each translation.
+Do not add any network calls.`,
+      next:"Spot-check five verses against a printed BSB or berean.bible. You are responsible for the text being right."})},
+
+    // ---------- Build ----------
+    { tool:"code", phase:"Build the app", label:"Add a feature or screen",
+      fields:[{k:"feature",l:"Describe the feature",p:"A practice screen with fill-in-the-blank: hide 30% of words, user taps the right word from 4 choices",t:"textarea"},{k:"done",l:"Done when…",p:"I can practice any verse from a pack and see my score at the end"}],
+      build:(v,s)=>({body:
+`Read SPEC.md first.
+
+Add this feature: ${v.feature||"[describe it]"}
+
+Done when: ${v.done||"[what I should be able to do]"}
+
+Constraints: ${s.rules}
+Stack: ${s.stack}.
+
+Work in small steps. Before writing code, list the files you'll touch and why (two or three lines). After the change, tell me how to test it on my iPhone with Expo Go and what to look for.`,
+      next:"Test it for five real minutes on your phone before asking for the next feature."})},
+
+    { tool:"code", phase:"Build the app", label:"Add spaced repetition",
+      fields:[],
+      build:(v,s)=>({body:
+`Read SPEC.md first.
+
+Add a spaced-repetition scheduler for verses. Use SM-2 or a simpler equivalent — explain the choice in one paragraph in a comment.
+
+Requirements:
+- Each verse tracks: last practiced, next due date, ease, streak of correct answers.
+- After a practice session, update the schedule based on the result.
+- Home screen shows a "Review due today" section with the count and a start button.
+- Everything is stored locally (AsyncStorage or SQLite — pick one and say why).
+- A hidden developer switch in Settings that lets me fast-forward the clock by N days so I can test scheduling without waiting.
+
+Constraints: ${s.rules}
+Then tell me how to test the schedule on my phone in under five minutes.`,
+      next:"Use the fast-forward switch to confirm a verse comes due again on day 1, 3, 7."})},
+
+    { tool:"code", phase:"Build the app", label:"Add in-app purchase (direct store billing)",
+      fields:[{k:"price",l:"Price and model",p:"$4.99 one-time unlock of all packs"}],
+      build:(v,s)=>({body:
+`Read SPEC.md first.
+
+Add a single in-app purchase using the stores' own billing directly (react-native-iap or the current Expo-compatible equivalent) — NOT RevenueCat or any third-party purchase server. This is a Kids-category app: no purchase data may go to third parties. Model: ${v.price||"one-time unlock of all packs"}.
+- First pack is free; the rest show a lock and open a paywall screen.
+- The paywall and the "Restore purchases" button sit behind the parental gate.
+- Paywall copy is plain and honest: what you get, the price, restore purchases.
+- Entitlement is cached on-device so it works offline after purchase.
+- Add a yearly "Teacher / Church plan" product as a second IAP (it exists so a church that buys by invoice is accessing something also sold in-app — Apple guideline 3.1.3(b)). No links to any web checkout anywhere in the app.
+- Do not add analytics or any other SDK.
+
+Then give me a numbered checklist of what I create manually in App Store Connect and Google Play Console, in order, with the exact product IDs you used in code.`,
+      next:"Create the products in both store consoles with the exact IDs Claude used. Mismatched IDs are the most common purchase bug. Test with a sandbox account before submitting."})},
+
+    { tool:"code", phase:"Build the app", label:"Make it feel better (polish pass)",
+      fields:[{k:"complaints",l:"What testers said",p:"buttons too small for my 5-year-old; couldn't find review; font hard to read",t:"textarea"}],
+      build:(v,s)=>({body:
+`Read SPEC.md first.
+
+I tested with real users (${s.aud}). Their complaints, in their words:
+${v.complaints||"[paste what they said]"}
+
+For each complaint: propose the smallest change that fixes it, then make the change. Keep the visual style consistent. Do not add new features.
+Also do a pass for: tap targets at least 44pt, readable font sizes, a clear back button on every screen, and nothing that requires reading instructions.
+
+Tell me how to test each fix on my phone.`,
+      next:"Hand the phone back to the same testers. Watch, don't explain."})},
+
+    // ---------- Test & fix ----------
+    { tool:"code", phase:"Test & fix", label:"Fix an error",
+      fields:[{k:"err",l:"Paste the exact error text",p:"",t:"textarea"},{k:"when",l:"When it happens",p:"when I tap Start on the practice screen"}],
+      build:(v,s)=>({body:
+`Something broke. Exact error:
+${v.err||"[paste the full error, including the red screen text or terminal output]"}
+
+It happens: ${v.when||"[when]"}.
+
+Find the cause before changing anything, and tell me what it was in one plain-English sentence. Then fix it with the smallest change. Do not refactor unrelated code. Tell me how to confirm it's fixed on my phone.`,
+      next:"If the fix doesn't work, paste the new error — not 'still broken.'"})},
+
+    { tool:"code", phase:"Test & fix", label:"Create a TestFlight / internal build",
+      fields:[{k:"platform",l:"Platform",p:"ios / android / both"}],
+      build:(v,s)=>({body:
+`I want to share a test build with real testers. Platform: ${v.platform||"both"}.
+
+Set up EAS Build for this project (eas.json with development, preview, and production profiles). Let EAS manage signing credentials.
+Then give me the exact commands to run from Windows, in order, and what each one will ask me. Include how to add testers in TestFlight and how to share an Android build with people who don't have a Play account.
+Note: I'm on the EAS free plan (15 iOS + 15 Android builds a month) — don't propose anything that burns builds unnecessarily.`,
+      next:"First build often fails on credentials. Paste the exact failure into 'Fix an error.'"})},
+
+    // ---------- Store launch ----------
+    { tool:"cowork", phase:"Store launch", label:"Write the store listing",
+      fields:[{k:"diff",l:"What makes it different",p:"built for Sunday school classes; works offline; no ads"}],
+      build:(v,s)=>({body:
+`Write the store listing for ${s.app}, a Bible verse memorization app for ${s.aud}, published by ${s.brand}.
+
+What makes it different: ${v.diff||"[your one-line difference]"}.
+Translations: ${s.trans}. No ads, no tracking, works offline.
+
+Produce, in this order:
+1. App Store: name (30 chars max), subtitle (30), promotional text (170), description (under 4000, first two lines must work on their own), keywords (100 chars, comma-separated, no spaces).
+2. Google Play: title (30), short description (80), full description (under 4000).
+3. Five screenshot captions, one line each, in the order the screenshots should appear.
+Plain language a parent would use. No exclamation marks, no "amazing." Do not claim anything the app doesn't do.`,
+      next:"Read it out loud once. If it sounds like an ad, cut the sentence."})},
+
+    { tool:"cowork", phase:"Store launch", label:"Draft the privacy policy",
+      fields:[],
+      build:(v,s)=>({body:
+`Draft a privacy policy for ${s.app} by ${s.brand}.
+
+Facts: the app stores all data on the device only. It has no accounts, no analytics, no ads, and no third-party SDKs; in-app purchases go directly through Apple and Google. It is used by children under 13 with a parent's device. Support email: [support email].
+
+Plain English, short sections, a "what we don't collect" section near the top, an effective date, and a note on how it will be updated. Also give me the two or three sentences I should paste into the App Store privacy "nutrition label" and the Google Play Data safety form so they match the policy exactly.`,
+      next:"Host it at a stable URL (GitHub Pages or your site). Both stores need the link before you can submit."})},
+
+    { tool:"code", phase:"Store launch", label:"Fix a store rejection",
+      fields:[{k:"store",l:"Which store",p:"Apple / Google"},{k:"text",l:"Paste the rejection message",p:"",t:"textarea"}],
+      build:(v,s)=>({body:
+`My ${v.store||"[store]"} submission was rejected. Their exact message:
+${v.text||"[paste the full rejection text, including the guideline number]"}
+
+Tell me in plain English what they're actually objecting to. Then either fix it in the code, or tell me the exact non-code change I need to make (a listing field, a screenshot, a form answer, a reply to the reviewer). If a reply to the reviewer is appropriate, draft it — short, factual, no apology.`,
+      next:"Resubmit the same day if possible. Reviewers often re-review faster on a quick resubmit."})},
+
+    // ---------- Games ----------
+    { tool:"chat", phase:"Games", label:"Design a simple game",
+      fields:[{k:"idea",l:"Game idea in one line",p:"Bible trivia with categories by book and a 60-second round"}],
+      build:(v,s)=>({body:
+`Help me design a simple Christian mobile game for ${s.aud}: ${v.idea||"[one-line idea]"}.
+
+It will be built in ${s.stack} — so UI-driven only (taps, cards, timers, text), no physics or 3D.
+
+Give me:
+1. The core loop in three sentences.
+2. One session: what happens minute by minute for a first-time player.
+3. The three things that make it fun, and the one thing most likely to make it boring.
+4. Content needed (how many questions/verses/cards) and how I'd source it accurately.
+5. A v1 scope that one person could build in 2–4 weeks part-time, and a "later" list.
+No monetization discussion yet.`,
+      next:"Paste the v1 scope into 'Write the v1 spec' and go."})},
+
+    { tool:"chat", phase:"Games", label:"Generate game content (you fact-check)",
+      fields:[{k:"kind",l:"What content",p:"200 Bible trivia questions, multiple choice, easy/medium/hard"},{k:"rules",l:"Content rules",p:"only facts stated in the text; no doctrine; BSB wording"}],
+      build:(v,s)=>({body:
+`Generate ${v.kind||"[what and how many]"} for a Christian game for ${s.aud}.
+Rules: ${v.rules||"only facts stated directly in the biblical text; no doctrinal or denominational questions; use BSB wording for any quoted text"}.
+
+Format as JSON, one object per item, with fields: id, difficulty, prompt, options (array), answer, reference (book chapter:verse), note (one line saying where in the text the answer is).
+Mark any item you are less than fully sure about with "review": true. I will check every item against the text before shipping.`,
+      next:"Actually check them. Trivia errors in a church app get noticed immediately."})},
+
+    // ---------- Church licensing ----------
+    { tool:"code", phase:"Church licensing", label:"Add class codes and a teacher view",
+      fields:[],
+      build:(v,s)=>({body:
+`Read SPEC.md first.
+
+Add a church/class layer using Supabase (free tier):
+- A teacher can create a class and get a short join code.
+- A student enters the code once; their progress (which verses memorized, streaks) syncs to the class.
+- Teacher screen: list of students, verses assigned this week, who has completed them. Nothing else.
+- Students who never enter a code keep using the app exactly as before, fully offline.
+- No email/password for students. Teacher signs in with email magic link.
+
+Constraints: ${s.rules} (the class layer is the one exception to offline-only — keep it isolated).
+Explain the data model in plain English before coding. Tell me exactly what I create in the Supabase dashboard and where the keys go.`,
+      next:"Test with your own class first. Sell it only after a full semester of real use."})},
+
+    { tool:"cowork", phase:"Church licensing", label:"Write the church one-pager",
+      fields:[{k:"price",l:"Church price",p:"$249/year, unlimited students"}],
+      build:(v,s)=>({body:
+`Write a one-page PDF-ready pitch for ${s.app}'s church plan, from ${s.brand}. Audience: a kids-ministry director or Sunday school coordinator who has ten minutes and no technical interest.
+
+Price: ${v.price||"[price]"}.
+Include: the problem in one sentence (kids don't retain memory verses), what the teacher sees, what parents see, what it costs, what it doesn't do (no ads, no tracking, no accounts for kids), how to start (three steps), and a contact line.
+Tone: plain, warm, no hype. Under 350 words. Also give me a three-sentence email I can send with it.`,
+      next:"Send it to your own church first and ask what's confusing. Then fix that before sending it anywhere else."})},
+
+    // ---------- PC / Steam ----------
+    { tool:"code", phase:"PC / Steam (later)", label:"Start a Godot game",
+      fields:[{k:"idea",l:"Game in one line",p:"cozy puzzle game where you rebuild a stained-glass window verse by verse"}],
+      build:(v,s)=>({body:
+`Set up a new Godot 4 project for a small PC game: ${v.idea||"[one-line idea]"}.
+
+Requirements:
+- GDScript, 2D, a clean folder structure (scenes/, scripts/, assets/, data/).
+- A main menu, one playable prototype scene, and a settings screen (volume, fullscreen).
+- Export presets for Windows, and notes on how to export a build I can upload to itch.io from my PC.
+- A README with how to open and run it.
+
+Keep the prototype ugly and playable. Placeholder shapes, no art. Tell me what to click to test it.`,
+      next:"Put a free prototype on itch.io before deciding whether it's worth the $100 Steam fee."})},
+
+    // ---------- Maintenance ----------
+    { tool:"code", phase:"Maintenance", label:"Yearly OS update pass",
+      fields:[{k:"errs",l:"Build or runtime errors (if any)",p:"",t:"textarea"}],
+      build:(v,s)=>({body:
+`It's the yearly OS-update pass for ${s.app}.
+
+Upgrade to the latest stable Expo SDK and the matching versions of every dependency. Then run a build check for both platforms.
+${v.errs?`Errors I'm already seeing:\n${v.errs}\n`:""}
+For anything that breaks: fix the smallest thing that makes it pass, and list every change you made in plain English.
+Do not add features. Do not change behaviour. Tell me what to test on my phone to confirm nothing regressed.`,
+      next:"Rebuild with EAS, test on your phone, and resubmit both stores even if nothing changed — reviewers see old SDKs."})},
+
+    // ---------- Custom ----------
+    { tool:"code", phase:"Anything else", label:"Custom Claude Code task",
+      fields:[{k:"task",l:"What you want",p:"",t:"textarea"}],
+      build:(v,s)=>({body:
+`Read SPEC.md first (if it exists).
+
+${v.task||"[describe what you want in plain English]"}
+
+Constraints: ${s.rules}
+Stack: ${s.stack}.
+${s.style}`,
+      next:"If Claude does more than you asked, say so — 'undo the extra parts' is a valid prompt."})},
+
+    { tool:"chat", phase:"Anything else", label:"Custom Chat question",
+      fields:[{k:"q",l:"Your question",p:"",t:"textarea"}],
+      build:(v,s)=>({body:
+`Context: I'm a beginner building ${s.app}, a Christian app for ${s.aud}, published under ${s.brand}. Stack: ${s.stack}. Rules: ${s.rules}
+
+${v.q||"[your question]"}
+
+Answer concisely and lead with the recommendation. Only add caveats that change what I should do.`,
+      next:""})},
+
+    { tool:"cowork", phase:"Anything else", label:"Custom Cowork document",
+      fields:[{k:"doc",l:"What document",p:"a release-notes template; a support-reply macro set; a one-page pricing sheet",t:"textarea"}],
+      build:(v,s)=>({body:
+`For ${s.app} by ${s.brand} (a Christian app for ${s.aud}), create: ${v.doc||"[what document]"}.
+
+Plain language, short, no hype, nothing the app doesn't actually do. Ask me at most one question if something essential is missing; otherwise make sensible assumptions and flag them at the end.`,
+      next:""})}
+  ];
+
+  // ---- state ----
+  let tool = "code";
+  let taskIdx = 0;
+  const values = {};
+
+  const $ = id => document.getElementById(id);
+  const phaseSel = $("phase"), taskSel = $("task"), fieldsBox = $("fields");
+
+  function settings(){
+    return { app:$("s-app").value.trim(), brand:$("s-brand").value.trim(), trans:$("s-trans").value.trim(),
+             aud:$("s-aud").value.trim(), stack:$("s-stack").value.trim(), rules:$("s-rules").value.trim(), style:$("s-style").value.trim() };
+  }
+  function tasksForTool(){ return TASKS.map((t,i)=>({...t,i})).filter(t=>t.tool===tool); }
+  function phasesForTool(){ const seen=[]; tasksForTool().forEach(t=>{ if(!seen.includes(t.phase)) seen.push(t.phase); }); return seen; }
+
+  function renderPhases(keepPhase){
+    const phases = phasesForTool();
+    phaseSel.innerHTML = phases.map(p=>`<option>${p}</option>`).join("");
+    if(keepPhase && phases.includes(keepPhase)) phaseSel.value = keepPhase;
+    renderTasks();
+  }
+  function renderTasks(){
+    const list = tasksForTool().filter(t=>t.phase===phaseSel.value);
+    taskSel.innerHTML = list.map(t=>`<option value="${t.i}">${t.label}</option>`).join("");
+    taskIdx = Number(taskSel.value);
+    renderFields();
+  }
+  function renderFields(){
+    const t = TASKS[taskIdx];
+    Object.keys(values).forEach(k=>delete values[k]);
+    fieldsBox.innerHTML = t.fields.map(f=>{
+      const id = "f-"+f.k;
+      const ctl = f.t==="textarea"
+        ? `<textarea id="${id}" placeholder="${f.p||""}"></textarea>`
+        : `<input id="${id}" placeholder="${f.p||""}">`;
+      return `<label for="${id}">${f.l}</label>${ctl}`;
+    }).join("") || `<p class="hint">Nothing to fill in for this one.</p>`;
+    t.fields.forEach(f=>{
+      $("f-"+f.k).addEventListener("input", e=>{ values[f.k]=e.target.value; renderPrompt(); });
+    });
+    renderPrompt();
+  }
+
+  function escapeHtml(s){ return s.replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+  function renderPrompt(){
+    const t = TASKS[taskIdx];
+    const s = settings();
+    const out = t.build(values, s);
+    let body = out.body.trim();
+    if(t.tool==="code" && !/I'm a beginner/.test(body)) body += "\n\n" + s.style;
+    $("out-meta").textContent = `${t.phase} · ${t.label}`;
+    $("prompt").innerHTML = escapeHtml(body).replace(/\[[^\]]+\]/g, m=>`<span class="fill">${m}</span>`);
+    $("next").innerHTML = out.next ? `<strong>After Claude finishes:</strong> ${escapeHtml(out.next)}` : "";
+    $("next").style.display = out.next ? "block" : "none";
+    $("prompt").dataset.raw = body;
+    const c = $("copy"); c.dataset.done="false"; c.textContent="Copy prompt";
+  }
+
+  // ---- events ----
+  document.querySelectorAll("#tool-seg button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      tool = b.dataset.tool;
+      document.querySelectorAll("#tool-seg button").forEach(x=>x.setAttribute("aria-pressed", x===b ? "true":"false"));
+      $("tool-hint").textContent = TOOL_HINTS[tool];
+      renderPhases(phaseSel.value);
+    });
+  });
+  phaseSel.addEventListener("change", renderTasks);
+  taskSel.addEventListener("change", ()=>{ taskIdx=Number(taskSel.value); renderFields(); });
+  ["s-app","s-brand","s-trans","s-aud","s-stack","s-rules","s-style"].forEach(id=>$(id).addEventListener("input", renderPrompt));
+
+  $("copy").addEventListener("click", async ()=>{
+    const text = $("prompt").dataset.raw || "";
+    const c = $("copy");
+    try{
+      await navigator.clipboard.writeText(text);
+    }catch(e){
+      const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); }catch(_){}
+      document.body.removeChild(ta);
+    }
+    c.dataset.done="true"; c.textContent="Copied";
+    setTimeout(()=>{ c.dataset.done="false"; c.textContent="Copy prompt"; }, 1800);
+  });
+
+  // ---- init ----
+  $("tool-hint").textContent = TOOL_HINTS[tool];
+  renderPhases();
+})();
+</script>
+</body>
+</html>

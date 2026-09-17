@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Christian Apps &amp; Games — Game Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E7ECF1; --paper-deep:#D8DFE7; --ink:#1B2633; --ink-soft:#4A5866; --line:#B9C3CE;
+    --navy:#24508F; --navy-deep:#1A3D70; --amber:#C9891C; --amber-soft:#F3E3C2; --green:#2E7D4F; --green-soft:#DDEFE4;
+    --white:#FBFCFD; --radius:6px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:16px;line-height:1.5}
+  h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif;font-weight:700;margin:0;letter-spacing:-0.01em}
+  h1{font-size:clamp(2rem,3.4vw,2.8rem);line-height:1.05}
+  h2{font-size:1.45rem}
+  h3{font-size:1.05rem;font-weight:600}
+  p{margin:0}
+  a{color:var(--navy)}
+  button{font:inherit;cursor:pointer}
+  .wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+  .top{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start;margin-bottom:28px}
+  @media (max-width:880px){.top{grid-template-columns:1fr}}
+  .lede{color:var(--ink-soft);max-width:62ch;margin-top:10px}
+  .meta{font-size:.9rem;color:var(--ink-soft);margin-top:8px}
+
+  /* progress card */
+  .card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+  .card h3{margin-bottom:10px}
+  .bar{height:10px;background:var(--paper-deep);border-radius:99px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:var(--amber);width:0}
+  .bar.done > i{background:var(--green)}
+  .pct{font-family:"Fraunces",Georgia,serif;font-size:2.2rem;font-weight:700;line-height:1;margin-bottom:6px}
+  .mini{display:grid;gap:6px;margin-top:12px}
+  .mini .row{display:grid;grid-template-columns:1fr 60px;gap:8px;align-items:center;font-size:.9rem}
+  .mini .row .bar{height:6px}
+  .actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .btn{background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:7px 11px;border-radius:var(--radius);font-size:.9rem}
+  .btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+  .btn:focus-visible,input:focus-visible,summary:focus-visible,textarea:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+  textarea.code{width:100%;font-family:"IBM Plex Mono",monospace;font-size:.8rem;border:1px solid var(--line);border-radius:var(--radius);padding:8px;background:var(--paper);min-height:56px;margin-top:8px}
+
+  /* facts */
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:22px 0 28px}
+  .fact{background:var(--white);border:1px solid var(--line);border-top:4px solid var(--amber);border-radius:var(--radius);padding:14px 16px}
+  .fact b{display:block;font-family:"Fraunces",Georgia,serif;font-size:1.05rem;margin-bottom:6px}
+  .fact p{font-size:.93rem;color:var(--ink-soft)}
+
+  /* split table */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px}
+  @media (max-width:640px){.split{grid-template-columns:1fr}}
+  .split .card ul{margin:0;padding-left:18px;font-size:.95rem}
+  .split .card li{margin:4px 0}
+
+  /* phases */
+  .phase{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+  .phase > summary{list-style:none;cursor:pointer;padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+  .phase > summary::-webkit-details-marker{display:none}
+  .num{font-family:"Fraunces",Georgia,serif;font-size:1.6rem;font-weight:700;color:var(--amber);width:40px}
+  .phase.complete .num{color:var(--green)}
+  .ttl h2{font-size:1.3rem}
+  .ttl .sub{font-size:.92rem;color:var(--ink-soft);margin-top:2px}
+  .pill{font-size:.85rem;font-weight:600;background:var(--paper-deep);padding:4px 10px;border-radius:99px;white-space:nowrap}
+  .phase.complete .pill{background:var(--green-soft);color:var(--green)}
+  .phase > summary .bar{grid-column:1 / -1;height:5px;margin-top:-4px}
+  .body{padding:4px 18px 20px;border-top:1px solid var(--line)}
+  .why{background:var(--amber-soft);border-radius:var(--radius);padding:10px 14px;font-size:.95rem;margin:14px 0}
+  .group{margin-top:18px}
+  .group h3{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+  .group h3 small{font-weight:400;color:var(--ink-soft);font-size:.85rem}
+  .item{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .item:last-child{border-bottom:0}
+  .item input{appearance:none;width:22px;height:22px;border:2px solid var(--line);border-radius:5px;background:var(--white);margin:2px 0 0;cursor:pointer;position:relative}
+  .item input:checked{background:var(--green);border-color:var(--green)}
+  .item input:checked::after{content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg)}
+  .item label{cursor:pointer}
+  .item input:checked + label{color:var(--ink-soft);text-decoration:line-through;text-decoration-color:var(--line)}
+  .item label small{display:block;color:var(--ink-soft);font-size:.88rem;text-decoration:none}
+  .gate{margin-top:18px;background:var(--green-soft);border-radius:var(--radius);padding:12px 14px}
+  .gate h3{color:var(--green);margin-bottom:6px}
+  .gate .item{border-bottom-color:#b9dcc6}
+  .yc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;font-size:.92rem}
+  @media (max-width:560px){.yc{grid-template-columns:1fr}}
+  .yc div{background:var(--paper);border-radius:var(--radius);padding:10px 12px}
+  .yc b{display:block;margin-bottom:4px;font-weight:600}
+
+  /* reference */
+  .ref{margin-top:32px}
+  .ref details{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px}
+  .ref summary{cursor:pointer;padding:12px 16px;font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:1.05rem;list-style:none}
+  .ref summary::-webkit-details-marker{display:none}
+  .ref summary::before{content:"+ ";color:var(--amber)}
+  .ref details[open] summary::before{content:"– "}
+  .ref .inner{padding:0 16px 16px;font-size:.95rem}
+  table{width:100%;border-collapse:collapse;font-size:.93rem}
+  th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-weight:600;color:var(--ink-soft);font-size:.85rem;text-transform:uppercase;letter-spacing:.03em}
+  .ref ul{margin:6px 0 0;padding-left:18px}
+  .ref li{margin:4px 0}
+
+  /* who badges + filter */
+  .who{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:99px;margin-right:6px;vertical-align:1px;white-space:nowrap}
+  .who.you{background:var(--ink);color:#fff}
+  .who.code{background:var(--navy);color:#fff}
+  .who.cowork{background:var(--green);color:#fff}
+  .who.chat{background:var(--amber);color:var(--ink)}
+  .item input:checked + label .who{opacity:.45}
+  .filter{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+  .filter span{font-size:.9rem;color:var(--ink-soft);margin-right:4px}
+  .filter button{background:var(--white);border:1px solid var(--line);color:var(--ink);padding:6px 11px;border-radius:99px;font-size:.88rem}
+  .filter button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+  .item[hidden]{display:none}
+  .legend{font-size:.9rem;color:var(--ink-soft);margin:-6px 0 18px;max-width:70ch}
+  .sr{position:absolute;left:-9999px}
+  @media (prefers-reduced-motion:no-preference){.bar > i{transition:width .25s ease}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div>
+      <h1>Christian Apps &amp; Games<br>Game Plan</h1>
+      <p class="lede">Build one Bible verse memorization app on public-domain text, ship it to iPhone and Android from Windows, test it on your own kids and classes, then sell church licenses. Games reuse the same code. PC/Steam comes last.</p>
+      <p class="meta">Version 3.1 · verified September 12, 2026 · updated September 13 (v3.3 — every item tagged You / Claude Code / Cowork / Chat) · for Eli, 10–20 hrs/week, Windows PC + iPhone, beginner, faceless</p>
+    </div>
+    <div class="card" id="overall">
+      <div class="pct" id="pct">0%</div>
+      <div class="bar" id="obar"><i></i></div>
+      <div class="mini" id="mini"></div>
+      <div class="actions">
+        <button class="btn primary" id="exportBtn" type="button">Copy progress code</button>
+        <button class="btn" id="importBtn" type="button">Paste progress code</button>
+        <button class="btn" id="resetBtn" type="button">Reset</button>
+      </div>
+      <textarea class="code" id="codebox" placeholder="Progress code appears here / paste one here" aria-label="Progress code" hidden></textarea>
+    </div>
+  </div>
+
+  <div class="facts">
+    <div class="fact"><b>Use BSB + KJV</b><p>Public domain, free for a paid app. NIV isn't licensable; ESV is orgs-only; NLT/CSB cost $29/mo + $10/mo each via API.Bible. YouVersion's API is non-commercial only.</p></div>
+    <div class="fact"><b>Build with Expo</b><p>One codebase for iPhone and Android. EAS Build compiles iOS on Expo's Macs — no Mac needed. Free tier: 15 iOS + 15 Android builds a month.</p></div>
+    <div class="fact"><b>No ads, no trackers</b><p>Kids apps can't send personal or device data to third parties. That rules out RevenueCat too — use the stores' own billing directly.</p></div>
+    <div class="fact"><b>Parental gate everywhere</b><p>Before any purchase, outbound link, or permission request. Build it first so it's never a rejection.</p></div>
+    <div class="fact"><b>Support iPad from day one</b><p>Sunday school rooms run on iPads. Plan iPad layouts and screenshots up front.</p></div>
+    <div class="fact"><b>The LLC is a $400/yr decision, not a requirement</b><p>You can launch as an individual for $124 total and form the LLC later, once the church plan proves itself. Until then your legal name shows as the seller on Apple. Apple converts individual accounts to organization on request.</p></div>
+  </div>
+
+  <div class="split">
+    <div class="card"><h3>What you do</h3><ul>
+      <li>Choose what to build, which verses, order, difficulty</li>
+      <li>Test on real devices; judge whether it feels good</li>
+      <li>Accounts, identity checks, agreements, tax forms, clicking Submit</li>
+      <li>Talk to pastors and teachers; sell church licenses</li>
+      <li>Yearly maintenance when iOS/Android update</li>
+    </ul></div>
+    <div class="card"><h3>What Claude does</h3><ul>
+      <li>~80% of the code (Claude Code)</li>
+      <li>Bug fixes and store-rejection fixes (Claude Code)</li>
+      <li>Store listings, privacy policy, church one-pager, release notes (Cowork)</li>
+      <li>Pricing, feature design, mechanics research (Chat)</li>
+      <li>The maintenance work when you paste the errors</li>
+    </ul></div>
+  </div>
+
+  <div class="legend">Every item is tagged with who does it. <b>You</b> means a human has to — accounts, identity checks, payments, tax forms, real-device testing, and talking to people. Claude can't create accounts, enter your IDs or payment details, or submit store forms for you.</div>
+  <div class="filter" role="group" aria-label="Filter by who does it">
+    <span>Show</span>
+    <button type="button" data-f="all" aria-pressed="true">All</button>
+    <button type="button" data-f="you">You</button>
+    <button type="button" data-f="code">Claude Code</button>
+    <button type="button" data-f="cowork">Cowork</button>
+    <button type="button" data-f="chat">Chat</button>
+  </div>
+  <div id="phases"></div>
+
+  <div class="ref">
+    <h2 style="margin-bottom:12px">Reference</h2>
+
+    <details><summary>Weekly rhythm (10–20 hrs)</summary><div class="inner"><ul>
+      <li><b>6–10 hrs</b> building with Claude Code, in 60–90 minute blocks. One feature per block, one feature per prompt.</li>
+      <li><b>2–4 hrs</b> testing on your phone/iPad and with kids. Every week.</li>
+      <li><b>1–3 hrs</b> accounts, store prep, church outreach, bookkeeping.</li>
+      <li><b>1 hr</b> Friday review: what shipped, what broke, next week's three tasks.</li>
+    </ul></div></details>
+
+    <details><summary>Cost sheet (year one)</summary><div class="inner">
+      <table><tr><th>Item</th><th>Cost</th><th>Note</th></tr>
+      <tr><td>Tennessee LLC (Track B, or later)</td><td>$300 to form; $300/yr from year two</td><td>$50/member, $300 floor; annual report due April 1</td></tr>
+      <tr><td>TN franchise &amp; excise tax (with LLC)</td><td>$100/yr minimum</td><td>6.5% excise only on profit above $50k</td></tr>
+      <tr><td>D-U-N-S number (with LLC)</td><td>$0</td><td>Up to 30 days</td></tr>
+      <tr><td>Apple Developer Program (org)</td><td>$99/yr</td><td></td></tr>
+      <tr><td>Google Play Console (org)</td><td>$25 once</td><td></td></tr>
+      <tr><td>Domain, email, privacy page</td><td>$15–80/yr</td><td></td></tr>
+      <tr><td>Expo EAS, Supabase</td><td>$0</td><td>Free tiers</td></tr>
+      <tr><td>Art / asset packs (games)</td><td>$100–300</td><td>As needed</td></tr>
+      <tr><td>API.Bible (only if adding NLT/CSB…)</td><td>$29/mo + $10/mo per translation</td><td>Skip year one</td></tr>
+      <tr><td>Steam Direct (Phase 5)</td><td>$100 per game</td><td>Recoupable</td></tr>
+      <tr><td>CPA consult once revenue starts</td><td>$150–300</td><td>Worth it</td></tr>
+      </table>
+      <p style="margin-top:10px"><b>Baseline:</b> Track A ~$150 in year one (Apple, Google, domain). Track B ~$550 in year one, ~$400–550/yr after. The LLC is the entire difference.</p>
+    </div></details>
+
+    <details><summary>Competitors (checked Sept 2026)</summary><div class="inner">
+      <p>The category is not empty. Bible Memory App Pro: $9.99/mo, $49.99/yr, $149.99 lifetime. Fighter Verses: $4.99 + $0.99–2.99 translation add-ons. Remember Me and Versify: free, no ads. Type the Word: per-student school licenses with Google Classroom sync. Bible Memory Kids exists.</p>
+      <p style="margin-top:8px"><b>So:</b> your edge is the church/class layer and simplicity for young kids, not the memorization mechanic. Cap the consumer unlock at $4.99–6.99. The money is the church plan.</p>
+    </div></details>
+
+    <details><summary>Milestones and kill criteria</summary><div class="inner">
+      <table><tr><th>Milestone</th><th>Target</th><th>If missed</th></tr>
+      <tr><td>Expo tutorial runs on your phone</td><td>Week 2</td><td>Paste the exact error into Claude Code</td></tr>
+      <tr><td>Store enrollments submitted</td><td>Week 2</td><td>Nothing blocks on this yet — keep building</td></tr>
+      <tr><td>Android build tested on emulator + a real device</td><td>Week 6</td><td>Borrow a device from church</td></tr>
+      <tr><td>v1 in daily use by your classes</td><td>Week 8</td><td>Kids quit after 3 sessions → fix the loop before launch</td></tr>
+      <tr><td>Live on both stores</td><td>Week 12</td><td>3+ rejection rounds → read the cited guideline yourself</td></tr>
+      <tr><td>100 downloads, no paid marketing</td><td>Month 4</td><td>Under 30 → listing and screenshots, not the app</td></tr>
+      <tr><td>Three directors say they'd pay for the church plan (mockup only)</td><td>Month 4</td><td>Zero of five → rework the pitch before building the class layer</td></tr>
+      <tr><td>First church license</td><td>Month 6</td><td>10 real pitches, zero interest → price or dashboard</td></tr>
+      <tr><td>$200/mo combined</td><td>Month 9</td><td>Under $50/mo → keep apps live, stop features, shift hours to freelance/plugins</td></tr>
+      </table>
+      <p style="margin-top:10px">Timeline assumes ~15 hrs/week. At 10, roughly double the week numbers; the order doesn't change.</p>
+    </div></details>
+
+    <details><summary>Verification log — what was checked Sept 12, 2026</summary><div class="inner"><ul>
+      <li><b>Tennessee LLC:</b> $300 to form; $300 annual report due April 1 (exempt in formation year); franchise tax $100 min; excise 6.5% after $50k deduction. SaaS is taxable in TN; app-store sales are collected by Apple/Google.</li>
+      <li><b>Google Play:</b> org accounts need D-U-N-S and are outside the 12-testers/14-day rule (personal accounts created after Nov 13, 2023, per app). Updates never need testers.</li>
+      <li><b>Screenshots:</b> Apple 6.9" iPhone set + 13" iPad set, auto-scaled down; Google 2–8 phone shots at 1080×1920 + 1024×500 feature graphic.</li>
+      <li><b>Apple 3.1.3:</b> enterprise carve-out only for apps sold <i>only</i> to orgs. A consumer app unlocking paid content by code is rejected under 3.1.1. Use 3.1.3(b): the church plan must also exist as an IAP.</li>
+      <li><b>RevenueCat:</b> forces a Purchase History privacy disclosure and has caused repeated Kids-category rejections. Replaced with direct store billing (react-native-iap).</li>
+      <li><b>Kids category:</b> parental gate before links, purchases, permissions; no personal/device data to third parties; age bands 5-and-under, 6–8, 9–11. Guideline 5.1.4 applies the gate to any app primarily for under-13s.</li>
+      <li><b>YouVersion Platform:</b> non-commercial only; paywalls or paid tiers revoke access.</li>
+      <li><b>Reviewer-dependent, can't pre-verify:</b> whether a given reviewer accepts your parental gate and 3.1.3(b) setup first time. Write clear review notes; expect one round.</li>
+    </ul></div></details>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------- content ----------
+  const PHASES = [
+    { id:"p0", n:"0", title:"Foundation", when:"Weeks 1–3", why:"Store enrollments are the long pole. Start them on day one and build while you wait. Install Claude Code first — it then installs everything else.",
+      you:"Employer policy, accounts, identity checks, payments, the Expo tutorial on your own phone.", claude:"Every install after Claude Code itself, brand names, the bookkeeping sheet, draft emails, the LLC paperwork prep.",
+      groups:[
+        {h:"First 7 days", s:"Momentum beats sequence — do these before anything else", items:[
+          ["Read the employer policy and write one sentence on what it allows.", "Paste the policy text into Chat if it's long or vague; it will pull out what applies to a side business.", "you,chat"],
+          ["Install Claude Code on your PC.", "docs.claude.com → Claude Code → Windows install. The one install you do by hand.", "you"],
+          ["Have Claude Code install the rest: Git, VS Code, Node.js LTS, EAS CLI, Android Studio, and configure git with your name and email.", "Prompt generator → Setup → Set up my Windows dev toolchain. Uses winget/npm; you approve each install.", "code"],
+          ["Run the Expo tutorial and see an app on your phone.", "Claude Code scaffolds it and explains each step; you do the tutorial so it stops being abstract.", "you,code"],
+          ["Get 20 brand names; shortlist five.", "Prompt generator → Setup → Pick a brand name.", "chat"],
+          ["Email two kids-ministry directors (not your own church): what do you use for memory verses today?", "Cowork drafts the email; you send it. Ten minutes; you learn more than any market report.", "cowork,you"]
+        ]},
+        {h:"Business shell — pick a track", s:"Both work. Track A is the economical default; Track B is faceless from day one", items:[
+          ["Read the employer outside-business / conflict-of-interest policy in full. Keep a copy.", "Do nothing else until this is clear. Applies to both tracks.", "you"],
+          ["Search the USPTO trademark database for the brand name.", "Chat with web search can do a preliminary check; confirm yourself at tmsearch.uspto.gov — 10 minutes, free.", "chat,you"],
+          ["Decide: Track A (individual now, LLC later) or Track B (LLC now).", "Track A costs $124 to launch; Track B ~$550. Ask Chat to weigh it if unsure. Check only the track you chose below.", "you,chat"],
+          ["Bookkeeping sheet: every expense and payout, by app, with a tax set-aside column.", "Cowork builds it; you fill it in. Set aside 25–30% of net for federal + self-employment tax. TN has no personal income tax.", "cowork,you"]
+        ]},
+        {h:"Track A — individual now, LLC later (~$124)", s:"Cheapest legitimate path. Your legal name is the seller on Apple until you convert.", items:[
+          ["Enroll in Apple ($99/yr) and Google ($25) as an individual, in your legal name.", "Apple: no D-U-N-S, no entity, approval in days. Google: personal account. Claude can't create accounts or enter your ID.", "you"],
+          ["Accept that the App Store listing shows your legal name as seller until you convert.", "The app title, icon, and brand still show your brand name. Google shows your contact email and may show more — check the listing preview.", "you"],
+          ["Google personal account: line up 12 Android testers per app for the 14-day closed test.", "Cowork drafts the ask; you recruit twelve church friends with Android phones, or use a paid tester pool (~$15–25).", "you,cowork"],
+          ["Report income on Schedule C as a sole proprietor.", "Chat can explain what goes where; a CPA files it once there's real money.", "you,chat"],
+          ["Trigger to form the LLC: first church license sold, or the three-director validation passes, or revenue reaches ~$100/mo.", "Then follow Track B and phone Apple Developer Support to convert your individual account to an organization — apps, reviews, and purchases carry over.", "you"]
+        ]},
+        {h:"Track B — LLC now (~$550 year one, ~$400/yr after)", s:"Faceless from day one; also needed for Google's org account", items:[
+          ["Prepare the LLC filing: name, registered agent (yourself), principal address, and a single-member operating agreement.", "Cowork drafts the operating agreement and a filing walkthrough; you file yourself on the TNCaB portal — $300 ($50/member, $300 floor). Skip formation services; be your own registered agent.", "cowork,you"],
+          ["Get an EIN (irs.gov, free, 10 minutes).", "Identity form — you.", "you"],
+          ["Open a business checking account.", "you"],
+          ["Register for TN franchise & excise tax on TNTAP.", "$100/yr minimum; 6.5% excise only above $50k profit. Chat explains the form; you submit it.", "you,chat"],
+          ["Put the annual report ($300, due April 1, not in the formation year) and the F&E return (April 15) on your calendar with reminders.", "Cowork sets up the reminders or a compliance sheet.", "cowork"],
+          ["Request a D-U-N-S number for the LLC (dnb.com, free).", "Up to 30 days — do it the day the LLC is approved.", "you"],
+          ["Build and deploy a real website at your domain before enrolling with Apple.", "Claude Code builds a one-page site and deploys it to GitHub Pages; you point the domain at it. Apple rejects org enrollments whose site is a placeholder.", "code,you"]
+        ]},
+        {h:"Brand", items:[
+          ["Check the top five names: App Store, Google Play, .com, TN business search, USPTO.", "Chat with web search does a first pass; you confirm each one.", "chat,you"],
+          ["Buy the .com and set up a support email at that domain.", "Purchases and DNS — you. Claude Code can write the DNS records you need to enter.", "you,code"],
+          ["Reserve the app name in App Store Connect the day Apple approves you.", "Names are first-come.", "you"]
+        ]},
+        {h:"Toolchain (Windows) — verify", s:"Claude Code installs these in 'First 7 days'; this is the check", items:[
+          ["Confirm `node -v`, `git --version`, `code --version`, `eas --version`, `claude --version` all run.", "Ask Claude Code to run the checks and fix anything missing.", "code"],
+          ["Expo Go on your iPhone (App Store, free).", "you"],
+          ["Android emulator: one Pixel-class image installed and booting.", "Claude Code installs the image via sdkmanager and writes a launch script; you confirm it boots.", "code,you"],
+          ["An iPad to test on — borrow from church or family.", "you"],
+          ["GitHub account with a private repo for the project.", "Claude Code creates the repo with the gh CLI once you're signed in.", "you,code"]
+        ]},
+        {h:"Store and service accounts", s:"Submit early — approvals take weeks", items:[
+          ["Apple Developer Program — $99/yr. Track A: individual, approval in days. Track B: organization — LLC, D-U-N-S, real website, phone call from Apple; 1–4 weeks, pay after verification.", "Identity verification — you.", "you"],
+          ["On approval: accept the Paid Apps Agreement, complete W-9 tax forms and banking in App Store Connect.", "Paid apps can't go live without this. Do it the same day. Tax and bank details — you.", "you"],
+          ["Google Play Console — $25 once. Track A: personal account. Track B: organization with D-U-N-S.", "Identity verification and a payments profile (Google Payments merchant setup) — you.", "you"],
+          ["Supabase free account (needed in Phase 4).", "you"],
+          ["Password-manager entry for every account above.", "You will forget which email you used.", "you"],
+          ["Two-factor auth on Apple, Google, GitHub, Expo, and the domain registrar; recovery codes printed and stored.", "Losing the Apple or Google account means losing the apps.", "you"]
+        ]}
+      ],
+      gate:[["Track chosen; if Track B, LLC approved, EIN in hand, business bank account open","","you"],["Apple and Google enrollments submitted","","you"],["Expo tutorial app runs on your iPhone via Expo Go","","you"],["Brand name reserved (domain, and App Store Connect once approved)","","you"]]
+    },
+
+    { id:"p1", n:"1", title:"Build the memorization app", when:"Weeks 2–8", why:"One feature per prompt. Test on your phone after every step. Never stack three features in one prompt.",
+      you:"Pick every verse, test every feature on real devices, watch real kids use it.", claude:"Nearly all the code, the Bible-text import, the spaced-repetition engine, the builds.",
+      groups:[
+        {h:"Spec first (2 hrs)", items:[
+          ["Decide v1 on paper: audience, BSB default + KJV toggle, 3 packs of 20–30 verses, practice modes, spaced repetition, streaks, local-only, iPhone + iPad.", "Chat structures the decisions; you make them.", "you,chat"],
+          ["Write down what's NOT in v1: accounts, sync, leaderboards, extra translations, social, notifications.", "chat"],
+          ["Turn it into SPEC.md and save it in the project folder.", "Prompt generator → Setup → Write the v1 spec. Chat writes it; Claude Code saves it into the repo.", "chat,code"],
+          ["Choose the verses yourself; have a pastor or kids-ministry director glance at the packs.", "Chat can propose candidate lists by theme; you pick. Five minutes with a pastor now; credibility later.", "you,chat"]
+        ]},
+        {h:"Bible text (2 hrs)", items:[
+          ["Bundle BSB + KJV verses into a local JSON file — no runtime API calls.", "Prompt generator → Setup → Bundle the Bible text.", "code"],
+          ["Confirm the source and license Claude used.", "Claude Code reports it; you read it.", "code,you"],
+          ["Spot-check 10 verses against a printed Bible.", "You own text accuracy.", "you"],
+          ["Attribution line on the About screen.", "code"]
+        ]},
+        {h:"Build loop (20–30 hrs of your time)", items:[
+          ["Create the Expo project; commit; runs in Expo Go", "code"],
+          ["Home screen with packs and verses", "code"],
+          ["Practice mode 1: fill-in-the-blank", "code"],
+          ["Spaced repetition with a hidden fast-forward-the-clock switch for testing", "code"],
+          ["Practice modes 2–4", "code"],
+          ["Daily streak and per-pack progress", "code"],
+          ["Settings: translation toggle, font size, reset", "code"],
+          ["Onboarding on first launch, and an About screen", "code"],
+          ["Parental gate component, used before any outbound link", "Required before Phase 2.", "code"],
+          ["iPad layout pass: nothing stretched, tap targets fine, landscape doesn't break", "Claude Code fixes the layout; you check it on the iPad.", "code,you"],
+          ["Accessibility pass: respects system font size, VoiceOver labels on buttons, readable contrast", "code"],
+          ["Test each feature on your phone for five real minutes before asking for the next one", "you"],
+          ["`git commit` after every working feature", "Ask Claude Code to commit with a clear message each time.", "code"]
+        ]},
+        {h:"Real-user testing (Weeks 6–8)", items:[
+          ["Your own kids, watching silently. Note every stall.", "you"],
+          ["TestFlight build for your Sunday school classes.", "Claude Code runs the EAS build and upload; you add testers in App Store Connect. External testers need a light Apple review — allow a day or two.", "code,you"],
+          ["Internal test link for a couple of Android testers.", "Claude Code builds it; you share the link. No tester quota on an org account.", "code,you"],
+          ["Collect complaints in their words and hand them to Claude Code for a polish pass on the top 5.", "Prompt generator → Build → Make it feel better.", "you,code"]
+        ]}
+      ],
+      gate:[["You've used it yourself every day for two weeks","","you"],["Three kids can finish a practice session without help","","you"],["Zero crashes in a week of testing","","you"],["Parental gate works; no outbound link without it","","you"]]
+    },
+
+    { id:"p2", n:"2", title:"Store launch", when:"Weeks 8–12", why:"Google first, Apple second. Expect one to three Apple rejection rounds — paste each into Claude Code and resubmit the same day.",
+      you:"Screenshots on real devices, store forms, review notes, clicking Submit, replying to reviews.", claude:"Icon and splash, listing copy, privacy policy, builds and submission, every rejection fix, review-note and review-reply drafts.",
+      groups:[
+        {h:"Assets and documents (3–4 hrs)", items:[
+          ["App icon 1024×1024, no transparency, readable at 60px.", "Claude Code generates SVG concepts and exports the PNG; you pick one.", "code,you"],
+          ["Splash screen.", "code"],
+          ["Apple screenshots: one 6.9\" iPhone set (1320×2868) and one 13\" iPad set (2064×2752), 1–10 each.", "You capture on real devices; Claude Code writes a script that frames them with captions and resizes to spec. Design the iPad set separately.", "you,code"],
+          ["Google screenshots: 2–8 phone shots at 1080×1920 + a 1024×500 feature graphic + tablet shots.", "Claude Code captures from the emulator and builds the feature graphic; you review.", "code,you"],
+          ["Store listing text for both stores.", "Prompt generator → Store launch → Write the store listing.", "cowork"],
+          ["Privacy policy drafted and hosted at a stable URL.", "Cowork drafts it; Claude Code publishes it on your site.", "cowork,code"],
+          ["Support page and support email working.", "Claude Code adds the page; you confirm the mailbox receives mail.", "code,you"],
+          ["Export compliance: set ITSAppUsesNonExemptEncryption = false (standard HTTPS only).", "code"],
+          ["Age-rating questionnaire answers prepared for both stores: Everyone / 4+, no user content, no ads.", "Chat prepares the answers as a cheat sheet; you enter them.", "chat,you"]
+        ]},
+        {h:"Purchases and builds (3 hrs)", items:[
+          ["In-app purchase via direct store billing (react-native-iap), behind the parental gate.", "Not RevenueCat. Prompt generator → Build → Add in-app purchase.", "code"],
+          ["Set the price: one-time unlock $4.99–6.99.", "Chat compares against the competitor prices; you decide.", "you,chat"],
+          ["Create the products in both store consoles with the exact IDs used in code.", "Console entry — you. Claude Code gives you the IDs and a checklist. Mismatched IDs are the #1 purchase bug.", "you,code"],
+          ["Enable Family Sharing on the Apple IAP (and Google's equivalent if offered).", "Console setting — you.", "you"],
+          ["Test the purchase and Restore with sandbox tester accounts on both platforms.", "Claude Code sets up the sandbox config; you run the test on device.", "code,you"],
+          ["eas.json production profile; EAS-managed credentials.", "code"],
+          ["`eas build --platform all --profile production`, then `eas submit`.", "Claude Code runs both; you approve the credential prompts.", "code"]
+        ]},
+        {h:"Google Play", items:[
+          ["Play Console: listing, Data safety form ('no data collected'), content rating, target audience (designed for children), ads declaration (none).", "Chat prepares every answer as a cheat sheet; you enter them.", "chat,you"],
+          ["Declaring a child audience enrolls you in Google's Families policy: no ad SDKs, no data to third parties, privacy policy link on the listing.", "Same posture as Apple Kids — you already comply; answer consistently.", "you"],
+          ["Internal test on a real Android device, then promote to production.", "you"],
+          ["First review commonly 1–2 weeks in 2026.", "Waiting — nobody.", "you"]
+        ]},
+        {h:"Apple", items:[
+          ["Build in TestFlight, tested on your own phone.", "you"],
+          ["App Store Connect: listing, age rating, App Privacy label ('Data Not Collected'), Kids category + age band.", "Chat prepares the answers; you enter them.", "chat,you"],
+          ["Review notes: one paragraph on how to use the app and where the parental gate is.", "Cowork drafts; you paste into the submission. This alone prevents a common rejection.", "cowork,you"],
+          ["Submit. Paste any rejection into Claude Code; fix; resubmit same day.", "Prompt generator → Store launch → Fix a store rejection.", "you,code"]
+        ]},
+        {h:"Launch week", items:[
+          ["Church announcement (bulletin, kids-ministry email).", "Cowork drafts the blurb; you ask your church to run it once. That's the whole launch marketing.", "cowork,you"],
+          ["Watch installs, crashes, and reviews in App Store Connect and Play Console.", "No analytics SDK needed.", "you"],
+          ["Reply to every review within a week.", "Cowork drafts replies; you post them.", "cowork,you"],
+          ["Log launch date, price, and first-week numbers in the bookkeeping sheet.", "you"],
+          ["Submit the app for featuring through App Store Connect's promotion form, in the Kids category.", "Cowork drafts the pitch; you submit. Free, occasionally works.", "cowork,you"],
+          ["One-screen landing page at your domain with both store badges.", "Churches and parents share links, not store listings.", "code"]
+        ]}
+      ],
+      gate:[["Live on both stores under the brand name (or your legal name on Track A)","","you"],["A purchase and a Restore both work on a real device","","you"],["Paid Apps Agreement, tax, banking done on Apple; payments profile done on Google","","you"]]
+    },
+
+    { id:"p3", n:"3", title:"Simple Christian games", when:"Weeks 12–20", why:"Same codebase and skills. UI-driven games only — taps, cards, timers — so you stay off the Mac problem.",
+      you:"Pick the game, fact-check every question against the text, buy the art, judge whether it's fun.", claude:"Design help, question drafts, all the code, the second store listing.",
+      groups:[
+        {h:"Pick and build one", items:[
+          ["Pick one: Bible trivia (60-second rounds by book) / verse unscramble / Who Am I? (character from clues) / memory match.", "Chat lays out the trade-offs; you choose.", "you,chat"],
+          ["Design it: core loop, one session minute by minute, v1 scope.", "Prompt generator → Games → Design a simple game. 2–4 weeks part-time each.", "chat"],
+          ["Draft the content (questions, clues, cards) as JSON with references.", "Prompt generator → Games → Generate game content. Only what the text states, no doctrinal questions, BSB wording.", "chat"],
+          ["Check every item against the text before it ships.", "you"],
+          ["Art: shortlist licensed asset packs or artists; buy or commission ($100–300).", "Chat shortlists sources with license notes; you buy. Claude doesn't produce shippable game art.", "chat,you"],
+          ["Build it in the same Expo codebase; parental gate; cross-promotion to the memorization app (gated).", "code"],
+          ["Listing, screenshots, and submission for the second app — same steps as Phase 2.", "Cowork for copy, Claude Code for builds and fixes, you for forms and screenshots.", "cowork,code,you"],
+          ["Kill test after 8 weeks live: under a third of the memorization app's downloads → stop making games, move hours to Phase 4.", "Cowork can pull the numbers into a comparison; you decide.", "you,cowork"]
+        ]}
+      ],
+      gate:[["One game live on both stores","","you"],["Every question or clue verified against the text","","you"],["Cross-promotion in place, gated","","code"]]
+    },
+
+    { id:"p4", n:"4", title:"Church & ministry licensing", when:"Months 4–8", why:"One church at $200–500/yr beats a lot of $4.99 purchases, and the buyer has a budget. Design the purchase so Apple can't reject it.",
+      you:"Show the mockup, talk to directors, use it with your own class, invoice, answer teachers.", claude:"The mockup, the class layer on Supabase, the church-plan IAP, the one-pager, reply templates, the pitch tracker.",
+      groups:[
+        {h:"Validate before you build", s:"Two weeks of emails can save two months of code", items:[
+          ["Three-screen clickable mockup of the teacher view.", "Claude Code builds it as a single HTML page you can open on a phone or iPad.", "code"],
+          ["Show it to five kids-ministry directors and ask one question: 'Would your church pay $199 a year for this?'", "Cowork drafts the outreach email; you have the conversations. Three yeses → build. Zero → change the pitch first.", "you,cowork"],
+          ["Ask your own church to be customer #1 and to let you quote them on the one-pager.", "you"]
+        ]},
+        {h:"Build the class layer", items:[
+          ["Teacher creates a class and gets a join code; students join by code only, no accounts; teacher sees assigned verses and who finished.", "Prompt generator → Church licensing → Add class codes and a teacher view. Teacher signs in by email magic link.", "code"],
+          ["Create the Supabase project and paste the keys where Claude Code tells you.", "you"],
+          ["Students without a code keep the app exactly as before, fully offline.", "code"],
+          ["Use it with your own class for a full semester before selling it anywhere.", "you"],
+          ["Update the privacy policy, Apple's App Privacy label, and Google's Data safety form when the class layer ships.", "Cowork redrafts the policy and the label answers; you update the store forms. Teacher emails are now collected. No student names — teacher-entered first names or nicknames only.", "cowork,you"]
+        ]},
+        {h:"Purchase design (Apple 3.1.3)", s:"Checked Sept 2026 — this is where church apps get rejected", items:[
+          ["Offer the Teacher/Church plan as a yearly in-app purchase too, and never link from the app to a web checkout.", "Apple only allows outside purchases for apps sold *only* to orgs. Since you also sell to consumers, the plan must also exist in-app (guideline 3.1.3(b)).", "code"],
+          ["Create the church-plan product in both consoles.", "you"],
+          ["Set up Stripe invoicing for churches at $199–499/yr, unlimited students.", "Chat walks you through Stripe setup; you connect the bank. The IAP exists to satisfy review; most churches will invoice.", "you,chat"],
+          ["Sales tax: taxable in TN unless the church gives its exemption certificate. Turn on Stripe Tax.", "you"]
+        ]},
+        {h:"Sell it", items:[
+          ["One-pager and a three-sentence email.", "Prompt generator → Church licensing → Write the church one-pager.", "cowork"],
+          ["Pitch list: your church → every kids-ministry director you can email → homeschool co-ops → Christian schools → D6 curriculum users.", "Cowork builds the list and drafts each email; you send and follow up. Align packs with D6 weekly passages.", "cowork,you"],
+          ["Support inbox and three reply templates.", "Cowork writes the templates; you answer teachers within a day.", "cowork,you"],
+          ["Pitch tracker: pitches, replies, demos, licenses.", "Cowork builds the sheet; you keep it current. Ten real pitches with zero interest → fix the pitch or the dashboard before sending more.", "cowork,you"]
+        ]}
+      ],
+      gate:[["Class layer used by your own class for a semester","","you"],["Church plan available as an IAP and passed review","","code"],["First paid church license invoiced","","you"]]
+    },
+
+    { id:"p5", n:"5", title:"PC storefronts", when:"Later — after Phases 1–3 ship", why:"Only when you want a real game. Art is the bottleneck, and launch outcome depends on months of wishlists.",
+      you:"Game design taste, playtesting, art purchase, store accounts, wishlist marketing.", claude:"GDScript in Godot, Steam SDK integration, build scripts, itch and Steam page copy.",
+      groups:[
+        {h:"Track", items:[
+          ["Scope the game: $5–10 price, 2–4 hours long, 6–9 months part-time, cozy/puzzle with Scripture-themed content rather than a 'Christian game' label.", "Chat helps you scope; you decide.", "you,chat"],
+          ["Set up the Godot 4 project with a playable prototype scene.", "Prompt generator → PC / Steam → Start a Godot game.", "code"],
+          ["Publish a free prototype on itch.io and gather feedback.", "Claude Code exports the Windows build and Cowork writes the page; you create the itch account and upload.", "code,cowork,you"],
+          ["Decide on Steam from itch feedback: $100 Steam Direct fee per game (credited back after $1,000), 30% cut.", "you"],
+          ["If Steam: store page live months before launch; wishlist push through churches and Christian gaming communities.", "Cowork drafts the page and outreach; Claude Code integrates GodotSteam; you run the Steamworks account.", "cowork,code,you"]
+        ]}
+      ],
+      gate:[["Free prototype on itch.io with real player feedback","","you"],["Decision made on Steam based on that feedback, not hope","","you"]]
+    },
+
+    { id:"p6", n:"∞", title:"Every year", when:"Ongoing", why:"Budget 3–5 hrs per app each fall.",
+      you:"Test on device, resubmit, renew, pay taxes, post replies.", claude:"Fix whatever the OS update broke; draft the replies; keep the sheets current.",
+      groups:[
+        {h:"Annual checklist", items:[
+          ["Sept/Oct: new iOS and Android → upgrade the Expo SDK, `eas build`, fix breaks.", "Prompt generator → Maintenance → Yearly OS update pass.", "code"],
+          ["Test the rebuilt apps on your phone and resubmit both stores.", "you"],
+          ["Renew Apple ($99), file the LLC annual report ($300, April 1), renew the domain.", "Payments — you. Cowork keeps the compliance calendar.", "you,cowork"],
+          ["Pay TN franchise & excise tax (April 15) if you have the LLC.", "you"],
+          ["Re-confirm Small Business Program status in App Store Connect.", "you"],
+          ["Reply to reviews within a week.", "Cowork drafts; you post.", "cowork,you"],
+          ["Quarterly: revenue per app in the bookkeeping sheet; estimated tax payment if applicable.", "Cowork updates the sheet from the store payout reports you export.", "cowork,you"]
+        ]}
+      ],
+      gate:[["Both apps rebuilt and resubmitted on the current SDK","","you"],["All renewals paid and logged","","you"]]
+    }
+  ];
+
+  // ---------- state ----------
+  const state = {};   // id -> boolean
+  const allIds = [];
+
+  function esc(s){ return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+  function code(s){ return esc(s).replace(/`([^`]+)`/g,'<code style="font-family:IBM Plex Mono,monospace;font-size:.88em;background:var(--paper);padding:0 4px;border-radius:3px">$1</code>').replace(/\*([^*]+)\*/g,'<i>$1</i>'); }
+
+  const WHO_LABEL = {you:"You", code:"Claude Code", cowork:"Cowork", chat:"Chat"};
+  function badges(who){ return (who||"you").split(",").map(w=>`<span class="who ${w}">${WHO_LABEL[w]||w}</span>`).join(""); }
+  function item(id, text, note, who){
+    allIds.push(id);
+    return `<div class="item" data-who="${who||"you"}"><input type="checkbox" id="${id}"><label for="${id}">${badges(who)}${code(text)}${note?`<small>${code(note)}</small>`:""}</label></div>`;
+  }
+
+  function render(){
+    const host = document.getElementById("phases");
+    host.innerHTML = PHASES.map((p,pi)=>{
+      let gi=0;
+      const groups = p.groups.map((g,gIdx)=>`
+        <div class="group"><h3>${esc(g.h)}${g.s?`<small>${esc(g.s)}</small>`:""}</h3>
+          ${g.items.map((it,ii)=>{ const [t,n,w] = it.length===2 && /^(you|code|cowork|chat)(,(you|code|cowork|chat))*$/.test(it[1]) ? [it[0],"",it[1]] : it; return item(`${p.id}-g${gIdx}-${ii}`, t, n, w); }).join("")}
+        </div>`).join("");
+      const gate = `<div class="gate"><h3>Phase ${esc(p.n)} is done when</h3>${p.gate.map((g,ii)=>item(`${p.id}-gate-${ii}`, g[0], g[1], g[2])).join("")}</div>`;
+      return `<details class="phase" id="${p.id}" ${pi===0?"open":""}>
+        <summary>
+          <div class="num">${esc(p.n)}</div>
+          <div class="ttl"><h2>${esc(p.title)}</h2><div class="sub">${esc(p.when)}</div></div>
+          <div class="pill" data-pill="${p.id}">0 / 0</div>
+          <div class="bar" data-bar="${p.id}"><i></i></div>
+        </summary>
+        <div class="body">
+          <div class="why">${code(p.why)}</div>
+          <div class="yc"><div><b>You</b>${esc(p.you)}</div><div><b>Claude</b>${esc(p.claude)}</div></div>
+          ${groups}
+          ${gate}
+        </div>
+      </details>`;
+    }).join("");
+    allIds.forEach(id=>{
+      const el=document.getElementById(id);
+      el.checked=!!state[id];
+      el.addEventListener("change",()=>{ state[id]=el.checked; update(); });
+    });
+    update();
+  }
+
+  function update(){
+    let total=0, done=0;
+    const mini=[];
+    PHASES.forEach(p=>{
+      const ids = allIds.filter(i=>i.startsWith(p.id+"-"));
+      const d = ids.filter(i=>state[i]).length;
+      total+=ids.length; done+=d;
+      const pct = ids.length? Math.round(d/ids.length*100):0;
+      const bar=document.querySelector(`[data-bar="${p.id}"]`); bar.querySelector("i").style.width=pct+"%"; bar.classList.toggle("done",pct===100);
+      document.querySelector(`[data-pill="${p.id}"]`).textContent = `${d} / ${ids.length}`;
+      document.getElementById(p.id).classList.toggle("complete",pct===100 && ids.length>0);
+      mini.push(`<div class="row"><span>${esc(p.n)} · ${esc(p.title)}</span><div class="bar ${pct===100?"done":""}"><i style="width:${pct}%"></i></div></div>`);
+    });
+    const pct = total? Math.round(done/total*100):0;
+    document.getElementById("pct").textContent = pct+"%";
+    const ob=document.getElementById("obar"); ob.querySelector("i").style.width=pct+"%"; ob.classList.toggle("done",pct===100);
+    document.getElementById("mini").innerHTML = mini.join("");
+  }
+
+  // ---------- progress code (no browser storage) ----------
+  function encode(){ return allIds.map(i=>state[i]?"1":"0").join(""); }
+  function decode(str){
+    const bits=(str||"").replace(/[^01]/g,"");
+    allIds.forEach((id,i)=>{ state[id]=bits[i]==="1"; const el=document.getElementById(id); if(el) el.checked=state[id]; });
+    update();
+  }
+  const box=document.getElementById("codebox");
+  document.getElementById("exportBtn").addEventListener("click", async ()=>{
+    const c="GP33-"+encode();
+    box.hidden=false; box.value=c;
+    try{ await navigator.clipboard.writeText(c); document.getElementById("exportBtn").textContent="Copied"; setTimeout(()=>document.getElementById("exportBtn").textContent="Copy progress code",1600);}catch(e){}
+  });
+  document.getElementById("importBtn").addEventListener("click", ()=>{
+    if(box.hidden){ box.hidden=false; box.value=""; box.placeholder="Paste your progress code here, then click again"; box.focus(); return; }
+    decode(box.value.replace(/^GP3\d*-/,""));
+    box.hidden=true;
+  });
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    if(!confirm("Clear every checkbox?")) return;
+    allIds.forEach(id=>{ state[id]=false; document.getElementById(id).checked=false; });
+    update();
+  });
+
+  // ---------- filter ----------
+  let filter="all";
+  function applyFilter(){
+    document.querySelectorAll(".item").forEach(el=>{
+      const who=(el.dataset.who||"you").split(",");
+      el.hidden = filter!=="all" && !who.includes(filter);
+    });
+    document.querySelectorAll(".group").forEach(g=>{ g.hidden = ![...g.querySelectorAll(".item")].some(i=>!i.hidden); });
+  }
+  document.querySelectorAll(".filter button").forEach(b=>b.addEventListener("click",()=>{
+    filter=b.dataset.f;
+    document.querySelectorAll(".filter button").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+    applyFilter();
+  }));
+
+  render();
+  applyFilter();
+})();
+</script>
+</body>
+</html>
