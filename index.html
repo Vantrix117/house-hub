@@ -195,6 +195,17 @@
   /* ── me + admin ───────────────────────────────────────────────── */
   .me-hero { display: flex; align-items: center; gap: var(--sp-4); min-height: 0; padding: var(--sp-5); }
   .me-hero .avatar-xl { --size: 84px; box-shadow: 0 0 0 4px rgba(255,255,255,.55), var(--e2); }
+  .photo-btn { position: relative; border: 0; background: none; padding: 0; margin: 0; cursor: pointer; border-radius: 50%; flex: none; }
+  .photo-btn:disabled { cursor: default; }
+  .photo-btn .photo-badge { position: absolute; right: -2px; bottom: -2px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--accent-deep); box-shadow: var(--e2); }
+  .photo-btn .photo-badge .icon { width: 16px; height: 16px; }
+  .photo-btn:disabled .photo-badge { display: none; }
+  .album { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--sp-2); }
+  .album-item { position: relative; margin: 0; border-radius: var(--r); overflow: hidden; aspect-ratio: 1; background: var(--surface-2); }
+  .album-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .album-item figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 8px; font-size: var(--fs-xs); color: var(--on-accent); background: linear-gradient(transparent, rgba(0,0,0,.45)); }
+  .album-item .album-del { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; min-height: 32px; }
+  .album-item .album-del .icon { width: 16px; height: 16px; }
   .me-hero .hero-title { font-size: var(--fs-2xl); margin: 0; }
   .me-hero .btn { margin: 0; }
   .me-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
@@ -290,6 +301,7 @@
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path class="duo" d="M4 8h3l2-3h6l2 3h3v11H4z"/><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path class="duo" d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path class="duo" d="M12 6c-1.5-1.3-3.6-2-6-2v13c2.4 0 4.5.7 6 2 1.5-1.3 3.6-2 6-2V4c-2.4 0-4.5.7-6 2Z"/><path d="M12 6c-1.5-1.3-3.6-2-6-2v13c2.4 0 4.5.7 6 2 1.5-1.3 3.6-2 6-2V4c-2.4 0-4.5.7-6 2Z"/><path d="M12 6v13"/></symbol>
@@ -316,7 +328,7 @@
   let current = null;
   const svgCache = {};
   const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(8); } catch {} };
-  const avatar = (p, cls = '') => `<span class="avatar ${cls}" style="--tint:${esc(p.color || FALLBACK)}">${esc(p.emoji || '·')}</span>`;
+  const avatar = (p, cls = '', size = 'sm') => hub.avatarHtml(p, cls, size);
 
   // Data the dashboard reads from other apps (each app still owns its own keys).
   hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person');
@@ -753,6 +765,7 @@
     buzz(); renderReminders();
   });
   hub.onChange(ch => {
+    if (ch.app === 'hub' && tab === 'me') renderAlbum();
     if (ch.app === 'reminders') renderReminders();
     else if (tab === 'home') renderHome();
     if (tab === 'apps' && (ch.app === 'f260' || ch.app === 'leftovers')) renderGrid();
@@ -767,9 +780,11 @@
     const kindLabel = p.kind === 'kid' ? 'Kid' : p.kind === 'kiosk' ? 'Display' : (p.isAdmin ? 'Adult · Admin' : 'Adult');
     v.innerHTML = `
       <div class="view-title"><h1>Me</h1></div>
-      <div class="hero me-hero" style="--tint:${esc(p.color || FALLBACK)}">${avatar(p, 'avatar-xl')}<div class="grow"><div class="hero-kicker">${esc(kindLabel)}</div><div class="hero-title">${esc(p.name)}</div></div>
+      <div class="hero me-hero" style="--tint:${esc(p.color || FALLBACK)}"><button class="photo-btn" id="photo-btn" aria-label="Change your photo" ${p.kind === 'adult' || p.isAdmin ? '' : 'disabled'}>${avatar(p, 'avatar-xl', 'lg')}<span class="photo-badge"><svg class="icon"><use href="#i-camera"/></svg></span></button><div class="grow"><div class="hero-kicker">${esc(kindLabel)}</div><div class="hero-title">${esc(p.name)}</div></div>
         <button class="btn btn-primary" id="switch">Switch</button></div>
+      <input type="file" id="photo-file" accept="image/*" hidden>
       <div class="me-grid" style="margin-top:var(--sp-4)">
+        ${p.kind === 'adult' ? `<div class="card glass span2" id="album"><h2><span class="app-icon" style="--tint:var(--terra)"><svg class="icon"><use href="#i-camera"/></svg></span>Family album <button class="btn btn-soft" id="album-add" style="margin-left:auto">Add a photo</button></h2><div class="album" id="album-grid"></div></div>` : ''}
         <div class="card glass"><h2>Appearance</h2><div class="seg" id="theme">
           ${['system', 'light', 'dark'].map(t => `<button class="${theme === t ? 'on' : ''}" data-theme="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>
         ${p.kind !== 'kiosk' ? `<div class="card glass" id="notif"><h2>Notifications</h2>
@@ -798,6 +813,33 @@
     });
     if (p.isAdmin) renderAdmin();
     if (p.kind !== 'kiosk') renderNotif();
+    // photos: own photo from the hero, album photos from the card
+    const fileIn = $('#photo-file'); let fileFor = null;
+    const pickFile = for_ => { fileFor = for_; fileIn.value = ''; fileIn.click(); };
+    $('#photo-btn').addEventListener('click', () => {
+      if ($('#photo-btn').disabled) return;
+      const sh = sheet(`<h2>Your photo</h2><p class="text-2">A square crop of the middle of the picture; it shows on every device within a minute.</p>
+        <div class="stack" style="margin-top:var(--sp-4)"><button class="btn btn-primary btn-lg" data-act="pick">Choose a photo</button>${p.photo ? '<button class="btn btn-ghost" data-act="remove">Remove photo</button>' : ''}<button class="btn btn-ghost" data-close>Cancel</button></div>`,
+        async (ev, close) => { const a = ev.target.closest('[data-act]'); if (!a) return; close(); if (a.dataset.act === 'pick') pickFile({ kind: 'profile', id: p.id }); else { try { await hub.removePhoto(p.id); hub.toast('Photo removed.'); renderMe(); renderBrand(); } catch (e) { hub.toast(e.message); } } });
+    });
+    if ($('#album-add')) $('#album-add').addEventListener('click', () => pickFile({ kind: 'album' }));
+    fileIn.onchange = async () => {
+      const f = fileIn.files && fileIn.files[0]; if (!f || !fileFor) return;
+      hub.toast('Uploading…', 60000);
+      try {
+        if (fileFor.kind === 'album') { await hub.addAlbumPhoto(f); renderAlbum(); hub.toast('Added to the album.'); }
+        else { await hub.uploadPhoto(f, fileFor.id); hub.toast('Photo saved.'); renderMe(); renderBrand(); }
+      } catch (e) { hub.toast(e.message || 'Could not upload that.', 4000); }
+    };
+    renderAlbum();
+  }
+  function renderAlbum() {
+    const g = $('#album-grid'); if (!g) return;
+    const rows = hub.list('album:', { app: 'hub', scope: 'family' }).map(r => r.value).filter(Boolean).sort((a, b) => b.at - a.at);
+    const me = hub.profile;
+    if (!rows.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:var(--sp-4) 0"><div class="empty-art" style="width:120px"><img src="art/empty/feed.svg" alt=""></div>Photos of the family for the TV and the prayer list. Add the first one.</div>'; return; }
+    g.innerHTML = rows.map(ph => `<figure class="album-item" style="--tint:${esc(FALLBACK)}"><img src="${esc(hub.photoUrl(ph, 'sm'))}" alt="${esc(ph.caption || '')}" loading="lazy"><figcaption>${esc(ph.byName || '')}</figcaption>${(ph.by === me.id || me.isAdmin) ? `<button class="btn btn-round btn-glass album-del" data-del="${esc(ph.id)}" aria-label="Remove"><svg class="icon"><use href="#i-x"/></svg></button>` : ''}</figure>`).join('');
+    g.onclick = async ev => { const b = ev.target.closest('[data-del]'); if (!b) return; if (!confirm('Remove this photo from the album?')) return; try { await hub.removeAlbumPhoto(b.dataset.del); renderAlbum(); } catch (e) { hub.toast(e.message); } };
   }
 
   // ── chat ──────────────────────────────────────────────────────
@@ -806,9 +848,9 @@
   const scrollChat = () => { views.scrollTop = views.scrollHeight; };
   function bubble(role, text, chips) {
     const row = document.createElement('div'); row.className = 'mrow ' + (role === 'user' ? 'user' : 'bot');
-    const who = document.createElement('span');
-    if (role === 'user') { who.className = 'avatar'; who.style.setProperty('--tint', hub.profile.color || FALLBACK); who.textContent = hub.profile.emoji || '·'; }
-    else { who.className = 'app-icon'; who.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg>'; }
+    let who;
+    if (role === 'user') { const t = document.createElement('template'); t.innerHTML = avatar(hub.profile); who = t.content.firstElementChild; }
+    else { who = document.createElement('span'); who.className = 'app-icon'; who.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg>'; }
     const d = document.createElement('div'); d.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
     if (text) d.append(document.createTextNode(text));
     if (chips && chips.length) { const c = document.createElement('div'); c.className = 'chips'; for (const ch of chips) { const sp = document.createElement('span'); sp.className = 'chip chip-ok'; sp.textContent = ch; c.append(sp); } d.append(c); }
@@ -1004,12 +1046,20 @@
       <form id="pform" class="stack" style="margin-top:var(--sp-3)">
         <label class="field"><span class="label">Name</span><input class="input" id="pname" value="${esc(q.name)}" maxlength="40" required></label>
         <label class="field"><span class="label">Emoji</span><input class="input" id="pemoji" value="${esc(q.emoji)}" maxlength="8" style="font-size:var(--fs-xl)"></label>
+        <div class="field"><span class="label">Photo</span><div class="hstack">${avatar(q)}<button class="btn" type="button" data-photo="pick">Choose a photo</button>${q.photo ? '<button class="btn btn-ghost" type="button" data-photo="remove">Remove</button>' : ''}</div></div>
         <div class="field"><span class="label">Colour</span><div class="swatches" id="swatches">${SWATCHES.map(c => `<button type="button" class="swatch${c === q.color ? ' on' : ''}" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div></div>
         <label class="field"><span class="label">Kind</span><select class="select" id="pkind" ${q.is_admin ? 'disabled' : ''}>${['adult', 'kid', 'kiosk'].map(k => `<option value="${k}" ${q.kind === k ? 'selected' : ''}>${({ adult: 'Adult (PIN)', kid: 'Kid (no PIN, fewer apps)', kiosk: 'Display (read-only)' })[k]}</option>`).join('')}</select></label>
         <p class="pin-msg" id="pmsg"></p>
         <div class="hstack"><button class="btn btn-ghost grow" type="button" data-close>Cancel</button><button class="btn btn-primary grow" type="submit">Save</button></div>
       </form>`);
     sh.el.querySelector('#swatches').addEventListener('click', ev => { const b = ev.target.closest('.swatch'); if (!b) return; color = b.dataset.c; sh.el.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x === b)); });
+    sh.el.addEventListener('click', async ev => {
+      const b = ev.target.closest('[data-photo]'); if (!b) return;
+      if (b.dataset.photo === 'remove') { try { await hub.removePhoto(q.id); hub.toast('Photo removed.'); sh.close(); renderMe(); } catch (e) { hub.toast(e.message); } return; }
+      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+      inp.onchange = async () => { const f = inp.files && inp.files[0]; if (!f) return; hub.toast('Uploading…', 60000); try { await hub.uploadPhoto(f, q.id); hub.toast('Photo saved.'); sh.close(); renderMe(); } catch (e) { hub.toast(e.message || 'Could not upload that.', 4000); } };
+      inp.click();
+    });
     sh.el.querySelector('#pform').addEventListener('submit', async ev => {
       ev.preventDefault();
       const body = { name: sh.el.querySelector('#pname').value.trim(), emoji: sh.el.querySelector('#pemoji').value.trim() || q.emoji, color, kind: sh.el.querySelector('#pkind').value };

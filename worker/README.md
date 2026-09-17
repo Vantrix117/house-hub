@@ -56,6 +56,13 @@ GET  /api/push/config                   {public_key, enabled}
 POST /api/push/subscribe {subscription} DELETE /api/push/subscribe
 POST /api/push/test                     sends a test notification to the caller's devices
 
+PUT  /api/profiles/:id/photo            {sm, lg} base64 JPEGs (256 px ≤ 80 KB, 1024 px ≤ 420 KB) — own profile (adults) or any (admin)
+DELETE /api/profiles/:id/photo
+POST /api/album {sm, lg, caption?}      adults; the row lands in app_data (family, 'hub', 'album:<id>') so it syncs like a list
+DELETE /api/album/:id                   the person who added it, or the admin
+GET  /api/media/photos/:id/<token>-256.jpg | -1024.jpg,  GET /api/media/album/<id>-256.jpg | -1024.jpg
+                                        public, immutable, unguessable keys; bytes in R2 when a MEDIA bucket is bound, else the D1 `media` table (src/media.js)
+
 POST /api/chat {message, apps}          text/event-stream: text | tool | done | error events (see src/chat.js)
 GET  /api/chat/history                  last 20 messages, used/cap for today
 

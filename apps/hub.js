@@ -25,7 +25,7 @@
   const DEFAULT_API = 'https://house-hub-api.catalystfarm1.workers.dev';
   const LS = {
     device: 'hub.device', session: 'hub.session', last: 'hub.lastProfile', api: 'hub.api', theme: 'hub.theme',
-    migrated: 'hub.migrated', activityQueue: 'hub.activityQueue',
+    migrated: 'hub.migrated', activityQueue: 'hub.activityQueue', profiles: 'hub.profiles',
     cache: (app, scope, pid) => `hub.cache.${app}.${scope}${scope === 'person' ? '.' + pid : ''}`,
     queue: (app, scope, pid) => `hub.queue.${app}.${scope}${scope === 'person' ? '.' + pid : ''}`,
   };
@@ -58,7 +58,7 @@
 
   // ── profile / theme (applied synchronously so there is no flash) ──────────
   function publicProfile(p) {
-    return p ? { id: p.id, name: p.name, kind: p.kind, isAdmin: !!p.is_admin, color: p.color, emoji: p.emoji, hasPin: !!p.has_pin } : null;
+    return p ? { id: p.id, name: p.name, kind: p.kind, isAdmin: !!p.is_admin, color: p.color, emoji: p.emoji, hasPin: !!p.has_pin, photo: p.photo || null } : null;
   }
   function applyTheme() {
     const root = document.documentElement;
@@ -128,7 +128,9 @@
     hub.device = { id: d.device_id, token: d.device_token, name: name || '' }; lsSet(LS.device, hub.device);
     return hub.device;
   };
-  hub.profiles = () => hub.request('/api/profiles', { profile: false }).then(r => r.profiles);
+  hub.profiles = () => hub.request('/api/profiles', { profile: false }).then(r => { lsSet(LS.profiles, r.profiles); return r.profiles; });
+  /** Everyone in the house, from the last profiles pull (cached in localStorage) — for faces in apps. */
+  hub.people = () => lsGet(LS.profiles, null) || [];
   hub.login = async (profileId, pin) => {
     const r = await hub.request('/api/login', { method: 'POST', body: { profile_id: profileId, pin }, profile: false });
     hub.setSession({ token: r.profile_token, profile: r.profile }); return hub.profile;
@@ -386,6 +388,48 @@
   };
   hub.escape = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   hub.uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  // ── faces: photos + avatars ───────────────────────────────────────────────
+  /** Absolute URL of a person's (or album entry's) photo, or null. size: 'sm' (256) | 'lg' (1024). */
+  hub.photoUrl = (p, size = 'sm') => { const ph = p && (p.photo || (p.sm ? p : null)); const rel = ph && (typeof ph === 'string' ? ph : ph[size] || ph.sm); return rel ? (rel.startsWith('http') ? rel : hub.api.replace(/\/$/, '') + rel) : null; };
+  /** An .avatar element (design.css): the photo if there is one, else the emoji on the person's colour. */
+  hub.avatarHtml = (p, cls = '', size = 'sm') => {
+    const url = hub.photoUrl(p, size); const e = hub.escape;
+    return `<span class="avatar ${cls}" style="--tint:${e((p && p.color) || '#8A6A4B')}">${url ? `<img src="${e(url)}" alt="" loading="lazy">` : e((p && p.emoji) || '·')}</span>`;
+  };
+  // Square-crop + resize on the device; the server only ever receives two small JPEGs.
+  async function squareJpeg(file, size, quality) {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => createImageBitmap(file));
+    const s = Math.min(bmp.width, bmp.height), out = Math.min(size, s);
+    const cv = document.createElement('canvas'); cv.width = out; cv.height = out;
+    cv.getContext('2d').drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, out, out);
+    bmp.close && bmp.close();
+    const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', quality));
+    const buf = new Uint8Array(await blob.arrayBuffer()); let bin = ''; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  async function twoSizes(file) {
+    let lgQ = .82, lg = await squareJpeg(file, 1024, lgQ);
+    while (lg.length * .75 > 400 * 1024 && lgQ > .5) { lgQ -= .1; lg = await squareJpeg(file, 1024, lgQ); }
+    return { sm: await squareJpeg(file, 256, .85), lg };
+  }
+  /** Sets a profile's photo from a File/Blob (own profile, or any profile for the admin). Updates the session profile. */
+  hub.uploadPhoto = async (file, profileId = hub.profile && hub.profile.id) => {
+    const r = await hub.request(`/api/profiles/${encodeURIComponent(profileId)}/photo`, { method: 'PUT', body: await twoSizes(file), timeout: 60000 });
+    if (hub.session && hub.profile && hub.profile.id === profileId) hub.setSession({ token: hub.session.token, profile: { ...hub.session.profile, ...r.profile } });
+    return publicProfile(r.profile);
+  };
+  hub.removePhoto = async (profileId = hub.profile && hub.profile.id) => {
+    const r = await hub.request(`/api/profiles/${encodeURIComponent(profileId)}/photo`, { method: 'DELETE' });
+    if (hub.session && hub.profile && hub.profile.id === profileId) hub.setSession({ token: hub.session.token, profile: { ...hub.session.profile, ...r.profile } });
+    return publicProfile(r.profile);
+  };
+  /** Family album: rows live in app_data (family, 'hub', 'album:<id>'); list them with hub.list('album:', { app: 'hub', scope: 'family' }). */
+  hub.addAlbumPhoto = async (file, caption = '') => {
+    const r = await hub.request('/api/album', { method: 'POST', body: { ...(await twoSizes(file)), caption }, timeout: 60000 });
+    hub.pull(); return r.photo;
+  };
+  hub.removeAlbumPhoto = async id => { await hub.request(`/api/album/${encodeURIComponent(id)}`, { method: 'DELETE' }); hub.pull(); };
 
   window.hub = hub;
 })();

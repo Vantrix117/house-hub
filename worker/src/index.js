@@ -18,6 +18,7 @@ import {
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
 import { runCron, pushTo, vapidFrom } from './reminders.js';
 import { chatHandler, chatHistory } from './chat.js';
+import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
 
 const PIN_RE = /^\d{4,8}$/;
 const MIN = 60000;
@@ -167,11 +168,73 @@ route('GET', '/api/activity', async c => {
   await c.auth();
   const limit = Math.min(100, Math.max(1, +(c.url.searchParams.get('limit') || 30) || 30));
   const { results } = await c.env.DB.prepare(
-    `SELECT a.id, a.profile_id, a.app_id, a.text, a.created_at, p.name, p.emoji, p.color
+    `SELECT a.id, a.profile_id, a.app_id, a.text, a.created_at, p.name, p.emoji, p.color, p.photo
        FROM activity a LEFT JOIN profiles p ON p.id = a.profile_id
       ORDER BY a.created_at DESC, a.id DESC LIMIT ?`).bind(limit).all();
-  return { activity: results };
+  return { activity: results.map(r => ({ ...r, photo: r.photo ? { sm: `/api/media/photos/${r.profile_id}/${r.photo}-256.jpg` } : null })) };
 });
+
+// ── photos + the family album ─────────────────────────────────
+// Bytes are stored by src/media.js (R2 when bound, else D1). Keys carry a random token, so GET /api/media/* needs no auth.
+function canEditPhoto(auth, id) {
+  const p = requireWriter(auth);
+  if (p.id !== id && !p.is_admin) throw new HttpError(403, 'not_yours', 'You can only change your own photo.');
+  if (p.id === id && p.kind !== 'adult' && !p.is_admin) throw new HttpError(403, 'adults_only', 'Ask a grown-up to set your photo.');
+  return p;
+}
+route('PUT', '/api/profiles/:id/photo', async c => {
+  canEditPhoto(await c.auth(), c.params.id);
+  const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
+  if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
+  const b = await c.body();
+  const sm = decodeImage(b.sm, MAX_SM, 'The small photo'), lg = decodeImage(b.lg, MAX_LG, 'The large photo');
+  const token = randomId();
+  await putMedia(c.env, `photos/${p.id}/${token}-256.jpg`, sm);
+  await putMedia(c.env, `photos/${p.id}/${token}-1024.jpg`, lg);
+  await c.env.DB.prepare('UPDATE profiles SET photo = ? WHERE id = ?').bind(token, p.id).run();
+  if (p.photo) c.exec.waitUntil(deletePrefix(c.env, `photos/${p.id}/${p.photo}-`));
+  return { profile: publicProfile({ ...p, photo: token }) };
+});
+route('DELETE', '/api/profiles/:id/photo', async c => {
+  canEditPhoto(await c.auth(), c.params.id);
+  const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
+  if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
+  await c.env.DB.prepare('UPDATE profiles SET photo = NULL WHERE id = ?').bind(p.id).run();
+  await deletePrefix(c.env, `photos/${p.id}/`);
+  return { profile: publicProfile({ ...p, photo: null }) };
+});
+// Album photos are family-scope app_data rows (app 'hub', key 'album:<id>') so every device syncs them like any list.
+route('POST', '/api/album', async c => {
+  const p = requireWriter(await c.auth());
+  if (p.kind !== 'adult') throw new HttpError(403, 'adults_only', 'Ask a grown-up to add photos.');
+  const b = await c.body();
+  const sm = decodeImage(b.sm, MAX_SM, 'The thumbnail'), lg = decodeImage(b.lg, MAX_LG, 'The photo');
+  const id = randomId();
+  await putMedia(c.env, `album/${id}-256.jpg`, sm);
+  await putMedia(c.env, `album/${id}-1024.jpg`, lg);
+  const value = { id, sm: `/api/media/album/${id}-256.jpg`, lg: `/api/media/album/${id}-1024.jpg`, by: p.id, byName: p.name, caption: String(b.caption || '').trim().slice(0, 140), at: Date.now() };
+  const row = await putOne(c.env, { appId: 'hub', scope: 'family', profile: p, key: 'album:' + id, value });
+  return { photo: value, row };
+});
+route('DELETE', '/api/album/:id', async c => {
+  const p = requireWriter(await c.auth());
+  const id = c.params.id;
+  const row = await getOne(c.env, { appId: 'hub', scope: 'family', profile: p, key: 'album:' + id });
+  if (!row || row.value == null) throw new HttpError(404, 'no_such_photo', 'That photo is already gone.');
+  const v = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+  if (v.by !== p.id && !p.is_admin) throw new HttpError(403, 'not_yours', 'Only the person who added a photo (or the admin) can remove it.');
+  await putOne(c.env, { appId: 'hub', scope: 'family', profile: p, key: 'album:' + id, value: null });
+  await deletePrefix(c.env, `album/${id}-`);
+  return { ok: true };
+});
+route('GET', '/api/media/:folder/:a/:b', async c => serveMedia(c, `${c.params.folder}/${c.params.a}/${c.params.b}`));
+route('GET', '/api/media/:folder/:a', async c => serveMedia(c, `${c.params.folder}/${c.params.a}`));
+async function serveMedia(c, key) {
+  if (!/^(photos|album)\/[\w-]+(\/[\w-]+)?\.jpg$/.test(key)) throw new HttpError(404, 'not_found', 'Not found');
+  const m = await getMedia(c.env, key);
+  if (!m) throw new HttpError(404, 'not_found', 'No such photo.');
+  return new Response(m.bytes, { headers: { 'Content-Type': m.mime, 'Cache-Control': 'public, max-age=31536000, immutable', 'Access-Control-Allow-Origin': '*' } });
+}
 
 route('POST', '/api/activity', async c => {
   const p = requireWriter(await c.auth());

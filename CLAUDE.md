@@ -21,6 +21,7 @@ There is no build step, bundler, framework or `package.json` anywhere. Do not ad
 - **`apps/design.css`** holds the tokens (type, spacing, radii, shadows, light + dark palettes, kid/kiosk scales). `--accent` is the signed-in person's colour, set by hub.js. Component classes (`.btn`, `.card`, `.row`, …) apply only inside an element with class `ds` — put `class="ds"` on `<body>` to use them, or leave it off and keep your own component CSS (F260 and Prayer do that).
 - **Kid mode** (`<html data-kind="kid">`): bigger targets and type, only apps whose `visibleTo` includes the kid, simplified Home, kid-safe chat. **Kiosk mode**: no PIN, no tab bar, cannot write; Home shows the clock and the family reminders and refreshes itself.
 - **Chat** (Chat tab): `POST /api/chat` → Claude (`claude-sonnet-5`) with tools that read and write `app_data`; 60 messages per person per day.
+- **Photos** (Me tab): adults set their own photo (admin: anyone's) and add to the family album; the device makes a 256 px and a 1024 px square JPEG, the Worker stores them under an unguessable key (`worker/src/media.js`: R2 if a `MEDIA` bucket is bound, otherwise the D1 `media` table — R2 is not enabled on the account yet) and serves them from `/api/media/*` as immutable. `hub.avatarHtml(p)` renders photo-or-emoji; `hub.people()` gives apps everyone's faces; album rows are `app_data(family, 'hub', 'album:<id>')`.
 - **Push** (Me tab): Web Push with VAPID; 8 am fridge warnings to adults, 8 pm F260 nudge; per-person toggles. iPhone/iPad only from the Home Screen app.
 
 ## Adding an app
@@ -91,6 +92,7 @@ All in [`worker/src/chat.js`](worker/src/chat.js):
 | `scripts/test-apps.mjs <code>` | Migrated apps on hub.js, Home dashboard, widgets, admin panel, legacy migration counts, screenshots into `docs/screens/` |
 | `scripts/test-push.mjs` | RFC 8291 known-answer test + VAPID signature |
 | `scripts/test-design.mjs` | The style guide (`docs/design.html`) in light/dark/kid/desktop; WCAG AA on every text pair for all eight family colours; reduced motion |
+| `scripts/test-photos.mjs <code>` | Profile photos + family album: upload/crop/size, second device sees the face (picker, feed, chat), kid/owner guards, delete |
 | `scripts/test-art.mjs` | The `art/` illustration set: every SVG parses and renders, every app has a tile icon + spot art, all precached, ≤ 600 KB; contact sheets → `docs/screens/rm5-art-*.png` |
 | `scripts/screens-shell.mjs <code>` | Every hub surface at 390/1024/1440, light + dark, adult/kid/kiosk → `docs/screens/rm4-*.png`; layout shift < 0.1; no hex in the shell's `<style>` |
 | `scripts/smoke-chat.sh <url> <code>` | Every chat tool + guards, streamed |

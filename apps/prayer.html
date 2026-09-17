@@ -116,6 +116,8 @@ ul.list li.row:first-child{border-top:none}
   background:var(--teal-soft);color:var(--teal);margin-left:8px;vertical-align:2px;
   letter-spacing:.01em}
 .who{display:inline-flex;gap:4px;margin-left:8px;vertical-align:1px}
+.who .face{overflow:hidden;font-size:13px;line-height:22px;text-align:center}
+.who .face img{width:100%;height:100%;object-fit:cover;display:block}
 .who span{font-size:10.5px;font-weight:700;width:22px;height:22px;border-radius:50%;
   display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
 
@@ -1488,8 +1490,15 @@ function whoHTML(p){
   if(D.activeList !== 'shared') return '';
   const names = (p.prayedBy && p.prayedBy[TODAY]) || [];
   if(!names.length) return '';
-  return '<span class="who">' + names.map(n =>
-    '<span title="' + esc(n) + '">' + esc(initials(n) || '?') + '</span>').join('') + '</span>';
+  // faces when the hub knows the person (photo or emoji), initials otherwise
+  const people = (window.hub && hub.people) ? hub.people() : [];
+  return '<span class="who">' + names.map(n => {
+    const person = people.find(q => q.name === n);
+    const url = person && hub.photoUrl(person, 'sm');
+    if (url) return '<span class="face" title="' + esc(n) + '"><img src="' + esc(url) + '" alt="" loading="lazy"></span>';
+    if (person && person.emoji) return '<span class="face" title="' + esc(n) + '" style="background:' + esc(person.color) + '22">' + esc(person.emoji) + '</span>';
+    return '<span title="' + esc(n) + '">' + esc(initials(n) || '?') + '</span>';
+  }).join('') + '</span>';
 }
 function setPrayed(p, force){
   if(!p) return;

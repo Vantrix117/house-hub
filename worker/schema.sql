@@ -9,7 +9,17 @@ CREATE TABLE IF NOT EXISTS profiles (
   kind       TEXT NOT NULL CHECK (kind IN ('adult','kid','kiosk')),
   pin_hash   TEXT,                          -- NULL = adult has not created a PIN yet
   is_admin   INTEGER NOT NULL DEFAULT 0,
-  sort_order INTEGER NOT NULL DEFAULT 0
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  photo      TEXT                            -- random token; the bytes are media 'photos/<id>/<token>-256.jpg' + '-1024.jpg'
+);
+
+-- Photo bytes (profile photos, the family album) when there is no R2 bucket bound as MEDIA. See src/media.js.
+CREATE TABLE IF NOT EXISTS media (
+  key        TEXT PRIMARY KEY,
+  mime       TEXT NOT NULL DEFAULT 'image/jpeg',
+  bytes      BLOB NOT NULL,
+  size       INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
 );
 
 -- One row per (scope, owner, app, key). value is JSON text; NULL value = tombstone (deleted).

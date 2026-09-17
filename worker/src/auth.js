@@ -44,6 +44,7 @@ export class HttpError extends Error {
 export const publicProfile = p => p && ({
   id: p.id, name: p.name, emoji: p.emoji, color: p.color, kind: p.kind,
   is_admin: !!p.is_admin, sort_order: p.sort_order, has_pin: p.pin_hash != null,
+  photo: p.photo ? { sm: `/api/media/photos/${p.id}/${p.photo}-256.jpg`, lg: `/api/media/photos/${p.id}/${p.photo}-1024.jpg` } : null,
 });
 
 /** Resolves the device (required) and profile (optional) behind a request. */
