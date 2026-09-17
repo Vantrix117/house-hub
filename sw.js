@@ -4,16 +4,18 @@
    - Precached files are served from cache and refreshed in the background (stale-while-revalidate),
      so an edit shows up on the second open. Bump VERSION to force a clean cache.
    - push: shows the notification the Worker sent; notificationclick deep-links into the app via the URL hash. */
-const VERSION = 'hub-v7';
+const VERSION = 'hub-v8';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'sw.js',
   'apps/design.css', 'apps/hub.js',
   'apps/f260.html', 'apps/leftovers.html', 'apps/prayer.html', 'apps/tally.html', 'apps/timer.html',
   'icons/f260.svg', 'icons/leftovers.svg', 'icons/prayer.svg', 'icons/tally.svg', 'icons/timer.svg',
   'icons/reminders.svg', 'icons/chat.svg', 'icons/home.svg', 'icons/dollywood.svg', 'icons/dollywood-live.svg',
-  'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png',
+  'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png',
   // the park map must work in the park: the page + the layers it opens with (the aerial photo is cached on first use)
   'apps/dollywood-live.html', 'apps/dollywood/relief.jpg', 'apps/dollywood/slope.png',
+  // the illustration set (art/README.md) — small SVGs, all of them
+  'art/ambient/dawn.svg', 'art/ambient/day.svg', 'art/ambient/dusk.svg', 'art/ambient/night.svg', 'art/app/chat.svg', 'art/app/dollywood-live.svg', 'art/app/dollywood.svg', 'art/app/f260.svg', 'art/app/feed.svg', 'art/app/leftovers.svg', 'art/app/prayer.svg', 'art/app/reminders.svg', 'art/app/tally.svg', 'art/app/timer.svg', 'art/empty/chat.svg', 'art/empty/feed.svg', 'art/empty/fridge.svg', 'art/empty/list.svg', 'art/empty/prayers.svg', 'art/hero/afternoon.svg', 'art/hero/evening.svg', 'art/hero/morning.svg', 'art/hero/night.svg', 'art/hero/play.svg', 'art/story/01-creation.svg', 'art/story/02-flood.svg', 'art/story/03-promise.svg', 'art/story/04-exodus.svg', 'art/story/05-law.svg', 'art/story/06-kings.svg', 'art/story/07-prophets.svg', 'art/story/08-exile.svg', 'art/story/09-nativity.svg', 'art/story/10-teaching.svg', 'art/story/11-cross.svg', 'art/story/12-church.svg',
 ];
 
 self.addEventListener('install', e => {

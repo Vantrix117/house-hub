@@ -19,8 +19,10 @@
   /* The hub shell. Every colour here is a design.css token; layout is phone-first, then a sidebar + columns at 1024px. */
   html, body { height: 100%; }
   body { display: flex; flex-direction: column; min-height: 100dvh; position: fixed; inset: 0; overflow: hidden; }
-  .glyph { position: absolute; right: -10px; bottom: -14px; width: 120px; height: 120px; opacity: .12; pointer-events: none; color: var(--tint); fill: none; stroke: currentColor; stroke-width: .9; stroke-linecap: round; stroke-linejoin: round; }
-  .glyph .duo { fill: none; }
+  /* spot illustration in a card's corner (art/app/*.svg); the card's text sits above it */
+  .spot { position: absolute; right: 4px; bottom: 0; width: 34%; max-width: 150px; height: auto; opacity: .55; pointer-events: none; z-index: 0; }
+  .empty-art { width: min(200px, 60%); margin: 0 auto var(--sp-3); }
+  .empty-art img { width: 100%; height: auto; display: block; }
   .hero-soft .hero-art { color: var(--accent); opacity: .8; }
 
   /* ── gate: a full-bleed welcome ──────────────────────────────── */
@@ -297,11 +299,6 @@
   <symbol id="i-mic" viewBox="0 0 24 24"><path class="duo" d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-sparkle" viewBox="0 0 24 24"><path class="duo" d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
-  <!-- time-of-day art for the Home hero -->
-  <symbol id="art-morning" viewBox="0 0 300 200" fill="none"><g stroke="currentColor" stroke-opacity=".7" stroke-width="5" stroke-linecap="round"><path d="M190 60V34M150 76l-18-18M230 76l18-18M124 116h-26M256 116h26"/></g><circle cx="190" cy="116" r="42" fill="currentColor" fill-opacity=".9"/><path d="M0 200c60-52 120-66 190-48s90 30 110 48z" fill="currentColor" fill-opacity=".22"/><path d="M40 200c70-40 140-44 260-8v8z" fill="currentColor" fill-opacity=".3"/></symbol>
-  <symbol id="art-afternoon" viewBox="0 0 300 200" fill="none"><circle cx="228" cy="62" r="34" fill="currentColor" fill-opacity=".9"/><path d="M96 118a26 26 0 0 1 50-10 20 20 0 0 1 36 12 18 18 0 0 1-8 34H100a18 18 0 0 1-4-36z" fill="currentColor" fill-opacity=".55"/><path d="M0 200c70-40 150-50 300-16v16z" fill="currentColor" fill-opacity=".26"/></symbol>
-  <symbol id="art-evening" viewBox="0 0 300 200" fill="none"><path d="M226 40a44 44 0 1 0 40 62 36 36 0 0 1-40-62z" fill="currentColor" fill-opacity=".92"/><g fill="currentColor" fill-opacity=".8"><circle cx="120" cy="50" r="3"/><circle cx="160" cy="90" r="2.5"/><circle cx="90" cy="100" r="2"/><circle cx="270" cy="130" r="2.5"/><circle cx="200" cy="140" r="2"/></g><path d="M0 200c60-48 140-60 300-30v30z" fill="currentColor" fill-opacity=".24"/></symbol>
-  <symbol id="art-play" viewBox="0 0 300 200" fill="none"><circle cx="230" cy="60" r="30" fill="currentColor" fill-opacity=".9"/><path d="M60 170c0-40 30-70 70-70s70 30 70 70" stroke="currentColor" stroke-opacity=".8" stroke-width="10" stroke-linecap="round"/><path d="M0 200c60-30 140-40 300-12v12z" fill="currentColor" fill-opacity=".28"/><g fill="currentColor" fill-opacity=".85"><path d="M70 60l6 14 14 6-14 6-6 14-6-14-14-6 14-6z"/><path d="M150 30l4 9 9 4-9 4-4 9-4-9-9-4 9-4z"/></g></symbol>
 </svg>
 
 <script src="apps/hub.js" data-app="hub" data-scope="family"></script>
@@ -550,7 +547,7 @@
   async function renderGrid() {
     const apps = visibleApps();
     const grid = $('#grid');
-    if (!apps.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No apps for this profile yet.</div>'; return; }
+    if (!apps.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-art"><img src="art/empty/list.svg" alt=""></div>No apps for this profile yet.</div>'; return; }
     const parts = await Promise.all(apps.map(async a => {
       const wide = a.tile === 'wide';
       const badge = a.id === 'leftovers' ? fridgeDue().length : 0;
@@ -650,7 +647,7 @@
   function renderFeed() {
     const ul = $('#feed'); if (!ul) return;
     if (!feed) { ul.innerHTML = Array.from({ length: 4 }, () => '<li><span class="avatar avatar-sm avatar-plain skeleton"></span><div class="ftext"><div class="skeleton" style="width:55%">x</div><div class="skeleton" style="width:80%;margin-top:6px">x</div></div></li>').join(''); return; }
-    if (!feed.length) { ul.innerHTML = '<li class="muted">Nothing has happened yet. Check off a reading or log a leftover and it shows up here.</li>'; return; }
+    if (!feed.length) { ul.innerHTML = '<li class="empty" style="display:block;padding:var(--sp-4) 0"><div class="empty-art"><img src="art/empty/feed.svg" alt=""></div>Nothing has happened yet. Check off a reading or log a leftover and it shows up here.</li>'; return; }
     ul.innerHTML = feed.map(a => `<li style="--tint:${esc(a.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(a.color || FALLBACK)} 70%, var(--text))">${avatar(a, 'avatar-sm')}
       <div class="ftext"><span class="fwho">${esc(a.name || 'Someone')}</span> <span class="fwhen">· ${esc(ago(a.created_at))}</span><div class="text-2">${esc(a.text)}</div></div></li>`).join('');
   }
@@ -660,7 +657,7 @@
       <div class="hero-kicker">${esc(kicker || fmtDate(new Date()))}</div>
       <div class="hero-title">${title}</div>
       ${sub ? `<div class="hero-sub">${sub}</div>` : ''}${extra}
-      <div class="hero-art"><svg viewBox="0 0 300 200"><use href="#${art || 'art-' + tod}"/></svg></div>
+      <div class="hero-art"><img src="art/hero/${art || tod}.svg" alt="" width="300" height="200"></div>
     </div>`;
   }
   function renderHome() {
@@ -674,7 +671,7 @@
       renderReminders(); return;
     }
     if (p.kind === 'kid') {
-      v.innerHTML = heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: 'Ready to play?', art: 'art-play' }) + `
+      v.innerHTML = heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: 'Ready to play?', art: 'play' }) + `
         <div class="stack-lg">
           <button class="kid-cta" id="kid-apps"><span class="app-icon"><svg class="icon"><use href="#i-sparkle"/></svg></span>Let's play — open your apps</button>
           <div class="card"><h2><span class="app-icon" style="--tint:var(--gold)"><svg class="icon"><use href="#i-bell"/></svg></span>Reminders</h2><ul class="list" id="remlist"></ul></div>
@@ -689,7 +686,7 @@
     if (canSee('f260')) {
       const a = appById('f260');
       if (f && f.next) bits.push(f.readToday ? 'reading done' : 'a reading waiting');
-      cards.push(`<div class="card gcard" style="--tint:${esc(a.color || FALLBACK)}"><svg class="glyph"><use href="#i-book"/></svg>
+      cards.push(`<div class="card gcard" style="--tint:${esc(a.color || FALLBACK)}"><img class="spot" src="art/app/f260.svg" alt="" width="200" height="160">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-book"/></svg></span>Today's reading</h2>
         <div class="gbody">${f ? ringHtml(f.weekDone / 5, f.weekDone + '/5', a.color, true) : ringHtml(0, '0/5', a.color, true)}<div class="grow">
           <div class="gbig">${!loaded && !f ? sk : f ? (f.next ? esc(f.next.ref) : 'Plan complete') : 'Start with Genesis 1-2'}</div>
@@ -700,7 +697,7 @@
       const due = fridgeDue(); const a = appById('leftovers');
       if (due.length) bits.push(due.length + ' to eat');
       const bars = due.slice(0, 3).map(i => `<div class="${i.days >= 7 ? 'stale' : ''}"><div class="fl"><span>${esc(i.name)}</span><span>${i.days}d</span></div><div class="bar" style="--p:${Math.min(1, i.days / 10)}"><i></i></div></div>`).join('');
-      cards.push(`<div class="card gcard" style="--tint:${esc((a && a.color) || FALLBACK)}"><svg class="glyph"><use href="#i-bowl"/></svg>
+      cards.push(`<div class="card gcard" style="--tint:${esc((a && a.color) || FALLBACK)}"><img class="spot" src="art/app/leftovers.svg" alt="" width="200" height="160">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-bowl"/></svg></span>In the fridge</h2>
         <div class="gbody"><div class="grow">
           <div class="gbig">${!loaded ? sk : due.length ? due.length + ' to eat this week' : 'Nothing aging'}</div>
@@ -709,7 +706,7 @@
     }
     if (canSee('prayer')) {
       const n = prayerStreak(); const a = appById('prayer');
-      cards.push(`<div class="card gcard" style="--tint:${esc(a.color || FALLBACK)}"><svg class="glyph"><use href="#i-pray"/></svg>
+      cards.push(`<div class="card gcard" style="--tint:${esc(a.color || FALLBACK)}"><img class="spot" src="art/app/prayer.svg" alt="" width="200" height="160">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-pray"/></svg></span>Prayer</h2>
         <div class="gbody">${avatar(p, 'avatar-lg')}<div class="grow">
           <div class="gbig">${!loaded ? sk : n ? n + '-day streak' : 'No streak yet'}</div>
@@ -742,7 +739,7 @@
     const items = hub.list('item:', { app: 'reminders', scope: 'family' }).map(r => r.value).sort((a, b) => a.createdAt - b.createdAt);
     const loading = !hub.sync.lastPull && hub.sync.state !== 'offline' && !items.length;
     if (loading) { ul.innerHTML = '<li class="row"><span class="skeleton" style="width:60%">loading</span></li><li class="row"><span class="skeleton" style="width:40%">loading</span></li>'; return; }
-    if (!items.length) { ul.innerHTML = '<li class="row muted">Nothing to remember right now.</li>'; return; }
+    if (!items.length) { ul.innerHTML = '<li class="empty" style="padding:var(--sp-3) 0"><div class="empty-art" style="width:120px"><img src="art/empty/list.svg" alt=""></div>Nothing to remember right now.</li>'; return; }
     const canEdit = hub.profile && hub.profile.kind === 'adult';
     ul.innerHTML = items.map(r => `<li class="row rem-row"><div class="row-main"><div class="rem-text">${esc(r.text)}</div><div class="rem-by">${esc(r.byName || r.by || '')}</div></div>
       ${canEdit ? `<button class="btn btn-ghost btn-round" data-done="${esc(r.id)}" aria-label="Done"><svg class="icon"><use href="#i-check"/></svg></button>` : ''}</li>`).join('');
@@ -817,7 +814,11 @@
     if (chips && chips.length) { const c = document.createElement('div'); c.className = 'chips'; for (const ch of chips) { const sp = document.createElement('span'); sp.className = 'chip chip-ok'; sp.textContent = ch; c.append(sp); } d.append(c); }
     row.append(who, d); chatLog.append(row); scrollChat(); return d;
   }
-  function chatNote(text) { const d = document.createElement('div'); d.className = 'chat-note'; d.textContent = text; chatLog.append(d); scrollChat(); return d; }
+  function chatNote(text, art) {
+    const d = document.createElement('div'); d.className = 'chat-note';
+    if (art) { const a = document.createElement('div'); a.className = 'empty-art'; a.innerHTML = `<img src="art/empty/${art}.svg" alt="">`; d.append(a); }
+    d.append(document.createTextNode(text)); chatLog.append(d); scrollChat(); return d;
+  }
   function setCap(used, cap) {
     chatCap.textContent = used != null ? used + '/' + cap + ' today' : '';
     if (used >= cap) { chatIn.disabled = true; chatIn.placeholder = 'Back tomorrow — that is enough for today.'; }
@@ -832,7 +833,7 @@
       chatLog.innerHTML = '';
       chatEnabled = h.enabled;
       if (!h.enabled) chatNote('The assistant is not set up yet — an API key is needed on the house server.');
-      else if (!h.messages.length) chatNote(hub.isKid ? 'Hi ' + hub.profile.name + '! Ask me something fun, or tell me what you did today.' : 'Ask about the fridge or your reading, or say things like "add milk to leftovers" or "remind everyone about the bins".');
+      else if (!h.messages.length) chatNote(hub.isKid ? 'Hi ' + hub.profile.name + '! Ask me something fun, or tell me what you did today.' : 'Ask about the fridge or your reading, or say things like "add milk to leftovers" or "remind everyone about the bins".', 'chat');
       for (const m of h.messages) {
         if (m.role === 'assistant') {
           const lines = m.content.split('\n');

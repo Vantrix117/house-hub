@@ -46,9 +46,10 @@ There is no build step, bundler, framework or `package.json` anywhere. Do not ad
    { "id": "chores", "name": "Chore board", "file": "apps/chores.html", "color": "#5B6FA8", "icon": "icons/chores.svg", "scope": "family", "tile": "small", "visibleTo": ["eli", "christian"] }
    ```
    `scope` must match `data-scope`. `tile` is `small` or `wide` (wide tiles can render a widget in `index.html` → `widgetHtml`). `visibleTo` (profile ids) hides the app from everyone else — omit it for all. `icon` is an SVG file in `icons/` (duotone: a `class="duo"` path plus stroke paths, `currentColor`), or an emoji if you must. `"dark": true` darkens the viewer while loading.
-4. **Precache it** by adding the file (and its icon) to the `SHELL` list in `sw.js` and bumping `VERSION`. Skip precaching anything multi-megabyte.
-5. **Touch-first, all devices.** 44×44 px minimum targets (60 px+ for primary actions), no hover-only or right-click-only affordances (hover styles only under `@media (hover: hover) and (pointer: fine)`), Enter/Escape on inputs and dialogs, works from ~375 px to ~1400 px wide with no horizontal scroll, `viewport-fit=cover` with safe-area insets on edge-anchored controls, `localStorage` reads/writes in `try/catch`.
-6. **Commit, push, verify live:** `git add apps/<id>.html apps.json icons/<id>.svg sw.js && git commit && git push`, then poll `https://vantrix117.github.io/house-hub/apps/<id>.html` until it returns 200 and confirm `apps.json` on the live site has the entry. Report that result, not just "pushed".
+4. **Give it art.** Add a spot illustration `art/app/<id>.svg` (200×160) in `scripts/make-art.mjs` and re-run it — the Home cards, empty states and the style guide pick it up from there; `scripts/test-art.mjs` fails until every app has one. See [`art/README.md`](art/README.md).
+5. **Precache it** by adding the file, its icon and its art to the `SHELL` list in `sw.js` and bumping `VERSION`. Skip precaching anything multi-megabyte.
+6. **Touch-first, all devices.** 44×44 px minimum targets (60 px+ for primary actions), no hover-only or right-click-only affordances (hover styles only under `@media (hover: hover) and (pointer: fine)`), Enter/Escape on inputs and dialogs, works from ~375 px to ~1400 px wide with no horizontal scroll, `viewport-fit=cover` with safe-area insets on edge-anchored controls, `localStorage` reads/writes in `try/catch`.
+7. **Commit, push, verify live:** `git add apps/<id>.html apps.json icons/<id>.svg sw.js && git commit && git push`, then poll `https://vantrix117.github.io/house-hub/apps/<id>.html` until it returns 200 and confirm `apps.json` on the live site has the entry. Report that result, not just "pushed".
 
 Legacy `localStorage` data goes to the **first adult** who opens the app on a device; kids never receive migrated data.
 
@@ -90,6 +91,7 @@ All in [`worker/src/chat.js`](worker/src/chat.js):
 | `scripts/test-apps.mjs <code>` | Migrated apps on hub.js, Home dashboard, widgets, admin panel, legacy migration counts, screenshots into `docs/screens/` |
 | `scripts/test-push.mjs` | RFC 8291 known-answer test + VAPID signature |
 | `scripts/test-design.mjs` | The style guide (`docs/design.html`) in light/dark/kid/desktop; WCAG AA on every text pair for all eight family colours; reduced motion |
+| `scripts/test-art.mjs` | The `art/` illustration set: every SVG parses and renders, every app has a tile icon + spot art, all precached, ≤ 600 KB; contact sheets → `docs/screens/rm5-art-*.png` |
 | `scripts/screens-shell.mjs <code>` | Every hub surface at 390/1024/1440, light + dark, adult/kid/kiosk → `docs/screens/rm4-*.png`; layout shift < 0.1; no hex in the shell's `<style>` |
 | `scripts/smoke-chat.sh <url> <code>` | Every chat tool + guards, streamed |
 | `node handoff/prayer/check.js apps/prayer.html` | Prayer app logic (21 checks) |
