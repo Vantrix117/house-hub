@@ -231,8 +231,19 @@ footer{color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-t
 [data-flavor=live] .pop{left:12px!important;right:12px;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom));width:auto;max-height:calc(100dvh - 200px - env(safe-area-inset-top) - env(safe-area-inset-bottom));z-index:9;background:color-mix(in srgb,var(--panel) 94%,transparent);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);border:1px solid color-mix(in srgb,#fff 12%,transparent);overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;padding-top:22px;border-top:6px solid var(--pop-cat,var(--accent))}
 [data-flavor=live] .pop .x{position:sticky;float:right;top:0}
 .lv-gobtn{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--on-accent)!important;font-weight:700}
-.lv-route{position:absolute;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:8;display:flex;align-items:center;gap:12px;padding:10px 12px 10px 14px;border-radius:18px;background:color-mix(in srgb,var(--panel) 90%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid color-mix(in srgb,#fff 12%,transparent);box-shadow:var(--shadow-lg)}
-.lv-route svg{width:30px;height:30px;flex:none;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lv-route{position:absolute;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:8;display:flex;flex-direction:column;border-radius:18px;background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid color-mix(in srgb,#fff 12%,transparent);box-shadow:var(--shadow-lg);overflow:hidden}
+.lv-route-head{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 14px;cursor:pointer;min-height:64px}
+.lv-route-head svg{width:30px;height:30px;flex:none;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lv-chev{width:10px;height:10px;border-right:2px solid var(--dim);border-bottom:2px solid var(--dim);transform:rotate(-135deg);margin:4px 2px 0;flex:none;transition:transform .2s}
+.lv-route.open .lv-chev{transform:rotate(45deg);margin-top:-4px}
+.lv-steps{display:none;max-height:34dvh;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;border-top:1px solid color-mix(in srgb,#fff 10%,transparent);padding:4px 12px 10px}
+.lv-route.open .lv-steps{display:block}
+.lv-step{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 2px;border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent);font-size:14px}
+.lv-step:last-child{border-bottom:0}
+.lv-step .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex:none;background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--text)}
+.lv-step.now .n{background:var(--accent);color:var(--on-accent)}.lv-step.now .t{font-weight:700}
+.lv-step.arrive .n{background:color-mix(in srgb,#3ECF6E 30%,transparent)}
+.lv-step .t{flex:1;min-width:0}.lv-step .d{flex:none;color:var(--dim);font-size:12.5px;font-weight:600}
 .lv-route-t{flex:1;min-width:0}.lv-route-t b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lv-route-t span{display:block;font-size:12.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lv-route button{min-height:40px;border-radius:999px;padding:6px 14px;flex:none;font-weight:600}
 .lv-march{animation:lvmarch 1.1s linear infinite;vector-effect:non-scaling-stroke}
@@ -307,7 +318,7 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
   </div>
   <div class="lv-scale" id="lv-scale"><i></i><span>100 ft</span></div>
   <div class="lv-northwrap"><div class="lv-north" id="lv-north" title="North"><svg viewBox="0 0 24 24"><path d="M12 2.5l4.2 10.5L12 10.6 7.8 13z" fill="#FF6B4A"/><path d="M12 21.5l-4.2-10.5 4.2 2.4 4.2-2.4z" fill="currentColor" opacity=".55"/></svg><b>N</b></div></div>
-  <div class="lv-route" id="lv-route" hidden><svg viewBox="0 0 24 24"><path d="M13 4a2 2 0 1 1 0 .01M9 21l2-8-2-2 3-4 3 3h3M6 12l3-3M12 13l2 3v5"/></svg><div class="lv-route-t"><b id="route-name"></b><span id="route-meta"></span></div><button id="route-x" aria-label="End directions">End</button></div>
+  <div class="lv-route" id="lv-route" hidden><div class="lv-route-head" id="route-head"><svg viewBox="0 0 24 24"><path d="M13 4a2 2 0 1 1 0 .01M9 21l2-8-2-2 3-4 3 3h3M6 12l3-3M12 13l2 3v5"/></svg><div class="lv-route-t"><b id="route-now"></b><span id="route-meta"></span><span id="route-name" hidden></span></div><i class="lv-chev"></i><button id="route-x" aria-label="End directions">End</button></div><div class="lv-steps" id="route-steps"></div></div>
   <div class="lv-sheet" id="lv-sheet" data-state="peek">
    <button class="lv-handle" id="lv-handle" aria-label="Open or close the panel"><i></i></button>
    <div class="lv-tabs" role="tablist">
@@ -819,6 +830,31 @@ function routeBetween(from,to){if(!NET)buildNet();const S=NET.nodes.length,E=S+1
   add(S,ps.a);add(S,ps.b);add(E,pe.a);add(E,pe.b);if(ps.a===pe.a&&ps.b===pe.b)add(S,E);
   const r=dijkstra(S,E,extra);if(!r)return null;const pts=[from,...r.path.map(P),to];let len=0;for(let i=1;i<pts.length;i++)len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);return {pts,len}}
 const compass=(a,b)=>['N','NE','E','SE','S','SW','W','NW'][Math.round(((Math.atan2(b[0]-a[0],b[1]-a[1])*180/Math.PI+360)%360)/45)%8];
+/* ---- turn-by-turn: read off the route geometry, named by the nearest listing and the area you enter ---- */
+function rdp(P,eps){if(P.length<3)return P;let mi=0,md=0;const a=P[0],b=P[P.length-1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  for(let i=1;i<P.length-1;i++){const p=P[i];const d=L?Math.abs((b[0]-a[0])*(a[1]-p[1])-(a[0]-p[0])*(b[1]-a[1]))/L:Math.hypot(p[0]-a[0],p[1]-a[1]);if(d>md){md=d;mi=i}}
+  return md>eps?rdp(P.slice(0,mi+1),eps).slice(0,-1).concat(rdp(P.slice(mi),eps)):[a,b]}
+const bearing=(a,b)=>(Math.atan2(b[0]-a[0],b[1]-a[1])*180/Math.PI+360)%360;
+const landmark=(p,skip)=>{let best=null;OFF.forEach(o=>{if(!o.pos||o===skip)return;const d=Math.hypot(o.pos[0]-p[0],o.pos[1]-p[1]);if(d<30&&(!best||d<best.d))best={o,d}});return best?best.o.name:null};
+function routeSteps(pts,o){const P=rdp(pts,9);const steps=[];let legStart=0,legLen=0,legFrom=P[0],lastLm=null;
+  const secOf=p=>{const s=sectionAt(p[0],p[1]);return s?s.name:null};let curSec=secOf(P[0]);
+  const push=(text,from,len,at)=>steps.push({text,len,at});
+  let head=`Head ${compass(P[0],P[1])}`;
+  for(let i=1;i<P.length;i++){const seg=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);legLen+=seg;
+    const ns=secOf(P[i]);let entered='';if(ns&&ns!==curSec){entered=` into ${ns}`;curSec=ns}
+    if(i<P.length-1){const b1=bearing(P[i-1],P[i]),b2=bearing(P[i],P[i+1]);let a=((b2-b1+540)%360)-180;   // signed turn, + = right
+      const mag=Math.abs(a);if(mag>=42){let lm=landmark(P[i],o);if(lm===lastLm)lm=null;else lastLm=lm;const turn=mag>135?'Turn sharply':mag>65?'Turn':'Bear';
+        push(`${head}${entered} for ${ftOf(legLen)}`,legFrom,legLen,legFrom);head=`${turn} ${a>0?'right':'left'}${lm?` at ${lm}`:''}`;legFrom=P[i];legLen=0;entered=''}}
+    if(entered&&i<P.length-1){/* area change without a turn: fold it into the running leg text */head+=entered}}
+  const last=P[P.length-1],prev=P[P.length-2]||P[0];const cross=(last[0]-prev[0])*(o.pos[1]-prev[1])-(last[1]-prev[1])*(o.pos[0]-prev[0]);
+  push(`${head} for ${ftOf(legLen)}`,legFrom,legLen,legFrom);
+  steps.push({text:`Arrive at ${o.name}${Math.abs(cross)>4?`, on your ${cross>0?'left':'right'}`:''}`,len:0,at:last,arrive:true});
+  // legs shorter than 25 m are not worth a step of their own: the bend that started them folds into the one before
+  for(let i=steps.length-2;i>0;i--){if(steps[i].len<25&&!steps[i].arrive){steps[i-1].len+=steps[i].len;steps[i-1].text=steps[i-1].text.replace(/ for [^ ]+ (ft|mi)$/,'')+` for ${ftOf(steps[i-1].len)}`;steps.splice(i,1)}}
+  return steps}
+function renderSteps(){const box=$('route-steps'),now=$('route-now');if(!ROUTE||!box)return;const st=ROUTE.steps||[];
+  now.textContent=st.length?st[0].text:ROUTE.o.name;
+  box.innerHTML=st.map((s,i)=>`<div class="lv-step${i===0?' now':''}${s.arrive?' arrive':''}"><span class="n">${s.arrive?'⚑':i+1}</span><span class="t">${s.text}</span><span class="d">${s.len?ftOf(s.len):''}</span></div>`).join('')}
 function drawRoute(){if(!G.route)return;G.route.innerHTML='';if(!ROUTE)return;const k=mpp(),pts=ROUTE.pts;
   G.route.appendChild(line(pts,{stroke:'#0E0D0B','stroke-width':9,opacity:.35,'stroke-linecap':'round','stroke-linejoin':'round'}));
   G.route.appendChild(line(pts,{stroke:'var(--accent,#2F80ED)','stroke-width':7,opacity:.55,'stroke-linecap':'round','stroke-linejoin':'round',filter:'url(#lv-glow-route)'}));
@@ -828,12 +864,14 @@ function drawRoute(){if(!G.route)return;G.route.innerHTML='';if(!ROUTE)return;co
   g.appendChild(el('circle',{cx,cy:cy-19*k,r:4*k,fill:'#fff'}));G.route.appendChild(g)}
 function routeTo(o,quiet){if(!o||!o.pos)return;if(!me||!inFrame([me.x,me.y])){if(!quiet){$('loc-sec').textContent='Find yourself first, then ask for directions';setTimeout(updLoc,2500)}return}
   const r=routeBetween([me.x,me.y],o.pos);const straight=Math.hypot(o.pos[0]-me.x,o.pos[1]-me.y);
-  ROUTE=r?{pts:r.pts,len:r.len,o,straight:false}:{pts:[[me.x,me.y],o.pos],len:straight,o,straight:true};drawRoute();
+  ROUTE=r?{pts:r.pts,len:r.len,o,straight:false}:{pts:[[me.x,me.y],o.pos],len:straight,o,straight:true};
+  ROUTE.steps=ROUTE.straight?[{text:`Head ${compass([me.x,me.y],o.pos)} straight toward ${o.name}`,len:straight,at:[me.x,me.y]},{text:`Arrive at ${o.name}`,len:0,at:o.pos,arrive:true}]:routeSteps(ROUTE.pts,o);
+  drawRoute();renderSteps();
   const bar=$('lv-route');bar.hidden=false;$('route-name').textContent=o.name;
   const first=ROUTE.pts.length>2?ROUTE.pts[Math.min(2,ROUTE.pts.length-1)]:o.pos;
-  $('route-meta').textContent=(ROUTE.straight?'no mapped path between you — straight line · ':'')+`${ftOf(ROUTE.len)} · ${walkOf(ROUTE.len)} · head ${compass([me.x,me.y],first)}`;
+  $('route-meta').textContent=`${o.name} · ${ftOf(ROUTE.len)} · ${walkOf(ROUTE.len)}`+(ROUTE.straight?' · no mapped path, straight line':`  · ${ROUTE.steps.length-1} steps`);
   if(!quiet){closePop();setSheet('peek');follow=false;liveBtn();const xs=ROUTE.pts.map(p=>p[0]),ys=ROUTE.pts.map(p=>p[1]);fitBox([Math.min(...xs)-30,Math.max(...xs)+30,Math.min(...ys)-30,Math.max(...ys)+30],true)}}
-function endRoute(){ROUTE=null;drawRoute();$('lv-route').hidden=true}
+function endRoute(){ROUTE=null;drawRoute();$('lv-route').hidden=true;$('lv-route').classList.remove('open')}
 window.routeTo=routeTo;
 /* ---- controls ---- */
 function liveBtn(){const b=$('loc-btn');if(!b)return;b.setAttribute('aria-pressed',String(watchId!=null&&follow));b.setAttribute('aria-label',watchId!=null?(follow?'Following you':'Re-centre on you'):'Find me')}
@@ -866,7 +904,7 @@ function liveInit(){document.title='Dollywood park map';svg.setAttribute('preser
   const _showOfficial=showOfficial;showOfficial=function(o){_showOfficial(o);pop.dataset.cat=o.cat;pop.style.removeProperty('--pop-cat');setSheet('peek');
     const b=pop.querySelector('.btns');if(b&&o.pos){b.insertAdjacentHTML('afterbegin',`<button id="lv-go" class="lv-gobtn">Directions</button>`);$('lv-go').onclick=()=>routeTo(o)}
     if(me&&inFrame([me.x,me.y])&&o.pos){const d=Math.hypot(o.pos[0]-me.x,o.pos[1]-me.y);const m=pop.querySelector('.meta');if(m)m.insertAdjacentHTML('afterend',`<div class="lv-from"><b>${ftOf(d)}</b> from you · ${walkOf(d)}</div>`)}};
-  $('route-x').onclick=endRoute;
+  $('route-x').onclick=endRoute;$('route-head').onclick=()=>$('lv-route').classList.toggle('open');
   // move the listings search and the layer toggles into the sheet; the engine keeps writing to them by id
   $('lv-srch').append($('q'),$('tab-list'));$('tab-list').hidden=false;
   const lay=$('lv-lay');const mk=(txt,ctl)=>{const l=document.createElement('label');l.className='lab2';l.append(txt,ctl);lay.appendChild(l)};mk('Contour interval (satellite)',$('cint'));mk('Light / dark',$('theme'));lay.appendChild($('tab-layers'));$('tab-layers').hidden=false;
