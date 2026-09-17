@@ -17,6 +17,10 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 | `src/index.js` | Routes |
 | `src/auth.js` | PBKDF2 hashing, tokens, sessions, rate limits |
 | `src/data.js` | `app_data` last-write-wins upsert, listing, tombstones |
+| `src/push.js` | Web Push encryption (RFC 8291) + VAPID, WebCrypto only |
+| `src/reminders.js` | the 8 am / 8 pm reminder jobs and `pushTo()` |
+| `src/chat.js` | `/api/chat`: Claude tool loop, guards, streaming |
+| `migrations/` | one-off schema migrations already applied to the live DB |
 | `../scripts/set-pairing-code.mjs` | Prompts for the pairing code and stores **only its hash** |
 | `../scripts/smoke-api.sh` | Curl walk-through of every endpoint (`smoke-api.sh <url> <pairing-code>`) |
 
@@ -47,7 +51,13 @@ DELETE /api/data/:appId/:key?scope=     (writes a tombstone)
 POST /api/data/:appId/batch?scope=      {items:[{key,value,updated_at}]}
 
 GET  /api/activity?limit=30             POST /api/activity {app_id, text}
+
+GET  /api/push/config                   {public_key, enabled}
 POST /api/push/subscribe {subscription} DELETE /api/push/subscribe
+POST /api/push/test                     sends a test notification to the caller's devices
+
+POST /api/chat {message, apps}          text/event-stream: text | tool | done | error events (see src/chat.js)
+GET  /api/chat/history                  last 20 messages, used/cap for today
 
 Admin (is_admin profile token):
 POST /api/admin/profiles/:id/reset-pin
@@ -55,8 +65,11 @@ PUT  /api/admin/profiles/:id            {name?, emoji?, color?, kind?, sort_orde
 POST /api/admin/pairing-code/rotate     {code?}  (omit code → one is generated and returned once)
 GET  /api/admin/usage                   chat messages / push sends per profile per day, devices
 DELETE /api/admin/devices/:id
+POST /api/admin/cron/run                {job: 'morning' | 'evening'}  run a reminder job now
 
-Legacy (until Phase 3): GET/POST /items, DELETE /items/:id with X-House-Key
+Cron (wrangler.toml [triggers]): 8:00 am and 8:00 pm New York — see src/reminders.js.
+
+Legacy (no longer used by any app): GET/POST /items, DELETE /items/:id with X-House-Key
 ```
 
 Errors are `{error: 'snake_code', message: 'plain English'}` with a matching HTTP status.
@@ -76,9 +89,9 @@ Never in this repo. Set with `npx wrangler secret put NAME` from this folder:
 
 | Secret | Used by |
 |---|---|
-| `HOUSE_KEY` | legacy `/items` routes only (removed in Phase 3) |
-| `VAPID_PRIVATE_KEY` | push notifications (Phase 4) |
-| `ANTHROPIC_API_KEY` | chat (Phase 5) |
+| `HOUSE_KEY` | legacy `/items` routes only; safe to delete once those routes go |
+| `VAPID_PRIVATE_KEY` | push notifications (`src/push.js`) |
+| `ANTHROPIC_API_KEY` | chat (`src/chat.js`); until it is set the Chat tab says the assistant is not set up |
 
 The pairing code is not a secret binding — it is a hash in D1, rotated with `scripts/set-pairing-code.mjs` or the admin endpoint.
 
@@ -93,7 +106,7 @@ npx wrangler dev --port 8787
 ../scripts/smoke-api.sh http://127.0.0.1:8787 <the code you typed>
 ```
 
-Local state lives in `.wrangler/` (git-ignored).
+Local state lives in `.wrangler/` (git-ignored). Local-only secrets go in `.dev.vars` (git-ignored): a throwaway VAPID pair, and `ANTHROPIC_BASE_URL="http://127.0.0.1:8791"` + any `ANTHROPIC_API_KEY` to talk to `scripts/mock-anthropic.mjs` instead of the real API.
 
 ## If something's wrong
 

@@ -1,49 +1,49 @@
 # Anderson House Hub
 
-A single page that launches your Claude-built apps full-screen on the iPad and switches between them with one tap.
+One app for the whole house: the F260 reading plan, the fridge list, prayers, reminders, a family chat helper — with a profile for each person and everything synced between the iPad, phones and the downstairs TV.
 
-## Files
+**Open it:** https://vantrix117.github.io/house-hub/
 
-- `index.html` – the hub (clock + tile grid + app viewer + switcher sheet)
-- `apps.json` – the list of apps. This is the only file you edit to add/remove an app.
-- `apps/` – one self-contained `.html` file per app
-- `manifest.json`, `icon.svg` – lets the hub install as a Home Screen app
+## First time on a new device
 
-## Put it on GitHub Pages (one time)
+1. Open the link. It asks for the **house pairing code** — Eli has it. Type it once; the device stays paired.
+2. Tap your name.
+   - **Kids and the TV** open straight away.
+   - **Adults** create a 4–8 digit PIN the first time, and use it after that. Forgot it? Eli can reset it from Me → Admin.
+3. That's it. Your reading progress, prayers and settings follow you to any paired device; the fridge list and reminders are shared by everyone.
 
-1. Create a new repo on GitHub (e.g. `house-hub`), public or private.
-2. Upload every file in this folder to the root of the repo, keeping the `apps/` folder.
-3. Repo → Settings → Pages → Source: "Deploy from a branch" → Branch: `main` / root → Save.
-4. Wait ~1 minute. Your hub is at `https://vantrix117.github.io/house-hub/` (repo name may differ).
+To switch who is using a device: **Me → Switch profile**.
 
-## iPad setup (one time)
+## Put it on your Home Screen
 
-1. Open the URL in Safari → Share → Add to Home Screen → Add.
-2. Open it from the Home Screen (this hides Safari's bars and makes it full-screen).
-3. Settings → Display & Brightness → Auto-Lock → Never.
-4. Optional: Settings → Accessibility → Guided Access → on, then triple-click the top button while in the hub to lock the iPad to it.
+**iPhone / iPad (Safari):** open the link → Share button → **Add to Home Screen** → Add. Open it from the icon: it runs full-screen and works offline. *Notifications only work from the Home Screen app, not from a Safari tab.*
 
-The hub also asks Safari for a screen wake lock once you tap anything, as a second line of defense against the screen dimming.
+**Android (Chrome):** menu → **Add to Home screen** (or the install banner).
 
-## Add an app
+**Mac / Windows (Chrome or Edge):** the install icon at the right of the address bar → Install.
 
-1. Ask Claude for a **single-file HTML app** (everything inline: CSS, JS, no build step). It can use `localStorage` freely.
-2. Save it as `apps/<id>.html` in the repo (GitHub app or website → Add file → Upload files, or let Claude Code push it).
-3. Add one entry to `apps.json`:
+**Downstairs TV / kiosk iPad:** add to Home Screen, pick the *Downstairs TV* profile once, and leave it. It shows the time, the date and the house reminders, refreshes itself, and cannot change anything. Settings → Display & Brightness → Auto-Lock → Never, and Guided Access if you want it locked to the hub.
 
-```json
-{ "id": "chores", "name": "Chore board", "file": "apps/chores.html", "color": "#5B6FA8", "icon": "✓" }
-```
+## Turning on notifications
 
-- `id` – short, no spaces; also works as a direct link (`…/index.html#chores`)
-- `color` – tile color, any hex
-- `icon` – one character or emoji
-- `dark: true` – optional, makes the viewer background dark while the app loads
+Me → **Notifications** → switch it on and allow the prompt. You can choose which reminders you get:
 
-Commit. The hub reloads `apps.json` every time it opens, so the new tile appears within a minute of GitHub Pages rebuilding.
+- **Fridge warnings** (adults, 8:00 am) — anything in the Larder Ledger that is about to hit a week old.
+- **Reading nudge** (8:00 pm) — if you have not checked off an F260 reading yet that day.
 
-## Using the hub
+"Send a test notification" confirms it works on that device. On iPhone and iPad this is only available from the Home Screen app (iOS 16.4 or later).
 
-- Tap a tile to open it. The most recently used app moves to the front and gets a gold dot.
-- While an app is running, tap the pill at the bottom to switch apps, reload the current app, or go Home.
-- Reloading the page keeps you in the same app (the app id is in the URL hash).
+## What's inside
+
+| Tab | What you get |
+|---|---|
+| **Home** | Today's reading, what to eat from the fridge, your prayer streak, the house reminders (adults can add and clear them), and what everyone has been up to. Pull down to refresh. |
+| **Apps** | F260 Reading Plan, Larder Ledger, Prayer, Tally counter, Kitchen timer, the Dollywood guides. Kids see a shorter list with bigger buttons. |
+| **Chat** | Ask the house helper things like "what's in the fridge?", "add milk to leftovers", "remind everyone about the bins", "I read week 3 day 2", "pray for Grandma's knee". Each person gets 60 messages a day. Kids get a kid-safe version. |
+| **Me** | Switch profile, light/dark, notifications, sync status. Eli also gets the admin panel: edit people, reset PINs, change the pairing code, unpair devices, see usage. |
+
+Everything keeps working offline; changes are sent when the device is back online, and the dot next to **Me** shows the sync state (green synced · amber sending · grey offline · red problem).
+
+## For whoever maintains it
+
+The technical map is in [`CLAUDE.md`](CLAUDE.md) (hosting, data model, adding an app, chat tools, push, admin ops, tests) and [`worker/README.md`](worker/README.md) (the API).
