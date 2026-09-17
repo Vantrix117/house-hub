@@ -51,6 +51,28 @@ Legend — **A** adults (Eli, Christian, Elizabeth, David, Mea) · **K** kids (E
 - `sw.js`: bump VERSION, prune unused icons, add maskable icon + park map, add `scripts/bump-sw.mjs`; delete legacy `/items` + `HOUSE_KEY`, `beaconFlush`, `liveItems` import, `K.theme`, `prayer-icon*.png`, `migrate-leftovers.sql`; fix `hub.migrate` marking; refresh or delete `docs/INVENTORY.md`; `.gitignore` the stray root files.
 - AC: all scripts (`smoke-api.sh`, `test-hub.mjs`, `test-apps.mjs`, `check.js`) green; `git status` clean.
 
+## Sprint 1b — themes, liquid glass, every app on the new look (added 2026-09-17, after item 8)
+
+**24. Rename Christian → Mae** (QW · A) — display name only; profile id `christian` stays so nothing else moves.
+- `worker/seed.sql`, the live row (Me → Admin → Edit, or one `UPDATE profiles SET name='Mae' WHERE id='christian'`), `CLAUDE.md` profiles line, `docs/design.html` sample names, test fixtures that assert on the name.
+- AC: picker, feed, admin and chat all say Mae on every device after one pull; `test-hub`/`test-apps` green.
+
+**25. Parchment appearance + theme system** (M · everyone) — `apps/design.css`, `apps/hub.js`, `index.html` Me
+- A third appearance, **Parchment**: soft tan reading paper (`--bg` ≈ warm tan, ink a deep sepia, accents re-tuned for AA on tan, glass tinted cream) — the whole token set, not a filter over light. Appearance segment becomes System · Light · Parchment · Dark, and "System" maps dark → Dark, light → the person's chosen light-side theme.
+- Turn appearance into a **theme system**: `data-theme` selects a named palette, each palette a complete token block, `docs/design.html` renders and contrast-checks every one. Ship a few high-quality styles, each with a name and a preview swatch card in Me: *Hearth* (today's warm paper), *Parchment*, *Midnight* (today's dark, deepened), and one or two more to pick with Eli (candidates: *Frost* — cool glass on pale blue-grey; *Forest* — deep green-black with gold ink; *Linen* — near-white, minimal).
+- Theme is a person preference (item 7), so it follows the person to every device; kiosk keeps its own.
+- AC: every theme passes `test-design.mjs` (AA on every pair, all accents); switching themes never reloads; screenshots of Home/Apps/Me per theme in `docs/screens/`.
+
+**26. Liquid glass v3** (M · everyone) — `apps/design.css`, `index.html`
+- Glass that reads as glass: layered translucency (a tinted base + a `backdrop-filter` blur + saturation), a **specular highlight** along the top edge (inset hairline + soft gradient sheen), a faint **inner shadow** at the bottom, a refracted-edge look (1 px lighter outer ring + 1 px darker inner ring), glass that **picks up the person's colour** from what is behind it, and a slow sheen that drifts with scroll/tilt (`DeviceOrientation` where allowed, scroll position otherwise; off under reduced-motion). Apply to the tab bar/sidebar, top bar, sheets, chat composer, glass cards, the PIN pad, toasts.
+- Solid fallbacks where `backdrop-filter` is unsupported; performance guard (no blur on large scrolling regions; ≤ 3 stacked glass layers).
+- AC: side-by-side before/after in `docs/design.html`; Lighthouse mobile perf still ≥ 90; no jank scrolling Home on an iPhone.
+
+**27. Every app on the v2 visual style** (B · everyone) — `apps/f260.html`, `apps/prayer.html`, `apps/leftovers.html`, `apps/tally.html`, `apps/timer.html`, `apps/dollywood-live.html`, `apps/dollywood.html`
+- Each app moves onto the design tokens, the theme system (incl. Parchment), glass chrome and the `art/` set: F260 (keeps its layout, restyled type/cards/nav — folds in item 10's visual pass), Prayer (keeps its palette *as one of the themes*, drops its own greys — folds in item 11), Larder (item 12), Tally and Timer (big glass dials, spring feedback), park map (glass panels over the map, tokens for markers/labels), build guide (chrome only — the sheet content stays).
+- Replace the "don't restyle F260/Prayer" rule in `CLAUDE.md` with "restyle only through tokens; layouts stay".
+- AC: `screens-shell.mjs`-style screenshots for every app at 390/1024/1440 in every theme; every app's `check`/test script green; no hex left in any app's `<style>` except the two Dollywood apps' map colours.
+
 ## Sprint 2 — daily use, each with its visual pass
 
 **9. Timer that survives navigation** (QW · everyone) — countdown in the shell (`timer.active` person scope), glass pill on every tab, beep + notification from the shell; Timer app = big glass dial. AC: start 1 min, leave the app, it beeps at 0 with the app closed and shows on a second device.
