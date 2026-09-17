@@ -72,7 +72,7 @@ async function openApp(page, id) {
 }
 const settled = f => f.evaluate(() => hub.flush().then(() => hub.sync.pending === 0));
 const shots = path.join(ROOT, 'docs', 'screens'); fs.mkdirSync(shots, { recursive: true });
-const shot = (page, name) => page.screenshot({ path: path.join(shots, `p3-${name}.png`), fullPage: false });
+const shot = async (page, name) => { await sleep(400); /* let the view's entry fade finish */ return page.screenshot({ path: path.join(shots, `p3-${name}.png`), fullPage: false }); };
 
 (async () => {
   const exe = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(p => fs.existsSync(p));
@@ -88,7 +88,9 @@ const shot = (page, name) => page.screenshot({ path: path.join(shots, `p3-${name
     ok(home.includes("Today's reading") && home.includes('Genesis 1-2') && home.includes('In the fridge') && home.includes('Prayer') && home.includes('Reminders') && home.includes('Around the house'), 'Home shows reading, fridge, prayer, reminders, feed');
     await shot(A.page, 'home-eli-390-light');
     await A.page.click('.tab[data-tab=apps]');
-    ok(await A.page.$$eval('.tile .icon', els => els.length) === 5, 'all five tiles use SVG icons');
+    const visible = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps.json'), 'utf8')).apps.filter(a => !a.visibleTo || a.visibleTo.includes('eli')).length;
+    const noIcon = await A.page.$$eval('.tile', els => els.filter(e => !e.querySelector('.icon')).map(e => e.dataset.id));
+    ok(await A.page.$$eval('.tile .icon', els => els.length) === visible, `every tile Eli can see uses an SVG icon (${visible})`, noIcon.join(' '));
     ok(await A.page.$('.tile.wide[data-id=f260] .ring') !== null, 'F260 wide tile has a progress ring');
     await shot(A.page, 'apps-eli-390-light');
 
@@ -155,7 +157,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shots, `p3-${name
     const legacy = {
       version: 3, activeList: 'personal', pin: '1111', me: 'Mom', theme: 'system', sync: { mode: 'off' },
       lists: {
-        personal: { label: 'My list', categories: ['Family', 'Health Needs'], prayerDays: ['2026-09-14', '2026-09-15'], plans: [{ id: 'pl1', name: 'Everything', mode: 'everything', focusCategory: '', includeDaily: true, rotationSize: 3, groupByCategory: false, dayMap: {}, show: {} }], activePlan: 'pl1', rotationFor: null,
+        personal: { label: 'My list', categories: ['Family', 'Health Needs'], prayerDays: [1, 0].map(n => { const t = new Date(); t.setDate(t.getDate() - n); return t.toLocaleDateString('en-CA'); })   /* yesterday + today, so the streak is live whenever the test runs */, plans: [{ id: 'pl1', name: 'Everything', mode: 'everything', focusCategory: '', includeDaily: true, rotationSize: 3, groupByCategory: false, dayMap: {}, show: {} }], activePlan: 'pl1', rotationFor: null,
           prayers: ['Aunt June', 'The Carters', 'New job for Sam'].map((t, i) => ({ id: 'p00' + (i + 1), title: t, for: '', phone: '', detail: '', category: 'Family', cadence: 'daily', days: [], status: 'active', createdAt: '2026-09-10', lastPrayedAt: null, answeredAt: null, answerNote: null, updates: [], sharedFrom: null, prayedBy: {}, updatedAt: '2026-09-10T00:00:00.000Z' })) },
         shared: { label: 'Family list', categories: ['Family'], prayerDays: [], plans: [{ id: 'pl2', name: 'Everything', mode: 'everything', focusCategory: '', includeDaily: true, rotationSize: 3, groupByCategory: false, dayMap: {}, show: {} }], activePlan: 'pl2', rotationFor: null,
           prayers: ['Safe travels', 'Church picnic'].map((t, i) => ({ id: 's00' + (i + 1), title: t, for: '', phone: '', detail: '', category: 'Family', cadence: 'daily', days: [], status: 'active', createdAt: '2026-09-10', lastPrayedAt: null, answeredAt: null, answerNote: null, updates: [], sharedFrom: null, prayedBy: {}, updatedAt: '2026-09-10T00:00:00.000Z' })) },
@@ -216,7 +218,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(shots, `p3-${name
     await waitFor(() => D.page.evaluate(() => hub.sync.lastPull > 0));
     await shot(D.page, 'home-eli-1024-dark');
     await D.page.click('.tab[data-tab=apps]'); await shot(D.page, 'apps-eli-1024-dark');
-    ok(await D.page.evaluate(() => getComputedStyle(document.body).backgroundColor === 'rgb(28, 23, 20)'), 'dark palette applies from prefers-color-scheme');
+    ok(await D.page.evaluate(() => getComputedStyle(document.body).backgroundColor === 'rgb(26, 21, 18)'), 'dark palette applies from prefers-color-scheme');
     ok(await D.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'no horizontal scroll at 1024');
     const D2 = await newContext(browser, 'D2', { dark: true });
     await pair(D2.page); await signIn(D2.page, 'ezra');

@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hub design system</title>
+<meta name="description" content="Living style guide for the House Hub design system: tokens, components, light and dark, kid and kiosk expressions, contrast checks.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../apps/design.css">
+<style>
+  .guide { max-width: var(--max); margin: 0 auto; padding: var(--sp-6) var(--sp-4) var(--sp-16); }
+  .controls { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; padding: var(--sp-3) var(--sp-4); margin: 0 calc(-1 * var(--sp-4)) var(--sp-6); }
+  .controls .seg { flex: 0 0 auto; min-width: 200px; }
+  .swatches { display: flex; gap: var(--sp-2); }
+  .swatch { width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+  .swatch.on { border-color: var(--text); }
+  section { margin-top: var(--sp-12); }
+  section > h2 { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-3xl); margin-bottom: var(--sp-2); }
+  section > .lede { color: var(--text-2); margin-bottom: var(--sp-5); max-width: 60ch; }
+  .demo { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; }
+  .tok { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
+  .tok .t { border-radius: var(--r); padding: var(--sp-3); border: 1px solid var(--line-soft); background: var(--surface); }
+  .tok .t i { display: block; height: 56px; border-radius: var(--r-sm); margin-bottom: var(--sp-2); border: 1px solid var(--line-soft); }
+  .tok .t b { font-size: var(--fs-sm); }
+  .tok .t code { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .type-row { display: grid; grid-template-columns: 110px 1fr; gap: var(--sp-3); align-items: baseline; padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft); }
+  .type-row code { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .space { display: flex; align-items: flex-end; gap: var(--sp-3); }
+  .space i { display: block; background: var(--accent-tint); border-radius: 4px; }
+  .radii { display: flex; gap: var(--sp-3); flex-wrap: wrap; }
+  .radii i { display: grid; place-items: center; width: 90px; height: 70px; background: var(--surface); border: 1px solid var(--line); font-size: var(--fs-xs); color: var(--muted); }
+  .elev { display: flex; gap: var(--sp-5); flex-wrap: wrap; }
+  .elev i { display: grid; place-items: center; width: 110px; height: 80px; background: var(--surface); border-radius: var(--r); font-size: var(--fs-xs); color: var(--muted); }
+  table.contrast { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+  table.contrast th, table.contrast td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line-soft); }
+  table.contrast .pass { color: var(--ok-ink); font-weight: 700; } table.contrast .fail { color: var(--danger-ink); font-weight: 700; }
+  .tabdemo { position: relative; height: 84px; border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--line-soft); background: var(--wash), var(--bg); }
+  .tabdemo .tabbar { position: absolute; }
+  .motion-box { width: 64px; height: 64px; border-radius: var(--r); background: var(--accent); }
+  .motion-box.go { animation: hub-pop var(--dur-3) var(--spring) both; }
+</style>
+</head>
+<body class="ds">
+<div class="guide">
+  <div class="controls glass">
+    <div class="seg" id="theme"><button data-v="system" class="on">System</button><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+    <div class="seg" id="kind"><button data-v="adult" class="on">Adult</button><button data-v="kid">Kid</button><button data-v="kiosk">Kiosk</button></div>
+    <div class="swatches" id="accents" aria-label="Accent (a person's colour)"></div>
+  </div>
+
+  <div class="hero pop-in">
+    <div class="hero-kicker">House Hub · design system v2</div>
+    <div class="hero-title">Warm as a Hearth, clear as glass.</div>
+    <p class="hero-sub">Paper, glass and the person's own colour. Every hub screen and every new app is built from what's on this page.</p>
+    <button class="btn btn-primary">Primary action</button>
+    <div class="hero-art"><svg viewBox="0 0 200 160" fill="none"><circle cx="150" cy="60" r="34" fill="#fff" fill-opacity=".35"/><path d="M20 140c30-40 60-60 100-60s60 20 70 40v20H20z" fill="#fff" fill-opacity=".22"/><path d="M60 140V96l30-24 30 24v44" stroke="#fff" stroke-opacity=".8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+
+  <section id="colour">
+    <h2>Colour</h2>
+    <p class="lede">Neutrals for paper and ink, five accents with one job each, and a per-person accent that tints the whole hub. Text always uses the <code>-ink</code> variant on a soft background.</p>
+    <div class="tok" id="colours"></div>
+    <h3 style="margin-top:var(--sp-6)">Contrast (WCAG AA)</h3>
+    <p class="help">Computed live from the rendered colours in this theme; the accent pairs are checked for every family colour.</p>
+    <table class="contrast" id="contrast"><thead><tr><th>Pair</th><th>Ratio</th><th>Needs</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section id="type">
+    <h2>Type</h2>
+    <p class="lede">A display serif for headlines (New York on Apple devices), rounded system sans for everything else. Kid and kiosk scale the whole ramp.</p>
+    <div class="type-row"><code>--fs-hero display</code><div class="display" style="font-size:var(--fs-hero)">Good morning, Christian.</div></div>
+    <div class="type-row"><code>--fs-3xl display</code><div class="display" style="font-size:var(--fs-3xl)">Today's reading</div></div>
+    <div class="type-row"><code>--fs-2xl 700</code><h1>Week 12 · Genesis 27–28</h1></div>
+    <div class="type-row"><code>--fs-xl 700</code><h2>In the fridge</h2></div>
+    <div class="type-row"><code>--fs-lg 700</code><h3>Reminders</h3></div>
+    <div class="type-row"><code>--fs-md</code><p>Log it when you put it away. Cross it off when it's gone.</p></div>
+    <div class="type-row"><code>--fs-sm text-2</code><p class="text-2 small">Medium · logged 2026-09-16 · 4d ago</p></div>
+    <div class="type-row"><code>kicker</code><p class="kicker">Family list</p></div>
+  </section>
+
+  <section id="space">
+    <h2>Spacing, radii, elevation</h2>
+    <p class="lede">A 4 px grid, five radii and four tinted elevations. Glass adds a hairline and a blur instead of a heavier shadow.</p>
+    <div class="space" id="spacing"></div>
+    <div class="radii" style="margin-top:var(--sp-5)" id="radii"></div>
+    <div class="elev" style="margin-top:var(--sp-5)"><i style="box-shadow:var(--e1)">e1</i><i style="box-shadow:var(--e2)">e2</i><i style="box-shadow:var(--e3)">e3</i><i style="box-shadow:var(--e4)">e4</i><i class="glass">glass</i></div>
+  </section>
+
+  <section id="motion">
+    <h2>Motion</h2>
+    <p class="lede">Rich but calm: a spring for things that arrive and things you press, an ease-out for everything that moves, 120 / 220 / 360 ms. Reduced-motion turns it all off.</p>
+    <div class="demo"><button class="btn" id="replay">Replay</button><div class="motion-box" id="mbox"></div><div class="stagger" id="stag" style="display:flex;gap:8px"><span class="chip chip-accent">one</span><span class="chip chip-accent">two</span><span class="chip chip-accent">three</span><span class="chip chip-accent">four</span></div></div>
+  </section>
+
+  <section id="buttons">
+    <h2>Buttons</h2>
+    <p class="lede">Three weights — primary, soft, ghost — plus danger and glass. Everything is at least 44 px; kids get 64.</p>
+    <div class="demo"><button class="btn btn-primary">Primary</button><button class="btn btn-soft">Soft</button><button class="btn">Default</button><button class="btn btn-ghost">Ghost</button><button class="btn btn-danger">Danger</button><button class="btn btn-glass">Glass</button><button class="btn btn-primary btn-lg">Large</button><button class="btn btn-primary btn-xl">Extra large</button><button class="btn btn-round" aria-label="Round"><svg class="icon"><use href="#i-plus"/></svg></button><button class="btn" disabled>Disabled</button></div>
+  </section>
+
+  <section id="surfaces">
+    <h2>Surfaces</h2>
+    <p class="lede">Solid cards for content, glass for chrome that floats over it, hero cards for the one thing that matters on a screen.</p>
+    <div class="grid-3">
+      <div class="card"><h3>Card</h3><p class="text-2">Solid, e2, hairline border.</p></div>
+      <div class="card glass"><h3>Glass card</h3><p class="text-2">Translucent, blurred, inset hairline.</p></div>
+      <div class="card card-lift"><h3>Lifted card</h3><p class="text-2">e3 for the one that's in front.</p></div>
+      <div class="hero hero-soft"><div class="hero-kicker">Soft hero</div><div class="hero-title" style="font-size:var(--fs-2xl)">Tinted, on paper</div><p class="hero-sub">For sections that need warmth without a full-colour block.</p></div>
+      <div class="card card-art"><div class="art"><svg viewBox="0 0 120 80" width="120"><path d="M20 70V36l40-26 40 26v34z" fill="var(--accent)" fill-opacity=".25" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round"/></svg></div><div class="body"><h3>Card with art</h3><p class="text-2">An illustration band on top.</p></div></div>
+      <div class="well"><b>Well</b><p class="text-2 small">Sunken, for grouped controls.</p></div>
+    </div>
+  </section>
+
+  <section id="inputs">
+    <h2>Inputs</h2>
+    <div class="grid-2">
+      <div class="stack">
+        <label class="field"><span class="label">Text</span><input class="input" placeholder="Add a reminder for the house"></label>
+        <label class="field"><span class="label">Select</span><select class="select"><option>Small</option><option>Medium</option><option>Large</option></select></label>
+        <label class="field"><span class="label">Textarea</span><textarea class="textarea" placeholder="Anything you want to remember"></textarea></label>
+      </div>
+      <div class="stack">
+        <div class="hstack"><span class="grow">Switch</span><button class="switch" role="switch" aria-checked="true" aria-label="Demo switch" onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')!=='true')"></button></div>
+        <div class="seg"><button class="on">System</button><button>Light</button><button>Dark</button></div>
+        <p class="help">Help text sits under a field in the muted ink.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="lists">
+    <h2>Lists, rows, key-values</h2>
+    <div class="grid-2">
+      <ul class="list">
+        <li class="row"><span class="row-art"><svg class="icon"><use href="#i-plus"/></svg></span><div class="row-main"><div class="row-title">Chili</div><div class="row-sub">Large · logged yesterday</div></div><span class="chip chip-warn">Aging</span></li>
+        <li class="row"><span class="row-lead">🥡</span><div class="row-main"><div class="row-title">Rice</div><div class="row-sub">Small · today</div></div><span class="chip chip-ok">Fresh</span></li>
+        <li><button class="row"><span class="avatar avatar-sm" style="--tint:#137F77">🦖</span><div class="row-main"><div class="row-title">Ezra</div><div class="row-sub">Kid · tap to start</div></div></button></li>
+      </ul>
+      <div class="card"><div class="kv"><b>Status</b><span>synced</span></div><div class="kv"><b>Waiting to send</b><span>0</span></div><div class="kv"><b>Last checked</b><span>4:58 PM</span></div></div>
+    </div>
+  </section>
+
+  <section id="people">
+    <h2>People</h2>
+    <p class="lede">Avatars carry the person's colour as a ring; a photo or an emoji on a tinted gradient inside.</p>
+    <div class="demo" id="avatars"></div>
+    <div class="demo" style="margin-top:var(--sp-4)" id="chips"></div>
+    <div class="demo" style="margin-top:var(--sp-4)"><div class="people" id="faces"></div><span class="text-2 small">prayed today</span></div>
+  </section>
+
+  <section id="status">
+    <h2>Chips, badges, pills, dots</h2>
+    <div class="demo"><span class="chip">Default</span><span class="chip chip-accent">Accent</span><span class="chip chip-ok">✓ Done</span><span class="chip chip-warn">Aging</span><span class="chip chip-danger">Use it up</span><span class="chip chip-info">Family</span><span class="badge">3</span><span class="pill"><span class="dot dot-synced"></span>Synced</span><span class="dot dot-synced"></span><span class="dot dot-pending"></span><span class="dot dot-offline"></span><span class="dot dot-error"></span></div>
+  </section>
+
+  <section id="stats">
+    <h2>Progress</h2>
+    <div class="demo">
+      <span class="ringwrap"><svg class="ring" viewBox="0 0 52 52" style="--p:.6"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg><span class="ring-lbl">3/5</span></span>
+      <span class="ringwrap lg"><svg class="ring ring-lg" viewBox="0 0 52 52" style="--p:.35;--tint:var(--olive)"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg><span class="ring-lbl">35%</span></span>
+      <div style="width:220px"><div class="bar" style="--p:.7;--tint:var(--gold)"><i></i></div></div>
+      <div class="stat"><b>12</b><span>day streak</span></div>
+    </div>
+  </section>
+
+  <section id="empty">
+    <h2>Skeletons and empty states</h2>
+    <div class="grid-2">
+      <div class="card"><div class="skeleton" style="width:55%">x</div><div class="skeleton" style="width:80%;margin-top:8px">x</div><div class="skeleton" style="width:35%;margin-top:8px">x</div></div>
+      <div class="card empty"><div class="empty-art"><svg viewBox="0 0 200 120" fill="none"><ellipse cx="100" cy="100" rx="80" ry="10" fill="var(--accent)" fill-opacity=".12"/><rect x="55" y="30" width="90" height="60" rx="14" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="3"/><path d="M75 60h50" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/></svg></div><h3>Nothing logged yet</h3><p>Log leftovers when you put them away.</p></div>
+    </div>
+  </section>
+
+  <section id="nav">
+    <h2>Glass navigation</h2>
+    <p class="lede">A tab bar on phones with a sliding indicator, a sidebar on desktop; a sticky glass top bar above apps.</p>
+    <div class="tabdemo"><nav class="tabbar" style="position:absolute"><div class="tabs" style="--tabs:4;--i:1"><span class="tab-ind"></span><button class="tab"><svg class="icon"><use href="#i-plus"/></svg>Home</button><button class="tab on"><svg class="icon"><use href="#i-plus"/></svg>Apps</button><button class="tab"><svg class="icon"><use href="#i-plus"/></svg>Chat</button><button class="tab"><svg class="icon"><use href="#i-plus"/></svg><span class="dot dot-synced"></span>Me</button></div></nav></div>
+    <div class="demo" style="margin-top:var(--sp-4)"><button class="btn" id="open-sheet">Open a sheet</button><button class="btn" id="open-toast">Show a toast</button></div>
+  </section>
+
+  <section id="icons">
+    <h2>Icons</h2>
+    <div class="demo"><span class="app-icon" style="--tint:#4F5D8C"><svg class="icon"><use href="#i-plus"/></svg></span><span class="app-icon" style="--tint:#3D5A3D"><svg class="icon"><use href="#i-plus"/></svg></span><span class="app-icon" style="--tint:#B8623A"><svg class="icon"><use href="#i-plus"/></svg></span><svg class="icon icon-lg"><use href="#i-plus"/></svg></div>
+  </section>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-plus" viewBox="0 0 24 24"><circle class="duo" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol></svg>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const root = document.documentElement;
+  const PEOPLE = [['Eli','🧭','#4F5D8C'],['Christian','🌸','#BC5A38'],['Ezra','🦖','#137F77'],['Kiara','🦄','#B4861B'],['Elizabeth','🌷','#8A6A4B'],['David','🎣','#3D5A3D'],['Mea','🌻','#5B8143'],['TV','📺','#4C4C58']];
+  // controls
+  $('#theme').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#theme').children].forEach(x => x.classList.toggle('on', x === b)); if (b.dataset.v === 'system') delete root.dataset.theme; else root.dataset.theme = b.dataset.v; contrast(); });
+  $('#kind').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#kind').children].forEach(x => x.classList.toggle('on', x === b)); if (b.dataset.v === 'adult') delete root.dataset.kind; else root.dataset.kind = b.dataset.v; });
+  $('#accents').innerHTML = PEOPLE.map(p => `<button class="swatch" data-c="${p[2]}" style="background:${p[2]}" title="${p[0]}" aria-label="${p[0]}"></button>`).join('');
+  $('#accents').addEventListener('click', e => { const b = e.target.closest('.swatch'); if (!b) return; [...$('#accents').children].forEach(x => x.classList.toggle('on', x === b)); root.style.setProperty('--accent', b.dataset.c); contrast(); });
+  // tokens
+  const NEUTRALS = ['bg','bg-2','surface','surface-2','hover','text','text-2','muted','muted-decor','line','line-soft'];
+  const ACCENTS = ['mocha','gold','olive','teal','terra','slate'];
+  $('#colours').innerHTML = NEUTRALS.map(n => `<div class="t"><i style="background:var(--${n})"></i><b>${n}</b><code>--${n}</code></div>`).join('') +
+    ACCENTS.map(n => `<div class="t"><i style="background:var(--${n})"></i><b>${n}</b><code>--${n} · -soft · -ink</code><div class="hstack" style="margin-top:6px"><span class="chip" style="background:var(--${n}-soft);color:var(--${n}-ink)">ink on soft</span></div></div>`).join('') +
+    `<div class="t"><i style="background:var(--accent)"></i><b>accent</b><code>--accent (person)</code></div><div class="t"><i style="background:var(--accent-deep)"></i><b>accent-deep</b><code>fills + text</code></div><div class="t"><i style="background:var(--accent-soft)"></i><b>accent-soft</b><code>tints</code></div><div class="t"><i class="glass"></i><b>glass</b><code>--glass + blur</code></div>`;
+  $('#spacing').innerHTML = [1,2,3,4,5,6,8,10,12].map(n => `<div style="text-align:center"><i style="width:var(--sp-${n});height:var(--sp-${n})"></i><code style="font-size:10px">${n}</code></div>`).join('');
+  $('#radii').innerHTML = ['sm','','lg','xl','2xl'].map(r => `<i style="border-radius:var(--r${r ? '-' + r : ''})">r${r ? '-' + r : ''}</i>`).join('');
+  $('#avatars').innerHTML = PEOPLE.slice(0, 4).map((p, i) => `<span class="avatar ${['avatar-sm','','avatar-lg','avatar-xl'][i]}" style="--tint:${p[2]}">${p[1]}</span>`).join('') + `<span class="avatar avatar-lg" style="--tint:#8A6A4B"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23D9C3A5'/%3E%3Ccircle cx='32' cy='26' r='12' fill='%238A6A4B'/%3E%3Cpath d='M10 60c2-14 12-20 22-20s20 6 22 20z' fill='%238A6A4B'/%3E%3C/svg%3E"></span>`;
+  $('#chips').innerHTML = PEOPLE.slice(0, 5).map(p => `<span class="person-chip" style="--tint:${p[2]}"><span class="avatar">${p[1]}</span>${p[0]}</span>`).join('');
+  $('#faces').innerHTML = PEOPLE.slice(0, 4).map(p => `<span class="avatar" style="--tint:${p[2]}">${p[1]}</span>`).join('');
+  // motion
+  $('#replay').onclick = () => { for (const el of [$('#mbox'), ...$('#stag').children]) { el.classList.remove('go', 'pop-in'); void el.offsetWidth; } $('#mbox').classList.add('go'); $('#stag').classList.remove('stagger'); void $('#stag').offsetWidth; $('#stag').classList.add('stagger'); };
+  $('#open-sheet').onclick = () => { const bd = document.createElement('div'); bd.className = 'sheet-backdrop'; bd.innerHTML = '<div class="sheet"><h2>A sheet</h2><p class="text-2">Glass, a grabber on phones, springs in from the bottom.</p><button class="btn btn-primary btn-block" style="margin-top:16px">Done</button></div>'; bd.onclick = e => { if (e.target === bd || e.target.closest('.btn')) bd.remove(); }; document.body.appendChild(bd); };
+  $('#open-toast').onclick = () => { const t = document.createElement('div'); t.className = 'toast'; t.textContent = 'Saved.'; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); };
+
+  // ── contrast: read the rendered colours and compute WCAG ratios ──
+  const lum = rgb => { const [r, g, b] = rgb.map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }); return .2126 * r + .7152 * g + .0722 * b; };
+  // getComputedStyle returns rgb(…) for plain colours and color(srgb r g b) (0–1 floats) for color-mix results
+  const parse = s => { const m = s.match(/-?[\d.]+(?:e-?\d+)?/g); if (!m) return [0, 0, 0]; const v = m.slice(0, 3).map(Number); return /^color\(/.test(s) ? v.map(x => Math.round(Math.min(1, Math.max(0, x)) * 255)) : v; };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)]; return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+  const probe = document.createElement('div'); probe.style.cssText = 'position:absolute;left:-9999px;top:0'; document.body.appendChild(probe);
+  const colorOf = (prop, extraStyle = '') => { probe.style.cssText = 'position:absolute;left:-9999px;top:0;' + extraStyle + ';color:' + prop; return parse(getComputedStyle(probe).color); };
+  function contrast() {
+    const rows = [];
+    const add = (name, fg, bg, min) => { const r = ratio(fg, bg); rows.push({ name, ratio: r, min, pass: r >= min }); };
+    const c = v => colorOf(`var(--${v})`);
+    add('text on bg', c('text'), c('bg'), 4.5); add('text-2 on bg', c('text-2'), c('bg'), 4.5); add('muted on bg', c('muted'), c('bg'), 4.5);
+    add('text on surface', c('text'), c('surface'), 4.5); add('text-2 on surface', c('text-2'), c('surface'), 4.5); add('muted on surface', c('muted'), c('surface'), 4.5);
+    add('text on surface-2', c('text'), c('surface-2'), 4.5);
+    for (const a of ['ok', 'warn', 'danger', 'info']) add(`${a}-ink on ${a}-soft (chip)`, c(a + '-ink'), c(a + '-soft'), 4.5);
+    add('bg on text (toast)', c('bg'), c('text'), 4.5);
+    // the derived accent tokens are computed on :root, so swap the root accent for each family colour and put it back
+    const accents = PEOPLE.map(p => p[2]); const before = root.style.getPropertyValue('--accent');
+    for (const acc of accents) {
+      root.style.setProperty('--accent', acc);
+      const deep = c('accent-deep'), soft = c('accent-soft'), on = c('on-accent');
+      add(`on-accent on accent-deep (button, ${acc})`, on, deep, 4.5);
+      add(`accent-deep on accent-soft (soft button/chip, ${acc})`, deep, soft, 4.5);
+      add(`accent-deep on surface (link, ${acc})`, deep, c('surface'), 4.5);
+    }
+    if (before) root.style.setProperty('--accent', before); else root.style.removeProperty('--accent');
+    window.__contrast = rows;
+    $('#contrast tbody').innerHTML = rows.map(r => `<tr><td>${r.name}</td><td>${r.ratio.toFixed(2)}:1</td><td>${r.min}:1</td><td class="${r.pass ? 'pass' : 'fail'}">${r.pass ? 'AA' : 'fail'}</td></tr>`).join('');
+  }
+  contrast();
+  window.__setTheme = t => { if (t === 'system') delete root.dataset.theme; else root.dataset.theme = t; contrast(); };
+})();
+</script>
+</body>
+</html>
