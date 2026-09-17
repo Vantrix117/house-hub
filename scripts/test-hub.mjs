@@ -210,7 +210,9 @@ const tallyCount = f => f.evaluate(() => Number(document.getElementById('n').tex
     await B.page.setViewportSize({ width: 1280, height: 900 });
     await B.page.click('.tab[data-tab=apps]');
     const cols = await B.page.evaluate(() => getComputedStyle(document.getElementById('grid')).gridTemplateColumns.split(' ').length);
-    ok(cols === 6, 'apps grid is 6 across on wide screens', String(cols));
+    ok(cols === 8, 'apps grid is 8 across on desktop', String(cols));
+    const side = await B.page.evaluate(() => { const r = document.getElementById('tabbar').getBoundingClientRect(); return r.left === 0 && r.top === 0 && r.width < 260 && r.height > 400; });
+    ok(side, 'tab bar becomes a sidebar at 1280');
     ok(await B.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'no horizontal scroll');
     await B.page.screenshot({ path: path.join(shots, 'p2-apps-desktop.png') });
 

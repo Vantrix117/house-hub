@@ -89,6 +89,8 @@ All in [`worker/src/chat.js`](worker/src/chat.js):
 | `scripts/test-hub.mjs <code>` | Headless Chrome: two devices on one profile, offline write → flush, first-tap PIN, kiosk read-only, kid visibility, migration |
 | `scripts/test-apps.mjs <code>` | Migrated apps on hub.js, Home dashboard, widgets, admin panel, legacy migration counts, screenshots into `docs/screens/` |
 | `scripts/test-push.mjs` | RFC 8291 known-answer test + VAPID signature |
+| `scripts/test-design.mjs` | The style guide (`docs/design.html`) in light/dark/kid/desktop; WCAG AA on every text pair for all eight family colours; reduced motion |
+| `scripts/screens-shell.mjs <code>` | Every hub surface at 390/1024/1440, light + dark, adult/kid/kiosk → `docs/screens/rm4-*.png`; layout shift < 0.1; no hex in the shell's `<style>` |
 | `scripts/smoke-chat.sh <url> <code>` | Every chat tool + guards, streamed |
 | `node handoff/prayer/check.js apps/prayer.html` | Prayer app logic (21 checks) |
 
