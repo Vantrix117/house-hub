@@ -172,6 +172,44 @@ footer{color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-t
 [data-flavor=hub] .hint{font-size:13px}
 @media(max-width:1180px){[data-flavor=hub] .workspace{grid-template-columns:1fr}[data-flavor=hub] aside.side{position:static;max-height:none}}
 
+/* ---- hub: cartography on the soft terrain render (attributes drive the drawing; CSS restyles it) ---- */
+[data-flavor=hub] #wash{display:none}
+[data-flavor=hub] #wood path{fill:#3F6A3A;opacity:.16}
+[data-flavor=hub] #contour path{stroke:#2B241A;opacity:.16}
+[data-flavor=hub] #contour > path{opacity:.3;stroke-width:1.1}
+[data-flavor=hub] .clab{fill:#F3EDE5;stroke:rgba(20,16,12,.7);stroke-width:2.4px;opacity:.75;font-weight:600}
+[data-flavor=hub] #parking path{fill:#1C1714;opacity:.10}
+[data-flavor=hub] #service_c path{stroke:rgba(30,22,14,.45)}[data-flavor=hub] #service path{stroke:#9A8F7C}
+[data-flavor=hub] #paths_c path{stroke:rgba(30,22,14,.5)}
+[data-flavor=hub] #paths path{stroke:#F4E9D2}[data-flavor=hub] #paths path:not([fill=none]){fill:#F4E9D2}
+[data-flavor=hub] #buildings path{stroke:rgba(30,22,14,.55);stroke-width:.8}
+[data-flavor=hub] #buildings path[fill="#D9C79A"]{fill:#E6D4AE}[data-flavor=hub] #buildings path[fill="#9FB4E6"]{fill:#BCC6DA}[data-flavor=hub] #buildings path[fill="#E6AC72"]{fill:#E9C49E}
+[data-flavor=hub] #buildings path[fill="#8E7A60"]{fill:#C9BBA4}[data-flavor=hub] #buildings path[fill="#5E5246"]{fill:#A99C86}
+[data-flavor=hub] #buildings path[fill="#000"]{opacity:.22}
+[data-flavor=hub] #water path,[data-flavor=hub] #stream path{filter:url(#lv-glow-water)}
+[data-flavor=hub] #water path[fill="#1F6F8F"]{fill:#3E8FB0}[data-flavor=hub] #stream path[stroke="#1F6F8F"]{stroke:#3E8FB0}
+[data-flavor=hub] #coaster{filter:url(#lv-glow)}[data-flavor=hub] #coaster path[stroke="var(--coaster)"]{stroke:#FF6B4A}[data-flavor=hub] #coaster path[stroke="#160B08"]{opacity:.3}
+[data-flavor=hub] #sections path:not(.secpoly){display:none}
+[data-flavor=hub] .seclab{font-family:var(--font-sans);font-style:normal;font-weight:800;text-transform:uppercase;letter-spacing:.14em;fill:#fff;stroke:rgba(10,8,6,.65);stroke-width:4px}
+[data-flavor=hub] .mk .shadow{fill:rgba(0,0,0,.28)}[data-flavor=hub] .mk .ring{stroke-width:0;opacity:0}
+[data-flavor=hub] .mk [fill="#FFF3D2"],[data-flavor=hub] .mk [fill="#A9C1FF"],[data-flavor=hub] .mk [fill="#FFB86B"]{fill:#fff;stroke-width:2.6;stroke-dasharray:none!important}
+[data-flavor=hub] .mk [fill="#FFF3D2"]{stroke:var(--cat-attr)}[data-flavor=hub] .mk [fill="#A9C1FF"]{stroke:var(--cat-shop)}[data-flavor=hub] .mk [fill="#FFB86B"]{stroke:var(--cat-dine)}
+[data-flavor=hub] .mk .onum{fill:#1C1714;font-weight:800;font-size:11px}
+[data-flavor=hub] #hl .hl-ring{animation:hlring 2.2s ease-in-out infinite}
+@keyframes hlring{0%,100%{stroke-opacity:1}50%{stroke-opacity:.45}}
+[data-flavor=hub] .mapbox{background:#7B8E6E}
+[data-flavor=hub] #secsel path:nth-child(1){stroke-width:9;stroke-opacity:.22}[data-flavor=hub] #secsel path:nth-child(2){stroke-width:2;opacity:.85}[data-flavor=hub] #secsel path:nth-child(3){display:none}
+[data-flavor=hub] .mini{border-radius:12px;width:150px;opacity:.85;border-color:var(--line)}
+[data-flavor=hub] .readout{border-radius:999px;padding:6px 14px;background:color-mix(in srgb,var(--panel) 85%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-color:var(--line)}
+[data-flavor=hub] .pop{padding-top:20px;border-top:6px solid var(--pop-cat,var(--accent))}
+[data-flavor=hub] .pop[data-cat=attraction]{--pop-cat:var(--cat-attr)}[data-flavor=hub] .pop[data-cat=shopping]{--pop-cat:var(--cat-shop)}[data-flavor=hub] .pop[data-cat=dining]{--pop-cat:var(--cat-dine)}
+[data-flavor=hub] .pop .badge{background:var(--pop-cat,var(--accent))!important;color:#1C1714}
+[data-flavor=hub] .chips button{display:inline-flex;align-items:center;gap:8px}
+[data-flavor=hub] .chips button::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor;opacity:.9}
+[data-flavor=hub] .chips button[aria-pressed=true]::before{background:var(--on-accent)}
+[data-flavor=hub] .bnow h3{font-family:var(--font-serif);font-weight:400;font-size:22px;letter-spacing:0}
+[data-flavor=hub] .bnow p{font-size:14.5px;line-height:1.55}
+
 /* ---- live: shell ---- */
 [data-flavor=live] html,[data-flavor=live] body{height:100%;overflow:hidden}
 [data-flavor=live] body{background:#72964e}
@@ -411,7 +449,7 @@ const slopeImg=el('image',{x:0,y:0,width:WM,height:HM,preserveAspectRatio:'none'
 const G={}; ['wash','wood','sections','water','stream','contour','parking','service_c','paths_c','service','paths','buildings','rail','coaster','route','official','names','fam','me','seclabels','scrim','hl','secsel','cut','measure'].forEach(id=>{G[id]=el('g',{id});svg.appendChild(G[id])});
 D.sections.forEach(s=>{if(s.poly.length)G.wash.appendChild(poly(s.poly,{fill:'#FFF6DC',opacity:.13,'pointer-events':'none'}))});
 D.layers.wood.forEach(p=>G.wood.appendChild(poly(p,{fill:'#1E5A32',opacity:.28})));
-D.sections.forEach(s=>{if(!s.poly.length)return;G.sections.appendChild(poly(s.poly,{fill:'none',stroke:'#0E0D0B','stroke-width':7,'stroke-opacity':.6,'stroke-linejoin':'round','pointer-events':'none'}));const p=poly(s.poly,{fill:s.color,'fill-opacity':.2,stroke:s.color,'stroke-width':3,'stroke-opacity':1,'stroke-linejoin':'round',class:'secpoly','data-pick':'s:'+s.id});G.sections.appendChild(p);s.el=p;
+D.sections.forEach(s=>{if(!s.poly.length)return;G.sections.appendChild(poly(s.poly,{fill:'none',stroke:'#0E0D0B','stroke-width':7,'stroke-opacity':.6,'stroke-linejoin':'round','pointer-events':'none'}));const p=poly(s.poly,{fill:s.color,'fill-opacity':.09,stroke:s.color,'stroke-width':2.2,'stroke-opacity':.85,'stroke-linejoin':'round',class:'secpoly','data-pick':'s:'+s.id});G.sections.appendChild(p);s.el=p;
   const t=el('text',{x:s.label[0],y:Y(s.label[1]),class:'seclab','text-anchor':'middle'});t.textContent=s.name;G.seclabels.appendChild(t);s.lab=t});
 D.layers.water.forEach(p=>{G.water.appendChild(poly(p,{fill:'#1F6F8F',opacity:.95}));G.water.appendChild(poly(p,{fill:'none',stroke:'#7FD3F0','stroke-width':1.6,opacity:.9}))});
 D.layers.stream.forEach(s=>{G.stream.appendChild(el('path',{d:path(s.g),fill:'none',stroke:'#1F6F8F','stroke-width':s.w+1.2,'stroke-linecap':'round','stroke-linejoin':'round'}));G.stream.appendChild(el('path',{d:path(s.g),fill:'none',stroke:'#5FC1E6','stroke-width':s.w*0.55,'stroke-linecap':'round','stroke-linejoin':'round',opacity:.9}))});
@@ -462,7 +500,7 @@ function setView(t,tween){const red=matchMedia('(prefers-reduced-motion: reduce)
   const from=view.slice(),t0=performance.now();cancelAnimationFrame(anim);
   (function step(now){const k=Math.min(1,(now-t0)/360),e=1-Math.pow(1-k,3);view=from.map((v,i)=>v+(t[i]-v)*e);apply();if(k<1)anim=requestAnimationFrame(step)})(t0)}
 function zoomAt(f,px,py){const w=Math.min(WM*2.2,Math.max(50,view[2]*f));const h=w*HM/WM;const fx=(px-view[0])/view[2],fy=(py-view[1])/view[3];setView([px-fx*w,py-fy*h,w,h],false)}
-function toMap(ev){const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const m=p.matrixTransform((window.ROOT||svg).getScreenCTM().inverse());return [m.x,HM-m.y]}   // ROOT: the live flavour's rotated content group
+function toMap(ev){const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const m=p.matrixTransform((window.ROOT||svg).getScreenCTM().inverse());return [m.x,HM-m.y]}   // ROOT: the rotated content group
 svg.addEventListener('wheel',e=>{e.preventDefault();const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const m=p.matrixTransform(svg.getScreenCTM().inverse());zoomAt(e.deltaY>0?1.18:1/1.18,m.x,m.y)},{passive:false});
 $('z-in').onclick=()=>zoomAt(1/1.5,view[0]+view[2]/2,view[1]+view[3]/2);
 $('z-out').onclick=()=>zoomAt(1.5,view[0]+view[2]/2,view[1]+view[3]/2);
@@ -500,7 +538,7 @@ document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textar
   else if(k==='t'||k==='T')setMode(mode==='2d'?'3d':'2d');else if(k==='n'||k==='N')stepNav(1);else if(k==='p'||k==='P')stepNav(-1);else if(k==='d'||k==='D')stepDone();
   else if(k==='Escape'){clearMeasure();closePop();highlight(null)}else return;e.preventDefault()});
 
-/* ============================ rotation (park map: always; build guide: the Upright toggle) ============================ */
+/* ============================ rotation ============================ */
 window.ROT=0;window.ROOT=null;
 function setRotation(deg){if(ROOT){[...ROOT.children].forEach(n=>svg.appendChild(n));ROOT.remove();window.ROOT=null}window.ROT=deg||0;
   if(ROT){const root=el('g',{id:'root',transform:`rotate(${ROT} ${WM/2} ${HM/2})`});[...svg.children].filter(n=>n.tagName!=='defs').forEach(n=>root.appendChild(n));svg.appendChild(root);window.ROOT=root}
@@ -527,6 +565,12 @@ function shapesFor(t){if(!t)return[];if(t.kind==='poly')return[{pts:t.pts}];if(t
   if(p)return[{pts:[[p[0]-r,p[1]-r],[p[0]+r,p[1]-r],[p[0]+r,p[1]+r],[p[0]-r,p[1]+r]]}];return[]}
 function bboxOf(t){const sh=shapesFor(t);if(!sh.length)return SEC[curSec].box;const xs=[],ys=[];sh.forEach(s=>s.pts.forEach(p=>{xs.push(p[0]);ys.push(p[1])}));return[Math.min(...xs),Math.max(...xs),Math.min(...ys),Math.max(...ys)]}
 function highlight(t){G.scrim.innerHTML='';G.hl.innerHTML='';if(!t||FLAVOR==='live')return;const sh=shapesFor(t);if(!sh.length)return;
+  const round=t.kind==='official'||t.kind==='label';sh.forEach(s=>{const xs=s.pts.map(p=>p[0]),ys=s.pts.map(p=>p[1]);
+    if(round){const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2,r=(Math.max(...xs)-Math.min(...xs))/2*1.1;
+      G.hl.appendChild(el('circle',Object.assign({cx,cy:Y(cy),r,fill:'none',stroke:'var(--ochre)','stroke-width':10,opacity:.16},NSS)));
+      G.hl.appendChild(el('circle',Object.assign({cx,cy:Y(cy),r,fill:'var(--ochre)','fill-opacity':.07,stroke:'var(--ochre)','stroke-width':2.2,class:'hl-ring'},NSS)))}
+    else{G.hl.appendChild(poly(s.pts,{fill:'none',stroke:'var(--ochre)','stroke-width':12,opacity:.14,'stroke-linejoin':'round'}));
+      G.hl.appendChild(poly(s.pts,{fill:'var(--ochre)','fill-opacity':.08,stroke:'var(--ochre)','stroke-width':2.2,'stroke-linejoin':'round',class:'hl-ring'}))}});return;
   const mk=el('mask',{id:'hlmask',maskUnits:'userSpaceOnUse',x:0,y:0,width:WM,height:HM});mk.appendChild(el('rect',{x:0,y:0,width:WM,height:HM,fill:'#fff'}));
   sh.forEach(s=>mk.appendChild(el('path',{d:path(s.pts)+'Z',fill:'#000'})));G.scrim.appendChild(mk);
   G.scrim.appendChild(el('rect',{x:0,y:0,width:WM,height:HM,fill:'#0E0D0B',opacity:.55,mask:'url(#hlmask)','pointer-events':'none'}));
@@ -563,7 +607,7 @@ const pop=$('pop');
 function openPop(html){pop.innerHTML=html+'<button class="x" id="pop-x" aria-label="Close">×</button>';pop.classList.add('show');$('pop-x').onclick=closePop;
   const box=pop.parentElement.getBoundingClientRect();let x=lastPt[0]+16,y=lastPt[1]-20;const pw=Math.min(380,box.width-20),ph=Math.min(pop.offsetHeight,box.height-20);
   if(x+pw>box.width-10)x=Math.max(10,lastPt[0]-pw-16);if(y+ph>box.height-10)y=Math.max(10,box.height-ph-10);if(y<10)y=10;pop.style.left=x+'px';pop.style.top=y+'px'}
-function closePop(){pop.classList.remove('show');pop.innerHTML='';if(FLAVOR==='live')highlight(null);else{const st=stepsOf(curSec),now=st&&st[curIdx];highlight(now?now.target:null)}}   // a card's highlight never outlives the card
+function closePop(){pop.classList.remove('show');pop.innerHTML='';if(FLAVOR==='live')highlight(null);else{const st=stepsOf(curSec),now=st&&st[curIdx];highlight(now?now.target:null)}}
 const gameDim=m=>scale.fac?` <span style="color:var(--dim)">(${Math.round(m*scale.fac)} in game)</span>`:'';
 const bldRows=b=>b?`<dt>Footprint</dt><dd>${b.len} × ${b.wid} m${gameDim(b.len)} · ${fmt(b.area)} m²</dd>`:'';
 const srch=n=>`<div class="srch"><input type="search" id="pop-q" value="${n.replace(/"/g,'&quot;')}" aria-label="Search the web"><button id="pop-go">Search</button></div>
@@ -571,7 +615,7 @@ const srch=n=>`<div class="srch"><input type="search" id="pop-q" value="${n.repl
 function wireSearch(){const q=$('pop-q');if(!q)return;const u=()=>{const v=encodeURIComponent('Dollywood '+q.value);$('pop-web').href='https://www.google.com/search?q='+v;$('pop-img').href='https://www.google.com/search?tbm=isch&q='+v;$('pop-vid').href='https://www.youtube.com/results?search_query='+v;$('pop-off').href='https://www.google.com/search?q='+encodeURIComponent('site:dollywood.com '+q.value)};u();q.addEventListener('input',u);$('pop-go').onclick=()=>window.open($('pop-web').href,'_blank');q.addEventListener('keydown',e=>{if(e.key==='Enter')$('pop-go').click()})}
 function factRows(o){const f=FACTS[String(o.num)];if(!f)return'';return `<dt>Type</dt><dd>${f.type||'—'}</dd>${f.opened?`<dt>Opened</dt><dd>${f.opened}</dd>`:''}${f.maker?`<dt>Built by</dt><dd>${f.maker}</dd>`:''}${f.pc2?`<dt>In Planet Coaster 2</dt><dd>${f.pc2}</dd>`:''}<dt></dt><dd class="fact">${f.src==='wiki'?'Facts from Wikipedia’s Dollywood attractions list.':'Facts from general knowledge — verify before relying on them.'}</dd>`}
 function showOfficial(o){const b=o.bld!=null?BLD[o.bld]:null;const cg=COAST.find(c=>c.n===o.name||c.osm===o.osm);
-  openPop(`<h2><span class="badge" style="background:${MKCOL[o.cat]}">${o.num}</span>${o.name}</h2><div class="meta">${o.area} · ${o.cat}${o.height_in?` · ${o.height_in}" minimum height`:''}</div>
+  pop.dataset.cat=o.cat;openPop(`<h2><span class="badge" style="background:${MKCOL[o.cat]}">${o.num}</span>${o.name}</h2><div class="meta">${o.area} · ${o.cat}${o.height_in?` · ${o.height_in}" minimum height`:''}</div>
    <dl class="kv"><dt>Ground</dt><dd>${o.ft?o.ft+' ft':'—'}</dd>${bldRows(b)}${factRows(o)}<dt>Position</dt><dd>${Math.round(o.pos[0])} m E, ${Math.round(o.pos[1])} m N · ${o.src==='osm'?'survey (OSM)':'from the official map (±10–20 m)'}</dd>${o.note?`<dt>Note</dt><dd>${o.note}</dd>`:''}</dl>
    <div class="btns"><button id="i-zoom">Zoom to it</button>${cg?'<button id="i-coast">Track & profile</button>':''}</div>${srch(o.name)}${o.image_url?`<img src="${o.image_url}" alt="" style="max-width:100%;border-radius:4px;margin-top:8px">`:''}`);
   wireSearch();$('i-zoom').onclick=()=>{if(mode==='3d')setMode('2d');fitBox([o.pos[0]-70,o.pos[0]+70,o.pos[1]-70,o.pos[1]+70],true);highlight({kind:'official',num:o.num,r:26})};
@@ -655,7 +699,7 @@ $('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return
 /* ============================ sections ============================ */
 const chips=$('chips');
 function selectSection(id,zoom){const s=SEC[id];[...chips.children].forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.sec===id)));
-  D.sections.forEach(x=>{if(!x.el)return;const on=x.id===id;x.el.setAttribute('fill-opacity',on?.34:(id==='all'?.2:.1));x.el.setAttribute('stroke-width',on?4:2.6);x.el.setAttribute('stroke-opacity',on?1:(id==='all'?1:.6));if(x.lab)x.lab.style.opacity=(id==='all'||on)?'':'.55'});
+  D.sections.forEach(x=>{if(!x.el)return;const on=x.id===id;x.el.setAttribute('fill-opacity',on?.2:(id==='all'?.09:.04));x.el.setAttribute('stroke-width',on?3.2:2.2);x.el.setAttribute('stroke-opacity',on?1:(id==='all'?.85:.45));if(x.lab)x.lab.style.opacity=(id==='all'||on)?'':'.55'});
   G.secsel.innerHTML='';if(id!=='all'&&s.poly.length){G.secsel.appendChild(poly(s.poly,{fill:'none',stroke:s.color,'stroke-width':16,'stroke-opacity':.5,'stroke-linejoin':'round','pointer-events':'none'}));G.secsel.appendChild(poly(s.poly,{fill:'none',stroke:'#FFFFFF','stroke-width':3.4,'stroke-linejoin':'round','pointer-events':'none'}));G.secsel.appendChild(poly(s.poly,{fill:'none',stroke:s.color,'stroke-width':1.4,'stroke-linejoin':'round','pointer-events':'none'}))}
   if(zoom){if(mode==='3d')setMode('2d');fitBox(id==='all'?D.layers.allbox:s.box,true);closePop()}
   const cy=(s.box[2]+s.box[3])/2;cut=[[s.box[0],cy],[s.box[1],cy]];drawCut();profile(s.name+' — west to east');
@@ -930,6 +974,7 @@ function liveInit(){document.title='Dollywood park map';svg.setAttribute('preser
       if(hub.canWrite)startGps()}}          // signed in: the dot starts on its own, no tap needed
     updLoc();renderFam()})()}
 window.drawMe=drawMe;window.liveDragged=liveDragged;window.livePlace=livePlace;
+if(FLAVOR!=='live')liveDefs();   // the glow and shadow filters are used by the build guide's cartography too
 
 /* ============================ boot ============================ */
 fitBox(D.layers.allbox,false);profile('Whole park — west to east');renderStep();renderList();selectSection('all',false);
