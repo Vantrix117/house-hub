@@ -67,8 +67,24 @@
     if (hub.profile) { root.dataset.kind = hub.profile.kind; root.style.setProperty('--accent', hub.profile.color); }
     else { delete root.dataset.kind; root.style.removeProperty('--accent'); }
   }
-  hub.setTheme = t => { lsSet(LS.theme, t === 'system' ? undefined : t); applyTheme(); tell({ type: 'hub:theme', theme: t }); };
+  // The theme is a person preference (app_data person/hub/theme) so it follows the person to every device;
+  // LS.theme is the device-local mirror that applies before the first pull. The kiosk keeps a device-local theme.
+  const PREFS = { app: 'hub', scope: 'person' };
+  const hasPrefs = () => CH.has(chKey('hub', 'person')) && !!hub.profile && store[chKey('hub', 'person')];
+  hub.setTheme = t => {
+    lsSet(LS.theme, t === 'system' ? undefined : t); applyTheme();
+    if (hasPrefs() && hub.canWrite && hub.get('theme', PREFS) !== t) hub.set('theme', t, PREFS);
+    tell({ type: 'hub:theme', theme: t });
+  };
   hub.theme = () => lsGet(LS.theme, 'system');
+  // called after the person's prefs load or change: the server's copy wins over the device mirror
+  function adoptTheme() {
+    if (!hasPrefs() || hub.isKiosk) return;
+    let t = hub.get('theme', PREFS);
+    if (t === undefined) { if (!store[chKey('hub', 'person')].since) return; t = 'system'; }   // pulled before and nothing set: this person uses the system look
+    if (t === hub.theme()) return;
+    lsSet(LS.theme, t === 'system' ? undefined : t); applyTheme(); tell({ type: 'hub:theme', theme: t });
+  }
   hub.setSession = s => {
     hub.session = s || null; lsSet(LS.session, s || undefined);
     hub.profile = publicProfile(s && s.profile);
@@ -164,6 +180,7 @@
   }
   function emit(ch, key, value, updated_at) {
     const { app, scope } = CH.get(ch);
+    if (app === 'hub' && scope === 'person' && key === 'theme') adoptTheme();
     for (const cb of listeners.change) { try { cb({ app, scope, key, value, updated_at, remote: true }); } catch (e) { console.error(e); } }
   }
   /** Sync another app's data too (used by the hub shell for the dashboard). scopes: 'person' | 'family' | 'both'. */
@@ -189,7 +206,7 @@
   hub.set = (key, value, opts) => {
     const ch = scopeOf(opts);
     if (!hub.profile) throw new HubError(401, 'profile_required', 'Choose a profile first.');
-    if (hub.isKiosk) throw new HubError(403, 'read_only', 'This profile can only look, not change things.');
+    if (hub.isKiosk) { kioskNudge(); throw new HubError(403, 'read_only', 'This screen only looks.'); }
     if (typeof key !== 'string' || !/^[A-Za-z0-9_.:\-\/]{1,200}$/.test(key)) throw new Error('hub.set: bad key ' + key);
     const t = Math.max(Date.now() + hub.skew, (store[ch].items[key] ? store[ch].items[key].t : 0) + 1);
     const v = value === undefined ? null : value;
@@ -201,6 +218,10 @@
   };
   hub.remove = (key, opts) => hub.set(key, null, opts);
   hub.onChange = cb => { listeners.change.add(cb); return () => listeners.change.delete(cb); };
+  // The display profile can look but not change things: say so once in a while instead of failing silently.
+  let nudgedAt = 0;
+  function kioskNudge() { if (Date.now() - nudgedAt < 2500) return; nudgedAt = Date.now(); hub.toast('This screen only looks — sign in on a phone to change things.', 2600); }
+  hub.kioskNudge = kioskNudge;
 
   // ── sync ──────────────────────────────────────────────────────────────────
   function scheduleFlush(ms = 250) { clearTimeout(flushTimer); flushTimer = setTimeout(() => flush(), ms); }
@@ -261,6 +282,7 @@
         for (const ch of CH.keys()) { if (CH.get(ch).scope === 'person' && !hub.session) continue; changed = (await pullScope(ch)) || changed; }
         setSync({ state: Object.values(queue).some(q => Object.keys(q).length) ? 'pending' : 'synced', lastError: null, lastPull: Date.now() });
         if (hub.sync.pending) scheduleFlush(0);
+        adoptTheme();
         return changed;
       } catch (e) {
         setSync({ state: e.status ? 'error' : 'offline', lastError: e.error });
@@ -280,6 +302,7 @@
         if (inFrame) await new Promise(() => {});      // the hub shell will reload this frame after sign-in
       }
       for (const ch of CH.keys()) loadScope(ch);
+      adoptTheme();                                   // this person's theme from the cache, before the first paint settles
       const seen = [...CH.keys()].some(ch => store[ch].since > 0);
       if (navigator.onLine === false) setSync({ state: 'offline' });
       const first = hub.pull();

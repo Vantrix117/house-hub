@@ -985,6 +985,7 @@
     let list, usage;
     try { [list, usage] = await Promise.all([hub.profiles(), hub.request('/api/admin/usage')]); }
     catch (e) { body.innerHTML = `<p class="text-2">Could not load admin data: ${esc(e.message)}</p>`; return; }
+    if (!body.isConnected) return;   // the Me tab was re-rendered (profile switched) while the admin data loaded
     const kindLbl = k => ({ adult: 'Adult', kid: 'Kid', kiosk: 'Display' })[k] || k;
     const day = t => new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     const nameOf = id => (list.find(x => x.id === id) || {}).name || id || '—';
@@ -1023,13 +1024,13 @@
         try { await hub.request(`/api/admin/devices/${u.dataset.unpair}`, { method: 'DELETE' }); hub.toast('Device unpaired.'); renderAdmin(); } catch (err) { hub.toast(err.message); }
       }
     };
-    $('#rotate-gen').onclick = async () => {
+    body.querySelector('#rotate-gen').onclick = async () => {
       if (!confirm('Generate a new pairing code? The old one stops working for new devices.')) return;
       try { const r = await hub.request('/api/admin/pairing-code/rotate', { method: 'POST', body: {} });
         sheet(`<h2>New pairing code</h2><p class="text-2">Write it down — it is shown only once.</p><div class="well" style="font-family:var(--font-mono);font-size:var(--fs-2xl);text-align:center;letter-spacing:.08em;margin:var(--sp-4) 0">${esc(r.code)}</div><button class="btn btn-primary btn-block" data-close>Done</button>`);
       } catch (err) { hub.toast(err.message); }
     };
-    $('#rotate-choose').onclick = () => {
+    body.querySelector('#rotate-choose').onclick = () => {
       const sh = sheet(`<h2>Choose a pairing code</h2><form id="rotform" class="stack" style="margin-top:var(--sp-3)"><input class="input" id="rotcode" placeholder="6 to 64 characters" minlength="6" maxlength="64" required autocomplete="off"><input class="input" id="rotcode2" placeholder="Type it again" required autocomplete="off"><p class="pin-msg" id="rotmsg"></p><button class="btn btn-primary btn-block" type="submit">Set pairing code</button></form>`);
       sh.el.querySelector('#rotform').addEventListener('submit', async ev => {
         ev.preventDefault();

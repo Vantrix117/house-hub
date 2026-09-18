@@ -833,13 +833,13 @@ const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f26
             legacy: 'f260.journal', vault: 'f260.journal.vault' };
 // Everything syncs per profile through hub.js except device preferences and the pre-vault plaintext journal
 // (which stays on this device until the app folds it into the encrypted vault).
-const LOCAL = new Set([K.autolock, K.big, K.theme, K.legacy]);
+const LOCAL = new Set([K.theme, K.legacy]);   // text size and autolock follow the person (person scope); theme goes through hub.setTheme
 const lsLoad = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
 const lsSave = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const lsDrop = k => { try { localStorage.removeItem(k); } catch (e) {} };
 const load = (k, d) => { if (LOCAL.has(k)) return lsLoad(k, d); const v = hub.get(k); return v === undefined ? d : v; };
-const save = (k, v) => { if (LOCAL.has(k)) return lsSave(k, v); if (hub.canWrite) hub.set(k, v); };
-const drop = k => { if (LOCAL.has(k)) return lsDrop(k); if (hub.canWrite) hub.remove(k); };
+const save = (k, v) => { if (LOCAL.has(k)) return lsSave(k, v); if (hub.canWrite) hub.set(k, v); else hub.kioskNudge(); };
+const drop = k => { if (LOCAL.has(k)) return lsDrop(k); if (hub.canWrite) hub.remove(k); else hub.kioskNudge(); };
 // First run per device: carry the pre-profiles localStorage data into this (adult) profile.
 hub.migrate(Object.values(K).filter(k => !LOCAL.has(k)).map(k => ({ from: k, to: k })));
 const obj = v => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
@@ -1510,6 +1510,7 @@ weeksEl.addEventListener('click', e => {
   }
   const day = e.target.closest('[data-day]');
   if (day) {
+    if (!hub.canWrite) { hub.kioskNudge(); return; }   // the display profile looks but never checks anything off
     const id = day.dataset.day; done[id] = !done[id]; if (!done[id]) delete done[id];
     save(K.done, done);
     if (done[id]) { const [rw, rd] = id.split('-').map(Number); const ref = (PLAN[rw - 1] && PLAN[rw - 1].r && PLAN[rw - 1].r[rd]) || ''; hub.activity('Read week ' + rw + ' day ' + (rd + 1) + (ref ? ' — ' + ref : '')); }

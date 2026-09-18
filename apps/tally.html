@@ -42,7 +42,7 @@
     document.getElementById('who').textContent = hub.profile.name + "'s counter";
     const n = () => Number(hub.get('count', { default: 0 })) || 0;
     const show = () => { el.textContent = n(); };
-    const set = v => { hub.set('count', Math.max(0, v)); show(); };
+    const set = v => { if (!hub.canWrite) { hub.kioskNudge(); return; } hub.set('count', Math.max(0, v)); show(); };
     document.getElementById('plus').onclick = () => set(n() + 1);
     document.getElementById('minus').onclick = () => set(n() - 1);
     document.getElementById('reset').onclick = () => set(0);
