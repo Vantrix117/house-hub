@@ -56,6 +56,15 @@
   --glass-strong: rgba(255, 252, 248, .84);
   --glass-line: rgba(255, 255, 255, .55);
   --blur: 18px;
+  /* liquid glass v3: a specular sheen along the top, a darker refracted edge inside, a lighter ring outside,
+     an inner shadow at the bottom, and a little of the person's colour caught in the glass. --sheen-x drifts
+     with scroll/tilt (hub.js). Every value here is overridden per theme below. */
+  --glass-spec: rgba(255, 255, 255, .62);
+  --glass-edge: rgba(58, 46, 36, .10);
+  --glass-ring: rgba(255, 255, 255, .55);
+  --glass-inner: rgba(58, 46, 36, .10);
+  --glass-pickup: 12%;
+  --sheen-x: 30%;
 
   /* the wash behind everything: warm light from the top, a hint of the person's colour */
   --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
@@ -120,6 +129,7 @@
   --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
   --accent-deep: color-mix(in srgb, var(--accent) 66%, black);
   --on-accent: #FFF8EC;
+  --glass-spec: rgba(255,250,240,.6); --glass-edge: rgba(58,42,26,.12); --glass-ring: rgba(255,250,240,.55); --glass-inner: rgba(58,42,26,.12); --glass-pickup: 12%;
   --e1: 0 1px 2px rgba(58,42,26,.08), 0 1px 1px rgba(58,42,26,.05); --e2: 0 1px 2px rgba(58,42,26,.07), 0 6px 18px -8px rgba(58,42,26,.2);
   --e3: 0 2px 6px rgba(58,42,26,.08), 0 18px 40px -16px rgba(58,42,26,.3); --e4: 0 4px 12px rgba(58,42,26,.1), 0 32px 72px -24px rgba(58,42,26,.4);
 }
@@ -139,6 +149,7 @@
   --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
   --accent-deep: color-mix(in srgb, var(--accent) 72%, black);
   --on-accent: #FFFFFF;
+  --glass-spec: rgba(255,255,255,.75); --glass-edge: rgba(30,36,48,.10); --glass-ring: rgba(255,255,255,.7); --glass-inner: rgba(30,36,48,.10); --glass-pickup: 10%;
   --e1: 0 1px 2px rgba(30,36,48,.06), 0 1px 1px rgba(30,36,48,.04); --e2: 0 1px 2px rgba(30,36,48,.05), 0 6px 18px -8px rgba(30,36,48,.16);
   --e3: 0 2px 6px rgba(30,36,48,.06), 0 18px 40px -16px rgba(30,36,48,.26); --e4: 0 4px 12px rgba(30,36,48,.08), 0 32px 72px -24px rgba(30,36,48,.36);
 }
@@ -158,6 +169,7 @@
   --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
   --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
   --on-accent: #17120E;
+  --glass-spec: rgba(255,255,255,.14); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
   --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
   --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
 }
@@ -178,6 +190,7 @@
     --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
     --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
     --on-accent: #17120E;
+  --glass-spec: rgba(255,255,255,.14); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
     --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
     --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
   }
@@ -198,6 +211,7 @@
   --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
   --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
   --on-accent: #0E1412;
+  --glass-spec: rgba(255,255,255,.13); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
   --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
   --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
 }
@@ -217,6 +231,7 @@
   --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
   --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
   --on-accent: #0E1412;
+  --glass-spec: rgba(255,255,255,.13); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
   --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
   --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
 }
@@ -255,6 +270,7 @@
   --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
   --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
   --on-accent: #17120E;
+  --glass-spec: rgba(255,255,255,.14); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
   --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
   --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
 }
@@ -346,7 +362,7 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 .ds .btn-soft { background: var(--accent-soft); border-color: transparent; color: var(--accent-deep); box-shadow: none; }
 .ds .btn-ghost { background: transparent; border-color: transparent; box-shadow: none; }
 .ds .btn-danger { background: var(--danger-soft); border-color: transparent; color: var(--danger-ink); box-shadow: none; }
-.ds .btn-glass { background: var(--glass); border-color: var(--glass-line); -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); }
+.ds .btn-glass { color: var(--text); }
 .ds .btn-lg { min-height: var(--tap-lg); padding: 0 var(--sp-8); font-size: var(--fs-lg); border-radius: var(--r-lg); }
 .ds .btn-xl { min-height: 76px; padding: 0 var(--sp-10); font-size: var(--fs-xl); border-radius: var(--r-xl); }
 .ds .btn-block { display: flex; width: 100%; }
@@ -368,12 +384,24 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 }
 .ds .card-flat { box-shadow: none; }
 .ds .card-lift { box-shadow: var(--e3); }
-.ds .glass, .ds .card.glass {
-  background: var(--glass); border: 1px solid var(--glass-line);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.3); backdrop-filter: blur(var(--blur)) saturate(1.3);
-  box-shadow: inset 0 1px 0 var(--hairline), var(--e2);
+/* liquid glass v3 — the recipe every glass surface shares */
+.ds .glass, .ds .card.glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .ds .tabbar, .ds .sheet {
+  --g: var(--glass);
+  background:
+    linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+    radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
+    var(--g);
+  border: 1px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02);
 }
-.ds .glass-strong { background: var(--glass-strong); }
+.ds .glass-strong, .ds .topbar, .ds .tabbar, .ds .sheet { --g: var(--glass-strong); }
+/* in-page cards paint the look without blurring what scrolls under them (blur in a scroller is what makes iPad glass stutter) */
+.ds .card.glass { -webkit-backdrop-filter: none; backdrop-filter: none; --g: color-mix(in srgb, var(--surface) 78%, var(--bg)); }
+.ds .glass-lite { -webkit-backdrop-filter: none; backdrop-filter: none; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ds .glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .ds .tabbar, .ds .sheet { --g: color-mix(in srgb, var(--surface) 96%, transparent); }
+}
 .ds .well { background: var(--surface-2); border-radius: var(--r); padding: var(--sp-4); }
 .ds .divider { height: 1px; background: var(--line); border: 0; margin: var(--sp-4) 0; }
 
@@ -487,7 +515,7 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 .ds .badge { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: var(--r-full);
   background: var(--danger); color: #fff; font-size: var(--fs-xs); font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--surface); }
 .ds .pill { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: 40px; padding: 0 var(--sp-4) 0 var(--sp-3); border-radius: var(--r-full);
-  background: var(--glass-strong); border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); box-shadow: var(--e2); font-weight: 600; font-size: var(--fs-sm); }
+  font-weight: 600; font-size: var(--fs-sm); }
 .ds .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted-decor); flex: none; }
 .ds .dot-synced { background: var(--ok); } .ds .dot-pending { background: var(--warn); }
 .ds .dot-offline { background: var(--muted-decor); } .ds .dot-error { background: var(--danger); }
@@ -523,12 +551,11 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 /* ── glass navigation: tab bar, top bar, sidebar ──────────────── */
 .ds .topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: var(--sp-1); min-height: 52px;
   padding: var(--safe-top) max(var(--sp-2), var(--safe-right)) 0 max(var(--sp-2), var(--safe-left));
-  background: var(--glass-strong); border-bottom: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(var(--blur)) saturate(1.3); backdrop-filter: blur(var(--blur)) saturate(1.3); }
+  border-width: 0 0 1px; border-radius: 0; box-shadow: inset 0 -1px 0 var(--glass-edge), 0 1px 0 var(--glass-ring); }
 .ds .topbar .title { flex: 1; text-align: center; font-weight: 700; }
 .ds .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; justify-content: center;
   padding: var(--sp-2) max(var(--sp-2), var(--safe-right)) calc(var(--sp-2) + var(--safe-bottom)) max(var(--sp-2), var(--safe-left));
-  background: var(--glass-strong); border-top: 1px solid var(--glass-line);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.3); backdrop-filter: blur(var(--blur)) saturate(1.3); }
+  border-width: 1px 0 0; border-radius: 0; box-shadow: inset 0 1px 0 var(--hairline), 0 -1px 0 var(--glass-ring), 0 -12px 40px -24px var(--glass-inner); }
 .ds .tabbar .tabs { display: flex; width: 100%; max-width: 560px; position: relative; }
 .ds .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; position: relative; z-index: 1;
   border: 0; background: none; color: var(--muted); font: inherit; font-size: var(--fs-xs); font-weight: 600; border-radius: var(--r); cursor: pointer; transition: color var(--dur-2) var(--ease), transform var(--dur-2) var(--spring); }
@@ -541,7 +568,7 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 /* desktop: the tab bar becomes a sidebar */
 @media (min-width: 1024px) {
   .ds .tabbar.sidebar { position: fixed; top: 0; bottom: 0; left: 0; right: auto; width: 220px; flex-direction: column; justify-content: flex-start; padding: var(--sp-6) var(--sp-3);
-    border-top: 0; border-right: 1px solid var(--glass-line); }
+    border-width: 0 1px 0 0; box-shadow: inset -1px 0 0 var(--hairline), 1px 0 0 var(--glass-ring); }
   .ds .tabbar.sidebar .tabs { flex-direction: column; max-width: none; gap: var(--sp-1); }
   .ds .tabbar.sidebar .tab { flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: var(--sp-3); min-height: 48px; padding: 0 var(--sp-4); font-size: var(--fs-md); }
   .ds .tabbar.sidebar .tab .dot { top: auto; right: var(--sp-3); }
@@ -551,16 +578,15 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 /* ── overlays: sheet, toast ───────────────────────────────────── */
 .ds .sheet-backdrop { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: end center; z-index: 50; animation: hub-fade var(--dur-2) var(--ease); }
 .ds .sheet { width: 100%; max-width: 560px; max-height: calc(100dvh - var(--safe-top) - 24px); overflow: auto;
-  background: var(--glass-strong); border: 1px solid var(--glass-line); border-bottom: 0;
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.3); backdrop-filter: blur(var(--blur)) saturate(1.3);
+  border-bottom: 0;
   border-radius: var(--r-2xl) var(--r-2xl) 0 0; padding: var(--sp-3) var(--sp-5) calc(var(--sp-5) + var(--safe-bottom));
   box-shadow: var(--e4); animation: hub-rise var(--dur-3) var(--spring); }
 .ds .sheet::before { content: ""; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--muted-decor); opacity: .6; margin: 0 auto var(--sp-4); }
 .ds .sheet h2 { margin-bottom: var(--sp-3); }
 .ds .sheet[data-snap="peek"] { max-height: 30dvh; } .ds .sheet[data-snap="half"] { max-height: 55dvh; }
-@media (min-width: 720px) { .ds .sheet-backdrop { place-items: center; } .ds .sheet { border-radius: var(--r-2xl); border-bottom: 1px solid var(--glass-line); padding-bottom: var(--sp-5); } .ds .sheet::before { display: none; } }
+@media (min-width: 720px) { .ds .sheet-backdrop { place-items: center; } .ds .sheet { border-radius: var(--r-2xl); border-bottom: 1px solid var(--glass-edge); padding-bottom: var(--sp-5); } .ds .sheet::before { display: none; } }
 .ds .toast { position: fixed; left: 50%; bottom: calc(var(--sp-6) + var(--safe-bottom)); transform: translateX(-50%);
-  background: color-mix(in srgb, var(--text) 92%, transparent); color: var(--bg); padding: var(--sp-3) var(--sp-5); border-radius: var(--r-full);
+  background: linear-gradient(to bottom, rgba(255,255,255,.14), transparent 40%), color-mix(in srgb, var(--text) 90%, transparent); color: var(--bg); padding: var(--sp-3) var(--sp-5); border-radius: var(--r-full); border: 1px solid rgba(255,255,255,.12);
   font-weight: 600; font-size: var(--fs-sm); box-shadow: var(--e3); z-index: 60; max-width: calc(100% - 32px);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); animation: hub-toast var(--dur-3) var(--spring); }
 @keyframes hub-fade { from { opacity: 0; } }

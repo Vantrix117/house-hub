@@ -50,6 +50,15 @@
   .theme-row .tp .d { right: 18px; top: 56px; width: 12px; height: 12px; border-radius: 50%; background: var(--olive); }
   .theme-row figure { margin: 0; }
   .theme-row figcaption { font-size: var(--fs-sm); font-weight: 600; padding: 6px 4px 0; }
+  .glass-stage { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--sp-4); padding: var(--sp-6); border-radius: var(--r-xl); overflow: hidden;
+    background: radial-gradient(60% 80% at 20% 30%, var(--terra), transparent 60%), radial-gradient(50% 70% at 80% 70%, var(--teal), transparent 60%), radial-gradient(40% 60% at 60% 10%, var(--gold), transparent 60%), var(--bg-2); }
+  .glass-stage::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,.18) 18px 20px); pointer-events: none; }
+  .glass-demo { position: relative; display: flex; flex-direction: column; gap: var(--sp-2); align-items: stretch; }
+  .glass-demo > :first-child { min-height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; text-align: center; }
+  .glass-demo .old { border-radius: var(--r-lg); background: var(--glass-strong); border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); }
+  .glass-demo .glass { -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); }
+  .glass-demo figcaption { font-family: var(--font-mono); font-size: 11px; color: var(--on-accent); text-shadow: 0 1px 2px rgba(0,0,0,.4); text-align: center; }
+  .glass-demo span { font-size: var(--fs-xs); color: var(--text-2); }
   .art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
   .art-grid.wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .art-grid figure { margin: 0; border-radius: var(--r); overflow: hidden; background: var(--surface); border: 1px solid var(--line-soft); }
@@ -134,6 +143,18 @@
       <div class="card card-art"><div class="art"><svg viewBox="0 0 120 80" width="120"><path d="M20 70V36l40-26 40 26v34z" fill="var(--accent)" fill-opacity=".25" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round"/></svg></div><div class="body"><h3>Card with art</h3><p class="text-2">An illustration band on top.</p></div></div>
       <div class="well"><b>Well</b><p class="text-2 small">Sunken, for grouped controls.</p></div>
     </div>
+  </section>
+
+  <section id="glass">
+    <h2>Liquid glass</h2>
+    <p class="lede">v3 glass is built in layers: a specular sheen along the top edge, a darker refracted ring inside and a lighter one outside, an inner shadow at the bottom, a little of the person's colour caught in the pane, and a blurred, saturated view of whatever sits behind. The sheen drifts with scroll and tilt (<code>--sheen-x</code>, set by hub.js). Chrome (tab bar, sheets, composer) keeps real blur; cards inside a scrolling page paint the same look without blurring, which is what keeps an iPad smooth.</p>
+    <div class="glass-stage">
+      <div class="glass-demo"><div class="old"><b>Before</b><span>flat tint + blur</span></div><figcaption>v2</figcaption></div>
+      <div class="glass-demo"><div class="glass glass-strong" style="border-radius:var(--r-lg);padding:var(--sp-4)"><b>After</b><span>layered, edged, lit</span></div><figcaption>v3</figcaption></div>
+      <div class="glass-demo"><div class="pill"><span class="dot dot-synced"></span>Pill</div><figcaption>pill</figcaption></div>
+      <div class="glass-demo"><button class="btn btn-glass">Glass button</button><figcaption>button</figcaption></div>
+    </div>
+    <label class="field" style="margin-top:var(--sp-4);max-width:360px"><span class="label">Sheen position (scroll / tilt moves this)</span><input type="range" id="sheen" min="10" max="80" value="30"></label>
   </section>
 
   <section id="inputs">
@@ -251,6 +272,7 @@
   const ART = { hero: ['morning', 'afternoon', 'evening', 'night', 'play'], app: ['f260', 'leftovers', 'prayer', 'tally', 'timer', 'dollywood', 'dollywood-live', 'chat', 'reminders', 'feed'], empty: ['fridge', 'list', 'chat', 'feed', 'prayers'],
     story: ['01-creation', '02-flood', '03-promise', '04-exodus', '05-law', '06-kings', '07-prophets', '08-exile', '09-nativity', '10-teaching', '11-cross', '12-church'], ambient: ['dawn', 'day', 'dusk', 'night'] };
   for (const [folder, names] of Object.entries(ART)) $('#art-' + folder).innerHTML = names.map(n => `<figure class="${folder === 'hero' ? 'on-accent' : ''}"><img src="../art/${folder}/${n}.svg" alt=""><figcaption>${folder}/${n}</figcaption></figure>`).join('');
+  $('#sheen').addEventListener('input', e => root.style.setProperty('--sheen-x', e.target.value + '%'));
   // motion
   $('#replay').onclick = () => { for (const el of [$('#mbox'), ...$('#stag').children]) { el.classList.remove('go', 'pop-in'); void el.offsetWidth; } $('#mbox').classList.add('go'); $('#stag').classList.remove('stagger'); void $('#stag').offsetWidth; $('#stag').classList.add('stagger'); };
   $('#open-sheet').onclick = () => { const bd = document.createElement('div'); bd.className = 'sheet-backdrop'; bd.innerHTML = '<div class="sheet"><h2>A sheet</h2><p class="text-2">Glass, a grabber on phones, springs in from the bottom.</p><button class="btn btn-primary btn-block" style="margin-top:16px">Done</button></div>'; bd.onclick = e => { if (e.target === bd || e.target.closest('.btn')) bd.remove(); }; document.body.appendChild(bd); };

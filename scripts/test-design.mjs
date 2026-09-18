@@ -54,6 +54,14 @@ const shots = path.join(ROOT, 'docs', 'screens'); fs.mkdirSync(shots, { recursiv
       ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'no horizontal scroll at 390');
       const glass = await page.$eval('.controls.glass', el => getComputedStyle(el).backdropFilter || getComputedStyle(el).webkitBackdropFilter);
       ok(/blur/.test(glass), `glass uses backdrop-filter (${glass})`);
+      const g3 = await page.$eval('#glass .glass.glass-strong', el => { const cs = getComputedStyle(el); return { bg: cs.backgroundImage, sh: cs.boxShadow, bf: cs.backdropFilter || cs.webkitBackdropFilter }; });
+      ok(/linear-gradient/.test(g3.bg) && /radial-gradient/.test(g3.bg), 'v3 glass layers a specular sheen and a colour pickup over the pane');
+      ok((g3.sh.match(/inset/g) || []).length >= 3 && /saturate/.test(g3.bf), `v3 glass has inner rings + inner shadow and a saturated blur (${(g3.sh.match(/inset/g) || []).length} inset layers)`);
+      const card = await page.$eval('#surfaces .card.glass', el => getComputedStyle(el).backdropFilter || getComputedStyle(el).webkitBackdropFilter);
+      ok(card === 'none', 'in-page glass cards skip backdrop blur (perf guard)');
+      const before = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--sheen-x').trim());
+      await page.evaluate(() => { const r = document.getElementById('sheen'); r.value = 70; r.dispatchEvent(new Event('input')); });
+      ok(before !== await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--sheen-x').trim()), 'the sheen moves with --sheen-x');
       const small = await page.$$eval('.btn, .tab, .seg > button, .swatch', els => els.filter(e => e.offsetParent && e.getBoundingClientRect().height < 36).map(e => e.className));
       ok(small.length === 0, 'every control is at least 36 px tall', small.join(','));
       const kickerCase = await page.$eval('.kicker', el => getComputedStyle(el).textTransform);

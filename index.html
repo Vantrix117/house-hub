@@ -40,15 +40,14 @@
   @media (min-width: 900px) { .profiles { grid-template-columns: repeat(4, 1fr); } }
   .pcard { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-3);
     min-height: 156px; padding: var(--sp-4); border: 1px solid var(--glass-line); border-radius: var(--r-xl);
-    background: var(--glass-strong); -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur));
-    box-shadow: var(--e2); color: var(--text); font: inherit; font-weight: 700; font-size: var(--fs-lg);
+    color: var(--text); font: inherit; font-weight: 700; font-size: var(--fs-lg);
     cursor: pointer; transition: transform var(--dur-2) var(--spring), box-shadow var(--dur-2) var(--ease); }
   .pcard:active { transform: scale(.95); }
   .pcard .psub { font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
   .pcard.last { box-shadow: 0 0 0 2px var(--tint), var(--e3); }
   .pcard.last .psub { color: var(--accent-deep); }
   @media (hover: hover) and (pointer: fine) { .pcard:hover { transform: translateY(-3px); box-shadow: var(--e3); } .pcard.last:hover { box-shadow: 0 0 0 2px var(--tint), var(--e3); } }
-  .pcard.skeleton { min-height: 156px; box-shadow: none; border-color: transparent; }
+  .pcard.skeleton { min-height: 156px; box-shadow: none; border-color: transparent; background: var(--surface-2); -webkit-backdrop-filter: none; backdrop-filter: none; }
   :root[data-kind="kid"] .pcard, :root[data-kind="kiosk"] .pcard { min-height: 156px; }
 
   .pin-wrap { max-width: 380px; margin: 0 auto; text-align: center; }
@@ -58,7 +57,7 @@
   .pin-dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted-decor); transition: transform var(--dur-2) var(--spring), background var(--dur-1) var(--ease); }
   .pin-dots i.on { background: var(--accent); border-color: var(--accent); transform: scale(1.15); }
   .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
-  .pin-pad .btn { min-height: 64px; font-size: var(--fs-xl); border-radius: var(--r-lg); background: var(--glass-strong); }
+  .pin-pad .btn { min-height: 64px; font-size: var(--fs-xl); border-radius: var(--r-lg); }
   .pin-msg { min-height: 24px; margin-top: var(--sp-3); color: var(--danger-ink); font-weight: 600; }
   .pin-msg.ok { color: var(--text-2); font-weight: 500; }
 
@@ -71,8 +70,7 @@
   .view-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-5); min-height: 44px; }
   .view-title h1 { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-3xl); letter-spacing: 0; }
   #ptr { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: center; pointer-events: none; height: 0; overflow: visible; z-index: 5; }
-  #ptr span { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--glass-strong); border: 1px solid var(--glass-line);
-    -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); box-shadow: var(--e2);
+  #ptr span { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
     color: var(--accent-deep); transform: translateY(-56px) rotate(0deg); transition: transform var(--dur-3) var(--spring); }
   #ptr.arm span { transform: translateY(calc(var(--safe-top) + 12px)) rotate(180deg); }
   #ptr.busy span { transform: translateY(calc(var(--safe-top) + 12px)); animation: spin 1s linear infinite; }
@@ -172,7 +170,7 @@
   .mrow .app-icon { width: 30px; height: 30px; border-radius: 10px; margin-bottom: 4px; }
   .msg { padding: var(--sp-3) var(--sp-4); border-radius: var(--r-lg); line-height: var(--lh); white-space: pre-wrap; overflow-wrap: anywhere; min-width: 0; }
   .msg.user { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white), var(--accent-deep)); color: var(--on-accent); border-bottom-right-radius: 6px; box-shadow: var(--e1); }
-  .msg.bot { background: var(--glass-strong); border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); border-bottom-left-radius: 6px; box-shadow: var(--e1); }
+  .msg.bot { border-bottom-left-radius: 6px; }
   .msg.bot.err { border-color: var(--danger); color: var(--danger-ink); }
   .msg .chips { display: flex; flex-direction: column; gap: 4px; margin-top: var(--sp-2); padding-top: var(--sp-2); border-top: 1px dashed var(--line); }
   .msg .chips:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
@@ -183,7 +181,7 @@
   @keyframes blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
   .chat-form { position: fixed; left: 0; right: 0; bottom: calc(76px + var(--safe-bottom)); z-index: 19; display: flex; gap: var(--sp-2); align-items: center;
     width: min(100% - 2 * var(--sp-4), 880px); margin: 0 auto; padding: var(--sp-2); border-radius: var(--r-full);
-    background: var(--glass-strong); -webkit-backdrop-filter: blur(var(--blur)) saturate(1.3); backdrop-filter: blur(var(--blur)) saturate(1.3); box-shadow: var(--e3); border: 1px solid var(--glass-line); }
+    box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e3); }
   @media (min-width: 1024px) { .chat-form { left: 220px; width: min(100% - 220px - 2 * var(--sp-8), var(--max)); bottom: var(--sp-6); } }
   .chat-form .input { flex: 1; border: 0; background: transparent; min-height: var(--tap); box-shadow: none; }
   .chat-form .input:focus { box-shadow: none; }
@@ -270,7 +268,7 @@
 
 <div id="shell" hidden>
   <main id="views">
-    <div id="ptr"><span><svg class="icon"><use href="#i-arrow"/></svg></span></div>
+    <div id="ptr"><span class="glass-strong"><svg class="icon"><use href="#i-arrow"/></svg></span></div>
     <section class="view" id="view-home" aria-label="Home"></section>
     <section class="view" id="view-apps" aria-label="Apps">
       <div class="view-title"><h1>Apps</h1></div>
@@ -279,7 +277,7 @@
     <section class="view" id="view-chat" aria-label="Chat">
       <div class="view-title"><h1>Chat</h1><span class="small muted" id="chat-cap"></span></div>
       <div class="chat" id="chat-log" aria-live="polite"></div>
-      <form class="chat-form" id="chat-form" autocomplete="off" hidden>
+      <form class="chat-form glass-strong" id="chat-form" autocomplete="off" hidden>
         <button type="button" class="btn btn-round btn-ghost" id="chat-mic" aria-label="Say it instead" hidden><svg class="icon"><use href="#i-mic"/></svg></button>
         <input class="input" id="chat-in" placeholder="Ask or tell the house…" maxlength="2000" enterkeyhint="send">
         <button class="btn btn-primary btn-round" type="submit" id="chat-send" aria-label="Send"><svg class="icon"><use href="#i-send"/></svg></button>
@@ -384,7 +382,7 @@
   function showPairing(msg) {
     showGate(`
       <div class="gate-title pop-in"><h1>${esc(registry.title || 'Anderson House')}</h1><p>First time on this ${esc(DEVICE_NAME)}? Enter the house pairing code once.</p></div>
-      <form class="card glass gate-card stack pop-in" id="pairform" style="max-width:440px;margin:0 auto">
+      <form class="card glass-strong gate-card stack pop-in" id="pairform" style="max-width:440px;margin:0 auto">
         <label class="field"><span class="label">Pairing code</span><input class="input" id="paircode" type="password" autocomplete="off" autocapitalize="off" inputmode="text" required minlength="6" autofocus></label>
         <label class="field"><span class="label">Name this device</span><input class="input" id="pairname" value="${esc(DEVICE_NAME)}" maxlength="40"></label>
         <p class="pin-msg" id="pairmsg">${esc(msg || '')}</p>
@@ -416,7 +414,7 @@
     }
     $('#profiles').classList.add('stagger');
     $('#profiles').innerHTML = profiles.map(p => `
-      <button class="pcard${p.id === last ? ' last' : ''}" data-id="${esc(p.id)}" style="--tint:${esc(p.color || FALLBACK)}">
+      <button class="pcard glass-strong${p.id === last ? ' last' : ''}" data-id="${esc(p.id)}" style="--tint:${esc(p.color || FALLBACK)}">
         ${avatar(p, 'avatar-lg')}<span>${esc(p.name)}</span>
         <span class="psub">${p.id === last ? 'Welcome back' : p.kind === 'kid' ? 'Tap to start' : p.kind === 'kiosk' ? 'Display' : (p.has_pin ? 'PIN' : 'Create your PIN')}</span>
       </button>`).join('');
@@ -436,7 +434,7 @@
   }
   function padHtml(p, title, hint) {
     return `
-      <div class="pin-wrap card glass gate-card pop-in" style="--tint:${esc(p.color || FALLBACK)}">
+      <div class="pin-wrap card glass-strong gate-card pop-in" style="--tint:${esc(p.color || FALLBACK)}">
         <div class="pin-who">${avatar(p, 'avatar-lg')}<h2>${esc(title)}</h2></div>
         <p class="text-2" id="pinhint">${esc(hint)}</p>
         <div class="pin-dots" id="dots" aria-live="polite"></div>
@@ -543,6 +541,7 @@
 
   // ── pull to refresh ───────────────────────────────────────────
   const views = $('#views'), ptr = $('#ptr');
+  hub.sheenFrom(views);
   let ptrY = null, ptrArmed = false, refreshing = false;
   views.addEventListener('touchstart', e => { ptrY = views.scrollTop <= 0 && !current ? e.touches[0].clientY : null; ptrArmed = false; }, { passive: true });
   views.addEventListener('touchmove', e => {
@@ -870,7 +869,7 @@
     let who;
     if (role === 'user') { const t = document.createElement('template'); t.innerHTML = avatar(hub.profile); who = t.content.firstElementChild; }
     else { who = document.createElement('span'); who.className = 'app-icon'; who.innerHTML = '<svg class="icon"><use href="#i-sparkle"/></svg>'; }
-    const d = document.createElement('div'); d.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+    const d = document.createElement('div'); d.className = 'msg ' + (role === 'user' ? 'user' : 'bot glass-strong');
     if (text) d.append(document.createTextNode(text));
     if (chips && chips.length) { const c = document.createElement('div'); c.className = 'chips'; for (const ch of chips) { const sp = document.createElement('span'); sp.className = 'chip chip-ok'; sp.textContent = ch; c.append(sp); } d.append(c); }
     row.append(who, d); chatLog.append(row); scrollChat(); return d;

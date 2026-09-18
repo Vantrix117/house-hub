@@ -425,6 +425,22 @@
   hub.escape = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   hub.uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
+  // ── liquid glass: the sheen drifts with scroll (and tilt where the browser hands it out without a prompt) ──
+  // Sets --sheen-x on <html>; design.css moves the highlight in every glass surface. Off under reduced motion.
+  (function sheen() {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const root = document.documentElement; let scroller = null, tilt = 0, raf = 0, last = -1;
+    const paint = () => { raf = 0; const el = scroller || root; const max = Math.max(1, el.scrollHeight - el.clientHeight); const p = Math.min(1, Math.max(0, el.scrollTop / max));
+      const x = Math.round(20 + p * 50 + tilt); if (x !== last) { last = x; root.style.setProperty('--sheen-x', x + '%'); } };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(paint); };
+    hub.sheenFrom = el => { if (scroller) scroller.removeEventListener('scroll', kick); scroller = el; if (el) el.addEventListener('scroll', kick, { passive: true }); kick(); };
+    window.addEventListener('scroll', kick, { passive: true });
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
+      window.addEventListener('deviceorientation', e => { if (e.gamma == null) return; tilt = Math.max(-15, Math.min(15, e.gamma / 3)); kick(); }, { passive: true });
+    }
+    kick();
+  })();
+
   // ── faces: photos + avatars ───────────────────────────────────────────────
   /** Absolute URL of a person's (or album entry's) photo, or null. size: 'sm' (256) | 'lg' (1024). */
   hub.photoUrl = (p, size = 'sm') => { const ph = p && (p.photo || (p.sm ? p : null)); const rel = ph && (typeof ph === 'string' ? ph : ph[size] || ph.sm); return rel ? (rel.startsWith('http') ? rel : hub.api.replace(/\/$/, '') + rel) : null; };
