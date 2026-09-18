@@ -142,16 +142,16 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     await waitFor(() => settled(f), { label: 'prayer flushed' });
     ok(await f.evaluate(() => hub.voiceSupported ? !document.getElementById('f-mic').hidden : document.getElementById('f-mic').hidden), 'voice button shown only when speech recognition exists');
 
-    console.log('\n## Christian sees the family list, not Eli\'s private list');
+    console.log('\n## Mae sees the family list, not Eli\'s private list');
     const B = await newContext(browser, 'B');
     await pair(B.page);
     await signIn(B.page, 'christian', '2468', true);
     let fb = await openApp(B.page, 'prayer');
-    ok(await fb.evaluate(() => D.lists.personal.prayers.length === 0), 'private list is empty for Christian');
+    ok(await fb.evaluate(() => D.lists.personal.prayers.length === 0), 'private list is empty for Mae');
     ok(await fb.evaluate(() => D.lists.shared.prayers.length === 1 && D.lists.shared.prayers[0].title === "Grandma's knee"), 'family list shows the shared request');
     ok(await fb.evaluate(() => D.lists.shared.prayers[0].prayedBy[TODAY].includes('Eli')), "Eli's initials came through on the family list");
     fb = await openApp(B.page, 'leftovers');
-    ok((await fb.textContent('#list')).includes('Chili'), 'Christian sees Chili in the shared ledger');
+    ok((await fb.textContent('#list')).includes('Chili'), 'Mae sees Chili in the shared ledger');
 
     console.log('\n## Legacy migration counts (Mom, with pre-profiles localStorage)');
     const legacy = {
@@ -193,7 +193,7 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     await A.page.click('#pill-home'); await A.page.click('.tab[data-tab=me]');
     await waitFor(() => A.page.textContent('#admin-body').then(t => t.includes('Pairing code') && t.includes('Devices')), { label: 'admin panel' });
     const adm = await A.page.textContent('#admin-body');
-    ok(adm.includes('Christian') && adm.includes('PIN set') && adm.includes('Downstairs TV'), 'admin lists profiles with PIN state');
+    ok(adm.includes('Mae') && adm.includes('PIN set') && adm.includes('Downstairs TV'), 'admin lists profiles with PIN state');
     ok((adm.match(/Unpair/g) || []).length >= 2, 'admin lists other paired devices with Unpair');
     await A.page.click('[data-edit="tv"]');
     await A.page.fill('#pname', 'Kitchen TV'); await A.page.click('#pform button[type=submit]');

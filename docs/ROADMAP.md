@@ -5,7 +5,7 @@
 > Hearth already covers groceries, meals, kid routines/chores and the calendar, so those stay out of the hub. Sequencing: trip first → visual foundation → daily use (each with its visual pass) → kids and the TV. Items are built only when explicitly asked for; each one ends with its acceptance criteria met, tests extended, and the live site verified.
 
 
-Legend — **A** adults (Eli, Christian, Elizabeth, David, Mea) · **K** kids (Ezra, Kiara) · **TV** kiosk · **E** Eli/admin. Effort: QW < 1 h · M ≈ an afternoon · B multi-session.
+Legend — **A** adults (Eli, Mae, Elizabeth, David, Mea) · **K** kids (Ezra, Kiara) · **TV** kiosk · **E** Eli/admin. Effort: QW < 1 h · M ≈ an afternoon · B multi-session.
 
 ## Sprint 0 — before the Dollywood trip
 

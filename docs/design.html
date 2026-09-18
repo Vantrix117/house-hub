@@ -75,7 +75,7 @@
   <section id="type">
     <h2>Type</h2>
     <p class="lede">A display serif for headlines (New York on Apple devices), rounded system sans for everything else. Kid and kiosk scale the whole ramp.</p>
-    <div class="type-row"><code>--fs-hero display</code><div class="display" style="font-size:var(--fs-hero)">Good morning, Christian.</div></div>
+    <div class="type-row"><code>--fs-hero display</code><div class="display" style="font-size:var(--fs-hero)">Good morning, Mae.</div></div>
     <div class="type-row"><code>--fs-3xl display</code><div class="display" style="font-size:var(--fs-3xl)">Today's reading</div></div>
     <div class="type-row"><code>--fs-2xl 700</code><h1>Week 12 · Genesis 27–28</h1></div>
     <div class="type-row"><code>--fs-xl 700</code><h2>In the fridge</h2></div>
@@ -211,7 +211,7 @@
 (() => {
   const $ = s => document.querySelector(s);
   const root = document.documentElement;
-  const PEOPLE = [['Eli','🧭','#4F5D8C'],['Christian','🌸','#BC5A38'],['Ezra','🦖','#137F77'],['Kiara','🦄','#B4861B'],['Elizabeth','🌷','#8A6A4B'],['David','🎣','#3D5A3D'],['Mea','🌻','#5B8143'],['TV','📺','#4C4C58']];
+  const PEOPLE = [['Eli','🧭','#4F5D8C'],['Mae','🌸','#BC5A38'],['Ezra','🦖','#137F77'],['Kiara','🦄','#B4861B'],['Elizabeth','🌷','#8A6A4B'],['David','🎣','#3D5A3D'],['Mea','🌻','#5B8143'],['TV','📺','#4C4C58']];
   // controls
   $('#theme').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#theme').children].forEach(x => x.classList.toggle('on', x === b)); if (b.dataset.v === 'system') delete root.dataset.theme; else root.dataset.theme = b.dataset.v; contrast(); });
   $('#kind').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#kind').children].forEach(x => x.classList.toggle('on', x === b)); if (b.dataset.v === 'adult') delete root.dataset.kind; else root.dataset.kind = b.dataset.v; });

@@ -2,7 +2,7 @@
 -- Adults start with pin_hash NULL and create their PIN on first tap.
 INSERT OR IGNORE INTO profiles (id, name, emoji, color, kind, pin_hash, is_admin, sort_order) VALUES
   ('eli',       'Eli',           '🧭', '#4F5D8C', 'adult', NULL, 1, 1),
-  ('christian', 'Christian',     '🌸', '#BC5A38', 'adult', NULL, 0, 2),
+  ('christian', 'Mae',           '🌸', '#BC5A38', 'adult', NULL, 0, 2),
   ('ezra',      'Ezra',          '🦖', '#137F77', 'kid',   NULL, 0, 3),
   ('kiara',     'Kiara',         '🦄', '#B4861B', 'kid',   NULL, 0, 4),
   ('mom',       'Elizabeth',     '🌷', '#8A6A4B', 'adult', NULL, 0, 5),

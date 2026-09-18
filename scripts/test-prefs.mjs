@@ -82,7 +82,7 @@ const switchTo = async (page, id, pin) => { await page.click('.tab[data-tab=me]'
     ok(true, 'B: Eli is dark on the second device after one pull');
     await switchTo(B.page, 'christian', '2468');
     await waitFor(() => themeOf(B.page).then(t => t === 'system'), { label: 'B christian system' });
-    ok(true, 'B: Christian on the same device is back to System');
+    ok(true, 'B: Mae on the same device is back to System');
     await B.page.click('.tab[data-tab=me]'); await B.page.click('#theme [data-theme=light]');
     await waitFor(() => B.page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'B flushed' });
     await switchTo(B.page, 'eli', '1357');

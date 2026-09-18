@@ -119,7 +119,7 @@ const makeFile = (page, w = 1800, h = 1200, hue = 30) => page.evaluateHandle(asy
     const kidErr = await K.page.evaluate(async f => { try { await hub.uploadPhoto(f); return 'allowed'; } catch (e) { return e.error; } }, kf);
     ok(kidErr === 'adults_only', `kid cannot set their own photo (${kidErr})`);
     const otherErr = await B.page.evaluate(async () => { try { await hub.removePhoto('eli'); return 'allowed'; } catch (e) { return e.error; } });
-    ok(otherErr === 'not_yours', `Christian cannot remove Eli's photo (${otherErr})`);
+    ok(otherErr === 'not_yours', `Mae cannot remove Eli's photo (${otherErr})`);
     const kidAlbum = await K.page.evaluate(async f => { try { await hub.addAlbumPhoto(f); return 'allowed'; } catch (e) { return e.error; } }, kf);
     ok(kidAlbum === 'adults_only', 'kid cannot add album photos');
     const big = await A.page.evaluate(async () => { try { await hub.request('/api/profiles/eli/photo', { method: 'PUT', body: { sm: 'AAAA', lg: 'AAAA' } }); return 'allowed'; } catch (e) { return e.error; } });
@@ -138,7 +138,7 @@ const makeFile = (page, w = 1800, h = 1200, hue = 30) => page.evaluateHandle(asy
     ok(true, 'Me → Family album shows the photo');
     await sleep(300); await A.page.screenshot({ path: path.join(shots, 'rm6-album-390.png') });
     const delOther = await B.page.evaluate(async id => { try { await hub.removeAlbumPhoto(id); return 'allowed'; } catch (e) { return e.error; } }, ph.id);
-    ok(delOther === 'not_yours', "Christian cannot remove Eli's album photo");
+    ok(delOther === 'not_yours', "Mae cannot remove Eli's album photo");
     await A.page.evaluate(id => hub.removeAlbumPhoto(id), ph.id);
     await waitFor(() => A.page.evaluate(() => hub.list('album:', { app: 'hub', scope: 'family' }).length === 0), { label: 'album removed' });
     ok((await fetch(API + ph.sm)).status === 404, 'removed album bytes are gone');
