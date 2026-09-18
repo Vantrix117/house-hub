@@ -73,29 +73,36 @@ const switchTo = async (page, id, pin) => { await page.click('.tab[data-tab=me]'
     console.log('\n## theme follows the person');
     const A = await newContext(browser, 'A'), B = await newContext(browser, 'B');
     await signIn(A.page, 'eli', '1357');
-    await A.page.click('.tab[data-tab=me]'); await A.page.click('#theme [data-theme=dark]');
-    ok(await themeOf(A.page) === 'dark', 'A: Dark applies at once');
-    ok(await A.page.evaluate(() => hub.get('theme', { app: 'hub', scope: 'person' }) === 'dark'), 'A: theme written to person scope');
+    await A.page.click('.tab[data-tab=me]'); await A.page.click('#theme [data-theme=midnight]');
+    ok(await themeOf(A.page) === 'midnight' && await A.page.evaluate(() => document.documentElement.dataset.scheme === 'dark'), 'A: Midnight applies at once (data-scheme=dark)');
+    ok(await A.page.evaluate(() => hub.get('theme', { app: 'hub', scope: 'person' }) === 'midnight'), 'A: theme written to person scope');
     await waitFor(() => A.page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'A flushed' });
     await signIn(B.page, 'eli', '1357');
-    await waitFor(() => themeOf(B.page).then(t => t === 'dark'), { label: 'B dark' });
-    ok(true, 'B: Eli is dark on the second device after one pull');
+    await waitFor(() => themeOf(B.page).then(t => t === 'midnight'), { label: 'B dark' });
+    ok(true, 'B: Eli is Midnight on the second device after one pull');
     await switchTo(B.page, 'christian', '2468');
     await waitFor(() => themeOf(B.page).then(t => t === 'system'), { label: 'B christian system' });
     ok(true, 'B: Mae on the same device is back to System');
-    await B.page.click('.tab[data-tab=me]'); await B.page.click('#theme [data-theme=light]');
+    await B.page.click('.tab[data-tab=me]'); await B.page.click('#theme [data-theme=parchment]');
     await waitFor(() => B.page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'B flushed' });
     await switchTo(B.page, 'eli', '1357');
-    await waitFor(() => themeOf(B.page).then(t => t === 'dark'), { label: 'B eli dark again' });
-    ok(true, 'B: back to Eli → dark again (from the cache, no flash of the wrong theme)');
+    await waitFor(() => themeOf(B.page).then(t => t === 'midnight'), { label: 'B eli dark again' });
+    ok(true, 'B: back to Eli → Midnight again (from the cache, no flash of the wrong theme)');
     await A.page.click('.tab[data-tab=home]'); await A.page.click('.tab[data-tab=me]');
-    ok(await A.page.$eval('#theme .on', b => b.dataset.theme) === 'dark', 'A: Me shows Dark selected');
+    ok(await A.page.$eval('#theme .on', b => b.dataset.theme) === 'midnight', 'A: Me shows Midnight selected');
     // change it from A while B is signed in as Eli: B follows within a pull
-    await A.page.click('#theme [data-theme=light]');
+    await A.page.click('#theme [data-theme=parchment]');
     await waitFor(() => A.page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'A flushed light' });
     await B.page.evaluate(() => hub.pull());
-    await waitFor(() => themeOf(B.page).then(t => t === 'system' || t === 'light'), { label: 'B follows light' });
-    ok(await themeOf(B.page) === 'light', 'B: follows A\'s change to Light on the next pull');
+    await waitFor(() => themeOf(B.page).then(t => t === 'parchment'), { label: 'B follows parchment' });
+    ok(await B.page.evaluate(() => getComputedStyle(document.body).backgroundColor === 'rgb(231, 217, 190)' && document.documentElement.dataset.scheme === 'light'), 'B: follows A\'s change to Parchment on the next pull (tan paper, light scheme)');
+    // Parchment on a dark OS: the hub stays tan and F260's own dark CSS stays off
+    const dk = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' });
+    await dk.addInitScript(api => { try { localStorage.setItem('hub.api', JSON.stringify(api)); localStorage.setItem('hub.theme', JSON.stringify('parchment')); } catch {} }, API);
+    const dp = await dk.newPage(); await dp.goto(SITE + '/docs/design.html'); await dp.waitForTimeout(200);
+    await dp.evaluate(() => window.__setTheme('parchment'));
+    ok(await dp.evaluate(() => document.documentElement.dataset.scheme === 'light' && getComputedStyle(document.body).backgroundColor === 'rgb(231, 217, 190)'), 'Parchment on a dark-mode device still renders tan with data-scheme=light');
+    await dk.close();
 
     console.log('\n## F260 text size + autolock follow the person');
     await A.page.click('.tab[data-tab=apps]'); await A.page.click('.tile[data-id=f260]');

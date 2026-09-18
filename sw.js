@@ -4,7 +4,7 @@
    - Precached files are served from cache and refreshed in the background (stale-while-revalidate),
      so an edit shows up on the second open. Bump VERSION to force a clean cache.
    - push: shows the notification the Worker sent; notificationclick deep-links into the app via the URL hash. */
-const VERSION = 'hub-v11';
+const VERSION = 'hub-v12';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'sw.js',
   'apps/design.css', 'apps/hub.js',

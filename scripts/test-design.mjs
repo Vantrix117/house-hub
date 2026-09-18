@@ -83,12 +83,30 @@ const shots = path.join(ROOT, 'docs', 'screens'); fs.mkdirSync(shots, { recursiv
     ok(parseFloat(anim) < 0.02, `pop-in animation disabled under reduced motion (${anim})`);
     const trans = await rp.$eval('.btn', el => getComputedStyle(el).transitionDuration);
     ok(parseFloat(trans) < 0.02, `transitions disabled under reduced motion (${trans})`);
-    await rp.evaluate(() => window.__setTheme('dark')); await rp.waitForTimeout(150);   // body background transitions
-    const forced = await rp.evaluate(() => getComputedStyle(document.body).backgroundColor + ' / ' + document.documentElement.dataset.theme);
-    ok(forced === 'rgb(26, 21, 18) / dark', `data-theme=dark overrides a light system scheme (${forced})`);
-    const darkBad = await rp.evaluate(() => window.__contrast.filter(r => !r.pass).length);
-    ok(darkBad === 0, 'forced dark still passes AA');
+    await rp.evaluate(() => window.__setTheme('midnight')); await rp.waitForTimeout(150);   // body background transitions
+    const forced = await rp.evaluate(() => getComputedStyle(document.body).backgroundColor + ' / ' + document.documentElement.dataset.theme + ' / ' + document.documentElement.dataset.scheme);
+    ok(forced === 'rgb(26, 21, 18) / midnight / dark', `data-theme=midnight overrides a light system scheme and resolves data-scheme=dark (${forced})`);
+    await rp.evaluate(() => window.__setTheme('dark')); await rp.waitForTimeout(50);
+    ok(await rp.evaluate(() => document.documentElement.dataset.theme === 'midnight'), "'dark' is still accepted as an alias for Midnight");
     await rm.close();
+
+    console.log('\n## every named theme passes AA for every family colour');
+    const THEMES = { hearth: 'rgb(247, 242, 235)', parchment: 'rgb(231, 217, 190)', frost: 'rgb(237, 240, 245)', midnight: 'rgb(26, 21, 18)', forest: 'rgb(16, 23, 26)' };
+    const tp = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+    await tp.goto(SITE + '/docs/design.html', { waitUntil: 'load' });
+    for (const [t, bg] of Object.entries(THEMES)) {
+      await tp.evaluate(t => window.__setTheme(t), t); await tp.waitForTimeout(200);
+      const got = await tp.evaluate(() => getComputedStyle(document.body).backgroundColor);
+      ok(got === bg, `${t}: body uses its own --bg (${got})`);
+      const rows = await tp.evaluate(() => window.__contrast); const bad = rows.filter(r => !r.pass);
+      ok(bad.length === 0, `${t}: ${rows.length} text pairs pass AA (lowest ${Math.min(...rows.map(r => r.ratio)).toFixed(2)}:1)`, bad.map(r => `${r.name} ${r.ratio.toFixed(2)}`).join('; '));
+      const scheme = await tp.evaluate(() => document.documentElement.dataset.scheme);
+      ok(scheme === (t === 'midnight' || t === 'forest' ? 'dark' : 'light'), `${t}: data-scheme=${scheme}`);
+      await tp.evaluate(() => { document.getElementById('themes').scrollIntoView(); window.scrollBy(0, -80); });
+      await tp.screenshot({ path: path.join(shots, `rm25-guide-${t}.png`), fullPage: false });
+    }
+    ok(await tp.$$eval('#theme-row .tp', els => els.map(e => getComputedStyle(e).backgroundColor)).then(bgs => new Set(bgs).size === 5), 'the five theme previews each paint their own palette regardless of the page theme');
+    await tp.close();
     ok(errors.length === 0, 'no console/page errors', errors.join(' | '));
   } finally {
     await browser.close(); server.close();

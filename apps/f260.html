@@ -24,17 +24,17 @@
 /* New Testament weeks: the paper cools a touch */
 body.nt{--paper:#F2F3F0; --raised:#FCFCFA; --sunk:#E8EAE5; --hover:#ECEEE9; --rule:#DDE0D8; --rule-soft:#E8EAE4}
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
+  :root:not([data-scheme="light"]){
     --slate:#A5B0DC; --slate-soft:#232738;
     --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
   }
-  :root:not([data-theme="light"]) body.nt{--paper:#171A1A; --raised:#20242A; --sunk:#111314; --hover:#262B30; --rule:#2C3238; --rule-soft:#232830}
+  :root:not([data-scheme="light"]) body.nt{--paper:#171A1A; --raised:#20242A; --sunk:#111314; --hover:#262B30; --rule:#2C3238; --rule-soft:#232830}
 }
-:root[data-theme="dark"]{
+:root[data-scheme="dark"]{
     --slate:#A5B0DC; --slate-soft:#232738;
     --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
 }
-:root[data-theme="dark"] body.nt{--paper:#171A1A; --raised:#20242A; --sunk:#111314; --hover:#262B30; --rule:#2C3238; --rule-soft:#232830}
+:root[data-scheme="dark"] body.nt{--paper:#171A1A; --raised:#20242A; --sunk:#111314; --hover:#262B30; --rule:#2C3238; --rule-soft:#232830}
 
 html,body{margin:0;padding:0}
 body{
@@ -444,7 +444,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .print-only{display:none}
 @media print{
   @page{margin:10mm}
-  :root,:root[data-theme="dark"],body.nt{--paper:#fff;--raised:#fff;--ink:#000;--ink2:#000;--muted:#333;--rule:#bbb;--rule-soft:#ddd;--slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
+  :root,:root[data-scheme="dark"],body.nt{--paper:#fff;--raised:#fff;--ink:#000;--ink2:#000;--muted:#333;--rule:#bbb;--rule-soft:#ddd;--slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
   body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
   .big{zoom:1}
   .wrap{max-width:none;padding:0}
@@ -577,11 +577,8 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
         </div>
         <div class="sec">
           <h2>Theme</h2>
-          <div class="seg" id="themeSeg">
-            <button data-theme="system">System</button>
-            <button data-theme="light">Light</button>
-            <button data-theme="dark">Dark</button>
-          </div>
+          <div class="seg" id="themeSeg"></div>
+          <p class="help" style="margin-top:6px">The theme follows you to every device. More in the hub's Me tab.</p>
         </div>
         <div class="sec">
           <h2>Text size</h2>
@@ -1879,7 +1876,9 @@ $('restoreForm').onsubmit = e => {
 };
 function paintTheme() {
   theme = hub.theme();
-  document.querySelectorAll('#themeSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === theme));
+  const seg = $('themeSeg');
+  if (!seg.children.length) seg.innerHTML = hub.THEMES.map(t => '<button data-theme="' + t.id + '">' + t.name + '</button>').join('');
+  seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === theme));
 }
 $('themeSeg').addEventListener('click', e => { const b = e.target.closest('[data-theme]'); if (!b) return; hub.setTheme(b.dataset.theme); paintTheme(); });
 

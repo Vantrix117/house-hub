@@ -60,28 +60,45 @@
   function publicProfile(p) {
     return p ? { id: p.id, name: p.name, kind: p.kind, isAdmin: !!p.is_admin, color: p.color, emoji: p.emoji, hasPin: !!p.has_pin, photo: p.photo || null } : null;
   }
+  // Named palettes in design.css. 'system' = Hearth by day, Midnight at night. 'light'/'dark' are kept as aliases.
+  hub.THEMES = [
+    { id: 'system', name: 'System', scheme: null, blurb: 'Hearth by day, Midnight at night' },
+    { id: 'hearth', name: 'Hearth', scheme: 'light', blurb: 'Warm paper' },
+    { id: 'parchment', name: 'Parchment', scheme: 'light', blurb: 'Soft tan reading paper' },
+    { id: 'frost', name: 'Frost', scheme: 'light', blurb: 'Cool pale glass' },
+    { id: 'midnight', name: 'Midnight', scheme: 'dark', blurb: 'Warm dark' },
+    { id: 'forest', name: 'Forest', scheme: 'dark', blurb: 'Deep green, gold ink' },
+  ];
+  const themeId = t => t === 'light' ? 'hearth' : t === 'dark' ? 'midnight' : (hub.THEMES.some(x => x.id === t) ? t : 'system');
+  const prefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   function applyTheme() {
     const root = document.documentElement;
-    const t = lsGet(LS.theme, 'system');
-    if (t === 'dark' || t === 'light') root.dataset.theme = t; else delete root.dataset.theme;
+    const t = themeId(lsGet(LS.theme, 'system'));
+    if (t === 'system' || t === 'hearth') delete root.dataset.theme; else root.dataset.theme = t;
+    const def = hub.THEMES.find(x => x.id === t);
+    root.dataset.scheme = (def && def.scheme) || (prefersDark() ? 'dark' : 'light');   // resolved, for apps with their own dark CSS
     if (hub.profile) { root.dataset.kind = hub.profile.kind; root.style.setProperty('--accent', hub.profile.color); }
     else { delete root.dataset.kind; root.style.removeProperty('--accent'); }
   }
+  if (window.matchMedia) try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); } catch {}
   // The theme is a person preference (app_data person/hub/theme) so it follows the person to every device;
   // LS.theme is the device-local mirror that applies before the first pull. The kiosk keeps a device-local theme.
   const PREFS = { app: 'hub', scope: 'person' };
   const hasPrefs = () => CH.has(chKey('hub', 'person')) && !!hub.profile && store[chKey('hub', 'person')];
   hub.setTheme = t => {
+    t = themeId(t);
     lsSet(LS.theme, t === 'system' ? undefined : t); applyTheme();
     if (hasPrefs() && hub.canWrite && hub.get('theme', PREFS) !== t) hub.set('theme', t, PREFS);
     tell({ type: 'hub:theme', theme: t });
   };
-  hub.theme = () => lsGet(LS.theme, 'system');
+  hub.theme = () => themeId(lsGet(LS.theme, 'system'));
+  hub.scheme = () => document.documentElement.dataset.scheme || (prefersDark() ? 'dark' : 'light');
   // called after the person's prefs load or change: the server's copy wins over the device mirror
   function adoptTheme() {
     if (!hasPrefs() || hub.isKiosk) return;
     let t = hub.get('theme', PREFS);
     if (t === undefined) { if (!store[chKey('hub', 'person')].since) return; t = 'system'; }   // pulled before and nothing set: this person uses the system look
+    t = themeId(t);
     if (t === hub.theme()) return;
     lsSet(LS.theme, t === 'system' ? undefined : t); applyTheme(); tell({ type: 'hub:theme', theme: t });
   }

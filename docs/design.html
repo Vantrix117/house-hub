@@ -10,7 +10,8 @@
 <style>
   .guide { max-width: var(--max); margin: 0 auto; padding: var(--sp-6) var(--sp-4) var(--sp-16); }
   .controls { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; padding: var(--sp-3) var(--sp-4); margin: 0 calc(-1 * var(--sp-4)) var(--sp-6); }
-  .controls .seg { flex: 0 0 auto; min-width: 200px; }
+  .controls .seg { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+  .controls .seg button { flex: 1 1 auto; padding: 0 10px; min-height: 40px; }
   .swatches { display: flex; gap: var(--sp-2); }
   .swatch { width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
   .swatch.on { border-color: var(--text); }
@@ -38,6 +39,17 @@
   .tabdemo .tabbar { position: absolute; }
   .motion-box { width: 64px; height: 64px; border-radius: var(--r); background: var(--accent); }
   .motion-box.go { animation: hub-pop var(--dur-3) var(--spring) both; }
+  .theme-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
+  .theme-row .tp { position: relative; height: 96px; border-radius: var(--r); overflow: hidden; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line-soft); }
+  .theme-row .tp i { position: absolute; display: block; border-radius: 6px; }
+  .theme-row .tp .h { left: 10px; top: 10px; right: 10px; height: 26px; background: linear-gradient(120deg, var(--accent), var(--accent-deep)); }
+  .theme-row .tp .c { left: 10px; top: 44px; width: calc(50% - 14px); height: 40px; background: var(--surface); box-shadow: var(--e1); }
+  .theme-row .tp .c + .c { left: auto; right: 10px; }
+  .theme-row .tp .t { left: 16px; top: 52px; width: 40%; height: 5px; border-radius: 3px; background: var(--text); }
+  .theme-row .tp .t2 { left: 16px; top: 63px; width: 26%; height: 5px; border-radius: 3px; background: var(--muted); }
+  .theme-row .tp .d { right: 18px; top: 56px; width: 12px; height: 12px; border-radius: 50%; background: var(--olive); }
+  .theme-row figure { margin: 0; }
+  .theme-row figcaption { font-size: var(--fs-sm); font-weight: 600; padding: 6px 4px 0; }
   .art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
   .art-grid.wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .art-grid figure { margin: 0; border-radius: var(--r); overflow: hidden; background: var(--surface); border: 1px solid var(--line-soft); }
@@ -50,7 +62,7 @@
 <body class="ds">
 <div class="guide">
   <div class="controls glass">
-    <div class="seg" id="theme"><button data-v="system" class="on">System</button><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+    <div class="seg" id="theme"><button data-v="system" class="on">System</button><button data-v="hearth">Hearth</button><button data-v="parchment">Parchment</button><button data-v="frost">Frost</button><button data-v="midnight">Midnight</button><button data-v="forest">Forest</button></div>
     <div class="seg" id="kind"><button data-v="adult" class="on">Adult</button><button data-v="kid">Kid</button><button data-v="kiosk">Kiosk</button></div>
     <div class="swatches" id="accents" aria-label="Accent (a person's colour)"></div>
   </div>
@@ -62,6 +74,12 @@
     <button class="btn btn-primary">Primary action</button>
     <div class="hero-art"><svg viewBox="0 0 200 160" fill="none"><circle cx="150" cy="60" r="34" fill="#fff" fill-opacity=".35"/><path d="M20 140c30-40 60-60 100-60s60 20 70 40v20H20z" fill="#fff" fill-opacity=".22"/><path d="M60 140V96l30-24 30 24v44" stroke="#fff" stroke-opacity=".8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
   </div>
+
+  <section id="themes">
+    <h2>Themes</h2>
+    <p class="lede">Five named palettes, each a complete token set: <b>Hearth</b> (warm paper), <b>Parchment</b> (soft tan reading paper), <b>Frost</b> (cool pale glass), <b>Midnight</b> (warm dark) and <b>Forest</b> (deep green, gold ink). <b>System</b> is Hearth by day and Midnight at night. The theme follows the person; pick one at the top of this page to preview everything below in it.</p>
+    <div class="theme-row" id="theme-row"></div>
+  </section>
 
   <section id="colour">
     <h2>Colour</h2>
@@ -213,7 +231,7 @@
   const root = document.documentElement;
   const PEOPLE = [['Eli','🧭','#4F5D8C'],['Mae','🌸','#BC5A38'],['Ezra','🦖','#137F77'],['Kiara','🦄','#B4861B'],['Elizabeth','🌷','#8A6A4B'],['David','🎣','#3D5A3D'],['Mea','🌻','#5B8143'],['TV','📺','#4C4C58']];
   // controls
-  $('#theme').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#theme').children].forEach(x => x.classList.toggle('on', x === b)); if (b.dataset.v === 'system') delete root.dataset.theme; else root.dataset.theme = b.dataset.v; contrast(); });
+  $('#theme').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#theme').children].forEach(x => x.classList.toggle('on', x === b)); setTheme(b.dataset.v); });
   $('#kind').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#kind').children].forEach(x => x.classList.toggle('on', x === b)); if (b.dataset.v === 'adult') delete root.dataset.kind; else root.dataset.kind = b.dataset.v; });
   $('#accents').innerHTML = PEOPLE.map(p => `<button class="swatch" data-c="${p[2]}" style="background:${p[2]}" title="${p[0]}" aria-label="${p[0]}"></button>`).join('');
   $('#accents').addEventListener('click', e => { const b = e.target.closest('.swatch'); if (!b) return; [...$('#accents').children].forEach(x => x.classList.toggle('on', x === b)); root.style.setProperty('--accent', b.dataset.c); contrast(); });
@@ -228,6 +246,7 @@
   $('#avatars').innerHTML = PEOPLE.slice(0, 4).map((p, i) => `<span class="avatar ${['avatar-sm','','avatar-lg','avatar-xl'][i]}" style="--tint:${p[2]}">${p[1]}</span>`).join('') + `<span class="avatar avatar-lg" style="--tint:#8A6A4B"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23D9C3A5'/%3E%3Ccircle cx='32' cy='26' r='12' fill='%238A6A4B'/%3E%3Cpath d='M10 60c2-14 12-20 22-20s20 6 22 20z' fill='%238A6A4B'/%3E%3C/svg%3E"></span>`;
   $('#chips').innerHTML = PEOPLE.slice(0, 5).map(p => `<span class="person-chip" style="--tint:${p[2]}"><span class="avatar">${p[1]}</span>${p[0]}</span>`).join('');
   $('#faces').innerHTML = PEOPLE.slice(0, 4).map(p => `<span class="avatar" style="--tint:${p[2]}">${p[1]}</span>`).join('');
+  $('#theme-row').innerHTML = ['hearth', 'parchment', 'frost', 'midnight', 'forest'].map(t => `<figure><div class="tp" data-preview="${t}"><i class="h"></i><i class="c"></i><i class="c"></i><i class="t"></i><i class="t2"></i><i class="d"></i></div><figcaption>${t[0].toUpperCase() + t.slice(1)}</figcaption></figure>`).join('');
   // illustrations (the list mirrors art/README.md)
   const ART = { hero: ['morning', 'afternoon', 'evening', 'night', 'play'], app: ['f260', 'leftovers', 'prayer', 'tally', 'timer', 'dollywood', 'dollywood-live', 'chat', 'reminders', 'feed'], empty: ['fridge', 'list', 'chat', 'feed', 'prayers'],
     story: ['01-creation', '02-flood', '03-promise', '04-exodus', '05-law', '06-kings', '07-prophets', '08-exile', '09-nativity', '10-teaching', '11-cross', '12-church'], ambient: ['dawn', 'day', 'dusk', 'night'] };
@@ -267,7 +286,17 @@
     $('#contrast tbody').innerHTML = rows.map(r => `<tr><td>${r.name}</td><td>${r.ratio.toFixed(2)}:1</td><td>${r.min}:1</td><td class="${r.pass ? 'pass' : 'fail'}">${r.pass ? 'AA' : 'fail'}</td></tr>`).join('');
   }
   contrast();
-  window.__setTheme = t => { if (t === 'system') delete root.dataset.theme; else root.dataset.theme = t; contrast(); };
+  // mirrors hub.js applyTheme: data-theme = palette (none for system/hearth), data-scheme = resolved light|dark
+  const DARK = { midnight: 1, forest: 1, dark: 1 };
+  function setTheme(t) {
+    if (t === 'light') t = 'hearth'; if (t === 'dark') t = 'midnight';
+    if (t === 'system' || t === 'hearth') delete root.dataset.theme; else root.dataset.theme = t;
+    root.dataset.scheme = t === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : (DARK[t] ? 'dark' : 'light');
+    [...$('#theme').children].forEach(x => x.classList.toggle('on', x.dataset.v === t));
+    contrast();
+  }
+  setTheme('system');
+  window.__setTheme = setTheme;
 })();
 </script>
 </body>

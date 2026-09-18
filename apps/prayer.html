@@ -32,15 +32,15 @@
   /* --accent is the signed-in person's colour (set by hub.js); --accent-soft follows it */
 }
 /* Dark: applies from the system setting unless the user picked Light,
-   and always when the user picked Dark (data-theme on <html>). */
+   and always when the theme is a dark one (hub.js sets data-scheme on <html>). */
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
+  :root:not([data-scheme="light"]){
     --dim:#14100D;
     --d0:#CBA77E; --d1:#5EC2B8; --d2:#9DC183; --d3:#E0B25A;
     --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;
   }
 }
-:root[data-theme="dark"]{
+:root[data-scheme="dark"]{
     --dim:#14100D;
     --d0:#CBA77E; --d1:#5EC2B8; --d2:#9DC183; --d3:#E0B25A;
     --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;

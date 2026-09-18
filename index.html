@@ -210,6 +210,23 @@
   .me-hero .btn { margin: 0; }
   .me-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
   @media (min-width: 1024px) { .me-grid { grid-template-columns: 1fr 1fr; align-items: start; } .me-grid .span2 { grid-column: 1 / -1; } }
+  /* theme cards: a tiny painting of each palette (the swatch's own tokens come from the same data-theme rules) */
+  .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--sp-3); }
+  .theme-card { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 6px; border-radius: var(--r-lg); border: 2px solid transparent; background: var(--surface-2); color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: transform var(--dur-2) var(--spring), border-color var(--dur-1) var(--ease); }
+  .theme-card:active { transform: scale(.97); }
+  .theme-card.on { border-color: var(--accent-deep); }
+  .theme-swatch { position: relative; display: block; height: 76px; border-radius: var(--r); overflow: hidden; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line-soft); }
+  .theme-swatch i { position: absolute; display: block; border-radius: 6px; }
+  .theme-swatch .tp-hero { left: 8px; top: 8px; right: 8px; height: 22px; background: linear-gradient(120deg, var(--accent), var(--accent-deep)); }
+  .theme-swatch .tp-card { left: 8px; top: 38px; width: calc(50% - 11px); height: 30px; background: var(--surface); box-shadow: var(--e1); }
+  .theme-swatch .tp-card + .tp-card { left: auto; right: 8px; }
+  .theme-swatch .tp-dot { right: 14px; top: 44px; width: 10px; height: 10px; border-radius: 50%; background: var(--olive); }
+  .theme-name { font-weight: 700; font-size: var(--fs-sm); padding: 0 4px; }
+  .theme-blurb { font-size: var(--fs-xs); color: var(--muted); padding: 0 4px 4px; }
+  /* each swatch paints itself with its own palette (design.css scopes every theme's tokens to .tp[data-preview]); System is half day, half night */
+  .theme-swatch .tp-half { position: absolute; inset: 0 0 0 50%; background: var(--bg); }
+  .theme-swatch .tp-half .tp-card { left: auto; right: 8px; background: var(--surface); }
+  .theme-swatch[data-preview="system"] > .tp-card + .tp-card { display: none; }
   .prow .btn { padding: 0 var(--sp-3); white-space: nowrap; }
   .swatches { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
   .swatch { width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: transform var(--dur-2) var(--spring); }
@@ -546,7 +563,7 @@
   const fridgeDue = () => hub.list('item:', { app: 'leftovers', scope: 'family' }).map(r => r.value)
     .map(i => ({ ...i, days: ageDays(i.dateLogged) })).filter(i => i.days >= 4).sort((a, b) => b.days - a.days);
   function ringHtml(p, label, color, big) {
-    return `<span class="ringwrap${big ? ' lg' : ''}"><svg class="ring${big ? ' ring-lg' : ''}" viewBox="0 0 52 52" style="--p:${p};--tint:${esc(color || FALLBACK)}"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg><span class="ring-lbl">${esc(label)}</span></span>`;
+    return `<span class="ringwrap${big ? ' lg' : ''}"><svg class="ring${big ? ' ring-lg' : ''}" viewBox="0 0 52 52" style="--p:${p};--tint:${esc(color || FALLBACK)}"><circle class="bg" cx="26" cy="26" r="22"/>${p > 0 ? '<circle class="fg" cx="26" cy="26" r="22"/>' : ''}</svg><span class="ring-lbl">${esc(label)}</span></span>`;   // no fg at 0: a round cap would draw a dot
   }
   function widgetHtml(a) {
     if (a.id === 'f260') {
@@ -785,8 +802,10 @@
       <input type="file" id="photo-file" accept="image/*" hidden>
       <div class="me-grid" style="margin-top:var(--sp-4)">
         ${p.kind === 'adult' ? `<div class="card glass span2" id="album"><h2><span class="app-icon" style="--tint:var(--terra)"><svg class="icon"><use href="#i-camera"/></svg></span>Family album <button class="btn btn-soft" id="album-add" style="margin-left:auto">Add a photo</button></h2><div class="album" id="album-grid"></div></div>` : ''}
-        <div class="card glass"><h2>Appearance</h2><div class="seg" id="theme">
-          ${['system', 'light', 'dark'].map(t => `<button class="${theme === t ? 'on' : ''}" data-theme="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>
+        <div class="card glass${p.kind === 'kiosk' ? '' : ' span2'}"><h2>Appearance</h2><div class="themes" id="theme">
+          ${hub.THEMES.map(t => `<button class="theme-card${theme === t.id ? ' on' : ''}" data-theme="${t.id}" aria-pressed="${theme === t.id}">
+            <span class="theme-swatch tp" data-preview="${t.id}">${t.id === 'system' ? '<span class="tp-half"><i class="tp-card"></i></span>' : ''}<i class="tp-hero"></i><i class="tp-card"></i><i class="tp-card"></i><i class="tp-dot"></i></span>
+            <span class="theme-name">${esc(t.name)}</span><span class="theme-blurb">${esc(t.blurb)}</span></button>`).join('')}</div></div>
         ${p.kind !== 'kiosk' ? `<div class="card glass" id="notif"><h2>Notifications</h2>
           <div class="hstack"><div class="grow"><div>Reminders on this device</div><div class="help" id="notif-help">Checking…</div></div><button class="switch" id="notif-toggle" role="switch" aria-checked="false" aria-label="Notifications on this device" disabled></button></div>
           <div id="notif-prefs" hidden style="margin-top:var(--sp-3)">
