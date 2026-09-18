@@ -101,11 +101,3 @@ CREATE TABLE IF NOT EXISTS rate_limits (
   count    INTEGER NOT NULL,
   reset_at INTEGER NOT NULL
 );
-
--- Legacy Larder Ledger table (pre-profiles). Kept until Phase 3 removes the /items routes.
-CREATE TABLE IF NOT EXISTS leftovers (
-  id         TEXT PRIMARY KEY,
-  name       TEXT NOT NULL,
-  size       TEXT NOT NULL DEFAULT '',
-  dateLogged TEXT NOT NULL
-);

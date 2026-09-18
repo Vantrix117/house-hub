@@ -29,7 +29,7 @@ function corsHeaders(request, env) {
   const allowed = (env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
   const h = {
     'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Device-Token, X-Profile-Token, X-House-Key',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Device-Token, X-Profile-Token',
     'Access-Control-Max-Age': '86400',
     'Vary': 'Origin',
   };
@@ -354,36 +354,6 @@ route('DELETE', '/api/admin/devices/:id', async c => {
     c.env.DB.prepare('DELETE FROM devices WHERE id = ?').bind(c.params.id),
   ]);
   return { ok: true };
-});
-
-// ── legacy Larder Ledger routes (X-House-Key) — removed in Phase 3 once the app uses hub.js ──
-async function legacyAuth(c) {
-  if (!c.env.HOUSE_KEY) throw new HttpError(500, 'no_house_key', 'HOUSE_KEY secret is not set.');
-  const got = c.request.headers.get('X-House-Key') || '';
-  let diff = got.length ^ c.env.HOUSE_KEY.length;
-  for (let i = 0; i < got.length; i++) diff |= got.charCodeAt(i) ^ (c.env.HOUSE_KEY.charCodeAt(i) || 0);
-  if (diff) throw new HttpError(401, 'unauthorized', 'Wrong or missing passphrase');
-}
-const legacyList = async env => ({
-  items: (await listData(env, { appId: 'leftovers', scope: 'family', profile: null, prefix: 'item:' }))
-    .filter(r => r.value).map(r => r.value)
-    .sort((a, b) => (a.dateLogged || '').localeCompare(b.dateLogged || '') || (a.name || '').localeCompare(b.name || '')),
-});
-const legacyWriter = { id: 'legacy', kind: 'adult' };
-route('GET', '/items', async c => { await legacyAuth(c); return legacyList(c.env); });
-route('POST', '/items', async c => {
-  await legacyAuth(c);
-  const b = await c.body();
-  const name = String(b.name || '').trim().slice(0, 80);
-  if (!name) throw new HttpError(400, 'bad_item', 'name is required');
-  const item = { id: String(b.id || randomId()), name, size: String(b.size || ''), dateLogged: String(b.dateLogged || new Date().toISOString().slice(0, 10)) };
-  await putOne(c.env, { appId: 'leftovers', scope: 'family', profile: legacyWriter, key: 'item:' + item.id, value: item, updated_at: Date.now() });
-  return legacyList(c.env);
-});
-route('DELETE', '/items/:id', async c => {
-  await legacyAuth(c);
-  await putOne(c.env, { appId: 'leftovers', scope: 'family', profile: legacyWriter, key: 'item:' + c.params.id, value: null, updated_at: Date.now() });
-  return legacyList(c.env);
 });
 
 // ── dispatcher ────────────────────────────────────────────────

@@ -828,12 +828,12 @@ const PROMPTS = [
 // f260.journal.vault holds the HEAR journal encrypted with a passcode-derived key; see the vault section.
 const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open', view: 'f260.view',
             mem: 'f260.mem', log: 'f260.log', weekStart: 'f260.weekStart', weekDone: 'f260.weekDone', autolock: 'f260.autolock',
-            big: 'f260.big', theme: 'f260.theme', best: 'f260.best', miles: 'f260.miles', jstats: 'f260.jstats',
+            big: 'f260.big', best: 'f260.best', miles: 'f260.miles', jstats: 'f260.jstats',
             verses: 'f260.verses', recall: 'f260.recall', finished: 'f260.finished', read: 'f260.read',
             legacy: 'f260.journal', vault: 'f260.journal.vault' };
 // Everything syncs per profile through hub.js except device preferences and the pre-vault plaintext journal
 // (which stays on this device until the app folds it into the encrypted vault).
-const LOCAL = new Set([K.theme, K.legacy]);   // text size and autolock follow the person (person scope); theme goes through hub.setTheme
+const LOCAL = new Set([K.legacy]);   // everything else follows the person (person scope); the theme goes through hub.setTheme
 const lsLoad = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
 const lsSave = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const lsDrop = k => { try { localStorage.removeItem(k); } catch (e) {} };

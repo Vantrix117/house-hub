@@ -13,7 +13,6 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 | `wrangler.toml` | Worker name, D1 binding (`DB`), `ALLOWED_ORIGINS` (CORS allow-list) |
 | `schema.sql` | Tables. Idempotent — `npx wrangler d1 execute house-hub --remote --file schema.sql` |
 | `seed.sql` | The eight household profiles (`INSERT OR IGNORE`, never overwrites admin edits) |
-| `migrate-leftovers.sql` | One-time copy of the legacy `leftovers` table into `app_data` (already run) |
 | `src/index.js` | Routes |
 | `src/auth.js` | PBKDF2 hashing, tokens, sessions, rate limits |
 | `src/data.js` | `app_data` last-write-wins upsert, listing, tombstones |
@@ -75,8 +74,6 @@ DELETE /api/admin/devices/:id
 POST /api/admin/cron/run                {job: 'morning' | 'evening'}  run a reminder job now
 
 Cron (wrangler.toml [triggers]): 8:00 am and 8:00 pm New York — see src/reminders.js.
-
-Legacy (no longer used by any app): GET/POST /items, DELETE /items/:id with X-House-Key
 ```
 
 Errors are `{error: 'snake_code', message: 'plain English'}` with a matching HTTP status.
@@ -96,7 +93,6 @@ Never in this repo. Set with `npx wrangler secret put NAME` from this folder:
 
 | Secret | Used by |
 |---|---|
-| `HOUSE_KEY` | legacy `/items` routes only; safe to delete once those routes go |
 | `VAPID_PRIVATE_KEY` | push notifications (`src/push.js`) |
 | `ANTHROPIC_API_KEY` | chat (`src/chat.js`); until it is set the Chat tab says the assistant is not set up |
 

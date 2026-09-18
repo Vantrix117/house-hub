@@ -4,13 +4,13 @@
    - Precached files are served from cache and refreshed in the background (stale-while-revalidate),
      so an edit shows up on the second open. Bump VERSION to force a clean cache.
    - push: shows the notification the Worker sent; notificationclick deep-links into the app via the URL hash. */
-const VERSION = 'hub-v10';
+const VERSION = 'hub-v11';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'sw.js',
   'apps/design.css', 'apps/hub.js',
   'apps/f260.html', 'apps/leftovers.html', 'apps/prayer.html', 'apps/tally.html', 'apps/timer.html',
   'icons/f260.svg', 'icons/leftovers.svg', 'icons/prayer.svg', 'icons/tally.svg', 'icons/timer.svg',
-  'icons/reminders.svg', 'icons/chat.svg', 'icons/home.svg', 'icons/dollywood.svg', 'icons/dollywood-live.svg',
+  'icons/dollywood.svg', 'icons/dollywood-live.svg',
   'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png',
   // the park map must work in the park: the page + the layers it opens with (the aerial photo is cached on first use)
   'apps/dollywood-live.html', 'apps/dollywood/relief.jpg', 'apps/dollywood/slope.png',

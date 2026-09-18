@@ -8,7 +8,7 @@ The Anderson family's one-stop app, used on iPad, iPhone and desktop. This file 
 |---|---|---|
 | Site (`index.html`, `apps/`, `sw.js`, `icons/`) | **GitHub Pages**, `main` branch, repo root → https://vantrix117.github.io/house-hub/ | `git push` — Pages rebuilds in 30–90 s. Always confirm the live file returns 200 before saying it is live. |
 | API + database | **Cloudflare Worker `house-hub-api`** + **D1 `house-hub`** → https://house-hub-api.catalystfarm1.workers.dev | `cd worker && npx wrangler deploy`. Editing `worker/` changes nothing until you deploy. Full reference: [`worker/README.md`](worker/README.md). |
-| Secrets | Cloudflare Worker secrets: `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY` (`HOUSE_KEY` is legacy) | `npx wrangler secret put NAME` from `worker/` — it prompts. **Never write a secret, a PIN or the pairing code into this repo, a `.dev.vars` you commit, or a chat transcript.** |
+| Secrets | Cloudflare Worker secrets: `VAPID_PRIVATE_KEY`, `ANTHROPIC_API_KEY` | `npx wrangler secret put NAME` from `worker/` — it prompts. **Never write a secret, a PIN or the pairing code into this repo, a `.dev.vars` you commit, or a chat transcript.** |
 
 There is no build step, bundler, framework or `package.json` anywhere. Do not add one. The Worker is plain ESM that wrangler bundles; it has no npm dependencies.
 
@@ -49,7 +49,7 @@ There is no build step, bundler, framework or `package.json` anywhere. Do not ad
    ```
    `scope` must match `data-scope`. `tile` is `small` or `wide` (wide tiles can render a widget in `index.html` → `widgetHtml`). `visibleTo` (profile ids) hides the app from everyone else — omit it for all. `icon` is an SVG file in `icons/` (duotone: a `class="duo"` path plus stroke paths, `currentColor`), or an emoji if you must. `"dark": true` darkens the viewer while loading.
 4. **Give it art.** Add a spot illustration `art/app/<id>.svg` (200×160) in `scripts/make-art.mjs` and re-run it — the Home cards, empty states and the style guide pick it up from there; `scripts/test-art.mjs` fails until every app has one. See [`art/README.md`](art/README.md).
-5. **Precache it** by adding the file, its icon and its art to the `SHELL` list in `sw.js` and bumping `VERSION`. Skip precaching anything multi-megabyte.
+5. **Precache it** by adding the file, its icon and its art to the `SHELL` list in `sw.js`, then `node scripts/bump-sw.mjs` (bumps `VERSION` and checks the list). Skip precaching anything multi-megabyte (add it to the skip list in that script).
 6. **Touch-first, all devices.** 44×44 px minimum targets (60 px+ for primary actions), no hover-only or right-click-only affordances (hover styles only under `@media (hover: hover) and (pointer: fine)`), Enter/Escape on inputs and dialogs, works from ~375 px to ~1400 px wide with no horizontal scroll, `viewport-fit=cover` with safe-area insets on edge-anchored controls, `localStorage` reads/writes in `try/catch`.
 7. **Commit, push, verify live:** `git add apps/<id>.html apps.json icons/<id>.svg sw.js && git commit && git push`, then poll `https://vantrix117.github.io/house-hub/apps/<id>.html` until it returns 200 and confirm `apps.json` on the live site has the entry. Report that result, not just "pushed".
 
@@ -95,6 +95,7 @@ All in [`worker/src/chat.js`](worker/src/chat.js):
 | `scripts/test-design.mjs` | The style guide (`docs/design.html`) in light/dark/kid/desktop; WCAG AA on every text pair for all eight family colours; reduced motion |
 | `scripts/test-prefs.mjs <code>` | Preferences follow the person: theme set on one device shows on another, per person; F260 text size/autolock in person scope; the display profile gets a toast, not a crash |
 | `scripts/test-photos.mjs <code>` | Profile photos + family album: upload/crop/size, second device sees the face (picker, feed, chat), kid/owner guards, delete |
+| `node scripts/bump-sw.mjs [--check]` | Bumps `sw.js` VERSION and checks every precached file exists and every shipped app/icon/art file is precached (or on its skip list) |
 | `scripts/test-art.mjs` | The `art/` illustration set: every SVG parses and renders, every app has a tile icon + spot art, all precached, ≤ 600 KB; contact sheets → `docs/screens/rm5-art-*.png` |
 | `scripts/screens-shell.mjs <code>` | Every hub surface at 390/1024/1440, light + dark, adult/kid/kiosk → `docs/screens/rm4-*.png`; layout shift < 0.1; no hex in the shell's `<style>` |
 | `scripts/smoke-chat.sh <url> <code>` | Every chat tool + guards, streamed |

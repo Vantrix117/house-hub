@@ -48,7 +48,7 @@ Legend — **A** adults (Eli, Christian, Elizabeth, David, Mea) · **K** kids (E
 - AC: Dark on the iPad → dark on the iPhone; kiosk tap leaves a reading unchecked with the toast.
 
 **8. Housekeeping** (QW · maintainer)
-- `sw.js`: bump VERSION, prune unused icons, add maskable icon + park map, add `scripts/bump-sw.mjs`; delete legacy `/items` + `HOUSE_KEY`, `beaconFlush`, `liveItems` import, `K.theme`, `prayer-icon*.png`, `migrate-leftovers.sql`; fix `hub.migrate` marking; refresh or delete `docs/INVENTORY.md`; `.gitignore` the stray root files.
+- `sw.js`: bump VERSION, prune unused icons, add maskable icon + park map, add `scripts/bump-sw.mjs`; delete legacy `/items` + `HOUSE_KEY`, `beaconFlush`, `liveItems` import, `K.theme`, `prayer-icon*.png`, `migrate-leftovers.sql`; fix `hub.migrate` marking; delete `docs/INVENTORY.md`; `.gitignore` the stray root files.
 - AC: all scripts (`smoke-api.sh`, `test-hub.mjs`, `test-apps.mjs`, `check.js`) green; `git status` clean.
 
 ## Sprint 1b — themes, liquid glass, every app on the new look (added 2026-09-17, after item 8)

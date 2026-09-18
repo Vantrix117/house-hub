@@ -311,7 +311,6 @@
       document.addEventListener('visibilitychange', () => { if (!document.hidden) { hub.pull(); scheduleFlush(0); } });
       window.addEventListener('online', () => { setSync({ state: 'pending' }); scheduleFlush(0); hub.pull(); });
       window.addEventListener('offline', () => setSync({ state: 'offline' }));
-      window.addEventListener('pagehide', () => { if (hub.sync.pending && navigator.sendBeacon) beaconFlush(); });
       clearInterval(pullTimer); pullTimer = setInterval(() => { if (!document.hidden) hub.pull(); }, 30000);
       window.addEventListener('message', ev => {
         if (ev.origin !== location.origin || !ev.data || ev.data.source !== 'hubshell') return;
@@ -340,10 +339,6 @@
     })();
     return readyPromise;
   };
-  function beaconFlush() {
-    // Best effort on page close: the batch endpoint needs headers, and sendBeacon can't set them, so
-    // the queue simply stays in localStorage and flushes on the next open. Kept as a hook for later.
-  }
   hub.reset = () => { readyPromise = null; for (const k of Object.keys(store)) delete store[k]; for (const k of Object.keys(queue)) delete queue[k]; clearInterval(pullTimer); };
 
   // ── activity feed ─────────────────────────────────────────────────────────
@@ -369,12 +364,13 @@
      this device and only if that key is still empty on the server. Originals are left untouched. */
   hub.migrate = function (entries) {
     const done = lsGet(LS.migrated, {});
-    const moved = [];
+    const moved = [], ran = new Set();   // a scope is marked done only when an adult writer actually looked at it
     for (const e of entries) {
       const s = e.scope || SCOPES[0];
       const mark = `${appId}.${s}`;
       if (done[mark] || !CH.has(chKey(appId, s)) || !hub.canWrite) continue;
       if (s === 'person' && hub.profile.kind !== 'adult') continue;
+      ran.add(mark);
       let raw; try { raw = localStorage.getItem(e.from); } catch { raw = null; }
       if (raw == null) continue;
       let value; try { value = e.parse ? e.parse(raw) : JSON.parse(raw); } catch { value = raw; }
@@ -382,8 +378,8 @@
       if (typeof e.to === 'function') { for (const [k, v] of e.to(value)) if (!hub.has(k, { scope: s })) { hub.set(k, v, { scope: s }); moved.push(k); } }
       else if (!hub.has(e.to, { scope: s })) { hub.set(e.to, value, { scope: s }); moved.push(e.to); }
     }
-    if (moved.length || entries.length) for (const e of entries) done[`${appId}.${e.scope || SCOPES[0]}`] = Date.now();
-    lsSet(LS.migrated, done);
+    for (const mark of ran) done[mark] = Date.now();
+    if (ran.size) lsSet(LS.migrated, done);
     return moved;
   };
 

@@ -4,7 +4,7 @@
 # Uses a throwaway PIN for the Niece profile and resets it again at the end (admin call),
 # so it is safe to run against the live API once. Exits non-zero on the first failed expectation.
 set -u
-BASE=${1:?base url}; CODE=${2:?pairing code}; HOUSE_KEY=${3:-}
+BASE=${1:?base url}; CODE=${2:?pairing code}
 ORIGIN=${ORIGIN:-https://vantrix117.github.io}
 pass=0; fail=0
 j() { node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const o=JSON.parse(s);const v=process.argv[1].split('.').reduce((a,k)=>a==null?a:a[k],o);console.log(typeof v==='object'?JSON.stringify(v):String(v))}catch(e){console.log('<not json>')}})" "$1"; }
@@ -109,12 +109,6 @@ echo "$out" | grep -qi "access-control-allow-origin: $ORIGIN" && { pass=$((pass+
 out=$(curl -s -D - -o /dev/null -X OPTIONS "$BASE/api/profiles" -H "Origin: https://evil.example" -H 'Access-Control-Request-Method: GET')
 echo "$out" | grep -qi "access-control-allow-origin" && { fail=$((fail+1)); echo "preflight WRONGLY allows evil.example"; } || { pass=$((pass+1)); echo "preflight blocks evil.example"; }
 
-if [ -n "$HOUSE_KEY" ]; then
-  echo "### legacy /items"
-  call "legacy items no key" GET /items; expect 401
-  call "legacy items" GET /items '' "X-House-Key: $HOUSE_KEY"; expect 200
-  echo "   $(echo "$BODY" | cut -c1-300)"
-fi
 
 echo; echo "PASS $pass  FAIL $fail"
 [ "$fail" = 0 ]
