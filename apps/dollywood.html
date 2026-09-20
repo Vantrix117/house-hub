@@ -3,12 +3,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <title>Dollywood build guide</title>
+<link rel="stylesheet" href="design.css">
 <style>
-:root{--ink:#0E0D0B;--panel:#1A1713;--panel2:#241F19;--panel3:#2E2820;--line:#3A342A;--text:#F1E9D8;--dim:#A99C86;
-  --forest:#3A7C40;--moss:#8BC34A;--ochre:#E0C45A;--clay:#D9713C;--cream:#F0E8D8;--sky:#0B1410;
-  --attr:#F5EEDC;--shop:#9DB9FF;--dine:#FFB067;--coaster:#FF5A2E;--rail:#F2E3BE;--water:#3E9BC4}
-[data-theme=light]{--ink:#F5F1EA;--panel:#FFFFFF;--panel2:#F0EBE2;--panel3:#E6DFD3;--line:#D6CDBE;--text:#1E1A14;--dim:#6B6252;
-  --forest:#2E7D32;--moss:#4E9A2E;--ochre:#9A7B12;--clay:#B5502A;--cream:#1E1A14;--sky:#DCE8F0;--attr:#1E1A14;--shop:#2B4FBF;--dine:#B85C00;--coaster:#D63A12;--rail:#3B2F1E}
+/* Map colours only (markers, coaster track, rail, water). The chrome palette — --ink, --panel(2/3), --dim, --forest,
+   --moss, --ochre, --clay, --cream, --sky, --line, --text — is aliased to design.css tokens in the House Hub flavour
+   block further down, so every hub theme (and this page's own light/dark toggle) recolours the chrome. */
+:root{--attr:#F5EEDC;--shop:#9DB9FF;--dine:#FFB067;--coaster:#FF5A2E;--rail:#F2E3BE;--water:#3E9BC4}
+[data-theme=light]{--attr:#1E1A14;--shop:#2B4FBF;--dine:#B85C00;--coaster:#D63A12;--rail:#3B2F1E}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--ink);color:var(--text);font-family:Archivo,system-ui,sans-serif;font-size:14.5px;line-height:1.5;
   font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
@@ -23,7 +24,7 @@ button,select,input{font:inherit;color:var(--text)}
 button{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:6px 11px;cursor:pointer;line-height:1.2}
 button:hover{border-color:var(--moss)}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
-button[aria-pressed=true],button.on{background:var(--forest);border-color:var(--moss);color:#F4FBEE}
+button[aria-pressed=true],button.on{background:var(--forest);border-color:var(--moss);color:var(--on-accent)}
 select,input[type=text],input[type=number],input[type=search]{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:6px 8px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .chips button{font-size:13px;padding:5px 10px}
@@ -39,12 +40,12 @@ svg#map{display:block;width:100%;height:auto;touch-action:none;user-select:none;
 svg#map.pan{cursor:grab}svg#map.pan.dragging{cursor:grabbing}svg#map.section{cursor:crosshair}svg#map.measure{cursor:cell}
 #view3d{display:none;width:100%;aspect-ratio:1535/1438;background:var(--sky);position:relative}
 #view3d canvas{display:block;width:100%!important;height:100%!important}
-.readout{position:absolute;left:10px;bottom:10px;background:rgba(14,13,11,.86);color:#F1E9D8;border:1px solid #3A342A;padding:6px 10px;font-size:12.5px;pointer-events:none;border-radius:3px;z-index:3}
-.readout b{color:#E0C45A;font-size:15px}
-.mini{position:absolute;right:10px;bottom:10px;width:170px;border:1px solid #3A342A;background:#0E0D0B;border-radius:3px;overflow:hidden;z-index:3;cursor:pointer;opacity:.92}
+.readout{position:absolute;left:10px;bottom:10px;background:color-mix(in srgb,var(--panel) 86%,transparent);color:var(--text);border:1px solid var(--line);padding:6px 10px;font-size:12.5px;pointer-events:none;border-radius:3px;z-index:3}
+.readout b{color:var(--ochre);font-size:15px}
+.mini{position:absolute;right:10px;bottom:10px;width:170px;border:1px solid var(--line);background:var(--ink);border-radius:3px;overflow:hidden;z-index:3;cursor:pointer;opacity:.92}
 .mini svg{display:block;width:100%;height:auto}
-.exag{position:absolute;left:10px;top:10px;background:rgba(14,13,11,.86);color:#F1E9D8;border:1px solid #3A342A;padding:6px 10px;font-size:12.5px;border-radius:3px;z-index:3;display:none;align-items:center;gap:8px}
-.exag input{accent-color:#E0C45A;width:120px}
+.exag{position:absolute;left:10px;top:10px;background:color-mix(in srgb,var(--panel) 86%,transparent);color:var(--text);border:1px solid var(--line);padding:6px 10px;font-size:12.5px;border-radius:3px;z-index:3;display:none;align-items:center;gap:8px}
+.exag input{accent-color:var(--ochre);width:120px}
 .hint{color:var(--dim);font-size:12.5px;margin:8px 0 0}
 aside.side{border:1px solid var(--line);background:var(--panel);border-radius:4px;position:sticky;top:12px;max-height:calc(100vh - 24px);display:flex;flex-direction:column}
 .tabs{display:flex;border-bottom:1px solid var(--line)}
@@ -83,8 +84,8 @@ svg.gp{width:100%;height:auto;margin:4px 0}
 @media(max-width:820px){.bmain{grid-template-columns:1fr}}
 .bnow{padding:14px 16px}
 .pill{display:inline-block;font-size:11px;letter-spacing:.04em;padding:2px 8px;border-radius:2px;background:var(--panel2);border:1px solid var(--line);color:var(--dim);margin-right:6px}
-.pill.terrain{color:#D9A45C;border-color:#7A5A2C}.pill.paths{color:#DACFAE;border-color:#5A5343}.pill.structures{color:#F0A98C;border-color:#7A4433}
-.pill.rides{color:#FF9E85;border-color:#8A3F30}.pill.detail{color:#B5DB84;border-color:#4E6E2C}.pill.finish{color:#E0C45A;border-color:#7A7030}
+.pill.terrain{color:var(--gold-ink);border-color:var(--gold);background:var(--gold-soft)}.pill.paths{color:var(--mocha-ink);border-color:var(--mocha);background:var(--mocha-soft)}.pill.structures{color:var(--slate-ink);border-color:var(--slate);background:var(--slate-soft)}
+.pill.rides{color:var(--terra-ink);border-color:var(--terra);background:var(--terra-soft)}.pill.detail{color:var(--olive-ink);border-color:var(--olive);background:var(--olive-soft)}.pill.finish{color:var(--teal-ink);border-color:var(--teal);background:var(--teal-soft)}
 .bnow h3{font-family:Fraunces,serif;font-size:21px;font-weight:600;margin:9px 0 6px;letter-spacing:-.01em}
 .bnow p{margin:0 0 10px;max-width:66ch}
 .meas{display:inline-block;border-left:2px solid var(--ochre);padding:3px 0 3px 10px;color:var(--ochre);font-size:13px;margin-bottom:10px}
@@ -135,34 +136,37 @@ footer{color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-t
 /* ================= House Hub flavours =================
    hub  = the build guide inside the family hub: hub palette + type, 44 px targets, cards.
    live = the park map: full-bleed illustrated basemap, status pill, glass buttons, bottom sheet, family markers.
-   Tokens mirror apps/design.css in the hub repo; hub.js overrides --accent with the signed-in profile's colour. */
-[data-flavor=hub],[data-flavor=live]{--ink:#1C1714;--panel:#25201B;--panel2:#2C261F;--panel3:#332B24;--line:#332B24;--text:#F3EDE5;--dim:#96887A;--ochre:#E0B25A;--moss:#9DC183;--forest:#5B8143;--clay:#E28A66;--cream:#F3EDE5;--sky:#161211;--accent:#CBA77E;--on-accent:#1C1714;
-  --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 18px -8px rgba(0,0,0,.6);--shadow-lg:0 2px 8px rgba(0,0,0,.45),0 28px 64px -22px rgba(0,0,0,.8);--font-serif:"Instrument Serif",Georgia,"Times New Roman",serif;--font-sans:-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+   The page's own palette names are aliases of design.css tokens (linked above), so every theme — and this page's
+   own light/dark toggle, which design.css reads as Hearth/Midnight — flips them. --line, --text, --accent, --on-accent,
+   --shadow(-lg) and the fonts come straight from design.css. Only the category marker colours stay literal (map colours). */
+[data-flavor=hub],[data-flavor=live]{--ink:var(--bg);--panel:var(--surface);--panel2:var(--surface-2);--panel3:var(--line);--dim:var(--text-2);--ochre:var(--gold);--moss:var(--olive);--forest:var(--olive);--clay:var(--terra);--cream:var(--text);--sky:var(--bg-2);
   --cat-attr:#FF6B4A;--cat-shop:#5B8DEF;--cat-dine:#F2A44A}
-[data-flavor=hub][data-theme=light],[data-flavor=live][data-theme=light]{--ink:#F7F2EB;--panel:#FFFCF8;--panel2:#EFE7DC;--panel3:#E6DCCE;--line:#E6DCCE;--text:#3A2E24;--dim:#6E6054;--ochre:#B4861B;--moss:#5B8143;--forest:#5B8143;--clay:#BC5A38;--cream:#3A2E24;--sky:#EFE7DC;--accent:#8A6A4B;--on-accent:#FFFCF8;
-  --shadow:0 1px 2px rgba(58,46,36,.04),0 6px 18px -8px rgba(58,46,36,.14);--shadow-lg:0 2px 8px rgba(58,46,36,.06),0 24px 56px -20px rgba(58,46,36,.28)}
 [data-flavor=hub] body,[data-flavor=live] body{font-family:var(--font-sans);font-size:15px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 [data-flavor=hub] h1,[data-flavor=hub] .stat b,[data-flavor=hub] .tabbody h2,[data-flavor=hub] .bhead h2,[data-flavor=hub] .profhead h2,[data-flavor=hub] .pop h2,[data-flavor=live] .pop h2{font-family:var(--font-serif);font-weight:400;letter-spacing:0}
 [data-flavor=hub] button,[data-flavor=hub] select,[data-flavor=hub] input[type=search],[data-flavor=hub] input[type=number],[data-flavor=live] button,[data-flavor=live] select,[data-flavor=live] input[type=search]{min-height:44px;border-radius:12px;padding:8px 14px;border:1px solid var(--line);background:var(--panel);color:var(--text);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 [data-flavor=hub] button[aria-pressed=true],[data-flavor=hub] button.on,[data-flavor=live] button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-[data-flavor=hub] button:focus-visible,[data-flavor=live] button:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+[data-flavor=hub] button:focus-visible,[data-flavor=live] button:focus-visible{outline:none;box-shadow:var(--focus)}
+[data-flavor=hub] button.done{background:var(--olive-soft);border-color:var(--olive);color:var(--olive-ink)}
 [data-flavor=hub] .pop,[data-flavor=live] .pop{border-radius:18px;box-shadow:var(--shadow-lg);padding:16px 18px 14px}
 [data-flavor=hub] .pop .x,[data-flavor=live] .pop .x{min-height:36px;min-width:36px;border-radius:50%}
 [data-flavor=hub] .oi,[data-flavor=live] .oi{min-height:46px;align-items:center;border-radius:10px;padding:6px 8px}
 
 /* ---- hub: the build guide as a set of cards ---- */
 [data-flavor=hub] .wrap{max-width:1400px;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(40px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-[data-flavor=hub] header{border:1px solid var(--line);padding:18px 22px;margin-bottom:14px;background:var(--panel);border-radius:20px;box-shadow:var(--shadow)}
+[data-flavor=hub] header{padding:18px 22px;margin-bottom:14px;border-radius:20px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--glass-pickup),transparent),transparent 62%),color-mix(in srgb,var(--surface) 78%,var(--bg));border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e2)}
+[data-flavor=hub] header > div:first-child{flex:1 1 320px}[data-flavor=hub] header .hero-art{width:132px;height:106px;flex:none;margin:-6px -4px -10px 0;opacity:.95;pointer-events:none}
+@media(max-width:820px){[data-flavor=hub] header .hero-art{display:none}}
 [data-flavor=hub] h1{font-size:clamp(28px,3.4vw,42px);margin-bottom:2px}
 [data-flavor=hub] .stat b{font-size:28px;color:var(--ochre)}
 [data-flavor=hub] .chips{gap:8px;margin:0 0 12px;overflow-x:auto;flex-wrap:nowrap;padding:2px 2px 6px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 [data-flavor=hub] .chips::-webkit-scrollbar{display:none}
 [data-flavor=hub] .chips button{border-radius:999px;white-space:nowrap;flex:none;border-width:2px;background:var(--panel);font-size:14px;padding:8px 16px}
 [data-flavor=hub] .chips button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-[data-flavor=hub] .toolbar{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:8px 10px;gap:8px 4px;box-shadow:var(--shadow)}
+[data-flavor=hub] .toolbar{border-radius:16px;padding:8px 10px;gap:8px 4px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--glass-pickup),transparent),transparent 62%),color-mix(in srgb,var(--surface) 78%,var(--bg));border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e2)}
 [data-flavor=hub] .toolbar .grp{border-right:0;padding-right:8px;gap:6px}
 [data-flavor=hub] .toolbar .lab{font-size:12.5px}
 [data-flavor=hub] .mapbox,[data-flavor=hub] aside.side,[data-flavor=hub] .build,[data-flavor=hub] .profwrap{border-radius:20px;border-color:var(--line);box-shadow:var(--shadow);overflow:hidden}
+[data-flavor=hub] aside.side{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--glass-pickup),transparent),transparent 62%),color-mix(in srgb,var(--surface) 78%,var(--bg));border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e2)}
 [data-flavor=hub] .tabs button{min-height:52px;font-size:14px;font-weight:600;border-radius:0}
 [data-flavor=hub] .tabs button[aria-selected=true]{background:transparent;color:var(--text)}
 [data-flavor=hub] .tabbody{padding:16px}
@@ -201,8 +205,10 @@ footer{color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-t
 [data-flavor=hub] .mapbox{background:#4F6A48}
 [data-flavor=hub] #secsel path:nth-child(1){stroke-width:9;stroke-opacity:.22}[data-flavor=hub] #secsel path:nth-child(2){stroke-width:2;opacity:.85}[data-flavor=hub] #secsel path:nth-child(3){display:none}
 [data-flavor=hub] .mini{border-radius:12px;width:150px;opacity:.85;border-color:var(--line)}
-[data-flavor=hub] .readout{border-radius:999px;padding:6px 14px;background:color-mix(in srgb,var(--panel) 85%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-color:var(--line)}
-[data-flavor=hub] .pop{padding-top:20px;border-top:6px solid var(--pop-cat,var(--accent))}
+[data-flavor=hub] .readout,[data-flavor=hub] .exag{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--glass-pickup),transparent),transparent 62%),var(--glass);border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e2);-webkit-backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02);backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02)}
+[data-flavor=hub] .readout{border-radius:999px;padding:6px 14px}
+[data-flavor=hub] .exag{border-radius:12px;padding:8px 12px}
+[data-flavor=hub] .pop{padding-top:20px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--glass-pickup),transparent),transparent 62%),var(--glass-strong);border:1px solid var(--glass-edge);border-top:6px solid var(--pop-cat,var(--accent));box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e4);-webkit-backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02);backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02)}
 [data-flavor=hub] .pop[data-cat=attraction]{--pop-cat:var(--cat-attr)}[data-flavor=hub] .pop[data-cat=shopping]{--pop-cat:var(--cat-shop)}[data-flavor=hub] .pop[data-cat=dining]{--pop-cat:var(--cat-dine)}
 [data-flavor=hub] .pop .badge{background:var(--pop-cat,var(--accent))!important;color:#1C1714}
 [data-flavor=hub] .chips button{display:inline-flex;align-items:center;gap:8px}
@@ -330,6 +336,7 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
   <div class="stat"><b id="s-coast">—</b><span>coasters with mapped track</span></div>
   <div class="stat"><b id="s-size">—</b><span>frame, metres</span></div>
  </div>
+ <img class="hero-art" src="../art/app/dollywood.svg" alt="">
 </header>
 <div class="chips" id="chips" role="group" aria-label="Park sections"></div>
 <div class="workspace">

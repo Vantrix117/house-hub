@@ -24,27 +24,18 @@
   --paper:var(--bg); --raised:var(--surface); --sunk:var(--surface-2);
   --ink:var(--text); --ink2:var(--text-2);
   --rule:var(--line); --rule-soft:var(--line-soft);
-  --dim:#2A231C;
-  /* category dots: tints of the four accents, no new hues */
-  --d0:#8A6A4B; --d1:#137F77; --d2:#5B8143; --d3:#B4861B;
-  --d4:#B39271; --d5:#4EA39B; --d6:#8AAA72; --d7:#D2AB4E;
+  --dim:var(--text);
+  /* category dots: the four family accents and a softer tint of each; every theme flips them */
+  --d0:var(--mocha); --d1:var(--teal); --d2:var(--olive); --d3:var(--gold);
+  --d4:color-mix(in srgb, var(--mocha) 65%, var(--surface));
+  --d5:color-mix(in srgb, var(--teal) 65%, var(--surface));
+  --d6:color-mix(in srgb, var(--olive) 65%, var(--surface));
+  --d7:color-mix(in srgb, var(--gold) 65%, var(--surface));
   --lift:var(--shadow); --lift-lg:var(--shadow-lg);
   /* --accent is the signed-in person's colour (set by hub.js); --accent-soft follows it */
 }
-/* Dark: applies from the system setting unless the user picked Light,
-   and always when the theme is a dark one (hub.js sets data-scheme on <html>). */
-@media (prefers-color-scheme: dark){
-  :root:not([data-scheme="light"]){
-    --dim:#14100D;
-    --d0:#CBA77E; --d1:#5EC2B8; --d2:#9DC183; --d3:#E0B25A;
-    --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;
-  }
-}
-:root[data-scheme="dark"]{
-    --dim:#14100D;
-    --d0:#CBA77E; --d1:#5EC2B8; --d2:#9DC183; --d3:#E0B25A;
-    --d4:#A4855F; --d5:#3F9D94; --d6:#7BA262; --d7:#C49842;
-}
+/* Dark themes need no block of their own: hub.js marks the resolved scheme on <html>
+   and design.css flips every token this page uses. */
 body.shared{ --accent:var(--teal); --accent-soft:var(--teal-soft); }
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -72,7 +63,7 @@ header{padding:38px 0 14px}
 /* ── list switcher ────────────────────────────────────────── */
 .hdr{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:44px}
 .switch{display:inline-flex;margin:0;padding:3px;border-radius:999px;background:var(--sunk);flex:0 0 auto}
-.switch button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;min-height:38px;border:none;
+.switch button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;min-height:44px;border:none;
   cursor:pointer;background:transparent;color:var(--muted);border-radius:999px;
   letter-spacing:-.01em;transition:background .2s,color .2s,box-shadow .2s}
 .switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
@@ -181,14 +172,14 @@ textarea{min-height:120px;resize:vertical}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
   box-shadow:0 0 0 4px var(--accent-soft)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font-family:inherit;font-size:14.5px;font-weight:600;padding:9px 16px;border-radius:999px;
+.chip{font-family:inherit;font-size:14.5px;font-weight:600;padding:10px 16px;border-radius:999px;min-height:44px;
   cursor:pointer;background:var(--sunk);border:1.5px solid transparent;color:var(--ink2);
   letter-spacing:-.01em;transition:background .18s,color .18s,border-color .18s}
 .chip:hover{background:var(--hover)}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.chip[aria-pressed="true"]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}
 button.act{font-family:inherit;font-size:16.5px;font-weight:600;padding:15px 22px;
-  border-radius:var(--r-sm);cursor:pointer;background:var(--accent);color:var(--on-accent);
-  border:1.5px solid var(--accent);width:100%;margin-top:28px;letter-spacing:-.012em;
+  border-radius:var(--r-sm);cursor:pointer;background:var(--accent-deep);color:var(--on-accent);
+  border:1.5px solid var(--accent-deep);width:100%;margin-top:28px;letter-spacing:-.012em;
   transition:transform .16s,opacity .2s,background .2s}
 button.act:active{transform:translateY(1px)}
 button.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
@@ -217,13 +208,13 @@ button:disabled{opacity:.35;cursor:default}
 .err:empty{display:none}
 
 /* ── sheet ────────────────────────────────────────────────── */
-.veil{position:fixed;inset:0;background:rgba(42,35,28,.42);backdrop-filter:blur(6px);
+.veil{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);display:none;z-index:20}
 .veil.on{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--paper);
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;
   border-radius:26px 26px 0 0;max-height:88vh;overflow:auto;display:none;
-  box-shadow:var(--lift-lg);padding:14px 22px calc(32px + env(safe-area-inset-bottom))}
+  padding:14px 22px calc(32px + env(safe-area-inset-bottom))}
 .sheet.on{display:block;animation:slide .32s cubic-bezier(.22,.9,.3,1)}
 @keyframes slide{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
 .sheet .inner{max-width:33rem;margin:0 auto}
@@ -231,7 +222,7 @@ button:disabled{opacity:.35;cursor:default}
   background:var(--rule);margin:0 auto 16px}
 .sheet h1{font-size:25px}
 .close{float:right;background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;
-  color:var(--muted);cursor:pointer;padding:6px 0 6px 14px}
+  color:var(--muted);cursor:pointer;padding:6px 0 6px 14px;min-height:44px}
 .hist{list-style:none;padding:0;margin:24px 0 0}
 .hist li{border-top:1px solid var(--rule-soft);padding:13px 0;font-size:15.5px}
 .hist .d{font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:3px}
@@ -239,35 +230,59 @@ button:disabled{opacity:.35;cursor:default}
 /* ── toast ────────────────────────────────────────────────── */
 .toast{position:fixed;left:50%;transform:translateX(-50%);
   bottom:calc(108px + env(safe-area-inset-bottom));z-index:30;
-  background:var(--dim);color:#F7F2EB;padding:13px 20px;border-radius:999px;
+  background:var(--dim);color:var(--bg);padding:13px 20px;border-radius:999px;
   font-size:15px;font-weight:500;display:none;align-items:center;gap:18px;max-width:92vw;
   box-shadow:var(--lift-lg)}
 .toast.on{display:flex;animation:slide .28s cubic-bezier(.22,.9,.3,1)}
-.toast button{background:none;border:none;color:var(--gold);font-family:inherit;
+.toast button{background:none;border:none;color:color-mix(in srgb, var(--gold) 45%, var(--bg));font-family:inherit;
   font-size:14px;font-weight:700;cursor:pointer;padding:0}
 
 /* ── floating add ─────────────────────────────────────────── */
 .fab{position:fixed;right:calc(22px + env(safe-area-inset-right));
   bottom:calc(86px + env(safe-area-inset-bottom));z-index:12;width:56px;height:56px;
-  border-radius:50%;border:none;background:var(--accent);color:var(--on-accent);
-  box-shadow:var(--lift-lg);cursor:pointer;display:none;place-items:center;padding:0;
+  border-radius:50%;color:var(--on-accent);
+  cursor:pointer;display:none;place-items:center;padding:0;
   transition:transform .16s,background .2s}
 .fab.on{display:grid}
 .fab:active{transform:scale(.94)}
 .fab svg{width:26px;height:26px}
 
 /* ── nav ──────────────────────────────────────────────────── */
-nav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--raised);
-  border-top:1px solid var(--rule-soft);padding-bottom:env(safe-area-inset-bottom)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:10;padding-bottom:env(safe-area-inset-bottom)}
 nav .inner{max-width:33rem;margin:0 auto;display:flex;padding:8px 8px}
 nav button{flex:1;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;
   color:var(--muted);padding:9px 2px 8px;cursor:pointer;border-radius:18px;letter-spacing:-.01em;
   display:flex;flex-direction:column;align-items:center;gap:4px;min-height:56px;
   transition:background .2s,color .2s}
 nav button svg{width:20px;height:20px;display:block}
-nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft)}
+nav button[aria-current="true"]{color:var(--accent-deep);background:var(--accent-soft)}
+
+/* ── liquid glass: the design.css recipe on this page's own chrome ──
+   (copied rather than classed because this page keeps its own component CSS and no .ds) */
+nav,.sheet,.fab,#kitchen .close{
+  --g:var(--glass);
+  background:
+    linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+    radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
+    var(--g);
+  border:1px solid var(--glass-edge);
+  box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner),
+    0 0 0 1px var(--glass-ring), var(--e2);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02);
+  backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02)}
+nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
+  box-shadow:inset 0 1px 0 var(--hairline), 0 -1px 0 var(--glass-ring), 0 -12px 40px -24px var(--glass-inner)}
+.sheet{--g:var(--glass-strong);border-width:1px 1px 0;
+  box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), 0 0 0 1px var(--glass-ring), var(--e4)}
+.fab{--g:var(--accent-deep);
+  box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner),
+    0 0 0 1px var(--glass-ring), var(--e3)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  nav,.sheet,#kitchen .close{--g:color-mix(in srgb, var(--surface) 96%, transparent)}
+}
 
 .empty{color:var(--muted);padding:38px 0;max-width:32ch;font-size:15.5px}
+.empty img{display:block;width:min(220px,70%);height:auto;margin:0 0 14px -6px}
 .empty button{display:block;margin-top:16px}
 .note{font-size:14px;color:var(--muted);margin-top:12px;max-width:46ch;line-height:1.55}
 .warn{font-size:14px;font-weight:500;color:var(--gold);margin-top:16px;max-width:46ch}
@@ -293,7 +308,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   font-weight:600;color:var(--muted);cursor:pointer;padding:6px}
 #pray .card{flex:1;display:flex;flex-direction:column;justify-content:center;
   max-width:31rem;margin:0 auto;width:100%}
-#pray .cat{font-size:13.5px;font-weight:600;color:var(--accent)}
+#pray .cat{font-size:13.5px;font-weight:600;color:var(--accent-deep)}
 #pray .big{font-size:clamp(30px,5.2vw,44px);line-height:1.16;font-weight:600;
   margin:16px 0 0;letter-spacing:-.035em}
 #pray .for{font-size:17.5px;color:var(--muted);margin-top:16px;font-weight:500}
@@ -309,7 +324,7 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   color:var(--ink);transition:transform .16s,background .2s}
 #pray .ctrl button:active{transform:translateY(1px)}
 #pray .ctrl button:disabled{opacity:.3}
-#pray .ctrl button.go{background:var(--accent);border-color:var(--accent);color:var(--on-accent);
+#pray .ctrl button.go{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent);
   flex:2;font-size:16.5px}
 
 /* ── kitchen view ─────────────────────────────────────────── */
@@ -323,24 +338,24 @@ nav button[aria-current="true"]{color:var(--accent);background:var(--accent-soft
   letter-spacing:-.022em}
 #kitchen .k-for{font-size:16.5px;font-weight:400;color:var(--muted)}
 #kitchen .close{position:fixed;top:calc(20px + env(safe-area-inset-top));right:22px;
-  background:var(--raised);border:1.5px solid var(--rule)}
+  padding:10px 16px;min-height:44px;border-radius:999px;color:var(--ink)}
 
 /* ── print ────────────────────────────────────────────────── */
 @media print{
   nav,.veil,.sheet,.toast,.switch,.meter,.strip,.cheer,.prompt,#pray,#kitchen,.fab,
   #lock,button,input,textarea,select,label,.note,.warn{display:none!important}
-  body{background:#fff;color:#000;font-size:11pt;padding:0}
+  body{background:white;color:black;font-size:11pt;padding:0}
   .wrap{max-width:none;padding:0}
   .screen{display:none!important}
   #printArea{display:block!important}
   #printArea h1{font-size:20pt;font-weight:600;letter-spacing:-.03em;margin:0 0 4pt}
-  #printArea .p-sub{font-size:9.5pt;font-weight:600;color:#555;margin-bottom:16pt}
+  #printArea .p-sub{font-size:9.5pt;font-weight:600;color:dimgray;margin-bottom:16pt}
   #printArea .p-cat{font-size:9.5pt;font-weight:700;margin:15pt 0 5pt;
-    border-bottom:.5pt solid #bbb;padding-bottom:3pt;break-after:avoid}
+    border-bottom:.5pt solid silver;padding-bottom:3pt;break-after:avoid}
   #printArea .p-item{font-size:10.5pt;padding:3pt 0;break-inside:avoid}
-  #printArea .p-box{display:inline-block;width:9pt;height:9pt;border:.75pt solid #333;
+  #printArea .p-box{display:inline-block;width:9pt;height:9pt;border:.75pt solid black;
     border-radius:2pt;margin-right:9pt;vertical-align:-1pt}
-  #printArea .p-for{color:#666}
+  #printArea .p-for{color:dimgray}
 }
 #printArea{display:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -854,7 +869,7 @@ function renderToday(){
     : L().prayers.some(p => p.status === 'active')
       ? '<div class="empty">Nothing scheduled for today under this plan.'
         + '<button class="act ghost small" data-go="more">Change the plan</button></div>'
-      : '<div class="empty">Nothing on this list yet.'
+      : '<div class="empty"><img src="../art/empty/prayers.svg" alt="">Nothing on this list yet.'
         + '<button class="act ghost small" data-go="add">Add a request</button></div>';
 
   const ann = plan.show.anniversaries ? anniversaries() : [];
@@ -888,7 +903,7 @@ function renderAll(){
         ? '<details class="cat" open><summary><span>Answered</span><span class="n">' + ans.length
           + '</span></summary>' + ans.map(ansHTML).join('') + '</details>' : '')
     : q ? '<p class="empty">Nothing matches that.</p>'
-    : '<div class="empty">Nothing on the list yet.'
+    : '<div class="empty"><img src="../art/empty/prayers.svg" alt="">Nothing on the list yet.'
       + '<button class="act ghost small" data-go="add">Add a request</button></div>';
 }
 
@@ -1471,7 +1486,10 @@ function backupNudge(){
 function applyTheme(){
   const t = hub.theme();
   const dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const m = el('themeColor'); if(m) m.setAttribute('content', dark ? '#1C1714' : '#F7F2EB');
+  const m = el('themeColor');
+  const paper = (typeof getComputedStyle === 'function' && document.documentElement)
+    ? (getComputedStyle(document.documentElement).getPropertyValue('--bg') || '').trim() : '';
+  if(m) m.setAttribute('content', paper || (dark ? '#1C1714' : '#F7F2EB'));
   document.querySelectorAll('#f-theme .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === t));
 }
 const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');

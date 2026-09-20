@@ -6,11 +6,11 @@
 <title>The Larder Ledger</title>
 <link rel="stylesheet" href="design.css">
 <style>
-  /* The ledger keeps its own look (serif, paper, olive) and takes colours from design.css tokens. */
-  :root { --ledger: #3D5A3D; --ledger-ink: #F6F3EC; --ledger-press: #32492F; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ledger: #8FB08A; --ledger-ink: #1C1714; --ledger-press: #7A9C76; } }
-  :root[data-theme="dark"] { --ledger: #8FB08A; --ledger-ink: #1C1714; --ledger-press: #7A9C76; }
-  body { min-height: 100vh; font-family: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  /* The ledger keeps its own look (serif, paper, olive) and takes every colour from design.css tokens.
+     The ledger green is the olive ink of whichever theme is on: deep green on paper, pale green in the dark
+     themes — the fill/text pair flips with it, so nothing here keys off a colour scheme. */
+  :root { --ledger: var(--olive-ink); --ledger-ink: var(--surface); --ledger-press: color-mix(in srgb, var(--olive-ink) 82%, var(--text)); }
+  body { min-height: 100vh; font-family: var(--font-display);
          padding: 32px max(16px, var(--safe-right)) max(64px, var(--safe-bottom)) max(16px, var(--safe-left)); }
   .wrap { max-width: 560px; margin: 0 auto; }
   .sans { font-family: var(--font-sans); }
@@ -20,52 +20,62 @@
   .tally { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
   .lede { color: var(--text-2); font-size: 14px; margin: 0 0 6px; }
   .mode { font-size: 12px; color: var(--muted); margin: 0 0 24px; }
-  .mode.warn { color: var(--warn); }
+  .mode.warn { color: var(--warn-ink); }
 
-  .alert { display: flex; align-items: center; gap: 8px; background: var(--danger-soft); color: var(--danger);
-           padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; }
+  .alert { display: flex; align-items: center; gap: 8px; background: var(--danger-soft); color: var(--danger-ink);
+           padding: 12px 14px; border-radius: var(--r-sm); font-size: 13px; margin-bottom: 20px; }
 
-  form { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+  form { --g: var(--glass-strong);
+         background:
+           linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+           radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
+           var(--g);
+         border: 1px solid var(--glass-edge); border-radius: var(--r); padding: 18px;
+         box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2);
+         -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02);
          margin-bottom: 28px; display: grid; gap: 14px; }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { form { --g: color-mix(in srgb, var(--surface) 96%, transparent); } }
   .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .namerow { display: flex; align-items: flex-end; gap: 8px; }
   #name { flex: 1; border: none; border-bottom: 2px solid var(--line); padding: 14px 2px; font-size: 17px;
           outline: none; background: transparent; color: var(--text); min-height: 56px; width: 100%; }
   #name:focus { border-bottom-color: var(--ledger); box-shadow: none; }
   #name::placeholder { color: var(--muted); }
-  select, #date { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 16px;
-                  background: var(--surface-2); color: var(--text); min-height: 56px; width: 100%; }
+  select, #date { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; font-size: 16px;
+                  background: var(--surface); color: var(--text); min-height: 56px; width: 100%; }
   .log { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--ledger);
-         color: var(--ledger-ink); border: none; border-radius: 8px; min-height: 60px; font-size: 17px; font-weight: 600; cursor: pointer; }
+         color: var(--ledger-ink); border: none; border-radius: var(--r-sm); min-height: 60px; font-size: 17px; font-weight: 600; cursor: pointer;
+         box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ledger-ink) 22%, transparent), var(--e1); }
   .log:active { background: var(--ledger-press); }
-  .mic { width: 56px; height: 56px; flex: none; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2);
+  .mic { width: 56px; height: 56px; flex: none; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface);
          color: var(--ledger); display: grid; place-items: center; cursor: pointer; }
   .mic.on { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); animation: pulse 1s infinite; }
   @keyframes pulse { 50% { transform: scale(.94); } }
   .err { color: var(--danger); font-size: 12px; }
 
   .list { display: grid; gap: 10px; }
-  .item { display: flex; align-items: stretch; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .item { display: flex; align-items: stretch; background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--r-sm); overflow: hidden; box-shadow: var(--e1); }
   .bar { width: 5px; flex: none; background: var(--bar); }
   .body { flex: 1; padding: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
   .nm { font-size: 16px; font-weight: 600; }
   .meta { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
   .right { display: flex; align-items: center; gap: 10px; flex: none; }
   .status { font-size: 11.5px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: var(--chip); color: var(--chip-text); white-space: nowrap; }
-  .done { border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; width: 52px; height: 52px;
+  .done { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--r-sm); width: 52px; height: 52px;
           display: flex; align-items: center; justify-content: center; color: var(--ledger); flex: none; cursor: pointer; }
   .done:active { background: var(--hover); }
 
-  .empty { text-align: center; padding: 48px 0; color: var(--muted); }
+  .empty { text-align: center; padding: 40px 0 48px; color: var(--muted); }
   .empty p { margin: 0; }
   .empty svg { margin-bottom: 10px; opacity: .5; }
+  .empty img { width: 176px; max-width: 70%; margin: 0 auto 14px; }
 
   .hearth { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
   .hearth p { font-size: 13px; color: var(--text-2); margin: 0 0 12px; }
   .copy { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface-2);
-          border-radius: 8px; padding: 0 18px; min-height: 52px; font-size: 14px; color: var(--text); cursor: pointer; }
+          border-radius: var(--r-sm); padding: 0 18px; min-height: 52px; font-size: 14px; color: var(--text); cursor: pointer; }
   .copy:active { background: var(--hover); }
-  :root[data-kind="kiosk"] .hearth, :root[data-kind="kiosk"] #add { display: none; }
+  :root[data-kind="kiosk"] .hearth, :root[data-kind="kiosk"] form[id="add"] { display: none; }   /* the form id is written as an attribute selector so hex-colour linting does not misread it */
 </style>
 </head>
 <body>
@@ -107,9 +117,9 @@
   const SIZES = ['Small', 'Medium', 'Large', 'Family-size'];
   const WARN_DAYS = 7, AGING_DAYS = 4;
   const TONES = {
-    fresh:  { bar: 'var(--ok)',     chip: 'var(--ok-soft)',     chipText: 'var(--ok)' },
-    warn:   { bar: 'var(--warn)',   chip: 'var(--warn-soft)',   chipText: 'var(--warn)' },
-    urgent: { bar: 'var(--danger)', chip: 'var(--danger-soft)', chipText: 'var(--danger)' },
+    fresh:  { bar: 'var(--ok)',     chip: 'var(--ok-soft)',     chipText: 'var(--ok-ink)' },
+    warn:   { bar: 'var(--warn)',   chip: 'var(--warn-soft)',   chipText: 'var(--warn-ink)' },
+    urgent: { bar: 'var(--danger)', chip: 'var(--danger-soft)', chipText: 'var(--danger-ink)' },
   };
   // Lucide glyphs, inlined — no icon library on a static host.
   const ICON = {
@@ -181,7 +191,9 @@
       e.className = 'empty';
       const p = document.createElement('p');
       p.textContent = 'Nothing logged yet.';
-      e.append(svg('utensils', 28), p);
+      const art = document.createElement('img');
+      art.src = '../art/empty/fridge.svg'; art.alt = ''; art.decoding = 'async';
+      e.append(art, p);
       listEl.append(e);
       return;
     }

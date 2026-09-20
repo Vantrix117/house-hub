@@ -9,32 +9,29 @@
 <title>F260 Reading Plan</title>
 <style>
 /* Same sand-and-mocha family as the Prayer app, system fonts only.
-   slate = links and the current week   olive = done   gold = journal + memory verses   terra = streak */
+   slate = links and the current week   olive = done   gold = journal + memory verses   terra = streak
+   Every colour is a design.css token, so each theme (Hearth, Parchment, Frost, Midnight, Forest) flips the whole app. */
 :root{
-  /* paper/ink/rule/olive/gold/terra/lift/r come from design.css tokens; slate and the book groups are F260's own */
+  /* paper/ink/rule/slate/olive/gold/terra/lift/r all come from design.css tokens */
   --paper:var(--bg); --raised:var(--surface); --sunk:var(--surface-2);
   --ink:var(--text); --ink2:var(--text-2);
   --rule:var(--line); --rule-soft:var(--line-soft);
-  --slate:#4F5D8C; --slate-soft:#E4E7F1;
+  --hover-base:var(--hover);
   --lift:var(--shadow); --lift-lg:var(--shadow-lg);
   --serif:"New York",var(--font-serif);
-  /* book groups: Law, History, Wisdom, Prophets, Gospels+Acts, Epistles+Revelation */
-  --g-law:#C1893A; --g-hist:#B39271; --g-wis:#5B8143; --g-pro:#137F77; --g-gos:#4F5D8C; --g-epi:#8A6A4B;
+  /* book groups: Law, History, Wisdom, Prophets, Gospels+Acts, Epistles+Revelation — family colours, so they flip per theme */
+  --g-law:var(--gold); --g-hist:color-mix(in srgb,var(--mocha) 70%,var(--gold)); --g-wis:var(--olive);
+  --g-pro:var(--teal); --g-gos:var(--slate); --g-epi:var(--mocha);
+  /* label on a solid olive/terra button: white by day (on-accent is off-white and dips under 4.5:1 in Hearth), the theme's on-accent ink in dark schemes where olive/terra are light */
+  --on-solid:white;
 }
-/* New Testament weeks: the paper cools a touch */
-body.nt{--paper:#F2F3F0; --raised:#FCFCFA; --sunk:#E8EAE5; --hover:#ECEEE9; --rule:#DDE0D8; --rule-soft:#E8EAE4}
-@media (prefers-color-scheme: dark){
-  :root:not([data-scheme="light"]){
-    --slate:#A5B0DC; --slate-soft:#232738;
-    --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
-  }
-  :root:not([data-scheme="light"]) body.nt{--paper:#171A1A; --raised:#20242A; --sunk:#111314; --hover:#262B30; --rule:#2C3238; --rule-soft:#232830}
+:root[data-scheme="dark"]{--on-solid:var(--on-accent)}
+/* New Testament weeks: the paper cools a touch (a breath of teal mixed into the theme's own surfaces) */
+body.nt{
+  --paper:color-mix(in srgb,var(--bg) 93%,var(--teal)); --raised:color-mix(in srgb,var(--surface) 94%,var(--teal));
+  --sunk:color-mix(in srgb,var(--surface-2) 93%,var(--teal)); --hover:color-mix(in srgb,var(--hover-base) 93%,var(--teal));
+  --rule:color-mix(in srgb,var(--line) 92%,var(--teal)); --rule-soft:color-mix(in srgb,var(--line-soft) 92%,var(--teal));
 }
-:root[data-scheme="dark"]{
-    --slate:#A5B0DC; --slate-soft:#232738;
-    --g-law:#D9A55A; --g-hist:#C3A583; --g-wis:#9DC183; --g-pro:#5EC2B8; --g-gos:#A5B0DC; --g-epi:#CBA77E;
-}
-:root[data-scheme="dark"] body.nt{--paper:#171A1A; --raised:#20242A; --sunk:#111314; --hover:#262B30; --rule:#2C3238; --rule-soft:#232830}
 
 html,body{margin:0;padding:0}
 body{
@@ -49,6 +46,7 @@ button{font-family:inherit;font-size:inherit;cursor:pointer;touch-action:manipul
 button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--slate);outline-offset:3px}
 [hidden]{display:none !important}
 .ico{width:18px;height:18px;flex:0 0 auto;vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+svg.il{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .big{zoom:1.15}
 
 /* ── header ───────────────────────────────────────────────── */
@@ -56,7 +54,9 @@ header{padding:30px 0 10px}
 .hdr{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
 h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03em}
 .sub{font-size:14px;font-weight:500;color:var(--muted);margin-top:4px}
-.switch{display:inline-flex;margin:0;padding:3px;border-radius:999px;background:var(--sunk);flex:0 0 auto}
+.switch{display:inline-flex;margin:0;padding:3px;border-radius:999px;flex:0 0 auto;
+  background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--glass-pickup),transparent),transparent 62%),var(--glass-strong);border:1px solid var(--glass-edge);
+  box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e1)}
 .switch button{font-size:15px;font-weight:600;padding:0 18px;min-height:44px;border:none;
   background:transparent;color:var(--muted);border-radius:999px;transition:background .2s,color .2s,box-shadow .2s}
 .switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
@@ -115,8 +115,8 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 
 /* ── this week's reflections ──────────────────────────────── */
 .hero-ref{margin-top:12px;padding:10px 12px;border-radius:var(--r-sm);background:var(--gold-soft);font-family:var(--serif);font-size:16.5px;line-height:1.45;letter-spacing:0;color:var(--ink2);cursor:pointer}
-.hero-ref small{display:block;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
-.hero-ref b{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-weight:700;color:var(--gold);font-size:13px;margin-right:4px}
+.hero-ref small{display:block;font-family:var(--font-sans);font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.hero-ref b{font-family:var(--font-sans);font-weight:700;color:var(--gold);font-size:13px;margin-right:4px}
 .hero-actions .btn.reflect{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
 .reflect{margin:16px 0 0;padding:16px 18px 10px;border:1.5px solid var(--rule);border-radius:var(--r);background:var(--raised);box-shadow:var(--lift);position:relative;overflow:hidden;scroll-margin-top:12px}
 .reflect::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--gold)}
@@ -133,7 +133,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .rf-hd .rf-ref{font-size:16px;font-weight:600;color:var(--slate);flex:1 1 auto;min-width:0}
 .rf-hd .rf-done{font-size:11.5px;font-weight:700;color:var(--olive);background:var(--olive-soft);border-radius:999px;padding:3px 8px;flex:0 0 auto}
 .rf-line{display:flex;gap:10px;margin-top:6px;font-family:var(--serif);font-size:16.5px;line-height:1.45;letter-spacing:0;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
-.rf-line b{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--gold-soft);color:var(--gold);font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:12px;font-weight:800;margin-top:2px}
+.rf-line b{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--gold-soft);color:var(--gold);font-family:var(--font-sans);font-size:12px;font-weight:800;margin-top:2px}
 .rf-f{display:block;width:100%;font:inherit;font-size:15.5px;line-height:1.4;color:var(--ink);background:var(--sunk);border:1.5px solid transparent;border-radius:var(--r-sm);padding:9px 12px;min-height:44px;margin-top:10px;resize:none;overflow:hidden;-webkit-appearance:none;appearance:none}
 .rf-f:focus{outline:none;border-color:var(--gold);background:var(--raised)}
 .rf-f::placeholder{color:var(--muted)}
@@ -142,7 +142,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .readmode .side > :not(#reflect){display:none}
 .readmode #reflect{margin-bottom:8px}
 .jcard .fu{display:flex;gap:10px;padding:9px 0;border-top:1px dashed var(--rule);font-family:var(--serif);font-size:17px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink2)}
-.jcard .fu b{flex:0 0 auto;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:12px;font-weight:800;color:var(--olive);background:var(--olive-soft);border-radius:999px;padding:3px 8px;height:fit-content;margin-top:2px}
+.jcard .fu b{flex:0 0 auto;font-family:var(--font-sans);font-size:12px;font-weight:800;color:var(--olive);background:var(--olive-soft);border-radius:999px;padding:3px 8px;height:fit-content;margin-top:2px}
 
 /* ── milestones ───────────────────────────────────────────── */
 .miles{display:flex;gap:10px;overflow-x:auto;padding:14px 2px 6px;margin:0 -2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -162,7 +162,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .btn{min-height:48px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--rule);background:var(--raised);color:var(--ink);font-size:15.5px;font-weight:600;
   display:inline-flex;align-items:center;gap:8px;letter-spacing:-.01em;box-shadow:var(--lift);text-decoration:none}
 .btn:active{background:var(--hover);transform:scale(.98)}
-.btn.primary{background:var(--slate);border-color:var(--slate);color:#fff}
+.btn.primary{background:var(--slate);border-color:var(--slate);color:var(--on-accent)}
 .btn.quiet{border-color:transparent;box-shadow:none;background:transparent;color:var(--ink2)}
 .btn.danger{color:var(--terra)}
 .btn[disabled]{opacity:.5;pointer-events:none}
@@ -207,7 +207,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .ring .bg{fill:none;stroke:var(--sunk);stroke-width:3.5}
 .ring .fg{fill:none;stroke:var(--olive);stroke-width:3.5;stroke-linecap:round;transition:stroke-dashoffset .35s ease}
 .ring .rn{position:absolute;inset:0;display:grid;place-items:center;font-size:11.5px;font-weight:800;color:var(--muted)}
-.ring .rc{position:absolute;inset:0;display:none;place-items:center;color:#fff}
+.ring .rc{position:absolute;inset:0;display:none;place-items:center;color:var(--on-accent)}
 .ring .rc svg{width:16px;height:16px;transform:none}
 .week.complete .ring .bg{stroke:var(--olive);fill:var(--olive)}
 .week.complete .ring .fg,.week.complete .ring .rn{display:none}
@@ -226,7 +226,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .day.flash{animation:flash 1.6s ease-out}
 @keyframes flash{0%,40%{background:var(--olive-soft)}100%{background:transparent}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.mark{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--rule);background:transparent;display:grid;place-items:center;padding:0;color:#fff;transition:border-color .2s,background .2s,transform .18s}
+.mark{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--rule);background:transparent;display:grid;place-items:center;padding:0;color:var(--on-accent);transition:border-color .2s,background .2s,transform .18s}
 .mark:active{transform:scale(.9)}
 .mark svg{width:20px;height:20px;opacity:0;transform:scale(.4);transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
 .day.done .mark{background:var(--olive);border-color:var(--olive)}
@@ -246,7 +246,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .mvs{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
 .mv{display:inline-flex;align-items:center;gap:10px;min-height:44px;border-radius:var(--r-sm);padding-right:6px}
 .mv:active{background:var(--hover)}
-.mkm{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:2px solid var(--rule);background:transparent;display:grid;place-items:center;padding:0;color:#fff;transition:border-color .2s,background .2s,transform .18s}
+.mkm{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:2px solid var(--rule);background:transparent;display:grid;place-items:center;padding:0;color:var(--on-accent);transition:border-color .2s,background .2s,transform .18s}
 .mkm:active{transform:scale(.9)}
 .mkm svg{width:16px;height:16px;opacity:0;transform:scale(.4);transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
 .mv.memd .mkm{background:var(--gold);border-color:var(--gold)}
@@ -262,7 +262,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .nextwk .sumt{font-size:14px;color:var(--ink2);font-weight:500}
 .nextwk .sumt b{color:var(--olive)}
 .nextwk .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-.nextwk .btn{background:var(--olive);border-color:var(--olive);color:#fff;min-height:44px;padding:8px 16px}
+.nextwk .btn{background:var(--olive);border-color:var(--olive);color:var(--on-solid);min-height:44px;padding:8px 16px}
 .nextwk .btn.ghost{background:transparent;color:var(--olive);border-color:var(--olive)}
 
 /* ── HEAR journal (per day) ───────────────────────────────── */
@@ -276,7 +276,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .jr .jhd b{font-size:15px;font-weight:700;color:var(--ink2)}
 .jr .jhd span{font-size:13px;color:var(--muted)}
 .jprompt{font-family:var(--serif);font-style:italic;font-size:16.5px;color:var(--ink2);background:var(--gold-soft);border-left:2px solid var(--gold);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:9px 12px;margin:0 0 6px}
-.jprompt small{display:block;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.jprompt small{display:block;font-family:var(--font-sans);font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
 .jf{display:flex;gap:12px;align-items:flex-start;padding:10px 0;position:relative}
 .jf::before{content:"";position:absolute;left:19px;top:0;bottom:0;width:2px;background:var(--gold-soft)}
 .jf:first-of-type::before{top:24px}.jf:last-of-type::before{bottom:auto;height:24px}
@@ -333,18 +333,20 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .jcard.note .jc-hd b{color:var(--gold)}
 .empty{padding:36px 20px;text-align:center;color:var(--muted);font-size:16px}
 .empty .il{width:84px;height:84px;margin:0 auto 12px;color:var(--muted);display:block}
+.empty img.il{width:170px;height:auto;margin-bottom:4px}
 .empty b{display:block;color:var(--ink2);font-size:18px;margin-bottom:6px}
 
 /* ── modals ───────────────────────────────────────────────── */
-.modal{display:none;position:fixed;inset:0;background:rgba(58,46,36,.45);z-index:20;align-items:flex-start;justify-content:center;padding:max(24px, 8vh) 24px 24px;overflow:auto}
+.modal{display:none;position:fixed;inset:0;background:var(--scrim);z-index:20;align-items:flex-start;justify-content:center;padding:max(24px, 8vh) 24px 24px;overflow:auto}
 .modal.on{display:flex}
-.modal .card{background:var(--raised);border-radius:var(--r);padding:24px;max-width:24rem;width:100%;box-shadow:var(--lift-lg);animation:rise .25s ease}
+.modal .card{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--glass-pickup),transparent),transparent 62%),var(--glass-strong);border:1px solid var(--glass-edge);border-radius:var(--r);padding:24px;max-width:24rem;width:100%;
+  box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e4);-webkit-backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02);backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02);animation:rise .25s ease}
 .modal .card.wide{max-width:30rem}
 .modal h2{margin:0 0 8px;font-size:20px}
 .modal p{margin:0 0 18px;color:var(--ink2);font-size:15.5px;line-height:1.5}
 .modal .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 .modal .btn{min-height:52px}
-.modal .btn.danger{background:var(--terra);border-color:var(--terra);color:#fff}
+.modal .btn.danger{background:var(--terra);border-color:var(--terra);color:var(--on-solid)}
 .modal .row .btn.alt{margin-right:auto}
 .modal input[type="password"],.modal input[type="text"]{display:block;width:100%;font:inherit;font-size:20px;letter-spacing:.06em;min-height:56px;padding:10px 14px;border:1.5px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);color:var(--ink);margin:0 0 12px;-webkit-appearance:none;appearance:none}
 .modal input:focus{outline:none;border-color:var(--slate);background:var(--raised)}
@@ -362,9 +364,9 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 /* memory verse practice */
 .pr-ref{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:0 0 12px;color:var(--gold)}
 .pr-text{font-family:var(--serif);font-size:20px;line-height:1.5;background:var(--sunk);border-radius:var(--r-sm);padding:14px 16px;margin:0 0 14px;white-space:pre-wrap;min-height:72px;letter-spacing:0}
-.pr-text.hidden-text{color:transparent;text-shadow:0 0 14px rgba(58,46,36,.35);user-select:none;-webkit-user-select:none}
+.pr-text.hidden-text{color:transparent;text-shadow:0 0 14px color-mix(in srgb,var(--ink) 40%,transparent);user-select:none;-webkit-user-select:none}
 .pr-hint{font-size:13.5px;color:var(--muted);margin:-6px 0 14px}
-.modal .btn.got{background:var(--olive);border-color:var(--olive);color:#fff}
+.modal .btn.got{background:var(--olive);border-color:var(--olive);color:var(--on-solid)}
 .modal .btn.notyet{color:var(--terra)}
 
 /* ── toast ────────────────────────────────────────────────── */
@@ -373,7 +375,8 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 @keyframes toast{0%{opacity:0;transform:translateY(-10px)}10%,85%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-6px)}}
 
 /* ── reading mode ─────────────────────────────────────────── */
-.readbar{display:none;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 0;position:sticky;top:0;z-index:4;background:var(--paper);padding:8px 0}
+.readbar{display:none;align-items:center;justify-content:space-between;gap:10px;margin:14px -10px 0;position:sticky;top:6px;z-index:4;padding:8px 10px;border-radius:var(--r);
+  background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--glass-pickup),transparent),transparent 62%),var(--glass-strong);border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e2);-webkit-backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02);backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02)}
 .readmode .readbar{display:flex}
 .readbar .btn{min-height:52px}
 .readbar .rt{font-size:18px;font-weight:700;letter-spacing:-.02em;text-align:center;flex:1 1 auto}
@@ -409,7 +412,8 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 }
 @media (max-width:600px){
   .hdr{justify-content:flex-start}
-  .switch{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:15;display:flex;box-shadow:var(--lift-lg);border:1.5px solid var(--rule)}
+  .switch{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:15;display:flex;
+    box-shadow:inset 0 1px 0 var(--hairline),inset 0 -1px 0 var(--glass-edge),inset 0 -12px 28px -18px var(--glass-inner),0 0 0 1px var(--glass-ring),var(--e3);-webkit-backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02);backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02)}
   .switch button{flex:1 1 0;min-height:52px}
   body{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
   .modal{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
@@ -444,8 +448,8 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .print-only{display:none}
 @media print{
   @page{margin:10mm}
-  :root,:root[data-scheme="dark"],body.nt{--paper:#fff;--raised:#fff;--ink:#000;--ink2:#000;--muted:#333;--rule:#bbb;--rule-soft:#ddd;--slate:#000;--olive:#000;--gold:#000;--sunk:#fff}
-  body{background:#fff;color:#000;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
+  :root,:root[data-scheme],body.nt{--paper:white;--raised:white;--ink:black;--ink2:black;--muted:gray;--rule:gray;--rule-soft:lightgray;--slate:black;--olive:black;--gold:black;--sunk:white;--hover:white;--on-solid:white}
+  body{background:white;color:black;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
   .big{zoom:1}
   .wrap{max-width:none;padding:0}
   header .hdr,.side,.readbar,.toasts,.modal,.mark,.mkm,.chev,.ring,.cf,.foot,.day .lbl,.mem .lbl,.mem .title,.jbtn,.jr,.nextwk,.jview,.wn,.jn,.recallrow,.mv .pr,.switch,.reflect,.hero-ref{display:none !important}
@@ -453,28 +457,28 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   .weeks .week{display:block !important}
   header{padding:0 0 8pt}
   .print-only{display:block;font-size:16pt;font-weight:700;margin:0 0 2pt}
-  .print-sub{font-size:9pt;color:#333;margin:0 0 8pt}
+  .print-sub{font-size:9pt;color:gray;margin:0 0 8pt}
   .weeks{column-count:4;column-gap:14pt;column-fill:auto;margin:0}
   .week{border:0;break-inside:avoid;page-break-inside:avoid;padding:0 0 6pt;margin:0;background:none}
   .week.complete:not(.current) .wk-head{opacity:1}
   .week.current .wk-head{position:static}
   .week.current .wk-head .num::after{content:none}
-  .wk-head{display:block;padding:0 0 1pt;min-height:0;border-bottom:1px solid #999;margin-bottom:2pt}
-  .wk-head .num{font-size:10pt;font-weight:700;color:#000}
+  .wk-head{display:block;padding:0 0 1pt;min-height:0;border-bottom:1px solid gray;margin-bottom:2pt}
+  .wk-head .num{font-size:10pt;font-weight:700;color:black}
   .wk-head .span{display:none}
   .wk-body{display:block !important;padding:0;grid-template-rows:none}
   .wk-in{visibility:visible !important;overflow:visible}
   .wk-pad{padding:0}
   .day,.mem{display:flex;align-items:baseline;gap:4pt;min-height:0;padding:1pt 0;margin:0;border:0}
   .mem{display:block;padding-top:2pt}
-  .mem::before{content:"Memory: ";font-size:8pt;font-weight:700;color:#333}
-  .mvs{display:inline}.mv{display:inline;padding:0;min-height:0}.mv.memd .refs a{color:#000}
-  .mv + .mv::before{content:" · ";color:#000}
-  .refs,.mem .refs{display:inline;font-size:9pt;font-weight:400;color:#000;line-height:1.2}
-  .day.done .refs,.day.done .refs a{color:#000}
-  .refs a,.refs a:link,.refs a:visited,.mem .refs a,.day.done .refs a{color:#000 !important;text-decoration:none;border:0;padding:0;margin:0;min-height:0;line-height:inherit;display:inline;background:none}
+  .mem::before{content:"Memory: ";font-size:8pt;font-weight:700;color:gray}
+  .mvs{display:inline}.mv{display:inline;padding:0;min-height:0}.mv.memd .refs a{color:black}
+  .mv + .mv::before{content:" · ";color:black}
+  .refs,.mem .refs{display:inline;font-size:9pt;font-weight:400;color:black;line-height:1.2}
+  .day.done .refs,.day.done .refs a{color:black}
+  .refs a,.refs a:link,.refs a:visited,.mem .refs a,.day.done .refs a{color:black !important;text-decoration:none;border:0;padding:0;margin:0;min-height:0;line-height:inherit;display:inline;background:none}
   a[href]::after{content:none !important}
-  .refs .sep{color:#000;margin:0 3pt}
+  .refs .sep{color:black;margin:0 3pt}
 }
 </style>
 </head>
@@ -1815,7 +1819,7 @@ function renderJournalView() {
   const all = entryItems(); const q = jQuery.trim().toLowerCase();
   const items = q ? all.filter(it => itemSearch(it).toLowerCase().includes(q)) : all;
   stat.innerHTML = (all.length === 0 ? '' : '<span>' + (q ? items.length + ' of ' + all.length : all.length) + (all.length === 1 ? ' entry' : ' entries') + (jNewest ? ' · newest first' : ' · in plan order') + '</span>') + jsHtml;
-  if (!all.length) { list.innerHTML = '<div class="empty"><svg class="il"><use href="#i-openbook"/></svg><b>No entries yet</b>Open a reading in the Plan tab and tap HEAR to write your first one.</div>'; return; }
+  if (!all.length) { list.innerHTML = '<div class="empty"><img class="il" src="../art/app/f260.svg" alt=""><b>No entries yet</b>Open a reading in the Plan tab and tap HEAR to write your first one.</div>'; return; }
   if (!items.length) { list.innerHTML = '<div class="empty"><svg class="il"><use href="#i-search"/></svg><b>Nothing matches</b>Try a different word.</div>'; return; }
   list.innerHTML = items.map(it => {
     if (it.kind === 'week') { const n = journal._w[it.w];

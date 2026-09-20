@@ -7,22 +7,56 @@
 <link rel="stylesheet" href="design.css">
 <style>
   html, body { height: 100%; }
-  body { display: grid; place-items: center; user-select: none; -webkit-user-select: none; transition: background .4s;
+  body { display: grid; place-items: center; user-select: none; -webkit-user-select: none; transition: background var(--dur-3) var(--ease);
     padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left); }
-  body.done { background: var(--danger-soft); }
-  main { text-align: center; width: min(100%, 560px); padding: var(--sp-4); }
-  .time { font-size: clamp(96px, 26vw, 260px); font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent-strong); }
+  body.done { background: var(--wash), color-mix(in srgb, var(--danger-soft) 70%, var(--bg)); }
+  main { text-align: center; width: min(100%, 560px); padding: var(--sp-4); display: grid; justify-items: center; }
+
+  /* title mark — standalone gets a name; hidden when the viewport is short (in-hub iframe on a phone) */
+  .hd { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); color: var(--text-2); }
+  .hd img { height: 44px; width: auto; display: block; }
+  .hd h1 { margin: 0; font: 600 var(--fs-lg) var(--font-display); color: var(--text); letter-spacing: .01em; }
+  @media (max-height: 640px) { .hd { display: none; } }
+
+  /* the dial: one glass disc, the design.css ring inside it, the time in the middle */
+  .dial { --tint: var(--accent); width: min(82vw, 52vh, 400px); aspect-ratio: 1; border-radius: var(--r-full);
+    padding: var(--sp-4); display: grid; place-items: center; container-type: inline-size;
+    transition: box-shadow var(--dur-3) var(--ease); }
+  .dial .ringwrap { width: 100%; height: 100%; }
+  .dial .ring { width: 100%; height: 100%; filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--tint) 30%, transparent)); }
+  .dial .ring circle { stroke-width: 3; }
+  .dial .ring .bg { stroke: color-mix(in srgb, var(--tint) 16%, var(--surface-2)); }
+  .dial .ring .fg { stroke: var(--tint); transition: stroke-dashoffset .5s linear, stroke var(--dur-3) var(--ease), opacity var(--dur-2) var(--ease); }
+  .dial.empty .ring .fg { opacity: 0; }   /* a round cap would still draw a dot at 0 */
+  .time { position: absolute; font-size: clamp(56px, 16vw, 92px); font-size: 24cqw; font-weight: 300; line-height: 1;
+    font-variant-numeric: tabular-nums; letter-spacing: -.02em; color: var(--accent-strong); font-family: var(--font-sans);
+    transition: color var(--dur-3) var(--ease); }
+
+  /* done: ring and numbers go danger, numbers blink */
+  body.done .dial { --tint: var(--danger); box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2), 0 0 0 6px var(--danger-soft); }
+  body.done .dial .ring .bg { stroke: color-mix(in srgb, var(--danger) 55%, var(--surface-2)); }
   body.done .time { color: var(--danger); animation: blink 1s steps(2) infinite; }
   @keyframes blink { to { opacity: .3; } }
-  .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); margin-top: var(--sp-6); }
-  .presets .btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
-  .row { display: flex; gap: var(--sp-3); justify-content: center; margin-top: var(--sp-4); }
-  .row .btn-lg { flex: 1; }
+
+  /* presets as chips */
+  .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); margin-top: var(--sp-6); width: 100%; }
+  .presets .btn { border-radius: var(--r-full); padding: 0 var(--sp-3); white-space: nowrap; }
+  .presets .btn.on { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent-deep); box-shadow: none; }
+
+  .actions { display: flex; gap: var(--sp-3); justify-content: center; margin-top: var(--sp-4); width: 100%; }
+  .actions .btn-lg { flex: 1; }
+  @media (min-width: 720px) { main { width: min(100%, 640px); } .presets { grid-template-columns: repeat(6, 1fr); } }
 </style>
 </head>
 <body class="ds">
 <main>
-  <div class="time" id="t">5:00</div>
+  <header class="hd"><img src="../art/app/timer.svg" alt=""><h1>Kitchen timer</h1></header>
+  <div class="dial glass" id="dial">
+    <span class="ringwrap lg">
+      <svg class="ring ring-lg" viewBox="0 0 52 52" style="--p:1" aria-hidden="true"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg>
+      <div class="time" id="t">5:00</div>
+    </span>
+  </div>
   <div class="presets" id="presets">
     <button class="btn" data-s="60">1 min</button>
     <button class="btn" data-s="180">3 min</button>
@@ -31,9 +65,9 @@
     <button class="btn" data-s="900">15 min</button>
     <button class="btn" data-s="1800">30 min</button>
   </div>
-  <div class="row">
+  <div class="actions">
     <button class="btn btn-primary btn-lg" id="go">Start</button>
-    <button class="btn btn-lg" id="reset">Reset</button>
+    <button class="btn btn-ghost btn-lg" id="reset">Reset</button>
   </div>
 </main>
 <script src="hub.js" data-app="timer" data-scope="person"></script>
@@ -41,10 +75,15 @@
   (async () => {
     await hub.ready();
     let total = Number(hub.get('lastPreset', { default: 300 })) || 300, left = total, tick = null, endAt = 0;
-    const t = document.getElementById('t'), go = document.getElementById('go');
+    const t = document.getElementById('t'), go = document.getElementById('go'), dial = document.getElementById('dial'), ring = dial.querySelector('.ring');
     const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-    const show = () => { t.textContent = fmt(left); document.querySelectorAll('[data-s]').forEach(b => b.classList.toggle('on', +b.dataset.s === total)); };
-    const stop = () => { clearInterval(tick); tick = null; go.textContent = 'Start'; };
+    const show = () => {
+      t.textContent = fmt(left);
+      ring.style.setProperty('--p', total ? (left / total).toFixed(4) : 0);
+      dial.classList.toggle('empty', left === 0);
+      document.querySelectorAll('[data-s]').forEach(b => b.classList.toggle('on', +b.dataset.s === total));
+    };
+    const stop = () => { clearInterval(tick); tick = null; go.textContent = 'Start'; go.classList.add('btn-primary'); };
     function beep() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -57,7 +96,7 @@
     go.onclick = () => {
       if (tick) return stop();
       document.body.classList.remove('done');
-      endAt = Date.now() + left * 1000; go.textContent = 'Pause';
+      endAt = Date.now() + left * 1000; go.textContent = 'Pause'; go.classList.remove('btn-primary');
       tick = setInterval(() => {
         left = Math.max(0, Math.round((endAt - Date.now()) / 1000)); show();
         if (left === 0) { stop(); document.body.classList.add('done'); beep(); }

@@ -6,31 +6,138 @@
 <title>Tally counter</title>
 <link rel="stylesheet" href="design.css">
 <style>
+  /* Tally v2 — the person's colour washes the page; the count sits in a glass dial (glass-strong recipe),
+     +/− are large glass buttons, Reset and the "who" kicker sit on small glass pills. Every colour is a design.css token. */
   html, body { height: 100%; }
-  body { background: var(--accent); color: var(--on-accent); display: grid; place-items: center; user-select: none; -webkit-user-select: none;
-    padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left); }
-  main { text-align: center; }
-  .count { font-size: clamp(120px, 30vw, 320px); font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; }
-  .row { display: flex; gap: var(--sp-5); justify-content: center; align-items: center; margin-top: var(--sp-8); }
-  .tbtn { font-size: var(--fs-2xl); width: 110px; height: 110px; border-radius: 50%; border: 0;
-    background: color-mix(in srgb, var(--on-accent) 18%, transparent); color: var(--on-accent); cursor: pointer; }
-  .tbtn:active { background: color-mix(in srgb, var(--on-accent) 32%, transparent); }
-  .tbtn.big { width: 160px; height: 160px; font-size: 56px; background: var(--on-accent); color: var(--accent); }
-  :root[data-kind="kid"] .tbtn { width: 130px; height: 130px; }
-  :root[data-kind="kid"] .tbtn.big { width: 190px; height: 190px; font-size: 72px; }
-  .reset { margin-top: var(--sp-6); background: none; border: 0; color: inherit; opacity: .75; font-size: var(--fs-md); padding: var(--sp-3) var(--sp-4); min-height: var(--tap); border-radius: var(--r-sm); cursor: pointer; }
-  .who { position: fixed; top: calc(var(--sp-3) + var(--safe-top)); left: 50%; transform: translateX(-50%); font-size: var(--fs-sm); opacity: .75; }
+  body.ds {
+    /* light: the person's colour, deepening toward the bottom; dark (below): the same colour sinking into the theme's dark */
+    --tally-hi: color-mix(in srgb, var(--accent) 74%, var(--bg));
+    --tally-mid: color-mix(in srgb, var(--accent) 84%, var(--bg));
+    --tally-lo: color-mix(in srgb, var(--accent-deep) 80%, var(--bg));
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(120% 90% at var(--sheen-x) -10%, var(--tally-hi) 0%, var(--tally-mid) 46%, var(--tally-lo) 100%);
+    background-attachment: fixed;
+    color: var(--on-accent);
+    display: grid; place-items: center; user-select: none; -webkit-user-select: none;
+    padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+    overflow-x: hidden;
+  }
+  :root[data-scheme="dark"] body.ds {
+    --tally-hi: color-mix(in srgb, var(--accent) 62%, var(--bg));
+    --tally-mid: color-mix(in srgb, var(--accent) 52%, var(--bg));
+    --tally-lo: color-mix(in srgb, var(--accent) 34%, var(--bg));
+    color: var(--text);
+  }
+  main { position: relative; text-align: center; display: grid; justify-items: center; padding: var(--sp-6) var(--sp-4); }
+
+  /* spot art: a faint watermark in the corner, out of the way of the dial */
+  .art { position: fixed; z-index: 0; right: calc(var(--sp-4) + var(--safe-right)); bottom: calc(var(--sp-4) + var(--safe-bottom));
+    width: clamp(110px, 18vw, 200px); opacity: .16; transform: rotate(-6deg); pointer-events: none; user-select: none; -webkit-user-select: none; filter: saturate(.5); }
+
+  /* the dial: glass-strong recipe on a disc */
+  .dial {
+    --disc: clamp(240px, 74vw, 360px);
+    --g: var(--glass-strong);
+    position: relative; z-index: 1;
+    width: var(--disc); height: var(--disc); border-radius: var(--r-full);
+    display: grid; place-items: center; overflow: hidden;
+    background:
+      linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+      radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
+      var(--g);
+    border: 1px solid var(--glass-edge);
+    box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e3), 0 30px 70px -30px var(--accent-glow);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02);
+  }
+  /* a faint tick ring inside the rim, like a dial face */
+  .dial::before { content: ""; position: absolute; inset: 10px; border-radius: inherit; border: 1px dashed var(--line-soft); opacity: .8; pointer-events: none; }
+  .count {
+    --digits: 1;
+    position: relative; color: var(--text);
+    font-family: var(--font-display); font-weight: 400; line-height: 1; letter-spacing: var(--ls-tight);
+    font-variant-numeric: tabular-nums;
+    font-size: min(clamp(96px, 26vw, 168px), calc(var(--disc) * 1.35 / max(var(--digits), 3)));
+    transition: font-size var(--dur-2) var(--ease);
+  }
+
+  .ds main .row { display: flex; gap: var(--sp-5); justify-content: center; align-items: center; margin-top: var(--sp-8); position: relative; z-index: 1;
+    min-height: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+
+  /* +/−: large glass buttons (the recipe, on a circle) */
+  .tbtn {
+    --g: var(--glass);
+    width: 96px; height: 96px; min-width: var(--tap); min-height: var(--tap); border-radius: var(--r-full);
+    display: grid; place-items: center; padding: 0; cursor: pointer;
+    font: inherit; font-size: var(--fs-3xl); font-weight: 300; line-height: 1; color: var(--text);
+    background:
+      linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+      radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
+      var(--g);
+    border: 1px solid var(--glass-edge);
+    box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02);
+    transition: transform var(--dur-2) var(--spring), box-shadow var(--dur-2) var(--ease);
+  }
+  .tbtn:active { transform: scale(.94); box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e1); }
+  .tbtn:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+  .tbtn.big { --g: var(--glass-strong); width: 140px; height: 140px; font-size: var(--fs-4xl); font-weight: 400; box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e3); }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .dial, .tbtn { --g: color-mix(in srgb, var(--surface) 96%, transparent); }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tbtn:hover { transform: translateY(-1px); }
+  }
+
+  /* Reset + the "who" kicker: small glass-strong pills, so the ink is var(--text) on a surface tint. (The wash is the
+     accent lightened into --bg, which --on-accent can't clear at AA in the light themes, and a dark ink can't clear the
+     darker family colours — so neither goes straight on the wash.) Not inside a scroller, so backdrop-filter is fine. */
+  .ds .who, .ds .btn.reset {
+    --g: var(--glass-strong);
+    color: var(--text); opacity: 1;
+    background:
+      linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+      radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
+      var(--g);
+    border: 1px solid var(--glass-edge);
+    box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e1);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02);
+  }
+  .ds .btn.reset { margin-top: var(--sp-6); position: relative; z-index: 1; font-weight: 600; border-radius: var(--r-full); padding: 0 var(--sp-6);
+    transition: transform var(--dur-2) var(--spring), box-shadow var(--dur-2) var(--ease); }
+  .ds .btn.reset:active { transform: scale(.96); box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring); }
+  @media (hover: hover) and (pointer: fine) {
+    .ds .btn.reset:hover { --g: var(--surface); transform: translateY(-1px); }
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .ds .who, .ds .btn.reset { --g: color-mix(in srgb, var(--surface) 96%, transparent); }
+  }
+
+  /* who: kicker at the top, on its pill */
+  .ds .who { position: fixed; top: calc(var(--sp-4) + var(--safe-top)); left: 50%; transform: translateX(-50%); z-index: 2;
+    padding: var(--sp-2) var(--sp-4); border-radius: var(--r-full); line-height: 1.3;
+    white-space: nowrap; max-width: calc(100vw - var(--sp-8)); overflow: hidden; text-overflow: ellipsis; }
+
+  /* kids: bigger targets */
+  :root[data-kind="kid"] .tbtn { width: 116px; height: 116px; }
+  :root[data-kind="kid"] .tbtn.big { width: 168px; height: 168px; }
+  :root[data-kind="kid"] .dial { --disc: clamp(260px, 80vw, 400px); }
+
+  @media (prefers-reduced-motion: reduce) { .tbtn, .count, .ds .btn.reset { transition: none; } }
 </style>
 </head>
 <body class="ds">
-<div class="who" id="who"></div>
+<div class="who kicker" id="who"></div>
 <main>
-  <div class="count" id="n">0</div>
+  <img class="art" src="../art/app/tally.svg" alt="" aria-hidden="true">
+  <div class="dial">
+    <div class="count" id="n">0</div>
+  </div>
   <div class="row">
     <button class="tbtn" id="minus" aria-label="Subtract one">−</button>
     <button class="tbtn big" id="plus" aria-label="Add one">+</button>
   </div>
-  <button class="reset" id="reset">Reset to zero</button>
+  <button class="btn btn-ghost reset" id="reset">Reset to zero</button>
 </main>
 <script src="hub.js" data-app="tally" data-scope="person"></script>
 <script>
@@ -41,7 +148,7 @@
     const el = document.getElementById('n');
     document.getElementById('who').textContent = hub.profile.name + "'s counter";
     const n = () => Number(hub.get('count', { default: 0 })) || 0;
-    const show = () => { el.textContent = n(); };
+    const show = () => { const v = n(); el.textContent = v; el.style.setProperty('--digits', String(v).length); };
     const set = v => { if (!hub.canWrite) { hub.kioskNudge(); return; } hub.set('count', Math.max(0, v)); show(); };
     document.getElementById('plus').onclick = () => set(n() + 1);
     document.getElementById('minus').onclick = () => set(n() - 1);
