@@ -138,6 +138,8 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .today .ts{flex:1 1 140px;min-width:0;display:flex;flex-direction:column;gap:2px;min-height:44px;justify-content:center}
 .today .ts b{font-size:17px;font-weight:800;color:var(--terra);letter-spacing:-.02em}
 .today .ts span{font-size:13.5px;font-weight:600;color:var(--muted)}
+.today .tkids{flex:0 0 100%;font-size:13.5px;font-weight:600;color:var(--muted);line-height:1.4}   /* item 17: the kids' story days this week */
+.today .tkids b{color:var(--ink2);font-weight:700}
 .today .tc{grid-area:cta;display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
 .tdone{flex:1 1 200px;min-height:60px;padding:0 24px;border-radius:999px;border:0;background:var(--olive);color:var(--on-solid);font-size:18px;font-weight:700;letter-spacing:-.01em;
   display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:var(--lift);transition:transform .15s,filter .2s}
@@ -565,6 +567,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
       <div class="tr">
         <span class="tring" id="todayRing" role="img" aria-label="0 of 5 this week"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="bg" cx="32" cy="32" r="27"/><circle class="fg" cx="32" cy="32" r="27"/></svg><span class="rn"><span id="todayRingN">0/5</span><small>week</small></span></span>
         <div class="ts" id="todayStreak"></div>
+        <div class="tkids" id="todayKids" hidden></div><!-- item 17: "Kids: Ezra 2/5 · Kiara 1/5" from the family kidverse story rows -->
       </div>
       <div class="tc">
         <button type="button" class="tdone" id="todayDone">Done</button>
@@ -773,6 +776,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 
 <script src="hub.js" data-app="f260" data-scope="person"></script>
 <script>
+hub.use('kidverse', 'family');   // item 17: the kids' story days (family story:<kid>) for the "Kids:" line in the Today hero
 hub.ready().then(() => {
 // ═══════════════════════════════════════════════════════════════
 // PLAN DATA — edit here; the layout code below never needs to change.
@@ -1594,6 +1598,28 @@ $('todayUndo').onclick = () => {
   const id = lastTicked; lastTicked = null; if (!id || !done[id]) return;
   const mark = weeksEl.querySelector('[data-day="' + id + '"] .mark'); if (mark) mark.click();
 };
+// ── item 17: "Kids: Ezra 2/5 · Kiara 1/5" — story days heard this week, out of the plan's 5, from the family kidverse
+// story:<kid> rows ({ week: 'YYYY-Www', days: { 'YYYY-MM-DD': true } }, written by apps/kidverse.html). Kid profiles only;
+// the line stays hidden when no kid has a row. Repaints on its own when a kidverse row arrives, without waiting for mergeRemote.
+function renderKidStory() {
+  const el = $('todayKids'); if (!el) return;
+  const pad2 = n => String(n).padStart(2, '0');
+  const iso = (d => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad2(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); })(new Date());
+  let kids = [];
+  try {
+    kids = (hub.people() || []).filter(q => q && q.kind === 'kid').map(q => {
+      const v = hub.get('story:' + q.id, { app: 'kidverse', scope: 'family' });
+      if (!v || typeof v !== 'object') return null;
+      const days = v.week === iso && v.days && typeof v.days === 'object' ? Object.keys(v.days).filter(k => v.days[k]).length : 0;
+      return { name: q.name, n: Math.min(5, days) };
+    }).filter(Boolean);
+  } catch { kids = []; }
+  if (!kids.length) { el.hidden = true; el.textContent = ''; return; }
+  el.innerHTML = 'Kids: ' + kids.map(k => '<b>' + esc(k.name) + '</b> ' + k.n + '/5').join(' · ');
+  el.title = 'Story days heard this week in Kid Verse'; el.hidden = false;
+}
+hub.onChange(ev => { if (ev && ev.app === 'kidverse') renderKidStory(); });
+renderKidStory();
 
 // ── interactions (plan) ─────────────────────────────────────────
 weeksEl.addEventListener('click', e => {

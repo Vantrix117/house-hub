@@ -12,7 +12,7 @@
  */
 import {
   HttpError, authenticate, requireProfile, requireWriter, requireAdmin, createSession,
-  hashSecret, verifySecret, sha256, randomToken, randomId, publicProfile,
+  hashSecret, verifySecret, sha256, randomToken, randomId, publicProfile, isExpiredGuest, silenceExpiredGuests,
   rateCheck, rateHit, rateClear,
 } from './auth.js';
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
@@ -73,18 +73,86 @@ route('POST', '/api/pair', async c => {
   return { device_id: id, device_token: token };
 });
 
+// Everyone in the house. Guests whose stay has ended are left out unless the caller is the admin
+// (the admin panel lists them with a Purge button until their data is gone).
 route('GET', '/api/profiles', async c => {
-  await c.auth();
+  const auth = await c.auth();
+  const admin = !!(auth.profile && auth.profile.is_admin);
+  const now = Date.now();
   const { results } = await c.env.DB.prepare('SELECT * FROM profiles ORDER BY sort_order, name').all();
-  return { profiles: results.map(publicProfile) };
+  return { profiles: results.filter(p => admin || !isExpiredGuest(p, now)).map(publicProfile) };
 });
+
+// ── guests (roadmap 23) ───────────────────────────────────────
+// A household adult adds a guest profile on demand: kind 'adult', is_guest 1, never admin, id 'guest-<random>'.
+// {name, emoji?|icon?, color?, pin?, expires_at?}: pin is optional (a guest without one signs in on tap),
+// expires_at is ms since epoch (null/omitted = keep). Kids, the display and guests themselves cannot add guests.
+const GUEST_RETENTION_MS = 30 * 86400000;   // an expired guest's data is kept this long, then the cron purge removes it
+route('POST', '/api/profiles', async c => {
+  const me = requireWriter(await c.auth());
+  if (me.kind !== 'adult') throw new HttpError(403, 'adults_only', 'Ask a grown-up to add a guest.');
+  if (me.is_guest) throw new HttpError(403, 'guests_cannot_invite', 'Guests cannot add other guests.');
+  const b = await c.body();
+  const name = String(b.name || '').trim().slice(0, 40);
+  if (!name) throw new HttpError(400, 'bad_name', 'Name is required.');
+  const emoji = String(b.emoji || b.icon || '🙂').trim().slice(0, 8) || '🙂';
+  const color = b.color === undefined || b.color === null || b.color === '' ? '#8A6A4B' : String(b.color);
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) throw new HttpError(400, 'bad_color', 'Color must be #rrggbb.');
+  let pinHash = null;
+  if (b.pin !== undefined && b.pin !== null && b.pin !== '') {
+    if (!PIN_RE.test(String(b.pin))) throw new HttpError(400, 'bad_pin', 'PIN must be 4 to 8 digits.');
+    pinHash = await hashSecret(String(b.pin));
+  }
+  let expiresAt = null;
+  if (b.expires_at !== undefined && b.expires_at !== null && b.expires_at !== '') {
+    expiresAt = Math.floor(+b.expires_at);
+    if (!Number.isFinite(expiresAt) || expiresAt <= 0) throw new HttpError(400, 'bad_expiry', 'expires_at must be milliseconds since the epoch, or null to keep the guest.');
+  }
+  const id = 'guest-' + randomId();
+  const sort = ((await c.env.DB.prepare('SELECT MAX(sort_order) AS m FROM profiles').first('m')) || 0) + 1;
+  await c.env.DB.prepare(
+    `INSERT INTO profiles (id, name, emoji, color, kind, pin_hash, is_admin, sort_order, is_guest, created_by, expires_at)
+       VALUES (?, ?, ?, ?, 'adult', ?, 0, ?, 1, ?, ?)`).bind(id, name, emoji, color, pinHash, sort, me.id, expiresAt).run();
+  await c.env.DB.prepare('INSERT INTO activity (profile_id, app_id, text, created_at) VALUES (?, ?, ?, ?)')
+    .bind(me.id, 'hub', `Added a guest: ${name}`, Date.now()).run();
+  const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(id).first();
+  return { profile: publicProfile(p) };
+});
+
+/** Removes a guest profile and everything that was theirs: person-scope rows, sessions, push subscriptions, chat, photos. */
+async function deleteGuest(env, p) {
+  await deletePrefix(env, `photos/${p.id}/`);
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM app_data WHERE scope = 'person' AND profile_id = ?").bind(p.id),
+    env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id),
+    env.DB.prepare('DELETE FROM push_subscriptions WHERE profile_id = ?').bind(p.id),
+    env.DB.prepare('DELETE FROM chat_log WHERE profile_id = ?').bind(p.id),
+    env.DB.prepare('DELETE FROM push_log WHERE profile_id = ?').bind(p.id),
+    env.DB.prepare('DELETE FROM activity WHERE profile_id = ?').bind(p.id),
+    env.DB.prepare('DELETE FROM rate_limits WHERE key LIKE ?').bind(`login:${p.id}:%`),
+    env.DB.prepare('DELETE FROM profiles WHERE id = ? AND is_guest = 1').bind(p.id),
+  ]);
+}
+/**
+ * Cron: every guest whose stay has ended loses their sessions and push subscriptions at once (so the reminder jobs
+ * never reach a departed visitor); guests expired more than 30 days ago lose their profile and data. Returns both.
+ */
+export async function purgeExpiredGuests(env, now = Date.now()) {
+  const silenced = await silenceExpiredGuests(env, now);
+  const { results } = await env.DB.prepare('SELECT * FROM profiles WHERE is_guest = 1 AND expires_at IS NOT NULL AND expires_at < ?')
+    .bind(now - GUEST_RETENTION_MS).all();
+  for (const p of results) await deleteGuest(env, p);
+  return { job: 'guests', purged: results.map(p => p.id), silenced };
+}
 
 route('POST', '/api/login', async c => {
   const { device } = await c.auth();
   const { profile_id, pin } = await c.body();
   const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(String(profile_id || '')).first();
   if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
-  if (p.kind === 'adult') {
+  if (isExpiredGuest(p)) throw new HttpError(403, 'guest_expired', `${p.name}'s guest pass has ended.`);
+  // a guest without a PIN signs in on tap (the person who added them chose that); everyone else with kind adult needs one
+  if (p.kind === 'adult' && !(p.is_guest && p.pin_hash == null)) {
     if (p.pin_hash == null) throw new HttpError(403, 'needs_pin_setup', `${p.name} has not created a PIN yet.`);
     const key = `login:${p.id}:${device.id}`;
     await rateCheck(c.env, key, 5);
@@ -104,6 +172,9 @@ route('POST', '/api/profiles/:id/pin', async c => {
   const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
   if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
   if (p.kind !== 'adult') throw new HttpError(400, 'no_pin_for_kind', 'Only adult profiles have a PIN.');
+  // guests (roadmap 23): a guest's PIN is chosen when they are added (or cleared by the admin). A guest without one
+  // signs in on tap, so letting any paired device "create" a PIN for them would lock the guest out or hijack the profile.
+  if (p.is_guest) throw new HttpError(403, 'guest_pin_fixed', `${p.name} is a guest: their PIN was chosen when they were added. Ask the admin to clear it.`);
   if (p.pin_hash != null) throw new HttpError(409, 'pin_already_set', 'A PIN is already set. Ask the admin to reset it.');
   if (!PIN_RE.test(String(pin ?? ''))) throw new HttpError(400, 'bad_pin', 'PIN must be 4 to 8 digits.');
   const r = await c.env.DB.prepare('UPDATE profiles SET pin_hash = ? WHERE id = ? AND pin_hash IS NULL')
@@ -272,7 +343,19 @@ route('DELETE', '/api/push/subscribe', async c => {
 });
 
 // ── chat ──────────────────────────────────────────────────────
-route('POST', '/api/chat', async c => { const auth = await c.auth(); const p = requireProfile(auth); if (p.kind === 'kiosk') throw new HttpError(403, 'no_chat', 'The display profile has no chat.'); return chatHandler(c, auth); });
+route('POST', '/api/chat', async c => {
+  const auth = await c.auth(); const p = requireProfile(auth);
+  if (p.kind === 'kiosk') throw new HttpError(403, 'no_chat', 'The display profile has no chat.');
+  if (p.is_guest) {
+    // guests (roadmap 23): apps.json's visibleTo lists household ids, so add the guest to every app any household adult can see
+    const raw = await c.body();
+    const adults = (await c.env.DB.prepare("SELECT id FROM profiles WHERE kind = 'adult' AND is_guest = 0").all()).results.map(r => r.id);
+    const apps = Array.isArray(raw.apps) ? raw.apps.map(a => a && Array.isArray(a.visibleTo) && a.visibleTo.some(id => adults.includes(id)) ? { ...a, visibleTo: [...a.visibleTo, p.id] } : a) : raw.apps;
+    const body = { ...raw, apps };
+    c.body = async () => body;
+  }
+  return chatHandler(c, auth);
+});
 route('GET', '/api/chat/history', async c => { const auth = await c.auth(); requireProfile(auth); return chatHistory(c, auth); });
 
 // ── admin ─────────────────────────────────────────────────────
@@ -294,14 +377,48 @@ route('PUT', '/api/admin/profiles/:id', async c => {
   const color = b.color !== undefined ? String(b.color) : p.color;
   const kind = b.kind !== undefined ? String(b.kind) : p.kind;
   const sort = b.sort_order !== undefined ? (+b.sort_order || 0) : p.sort_order;
+  let expiresAt = p.expires_at;   // guests only: ms since epoch, null = keep (lets the admin extend or end a stay)
+  if (p.is_guest && b.expires_at !== undefined) {
+    expiresAt = b.expires_at === null || b.expires_at === '' ? null : Math.floor(+b.expires_at);
+    if (expiresAt !== null && (!Number.isFinite(expiresAt) || expiresAt <= 0)) throw new HttpError(400, 'bad_expiry', 'expires_at must be milliseconds since the epoch, or null to keep the guest.');
+  }
   if (!name) throw new HttpError(400, 'bad_name', 'Name is required.');
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) throw new HttpError(400, 'bad_color', 'Color must be #rrggbb.');
   if (!['adult', 'kid', 'kiosk'].includes(kind)) throw new HttpError(400, 'bad_kind', 'kind must be adult, kid or kiosk.');
   if (p.is_admin && kind !== 'adult') throw new HttpError(400, 'admin_must_be_adult', 'The admin profile has to stay an adult.');
+  if (p.is_guest && kind !== 'adult') throw new HttpError(400, 'guest_must_be_adult', 'A guest is always an adult profile; remove the guest instead.');
   const pinHash = kind === 'adult' ? p.pin_hash : null;
-  await c.env.DB.prepare('UPDATE profiles SET name = ?, emoji = ?, color = ?, kind = ?, sort_order = ?, pin_hash = ? WHERE id = ?')
-    .bind(name, emoji, color, kind, sort, pinHash, p.id).run();
-  return { profile: publicProfile({ ...p, name, emoji, color, kind, sort_order: sort, pin_hash: pinHash }) };
+  await c.env.DB.prepare('UPDATE profiles SET name = ?, emoji = ?, color = ?, kind = ?, sort_order = ?, pin_hash = ?, expires_at = ? WHERE id = ?')
+    .bind(name, emoji, color, kind, sort, pinHash, expiresAt, p.id).run();
+  // ending a guest's stay drops their sessions and push subscriptions now, not at the next cron
+  if (p.is_guest && expiresAt !== null && expiresAt < Date.now()) await silenceExpiredGuests(c.env, Date.now(), p.id);
+  return { profile: publicProfile({ ...p, name, emoji, color, kind, sort_order: sort, pin_hash: pinHash, expires_at: expiresAt }) };
+});
+
+// Remove a guest now (any guest), or purge one whose stay has ended without waiting for the 30-day cleanup.
+// Household profiles are never deleted this way.
+async function guestFor(c) {
+  requireAdmin(await c.auth());
+  const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
+  if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
+  if (!p.is_guest) throw new HttpError(400, 'not_a_guest', 'Only guest profiles can be removed.');
+  return p;
+}
+route('DELETE', '/api/admin/profiles/:id', async c => {
+  const p = await guestFor(c);
+  await deleteGuest(c.env, p);
+  return { ok: true, id: p.id };
+});
+route('POST', '/api/admin/profiles/:id/purge', async c => {
+  const p = await guestFor(c);
+  if (!isExpiredGuest(p)) throw new HttpError(400, 'not_expired', `${p.name}'s stay has not ended yet — use Remove instead.`);
+  await deleteGuest(c.env, p);
+  return { ok: true, id: p.id, purged: true };
+});
+// Run the guest cleanup now (admin): purges guests expired more than 30 days ago.
+route('POST', '/api/admin/guests/purge', async c => {
+  requireAdmin(await c.auth());
+  return purgeExpiredGuests(c.env, Date.now());
 });
 
 // Rotate the pairing code. Pass {code} to choose it, or omit to have one generated and returned once.
@@ -342,6 +459,7 @@ route('POST', '/api/admin/cron/run', async c => {
   requireAdmin(await c.auth());
   const { job } = await c.body();
   if (!Object.prototype.hasOwnProperty.call(JOBS, job)) throw new HttpError(400, 'bad_job', 'job must be one of ' + Object.keys(JOBS).map(j => `'${j}'`).join(', ') + '.');
+  await silenceExpiredGuests(c.env, Date.now());   // guests (roadmap 23): a departed visitor is never on a job's list
   return runCron(c.env, Date.now(), job);
 });
 
@@ -390,7 +508,12 @@ export default {
   fetch: (request, env, ctx) => handle(request, env, ctx),
   // Cron (see wrangler.toml [triggers]). Locally: wrangler dev --test-scheduled, then GET /__scheduled?cron=0+12+*+*+*
   async scheduled(event, env, ctx) {
+    // guests (roadmap 23): a guest whose stay ended since the last run loses sessions + push subscriptions first,
+    // so the reminder jobs below (which push to every adult) never reach a departed visitor
+    try { await silenceExpiredGuests(env, Date.now()); } catch (e) { console.error('cron guests silence', (e && e.stack) || e); }
     const out = await runCron(env, Date.now());
     console.log('cron', event.cron, JSON.stringify(out));
+    try { const g = await purgeExpiredGuests(env, Date.now()); if (g.purged.length) console.log('cron guests purged', JSON.stringify(g.purged)); }
+    catch (e) { console.error('cron guests', (e && e.stack) || e); }
   },
 };

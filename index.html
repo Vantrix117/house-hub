@@ -306,11 +306,19 @@
   .swatches { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
   .swatch { width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: transform var(--dur-2) var(--spring); }
   .swatch.on { border-color: var(--text); transform: scale(1.1); }
+  /* ── item 23: guests — the Add-a-guest sheet's face grid, guest rows in Me and the admin list ── */
+  .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--sp-2); }
+  .emoji-grid button { min-height: 48px; font: inherit; font-size: var(--fs-xl); line-height: 1; border-radius: var(--r); border: 2px solid transparent; background: var(--surface-2); color: var(--text); cursor: pointer; transition: transform var(--dur-2) var(--spring), background var(--dur-1); }
+  .emoji-grid button.on { border-color: var(--text); background: var(--accent-soft); transform: scale(1.06); }
+  .guest-btns { display: flex; gap: var(--sp-2); flex-wrap: wrap; justify-content: flex-end; }
+  .guest-list { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .guest-list .row { padding: var(--sp-2) 0; }
   table.usage { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
   table.usage th, table.usage td { text-align: left; padding: var(--sp-2) var(--sp-1); border-bottom: 1px solid var(--line-soft); }
   table.usage th { color: var(--text-2); font-weight: 600; }
   @media (min-width: 1024px) {
     .admin-people .row { display: grid; grid-template-columns: 56px 1fr auto auto; align-items: center; }
+    .admin-people .row .guest-btns { grid-column: 3 / -1; }   /* item 23: a guest row's Edit / Remove / Purge share the two button columns */
   }
   .switch-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--sp-2); margin-top: var(--sp-3); }
 
@@ -462,8 +470,14 @@
     document.title = registry.title || 'Anderson House';
   }
   const appById = id => registry.apps.find(a => a.id === id);
+  // item 23: guests. hub.profile has no guest flag; the raw server profile in the session does. Guest ids are never in
+  // apps.json's visibleTo, so a guest sees every app that is open to everyone or to at least one household adult.
+  const isGuest = () => !!(hub.session && hub.session.profile && hub.session.profile.is_guest);
+  const householdAdultIds = () => hub.people().filter(x => x.kind === 'adult' && !x.is_guest).map(x => x.id);
+  const guestUntil = p => !p.expires_at ? '' : (p.expires_at < Date.now() ? 'ended ' : 'until ') + new Date(p.expires_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   const visibleApps = () => {
     const p = hub.profile; if (!p || p.kind === 'kiosk') return [];
+    if (isGuest()) { const adults = householdAdultIds(); return registry.apps.filter(a => !a.visibleTo || a.visibleTo.some(id => adults.includes(id))); }
     return registry.apps.filter(a => !a.visibleTo || a.visibleTo.includes(p.id));
   };
   const canSee = id => visibleApps().some(a => a.id === id);
@@ -518,7 +532,7 @@
     $('#profiles').innerHTML = profiles.map(p => `
       <button class="pcard glass-strong${p.id === last ? ' last' : ''}" data-id="${esc(p.id)}" style="--tint:${esc(p.color || FALLBACK)}">
         ${avatar(p, 'avatar-lg')}<span>${esc(p.name)}</span>
-        <span class="psub">${p.id === last ? 'Welcome back' : p.kind === 'kid' ? 'Tap to start' : p.kind === 'kiosk' ? 'Display' : (p.has_pin ? 'PIN' : 'Create your PIN')}</span>
+        <span class="psub">${p.is_guest ? 'Guest' + (p.has_pin ? ' · PIN' : '') + (p.expires_at ? ' · ' + guestUntil(p) : '') : p.id === last ? 'Welcome back' : p.kind === 'kid' ? 'Tap to start' : p.kind === 'kiosk' ? 'Display' : (p.has_pin ? 'PIN' : 'Create your PIN')}</span>
       </button>`).join('');
     $('#profiles').addEventListener('click', ev => {
       const b = ev.target.closest('.pcard'); if (!b) return;
@@ -527,7 +541,7 @@
     const focus = $('#profiles .pcard.last') || $('#profiles .pcard'); if (focus) focus.focus();
   }
   async function pick(p) {
-    if (p.kind !== 'adult') {
+    if (p.kind !== 'adult' || (p.is_guest && !p.has_pin)) {   // item 23: a guest without a PIN signs in on tap
       try { await hub.login(p.id); enterShell(); }
       catch (e) { $('#pickmsg').textContent = e.message; }
       return;
@@ -866,7 +880,9 @@
   // and mirrors it into app_data(kidverse, family, 'stars:<kidId>') with the same shape so adults' Home can read it.
   const isoWeek = (d = new Date()) => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + String(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)).padStart(2, '0'); };
   const starsOf = v => v && typeof v === 'object' && v.week === isoWeek() ? Math.max(0, Math.floor(Number(v.count) || 0)) : 0;
-  const kidStars = () => hub.people().filter(q => q && q.kind === 'kid').map(q => ({ ...q, stars: starsOf(hub.get('stars:' + q.id, { app: 'kidverse', scope: 'family' })) }));
+  // item 20: the same row also carries total (the balance to cash in), earned, badges { id: date } and payouts — see CLAUDE.md "Stars & badges"
+  const rewardsOf = v => { const o = v && typeof v === 'object' ? v : {}; const b = o.badges && typeof o.badges === 'object' ? Object.keys(o.badges).filter(k => o.badges[k]) : []; return { total: Math.max(0, Math.floor(Number(o.total) || 0)), earned: Math.max(0, Math.floor(Number(o.earned) || 0)), badges: b.length, badgeIds: b }; };
+  const kidStars = () => hub.people().filter(q => q && q.kind === 'kid').map(q => { const v = effectiveStars(q.id); return { ...q, stars: starsOf(v), ...rewardsOf(v) }; });   // item 20: the mirror + any parent ledger rows the kid has not applied yet
   const ICON_STAR = '<svg class="icon" viewBox="0 0 24 24"><path class="duo" d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
   const ICON_PIN = '<svg class="icon" viewBox="0 0 24 24"><path class="duo" d="M12 21s-6-5.4-6-10a6 6 0 0 1 12 0c0 4.6-6 10-6 10Z"/><path d="M12 21s-6-5.4-6-10a6 6 0 0 1 12 0c0 4.6-6 10-6 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>';
   // Has this (app, scope) ever been pulled on this device for this person? Then the cache is the truth until the next pull: no skeleton.
@@ -893,12 +909,12 @@
       </div></div>${can ? `<button class="btn btn-soft" data-open="kidverse">Open ${esc(kv.name)}</button>` : ''}</div>`;
   }
   function kidsCardHtml(kids) {
-    const total = kids.reduce((s, k) => s + k.stars, 0);
+    const total = kids.reduce((s, k) => s + k.stars, 0), bank = kids.reduce((s, k) => s + (k.total || 0), 0);   // item 20: bank = every kid's balance
     return `<div class="card gcard kids-card" style="--tint:var(--gold)"><img class="spot" src="art/hero/play.svg" alt="" width="300" height="200">
       <h2><span class="app-icon">${ICON_STAR}</span>Kids</h2>
       <div class="gbody"><div class="grow">
-        <div class="kids-line">${kids.map(k => `<span class="kid-chip" style="--tint:${esc(k.color || FALLBACK)}">${avatar(k, 'avatar-sm')}<span>${esc(k.name)} <b>★${k.stars}</b></span></span>`).join('')}</div>
-        <div class="gsub">${total ? total + (total === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week.'}</div>
+        <div class="kids-line">${kids.map(k => `<span class="kid-chip" style="--tint:${esc(k.color || FALLBACK)}">${avatar(k, 'avatar-sm')}<span>${esc(k.name)} <b>★${k.stars}</b>${k.badges ? ' · ' + k.badges + (k.badges === 1 ? ' badge' : ' badges') : ''}</span></span>`).join('')}</div>
+        <div class="gsub">${total ? total + (total === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week.'}${bank ? ' · ' + bank + ' to cash in' : ''}</div>
       </div></div></div>`;
   }
   // ── the family feed: cached for an instant paint, grouped by person, an icon per line, "Show more" in pages of 30 ──
@@ -1237,6 +1253,7 @@
         <button class="btn btn-primary" id="switch">Switch</button></div>
       <input type="file" id="photo-file" accept="image/*" hidden>
       <div class="me-grid" style="margin-top:var(--sp-4)">
+        ${p.kind === 'adult' && !isGuest() ? `<div class="card glass" id="guests"><h2><span class="app-icon" style="--tint:var(--olive)"><svg class="icon"><use href="#i-plus"/></svg></span>Guests <button class="btn btn-soft" id="guest-add" style="margin-left:auto">Add a guest</button></h2><p class="help" style="margin:0 0 var(--sp-3)">A visitor gets their own name on every device. Pick a face and a colour; a PIN and an end date are optional.</p><div class="guest-list" id="guest-list"></div></div>` : ''}
         ${p.kind === 'adult' ? `<div class="card glass span2" id="album"><h2><span class="app-icon" style="--tint:var(--terra)"><svg class="icon"><use href="#i-camera"/></svg></span>Family album <button class="btn btn-soft" id="album-add" style="margin-left:auto">Add a photo</button></h2><div class="album" id="album-grid"></div></div>` : ''}
         <div class="card glass${p.kind === 'kiosk' ? '' : ' span2'}"><h2>Appearance</h2><div class="themes" id="theme">
           ${hub.THEMES.map(t => `<button class="theme-card${theme === t.id ? ' on' : ''}" data-theme="${t.id}" aria-pressed="${theme === t.id}">
@@ -1252,6 +1269,7 @@
             ${p.kind === 'adult' && canSee('dollywood-live') ? '<div class="kv"><b>Park day: a child\'s spot goes quiet</b><button class="switch" data-pref="park" role="switch" aria-checked="true" aria-label="Park day alerts"></button></div>' : ''}
             <button class="btn" id="notif-test" style="margin-top:var(--sp-3)">Send a test notification</button>
           </div></div>` : ''}
+        ${p.kind === 'adult' && !isGuest() ? '<div class="card glass span2" id="rewards"><h2><span class="app-icon" style="--tint:var(--gold)">' + ICON_STAR + '</span>Kids\' rewards</h2><div id="rewards-body"></div></div>' : ''}
         <div class="card glass"><h2>Sync</h2>
           <div class="kv"><b>Status</b><span><span class="dot dot-${s.state}" style="display:inline-block;vertical-align:middle;margin-right:6px"></span>${s.state}${s.lastError ? ' · ' + esc(s.lastError) : ''}</span></div>
           <div class="kv"><b>Waiting to send</b><span>${s.pending}</span></div>
@@ -1290,6 +1308,120 @@
       } catch (e) { hub.toast(e.message || 'Could not upload that.', 4000); }
     };
     renderAlbum();
+    if ($('#guest-add')) $('#guest-add').addEventListener('click', addGuestSheet);   // item 23
+    renderGuests();
+    renderRewards();   // item 20
+  }
+  // ── item 20: Kids' rewards — every kid's balance, week and badges, with Cash in / Reset week for a parent ────
+  // Only the kid's Kid Verse writes stars / stars:<kid>. A parent's action is an append-only family row
+  // ledger:<kid>:<id> = { kind: 'cashin'|'reset', date, amount | days[], by, at } that the kid's app applies once
+  // (stars.applied[key]); until then the shell shows the mirror with the unapplied rows on top (effectiveStars), so a cash-in
+  // is visible at once on Home, in Me and on the TV board, and a star the kid earns meanwhile can never undo it (see CLAUDE.md).
+  // A reset lists only this week's dates up to today and undoes only stars earned before its `at` (the row's earnedAt stamps).
+  const BADGE_NAMES = { first: 'First star', week: 'Full week', ten: 'Ten stars', story: 'Story lover', prayer: 'Prayer warrior', fifty: 'Fifty stars' };
+  const weekDayKeys = () => { const d = new Date(), m = new Date(d.getFullYear(), d.getMonth(), d.getDate()); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return Array.from({ length: 7 }, (_, i) => { const x = new Date(m); x.setDate(m.getDate() + i); return dayKey(x); }); };
+  function rewardRow(v) {
+    const o = v && typeof v === 'object' ? JSON.parse(JSON.stringify(v)) : {};
+    const cur = o.week === isoWeek();
+    return { ...o, week: cur ? o.week : isoWeek(), count: cur ? Math.max(0, Math.floor(Number(o.count) || 0)) : 0, days: cur && o.days && typeof o.days === 'object' ? o.days : {},
+      total: Math.max(0, Math.floor(Number(o.total) || 0)), earned: Math.max(0, Math.floor(Number(o.earned) || 0)), credited: { story: {}, prayed: {}, ...(o.credited && typeof o.credited === 'object' ? o.credited : {}) },
+      badges: o.badges && typeof o.badges === 'object' ? o.badges : {}, payouts: Array.isArray(o.payouts) ? o.payouts : [], applied: o.applied && typeof o.applied === 'object' ? o.applied : {}, earnedAt: o.earnedAt && typeof o.earnedAt === 'object' ? o.earnedAt : {} };
+  }
+  const KV = { app: 'kidverse', scope: 'family' };
+  const isDay = k => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k);
+  const ledgerRows = id => hub.list('ledger:' + id + ':', KV).filter(r => r.value && typeof r.value === 'object').sort((a, b) => (Number(a.value.at) || 0) - (Number(b.value.at) || 0) || (a.key < b.key ? -1 : 1));
+  const weekCountOf = r => { let n = 0; for (const d of weekDayKeys()) { if (r.days[d] === true) n++; if (r.credited.story && r.credited.story[d] === true) n++; if (r.credited.prayed && r.credited.prayed[d] === true) n++; } return n; };
+  // the same rules Kid Verse applies (apps/kidverse.html applyLedger), on a copy, for display
+  function applyLedger(r, rows) {
+    let n = 0;
+    for (const x of rows) {
+      if (r.applied[x.key]) continue;
+      const e = x.value;
+      if (e.kind === 'cashin') { const amount = Math.max(0, Math.floor(Number(e.amount) || 0)); r.payouts = [...r.payouts, { date: isDay(e.date) ? e.date : '', amount, by: e.by ? String(e.by) : undefined }].slice(-50); r.total = Math.max(0, r.total - amount); }
+      else if (e.kind === 'reset') { const at = Number(e.at) || 0, upto = isDay(e.date) ? e.date : null, before = (kind, d) => !((Number(r.earnedAt[kind + ':' + d]) || 0) > at); for (const d of (Array.isArray(e.days) ? e.days : []).filter(isDay)) { if (upto && d > upto) continue; if (r.days[d] === true && before('verse', d)) { r.days[d] = 'reset'; r.total = Math.max(0, r.total - 1); } for (const kind of ['story', 'prayed']) { const m = r.credited[kind]; if (m && m[d] === true && before(kind, d)) { m[d] = 'reset'; r.total = Math.max(0, r.total - 1); } } } }
+      else continue;
+      r.applied = { ...r.applied, [x.key]: true }; n++;
+    }
+    if (n) r.count = weekCountOf(r);
+    return r;
+  }
+  const effectiveStars = id => applyLedger(rewardRow(hub.get('stars:' + id, KV)), ledgerRows(id));
+  function renderRewards() {
+    const body = $('#rewards-body'); if (!body) return;
+    if (!hub.profile || hub.profile.kind !== 'adult' || isGuest()) { body.innerHTML = ''; return; }   // household adults only
+    const kids = kidStars();
+    if (!kids.length) { body.innerHTML = '<p class="help">No kid profiles yet.</p>'; return; }
+    body.innerHTML = kids.map(k => {
+      const r = effectiveStars(k.id);
+      const names = Object.keys(r.badges).filter(b => r.badges[b]).map(b => BADGE_NAMES[b] || b);
+      const last = r.payouts[r.payouts.length - 1];
+      return `<div class="hstack reward-kid" data-kid="${esc(k.id)}" style="--tint:${esc(k.color || FALLBACK)};flex-wrap:wrap;padding:var(--sp-2) 0">${avatar(k, 'avatar-sm')}<div class="grow" style="min-width:160px"><div><b>${esc(k.name)}</b> <span class="reward-total">★${r.total}</span> to cash in · ${r.count} this week${r.earned > r.total ? ' · ' + r.earned + ' ever' : ''}</div><div class="help">${names.length ? names.length + (names.length === 1 ? ' badge: ' : ' badges: ') + esc(names.join(', ')) : 'No badges yet'}${last ? ' · last cash-in ' + last.amount + ' on ' + esc(last.date) : ''}</div></div><div class="hstack"><button class="btn btn-soft" data-cashin="${esc(k.id)}"${r.total ? '' : ' disabled'}>Cash in</button><button class="btn btn-ghost" data-resetweek="${esc(k.id)}"${r.count ? '' : ' disabled'}>Reset week</button></div></div>`;
+    }).join('');
+    body.onclick = ev => {
+      const b = ev.target.closest('[data-cashin],[data-resetweek]'); if (!b || !hub.canWrite || !hub.profile || hub.profile.kind !== 'adult' || isGuest()) return;
+      const id = b.dataset.cashin || b.dataset.resetweek, kid = kids.find(k => k.id === id); if (!kid) return;
+      const r = effectiveStars(id); const today = dayKey(new Date());
+      const key = 'ledger:' + id + ':' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6), at = Date.now() + (Number(hub.skew) || 0);
+      if (b.dataset.cashin) {
+        if (!r.total) return;
+        if (!confirm(`Cash in ${kid.name}'s ${r.total} ${r.total === 1 ? 'star' : 'stars'}? The balance goes back to 0; badges stay.`)) return;
+        const paid = r.total;
+        hub.set(key, { kind: 'cashin', date: today, amount: paid, by: hub.profile.id, at }, KV);
+        hub.activity(`Cashed in ${kid.name}'s ${paid} ${paid === 1 ? 'star' : 'stars'} ★`, 'kidverse'); hub.toast(`Cashed in ${paid} ${paid === 1 ? 'star' : 'stars'} for ${kid.name}.`);
+      } else {
+        if (!r.count) return;
+        if (!confirm(`Reset ${kid.name}'s stars for this week? This week's ${r.count} ${r.count === 1 ? 'star comes' : 'stars come'} off the balance; badges stay.`)) return;
+        hub.set(key, { kind: 'reset', date: today, days: weekDayKeys().filter(d => d <= today), by: hub.profile.id, at }, KV);   // never the week's days still to come
+        hub.activity(`Reset ${kid.name}'s stars for the week`, 'kidverse'); hub.toast(`${kid.name}'s week starts over.`);
+      }
+      renderRewards(); if (tab === 'home') renderHome();
+    };
+  }
+  // ── item 23: guests ───────────────────────────────────────────
+  // Household adults add a visitor from Me; the guest then taps their name on any device (the picker refetches
+  // /api/profiles every time it opens). The list below is the last profiles pull, refreshed after each add.
+  const GUEST_EMOJI = ['🙂', '😀', '😎', '🤓', '🥳', '🤠', '🧑', '👵', '👴', '🦊', '🐻', '🐱', '🐶', '🐧', '🦉', '🐢', '🦋', '🌻', '🌵', '🍀', '🍎', '⚽', '🎸', '⭐'];
+  function renderGuests() {
+    const g = $('#guest-list'); if (!g) return;
+    const now = Date.now();
+    const rows = hub.people().filter(x => x.is_guest && !(x.expires_at && x.expires_at < now));
+    if (!rows.length) { g.innerHTML = '<p class="help" style="margin:0">No guests right now.</p>'; return; }
+    g.innerHTML = rows.map(q => `<div class="row" style="--tint:${esc(q.color || FALLBACK)}">${avatar(q)}<div class="row-main"><div class="row-title">${esc(q.name)}</div><div class="row-sub">${q.expires_at ? esc(guestUntil(q)) : 'No end date'}${q.has_pin ? ' · PIN' : ' · taps to sign in'}</div></div></div>`).join('');
+  }
+  function addGuestSheet() {
+    if (!hub.canWrite) return hub.kioskNudge();
+    let emoji = GUEST_EMOJI[0], color = SWATCHES[2], expiry = 'week';
+    const sh = sheet(`<h2>Add a guest</h2>
+      <form id="gform" class="stack" style="margin-top:var(--sp-3)">
+        <label class="field"><span class="label">Name</span><input class="input" id="gname" maxlength="40" required autocomplete="off" placeholder="Aunt Sue"></label>
+        <div class="field"><span class="label">Face</span><div class="emoji-grid" id="gemoji" role="group" aria-label="Face">${GUEST_EMOJI.map(e => `<button type="button" class="${e === emoji ? 'on' : ''}" data-e="${e}" aria-pressed="${e === emoji}" aria-label="${e}">${e}</button>`).join('')}</div></div>
+        <div class="field"><span class="label">Colour</span><div class="swatches" id="gswatches">${SWATCHES.map(c => `<button type="button" class="swatch${c === color ? ' on' : ''}" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div></div>
+        <label class="field"><span class="label">PIN (optional)</span><input class="input" id="gpin" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="Leave empty and they sign in on tap"></label>
+        <div class="field"><span class="label">Stays until</span><div class="seg" id="gexp">${[['tonight', 'Tonight'], ['week', 'A week'], ['keep', 'Keep']].map(([k, l]) => `<button type="button" data-x="${k}" aria-pressed="${k === expiry}">${l}</button>`).join('')}</div></div>
+        <p class="pin-msg" id="gmsg"></p>
+        <div class="hstack"><button class="btn btn-ghost grow" type="button" data-close>Cancel</button><button class="btn btn-primary grow" type="submit">Add guest</button></div>
+      </form>`);
+    sh.el.querySelector('#gemoji').addEventListener('click', ev => { const b = ev.target.closest('[data-e]'); if (!b) return; emoji = b.dataset.e; sh.el.querySelectorAll('#gemoji button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); });
+    sh.el.querySelector('#gswatches').addEventListener('click', ev => { const b = ev.target.closest('.swatch'); if (!b) return; color = b.dataset.c; sh.el.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x === b)); });
+    sh.el.querySelector('#gexp').addEventListener('click', ev => { const b = ev.target.closest('[data-x]'); if (!b) return; expiry = b.dataset.x; sh.el.querySelectorAll('#gexp button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+    sh.el.querySelector('#gname').focus();
+    sh.el.querySelector('#gform').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const msg = sh.el.querySelector('#gmsg');
+      const name = sh.el.querySelector('#gname').value.trim(), pin = sh.el.querySelector('#gpin').value.trim();
+      if (!name) { msg.textContent = 'A name, please.'; return; }
+      if (pin && !/^\d{4,8}$/.test(pin)) { msg.textContent = 'The PIN is 4 to 8 digits, or leave it empty.'; return; }
+      const tonight = new Date(); tonight.setHours(23, 59, 59, 999);
+      const expires_at = expiry === 'tonight' ? tonight.getTime() : expiry === 'week' ? Date.now() + 7 * 86400000 : null;
+      const btn = sh.el.querySelector('button[type=submit]'); btn.disabled = true;
+      try {
+        const r = await hub.request('/api/profiles', { method: 'POST', body: { name, emoji, color, pin: pin || undefined, expires_at } });
+        sh.close();
+        hub.toast(`${r.profile.name} can now tap their name on any device.`, 4000);
+        try { await hub.profiles(); } catch {}
+        renderGuests(); if (hub.profile && hub.profile.isAdmin) renderAdmin();
+      } catch (err) { msg.textContent = err.message; btn.disabled = false; }
+    });
   }
   function renderAlbum() {
     const g = $('#album-grid'); if (!g) return;
@@ -1447,7 +1579,8 @@
   async function renderAdmin() {
     const body = $('#admin-body'); if (!body) return;
     let list, usage;
-    try { [list, usage] = await Promise.all([hub.profiles(), hub.request('/api/admin/usage')]); }
+    // item 23: fetched with the admin token so guests whose stay has ended are listed too (hub.profiles() sends no profile token)
+    try { [list, usage] = await Promise.all([hub.request('/api/profiles').then(r => r.profiles), hub.request('/api/admin/usage')]); }
     catch (e) { body.innerHTML = `<p class="text-2">Could not load admin data: ${esc(e.message)}</p>`; return; }
     if (!body.isConnected) return;   // the Me tab was re-rendered (profile switched) while the admin data loaded
     const kindLbl = k => ({ adult: 'Adult', kid: 'Kid', kiosk: 'Display' })[k] || k;
@@ -1458,8 +1591,12 @@
     body.innerHTML = `
       <h3 style="margin:var(--sp-2) 0">Profiles</h3>
       <ul class="list admin-people">${list.map(q => `<li class="row prow" style="--tint:${esc(q.color || FALLBACK)}">${avatar(q)}
-        <div class="row-main"><div class="row-title">${esc(q.name)}${q.is_admin ? ' · admin' : ''}</div><div class="row-sub">${kindLbl(q.kind)}${q.kind === 'adult' ? (q.has_pin ? ' · PIN set' : ' · no PIN yet') : ''}</div></div>
-        <button class="btn" data-edit="${esc(q.id)}">Edit</button>${q.kind === 'adult' && q.has_pin ? `<button class="btn btn-ghost" data-resetpin="${esc(q.id)}">Reset PIN</button>` : '<span></span>'}</li>`).join('')}</ul>
+        <div class="row-main"><div class="row-title">${esc(q.name)}${q.is_admin ? ' · admin' : ''}</div><div class="row-sub">${q.is_guest
+          ? 'Guest · ' + (q.expires_at ? esc(guestUntil(q)) : 'no end date') + (q.has_pin ? ' · PIN set' : ' · no PIN') + (q.created_by ? ' · added by ' + esc(nameOf(q.created_by)) : '')
+          : kindLbl(q.kind) + (q.kind === 'adult' ? (q.has_pin ? ' · PIN set' : ' · no PIN yet') : '')}</div></div>
+        ${q.is_guest
+          ? `<div class="guest-btns"><button class="btn" data-edit="${esc(q.id)}">Edit</button>${q.has_pin ? `<button class="btn btn-ghost" data-resetpin="${esc(q.id)}">Clear PIN</button>` : ''}<button class="btn btn-ghost" data-remove="${esc(q.id)}">Remove</button>${q.expires_at && q.expires_at < Date.now() ? `<button class="btn btn-danger" data-purge="${esc(q.id)}">Purge</button>` : ''}</div>`
+          : `<button class="btn" data-edit="${esc(q.id)}">Edit</button>${q.kind === 'adult' && q.has_pin ? `<button class="btn btn-ghost" data-resetpin="${esc(q.id)}">Reset PIN</button>` : '<span></span>'}`}</li>`).join('')}</ul>
       <h3 style="margin:var(--sp-5) 0 var(--sp-2)">Pairing code</h3>
       <p class="help" style="margin:0 0 var(--sp-3)">New devices need it once. Rotating it does not unpair anything.</p>
       <div class="hstack"><button class="btn" id="rotate-choose">Choose a new code</button><button class="btn btn-ghost" id="rotate-gen">Generate one</button></div>
@@ -1479,8 +1616,22 @@
       const e = ev.target.closest('[data-edit]'); if (e) return editProfile(list.find(x => x.id === e.dataset.edit));
       const r = ev.target.closest('[data-resetpin]'); if (r) {
         const q = list.find(x => x.id === r.dataset.resetpin);
-        if (!confirm(`Reset ${q.name}'s PIN? They will create a new one next time they tap their name.`)) return;
-        try { await hub.request(`/api/admin/profiles/${q.id}/reset-pin`, { method: 'POST', body: {} }); hub.toast('PIN reset.'); renderAdmin(); } catch (err) { hub.toast(err.message); }
+        // item 23: a guest's PIN is fixed at creation (nobody can "create" one on a paired device), so clearing it means they sign in on tap
+        if (!confirm(q.is_guest ? `Clear ${q.name}'s PIN? As a guest they will sign in on tap from now on.` : `Reset ${q.name}'s PIN? They will create a new one next time they tap their name.`)) return;
+        try { await hub.request(`/api/admin/profiles/${q.id}/reset-pin`, { method: 'POST', body: {} }); hub.toast(q.is_guest ? 'PIN cleared.' : 'PIN reset.'); renderAdmin(); renderGuests(); } catch (err) { hub.toast(err.message); }
+        return;
+      }
+      // item 23: guests — Remove deletes the guest and everything they saved; Purge does the same for one whose stay has ended
+      const rm = ev.target.closest('[data-remove]'); if (rm) {
+        const q = list.find(x => x.id === rm.dataset.remove);
+        if (!confirm(`Remove ${q.name}? Their guest profile and everything they saved will be deleted.`)) return;
+        try { await hub.request(`/api/admin/profiles/${q.id}`, { method: 'DELETE' }); hub.toast(`${q.name} removed.`); try { await hub.profiles(); } catch {} renderAdmin(); renderGuests(); } catch (err) { hub.toast(err.message); }
+        return;
+      }
+      const pg = ev.target.closest('[data-purge]'); if (pg) {
+        const q = list.find(x => x.id === pg.dataset.purge);
+        if (!confirm(`Purge ${q.name}'s data now? Their stay has ended; this deletes the profile and everything they saved.`)) return;
+        try { await hub.request(`/api/admin/profiles/${q.id}/purge`, { method: 'POST', body: {} }); hub.toast(`${q.name} purged.`); try { await hub.profiles(); } catch {} renderAdmin(); renderGuests(); } catch (err) { hub.toast(err.message); }
         return;
       }
       const u = ev.target.closest('[data-unpair]'); if (u) {

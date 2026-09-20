@@ -149,6 +149,17 @@ app.kidverse = svg(200, 160, [
   sparkles([[46, 34, 7], [156, 30, 6], [140, 58, 5], [62, 56, 4]], P.gold),
   stroke('M22 138c30 6 60 6 78 0 18 6 48 6 78 0', P.mocha, 3, 'stroke-opacity=".5"'),
 ].join('\n'));
+app.verses = svg(200, 160, [
+  // Verses (roadmap 19): an open book with a tick on the right page (a verse recited from memory) and five little
+  // Leitner boxes stepping up along the bottom — the verse climbs a box each time it is got right
+  fill('M30 106V46c22-8 44-6 70 6v62c-26-12-48-14-70-6z', P.oliveSoft), fill('M170 106V46c-22-8-44-6-70 6v62c26-12 48-14 70-6z', P.oliveSoft),
+  stroke('M30 106V46c22-8 44-6 70 6v62c-26-12-48-14-70-6zM170 106V46c-22-8-44-6-70 6v62c26-12 48-14 70-6z', P.olive, 4),
+  stroke('M46 62c14-2 26 0 40 6M46 78c14-2 26 0 40 6M46 94c10-1 20 0 30 3', P.olive, 3, 'stroke-opacity=".45"'),
+  circle(134, 76, 17, P.goldSoft), stroke('M126 76l6 6 11-12', P.gold, 4),
+  fill('M24 148h20v-12H24zM52 148h20v-18H52zM80 148h20v-24H80zM108 148h20v-30h-20zM136 148h20v-36h-20z', P.sand2),
+  stroke('M24 148h20v-12H24zM52 148h20v-18H52zM80 148h20v-24H80zM108 148h20v-30h-20zM136 148h20v-36h-20z', P.olive, 3, 'stroke-opacity=".6"'),
+  star(160, 118, 8, P.gold),
+].join('\n'));
 for (const [k, v] of Object.entries(app)) write(`app/${k}.svg`, v);
 
 // ── empty states (220×140) ───────────────────────────────────────

@@ -29,7 +29,10 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
    The code is hashed in `settings.pairing_code_hash`; 10 wrong tries per IP per 15 min.
 2. **Sign in as a profile**: `POST /api/login {profile_id, pin?}` → `profile_token`, sent as `X-Profile-Token`.
    - kids and the kiosk: no PIN
-   - adult with no PIN yet → `403 needs_pin_setup` → `POST /api/profiles/:id/pin {pin}` (4–8 digits, only while unset) signs them in
+   - a guest without a PIN: no PIN either (signs in on tap); a guest whose stay has ended → `403 guest_expired`, and their existing sessions stop with `401 profile_session_invalid`
+   - adult with no PIN yet → `403 needs_pin_setup` → `POST /api/profiles/:id/pin {pin}` (4–8 digits, only while unset) signs them in.
+     Never for a guest (`403 guest_pin_fixed`): a guest's PIN is chosen when they are added, and the admin's Reset PIN
+     ("Clear PIN" on a guest row) turns them into a tap-to-open guest — so no paired device can lock a guest out or take the profile
    - 5 wrong PINs per profile per device → `429` for 15 min
    - sessions last a year and are bound to the device that created them
 3. Person-scope reads, every write, and `/api/admin/*` need the profile token. Family-scope reads need only the device token (the kiosk uses this). Kiosk profiles cannot write (`403 read_only`).
@@ -39,9 +42,13 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 ```
 GET  /api/health
 POST /api/pair                          {code, name?}
-GET  /api/profiles                      (no hashes; has_pin flag)
+GET  /api/profiles                      (no hashes; has_pin, is_guest, expires_at, created_by) — guests whose expires_at has passed are
+                                        left out unless the caller is the admin
+POST /api/profiles                      {name, emoji?|icon?, color?, pin?, expires_at?}  household adults only (kids, the display and
+                                        guests → 403): a guest profile, kind adult, is_guest 1, id 'guest-<random>', never admin;
+                                        expires_at ms since epoch or null = keep; logs "Added a guest: <name>" on Home
 POST /api/login                         {profile_id, pin?}
-POST /api/profiles/:id/pin              {pin}
+POST /api/profiles/:id/pin              {pin}  first-time PIN creation, household adults only (guests → 403 guest_pin_fixed)
 GET  /api/me            POST /api/logout
 
 GET  /api/data/:appId?scope=person|family[&since=ms][&prefix=][&key=]
@@ -66,15 +73,40 @@ POST /api/chat {message, apps}          text/event-stream: text | tool | done | 
 GET  /api/chat/history                  last 20 messages, used/cap for today
 
 Admin (is_admin profile token):
-POST /api/admin/profiles/:id/reset-pin
-PUT  /api/admin/profiles/:id            {name?, emoji?, color?, kind?, sort_order?}
+POST /api/admin/profiles/:id/reset-pin  (on a guest: they sign in on tap from then on — nobody can "create" a guest PIN)
+PUT  /api/admin/profiles/:id            {name?, emoji?, color?, kind?, sort_order?, expires_at?}  (expires_at: guests only — extend or end a stay;
+                                        ending it deletes the guest's sessions and push subscriptions at once)
+DELETE /api/admin/profiles/:id          guests only (400 not_a_guest otherwise): the profile, its person-scope app_data, sessions, push
+                                        subscriptions, chat log, activity and photos are deleted
+POST /api/admin/profiles/:id/purge      the same for a guest whose stay has ended (400 not_expired otherwise)
+POST /api/admin/guests/purge            run the guest cleanup now: every expired guest loses sessions + push subscriptions ("silenced"),
+                                        every guest expired more than 30 days ago is deleted as above
 POST /api/admin/pairing-code/rotate     {code?}  (omit code → one is generated and returned once)
 GET  /api/admin/usage                   chat messages / push sends per profile per day, devices
 DELETE /api/admin/devices/:id
 POST /api/admin/cron/run                {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'park'}  run one reminder job now, ignoring the clock
+                                        (expired guests are silenced first, so a forced job cannot reach them either)
 
-Cron (wrangler.toml [triggers]): 8:00 am and 8:00 pm New York — see src/reminders.js.
+Cron (wrangler.toml [triggers]): 8:00 am and 8:00 pm New York — see src/reminders.js. Before the jobs run, every guest
+whose stay has ended loses their sessions and push subscriptions (silenceExpiredGuests in src/auth.js — the jobs push to
+every kind='adult' profile, and a departed visitor must not be on that list); after them, guests expired more than
+30 days ago are purged (purgeExpiredGuests in src/index.js).
 ```
+
+### Guests (roadmap 23, migrations/005-guests.sql)
+
+A guest is an ordinary adult profile with `is_guest = 1`, `created_by` (who added them) and `expires_at` (ms, NULL = keep).
+Any household adult creates one from the Me tab; the picker on every device shows it on its next `GET /api/profiles`
+("Guest · until <date>"). Guests can never be the admin or become a kid/kiosk (`400 guest_must_be_adult`), and cannot
+add other guests. Because `apps.json`'s `visibleTo` lists household ids, a guest sees every app that is open to everyone
+or to at least one household adult — the shell applies that rule in `visibleApps()`, and `POST /api/chat` adds the guest's
+id to those apps' `visibleTo` before the tool loop so chat tools see the same set. Once `expires_at` passes the guest
+disappears from the picker (the admin still sees them, with Purge), cannot sign in, and their sessions and push
+subscriptions are deleted (on the admin's `PUT {expires_at}`, on the first request with a stale token, and before every
+cron run — so the household reminders never reach a departed visitor's phone); their person-scope rows stay 30 days so
+the admin can extend the stay (`PUT … {expires_at}`), then the cron purge deletes them. A guest's PIN is fixed when they
+are added: `POST /api/profiles/:id/pin` refuses guests (`403 guest_pin_fixed`), so a tap-to-open guest cannot be locked
+out or taken over from another paired device; the admin's reset-pin ("Clear PIN") makes a guest tap-to-open again.
 
 ### Reminders (src/reminders.js)
 
@@ -161,6 +193,8 @@ Local state lives in `.wrangler/` (git-ignored). Local-only secrets go in `.dev.
 |---|---|
 | `device_not_paired` | Device token missing/revoked — the hub shows the pairing screen |
 | `pairing_not_configured` (503) | Run `scripts/set-pairing-code.mjs` |
-| `profile_session_invalid` | Session expired, PIN was reset, or token from another device — pick the profile again |
+| `profile_session_invalid` | Session expired, PIN was reset, token from another device, or a guest's stay ended — pick the profile again |
+| `guest_expired` (403) | That guest's `expires_at` has passed; the admin can extend it (`PUT /api/admin/profiles/:id {expires_at}`) |
+| `guest_pin_fixed` (403) | `POST /api/profiles/:id/pin` on a guest — their PIN was set when they were added; the admin clears it with reset-pin |
 | `no such table` | Run `schema.sql` against `--remote` |
 | CORS error in the browser | Origin not in `ALLOWED_ORIGINS` in `wrangler.toml`; redeploy after editing |

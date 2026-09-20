@@ -480,11 +480,13 @@
   hub.uploadPhoto = async (file, profileId = hub.profile && hub.profile.id) => {
     const r = await hub.request(`/api/profiles/${encodeURIComponent(profileId)}/photo`, { method: 'PUT', body: await twoSizes(file), timeout: 60000 });
     if (hub.session && hub.profile && hub.profile.id === profileId) hub.setSession({ token: hub.session.token, profile: { ...hub.session.profile, ...r.profile } });
+    hub.profiles().catch(() => {});   // refresh the cached faces (hub.people) on this device too
     return publicProfile(r.profile);
   };
   hub.removePhoto = async (profileId = hub.profile && hub.profile.id) => {
     const r = await hub.request(`/api/profiles/${encodeURIComponent(profileId)}/photo`, { method: 'DELETE' });
     if (hub.session && hub.profile && hub.profile.id === profileId) hub.setSession({ token: hub.session.token, profile: { ...hub.session.profile, ...r.profile } });
+    hub.profiles().catch(() => {});   // refresh the cached faces (hub.people) on this device too
     return publicProfile(r.profile);
   };
   /** Family album: rows live in app_data (family, 'hub', 'album:<id>'); list them with hub.list('album:', { app: 'hub', scope: 'family' }). */

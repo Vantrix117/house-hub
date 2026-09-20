@@ -10,7 +10,10 @@ CREATE TABLE IF NOT EXISTS profiles (
   pin_hash   TEXT,                          -- NULL = adult has not created a PIN yet
   is_admin   INTEGER NOT NULL DEFAULT 0,
   sort_order INTEGER NOT NULL DEFAULT 0,
-  photo      TEXT                            -- random token; the bytes are media 'photos/<id>/<token>-256.jpg' + '-1024.jpg'
+  photo      TEXT,                           -- random token; the bytes are media 'photos/<id>/<token>-256.jpg' + '-1024.jpg'
+  is_guest   INTEGER NOT NULL DEFAULT 0,     -- guest profiles (migrations/005): added on demand by an adult, kind 'adult', never admin
+  created_by TEXT,                            -- guest: the profile id that added them
+  expires_at INTEGER                          -- guest: ms since epoch after which the picker hides them; NULL = keep
 );
 
 -- Photo bytes (profile photos, the family album) when there is no R2 bucket bound as MEDIA. See src/media.js.

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Verses</title>
+<link rel="stylesheet" href="design.css">
+<style>
+  /* Verses — a memory-verse trainer over the F260 memory verses (a Leitner box system).
+     One card at a time: the reference in big type, the person recites from memory, taps Show, then rates
+     Got it / Almost / Not yet. Adults also see the queue and their boxes; kids get this week's two verses and huge buttons.
+     Every colour is a design.css token; the page is an olive wash with the person's colour caught in the glass. */
+  html, body { min-height: 100%; }
+  body.ds {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(120% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--olive) 20%, transparent), transparent 60%),
+      radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%);
+    background-attachment: fixed;
+    padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+    overflow-x: hidden;
+  }
+  .wrap { max-width: var(--max-read); margin: 0 auto; padding: var(--sp-4); padding-bottom: calc(var(--sp-10) + var(--safe-bottom)); display: grid; gap: var(--sp-4); }
+
+  /* who + how many to go, on a glass pill */
+  .top { display: flex; justify-content: center; }
+  .ds .top .pill { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--tap); padding: var(--sp-2) var(--sp-5); border-radius: var(--r-full); color: var(--text); }
+  .ds .top .pill .avatar { --size: 28px; font-size: 16px; }
+  .top .pill b { color: var(--olive-ink); }
+
+  /* the card: the reference big, then the hidden part (verse text if F260 has it), then the buttons.
+     min-height fits the tallest state (three stacked ratings at phone width) so the card never grows on Show. */
+  .ds .trainer { border-radius: var(--r-2xl); display: grid; gap: var(--sp-4); text-align: center; padding: var(--sp-6) var(--sp-4); min-height: 448px; align-content: start; }
+  :root[data-kind="kid"] .ds .trainer { min-height: 520px; }
+  @media (min-width: 560px) { .ds .trainer, :root[data-kind="kid"] .ds .trainer { min-height: 380px; } }
+  .trainer .kick { display: flex; justify-content: center; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
+  .trainer .kick .kicker { color: var(--olive-ink); }
+  .trainer h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 9vw, 56px); line-height: var(--lh-tight); letter-spacing: 0; color: var(--text); text-wrap: balance; }
+  :root[data-kind="kid"] .trainer h1 { font-size: clamp(40px, 11vw, 64px); }
+  .trainer .hint { color: var(--muted); font-size: var(--fs-md); font-weight: 600; min-height: 1.5em; margin: 0; }
+  :root[data-kind="kid"] .trainer .hint { font-size: var(--fs-lg); }
+  /* the verse text F260 has on file (pasted there once), blurred until Show */
+  .trainer .text { font-family: var(--font-serif); font-size: var(--fs-lg); line-height: var(--lh); color: var(--text); text-wrap: pretty; margin: 0; padding: var(--sp-3) var(--sp-2); border-radius: var(--r-lg); background: var(--surface-2); transition: filter var(--dur-2) var(--ease); }
+  .trainer .text.veiled { filter: blur(9px); user-select: none; -webkit-user-select: none; }
+  .trainer .text[hidden] { display: none; }
+
+  /* the buttons: never smaller than 60 px (kids: 64), stacked at phone width */
+  .actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 560px) { .actions { grid-template-columns: 1fr 1fr; } .actions.three { grid-template-columns: 1fr 1fr 1fr; } }
+  .ds .actions .btn { min-height: var(--tap-lg); font-size: var(--fs-lg); border-radius: var(--r-xl); gap: var(--sp-3); padding: var(--sp-2) var(--sp-4); }
+  :root[data-kind="kid"] .ds .actions .btn { min-height: max(64px, var(--tap-lg)); }
+  .ds .actions .btn .icon { width: 1.3em; height: 1.3em; flex: none; }
+  .ds .actions .btn-glass { --g: var(--glass-strong); }
+  .ds .btn.say.on .icon { animation: pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+  .ds .btn.not { --accent: var(--terra); --accent-soft: var(--terra-soft); --accent-deep: var(--terra-ink); }
+  .ds .btn.almost { --accent: var(--gold); --accent-soft: var(--gold-soft); --accent-deep: var(--gold-ink); }
+  .ds .btn.got { --accent: var(--olive); --accent-soft: var(--olive-soft); --accent-deep: var(--olive-ink); }
+  .ds .btn.got.btn-primary { background: var(--olive); border-color: var(--olive); color: var(--on-accent); }
+  .actions[hidden] { display: none; }
+
+  /* all done / nothing to train */
+  .ds .done { border-radius: var(--r-2xl); text-align: center; display: grid; gap: var(--sp-3); justify-items: center; padding: var(--sp-8) var(--sp-4); }
+  .done .big { font-family: var(--font-display); font-size: var(--fs-3xl); line-height: 1.1; color: var(--text); margin: 0; text-wrap: balance; }
+  .done p { margin: 0; color: var(--muted); font-size: var(--fs-md); }
+  .ds .done .btn { min-height: var(--tap-lg); border-radius: var(--r-xl); font-size: var(--fs-md); }
+  :root[data-kind="kid"] .ds .done .btn { min-height: max(64px, var(--tap-lg)); font-size: var(--fs-lg); }
+  .done .icon.star { width: 64px; height: 64px; color: var(--gold); fill: currentColor; stroke: none; }
+  .ds .empty-art { width: min(200px, 60%); margin: 0 auto var(--sp-2); }
+
+  /* adults: stats and the queue */
+  .ds .grown { border-radius: var(--r-xl); display: grid; gap: var(--sp-4); }
+  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: 700; display: flex; align-items: center; gap: var(--sp-2); }
+  .grown h2 .icon { width: 1.2em; height: 1.2em; color: var(--olive); }
+  .grown h2 small { font-weight: 600; color: var(--muted); font-size: var(--fs-sm); margin-left: auto; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
+  .stats .stat b { color: var(--text); }
+  /* five Leitner boxes as a tiny histogram: daily … fortnightly */
+  .boxes { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-2); align-items: end; }
+  .boxes .bx { display: grid; gap: var(--sp-1); justify-items: center; text-align: center; }
+  .boxes .col { width: 100%; height: 72px; display: flex; align-items: flex-end; }
+  .boxes .col i { display: block; width: 100%; min-height: 4px; height: calc(4px + 68px * var(--p, 0)); border-radius: var(--r-sm) var(--r-sm) 0 0; background: color-mix(in srgb, var(--olive) calc(35% + 65% * var(--p, 0)), var(--surface-2)); transition: height var(--dur-3) var(--ease-out); }
+  .boxes .n { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+  .boxes .lbl { font-size: var(--fs-xs); color: var(--muted); font-weight: 600; line-height: 1.2; }
+  .queue { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+  .queue li { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); padding: var(--sp-2) 0; border-top: 1px solid var(--line-soft); flex-wrap: wrap; }
+  .queue li:first-child { border-top: 0; }
+  .queue .rf { font-weight: 700; flex: 1; min-width: 0; color: var(--text); }
+  .queue .rf small { display: block; font-weight: 600; color: var(--muted); font-size: var(--fs-xs); }
+  .queue .when { font-size: var(--fs-sm); color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .queue li.now .when { color: var(--olive-ink); }
+  .queue li.late .when { color: var(--terra-ink); }
+  .queue .none { color: var(--muted); font-size: var(--fs-sm); }
+  .ds .chip.box { background: var(--olive-soft); color: var(--olive-ink); min-height: 28px; font-size: var(--fs-xs); font-weight: 700; }
+
+  @media (prefers-reduced-motion: reduce) { .ds .btn.say.on .icon { animation: none; } .trainer .text, .boxes .col i { transition: none; } }
+</style>
+</head>
+<body class="ds">
+<div class="wrap">
+  <div class="top"><span class="pill" id="who"></span></div>
+
+  <section class="card trainer glass-strong" id="trainer" hidden>
+    <div class="kick"><span class="kicker" id="kick">Memory verse</span><span class="chip box" id="boxchip" hidden></span></div>
+    <h1 id="ref">…</h1>
+    <p class="hint" id="hint">Say it from memory, then tap Show.</p>
+    <p class="text veiled" id="text" hidden></p>
+    <div class="actions" id="act-show">
+      <button class="btn btn-glass say" id="say" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read aloud</span></button>
+      <button class="btn btn-primary" id="show" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show</span></button>
+    </div>
+    <div class="actions three" id="act-rate" hidden>
+      <button class="btn btn-soft not" type="button" data-rate="not"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg><span>Not yet</span></button>
+      <button class="btn btn-soft almost" type="button" data-rate="almost"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg><span>Almost</span></button>
+      <button class="btn btn-primary got" type="button" data-rate="got"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span>Got it</span></button>
+    </div>
+  </section>
+
+  <section class="card done glass-strong" id="done" hidden>
+    <svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>
+    <h2 class="big" id="done-big">All done for today</h2>
+    <p id="done-sub"></p>
+    <button class="btn btn-glass" id="again" type="button" hidden><span>Practise again</span></button>
+  </section>
+
+  <section class="card done" id="empty" hidden>
+    <div class="empty-art"><img src="../art/app/verses.svg" alt="" width="200" height="160"></div>
+    <h2 class="big">Nothing to train yet</h2>
+    <p>Mark a memory verse as memorised in F260 and it will show up here on its review day.</p>
+  </section>
+
+  <section class="card grown" id="stats" hidden>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Your boxes<small id="stats-sub"></small></h2>
+    <div class="stats">
+      <div class="stat"><b id="st-due">0</b><span>due today</span></div>
+      <div class="stat"><b id="st-streak">0</b><span id="st-streak-lbl">day streak</span></div>
+      <div class="stat"><b id="st-total">0</b><span>memorised</span></div>
+    </div>
+    <div class="boxes" id="boxes" aria-label="Verses per Leitner box"></div>
+  </section>
+
+  <section class="card grown" id="queue" hidden>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Due today<small id="queue-sub"></small></h2>
+    <ul class="queue" id="queue-list"></ul>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Coming up<small id="later-sub"></small></h2>
+    <ul class="queue" id="later-list"></ul>
+  </section>
+</div>
+<script src="hub.js" data-app="verses" data-scope="person"></script>
+<script>
+(() => {
+  'use strict';
+  /* ── data contract ─────────────────────────────────────────────────────────────────────────────────────────
+     Reads (app f260, person scope — the person's own F260 data, via hub.use):
+       f260.mem     { "<week>-<i>": true }      the verses the person has marked memorised; i = 0 | 1 is the verse's
+                                                place in that week's pair, exactly as F260 keys it (PLAN[w-1].m[i])
+       f260.verses  { "<week>-<i>": "text" }    verse text F260 has on file (pasted there once) — shown after Show when present
+     Writes (app f260, person scope) — the shape F260 already reads, extended with the Leitner fields:
+       f260.recall  { "<week>-<i>": {
+                        s: 'got' | 'not',       F260's own field: 'not' lists the verse in its "Practice again" row
+                                                (Got it → 'got'; Almost and Not yet → 'not')
+                        t: 1758000000000,       F260's own field: ms timestamp of the last rating
+                        box: 1..5,              Leitner box — 1 reviews daily, 5 every two weeks
+                        due: 'YYYY-MM-DD',      next review day = last + [1, 2, 4, 7, 14][box - 1] days
+                        last: 'YYYY-MM-DD',     the last review day
+                        streak: n               consecutive "Got it" ratings on this verse
+                      } }
+       Got it moves the box up (max 5), Almost holds it, Not yet moves it down (min 1). A verse with no recall row (or a
+       pre-Leitner one from F260 with only s/t) counts as box 1 and due now.
+     Own person scope (app verses):
+       log          { 'YYYY-MM-DD': n }         ratings per day — the day streak is consecutive days with ≥ 1
+       summary      { due, streak, boxes: [b1..b5], total, reviewedToday, week, at }   for the Home card (read by index.html,
+                                                never by this app); refreshed on open and after every rating
+     Kids see the current family week's two verses (app kidverse, family scope, key 'week' — the week Kid Verse shows)
+     and never the stats; their ratings land in their own f260.recall the same way. ─────────────────────────────── */
+
+  // the 52 weeks of F260 memory verses, two per week, copied from apps/f260.html PLAN[w-1].m (references only)
+  const REFS = [
+    ['Genesis 1:27', 'Hebrews 11:7'], ['Hebrews 11:6', 'Hebrews 11:8-10'], ['Romans 4:20-22', 'Hebrews 11:17-19'], ['2 Corinthians 10:12', '1 John 3:18'],
+    ['Romans 8:28-30', 'Ephesians 3:20-21'], ['Genesis 50:20', 'Hebrews 11:24-26'], ['John 1:29', 'Hebrews 9:22'], ['Exodus 20:1-3', 'Galatians 5:14'],
+    ['Exodus 33:16', 'Matthew 22:37-39'], ['Leviticus 26:13', 'Deuteronomy 31:7-8'], ['Deuteronomy 4:7', 'Deuteronomy 6:4-9'], ['Joshua 1:8-9', 'Psalm 1:1-2'],
+    ['Joshua 24:14-15', 'Judges 2:12'], ['Psalm 19:14', 'Galatians 4:4-5'], ['1 Samuel 15:22', '1 Samuel 16:7'], ['1 Samuel 17:46-47', '2 Timothy 4:17a'],
+    ['Psalm 23:1-3', 'Psalm 51:10-13'], ['Psalm 1:1-7', 'Psalm 119:7-11'], ['Psalm 139:1-3', 'Psalm 139:15-16'], ['Proverbs 1:7', 'Proverbs 3:5-6'],
+    ['Psalm 17:15', 'Psalm 63:1'], ['Psalm 16:11', 'John 11:25-26'], ['Isaiah 53:5-6', '1 Peter 2:23-24'], ['Proverbs 29:18', 'Jeremiah 1:15'],
+    ['Ezekiel 36:26-27', 'Daniel 4:35'], ['Daniel 6:26-27', 'Daniel 9:19'], ['Zephaniah 3:17', '1 Peter 3:15'], ['Deuteronomy 29:29', 'Psalm 101:3-4'],
+    ['Nehemiah 6:9', 'Nehemiah 9:6'], ['Psalm 51:17', 'Colossians 1:19-20'], ['John 1:1-2', 'John 1:14'], ['Matthew 5:16', 'Matthew 6:33'],
+    ['Luke 14:26-27', 'Luke 14:33'], ['Mark 10:45', 'John 6:37'], ['John 13:34-35', 'John 15:4-5'], ['Luke 23:34', 'John 17:3'],
+    ['Matthew 28:18-20', 'Acts 1:8'], ['Acts 2:42', 'Acts 4:31'], ['James 1:2-4', 'James 2:17'], ['Acts 17:11', 'Acts 17:24-25'],
+    ['1 Corinthians 1:18', '1 Thessalonians 5:23-24'], ['1 Corinthians 10:13', '1 Corinthians 13:13'], ['Romans 1:16-17', '1 Corinthians 15:3-4'], ['Romans 5:1', '2 Corinthians 10:4'],
+    ['Romans 8:1', 'Romans 12:1-2'], ['Acts 20:24', '2 Corinthians 4:7-10'], ['Ephesians 2:8-10', 'Colossians 2:6-7'], ['Philippians 3:7-8', 'Hebrews 4:14-16'],
+    ['Galatians 2:19-20', '2 Corinthians 5:17'], ['2 Timothy 2:1-2', '2 Timothy 2:15'], ['1 Peter 2:11', '1 John 4:10-11'], ['Revelation 3:19', 'Revelation 21:3-4'],
+  ];
+  const INTERVALS = [1, 2, 4, 7, 14];          // days until the next review, by box
+  const BOX_LABELS = ['Daily', '2 days', '4 days', 'Weekly', '2 weeks'];
+  const F260 = { app: 'f260', scope: 'person' };
+  const FAMILY_WEEK = { app: 'kidverse', scope: 'family' };
+  hub.use('f260', 'person').use('kidverse', 'family');
+
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const obj = v => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+  const pad = n => String(n).padStart(2, '0');
+  const dayKey = d => { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  const isDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+  const shiftDay = (key, n) => { const [y, m, d] = key.split('-').map(Number); return dayKey(new Date(y, m - 1, d + n)); };
+  const daysBetween = (a, b) => { const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number); return Math.round((new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1)) / 86400000); };
+  const clampBox = b => Math.min(5, Math.max(1, Math.floor(Number(b) || 1)));
+  const clampWeek = w => Math.min(52, Math.max(1, Math.floor(Number(w) || 1)));
+  const parseId = id => { const m = /^(\d{1,2})-([01])$/.exec(String(id)); if (!m) return null; const w = +m[1]; return w >= 1 && w <= 52 ? { w, i: +m[2] } : null; };
+  const refOf = id => { const p = parseId(id); return p ? REFS[p.w - 1][p.i] : null; };
+
+  // ── reads ────────────────────────────────────────────────────────────────────────────────────────────────
+  const mem = () => obj(hub.get('f260.mem', F260));
+  const recall = () => obj(hub.get('f260.recall', F260));
+  const texts = () => obj(hub.get('f260.verses', F260));
+  const log = () => obj(hub.get('log'));
+  const familyWeek = () => { const v = hub.get('week', FAMILY_WEEK); return clampWeek(v && typeof v === 'object' ? v.week : v); };
+  // a recall row as the trainer understands it: pre-Leitner rows (F260's own s/t) count as box 1, due now
+  const norm = r => { r = obj(r); return { box: clampBox(r.box), due: isDay(r.due) ? r.due : null, last: isDay(r.last) ? r.last : null, streak: Math.max(0, Math.floor(Number(r.streak) || 0)), s: r.s, t: r.t }; };
+  // the ids this person trains: adults every memorised verse; kids this week's two plus anything they have rated before
+  function trained() {
+    if (hub.isKid) { const w = familyWeek(); const ids = new Set([w + '-0', w + '-1']); for (const id of Object.keys(recall())) if (refOf(id)) ids.add(id); return [...ids]; }
+    const m = mem(); return Object.keys(m).filter(id => m[id] && refOf(id));
+  }
+  // due today: due ≤ today, or never reviewed. Never-reviewed first, then the longest overdue, then plan order.
+  function dueIds(today) {
+    const rc = recall();
+    if (hub.isKid) { const w = familyWeek(); return [w + '-0', w + '-1'].filter(id => { const r = rc[id] && norm(rc[id]); return !(r && r.last === today); }); }
+    return trained().map(id => ({ id, r: rc[id] ? norm(rc[id]) : null })).filter(x => !x.r || !x.r.due || x.r.due <= today)
+      .sort((a, b) => (a.r && a.r.due ? a.r.due : '') < (b.r && b.r.due ? b.r.due : '') ? -1 : (a.r && a.r.due ? a.r.due : '') > (b.r && b.r.due ? b.r.due : '') ? 1 : parseId(a.id).w - parseId(b.id).w || parseId(a.id).i - parseId(b.id).i)
+      .map(x => x.id);
+  }
+  const laterIds = today => { const rc = recall(); return trained().map(id => ({ id, r: rc[id] ? norm(rc[id]) : null })).filter(x => x.r && x.r.due && x.r.due > today).sort((a, b) => a.r.due < b.r.due ? -1 : a.r.due > b.r.due ? 1 : 0); };
+  // consecutive days with at least one rating, ending today (or yesterday if today's review is still to come)
+  function dayStreak(lg, today) { let d = lg[today] ? today : shiftDay(today, -1), n = 0; while (lg[d]) { n++; d = shiftDay(d, -1); } return n; }
+  function boxCounts() { const rc = recall(), b = [0, 0, 0, 0, 0]; for (const id of trained()) b[(rc[id] ? norm(rc[id]).box : 1) - 1]++; return b; }
+
+  // ── the summary for the Home card, in this app's own person scope ────────────────────────────────────────
+  function writeSummary() {
+    if (!hub.canWrite) return;
+    const today = dayKey(), lg = log();
+    const s = { due: dueIds(today).length, streak: dayStreak(lg, today), boxes: boxCounts(), total: trained().length, reviewedToday: Math.max(0, Math.floor(Number(lg[today]) || 0)), week: hub.isKid ? familyWeek() : null, at: today };
+    try { if (JSON.stringify(s) !== JSON.stringify(hub.get('summary'))) hub.set('summary', s); } catch (e) { console.error(e); }
+    return s;
+  }
+
+  // ── speech: one voice, picked once ───────────────────────────────────────────────────────────────────────
+  const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  let voice = null;
+  function pickVoice() {
+    if (voice || !canSpeak) return voice;
+    let vs = []; try { vs = speechSynthesis.getVoices() || []; } catch {}
+    const en = vs.filter(v => /^en([-_]|$)/i.test(v.lang));
+    voice = en.find(v => /natural|samantha|aria|jenny|google us english/i.test(v.name)) || en.find(v => /^en[-_]US/i.test(v.lang)) || en[0] || vs[0] || null;
+    return voice;
+  }
+  if (canSpeak) { try { speechSynthesis.addEventListener('voiceschanged', pickVoice); pickVoice(); } catch {} }
+  const ORD = { 1: 'First', 2: 'Second', 3: 'Third' };
+  // "1 John 3:18" → "First John, chapter 3, verse 18" · "Psalm 23:1-3" → "Psalm 23, verses 1 to 3"
+  function sayRef(ref) {
+    const m = String(ref).match(/^(\d\s)?([A-Za-z ]+?)\s+(\d+):(\d+)(?:-(\d+))?[a-z]?$/); if (!m) return ref;
+    const book = (m[1] ? ORD[m[1].trim()] + ' ' : '') + m[2].trim();
+    const verses = m[5] ? `verses ${m[4]} to ${m[5]}` : `verse ${m[4]}`;
+    return /^Psalms?$/i.test(m[2].trim()) ? `Psalm ${m[3]}, ${verses}` : `${book}, chapter ${m[3]}, ${verses}`;
+  }
+  let speaking = false;
+  function speak() {
+    const btn = $('#say');
+    if (!cur) return;
+    if (!canSpeak) { hub.toast('This device cannot read aloud.'); return; }
+    if (speaking) { try { speechSynthesis.cancel(); } catch {} return; }
+    const text = sayRef(refOf(cur)) + (revealed && texts()[cur] ? '. ' + texts()[cur] : '');
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = hub.isKid ? 0.85 : 0.95; u.pitch = 1; const vc = pickVoice(); if (vc) { u.voice = vc; u.lang = vc.lang; } else u.lang = 'en-US';
+      const done = () => { speaking = false; btn.classList.remove('on'); btn.querySelector('span').textContent = 'Read aloud'; };
+      u.onend = done; u.onerror = done;
+      speaking = true; btn.classList.add('on'); btn.querySelector('span').textContent = 'Reading…';
+      speechSynthesis.speak(u);
+    } catch { speaking = false; hub.toast('This device cannot read aloud.'); }
+  }
+
+  // ── the trainer ──────────────────────────────────────────────────────────────────────────────────────────
+  let cur = null;            // the id on the card; it stays until rated, even if data changes underneath
+  let revealed = false;      // Show tapped for this card
+  let rated = 0;             // ratings this session (for the feed line and the all-done screen)
+  let againIds = null;       // kids: "Practise again" reopens the week's two even though they were rated today
+
+  function rate(kind) {
+    if (!cur) return;
+    if (!hub.canWrite) { hub.kioskNudge(); return; }
+    if (!['got', 'almost', 'not'].includes(kind)) return;
+    const today = dayKey(), rc = { ...recall() }, prev = norm(rc[cur]);
+    const box = kind === 'got' ? Math.min(5, prev.box + 1) : kind === 'not' ? Math.max(1, prev.box - 1) : prev.box;
+    rc[cur] = { s: kind === 'got' ? 'got' : 'not', t: Date.now(), box, due: shiftDay(today, INTERVALS[box - 1]), last: today, streak: kind === 'got' ? prev.streak + 1 : kind === 'almost' ? prev.streak : 0 };
+    const lg = { ...log() }; lg[today] = (Math.floor(Number(lg[today]) || 0)) + 1;
+    try { hub.set('f260.recall', rc, F260); hub.set('log', lg); } catch (e) { console.error(e); hub.toast('Could not save that.'); return; }
+    rated++;
+    if (againIds) againIds = againIds.filter(id => id !== cur);
+    const ref = refOf(cur);
+    hub.toast(kind === 'got' ? 'Got it — ' + ref + ' moves to box ' + box : kind === 'almost' ? 'Almost — ' + ref + (INTERVALS[box - 1] === 1 ? ' again tomorrow' : ' again in ' + INTERVALS[box - 1] + ' days') :'Not yet — ' + ref + ' again tomorrow');
+    cur = null; revealed = false;
+    render();
+    if (!currentQueue().length && rated) { hub.activity(hub.profile.name + ' reviewed ' + rated + (rated === 1 ? ' memory verse' : ' memory verses')); rated = 0; }
+  }
+  const currentQueue = () => { if (againIds && !againIds.length) againIds = null; return againIds ? againIds.slice() : dueIds(dayKey()); };
+
+  function render() {
+    const today = dayKey();
+    const kid = hub.isKid, canWrite = hub.canWrite;
+    const queue = currentQueue();
+    if (!cur || !queue.includes(cur)) { cur = queue[0] || null; revealed = false; }
+    const total = trained().length;
+    // who + how many to go
+    $('#who').innerHTML = hub.avatarHtml(hub.profile, '', 'sm') + '<span>' + esc(hub.profile.name) + (queue.length ? ' · <b>' + queue.length + (queue.length === 1 ? ' to go' : ' to go') + '</b>' : ' · <b>all done</b>') + '</span>';
+    const p = cur && parseId(cur);
+    $('#trainer').hidden = !cur;
+    $('#done').hidden = !!cur || !total;
+    $('#empty').hidden = !!cur || !!total;
+    if (cur) {
+      const r = recall()[cur] ? norm(recall()[cur]) : null, txt = texts()[cur];
+      $('#kick').textContent = 'Week ' + p.w + ' · verse ' + (p.i + 1) + (kid ? '' : (queue.length > 1 ? ' · ' + (queue.length - 1) + ' more after this' : ' · last one'));
+      $('#boxchip').hidden = kid || !r; if (r && !kid) $('#boxchip').textContent = 'Box ' + r.box + (r.last ? ' · last ' + (r.last === today ? 'today' : daysBetween(r.last, today) + 'd ago') : '');
+      $('#ref').textContent = refOf(cur);
+      $('#text').hidden = !txt; if (txt) { $('#text').textContent = txt; $('#text').classList.toggle('veiled', !revealed); }
+      $('#hint').textContent = !canWrite ? 'This screen only looks — sign in on a phone to practise.' : revealed ? (txt ? 'How did it go?' : 'Did you get it? Be honest — that is what makes it stick.') : (kid ? 'Say the verse out loud, then tap Show.' : 'Say it from memory, then tap Show.');
+      $('#act-show').hidden = revealed || !canWrite;
+      $('#act-rate').hidden = !revealed || !canWrite;
+      $('#say').hidden = false;
+    } else if (total) {
+      const lg = log(), n = Math.floor(Number(lg[today]) || 0), later = laterIds(today);
+      $('#done-big').textContent = n ? 'All done for today' : 'Nothing due today';
+      $('#done-sub').textContent = kid ? (n ? 'You practised this week’s verses. Come back tomorrow!' : 'Come back tomorrow!')
+        : (n ? n + (n === 1 ? ' review' : ' reviews') + ' today. ' : '') + (later.length ? 'Next up ' + refOf(later[0].id) + ' ' + whenLabel(later[0].r.due, today) + '.' : 'Every memorised verse is in its box.');
+      $('#again').hidden = !canWrite || !(kid ? true : later.length);
+      $('#again').querySelector('span').textContent = kid ? 'Practise again' : 'Practise one anyway';
+    }
+    // adults: stats + the queue
+    $('#stats').hidden = kid || !total; $('#queue').hidden = kid || !total;
+    if (!kid && total) {
+      const lg = log(), streak = dayStreak(lg, today), boxes = boxCounts(), later = laterIds(today);
+      $('#st-due').textContent = queue.length; $('#st-streak').textContent = streak; $('#st-total').textContent = total;
+      $('#stats-sub').textContent = lg[today] ? 'reviewed today' : streak ? 'keep it going today' : '';
+      const mx = Math.max(1, ...boxes);
+      $('#boxes').innerHTML = boxes.map((n, i) => '<div class="bx" title="Box ' + (i + 1) + ': every ' + INTERVALS[i] + (INTERVALS[i] === 1 ? ' day' : ' days') + '"><span class="n">' + n + '</span><div class="col"><i style="--p:' + (n / mx).toFixed(3) + '"></i></div><span class="lbl">' + BOX_LABELS[i] + '</span></div>').join('');
+      const rc = recall();
+      $('#queue-sub').textContent = queue.length ? queue.length + (queue.length === 1 ? ' verse' : ' verses') : 'none';
+      $('#queue-list').innerHTML = queue.length ? queue.map(id => { const r = rc[id] ? norm(rc[id]) : null; const q = parseId(id); const late = r && r.due && r.due < today;
+        return '<li class="' + (late ? 'late' : 'now') + (id === cur ? ' cur' : '') + '"><span class="rf">' + esc(refOf(id)) + '<small>Week ' + q.w + '</small></span>' + (r ? '<span class="chip box">Box ' + r.box + '</span>' : '<span class="chip box">New</span>') + '<span class="when">' + (r && r.due ? whenLabel(r.due, today) : 'never reviewed') + '</span></li>'; }).join('')
+        : '<li><span class="none">Nothing due — come back ' + (later.length ? whenLabel(later[0].r.due, today) : 'when you memorise another verse') + '.</span></li>';
+      $('#later-sub').textContent = later.length ? later.length + (later.length === 1 ? ' verse' : ' verses') : 'none';
+      $('#later-list').innerHTML = later.length ? later.slice(0, 12).map(({ id, r }) => { const q = parseId(id); return '<li><span class="rf">' + esc(refOf(id)) + '<small>Week ' + q.w + '</small></span><span class="chip box">Box ' + r.box + '</span><span class="when">' + whenLabel(r.due, today) + '</span></li>'; }).join('') + (later.length > 12 ? '<li><span class="none">and ' + (later.length - 12) + ' more</span></li>' : '')
+        : '<li><span class="none">Nothing scheduled yet.</span></li>';
+    }
+    writeSummary();
+  }
+  function whenLabel(due, today) { const d = daysBetween(today, due); return d === 0 ? 'due today' : d === 1 ? 'tomorrow' : d > 1 ? 'in ' + d + ' days' : d === -1 ? '1 day overdue' : (-d) + ' days overdue'; }
+
+  // ── wiring ───────────────────────────────────────────────────────────────────────────────────────────────
+  (async () => {
+    await hub.ready();
+    $('#say').addEventListener('click', speak);
+    $('#show').addEventListener('click', () => { if (!cur) return; revealed = true; render(); });
+    $('#act-rate').addEventListener('click', e => { const b = e.target.closest('[data-rate]'); if (b) rate(b.dataset.rate); });
+    $('#again').addEventListener('click', () => {
+      if (!hub.canWrite) { hub.kioskNudge(); return; }
+      const today = dayKey();
+      if (hub.isKid) { const w = familyWeek(); againIds = [w + '-0', w + '-1']; }
+      else { const later = laterIds(today); againIds = later.length ? [later[0].id] : []; }
+      cur = null; revealed = false; render();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} }
+      if (!cur || !hub.canWrite || e.target.closest('input, textarea')) return;
+      if (e.key === 'Enter' || e.key === ' ') { if (!revealed) { e.preventDefault(); revealed = true; render(); } }
+      else if (revealed && (e.key === '1' || e.key === '2' || e.key === '3')) rate({ 1: 'not', 2: 'almost', 3: 'got' }[e.key]);
+    });
+    window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
+    hub.onChange(() => render());
+    render();
+    // for the test script
+    window.verses = { REFS, INTERVALS, rate, dueIds: () => dueIds(dayKey()), trained, dayStreak: () => dayStreak(log(), dayKey()), boxCounts, summary: writeSummary, current: () => cur, sayRef };
+  })();
+})();
+</script>
+</body>
+</html>

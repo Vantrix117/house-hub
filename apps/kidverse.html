@@ -70,6 +70,27 @@
   :root[data-kind="kid"] .days { gap: 6px; }
   :root[data-kind="kid"] .days span { width: 38px; height: 38px; }
 
+  /* item 20 — rewards: the balance to cash in and the six badges (kids only); every colour a token, no layout shift */
+  .ds .rewards { border-radius: var(--r-xl); display: grid; gap: var(--sp-3); }
+  .rewards h2 { margin: 0; font-size: var(--fs-lg); font-weight: 700; display: flex; align-items: center; gap: var(--sp-2); }
+  .rewards h2 .icon { width: 1.2em; height: 1.2em; color: var(--gold); }
+  .rewards .bank { display: flex; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap; color: var(--muted); font-size: var(--fs-sm); font-weight: 600; min-height: 1.5em; }
+  .rewards .bank b { font-family: var(--font-display); font-size: var(--fs-3xl); line-height: 1; color: var(--text); font-weight: 400; }
+  .rewards .bank .icon { width: .9em; height: .9em; color: var(--gold); align-self: center; }
+  .badges { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); }
+  @media (min-width: 560px) { .badges { grid-template-columns: repeat(6, 1fr); } }
+  .badges li { min-height: 64px; display: grid; justify-items: center; align-content: start; gap: var(--sp-1); padding: var(--sp-2) var(--sp-1); border-radius: var(--r-lg); text-align: center; background: var(--surface-2); border: 1px solid var(--line-soft); color: var(--muted); }
+  .badges li .bicon { width: 44px; height: 44px; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface); color: var(--muted-decor); font-weight: 800; font-size: var(--fs-lg); border: 1px solid var(--line-soft); }
+  .badges li .bicon .icon { width: 24px; height: 24px; }
+  .badges li .bname { font-size: var(--fs-xs); font-weight: 700; line-height: 1.2; color: var(--text); }
+  .badges li small { font-size: 10px; line-height: 1.2; color: var(--muted); }
+  .badges li.on { background: var(--gold-soft); border-color: transparent; color: var(--gold-ink); }
+  .badges li.on .bicon { background: var(--gold); color: var(--on-accent); border-color: transparent; box-shadow: var(--e1); }
+  .badges li.on .bname { color: var(--gold-ink); }
+  .badges li.on small { color: var(--gold-ink); }
+  .rewards .paid, .rewards .how { margin: 0; color: var(--muted); font-size: var(--fs-xs); line-height: 1.35; }
+  :root[data-kind="kid"] .badges li .bicon { width: 48px; height: 48px; }
+
   /* adults: the week stepper and every kid's stars, read-only */
   .ds .grown { border-radius: var(--r-xl); display: grid; gap: var(--sp-4); }
   .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: 700; display: flex; align-items: center; gap: var(--sp-2); }
@@ -96,6 +117,28 @@
     animation: fall 1.2s var(--ease-out) var(--d) forwards; }
   @keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 0; } 12% { opacity: .95; } 100% { transform: translateY(70vh) rotate(180deg); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .confetti { display: none; } .ds .btn.say.on .icon { animation: none; } }
+
+  /* ── item 17: this week's story — a two-sentence retelling of the grown-ups' F260 reading, on a card below the verse ── */
+  .ds .story { border-radius: var(--r-xl); display: grid; gap: var(--sp-3); }
+  .story-head { display: flex; align-items: center; gap: var(--sp-3); }
+  .story-head img { flex: 0 0 auto; width: 84px; aspect-ratio: 240 / 160; height: auto; border-radius: var(--r-lg); background: var(--surface-2); object-fit: cover; }
+  .story-head > div { min-width: 0; display: grid; gap: 2px; }
+  .story-head .kicker { color: var(--gold-ink); }
+  .story-head h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-2xl); line-height: var(--lh-tight); letter-spacing: 0; color: var(--text); text-wrap: balance; }
+  .story-span { color: var(--muted); font-size: var(--fs-xs); font-weight: 600; }
+  .story p { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-snug); color: var(--text); text-wrap: pretty; min-height: 2.6em; }
+  :root[data-kind="kid"] .story p { font-size: var(--fs-xl); }
+  .story small { color: var(--muted); font-size: var(--fs-xs); line-height: 1.35; }
+  .story-actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 560px) { .story-actions { grid-template-columns: 1fr 1fr; } .story-actions.solo { grid-template-columns: 1fr; } }
+  .ds .story-actions .btn { min-height: max(64px, var(--tap-lg)); font-size: var(--fs-lg); border-radius: var(--r-xl); gap: var(--sp-3); }
+  .ds .story-actions .btn .icon { width: 1.4em; height: 1.4em; }
+  .ds .story-actions .btn-glass { --g: var(--glass-strong); }
+  .ds .btn.story-heard { --accent: var(--gold); }
+  .ds .btn.story-heard.today { background: var(--gold-soft); color: var(--gold-ink); border-color: transparent; box-shadow: none; }
+  .ds .btn.story-say.on .icon { animation: pulse 1.1s ease-in-out infinite; }
+  .story-sub { color: var(--muted); font-size: var(--fs-sm); font-weight: 600; text-align: center; min-height: 1.5em; }
+  @media (prefers-reduced-motion: reduce) { .ds .btn.story-say.on .icon { animation: none; } }
 </style>
 </head>
 <body class="ds">
@@ -117,6 +160,21 @@
     <button class="btn btn-primary done" id="done" hidden><svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Done ★</span></button>
   </div>
   <div class="card stars" id="mine" hidden></div>
+  <!-- item 17: this week's story — the grown-ups' F260 reading for the family week, retold in two sentences for a small child -->
+  <section class="card story" id="story" aria-labelledby="story-title">
+    <div class="story-head">
+      <img id="story-art" src="../art/story/01-creation.svg" alt="" width="240" height="160">
+      <div><span class="kicker" id="story-kick">This week's story</span><h2 id="story-title">…</h2><div class="story-span" id="story-span"></div></div>
+    </div>
+    <p id="story-text">…</p>
+    <small>A short retelling in our own words of what the grown-ups are reading this week — not the Bible's own words. Open the Bible together to read the real story.</small>
+    <div class="story-actions" id="story-actions">
+      <button class="btn btn-glass story-say" id="story-say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
+      <button class="btn btn-primary story-heard" id="story-heard" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>I heard it</span></button>
+    </div>
+    <div class="story-sub" id="story-sub" hidden></div>
+  </section>
+  <div class="card rewards" id="rewards" hidden></div><!-- item 20: badges + the balance to cash in (kids) -->
   <div class="card grown" id="grown" hidden></div>
 </div>
 <script src="hub.js" data-app="kidverse" data-scope="both"></script>
@@ -208,14 +266,15 @@
   function normStars(v) {
     const wk = isoWeek(); const ok = v && typeof v === 'object';
     const total = ok ? Math.max(0, Math.floor(Number(v.total) || 0)) : 0;
-    if (!ok || v.week !== wk) return { week: wk, count: 0, days: {}, total };
+    // item 20: the rewards fields ride along and count covers every star source this week (rewardsExtra / weekCount below)
+    if (!ok || v.week !== wk) { const s = { week: wk, count: 0, days: {}, total, ...rewardsExtra(v) }; s.count = weekCount(s); return s; }
     const days = v.days && typeof v.days === 'object' ? { ...v.days } : {};
-    return { week: wk, count: Math.max(0, Math.floor(Number(v.count) || 0)), days, total };
+    const s = { week: wk, count: 0, days, total, ...rewardsExtra(v) }; s.count = weekCount(s); return s;
   }
   const myStars = () => normStars(hub.get('stars', { scope: 'person' }));
-  const kidStars = id => normStars(hub.get('stars:' + id, { scope: 'family' }));
+  const kidStars = id => { const s = normStars(hub.get('stars:' + id, { scope: 'family' })); applyLedger(s, ledgerRows(id)); return s; };   // item 20: + the parent ledger rows the kid has not taken in yet
   const familyWeek = () => { const v = hub.get('week', { scope: 'family' }); return clampWeek(v && typeof v === 'object' ? v.week : v); };
-  const daysHtml = (s, small) => { const today = dayKey(); return `<div class="days" aria-label="${s.count} of 7 days">${weekDays().map((k, i) => `<span class="${s.days[k] ? 'on' : ''}${k === today ? ' today' : ''}" title="${k}">${s.days[k] ? STAR : DOW[i]}</span>`).join('')}</div>`; };
+  const daysHtml = (s, small) => { const today = dayKey(); return `<div class="days" aria-label="${s.count} of 7 days">${weekDays().map((k, i) => `<span class="${s.days[k] === true ? 'on' : ''}${k === today ? ' today' : ''}" title="${k}">${s.days[k] === true ? STAR : DOW[i]}</span>`).join('')}</div>`; };
 
   // ── speech: one voice, picked once, rate 0.85 ────────────────────────────────────────────────────────────
   const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
@@ -267,7 +326,7 @@
     if (hub.profile.kind !== 'kid') { hub.toast('Stars are for the kids — sign in as one of them to earn a star.'); return false; }
     const s = myStars(); const today = dayKey();
     if (s.days[today]) { hub.toast('You already have today’s star — come back tomorrow!'); return false; }   // one per day
-    s.days[today] = true; s.count = Object.keys(s.days).length; s.total += 1;
+    s.days[today] = true; s.count = weekCount(s); s.total += 1; s.earned += 1; stamp(s, 'verse', today);   // item 20: count spans all sources; earned never resets; earnedAt dates the star for a parent's reset
     hub.set('stars', s, { scope: 'person' });                            // mine
     hub.set('stars:' + hub.profile.id, s, { scope: 'family' });          // the mirror adults and the TV read
     hub.activity(hub.profile.name + ' read the verse ★');
@@ -317,7 +376,140 @@
     if (uf) uf.onclick = () => setWeek(f260);
   }
 
+  // ══ item 20 — stars & badges ═══════════════════════════════════════════════════════════════════════════
+  // The stars row grows (every field optional, so an item-16 row still reads):
+  //   { week, count, days, total, earned, credited: { story: { date: true|'reset' }, prayed: { … } }, badges: { id: date }, payouts: [{ date, amount, by }], applied: { ledgerKey: true }, earnedAt: { 'verse:date'|'story:date'|'prayed:date': ms } }
+  //   count   this week's stars = verse days + credited story days + credited prayed days in the ISO week (the shell and TV read it)
+  //   earnedAt when each star was earned (server time), so a parent's reset can tell a star earned before it from one earned after
+  //   total   the balance a parent can cash in · earned: every star ever, never reset (badges count it)
+  //   applied the parent ledger rows this row has already taken in (see below)
+  // This app is the ONLY writer of 'stars' (person) and 'stars:<kid>' (family mirror). A parent's cash-in or week reset is an
+  // append-only family row ledger:<kid>:<id> = { kind: 'cashin'|'reset', date, amount | days[], by, at } that reconcile() applies
+  // exactly once — so a star earned while the parent's action is in flight can never overwrite it (last write wins per key,
+  // and the two never share a key). The shell shows the mirror with any not-yet-applied ledger rows on top (index.html).
+  // Stars are earned only for: the verse ★ (award above), hearing the week's story (family story:<kid>, item 17) and praying on
+  // the family list (family prayer rows' prayedBy[date] names, item 18) — one each per day, credited once, looking back 14 days.
+  const BADGES = [
+    { id: 'first',  name: 'First star',     hint: 'your very first star',  glyph: 'star', test: s => s.earned >= 1 },
+    { id: 'week',   name: 'Full week',      hint: '7 stars in one week',   glyph: '7',    test: s => s.count >= 7 },
+    { id: 'ten',    name: 'Ten stars',      hint: '10 stars earned',       glyph: '10',   test: s => s.earned >= 10 },
+    { id: 'story',  name: 'Story lover',    hint: '5 stories heard',       glyph: 'book', test: s => creditedCount(s, 'story') >= 5 },
+    { id: 'prayer', name: 'Prayer warrior', hint: 'prayed on 5 days',      glyph: 'heart', test: s => creditedCount(s, 'prayed') >= 5 },
+    { id: 'fifty',  name: 'Fifty stars',    hint: '50 stars earned',       glyph: '50',   test: s => s.earned >= 50 },
+  ];
+  const GLYPH = { star: STAR, book: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5M8 7h8M8 10.5h6"/></svg>', heart: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 7.5 2.9c0 5.4-7.5 10-7.5 10z"/></svg>' };
+  const isDate = k => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k);
+  function rewardsExtra(v) {
+    const o = v && typeof v === 'object' ? v : {};
+    const cred = o.credited && typeof o.credited === 'object' ? o.credited : {};
+    const pick = m => { const out = {}; if (m && typeof m === 'object') for (const k of Object.keys(m)) if (isDate(k) && m[k]) out[k] = m[k] === 'reset' ? 'reset' : true; return out; };
+    const badges = {}; if (o.badges && typeof o.badges === 'object') for (const b of BADGES) if (isDate(o.badges[b.id])) badges[b.id] = o.badges[b.id];
+    const payouts = Array.isArray(o.payouts) ? o.payouts.filter(p => p && typeof p === 'object').map(p => ({ date: String(p.date || ''), amount: Math.max(0, Math.floor(Number(p.amount) || 0)), by: p.by ? String(p.by) : undefined })).slice(-50) : [];
+    const total = Math.max(0, Math.floor(Number(o.total) || 0));
+    const applied = {}; if (o.applied && typeof o.applied === 'object') for (const k of Object.keys(o.applied)) if (o.applied[k]) applied[k] = true;
+    const earnedAt = {}, keep = lastDays(30)[29]; if (o.earnedAt && typeof o.earnedAt === 'object') for (const k of Object.keys(o.earnedAt)) { const m = /^(verse|story|prayed):(\d{4}-\d{2}-\d{2})$/.exec(k); const t = Math.floor(Number(o.earnedAt[k]) || 0); if (m && t > 0 && m[2] >= keep) earnedAt[k] = t; }
+    return { earned: Math.max(total, Math.floor(Number(o.earned) || 0)), credited: { story: pick(cred.story), prayed: pick(cred.prayed) }, badges, payouts, applied, earnedAt };
+  }
+  const creditedCount = (s, kind) => Object.values(s.credited[kind]).filter(x => x === true).length;
+  function weekCount(s) { let n = 0; for (const d of weekDays()) { if (s.days[d] === true) n++; if (s.credited.story[d] === true) n++; if (s.credited.prayed[d] === true) n++; } return n; }
+  function lastDays(n) { return Array.from({ length: n }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return dayKey(d); }); }
+  const stamp = (s, kind, d) => { s.earnedAt[kind + ':' + d] = Date.now() + (Number(hub.skew) || 0); };   // when a star was earned, on the server's clock
+  // the story companion (item 17) marks the days a kid heard the story in family story:<kid>; read every date-shaped mark it may carry
+  function storyDays(id) {
+    const v = hub.get('story:' + id, { scope: 'family' }); const out = new Set();
+    const add = x => { const k = typeof x === 'string' ? x : x && typeof x === 'object' ? (x.date || x.day) : null; if (isDate(k)) out.add(k); };
+    const walk = m => { if (Array.isArray(m)) m.forEach(add); else if (m && typeof m === 'object') for (const k of Object.keys(m)) { if (m[k]) add(k); } };
+    if (Array.isArray(v)) walk(v);
+    else if (v && typeof v === 'object') { walk(v); for (const k of ['days', 'heard', 'dates', 'done', 'listened']) walk(v[k]); add(v.date); add(v.last); add(v.lastHeard); }
+    return out;
+  }
+  // the family prayer list records who prayed under prayedBy[date] (names, the way apps/prayer.html writes them)
+  function prayedDays(name) {
+    const out = new Set(); if (!name) return out;
+    for (const r of hub.list('prayer:', { app: 'prayer', scope: 'family' })) {
+      const pb = r.value && r.value.prayedBy; if (!pb || typeof pb !== 'object') continue;
+      for (const d of Object.keys(pb)) if (isDate(d) && Array.isArray(pb[d]) && pb[d].map(x => String(x).trim()).includes(name)) out.add(d);
+    }
+    return out;
+  }
+  // A parent's cash-ins and week resets (Me → Kids' rewards) are family rows ledger:<kid>:<id>, oldest first; each is applied
+  // to the kid's own row once and remembered in applied[key]. Cash-in takes its amount off the balance (never below 0) and
+  // records the payout; reset clears the listed days' verse ★ and marks their credited story/prayed days 'reset' (so they are
+  // not credited again), one star off the balance for each — but only stars earned BEFORE the reset (earnedAt ≤ the row's at;
+  // a star with no stamp came from an older app and counts as before) and only days up to the reset's own date, so a star the
+  // kid earns while the parent's reset is in flight stays. Badges and earned never move.
+  const ledgerRows = id => hub.list('ledger:' + id + ':', { scope: 'family' }).filter(r => r.value && typeof r.value === 'object').sort((a, b) => (Number(a.value.at) || 0) - (Number(b.value.at) || 0) || (a.key < b.key ? -1 : 1));
+  function applyLedger(s, rows) {
+    const done = [];
+    for (const r of rows) {
+      if (s.applied[r.key]) continue;
+      const e = r.value;
+      if (e.kind === 'cashin') {
+        const amount = Math.max(0, Math.floor(Number(e.amount) || 0));
+        s.payouts = [...s.payouts, { date: isDate(e.date) ? e.date : dayKey(), amount, by: e.by ? String(e.by) : undefined }].slice(-50);
+        s.total = Math.max(0, s.total - amount);
+      } else if (e.kind === 'reset') {
+        const at = Number(e.at) || 0, upto = isDate(e.date) ? e.date : null;
+        const before = (kind, d) => !((Number(s.earnedAt[kind + ':' + d]) || 0) > at);   // earned before the reset (or unstamped: an older app's star)
+        for (const d of (Array.isArray(e.days) ? e.days : []).filter(isDate)) {
+          if (upto && d > upto) continue;                                                   // a reset never reaches past its own day
+          if (s.days[d] === true && before('verse', d)) { s.days[d] = 'reset'; delete s.earnedAt['verse:' + d]; s.total = Math.max(0, s.total - 1); }   // the day stays spent: one ★ a day, even after a parent's reset
+          for (const kind of ['story', 'prayed']) if (s.credited[kind][d] === true && before(kind, d)) { s.credited[kind][d] = 'reset'; s.total = Math.max(0, s.total - 1); }
+        }
+      } else continue;                                                   // an unknown kind is left for a newer app version
+      s.applied[r.key] = true; done.push(e);
+    }
+    if (done.length) s.count = weekCount(s);
+    return done;
+  }
+  // Never reconcile from an empty cache: until both kidverse scopes have been pulled on this device, a fresh zero row would
+  // out-date the kid's real stars (last write wins). hub.onSync runs it as soon as the first pull lands.
+  const pulled = () => ['person', 'family'].every(sc => { try { const c = JSON.parse(localStorage.getItem('hub.cache.kidverse.' + sc + (sc === 'person' ? '.' + hub.profile.id : ''))); return !!(c && c.since > 0); } catch { return false; } });
+  function reconcile(celebrate = true, withConfetti = true) {
+    const p = hub.profile; if (!p || p.kind !== 'kid' || !hub.canWrite || !pulled()) return false;
+    const s = myStars(); let changed = false;
+    const led = applyLedger(s, ledgerRows(p.id)); if (led.length) changed = true;   // a parent cashed in or reset the week
+    const recent = new Set(lastDays(14));
+    for (const d of storyDays(p.id)) if (recent.has(d) && !s.credited.story[d]) { s.credited.story[d] = true; stamp(s, 'story', d); s.total += 1; s.earned += 1; changed = true; }
+    for (const d of prayedDays(p.name)) if (recent.has(d) && !s.credited.prayed[d]) { s.credited.prayed[d] = true; stamp(s, 'prayed', d); s.total += 1; s.earned += 1; changed = true; }
+    const count = weekCount(s); if (count !== s.count) { s.count = count; changed = true; }
+    const fresh = BADGES.filter(b => !s.badges[b.id] && b.test(s));
+    for (const b of fresh) { s.badges[b.id] = dayKey(); changed = true; }
+    if (changed) { hub.set('stars', s, { scope: 'person' }); hub.set('stars:' + p.id, s, { scope: 'family' }); }
+    if (fresh.length && celebrate) {
+      if (withConfetti) confetti(); hub.toast('New badge: ' + fresh.map(b => b.name).join(' and ') + '!', 3200);
+      for (const b of fresh) hub.activity(p.name + ' earned the ' + b.name + ' badge');
+    } else if (led.length && celebrate) {
+      const paid = led.filter(e => e.kind === 'cashin').reduce((n, e) => n + (Math.floor(Number(e.amount)) || 0), 0);
+      hub.toast(paid ? 'Cashed in: ' + paid + (paid === 1 ? ' star!' : ' stars!') : 'Your week starts over.', 2600);
+    }
+    if (changed) render();
+    renderRewards();
+    return changed;
+  }
+  const fmtDay = k => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(k); if (!m) return k; try { return new Date(+m[1], m[2] - 1, +m[3]).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); } catch { return k; } };
+  function renderRewards() {
+    const p = hub.profile, el = $('#rewards'); if (!el) return;
+    if (!p || p.kind !== 'kid') { el.hidden = true; return; }
+    const s = myStars(); const n = Object.keys(s.badges).length; const last = s.payouts[s.payouts.length - 1];
+    el.hidden = false;
+    el.innerHTML = `<h2>${STAR}My rewards</h2>
+      <div class="bank" id="rw-bank">${STAR}<b id="rw-total">${s.total}</b><span>${s.total === 1 ? 'star' : 'stars'} to cash in</span><span aria-hidden="true">·</span><span id="rw-week">${s.count} this week</span>${s.earned > s.total ? `<span aria-hidden="true">·</span><span id="rw-earned">${s.earned} ever</span>` : ''}</div>
+      <ul class="badges" id="rw-badges" aria-label="${n} of ${BADGES.length} badges">${BADGES.map(b => `<li class="${s.badges[b.id] ? 'on' : ''}" data-badge="${b.id}" title="${esc(b.hint)}${s.badges[b.id] ? ' · earned ' + esc(fmtDay(s.badges[b.id])) : ''}"><span class="bicon">${GLYPH[b.glyph] || esc(b.glyph)}</span><span class="bname">${esc(b.name)}</span><small>${esc(s.badges[b.id] ? fmtDay(s.badges[b.id]) : b.hint)}</small></li>`).join('')}</ul>
+      ${last ? `<p class="paid" id="rw-paid">Last cashed in: ${last.amount} ${last.amount === 1 ? 'star' : 'stars'} on ${esc(fmtDay(last.date))}.</p>` : ''}
+      <p class="how">A star each day for the verse ★, for hearing the story, and for praying on the family list.</p>`;
+  }
+  function rewardsInit() {
+    hub.onChange(() => reconcile());                                    // a story day, a prayed day or a parent's cash-in arrived
+    let seenPull = 0; hub.onSync(st => { if (st.lastPull && st.lastPull !== seenPull) { seenPull = st.lastPull; reconcile(); } });   // and after every pull
+    $('#done').addEventListener('click', () => reconcile(true, false));  // after award(): the new star may complete a badge (its confetti is already falling)
+    renderRewards(); reconcile();
+    if (window.kidverse) window.kidverse.rewards = { reconcile, renderRewards, BADGES, weekCount, storyDays, prayedDays, ledgerRows, applyLedger };
+  }
+  // ══ end item 20 ═══════════════════════════════════════════════════════════════════════════════════════════
+
   (async () => {
+    if (hub.profile && hub.profile.kind === 'kid') hub.use('prayer', 'family');   // item 20: prayed days come from the family prayer list
     if (hub.profile && hub.profile.kind === 'adult') hub.use('f260', 'person');   // the adult's own F260 week, for the "use week N" hint
     await hub.ready();
     $('#say').addEventListener('click', () => speak(VERSES[familyWeek() - 1]));
@@ -327,6 +519,163 @@
     hub.onChange(render);
     render();
     window.kidverse = { award, setWeek, VERSES, sceneFor };   // for the test script
+    rewardsInit();                                             // item 20
+  })();
+})();
+</script>
+<script>
+// ── item 17: this week's story ───────────────────────────────────────────────────────────────────────────────
+// A two-sentence retelling, in our own words, of the five F260 readings the grown-ups have that week (apps/f260.html
+// PLAN[w-1].r), keyed by the family week the verse above already uses. Kids tap "I heard it" once a day; that is stored
+// in person scope 'story' = { week: 'YYYY-Www', days: { 'YYYY-MM-DD': true } } and mirrored into family 'story:<kid>'
+// so the parents' F260 Today hero can say "Kids: Ezra 2/5". No star is awarded here (rewards belong to item 20 —
+// window.kidverse.onStoryDone(story) is called if something sets it). Everything is labelled as a retelling on screen.
+(() => {
+  'use strict';
+  // t: a title · r: the readings that week (for the label) · s: the retelling, exactly two sentences, in our own words
+  const STORIES = [
+    { w: 1,  t: 'Creation and the flood', r: 'Genesis 1–9 · Job 1–2', s: 'God made the whole world — the sky, the sea, the animals and people — and said it was very good. Later, when people kept choosing wrong, God kept Noah’s family and the animals safe in a big boat while the flood came.' },
+    { w: 2,  t: 'Job listens, Abram goes', r: 'Job 38–42 · Genesis 11–17', s: 'God asked Job who made the stars and the sea, and Job remembered how big and good God is. Then God told Abram to leave his home for a new land, and promised him a family as many as the stars.' },
+    { w: 3,  t: 'Isaac, the promised boy', r: 'Genesis 18–26', s: 'God kept his promise and gave old Abraham and Sarah a baby boy named Isaac. Abraham trusted God with everything, even Isaac, and God gave him a ram instead.' },
+    { w: 4,  t: 'Jacob’s ladder, Joseph’s coat', r: 'Genesis 27–37', s: 'Jacob tricked his brother and ran away, but God met him in a dream of a ladder to heaven and promised to stay with him. Years later Jacob’s son Joseph got a special coat, and his jealous brothers sold him away to Egypt.' },
+    { w: 5,  t: 'Joseph in Egypt', r: 'Genesis 39–47', s: 'In Egypt Joseph was put in prison for doing nothing wrong, but God helped him explain the king’s dreams and made him a ruler. When the food ran out, Joseph fed his hungry brothers and forgave them.' },
+    { w: 6,  t: 'Baby Moses and the burning bush', r: 'Genesis 48–50 · Exodus 1–7', s: 'Joseph’s family grew big in Egypt, but a new king made them slaves, and God kept baby Moses safe in a basket on the river. When Moses grew up, God spoke to him from a bush that was on fire and sent him to tell Pharaoh, “Let my people go.”' },
+    { w: 7,  t: 'Out of Egypt', r: 'Exodus 8–17', s: 'Pharaoh said no again and again, so God sent frogs, flies and darkness, until at last the people were free. God split the sea so they could walk through on dry ground, and then fed them with bread from heaven.' },
+    { w: 8,  t: 'Ten rules on a mountain', r: 'Exodus 19–31', s: 'At Mount Sinai God gave Moses ten good rules for living, written on stone. Then God showed Moses how to build a special tent where God would live right in the middle of his people.' },
+    { w: 9,  t: 'The gold cow and the cloud', r: 'Exodus 32–40 · Leviticus 8–9, 16–17', s: 'While Moses was up the mountain the people made a gold cow and worshipped it, but Moses begged God and God forgave them. When the tent was finished, God’s glory filled it like a cloud, and Aaron became the priest.' },
+    { w: 10, t: 'Grumbling in the desert', r: 'Leviticus 23, 26 · Numbers 11–17', s: 'God gave his people special holidays to remember him, and told them how good things would go if they obeyed. But in the desert they grumbled, and when twelve spies looked at the promised land, only Joshua and Caleb trusted God to take them in.' },
+    { w: 11, t: 'Love God with all your heart', r: 'Numbers 20, 27, 34–35 · Deuteronomy 1–7', s: 'Moses hit a rock for water when God had told him to speak to it, so Joshua was chosen to lead the people next. Before he died, Moses reminded everyone to love God with all their heart and to teach his words to their children.' },
+    { w: 12, t: 'Be strong and brave', r: 'Deuteronomy 8–9, 30–34 · Joshua 1–4', s: 'Moses looked out over the promised land and then died, and God told Joshua, “Be strong and brave.” Rahab hid the spies, and God stopped the river so everyone could cross into the land.' },
+    { w: 13, t: 'The walls fall down', r: 'Joshua 5–8, 23–24 · Judges 2–4', s: 'The people marched around Jericho and shouted, and the big walls fell down flat. Joshua told them, “My family and I will serve the Lord,” and later brave Deborah helped Israel win when they cried out to God.' },
+    { w: 14, t: 'Gideon, Samson and Ruth', r: 'Judges 6–7, 13–16 · Ruth 1–4', s: 'God used Gideon’s tiny army of three hundred, and strong Samson, to rescue his people from their enemies. Ruth chose to stay with Naomi and trust Naomi’s God, and God gave her a new family.' },
+    { w: 15, t: 'Samuel hears, David is chosen', r: '1 Samuel 1–16', s: 'Hannah prayed for a baby, and God gave her Samuel, who grew up to hear God’s voice. When King Saul stopped obeying, God sent Samuel to choose a shepherd boy named David, because God looks at the heart.' },
+    { w: 16, t: 'David and the giant', r: '1 Samuel 17–31 · Psalm 22', s: 'Young David trusted God and knocked down the giant Goliath with one stone from his sling. King Saul got jealous and chased David, but David’s friend Jonathan helped him, and David would not hurt the king.' },
+    { w: 17, t: 'King David', r: '2 Samuel 1–12 · Psalms 18, 23', s: 'David became king and brought God’s special box, the ark, back to Jerusalem with dancing. God promised David a family of kings forever, and when David did something very wrong, he said sorry to God.' },
+    { w: 18, t: 'Songs to God', r: 'Psalms 1, 19, 24, 51, 103, 119', s: 'David and his friends wrote songs to God — songs saying sorry, songs about how the sky shows God’s glory, and songs of thanks. Psalm 119 is the longest song in the Bible, and it is all about how good God’s words are.' },
+    { w: 19, t: 'Solomon asks for wisdom', r: 'Psalms 119, 139, 148–150 · 1 Kings 2–9', s: 'A song tells us God knows everything about us and was there when we were made. Then David’s son Solomon asked God for wisdom instead of riches, and he built a beautiful temple for God.' },
+    { w: 20, t: 'Wise words, a split kingdom', r: 'Proverbs 1–4, 16–18, 31 · 1 Kings 11–12', s: 'Solomon wrote wise sayings, like “Trust in the Lord with all your heart.” But later he stopped following God, and after he died the kingdom split into two.' },
+    { w: 21, t: 'Elijah and the fire', r: '1 Kings 16–22 · 2 Kings 2, 5–6', s: 'God fed Elijah with ravens and sent fire from heaven to show everyone that he is the real God. Elisha took Elijah’s place, and God healed a sick soldier named Naaman when he washed in the river.' },
+    { w: 22, t: 'Jonah and the big fish', r: 'Jonah 1–4 · Hosea 1–3 · Amos 1, 9 · Joel 1–3', s: 'Jonah ran away from God on a boat, got swallowed by a giant fish, and then went to Nineveh to tell the people to turn back to God — and they did. God sent other messengers, like Hosea and Joel, to say he loves his people and wants them to come home.' },
+    { w: 23, t: 'Isaiah’s promise', r: 'Isaiah 6, 9, 44–45, 52–53, 65–66 · Micah 1, 4–5', s: 'Isaiah saw God on his throne and said, “Here I am, send me.” God told Isaiah that one day a child would be born, the Prince of Peace, who would be hurt to take away our wrongs.' },
+    { w: 24, t: 'The lost book is found', r: '2 Kings 17–23 · Jeremiah 1–3, 25, 29', s: 'King Hezekiah prayed and God saved Jerusalem, and young King Josiah found God’s lost book and read it to everyone. God called Jeremiah to warn the people, and promised that he had good plans for them.' },
+    { w: 25, t: 'Far from home', r: 'Jeremiah 31–33, 52 · 2 Kings 24–25 · Ezekiel 36–37 · Daniel 1–4', s: 'Jerusalem was captured and the people were taken far away to Babylon, but God promised them a new heart and new life, like dry bones standing up again. In Babylon, Daniel’s three friends would not bow to a gold statue, and God kept them safe in the fire.' },
+    { w: 26, t: 'Daniel and the lions', r: 'Daniel 5–6, 9–12 · Ezra 1–6', s: 'Daniel kept praying to God even when it was against the law, and God shut the lions’ mouths. Then the king let God’s people go home, and they started to build God’s temple again.' },
+    { w: 27, t: 'Ezra teaches, Esther is queen', r: 'Zechariah 1–2, 12 · Ezra 7–10 · Esther 1–4', s: 'Ezra went to Jerusalem to teach God’s words, and the people wanted to follow God again. Far away, a girl named Esther became queen, and her cousin said God had put her there for such a time as this.' },
+    { w: 28, t: 'Brave Esther, busy Nehemiah', r: 'Esther 5–10 · Nehemiah 1–6', s: 'Queen Esther bravely went to the king and saved her people from a cruel man called Haman. Nehemiah prayed, and then led everyone to rebuild the broken walls of Jerusalem in just fifty-two days.' },
+    { w: 29, t: 'Reading the book together', r: 'Nehemiah 7–12', s: 'Ezra read God’s book out loud to everyone from morning until noon, and the people listened and cried and then celebrated. They promised to follow God, and thanked him with singing on the new walls.' },
+    { w: 30, t: 'Someone is coming', r: 'Nehemiah 13 · Malachi 1–4', s: 'Nehemiah reminded the people to keep God’s day special, and Malachi told them God still loved them. Malachi promised that someone would come to get everyone ready for the Lord.' },
+    { w: 31, t: 'Jesus is born', r: 'Luke 1–2 · Matthew 1–2 · Mark 1 · John 1', s: 'An angel told Mary she would have God’s Son, and Jesus was born in Bethlehem while angels sang to shepherds. Wise men followed a star to find him, and later John the Baptist said, “Look, the Lamb of God!”' },
+    { w: 32, t: 'Jesus teaches on the hill', r: 'Matthew 3–8', s: 'Jesus was baptised in the river, and God said, “This is my Son, whom I love.” Then Jesus taught on a hillside about loving your enemies, not worrying, and building your life on the rock.' },
+    { w: 33, t: 'Bread for five thousand', r: 'Luke 9, 12, 14 · Mark 9–10 · John 3–4', s: 'Jesus fed a crowd of five thousand with one boy’s lunch, and shone like the sun on a mountain. He told Nicodemus that God loves the whole world, and he gave living water to a woman at a well.' },
+    { w: 34, t: 'The lost sheep and the runaway son', r: 'John 6 · Matthew 19 · Luke 15–18 · Mark 10', s: 'Jesus said he is the bread of life, and told stories about a lost sheep and a runaway son whose father ran to hug him. He welcomed little children, and said he came to serve and to give his life.' },
+    { w: 35, t: 'Palm branches and washed feet', r: 'John 11, 13–16 · Matthew 21, 24', s: 'Jesus called Lazarus out of his grave, and rode into Jerusalem while people waved palm branches. At supper he washed his friends’ feet and told them, “Love one another as I have loved you.”' },
+    { w: 36, t: 'The cross', r: 'Matthew 24–27 · John 17, 19 · Luke 23', s: 'Jesus prayed in a garden and then was arrested, even though he had done nothing wrong. He died on a cross to take away our sins, and even there he prayed, “Father, forgive them.”' },
+    { w: 37, t: 'He is alive!', r: 'Mark 16 · Luke 24 · John 20–21 · Matthew 28 · Acts 1', s: 'On Sunday morning the tomb was empty — Jesus was alive again, and he showed his friends his hands and ate breakfast with them. He told them to tell the whole world about him, and then he went up into heaven.' },
+    { w: 38, t: 'Wind, fire and a bright light', r: 'Acts 2–9', s: 'God’s Spirit came like wind and fire, and thousands of people believed when Peter preached. Stephen was brave right to the end, and Jesus stopped Saul on the road with a bright light and changed him.' },
+    { w: 39, t: 'Good news for everyone', r: 'Acts 10–14 · James 1–5', s: 'Peter learned that God’s good news is for everyone, and an angel walked him right out of prison. Paul went on his first big trip telling people about Jesus, and James wrote that real faith does good things.' },
+    { w: 40, t: 'Singing in prison', r: 'Acts 15–18 · Galatians 1–6 · 1 Thessalonians 1–2', s: 'Paul and Silas sang in prison at midnight, and an earthquake opened the doors — and the jailer believed. In Athens Paul told people about the God who made everything and is not far from any of us.' },
+    { w: 41, t: 'Jesus is coming back', r: '1–2 Thessalonians · Acts 18–19 · 1 Corinthians 1–4', s: 'Paul wrote that Jesus is coming back one day, so keep going and don’t give up. In Ephesus so many people turned to Jesus that the idol-makers started a riot, and Paul wrote that the cross may look weak but it is God’s power.' },
+    { w: 42, t: 'One body, and love', r: '1 Corinthians 5–14', s: 'Paul told the church they are like one body with many parts, and every part matters. The best gift of all is love — love is patient, love is kind, and love never gives up.' },
+    { w: 43, t: 'The most important news', r: '1 Corinthians 15–16 · 2 Corinthians 1–8', s: 'Paul reminded everyone of the most important news: Jesus died for our sins and rose again on the third day. Anyone who belongs to Jesus is a brand-new person, and God loves a cheerful giver.' },
+    { w: 44, t: 'Peace with God', r: '2 Corinthians 9–13 · Romans 1–6 · Acts 20', s: 'Paul wrote a big letter to Rome saying everyone has done wrong, but God makes us right through trusting Jesus. Because of Jesus we have peace with God, just like Abraham, who believed God’s promise.' },
+    { w: 45, t: 'Nothing can separate us', r: 'Romans 7–16', s: 'Paul wrote that nothing in the whole world can separate us from God’s love in Jesus. So give your whole self to God, love people for real, and be kind even to people who are unkind to you.' },
+    { w: 46, t: 'Shipwreck!', r: 'Acts 20–28', s: 'Paul was arrested and sent to Rome, and on the way his ship crashed in a storm, but God kept everyone alive. Even a snake bite could not stop him, and in Rome he kept telling people about Jesus.' },
+    { w: 47, t: 'A gift and some armour', r: 'Colossians 1–4 · Ephesians 1–6', s: 'Paul wrote that Jesus is over everything and holds everything together. We are saved as a gift we did not earn, and God gives us armour, like a shield of faith, to stand strong.' },
+    { w: 48, t: 'Rejoice, and look at Jesus', r: 'Philippians 1–4 · Hebrews 1–6', s: 'From prison Paul wrote, “Rejoice in the Lord always,” and told us to think about what is true and good. Hebrews says Jesus is greater than the angels and greater than Moses, and that he understands how we feel.' },
+    { w: 49, t: 'Heroes of faith', r: 'Hebrews 7–12', s: 'Hebrews says Jesus is our forever priest, who opened the way to God once and for all. It lists heroes who trusted God, like Noah, Abraham and Moses, and tells us to run our race with our eyes on Jesus.' },
+    { w: 50, t: 'Be an example', r: '1–2 Timothy · 1 Peter 1–2', s: 'Paul told young Timothy to be an example in how he talks, loves and trusts, and to keep going even when it is hard. Peter wrote that we are like living stones God is building into his house.' },
+    { w: 51, t: 'God is love', r: '1 Peter 3–5 · 2 Peter 1–3 · 1 John 1–5', s: 'Peter said to give all your worries to God, because he cares about you. John wrote that God is love, and because he loved us first, we love one another.' },
+    { w: 52, t: 'Everything new', r: 'Revelation 1–5, 18–22', s: 'John saw Jesus shining in glory, and everyone in heaven singing to the Lamb on the throne. At the end God makes everything new, wipes away every tear, and lives with his people forever.' },
+  ];
+  const $ = s => document.querySelector(s);
+  const pad = n => String(n).padStart(2, '0');
+  const dayKey = (d = new Date()) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const isoWeek = (d = new Date()) => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
+  const clampWeek = w => Math.min(52, Math.max(1, Math.floor(Number(w) || 1)));
+  const familyWeek = () => { const v = hub.get('week', { scope: 'family' }); return clampWeek(v && typeof v === 'object' ? v.week : v); };
+  // the same scene the verse above uses (window.kidverse.sceneFor), so the story and the picture agree
+  const sceneFor = w => (window.kidverse && window.kidverse.sceneFor) ? window.kidverse.sceneFor(w) : '01-creation';
+  // story: { week: 'YYYY-Www', days: { 'YYYY-MM-DD': true } } — a stale week starts over
+  function normStory(v) {
+    const wk = isoWeek(); const ok = v && typeof v === 'object';
+    if (!ok || v.week !== wk) return { week: wk, days: {} };
+    return { week: wk, days: v.days && typeof v.days === 'object' ? { ...v.days } : {} };
+  }
+  const myStory = () => normStory(hub.get('story', { scope: 'person' }));
+  const heardDays = s => Object.keys(s.days).length;
+
+  // ── read it aloud: the same voice rules as the verse, cancel on Escape / page hide ──
+  const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  let speaking = false;
+  function pickVoice() {
+    let vs = []; try { vs = speechSynthesis.getVoices() || []; } catch {}
+    const en = vs.filter(v => /^en([-_]|$)/i.test(v.lang));
+    return en.find(v => /natural|samantha|aria|jenny|google us english/i.test(v.name)) || en.find(v => /^en[-_]US/i.test(v.lang)) || en[0] || vs[0] || null;
+  }
+  function speakStory(st) {
+    const btn = $('#story-say');
+    if (!canSpeak) { hub.toast('This device cannot read aloud.'); return; }
+    if (speaking) { try { speechSynthesis.cancel(); } catch {} return; }
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance("This week's story: " + st.t + ". " + st.s);
+      u.rate = 0.85; u.pitch = 1; const vc = pickVoice(); if (vc) { u.voice = vc; u.lang = vc.lang; } else u.lang = 'en-US';
+      const done = () => { speaking = false; btn.classList.remove('on'); btn.querySelector('span').textContent = 'Read it to me'; };
+      u.onend = done; u.onerror = done;
+      speaking = true; btn.classList.add('on'); btn.querySelector('span').textContent = 'Reading…';
+      speechSynthesis.speak(u);
+    } catch { speaking = false; hub.toast('This device cannot read aloud.'); }
+  }
+
+  // ── "I heard it": once a day, kids only; person row + family mirror + a feed line. No star here (item 20 owns rewards).
+  function heard() {
+    if (!hub.profile) return false;
+    if (!hub.canWrite) { hub.kioskNudge(); return false; }
+    if (hub.profile.kind !== 'kid') { hub.toast('The story is for the kids — sign in as one of them to mark it heard.'); return false; }
+    const s = myStory(), today = dayKey();
+    if (s.days[today]) { hub.toast('You already heard today’s story — come back tomorrow!'); return false; }
+    s.days[today] = true;
+    hub.set('story', s, { scope: 'person' });
+    hub.set('story:' + hub.profile.id, s, { scope: 'family' });
+    hub.activity(hub.profile.name + " heard this week's story");
+    hub.toast('Great listening!');
+    try { if (window.kidverse && typeof window.kidverse.onStoryDone === 'function') window.kidverse.onStoryDone(s); } catch (e) { console.error(e); }
+    try { const rw = window.kidverse && window.kidverse.rewards; if (rw && typeof rw.reconcile === 'function') rw.reconcile(); } catch (e) { console.error(e); }   // item 20 credits the story day (its logic, only nudged here)
+    renderStory();
+    return true;
+  }
+
+  function renderStory() {
+    const p = hub.profile; if (!p) return;
+    const w = familyWeek(), st = STORIES[w - 1];
+    const art = $('#story-art'), src = '../art/story/' + sceneFor(w) + '.svg';
+    if (!art.getAttribute('src').endsWith(src)) art.src = src;
+    art.dataset.scene = sceneFor(w);
+    $('#story-kick').textContent = p.kind === 'kid' ? p.name + "'s story this week" : 'This week’s story';
+    $('#story-title').textContent = st.t;
+    $('#story-span').textContent = 'Week ' + w + ' · the grown-ups are reading ' + st.r;
+    $('#story-text').textContent = st.s;
+    $('#story-say').setAttribute('aria-label', 'Read the story to me: ' + st.t);
+    const btn = $('#story-heard'), sub = $('#story-sub');
+    if (p.kind === 'kid') {
+      const s = myStory(), today = !!s.days[dayKey()], n = heardDays(s);
+      btn.hidden = false; btn.classList.toggle('today', today); btn.setAttribute('aria-pressed', today ? 'true' : 'false');
+      btn.querySelector('span').textContent = today ? 'Heard it today ✓' : 'I heard it';
+      sub.hidden = false;
+      sub.textContent = n ? 'Heard ' + n + (n === 1 ? ' day' : ' days') + ' this week' : 'Tap “I heard it” after someone reads it to you';
+    } else { btn.hidden = true; sub.hidden = true; }
+    $('#story-actions').classList.toggle('solo', btn.hidden);
+  }
+
+  (async () => {
+    await hub.ready();
+    $('#story-say').addEventListener('click', () => speakStory(STORIES[familyWeek() - 1]));
+    $('#story-heard').addEventListener('click', heard);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} } });
+    window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
+    hub.onChange(renderStory);
+    renderStory();
+    window.kidverse = Object.assign(window.kidverse || {}, { STORIES, heard, renderStory });   // for the test script
   })();
 })();
 </script>

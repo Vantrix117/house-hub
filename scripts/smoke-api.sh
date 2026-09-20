@@ -103,6 +103,54 @@ call "admin rotate code (keep same)" POST /api/admin/pairing-code/rotate "{\"cod
 call "admin unpair self -> 400" DELETE "/api/admin/devices/$DEVA" '' "$D" "$A"; expect 400
 call "admin unpair device A (cleanup, from B? no) skip" GET /api/health; expect 200
 
+echo "### guests (roadmap 23)"
+call "niece sets a pin again" POST /api/profiles/niece/pin '{"pin":"2468"}' "$D"; expect 200
+G="X-Profile-Token: $(echo "$BODY" | j profile_token)"
+call "add guest as kid -> 403" POST /api/profiles '{"name":"Nope"}' "$D" "X-Profile-Token: $KID"; expect 403
+call "add guest as kiosk -> 403" POST /api/profiles '{"name":"Nope"}' "$D" "X-Profile-Token: $TV"; expect 403
+call "add guest w/o name -> 400" POST /api/profiles '{"emoji":"🌻"}' "$D" "$G"; expect 400
+call "add guest bad pin -> 400" POST /api/profiles '{"name":"Sue","pin":"12"}' "$D" "$G"; expect 400
+call "add guest as adult" POST /api/profiles "{\"name\":\"Aunt Sue\",\"emoji\":\"\ud83c\udf3b\",\"color\":\"#137F77\",\"expires_at\":$(( $(date +%s) * 1000 + 86400000 ))}" "$D" "$G"; expect 200
+GID=$(echo "$BODY" | j profile.id)
+[ "$(echo "$BODY" | j profile.is_guest)" = true ] && [ "$(echo "$BODY" | j profile.kind)" = adult ] && [ "$(echo "$BODY" | j profile.is_admin)" = false ] && [ "$(echo "$BODY" | j profile.created_by)" = niece ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected is_guest adult, not admin, created_by niece"; }
+call "guest logs in without a pin" POST /api/login "{\"profile_id\":\"$GID\"}" "$D"; expect 200
+GT="X-Profile-Token: $(echo "$BODY" | j profile_token)"
+call "guest writes person data" PUT "/api/data/f260/week?scope=person" '{"value":2,"updated_at":'$(date +%s000)'}' "$D" "$GT"; expect 200
+call "guest cannot add a guest -> 403" POST /api/profiles '{"name":"Nested"}' "$D" "$GT"; expect 403
+# a guest's PIN is fixed at creation: no paired device can "create" one on a tap-to-open guest (hijack / lockout)
+call "set a PIN on a guest from a paired device -> 403" POST "/api/profiles/$GID/pin" '{"pin":"9999"}' "$D"; expect 403
+[ "$(echo "$BODY" | j error)" = guest_pin_fixed ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=guest_pin_fixed"; }
+call "guest still signs in on tap" POST /api/login "{\"profile_id\":\"$GID\"}" "$D"; expect 200
+# an expired guest stops receiving push: ending the stay drops their sessions and subscriptions
+call "guest subscribes to push" POST /api/push/subscribe '{"subscription":{"endpoint":"https://push.example/guest","keys":{"p256dh":"x","auth":"y"}}}' "$D" "$GT"; expect 200
+call "admin ends the guest's stay" PUT "/api/admin/profiles/$GID" '{"expires_at":1000}' "$D" "$A"; expect 200
+call "expired guest session -> 401" GET /api/me '' "$D" "$GT"; expect 401
+call "admin usage" GET /api/admin/usage '' "$D" "$A"; expect 200
+echo "$BODY" | j push_subscriptions | grep -q "\"$GID\"" && { fail=$((fail+1)); echo "   ^^^ expected no push subscription left for the expired guest"; } || pass=$((pass+1))
+call "forced morning job never lists the expired guest" POST /api/admin/cron/run '{"job":"morning"}' "$D" "$A"; expect 200
+echo "$BODY" | grep -q "\"$GID\"" && { fail=$((fail+1)); echo "   ^^^ expected the expired guest absent from the job output"; } || pass=$((pass+1))
+call "admin reopens the stay (a week)" PUT "/api/admin/profiles/$GID" "{\"expires_at\":$(( $(date +%s) * 1000 + 7 * 86400000 ))}" "$D" "$A"; expect 200
+call "add guest with pin, already expired" POST /api/profiles '{"name":"Old Guest","pin":"4321","expires_at":1000}' "$D" "$G"; expect 200
+GOLD=$(echo "$BODY" | j profile.id)
+call "expired guest cannot log in -> 403" POST /api/login "{\"profile_id\":\"$GOLD\",\"pin\":\"4321\"}" "$D"; expect 403
+[ "$(echo "$BODY" | j error)" = guest_expired ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=guest_expired"; }
+call "profiles (device only) hide the expired guest" GET /api/profiles '' "$D"; expect 200
+echo "$BODY" | grep -q "\"$GID\"" && ! echo "$BODY" | grep -q "\"$GOLD\"" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected $GID listed and $GOLD hidden"; }
+call "profiles (admin) include the expired guest" GET /api/profiles '' "$D" "$A"; expect 200
+echo "$BODY" | grep -q "\"$GOLD\"" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected $GOLD listed for the admin"; }
+call "purge a live guest -> 400" POST "/api/admin/profiles/$GID/purge" '{}' "$D" "$A"; expect 400
+call "purge the expired guest" POST "/api/admin/profiles/$GOLD/purge" '{}' "$D" "$A"; expect 200
+call "delete a household profile -> 400" DELETE /api/admin/profiles/ezra '' "$D" "$A"; expect 400
+call "delete guest as non-admin -> 403" DELETE "/api/admin/profiles/$GID" '' "$D" "$G"; expect 403
+call "admin extends the guest's stay" PUT "/api/admin/profiles/$GID" '{"expires_at":null}' "$D" "$A"; expect 200
+[ "$(echo "$BODY" | j profile.expires_at)" = null ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected expires_at null"; }
+call "admin cannot make a guest a kid -> 400" PUT "/api/admin/profiles/$GID" '{"kind":"kid"}' "$D" "$A"; expect 400
+call "delete the guest" DELETE "/api/admin/profiles/$GID" '' "$D" "$A"; expect 200
+call "guest session gone -> 401" GET /api/me '' "$D" "$GT"; expect 401
+call "guest profile gone -> 404" POST /api/login "{\"profile_id\":\"$GID\"}" "$D"; expect 404
+call "guest cleanup runs" POST /api/admin/guests/purge '{}' "$D" "$A"; expect 200
+call "admin reset niece pin (cleanup)" POST /api/admin/profiles/niece/reset-pin '{}' "$D" "$A"; expect 200
+
 echo "### CORS"
 out=$(curl -s -D - -o /dev/null -X OPTIONS "$BASE/api/profiles" -H "Origin: $ORIGIN" -H 'Access-Control-Request-Method: GET')
 echo "$out" | grep -qi "access-control-allow-origin: $ORIGIN" && { pass=$((pass+1)); echo "preflight allows $ORIGIN"; } || { fail=$((fail+1)); echo "preflight MISSING allow-origin for $ORIGIN"; }

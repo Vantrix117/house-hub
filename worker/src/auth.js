@@ -41,9 +41,31 @@ export class HttpError extends Error {
   constructor(status, error, message, extra) { super(message || error); this.status = status; this.error = error; this.extra = extra; }
 }
 
+/** A guest whose stay is over: hidden from the picker (except for the admin), cannot sign in, sessions stop working. */
+export const isExpiredGuest = (p, now = Date.now()) => !!(p && p.is_guest && p.expires_at != null && +p.expires_at < now);
+
+/**
+ * Cuts an expired guest off from the house: their sessions and push subscriptions go, so no device keeps a live
+ * token and the reminder jobs (which push to every adult) can no longer reach the departed visitor's phone.
+ * Their person-scope data stays for the 30-day retention window. `profileId` limits it to one guest; without it
+ * every guest whose stay has ended is handled (run before each cron so a natural expiry needs no request first).
+ */
+export async function silenceExpiredGuests(env, now = Date.now(), profileId = null) {
+  const where = profileId
+    ? { sql: 'profile_id = ? AND profile_id IN (SELECT id FROM profiles WHERE is_guest = 1 AND expires_at IS NOT NULL AND expires_at < ?)', args: [profileId, now] }
+    : { sql: 'profile_id IN (SELECT id FROM profiles WHERE is_guest = 1 AND expires_at IS NOT NULL AND expires_at < ?)', args: [now] };
+  const [subs, sess] = await env.DB.batch([
+    env.DB.prepare('DELETE FROM push_subscriptions WHERE ' + where.sql).bind(...where.args),
+    env.DB.prepare('DELETE FROM sessions WHERE ' + where.sql).bind(...where.args),
+  ]);
+  return { push_subscriptions: subs.meta.changes || 0, sessions: sess.meta.changes || 0 };
+}
+
 export const publicProfile = p => p && ({
   id: p.id, name: p.name, emoji: p.emoji, color: p.color, kind: p.kind,
   is_admin: !!p.is_admin, sort_order: p.sort_order, has_pin: p.pin_hash != null,
+  // guests (migrations/005): added on demand by an adult; expires_at ms or null = keep; created_by = who added them
+  is_guest: !!p.is_guest, expires_at: p.expires_at == null ? null : +p.expires_at, created_by: p.is_guest ? (p.created_by || null) : null,
   photo: p.photo ? { sm: `/api/media/photos/${p.id}/${p.photo}-256.jpg`, lg: `/api/media/photos/${p.id}/${p.photo}-1024.jpg` } : null,
 });
 
@@ -63,11 +85,16 @@ export async function authenticate(request, env, ctx) {
   const pt = request.headers.get('X-Profile-Token');
   if (pt) {
     const row = await env.DB.prepare(
-      `SELECT p.*, s.device_id AS session_device, s.expires_at
+      `SELECT p.*, s.device_id AS session_device, s.expires_at AS session_expires
          FROM sessions s JOIN profiles p ON p.id = s.profile_id
         WHERE s.token_hash = ?`).bind(await sha256(pt)).first();
-    if (!row || row.expires_at < now || row.session_device !== device.id) {
+    if (!row || row.session_expires < now || row.session_device !== device.id) {
       throw new HttpError(401, 'profile_session_invalid', 'Please choose your profile again.');
+    }
+    if (isExpiredGuest(row, now)) {
+      // the stay ended while this device still held a token: drop every session and push subscription the guest had
+      ctx.waitUntil(silenceExpiredGuests(env, now, row.id).catch(() => {}));
+      throw new HttpError(401, 'profile_session_invalid', 'This guest pass has ended.');
     }
     profile = row;
   }
