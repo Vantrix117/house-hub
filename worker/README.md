@@ -41,6 +41,8 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 
 ```
 GET  /api/health
+GET  /api/dollywood/waits               Dollywood posted wait times via queue-times.com (60 s edge cache, no auth):
+                                        {ok, at, updated, source, rides:[{name, land, open, wait (min|null), updated}]}
 POST /api/pair                          {code, name?}
 GET  /api/profiles                      (no hashes; has_pin, is_guest, expires_at, created_by) — guests whose expires_at has passed are
                                         left out unless the caller is the admin

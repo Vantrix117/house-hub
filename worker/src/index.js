@@ -55,6 +55,28 @@ function pathRe(pattern) {
 
 route('GET', '/api/health', async () => ({ ok: true, time: Date.now() }));
 
+// Dollywood wait times for the park map. queue-times.com republishes the park's posted waits as JSON but sends no
+// CORS header, so the page cannot read it directly; this proxies it, normalised, behind a 60 s edge cache so the whole
+// family shares one upstream fetch a minute. Public data, no auth. Attribution ("Powered by Queue-Times.com") is the
+// site's condition of use and the park map shows it.
+const WAITS_URL = 'https://queue-times.com/parks/55/queue_times.json';
+route('GET', '/api/dollywood/waits', async c => {
+  const cache = caches.default, key = new Request(WAITS_URL, { method: 'GET' });
+  let up = await cache.match(key);
+  if (!up) {
+    up = await fetch(WAITS_URL, { headers: { 'User-Agent': 'house-hub park map (family use)' } });
+    if (!up.ok) throw new HttpError(502, 'upstream', 'Wait times are not available right now.');
+    up = new Response(up.body, up); up.headers.set('Cache-Control', 'public, max-age=60');
+    c.exec.waitUntil(cache.put(key, up.clone()));
+  }
+  const d = await up.json();
+  const rides = [];
+  for (const land of d.lands || []) for (const r of land.rides || []) rides.push({ name: r.name.replace(/[®™]/g, '').trim(), land: land.name, open: !!r.is_open, wait: r.wait_time ?? null, updated: r.last_updated });
+  for (const r of d.rides || []) rides.push({ name: r.name.replace(/[®™]/g, '').trim(), land: null, open: !!r.is_open, wait: r.wait_time ?? null, updated: r.last_updated });
+  const updated = rides.reduce((m, r) => (r.updated > m ? r.updated : m), '');
+  return json({ ok: true, at: Date.now(), updated, source: 'queue-times.com', rides }, 200, { ...c.cors, 'Cache-Control': 'public, max-age=60' });
+});
+
 // Pair this device with the house using the one-time pairing code.
 route('POST', '/api/pair', async c => {
   const key = 'pair:' + clientIp(c.request);
