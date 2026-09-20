@@ -2,6 +2,8 @@
 
 > Agreed 2026-09-17 in a review session. Goals: one polished product · every screen glanceable in 3 seconds · kids use their part unassisted · adults never re-enter anything on a second device · the visual fidelity of Hearth mixed with glassy modern iOS, illustrations + family photos, rich-but-calm motion.
 >
+> **Status (2026-09-20): every item below is built, verified and live** — see [`VERIFICATION.md`](VERIFICATION.md) for what was proven and what still needs a real device.
+>
 > Hearth already covers groceries, meals, kid routines/chores and the calendar, so those stay out of the hub. Sequencing: trip first → visual foundation → daily use (each with its visual pass) → kids and the TV. Items are built only when explicitly asked for; each one ends with its acceptance criteria met, tests extended, and the live site verified.
 
 
