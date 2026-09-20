@@ -122,6 +122,54 @@ ok('paste parser splits name - request', parsed[0].for === 'Sam Carter' && parse
 L().prayers[0].createdAt = '2025-' + TODAY.slice(5);
 ok('anniversaries fire on the day', anniversaries().length >= 1);
 `;
+// --- roadmap 18: faces on the family list, kid mode = family list only, big cards, one Prayed button
+const probe18 = `
+// the hub knows everyone: faces come from hub.avatarHtml (photo or emoji on the person colour)
+window.hub = hub;   // the app reaches the SDK through window.hub
+hub.people = () => [
+  { id:'eli', name:'Eli Anderson', kind:'adult', color:'#4F5D8C', emoji:'A' },
+  { id:'kiara', name:'Kiara', kind:'kid', color:'#C25E5E', emoji:'K' },
+  { id:'ezra', name:'Ezra', kind:'kid', color:'#3D7A5A', emoji:'Z' } ];
+hub.avatarHtml = (p, cls = '') => '<span class="avatar ' + cls + '" style="--tint:' + p.color + '">' + (p.emoji || '') + '</span>';
+D.activeList = 'shared';
+const sp = D.lists.shared.prayers[0]; sp.by = 'eli';
+sp.prayedBy[TODAY] = ['Eli Anderson', 'Kiara', 'Ezra', 'Someone Else', 'Mae', 'Mom', 'Dad'];
+renderToday();
+const html = g('todayList').innerHTML;
+// the who-prayed group sits in the title; the requester ("asked") in the meta line after it
+const who = html.slice(html.indexOf('<span class="who"'), html.indexOf('<div class="meta"'));
+ok('family rows show faces from hub.avatarHtml', (who.match(/class="avatar/g) || []).length === 3 && who.includes('--tint:#C25E5E'));
+ok('unknown names fall back to initials', who.includes('>SE<') && who.includes('>M<'));
+ok('at most five faces, then +N', (who.match(/class="(avatar|init)/g) || []).length === 5 && who.includes('>+2<'));
+ok('the adult family row shows the requester as a face', /class="asker"[^>]*>.*class="avatar[^>]*--tint:#4F5D8C.*Eli Anderson asked/.test(html));
+D.activeList = 'personal'; renderToday();
+ok('the private list shows no requester and no who-prayed row', !g('todayList').innerHTML.includes('class="asker"') && !g('todayList').innerHTML.includes('class="who"'));
+D.activeList = 'shared'; renderToday();
+ok('the who-prayed row names everyone for assistive tech', /aria-label="Prayed today: Eli Anderson, Kiara/.test(html));
+// kid mode: Kiara signs in
+hub.profile = { id:'kiara', name:'Kiara', kind:'kid', isAdmin:false, color:'#C25E5E', emoji:'K' }; hub.isKid = true;
+go('all');
+ok('a kid asking for the private list lands on Today', g('s-today').classList.contains('on') && !g('s-all').classList.contains('on'));
+go('add');
+ok('a kid asking for Add lands on Today', g('s-today').classList.contains('on') && !g('s-add').classList.contains('on'));
+sp.prayedBy[TODAY] = ['Eli Anderson'];
+renderToday();
+const kh = g('todayList').innerHTML;
+ok('kid mode renders big cards, not rows', kh.includes('class="kid"') && kh.includes('class="kids"') && !kh.includes('class="mark"') && !kh.includes('data-open='));
+ok('each card carries one Prayed button', (kh.match(/data-kpray=/g) || []).length === D.lists.shared.prayers.length && (kh.match(/class="prayed"/g) || []).length === (kh.match(/data-kpray=/g) || []).length);
+ok('the card shows who asked, as a face', kh.includes('Eli Anderson asked') && kh.includes('--tint:#4F5D8C'));
+ok('the kid headline invites, not counts', g('todayLine').textContent === 'Pray with the family');
+setPrayed(sp, true); renderToday();
+ok('Prayed adds the kid to prayedBy[today] like an adult', (sp.prayedBy[TODAY] || []).includes('Kiara') && (sp.prayedBy[TODAY] || []).includes('Eli Anderson'));
+ok('the card turns done with her face in who-prayed', g('todayList').innerHTML.includes('class="kid done"') && g('todayList').innerHTML.includes('--tint:#C25E5E'));
+ok('after praying for everyone the headline cheers', g('todayLine').textContent === 'You prayed for everyone today!');
+load();
+ok('a kid always loads onto the family list', D.activeList === 'shared');
+`;
+ok('kid mode CSS hides nav, +, list switch and the Add/More/List/Record screens',
+  /:root\[data-kind="kid"\] nav,/.test(src) && /:root\[data-kind="kid"\] #s-add/.test(src) && /:root\[data-kind="kid"\] #s-more\{display:none!important\}/.test(src));
+ok('a kid never writes the list choice to person scope', src.includes("if(!KID()) put('person', 'activeList'"));
+ok('kid cards use design tokens, not hex', !/\.kid[^\n]*#[0-9a-fA-F]{3,6}/.test(src) && /\.kid \.prayed\{min-height:64px/.test(src));
 // --- markup: Pray now is the one primary button on Today; Print/Copy/Kitchen sit behind "More"
 const today = src.slice(src.indexOf('<section id="s-today"'), src.indexOf('<section id="s-all"'));
 const primaries = (today.match(/<button class="act(?: [a-z-]+)*"/g) || []).filter(b => !/ghost/.test(b));
@@ -130,7 +178,7 @@ ok('Today markup has no inline Print/Copy/Kitchen buttons', !/id="(doPrint|copyT
 ok('overflow sheet offers Kitchen, Copy and Print', /data-more="kitchen"/.test(src) && /data-more="copy"/.test(src) && /data-more="print"/.test(src));
 ok('no in-app theme chips (the hub Me tab owns the theme)', !/data-look=|id="f-theme"/.test(src));
 ok('no stale backup warning', !/backupWarn|backupNudge|Safari can clear/.test(src));
-try { eval(code + '\n' + probe); }
+try { eval(code + '\n' + probe + '\n' + probe18); }
 catch (e) { fail++; console.log('  FAIL script threw: ' + e.message); }
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

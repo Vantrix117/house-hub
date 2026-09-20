@@ -140,6 +140,15 @@ app.feed = svg(200, 160, [
   circle(64, 96, 8, P.slateSoft), stroke('M64 88v16M56 96h16', P.slate, 2.5),
   fill('M0 160c60-14 140-14 200 0z', P.oliveSoft),
 ].join('\n'));
+app.kidverse = svg(200, 160, [
+  // an open storybook with a big gold star rising out of it, and a few small ones caught in the air
+  fill('M30 124V64c22-8 44-6 70 6v62c-26-12-48-14-70-6z', P.goldSoft), fill('M170 124V64c-22-8-44-6-70 6v62c26-12 48-14 70-6z', P.goldSoft),
+  stroke('M30 124V64c22-8 44-6 70 6v62c-26-12-48-14-70-6zM170 124V64c-22-8-44-6-70 6v62c26-12 48-14 70-6z', P.mocha, 4),
+  stroke('M46 80c14-2 26 0 40 6M46 96c14-2 26 0 40 6M154 80c-14-2-26 0-40 6M154 96c-14-2-26 0-40 6', P.mocha, 3, 'stroke-opacity=".45"'),
+  star(100, 40, 26, P.gold), star(100, 40, 14, P.goldSoft),
+  sparkles([[46, 34, 7], [156, 30, 6], [140, 58, 5], [62, 56, 4]], P.gold),
+  stroke('M22 138c30 6 60 6 78 0 18 6 48 6 78 0', P.mocha, 3, 'stroke-opacity=".5"'),
+].join('\n'));
 for (const [k, v] of Object.entries(app)) write(`app/${k}.svg`, v);
 
 // ── empty states (220×140) ───────────────────────────────────────

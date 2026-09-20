@@ -4,12 +4,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <title>Dollywood build guide</title>
 <link rel="stylesheet" href="design.css">
+<script src="hub.js" data-app="dollywood" data-scope="person"></script>
 <style>
 /* Map colours only (markers, coaster track, rail, water). The chrome palette — --ink, --panel(2/3), --dim, --forest,
    --moss, --ochre, --clay, --cream, --sky, --line, --text — is aliased to design.css tokens in the House Hub flavour
-   block further down, so every hub theme (and this page's own light/dark toggle) recolours the chrome. */
+   block further down, so every hub theme recolours the chrome. hub.js sets data-theme from the person's palette
+   and data-scheme to the resolved light|dark; the marker colours below key off data-scheme. */
 :root{--attr:#F5EEDC;--shop:#9DB9FF;--dine:#FFB067;--coaster:#FF5A2E;--rail:#F2E3BE;--water:#3E9BC4}
-[data-theme=light]{--attr:#1E1A14;--shop:#2B4FBF;--dine:#B85C00;--coaster:#D63A12;--rail:#3B2F1E}
+[data-scheme=light]{--attr:#1E1A14;--shop:#2B4FBF;--dine:#B85C00;--coaster:#D63A12;--rail:#3B2F1E}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--ink);color:var(--text);font-family:Archivo,system-ui,sans-serif;font-size:14.5px;line-height:1.5;
   font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
@@ -136,8 +138,8 @@ footer{color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-t
 /* ================= House Hub flavours =================
    hub  = the build guide inside the family hub: hub palette + type, 44 px targets, cards.
    live = the park map: full-bleed illustrated basemap, status pill, glass buttons, bottom sheet, family markers.
-   The page's own palette names are aliases of design.css tokens (linked above), so every theme — and this page's
-   own light/dark toggle, which design.css reads as Hearth/Midnight — flips them. --line, --text, --accent, --on-accent,
+   The page's own palette names are aliases of design.css tokens (linked above), so every theme flips them
+   (hub.js applies the person's theme; there is no private toggle any more). --line, --text, --accent, --on-accent,
    --shadow(-lg) and the fonts come straight from design.css. Only the category marker colours stay literal (map colours). */
 [data-flavor=hub],[data-flavor=live]{--ink:var(--bg);--panel:var(--surface);--panel2:var(--surface-2);--panel3:var(--line);--dim:var(--text-2);--ochre:var(--gold);--moss:var(--olive);--forest:var(--olive);--clay:var(--terra);--cream:var(--text);--sky:var(--bg-2);
   --cat-attr:#FF6B4A;--cat-shop:#5B8DEF;--cat-dine:#F2A44A}
@@ -347,7 +349,6 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
   <div class="grp"><button id="m-2d" aria-pressed="true">2D</button><button id="m-3d" aria-pressed="false" title="3D terrain (T)">3D</button></div>
   <div class="grp"><span class="lab">basemap</span><select id="bmap"><option value="relief" selected>Terrain</option><option value="aerial">Aerial photo</option><option value="mix">Aerial + shading</option><option value="official">Park map (illustrated)</option></select></div>
   <div class="grp"><span class="lab">contour interval</span><select id="cint"><option value="10">10 ft</option><option value="20" selected>20 ft</option><option value="50">50 ft</option></select></div>
-  <div class="grp"><button id="theme" title="Light / dark">Light</button></div>
   <div class="grp"><input type="search" id="q" placeholder="Search listings…" style="width:190px"></div>
  </div>
  <div class="mapbox">
@@ -689,22 +690,24 @@ $('l-upright').addEventListener('change',e=>{setRotation(e.target.checked?(D.rot
 $('cint').addEventListener('change',e=>{for(const k in CG)CG[k].style.display=k===e.target.value?'':'none'});
 let basemap='relief';
 $('bmap').addEventListener('change',e=>{basemap=e.target.value;const off=basemap==='official';ill.style.display=off?'':'none';aer.style.display=(basemap==='relief'||off)?'none':'';img.style.display=(basemap==='aerial'||off)?'none':'';img.style.opacity=basemap==='mix'?.45:1;img.style.mixBlendMode=basemap==='mix'?'multiply':'';mimg.setAttribute('href',off?ILL:basemap==='relief'?IMG:AER);if(three)three.retexture()});
-$('theme').onclick=()=>{const l=document.documentElement.dataset.theme==='light';document.documentElement.dataset.theme=l?'dark':'light';$('theme').textContent=l?'Light':'Dark';try{localStorage.setItem('dw-theme',l?'dark':'light')}catch(e){}};
-try{if(localStorage.getItem('dw-theme')==='light'){document.documentElement.dataset.theme='light';$('theme').textContent='Dark'}}catch(e){}
+/* Light/dark: hub.js sets data-theme (the person's palette) and data-scheme (resolved light|dark) — no private toggle. */
 
 /* ============================ scale tab ============================ */
 const scale={plot:null,fac:null};const EXT=D.layers.allbox[1]-D.layers.allbox[0];$('sc-ext').textContent=EXT;
 function updScale(){const v=parseFloat($('sc-plot').value);scale.plot=v>0?v:null;scale.fac=v>0?v/EXT:null;
   $('sc-fac').textContent=scale.fac?`${(scale.fac*100).toFixed(0)}% of real size (${scale.fac.toFixed(3)}×)`:'—';$('sc-one').textContent=scale.fac?`${scale.fac.toFixed(2)} m in game`:'—';
   $('sc-vert').textContent=scale.fac?(1/scale.fac).toFixed(2):'—';const i=parseFloat($('sc-in').value);$('sc-out').textContent=(scale.fac&&i>=0)?Math.round(i*scale.fac):'—';
-  try{localStorage.setItem('dw-plot',$('sc-plot').value)}catch(e){}}
-$('sc-plot').addEventListener('input',updScale);$('sc-in').addEventListener('input',updScale);
+}
+const hubOnline=()=>!!(window.hub&&hub.profile);   // signed in through the House Hub SDK (standalone with no session keeps localStorage)
+const hubGuard=()=>{if(hubOnline()&&!hub.canWrite){hub.kioskNudge();return false}return true};
+const savePlot=()=>{const v=$('sc-plot').value;if(hubOnline()){if(hub.canWrite)try{hub.set('plot',v||null)}catch(e){}}else{try{localStorage.setItem('dw-plot',v)}catch(e){}}};
+$('sc-plot').addEventListener('input',()=>{updScale();savePlot()});$('sc-in').addEventListener('input',updScale);
 try{$('sc-plot').value=localStorage.getItem('dw-plot')||''}catch(e){}updScale();
 
 /* ============================ build steps ============================ */
 const PHN={terrain:'Terrain',paths:'Paths',structures:'Structures',rides:'Rides',detail:'Detail',finish:'Finish'};const KEY='dollywood-build-progress-v2';
-let doneMap={};try{doneMap=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(doneMap))}catch(e){}};let curSec='entrance',curIdx=0;
+let doneMap={};try{doneMap=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}   // first paint / standalone; replaced by the person's hub copy once ready
+const save=()=>{if(hubOnline()){if(!hub.canWrite){hub.kioskNudge();return}try{hub.set('progress',Object.assign({},doneMap))}catch(e){}}else{try{localStorage.setItem(KEY,JSON.stringify(doneMap))}catch(e){}}};let curSec='entrance',curIdx=0;
 const stepsOf=id=>D.steps.filter(s=>s.section===id);
 function renderStep(){if(FLAVOR==='live'){highlight(null);return}const st=stepsOf(curSec),now=st[curIdx],sec=SEC[curSec];$('b-sec').textContent=sec.name+' — build steps';
   const nd=st.filter(s=>doneMap[s.id]).length;$('b-count').textContent=st.length?`${nd} of ${st.length} done`:'not written yet';$('b-bar').style.width=st.length?(nd/st.length*100)+'%':'0';
@@ -715,14 +718,25 @@ function renderStep(){if(FLAVOR==='live'){highlight(null);return}const st=stepsO
    <div class="bctl"><button id="b-prev">Previous</button><button id="b-next">Next</button><button id="b-done" class="${doneMap[now.id]?'done':''}">${doneMap[now.id]?'Done ✓':'Mark done'}</button><button id="b-show">Show on map</button></div>`;
   $('b-prev').onclick=()=>stepNav(-1);$('b-next').onclick=()=>stepNav(1);$('b-show').onclick=go;$('b-done').onclick=stepDone;highlight(now.target);renderStepList()}
 function stepNav(d){const st=stepsOf(curSec);if(!st.length)return;curIdx=Math.max(0,Math.min(st.length-1,curIdx+d));renderStep();go()}
-function stepDone(){const st=stepsOf(curSec),now=st[curIdx];if(!now)return;doneMap[now.id]=!doneMap[now.id];save();if(doneMap[now.id]&&curIdx<st.length-1)curIdx++;renderStep();go()}
+function stepDone(){if(!hubGuard())return;const st=stepsOf(curSec),now=st[curIdx];if(!now)return;doneMap[now.id]=!doneMap[now.id];save();if(doneMap[now.id]){if(hubOnline())try{hub.activity('Ticked '+now.title)}catch(e){}if(curIdx<st.length-1)curIdx++}renderStep();go()}
 function go(){const st=stepsOf(curSec),now=st[curIdx];if(now){if(mode==='3d')setMode('2d');fitBox(bboxOf(now.target),true)}}
 function renderStepList(){const st=stepsOf(curSec),L=$('b-list');L.innerHTML='';let last=null;st.forEach((s,i)=>{if(s.phase!==last){const h=document.createElement('div');h.className='phhead';h.textContent=PHN[s.phase];L.appendChild(h);last=s.phase}
   const d=document.createElement('div');d.className='bitem'+(i===curIdx?' cur':'')+(doneMap[s.id]?' ok':'');d.innerHTML=`<span>${doneMap[s.id]?'✓':(i+1)}</span><b>${s.title}</b>`;d.onclick=()=>{curIdx=i;renderStep();go()};L.appendChild(d)})}
-$('b-reset').onclick=()=>{if(confirm('Clear all saved progress?')){doneMap={};save();renderStep()}};
+$('b-reset').onclick=()=>{if(!hubGuard())return;if(confirm('Clear all saved progress?')){doneMap={};save();renderStep()}};
 $('b-export').onclick=()=>{const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify({version:1,exported:new Date().toISOString(),done:doneMap}));a.download='dollywood-progress.json';a.click()};
 $('b-import').onclick=()=>$('b-file').click();
-$('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);doneMap=j.done||j;save();renderStep()}catch(err){alert('Not a progress file')}};r.readAsText(f);e.target.value=''});
+$('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!hubGuard()){e.target.value='';return}const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);doneMap=j.done||j;save();renderStep()}catch(err){alert('Not a progress file')}};r.readAsText(f);e.target.value=''});
+/* House Hub: progress and plot are person-scope rows ('progress', 'plot') so a tick on the PC shows on the iPad.
+   Legacy localStorage moves over once per device (adults only — hub.migrate enforces that). Without a session the
+   page keeps its localStorage-only behaviour. Remote changes re-read the map and repaint the ticks in place. */
+(async()=>{if(!window.hub||typeof hub.ready!=='function')return;try{await hub.ready({optional:true})}catch(e){return}
+  if(!hub.profile)return;
+  try{hub.migrate([{from:KEY,to:'progress'},{from:'dw-plot',to:'plot',parse:r=>r||null}])}catch(e){}
+  const adopt=ev=>{const all=!ev||ev.bulk||ev.key==null;
+    if(all||ev.key==='progress'){doneMap=Object.assign({},hub.get('progress',{default:{}}));renderStep()}
+    if(all||ev.key==='plot'){const v=hub.get('plot'),el=$('sc-plot');if(v!=null&&document.activeElement!==el&&el.value!==String(v)){el.value=v;updScale()}}};
+  doneMap=Object.assign({},hub.get('progress',{default:{}}));{const st=stepsOf(curSec),f=st.findIndex(x=>!doneMap[x.id]);curIdx=f<0?0:f}
+  adopt(null);hub.onChange(adopt)})();
 
 /* ============================ sections ============================ */
 const chips=$('chips');

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kid Verse</title>
+<link rel="stylesheet" href="design.css">
+<style>
+  /* Kid Verse — the family's F260 memory verse for the week, made for a child who cannot read yet:
+     story art, the reference in big type, a one-sentence paraphrase, "Read it to me" (speech) and "Done ★".
+     Every colour is a design.css token; the page is a gold wash with the person's colour caught in the glass. */
+  html, body { min-height: 100%; }
+  body.ds {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(120% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 60%),
+      radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%);
+    background-attachment: fixed;
+    padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+    overflow-x: hidden;
+  }
+  .wrap { max-width: var(--max-read); margin: 0 auto; padding: var(--sp-4); padding-bottom: calc(var(--sp-10) + var(--safe-bottom)); display: grid; gap: var(--sp-4); }
+
+  /* who + week, on a glass pill */
+  .top { display: flex; justify-content: center; }
+  .ds .top .pill { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--tap); padding: var(--sp-2) var(--sp-5); border-radius: var(--r-full); color: var(--text); }
+  .ds .top .pill .avatar { --size: 28px; font-size: 16px; }
+
+  /* the scene: story art on a glass card, always 3:2 so nothing shifts when the picture loads */
+  .ds .scene { padding: var(--sp-3); border-radius: var(--r-xl); }
+  .ds .scene img { display: block; width: 100%; aspect-ratio: 240 / 160; height: auto; border-radius: var(--r-lg); background: var(--surface-2); object-fit: cover; }
+
+  /* the reference: big serif, the theme's ink */
+  .ref { text-align: center; display: grid; gap: var(--sp-1); padding: 0 var(--sp-2); }
+  .ref .kicker { color: var(--gold-ink); }
+  .ref h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 9vw, 56px); line-height: var(--lh-tight); letter-spacing: 0; color: var(--text); text-wrap: balance; }
+  :root[data-kind="kid"] .ref h1 { font-size: clamp(40px, 11vw, 64px); }
+  .ref .also { color: var(--muted); font-size: var(--fs-sm); font-weight: 600; min-height: 1.5em; }
+
+  /* the paraphrase: clearly not the Bible's own words */
+  .ds .words { border-radius: var(--r-xl); display: grid; gap: var(--sp-2); }
+  .ds .words .kicker { color: var(--gold-ink); }
+  .words p { margin: 0; font-size: var(--fs-xl); line-height: var(--lh-snug); color: var(--text); text-wrap: pretty; }
+  :root[data-kind="kid"] .words p { font-size: var(--fs-2xl); }
+  .words small { color: var(--muted); font-size: var(--fs-xs); line-height: 1.35; }
+
+  /* the two big buttons: never smaller than 64 px (the kid target), stacked at phone width */
+  .actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
+  @media (min-width: 560px) { .actions { grid-template-columns: 1fr 1fr; } }
+  .ds .actions .btn { min-height: max(64px, var(--tap-lg)); font-size: var(--fs-lg); border-radius: var(--r-xl); gap: var(--sp-3); }
+  .ds .actions .btn .icon { width: 1.4em; height: 1.4em; }
+  .ds .icon.star { fill: currentColor; stroke: none; }
+  .actions.solo { grid-template-columns: 1fr; }
+  .ds .actions .btn-glass { --g: var(--glass-strong); }
+  .ds .btn.done { --accent: var(--gold); }
+  .ds .btn.done.today { background: var(--gold-soft); color: var(--gold-ink); border-color: transparent; box-shadow: none; }
+  .ds .btn.say.on .icon { animation: pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+
+  /* the week's stars: a count and seven day dots */
+  .ds .stars { border-radius: var(--r-xl); display: grid; gap: var(--sp-3); justify-items: center; text-align: center; }
+  .stars .count { display: inline-flex; align-items: center; gap: var(--sp-2); font-family: var(--font-display); font-size: var(--fs-3xl); line-height: 1; color: var(--text); }
+  .stars .count .icon { width: 1em; height: 1em; color: var(--gold); }
+  .stars .sub { color: var(--muted); font-size: var(--fs-sm); font-weight: 600; }
+  .days { display: flex; gap: var(--sp-2); justify-content: center; flex-wrap: wrap; }
+  .days span { width: 36px; height: 36px; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface-2); color: var(--muted-decor); font-size: var(--fs-xs); font-weight: 700; border: 1px solid var(--line-soft); }
+  .days span.on { background: var(--gold-soft); color: var(--gold-ink); border-color: transparent; }
+  .days span.on .icon { width: 20px; height: 20px; color: var(--gold); }
+  .days span.today { box-shadow: var(--focus); }
+  :root[data-kind="kid"] .days { gap: 6px; }
+  :root[data-kind="kid"] .days span { width: 38px; height: 38px; }
+
+  /* adults: the week stepper and every kid's stars, read-only */
+  .ds .grown { border-radius: var(--r-xl); display: grid; gap: var(--sp-4); }
+  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: 700; display: flex; align-items: center; gap: var(--sp-2); }
+  .grown h2 .icon { width: 1.2em; height: 1.2em; color: var(--gold); }
+  .stepper { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+  .stepper .wk { font-family: var(--font-display); font-size: var(--fs-2xl); line-height: 1; color: var(--text); text-align: center; flex: 1; }
+  .stepper .wk small { display: block; font-family: var(--font-sans); font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--muted); margin-top: var(--sp-1); }
+  .ds .stepper .btn { width: var(--tap-lg); min-width: var(--tap-lg); min-height: var(--tap-lg); padding: 0; font-size: var(--fs-2xl); font-weight: 400; border-radius: var(--r-full); }
+  .grown .hint { color: var(--muted); font-size: var(--fs-sm); margin: 0; }
+  .ds .grown .hint .btn { margin-left: var(--sp-2); min-height: var(--tap); font-size: var(--fs-sm); }
+  .kids { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
+  .kids li { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+  .kids .avatar { --size: 40px; font-size: 22px; }
+  .kids .kn { font-weight: 700; flex: 1; min-width: 0; }
+  .kids .kn b { color: var(--gold-ink); margin-left: var(--sp-2); }
+  .kids .days { flex: 0 0 auto; }
+  .kids .days span { width: 28px; height: 28px; font-size: 10px; }
+  .kids .days span.on .icon { width: 16px; height: 16px; }
+  .kids .none { color: var(--muted); }
+
+  /* a calm confetti: a dozen token-coloured dots drifting down for 1.2 s; nothing at all under reduced motion */
+  .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
+  .confetti i { position: absolute; top: -14px; left: var(--x); width: 12px; height: 12px; border-radius: var(--r-full); background: var(--c); opacity: 0;
+    animation: fall 1.2s var(--ease-out) var(--d) forwards; }
+  @keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 0; } 12% { opacity: .95; } 100% { transform: translateY(70vh) rotate(180deg); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .confetti { display: none; } .ds .btn.say.on .icon { animation: none; } }
+</style>
+</head>
+<body class="ds">
+<div class="wrap">
+  <div class="top"><span class="pill" id="who"></span></div>
+  <div class="scene glass-strong"><img id="art" src="../art/story/01-creation.svg" alt="" width="240" height="160"></div>
+  <div class="ref">
+    <span class="kicker" id="kick">This week's verse</span>
+    <h1 id="ref">…</h1>
+    <div class="also" id="also"></div>
+  </div>
+  <div class="card words">
+    <span class="kicker">In our own words</span>
+    <p id="words">…</p>
+    <small>A simple paraphrase for little ears — not the Bible's own words. Open the Bible together to read the real verse.</small>
+  </div>
+  <div class="actions">
+    <button class="btn btn-glass say" id="say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
+    <button class="btn btn-primary done" id="done" hidden><svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Done ★</span></button>
+  </div>
+  <div class="card stars" id="mine" hidden></div>
+  <div class="card grown" id="grown" hidden></div>
+</div>
+<script src="hub.js" data-app="kidverse" data-scope="both"></script>
+<script>
+(() => {
+  'use strict';
+  // ── the 52 memory-verse references, copied from apps/f260.html PLAN[w-1].m (references only) ─────────────
+  // `p` says which of the two the paraphrase below is for. The paraphrase is ours, one sentence, written for a small
+  // child; it is labelled as a paraphrase on screen and is never presented as the text of the verse.
+  const VERSES = [
+    { w: 1,  refs: ['Genesis 1:27', 'Hebrews 11:7'], p: 0, words: 'God made people to be like him — boys and girls both.' },
+    { w: 2,  refs: ['Hebrews 11:6', 'Hebrews 11:8-10'], p: 0, words: 'To come close to God you have to trust him, and he is glad to reward everyone who looks for him.' },
+    { w: 3,  refs: ['Romans 4:20-22', 'Hebrews 11:17-19'], p: 0, words: 'Abraham believed God’s promise even when it seemed impossible, and God counted that as doing right.' },
+    { w: 4,  refs: ['2 Corinthians 10:12', '1 John 3:18'], p: 1, words: 'Let’s love people not just with words, but with the kind things we do.' },
+    { w: 5,  refs: ['Romans 8:28-30', 'Ephesians 3:20-21'], p: 0, words: 'God works everything out for good for the people who love him.' },
+    { w: 6,  refs: ['Genesis 50:20', 'Hebrews 11:24-26'], p: 0, words: 'What Joseph’s brothers meant to hurt him, God used for good to save many lives.' },
+    { w: 7,  refs: ['John 1:29', 'Hebrews 9:22'], p: 0, words: 'John saw Jesus and said: look, the Lamb of God, who takes away the sin of the world.' },
+    { w: 8,  refs: ['Exodus 20:1-3', 'Galatians 5:14'], p: 0, words: 'God said: I am the Lord who rescued you, so have no other gods but me.' },
+    { w: 9,  refs: ['Exodus 33:16', 'Matthew 22:37-39'], p: 1, words: 'Jesus said the biggest rule is to love God with everything you have, and the next is to love the people around you like yourself.' },
+    { w: 10, refs: ['Leviticus 26:13', 'Deuteronomy 31:7-8'], p: 1, words: 'Be strong and brave, because God goes ahead of you and will never leave you.' },
+    { w: 11, refs: ['Deuteronomy 4:7', 'Deuteronomy 6:4-9'], p: 1, words: 'Love God with all your heart, and talk about his words at home, on the road, at bedtime and in the morning.' },
+    { w: 12, refs: ['Joshua 1:8-9', 'Psalm 1:1-2'], p: 0, words: 'Keep God’s words with you, be strong and brave, and don’t be afraid, because God is with you everywhere you go.' },
+    { w: 13, refs: ['Joshua 24:14-15', 'Judges 2:12'], p: 0, words: 'Joshua said: you choose who you will serve, but my family and I will serve the Lord.' },
+    { w: 14, refs: ['Psalm 19:14', 'Galatians 4:4-5'], p: 0, words: 'Lord, may the words I say and the thoughts I think make you happy.' },
+    { w: 15, refs: ['1 Samuel 15:22', '1 Samuel 16:7'], p: 1, words: 'People look at the outside, but God looks at the heart.' },
+    { w: 16, refs: ['1 Samuel 17:46-47', '2 Timothy 4:17a'], p: 0, words: 'David told the giant: this battle belongs to the Lord, not to swords and spears.' },
+    { w: 17, refs: ['Psalm 23:1-3', 'Psalm 51:10-13'], p: 0, words: 'The Lord is my shepherd; he gives me everything I need and leads me to quiet places to rest.' },
+    { w: 18, refs: ['Psalm 1:1-7', 'Psalm 119:7-11'], p: 1, words: 'I keep God’s word in my heart so I will not do wrong.' },
+    { w: 19, refs: ['Psalm 139:1-3', 'Psalm 139:15-16'], p: 0, words: 'God knows all about me — when I sit, when I stand, and every road I take.' },
+    { w: 20, refs: ['Proverbs 1:7', 'Proverbs 3:5-6'], p: 1, words: 'Trust God with all your heart instead of only your own ideas, and he will show you the way.' },
+    { w: 21, refs: ['Psalm 17:15', 'Psalm 63:1'], p: 1, words: 'I want God the way a thirsty person in a hot, dry land wants water.' },
+    { w: 22, refs: ['Psalm 16:11', 'John 11:25-26'], p: 1, words: 'Jesus said: I am the resurrection and the life — whoever believes in me will live, even after dying.' },
+    { w: 23, refs: ['Isaiah 53:5-6', '1 Peter 2:23-24'], p: 0, words: 'Jesus was hurt for the wrong things we did, and his hurts make us well.' },
+    { w: 24, refs: ['Proverbs 29:18', 'Jeremiah 1:15'], p: 0, words: 'When people stop listening to God they run wild, but the ones who keep his word are happy.' },
+    { w: 25, refs: ['Ezekiel 36:26-27', 'Daniel 4:35'], p: 0, words: 'God promises to give his people a soft new heart and to put his own Spirit inside them.' },
+    { w: 26, refs: ['Daniel 6:26-27', 'Daniel 9:19'], p: 0, words: 'The king said everyone should honour Daniel’s God, because he is alive forever and he rescues people.' },
+    { w: 27, refs: ['Zephaniah 3:17', '1 Peter 3:15'], p: 0, words: 'God is with you, he is glad about you, and he sings over you with joy.' },
+    { w: 28, refs: ['Deuteronomy 29:29', 'Psalm 101:3-4'], p: 1, words: 'I will not put worthless things in front of my eyes.' },
+    { w: 29, refs: ['Nehemiah 6:9', 'Nehemiah 9:6'], p: 0, words: 'When people tried to scare Nehemiah, he prayed: God, make my hands strong.' },
+    { w: 30, refs: ['Psalm 51:17', 'Colossians 1:19-20'], p: 1, words: 'All of God lives in Jesus, and through Jesus God makes peace with everything.' },
+    { w: 31, refs: ['John 1:1-2', 'John 1:14'], p: 1, words: 'God’s Word became a real person, Jesus, and came to live here with us.' },
+    { w: 32, refs: ['Matthew 5:16', 'Matthew 6:33'], p: 0, words: 'Let your light shine so people see the good you do and say thank you to God.' },
+    { w: 33, refs: ['Luke 14:26-27', 'Luke 14:33'], p: 1, words: 'Jesus said following him means putting him first, ahead of everything you have.' },
+    { w: 34, refs: ['Mark 10:45', 'John 6:37'], p: 0, words: 'Jesus came not to be served but to serve, and to give his life for many people.' },
+    { w: 35, refs: ['John 13:34-35', 'John 15:4-5'], p: 0, words: 'Jesus said: love one another the way I loved you, and everyone will know you are my friends.' },
+    { w: 36, refs: ['Luke 23:34', 'John 17:3'], p: 0, words: 'Even on the cross, Jesus prayed: Father, forgive them.' },
+    { w: 37, refs: ['Matthew 28:18-20', 'Acts 1:8'], p: 0, words: 'Jesus said: go and tell everyone about me, and remember, I am with you always.' },
+    { w: 38, refs: ['Acts 2:42', 'Acts 4:31'], p: 0, words: 'The first believers kept learning, sharing meals and praying together.' },
+    { w: 39, refs: ['James 1:2-4', 'James 2:17'], p: 0, words: 'When hard things come, be glad, because they make your trust in God strong.' },
+    { w: 40, refs: ['Acts 17:11', 'Acts 17:24-25'], p: 1, words: 'God made the whole world and gives everyone life and breath; he doesn’t need anything from us.' },
+    { w: 41, refs: ['1 Corinthians 1:18', '1 Thessalonians 5:23-24'], p: 0, words: 'The story of the cross sounds silly to some people, but to us who are being saved it is God’s power.' },
+    { w: 42, refs: ['1 Corinthians 10:13', '1 Corinthians 13:13'], p: 1, words: 'Faith, hope and love last forever, and the greatest of them is love.' },
+    { w: 43, refs: ['Romans 1:16-17', '1 Corinthians 15:3-4'], p: 1, words: 'Jesus died for our sins, was buried, and rose again on the third day.' },
+    { w: 44, refs: ['Romans 5:1', '2 Corinthians 10:4'], p: 0, words: 'Because we trust Jesus, we have peace with God.' },
+    { w: 45, refs: ['Romans 8:1', 'Romans 12:1-2'], p: 0, words: 'Anyone who belongs to Jesus is not in trouble with God any more.' },
+    { w: 46, refs: ['Acts 20:24', '2 Corinthians 4:7-10'], p: 0, words: 'Paul said: what matters is finishing the job Jesus gave me — telling people the good news.' },
+    { w: 47, refs: ['Ephesians 2:8-10', 'Colossians 2:6-7'], p: 0, words: 'God saved us as a gift, not because we earned it, and he made us to do good things.' },
+    { w: 48, refs: ['Philippians 3:7-8', 'Hebrews 4:14-16'], p: 1, words: 'Jesus understands how we feel, so we can come to God bravely and find help right when we need it.' },
+    { w: 49, refs: ['Galatians 2:19-20', '2 Corinthians 5:17'], p: 1, words: 'Anyone who belongs to Jesus is a brand-new person.' },
+    { w: 50, refs: ['2 Timothy 2:1-2', '2 Timothy 2:15'], p: 1, words: 'Work hard to be someone God is pleased with, handling his word the right way.' },
+    { w: 51, refs: ['1 Peter 2:11', '1 John 4:10-11'], p: 1, words: 'Real love is God sending Jesus for us — so we should love each other too.' },
+    { w: 52, refs: ['Revelation 3:19', 'Revelation 21:3-4'], p: 1, words: 'God will live with his people and wipe away every tear — no more crying, no more hurting.' },
+  ];
+  // ── story art for the week (art/story/<nn>-<theme>.svg), by the part of the Bible F260 is reading that week ──
+  //   1      creation  Genesis 1–9, Job                       31     nativity  Luke 1–2, Matthew 1–2, John 1
+  //   2      flood     leaving the ark, Babel, Abram called   32–35  teaching  the Gospels: Jesus teaches, heals, calls
+  //   3–5    promise   Abraham, Isaac, Jacob, Joseph          36     cross     the last week, the cross, the empty tomb
+  //   6–7    exodus    Moses, the plagues, the sea, manna     37–51  church    Acts and the letters
+  //   8–14   law       Sinai, the wilderness, Deuteronomy,    52     creation  Revelation: a new heaven and a new earth —
+  //                    Joshua, Judges, Ruth                                    the story ends where it began
+  //   15–21  kings     Samuel, David, Psalms, Solomon, Elijah
+  //   22–23  prophets  Jonah, Hosea, Amos, Joel, Isaiah, Micah
+  //   24–30  exile     the fall of Jerusalem, Jeremiah, Ezekiel, Daniel, and the way home: Ezra, Esther, Nehemiah, Malachi
+  const SCENES = [[1, '01-creation'], [2, '02-flood'], [5, '03-promise'], [7, '04-exodus'], [14, '05-law'], [21, '06-kings'], [23, '07-prophets'], [30, '08-exile'], [31, '09-nativity'], [35, '10-teaching'], [36, '11-cross'], [51, '12-church'], [52, '01-creation']];
+  const sceneFor = w => (SCENES.find(([last]) => w <= last) || SCENES[SCENES.length - 1])[1];
+  const clampWeek = w => Math.min(52, Math.max(1, Math.floor(Number(w) || 1)));
+
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const STAR = '<svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
+  const pad = n => String(n).padStart(2, '0');
+  const dayKey = (d = new Date()) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  // ISO week, the same formula the Home shell uses (index.html isoWeek) so the shapes agree
+  const isoWeek = (d = new Date()) => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
+  const weekDays = (d = new Date()) => { const m = new Date(d.getFullYear(), d.getMonth(), d.getDate()); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return Array.from({ length: 7 }, (_, i) => { const x = new Date(m); x.setDate(m.getDate() + i); return dayKey(x); }); };
+  const DOW = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  // stars: { week: 'YYYY-Www', count, days: { 'YYYY-MM-DD': true }, total } — a stale week starts over at 0 (index.html does the same)
+  function normStars(v) {
+    const wk = isoWeek(); const ok = v && typeof v === 'object';
+    const total = ok ? Math.max(0, Math.floor(Number(v.total) || 0)) : 0;
+    if (!ok || v.week !== wk) return { week: wk, count: 0, days: {}, total };
+    const days = v.days && typeof v.days === 'object' ? { ...v.days } : {};
+    return { week: wk, count: Math.max(0, Math.floor(Number(v.count) || 0)), days, total };
+  }
+  const myStars = () => normStars(hub.get('stars', { scope: 'person' }));
+  const kidStars = id => normStars(hub.get('stars:' + id, { scope: 'family' }));
+  const familyWeek = () => { const v = hub.get('week', { scope: 'family' }); return clampWeek(v && typeof v === 'object' ? v.week : v); };
+  const daysHtml = (s, small) => { const today = dayKey(); return `<div class="days" aria-label="${s.count} of 7 days">${weekDays().map((k, i) => `<span class="${s.days[k] ? 'on' : ''}${k === today ? ' today' : ''}" title="${k}">${s.days[k] ? STAR : DOW[i]}</span>`).join('')}</div>`; };
+
+  // ── speech: one voice, picked once, rate 0.85 ────────────────────────────────────────────────────────────
+  const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  let voice = null;
+  function pickVoice() {
+    if (voice || !canSpeak) return voice;
+    let vs = []; try { vs = speechSynthesis.getVoices() || []; } catch {}
+    const en = vs.filter(v => /^en([-_]|$)/i.test(v.lang));
+    voice = en.find(v => /natural|samantha|aria|jenny|google us english/i.test(v.name)) || en.find(v => /^en[-_]US/i.test(v.lang)) || en[0] || vs[0] || null;
+    return voice;
+  }
+  if (canSpeak) { try { speechSynthesis.addEventListener('voiceschanged', pickVoice); pickVoice(); } catch {} }
+  const ORD = { 1: 'First', 2: 'Second', 3: 'Third' };
+  // "1 John 3:18" → "First John, chapter 3, verse 18" · "Psalm 23:1-3" → "Psalm 23, verses 1 to 3"
+  function sayRef(ref) {
+    const m = String(ref).match(/^(\d\s)?([A-Za-z ]+?)\s+(\d+):(\d+)(?:-(\d+))?[a-z]?$/); if (!m) return ref;
+    const book = (m[1] ? ORD[m[1].trim()] + ' ' : '') + m[2].trim();
+    const verses = m[5] ? `verses ${m[4]} to ${m[5]}` : `verse ${m[4]}`;
+    return /^Psalms?$/i.test(m[2].trim()) ? `Psalm ${m[3]}, ${verses}` : `${book}, chapter ${m[3]}, ${verses}`;
+  }
+  let speaking = false;
+  function speak(v) {
+    const btn = $('#say');
+    if (!canSpeak) { hub.toast('This device cannot read aloud.'); return; }
+    if (speaking) { try { speechSynthesis.cancel(); } catch {} return; }
+    const text = `This week's verse is ${sayRef(v.refs[v.p])}. In our own words: ${v.words}`;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.85; u.pitch = 1; const vc = pickVoice(); if (vc) { u.voice = vc; u.lang = vc.lang; } else u.lang = 'en-US';
+      const done = () => { speaking = false; btn.classList.remove('on'); btn.querySelector('span').textContent = 'Read it to me'; };
+      u.onend = done; u.onerror = done;
+      speaking = true; btn.classList.add('on'); btn.querySelector('span').textContent = 'Reading…';
+      speechSynthesis.speak(u);
+    } catch { speaking = false; hub.toast('This device cannot read aloud.'); }
+  }
+
+  // ── the star ───────────────────────────────────────────────────────────────────────────────────────────
+  function confetti() {
+    try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch {}
+    const colours = ['--gold', '--terra', '--teal', '--olive', '--slate', '--mocha'];
+    const c = document.createElement('div'); c.className = 'confetti'; c.setAttribute('aria-hidden', 'true');
+    c.innerHTML = Array.from({ length: 12 }, (_, i) => `<i style="--x:${(6 + (i * 7.7) % 88).toFixed(1)}%;--c:var(${colours[i % colours.length]});--d:${(i % 4) * 70}ms"></i>`).join('');
+    document.body.appendChild(c); setTimeout(() => c.remove(), 1500);
+  }
+  function award() {
+    if (!hub.profile) return false;
+    if (!hub.canWrite) { hub.kioskNudge(); return false; }            // the display profile only looks
+    if (hub.profile.kind !== 'kid') { hub.toast('Stars are for the kids — sign in as one of them to earn a star.'); return false; }
+    const s = myStars(); const today = dayKey();
+    if (s.days[today]) { hub.toast('You already have today’s star — come back tomorrow!'); return false; }   // one per day
+    s.days[today] = true; s.count = Object.keys(s.days).length; s.total += 1;
+    hub.set('stars', s, { scope: 'person' });                            // mine
+    hub.set('stars:' + hub.profile.id, s, { scope: 'family' });          // the mirror adults and the TV read
+    hub.activity(hub.profile.name + ' read the verse ★');
+    confetti(); render();
+    return true;
+  }
+  function setWeek(w) {
+    if (!hub.canWrite || hub.profile.kind !== 'adult') { hub.kioskNudge(); return; }
+    hub.set('week', { week: clampWeek(w), by: hub.profile.id, at: Date.now() }, { scope: 'family' });
+    render();
+  }
+
+  // ── render ─────────────────────────────────────────────────────────────────────────────────────────────
+  function render() {
+    const p = hub.profile; if (!p) return;
+    const w = familyWeek(), v = VERSES[w - 1], scene = sceneFor(w);
+    const art = $('#art'); const src = '../art/story/' + scene + '.svg'; if (!art.getAttribute('src').endsWith(src)) art.src = src;
+    art.dataset.scene = scene;
+    $('#who').innerHTML = hub.avatarHtml(p, 'avatar-sm') + `<span><b>${esc(p.name)}</b> · Week ${w}</span>`;
+    $('#kick').textContent = p.kind === 'kid' ? p.name + "'s verse this week" : 'This week’s verse';
+    $('#ref').textContent = v.refs[v.p];
+    $('#also').textContent = 'Also this week: ' + v.refs[1 - v.p];
+    $('#words').textContent = v.words;
+    $('#say').setAttribute('aria-label', 'Read it to me: ' + v.refs[v.p]);
+    // Done ★ + my stars: kids only (adults and the TV look, they do not earn)
+    const done = $('#done'), mine = $('#mine');
+    if (p.kind === 'kid') {
+      const s = myStars(), today = s.days[dayKey()];
+      done.hidden = false; done.classList.toggle('today', !!today); done.setAttribute('aria-pressed', today ? 'true' : 'false');
+      done.querySelector('span').textContent = today ? 'Done today ★' : 'Done ★';
+      mine.hidden = false;
+      mine.innerHTML = `<div class="count">${STAR}<b id="star-count">${s.count}</b></div><div class="sub">${s.count ? s.count + (s.count === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week'}${s.total > s.count ? ' · ' + s.total + ' all time' : ''}</div>${daysHtml(s)}`;
+    } else { done.hidden = true; mine.hidden = true; }
+    document.querySelector('.actions').classList.toggle('solo', done.hidden);
+    // grown-ups (and the TV): the week stepper (adults only) and every kid's stars, read-only
+    const g = $('#grown');
+    if (p.kind === 'kid') { g.hidden = true; return; }
+    const kids = hub.people().filter(q => q && q.kind === 'kid').map(q => ({ ...q, s: kidStars(q.id) }));
+    let f260 = null; try { const fs = hub.get('f260.summary', { app: 'f260', scope: 'person' }); if (fs && fs.week) f260 = clampWeek(fs.week); } catch {}
+    const stepper = p.kind === 'adult' ? `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week"${w <= 1 ? ' disabled' : ''}>−</button><div class="wk" id="week-now">Week ${w}<small>the family is on</small></div><button class="btn" id="week-up" aria-label="Next week"${w >= 52 ? ' disabled' : ''}>+</button></div>` +
+      (f260 && f260 !== w ? `<p class="hint">Your F260 plan is on week ${f260}.<button class="btn btn-soft" id="week-f260">Use week ${f260}</button></p>` : '<p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>') : '';
+    g.hidden = false;
+    g.innerHTML = `<h2>${STAR}Kids’ stars</h2>${stepper}<ul class="kids" id="kids">${kids.length ? kids.map(k => `<li data-kid="${esc(k.id)}" style="--tint:${esc(k.color || 'var(--accent)')}">${hub.avatarHtml(k, 'avatar-sm')}<span class="kn">${esc(k.name)}<b>★${k.s.count}</b></span>${daysHtml(k.s, true)}</li>`).join('') : '<li class="none">No kid profiles yet.</li>'}</ul>`;
+    const dn = $('#week-down'), up = $('#week-up'), uf = $('#week-f260');
+    if (dn) dn.onclick = () => setWeek(w - 1);
+    if (up) up.onclick = () => setWeek(w + 1);
+    if (uf) uf.onclick = () => setWeek(f260);
+  }
+
+  (async () => {
+    if (hub.profile && hub.profile.kind === 'adult') hub.use('f260', 'person');   // the adult's own F260 week, for the "use week N" hint
+    await hub.ready();
+    $('#say').addEventListener('click', () => speak(VERSES[familyWeek() - 1]));
+    $('#done').addEventListener('click', award);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} } });
+    window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
+    hub.onChange(render);
+    render();
+    window.kidverse = { award, setWeek, VERSES, sceneFor };   // for the test script
+  })();
+})();
+</script>
+</body>
+</html>

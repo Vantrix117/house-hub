@@ -122,6 +122,57 @@
   .rem-text { font-size: var(--fs-lg); }
   :root[data-kind="kiosk"] .rem-text { font-size: var(--fs-2xl); font-weight: 600; }
   :root[data-kind="kiosk"] .rem-row { min-height: 84px; }
+  /* ── TV glue board (kiosk Home): the family album blurred behind frosted panes, large type, nothing to touch.
+     The backdrop is two fixed <img>s that crossfade; the panes keep the glass recipe but drop backdrop-filter (the
+     photo is already blurred, and a display runs 24 h). Every colour is a token; the scrim is the theme's --scrim. */
+  :root[data-kind="kiosk"] #views { padding: calc(var(--sp-6) + var(--safe-top)) max(var(--sp-6), var(--safe-right)) calc(var(--sp-6) + var(--safe-bottom)) max(var(--sp-6), var(--safe-left)); }
+  :root[data-kind="kiosk"] #view-home { max-width: none; min-height: 100%; display: grid; align-content: center; }   /* a sparse board sits mid-screen rather than hugging the top */
+  :root[data-kind="kiosk"] .tv-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: var(--bg); pointer-events: none; }
+  :root[data-kind="kiosk"] .tv-bg-img { position: absolute; inset: -6%; width: 112%; max-width: none; height: 112%; object-fit: cover; filter: blur(24px); opacity: 0; transition: opacity 2.5s var(--ease); }
+  :root[data-kind="kiosk"] .tv-bg-img.on { opacity: 1; }
+  :root[data-kind="kiosk"] .tv-scrim { position: absolute; inset: 0; z-index: 3; background: var(--scrim); }
+  :root[data-kind="kiosk"] .tv { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5); align-items: start;
+    grid-template-areas: "hero hero" "verse verse" "prayed stars" "feed read"; }
+  @media (min-width: 1200px) { :root[data-kind="kiosk"] .tv { grid-template-columns: 5fr 4fr 4fr; grid-template-areas: "hero verse verse" "hero prayed stars" "feed feed read"; } }
+  :root[data-kind="kiosk"] .tv-pane { position: relative; min-width: 0; padding: var(--sp-6); border-radius: var(--r-2xl); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  :root[data-kind="kiosk"] .tv-pane h2 { font-size: var(--fs-lg); color: var(--text-2); margin: 0 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-3); }
+  :root[data-kind="kiosk"] .tv-pane h2 .app-icon { width: 44px; height: 44px; border-radius: 14px; }
+  :root[data-kind="kiosk"] .tv-hero { grid-area: hero; align-self: stretch; min-height: 240px; display: flex; flex-direction: column; justify-content: center; }
+  :root[data-kind="kiosk"] .tv-hero .hero-kicker { color: var(--text-2); }
+  :root[data-kind="kiosk"] .tv-hero .clock { font-size: clamp(72px, 9vw, 190px); font-weight: 700; letter-spacing: var(--ls-tight); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: var(--sp-2); }
+  :root[data-kind="kiosk"] .tv-greet { font-family: var(--font-display); font-size: var(--fs-2xl); line-height: var(--lh-snug); color: var(--text-2); margin-top: var(--sp-3); }
+  :root[data-kind="kiosk"] .tv-verse { grid-area: verse; }
+  :root[data-kind="kiosk"] .tv-refs { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-8); font-family: var(--font-display); font-size: clamp(34px, 3.2vw, var(--fs-3xl)); line-height: var(--lh-tight); }
+  :root[data-kind="kiosk"] .tv-kidline { margin-top: var(--sp-3); font-size: var(--fs-xl); color: var(--text-2); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  :root[data-kind="kiosk"] .tv-kidline:empty { display: none; }
+  :root[data-kind="kiosk"] .tv-prayed { grid-area: prayed; }
+  :root[data-kind="kiosk"] .tv-stars { grid-area: stars; }
+  :root[data-kind="kiosk"] .tv-feed { grid-area: feed; }
+  :root[data-kind="kiosk"] .tv-read { grid-area: read; }
+  :root[data-kind="kiosk"] .tv-faces { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+  :root[data-kind="kiosk"] .tv-face { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); width: 104px; text-align: center; font-weight: 600; font-size: var(--fs-sm); line-height: var(--lh-snug); }
+  :root[data-kind="kiosk"] .tv-face .avatar { --size: 72px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--tint); }
+  :root[data-kind="kiosk"] .tv-face.off { opacity: .38; }
+  :root[data-kind="kiosk"] .tv-face b { color: var(--gold-ink); }
+  :root[data-kind="kiosk"] .tv-quiet { color: var(--muted); font-size: var(--fs-lg); }
+  :root[data-kind="kiosk"] .tv-lines { list-style: none; margin: 0; padding: 0; }
+  :root[data-kind="kiosk"] .tv-lines li { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft); font-size: var(--fs-lg); }
+  :root[data-kind="kiosk"] .tv-lines li:last-child { border-bottom: 0; }
+  :root[data-kind="kiosk"] .tv-lines .who { font-weight: 700; color: var(--tint-ink, var(--text)); white-space: nowrap; }
+  :root[data-kind="kiosk"] .tv-lines .txt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  :root[data-kind="kiosk"] .tv-lines .when { color: var(--muted); font-size: var(--fs-sm); white-space: nowrap; }
+  /* reminders: last, small, one line each — the shell's renderReminders() fills #remlist; the card hides when the list is empty */
+  :root[data-kind="kiosk"] .tv-rem { grid-column: 1 / -1; padding: var(--sp-4) var(--sp-6); }
+  :root[data-kind="kiosk"] .tv-rem h2 { font-size: var(--fs-md); margin-bottom: var(--sp-2); }
+  :root[data-kind="kiosk"] .tv-rem h2 .app-icon { width: 36px; height: 36px; border-radius: 11px; }
+  :root[data-kind="kiosk"] .tv-rem .list { background: none; border: 0; border-radius: 0; box-shadow: none; }
+  :root[data-kind="kiosk"] .tv-rem .rem-row { min-height: 0; padding: var(--sp-1) 0; background: none; border-bottom: 1px solid var(--line-soft); }
+  :root[data-kind="kiosk"] .tv-rem .rem-row .row-main { display: flex; align-items: baseline; gap: var(--sp-3); min-width: 0; }
+  :root[data-kind="kiosk"] .tv-rem .rem-text { font-size: var(--fs-md); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  :root[data-kind="kiosk"] .tv-rem .rem-by { margin: 0; font-size: var(--fs-sm); white-space: nowrap; }
+  :root[data-kind="kiosk"] .tv-rem .empty, :root[data-kind="kiosk"] .tv-rem .skeleton { display: none; }
+  @media (max-height: 1100px) { :root[data-kind="kiosk"] .tv { gap: var(--sp-4); } :root[data-kind="kiosk"] .tv-pane { padding: var(--sp-5); } :root[data-kind="kiosk"] .tv-hero { min-height: 0; } }   /* a shorter screen (iPad landscape, 1080p): tighter so the board fits without scrolling */
+  @media (max-height: 1050px) { :root[data-kind="kiosk"] .tv-lines li { font-size: var(--fs-md); padding: var(--sp-1) 0; } :root[data-kind="kiosk"] .tv-face { width: 92px; } :root[data-kind="kiosk"] .tv-face .avatar { --size: 64px; } :root[data-kind="kiosk"] .tv-hero .clock { font-size: clamp(64px, 7.5vw, 150px); } }
   .rem-by { font-size: var(--fs-xs); color: var(--muted); margin-top: 2px; }
   .add-row { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); }
   .add-row .input { flex: 1; }
@@ -908,11 +959,172 @@
     const v = $('#view-home'); const p = hub.profile; if (!p) return;
     clearInterval(clockTimer);
     if (p.kind === 'kiosk') {
-      v.innerHTML = heroHtml(p, { kicker: fmtDate(new Date()), title: `<span class="clock" id="clock">${fmtTime(new Date())}</span>`, sub: `<span id="hdate">${esc(greeting())}, Anderson house.</span>`, extra: '<button class="btn btn-glass kiosk-switch" id="kiosk-switch">Switch</button>' }) +
-        `<div class="card"><h2><span class="app-icon" style="--tint:var(--gold)"><svg class="icon"><use href="#i-bell"/></svg></span>Reminders</h2><ul class="list" id="remlist"></ul></div>`;
-      $('#kiosk-switch').addEventListener('click', () => showPicker());
-      clockTimer = setInterval(() => { const n = new Date(); const c = $('#clock'); if (c) c.textContent = fmtTime(n); const k = $('.home-hero .hero-kicker'); if (k) k.textContent = fmtDate(n); }, 1000);
-      renderReminders(); return;
+      // ── the TV glue board (roadmap 21) ─────────────────────────────────────────────────────────────────────
+      // An ambient board for the downstairs display. Built once, then repainted in place on every renderHome (pulls,
+      // changes, the minute tick): the two backdrop <img>s are reused (src swaps + a 2.5 s opacity crossfade every 45 s),
+      // the clock is the one interval (clockTimer) and that same tick paints from the cache every minute and refreshes
+      // the feed every 5 min. Nothing here writes; the only control is the Switch button. window.__tvStats and window.__tv
+      // are the self-check hooks scripts/test-tv.mjs drives with fake time to prove nothing grows over a day.
+      const tv = renderHome.tv || (renderHome.tv = { el: null, front: 0, url: ['', ''], fading: null, lastFade: 0, lastPaint: 0, lastFeed: 0 });
+      const stats = window.__tvStats || (window.__tvStats = { intervals: 0, listeners: 0, nodes: 0 });
+      // The two memory verses of each F260 week — a copy of apps/f260.html PLAN[].m (the kiosk cannot open anyone's F260).
+      const MEMORY = tv.MEMORY || (tv.MEMORY = [
+      ["Genesis 1:27","Hebrews 11:7"],
+      ["Hebrews 11:6","Hebrews 11:8-10"],
+      ["Romans 4:20-22","Hebrews 11:17-19"],
+      ["2 Corinthians 10:12","1 John 3:18"],
+      ["Romans 8:28-30","Ephesians 3:20-21"],
+      ["Genesis 50:20","Hebrews 11:24-26"],
+      ["John 1:29","Hebrews 9:22"],
+      ["Exodus 20:1-3","Galatians 5:14"],
+      ["Exodus 33:16","Matthew 22:37-39"],
+      ["Leviticus 26:13","Deuteronomy 31:7-8"],
+      ["Deuteronomy 4:7","Deuteronomy 6:4-9"],
+      ["Joshua 1:8-9","Psalm 1:1-2"],
+      ["Joshua 24:14-15","Judges 2:12"],
+      ["Psalm 19:14","Galatians 4:4-5"],
+      ["1 Samuel 15:22","1 Samuel 16:7"],
+      ["1 Samuel 17:46-47","2 Timothy 4:17a"],
+      ["Psalm 23:1-3","Psalm 51:10-13"],
+      ["Psalm 1:1-7","Psalm 119:7-11"],
+      ["Psalm 139:1-3","Psalm 139:15-16"],
+      ["Proverbs 1:7","Proverbs 3:5-6"],
+      ["Psalm 17:15","Psalm 63:1"],
+      ["Psalm 16:11","John 11:25-26"],
+      ["Isaiah 53:5-6","1 Peter 2:23-24"],
+      ["Proverbs 29:18","Jeremiah 1:15"],
+      ["Ezekiel 36:26-27","Daniel 4:35"],
+      ["Daniel 6:26-27","Daniel 9:19"],
+      ["Zephaniah 3:17","1 Peter 3:15"],
+      ["Deuteronomy 29:29","Psalm 101:3-4"],
+      ["Nehemiah 6:9","Nehemiah 9:6"],
+      ["Psalm 51:17","Colossians 1:19-20"],
+      ["John 1:1-2","John 1:14"],
+      ["Matthew 5:16","Matthew 6:33"],
+      ["Luke 14:26-27","Luke 14:33"],
+      ["Mark 10:45","John 6:37"],
+      ["John 13:34-35","John 15:4-5"],
+      ["Luke 23:34","John 17:3"],
+      ["Matthew 28:18-20","Acts 1:8"],
+      ["Acts 2:42","Acts 4:31"],
+      ["James 1:2-4","James 2:17"],
+      ["Acts 17:11","Acts 17:24-25"],
+      ["1 Corinthians 1:18","1 Thessalonians 5:23-24"],
+      ["1 Corinthians 10:13","1 Corinthians 13:13"],
+      ["Romans 1:16-17","1 Corinthians 15:3-4"],
+      ["Romans 5:1","2 Corinthians 10:4"],
+      ["Romans 8:1","Romans 12:1-2"],
+      ["Acts 20:24","2 Corinthians 4:7-10"],
+      ["Ephesians 2:8-10","Colossians 2:6-7"],
+      ["Philippians 3:7-8","Hebrews 4:14-16"],
+      ["Galatians 2:19-20","2 Corinthians 5:17"],
+      ["2 Timothy 2:1-2","2 Timothy 2:15"],
+      ["1 Peter 2:11","1 John 4:10-11"],
+      ["Revelation 3:19","Revelation 21:3-4"]
+      ]);
+      const FAM_PRAYER = { app: 'prayer', scope: 'family' }, KV = { app: 'kidverse', scope: 'family' };
+      hub.use('prayer', 'family');                                    // who prayed today lives on the family list; person lists are not the TV's to read
+      const people = () => hub.people().filter(q => q && q.kind !== 'kiosk');
+      const ambientOf = d => { const h = d.getHours(); return h < 5 || h >= 20 ? 'night' : h < 9 ? 'dawn' : h < 17 ? 'day' : 'dusk'; };
+      const faceHtml = (q, cls, extra) => `<span class="tv-face${cls ? ' ' + cls : ''}" style="--tint:${esc(q.color || FALLBACK)}">${avatar(q, 'avatar-plain')}<span>${esc(q.name)}${extra || ''}</span></span>`;
+      const photoList = () => hub.list('album:', { app: 'hub', scope: 'family' }).map(r => r.value).filter(x => x && (x.lg || x.sm)).sort((a, b) => (a.at || 0) - (b.at || 0)).map(x => hub.photoUrl(x, 'lg')).filter(Boolean);
+      function paint(now) {
+        now = now || new Date(); const t = tv.el; if (!t || !t.root.isConnected) return;
+        const today = dayKey(now), h = now.getHours();
+        t.date.textContent = fmtDate(now); t.clock.textContent = fmtTime(now);
+        t.greet.textContent = 'Good ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening') + ', Anderson house.';
+        // verse of the week: the family kidverse week row picks the F260 week; refs from the table, one kid line if the row carries it
+        const wk = hub.get('week', KV); const n = Math.min(52, Math.max(1, Math.floor(Number(wk && typeof wk === 'object' ? (wk.week || wk.w || wk.n) : wk) || 1)));
+        t.verseHd.textContent = 'Verse of the week · Week ' + n;
+        t.refs.innerHTML = (MEMORY[n - 1] || []).map(r => `<span>${esc(r)}</span>`).join('');
+        t.kidline.textContent = wk && typeof wk === 'object' ? String(wk.line || wk.kid || wk.text || '').trim() : '';
+        // who prayed today: the names each family prayer row records under prayedBy[today] → faces (hub.people by name)
+        const names = new Set();
+        for (const r of hub.list('prayer:', FAM_PRAYER)) { const l = r.value && r.value.prayedBy && r.value.prayedBy[today]; if (Array.isArray(l)) for (const x of l) names.add(String(x)); }
+        const ppl = people();
+        t.prayed.innerHTML = names.size ? [...names].map(nm => faceHtml(ppl.find(x => x.name === nm) || { name: nm, emoji: nm.charAt(0) || '·', color: FALLBACK })).join('') : '<div class="tv-quiet">No one yet today.</div>';
+        // reading today: an adult whose "Read week…" feed line is dated today (F260 streaks are person scope, unreadable here)
+        const readers = new Set((feed || []).filter(a => a && a.profile_id && /^Read week/.test(a.text || '') && dayKey(new Date(a.created_at)) === today).map(a => a.profile_id));
+        const adults = ppl.filter(q => q.kind === 'adult');
+        t.read.innerHTML = adults.length ? adults.map(q => faceHtml(q, readers.has(q.id) ? '' : 'off', readers.has(q.id) ? ' ✓' : '')).join('') : '<div class="tv-quiet">No readers yet.</div>';
+        // the kids' stars (family mirror rows) and the latest five feed lines
+        const kids = kidStars();
+        t.stars.innerHTML = kids.length ? kids.map(k => faceHtml(k, '', ` <b>★${k.stars}</b>`)).join('') : '<div class="tv-quiet">No stars yet.</div>';
+        const lines = (feed || []).slice(0, 5);
+        t.feed.innerHTML = lines.length ? lines.map(a => `<li style="--tint:${esc(a.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(a.color || FALLBACK)} 70%, var(--text))">${avatar(a, 'avatar-sm')}<span class="who">${esc(a.name || 'Someone')}</span><span class="txt">${esc(a.text || '')}</span><span class="when">${esc(agoText(a.created_at))}</span></li>`).join('')
+          : '<li class="tv-quiet">Nothing has happened yet.</li>';
+        // reminders: the shell's own renderer fills #remlist; the card only shows when there is at least one
+        renderReminders();
+        t.remCard.hidden = !hub.list('item:', { app: 'reminders', scope: 'family' }).length;
+        tv.lastPaint = now.getTime();
+        stats.nodes = t.root.querySelectorAll('*').length;
+      }
+      // Show the next backdrop: the next album photo (oldest → newest, round-robin) or the ambient art for this hour when the
+      // album is empty. The hidden <img> loads it first, then fades in on top; the old one drops out once the fade is over.
+      function crossfade(now) {
+        now = now || new Date(); tv.lastFade = now.getTime();
+        const t = tv.el; if (!t || !t.root.isConnected || tv.fading) return Promise.resolve(false);
+        const list = photoList(), cur = tv.url[tv.front];
+        const next = list.length ? list[(list.indexOf(cur) + 1) % list.length] : 'art/ambient/' + ambientOf(now) + '.svg';
+        if (next === cur) return Promise.resolve(false);
+        const back = 1 - tv.front, img = t.img[back], old = t.img[tv.front], oldIdx = tv.front;
+        let res; const pr = new Promise(r => { res = r; }); tv.fading = pr;
+        let guard = 0;
+        const done = ok => {
+          clearTimeout(guard); img.onload = img.onerror = null; tv.fading = null;
+          if (ok) {
+            tv.front = back; tv.url[back] = next;
+            img.style.zIndex = '2'; old.style.zIndex = '1'; img.classList.add('on');
+            setTimeout(() => { if (tv.front !== oldIdx) old.classList.remove('on'); }, 2700);   // the old pane drops out once the new one has faded in on top
+          }
+          res(ok);
+        };
+        if (img.getAttribute('src') === next && img.complete && img.naturalWidth > 0) done(true);   // already holds it (two-photo album): no reload
+        else {
+          img.onload = () => done(true); img.onerror = () => done(false);
+          guard = setTimeout(() => done(false), 20000);
+          tv.url[back] = next; img.src = next;
+        }
+        return pr;
+      }
+      // The TV reads a 100-line page of the feed itself (a day's "Read week…" lines must fit) and never toasts about it.
+      function refreshFeed() {
+        return hub.activityFeed(100).then(rows => { if (Array.isArray(rows)) { feed = rows; feedFresh = true; try { localStorage.setItem('hub.feed', JSON.stringify(rows.slice(0, 30))); } catch {} } }, () => {}).then(() => paint());
+      }
+      function tick(now) {
+        now = now || new Date(); const t = tv.el; if (!t || !t.root.isConnected) return;
+        const ms = now.getTime(); t.clock.textContent = fmtTime(now);
+        if (ms - tv.lastFade >= 45000 || ms < tv.lastFade) crossfade(now);
+        if (ms - tv.lastPaint >= 60000 || ms < tv.lastPaint) paint(now);
+        if (ms - tv.lastFeed >= 300000 || ms < tv.lastFeed) { tv.lastFeed = ms; refreshFeed(); }
+      }
+      if (!v.querySelector('#tv')) {
+        const icon = (id, tint) => `<span class="app-icon" style="--tint:var(--${tint})">${id === 'star' ? ICON_STAR : `<svg class="icon"><use href="#i-${id}"/></svg>`}</span>`;
+        v.innerHTML = `<div class="tv" id="tv">
+          <div class="tv-bg" aria-hidden="true"><img class="tv-bg-img" id="tv-bg-0" alt="" decoding="async"><img class="tv-bg-img" id="tv-bg-1" alt="" decoding="async"><div class="tv-scrim"></div></div>
+          <section class="tv-pane glass-strong tv-hero" aria-label="Clock"><div class="hero-kicker" id="tv-date"></div><div class="clock" id="clock"></div><div class="tv-greet" id="tv-greet"></div><button class="btn btn-glass kiosk-switch" id="kiosk-switch">Switch</button></section>
+          <section class="tv-pane glass-strong tv-verse"><h2>${icon('book', 'slate')}<span id="tv-verse-hd">Verse of the week</span></h2><div class="tv-refs" id="tv-refs"></div><div class="tv-kidline" id="tv-kidline"></div></section>
+          <section class="tv-pane glass-strong tv-prayed"><h2>${icon('pray', 'mocha')}Prayed today</h2><div class="tv-faces" id="tv-prayed"></div></section>
+          <section class="tv-pane glass-strong tv-stars"><h2>${icon('star', 'gold')}Stars this week</h2><div class="tv-faces" id="tv-stars"></div></section>
+          <section class="tv-pane glass-strong tv-feed"><h2>${icon('flame', 'terra')}Around the house</h2><ul class="tv-lines" id="tv-feed"></ul></section>
+          <section class="tv-pane glass-strong tv-read"><h2>${icon('book', 'olive')}Reading today</h2><div class="tv-faces" id="tv-read"></div></section>
+          <section class="tv-pane glass-strong tv-rem" id="tv-rem-card" hidden><h2>${icon('bell', 'gold')}Reminders</h2><ul class="list" id="remlist"></ul></section>
+        </div>`;
+        const q = s => v.querySelector(s);
+        tv.el = { root: q('#tv'), img: [q('#tv-bg-0'), q('#tv-bg-1')], date: q('#tv-date'), clock: q('#clock'), greet: q('#tv-greet'), verseHd: q('#tv-verse-hd'), refs: q('#tv-refs'), kidline: q('#tv-kidline'),
+          prayed: q('#tv-prayed'), read: q('#tv-read'), stars: q('#tv-stars'), feed: q('#tv-feed'), remCard: q('#tv-rem-card') };
+        tv.front = 0; tv.url = ['', '']; tv.fading = null; tv.lastFade = 0; tv.lastPaint = 0;
+        q('#kiosk-switch').addEventListener('click', () => showPicker());
+        stats.listeners = 1;                                            // the Switch button; the <img> load hooks are on* properties, replaced each fade
+        tv.lastFeed = Date.now(); refreshFeed();
+        hub.pull();                                                     // fetch the family prayer list just declared; onSync repaints
+        window.__tv = { tick, crossfade, paint, refreshFeed, state: () => ({ front: tv.front, url: tv.url.slice(), fading: !!tv.fading, lastFade: tv.lastFade, lastPaint: tv.lastPaint, lastFeed: tv.lastFeed }) };
+        crossfade();
+      }
+      paint();
+      if (!tv.fading && /^art\//.test(tv.url[tv.front]) && photoList().length) crossfade();   // the album arrived after the first paint: swap the stand-in art for a photo now
+      clockTimer = setInterval(() => tick(), 1000); stats.intervals = 1;
+      return;
     }
     const park = atPark();
     if (p.kind === 'kid') {

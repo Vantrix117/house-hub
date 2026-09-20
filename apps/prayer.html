@@ -107,11 +107,19 @@ ul.list li.row:first-child{border-top:none}
 .pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;
   background:var(--teal-soft);color:var(--teal);margin-left:8px;vertical-align:2px;
   letter-spacing:.01em}
-.who{display:inline-flex;gap:4px;margin-left:8px;vertical-align:1px}
-.who .face{overflow:hidden;font-size:13px;line-height:22px;text-align:center}
-.who .face img{width:100%;height:100%;object-fit:cover;display:block}
-.who span{font-size:10.5px;font-weight:700;width:22px;height:22px;border-radius:50%;
-  display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
+/* who prayed today (family list): real faces from hub.avatarHtml at 28 px, overlapping, at most five then "+N" */
+.who{display:inline-flex;align-items:center;margin-left:8px;padding-left:6px;vertical-align:middle}
+.who .avatar,.who .init,.who .more,.asker .avatar,.asker .init{--size:28px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
+  display:grid;place-items:center;overflow:hidden;margin-left:-6px;font-size:14px;line-height:1;position:relative;
+  box-shadow:0 0 0 2px var(--surface)}
+.who .avatar,.asker .avatar{--tint:var(--accent);
+  background:radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)))}
+.who .avatar img,.asker .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.who .init,.asker .init{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent)}
+.who .more{font-size:11px;font-weight:700;background:var(--sunk);color:var(--ink2)}
+/* who asked (family list): the requester's face, same 28 px recipe, then "<name> asked" in the meta line */
+.asker{display:inline-flex;align-items:center;gap:7px;margin-left:10px;vertical-align:middle}
+.asker .avatar,.asker .init{margin-left:0}
 
 /* ── category sections ────────────────────────────────────── */
 details.cat{border-top:1px solid var(--rule-soft)}
@@ -381,6 +389,45 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
 .micbtn.on{background:var(--terra-soft);color:var(--terra);border-color:var(--terra);animation:micpulse 1s infinite}
 @keyframes micpulse{50%{transform:scale(.94)}}
 :root[data-kind="kiosk"] .fab, :root[data-kind="kiosk"] nav [data-go="add"], :root[data-kind="kiosk"] .empty [data-go="add"]{display:none}
+
+/* ── kid mode: the family list only, as big cards with one Prayed button each.
+   No nav, no list switch, no Add / More / Record / private list, no text input anywhere. ── */
+:root[data-kind="kid"] nav,:root[data-kind="kid"] .fab,:root[data-kind="kid"] .switch,
+:root[data-kind="kid"] #todayActions,:root[data-kind="kid"] #reviewPrompt,:root[data-kind="kid"] #anniv,
+:root[data-kind="kid"] #todayAnswered,:root[data-kind="kid"] #meterWrap,:root[data-kind="kid"] #todayStrip,
+:root[data-kind="kid"] .cheer,:root[data-kind="kid"] .empty [data-go],
+:root[data-kind="kid"] #s-all,:root[data-kind="kid"] #s-answered,:root[data-kind="kid"] #s-add,:root[data-kind="kid"] #s-more{display:none!important}
+:root[data-kind="kid"] body{padding-bottom:calc(32px + env(safe-area-inset-bottom))}
+:root[data-kind="kid"] .wrap{max-width:40rem}
+:root[data-kind="kid"] h1{font-size:var(--fs-2xl);max-width:none}
+ul.kids{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:16px}
+.kid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:center;padding:22px 24px;
+  border-radius:var(--r-xl);background:var(--raised);border:1px solid var(--rule-soft);box-shadow:var(--lift)}
+.kid .kt{grid-column:1 / -1;font-size:var(--fs-2xl);font-weight:600;line-height:1.2;letter-spacing:-.025em;overflow-wrap:anywhere}
+.kid.done .kt{color:var(--muted)}
+.kid .kby{display:flex;align-items:center;gap:12px;min-width:0;font-size:var(--fs-md);font-weight:500;color:var(--ink2)}
+.kid .kby > span:not(.avatar){min-width:0;overflow-wrap:anywhere}
+.kid .prayed{width:100%;justify-content:center}
+/* wide enough (iPad, desktop): who asked on the left, the button on the right */
+@media (min-width:560px){
+  .kid{grid-template-columns:minmax(0,1fr) auto;gap:14px 18px}
+  .kid .prayed{width:auto}
+}
+.kid .avatar{--size:44px;--tint:var(--accent);width:var(--size);height:var(--size);border-radius:50%;flex:none;
+  display:grid;place-items:center;overflow:hidden;font-size:22px;line-height:1;
+  background:radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)));
+  box-shadow:0 0 0 2.5px var(--surface), 0 0 0 5px var(--tint)}
+.kid .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.kid .prayed{min-height:64px;min-width:64px;padding:0 26px;border:none;border-radius:999px;font-family:inherit;
+  font-size:var(--fs-lg);font-weight:700;background:var(--accent-deep);color:var(--on-accent);cursor:pointer;
+  box-shadow:var(--lift);display:inline-flex;align-items:center;gap:10px;transition:transform .16s,background .2s}
+.kid .prayed svg{width:26px;height:26px;flex:none}
+.kid .prayed:active{transform:scale(.96)}
+.kid .prayed:focus-visible{outline:none;box-shadow:var(--focus)}
+.kid.done .prayed{background:var(--olive)}
+.kid .kwho{grid-column:1 / -1;display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);font-weight:500;color:var(--muted);min-height:32px}
+.kid .kwho .who{margin-left:0}
+.kid .kwho .who .avatar,.kid .kwho .who .init,.kid .kwho .who .more{--size:32px;font-size:16px;box-shadow:0 0 0 2px var(--raised)}
 </style>
 </head>
 <body>
@@ -588,6 +635,7 @@ function load(){
       lists:{ personal: listFromHub('person', 'My list'), shared: listFromHub('family', 'Family list') } };
   } else { D = freshData(); }
   migrate();
+  if(KID()) D.activeList = 'shared';       // a kid only ever sees the family list
 }
 // One-time: the pre-profiles localStorage blob (both lists) into this adult's person scope + the family scope.
 function migrateLegacy(){
@@ -643,7 +691,7 @@ function save(){
     for(const p of L.prayers){ seen.add('prayer:' + p.id); put(scope, 'prayer:' + p.id, p); }
     for(const key of Object.keys(SNAP[scope])) if(key.startsWith('prayer:') && !seen.has(key)){ delete SNAP[scope][key]; hub.remove(key, {scope}); }
   }
-  put('person', 'activeList', D.activeList);
+  if(!KID()) put('person', 'activeList', D.activeList);
   put('person', 'lastExport', D.lastExport);
 }
 // Another device changed something: rebuild from hub and repaint, unless a form is mid-edit.
@@ -675,6 +723,10 @@ const el = id => document.getElementById(id);
 // Who added a row. Written as `by` on every new prayer so the Worker's "new family prayer" reminder can leave the
 // author out (it reads the row, not the activity feed). undefined on a standalone page with no profile → JSON drops it.
 const author = () => (USE_LOCAL_STORAGE && hub.profile && hub.profile.id) || undefined;
+// Kids get the family list only: no private list, no Add / Record / More, no text input (roadmap 18).
+const KID = () => !!(window.hub && hub.isKid);
+const myName = () => ((window.hub && hub.profile && hub.profile.name) || '').trim();
+const mePrayed = p => ((p.prayedBy && p.prayedBy[TODAY]) || []).includes(myName());
 
 /* ── record ─────────────────────────────────────────────────── */
 function markDay(){ const d = L().prayerDays;
@@ -796,7 +848,8 @@ function rowHTML(p){
     + '<div class="title">' + esc(p.title)
       + (p.sharedFrom ? '<span class="pill">shared</span>' : '') + whoHTML(p) + '</div>'
     + '<div class="meta">' + esc(p.category)
-      + (cold ? ' &middot; <span class="cold">not prayed in ' + daysSince(p.lastPrayedAt) + ' days</span>' : '') + '</div>'
+      + (cold ? ' &middot; <span class="cold">not prayed in ' + daysSince(p.lastPrayedAt) + ' days</span>' : '')
+      + askerHTML(p) + '</div>'
     + (last ? '<div class="upd">' + esc(last.note) + '</div>' : '')
     + '</div></li>';
 }
@@ -835,6 +888,13 @@ function renderToday(){
     : left === 0 ? 'You have prayed through the whole list.'
     : left === 1 ? 'One left to pray through.'
     : left + ' to pray through this morning.';
+  if(KID()){
+    const mine = set.filter(mePrayed).length;
+    el('todayLine').textContent =
+        set.length === 0 ? 'Nothing to pray for yet.'
+      : mine >= set.length ? 'You prayed for everyone today!'
+      : 'Pray with the family';
+  }
 
   el('todayActions').hidden = set.length === 0;
   el('meterWrap').style.display = plan.show.meter ? '' : 'none';
@@ -853,7 +913,7 @@ function renderToday(){
       + '<button class="act ghost small" data-go="answered">See what</button></div>' : '';
 
   el('todayList').innerHTML = set.length
-    ? (plan.groupByCategory ? groupedHTML(set,true) : '<ul class="list">'+set.map(rowHTML).join('')+'</ul>')
+    ? (KID() ? kidListHTML(set) : plan.groupByCategory ? groupedHTML(set,true) : '<ul class="list">'+set.map(rowHTML).join('')+'</ul>')
     : L().prayers.some(p => p.status === 'active')
       ? '<div class="empty">Nothing scheduled for today under this plan.'
         + '<button class="act ghost small" data-go="more">Change the plan</button></div>'
@@ -1091,6 +1151,7 @@ function toast(msg, actionLabel, fn){
 
 function renderAllScreens(){ renderToday(); renderAll(); renderRecord(); renderReview(); }
 function go(name){
+  if(KID()) name = 'today';                 // kids have one screen; every other route lands here
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   el('s-'+name).classList.add('on');
   document.querySelectorAll('nav button').forEach(b =>
@@ -1167,7 +1228,7 @@ function renderPlans(){
 
 /* ── events ─────────────────────────────────────────────────── */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-more],[data-fday],[data-copycat]');
+  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-more],[data-fday],[data-copycat],[data-kpray]');
   if(!t) return;                            // a tap on plain text or an input is not an action
 
   if(t.dataset.copycat){
@@ -1206,7 +1267,9 @@ document.addEventListener('click', e => {
   if(t.dataset.go){ shutSheet(); go(t.dataset.go); return; }
   if(t.hasAttribute('data-shut')){ shutSheet(); return; }
 
+  if(t.dataset.kpray){ setPrayed(byId(t.dataset.kpray), true); renderToday(); return; }
   if(t.dataset.list){
+    if(KID()) return;
     D.activeList = t.dataset.list; save();
     renderCatAdmin(); renderPlans(); go('today'); return;
   }
@@ -1482,20 +1545,51 @@ function initials(name){
   return (name||'').trim().split(/\s+/).filter(Boolean)
     .map(w => w[0]).join('').slice(0,2).toUpperCase();
 }
+const MAX_FACES = 5;
+const people = () => ((window.hub && hub.people) ? hub.people() : []).filter(Boolean);
+// A person's face (photo or emoji on their colour, via hub.avatarHtml); initials when the hub does not know them.
+function faceHTML(person, name){
+  if(person && window.hub && hub.avatarHtml)
+    return hub.avatarHtml(person).replace('<span ', '<span title="' + esc(name) + '" ');
+  return '<span class="init" title="' + esc(name) + '">' + esc(initials(name) || '?') + '</span>';
+}
+// Who prayed today on a family row: faces, at most five, then "+N".
 function whoHTML(p){
   if(D.activeList !== 'shared') return '';
   const names = (p.prayedBy && p.prayedBy[TODAY]) || [];
   if(!names.length) return '';
-  // faces when the hub knows the person (photo or emoji), initials otherwise
-  const people = (window.hub && hub.people) ? hub.people() : [];
-  return '<span class="who">' + names.map(n => {
-    const person = people.find(q => q.name === n);
-    const url = person && hub.photoUrl(person, 'sm');
-    if (url) return '<span class="face" title="' + esc(n) + '"><img src="' + esc(url) + '" alt="" loading="lazy"></span>';
-    if (person && person.emoji) return '<span class="face" title="' + esc(n) + '" style="background:' + esc(person.color) + '22">' + esc(person.emoji) + '</span>';
-    return '<span title="' + esc(n) + '">' + esc(initials(n) || '?') + '</span>';
-  }).join('') + '</span>';
+  const ppl = people(), shown = names.slice(0, MAX_FACES), extra = names.length - shown.length;
+  return '<span class="who" role="group" aria-label="Prayed today: ' + esc(names.join(', ')) + '">'
+    + shown.map(n => faceHTML(ppl.find(q => q.name === n), n)).join('')
+    + (extra > 0 ? '<span class="more" title="' + esc(names.slice(MAX_FACES).join(', ')) + '">+' + extra + '</span>' : '')
+    + '</span>';
 }
+// The requester: the profile whose id is p.by (written when an adult adds or shares a request); null when unknown.
+const askerOf = p => p.by ? (people().find(q => q.id === p.by) || null) : null;
+// Who asked, on a family row: the requester's face at 28 px and "<name> asked". Nothing on the private list.
+function askerHTML(p){
+  if(D.activeList !== 'shared') return '';
+  const a = askerOf(p);
+  if(!a) return '';
+  return '<span class="asker" aria-label="Asked by ' + esc(a.name) + '">' + faceHTML(a, a.name)
+    + '<span class="by">' + esc(a.name) + ' asked</span></span>';
+}
+// Kid mode: one big card per family request — the title, who asked, one 64 px Prayed button, and who prayed today.
+function kidCardHTML(p){
+  const done = mePrayed(p);
+  const asker = askerOf(p);
+  const by = asker ? faceHTML(asker, asker.name) + '<span>' + esc(asker.name) + ' asked</span>'
+    : '<span class="avatar" aria-hidden="true">\u{1F64F}</span><span>' + (p.for ? 'For ' + esc(p.for) : 'Family list') + '</span>';
+  const who = whoHTML(p);
+  return '<li class="kid' + (done ? ' done' : '') + '">'
+    + '<div class="kt">' + esc(p.title) + '</div>'
+    + '<div class="kby">' + by + '</div>'
+    + '<button class="prayed" data-kpray="' + p.id + '" aria-pressed="' + done + '" aria-label="' + (done ? 'Prayed for ' : 'I prayed for ') + esc(p.title) + '">'
+    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Prayed</button>'
+    + (who ? '<div class="kwho">' + who + '<span>prayed today</span></div>' : '')
+    + '</li>';
+}
+function kidListHTML(set){ return '<ul class="kids">' + set.map(kidCardHTML).join('') + '</ul>'; }
 function setPrayed(p, force){
   if(!p) return;
   const on = force === undefined ? (p.lastPrayedAt !== TODAY) : !!force;
@@ -1664,6 +1758,8 @@ el('f-daysWrap').innerHTML = '<label>Which days</label>' + dayChips('fday', []) 
 applyTheme(); renderCatAdmin(); renderPlans(); go('today');
 if(USE_LOCAL_STORAGE){
   hub.onChange(() => { remoteDirty = true; absorbRemote(); });
+  // Faces come from the profiles cache the shell fills; opened standalone it can be empty, so pull once.
+  if(hub.profiles && !people().length) hub.profiles().then(() => renderAllScreens()).catch(() => {});
   // Voice: say the request instead of typing it.
   const mic = el('f-mic');
   if(hub.voiceSupported && hub.canWrite){

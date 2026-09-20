@@ -166,7 +166,7 @@ const tallyCount = f => f.evaluate(() => Number(document.getElementById('n').tex
     ok(await D.page.evaluate(() => document.documentElement.dataset.kind === 'kid'), 'html[data-kind=kid]');
     await D.page.click('.tab[data-tab=apps]');
     const tiles = await D.page.$$eval('.tile', els => els.map(e => e.dataset.id));
-    ok(!tiles.includes('prayer') && tiles.includes('tally'), 'kid grid hides prayer (visibleTo)', tiles.join(','));
+    ok(!tiles.includes('f260') && !tiles.includes('dollywood') && tiles.includes('prayer') && tiles.includes('tally'), 'kid grid hides adult-only apps (f260, dollywood) and shows prayer (visibleTo)', tiles.join(','));
     ok(await D.page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tap')) >= 64), 'kid tap targets >= 64px');
     ok(await D.page.$('#remform') === null, 'kid cannot add reminders');
     await D.page.screenshot({ path: path.join(shots, 'p2-kid-apps.png') });
