@@ -77,17 +77,14 @@ for (const [w, h] of SIZES) {
     await page.screenshot({ path: path.join(outDir, `rm27-dollywood-${t.name}-${w}.png`), fullPage: false });
   }
 
-  // the page's own toggle: starts on data-theme="dark" (Midnight), flips to "light" (Hearth) and back
-  await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; delete document.documentElement.dataset.scheme; });
-  const before = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  await page.click('#theme');
-  await page.waitForTimeout(200);
-  const mid = await page.evaluate(() => ({ bg: getComputedStyle(document.body).backgroundColor, theme: document.documentElement.dataset.theme, label: document.getElementById('theme').textContent }));
-  await page.click('#theme');
-  await page.waitForTimeout(200);
-  const after = await page.evaluate(() => ({ bg: getComputedStyle(document.body).backgroundColor, theme: document.documentElement.dataset.theme }));
-  if (mid.theme === 'light' && mid.bg !== before && after.theme === 'dark' && after.bg === before) ok(`toggle@${w}: dark ${before} -> light ${mid.bg} (${mid.label}) -> dark`);
-  else fail(`toggle@${w}: ${JSON.stringify({ before, mid, after })}`);
+  // no private toggle any more (Roadmap 22): hub.js sets data-theme / data-scheme; the marker colours key off data-scheme
+  const tog = await page.evaluate(() => !!document.getElementById('theme'));
+  await page.evaluate(() => { document.documentElement.dataset.scheme = 'dark'; });
+  const dark = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--attr').trim());
+  await page.evaluate(() => { document.documentElement.dataset.scheme = 'light'; });
+  const light = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--attr').trim());
+  if (!tog && dark && light && dark !== light) ok(`scheme@${w}: no private toggle; --attr ${dark} (dark) -> ${light} (light)`);
+  else fail(`scheme@${w}: ${JSON.stringify({ tog, dark, light })}`);
 
   const real = errors.filter(e => !/40[134]|429|Failed to load resource|ERR_CONNECTION_REFUSED/.test(e));
   if (real.length) fail(`${w}: console errors: ${real.join(' | ').slice(0, 600)}`); else ok(`${w}: no console errors`);
