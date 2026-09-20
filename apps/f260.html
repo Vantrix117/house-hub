@@ -113,6 +113,47 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .hero-actions .btn{min-height:52px;text-decoration:none}
 
+/* ── today: the next reading and one big Done, above everything else ── */
+.today{margin:14px 0 0;padding:18px 18px 16px;border:1.5px solid var(--rule);border-radius:var(--r-lg);position:relative;overflow:hidden;box-shadow:var(--lift);
+  background:linear-gradient(135deg,var(--olive-soft) 0,transparent 58%),var(--raised);
+  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"kick art" "title art" "meta art" "row row" "cta cta";column-gap:14px}
+.today.read{background:linear-gradient(135deg,var(--gold-soft) 0,transparent 58%),var(--raised)}
+.today .tk{grid-area:kick;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:600;color:var(--muted);min-height:26px}
+.today .tk .k{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--olive);background:var(--olive-soft);border-radius:999px;padding:4px 10px}
+.today.read .tk .k{color:var(--gold);background:var(--gold-soft)}
+.today .tt{grid-area:title;font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1.15;margin:8px 0 4px;overflow-wrap:anywhere;min-height:1.15em}
+.today .tm{grid-area:meta;font-size:14px;font-weight:500;color:var(--muted);min-height:1.5em}
+.today .art{grid-area:art;width:110px;height:88px;align-self:start;justify-self:end;margin:-6px -8px 0 0;pointer-events:none}
+.today .tr{grid-area:row;display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+.tring{position:relative;width:64px;height:64px;flex:0 0 auto}
+.tring svg{width:64px;height:64px;transform:rotate(-90deg);display:block}
+.tring .bg{fill:none;stroke:var(--sunk);stroke-width:6}
+.tring .fg{fill:none;stroke:var(--olive);stroke-width:6;stroke-linecap:round;stroke-dasharray:169.65;stroke-dashoffset:169.65;visibility:hidden;transition:stroke-dashoffset .7s cubic-bezier(.3,.9,.3,1)}
+.tring .rn{position:absolute;inset:0;display:grid;place-items:center;align-content:center;font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.1}
+.tring .rn small{font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block;line-height:1}
+.tring.full .bg{stroke:var(--olive);fill:var(--olive)}
+.tring.full .fg{display:none}
+.tring.full .rn,.tring.full .rn small{color:var(--on-solid)}
+.tring.pop{animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
+.today .ts{flex:1 1 140px;min-width:0;display:flex;flex-direction:column;gap:2px;min-height:44px;justify-content:center}
+.today .ts b{font-size:17px;font-weight:800;color:var(--terra);letter-spacing:-.02em}
+.today .ts span{font-size:13.5px;font-weight:600;color:var(--muted)}
+.today .tc{grid-area:cta;display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.tdone{flex:1 1 200px;min-height:60px;padding:0 24px;border-radius:999px;border:0;background:var(--olive);color:var(--on-solid);font-size:18px;font-weight:700;letter-spacing:-.01em;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:var(--lift);transition:transform .15s,filter .2s}
+.tdone svg{width:22px;height:22px;stroke:currentColor}
+.tdone:active{transform:scale(.97)}
+.tdone[aria-disabled="true"]{opacity:.6}
+.today .tundo{min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--rule);background:transparent;color:var(--ink2);font-size:14.5px;font-weight:600}
+.today .tundo:active{background:var(--hover)}
+@media (min-width:600px){ .today .art{width:150px;height:120px} .tdone{flex:0 1 280px;min-width:220px} }
+@media (min-width:1024px){
+  .today{grid-column:1/-1;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"kick kick art" "title title art" "meta meta art" "row cta art";align-items:center;padding:22px 26px 20px;margin:0 0 4px}
+  .today .tr{margin-top:18px} .today .tc{margin-top:18px;justify-content:flex-end} .today .art{align-self:center;margin:0}
+}
+@media (max-width:480px){ .today{padding:16px 16px 14px} .today .tt{font-size:25px} .today .art{width:92px;height:74px} }
+.readmode .today{margin-bottom:2px}   /* reading mode keeps the hero: a cold open always shows Done above the fold */
+
 /* ── this week's reflections ──────────────────────────────── */
 .hero-ref{margin-top:12px;padding:10px 12px;border-radius:var(--r-sm);background:var(--gold-soft);font-family:var(--serif);font-size:16.5px;line-height:1.45;letter-spacing:0;color:var(--ink2);cursor:pointer}
 .hero-ref small{display:block;font-family:var(--font-sans);font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
@@ -438,6 +479,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   .week.current .wk-head:hover{background:var(--hover)}
   .refs a:hover{border-bottom-color:var(--slate)}
   .mark:hover,.mkm:hover{border-color:var(--olive)}
+  .tdone:hover{filter:brightness(1.06)} .today .tundo:hover{background:var(--hover)}
   .jbtn:hover,.wnbtn:hover{border-color:var(--slate);color:var(--slate)}
   .ygrid button:hover,.jbar button:hover{filter:brightness(.92)}
   .switch button:hover,.seg button:hover{color:var(--ink)}
@@ -452,7 +494,7 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
   body{background:white;color:black;padding:0;font-size:9pt;line-height:1.2;letter-spacing:0}
   .big{zoom:1}
   .wrap{max-width:none;padding:0}
-  header .hdr,.side,.readbar,.toasts,.modal,.mark,.mkm,.chev,.ring,.cf,.foot,.day .lbl,.mem .lbl,.mem .title,.jbtn,.jr,.nextwk,.jview,.wn,.jn,.recallrow,.mv .pr,.switch,.reflect,.hero-ref{display:none !important}
+  header .hdr,.side,.readbar,.toasts,.modal,.mark,.mkm,.chev,.ring,.cf,.foot,.day .lbl,.mem .lbl,.mem .title,.jbtn,.jr,.nextwk,.jview,.wn,.jn,.recallrow,.mv .pr,.switch,.reflect,.hero-ref,.today{display:none !important}
   .planview{display:block !important}
   .weeks .week{display:block !important}
   header{padding:0 0 8pt}
@@ -515,6 +557,20 @@ h1{font-size:30px;font-weight:700;line-height:1.15;margin:0;letter-spacing:-.03e
 
   <!-- ── Plan view ─────────────────────────────────────────── -->
   <section class="planview" id="planView">
+    <section class="today" id="today" aria-labelledby="todayTitle">
+      <div class="tk"><span class="k" id="todayKind">Today</span><span id="todayDate"></span></div>
+      <div class="tt" id="todayTitle"></div>
+      <div class="tm" id="todayMeta"></div>
+      <img class="art" src="../art/app/f260.svg" alt="" width="200" height="160">
+      <div class="tr">
+        <span class="tring" id="todayRing" role="img" aria-label="0 of 5 this week"><svg viewBox="0 0 64 64" aria-hidden="true"><circle class="bg" cx="32" cy="32" r="27"/><circle class="fg" cx="32" cy="32" r="27"/></svg><span class="rn"><span id="todayRingN">0/5</span><small>week</small></span></span>
+        <div class="ts" id="todayStreak"></div>
+      </div>
+      <div class="tc">
+        <button type="button" class="tdone" id="todayDone">Done</button>
+        <button type="button" class="tundo" id="todayUndo" hidden>Undo</button>
+      </div>
+    </section>
     <div class="side">
       <div class="meter"><i id="meterFill"></i></div>
       <div class="meter ch" title="Chapters"><i id="chFill"></i></div>
@@ -827,7 +883,7 @@ const PROMPTS = [
 
 // ── storage (namespaced: f260.*) ────────────────────────────────
 // f260.journal.vault holds the HEAR journal encrypted with a passcode-derived key; see the vault section.
-const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open', view: 'f260.view',
+const K = { done: 'f260.done', week: 'f260.week', src: 'f260.source', open: 'f260.open',
             mem: 'f260.mem', log: 'f260.log', weekStart: 'f260.weekStart', weekDone: 'f260.weekDone', autolock: 'f260.autolock',
             big: 'f260.big', best: 'f260.best', miles: 'f260.miles', jstats: 'f260.jstats',
             verses: 'f260.verses', recall: 'f260.recall', finished: 'f260.finished', read: 'f260.read',
@@ -849,11 +905,10 @@ let done = obj(load(K.done, {}));            // { "12-3": true }  week-day
 let curWeek = load(K.week, 1);
 let source = load(K.src, 'gateway');
 let openWeeks = load(K.open, null);          // null = first run: only the current week open
-let view = load(K.view, 'plan');
+let view = 'plan';                           // plan | journal — page state only, so a cold open always lands on Today
 curWeek = Math.min(52, Math.max(1, +curWeek || 1));
 if (!['gateway', 'youversion', 'esv'].includes(source)) source = 'gateway';
 if (!Array.isArray(openWeeks)) openWeeks = [curWeek];
-if (!['plan', 'journal'].includes(view)) view = 'plan';
 let mem = obj(load(K.mem, {}));              // { "12-1": true }  week-verse  memorized
 let log = obj(load(K.log, {}));              // { "2026-09-14": true }  days with at least one reading checked
 let weekStart = obj(load(K.weekStart, {}));  // { "3": "2026-09-14" }  date each week was started
@@ -1414,6 +1469,20 @@ $('reflect').addEventListener('click', e => {
 $('rfCopy').onclick = () => copyText(reflectText(curWeek), $('rfCopy'), 'Copy');
 $('reflectBtn').onclick = () => { $('reflect').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 $('heroRef').onclick = () => { const id = $('heroRef').dataset.go; if (id) goToDay(id, true); };
+// The next unread reading: the first gap in the current week, else the first gap in any week after it (a reader who
+// ticks ahead may be several weeks past the current one), else a gap left behind in an earlier week. null only when
+// every one of the 260 readings is ticked. The Today hero and the f260.summary row the hub's Home card reads both come
+// from here, so they can never disagree, and neither can claim a finish before the plan is really done.
+function nextReading() {
+  const order = []; for (let w = curWeek; w <= 52; w++) order.push(w); for (let w = 1; w < curWeek; w++) order.push(w);
+  for (const nw of order) {
+    const nd = PLAN[nw - 1].r.findIndex((_, i) => !done[nw + '-' + i]);
+    if (nd < 0) continue;
+    const chapters = DAY_CH[nw + '-' + nd] || 0;
+    return { week: nw, day: nd + 1, id: nw + '-' + nd, ref: PLAN[nw - 1].r[nd], chapters, minutes: chapters * 4 };
+  }
+  return null;
+}
 function updateStats() {
   const n = readingsDone();
   $('doneCount').textContent = n;
@@ -1430,10 +1499,9 @@ function updateStats() {
   if (si.streak > (best.n || 0)) { best = { n: si.streak, at: dayKey() }; save(K.best, best); }
   const today = dayKey();
   // A small summary for the hub's Home card and wide tile (read by index.html, never by this app).
-  { const wk = PLAN[curWeek - 1]; let nd = wk.r.findIndex((_, i) => !done[curWeek + '-' + i]);
-    let nw = curWeek; if (nd < 0 && curWeek < 52) { nw = curWeek + 1; nd = PLAN[nw - 1].r.findIndex((_, i) => !done[nw + '-' + i]); }
+  { const nx = nextReading();
     const summary = { week: curWeek, weekDone: weekCount(curWeek), total: n, streak: si.streak, readToday: !!log[today],
-      next: nd >= 0 ? { week: nw, day: nd + 1, ref: PLAN[nw - 1].r[nd] } : null, finished: !!finished };
+      next: nx ? { week: nx.week, day: nx.day, ref: nx.ref } : null, finished: !!finished };
     if (JSON.stringify(summary) !== JSON.stringify(load('f260.summary', null))) save('f260.summary', summary); }
   $('streak').innerHTML = si.streak ? '🔥 <b>' + si.streak + '</b>day streak' + (best.n > si.streak ? '<small>· best ' + best.n + '</small>' : '<small>· your best</small>') : (si.last ? 'Last read ' + fmtKey(si.last) + (best.n ? ' <small>· best streak ' + best.n + '</small>' : '') : '');
   // 12-week heatmap, one column per week ending this week (rows Mon–Sun)
@@ -1474,8 +1542,58 @@ function updateStats() {
   const pc = paceInfo();
   $('heroPace').className = 'hero-pace' + (pc ? ' ' + pc.cls : '');
   $('heroPace').textContent = pc ? (pc.label + (n >= 260 ? '' : ' · projected finish ' + fmtMonth(pc.finish))) : '';
-  checkMilestones(); renderReflect();
+  checkMilestones(); renderReflect(); renderToday(si);
 }
+
+// ── Today hero: the next reading, one big Done, this week's ring and the streak ──
+// Done ticks the reading through the plan's own .mark, so done/log/weekDone/activity/summary all follow the one path.
+const TRING_C = 2 * Math.PI * 27;
+let todayRingN = -1, lastTicked = null;
+function renderToday(si) {
+  const nx = nextReading(), today = dayKey(), readToday = !!log[today];
+  const quiet = nx && si.last && si.streak === 0 && daysBetween(si.last, today) >= 3;
+  $('today').classList.toggle('read', readToday);
+  $('todayKind').textContent = readToday ? 'Read today ✓' : quiet ? 'Pick up where you left off' : 'Today';
+  $('todayDate').textContent = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  const btn = $('todayDone');
+  if (nx) {
+    $('todayTitle').textContent = nx.ref;
+    $('todayMeta').textContent = 'Week ' + nx.week + ' · Day ' + nx.day + ' · ' + nx.chapters + (nx.chapters === 1 ? ' chapter' : ' chapters') + ' · ~' + nx.minutes + ' min' + (nx.week > curWeek ? ' · starts week ' + nx.week : nx.week < curWeek ? ' · catching up' : '');
+    btn.hidden = false; btn.dataset.target = nx.id; btn.setAttribute('aria-label', 'Done: ' + nx.ref);
+  } else {
+    $('todayTitle').textContent = 'Plan complete 🎉';
+    $('todayMeta').textContent = 'Genesis to Revelation, all 260 readings.';
+    btn.hidden = true; delete btn.dataset.target;
+  }
+  btn.innerHTML = CHECK + 'Done';
+  btn.setAttribute('aria-disabled', hub.canWrite ? 'false' : 'true');
+  $('todayUndo').hidden = !(lastTicked && done[lastTicked] && hub.canWrite);
+  // this week's ring: draws itself in on the first paint, pops when the fifth reading lands
+  const k = weekCount(curWeek), ring = $('todayRing'), fg = ring.querySelector('.fg');
+  fg.style.strokeDasharray = TRING_C.toFixed(2);
+  const target = (TRING_C * (1 - k / 5)).toFixed(2);
+  if (todayRingN < 0) { fg.style.strokeDashoffset = TRING_C.toFixed(2); requestAnimationFrame(() => requestAnimationFrame(() => { fg.style.strokeDashoffset = target; })); }
+  else fg.style.strokeDashoffset = target;
+  if (k === 5 && todayRingN >= 0 && todayRingN < 5) { ring.classList.remove('pop'); void ring.offsetWidth; ring.classList.add('pop'); }
+  ring.classList.toggle('full', k === 5); fg.style.visibility = k ? 'visible' : 'hidden';                 // a round cap at 0 would draw a dot
+  $('todayRingN').textContent = k + '/5'; ring.setAttribute('aria-label', k + ' of 5 this week');
+  todayRingN = k;
+  $('todayStreak').innerHTML = si.streak
+    ? '<b>🔥 ' + si.streak + '-day streak</b><span>' + (best.n > si.streak ? 'best ' + best.n : 'your best yet') + ' · ' + k + ' of 5 this week</span>'
+    : '<b>' + (si.last ? 'Start a new streak' : 'Start your streak') + '</b><span>' + (si.last ? 'last read ' + fmtKey(si.last) : 'the first reading starts it') + (best.n ? ' · best ' + best.n : '') + '</span>';
+}
+$('todayDone').onclick = () => {
+  const id = $('todayDone').dataset.target; if (!id) return;
+  if (!hub.canWrite) { hub.kioskNudge(); return; }
+  const w = +id.split('-')[0]; if (w > curWeek) setCurrent(w);               // a week ahead: start it, as the plan's "Start week" button does; a catch-up behind ticks in place
+  const mark = weeksEl.querySelector('[data-day="' + id + '"] .mark'); if (!mark) return;
+  lastTicked = id; mark.click();
+  const nx = nextReading(); toast('✓ ' + PLAN[w - 1].r[+id.split('-')[1]] + (nx ? ' · next: ' + nx.ref : ''));
+};
+$('todayUndo').onclick = () => {
+  const id = lastTicked; lastTicked = null; if (!id || !done[id]) return;
+  const mark = weeksEl.querySelector('[data-day="' + id + '"] .mark'); if (mark) mark.click();
+};
 
 // ── interactions (plan) ─────────────────────────────────────────
 weeksEl.addEventListener('click', e => {
@@ -1848,7 +1966,7 @@ $('jCopyAll').onclick = () => { const items = entryItems(); if (!items.length) r
 
 // ── view switching ──────────────────────────────────────────────
 function showView(v) {
-  view = v; save(K.view, view);
+  view = v;
   $('planView').style.display = v === 'plan' ? '' : 'none';
   $('journalView').classList.toggle('on', v === 'journal');
   $('tabPlan').setAttribute('aria-pressed', v === 'plan'); $('tabJournal').setAttribute('aria-pressed', v === 'journal');
@@ -1918,17 +2036,36 @@ document.addEventListener('keydown', e => {
 paintSource(); paintSize(); paintAuto(); paintTheme();
 render();
 booted = true;
-showView(view);
+showView('plan');
 if (readMode) $('readBtn').textContent = 'Exit reading mode';
+if (hub.get('f260.view') !== undefined && hub.canWrite) hub.remove('f260.view');   // the view used to be persisted; tidy the old row once
 
-// Another device changed this profile's data: reload the page when it is safe (nothing unlocked, nothing open).
-let remoteDirty = false;
-hub.onChange(() => { remoteDirty = true; maybeReload(); });
-function maybeReload() {
+// Another device changed this profile's data: fold it in without a reload — re-read every key the app renders from and
+// repaint with the app's own render functions. Busy (journal unlocked, a dialog or the settings sheet open, typing) defers
+// the refresh and tries again in a few seconds; it never reloads the page.
+let remoteDirty = false, mergeTimer = null;
+hub.onChange(() => { remoteDirty = true; clearTimeout(mergeTimer); mergeTimer = setTimeout(mergeRemote, 200); });
+function readState() {
+  done = obj(load(K.done, {})); mem = obj(load(K.mem, {})); log = obj(load(K.log, {}));
+  weekStart = obj(load(K.weekStart, {})); weekDone = obj(load(K.weekDone, {}));
+  best = obj(load(K.best, {})); miles = obj(load(K.miles, {})); verses = obj(load(K.verses, {})); recall = obj(load(K.recall, {}));
+  jstats = obj(load(K.jstats, {})); jstats.days = obj(jstats.days); jstats.entries = +jstats.entries || 0;
+  finished = load(K.finished, null);
+  curWeek = Math.min(52, Math.max(1, +load(K.week, curWeek) || 1));
+  source = load(K.src, 'gateway'); if (!['gateway', 'youversion', 'esv'].includes(source)) source = 'gateway';
+  const ow = load(K.open, null); openWeeks = Array.isArray(ow) ? ow : [curWeek];
+  autolockMin = load(K.autolock, 15); if (![0, 5, 15, 30].includes(autolockMin)) autolockMin = 15;
+  big = !!load(K.big, false);
+}
+function mergeRemote() {
+  clearTimeout(mergeTimer); mergeTimer = null;
   if (!remoteDirty) return;
-  const busy = vaultState() === 'open' || document.querySelector('.modal.on, .sheet.on') || document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
-  if (busy) { setTimeout(maybeReload, 5000); return; }
-  remoteDirty = false; location.reload();
+  const busy = vaultState() === 'open' || document.querySelector('.modal.on, .sheet.on') || document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+  if (busy) { mergeTimer = setTimeout(mergeRemote, 5000); return; }
+  remoteDirty = false;
+  readState();
+  paintSource(); paintSize(); paintAuto(); paintTheme();
+  render();                                                          // weeks, stats (+ summary, Today hero), vault, journal view, reading mode
 }
 });
 </script>

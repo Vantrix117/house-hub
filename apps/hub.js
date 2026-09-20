@@ -185,6 +185,14 @@
     store[ch] = lsGet(LS.cache(app, scope, pid()), { items: {}, since: 0 });
     queue[ch] = lsGet(LS.queue(app, scope, pid()), {});
   }
+  // Two windows (the hub shell and an app iframe) sync the same channel through one localStorage. After an await,
+  // re-read it so a write the other window made meanwhile (a Pause tombstone, say) is never overwritten by a stale copy.
+  function refreshScope(ch) {
+    const { app, scope } = CH.get(ch);
+    const c = lsGet(LS.cache(app, scope, pid()), null), q = lsGet(LS.queue(app, scope, pid()), null);
+    if (c && c.items) store[ch] = c;
+    if (q) queue[ch] = q;
+  }
   const saveStore = ch => { const { app, scope } = CH.get(ch); lsSet(LS.cache(app, scope, pid()), store[ch]); };
   const saveQueue = ch => { const { app, scope } = CH.get(ch); lsSet(LS.queue(app, scope, pid()), queue[ch]); };
   function scopeOf(opts) {
@@ -261,9 +269,11 @@
           else scheduleFlush(e.status ? 30000 : 5000);
           return;
         }
+        refreshScope(ch);
         for (const r of res.results) {
           if (queue[ch][r.key] && queue[ch][r.key].updated_at === snap[r.key].updated_at) delete queue[ch][r.key];
-          if (!r.applied) { store[ch].items[r.key] = { v: r.value, t: r.updated_at }; emit(ch, r.key, r.value, r.updated_at); }
+          const local = store[ch].items[r.key];
+          if (!r.applied && !(local && local.t > r.updated_at)) { store[ch].items[r.key] = { v: r.value, t: r.updated_at }; emit(ch, r.key, r.value, r.updated_at); }
         }
         saveQueue(ch); saveStore(ch);
       }
@@ -278,6 +288,7 @@
     const { app, scope } = CH.get(ch);
     const res = await hub.request(`/api/data/${app}?scope=${scope}&since=${store[ch].since || 0}`, { profile: scope === 'person' || !!hub.session });
     hub.skew = res.now - Date.now();
+    refreshScope(ch);
     let changed = false;
     for (const it of res.items) {
       const q = queue[ch][it.key]; const local = store[ch].items[it.key];

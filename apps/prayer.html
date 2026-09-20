@@ -83,16 +83,20 @@ ul.list{list-style:none;margin:0;padding:0}
 li.row{display:flex;gap:15px;align-items:flex-start;padding:16px 0;
   border-top:1px solid var(--rule-soft)}
 ul.list li.row:first-child{border-top:none}
-.mark{flex:0 0 auto;width:30px;height:30px;margin-top:2px;border-radius:50%;
-  border:1.75px solid var(--rule);background:transparent;cursor:pointer;
+/* 44 px tap target; the 30 px circle it always drew sits on ::before so the row looks the same */
+.mark{flex:0 0 auto;width:44px;height:44px;margin:-5px -7px 0 -7px;border:none;border-radius:50%;
+  background:transparent;cursor:pointer;position:relative;
   display:grid;place-items:center;padding:0;color:var(--on-accent);
-  transition:border-color .2s,background .2s,transform .18s}
-.mark:hover{border-color:var(--olive)}
+  transition:transform .18s}
+.mark::before{content:"";position:absolute;inset:7px;border-radius:50%;
+  border:1.75px solid var(--rule);transition:border-color .2s,background .2s}
+.mark:hover::before{border-color:var(--olive)}
 .mark:active{transform:scale(.86)}
-.mark:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.mark svg{width:15px;height:15px;opacity:0;transform:scale(.4);
+.mark:focus-visible{outline:none}
+.mark:focus-visible::before{outline:2px solid var(--accent);outline-offset:3px}
+.mark svg{position:relative;width:15px;height:15px;opacity:0;transform:scale(.4);
   transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
-.mark[aria-pressed="true"]{background:var(--olive);border-color:var(--olive)}
+.mark[aria-pressed="true"]::before{background:var(--olive);border-color:var(--olive)}
 .mark[aria-pressed="true"] svg{opacity:1;transform:scale(1)}
 .body{flex:1 1 auto;min-width:0;cursor:pointer}
 .title{font-size:17.5px;font-weight:500;line-height:1.42;letter-spacing:-.012em}
@@ -189,6 +193,17 @@ button.act.danger{background:var(--terra);border-color:var(--terra)}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 button:disabled{opacity:.35;cursor:default}
 .rowbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+/* Today's one primary action, with the quieter actions behind "More" */
+.primary-row{display:flex;gap:10px;margin-top:22px}
+.primary-row[hidden]{display:none}
+.primary-row .act{margin-top:0;min-height:60px;padding:14px 20px}
+.primary-row .hero{flex:1 1 auto}
+.primary-row .more{flex:0 0 auto;width:auto;display:inline-flex;align-items:center;gap:8px;padding:14px 18px}
+.primary-row .more svg{width:22px;height:22px;display:block}
+.menu{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.menu .act{margin-top:0;min-height:60px;text-align:left;display:flex;justify-content:space-between;
+  align-items:center;gap:14px}
+.menu .act span{font-size:13.5px;font-weight:500;color:var(--muted);letter-spacing:-.005em;text-align:right}
 .catrow{display:flex;justify-content:space-between;align-items:center;gap:12px;
   border-top:1px solid var(--rule-soft);padding:13px 0;font-size:15.5px;font-weight:500}
 .catrow button{background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;
@@ -365,7 +380,7 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
 .micbtn svg{width:22px;height:22px}
 .micbtn.on{background:var(--terra-soft);color:var(--terra);border-color:var(--terra);animation:micpulse 1s infinite}
 @keyframes micpulse{50%{transform:scale(.94)}}
-:root[data-kind="kiosk"] .fab, :root[data-kind="kiosk"] nav [data-go="add"]{display:none}
+:root[data-kind="kiosk"] .fab, :root[data-kind="kiosk"] nav [data-go="add"], :root[data-kind="kiosk"] .empty [data-go="add"]{display:none}
 </style>
 </head>
 <body>
@@ -386,9 +401,12 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
   </header>
   <div class="meter" id="meterWrap"><i id="meterFill"></i></div>
   <div class="strip" id="todayStrip"></div>
+  <div class="primary-row" id="todayActions">
+    <button class="act hero" id="startPray">Pray now</button>
+    <button class="act ghost more" id="moreBtn" aria-label="More options" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>More</button>
+  </div>
   <div class="cheer" id="cheer"></div>
   <div id="reviewPrompt"></div>
-  <div class="rowbtns" style="margin-top:18px"><button class="act ghost small" id="startPray">Pray through the list</button><button class="act ghost small" id="openKitchen">Kitchen view</button><button class="act ghost small" id="doPrint">Print</button><button class="act ghost small" id="copyToday">Copy as text</button></div>
   <div id="todayList"></div>
   <div id="anniv"></div>
   <div id="todayAnswered"></div>
@@ -459,19 +477,11 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
   <p class="err" id="f-newcatErr"></p>
   <button class="act ghost small" id="f-addcat" style="margin-top:12px">Add category</button>
 
-
-  <div class="chips" id="f-theme" style="margin-top:14px">
-    <button class="chip" data-look="system" aria-pressed="true">System</button>
-    <button class="chip" data-look="light" aria-pressed="false">Light</button>
-    <button class="chip" data-look="dark" aria-pressed="false">Dark</button>
-  </div>
-
-
-  <div class="rowbtns">
+  <h2>Backup</h2>
+  <div class="rowbtns" style="margin-top:14px">
     <button class="act ghost small" id="f-export">Export both lists</button>
     <button class="act ghost small" id="f-import">Import a backup</button>
   </div>
-  <p class="warn" id="backupWarn"></p>
 </section>
 
 </div>
@@ -521,7 +531,7 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
      lists.shared    <-  family scope (everyone in the house)
    Each prayer is its own row ('prayer:<id>') so two people editing at once
    never overwrite each other. USE_LOCAL_STORAGE is flipped to false by
-   check.js, which then runs against freshData() in memory.
+   check.js, which then runs against freshData() in memory plus its own fixture.
    ───────────────────────────────────────────────────────────── */
 const USE_LOCAL_STORAGE = true;
 const LEGACY_KEY = 'prayer-data-v3';
@@ -551,39 +561,13 @@ function emptyList(label){
     plans:[emptyPlan('Everything')], activePlan:null, rotationFor:null };
 }
 
-const SEED_PRAYERS = [
-["p001","Salvation for a friend and her daughter","A friend","Those Who Are Lost - Friends","rotation","active"],
-["p002","Salvation for a family member","Family member","Those Who Are Lost - Family","rotation","active"],
-["p003","Salvation for a cousin","Cousin","Those Who Are Lost - Family","rotation","active"],
-["p004","Healing after surgery","A church friend","Health Needs","daily","active"],
-["p005","Healing through treatment","A neighbour","Health Needs","daily","active"],
-["p006","Recovery at home","An older friend","Health Needs","daily","active"],
-["p007","Peace during a hard season","A friend","Spiritual Needs","daily","active"],
-["p008","College classes this semester","A student","Schools and Students","rotation","active"],
-["p009","Safe delivery of their first child","A young couple","Expecting and New Parents","daily","active"],
-["p010","A new job","A friend","Work and Job Search","rotation","active"],
-["p011","My financial situation","Me","Financial Needs","daily","active"],
-["p012","Family health, physical and spiritual","Family","Family","daily","active"],
-["p013","Healing for a stomach illness","My wife","Health Needs","daily","answered"],
-["p014","A family moving home from out of state","Friends","Friends","rotation","answered"]
-];
-
 let D;
 
+// Two empty lists. Nothing is seeded: a new profile starts with the illustrated empty state.
 function freshData(){
   const d = { version:3, activeList:'personal', lastExport:null,
     lists:{ personal: emptyList('My list'), shared: emptyList('Family list') } };
-  const P = d.lists.personal;
-  P.prayers = SEED_PRAYERS.map(r => ({
-    id:r[0], title:r[1], for:r[2], phone:'', detail:'', category:r[3],
-    cadence:r[4], days:[], status:r[5], createdAt:'2026-09-10',
-    lastPrayedAt:null, answeredAt:(r[5]==='answered'?'2026-09-10':null),
-    answerNote:(r[5]==='answered'
-      ? (r[0]==='p013' ? 'Healed within a week. Sample entry — replace with your own.'
-                       : 'They made it back safely. Sample entry — replace with your own.')
-      : null),
-    updates:[], sharedFrom:null }));
-  P.activePlan = P.plans[0].id;
+  d.lists.personal.activePlan = d.lists.personal.plans[0].id;
   d.lists.shared.activePlan = d.lists.shared.plans[0].id;
   return d;
 }
@@ -849,6 +833,7 @@ function renderToday(){
     : left === 1 ? 'One left to pray through.'
     : left + ' to pray through this morning.';
 
+  el('todayActions').hidden = set.length === 0;
   el('meterWrap').style.display = plan.show.meter ? '' : 'none';
   el('meterFill').style.width = (set.length ? Math.round(done/set.length*100) : 0) + '%';
 
@@ -870,7 +855,7 @@ function renderToday(){
       ? '<div class="empty">Nothing scheduled for today under this plan.'
         + '<button class="act ghost small" data-go="more">Change the plan</button></div>'
       : '<div class="empty"><img src="../art/empty/prayers.svg" alt="">Nothing on this list yet.'
-        + '<button class="act ghost small" data-go="add">Add a request</button></div>';
+        + '<button class="act small" data-go="add">Add a request</button></div>';
 
   const ann = plan.show.anniversaries ? anniversaries() : [];
   el('anniv').innerHTML = ann.length
@@ -1179,7 +1164,7 @@ function renderPlans(){
 
 /* ── events ─────────────────────────────────────────────────── */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-look],[data-fday],[data-copycat]');
+  const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-more],[data-fday],[data-copycat]');
   if(!t) return;                            // a tap on plain text or an input is not an action
 
   if(t.dataset.copycat){
@@ -1202,7 +1187,7 @@ document.addEventListener('click', e => {
     t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') !== 'true');
     el('e-daysErr').textContent = ''; return;
   }
-  if(t.dataset.look){ hub.setTheme(t.dataset.look); applyTheme(); return; }
+  if(t.dataset.more){ moreAction(t.dataset.more, t); return; }
   if(t.dataset.delete){
     const p = byId(t.dataset.delete);
     ask(t, {kind:'confirm', danger:true, save:'Delete',
@@ -1451,7 +1436,7 @@ el('f-export').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(D,null,2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'prayers-' + TODAY + '.json';
-  a.click(); URL.revokeObjectURL(a.href); backupNudge();
+  a.click(); URL.revokeObjectURL(a.href);
 });
 function readBackup(txt){
   const d = JSON.parse(txt);
@@ -1471,15 +1456,9 @@ el('f-import').addEventListener('click', () => {
       catch(e){ return 'That did not read as a prayer backup. Check you pasted the whole file.'; } },
     onSave(txt){
       D = readBackup(txt); migrate(); save();
-      applyTheme(); renderCatAdmin(); renderPlans(); backupNudge(); go('today'); toast('Backup restored.');
+      applyTheme(); renderCatAdmin(); renderPlans(); go('today'); toast('Backup restored.');
     }});
 });
-function backupNudge(){
-  const e = el('backupWarn');
-  if(!D.lastExport) e.textContent = 'No backup taken yet. On a real iPad, Safari can clear this app\u2019s data after about a week unused.';
-  else { const n = daysSince(D.lastExport);
-    e.textContent = n > 14 ? 'Last backup was ' + n + ' days ago.' : 'Last backup ' + pretty(D.lastExport) + '.'; }
-}
 
 
 /* ── theme ──────────────────────────────────────────────────── */
@@ -1490,7 +1469,6 @@ function applyTheme(){
   const paper = (typeof getComputedStyle === 'function' && document.documentElement)
     ? (getComputedStyle(document.documentElement).getPropertyValue('--bg') || '').trim() : '';
   if(m) m.setAttribute('content', paper || (dark ? '#1C1714' : '#F7F2EB'));
-  document.querySelectorAll('#f-theme .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === t));
 }
 const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
 if(darkMQ.addEventListener) darkMQ.addEventListener('change', applyTheme);
@@ -1644,15 +1622,33 @@ el('pray').addEventListener('touchend', e => {
   if(dx < -60) prayStep(1); else if(dx > 60) prayStep(-1);
 }, {passive:true});
 
-el('openKitchen').addEventListener('click', openKitchen);
 el('kitchenShut').addEventListener('click', () => { el('kitchen').classList.remove('on'); updateFab(); });
-el('doPrint').addEventListener('click', () => { buildPrint(); window.print(); });
-el('copyToday').addEventListener('click', () => {
-  const items = todaySet();
-  if(!items.length){ toast('Nothing on the list today.'); return; }
-  const heading = L().label + ' \u2014 ' + new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
-  copyText(asText(heading, items), el('copyToday'), 'Copied ' + items.length + ' request' + (items.length===1?'':'s') + '.');
-});
+
+/* ── overflow: Kitchen view, Copy and Print sit behind "More" so Pray now stands alone ── */
+function openMoreSheet(){
+  el('sheetInner').innerHTML =
+      '<button class="close" data-shut>Done</button>'
+    + '<h1>More</h1><div class="meta">' + esc(L().label) + '</div>'
+    + '<div class="menu">'
+    + '<button class="act ghost" data-more="kitchen">Kitchen view<span>Big type for the counter</span></button>'
+    + '<button class="act ghost" data-more="copy">Copy as text<span>Paste it into Messages</span></button>'
+    + '<button class="act ghost" data-more="print">Print<span>A tick list on paper</span></button>'
+    + '</div>';
+  openSheet(); el('sheet').scrollTop = 0;
+}
+function moreAction(kind, trigger){
+  if(kind === 'kitchen'){ shutSheet(); openKitchen(); return; }
+  if(kind === 'print'){ shutSheet(); buildPrint(); window.print(); return; }
+  if(kind === 'copy'){
+    const items = todaySet();
+    if(!items.length){ shutSheet(); toast('Nothing on the list today.'); return; }
+    const heading = L().label + ' \u2014 ' + new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+    // The sheet stays up if the clipboard refuses, so the "copy it yourself" panel has somewhere to sit.
+    copyText(asText(heading, items), trigger, 'Copied ' + items.length + ' request' + (items.length===1?'':'s') + '.')
+      .then(done => { if(done) shutSheet(); });
+  }
+}
+el('moreBtn').addEventListener('click', openMoreSheet);
 
 
 
@@ -1662,7 +1658,7 @@ load();
 catOptions(el('f-cat'), 'Personal');
 catOptions(el('f-pastecat'), 'Personal');
 el('f-daysWrap').innerHTML = '<label>Which days</label>' + dayChips('fday', []) + '<p class="err" id="f-daysErr"></p>';
-applyTheme(); renderCatAdmin(); renderPlans(); backupNudge(); go('today');
+applyTheme(); renderCatAdmin(); renderPlans(); go('today');
 if(USE_LOCAL_STORAGE){
   hub.onChange(() => { remoteDirty = true; absorbRemote(); });
   // Voice: say the request instead of typing it.

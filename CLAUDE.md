@@ -25,6 +25,7 @@ There is no build step, bundler, framework or `package.json` anywhere. Do not ad
 - **Kid mode** (`<html data-kind="kid">`): bigger targets and type, only apps whose `visibleTo` includes the kid, simplified Home, kid-safe chat. **Kiosk mode**: no PIN, no tab bar, cannot write; Home shows the clock and the family reminders and refreshes itself.
 - **Chat** (Chat tab): `POST /api/chat` → Claude (`claude-sonnet-5`) with tools that read and write `app_data`; 60 messages per person per day.
 - **Photos** (Me tab): adults set their own photo (admin: anyone's) and add to the family album; the device makes a 256 px and a 1024 px square JPEG, the Worker stores them under an unguessable key (`worker/src/media.js`: R2 if a `MEDIA` bucket is bound, otherwise the D1 `media` table — R2 is not enabled on the account yet) and serves them from `/api/media/*` as immutable. `hub.avatarHtml(p)` renders photo-or-emoji; `hub.people()` gives apps everyone's faces; album rows are `app_data(family, 'hub', 'album:<id>')`.
+- **Timer** runs in the shell: the Timer app writes `timer.active {endAt,total,startedAt}` in its person scope; `index.html` shows a glass pill on every tab while one is running, beeps and shows a local notification at 0, then clears it. The app resumes from `timer.active` if reopened.
 - **Push** (Me tab): Web Push with VAPID; 8 am fridge warnings to adults, 8 pm F260 nudge; per-person toggles. iPhone/iPad only from the Home Screen app.
 
 ## Adding an app
@@ -100,10 +101,14 @@ All in [`worker/src/chat.js`](worker/src/chat.js):
 | `scripts/test-photos.mjs <code>` | Profile photos + family album: upload/crop/size, second device sees the face (picker, feed, chat), kid/owner guards, delete |
 | `node scripts/bump-sw.mjs [--check]` | Bumps `sw.js` VERSION and checks every precached file exists and every shipped app/icon/art file is precached (or on its skip list) |
 | `scripts/test-art.mjs` | The `art/` illustration set: every SVG parses and renders, every app has a tile icon + spot art, all precached, ≤ 600 KB; contact sheets → `docs/screens/rm5-art-*.png` |
+| `scripts/test-timer.mjs <code>` | Timer survives navigation: `timer.active` in person scope, shell pill on every tab (never over the chat composer), beep + local notification + toast at 0, second device sees it |
+| `scripts/test-f260.mjs <code>` | F260 opens on Today: Done above the fold at 390, ticks the reading and publishes the summary, view is session-only, remote changes merge in place (no reload) |
+| `scripts/test-prayer.mjs <code>` | Prayer: "Pray now" is the one primary action above the fold, Print/Copy/Kitchen in the More sheet, illustrated empty state |
+| `scripts/test-leftovers.mjs <code>` | Larder list-first: oldest item + chip + sticky glass add bar all visible at 390×844, freshness bars, midnight rollover, Copy for Hearth |
 | `scripts/screens-apps.mjs <code>` | Every app signed in, in every theme at 390/1024 → `docs/screens/rm27-*.png`; no hex in any app's `<style>` (Dollywood: map colours only), no OS-scheme selectors, page background follows the theme |
 | `scripts/screens-shell.mjs <code>` | Every hub surface at 390/1024/1440, light + dark, adult/kid/kiosk → `docs/screens/rm4-*.png`; layout shift < 0.1; no hex in the shell's `<style>` |
 | `scripts/smoke-chat.sh <url> <code>` | Every chat tool + guards, streamed |
-| `node handoff/prayer/check.js apps/prayer.html` | Prayer app logic (21 checks) |
+| `node handoff/prayer/check.js apps/prayer.html` | Prayer app logic (30 checks; the fixture the app used to seed now lives in the check) |
 
 Local loop: `cd worker && npx wrangler dev --port 8787` with a seeded local D1 (`schema.sql`, `seed.sql`, `node ../scripts/set-pairing-code.mjs --local`), then the tests above against `http://127.0.0.1:8787`. The headless tests need `playwright-core` on `NODE_PATH` and Chrome or Edge installed; they serve the repo on `localhost:8765`, which is in the Worker's CORS allow-list.
 

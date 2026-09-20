@@ -74,6 +74,10 @@
 <script>
   (async () => {
     await hub.ready();
+    // The running countdown is a person-scope record, timer.active = { endAt, total, startedAt } (ms epoch / seconds).
+    // The hub shell reads the same record to show a pill on every tab, beep at 0 and clear it; a second device
+    // sees it within a pull. Pause, reset and a new preset clear it. The display profile only runs a local timer.
+    const ACTIVE = 'timer.active';
     let total = Number(hub.get('lastPreset', { default: 300 })) || 300, left = total, tick = null, endAt = 0;
     const t = document.getElementById('t'), go = document.getElementById('go'), dial = document.getElementById('dial'), ring = dial.querySelector('.ring');
     const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -83,6 +87,8 @@
       dial.classList.toggle('empty', left === 0);
       document.querySelectorAll('[data-s]').forEach(b => b.classList.toggle('on', +b.dataset.s === total));
     };
+    const active = () => { const a = hub.get(ACTIVE); return a && typeof a === 'object' && a.endAt > 0 ? a : null; };
+    const write = a => { if (!hub.canWrite) return; try { if (a) hub.set(ACTIVE, a); else if (hub.has(ACTIVE)) hub.remove(ACTIVE); } catch {} };
     const stop = () => { clearInterval(tick); tick = null; go.textContent = 'Start'; go.classList.add('btn-primary'); };
     function beep() {
       try {
@@ -93,22 +99,42 @@
           o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + .25); });
       } catch {}
     }
-    go.onclick = () => {
-      if (tick) return stop();
+    const finish = () => { stop(); left = 0; show(); document.body.classList.add('done'); beep(); write(null); };
+    function run() {                     // count down to endAt (Start, or resuming a timer that is already running)
+      clearInterval(tick);
       document.body.classList.remove('done');
-      endAt = Date.now() + left * 1000; go.textContent = 'Pause'; go.classList.remove('btn-primary');
-      tick = setInterval(() => {
+      go.textContent = 'Pause'; go.classList.remove('btn-primary');
+      const step = () => {
         left = Math.max(0, Math.round((endAt - Date.now()) / 1000)); show();
-        if (left === 0) { stop(); document.body.classList.add('done'); beep(); }
-      }, 250);
+        if (left === 0) finish();
+      };
+      step(); if (left > 0) tick = setInterval(step, 250);
+    }
+    go.onclick = () => {
+      if (tick) { stop(); write(null); return; }
+      if (left === 0) left = total;
+      endAt = Date.now() + left * 1000;
+      write({ endAt, total, startedAt: Date.now() });
+      run();
     };
-    document.getElementById('reset').onclick = () => { stop(); left = total; document.body.classList.remove('done'); show(); };
+    document.getElementById('reset').onclick = () => { stop(); write(null); left = total; document.body.classList.remove('done'); show(); };
     document.getElementById('presets').addEventListener('click', ev => {
       const b = ev.target.closest('[data-s]'); if (!b) return;
-      stop(); total = left = +b.dataset.s; document.body.classList.remove('done'); show();
+      stop(); write(null); total = left = +b.dataset.s; document.body.classList.remove('done'); show();
       if (hub.canWrite) hub.set('lastPreset', total);
     });
-    show();
+    // resume a timer that is already running (started before the app was closed, or on another device)
+    const resume = a => { total = Number(a.total) > 0 ? Number(a.total) : total; endAt = Number(a.endAt); run(); };
+    const a0 = active();
+    if (a0 && a0.endAt > Date.now()) resume(a0); else show();
+    hub.onChange(ch => {
+      if (ch.app !== 'timer') return;
+      const a = active();
+      if (a && (!tick || a.endAt !== endAt)) { if (a.endAt > Date.now()) resume(a); }
+      else if (!a && tick) {             // cleared elsewhere: the shell finished it, or someone paused it on another device
+        if (endAt - Date.now() <= 1200) finish(); else { stop(); left = total; show(); }
+      }
+    });
   })();
 </script>
 </body>

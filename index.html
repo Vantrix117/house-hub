@@ -254,6 +254,26 @@
   @media (hover: hover) and (pointer: fine) { #pill button:hover { background: var(--hover); } }
   .ds .toast { bottom: calc(88px + var(--safe-bottom)); }
   @media (min-width: 1024px) { .ds .toast { bottom: var(--sp-8); left: calc(50% + 110px); } }
+
+  /* ── timer pill: a running kitchen timer follows you across every tab (timer.active, person scope) ── */
+  #timer-pill { position: fixed; left: 50%; bottom: calc(84px + var(--safe-bottom)); transform: translateX(-50%); z-index: 25;
+    min-height: 44px; padding: 0 var(--sp-5) 0 var(--sp-4); gap: var(--sp-3); color: var(--text); font: inherit; font-weight: 600; font-size: var(--fs-md);
+    cursor: pointer; white-space: nowrap; animation: tp-in var(--dur-3) var(--spring); }
+  @keyframes tp-in { from { opacity: 0; } }
+  #timer-pill[hidden] { display: none; }
+  #timer-pill .icon { width: 20px; height: 20px; color: var(--accent-deep); }
+  #timer-pill .tp-time { font-variant-numeric: tabular-nums; letter-spacing: .01em; min-width: 3.2em; text-align: left; color: var(--accent-strong); }
+  #timer-pill .tp-ring .ring { --tint: var(--accent); width: 22px; height: 22px; } #timer-pill .tp-ring .ring circle { stroke-width: 7; }
+  #timer-pill:active { transform: translateX(-50%) scale(.96); }
+  @media (hover: hover) and (pointer: fine) { #timer-pill:hover { --g: var(--glass-strong); } }
+  @media (min-width: 1024px) { #timer-pill { left: calc(220px + var(--sp-8)); bottom: var(--sp-8); transform: none; } #timer-pill:active { transform: scale(.96); } }
+  :root[data-kind="kiosk"] #timer-pill { bottom: calc(var(--sp-6) + var(--safe-bottom)); cursor: default; }
+  /* on the Chat tab the composer owns that band: the pill lifts above it (--chat-h is the composer's measured height) */
+  :root[data-tab="chat"] #timer-pill { bottom: calc(76px + var(--safe-bottom) + var(--chat-h, 60px) + var(--sp-3)); }
+  @media (min-width: 1024px) { :root[data-tab="chat"] #timer-pill { bottom: calc(var(--sp-6) + var(--chat-h, 60px) + var(--sp-3)); } }
+  /* inside an app the countdown sits in the slim bar above it, never over the app */
+  #pill #pill-timer { color: var(--accent-strong); font-variant-numeric: tabular-nums; gap: 6px; }
+  #pill #pill-timer .icon { color: var(--accent-deep); }
 </style>
 </head>
 <body class="ds">
@@ -296,10 +316,13 @@
   </nav>
 </div>
 
+<button id="timer-pill" class="pill" hidden aria-label="Kitchen timer running — open it"><svg class="icon"><use href="#i-timer"/></svg><span class="tp-time" id="timer-pill-time">0:00</span><span class="ringwrap tp-ring" aria-hidden="true"><svg class="ring" id="timer-pill-ring" viewBox="0 0 52 52" style="--p:1"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg></span></button>
+
 <div id="viewer">
   <div id="pill" class="topbar">
     <button id="pill-home" aria-label="Back to the hub"><svg class="icon"><use href="#i-back"/></svg>Hub</button>
     <button id="pill-name" aria-label="Switch app"><span id="pill-label">App</span><svg class="icon" style="transform:rotate(180deg)"><use href="#i-chev"/></svg></button>
+    <button id="pill-timer" hidden aria-label="Kitchen timer running — open it"><svg class="icon"><use href="#i-timer"/></svg><span id="pill-timer-time">0:00</span></button>
     <button id="pill-reload" aria-label="Reload this app"><svg class="icon"><use href="#i-refresh"/></svg></button>
   </div>
   <iframe id="frame" title="App" allow="microphone; camera; web-share; geolocation; screen-wake-lock"></iframe>
@@ -325,6 +348,7 @@
   <symbol id="i-flame" viewBox="0 0 24 24"><path class="duo" d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .5 1.5 1.5 2 2 2 .5-3-1-5 1-8Z"/><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .5 1.5 1.5 2 2 2 .5-3-1-5 1-8Z"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><path class="duo" d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-timer" viewBox="0 0 24 24"><circle class="duo" cx="12" cy="13" r="7"/><circle cx="12" cy="13" r="7"/><path d="M12 9v4l2.5 2M10 3h4M12 3v3"/></symbol>
   <symbol id="i-sparkle" viewBox="0 0 24 24"><path class="duo" d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
 </svg>
 
@@ -346,7 +370,7 @@
   const avatar = (p, cls = '', size = 'sm') => hub.avatarHtml(p, cls, size);
 
   // Data the dashboard reads from other apps (each app still owns its own keys).
-  hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person');
+  hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person').use('timer', 'person');
 
   // ── registry ──────────────────────────────────────────────────
   async function loadRegistry() {
@@ -377,7 +401,7 @@
 
   // ── gate ──────────────────────────────────────────────────────
   const gate = $('#gate'), panel = $('#gate-panel'), shell = $('#shell');
-  function showGate(html) { shell.hidden = true; gate.hidden = false; panel.innerHTML = html; }
+  function showGate(html) { shell.hidden = true; gate.hidden = false; panel.innerHTML = html; renderTimerPill(); }
 
   function showPairing(msg) {
     showGate(`
@@ -504,7 +528,7 @@
   function enterShell() {
     gate.hidden = true; shell.hidden = false;
     chatLoaded = false; $('#chat-log').innerHTML = ''; $('#chat-in').disabled = false; $('#chat-in').placeholder = 'Ask or tell the house…';
-    hub.reset(); hub.ready().then(() => { renderGrid(); if (tab === 'home') renderHome(); });
+    hub.reset(); hub.ready().then(() => { renderGrid(); if (tab === 'home') renderHome(); renderTimerPill(); });
     renderBrand(); renderMe(); renderGrid(); syncThemeColor();
     const h = location.hash.slice(1);
     if (hub.isKiosk) { showTab('home'); return; }
@@ -518,7 +542,9 @@
   function showTab(t, keepViewer) {
     tab = t; if (!keepViewer) closeViewer();
     $('#chat-form').hidden = t !== 'chat';
+    document.documentElement.dataset.tab = t;
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + t));
+    if (t === 'chat') { const h = $('#chat-form').offsetHeight; if (h) $('#timer-pill').style.setProperty('--chat-h', h + 'px'); }   // the timer pill lifts above the composer
     document.querySelectorAll('.tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-current', b.dataset.tab === t ? 'page' : 'false'); });
     $('#tabbar .tabs').style.setProperty('--i', TABS.indexOf(t));
     if (!keepViewer && location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
@@ -595,7 +621,7 @@
     const a = appById(id); if (!a) return;
     $('#chat-form').hidden = true;
     if (!canSee(id)) { hub.toast('That app is not available for this profile.'); return; }
-    current = a;
+    current = a; hideToast();
     // the app scales out of the tile that was tapped
     const r = fromEl && fromEl.getBoundingClientRect();
     viewer.style.setProperty('--ox', r ? (r.left + r.width / 2) + 'px' : '50%');
@@ -606,12 +632,14 @@
     if (frame.dataset.id !== id) { frame.src = a.file; frame.dataset.id = id; }
     viewer.classList.add('on');
     if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+    renderTimerPill();
   }
   function closeViewer() {
     if (!current) return; current = null;
     viewer.classList.add('closing');
     setTimeout(() => { viewer.classList.remove('on', 'closing'); frame.src = 'about:blank'; delete frame.dataset.id; }, 220);
     hub.flush(); hub.pull();
+    renderTimerPill();
   }
   $('#pill-home').addEventListener('click', () => showTab('apps'));
   $('#pill-reload').addEventListener('click', () => { if (current) frame.src = current.file + (current.file.includes('?') ? '&' : '?') + 'r=' + Date.now(); });
@@ -649,6 +677,63 @@
   function setDot(state) { const d = $('#syncdot'); d.className = 'dot dot-' + state; d.title = 'Sync: ' + state; }
   hub.onSync(s => setDot(s.state));
   hub.onAuthLoss(() => { closeViewer(); hub.device ? showPicker('Please choose your profile again.') : showPairing('This device was unpaired.'); });
+
+  // ── timer that survives navigation ────────────────────────────
+  // The Timer app writes timer.active = { endAt, total, startedAt } in its person scope when a countdown starts and
+  // clears it on pause/reset. The shell shows it as a pill on every tab (and a chip in the app bar over other apps),
+  // ticks it each second, and at 0 — with the app closed — beeps, shows a local notification, clears the record and
+  // toasts. Another device sees the same record within a pull. The display profile only looks: pill, no beep, no write.
+  // With the Timer app open it handles its own finish (beep, done state, clear) — the shell adds no toast over its buttons.
+  // The pill never shows over the gate: Switch signs out but keeps the store, so the gate hides it and stops the tick.
+  const TIMER = { app: 'timer', scope: 'person' };
+  const tpill = $('#timer-pill'), tchip = $('#pill-timer');
+  let timerTick = null, timerDone = 0;
+  const fmtLeft = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  function hideToast() { const t = document.getElementById('hub-toast'); if (t) { clearTimeout(t._t); t.hidden = true; } }
+  function timerActive() {
+    try { const a = hub.get('timer.active', TIMER); return a && typeof a === 'object' && Number(a.endAt) > 0 && a.endAt !== timerDone ? a : null; } catch { return null; }
+  }
+  function timerBeep() {                 // the same three-note tone the Timer app plays
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, .3, .6].forEach(d => { const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination); o.frequency.value = 880;
+        g.gain.setValueAtTime(.4, ctx.currentTime + d); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + d + .25);
+        o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + .25); });
+    } catch {}
+  }
+  async function timerNotify(a) {        // local, from this device's service worker — no server push involved
+    try {
+      if (!('Notification' in window) || Notification.permission !== 'granted' || !('serviceWorker' in navigator)) return;
+      const reg = await navigator.serviceWorker.getRegistration(); if (!reg) return;
+      await reg.showNotification('Timer done', { body: fmtLeft(Number(a.total) || 0) + ' is up.', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: 'timer', renotify: true, data: { url: '#timer' } });
+    } catch {}
+  }
+  function finishTimer(a) {
+    if (timerDone === a.endAt) return; timerDone = a.endAt;
+    const recent = Date.now() - a.endAt < 60000;                       // one that ran out while the hub was closed just gets cleared
+    const appOpen = !!current && current.id === 'timer';               // the open app beeps for itself
+    if (recent && !appOpen && hub.canWrite) timerBeep();
+    if (hub.canWrite) { try { if (hub.has('timer.active', TIMER)) hub.remove('timer.active', TIMER); } catch {} }
+    if (recent && !appOpen) { hub.toast('Timer done — ' + fmtLeft(Number(a.total) || 0) + ' is up.', 4000); timerNotify(a); }
+    renderTimerPill();
+  }
+  function renderTimerPill() {
+    const a = gate.hidden && hub.profile ? timerActive() : null;   // nothing over the pairing / profile screens
+    if (!a) { tpill.hidden = true; tchip.hidden = true; clearInterval(timerTick); timerTick = null; return; }
+    const left = Math.max(0, Math.round((a.endAt - Date.now()) / 1000));
+    const txt = fmtLeft(left), total = Number(a.total) > 0 ? Number(a.total) : left;
+    $('#timer-pill-time').textContent = txt; $('#pill-timer-time').textContent = txt;
+    $('#timer-pill-ring').style.setProperty('--p', Math.min(1, left / total).toFixed(3));
+    tpill.hidden = !!current; tchip.hidden = !current || current.id === 'timer';
+    if (left === 0) { finishTimer(a); return; }
+    if (!timerTick) timerTick = setInterval(renderTimerPill, 1000);
+  }
+  tpill.addEventListener('click', () => { buzz(); openApp('timer'); });
+  tchip.addEventListener('click', () => { buzz(); openApp('timer'); });
+  hub.onChange(ch => { if (ch.app === 'timer') renderTimerPill(); });
+  hub.onSync(s => { if (s.lastPull) renderTimerPill(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) renderTimerPill(); });
 
   // ── home ──────────────────────────────────────────────────────
   const fmtDate = d => d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });

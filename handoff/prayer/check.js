@@ -42,8 +42,39 @@ let pass = 0, fail = 0;
 const ok = (name, cond, detail) => { if (cond) { pass++; console.log('  ok   ' + name); }
   else { fail++; console.log('  FAIL ' + name + (detail !== undefined ? '  -> ' + detail : '')); } };
 
+// The app seeds nothing for a new profile (roadmap 11), so the checks bring their own list.
+const FIXTURE = [
+  ["p001","Salvation for a friend and her daughter","A friend","Those Who Are Lost - Friends","rotation","active"],
+  ["p002","Salvation for a family member","Family member","Those Who Are Lost - Family","rotation","active"],
+  ["p003","Salvation for a cousin","Cousin","Those Who Are Lost - Family","rotation","active"],
+  ["p004","Healing after surgery","A church friend","Health Needs","daily","active"],
+  ["p005","Healing through treatment","A neighbour","Health Needs","daily","active"],
+  ["p006","Recovery at home","An older friend","Health Needs","daily","active"],
+  ["p007","Peace during a hard season","A friend","Spiritual Needs","daily","active"],
+  ["p008","College classes this semester","A student","Schools and Students","rotation","active"],
+  ["p009","Safe delivery of their first child","A young couple","Expecting and New Parents","daily","active"],
+  ["p010","A new job","A friend","Work and Job Search","rotation","active"],
+  ["p011","My financial situation","Me","Financial Needs","daily","active"],
+  ["p012","Family health, physical and spiritual","Family","Family","daily","active"],
+  ["p013","Healing for a stomach illness","My wife","Health Needs","daily","answered"],
+  ["p014","A family moving home from out of state","Friends","Friends","rotation","answered"]
+];
+global.__FIXTURE = FIXTURE;
+
 const probe = `
 const g = id => document.getElementById(id);
+// --- a fresh profile is empty and shows the illustrated empty state with one action
+ok('fresh data seeds no sample entries', freshData().lists.personal.prayers.length === 0 && freshData().lists.shared.prayers.length === 0);
+ok('empty Today shows the illustration and one action', g('todayList').innerHTML.includes('art/empty/prayers.svg')
+  && (g('todayList').innerHTML.match(/<button/g)||[]).length === 1 && g('todayList').innerHTML.includes('data-go="add"'));
+ok('empty Today hides the action row', g('todayActions').hidden === true);
+// --- seed the fixture the old sample data used to provide
+L().prayers = __FIXTURE.map(r => ({ id:r[0], title:r[1], for:r[2], phone:'', detail:'', category:r[3],
+  cadence:r[4], days:[], status:r[5], createdAt:'2026-09-10', lastPrayedAt:null,
+  answeredAt:(r[5]==='answered'?'2026-09-10':null), answerNote:(r[5]==='answered'?'Answered.':null),
+  updates:[], sharedFrom:null, prayedBy:{}, updatedAt:'2026-09-10T00:00:00.000Z' }));
+renderAllScreens();
+ok('Today with entries shows the action row', g('todayActions').hidden === false);
 // --- today
 ok('today has entries', todaySet().length > 0, todaySet().length);
 ok('today headline mentions a count', /\\d/.test(g('todayLine').textContent), g('todayLine').textContent);
@@ -91,6 +122,14 @@ ok('paste parser splits name - request', parsed[0].for === 'Sam Carter' && parse
 L().prayers[0].createdAt = '2025-' + TODAY.slice(5);
 ok('anniversaries fire on the day', anniversaries().length >= 1);
 `;
+// --- markup: Pray now is the one primary button on Today; Print/Copy/Kitchen sit behind "More"
+const today = src.slice(src.indexOf('<section id="s-today"'), src.indexOf('<section id="s-all"'));
+const primaries = (today.match(/<button class="act(?: [a-z-]+)*"/g) || []).filter(b => !/ghost/.test(b));
+ok('Today markup has exactly one primary button and it is Pray now', primaries.length === 1 && /id="startPray">Pray now</.test(today), primaries.join(' '));
+ok('Today markup has no inline Print/Copy/Kitchen buttons', !/id="(doPrint|copyToday|openKitchen)"/.test(today));
+ok('overflow sheet offers Kitchen, Copy and Print', /data-more="kitchen"/.test(src) && /data-more="copy"/.test(src) && /data-more="print"/.test(src));
+ok('no in-app theme chips (the hub Me tab owns the theme)', !/data-look=|id="f-theme"/.test(src));
+ok('no stale backup warning', !/backupWarn|backupNudge|Safari can clear/.test(src));
 try { eval(code + '\n' + probe); }
 catch (e) { fail++; console.log('  FAIL script threw: ' + e.message); }
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
