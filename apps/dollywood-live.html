@@ -339,6 +339,9 @@ footer{color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-t
 [data-flavor=live] .mk .onum{fill:var(--cat-ink);font-weight:800;font-size:11px}
 .lv-name{font-family:var(--font-sans);font-weight:700;fill:white;paint-order:stroke;stroke:rgba(10,8,6,.75);stroke-width:3.5px;stroke-linejoin:round;pointer-events:none;letter-spacing:-.01em}
 .me-pulse{animation:mepulse 2.4s ease-out infinite;transform-origin:center;transform-box:fill-box}
+#me.lv-stale .me-pulse,#me.lv-stale .me-pulse2{animation:none;opacity:0}#me.lv-stale circle{filter:grayscale(1);opacity:.7}
+.lv-edge{pointer-events:none}.lv-edge .arrow{fill:var(--accent,#2F80ED);stroke:white;stroke-width:1.5px;stroke-linejoin:round}.lv-edge .lab{font-family:var(--font-sans);font-weight:700;fill:white;paint-order:stroke;stroke:rgba(10,8,6,.75);stroke-width:3px;stroke-linejoin:round}
+.lv-txt b.warn{color:var(--warn-ink,#7A5200)}
 .me-pulse2{animation:mepulse 2.4s ease-out infinite;animation-delay:1.2s;transform-origin:center;transform-box:fill-box}
 @keyframes mepulse{0%{opacity:.4;transform:scale(.6)}100%{opacity:0;transform:scale(2.8)}}
 .famk{cursor:pointer}.famk text{pointer-events:none}
@@ -905,12 +908,24 @@ function init3D(){if(!window.THREE){$('view3d').innerHTML='<p style="padding:20p
    The SVG is drawn in metres, so a GPS accuracy radius is an SVG radius directly.
    Family positions ride on the House Hub SDK (hub.js, family scope, key loc:<profileId>); without it the map
    still works for one person. Everything below is a no-op in the other two flavours. */
-const GEO=D.geo||null; let me=null, follow=false, watchId=null, placeMode=false, wakeLock=null, lastPub=0, lastPubXY=null;
+const GEO=D.geo||null; let me=null, follow=false, watchId=null, placeMode=false, wakeLock=null, lastPub=0, lastPubXY=null, gpsErr=null, lastHdg=null;
 const FAM={}; const LIVE_KEY='dollywood.live.last';   // ROT/ROOT live on window (engine setRotation) - no local const, or it would shadow them in every flavour
 const toUser=(x,y)=>{const r=ROT*Math.PI/180,cx=WM/2,cy=HM/2,ux=x-cx,uy=Y(y)-cy;return[cx+ux*Math.cos(r)-uy*Math.sin(r),cy+ux*Math.sin(r)+uy*Math.cos(r)]};   // map metres -> SVG user space under the rotation
 const unrot=(x,y)=>`rotate(${-ROT} ${x} ${y})`;
 const toXY=(lat,lon)=>[(lon-GEO.lon0)*GEO.mx,(lat-GEO.lat0)*GEO.my];
 const inFrame=p=>p[0]>=0&&p[0]<=WM&&p[1]>=0&&p[1]<=HM;
+const inPolyPt=(p,P)=>{let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])c=!c}return c};
+const PROPERTY=(D.layers.boundary||[]).slice().sort((a,b)=>b.length-a.length)[0]||null;   // the whole property: parking, tram road, the plaza — all outside the mapped frame
+const frameGap=p=>Math.hypot(Math.max(0,-p[0],p[0]-WM),Math.max(0,-p[1],p[1]-HM));            // metres from the point to the frame's edge (0 inside)
+const onProperty=p=>inFrame(p)||frameGap(p)<300||(PROPERTY&&inPolyPt(p,PROPERTY));
+const compassOf=(dx,dy)=>['N','NE','E','SE','S','SW','W','NW'][Math.round(((Math.atan2(dx,dy)*180/Math.PI)+360)%360/45)%8];
+const fixAge=()=>me?Date.now()-(me.t||0):Infinity;
+const inParking=p=>(D.layers.parking||[]).some(P=>inPolyPt(p,P));
+const edgePt=p=>[Math.max(0,Math.min(WM,p[0])),Math.max(0,Math.min(HM,p[1]))];                      // nearest point of the frame
+const placeOf=p=>{if(inFrame(p)){const s=sectionAt(p[0],p[1]);return s?s.name:inParking(p)?'the parking lot':'in the park, between areas'}
+  const e=edgePt(p),gap=frameGap(p),dir=compassOf(p[0]-e[0],p[1]-e[1]);
+  return onProperty(p)?`${p[1]>HM?'the parking lots and tram road':'Dollywood property'} · ${ftOf(gap)} ${dir} of the mapped park`:'away from the park'};
+const TRACK_KEY=()=>'dollywood.live.track:'+((window.hub&&hub.profile&&hub.profile.id)||'solo');   // the person asked for their dot on this device
 const ftOf=m=>{const f=m*3.28084;return f<15?'here':f<1000?Math.round(f/10)*10+' ft':(f/5280).toFixed(1)+' mi'};
 const walkOf=m=>{const s=Math.round(m/1.25/60);return s<1?'under a minute':s+' min walk'};
 const agoOf=t=>{const s=(Date.now()-t)/1000;return s<50?'just now':s<3600?Math.round(s/60)+' min ago':Math.round(s/3600)+' h ago'};
@@ -921,16 +936,29 @@ function sectionAt(x,y){for(const s of D.sections){if(s.id==='all'||!s.poly.leng
 function nearest(n){if(!me)return[];return OFF.filter(o=>o.pos).map(o=>({o,d:Math.hypot(o.pos[0]-me.x,o.pos[1]-me.y)})).sort((a,b)=>a.d-b.d).slice(0,n)}
 /* ---- drawing: you, the family, place names at high zoom, the scale bar ---- */
 let namesT=null;function scheduleNames(){clearTimeout(namesT);namesT=setTimeout(()=>drawNames(mpp()),120)}window.scheduleNames=scheduleNames;
-function drawMe(){if(!G.me)return;const k=mpp();drawScale(k);drawRoute();G.me.innerHTML='';drawFam();if(!me||!inFrame([me.x,me.y]))return;const cx=me.x,cy=Y(me.y),col='var(--accent,#2F80ED)';
+function drawMe(){if(!G.me)return;const k=mpp();drawScale(k);drawRoute();G.me.innerHTML='';drawFam();if(!me)return;G.me.classList.toggle('lv-stale',!!me.stale||(me.src==='gps'&&fixAge()>120e3));
+  if(!inFrame([me.x,me.y])){if(!onProperty([me.x,me.y]))return;drawEdge(G.me,me.x,me.y,k,'You',hubOn()&&hub.profile.emoji||'•','var(--accent,#2F80ED)');return}
+  const cx=me.x,cy=Y(me.y),col='var(--accent,#2F80ED)';
   if(me.acc)G.me.appendChild(el('circle',{cx,cy,r:Math.max(me.acc,4),style:`fill:${col};stroke:${col}`,'fill-opacity':.12,'stroke-opacity':.45,'stroke-width':1.2*k}));
-  if(me.hdg!=null&&!isNaN(me.hdg)){const a=(me.hdg-90)*Math.PI/180,L=44*k,w=0.42;
+  if(me.hdg!=null&&!isNaN(me.hdg))lastHdg={h:me.hdg,t:Date.now()};const hdg=lastHdg&&Date.now()-lastHdg.t<8000?lastHdg.h:null;
+  if(hdg!=null){const a=(hdg-90)*Math.PI/180,L=44*k,w=0.42;
     G.me.appendChild(el('path',{d:`M${cx} ${cy}L${cx+L*Math.cos(a-w)} ${cy+L*Math.sin(a-w)}A${L} ${L} 0 0 1 ${cx+L*Math.cos(a+w)} ${cy+L*Math.sin(a+w)}Z`,fill:'url(#lv-cone)',style:`transform-origin:${cx}px ${cy}px`}))}
   G.me.appendChild(el('circle',{cx,cy,r:18*k,style:`fill:${col}`,'fill-opacity':.3,class:'me-pulse'}));
   G.me.appendChild(el('circle',{cx,cy,r:18*k,style:`fill:${col}`,'fill-opacity':.3,class:'me-pulse2'}));
   const emo=hubOn()&&hub.profile.emoji;
   G.me.appendChild(el('circle',{cx,cy,r:(emo?18:10)*k,fill:'url(#lv-me)',stroke:'#fff','stroke-width':3*k,filter:'url(#lv-shadow)'}));
   if(emo){const t=el('text',{x:cx,y:cy+7.5*k,'text-anchor':'middle',transform:unrot(cx,cy),style:`font-size:${20*k}px;pointer-events:none`});t.textContent=emo;G.me.appendChild(t)}}
-function drawFam(){if(!G.fam)return;G.fam.innerHTML='';const k=mpp();for(const id in FAM){const f=FAM[id];if(!f||Date.now()-(f.t||0)>4*3600e3||!inFrame([f.x,f.y]))continue;
+/* a marker for someone on the property but beyond the mapped frame: a ring on the frame's edge nearest them, an arrow
+   pointing out, and how far past the edge they are — so "in the parking lot" reads as a place, not as missing */
+function drawEdge(grp,x,y,k,name,emoji,col,pick){const in_=24*k,ex=Math.max(in_,Math.min(WM-in_,x)),ey=Math.max(in_,Math.min(HM-in_,y)),cx=ex,cy=Y(ey),gap=frameGap([x,y]);
+  const a=Math.atan2(-(y-ey),x-ex);   // SVG angle toward the real spot (y flipped)
+  const g=el('g',{class:'lv-edge famk','data-pick':pick||'',transform:unrot(cx,cy)});if(!pick)g.removeAttribute('data-pick');
+  g.appendChild(el('circle',{cx,cy,r:16*k,fill:col,stroke:'#fff','stroke-width':2.6*k,filter:'url(#lv-shadow)',opacity:.92}));
+  const t=el('text',{x:cx,y:cy+6.5*k,'text-anchor':'middle',style:`font-size:${17*k}px`});t.textContent=emoji;g.appendChild(t);
+  const ar=el('path',{class:'arrow',d:`M${cx+22*k} ${cy-7*k}L${cx+34*k} ${cy}L${cx+22*k} ${cy+7*k}Z`,transform:`rotate(${a*180/Math.PI+ROT} ${cx} ${cy})`});g.appendChild(ar);
+  const lab=el('text',{class:'lab',x:cx,y:cy+30*k,'text-anchor':'middle',style:`font-size:${11*k}px`});lab.textContent=`${name} · ${ftOf(gap)} ${compassOf(x-ex,y-ey)} of the map`;g.appendChild(lab);grp.appendChild(g)}
+function drawFam(){if(!G.fam)return;G.fam.innerHTML='';const k=mpp();for(const id in FAM){const f=FAM[id];if(!f||Date.now()-(f.t||0)>4*3600e3)continue;
+  if(!inFrame([f.x,f.y])){if(onProperty([f.x,f.y]))drawEdge(G.fam,f.x,f.y,k,f.name||id,f.emoji||'•',f.color||'#8A6A4B','f:'+id);continue}
   const cx=f.x,cy=Y(f.y),old=Date.now()-f.t>45*60e3,g=el('g',{class:'famk','data-pick':'f:'+id,opacity:old?.5:1,transform:unrot(cx,cy)}),col=f.color||'#8A6A4B';
   g.appendChild(el('circle',{cx,cy,r:16*k,fill:col,stroke:'#fff','stroke-width':2.6*k,filter:'url(#lv-shadow)'}));
   const t=el('text',{x:cx,y:cy+6.5*k,'text-anchor':'middle',style:`font-size:${17*k}px`});t.textContent=f.emoji||'•';g.appendChild(t);
@@ -951,10 +979,21 @@ function drawNames(k){if(!G.names)return;if(!namesBuilt){namesBuilt=true;OFF.for
     t.style.display='';t.style.fontSize=(11.5*k)+'px';t.setAttribute('dx',15*k);t.setAttribute('transform',unrot(+t.getAttribute('x'),+t.getAttribute('y')))})}   // labels are born before the rotation is set, so counter-rotate on every draw
 function drawScale(k){const s=$('lv-scale');if(!s)return;const ft=[50,100,200,500,1000,2000].find(f=>f*0.3048/k>=64)||2000,px=ft*0.3048/k;s.querySelector('i').style.width=Math.round(px)+'px';s.querySelector('span').textContent=ft>=1000?(ft/5280).toFixed(ft%5280?1:0)+' mi':ft+' ft'}
 /* ---- state ---- */
-function setMe(x,y,acc,hdg,src){me={x,y,acc:acc||null,hdg:hdg==null?null:hdg,t:Date.now(),src};try{localStorage.setItem(LIVE_KEY,JSON.stringify(me))}catch(e){}
+/* A coarse fix (cell / Wi-Fi, hundreds of metres) must not drag a good recent fix off the map or declare the family
+   "outside the park": while a fix under 60 m is less than two minutes old, a fix worse than 150 m only refreshes the
+   accuracy note. A first fix is always taken, however rough, so the map shows something at once. */
+function setMe(x,y,acc,hdg,src){if(src==='gps'&&me&&me.src==='gps'&&!me.stale&&acc>150&&(me.acc||0)<60&&fixAge()<120e3){me.rough=acc;me.roughT=Date.now();updLoc();return}
+  const prevSec=me&&me.src==='gps'&&!me.stale?me.sec:null;
+  me={x,y,acc:acc||null,hdg:hdg==null?null:hdg,t:Date.now(),src};
+  {const s=inFrame([x,y])?sectionAt(x,y):null,id=s?s.id:null;if(src==='gps'&&prevSec&&id!==prevSec&&acc>25&&secCand!==id){secCand=id;me.sec=prevSec}else{me.sec=id;secCand=null}}   // an area change on a loose fix needs two fixes in a row
+  try{localStorage.setItem(LIVE_KEY,JSON.stringify(me))}catch(e){}
   drawMe();updLoc();renderNear();renderFam();publish();if(ROUTE&&ROUTE.o)routeTo(ROUTE.o,true);
-  if(follow&&inFrame([x,y])){const w=Math.min(view[2],420),h=w*HM/WM,[ux,uy]=toUser(x,y);setView([ux-w/2,uy-h/2,w,h],true)}}
-function publish(){if(!shareOn()||!me||me.src!=='gps')return;const now=Date.now(),moved=!lastPubXY||Math.hypot(me.x-lastPubXY[0],me.y-lastPubXY[1])>8;
+  if(follow&&onProperty([x,y])){const e=edgePt([x,y]),w=Math.min(view[2],420),h=w*HM/WM,[ux,uy]=toUser(e[0],e[1]);
+    const inMid=ux>view[0]+view[2]*.25&&ux<view[0]+view[2]*.75&&uy>view[1]+view[3]*.25&&uy<view[1]+view[3]*.75&&view[2]<=460;
+    if(!inMid)setView([ux-w/2,uy-h/2,w,h],true)}}
+let secCand=null;
+function publish(){if(!shareOn()||!me||me.src!=='gps'||me.stale||(me.acc&&me.acc>150))return;   // never a restored or a rough fix
+  const now=Date.now(),moved=!lastPubXY||Math.hypot(me.x-lastPubXY[0],me.y-lastPubXY[1])>8;
   if(now-lastPub<2500||(now-lastPub<8000&&!moved))return;lastPub=now;lastPubXY=[me.x,me.y];
   try{hub.set('loc:'+hub.profile.id,{x:Math.round(me.x),y:Math.round(me.y),acc:me.acc?Math.round(me.acc):null,hdg:me.hdg,t:now,name:hub.profile.name,emoji:hub.profile.emoji,color:hub.profile.color},{scope:'family'})}catch(e){}}
 function loadFam(){if(!window.hub)return;try{for(const k in FAM)delete FAM[k];hub.list('loc:',{scope:'family'}).forEach(r=>{const id=r.key.slice(4);if(hubOn()&&id===hub.profile.id)return;if(!r.value||r.value.x==null)return;
@@ -962,15 +1001,23 @@ function loadFam(){if(!window.hub)return;try{for(const k in FAM)delete FAM[k];hu
     FAM[id]=r.value})}catch(e){}drawFam();renderFam()}
 function updLoc(){const sec=$('loc-sec'),acc=$('loc-acc'),live=$('lv-live');if(!sec)return;const who=hubOn()?hub.profile.name:null;
   document.querySelectorAll('.secpoly.lv-here').forEach(p=>p.classList.remove('lv-here'));
-  const sharing=!!(who&&me&&me.src==='gps'&&shareOn());if(live)live.hidden=!sharing;
+  const sharing=!!(who&&me&&me.src==='gps'&&!me.stale&&watchId!=null&&fixAge()<120e3&&shareOn());if(live)live.hidden=!sharing;
+  sec.classList.remove('warn');
   if(!me){sec.textContent=placeMode?'Tap the map where you are':(watchId!=null?'Finding you…':'Tap ◎ to find yourself');acc.textContent=who?(VIEW_ONLY()?`${who} · just looking`:shareOn()?`Sharing as ${who} once you have a fix`:'Only you can see your spot — turn on Share my spot in Family'):'Open from the Hub, signed in, to share your spot';return}
-  if(!inFrame([me.x,me.y])){const dx=me.x-WM/2,dy=me.y-HM/2,d=Math.hypot(dx,dy),b=Math.round((Math.atan2(dx,dy)*180/Math.PI+360)%360);
-    sec.textContent=`${(d/1609).toFixed(1)} mi from the park`;acc.textContent=`Dollywood is to your ${['S','SW','W','NW','N','NE','E','SE'][Math.round(b/45)%8]}${me.acc?` · ± ${Math.round(me.acc*3.28)} ft`:''}`;return}
-  const s=sectionAt(me.x,me.y),nn=nearest(1)[0];if(s&&s.el)s.el.classList.add('lv-here');
-  sec.textContent=s?`You're in ${s.name}`:'In the park, between areas';
-  acc.textContent=(nn?(nn.d<15?`At ${nn.o.name}`:`${nn.o.name} · ${ftOf(nn.d)}`):'')+(me.src==='gps'&&me.acc?` · ± ${Math.round(me.acc*3.28)} ft`:me.src==='place'?' · placed by hand':'')+(sharing?' · sharing':'')}
+  const age=fixAge(),accNote=me.src==='gps'&&me.acc?` · ± ${Math.round(me.acc*3.28)} ft`:me.src==='place'?' · placed by hand':'';
+  const stale=me.stale||(me.src==='gps'&&age>120e3);const agoNote=stale?` · ${me.stale?'last seen ':''}${agoOf(me.t)}${watchId!=null?', waiting for GPS':' — tap ◎'}`:'';
+  if(stale)sec.classList.add('warn');
+  if(!inFrame([me.x,me.y])){const dx=me.x-WM/2,dy=me.y-HM/2,d=Math.hypot(dx,dy),gap=frameGap([me.x,me.y]);
+    if(onProperty([me.x,me.y])){const e=edgePt([me.x,me.y]),where=me.y>HM?'the parking lots and tram road, north of the entrance':'Dollywood property beyond the mapped park';
+      sec.textContent=`At Dollywood — ${ftOf(gap)} ${compassOf(me.x-e[0],me.y-e[1])} of the mapped park`;acc.textContent=`${where}${accNote}${agoNote}`;return}
+    if(me.acc&&me.acc>gap){sec.textContent='Rough fix — waiting for GPS';acc.textContent=`± ${Math.round(me.acc*3.28)} ft could still be inside the park${agoNote}`;return}   // the accuracy circle reaches the frame: do not call it off-park yet
+    {const e=edgePt([me.x,me.y]);sec.textContent=`${(gap/1609).toFixed(1)} mi from the park`;acc.textContent=`Dollywood is to your ${compassOf(e[0]-me.x,e[1]-me.y)}${accNote}${agoNote}`;return}}
+  const s=(me.sec?SEC[me.sec]:null)||sectionAt(me.x,me.y),nn=nearest(1)[0];if(s&&s.el)s.el.classList.add('lv-here');
+  sec.textContent=s?`You're in ${s.name}`:inParking([me.x,me.y])?'In the parking lot':'In the park, between areas';
+  acc.textContent=(nn?(nn.d<15?`At ${nn.o.name}`:`${nn.o.name} · ${ftOf(nn.d)}`):'')+accNote+(me.rough&&me.rough>150?` (rough ${Math.round(me.rough*3.28)} ft fix ignored)`:'')+(sharing?' · sharing':'')+agoNote}
 function renderNear(){const box=$('near-list');if(!box)return;renderSrc();if(nearMode==='waits')return renderWaits(box);
-  if(!me||!inFrame([me.x,me.y])){box.innerHTML=`<div class="lv-empty">${me?'You are outside the park — rides will list here once you arrive.':'Find yourself first: tap ◎, or use Set my spot.'}</div>`;return}
+  if(!me||!inFrame([me.x,me.y])){const gate=OFF.find(o=>/^Entrance/i.test(o.name)&&o.pos)||OFFNUM[2];const gd=me&&gate&&gate.pos?Math.hypot(gate.pos[0]-me.x,gate.pos[1]-me.y):null;
+    box.innerHTML=`<div class="lv-empty">${!me?'Find yourself first: tap ◎, or use Set my spot.':onProperty([me.x,me.y])?`You're in the arrival area${gd?` — the entrance is ${ftOf(gd)} away, ${walkOf(gd)}`:''}. Rides will list here once you're through the gates.`:'You are away from the park — rides will list here once you arrive.'}</div>`;return}
   const CC={attraction:'var(--cat-attr)',shopping:'var(--cat-shop)',dining:'var(--cat-dine)'};
   box.innerHTML=nearest(10).map(({o,d})=>`<button class="lv-item" data-n="${o.num}"><span class="n" style="background:${CC[o.cat]}">${o.num}</span><span class="t"><b>${o.name}</b><span>${o.area}${o.height_in?` · ${o.height_in}" to ride`:''}${wchip(o)}</span></span><span class="d">${ftOf(d)}<small>${walkOf(d)}</small></span></button>`).join('');
   box.querySelectorAll('.lv-item').forEach(b=>b.onclick=()=>goItem(OFFNUM[+b.dataset.n]))}
@@ -982,21 +1029,19 @@ function renderFam(){const box=$('fam-list'),st=$('fam-sync');if(!box)return;
   const rows=Object.entries(FAM).filter(([,f])=>f&&f.t).sort((a,b)=>b[1].t-a[1].t);   // < 4 h are on the map; older rows show greyed with their last-seen time
   const canShare=hub.canWrite&&!VIEW_ONLY();
   const shareRow=canShare?`<label class="lv-item lv-share"><span class="t"><b>Share my spot</b><span>${shareOn()?'The family can see where you are':'Off — only you see your dot'}</span></span><input type="checkbox" id="lv-share" ${shareOn()?'checked':''} aria-label="Share my spot with the family"></label>`:'';
-  const meRow=canShare?`<div class="lv-item" style="cursor:default"><span class="n" style="background:${hub.profile.color||'#8A6A4B'}">${hub.profile.emoji||'•'}</span><span class="t"><b>${hub.profile.name} (you)</b><span>${me&&me.src==='gps'?(inFrame([me.x,me.y])?(sectionAt(me.x,me.y)||{name:'in the park'}).name:'outside the park')+(shareOn()?' · sharing':' · not sharing'):'no fix yet'}</span></span></div>`:'';
+  const meRow=canShare?`<div class="lv-item" style="cursor:default"><span class="n" style="background:${hub.profile.color||'#8A6A4B'}">${hub.profile.emoji||'•'}</span><span class="t"><b>${hub.profile.name} (you)</b><span>${me&&me.src==='gps'?placeOf([me.x,me.y])+(shareOn()?' · sharing':' · not sharing'):'no fix yet'}</span></span></div>`:'';
   const wire=()=>{const c=$('lv-share');if(c)c.onchange=()=>setShare(c.checked)};
   if(!rows.length){box.innerHTML=shareRow+meRow+'<div class="lv-empty">No one else is sharing right now. Anyone who switches on Share my spot will show up here.</div>';wire();return}
   box.innerHTML=shareRow+meRow+rows.map(([id,f])=>{const s=inFrame([f.x,f.y])?sectionAt(f.x,f.y):null;const d=me&&inFrame([me.x,me.y])&&inFrame([f.x,f.y])?Math.hypot(f.x-me.x,f.y-me.y):null;
-    const stale=Date.now()-f.t>4*3600e3;return`<button class="lv-item" data-f="${id}"${stale?' style="opacity:.55"':''}><span class="n" style="background:${f.color||'#8A6A4B'}">${f.emoji||'•'}</span><span class="t"><b>${f.name||id}</b><span>${inFrame([f.x,f.y])?(s?s.name:'in the park'):'outside the park'} · ${agoOf(f.t)}</span></span><span class="d">${d!=null?ftOf(d):''}<small>${d!=null?walkOf(d):''}</small></span></button>`}).join('');
+    const stale=Date.now()-f.t>4*3600e3;return`<button class="lv-item" data-f="${id}"${stale?' style="opacity:.55"':''}><span class="n" style="background:${f.color||'#8A6A4B'}">${f.emoji||'•'}</span><span class="t"><b>${f.name||id}</b><span>${placeOf([f.x,f.y])} · ${agoOf(f.t)}</span></span><span class="d">${d!=null?ftOf(d):''}<small>${d!=null?walkOf(d):''}</small></span></button>`}).join('');
   box.querySelectorAll('.lv-item[data-f]').forEach(b=>b.onclick=()=>showFamily(b.dataset.f));wire()}
 function setShare(on){try{hub.set('share',!!on,{scope:'person'})}catch(e){}
   if(on){startGps()}
-  else{if(watchId!=null){try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null;follow=false;liveBtn()}
-    try{hub.remove('loc:'+hub.profile.id,{scope:'family'})}catch(e){}
-    if(wakeLock){try{wakeLock.release()}catch(e){}wakeLock=null}}
+  else{try{hub.remove('loc:'+hub.profile.id,{scope:'family'})}catch(e){}}   // the dot stays: sharing is about the family seeing it, not about seeing it yourself
   updLoc();renderFam()}
-function showFamily(id){const f=FAM[id];if(!f)return;const s=inFrame([f.x,f.y])?sectionAt(f.x,f.y):null;const d=me&&inFrame([me.x,me.y])?Math.hypot(f.x-me.x,f.y-me.y):null;
-  setSheet('peek');follow=false;liveBtn();fitBox([f.x-90,f.x+90,f.y-90,f.y+90],true);lastPt=[svg.clientWidth/2,svg.clientHeight/2];
-  openPop(`<h2><span class="badge" style="background:${f.color||'#8A6A4B'}">${f.emoji||'•'}</span>${f.name||id}</h2><div class="meta">${s?s.name:inFrame([f.x,f.y])?'in the park':'outside the park'} · seen ${agoOf(f.t)}${f.acc?` · ± ${Math.round(f.acc*3.28)} ft`:''}</div>
+function showFamily(id){const f=FAM[id];if(!f)return;const s=inFrame([f.x,f.y])?sectionAt(f.x,f.y):null;const d=me&&inFrame([me.x,me.y])?Math.hypot(f.x-me.x,f.y-me.y):null;const fe=edgePt([f.x,f.y]);
+  setSheet('peek');follow=false;liveBtn();fitBox([fe[0]-90,fe[0]+90,fe[1]-90,fe[1]+90],true);lastPt=[svg.clientWidth/2,svg.clientHeight/2];
+  openPop(`<h2><span class="badge" style="background:${f.color||'#8A6A4B'}">${f.emoji||'•'}</span>${f.name||id}</h2><div class="meta">${placeOf([f.x,f.y])} · seen ${agoOf(f.t)}${f.acc?` · ± ${Math.round(f.acc*3.28)} ft`:''}</div>
     ${d!=null?`<div class="lv-from"><b>${ftOf(d)}</b> from you · ${walkOf(d)}</div>`:''}`);pop.dataset.cat='family';pop.style.setProperty('--pop-cat',f.color||'#8A6A4B')}
 window.showFamily=showFamily;
 /* ---- walking directions over the mapped guest paths ----
@@ -1073,11 +1118,16 @@ function liveBtn(){const b=$('loc-btn');if(!b)return;b.setAttribute('aria-presse
 function liveDragged(){if(follow){follow=false;liveBtn()}}
 function livePlace(p){if(!placeMode)return false;setMe(p[0],p[1],null,null,'place');placeMode=false;$('loc-place').setAttribute('aria-pressed','false');updLoc();return true}
 async function keepAwake(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen')}catch(e){}}
-function startGps(){if(VIEW_ONLY())return;if(!GEO||!('geolocation'in navigator)){$('loc-sec').textContent='No GPS in this browser — use Set my spot';return}
-  if(watchId==null){watchId=navigator.geolocation.watchPosition(p=>{const c=p.coords,[x,y]=toXY(c.latitude,c.longitude);setMe(x,y,c.accuracy,c.heading,'gps');liveBtn()},
-    err=>{watchId=null;follow=false;liveBtn();$('loc-sec').textContent=err.code===1?'Location is off for this site':'No GPS fix yet';$('loc-acc').textContent=err.code===1?'Allow it in Settings, or use Set my spot':'Try again with a view of the sky'},
-    {enableHighAccuracy:true,maximumAge:3000,timeout:20000});keepAwake();updLoc()}
-  follow=true;liveBtn();if(me&&inFrame([me.x,me.y]))fitBox([me.x-120,me.x+120,me.y-120,me.y+120],true)}
+function startGps(resume){if(VIEW_ONLY())return;if(!GEO||!('geolocation'in navigator)){$('loc-sec').textContent='No GPS in this browser — use Set my spot';return}
+  if(!resume)try{localStorage.setItem(TRACK_KEY(),'1')}catch(e){}
+  if(watchId==null){gpsErr=null;watchId=navigator.geolocation.watchPosition(p=>{gpsErr=null;const c=p.coords,[x,y]=toXY(c.latitude,c.longitude);if(me&&me.stale){me.stale=false}setMe(x,y,c.accuracy,c.heading,'gps');liveBtn()},
+    err=>{gpsErr=err.code;if(err.code===1){try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null;follow=false;liveBtn();try{localStorage.removeItem(TRACK_KEY())}catch(e){}$('loc-sec').textContent='Location is off for this site';
+        $('loc-acc').textContent=(window.top!==window?'Allow Location for the Hub in Settings › Safari (or open the map on its own), or use Set my spot':'Allow it in Settings, or use Set my spot');return}
+      // code 2 (no position) / 3 (timeout): the watch keeps running and will deliver when the sky is back; say so, keep the last fix
+      if(!me){$('loc-sec').textContent='Still looking for GPS…';$('loc-acc').textContent='Walk into the open; the map updates the moment there is a fix'}else updLoc()},
+    {enableHighAccuracy:true,maximumAge:5000,timeout:15000});keepAwake();updLoc()}
+  if(resume){liveBtn();drawMe();return}   // back from the background or a cold boot: same view, same follow state
+  follow=true;liveBtn();if(me&&onProperty([me.x,me.y])){const e=edgePt([me.x,me.y]);fitBox([e[0]-120,e[0]+120,e[1]-120,e[1]+120],true)}}
 const sheet=$('lv-sheet');function setSheet(s){if(sheet)sheet.dataset.state=s}
 function showPane(t){document.querySelectorAll('.lv-tabs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===t)));
   ['lv-near','lv-fam','lv-srch','lv-lay'].forEach(id=>$(id).hidden=true);$({near:'lv-near',family:'lv-fam',search:'lv-srch',layers:'lv-lay'}[t]).hidden=false;
@@ -1112,14 +1162,16 @@ function liveInit(){document.title='Dollywood park map';svg.setAttribute('preser
   document.querySelectorAll('#lv-styles button').forEach(b=>b.onclick=()=>setStyle(b.dataset.bm));
   $('loc-btn').onclick=startGps;$('lv-fit').onclick=()=>{follow=false;liveBtn();fitBox(D.layers.allbox,true)};$('lv-layers').onclick=()=>{showPane('layers');setSheet('half')};
   $('loc-place').onclick=()=>{placeMode=!placeMode;$('loc-place').setAttribute('aria-pressed',String(placeMode));
-    if(placeMode){follow=false;if(watchId!=null){try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null}liveBtn();setSheet('peek')}updLoc()};
+    if(placeMode){wasGps=watchId!=null;try{localStorage.removeItem(TRACK_KEY())}catch(e){}follow=false;if(watchId!=null){try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null}liveBtn();setSheet('peek')}else if(wasGps){wasGps=false;startGps()}updLoc()};
+  let wasGps=false;
   $('lv-handle').onclick=()=>setSheet(sheet.dataset.state==='peek'?'half':sheet.dataset.state==='half'?'full':'peek');
   document.querySelectorAll('.lv-tabs button').forEach(b=>b.onclick=()=>{showPane(b.dataset.t);if(sheet.dataset.state==='peek')setSheet('half')});
   let sy=null;sheet.addEventListener('pointerdown',e=>{if(e.target.closest('.lv-body'))return;sy=e.clientY});
   sheet.addEventListener('pointerup',e=>{if(sy==null)return;const d=e.clientY-sy;sy=null;if(d<-40)setSheet(sheet.dataset.state==='peek'?'half':'full');else if(d>40)setSheet(sheet.dataset.state==='full'?'half':'peek')});
   let wasWatching=false;document.addEventListener('visibilitychange',()=>{if(document.hidden){wasWatching=watchId!=null;if(watchId!=null){try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null;liveBtn()}if(wakeLock){try{wakeLock.release()}catch(e){}wakeLock=null}}
-    else if(wasWatching&&shareOn()){wasWatching=false;startGps()}});
-  try{const l=JSON.parse(localStorage.getItem(LIVE_KEY)||'null');if(l&&Date.now()-l.t<12*3600e3){me=l;drawMe()}}catch(e){}
+    else{if(wasWatching){wasWatching=false;startGps(true)}updLoc();drawMe()}});
+  setInterval(()=>{if(me&&!document.hidden){updLoc();if(fixAge()>120e3)drawMe()}},15000);   // the pill ages a quiet fix; the dot goes grey after two minutes without one
+  try{const l=JSON.parse(localStorage.getItem(LIVE_KEY)||'null');if(l&&Date.now()-l.t<12*3600e3){me=l;me.stale=true;drawMe()}}catch(e){}
   let st='relief';try{st=localStorage.getItem('dollywood.live.style')||'relief'}catch(e){}setStyle(st);
   fitBox([560,1000,560,1080],false);updLoc();renderNear();renderFam();liveBtn();drawMe();
   (async()=>{if(window.hub){try{await hub.ready({optional:true})}catch(e){}
@@ -1128,6 +1180,9 @@ function liveInit(){document.title='Dollywood park map';svg.setAttribute('preser
       setInterval(()=>{drawFam();renderFam()},30000);
       if(VIEW_ONLY()){const b=$('loc-btn');if(b)b.hidden=true}
       if(shareOn())startGps()}}          // sharing already on for this person: resume without a tap
+    let intent=false;try{intent=localStorage.getItem(TRACK_KEY())==='1'}catch(e){}
+    if(watchId==null&&!VIEW_ONLY()&&intent)startGps(true);   // asked for before on this device: back without a tap, same view
+    else if(watchId==null&&!VIEW_ONLY()&&navigator.permissions&&navigator.permissions.query){try{const st=await navigator.permissions.query({name:'geolocation'});if(st.state==='granted')startGps(true)}catch(e){}}   // already allowed: no tap needed, no prompt
     updLoc();renderFam()})()}
 /* ---- live wait times: the hub Worker proxies queue-times.com (60 s cache); each ride's posted wait is matched to a listing
    by name and shown on its marker, its card, the Nearby / Waits list, the search results and the directions bar ---- */
