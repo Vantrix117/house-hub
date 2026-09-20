@@ -1018,8 +1018,7 @@ $('cint').addEventListener('change',e=>{for(const k in CG)CG[k].style.display=k=
 let basemap='relief';
 $('bmap').addEventListener('change',e=>{basemap=e.target.value;const off=basemap==='official';if((basemap==='aerial'||basemap==='mix')&&!aer.getAttribute('href'))aer.setAttribute('href',AER);ill.style.display=off?'':'none';aer.style.display=(basemap==='relief'||off)?'none':'';img.style.display=(basemap==='aerial'||off)?'none':'';img.style.opacity=basemap==='mix'?.45:1;img.style.mixBlendMode=basemap==='mix'?'multiply':'';mimg.setAttribute('href',off?ILL:basemap==='relief'?IMG:AER);if(three)three.retexture()});
 /* Light/dark: the reference flavour keeps its own toggle; in the hub, hub.js sets data-theme (the person's palette) and data-scheme (resolved light|dark). */
-if(FLAVOR==='reference'){$('theme').onclick=()=>{const l=document.documentElement.dataset.theme==='light';document.documentElement.dataset.theme=l?'dark':'light';$('theme').textContent=l?'Light':'Dark';try{localStorage.setItem('dw-theme',l?'dark':'light')}catch(e){}};
-try{if(localStorage.getItem('dw-theme')==='light'){document.documentElement.dataset.theme='light';$('theme').textContent='Dark'}}catch(e){}}else{const t=$('theme-row');if(t)t.remove()}
+{const t=$('theme-row');if(t)t.remove()}
 /* View menu (contour interval, theme, steepness), the More disclosure on phones, the "?" shortcuts popover and the build
    panel's overflow menu: small popovers that close on an outside click or Escape. Steepness here mirrors the Layers toggle. */
 function popover(btn,panel,onOpen){if(!btn||!panel)return;const set=o=>{panel.hidden=!o;btn.setAttribute('aria-expanded',String(o));if(o&&onOpen)onOpen()};
