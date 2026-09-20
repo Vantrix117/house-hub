@@ -13,16 +13,24 @@ function pick(text) {
   if (/add (.+) to (the )?(leftovers|fridge)/.test(t)) return { name: 'add_list_item', input: { app_id: 'leftovers', item: { name: cap(t.match(/add (.+?) to (the )?(leftovers|fridge)/)[1]), size: 'Small' } } };
   if (/remind/.test(t)) return { name: 'add_list_item', input: { app_id: 'reminders', item: { text: cap(t.replace(/^.*remind (everyone |us |me )?(to |about )?/, '')) } } };
   if (/week (\d+) day (\d+)/.test(t)) { const m = t.match(/week (\d+) day (\d+)/); return { name: 'toggle_f260_reading', input: { week: +m[1], day: +m[2] } }; }
+  if (/change the prayer app|adult-only/.test(t)) return { name: 'set_data', input: { app_id: 'prayer', scope: 'person', key: 'label', value: 'hacked' } };
+  // round 2 (roadmap 14)
+  if (/finished (the )?(.+?) (from|in) the fridge|we ate (the )?(.+)/.test(t)) { const m = t.match(/finished (?:the )?(.+?) (?:from|in) the fridge/) || t.match(/we ate (?:the )?(.+)/); return { name: 'finish_leftover', input: { name: cap(m[1]) } }; }
+  if (/where is everyone|where's everyone|where is the family|where is everybody/.test(t)) return { name: 'where_is_family', input: {} };
+  if (/where am i in (my )?(f260|reading)|reading status|f260 status/.test(t)) return { name: 'f260_status', input: {} };
+  if (/today'?s verse|memory verse|bible verse/.test(t)) return { name: 'read_todays_verse', input: {} };
+  if (/(was|got|is) answered/.test(t)) { const m = t.match(/^(?:the )?(?:prayer (?:for |about )?)?(.+?) (?:was|got|is) answered(?: on the family list)?(?:[:,-]\s*(.+))?$/); return { name: 'answer_prayer', input: { list: /family/.test(t) ? 'family' : 'private', prayer_id: cap(m ? m[1] : t), ...(m && m[2] ? { note: cap(m[2]) } : {}) } }; }
+  if (/^i prayed for (.+)/.test(t)) return { name: 'mark_prayed', input: { list: /family/.test(t) ? 'family' : 'private', prayer_id: cap(t.match(/^i prayed for (.+?)( on the family list| today)*$/)[1]) } };
   if (/pray/.test(t)) return { name: 'add_prayer', input: { list: /family/.test(t) ? 'family' : 'private', text: cap(t.replace(/^.*pray(er)? (for |that )?/, '').replace(/ on the family list/, '')) } };
   if (/set my tally to (\d+)/.test(t)) return { name: 'set_data', input: { app_id: 'tally', scope: 'person', key: 'count', value: +t.match(/set my tally to (\d+)/)[1] } };
-  if (/change the prayer app|adult-only/.test(t)) return { name: 'set_data', input: { app_id: 'prayer', scope: 'person', key: 'label', value: 'hacked' } };
   return null;
 }
 const cap = s => s.trim().replace(/[.!?]$/, '').replace(/^\w/, c => c.toUpperCase());
 
 http.createServer((req, res) => {
   let body = ''; req.on('data', d => body += d).on('end', () => {
-    const r = JSON.parse(body || '{}');
+    let r; try { r = JSON.parse(body || '{}'); } catch { r = {}; }
+    if (!Array.isArray(r.messages) || !r.messages.length) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: 'messages is required' } })); return; }   // a stray probe must not crash the mock
     const last = r.messages[r.messages.length - 1];
     const events = [];
     const push = (type, obj) => events.push(`event: ${type}\ndata: ${JSON.stringify({ type, ...obj })}\n\n`);

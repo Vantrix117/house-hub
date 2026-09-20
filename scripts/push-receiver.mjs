@@ -50,7 +50,7 @@ http.createServer((req, res) => {
     try {
       const v = await verifyVapid(req.headers.authorization);
       const d = await decrypt(body);
-      console.log(`PUSH #${++n} vapid=${v.ok ? 'valid' : 'INVALID'} ttl=${req.headers.ttl} urgency=${req.headers.urgency} enc=${req.headers['content-encoding']} payload=${d.text}`);
+      console.log(`PUSH #${++n} url=${req.url} vapid=${v.ok ? 'valid' : 'INVALID'} ttl=${req.headers.ttl} urgency=${req.headers.urgency} enc=${req.headers['content-encoding']} payload=${d.text}`);
       res.writeHead(201); res.end();
     } catch (e) { console.log('PUSH #' + (++n) + ' FAILED to decrypt/verify: ' + e.message); res.writeHead(400); res.end(); }
   });

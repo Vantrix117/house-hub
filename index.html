@@ -110,7 +110,9 @@
   .gcard { position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 196px; }
   .gcard .gbody { flex: 1; display: flex; align-items: center; gap: var(--sp-4); position: relative; z-index: 1; }
   .gbig { font-size: var(--fs-xl); font-weight: 700; line-height: 1.2; min-height: 1.3em; letter-spacing: var(--ls-tight); }
-  .gsub { color: var(--text-2); font-size: var(--fs-sm); margin-top: 2px; }
+  .gsub { color: var(--text-2); font-size: var(--fs-sm); margin-top: 2px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .gbig.one { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  @media (max-width: 719px) { .gsub, .gbig.one { display: block; white-space: nowrap; text-overflow: ellipsis; } }   /* full-width cards: one line */
   .gcard .btn { align-self: flex-start; margin-top: var(--sp-3); position: relative; z-index: 1; }
   .fresh { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
   .fresh .bar { --tint: var(--warn); }
@@ -135,6 +137,30 @@
   .kid-cta .app-icon { width: 64px; height: 64px; border-radius: 20px; }
   .two-col { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
   @media (min-width: 1024px) { .two-col { grid-template-columns: 3fr 2fr; align-items: start; } }
+  .stack-lg > .glance { margin-bottom: 0; }
+  /* park + stars cards */
+  .park-list { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .park-list li { display: flex; align-items: center; gap: var(--sp-3); min-height: 32px; }
+  .park-list .pn { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .park-list .pt { flex: none; color: var(--text-2); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .star-big { display: inline-flex; align-items: center; gap: 2px; flex: none; font-size: var(--fs-2xl); font-weight: 700; letter-spacing: var(--ls-tight); color: var(--gold-ink); line-height: 1; }
+  .star-big .icon { width: 1.1em; height: 1.1em; color: var(--gold); --tint: var(--gold); }
+  .stars-card .app-icon, .kids-card .app-icon { color: var(--gold-ink); }
+  /* play.svg is drawn in paper-white for the hero, so these cards fade to gold-soft under it (.ds .card sets the background at 0,2,0, so match that) */
+  .ds .stars-card, .ds .kids-card { background: linear-gradient(120deg, var(--surface) 30%, var(--gold-soft) 72%); }
+  .stars-card .spot, .kids-card .spot { opacity: .9; width: 44%; max-width: 200px; right: 0; bottom: -4px; }
+  :root[data-scheme="dark"] .stars-card .spot, :root[data-scheme="dark"] .kids-card .spot { opacity: .12; }   /* on a dark palette the white art is a faint ghost, never a glare under the words */
+  .kids-line { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; min-height: 1.3em; }
+  .kid-chip { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-lg); font-weight: 600; white-space: nowrap; }
+  .kid-chip b { color: var(--gold-ink); font-variant-numeric: tabular-nums; }
+  /* the feed: one row per person, one line per thing they did */
+  .feed .fwho { display: block; margin-bottom: 2px; }
+  .feed .fline { display: flex; align-items: flex-start; gap: var(--sp-2); padding: 3px 0; }
+  .feed .ficon { width: 22px; height: 22px; border-radius: 7px; flex: none; display: grid; place-items: center; margin-top: 1px; color: var(--tint-ink, var(--text)); background: color-mix(in srgb, var(--tint) 14%, var(--surface)); }
+  .feed .ficon .icon { width: 14px; height: 14px; }
+  .feed .ftxt { flex: 1; min-width: 0; }
+  .feed .fline .fwhen { margin-left: var(--sp-2); padding-top: 2px; }
+  .feed .feed-more { display: block; border-bottom: 0; padding: var(--sp-3) 0 0; }
 
   /* ── apps grid ────────────────────────────────────────────────── */
   /* minmax(0, 1fr): tracks never grow from a tile's content, so squares stay square next to a wide tile */
@@ -370,7 +396,8 @@
   const avatar = (p, cls = '', size = 'sm') => hub.avatarHtml(p, cls, size);
 
   // Data the dashboard reads from other apps (each app still owns its own keys).
-  hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person').use('timer', 'person');
+  hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person').use('timer', 'person')
+    .use('dollywood-live', 'family').use('kidverse', 'both');   // park days + kids' stars (kidverse writes; the shell only reads)
 
   // ── registry ──────────────────────────────────────────────────
   async function loadRegistry() {
@@ -750,19 +777,123 @@
     while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
     return n;
   }
-  let clockTimer = null, feed = null, feedLoading = false;
+  // What the prayer app puts on today's list for this person's own list — a read-only port of its todaySet():
+  // daily + weekly-on-this-day + the rotation it froze for today (or the plan's focus / by-day categories).
+  // Reads only the person-scope rows the shell already syncs, so it renders from the cache before the first pull.
+  function prayerToday() {
+    const P = { app: 'prayer', scope: 'person' }, today = dayKey();
+    const act = hub.list('prayer:', P).map(r => r.value).filter(p => p && p.id && p.status === 'active');
+    const plans = hub.get('plans', { ...P, default: [] }) || [];
+    const plan = plans.find(x => x && x.id === hub.get('activePlan', P)) || plans[0] || { id: '', mode: 'everything', includeDaily: true, rotationSize: 3, dayMap: {} };
+    const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
+    const since = s => s ? Math.round((new Date(today + 'T12:00:00') - new Date(s + 'T12:00:00')) / 86400000) : 9999;
+    let picked;
+    if (plan.mode === 'focus') picked = act.filter(p => p.category === plan.focusCategory);
+    else if (plan.mode === 'byDay') { const cats = (plan.dayMap || {})[dow] || []; picked = act.filter(p => cats.includes(p.category) || (plan.includeDaily !== false && p.cadence === 'daily')); }
+    else {
+      const daily = act.filter(p => !['weekly', 'rotation'].includes(p.cadence));      // the app normalises an unknown cadence to daily
+      const weekly = act.filter(p => p.cadence === 'weekly' && (p.days || []).includes(dow));
+      const size = plan.rotationSize || 3, rf = hub.get('rotationFor', P), key = 'personal|' + plan.id;
+      const ids = rf && rf.date === today && rf.size === size && rf.key === key ? (rf.ids || [])
+        : act.filter(p => p.cadence === 'rotation').sort((a, b) => since(b.lastPrayedAt) - since(a.lastPrayedAt)).slice(0, size).map(p => p.id);
+      picked = [...daily, ...weekly, ...ids.map(id => act.find(p => p.id === id)).filter(Boolean)];
+    }
+    const set = [...new Map(picked.map(p => [p.id, p])).values()];
+    const done = set.filter(p => p.lastPrayedAt === today).length;
+    return { total: set.length, done, due: set.length - done };
+  }
+  // Family map: everyone whose loc:<id> row (dollywood-live, family scope) is fresher than four hours.
+  const PARK_FRESH = 4 * 3600e3;
+  function atPark() {
+    const now = Date.now(), faces = {}; for (const q of hub.people()) faces[q.id] = q;
+    return hub.list('loc:', { app: 'dollywood-live', scope: 'family' })
+      .filter(r => r.value && typeof r.value === 'object' && now - (Number(r.value.t) || 0) < PARK_FRESH)
+      .map(r => { const id = r.key.slice(4), q = faces[id] || {}; return { id, t: Number(r.value.t), name: q.name || r.value.name || id, emoji: q.emoji || r.value.emoji, color: q.color || r.value.color, photo: q.photo || null }; })
+      .sort((a, b) => b.t - a.t);
+  }
+  // Kids' stars. The kid verse app writes app_data(kidverse, person, 'stars') = { week: 'YYYY-Www', count: n } for the kid
+  // and mirrors it into app_data(kidverse, family, 'stars:<kidId>') with the same shape so adults' Home can read it.
+  const isoWeek = (d = new Date()) => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + String(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)).padStart(2, '0'); };
+  const starsOf = v => v && typeof v === 'object' && v.week === isoWeek() ? Math.max(0, Math.floor(Number(v.count) || 0)) : 0;
+  const kidStars = () => hub.people().filter(q => q && q.kind === 'kid').map(q => ({ ...q, stars: starsOf(hub.get('stars:' + q.id, { app: 'kidverse', scope: 'family' })) }));
+  const ICON_STAR = '<svg class="icon" viewBox="0 0 24 24"><path class="duo" d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
+  const ICON_PIN = '<svg class="icon" viewBox="0 0 24 24"><path class="duo" d="M12 21s-6-5.4-6-10a6 6 0 0 1 12 0c0 4.6-6 10-6 10Z"/><path d="M12 21s-6-5.4-6-10a6 6 0 0 1 12 0c0 4.6-6 10-6 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>';
+  // Has this (app, scope) ever been pulled on this device for this person? Then the cache is the truth until the next pull: no skeleton.
+  const cached = (app, scope) => { try { const c = JSON.parse(localStorage.getItem('hub.cache.' + app + '.' + scope + (scope === 'person' ? '.' + hub.profile.id : ''))); return !!(c && c.since > 0); } catch { return false; } };
+  const agoText = t => { const s = ago(t); return s === 'just now' || /\s/.test(s) ? s : s + ' ago'; };
+  function parkCardHtml(who) {
+    const a = appById('dollywood-live'); const n = who.length;
+    const big = n === 1 ? esc(who[0].name) : n === 2 ? esc(who[0].name) + ' and ' + esc(who[1].name) : n + ' of the family';   // names never clip; the rows below list everyone
+    return `<div class="card gcard park-card" style="--tint:${esc((a && a.color) || FALLBACK)}"><img class="spot" src="art/app/dollywood-live.svg" alt="" width="200" height="160">
+      <h2><span class="app-icon">${ICON_PIN}</span>At the park</h2>
+      <div class="gbody"><div class="grow">
+        <div class="gbig one">${big}</div>
+        <div class="gsub">At Dollywood · last seen ${esc(agoText(who[0].t))}</div>
+        <ul class="park-list">${who.map(w => `<li style="--tint:${esc(w.color || FALLBACK)}">${avatar(w, 'avatar-sm')}<span class="pn">${esc(w.name)}</span><span class="pt">${esc(agoText(w.t))}</span></li>`).join('')}</ul>
+      </div></div>${a && canSee('dollywood-live') ? '<button class="btn btn-soft" data-open="dollywood-live">Open the map</button>' : ''}</div>`;
+  }
+  function starsCardHtml(n) {
+    const kv = appById('kidverse'), can = !!kv && canSee('kidverse');
+    return `<div class="card gcard stars-card" style="--tint:var(--gold)"><img class="spot" src="art/hero/play.svg" alt="" width="300" height="200">
+      <h2><span class="app-icon">${ICON_STAR}</span>Stars</h2>
+      <div class="gbody"><span class="star-big" aria-hidden="true">${ICON_STAR}<b>${n}</b></span><div class="grow">
+        <div class="gbig one">${n ? n + (n === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet'}</div>
+        <div class="gsub">${n ? 'Every verse earns one more.' : 'Learn a verse to earn your first!'}</div>
+      </div></div>${can ? `<button class="btn btn-soft" data-open="kidverse">Open ${esc(kv.name)}</button>` : ''}</div>`;
+  }
+  function kidsCardHtml(kids) {
+    const total = kids.reduce((s, k) => s + k.stars, 0);
+    return `<div class="card gcard kids-card" style="--tint:var(--gold)"><img class="spot" src="art/hero/play.svg" alt="" width="300" height="200">
+      <h2><span class="app-icon">${ICON_STAR}</span>Kids</h2>
+      <div class="gbody"><div class="grow">
+        <div class="kids-line">${kids.map(k => `<span class="kid-chip" style="--tint:${esc(k.color || FALLBACK)}">${avatar(k, 'avatar-sm')}<span>${esc(k.name)} <b>★${k.stars}</b></span></span>`).join('')}</div>
+        <div class="gsub">${total ? total + (total === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week.'}</div>
+      </div></div></div>`;
+  }
+  // ── the family feed: cached for an instant paint, grouped by person, an icon per line, "Show more" in pages of 30 ──
+  let clockTimer = null, feed = null, feedLoading = false, feedAgain = false, feedFresh = false, feedLimit = 30, feedSeq = 0;
+  try { const c = JSON.parse(localStorage.getItem('hub.feed')); if (Array.isArray(c)) feed = c; } catch {}
   async function loadFeed(force) {
-    if (feedLoading) return; if (feed && !force) return;
-    feedLoading = true;
-    try { feed = await hub.activityFeed(30); } catch { feed = feed || []; }
-    finally { feedLoading = false; renderFeed(); }
+    if (feedLoading) { if (force) feedAgain = true; return; }      // a forced load while one is in flight runs again after it
+    if (feedFresh && !force) return;
+    feedLoading = true; const want = feedLimit;
+    try { feed = await hub.activityFeed(want); feedFresh = true; try { localStorage.setItem('hub.feed', JSON.stringify(feed.slice(0, 30))); } catch {} }
+    catch {                                                       // a failed page keeps what we have and re-offers "Show more" (feedLimit falls back to the rows we hold)
+      feed = feed || [];
+      if (feed.length) feedLimit = Math.min(want, Math.max(30, Math.floor(feed.length / 30) * 30));
+      if (want > feedLimit) hub.toast('Could not load more right now.');
+    }
+    finally { feedLoading = false; renderFeed(); if (feedAgain) { feedAgain = false; loadFeed(true); } }
+  }
+  const FEED_SYMBOLS = { reminders: '#i-bell', chat: '#i-chat', hub: '#i-home', timer: '#i-timer' };
+  const feedSymbol = id => `<svg class="icon"><use href="${FEED_SYMBOLS[id] || '#i-sparkle'}"/></svg>`;
+  // Cached icon now (or the sprite fallback); null when icons/<app>.svg has not been fetched yet.
+  function feedIconSync(id) {
+    const a = appById(id); if (!a) return feedSymbol(id);
+    const ic = a.icon || '';
+    if (ic.trim().startsWith('<svg')) return ic.replace('<svg', '<svg class="icon"');
+    if (!/\.svg$/i.test(ic)) return feedSymbol(id);
+    if (!(ic in svgCache)) return null;
+    return svgCache[ic] ? svgCache[ic].replace('<svg', '<svg class="icon"') : feedSymbol(id);
   }
   function renderFeed() {
     const ul = $('#feed'); if (!ul) return;
     if (!feed) { ul.innerHTML = Array.from({ length: 4 }, () => '<li><span class="avatar avatar-sm avatar-plain skeleton"></span><div class="ftext"><div class="skeleton" style="width:55%">x</div><div class="skeleton" style="width:80%;margin-top:6px">x</div></div></li>').join(''); return; }
     if (!feed.length) { ul.innerHTML = '<li class="empty" style="display:block;padding:var(--sp-4) 0"><div class="empty-art"><img src="art/empty/feed.svg" alt=""></div>Nothing has happened yet. Check off a reading or log a leftover and it shows up here.</li>'; return; }
-    ul.innerHTML = feed.map(a => `<li style="--tint:${esc(a.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(a.color || FALLBACK)} 70%, var(--text))">${avatar(a, 'avatar-sm')}
-      <div class="ftext"><span class="fwho">${esc(a.name || 'Someone')}</span> <span class="fwhen">· ${esc(ago(a.created_at))}</span><div class="text-2">${esc(a.text)}</div></div></li>`).join('');
+    const ids = [...new Set(feed.map(a => a.app_id || 'hub'))], icons = {}, missing = [];
+    for (const id of ids) { const h = feedIconSync(id); if (h == null) missing.push(id); icons[id] = h || feedSymbol(id); }
+    const groups = [];
+    for (const a of feed) { const g = groups[groups.length - 1]; if (g && g.who === (a.profile_id || '')) g.items.push(a); else groups.push({ who: a.profile_id || '', p: a, items: [a] }); }
+    const more = feedFresh && feed.length >= feedLimit && feedLimit < 100;
+    ul.innerHTML = groups.map(g => `<li style="--tint:${esc(g.p.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(g.p.color || FALLBACK)} 70%, var(--text))">${avatar(g.p, 'avatar-sm')}
+      <div class="ftext"><div class="fwho">${esc(g.p.name || 'Someone')}</div>
+        ${g.items.map(a => `<div class="fline"><span class="ficon">${icons[a.app_id || 'hub']}</span><span class="ftxt text-2">${esc(a.text)}</span><span class="fwhen">${esc(agoText(a.created_at))}</span></div>`).join('')}
+      </div></li>`).join('') + (more ? '<li class="feed-more"><button class="btn btn-soft btn-block" id="feed-more">Show more</button></li>' : '');
+    const b = $('#feed-more'); if (b) b.addEventListener('click', () => { b.disabled = true; b.textContent = 'Loading…'; feedLimit = Math.min(100, feedLimit + 30); loadFeed(true); });
+    if (missing.length) {          // the icons we did not have yet: fetch once, then repaint the same feed
+      const seq = ++feedSeq;
+      Promise.all(missing.map(id => iconHtml(appById(id)))).then(() => { if (seq === feedSeq && $('#feed') === ul) renderFeed(); });
+    }
   }
   function heroHtml(p, { title, sub, art, kicker, extra = '' }) {
     const tod = timeOfDay();
@@ -783,21 +914,25 @@
       clockTimer = setInterval(() => { const n = new Date(); const c = $('#clock'); if (c) c.textContent = fmtTime(n); const k = $('.home-hero .hero-kicker'); if (k) k.textContent = fmtDate(n); }, 1000);
       renderReminders(); return;
     }
+    const park = atPark();
     if (p.kind === 'kid') {
-      v.innerHTML = heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: 'Ready to play?', art: 'play' }) + `
+      const stars = starsOf(hub.get('stars', { app: 'kidverse', scope: 'person' }));
+      const kcards = [starsCardHtml(stars)]; if (park.length) kcards.push(parkCardHtml(park));
+      v.innerHTML = heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: stars ? `${stars} ${stars === 1 ? 'star' : 'stars'} this week — ready to play?` : 'Ready to play?', art: 'play' }) + `
         <div class="stack-lg">
           <button class="kid-cta" id="kid-apps"><span class="app-icon"><svg class="icon"><use href="#i-sparkle"/></svg></span>Let's play — open your apps</button>
+          <div class="glance${kcards.length === 2 ? ' two' : ''}">${kcards.join('')}</div>
           <div class="card"><h2><span class="app-icon" style="--tint:var(--gold)"><svg class="icon"><use href="#i-bell"/></svg></span>Reminders</h2><ul class="list" id="remlist"></ul></div>
         </div>`;
       $('#kid-apps').addEventListener('click', () => { buzz(); showTab('apps'); });
       renderReminders(); return;
     }
-    const loaded = !!hub.sync.lastPull || hub.sync.state === 'offline';
+    const pulled = !!hub.sync.lastPull || hub.sync.state === 'offline';
     const sk = '<span class="skeleton">loading</span>';
     const cards = []; const bits = [];
     const f = canSee('f260') ? hub.get('f260.summary', { app: 'f260', scope: 'person' }) : null;
     if (canSee('f260')) {
-      const a = appById('f260');
+      const a = appById('f260'); const loaded = pulled || cached('f260', 'person');
       if (f && f.next) bits.push(f.readToday ? 'reading done' : 'a reading waiting');
       cards.push(`<div class="card gcard" style="--tint:${esc(a.color || FALLBACK)}"><img class="spot" src="art/app/f260.svg" alt="" width="200" height="160">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-book"/></svg></span>Today's reading</h2>
@@ -807,7 +942,7 @@
         </div></div><button class="btn btn-soft" data-open="f260">Open F260</button></div>`);
     }
     {
-      const due = fridgeDue(); const a = appById('leftovers');
+      const due = fridgeDue(); const a = appById('leftovers'); const loaded = pulled || cached('leftovers', 'family');
       if (due.length) bits.push(due.length + ' to eat');
       const bars = due.slice(0, 3).map(i => `<div class="${i.days >= 7 ? 'stale' : ''}"><div class="fl"><span>${esc(i.name)}</span><span>${i.days}d</span></div><div class="bar" style="--p:${Math.min(1, i.days / 10)}"><i></i></div></div>`).join('');
       cards.push(`<div class="card gcard" style="--tint:${esc((a && a.color) || FALLBACK)}"><img class="spot" src="art/app/leftovers.svg" alt="" width="200" height="160">
@@ -818,17 +953,22 @@
         </div></div>${a && canSee('leftovers') ? '<button class="btn btn-soft" data-open="leftovers">Open the ledger</button>' : ''}</div>`);
     }
     if (canSee('prayer')) {
-      const n = prayerStreak(); const a = appById('prayer');
-      cards.push(`<div class="card gcard" style="--tint:${esc(a.color || FALLBACK)}"><img class="spot" src="art/app/prayer.svg" alt="" width="200" height="160">
+      const n = prayerStreak(); const t = prayerToday(); const a = appById('prayer'); const loaded = pulled || cached('prayer', 'person');
+      if (t.due) bits.push(t.due + ' to pray');
+      const big = !t.total ? 'Nothing on the list today' : `${t.due} to pray · ${t.done} done`;
+      const sub = n ? `${n}-day streak${t.total && !t.due ? ' · all done today ✓' : ' · keep it going'}` : t.total ? 'Pray through your list to start a streak.' : 'Add a request in the prayer app.';
+      cards.push(`<div class="card gcard prayer-card" style="--tint:${esc(a.color || FALLBACK)}"><img class="spot" src="art/app/prayer.svg" alt="" width="200" height="160">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-pray"/></svg></span>Prayer</h2>
         <div class="gbody">${avatar(p, 'avatar-lg')}<div class="grow">
-          <div class="gbig">${!loaded ? sk : n ? n + '-day streak' : 'No streak yet'}</div>
-          <div class="gsub">${n ? 'Keep it going today.' : 'Pray through your list to start one.'}</div>
+          <div class="gbig one">${!loaded ? sk : big}</div>
+          <div class="gsub">${!loaded ? '' : sub}</div>
         </div></div><button class="btn btn-soft" data-open="prayer">Open prayer</button></div>`);
     }
+    if (park.length) { bits.push(park.length + ' at the park'); cards.push(parkCardHtml(park)); }
+    const kids = kidStars(); if (kids.length) cards.push(kidsCardHtml(kids));
     const remCount = hub.list('item:', { app: 'reminders', scope: 'family' }).length;
     if (remCount) bits.push(remCount + (remCount === 1 ? ' reminder' : ' reminders'));
-    const sub = !loaded ? '' : bits.length ? bits.join(' · ') : 'All quiet in the house.';
+    const sub = !pulled && !cached('reminders', 'family') ? '' : bits.length ? bits.join(' · ') : 'All quiet in the house.';
     v.innerHTML = heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: esc(sub) }) + `
       <div class="glance${cards.length === 2 ? ' two' : ''}">${cards.join('')}</div>
       <div class="two-col">
@@ -895,6 +1035,9 @@
           <div id="notif-prefs" hidden style="margin-top:var(--sp-3)">
             ${p.kind === 'adult' ? '<div class="kv"><b>Fridge warnings, 8 am</b><button class="switch" data-pref="leftovers" role="switch" aria-checked="true" aria-label="Fridge warnings"></button></div>' : ''}
             ${canSee('f260') ? '<div class="kv"><b>Reading nudge, 8 pm</b><button class="switch" data-pref="f260" role="switch" aria-checked="true" aria-label="Reading nudge"></button></div>' : ''}
+            ${p.kind === 'adult' && canSee('f260') ? '<div class="kv"><b>Weekly catch-up, Sunday 8 pm</b><button class="switch" data-pref="behind" role="switch" aria-checked="true" aria-label="Weekly catch-up"></button></div>' : ''}
+            ${p.kind === 'adult' && canSee('prayer') ? '<div class="kv"><b>New family prayers</b><button class="switch" data-pref="prayer" role="switch" aria-checked="true" aria-label="New family prayers"></button></div>' : ''}
+            ${p.kind === 'adult' && canSee('dollywood-live') ? '<div class="kv"><b>Park day: a child\'s spot goes quiet</b><button class="switch" data-pref="park" role="switch" aria-checked="true" aria-label="Park day alerts"></button></div>' : ''}
             <button class="btn" id="notif-test" style="margin-top:var(--sp-3)">Send a test notification</button>
           </div></div>` : ''}
         <div class="card glass"><h2>Sync</h2>
@@ -964,6 +1107,12 @@
     if (art) { const a = document.createElement('div'); a.className = 'empty-art'; a.innerHTML = `<img src="art/empty/${art}.svg" alt="">`; d.append(a); }
     d.append(document.createTextNode(text)); chatLog.append(d); scrollChat(); return d;
   }
+  // Kids hear the memory verse: a tool event with speak:true carries the text (read_todays_verse). Slow rate, only while
+  // this tab is visible, only for a kid profile; anything else stays silent.
+  function speakForKid(text) {
+    if (!hub.isKid || !text || document.visibilityState !== 'visible' || !('speechSynthesis' in window)) return;
+    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(String(text).slice(0, 600)); u.rate = 0.9; u.lang = 'en-US'; speechSynthesis.speak(u); } catch {}
+  }
   function setCap(used, cap) {
     chatCap.textContent = used != null ? used + '/' + cap + ' today' : '';
     if (used >= cap) { chatIn.disabled = true; chatIn.placeholder = 'Back tomorrow — that is enough for today.'; }
@@ -1001,7 +1150,7 @@
     const apps = registry.apps.map(a => ({ id: a.id, name: a.name, scope: a.scope, visibleTo: a.visibleTo }));
     const handle = (event, data) => {
       if (event === 'text') { typing.remove(); if (!textNode) { textNode = document.createTextNode(''); bot.insertBefore(textNode, chipsEl); } textNode.data += data.text; scrollChat(); }
-      else if (event === 'tool') { if (!data.chip) return; if (!chipsEl) { chipsEl = document.createElement('div'); chipsEl.className = 'chips'; bot.append(chipsEl); } const sp = document.createElement('span'); sp.className = 'chip ' + (data.ok ? 'chip-ok' : 'chip-danger'); sp.textContent = data.chip; chipsEl.append(sp); hub.pull(); scrollChat(); }
+      else if (event === 'tool') { if (data.speak && data.text) speakForKid(data.text); if (!data.chip) return; if (!chipsEl) { chipsEl = document.createElement('div'); chipsEl.className = 'chips'; bot.append(chipsEl); } const sp = document.createElement('span'); sp.className = 'chip ' + (data.ok ? 'chip-ok' : 'chip-danger'); sp.textContent = data.chip; chipsEl.append(sp); hub.pull(); scrollChat(); }
       else if (event === 'done') { typing.remove(); setCap(data.used, data.cap); if (!textNode && !chipsEl) bot.append(document.createTextNode('(no reply)')); }
       else if (event === 'error') { typing.remove(); bot.classList.add('err'); bot.append(document.createTextNode(data.message || 'Something went wrong.')); }
     };
@@ -1040,7 +1189,7 @@
   const b64ToBytes = s => Uint8Array.from(atob((s + '='.repeat((4 - s.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
   async function renderNotif() {
     const help = $('#notif-help'), toggle = $('#notif-toggle'), prefsEl = $('#notif-prefs'); if (!help) return;
-    const prefs = { leftovers: true, f260: true, ...(hub.get('push_prefs', { app: 'hub', scope: 'person' }) || {}) };
+    const prefs = { leftovers: true, f260: true, behind: true, prayer: true, park: true, ...(hub.get('push_prefs', { app: 'hub', scope: 'person' }) || {}) };
     prefsEl.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(prefs[b.dataset.pref] !== false)));
     prefsEl.onclick = ev => {
       const b = ev.target.closest('[data-pref]'); if (!b) return;

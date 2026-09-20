@@ -16,7 +16,7 @@ import {
   rateCheck, rateHit, rateClear,
 } from './auth.js';
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
-import { runCron, pushTo, vapidFrom } from './reminders.js';
+import { runCron, pushTo, vapidFrom, JOBS } from './reminders.js';
 import { chatHandler, chatHistory } from './chat.js';
 import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
 
@@ -337,11 +337,11 @@ route('POST', '/api/push/test', async c => {
   const target = b.profile_id && b.profile_id !== me.id ? (requireAdmin(auth), String(b.profile_id)) : me.id;
   return pushTo(c.env, target, 'test', { title: 'Anderson House', body: 'Notifications are working on this device.', url: '#me', tag: 'test' }, { ttl: 600, urgency: 'high' });
 });
-// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening'}
+// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'park'}
 route('POST', '/api/admin/cron/run', async c => {
   requireAdmin(await c.auth());
   const { job } = await c.body();
-  if (!['morning', 'evening'].includes(job)) throw new HttpError(400, 'bad_job', "job must be 'morning' or 'evening'.");
+  if (!Object.prototype.hasOwnProperty.call(JOBS, job)) throw new HttpError(400, 'bad_job', 'job must be one of ' + Object.keys(JOBS).map(j => `'${j}'`).join(', ') + '.');
   return runCron(c.env, Date.now(), job);
 });
 
