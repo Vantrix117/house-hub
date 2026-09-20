@@ -43,6 +43,18 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 GET  /api/health
 GET  /api/dollywood/waits               Dollywood posted wait times via queue-times.com (60 s edge cache, no auth):
                                         {ok, at, updated, source, rides:[{name, land, open, wait (min|null), updated}]}
+POST /api/dollywood/rally               {name, x, y, note?}  "Rally the family" from the park map. Household adults only (kids, the display
+                                        and guests → 403 adults_only); one rally per adult per 60 s (429 too_many_attempts, retry_after).
+                                        name ≤ 60 chars (400 bad_name), x/y JSON numbers — map positions like the loc:* markers (400 bad_point),
+                                        note ≤ 140. Writes app_data(family, 'dollywood-live', 'meet') = {x, y, name, note, by, byName, at}
+                                        through putOne (every phone's hub.js sees it on its next pull), logs "Set a meeting point: <name>" on
+                                        Home, then pushes every OTHER household adult whose push_prefs.park is on: {title 'Meet at <name>',
+                                        body '<Name> is gathering the family — open the park map', url '#dollywood-live', tag 'rally'},
+                                        TTL 30 min, urgency high, logged as kind 'rally'. Dead subscriptions never fail the call.
+                                        → {ok:true, pushed (adults reached on ≥1 device), meet, updated_at, notified:[{profile, devices}],
+                                           skipped:[{profile, why: pref_off | no_subscription | delivery_failed | push_error}]}
+DELETE /api/dollywood/rally             tombstones the meet row (household adults only, same 403s; no push, no rate limit) and logs
+                                        "Cleared the meeting point: <name>" → {ok:true, cleared (there was one), updated_at}
 POST /api/pair                          {code, name?}
 GET  /api/profiles                      (no hashes; has_pin, is_guest, expires_at, created_by) — guests whose expires_at has passed are
                                         left out unless the caller is the admin
@@ -126,6 +138,10 @@ Every kind sends at most once per person per day (`push_log`), honours `app_data
 (default on; the switches are in Me → Notifications) and can be forced with `POST /api/admin/cron/run {job}` as the admin
 (the forced call returns that one job's result; a scheduled run returns `{nyHour, weekday, ran: [...]}`).
 `scripts/test-push2.mjs <code>` proves the three round-2 kinds end to end against `scripts/push-receiver.mjs`.
+
+One push is not a job: `POST /api/dollywood/rally` (above) sends "Meet at <name>" to the other household adults on demand.
+It rides on the same park-day switch (`push_prefs.park`) but is logged as kind `rally`, so a rally never uses up the
+`park` job's one-a-day and has no daily cap of its own — the 60 s per-adult rate limit is the only brake.
 
 Errors are `{error: 'snake_code', message: 'plain English'}` with a matching HTTP status.
 

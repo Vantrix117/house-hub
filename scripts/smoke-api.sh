@@ -78,6 +78,28 @@ call "post activity" POST /api/activity '{"app_id":"tally","text":"counted to 9"
 call "kiosk activity -> 403" POST /api/activity '{"app_id":"tally","text":"x"}' "$D" "X-Profile-Token: $TV"; expect 403
 call "get activity" GET "/api/activity?limit=5" '' "$D"; expect 200
 
+echo "### rally the family (park map) — one rally per adult per minute, so wait 60 s between runs"
+call "rally with device only -> 401" POST /api/dollywood/rally '{"name":"Gazebo","x":1,"y":2}' "$D"; expect 401
+call "rally as kid -> 403" POST /api/dollywood/rally '{"name":"Gazebo","x":1,"y":2}' "$D" "X-Profile-Token: $KID"; expect 403
+[ "$(echo "$BODY" | j error)" = adults_only ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=adults_only"; }
+call "rally as kiosk -> 403" POST /api/dollywood/rally '{"name":"Gazebo","x":1,"y":2}' "$D" "X-Profile-Token: $TV"; expect 403
+call "rally without a name -> 400" POST /api/dollywood/rally '{"x":1,"y":2}' "$D" "$P"; expect 400
+call "rally with x as a string -> 400" POST /api/dollywood/rally '{"name":"Gazebo","x":"1","y":2}' "$D" "$P"; expect 400
+call "rally" POST /api/dollywood/rally '{"name":"  The gazebo  ","x":1234.5,"y":678,"note":"bring the stroller"}' "$D" "$P"; expect 200
+[ "$(echo "$BODY" | j ok)" = true ] && [ "$(echo "$BODY" | j meet.name)" = "The gazebo" ] && [ "$(echo "$BODY" | j meet.by)" = niece ] && [ "$(echo "$BODY" | j pushed)" != undefined ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected ok, meet.name trimmed, meet.by niece, pushed"; }
+MEET_AT=$(echo "$BODY" | j updated_at)
+call "rally again within a minute -> 429" POST /api/dollywood/rally '{"name":"Again","x":1,"y":2}' "$D" "$P"; expect 429
+call "family pull (device only) has the meet row" GET "/api/data/dollywood-live?scope=family&key=meet" '' "$D"; expect 200
+[ "$(echo "$BODY" | j item.value.name)" = "The gazebo" ] && [ "$(echo "$BODY" | j item.value.note)" = "bring the stroller" ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the meet row"; }
+call "feed has the line" GET "/api/activity?limit=3" '' "$D"; expect 200
+echo "$BODY" | grep -q '"Set a meeting point: The gazebo"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected 'Set a meeting point: The gazebo' in the feed"; }
+call "clear the rally as kid -> 403" DELETE /api/dollywood/rally '' "$D" "X-Profile-Token: $KID"; expect 403
+call "clear the rally" DELETE /api/dollywood/rally '' "$D" "$P"; expect 200
+[ "$(echo "$BODY" | j cleared)" = true ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected cleared=true"; }
+call "clear again (idempotent)" DELETE /api/dollywood/rally '' "$D" "$P"; expect 200
+call "since-pull carries the tombstone" GET "/api/data/dollywood-live?scope=family&since=$((MEET_AT-1))" '' "$D"; expect 200
+echo "$BODY" | grep -q '"key":"meet","value":null' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected a meet tombstone"; }
+
 echo "### push"
 call "subscribe" POST /api/push/subscribe '{"subscription":{"endpoint":"https://push.example/abc","keys":{"p256dh":"x","auth":"y"}}}' "$D" "$P"; expect 200
 call "unsubscribe" DELETE /api/push/subscribe '' "$D" "$P"; expect 200
@@ -117,6 +139,8 @@ call "guest logs in without a pin" POST /api/login "{\"profile_id\":\"$GID\"}" "
 GT="X-Profile-Token: $(echo "$BODY" | j profile_token)"
 call "guest writes person data" PUT "/api/data/f260/week?scope=person" '{"value":2,"updated_at":'$(date +%s000)'}' "$D" "$GT"; expect 200
 call "guest cannot add a guest -> 403" POST /api/profiles '{"name":"Nested"}' "$D" "$GT"; expect 403
+call "guest cannot rally the family -> 403" POST /api/dollywood/rally '{"name":"Gazebo","x":1,"y":2}' "$D" "$GT"; expect 403
+[ "$(echo "$BODY" | j error)" = adults_only ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=adults_only"; }
 # a guest's PIN is fixed at creation: no paired device can "create" one on a tap-to-open guest (hijack / lockout)
 call "set a PIN on a guest from a paired device -> 403" POST "/api/profiles/$GID/pin" '{"pin":"9999"}' "$D"; expect 403
 [ "$(echo "$BODY" | j error)" = guest_pin_fixed ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=guest_pin_fixed"; }

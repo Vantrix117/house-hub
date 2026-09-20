@@ -16,8 +16,8 @@ import {
   rateCheck, rateHit, rateClear,
 } from './auth.js';
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
-import { runCron, pushTo, vapidFrom, JOBS } from './reminders.js';
-import { chatHandler, chatHistory } from './chat.js';
+import { runCron, pushTo, prefsFor, vapidFrom, JOBS } from './reminders.js';
+import { chatHandler, chatHistory, activity } from './chat.js';
 import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
 
 const PIN_RE = /^\d{4,8}$/;
@@ -75,6 +75,67 @@ route('GET', '/api/dollywood/waits', async c => {
   for (const r of d.rides || []) rides.push({ name: r.name.replace(/[®™]/g, '').trim(), land: null, open: !!r.is_open, wait: r.wait_time ?? null, updated: r.last_updated });
   const updated = rides.reduce((m, r) => (r.updated > m ? r.updated : m), '');
   return json({ ok: true, at: Date.now(), updated, source: 'queue-times.com', rides }, 200, { ...c.cors, 'Cache-Control': 'public, max-age=60' });
+});
+
+// "Rally the family" for the park map. A household adult drops a meeting point; every other household adult's phone
+// is told. The point is one family-scope row, app_data(family, 'dollywood-live', 'meet') =
+//   { x, y, name, note, by, byName, at }   (x/y map positions like the loc:* markers, at = server ms)
+// written through putOne() so every phone's hub.js picks it up on its next pull, and DELETE tombstones it the same
+// way. Household adults only — kids, the display and guests get 403 adults_only. One rally per adult per minute.
+// The push honours the 'park' switch in Me → Notifications (push_prefs.park, the park-day kind) but is logged as kind
+// 'rally', so a rally never uses up the park job's one-alert-a-day for the stale-kid-marker warning. A dead or
+// malformed subscription is reported under `skipped`, never a 500: the row is already saved by then.
+const RALLY_APP = 'dollywood-live', RALLY_KEY = 'meet';
+const RALLY_NAME_MAX = 60, RALLY_NOTE_MAX = 140;
+function requireHouseholdAdult(auth) {
+  const p = requireProfile(auth);
+  if (p.kind !== 'adult' || p.is_guest) throw new HttpError(403, 'adults_only', 'Only a household grown-up can rally the family.');
+  return p;
+}
+/** A timestamp that beats whatever the row holds now, so the newest human intent always wins the last-write-wins compare. */
+const beats = cur => Math.max(Date.now(), cur ? +cur.updated_at + 1 : 0);
+route('POST', '/api/dollywood/rally', async c => {
+  const me = requireHouseholdAdult(await c.auth());
+  const rateKey = 'rally:' + me.id;
+  await rateCheck(c.env, rateKey, 1);
+  const b = await c.body();
+  const str = v => (typeof v === 'string' ? v : '').trim();
+  const name = str(b.name).slice(0, RALLY_NAME_MAX);
+  if (!name) throw new HttpError(400, 'bad_name', 'Give the meeting point a name.');
+  if (typeof b.x !== 'number' || typeof b.y !== 'number' || !Number.isFinite(b.x) || !Number.isFinite(b.y)) {
+    throw new HttpError(400, 'bad_point', 'x and y must be numbers (map positions).');
+  }
+  const note = str(b.note).slice(0, RALLY_NOTE_MAX);
+  const value = { x: b.x, y: b.y, name, note, by: me.id, byName: me.name, at: Date.now() };
+  const cur = await getOne(c.env, { appId: RALLY_APP, scope: 'family', profile: me, key: RALLY_KEY });
+  const row = await putOne(c.env, { appId: RALLY_APP, scope: 'family', profile: me, key: RALLY_KEY, value, updated_at: beats(cur) });
+  await rateHit(c.env, rateKey, MIN);
+  await activity(c.env, me, RALLY_APP, `Set a meeting point: ${name}`);
+
+  const { results: others } = await c.env.DB.prepare(
+    "SELECT id FROM profiles WHERE kind = 'adult' AND is_guest = 0 AND id != ? ORDER BY sort_order").bind(me.id).all();
+  const payload = { title: `Meet at ${name}`, body: `${me.name} is gathering the family — open the park map`, url: '#dollywood-live', tag: 'rally' };
+  let pushed = 0; const notified = [], skipped = [];
+  for (const { id } of others) {
+    if (!(await prefsFor(c.env, id)).park) { skipped.push({ profile: id, why: 'pref_off' }); continue; }
+    try {
+      const r = await pushTo(c.env, id, 'rally', payload, { ttl: 1800, urgency: 'high' });
+      if (r.ok) { pushed++; notified.push({ profile: id, devices: r.ok }); }
+      else skipped.push({ profile: id, why: r.error || (r.sent ? 'delivery_failed' : 'no_subscription') });
+    } catch (e) {
+      skipped.push({ profile: id, why: 'push_error' });
+      console.error('rally push', id, (e && e.stack) || e);
+    }
+  }
+  return { ok: true, pushed, meet: value, updated_at: row.updated_at, notified, skipped };
+});
+route('DELETE', '/api/dollywood/rally', async c => {
+  const me = requireHouseholdAdult(await c.auth());
+  const cur = await getOne(c.env, { appId: RALLY_APP, scope: 'family', profile: me, key: RALLY_KEY });
+  const had = !!(cur && cur.value && typeof cur.value === 'object');
+  const row = await putOne(c.env, { appId: RALLY_APP, scope: 'family', profile: me, key: RALLY_KEY, value: null, updated_at: beats(cur) });
+  if (had) await activity(c.env, me, RALLY_APP, `Cleared the meeting point${cur.value.name ? ': ' + cur.value.name : ''}`);
+  return { ok: true, cleared: had, updated_at: row.updated_at };
 });
 
 // Pair this device with the house using the one-time pairing code.

@@ -118,7 +118,8 @@ async function usedToday(env, profileId) {
 const visibleApps = (apps, profile) => (apps || []).filter(a => !a.visibleTo || a.visibleTo.includes(profile.id));
 const adultOnly = (apps, appId) => { const a = (apps || []).find(x => x.id === appId); return !!(a && a.visibleTo); };
 
-async function activity(env, profile, appId, text) {
+/** One line on Home's family feed. The feed prints the person's name itself, so `text` starts with the verb ("Added a guest: Sue"). Shared with index.js routes. */
+export async function activity(env, profile, appId, text) {
   await env.DB.prepare('INSERT INTO activity (profile_id, app_id, text, created_at) VALUES (?, ?, ?, ?)').bind(profile.id, appId, text.slice(0, 200), Date.now()).run();
 }
 
