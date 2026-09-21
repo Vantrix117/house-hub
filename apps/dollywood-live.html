@@ -356,7 +356,7 @@ html:not([data-flavor=live]) #coaster path.c-dash{stroke-opacity:var(--cd,.8)}
  [data-flavor=hub] .maphint{top:auto;bottom:52px}
  [data-flavor=hub] .under{margin-top:8px}
  [data-flavor=hub] .helppop{left:auto;right:0}
- [data-flavor=hub] .build{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;border-radius:24px 24px 0 0;height:calc(var(--peek) + env(safe-area-inset-bottom));transition:height 300ms cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;overflow:hidden;background:var(--lv-glass);-webkit-backdrop-filter:var(--lv-blur);backdrop-filter:var(--lv-blur);border:1px solid var(--glass-edge);border-bottom:0;box-shadow:inset 0 1px 0 var(--hairline),0 0 0 1px var(--glass-ring),0 -10px 40px -8px var(--scrim);padding-bottom:env(safe-area-inset-bottom);touch-action:none}
+ [data-flavor=hub] .build{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;border-radius:24px 24px 0 0;height:calc(var(--peek) + env(safe-area-inset-bottom));transition:height 300ms cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;overflow:hidden;background:color-mix(in srgb,var(--surface) 96%,transparent);-webkit-backdrop-filter:var(--lv-blur);backdrop-filter:var(--lv-blur);border:1px solid var(--glass-edge);border-bottom:0;box-shadow:inset 0 1px 0 var(--hairline),0 0 0 1px var(--glass-ring),0 -10px 40px -8px var(--scrim);padding-bottom:env(safe-area-inset-bottom);touch-action:none}
  [data-flavor=hub] .build[data-state=half]{height:calc(52dvh + env(safe-area-inset-bottom))}
  [data-flavor=hub] .build[data-state=full]{height:calc(100dvh - 60px - env(safe-area-inset-top))}
  [data-flavor=hub] .bh-handle{display:grid;place-items:center;height:22px;min-height:22px;flex:none;background:transparent;border:0;padding:0;border-radius:0;width:100%}
@@ -604,6 +604,7 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
   <div class="mapstage" id="mapstage"><svg id="map" class="pan" role="img" aria-label="Shaded relief map of Dollywood with contour lines and park features"></svg></div>
   
   <div class="readout" id="readout">Move over the map for elevation · scroll to zoom · drag to pan</div>
+  <script>if(matchMedia('(pointer:coarse)').matches)document.getElementById('readout').textContent='Tap anything for details · pinch to zoom'</script>
   <div class="maphint" id="maphint" hidden>Tap two points</div>
   <div class="mini" id="mini" title="Click to jump"></div>
   <div class="pop" id="pop" role="dialog" aria-live="polite"></div>
@@ -800,8 +801,8 @@ function commit(){clearTimeout(fastT);fastT=null;STAGE.style.transform='';apply(
 const STAGE=$('mapstage');
 function apply(){if(!svg.clientWidth)return;svg.setAttribute('viewBox',view.join(' '));committed=view.slice();STAGE.style.transform='';const k=mpp();
   const ms=k*(k>0.75?0.62:(k>0.45?0.8:1));window.MS=ms;window.MK=k;document.querySelectorAll('.mk').forEach(m=>{m.setAttribute('transform',`translate(${m.dataset.x} ${Y(+m.dataset.y)}) scale(${ms})${window.ROT?' rotate('+(-ROT)+')':''}`)});if(window.placeWaits)placeWaits();
-  document.querySelectorAll('.clab').forEach(t=>t.style.fontSize=(9.5*k)+'px');
-  document.querySelectorAll('.seclab').forEach(t=>{t.style.fontSize=(15*Math.min(k,1.1))+'px';t.style.opacity=k<0.22?0:1});
+  document.querySelectorAll('.clab').forEach(t=>{t.style.fontSize=(9.5*k)+'px';t.style.strokeWidth=(2.5*k)+'px'});
+  document.querySelectorAll('.seclab').forEach(t=>{const f=Math.min(k,1.1);t.style.fontSize=(15*f)+'px';t.style.strokeWidth=(4*f)+'px';t.style.display=k<0.22?'none':''});
   document.querySelectorAll('.cut-pt').forEach(c=>c.setAttribute('r',5*k));
   if(FLAVOR!=='live'&&window.FITW){const f=Math.max(0,Math.min(1,FITW/view[2]-1));const st=G.coaster.style;st.setProperty('--cw',(1.6+1.4*f).toFixed(2));st.setProperty('--cc',(4+3*f).toFixed(2));st.setProperty('--cd',(0.8*f).toFixed(2))}   // track: thin at whole-park zoom, full width from 2x in
   drawMini();if(window.drawMe)drawMe();if(window.scheduleNames)scheduleNames();if(window.drawAmen){drawAmen();drawMeet()}}
@@ -820,7 +821,7 @@ $('z-out').onclick=()=>zoomAt(1.5,view[0]+view[2]/2,view[1]+view[3]/2);
 $('z-fit').onclick=()=>fitTarget(D.layers.allbox);
 function setTool(t){tool=t;svg.classList.remove('pan','section','measure');svg.classList.add(t);['pan','sec','mea'].forEach(k=>$('t-'+k).setAttribute('aria-pressed',String({pan:'pan',sec:'section',mea:'measure'}[k]===t)));
   if(t!=='measure')clearMeasure();cutPending=false;if(t==='section')drawCut();else G.cut.innerHTML='';mapHint();
-  $('readout').textContent=t==='section'?'Tap two points, or drag, to cut a cross-section':t==='measure'?'Tap two points to measure':'Move over the map for elevation · scroll to zoom · drag to pan'}
+  $('readout').textContent=t==='section'?'Tap two points, or drag, to cut a cross-section':t==='measure'?'Tap two points to measure':matchMedia('(pointer:coarse)').matches?'Tap anything for details · pinch to zoom':'Move over the map for elevation · scroll to zoom · drag to pan'}
 let cutPending=false;   // cross-section by two taps: the first tap is kept until the second lands (a drag still works)
 function mapHint(){const h=$('maphint');if(!h||FLAVOR==='live')return;h.hidden=tool!=='section'||mode==='3d';h.textContent=cutPending?'Now tap the second point':'Tap two points'}
 $('t-pan').onclick=()=>setTool('pan');$('t-sec').onclick=()=>setTool(tool==='section'?'pan':'section');$('t-mea').onclick=()=>setTool(tool==='measure'?'pan':'measure');
@@ -870,7 +871,7 @@ mini.addEventListener('click',e=>{const r=mini.getBoundingClientRect();const fx=
 let measure=null,measureHover=null;
 function drawMeasure(){G.measure.innerHTML='';if(!measure)return;const a=measure[0],b=measure[1]||measureHover;if(!b)return;
   G.measure.appendChild(line([a,b],{stroke:'#0E0D0B','stroke-width':4,opacity:.6}));G.measure.appendChild(line([a,b],{stroke:'#8BC34A','stroke-width':2}));
-  const L=Math.hypot(b[0]-a[0],b[1]-a[1]),m=[(a[0]+b[0])/2,(a[1]+b[1])/2],t=el('text',{x:m[0],y:Y(m[1])-8*mpp(),class:'mlbl','text-anchor':'middle',style:`font-size:${13*mpp()}px`});
+  const L=Math.hypot(b[0]-a[0],b[1]-a[1]),m=[(a[0]+b[0])/2,(a[1]+b[1])/2],t=el('text',{x:m[0],y:Y(m[1])-8*mpp(),class:'mlbl','text-anchor':'middle',style:`font-size:${13*mpp()}px;stroke-width:${3*mpp()}px`});
   t.textContent=Math.round(L)+' m'+(scale.fac?` · ${Math.round(L*scale.fac)} m in game`:'');G.measure.appendChild(t)}
 function clearMeasure(){measure=null;measureHover=null;G.measure.innerHTML=''}
 
@@ -1207,7 +1208,7 @@ function drawEdge(grp,x,y,k,name,emoji,col,pick){const in_=24*k,ex=Math.max(in_,
   g.appendChild(el('circle',{cx,cy,r:16*k,fill:col,stroke:'#fff','stroke-width':2.6*k,filter:'url(#lv-shadow)',opacity:.92}));
   const t=el('text',{x:cx,y:cy+6.5*k,'text-anchor':'middle',style:`font-size:${17*k}px`});t.textContent=emoji;g.appendChild(t);
   const ar=el('path',{class:'arrow',d:`M${cx+22*k} ${cy-7*k}L${cx+34*k} ${cy}L${cx+22*k} ${cy+7*k}Z`,transform:`rotate(${a*180/Math.PI+ROT} ${cx} ${cy})`});g.appendChild(ar);
-  const lab=el('text',{class:'lab',x:cx,y:cy+30*k,'text-anchor':'middle',style:`font-size:${11*k}px`});lab.textContent=`${name} · ${ftOf(gap)} ${compassOf(x-ex,y-ey)} of the map`;g.appendChild(lab);grp.appendChild(g)}
+  const lab=el('text',{class:'lab',x:cx,y:cy+30*k,'text-anchor':'middle',style:`font-size:${11*k}px;stroke-width:${3*k}px`});lab.textContent=`${name} · ${ftOf(gap)} ${compassOf(x-ex,y-ey)} of the map`;g.appendChild(lab);grp.appendChild(g)}
 function drawFam(){if(!G.fam)return;G.fam.innerHTML='';const k=mpp();drawTrails(k);for(const id in FAM){const f=FAM[id];if(!f||Date.now()-(f.t||0)>4*3600e3)continue;
   if(!inFrame([f.x,f.y])){if(onProperty([f.x,f.y]))drawEdge(G.fam,f.x,f.y,k,f.name||id,f.emoji||'•',f.color||'#8A6A4B','f:'+id);continue}
   const cx=f.x,cy=Y(f.y),old=Date.now()-f.t>45*60e3,g=el('g',{class:'famk','data-pick':'f:'+id,opacity:old?.5:1,transform:unrot(cx,cy)}),col=f.color||'#8A6A4B';
@@ -1217,7 +1218,7 @@ function drawFam(){if(!G.fam)return;G.fam.innerHTML='';const k=mpp();drawTrails(
   else{const t=el('text',{x:cx,y:cy+6.5*k,'text-anchor':'middle',style:`font-size:${17*k}px`});t.textContent=f.emoji||'•';g.appendChild(t)}
   const name=f.name||id,w=(name.length*6.6+16)*k;
   g.appendChild(el('rect',{x:cx-w/2,y:cy+21*k,width:w,height:17*k,rx:8.5*k,fill:col,stroke:'#fff','stroke-width':1.4*k,filter:'url(#lv-shadow)'}));
-  const lab=el('text',{x:cx,y:cy+33*k,'text-anchor':'middle',class:'famlab',style:`font-size:${11*k}px`});lab.textContent=name;g.appendChild(lab);G.fam.appendChild(g)}}
+  const lab=el('text',{x:cx,y:cy+33*k,'text-anchor':'middle',class:'famlab',style:`font-size:${11*k}px;stroke-width:${3*k}px`});lab.textContent=name;g.appendChild(lab);G.fam.appendChild(g)}}
 let namesBuilt=false;
 function drawNames(k){if(!G.names)return;if(!namesBuilt){namesBuilt=true;OFF.forEach(o=>{if(!o.pos)return;const t=el('text',{x:o.pos[0],y:Y(o.pos[1]),class:'lv-name','data-cat':o.cat,'dominant-baseline':'central',transform:unrot(o.pos[0],Y(o.pos[1]))});t.textContent=o.name;G.names.appendChild(t)})}
   const ill=document.documentElement.dataset.bm==='illustrated';
@@ -1230,7 +1231,7 @@ function drawNames(k){if(!G.names)return;if(!namesBuilt){namesBuilt=true;OFF.for
   const hits=(x0,y0,w,h)=>placed.some(r=>x0<r[0]+r[2]&&x0+w>r[0]&&y0-h/2<r[1]+r[3]&&y0+h/2>r[1]);
   cands.forEach(t=>{const [ux,uy]=toUser(+t.getAttribute('x'),HM-(+t.getAttribute('y')));const w=t.textContent.length*6.6+16,h=15,x0=ux/k,y0=uy/k;   // user units / k = screen px
     let side=1;if(hits(x0,y0,w,h)){if(hits(x0-w,y0,w,h))return;side=-1}placed.push([side>0?x0:x0-w,y0-h/2,w,h]);
-    t.style.display='';t.style.fontSize=(11.5*k)+'px';t.setAttribute('dx',side*15*k);t.setAttribute('text-anchor',side>0?'start':'end');t.setAttribute('transform',unrot(+t.getAttribute('x'),+t.getAttribute('y')))})}   // labels are born before the rotation is set, so counter-rotate on every draw
+    t.style.display='';t.style.fontSize=(11.5*k)+'px';t.style.strokeWidth=(3.5*k)+'px';t.setAttribute('dx',side*15*k);t.setAttribute('text-anchor',side>0?'start':'end');t.setAttribute('transform',unrot(+t.getAttribute('x'),+t.getAttribute('y')))})}   // labels are born before the rotation is set, so counter-rotate on every draw
 function drawScale(k){const s=$('lv-scale');if(!s)return;const ft=[50,100,200,500,1000,2000].find(f=>f*0.3048/k>=64)||2000,px=ft*0.3048/k;s.querySelector('i').style.width=Math.round(px)+'px';s.querySelector('span').textContent=ft>=1000?(ft/5280).toFixed(ft%5280?1:0)+' mi':ft+' ft'}
 /* ---- state ---- */
 /* A coarse fix (cell / Wi-Fi, hundreds of metres) must not drag a good recent fix off the map or declare the family
@@ -1502,7 +1503,8 @@ async function loadWaits(){if(FLAVOR!=='live')return;const base=(window.hub&&hub
     WAITS.by=by;WAITS.at=Date.now();WAITS.updated=d.updated;WAITS.err=false;try{localStorage.setItem('dollywood.live.waits',JSON.stringify({by,at:WAITS.at,updated:d.updated}))}catch(e){}}
   catch(e){WAITS.err=true;if(!WAITS.at){try{const c=JSON.parse(localStorage.getItem('dollywood.live.waits')||'null');if(c&&Date.now()-c.at<6*3600e3){WAITS.by=c.by;WAITS.at=c.at;WAITS.updated=c.updated}}catch(e2){}}}
   drawWaits();renderNear();renderWaitCard();if(ROUTE)$('route-meta').textContent=routeMetaText(ROUTE.o);if($('q')&&$('q').value)renderList()}
-function drawWaits(){OFF.forEach(o=>{if(!o.el)return;let g=o.el.querySelector('.lv-wait');const w=waitOf(o);if(!w){if(g)g.remove();return}
+const parkClosed=()=>{const ws=Object.values(WAITS.by);return ws.length>0&&ws.every(w=>w.wait==null)};
+function drawWaits(){const closed=parkClosed();OFF.forEach(o=>{if(!o.el)return;let g=o.el.querySelector('.lv-wait');const w=closed?null:waitOf(o);if(!w){if(g)g.remove();return}
   if(!g){g=el('g',{class:'lv-wait'});g.appendChild(el('rect',{y:-11,height:22,rx:11}));g.appendChild(el('text',{x:0,y:0.5}));o.el.appendChild(g)}
   g.dataset.w=wband(w.wait);const t=g.querySelector('text');t.innerHTML=w.wait==null?'Closed':w.wait===0?'Now':`${w.wait}<tspan class="u" dx="2">min</tspan>`;
   const wd=w.wait==null?54:w.wait===0?40:(w.wait>=100?58:50);const r=g.querySelector('rect');r.setAttribute('x',-wd/2);r.setAttribute('width',wd);g.dataset.wd=wd});
@@ -1512,7 +1514,7 @@ function drawWaits(){OFF.forEach(o=>{if(!o.el)return;let g=o.el.querySelector('.
 /* the chip keeps its screen size at every zoom: counter-scaled against the marker's own scale, hung at the badge's lower right */
 function placeWaits(){const ms=window.MS||1,k=window.MK||ms;const over=k>0.75,far=k>1.3;document.querySelectorAll('.lv-wait').forEach(g=>{g.style.display=far?'none':'';if(far)return;const sc=(over?.85:1)*k/ms;g.setAttribute('transform',`translate(${12*sc} ${13*sc}) scale(${sc})`);const u=g.querySelector('tspan.u');if(u)u.style.display=over?'none':''})}   // whole-frame views drop the chips: the Waits list is the overview
 window.placeWaits=placeWaits;
-const wchip=o=>{const w=waitOf(o);return w?`<span class="wt" data-w="${wband(w.wait)}">${w.wait==null?'Closed':w.wait===0?'Walk on':w.wait+' min wait'}</span>`:''};
+const wchip=o=>{const w=parkClosed()?null:waitOf(o);return w?`<span class="wt" data-w="${wband(w.wait)}">${w.wait==null?'Closed':w.wait===0?'Walk on':w.wait+' min wait'}</span>`:''};
 function renderWaitCard(){const bd=pop.querySelector('.pop-head h2 .badge')||pop.querySelector('h2 .badge');const w=bd&&bd.textContent===pop.dataset.num?waitOf(OFFNUM[+pop.dataset.num]):null;const old=pop.querySelector('.lv-waitline');if(old)old.remove();if(!w)return;
   const anchor=pop.querySelector('.lv-from')||pop.querySelector('.meta');if(!anchor)return;
   anchor.insertAdjacentHTML('afterend',`<div class="lv-waitline"><span class="wt" data-w="${wband(w.wait)}">${wtext(w.wait)}${w.wait!=null?' wait':''}</span><small>posted ${wago(w.updated)}</small></div>`)}
@@ -1521,7 +1523,7 @@ function renderSrc(){const s=$('lv-src');if(!s)return;const n=Object.keys(WAITS.
 let waitSort='wait';
 function renderWaits(box){const rows=OFF.filter(o=>o.pos&&waitOf(o)).map(o=>({o,w:waitOf(o),d:me&&inFrame([me.x,me.y])?Math.hypot(o.pos[0]-me.x,o.pos[1]-me.y):null}));
   const stamp=WAITS.err&&WAITS.at?`<div class="lv-stamp">⚠ Waits as of ${new Date(WAITS.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})} — offline, retrying</div>`:'';
-  if(!rows.length){box.innerHTML=stamp+`<div class="lv-empty">${WAITS.err?'Could not reach the wait-time feed. It retries every minute.':WAITS.at?'No rides are posting waits right now.':'Loading wait times…'}</div>`;return}
+  if(!rows.length||parkClosed()){box.innerHTML=stamp+`<div class="lv-empty">${parkClosed()?'The park is closed — waits will show here once rides open.':WAITS.err?'Could not reach the wait-time feed. It retries every minute.':WAITS.at?'No rides are posting waits right now.':'Loading wait times…'}</div>`;return}
   const chips=`<div class="lv-chips"><button data-s="wait" aria-pressed="${waitSort==='wait'}">Shortest wait</button><button data-s="near" aria-pressed="${waitSort==='near'}"${me&&inFrame([me.x,me.y])?'':' disabled'}>Near me</button></div>`;
   const bands=[['short','Walk on & under 15',r=>r.w.wait!=null&&r.w.wait<=15],['mid','15–35 min',r=>r.w.wait!=null&&r.w.wait>15&&r.w.wait<=35],['long','35 min and up',r=>r.w.wait!=null&&r.w.wait>35],['closed','Closed',r=>r.w.wait==null]];
   const sortf=waitSort==='near'?(a,b)=>(a.d??1e9)-(b.d??1e9)||a.w.wait-b.w.wait:(a,b)=>a.w.wait-b.w.wait||(a.d??1e9)-(b.d??1e9);
@@ -1577,7 +1579,7 @@ let MEET=null;
 function loadMeet(){if(!window.hub)return;try{const v=hub.get('meet',{scope:'family'});MEET=v&&v.x!=null&&Date.now()-(v.at||0)<2*3600e3?v:null}catch(e){MEET=null}drawMeet();renderMeet()}
 function drawMeet(){if(!G.meet)return;G.meet.innerHTML='';if(!MEET)return;const k=mpp(),cx=MEET.x,cy=Y(MEET.y);const g=el('g',{class:'lv-meetpin',transform:unrot(cx,cy)});
   g.appendChild(el('path',{d:`M${cx} ${cy}L${cx} ${cy-34*k}L${cx+22*k} ${cy-27*k}L${cx} ${cy-20*k}Z`,filter:'url(#lv-shadow)'}));g.appendChild(el('circle',{cx,cy,r:4*k,fill:'#C8391F',stroke:'#fff','stroke-width':1.5*k}));
-  const t=el('text',{x:cx,y:cy+14*k,style:`font-size:${11*k}px`});t.textContent=`Meet · ${MEET.name}`;g.appendChild(t);G.meet.appendChild(g)}
+  const t=el('text',{x:cx,y:cy+14*k,style:`font-size:${11*k}px;stroke-width:${3*k}px`});t.textContent=`Meet · ${MEET.name}`;g.appendChild(t);G.meet.appendChild(g)}
 function renderMeet(){const bar=$('lv-meet');if(!bar)return;if(!MEET){bar.hidden=true;return}bar.hidden=false;$('meet-name').textContent=`Meet at ${MEET.name}`;
   const d=me&&inFrame([me.x,me.y])?Math.hypot(MEET.x-me.x,MEET.y-me.y):null;$('meet-meta').textContent=`${d!=null?`${walkOf(d)} · `:''}set by ${MEET.byName||'someone'} ${agoOf(MEET.at)}${MEET.note?` · ${MEET.note}`:''}`;
   const adult=hubOn()&&hub.profile.kind==='adult'&&hub.canWrite;$('meet-done').hidden=!adult;$('meet-go').hidden=!(me&&inFrame([me.x,me.y]))}
