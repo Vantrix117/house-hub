@@ -36,6 +36,9 @@ select,input[type=text],input[type=number],input[type=search]{background:var(--p
 .toolbar .grp:last-child{border-right:0}
 .toolbar .lab{color:var(--dim);font-size:12px;margin-right:3px}
 .mapbox{position:relative;border:1px solid var(--line);background:var(--sky);overflow:hidden;border-radius:4px}
+/* the map sits in a stage the compositor can move: gestures transform the stage (no repaint of the SVG), the viewBox is committed when they settle */
+.mapstage{transform-origin:0 0;will-change:transform;line-height:0}
+[data-flavor=live] .mapstage{position:absolute;inset:0}
 svg#map{display:block;width:100%;height:auto;aspect-ratio:1535/1438;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent}   /* the desk map keeps the old frame's shape: the frame itself now runs north to the parking lots (1535 x 2211 m), and fitBox fits the box to the element, so the taller frame is panned to, not squeezed in */
 #view3d canvas{touch-action:none}
 svg#map.pan{cursor:grab}svg#map.pan.dragging{cursor:grabbing}svg#map.section{cursor:crosshair}svg#map.measure{cursor:cell}
@@ -127,7 +130,7 @@ svg#prof{display:block;width:100%;height:auto;margin-top:10px}
 @media(pointer:coarse){button,select,input[type=search]{min-height:42px}.chips button{min-height:40px}.pop .x{width:44px;height:44px}}
 .onum{font-size:10.5px;font-weight:700;fill:var(--cat-ink);pointer-events:none;font-family:Archivo,sans-serif}
 .mk{cursor:pointer}.mk .ring{fill:none;stroke:white;stroke-width:2.2;opacity:.9}.mk .shadow{fill:rgba(0,0,0,.45)}
-.clab{font-size:9.5px;fill:#F6DFA0;opacity:.95;paint-order:stroke;stroke:#0E0D0B;stroke-width:2.4px;pointer-events:none;font-weight:500}
+.clab{font-size:9.5px;fill:#F6DFA0;paint-order:stroke;stroke:#0E0D0B;stroke-width:2.4px;pointer-events:none;font-weight:500}
 .offm{cursor:pointer}.offm:hover circle,.offm:hover rect,.offm:hover path{filter:brightness(1.15)}
 .ck{cursor:pointer}
 .kbd{display:inline-block;border:1px solid var(--line);border-radius:3px;padding:0 5px;font-size:11px;color:var(--dim);background:var(--panel2)}
@@ -200,7 +203,7 @@ button.help{width:28px;height:28px;min-height:28px;padding:0;border-radius:50%;f
 .about .note+.note{border-top:0;margin-top:6px;padding-top:0}
 html:not([data-flavor=live]) #coaster path.c-cas{stroke-width:var(--cc,7)}
 html:not([data-flavor=live]) #coaster path.c-main{stroke-width:var(--cw,3)}
-html:not([data-flavor=live]) #coaster path.c-dash{opacity:var(--cd,.8)}
+html:not([data-flavor=live]) #coaster path.c-dash{stroke-opacity:var(--cd,.8)}
 #pv path,#pv circle{pointer-events:none}
 /* ================= House Hub flavours =================
    hub  = the build guide inside the family hub: hub palette + type, 44 px targets, cards.
@@ -255,25 +258,24 @@ html:not([data-flavor=live]) #coaster path.c-dash{opacity:var(--cd,.8)}
 
 /* ---- hub: cartography on the terrain render (attributes drive the drawing; CSS restyles it) ---- */
 [data-flavor=hub] #wash{display:none}
-[data-flavor=hub] #wood path{fill:#1F5A2E;opacity:.26}
-[data-flavor=hub] #contour path{stroke:#3A2A18;opacity:.20;stroke-width:.7}
-[data-flavor=hub] #contour > path{opacity:.36;stroke-width:1.2}
-[data-flavor=hub] .clab{fill:#FFF8EA;stroke:rgba(30,22,12,.75);stroke-width:2.6px;opacity:.85;font-weight:700}
-[data-flavor=hub] #parking path{fill:#1C1714;opacity:.12}
+[data-flavor=hub] #wood path{fill:#1F5A2E;fill-opacity:.26}
+[data-flavor=hub] #contour path{stroke:#3A2A18;stroke-opacity:.20;stroke-width:.7}
+[data-flavor=hub] #contour > path{stroke-opacity:.36;stroke-width:1.2}
+[data-flavor=hub] .clab{fill:rgba(255,248,234,.85);stroke:rgba(30,22,12,.64);stroke-width:2.6px;font-weight:700}
+[data-flavor=hub] #parking path{fill:#1C1714;fill-opacity:.12}
 [data-flavor=hub] #service_c path{stroke:rgba(48,34,18,.55)}[data-flavor=hub] #service path{stroke:#B8AC96}
 [data-flavor=hub] #paths_c path{stroke:rgba(70,46,22,.62)}
 [data-flavor=hub] #paths path{stroke:#FBF2DC}[data-flavor=hub] #paths path:not([fill=none]){fill:#FBF2DC}
 [data-flavor=hub] #buildings path{stroke:rgba(44,30,16,.7);stroke-width:.9}
 [data-flavor=hub] #buildings path[fill="#D9C79A"]{fill:#F3DDB0}[data-flavor=hub] #buildings path[fill="#9FB4E6"]{fill:#C6D4F2}[data-flavor=hub] #buildings path[fill="#E6AC72"]{fill:#F4C093}
 [data-flavor=hub] #buildings path[fill="#8E7A60"]{fill:#DCCBAA}[data-flavor=hub] #buildings path[fill="#5E5246"]{fill:#B8A78D}
-[data-flavor=hub] #buildings path[fill="#000"]{opacity:.32}
-[data-flavor=hub] #water path,[data-flavor=hub] #stream path{filter:url(#lv-glow-water)}
+[data-flavor=hub] #buildings path.bshadow{fill-opacity:.32}
 [data-flavor=hub] #water path[fill="#1F6F8F"]{fill:#3596C4}[data-flavor=hub] #water path[stroke="#7FD3F0"]{stroke:#BFEBFF}[data-flavor=hub] #stream path[stroke="#1F6F8F"]{stroke:#3596C4}[data-flavor=hub] #stream path[stroke="#5FC1E6"]{stroke:#A9E4FA}
-[data-flavor=hub] #coaster{filter:url(#lv-glow)}[data-flavor=hub] #coaster path[stroke="#160B08"]{opacity:.35}
+[data-flavor=hub] #coaster path.c-cas{stroke-opacity:.35}
 [data-flavor=hub] #sections path:not(.secpoly){display:none}
 [data-flavor=hub] .secpoly{fill-opacity:.15;stroke-width:2.6}
 [data-flavor=hub] .seclab{font-family:var(--font-sans);font-style:normal;font-weight:800;text-transform:uppercase;letter-spacing:.14em;fill:white;stroke:rgba(10,8,6,.7);stroke-width:4px}
-[data-flavor=hub] .mk .shadow{fill:rgba(0,0,0,.32)}[data-flavor=hub] .mk .ring{stroke-width:0;opacity:0}
+[data-flavor=hub] .mk .shadow{fill:rgba(0,0,0,.32)}[data-flavor=hub] .mk .ring{display:none}
 [data-flavor=hub] .mk [fill="#FFF3D2"],[data-flavor=hub] .mk [fill="#A9C1FF"],[data-flavor=hub] .mk [fill="#FFB86B"]{fill:white;stroke-width:2.8;stroke-dasharray:none!important}
 [data-flavor=hub] .mk [fill="#FFF3D2"]{stroke:var(--cat-attr)}[data-flavor=hub] .mk [fill="#A9C1FF"]{stroke:var(--cat-shop)}[data-flavor=hub] .mk [fill="#FFB86B"]{stroke:var(--cat-dine)}
 [data-flavor=hub] .mk .onum{fill:var(--cat-ink);font-weight:800;font-size:11px}
@@ -489,7 +491,7 @@ html:not([data-flavor=live]) #coaster path.c-dash{opacity:var(--cd,.8)}
 [data-flavor=live] .lv-about .kv{margin-top:0}[data-flavor=live] .lv-link{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;font-weight:600;font-size:14px;color:var(--accent-deep,var(--accent))}
 [data-flavor=live] .pop .lv-from{margin:0}
 [data-flavor=live] .pop .badge{background:var(--pop-cat,var(--accent))!important;color:var(--cat-ink)}
-.lv-wait rect{stroke:#fff;stroke-width:2;filter:url(#lv-shadow)}.lv-wait text{font-family:var(--font-sans);font-weight:800;font-size:13px;fill:#fff;text-anchor:middle;dominant-baseline:central;letter-spacing:-.02em}.lv-wait text tspan.u{font-size:9px;font-weight:700;letter-spacing:0}
+.lv-wait rect{stroke:#fff;stroke-width:2}.lv-wait text{font-family:var(--font-sans);font-weight:800;font-size:13px;fill:#fff;text-anchor:middle;dominant-baseline:central;letter-spacing:-.02em}.lv-wait text tspan.u{font-size:9px;font-weight:700;letter-spacing:0}
 .lv-wait[data-w=short] rect{fill:#1E8A4C}.lv-wait[data-w=mid] rect{fill:#C77A00}.lv-wait[data-w=long] rect{fill:#C8391F}.lv-wait[data-w=closed] rect{fill:#6A6259}
 .secpoly[data-wait=short]{fill:#1E8A4C!important;fill-opacity:.09!important}.secpoly[data-wait=mid]{fill:#C77A00!important;fill-opacity:.1!important}.secpoly[data-wait=long]{fill:#C8391F!important;fill-opacity:.11!important}
 .wt{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11.5px;font-weight:700;line-height:1.5;color:#1C1714;background:#E5E1DA;white-space:nowrap}
@@ -526,18 +528,17 @@ html:not([data-flavor=live]) #coaster path.c-dash{opacity:var(--cd,.8)}
 [data-flavor=live] .secpoly{fill-opacity:0;stroke:white;stroke-opacity:.38;stroke-width:1.4;stroke-dasharray:5 6;transition:fill-opacity .3s,stroke-opacity .3s}
 [data-flavor=live] .secpoly.lv-here{stroke:none;fill:var(--accent)!important;fill-opacity:.16!important;filter:url(#lv-here-soft)}
 [data-flavor=live][data-bm=illustrated] .secpoly:not(.lv-here){stroke-opacity:0}[data-flavor=live][data-bm=satellite] .secpoly:not(.lv-here){stroke-opacity:.22}
-[data-flavor=live][data-bm=satellite] #contour > g{display:none!important}[data-flavor=live][data-bm=satellite] #contour > path{stroke:#fff;opacity:.22}[data-flavor=live][data-bm=satellite] .clab{display:block;fill:#fff;opacity:.8}
+[data-flavor=live][data-bm=satellite] #contour > g{display:none!important}[data-flavor=live][data-bm=satellite] #contour > path{stroke:#fff;stroke-opacity:.22}[data-flavor=live][data-bm=satellite] .clab{display:block;fill:#fff;opacity:.8}
 [data-flavor=live][data-bm=satellite] #wash,[data-flavor=live][data-bm=satellite] #wood,[data-flavor=live][data-bm=satellite] #parking{display:none}
-[data-flavor=live][data-bm=satellite] #contour path{stroke:white;opacity:.13}[data-flavor=live][data-bm=satellite] .clab{display:none}
+[data-flavor=live][data-bm=satellite] #contour path{stroke:white;stroke-opacity:.13}[data-flavor=live][data-bm=satellite] .clab{display:none}
 [data-flavor=live][data-bm=satellite] #paths_c path,[data-flavor=live][data-bm=satellite] #service_c path{stroke:rgba(0,0,0,.42)}
 [data-flavor=live][data-bm=satellite] #paths path{stroke:#F8EDD8}[data-flavor=live][data-bm=satellite] #paths path:not([fill=none]){fill:#F8EDD8}   /* only the plaza polygons take a fill; polylines stay fill:none */[data-flavor=live][data-bm=satellite] #service path{stroke:#B9AC98}
 [data-flavor=live][data-bm=satellite] #buildings path{stroke:rgba(0,0,0,.35);stroke-width:.8}
-[data-flavor=live][data-bm=satellite] #water path,[data-flavor=live][data-bm=satellite] #stream path{filter:url(#lv-glow-water)}
-[data-flavor=live][data-bm=satellite] #coaster{filter:url(#lv-glow)}
+
 [data-flavor=live][data-bm=satellite] #coaster path[stroke="var(--coaster)"]{stroke:#FF6B4A}
 [data-flavor=live] .seclab{font-family:var(--font-sans);font-style:normal;font-weight:800;text-transform:uppercase;letter-spacing:.14em;fill:white;stroke:rgba(10,8,6,.7);stroke-width:4px}
 [data-flavor=live] .mk .shadow{fill:rgba(0,0,0,.3)}
-[data-flavor=live] .mk .ring{stroke:white;stroke-width:0;opacity:0}
+[data-flavor=live] .mk .ring{display:none}
 [data-flavor=live] .mk [fill="#FFF3D2"],[data-flavor=live] .mk [fill="#A9C1FF"],[data-flavor=live] .mk [fill="#FFB86B"]{fill:white;stroke-width:2.6;stroke-dasharray:none!important}
 [data-flavor=live] .mk [fill="#FFF3D2"]{stroke:var(--cat-attr)}[data-flavor=live] .mk [fill="#A9C1FF"]{stroke:var(--cat-shop)}[data-flavor=live] .mk [fill="#FFB86B"]{stroke:var(--cat-dine)}
 [data-flavor=live] .mk .onum{fill:var(--cat-ink);font-weight:800;font-size:11px}
@@ -600,7 +601,7 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
   <button id="more-btn" class="more" aria-expanded="false" aria-controls="vmenu" title="Search, contours, theme, steepness">More</button>
  </div>
  <div class="mapbox">
-  <svg id="map" class="pan" role="img" aria-label="Shaded relief map of Dollywood with contour lines and park features"></svg>
+  <div class="mapstage" id="mapstage"><svg id="map" class="pan" role="img" aria-label="Shaded relief map of Dollywood with contour lines and park features"></svg></div>
   
   <div class="readout" id="readout">Move over the map for elevation · scroll to zoom · drag to pan</div>
   <div class="maphint" id="maphint" hidden>Tap two points</div>
@@ -690,7 +691,7 @@ const PHONE=()=>FLAVOR==='hub'&&matchMedia('(max-width:699px)').matches;   // th
 const roleOf=()=>(window.hub&&hub.profile)?hub.profile.kind:'guest';
 const VIEW_ONLY=()=>{const k=roleOf();if(k==='kid'){try{if(hub.get('kidshare:'+hub.profile.id,{scope:'family'})===true)return false}catch(e){}}return k==='kid'||k==='kiosk'};   // a kid whose beacon an adult switched on may locate and publish
 const shareOn=()=>{try{if(kidBeaconOn())return true;return !!(window.hub&&hub.profile&&hub.canWrite&&!VIEW_ONLY()&&hub.get('share',{scope:'person'})===true)}catch(e){return false}};
-/* Basemap layers live beside this file (apps/dollywood/ in the hub); the aerial and the slope overlay are fetched only when chosen. */
+/* Basemap layers live beside this file (apps/dollywood/ in the hub); every one but the default is fetched only when chosen. */
 const IMG='dollywood/relief.jpg', ILL='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', SLOPE='dollywood/slope.png', AER='dollywood/aerial.jpg';
 const NS='http://www.w3.org/2000/svg', WM=D.wm, HM=D.hm;
 const el=(t,a={})=>{const n=document.createElementNS(NS,t);for(const k in a)n.setAttribute(k,a[k]);return n};
@@ -740,21 +741,22 @@ const svg=$('map'); svg.setAttribute('viewBox',`0 0 ${WM} ${HM}`);
 svg.appendChild(el('defs'));
 const aer=el('image',{x:0,y:0,width:WM,height:HM,preserveAspectRatio:'none',style:'display:none'}); svg.appendChild(aer);   // href set on first use
 const img=el('image',{x:0,y:0,width:WM,height:HM,preserveAspectRatio:'none'}); img.setAttribute('href',IMG); svg.appendChild(img);
-const ill=el('image',{x:0,y:0,width:WM,height:HM,preserveAspectRatio:'none',style:'display:none'}); ill.setAttribute('href',ILL); svg.appendChild(ill);   // the official illustrated sheet, warped into the frame
+const ill=el('image',{x:0,y:0,width:WM,height:HM,preserveAspectRatio:'none',style:'display:none'}); svg.appendChild(ill);   // href set on first use   // the official illustrated sheet, warped into the frame
 const slopeImg=el('image',{x:0,y:0,width:WM,height:HM,preserveAspectRatio:'none',style:'display:none'}); svg.appendChild(slopeImg);   // href set on first use
 const G={}; ['wash','wood','sections','water','stream','contour','parking','service_c','paths_c','service','paths','buildings','rail','coaster','route','lots','amen','meet','official','names','fam','me','seclabels','scrim','secsel','hl','pv','cut','measure'].forEach(id=>{G[id]=el('g',{id});svg.appendChild(G[id])});
-D.sections.forEach(s=>{if(s.poly.length)G.wash.appendChild(cpoly(s.poly,{fill:'#FFF6DC',opacity:.13,'pointer-events':'none'}))});
-D.layers.wood.forEach(p=>G.wood.appendChild(cpoly(p,{fill:'#1E5A32',opacity:.28})));
+D.sections.forEach(s=>{if(s.poly.length)G.wash.appendChild(cpoly(s.poly,{fill:'#FFF6DC','fill-opacity':.13,'pointer-events':'none'}))});
+D.layers.wood.forEach(p=>G.wood.appendChild(cpoly(p,{fill:'#1E5A32','fill-opacity':.28})));
 D.sections.forEach(s=>{if(!s.poly.length)return;G.sections.appendChild(cpoly(s.poly,{fill:'none',stroke:'#0E0D0B','stroke-width':7,'stroke-opacity':.6,'stroke-linejoin':'round','pointer-events':'none'}));const p=cpoly(s.poly,{fill:s.color,'fill-opacity':.09,stroke:s.color,'stroke-width':2.2,'stroke-opacity':.85,'stroke-linejoin':'round',class:'secpoly','data-pick':'s:'+s.id});G.sections.appendChild(p);s.el=p;
   const t=el('text',{x:s.label[0],y:Y(s.label[1]),class:'seclab','text-anchor':'middle'});t.textContent=s.name;G.seclabels.appendChild(t);s.lab=t});
-D.layers.water.forEach(p=>{G.water.appendChild(cpoly(p,{fill:'#1F6F8F',opacity:.95}));G.water.appendChild(cpoly(p,{fill:'none',stroke:'#7FD3F0','stroke-width':1.6,opacity:.9}))});
-D.layers.stream.forEach(s=>{G.stream.appendChild(el('path',{d:curve(s.g),fill:'none',stroke:'#1F6F8F','stroke-width':s.w+1.2,'stroke-linecap':'round','stroke-linejoin':'round'}));G.stream.appendChild(el('path',{d:curve(s.g),fill:'none',stroke:'#5FC1E6','stroke-width':s.w*0.55,'stroke-linecap':'round','stroke-linejoin':'round',opacity:.9}))});
-D.layers.parking.forEach(p=>G.parking.appendChild(cpoly(p,{fill:'#000',opacity:.16})));
+D.layers.water.forEach(p=>{G.water.appendChild(cpoly(p,{fill:'#1F6F8F','fill-opacity':.95}));G.water.appendChild(cpoly(p,{fill:'none',stroke:'#7FD3F0','stroke-width':1.6,'stroke-opacity':.9}))});
+D.layers.stream.forEach(s=>{G.stream.appendChild(el('path',{d:curve(s.g),fill:'none',stroke:'#1F6F8F','stroke-width':s.w+1.2,'stroke-linecap':'round','stroke-linejoin':'round'}));G.stream.appendChild(el('path',{d:curve(s.g),fill:'none',stroke:'#5FC1E6','stroke-width':s.w*0.55,'stroke-linecap':'round','stroke-linejoin':'round','stroke-opacity':.9}))});
+D.layers.parking.forEach(p=>G.parking.appendChild(cpoly(p,{fill:'#000','fill-opacity':.16})));
 const CG={};
+// every contour of a level is one path: hundreds of separate elements cost more to paint than their geometry does
 for(const k of ['10','20','50']){CG[k]=el('g',{style:k==='20'?'':'display:none'});G.contour.appendChild(CG[k]);
-  D.contours[k].forEach(c=>CG[k].appendChild(cline(c.p,{stroke:'#F0D48A','stroke-width':.6,opacity:.42})));}
-D.contours['100'].forEach(c=>{G.contour.appendChild(cline(c.p,{stroke:'#FFE8A8','stroke-width':1.3,opacity:.75}));
-  const m=c.p[Math.floor(c.p.length/2)];const t=el('text',{x:m[0],y:Y(m[1]),class:'clab','text-anchor':'middle'});t.textContent=c.v;G.contour.appendChild(t)});
+  CG[k].appendChild(el('path',Object.assign({d:D.contours[k].map(c=>curve(c.p)).join(''),fill:'none',stroke:'#F0D48A','stroke-width':.6,'stroke-opacity':.42},NSS)))}
+G.contour.appendChild(el('path',Object.assign({d:D.contours['100'].map(c=>curve(c.p)).join(''),fill:'none',stroke:'#FFE8A8','stroke-width':1.3,'stroke-opacity':.75},NSS)));
+D.contours['100'].forEach(c=>{const m=c.p[Math.floor(c.p.length/2)];const t=el('text',{x:m[0],y:Y(m[1]),class:'clab','text-anchor':'middle'});t.textContent=c.v;G.contour.appendChild(t)});
 // casings (edges) for every road and path go down first, then every fill on top, so junctions merge into one ribbon
 const stroke=(grp,pts,w,col)=>grp.appendChild(el('path',{d:curve(pts),fill:'none',stroke:col,'stroke-width':w,'stroke-linecap':'round','stroke-linejoin':'round'}));
 D.layers.service.forEach(s=>stroke(G.service_c,s.g,s.w+2.4,'#2E271E'));
@@ -764,14 +766,14 @@ D.layers.service.forEach(s=>stroke(G.service,s.g,s.w,'#8A8072'));
 D.layers.paths.forEach(p=>ribbonInto(G.paths,p,'#F6E8C2',false));
 (D.layers.pedareas||[]).forEach(p=>G.paths.appendChild(el('path',{d:curve(p,true),fill:'#F6E8C2'})));
 D.layers.buildings.forEach(b=>{const o=OFF.find(x=>x.bld===b.id);const col=o?BCOL[o.cat]:(b.section?'#8E7A60':'#5E5246');
-  G.buildings.appendChild(el('path',{d:'M'+b.g.map(p=>(p[0]+1.4).toFixed(1)+' '+(Y(p[1])+1.8).toFixed(1)).join('L')+'Z',fill:'#000',opacity:.38}));
-  const p=poly(b.g,{fill:col,stroke:'#1A140E','stroke-width':1,opacity:.96,class:'ck','data-pick':'b:'+b.id});G.buildings.appendChild(p);b.el=p});
+  G.buildings.appendChild(el('path',{d:'M'+b.g.map(p=>(p[0]+1.4).toFixed(1)+' '+(Y(p[1])+1.8).toFixed(1)).join('L')+'Z',fill:'#000','fill-opacity':.38,class:'bshadow'}));
+  const p=poly(b.g,{fill:col,stroke:'#1A140E','stroke-width':1,class:'ck','data-pick':'b:'+b.id});G.buildings.appendChild(p);b.el=p});
 D.layers.rail.forEach(p=>{G.rail.appendChild(el('path',{d:curve(p),fill:'none',stroke:'#2A1D12','stroke-width':3.2,'stroke-linecap':'round'}));G.rail.appendChild(el('path',{d:curve(p),fill:'none',stroke:'#E8D9B4','stroke-width':1,'stroke-dasharray':'2.2 2.2'}))});
 /* every coaster gets its own hue in the build guide (a categorical set that reads on the green terrain; the legend under the
    map and the card's track drawing use the same one). The park map keeps its single --coaster stroke. */
 const HUES=['#E63B2E','#F5A623','#FFE600','#FF6EB4','#3FB8F0','#9B6BFF','#FF7F11','#C81D5A','#F4F1DE'];
 const hueOf=i=>FLAVOR==='live'?'var(--coaster)':HUES[i%HUES.length];
-COAST.forEach((c,i)=>{const grp=el('g',{class:'ck','data-pick':'c:'+i});c.hue=hueOf(i);c.segs.concat(c.stations).forEach(s=>{grp.appendChild(cline(s,{stroke:'#160B08','stroke-width':7,opacity:.55,'stroke-linecap':'round',class:'c-cas'}));grp.appendChild(cline(s,{stroke:c.hue,'stroke-width':3,'stroke-linecap':'round',class:'c-main'}));grp.appendChild(cline(s,{stroke:'#FFD9CC','stroke-width':.9,'stroke-dasharray':'1.5 3','stroke-linecap':'round',opacity:.8,class:'c-dash'}))});
+COAST.forEach((c,i)=>{const grp=el('g',{class:'ck','data-pick':'c:'+i});c.hue=hueOf(i);c.segs.concat(c.stations).forEach(s=>{grp.appendChild(cline(s,{stroke:'#160B08','stroke-width':7,'stroke-opacity':.55,'stroke-linecap':'round',class:'c-cas'}));grp.appendChild(cline(s,{stroke:c.hue,'stroke-width':3,'stroke-linecap':'round',class:'c-main'}));grp.appendChild(cline(s,{stroke:'#FFD9CC','stroke-width':.9,'stroke-dasharray':'1.5 3','stroke-linecap':'round','stroke-opacity':.8,class:'c-dash'}))});
   c.stations.forEach(s=>grp.appendChild(cline(s,{stroke:'#FFF6E0','stroke-width':4})));G.coaster.appendChild(grp);c.el=grp});
 OFF.forEach(o=>{if(!o.pos)return;const m=el('g',{class:'mk offm','data-pick':'o:'+o.num});m.dataset.x=o.pos[0];m.dataset.y=o.pos[1];const col=MKCOL[o.cat],dash=o.src==='map'?'3 2':'none';
   m.appendChild(el('circle',{cx:0,cy:0,r:16,fill:'transparent'}));
@@ -786,7 +788,17 @@ OFF.forEach(o=>{if(!o.pos)return;const m=el('g',{class:'mk offm','data-pick':'o:
 let view=[0,0,WM,HM], anim=null, dragged=false, tool='pan', mode='2d', three=null;
 const pts=new Map();let pinch0=null,dragStart=null,panStart=null,downPick=null,lastPt=[40,40];
 const mpp=()=>{const m=svg.getScreenCTM();return m&&m.a?1/m.a:view[2]/svg.clientWidth};   // true metres per CSS px, whatever preserveAspectRatio does
-function apply(){if(!svg.clientWidth)return;svg.setAttribute('viewBox',view.join(' '));const k=mpp();
+/* Interaction is composited: while a drag, pinch, wheel burst or tween is in flight, the SVG keeps the viewBox it last
+   painted and is moved with a CSS transform (no repaint); applyFast() computes that transform from the committed view.
+   commit() writes the real viewBox and runs the full apply() once, when the gesture settles. */
+let committed=null,fastT=null;
+const fitOf=v=>{const W=svg.clientWidth,H=svg.clientHeight,k=Math.max(v[2]/W,v[3]/H);return{k,ox:(W-v[2]/k)/2,oy:(H-v[3]/k)/2}};   // xMidYMid meet
+function applyFast(){if(!committed||!svg.clientWidth){apply();return}const a=fitOf(committed),b=fitOf(view),sc=a.k/b.k;
+  const tx=b.ox+(committed[0]-view[0])/b.k-a.ox*sc,ty=b.oy+(committed[1]-view[1])/b.k-a.oy*sc;
+  STAGE.style.transform=`translate(${tx.toFixed(2)}px,${ty.toFixed(2)}px) scale(${sc.toFixed(5)})`;drawMini();clearTimeout(fastT);fastT=setTimeout(commit,140)}
+function commit(){clearTimeout(fastT);fastT=null;STAGE.style.transform='';apply()}
+const STAGE=$('mapstage');
+function apply(){if(!svg.clientWidth)return;svg.setAttribute('viewBox',view.join(' '));committed=view.slice();STAGE.style.transform='';const k=mpp();
   const ms=k*(k>0.75?0.62:(k>0.45?0.8:1));window.MS=ms;window.MK=k;document.querySelectorAll('.mk').forEach(m=>{m.setAttribute('transform',`translate(${m.dataset.x} ${Y(+m.dataset.y)}) scale(${ms})${window.ROT?' rotate('+(-ROT)+')':''}`)});if(window.placeWaits)placeWaits();
   document.querySelectorAll('.clab').forEach(t=>t.style.fontSize=(9.5*k)+'px');
   document.querySelectorAll('.seclab').forEach(t=>{t.style.fontSize=(15*Math.min(k,1.1))+'px';t.style.opacity=k<0.22?0:1});
@@ -799,10 +811,10 @@ function fitBox(b,tween){if(window.ROT){const r=ROT*Math.PI/180,cx=WM/2,cy=HM/2,
   setView([x0,HM-y0-h,w,h],tween)}
 function setView(t,tween){cancelAnimationFrame(anim);const red=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!tween||red){view=t;apply();return}   // an immediate view always wins over a tween still in flight
   const from=view.slice(),t0=performance.now();
-  (function step(now){const k=Math.min(1,(now-t0)/360),e=1-Math.pow(1-k,3);view=from.map((v,i)=>v+(t[i]-v)*e);apply();if(k<1)anim=requestAnimationFrame(step)})(t0)}
-function zoomAt(f,px,py){const w=Math.min(WM*2.2,Math.max(50,view[2]*f));const h=w*view[3]/view[2];const fx=(px-view[0])/view[2],fy=(py-view[1])/view[3];setView([px-fx*w,py-fy*h,w,h],false)}
+  (function step(now){const k=Math.min(1,(now-t0)/360),e=1-Math.pow(1-k,3);view=from.map((v,i)=>v+(t[i]-v)*e);if(k<1){applyFast();anim=requestAnimationFrame(step)}else commit()})(t0)}
+function zoomAt(f,px,py,fast){const w=Math.min(WM*2.2,Math.max(50,view[2]*f));const h=w*view[3]/view[2];const fx=(px-view[0])/view[2],fy=(py-view[1])/view[3];cancelAnimationFrame(anim);view=[px-fx*w,py-fy*h,w,h];if(fast)applyFast();else apply()}
 function toMap(ev){const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const m=p.matrixTransform((window.ROOT||svg).getScreenCTM().inverse());return [m.x,HM-m.y]}   // ROOT: the rotated content group
-svg.addEventListener('wheel',e=>{e.preventDefault();const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const m=p.matrixTransform(svg.getScreenCTM().inverse());zoomAt(e.deltaY>0?1.18:1/1.18,m.x,m.y)},{passive:false});
+svg.addEventListener('wheel',e=>{e.preventDefault();const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const m=p.matrixTransform(svg.getScreenCTM().inverse());zoomAt(e.deltaY>0?1.18:1/1.18,m.x,m.y,true)},{passive:false});
 $('z-in').onclick=()=>zoomAt(1/1.5,view[0]+view[2]/2,view[1]+view[3]/2);
 $('z-out').onclick=()=>zoomAt(1.5,view[0]+view[2]/2,view[1]+view[3]/2);
 $('z-fit').onclick=()=>fitTarget(D.layers.allbox);
@@ -822,14 +834,14 @@ svg.addEventListener('pointermove',e=>{if(pts.has(e.pointerId))pts.set(e.pointer
   const [x,y]=toMap(e),v=elev(x,y);
   if(!dragStart&&tool==='pan')$('readout').innerHTML=v==null?'Outside the surveyed area':`<b>${v} ft</b> &nbsp;·&nbsp; ${Math.round(x)} m E, ${Math.round(y)} m N`;
   if(pts.size===2&&pinch0){const a=[...pts.values()];const d=Math.hypot(a[0].clientX-a[1].clientX,a[0].clientY-a[1].clientY);const f=pinch0.d/d;
-    const cx=pinch0.view[0]+pinch0.view[2]/2,cy=pinch0.view[1]+pinch0.view[3]/2;const w=Math.min(WM*2.2,Math.max(50,pinch0.view[2]*f)),h=w*pinch0.view[3]/pinch0.view[2];view=[cx-w/2,cy-h/2,w,h];dragged=true;apply();return}
+    const cx=pinch0.view[0]+pinch0.view[2]/2,cy=pinch0.view[1]+pinch0.view[3]/2;const w=Math.min(WM*2.2,Math.max(50,pinch0.view[2]*f)),h=w*pinch0.view[3]/pinch0.view[2];view=[cx-w/2,cy-h/2,w,h];dragged=true;applyFast();return}
   if(!dragStart&&tool==='section'&&cutPending){cut[1]=[x,y];drawCut();return}   // rubber band between the first tap and the pointer
   if(!dragStart)return;const dx=e.clientX-dragStart[0],dy=e.clientY-dragStart[1];if(Math.hypot(dx,dy)>8)dragged=true;
-  if(tool==='pan'&&dragged){const k=mpp();view=[panStart[0]-dx*k,panStart[1]-dy*k,panStart[2],panStart[3]];svg.classList.add('dragging');apply()}
+  if(tool==='pan'&&dragged){const k=committed?fitOf(committed).k:mpp();view=[panStart[0]-dx*k,panStart[1]-dy*k,panStart[2],panStart[3]];svg.classList.add('dragging');applyFast()}
   else if(tool==='section'&&cut){cut[1]=[x,y];drawCut();profile('Custom cut')}
   else if(tool==='measure'&&measure&&measure.length===1){measureHover=[x,y];drawMeasure()}});
 function pick(elm){if(!elm)return false;const [k,v]=elm.dataset.pick.split(':');if(k==='o')showOfficial(OFFNUM[+v]);else if(k==='b')showBuilding(BLD[+v]);else if(k==='c')showCoaster(COAST[+v]);else if(k==='s'){if(FLAVOR==='live')return false;selectSection(v,true)}else if(k==='f'&&window.showFamily)showFamily(v);else if(k==='a'&&window.showAmen){const [kind,x,y]=v.split(':');const a=amenList().find(q=>q.kind===kind&&Math.round(q.x)==x&&Math.round(q.y)==y);if(a)showAmen(a)}return true}
-function endPtr(e){const wasDrag=dragged,dp=downPick;pts.delete(e.pointerId);if(pts.size<2)pinch0=null;dragStart=null;downPick=null;svg.classList.remove('dragging');
+function endPtr(e){const wasDrag=dragged,dp=downPick;pts.delete(e.pointerId);if(pts.size<2)pinch0=null;dragStart=null;downPick=null;svg.classList.remove('dragging');if(wasDrag&&!pts.size)commit();
   if(wasDrag&&window.liveDragged)liveDragged();
   if(e.type==='pointerup'&&tool==='section'){if(wasDrag)cutPending=false;else if(cutPending){cutPending=false;cut[1]=toMap(e);drawCut();profile('Custom cut')}else cutPending=true;mapHint()}
   if(e.type==='pointerup'&&!wasDrag&&tool==='pan'&&window.livePlace&&livePlace(toMap(e)))return;
@@ -1016,7 +1028,7 @@ $('l-seclab').addEventListener('change',e=>{G.seclabels.style.display=e.target.c
 $('l-upright').addEventListener('change',e=>{setRotation(e.target.checked?(D.rot||0):0);fitBox(curSec&&curSec!=='all'&&SEC[curSec]?SEC[curSec].box:D.layers.allbox,true)});
 $('cint').addEventListener('change',e=>{for(const k in CG)CG[k].style.display=k===e.target.value?'':'none'});
 let basemap='relief';
-$('bmap').addEventListener('change',e=>{basemap=e.target.value;const off=basemap==='official';if((basemap==='aerial'||basemap==='mix')&&!aer.getAttribute('href'))aer.setAttribute('href',AER);ill.style.display=off?'':'none';aer.style.display=(basemap==='relief'||off)?'none':'';img.style.display=(basemap==='aerial'||off)?'none':'';img.style.opacity=basemap==='mix'?.45:1;img.style.mixBlendMode=basemap==='mix'?'multiply':'';mimg.setAttribute('href',off?ILL:basemap==='relief'?IMG:AER);if(three)three.retexture()});
+$('bmap').addEventListener('change',e=>{basemap=e.target.value;const off=basemap==='official';if((basemap==='aerial'||basemap==='mix')&&!aer.getAttribute('href'))aer.setAttribute('href',AER);if(off&&!ill.getAttribute('href'))ill.setAttribute('href',ILL);ill.style.display=off?'':'none';aer.style.display=(basemap==='relief'||off)?'none':'';img.style.display=(basemap==='aerial'||off)?'none':'';img.style.opacity=basemap==='mix'?.45:1;img.style.mixBlendMode=basemap==='mix'?'multiply':'';mimg.setAttribute('href',off?ILL:basemap==='relief'?IMG:AER);if(three)three.retexture()});
 /* Light/dark: the reference flavour keeps its own toggle; in the hub, hub.js sets data-theme (the person's palette) and data-scheme (resolved light|dark). */
 {const t=$('theme-row');if(t)t.remove()}
 /* View menu (contour interval, theme, steepness), the More disclosure on phones, the "?" shortcuts popover and the build
