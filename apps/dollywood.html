@@ -1151,7 +1151,7 @@ if(FLAVOR!=='live'&&build){window.sheetSet=sheetSet;
 function setMode(m){mode=m;$('m-2d').setAttribute('aria-pressed',String(m==='2d'));$('m-3d').setAttribute('aria-pressed',String(m==='3d'));
   svg.style.display=m==='2d'?'':'none';STAGE.style.display=m==='2d'?'':'none';$('view3d').style.display=m==='3d'?'block':'none';$('mini').style.display=m==='2d'?'':'none';$('exag').style.display=m==='3d'?'flex':'none';
   $('readout').textContent=m==='3d'?'One finger / drag: orbit · two fingers or scroll: zoom · arrows or WASD: move · Q/E: rotate · tap a marker':'Move over the map for elevation · scroll to zoom · drag to pan';closePop();mapHint();
-  if(m==='3d'){if(!three)init3D();else three.resize()}}
+  if(m==='3d'){if(!three){$('readout').textContent='Building the 3D model…';if(!window._3dPending){window._3dPending=true;requestAnimationFrame(()=>requestAnimationFrame(()=>{window._3dPending=false;if(mode==='3d'&&!three)init3D();if(three)$('readout').textContent='One finger / drag: orbit · two fingers or scroll: zoom · arrows or WASD: move · Q/E: rotate · tap a marker'}))}}else three.resize()}}   // build after the tap has painted, so the button answers at once
 if($('m-2d')){$('m-2d').onclick=()=>setMode('2d');$('m-3d').onclick=()=>setMode('3d')}
 function init3D(){if(!window.THREE){$('view3d').innerHTML='<p style="padding:20px;color:var(--dim)">3D library failed to load.</p>';return}
   /* A lit, shadowed model of the park: terrain resampled at 2.5 m under a 3k texture drawn from the same spline layers as
