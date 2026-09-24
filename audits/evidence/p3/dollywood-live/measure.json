@@ -1,0 +1,98 @@
+{
+  "glanceHeuristic": {
+    "note": "char height >= distance/200 mm; 1 CSS px ~ 0.192 mm on 11\" iPad",
+    "distanceM": 2.5,
+    "minGlanceCapHeightPx": 65
+  },
+  "A_homeHasParkCard": true,
+  "A_openFromHomeTaps": 1,
+  "A_setSpotTapsAfterMap": 2,
+  "B_targets": {
+    "findMe": {
+      "w": 54,
+      "h": 54
+    },
+    "wholePark": {
+      "w": 54,
+      "h": 54
+    },
+    "north": {
+      "w": 50,
+      "h": 50
+    },
+    "tab_near": {
+      "w": 100,
+      "h": 46
+    },
+    "setMySpot": {
+      "w": 96,
+      "h": 36
+    },
+    "meetGo": {
+      "w": 0,
+      "h": 0
+    }
+  },
+  "C_ipadTextPx": {
+    "pillTitle": 15.5,
+    "pillSub": 12.5,
+    "meetName": 14.5,
+    "tabLabel": 12,
+    "sectionLabelSvg": 11.895911,
+    "familyMarkerLabel": 8.723668
+  },
+  "C_glanceVerdict": "compare each to minGlanceCapHeightPx (~65px cap => ~93px fontSize). None of the pill/label text is glanceable at 2.5 m; the map is read up close.",
+  "D_note": "contrast read from computed colours; glass-over-map pairs are provisional (rig may not blur)",
+  "D_pairs": [
+    {
+      "label": "pill title",
+      "fg": "rgb(46, 37, 29)",
+      "bg": "rgba(255, 252, 248, 0.84)",
+      "fontPx": 15.5,
+      "ratio": 14.68
+    },
+    {
+      "label": "pill sub",
+      "fg": "rgb(117, 103, 91)",
+      "bg": "rgba(255, 252, 248, 0.84)",
+      "fontPx": 12.5,
+      "ratio": 5.34
+    },
+    {
+      "label": "nearby subtext",
+      "fg": "rgb(117, 103, 91)",
+      "bg": "rgb(255, 252, 248)",
+      "fontPx": 12.5,
+      "ratio": 5.34
+    },
+    {
+      "label": "group heading",
+      "fg": "rgb(117, 103, 91)",
+      "bg": "rgba(255, 252, 248, 0.84)",
+      "fontPx": 11.5,
+      "ratio": 5.34
+    },
+    {
+      "label": "meet meta",
+      "fg": "rgb(117, 103, 91)",
+      "bg": "rgba(255, 252, 248, 0.84)",
+      "fontPx": 12,
+      "ratio": 5.34
+    },
+    {
+      "label": "waits source",
+      "fg": "rgb(117, 103, 91)",
+      "bg": "rgba(255, 252, 248, 0.84)",
+      "fontPx": 11.5,
+      "ratio": 5.34
+    }
+  ],
+  "E_compass": {
+    "ROT": -98.71
+  },
+  "E_compassAfter": {
+    "ROT": -98.71,
+    "uprightChecked": true
+  },
+  "E_note": "the compass toggles l-upright; its change handler fits SEC[curSec]. curSec is the boot value (entrance), never reset when the map is shown, so the view fits Entrance & Plaza, not where the family is."
+}

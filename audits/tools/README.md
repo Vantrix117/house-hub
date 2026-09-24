@@ -172,3 +172,13 @@ await L.close();
 | `--clock real` | The Worker runs on the real clock |
 | `--site-cache-control` | Sets the site's Cache-Control header |
 | `HUB_RIG_VAPID_*` | Enables push to a local receiver such as `scripts/push-receiver.mjs` |
+
+## Phase 3 tools: `phase3/`
+
+Experiment and verification scripts for each app live in `phase3/<app-id>/`: the investigator's, the skeptics' (`verify-*`), the visual checker's (`vischeck-*`) and the critic's (`critic-*`). Their evidence goes to `audits/evidence/p3/<app-id>/`. There are also three shared tools, which only read files:
+
+| Command | What it does |
+|---|---|
+| `node audits/tools/phase3/compliance.mjs [app-id …]` | Counts, per app, the hardcoded colours, font sizes, radii, spacing, shadows, durations and z-indexes. It also counts inline styles, undefined tokens, `prefers-color-scheme` use, hub.js bypasses, native dialogs and unguarded `:hover` rules. Every hit is listed with its line in `audits/evidence/p3/_compliance/<app-id>.json`, and the roll-up is `_summary.json`. It is regex-based, so review the hits. |
+| `node audits/tools/phase3/check-citations.mjs [report.md …]` | Checks that every repo path cited in the Phase 3 reports exists and that every `file:line` is inside its file. It exits 1 if any citation is broken. |
+| `node audits/tools/phase3/cited-evidence.mjs` | Rewrites `audits/evidence/p3/.gitignore` so that evidence PNGs no report cites stay on disk but out of git. Rerun it after editing a report. |

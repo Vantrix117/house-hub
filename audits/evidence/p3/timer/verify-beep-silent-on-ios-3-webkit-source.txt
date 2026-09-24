@@ -1,0 +1,24 @@
+WebKit source excerpts (fetched 2026-09-24 from github.com/WebKit/WebKit, branch main), cited by skeptic 3 for beep-silent-on-ios.
+
+Source/WebCore/Modules/webaudio/AudioContext.cpp — AudioContext::constructCommon():
+    if (!page || page->requiresUserGestureForAudioPlayback())
+        addBehaviorRestriction(BehaviorRestrictionFlags::RequireUserGestureForAudioStartRestriction);
+  #if PLATFORM(COCOA)
+    addBehaviorRestriction(BehaviorRestrictionFlags::RequirePageConsentForAudioStartRestriction);
+  #endif
+
+AudioContext::willBeginPlayback():
+    if (userGestureRequiredForAudioStart()) {
+        if (!shouldDocumentAllowWebAudioToAutoPlay(*document))  -> completion(false): the context does not start (stays suspended)
+
+static shouldDocumentAllowWebAudioToAutoPlay(const Document&):
+    if (document.isCapturing()) return true;
+    if (document.quirks().shouldAutoplayWebAudioForArbitraryUserGesture() && mainDocument && mainDocument->hasHadUserInteraction()) return true;   // site-specific quirk list only
+    return window && window->hasTransientActivation();
+
+Source/WTF/Scripts/Preferences/UnifiedWebPreferences.yaml — RequiresUserGestureForAudioPlayback:
+    defaultValue: "PLATFORM(IOS_FAMILY)": true, default: false   (status: embedder)
+
+Reading: on iPhone/iPad a new AudioContext only starts if the window has TRANSIENT activation (a gesture within the last few
+seconds) at the moment playback begins, or resume() is later called from a gesture. timer.html:95 and index.html:790 construct
+the context ~60 s after the Start tap (measured: transient=false, msTapToContext 59559) and nothing ever calls resume().

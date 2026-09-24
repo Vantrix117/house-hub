@@ -1,0 +1,101 @@
+{
+ "code": {
+  "timerMentions": {},
+  "reminderJobs": "export const JOBS = { morning: morningJob, evening: eveningJob, behind: behindJob, prayer: prayerJob, park: parkJob }",
+  "shellIntent": [
+   "776: // ticks it each second, and at 0 — with the app closed — beeps, shows a local notification, clears the record and",
+   "797: async function timerNotify(a) {        // local, from this device's service worker — no server push involved",
+   "806: const recent = Date.now() - a.endAt < 60000;                       // one that ran out while the hub was closed just gets cleared"
+  ],
+  "claudeMd": "34: - **Timer** runs in the shell: the Timer app writes `timer.active {endAt,total,startedAt}` in its person scope; `index.html` shows a glass pill on every tab while one is running, beeps and shows a local notification at 0, then clears it. The app resumes from `"
+ },
+ "rig": {
+  "R1": {
+   "startedServer": {
+    "endAt": 1790273302476,
+    "total": 60,
+    "startedAt": 1790273242476
+   },
+   "beforeZero": {
+    "pill": "0:58",
+    "toast": null,
+    "audioContextsMade": 0,
+    "notifications": []
+   },
+   "whileHidden": {
+    "pill": null,
+    "toast": null,
+    "audioContextsMade": 0,
+    "notifications": []
+   },
+   "afterReturn": {
+    "pill": null,
+    "toast": null,
+    "audioContextsMade": 0,
+    "notifications": []
+   },
+   "serverAfter": null
+  },
+  "R2": {
+   "startedServer": {
+    "endAt": 1790273304974,
+    "total": 60,
+    "startedAt": 1790273244974
+   },
+   "beforeZero": {
+    "pill": "0:58",
+    "toast": null,
+    "audioContextsMade": 0,
+    "notifications": []
+   },
+   "whileHidden": {
+    "pill": null,
+    "toast": "Timer done — 1:00 is up.",
+    "audioContextsMade": 1,
+    "notifications": [
+     {
+      "t": "Timer done",
+      "body": "1:00 is up."
+     }
+    ]
+   },
+   "afterReturn": {
+    "pill": null,
+    "toast": "Timer done — 1:00 is up.",
+    "audioContextsMade": 1,
+    "notifications": [
+     {
+      "t": "Timer done",
+      "body": "1:00 is up."
+     }
+    ]
+   },
+   "serverAfter": null
+  },
+  "R3": {
+   "startedServer": {
+    "endAt": 1790273307614,
+    "total": 60,
+    "startedAt": 1790273247614
+   },
+   "beforeZero": {
+    "pill": "0:59",
+    "toast": null,
+    "audioContextsMade": 0,
+    "notifications": []
+   },
+   "afterReturn": {
+    "pill": null,
+    "toast": null,
+    "audioContextsMade": 1,
+    "notifications": [
+     {
+      "t": "Timer done",
+      "body": "1:00 is up."
+     }
+    ]
+   },
+   "serverAfter": null
+  }
+ }
+}

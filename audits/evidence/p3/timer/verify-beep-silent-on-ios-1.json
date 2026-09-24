@@ -1,0 +1,86 @@
+{
+ "script": "audits/tools/phase3/timer/verify-beep-silent-on-ios-1.mjs",
+ "webkit": {
+  "avail": {
+   "AudioContext": "undefined",
+   "webkitAudioContext": "undefined",
+   "audioSession": "undefined",
+   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1"
+  }
+ },
+ "control": {
+  "state": "running",
+  "sticky": true
+ },
+ "afterStartClick": {
+  "phoneTimerFrame": [],
+  "goText": "Pause"
+ },
+ "phoneDoneAfterMs": 59680,
+ "phone": [
+  {
+   "frame": "/index.html#timer",
+   "avail": {
+    "AudioContext": "function",
+    "webkitAudioContext": "undefined"
+   },
+   "ac": []
+  },
+  {
+   "frame": "/apps/timer.html",
+   "avail": {
+    "AudioContext": "function",
+    "webkitAudioContext": "undefined"
+   },
+   "ac": [
+    {
+     "at": 1790269176383,
+     "url": "/apps/timer.html",
+     "state0": "running",
+     "sticky": true,
+     "transient": false,
+     "stack": "at beep (http://localhost:58659/apps/timer.html:95:21) | at finish (http://localhost:58659/apps/timer.html:102:91) | at step (http://localhost:58659/apps/timer.html:109:25)",
+     "state400": "running"
+    }
+   ]
+  }
+ ],
+ "ipad": [
+  {
+   "frame": "/index.html#home",
+   "avail": {
+    "AudioContext": "function",
+    "webkitAudioContext": "undefined"
+   },
+   "ac": [
+    {
+     "at": 1790269116373,
+     "url": "/index.html#home",
+     "state0": "running",
+     "sticky": true,
+     "transient": true,
+     "stack": "at eval (eval at evaluate (:311:30), <anonymous>:1:19) | at UtilityScript.evaluate (<anonymous>:313:16) | at UtilityScript.<anonymous> (<anonymous>:1:44)",
+     "state400": "running"
+    },
+    {
+     "at": 1790269176529,
+     "url": "/index.html#home",
+     "state0": "running",
+     "sticky": true,
+     "transient": false,
+     "stack": "at timerBeep (http://localhost:58659/index.html:790:19) | at finishTimer (http://localhost:58659/index.html:808:45) | at renderTimerPill (http://localhost:58659/index.html:821:23)",
+     "state400": "running"
+    }
+   ]
+  },
+  {
+   "frame": "about:blank",
+   "avail": {
+    "AudioContext": "function",
+    "webkitAudioContext": "undefined"
+   },
+   "ac": []
+  }
+ ],
+ "ipadUserActivation": true
+}
