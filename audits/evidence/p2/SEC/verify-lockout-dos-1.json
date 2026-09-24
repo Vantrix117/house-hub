@@ -1,0 +1,74 @@
+{
+ "create_known_pin": 200,
+ "wrong": [
+  "1:401 wrong_pin",
+  "2:401 wrong_pin",
+  "3:401 wrong_pin",
+  "4:401 wrong_pin",
+  "5:401 wrong_pin",
+  "6:429 too_many_attempts"
+ ],
+ "correct_same_device_during_lock": {
+  "status": 429,
+  "error": "too_many_attempts",
+  "message": "Too many attempts. Try again in 15 min.",
+  "retry_after": 900
+ },
+ "correct_other_device_during_lock": {
+  "status": 200
+ },
+ "other_profile_same_device_wrong_pin": {
+  "status": 401,
+  "error": "wrong_pin",
+  "message": "Wrong PIN."
+ },
+ "keypad": {
+  "msg": "Too many attempts. Try again in 15 min.",
+  "padDisabled": 0,
+  "padButtons": 12,
+  "continueDisabledEmpty": true,
+  "continueDisabledAfterRetype": false,
+  "msgAfterSecondSubmit": "Too many attempts. Try again in 15 min.",
+  "stillOnPad": true
+ },
+ "correct_at_plus14min": {
+  "status": 429,
+  "error": "too_many_attempts",
+  "message": "Too many attempts. Try again in 1 min.",
+  "retry_after": 60
+ },
+ "correct_at_plus16min": {
+  "status": 200
+ },
+ "fixed_window_locked_at_T10": 429,
+ "fixed_window_correct_at_T15_5": 200,
+ "relock_after_expiry": 429,
+ "admin_reset_pin": 200,
+ "login_after_admin_reset": {
+  "status": 403,
+  "error": "needs_pin_setup",
+  "message": "Mea has not created a PIN yet."
+ },
+ "create_pin_after_admin_reset": 200,
+ "pair_wrong": [
+  "1:401",
+  "2:401",
+  "3:401",
+  "4:401",
+  "5:401",
+  "6:401",
+  "7:401",
+  "8:401",
+  "9:401",
+  "10:401",
+  "11:429"
+ ],
+ "pair_correct_same_ip": {
+  "status": 429,
+  "error": "too_many_attempts",
+  "message": "Too many attempts. Try again in 15 min.",
+  "retry_after": 900
+ },
+ "pair_correct_other_ip": 200,
+ "pair_correct_no_ip_header": 200
+}

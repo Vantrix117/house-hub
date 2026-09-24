@@ -1,0 +1,143 @@
+
+== A1 Sun 8:00 pm, forced park: Eli 5 min old, Ezra quiet since 11:00 am
+{
+ "writes": [
+  200,
+  200
+ ],
+ "result": {
+  "status": 200,
+  "parkDay": true,
+  "markers": [
+   {
+    "id": "eli",
+    "kind": "adult",
+    "ageMin": 5
+   },
+   {
+    "id": "ezra",
+    "kind": "kid",
+    "ageMin": 540
+   }
+  ],
+  "stale": [],
+  "notified": [],
+  "skipped": [],
+  "received": []
+ }
+}
+
+== A2 Mon 2:00 pm, forced park (control): Eli 3 min old, Ezra 45 min old
+{
+ "writes": [
+  200,
+  200
+ ],
+ "result": {
+  "status": 200,
+  "parkDay": true,
+  "markers": [
+   {
+    "id": "eli",
+    "kind": "adult",
+    "ageMin": 3
+   },
+   {
+    "id": "ezra",
+    "kind": "kid",
+    "ageMin": 45
+   }
+  ],
+  "stale": [
+   {
+    "id": "ezra",
+    "ageMin": 45
+   }
+  ],
+  "notified": [
+   "eli",
+   "christian",
+   "mom",
+   "dad",
+   "niece"
+  ],
+  "skipped": [],
+  "received": [
+   {
+    "to": "eli",
+    "title": "Dollywood park map",
+    "body": "Ezra's spot has not updated for 45 min.",
+    "tag": "park"
+   },
+   {
+    "to": "christian",
+    "title": "Dollywood park map",
+    "body": "Ezra's spot has not updated for 45 min.",
+    "tag": "park"
+   },
+   {
+    "to": "mom",
+    "title": "Dollywood park map",
+    "body": "Ezra's spot has not updated for 45 min.",
+    "tag": "park"
+   },
+   {
+    "to": "dad",
+    "title": "Dollywood park map",
+    "body": "Ezra's spot has not updated for 45 min.",
+    "tag": "park"
+   },
+   {
+    "to": "niece",
+    "title": "Dollywood park map",
+    "body": "Ezra's spot has not updated for 45 min.",
+    "tag": "park"
+   }
+  ]
+ }
+}
+
+== B0 NY hours at which un-forced runCron runs the park job
+[
+ 8,
+ 20
+]
+
+== B cron firings simulated (wrangler.toml ["0 12,13 * * *","0 0,1 * * *"])
+[
+ "Sun 8:00 AM",
+ "Sun 9:00 AM",
+ "Sun 8:00 PM",
+ "Sun 9:00 PM",
+ "Mon 8:00 AM",
+ "Mon 9:00 AM"
+]
+
+== B sweep: Ezra goes quiet at Q (Eli at the park 10 am – 10 pm, fresh at every run) → park alert from any scheduled run?
+  Ezra quiet at Sun 10:30 AM   → NEVER
+  Ezra quiet at Sun 11:00 AM   → NEVER
+  Ezra quiet at Sun 11:30 AM   → NEVER
+  Ezra quiet at Sun 12:00 PM   → NEVER
+  Ezra quiet at Sun 12:30 PM   → NEVER
+  Ezra quiet at Sun 1:00 PM    → NEVER
+  Ezra quiet at Sun 1:30 PM    → NEVER
+  Ezra quiet at Sun 2:00 PM    → NEVER
+  Ezra quiet at Sun 2:30 PM    → NEVER
+  Ezra quiet at Sun 3:00 PM    → NEVER
+  Ezra quiet at Sun 3:30 PM    → NEVER
+  Ezra quiet at Sun 4:00 PM    → NEVER
+  Ezra quiet at Sun 4:30 PM    → Sun 8:00 PM → eli,christian,mom,dad,niece: "Ezra's spot has not updated for 210 min."
+  Ezra quiet at Sun 5:00 PM    → Sun 8:00 PM → eli,christian,mom,dad,niece: "Ezra's spot has not updated for 180 min."
+  Ezra quiet at Sun 5:30 PM    → Sun 8:00 PM → eli,christian,mom,dad,niece: "Ezra's spot has not updated for 150 min."
+  Ezra quiet at Sun 6:00 PM    → Sun 8:00 PM → eli,christian,mom,dad,niece: "Ezra's spot has not updated for 120 min."
+  Ezra quiet at Sun 6:30 PM    → Sun 8:00 PM → eli,christian,mom,dad,niece: "Ezra's spot has not updated for 90 min."
+  Ezra quiet at Sun 7:00 PM    → Sun 8:00 PM → eli,christian,mom,dad,niece: "Ezra's spot has not updated for 60 min."
+  Ezra quiet at Sun 7:30 PM    → NEVER
+  Ezra quiet at Sun 8:00 PM    → NEVER
+  Ezra quiet at Sun 8:30 PM    → NEVER
+  Ezra quiet at Sun 9:00 PM    → NEVER
+  Ezra quiet at Sun 9:30 PM    → NEVER
+
+== B summary: 17 of 23 quiet times never alerted
+
+wrote audits/evidence/p2/PWA/verify-park-alert-misses-park-day-1.json

@@ -1,0 +1,110 @@
+
+== adults on the rig (adultIds order)
+eli, christian, mom, dad, niece, guest-grandmajo
+
+== A1. Wed 8:00 am — morning job; niece's push service answers 503, mom has no subscription yet, dad works
+{
+ "status": 200,
+ "notified": [
+  "dad(sent 1, ok 1, status 201)",
+  "niece(sent 1, ok 0, status 503 service unavailable)"
+ ],
+ "skipped": [],
+ "due": 3,
+ "received": [
+  "dad: Larder Ledger — 3 to use up: Chicken alfredo (9d), Beef and bean chili (6d), Roasted sweet potatoes (5d)"
+ ]
+}
+
+== A1. push_log (Admin → Usage) for leftovers on 2026-09-23 UTC
+[
+ "dad: sends 1, ok 1",
+ "niece: sends 1, ok 0"
+]
+
+== A1. push_subscriptions after the 503 (kept: a 503 is not "gone")
+[
+ {
+  "profile_id": "dad",
+  "n": 1
+ },
+ {
+  "profile_id": "niece",
+  "n": 1
+ }
+]
+
+== A2. Wed 8:30 am — the admin forces the morning job again (a retry)
+{
+ "status": 200,
+ "notified": [
+  "mom(sent 1, ok 1, status 201)"
+ ],
+ "skipped": [
+  "dad:already_today",
+  "niece:already_today"
+ ],
+ "due": 3,
+ "received": [
+  "mom: Larder Ledger — 3 to use up: Chicken alfredo (9d), Beef and bean chili (6d), Roasted sweet potatoes (5d)"
+ ]
+}
+
+== B1. Thu 8:00 am — park job; niece's endpoint refuses connections, christian has no subscription yet, dad works
+{
+ "status": 200,
+ "notified": [
+  "dad(sent 1, ok 1, status 201)",
+  "niece(sent 1, ok 0, status 0 fetch failed)"
+ ],
+ "skipped": [],
+ "stale": [
+  {
+   "id": "ezra",
+   "ageMin": 45
+  }
+ ],
+ "parkDay": true,
+ "received": [
+  "dad: Dollywood park map — Ezra's spot has not updated for 45 min."
+ ]
+}
+
+== B1. push_log for park on 2026-09-24 UTC
+[
+ "dad: sends 1, ok 1",
+ "niece: sends 1, ok 0"
+]
+
+== B2. Thu 8:00 pm — park job again, same condition; niece's push service is back, christian subscribed at 7:55 pm
+{
+ "status": 200,
+ "notified": [
+  "christian(sent 1, ok 1, status 201)"
+ ],
+ "skipped": [
+  "dad:already_today",
+  "niece:already_today"
+ ],
+ "stale": [
+  {
+   "id": "ezra",
+   "ageMin": 45
+  }
+ ],
+ "parkDay": true,
+ "received": [
+  "christian: Dollywood park map — Ezra's spot has not updated for 45 min."
+ ]
+}
+
+== B2. push_log for park (UTC day 2026-09-25 holds the 8 pm NY run)
+{
+ "2026-09-24": [
+  "dad: sends 1, ok 1",
+  "niece: sends 1, ok 0"
+ ],
+ "2026-09-25": [
+  "christian: sends 1, ok 1"
+ ]
+}

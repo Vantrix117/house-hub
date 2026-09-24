@@ -142,3 +142,33 @@ The helpers passed as `h`:
 | `h.profiles()`, `h.name(id)` | Profile rows |
 
 All seeded content is invented. PINs and the pairing code are random on every run and are never printed.
+
+## Experiments (Phase 2 and later): `lib/local.mjs`
+
+The capture rig takes pictures. The harness runs behaviour against the same local instance: two devices at once, offline and online, clock control, scripted chat, push to a local receiver, and Chromium for heap and service-worker tests. Experiment scripts live in `audits/tools/phase2/<topic>/*.mjs`; run each one with `node`. Their evidence goes to `audits/evidence/p2/<topic>/`.
+
+```js
+import { local, sleep, DEMO } from '../../lib/local.mjs';
+const L = await local({ variant: 'typical', clock: 'real', engine: 'webkit' });   // or engine: 'chromium' (installed Chrome)
+const ph = await L.newDevice({ name: 'Eli phone', profiles: ['eli'] });              // a second paired device
+const ipad = await L.device({ device: 'ipad-portrait', profile: 'eli', fixedTime: false });
+const phone = await L.device({ device: 'iphone-pwa', profile: 'eli', fixedTime: false, as: ph });
+const f = await phone.openApp('f260');                                               // the app's Frame
+await phone.setOffline(true);  /* … */  await phone.setOffline(false);
+await L.apiAs('ezra', '/api/data/leftovers?scope=family');                          // raw API as a profile
+await L.anthropic([{ text: 'Done.', tools: [{ name: 'add_prayer', input: { … } }] }]); await L.anthropicLog();
+await L.close();
+```
+
+**The server behind it** (`lib/server.mjs`) adds rig-only endpoints and options. The capture rig uses none of them, so its captures stay reproducible:
+
+| Endpoint or option | What it does |
+|---|---|
+| `/__rig/device` | A second paired device with sessions |
+| `/__rig/pairing-code` | A known throwaway pairing code |
+| `/__rig/clock` | Moves the Worker's demo clock |
+| `/__rig/anthropic` | The chat upstream script and its request log |
+| `/__rig/overlay` | Serves files from a folder under `audits/` over the repo, to simulate a deploy |
+| `--clock real` | The Worker runs on the real clock |
+| `--site-cache-control` | Sets the site's Cache-Control header |
+| `HUB_RIG_VAPID_*` | Enables push to a local receiver such as `scripts/push-receiver.mjs` |

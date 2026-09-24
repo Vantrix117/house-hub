@@ -1,0 +1,140 @@
+{
+ "at": "2026-09-24T05:20:16.692Z",
+ "steps": [
+  {
+   "name": "A. raw PUT, Ezra +1 h then Mom normal clock 1 s later",
+   "ezraPut": "200 applied=true",
+   "storedAhead_s": 300,
+   "momPut": "200 applied=false",
+   "rowAfter": {
+    "value": {
+     "id": "fsA",
+     "name": "Ezra future row",
+     "size": "Small",
+     "dateLogged": "2026-09-24",
+     "by": "ezra"
+    },
+    "aheadOfServerNow_s": 299
+   }
+  },
+  {
+   "name": "B1. Mom DELETE /api/data/leftovers/item:fsB1 (route stamps Date.now(), index.js:306)",
+   "status": 200,
+   "applied": false,
+   "rowAfter": {
+    "value": {
+     "id": "fsB1",
+     "name": "Zebra soup",
+     "size": "Small",
+     "dateLogged": "2026-09-24",
+     "by": "ezra"
+    },
+    "aheadOfServerNow_s": 300
+   }
+  },
+  {
+   "name": "B2. Mom via chat: finish_leftover \"Walrus stew\" (chat.js:279 stamps Date.now(), ignores applied)",
+   "chatStatus": 200,
+   "toolOk": true,
+   "chip": "✓ Finished Walrus stew",
+   "rowAfter": {
+    "value": {
+     "id": "fsB2",
+     "name": "Walrus stew",
+     "size": "Small",
+     "dateLogged": "2026-09-24",
+     "by": "ezra"
+    },
+    "aheadOfServerNow_s": 299.9
+   },
+   "stillInFridge": true,
+   "feedLines": [
+    "Finished Walrus stew from the fridge (via chat)"
+   ]
+  },
+  {
+   "name": "B3. Mom via chat: set_data item:fsB3 (chat.js:177 stamps Date.now())",
+   "toolOk": true,
+   "chip": "✓ Saved item:fsB3 in leftovers",
+   "rowAfter": {
+    "value": {
+     "id": "fsB3",
+     "name": "Yak curry",
+     "size": "Small",
+     "dateLogged": "2026-09-24",
+     "by": "ezra"
+    },
+    "aheadOfServerNow_s": 299.9
+   }
+  },
+  {
+   "name": "C. hub.js client that has pulled the future row, then edits it (hub.js:236 t = max(now+skew, cached t + 1))",
+   "cachedT_minus_now_s": 300,
+   "localAfter": {
+    "id": "fsC",
+    "name": "Mom edit via Larder",
+    "size": "Small",
+    "dateLogged": "2026-09-24"
+   },
+   "sync": "synced",
+   "serverRowAfter": {
+    "value": {
+     "id": "fsC",
+     "name": "Mom edit via Larder",
+     "size": "Small",
+     "dateLogged": "2026-09-24"
+    },
+    "aheadOfServerNow_s": 300
+   }
+  },
+  {
+   "name": "D. hub.js client with a stale cache: edit 1 then edit 2",
+   "localAfterFirstEdit": "Lasagna (Ezra future)",
+   "localAfterSecondEdit": "Lasagna (Mom edit 2)",
+   "serverRowAfter": {
+    "value": {
+     "id": "fsD",
+     "name": "Lasagna (Mom edit 2)",
+     "size": "Large",
+     "dateLogged": "2026-09-23"
+    },
+    "aheadOfServerNow_s": 300
+   }
+  },
+  {
+   "name": "E1. phone clock +1 h, online (skew learnt from a pull, hub.js:290)",
+   "skew_s": -3600,
+   "serverRowAfter": {
+    "value": {
+     "id": "fsE1",
+     "name": "Fast-clock online write"
+    },
+    "aheadOfServerNow_s": 0
+   }
+  },
+  {
+   "name": "E2. phone clock +1 h, write made before any successful pull (offline from load), then online",
+   "skew_s": 0,
+   "sync": "offline",
+   "serverRowAfter": {
+    "value": {
+     "id": "fsE2",
+     "name": "Fast-clock offline write"
+    },
+    "aheadOfServerNow_s": 298.4
+   }
+  },
+  {
+   "name": "E2b. after that, Dad raw PUT (Date.now) and Dad chat finish_leftover on item:fsE2",
+   "dadPutApplied": false,
+   "chatChip": "✓ Finished Fast-clock offline write",
+   "rowAfter": {
+    "value": {
+     "id": "fsE2",
+     "name": "Fast-clock offline write"
+    },
+    "aheadOfServerNow_s": 297.8
+   }
+  }
+ ]
+}

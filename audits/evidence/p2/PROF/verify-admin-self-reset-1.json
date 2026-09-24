@@ -1,0 +1,64 @@
+{
+ "at": "2026-09-24T05:10:34.224Z",
+ "0. admins in the seed / eli has_pin": {
+  "admins": [
+   "eli"
+  ],
+  "eliHasPin": true
+ },
+ "1a. signed in as": {
+  "id": "eli",
+  "isAdmin": true,
+  "device": "rig-kitchen-ipad"
+ },
+ "1b. own row buttons (Eli)": [
+  "Edit",
+  "Reset PIN[data-resetpin=eli]"
+ ],
+ "1c. contrast: Unpair offered on this device row?": [
+  {
+   "text": "Paired Sep 18 · seen just now · this device",
+   "unpair": false
+  }
+ ],
+ "2a. confirm() text": "Reset Eli's PIN? They will create a new one next time they tap their name.",
+ "2b. iPad after the reset": {
+  "gateShown": true,
+  "session": false,
+  "pickmsg": "Please choose your profile again.",
+  "eliCard": "Welcome back"
+ },
+ "shotIpadPicker": "audits/evidence/p2/PROF/verify-admin-self-reset-1-ipad-picker.png",
+ "2c. server: eli has_pin after reset": false,
+ "2d. server: Eli old session token → /api/me": "401 profile_session_invalid",
+ "2e. iPad: tapping Eli → pad title / hint": "Create your PIN / Choose 4 to 8 digits. You will type it once more to confirm.",
+ "3a. phone signed in as": {
+  "id": "ezra",
+  "kind": "kid",
+  "device": "rigdev-bc7d72aa"
+ },
+ "3b. phone picker: Eli card label": "Create your PIN",
+ "3c. phone: pad title / hint": "Create your PIN / Choose 4 to 8 digits. You will type it once more to confirm.",
+ "3d. phone now signed in as": {
+  "id": "eli",
+  "isAdmin": true,
+  "adminPanel": true,
+  "rotate": true
+ },
+ "shotPhoneAdmin": "audits/evidence/p2/PROF/verify-admin-self-reset-1-phone-admin.png",
+ "3e. claimer token GET /api/admin/usage": 200,
+ "4a. iPad picker: Eli card label now": "Welcome back",
+ "4b. iPad: tapping Eli → pad title / hint": "Eli / Enter your PIN",
+ "4c. real Eli tries to create his own PIN 1357 (iPad token)": "409 pin_already_set",
+ "4d. admins now (anyone else to reset Eli?)": [
+  "eli"
+ ],
+ "4e. another adult (Mae) tries reset-pin on eli": "403 admin_only",
+ "dialogs seen": [
+  "Reset Eli's PIN? They will create a new one next time they tap their name."
+ ],
+ "ipad logs (errors)": [
+  "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+  "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+ ]
+}

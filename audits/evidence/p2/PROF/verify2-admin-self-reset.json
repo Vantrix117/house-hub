@@ -1,0 +1,55 @@
+{
+ "0. Eli admin token before: GET /api/admin/usage": 200,
+ "0b. seed: admins / adults with has_pin": [
+  "eli:admin=true:pin=true",
+  "christian:admin=false:pin=true",
+  "mom:admin=false:pin=true",
+  "dad:admin=false:pin=true",
+  "niece:admin=false:pin=false"
+ ],
+ "1a. Me tab controls mentioning PIN (outside admin rows)": [],
+ "1b. admin rows → buttons": [
+  "Eli · admin → Edit/Reset PIN",
+  "Mae → Edit/Reset PIN",
+  "Ezra → Edit",
+  "Kiara → Edit",
+  "Elizabeth → Edit/Reset PIN",
+  "David → Edit/Reset PIN",
+  "Mea → Edit",
+  "Downstairs TV → Edit",
+  "Grandma Jo → Edit/Remove"
+ ],
+ "1c. own row has Reset PIN": true,
+ "2a. dialogs": [
+  "confirm: Reset Eli's PIN? They will create a new one next time they tap their name."
+ ],
+ "2b. iPad after own reset": {
+  "gate": true,
+  "session": false,
+  "eliCard": "Welcome back",
+  "pickmsg": "Please choose your profile again."
+ },
+ "shotPicker": "audits/evidence/p2/PROF/verify2-admin-self-reset-picker-ipad.png",
+ "2c. Eli old admin token after reset: GET /api/admin/usage": "401 profile_session_invalid",
+ "2d. Eli taps his card → pad title / hint": {
+  "title": "Create your PIN",
+  "hint": "Choose 4 to 8 digits. You will type it once more to confirm."
+ },
+ "shotCreate": "audits/evidence/p2/PROF/verify2-admin-self-reset-create-ipad.png",
+ "3a. spare device (no profile token) POST /api/profiles/eli/pin": "200 id=eli is_admin=true",
+ "3b. claimer token: GET /api/admin/usage": "200 devices=6",
+ "3c. claimer token: POST /api/admin/pairing-code/rotate": "200 new code returned",
+ "4a. Eli finishes Create PIN on the iPad → screen / signed in": {
+  "title": "Eli",
+  "hint": "Enter your PIN",
+  "msg": null,
+  "gate": true,
+  "session": false,
+  "who": null
+ },
+ "shotAfter": "audits/evidence/p2/PROF/verify2-admin-self-reset-eli-locked-ipad.png",
+ "4b. Eli logs in with his old/new PIN 1234": "401 wrong_pin",
+ "4c. other admins who could reset Eli": [],
+ "5. admin resets Mae → spare device creates Mae PIN": "200 → 200 id=christian",
+ "6. API: admin POST /api/admin/profiles/eli/reset-pin on himself": "200 ok"
+}

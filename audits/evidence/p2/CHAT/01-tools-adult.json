@@ -1,0 +1,224 @@
+{
+  "runAt": "2026-09-24T04:44:57.585Z",
+  "steps": [
+    {
+      "name": "tools offered to the model",
+      "tools": [
+        "list_apps",
+        "get_data",
+        "set_data",
+        "add_list_item",
+        "toggle_f260_reading",
+        "add_prayer",
+        "mark_prayed",
+        "answer_prayer",
+        "finish_leftover",
+        "where_is_family",
+        "f260_status",
+        "read_todays_verse"
+      ],
+      "undoLikeTools": []
+    },
+    {
+      "name": "add_list_item leftovers",
+      "chip": "✓ Added Audit soup to leftovers",
+      "ok": true,
+      "upstreamCalls": 2,
+      "serverRow": [
+        {
+          "id": "muf1stzlrw63g",
+          "name": "Audit soup",
+          "size": "Small",
+          "dateLogged": "2026-09-24",
+          "by": "eli",
+          "byName": "Eli"
+        }
+      ]
+    },
+    {
+      "name": "add_list_item reminders",
+      "chip": "✓ Added reminder: Audit reminder: bins out",
+      "ok": true,
+      "serverRows": [
+        {
+          "id": "muf1su1f7j8l9",
+          "text": "Audit reminder: bins out",
+          "by": "eli",
+          "byName": "Eli",
+          "createdAt": 1790225097747
+        }
+      ]
+    },
+    {
+      "name": "add_prayer private",
+      "chip": "✓ Added to your private prayer list: Audit private request",
+      "ok": true,
+      "toolResultSentUpstream": {
+        "is_error": false,
+        "content": "{\"id\":\"cmuf1su3aadl4m\",\"title\":\"Audit private request\",\"for\":\"Sam\",\"phone\":\"\",\"detail\":\"\",\"category\":\"Personal\",\"cadence\":\"daily\",\"days\":[],\"status\":\"active\",\"createdAt\":\"2026-09-24\",\"lastPrayedAt\":null,\"answeredAt\":null,\"answerNote\":null,\"updates\":[],\"sharedFrom\":null,\"prayedBy\":{},\"updatedAt\":\"2026-09-24T04:44:57.814Z\"}"
+      }
+    },
+    {
+      "name": "add_prayer family",
+      "chip": "✓ Added to the family prayer list: Audit family request",
+      "ok": true
+    },
+    {
+      "name": "mark_prayed family (by title)",
+      "title": "Pastor Tim and Rebecca",
+      "chip": "✓ Prayed for Pastor Tim and Rebecca",
+      "prayedByAfter": {
+        "2026-09-11": [
+          "David"
+        ],
+        "2026-09-24": [
+          "Eli"
+        ]
+      },
+      "lastPrayedAt": "2026-09-24"
+    },
+    {
+      "name": "answer_prayer private",
+      "chip": "✓ Answered: Audit private request",
+      "statusAfter": "answered",
+      "answeredAt": "2026-09-24"
+    },
+    {
+      "name": "fridge before finish",
+      "items": [
+        "Chicken alfredo (2026-09-16)",
+        "Beef and bean chili (2026-09-19)",
+        "Roasted sweet potatoes (2026-09-20)",
+        "Sunday pot roast (2026-09-22)",
+        "Spaghetti and meatballs (2026-09-23)",
+        "Audit soup (2026-09-24)",
+        "Blueberry pancakes (2026-09-24)"
+      ]
+    },
+    {
+      "name": "finish_leftover name \"rice\" (loose match)",
+      "chip": null,
+      "ok": false,
+      "toolResult": {
+        "is_error": true,
+        "content": "Nothing in the fridge list matches that. Items: Chicken alfredo (id lo0002), Beef and bean chili (id lo0003), Roasted sweet potatoes (id lo0004), Sunday pot roast (id lo0005), Spaghetti and meatballs (id lo0006), Audit soup (id muf1stzlrw63g), Blueberry pancakes (id lo0007)"
+      }
+    },
+    {
+      "name": "finish_leftover by one word of the name",
+      "word": "chili",
+      "chip": "✓ Finished Beef and bean chili",
+      "ok": true,
+      "rowAfter": {
+        "key": "item:lo0003",
+        "value": null,
+        "updated_at": 1790225098131
+      },
+      "toolResult": {
+        "is_error": false,
+        "content": "{\"removed\":\"Beef and bean chili\",\"id\":\"lo0003\"}"
+      }
+    },
+    {
+      "name": "toggle_f260_reading on an already-ticked day (\"tick it off\")",
+      "key": "38-0",
+      "before": true,
+      "after": false,
+      "chip": "✓ Week 38 day 1 unchecked",
+      "toolResult": {
+        "is_error": false,
+        "content": "{\"week\":38,\"day\":1,\"done\":false}"
+      },
+      "summaryWeekDone": "2 -> 1",
+      "summaryReadToday": "false -> false"
+    },
+    {
+      "name": "set_data f260.done = {} (whole reading history)",
+      "readingsBefore": 186,
+      "readingsAfter": 0,
+      "chip": "✓ Saved f260.done in f260"
+    },
+    {
+      "name": "Mae removes someone else's album photo",
+      "photoBy": "eli",
+      "albumRouteDelete": "403 not_yours",
+      "chatSetDataChip": "✓ Saved album:alb0014 in hub",
+      "rowAfter": "null (tombstoned)"
+    },
+    {
+      "name": "Mae overwrites Ezra's star mirror (CLAUDE.md: the kid's Kid Verse is the only writer)",
+      "before": {
+        "count": 2,
+        "total": 0
+      },
+      "after": {
+        "count": 7,
+        "total": 99
+      },
+      "chip": "✓ Saved stars:ezra in kidverse"
+    },
+    {
+      "name": "guest (Grandma Jo) writes a kid star mirror via chat",
+      "chip": "✓ Saved stars:kiara in kidverse",
+      "ok": true,
+      "after": {
+        "count": 0,
+        "total": 0,
+        "week": "x"
+      }
+    },
+    {
+      "name": "meeting point: rally route rules vs chat set_data",
+      "rallyRoute1": 200,
+      "rallyRoute2WithinAMinute": "429 too_many_attempts",
+      "guestRallyRoute": "403 adults_only",
+      "guestChatSetMeet1": "✓ Saved meet in dollywood-live",
+      "guestChatSetMeet2": "✓ Saved meet in dollywood-live",
+      "meetNow": "Guest meet 2"
+    },
+    {
+      "name": "set_data with a key /api/data rejects",
+      "chatChip": "✓ Saved bad key with spaces & symbols! in tally",
+      "apiPut": "400 bad_key"
+    },
+    {
+      "name": "set_data with scope outside the enum",
+      "chip": null,
+      "ok": false,
+      "toolResult": {
+        "is_error": true,
+        "content": "Tool failed: CHECK constraint failed: scope IN ('person','family')"
+      }
+    },
+    {
+      "name": "journal vault",
+      "listingIncludesVault": false,
+      "getByKeyReturned": "{\"v\":2,\"iv\":\"AUDIT-IV\",\"ct\":\"AUDIT-CIPHERTEXT-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"pass\":{\"salt\":\"AUDIT-SALT\",\"iter\":310000,\"wrapped\":\"AUDIT-WRAPPED-DEK\"}}",
+      "getByKeyContainsCiphertext": true,
+      "setDataRefused": "The journal vault cannot be edited from chat."
+    },
+    {
+      "name": "family feed lines written by chat tools",
+      "lines": [
+        "Eli: Added a reminder: Kiara has her dentist check-up Friday at 3:30 (via chat)",
+        "Eli: Logged Blueberry pancakes (Small) in the fridge (via chat)",
+        "Eli: Changed bad key with spaces & symbols! in tally (via chat)",
+        "Grandma Jo: Changed meet in dollywood-live (via chat)",
+        "Grandma Jo: Changed meet in dollywood-live (via chat)",
+        "Grandma Jo: Changed stars:kiara in kidverse (via chat)",
+        "Mae: Changed stars:ezra in kidverse (via chat)",
+        "Mae: Changed album:alb0014 in hub (via chat)",
+        "Eli: Changed f260.done in f260 (via chat)",
+        "Eli: Unchecked week 38 day 1 (via chat)",
+        "Eli: Finished Beef and bean chili from the fridge (via chat)",
+        "Eli: Answered: Audit private request (via chat)",
+        "Eli: Prayed for Pastor Tim and Rebecca (family list) (via chat)",
+        "Eli: Added a family prayer request: Audit family request (via chat)"
+      ]
+    },
+    {
+      "name": "confirmation",
+      "note": "Every write above happened inside the first POST /api/chat, in the same upstream round-trip the model asked for it (upstreamCalls=2: tool_use, then the final text). No confirm event exists in the SSE protocol (worker/src/chat.js:4-9)."
+    }
+  ]
+}

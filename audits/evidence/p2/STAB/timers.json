@@ -1,0 +1,143 @@
+{
+ "B0 app just started": {
+  "t": "9:59",
+  "done": false,
+  "go": "Pause"
+ },
+ "B1 app after fastForward 4:00 (expect 6:00; tick counting would show ~9:59)": {
+  "t": "5:59",
+  "done": false,
+  "go": "Pause"
+ },
+ "B1 shell chip while the app is open": {
+  "pillHidden": true,
+  "pill": "5:59",
+  "chipHidden": true,
+  "chip": "5:59",
+  "toast": null,
+  "active": {
+   "endAt": 1790225591622,
+   "total": 600,
+   "startedAt": 1790224991622
+  }
+ },
+ "A0 Home pill after closing the app": {
+  "pillHidden": false,
+  "pill": "5:56",
+  "chipHidden": true,
+  "chip": "5:56",
+  "toast": null,
+  "active": {
+   "endAt": 1790225591622,
+   "total": 600,
+   "startedAt": 1790224991622
+  }
+ },
+ "A1 pill after fastForward 3:00 (expect ~2:59-3:00 left)": {
+  "pillHidden": false,
+  "pill": "2:56",
+  "chipHidden": true,
+  "chip": "2:56",
+  "toast": null,
+  "active": {
+   "endAt": 1790225591622,
+   "total": 600,
+   "startedAt": 1790224991622
+  }
+ },
+ "C1 pill after waking 30 s past the end (recent: toast expected)": {
+  "pillHidden": true,
+  "pill": "0:00",
+  "chipHidden": true,
+  "chip": "0:00",
+  "toast": "Timer done — 10:00 is up.",
+  "active": null
+ },
+ "C2a pill, second timer running": {
+  "pillHidden": false,
+  "pill": "9:56",
+  "chipHidden": true,
+  "chip": "9:56",
+  "toast": null,
+  "active": {
+   "endAt": 1790226228851,
+   "total": 600,
+   "startedAt": 1790225628851
+  }
+ },
+ "C2b pill after waking 5 min past the end (no toast, record cleared)": {
+  "pillHidden": true,
+  "pill": "0:00",
+  "chipHidden": true,
+  "chip": "0:00",
+  "toast": null,
+  "active": null
+ },
+ "C2c server timer.active after the shell cleared it": [
+  {
+   "value": null
+  }
+ ],
+ "B2 app open, woken 4 min past the end of a 1-min timer": {
+  "t": "0:00",
+  "done": true,
+  "go": "Start",
+  "shell": {
+   "pillHidden": true,
+   "pill": "0:00",
+   "chipHidden": true,
+   "chip": "0:00",
+   "toast": null,
+   "active": null
+  }
+ },
+ "E1 /api/data requests caused by a 10-minute jump (one pull = one request per shell channel, not 20 pulls)": {
+  "requests": 10,
+  "distinct": 10,
+  "urls": [
+   "/api/data/hub?scope=family",
+   "/api/data/reminders?scope=family",
+   "/api/data/f260?scope=person",
+   "/api/data/leftovers?scope=family",
+   "/api/data/prayer?scope=person",
+   "/api/data/hub?scope=person",
+   "/api/data/timer?scope=person",
+   "/api/data/dollywood-live?scope=family",
+   "/api/data/kidverse?scope=person",
+   "/api/data/kidverse?scope=family"
+  ]
+ },
+ "E2 flush retry after a jump": {
+  "afterFailure": {
+   "state": "offline",
+   "pending": 1,
+   "lastError": "network"
+  },
+  "afterWake": {
+   "state": "synced",
+   "pending": 0
+  },
+  "onServer": true
+ },
+ "D TV after a 10-minute jump": {
+  "before": {
+   "now": "00:43:28",
+   "clock": "12:43 AM",
+   "feedAgo": [
+    "just now",
+    "just now"
+   ]
+  },
+  "after": {
+   "now": "00:53:28",
+   "clock": "12:53 AM",
+   "feedAgo": [
+    "just now",
+    "just now"
+   ]
+  },
+  "repaintedSinceJump": true,
+  "crossfadedSinceJump": true,
+  "feedFetches": 1
+ }
+}

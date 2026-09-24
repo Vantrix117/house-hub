@@ -1,0 +1,50 @@
+{
+ "baseline_commit": "fe6041d (working tree)",
+ "A_pair_unlimited_one_ip": {
+  "ip": "203.0.113.77",
+  "attempts": 25,
+  "all_200": true,
+  "any_429": false,
+  "distinct_statuses": [
+   200
+  ],
+  "conclusion": "correct pairing code -> rateClear() wipes the pair:<ip> counter every time, so success is never throttled"
+ },
+ "B_per_device_limit": {
+  "devA_verify_before_lock": 5,
+  "devA_first_429_at": 6,
+  "devB_verify_before_lock": 5,
+  "devB_first_429_at": 6,
+  "conclusion": "each device gets its own login:<profile>:<device> budget of 5; locking devA does not touch devB"
+ },
+ "C_scaled": {
+  "devices_paired_one_ip": 40,
+  "guesses_reaching_verify": 200,
+  "guesses_blocked_429": 40,
+  "verify_per_device": 5,
+  "login_rate_rows": 40,
+  "conclusion": "40 devices from one IP yielded 200 guesses that reached PIN verification in one 15-min window"
+ },
+ "C_time_to_exhaust_4digit": {
+  "space": 10000,
+  "expected_guesses": 5000,
+  "per_device_per_15min": 5,
+  "devices_for_whole_space_in_15min": 2000,
+  "devices_for_expected_in_15min": 1000,
+  "minutes_with_100_devices_expected": 150
+ },
+ "D_control": {
+  "one_device_verify_in_15min": 5,
+  "pair_without_code_status": 401,
+  "pair_without_code_error": "bad_pairing_code",
+  "conclusion": "A single paired device alone gives only 5 guesses / 15 min; scaling REQUIRES the pairing code (pairing without it is 401). So the \"holding a paired device\" phrasing overstates the no-code case; the real precondition is the pairing code."
+ },
+ "E_admin_route_status": 200,
+ "E_end_to_end": {
+  "cracked_admin_pin": true,
+  "found_on_device_index": 2,
+  "me_is_admin": true,
+  "admin_route_reachable": true,
+  "conclusion": "a guess that matches issues a valid profile_token; /api/me confirms is_admin and an admin-only route returns 200 -> full admin takeover"
+ }
+}

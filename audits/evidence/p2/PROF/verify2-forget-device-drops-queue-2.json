@@ -1,0 +1,111 @@
+{
+  "A": {
+    "syncAfterWrite": "offline",
+    "queuedWhileOffline": [
+      "hub.queue.leftovers.family",
+      "hub.queue.hub.person.eli"
+    ],
+    "queueAfterOnline": [],
+    "serverFamily": {
+      "status": 200,
+      "value": {
+        "note": "family write made offline",
+        "t": 1790231232885
+      }
+    },
+    "serverPerson": {
+      "status": 200,
+      "value": {
+        "note": "person write made offline",
+        "t": 1790231232885
+      }
+    }
+  },
+  "B": {
+    "syncAfterWrite": "offline",
+    "queuedBefore": {
+      "hub.queue.leftovers.family": {
+        "verify2.forget": {
+          "value": {
+            "note": "family write made offline",
+            "t": 1790231236144
+          },
+          "updated_at": 1790231236126
+        }
+      },
+      "hub.queue.hub.person.eli": {
+        "verify2.forget": {
+          "value": {
+            "note": "person write made offline",
+            "t": 1790231236144
+          },
+          "updated_at": 1790231236126
+        }
+      }
+    },
+    "syncCardBefore": "Sync Status offline · network Waiting to send 2 Last checked not yet This device Kitchen iPad Check now Forget this device",
+    "dialog": "Forget this device? You will need the pairing code to use the hub here again.",
+    "hubKeysAfterForget": [
+      "hub.registry"
+    ],
+    "allKeysAfterForget": [
+      "hub.registry",
+      "rig.init"
+    ],
+    "queueAfterForget": {},
+    "serverAfter6sOnline": {
+      "family": {
+        "status": 200,
+        "value": null
+      },
+      "personReadAsDad": 200
+    },
+    "resetPin": 200,
+    "reSignedIn": true,
+    "end": {
+      "queue": {},
+      "serverFamily": {
+        "status": 200,
+        "value": null
+      },
+      "serverPerson": {
+        "status": 200,
+        "value": null
+      },
+      "serverPersonControlRow": {
+        "status": 200,
+        "value": {
+          "note": "person write made offline",
+          "t": 1790231232885
+        }
+      },
+      "localAfter": {
+        "fam": null,
+        "person": null,
+        "sync": {
+          "state": "synced",
+          "pending": 0,
+          "lastError": null,
+          "lastPull": 1790231250472
+        }
+      }
+    },
+    "shots": [
+      "audits/evidence/p2/PROF/verify2-forget-device-drops-queue-2-1-me-before-forget.png",
+      "audits/evidence/p2/PROF/verify2-forget-device-drops-queue-2-2-pairing-after-forget.png",
+      "audits/evidence/p2/PROF/verify2-forget-device-drops-queue-2-3-me-after-resignin.png"
+    ]
+  },
+  "C": {
+    "msUntilQueueEmptyOnline": 282
+  },
+  "D": {
+    "ezraForgetVisible": true,
+    "ezraShot": "audits/evidence/p2/PROF/verify2-forget-device-drops-queue-2-4-ezra-me.png",
+    "kiosk": {
+      "profile": "tv",
+      "tabbarVisible": false,
+      "forgetInDom": true
+    }
+  }
+}

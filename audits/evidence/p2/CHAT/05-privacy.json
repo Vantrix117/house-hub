@@ -1,0 +1,410 @@
+{
+  "request_eli": {
+    "model": "claude-sonnet-5",
+    "max_tokens": 800,
+    "thinking": {
+      "type": "adaptive"
+    },
+    "output_config": {
+      "effort": "low"
+    },
+    "toolCount": 12,
+    "system": "You are the Anderson House helper, a friendly assistant built into the family's hub app.\nHousehold: Eli (adult, admin), Mae (adult), Ezra (kid), Kiara (kid), Elizabeth (adult), David (adult), Mea (adult), Downstairs TV (kiosk), Grandma Jo (adult).\nSigned in now: Eli (adult). Only their own person-scope data is reachable; family-scope data is shared by everyone.\nToday is 2026-09-22 (America/New_York).\n\nApps in the hub:\n- f260: F260 Reading Plan [person data]\n- leftovers: Larder Ledger [family data]\n- prayer: Prayer [both data]\n- tally: Tally counter [person data]\n- timer: Kitchen timer [person data]\n- dollywood: Dollywood build guide [person data]\n- dollywood-live: Dollywood park map [both data]\n- kidverse: Kid Verse [both data]\n- verses: Verses [person data]\nData conventions: leftovers and reminders are lists stored as item:<id> rows in family scope; prayers are prayer:<id> rows; F260 progress is f260.done ({\"week-dayIndex\": true}, dayIndex 0-4) and f260.summary in person scope.\n\nHow to behave:\n- Keep replies short (a sentence or three); this is a phone-sized chat. Plain text, no markdown headings.\n- Use tools to look things up or make changes instead of guessing. After a tool runs, confirm in one short line.\n- To add food to the fridge list use add_list_item with app_id leftovers; when something was eaten or thrown out use finish_leftover; for house reminders use add_list_item with app_id reminders.\n- Prayers: add_prayer adds one; mark_prayed records that they prayed for a request today (\"I prayed for Grandma\"); answer_prayer moves it to the answered record (\"Grandma's knee is better\"). Both take the id from get_data on app prayer, or the request's title. If the tool says several match, ask which one.\n- F260: f260_status is the quick way to answer \"where am I in my reading\" (week, next reading, streak, this week's memory verses); toggle_f260_reading checks a reading off.\n- where_is_family says who was last seen on the Dollywood Live map and how long ago (only while the family is at the park).\n- If something isn't possible or the app isn't available to this person, say so simply.",
+    "messagesSent": 11,
+    "rolesSent": "user,assistant,user,assistant,user,assistant,user,assistant,user,assistant,user",
+    "historyRowsShownInChatTab": 10,
+    "historyRowsOlderThan36h": 0,
+    "firstMessageSent": "What's my reading tomorrow?"
+  },
+  "request_ezra": {
+    "model": "claude-sonnet-5",
+    "max_tokens": 800,
+    "thinking": {
+      "type": "adaptive"
+    },
+    "output_config": {
+      "effort": "low"
+    },
+    "toolCount": 12,
+    "system": "You are the Anderson House helper, a friendly assistant built into the family's hub app.\nHousehold: Eli (adult, admin), Mae (adult), Ezra (kid), Kiara (kid), Elizabeth (adult), David (adult), Mea (adult), Downstairs TV (kiosk), Grandma Jo (adult).\nSigned in now: Ezra (kid). Only their own person-scope data is reachable; family-scope data is shared by everyone.\nToday is 2026-09-22 (America/New_York).\n\nApps in the hub:\n- leftovers: Larder Ledger [family data]\n- prayer: Prayer [both data]\n- tally: Tally counter [person data]\n- timer: Kitchen timer [person data]\n- dollywood-live: Dollywood park map [both data]\n- kidverse: Kid Verse [both data]\n- verses: Verses [person data]\nData conventions: leftovers and reminders are lists stored as item:<id> rows in family scope; prayers are prayer:<id> rows; F260 progress is f260.done ({\"week-dayIndex\": true}, dayIndex 0-4) and f260.summary in person scope.\n\nHow to behave:\n- Keep replies short (a sentence or three); this is a phone-sized chat. Plain text, no markdown headings.\n- Use tools to look things up or make changes instead of guessing. After a tool runs, confirm in one short line.\n- To add food to the fridge list use add_list_item with app_id leftovers; when something was eaten or thrown out use finish_leftover; for house reminders use add_list_item with app_id reminders.\n- Prayers: add_prayer adds one; mark_prayed records that they prayed for a request today (\"I prayed for Grandma\"); answer_prayer moves it to the answered record (\"Grandma's knee is better\"). Both take the id from get_data on app prayer, or the request's title. If the tool says several match, ask which one.\n- F260: f260_status is the quick way to answer \"where am I in my reading\" (week, next reading, streak, this week's memory verses); toggle_f260_reading checks a reading off.\n- where_is_family says who was last seen on the Dollywood Live map and how long ago (only while the family is at the park).\n- If something isn't possible or the app isn't available to this person, say so simply.\n\nThis person is a young child. Use simple, warm, cheerful words and short sentences. Only talk about kind, safe, family-friendly things; if asked about anything scary, grown-up, or unsafe, gently steer back to something fun and suggest asking a parent. Never change data in apps this child cannot open. Do not give medical, legal or financial advice.\nWhen the child asks for the Bible verse, memory verse, or \"today's verse\", call read_todays_verse: it gives the family's memory verses for this week and the hub reads them aloud; repeat the reference and the gist in your reply so they can see it too. Grown-up tools (prayers, fridge clean-up, F260 progress, the family map) will refuse for a child; just say a parent can help with that.",
+    "messagesSent": 7,
+    "rolesSent": "user,assistant,user,assistant,user,assistant,user",
+    "historyRowsShownInChatTab": 6,
+    "historyRowsOlderThan36h": 0,
+    "firstMessageSent": "What's my verse today?"
+  },
+  "request_guest-grandmajo": {
+    "model": "claude-sonnet-5",
+    "max_tokens": 800,
+    "thinking": {
+      "type": "adaptive"
+    },
+    "output_config": {
+      "effort": "low"
+    },
+    "toolCount": 12,
+    "system": "You are the Anderson House helper, a friendly assistant built into the family's hub app.\nHousehold: Eli (adult, admin), Mae (adult), Ezra (kid), Kiara (kid), Elizabeth (adult), David (adult), Mea (adult), Downstairs TV (kiosk), Grandma Jo (adult).\nSigned in now: Grandma Jo (adult). Only their own person-scope data is reachable; family-scope data is shared by everyone.\nToday is 2026-09-22 (America/New_York).\n\nApps in the hub:\n- f260: F260 Reading Plan [person data]\n- leftovers: Larder Ledger [family data]\n- prayer: Prayer [both data]\n- tally: Tally counter [person data]\n- timer: Kitchen timer [person data]\n- dollywood: Dollywood build guide [person data]\n- dollywood-live: Dollywood park map [both data]\n- kidverse: Kid Verse [both data]\n- verses: Verses [person data]\nData conventions: leftovers and reminders are lists stored as item:<id> rows in family scope; prayers are prayer:<id> rows; F260 progress is f260.done ({\"week-dayIndex\": true}, dayIndex 0-4) and f260.summary in person scope.\n\nHow to behave:\n- Keep replies short (a sentence or three); this is a phone-sized chat. Plain text, no markdown headings.\n- Use tools to look things up or make changes instead of guessing. After a tool runs, confirm in one short line.\n- To add food to the fridge list use add_list_item with app_id leftovers; when something was eaten or thrown out use finish_leftover; for house reminders use add_list_item with app_id reminders.\n- Prayers: add_prayer adds one; mark_prayed records that they prayed for a request today (\"I prayed for Grandma\"); answer_prayer moves it to the answered record (\"Grandma's knee is better\"). Both take the id from get_data on app prayer, or the request's title. If the tool says several match, ask which one.\n- F260: f260_status is the quick way to answer \"where am I in my reading\" (week, next reading, streak, this week's memory verses); toggle_f260_reading checks a reading off.\n- where_is_family says who was last seen on the Dollywood Live map and how long ago (only while the family is at the park).\n- If something isn't possible or the app isn't available to this person, say so simply.",
+    "messagesSent": 5,
+    "rolesSent": "user,assistant,user,assistant,user",
+    "historyRowsShownInChatTab": 4,
+    "historyRowsOlderThan36h": 0,
+    "firstMessageSent": "Is there anything in the fridge I can warm up for lunch?"
+  },
+  "toolResults": [
+    {
+      "as": "eli",
+      "tool": "get_data",
+      "input": {
+        "app_id": "prayer",
+        "scope": "person"
+      },
+      "chars": 10313,
+      "phoneNumbers": 2,
+      "coordinatePairs": 0,
+      "keys": [
+        "label",
+        "prayer:p016",
+        "prayer:p017",
+        "prayer:p019",
+        "prayer:p014",
+        "prayer:p011",
+        "categories",
+        "prayer:p018",
+        "prayer:p009",
+        "lastExport",
+        "plans",
+        "activePlan",
+        "prayer:p015",
+        "prayer:p008",
+        "prayer:p012",
+        "prayer:p010",
+        "prayer:p006",
+        "prayer:p013",
+        "activeList",
+        "prayer:p003",
+        "prayer:p004",
+        "prayer:p007",
+        "rotationFor",
+        "personal|plEliMorning",
+        "prayer:p001",
+        "prayer:p002",
+        "prayerDays",
+        "prayer:p005"
+      ],
+      "excerpt": "[{\"key\":\"label\",\"value\":\"My list\"},{\"key\":\"prayer:p016\",\"value\":{\"id\":\"p016\",\"title\":\"Wisdom about buying a minivan\",\"for\":\"\",\"phone\":\"\",\"detail\":\"\",\"category\":\"Wisdom and Decisions\",\"cadence\":\"daily\",\"days\":[],\"status\":\"answered\",\"createdAt\":\"2026-02-14\",\"lastPrayedAt\":\"2026-03-25\",\"answeredAt\":\"2026-03-26\",\"answerNote\":\"The Parkers were selling theirs, at a fair price, the week we started lookin…"
+    },
+    {
+      "as": "eli",
+      "tool": "get_data",
+      "input": {
+        "app_id": "prayer",
+        "scope": "family"
+      },
+      "chars": 6319,
+      "phoneNumbers": 0,
+      "coordinatePairs": 0,
+      "keys": [
+        "label",
+        "prayer:s010",
+        "categories",
+        "plans",
+        "activePlan",
+        "prayer:s008",
+        "prayer:s006",
+        "prayer:s005",
+        "prayer:s011",
+        "prayer:s009",
+        "prayer:s004",
+        "prayer:s007",
+        "rotationFor",
+        "shared|plFamily",
+        "prayer:s002",
+        "prayer:s001",
+        "prayerDays",
+        "prayer:s003"
+      ],
+      "excerpt": "[{\"key\":\"label\",\"value\":\"Family list\"},{\"key\":\"prayer:s010\",\"value\":{\"id\":\"s010\",\"title\":\"Kiara's ear infection\",\"for\":\"Kiara\",\"phone\":\"\",\"detail\":\"\",\"category\":\"Health Needs\",\"cadence\":\"daily\",\"days\":[],\"status\":\"answered\",\"createdAt\":\"2026-08-03\",\"lastPrayedAt\":\"2026-08-11\",\"answeredAt\":\"2026-08-12\",\"answerNote\":\"All clear at the check-up. She says her ear is \\\"fixed.\\\"\",\"updates\":[],\"sharedFrom…"
+    },
+    {
+      "as": "eli",
+      "tool": "where_is_family",
+      "input": {},
+      "chars": 543,
+      "phoneNumbers": 0,
+      "coordinatePairs": 4,
+      "keys": [],
+      "excerpt": "{\"people\":[{\"id\":\"ezra\",\"name\":\"Ezra\",\"x\":847,\"y\":864,\"minutesAgo\":1,\"at\":\"2026-09-22T12:39:00.000Z\",\"accuracyM\":9},{\"id\":\"eli\",\"name\":\"Eli\",\"x\":762,\"y\":842,\"minutesAgo\":2,\"at\":\"2026-09-22T12:38:00.000Z\",\"accuracyM\":6},{\"id\":\"mom\",\"name\":\"Elizabeth\",\"x\":842,\"y\":858,\"minutesAgo\":3,\"at\":\"2026-09-22T12:37:00.000Z\",\"accuracyM\":5},{\"id\":\"christian\",\"name\":\"Mae\",\"x\":866,\"y\":784,\"minutesAgo\":4,\"at\":\"2026…"
+    },
+    {
+      "as": "eli",
+      "tool": "get_data",
+      "input": {
+        "app_id": "dollywood-live",
+        "scope": "family"
+      },
+      "chars": 827,
+      "phoneNumbers": 0,
+      "coordinatePairs": 5,
+      "keys": [
+        "kid:ezra",
+        "kid:kiara",
+        "kidshare:ezra",
+        "meet",
+        "loc:christian",
+        "loc:mom",
+        "loc:eli",
+        "loc:ezra"
+      ],
+      "excerpt": "[{\"key\":\"kid:ezra\",\"value\":{\"height_in\":43,\"at\":1788042000000,\"by\":\"mom\"}},{\"key\":\"kid:kiara\",\"value\":{\"height_in\":40,\"at\":1788042120000,\"by\":\"mom\"}},{\"key\":\"kidshare:ezra\",\"value\":true},{\"key\":\"meet\",\"value\":{\"x\":855,\"y\":921,\"name\":\"The Wildwood Tree\",\"note\":\"\",\"by\":\"christian\",\"byName\":\"Mae\",\"at\":1790080080000}},{\"key\":\"loc:christian\",\"value\":{\"x\":866,\"y\":784,\"acc\":8,\"hdg\":null,\"t\":1790080560000…"
+    },
+    {
+      "as": "eli",
+      "tool": "get_data",
+      "input": {
+        "app_id": "f260",
+        "scope": "person"
+      },
+      "chars": 9241,
+      "phoneNumbers": 0,
+      "coordinatePairs": 0,
+      "keys": [
+        "f260.mem",
+        "f260.verses",
+        "f260.week",
+        "f260.done",
+        "f260.weekStart",
+        "f260.weekDone",
+        "f260.log",
+        "f260.best",
+        "f260.miles",
+        "f260.summary",
+        "f260.recall"
+      ],
+      "excerpt": "[{\"key\":\"f260.mem\",\"value\":{\"1-0\":true,\"1-1\":true,\"2-0\":true,\"2-1\":true,\"3-0\":true,\"3-1\":true,\"4-0\":true,\"4-1\":true,\"5-0\":true,\"5-1\":true,\"6-0\":true,\"6-1\":true,\"7-0\":true,\"7-1\":true,\"8-0\":true,\"8-1\":true,\"9-0\":true,\"9-1\":true,\"10-0\":true,\"10-1\":true,\"11-0\":true,\"11-1\":true,\"12-0\":true,\"12-1\":true,\"13-0\":true,\"13-1\":true,\"14-0\":true,\"14-1\":true,\"15-0\":true,\"15-1\":true,\"16-0\":true,\"16-1\":true,\"17-0\"…"
+    },
+    {
+      "as": "eli",
+      "tool": "get_data",
+      "input": {
+        "app_id": "hub",
+        "scope": "person"
+      },
+      "chars": 2,
+      "phoneNumbers": 0,
+      "coordinatePairs": 0,
+      "keys": [],
+      "excerpt": "[]"
+    },
+    {
+      "as": "eli",
+      "tool": "get_data",
+      "input": {
+        "app_id": "hub",
+        "scope": "family"
+      },
+      "chars": 1149,
+      "phoneNumbers": 0,
+      "coordinatePairs": 0,
+      "keys": [
+        "album:alb0014",
+        "album:alb0015",
+        "album:alb0016",
+        "album:alb0017",
+        "album:alb0018",
+        "album:alb0019"
+      ],
+      "excerpt": "[{\"key\":\"album:alb0014\",\"value\":{\"id\":\"alb0014\",\"sm\":\"/api/media/album/alb0014-256.jpg\",\"lg\":\"/api/media/album/alb0014-1024.jpg\",\"by\":\"eli\",\"byName\":\"Eli\",\"caption\":\"\",\"at\":1788538500000}},{\"key\":\"album:alb0015\",\"value\":{\"id\":\"alb0015\",\"sm\":\"/api/media/album/alb0015-256.jpg\",\"lg\":\"/api/media/album/alb0015-1024.jpg\",\"by\":\"christian\",\"byName\":\"Mae\",\"caption\":\"\",\"at\":1788823800000}},{\"key\":\"album:alb…"
+    },
+    {
+      "as": "eli",
+      "tool": "finish_leftover",
+      "input": {
+        "name": "zzz"
+      },
+      "chars": 243,
+      "phoneNumbers": 0,
+      "coordinatePairs": 0,
+      "keys": [],
+      "excerpt": "Nothing in the fridge list matches that. Items: Chicken alfredo (id lo0002), Beef and bean chili (id lo0003), Roasted sweet potatoes (id lo0004), Sunday pot roast (id lo0005), Spaghetti and meatballs (id lo0006), Blueberry pancakes (id lo0007)"
+    },
+    {
+      "as": "eli",
+      "tool": "mark_prayed",
+      "input": {
+        "list": "private",
+        "prayer_id": "zzz"
+      },
+      "chars": 885,
+      "phoneNumbers": 0,
+      "coordinatePairs": 0,
+      "keys": [],
+      "excerpt": "No prayer on the private list matches \"zzz\". Requests there: Wisdom about buying a minivan (id p016, answered); A buyer for the Hendersons' house (id p017, answered); The Parkers' adoption to be finalized (id p019, answered); Believers facing persecution (id p014); Wisdom for the city council (id p011); Healing for my shoulder (id p018, answered); Uncle Ray to come to faith (id p009); A job for Lu…"
+    },
+    {
+      "as": "ezra",
+      "tool": "get_data",
+      "input": {
+        "app_id": "dollywood-live",
+        "scope": "family"
+      },
+      "chars": 827,
+      "phoneNumbers": 0,
+      "coordinatePairs": 5,
+      "keys": [
+        "kid:ezra",
+        "kid:kiara",
+        "kidshare:ezra",
+        "meet",
+        "loc:christian",
+        "loc:mom",
+        "loc:eli",
+        "loc:ezra"
+      ],
+      "excerpt": "[{\"key\":\"kid:ezra\",\"value\":{\"height_in\":43,\"at\":1788042000000,\"by\":\"mom\"}},{\"key\":\"kid:kiara\",\"value\":{\"height_in\":40,\"at\":1788042120000,\"by\":\"mom\"}},{\"key\":\"kidshare:ezra\",\"value\":true},{\"key\":\"meet\",\"value\":{\"x\":855,\"y\":921,\"name\":\"The Wildwood Tree\",\"note\":\"\",\"by\":\"christian\",\"byName\":\"Mae\",\"at\":1790080080000}},{\"key\":\"loc:christian\",\"value\":{\"x\":866,\"y\":784,\"acc\":8,\"hdg\":null,\"t\":1790080560000…"
+    }
+  ],
+  "exampleRequest": {
+    "model": "claude-sonnet-5",
+    "max_tokens": 800,
+    "system": "You are the Anderson House helper, a friendly assistant built into the family's hub app.\nHousehold: Eli (adult, admin), Mae (adult), Ezra (kid), Kiara (kid), Elizabeth (adult), David (adult), Mea (adult), Downstairs TV (kiosk), Grandma Jo (adult).\nSigned in now: Eli (adult). Only their own person-scope data is reachable; family-scope data is shared by everyone.\nToday is 2026-09-22 (America/New_York).\n\nApps in the hub:\n- f260: F260 Reading Plan [person data]\n- leftovers: Larder Ledger [family data]\n- prayer: Prayer [both data]\n- tally: Tally counter [person data]\n- timer: Kitchen timer [person data]\n- dollywood: Dollywood build guide [person data]\n- dollywood-live: Dollywood park map [both data]\n- kidverse: Kid Verse [both data]\n- verses: Verses [person data]\nData conventions: leftovers and reminders are lists stored as item:<id> rows in family scope; prayers are prayer:<id> rows; F260 progress is f260.done ({\"week-dayIndex\": true}, dayIndex 0-4) and f260.summary in person scope.\n\nHow to behave:\n- Keep replies short (a sentence or three); this is a phone-sized chat. Plain text, no markdown headings.\n- Use tools to look things up or make changes instead of guessing. After a tool runs, confirm in one short line.\n- To add food to the fridge list use add_list_item with app_id leftovers; when something was eaten or thrown out use finish_leftover; for house reminders use add_list_item with app_id reminders.\n- Prayers: add_prayer adds one; mark_prayed records that they prayed for a request today (\"I prayed for Grandma\"); answer_prayer moves it to the answered record (\"Grandma's knee is better\"). Both take the id from get_data on app prayer, or the request's title. If the tool says several match, ask which one.\n- F260: f260_status is the quick way to answer \"where am I in my reading\" (week, next reading, streak, this week's memory verses); toggle_f260_reading checks a reading off.\n- where_is_family says who was last seen on the Dollywood Live map and how long ago (only while the family is at the park).\n- If something isn't possible or the app isn't available to this person, say so simply.",
+    "tools": [
+      "list_apps",
+      "get_data",
+      "set_data",
+      "add_list_item",
+      "toggle_f260_reading",
+      "add_prayer",
+      "mark_prayed",
+      "answer_prayer",
+      "finish_leftover",
+      "where_is_family",
+      "f260_status",
+      "read_todays_verse"
+    ],
+    "thinking": {
+      "type": "adaptive"
+    },
+    "output_config": {
+      "effort": "low"
+    },
+    "messages": [
+      {
+        "role": "user",
+        "content": "hello"
+      },
+      {
+        "role": "assistant",
+        "content": "ok"
+      },
+      {
+        "role": "user",
+        "content": "please get_data"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "please get_data"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "please where_is_family"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "please get_data"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "please get_data"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "please get_data"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "please get_data"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "please finish_leftover"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "please mark_prayed"
+      },
+      {
+        "role": "assistant",
+        "content": "Done."
+      },
+      {
+        "role": "user",
+        "content": "where is everyone?"
+      },
+      {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "tool_use",
+            "id": "toolu_rig_35",
+            "name": "where_is_family",
+            "input": {}
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "tool_use_id": "toolu_rig_35",
+            "content": "{\"people\":[{\"id\":\"ezra\",\"name\":\"Ezra\",\"x\":847,\"y\":864,\"minutesAgo\":1,\"at\":\"2026-09-22T12:39:00.000Z\",\"accuracyM\":9},{\"id\":\"eli\",\"name\":\"Eli\",\"x\":762,\"y\":842,\"minutesAgo\":2,\"at\":\"2026-09-22T12:38:00.000Z\",\"accuracyM\":6},{\"id\":\"mom\",\"name\":\"Elizabeth\",\"x\":842,\"y\":858,\"minutesAgo\":3,\"at\":\"2026-09-22T12:37:00.000Z\",\"accuracyM\":5},{\"id\":\"christian\",\"name\":\"Mae\",\"x\":866,\"y\":784,\"minutesAgo\":4,\"at\":\"2026-09-22T12:36:00.000Z\",\"accuracyM\":8}],\"note\":\"x/y are Dollywood map positions from the Dollywood Live app; say who was seen and how long ago.\"}",
+            "is_error": false
+          }
+        ]
+      }
+    ],
+    "stream": true
+  },
+  "expiredGuest": {
+    "householdLine": "Household: Elijah Montgomery-Anderson (adult, admin), Mae-Christiane Delacroix (adult), Ezra Bartholomew Anderson (kid), Kiara Seraphina Josephine (kid), Elizabeth Anne Marguerite (adult), David Alexander Fitzgerald (adult), Mea Rosalind Winterbottom (adult), Downstairs Family Room Television (kiosk), Grandma Josephine Whitaker (adult), Great-Aunt Wilhelmina Fairweather-Pennington (adult), Cousin Theodore (adult), Pastor Tim & Rebecca (adult).",
+    "inSystemPrompt": true,
+    "inProfilePicker": true
+  },
+  "keyStatic": {
+    "filesScanned": 14,
+    "hits": [],
+    "devVarsIgnored": true
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "A_thinkingReplay": {
+    "firstTurnBlocks": [
+      "thinking",
+      "tool_use"
+    ],
+    "replayedAssistantBlocks": [
+      "tool_use"
+    ],
+    "thinkingConfig": {
+      "type": "adaptive"
+    },
+    "effort": {
+      "effort": "low"
+    },
+    "model": "claude-sonnet-5",
+    "maxTokens": 800,
+    "clientEvents": [
+      "tool",
+      "text",
+      "done"
+    ]
+  },
+  "B_upstreamFetch": {
+    "headerNames": [
+      "Content-Type",
+      "x-api-key",
+      "anthropic-version"
+    ],
+    "apiKeyInHeader": true,
+    "hasAbortSignal": false
+  },
+  "E_keyExposure": {
+    "checkedBodies": [
+      "chatOk",
+      "chat401",
+      "history",
+      "me"
+    ],
+    "anyContainsKey": false,
+    "chat401ErrorEvent": {
+      "error": "upstream",
+      "message": "The assistant is unavailable right now (invalid x-api-key)."
+    }
+  },
+  "C_hang": {
+    "readForMs": 20015,
+    "stillOpenAfterMs": 20012,
+    "eventsReceived": [],
+    "usedAfter": 4,
+    "lastHistoryRow": "You're on week 38: 2 of 5 readings done, 12-day streak. Next up: Acts 6. This week's memory verses are Acts 2:42 and Acts 4:31."
+  },
+  "D_capRace": {
+    "latencyPerQueryMs": 3,
+    "usedBefore": 57,
+    "fired": 10,
+    "status200": 10,
+    "status429": 0,
+    "usedAfter": 67,
+    "cap": 60,
+    "seededUserRowsTotal": 3
+  }
+}

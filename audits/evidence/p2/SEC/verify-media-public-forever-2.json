@@ -1,0 +1,68 @@
+{
+ "profile_upload": {
+  "status": 200,
+  "url_shape": "/api/media/photos/eli/<token>-256.jpg",
+  "token_chars": 12
+ },
+ "profile_anon_get": {
+  "status": 200,
+  "cache_control": "public, max-age=31536000, immutable",
+  "acao": "*"
+ },
+ "profile_wrong_token": {
+  "status": 404,
+  "cache_control": "no-store",
+  "acao": null
+ },
+ "after_replace": {
+  "old_url": {
+   "status": 404,
+   "cache_control": "no-store",
+   "acao": null
+  },
+  "new_url": {
+   "status": 200,
+   "cache_control": "public, max-age=31536000, immutable",
+   "acao": "*"
+  },
+  "token_changed": true
+ },
+ "after_remove_photo": {
+  "delete_status": 200,
+  "url": {
+   "status": 404,
+   "cache_control": "no-store",
+   "acao": null
+  }
+ },
+ "album_anon_get": {
+  "status": 200,
+  "cache_control": "public, max-age=31536000, immutable",
+  "acao": "*"
+ },
+ "album_after_delete": {
+  "delete_status": 200,
+  "url": {
+   "status": 404,
+   "cache_control": "no-store",
+   "acao": null
+  }
+ },
+ "referer": {
+  "shell_url": "http://localhost:<port>/index.html#me",
+  "media_imgs_on_page": 10,
+  "third_party_requests": [
+   {
+    "url": "https://thirdparty.example/newtab",
+    "referer": "http://localhost:<port>/",
+    "contains_media_url": false
+   },
+   {
+    "url": "https://thirdparty.example/sametab",
+    "referer": "http://localhost:<port>/",
+    "contains_media_url": false
+   }
+  ]
+ },
+ "profile_photo_for_referer_test": 200
+}

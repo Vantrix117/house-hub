@@ -1,0 +1,108 @@
+
+== A1 Eli queued a line offline, then 40 s online incl. a page reload
+{
+ "signedInAs": "eli",
+ "queuedOffline": [
+  {
+   "text": "Added a reminder: Skeptic2 offline A: call the plumber",
+   "at": "2026-09-24T05:26:37.512Z"
+  }
+ ],
+ "secondsOnlineIncludingReload": 40,
+ "reminderItemOnServer": true,
+ "feedLineOnServer": false,
+ "stillQueued": [
+  "Added a reminder: Skeptic2 offline A: call the plumber"
+ ],
+ "pulledSince": {
+  "state": "synced",
+  "pending": 0,
+  "lastError": null,
+  "lastPull": 1790227632509
+ },
+ "line": "Added a reminder: Skeptic2 offline A: call the plumber"
+}
+
+== A2 switched to
+"guest-grandmajo"
+
+== A3 server feed after Grandma Jo adds a reminder
+[
+ {
+  "who": "guest-grandmajo",
+  "name": "Grandma Jo",
+  "text": "Added a reminder: Skeptic2: Grandma Jo line",
+  "created": "2026-09-24T05:27:21.493Z"
+ },
+ {
+  "who": "guest-grandmajo",
+  "name": "Grandma Jo",
+  "text": "Added a reminder: Skeptic2 offline A: call the plumber",
+  "created": "2026-09-24T05:27:21.487Z"
+ }
+]
+
+== A4 verdict
+{
+ "postedAs": "guest-grandmajo",
+ "shouldBe": "eli",
+ "queuedAt": "2026-09-24T05:26:37.512Z",
+ "serverCreatedAt": "2026-09-24T05:27:21.487Z",
+ "lagSeconds": 44,
+ "joActedAt": "2026-09-24T05:27:21.325Z",
+ "queueNow": []
+}
+
+== B1 Eli queued a line offline, then 40 s online incl. a page reload
+{
+ "signedInAs": "eli",
+ "queuedOffline": [
+  {
+   "text": "Added a reminder: Skeptic2 offline B: pick up the prescription",
+   "at": "2026-09-24T05:27:28.344Z"
+  }
+ ],
+ "secondsOnlineIncludingReload": 40,
+ "reminderItemOnServer": true,
+ "feedLineOnServer": false,
+ "stillQueued": [
+  "Added a reminder: Skeptic2 offline B: pick up the prescription"
+ ],
+ "pulledSince": {
+  "state": "synced",
+  "pending": 0,
+  "lastError": null,
+  "lastPull": 1790227683344
+ },
+ "line": "Added a reminder: Skeptic2 offline B: pick up the prescription"
+}
+
+== B2 switched to
+"kiara"
+
+== B3 Kiara taps a Prayed card: I prayed for Kiara's first weeks at preschool
+[
+ {
+  "who": "kiara",
+  "name": "Kiara",
+  "text": "Prayed for Kiara's first weeks at preschool (family list)",
+  "created": "2026-09-24T05:28:13.907Z"
+ },
+ {
+  "who": "kiara",
+  "name": "Kiara",
+  "text": "Added a reminder: Skeptic2 offline B: pick up the prescription",
+  "created": "2026-09-24T05:28:13.899Z"
+ }
+]
+
+== B4 verdict
+{
+ "postedAs": "kiara",
+ "shouldBe": "eli",
+ "queuedAt": "2026-09-24T05:27:28.344Z",
+ "serverCreatedAt": "2026-09-24T05:28:13.899Z",
+ "lagSeconds": 46
+}
+
+wrote audits/evidence/p2/PWA/verify-offline-activity-misattributed-2.json

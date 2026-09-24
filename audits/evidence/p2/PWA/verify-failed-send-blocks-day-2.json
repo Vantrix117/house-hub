@@ -1,0 +1,174 @@
+{
+ "log": [
+  {
+   "title": "push_subscriptions per profile",
+   "obj": [
+    {
+     "profile_id": "christian",
+     "n": 1
+    },
+    {
+     "profile_id": "eli",
+     "n": 1
+    },
+    {
+     "profile_id": "niece",
+     "n": 1
+    }
+   ]
+  },
+  {
+   "title": "Thu 8 pm prayer run (baseline watermark)",
+   "obj": {
+    "status": 200,
+    "new": [],
+    "notified": [],
+    "skipped": [],
+    "received": []
+   }
+  },
+  {
+   "title": "A1 Fri 8:00 am prayer run, Mea push service 503",
+   "obj": {
+    "status": 200,
+    "new": [
+     "P1 Healing for a neighbour"
+    ],
+    "notified": [
+     "eli(sent 1, ok 1)",
+     "christian(sent 1, ok 1)",
+     "niece(sent 1, ok 0)"
+    ],
+    "skipped": [
+     "mom:author"
+    ],
+    "received": [
+     "eli: New on the family list: P1 Healing for a neighbour.",
+     "christian: New on the family list: P1 Healing for a neighbour."
+    ]
+   }
+  },
+  {
+   "title": "A1 push_log (usage) Fri prayer",
+   "obj": [
+    "christian prayer 2026-09-25: sends 1, ok 1",
+    "eli prayer 2026-09-25: sends 1, ok 1",
+    "niece prayer 2026-09-25: sends 1, ok 0"
+   ]
+  },
+  {
+   "title": "A2 Fri 8:00 pm prayer run, service back, NO new prayer (control: is P1 ever retried?)",
+   "obj": {
+    "status": 200,
+    "new": [],
+    "notified": [],
+    "skipped": [],
+    "received": []
+   }
+  },
+  {
+   "title": "A3 Fri 8:01 pm prayer run, service back, new prayer P2",
+   "obj": {
+    "status": 200,
+    "new": [
+     "P2 Rain for the garden"
+    ],
+    "notified": [],
+    "skipped": [
+     "eli:already_today",
+     "christian:already_today",
+     "dad:author",
+     "niece:already_today"
+    ],
+    "received": []
+   }
+  },
+  {
+   "title": "B1 Sat 2:00 pm park run (forced), Ezra 45 min stale, Mea push service 503",
+   "obj": {
+    "status": 200,
+    "new": [],
+    "notified": [
+     "eli(sent 1, ok 1)",
+     "christian(sent 1, ok 1)",
+     "niece(sent 1, ok 0)"
+    ],
+    "skipped": [],
+    "received": [
+     "eli: Ezra's spot has not updated for 45 min.",
+     "christian: Ezra's spot has not updated for 45 min."
+    ]
+   }
+  },
+  {
+   "title": "B2 Sat 8:00 pm park run, Ezra still stale, service back",
+   "obj": {
+    "status": 200,
+    "new": [],
+    "notified": [],
+    "skipped": [
+     "eli:already_today",
+     "christian:already_today",
+     "niece:already_today"
+    ],
+    "received": []
+   }
+  },
+  {
+   "title": "B push_log (usage) Sat park",
+   "obj": [
+    "christian park 2026-09-26: sends 1, ok 1",
+    "eli park 2026-09-26: sends 1, ok 1",
+    "niece park 2026-09-26: sends 1, ok 0"
+   ]
+  },
+  {
+   "title": "C1 Sun 8:00 am morning run, Mea push service 503",
+   "obj": {
+    "status": 200,
+    "new": [],
+    "notified": [
+     "eli(sent 1, ok 1)",
+     "christian(sent 1, ok 1)",
+     "niece(sent 1, ok 0)"
+    ],
+    "skipped": [],
+    "received": [
+     "eli: 6 to use up: Chicken alfredo (13d), Beef and bean chili (10d), Roasted sweet potatoes (9d), Sunday pot roast (7d)…",
+     "christian: 6 to use up: Chicken alfredo (13d), Beef and bean chili (10d), Roasted sweet potatoes (9d), Sunday pot roast (7d)…"
+    ]
+   }
+  },
+  {
+   "title": "C2 Sun 8:10 am admin forces morning again, service back",
+   "obj": {
+    "status": 200,
+    "new": [],
+    "notified": [],
+    "skipped": [
+     "eli:already_today",
+     "christian:already_today",
+     "niece:already_today"
+    ],
+    "received": []
+   }
+  },
+  {
+   "title": "proxy hits for Mea (down = answered 503)",
+   "obj": [
+    {
+     "down": true,
+     "url": "/push/niece"
+    },
+    {
+     "down": true,
+     "url": "/push/niece"
+    },
+    {
+     "down": true,
+     "url": "/push/niece"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,49 @@
+{
+ "lifetime_real_login": {
+  "day_1": "200",
+  "day_364": "200",
+  "day_366": "401 profile_session_invalid",
+  "day_0_after_clock_reset": "200"
+ },
+ "rotation": {
+  "me_response_keys": [
+   "profile"
+  ],
+  "new_token_header": []
+ },
+ "scenario_switch_online": {
+  "signed_in_as": "niece",
+  "copied_pair_before_switch": "200",
+  "copied_pair_after_owner_switch": "401 profile_session_invalid",
+  "device_token_only": {
+   "family_read": 200,
+   "kid_login_on_tap": 200,
+   "adult_login_no_pin": "401 wrong_pin"
+  }
+ },
+ "scenario_switch_offline": {
+  "ipad_local_session_after_switch": null,
+  "copied_pair_after_offline_switch": "200"
+ },
+ "tv_switch": {
+  "tv_token_after_switch": "200",
+  "tv_login_on_tap_from_device_token_alone": 200,
+  "tv_write_attempt": "403 read_only"
+ },
+ "revocation": {
+  "before": {
+   "phone": "200",
+   "ipad": "200"
+  },
+  "reset_pin": 200,
+  "after_reset_pin": {
+   "phone": "401 profile_session_invalid",
+   "ipad": "401 profile_session_invalid"
+  },
+  "unpair": 200,
+  "after_unpair": {
+   "kid_session_on_phone": "401 device_not_paired",
+   "device_token_family_read": 401
+  }
+ }
+}

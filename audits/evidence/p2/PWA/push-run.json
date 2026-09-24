@@ -1,0 +1,900 @@
+{
+ "receiverPort": 58565,
+ "steps": [
+  {
+   "title": "profiles on the rig",
+   "obj": "eli (adult), christian (adult), ezra (kid), kiara (kid), mom (adult), dad (adult), niece (adult), tv (kiosk), guest-grandmajo (adult, guest)"
+  },
+  {
+   "title": "POST /api/push/subscribe per profile (Kitchen iPad)",
+   "obj": {
+    "eli": "200 {\"ok\":true}",
+    "christian": "200 {\"ok\":true}",
+    "ezra": "200 {\"ok\":true}",
+    "kiara": "200 {\"ok\":true}",
+    "mom": "200 {\"ok\":true}",
+    "dad": "200 {\"ok\":true}",
+    "niece": "200 {\"ok\":true}",
+    "tv": "200 {\"ok\":true}",
+    "guest-grandmajo": "200 {\"ok\":true}"
+   }
+  },
+  {
+   "title": "GET /api/push/config",
+   "obj": {
+    "public_key": "BMciPjxILw7cg8NZQvL9IdN4DBUQ4TKhB9BbP3WwKN8ps4b2vCeuJ6PDJCY5dwmyJ3-CwCXiqq0NQIObT5L8vQM",
+    "enabled": true
+   }
+  },
+  {
+   "title": "morning job, Wed 8:00 am",
+   "obj": {
+    "status": 200,
+    "job": "morning",
+    "notified": [
+     "eli(sent 1, ok 1)",
+     "christian(sent 1, ok 1)",
+     "mom(sent 1, ok 1)",
+     "dad(sent 1, ok 1)",
+     "niece(sent 1, ok 1)",
+     "guest-grandmajo(sent 1, ok 1)"
+    ],
+    "skipped": [],
+    "extra": {
+     "due": [
+      "Chicken alfredo (9d)",
+      "Beef and bean chili (6d)",
+      "Roasted sweet potatoes (5d)"
+     ]
+    },
+    "received": [
+     {
+      "to": "eli",
+      "title": "Larder Ledger",
+      "body": "3 to use up: Chicken alfredo (9d), Beef and bean chili (6d), Roasted sweet potatoes (5d)",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "christian",
+      "title": "Larder Ledger",
+      "body": "3 to use up: Chicken alfredo (9d), Beef and bean chili (6d), Roasted sweet potatoes (5d)",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "mom",
+      "title": "Larder Ledger",
+      "body": "3 to use up: Chicken alfredo (9d), Beef and bean chili (6d), Roasted sweet potatoes (5d)",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "dad",
+      "title": "Larder Ledger",
+      "body": "3 to use up: Chicken alfredo (9d), Beef and bean chili (6d), Roasted sweet potatoes (5d)",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "niece",
+      "title": "Larder Ledger",
+      "body": "3 to use up: Chicken alfredo (9d), Beef and bean chili (6d), Roasted sweet potatoes (5d)",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "guest-grandmajo",
+      "title": "Larder Ledger",
+      "body": "3 to use up: Chicken alfredo (9d), Beef and bean chili (6d), Roasted sweet potatoes (5d)",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     }
+    ]
+   }
+  },
+  {
+   "title": "morning job again, Wed 8:05 am (once-a-day gate)",
+   "obj": {
+    "status": 200,
+    "job": "morning",
+    "notified": [],
+    "skipped": [
+     "eli:already_today",
+     "christian:already_today",
+     "mom:already_today",
+     "dad:already_today",
+     "niece:already_today",
+     "guest-grandmajo:already_today"
+    ],
+    "extra": {
+     "due": [
+      "Chicken alfredo (9d)",
+      "Beef and bean chili (6d)",
+      "Roasted sweet potatoes (5d)"
+     ]
+    },
+    "received": []
+   }
+  },
+  {
+   "title": "prayer job Tue 8:00 pm (baseline: seeds or clears the watermark)",
+   "obj": {
+    "status": 200,
+    "job": "prayer",
+    "notified": [],
+    "skipped": [],
+    "extra": {
+     "new": [],
+     "seeded": {
+      "live": 11
+     }
+    },
+    "received": []
+   }
+  },
+  {
+   "title": "Elizabeth (mom) adds a family prayer at 7:30 am",
+   "obj": 200
+  },
+  {
+   "title": "prayer job Wed 8:00 am",
+   "obj": {
+    "status": 200,
+    "job": "prayer",
+    "notified": [
+     "eli(sent 1, ok 1)",
+     "christian(sent 1, ok 1)",
+     "dad(sent 1, ok 1)",
+     "niece(sent 1, ok 1)",
+     "guest-grandmajo(sent 1, ok 1)"
+    ],
+    "skipped": [
+     "mom:author"
+    ],
+    "extra": {
+     "new": [
+      {
+       "title": "Safe travel for Aunt Ruth",
+       "by": "mom"
+      }
+     ]
+    },
+    "received": [
+     {
+      "to": "eli",
+      "title": "Prayer",
+      "body": "New on the family list: Safe travel for Aunt Ruth (for Aunt Ruth).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "christian",
+      "title": "Prayer",
+      "body": "New on the family list: Safe travel for Aunt Ruth (for Aunt Ruth).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "dad",
+      "title": "Prayer",
+      "body": "New on the family list: Safe travel for Aunt Ruth (for Aunt Ruth).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "niece",
+      "title": "Prayer",
+      "body": "New on the family list: Safe travel for Aunt Ruth (for Aunt Ruth).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     },
+     {
+      "to": "guest-grandmajo",
+      "title": "Prayer",
+      "body": "New on the family list: Safe travel for Aunt Ruth (for Aunt Ruth).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "INVALID"
+     }
+    ]
+   }
+  },
+  {
+   "title": "David (dad) adds a family prayer at 12:30 pm",
+   "obj": 200
+  },
+  {
+   "title": "prayer job Wed 8:00 pm",
+   "obj": {
+    "status": 200,
+    "job": "prayer",
+    "notified": [
+     "mom(sent 1, ok 1)"
+    ],
+    "skipped": [
+     "eli:already_today",
+     "christian:already_today",
+     "dad:author",
+     "niece:already_today",
+     "guest-grandmajo:already_today"
+    ],
+    "extra": {
+     "new": [
+      {
+       "title": "Job interview for Sam",
+       "by": "dad"
+      }
+     ]
+    },
+    "received": [
+     {
+      "to": "mom",
+      "title": "Prayer",
+      "body": "New on the family list: Job interview for Sam (for Sam).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "prayer job Thu 8:00 am (is \"Job interview for Sam\" ever announced?)",
+   "obj": {
+    "status": 200,
+    "job": "prayer",
+    "notified": [],
+    "skipped": [],
+    "extra": {
+     "new": []
+    },
+    "received": []
+   }
+  },
+  {
+   "title": "evening job Wed 8:00 pm",
+   "obj": {
+    "status": 200,
+    "job": "evening",
+    "notified": [
+     "christian(sent 1, ok 1)",
+     "dad(sent 1, ok 1)",
+     "eli(sent 1, ok 1)",
+     "mom(sent 1, ok 1)"
+    ],
+    "skipped": [],
+    "extra": {
+     "checked": [
+      {
+       "profile": "christian",
+       "readToday": false
+      },
+      {
+       "profile": "dad",
+       "readToday": false
+      },
+      {
+       "profile": "eli",
+       "readToday": false
+      },
+      {
+       "profile": "mom",
+       "readToday": false
+      }
+     ]
+    },
+    "received": [
+     {
+      "to": "christian",
+      "title": "F260",
+      "body": "No reading checked off today yet. Acts 2-3 is next (week 38, day 1).",
+      "url": "#f260",
+      "tag": "f260",
+      "ttl": "10800",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "dad",
+      "title": "F260",
+      "body": "No reading checked off today yet. Luke 2 is next (week 31, day 2).",
+      "url": "#f260",
+      "tag": "f260",
+      "ttl": "10800",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "eli",
+      "title": "F260",
+      "body": "No reading checked off today yet. Acts 6 is next (week 38, day 3).",
+      "url": "#f260",
+      "tag": "f260",
+      "ttl": "10800",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "mom",
+      "title": "F260",
+      "body": "No reading checked off today yet. Acts 7 is next (week 38, day 4).",
+      "url": "#f260",
+      "tag": "f260",
+      "ttl": "10800",
+      "urgency": "normal",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "behind job Wed 8:00 pm (forced; the cron only runs it on Sundays)",
+   "obj": {
+    "status": 200,
+    "job": "behind",
+    "notified": [
+     "dad(sent 1, ok 1)",
+     "mom(sent 1, ok 1)"
+    ],
+    "skipped": [],
+    "extra": {
+     "checked": [
+      {
+       "profile": "christian",
+       "behind": 0,
+       "why": null
+      },
+      {
+       "profile": "dad",
+       "behind": 4,
+       "why": null
+      },
+      {
+       "profile": "eli",
+       "behind": 0,
+       "why": "week_too_young"
+      },
+      {
+       "profile": "mom",
+       "behind": 2,
+       "why": null
+      }
+     ]
+    },
+    "received": [
+     {
+      "to": "dad",
+      "title": "F260 · weekly catch-up",
+      "body": "You are 4 readings behind — Luke 2 is next.",
+      "url": "#f260",
+      "tag": "behind",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "mom",
+      "title": "F260 · weekly catch-up",
+      "body": "You are 2 readings behind — Acts 7 is next.",
+      "url": "#f260",
+      "tag": "behind",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "park job Wed 2:00 pm (forced; the cron only runs it at 8 am / 8 pm)",
+   "obj": {
+    "status": 200,
+    "job": "park",
+    "notified": [
+     "eli(sent 1, ok 1)",
+     "christian(sent 1, ok 1)",
+     "mom(sent 1, ok 1)",
+     "dad(sent 1, ok 1)",
+     "niece(sent 1, ok 1)",
+     "guest-grandmajo(sent 1, ok 1)"
+    ],
+    "skipped": [],
+    "extra": {
+     "stale": [
+      {
+       "id": "ezra",
+       "ageMin": 45
+      }
+     ],
+     "parkDay": true
+    },
+    "received": [
+     {
+      "to": "eli",
+      "title": "Dollywood park map",
+      "body": "Ezra's spot has not updated for 45 min.",
+      "url": "#dollywood-live",
+      "tag": "park",
+      "ttl": "1800",
+      "urgency": "high",
+      "vapid": "valid"
+     },
+     {
+      "to": "christian",
+      "title": "Dollywood park map",
+      "body": "Ezra's spot has not updated for 45 min.",
+      "url": "#dollywood-live",
+      "tag": "park",
+      "ttl": "1800",
+      "urgency": "high",
+      "vapid": "valid"
+     },
+     {
+      "to": "mom",
+      "title": "Dollywood park map",
+      "body": "Ezra's spot has not updated for 45 min.",
+      "url": "#dollywood-live",
+      "tag": "park",
+      "ttl": "1800",
+      "urgency": "high",
+      "vapid": "valid"
+     },
+     {
+      "to": "dad",
+      "title": "Dollywood park map",
+      "body": "Ezra's spot has not updated for 45 min.",
+      "url": "#dollywood-live",
+      "tag": "park",
+      "ttl": "1800",
+      "urgency": "high",
+      "vapid": "valid"
+     },
+     {
+      "to": "niece",
+      "title": "Dollywood park map",
+      "body": "Ezra's spot has not updated for 45 min.",
+      "url": "#dollywood-live",
+      "tag": "park",
+      "ttl": "1800",
+      "urgency": "high",
+      "vapid": "valid"
+     },
+     {
+      "to": "guest-grandmajo",
+      "title": "Dollywood park map",
+      "body": "Ezra's spot has not updated for 45 min.",
+      "url": "#dollywood-live",
+      "tag": "park",
+      "ttl": "1800",
+      "urgency": "high",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Me → Send a test notification, pressed on the Kitchen iPad (Eli subscribed only on his phone)",
+   "obj": {
+    "status": 200,
+    "body": {
+     "sent": 1,
+     "ok": 1,
+     "details": [
+      {
+       "endpoint": "http://127.0.0.1:58565/push/eli-phone…",
+       "status": 201,
+       "ok": true,
+       "error": null
+      }
+     ]
+    },
+    "received": [
+     {
+      "to": "eli-phone",
+      "title": "Anderson House",
+      "body": "Notifications are working on this device.",
+      "url": "#me",
+      "tag": "test",
+      "ttl": "600",
+      "urgency": "high",
+      "vapid": "valid"
+     }
+    ],
+    "uiWouldSay": "Sent — it should appear in a moment."
+   }
+  },
+  {
+   "title": "Eli signs out on the Kitchen iPad",
+   "obj": {
+    "logout": 200,
+    "meAfter": "401 profile_session_invalid",
+    "pushSubscriptionsByProfile": [
+     {
+      "profile_id": "christian",
+      "n": 1
+     },
+     {
+      "profile_id": "dad",
+      "n": 1
+     },
+     {
+      "profile_id": "eli",
+      "n": 2
+     },
+     {
+      "profile_id": "ezra",
+      "n": 1
+     },
+     {
+      "profile_id": "guest-grandmajo",
+      "n": 1
+     },
+     {
+      "profile_id": "kiara",
+      "n": 1
+     },
+     {
+      "profile_id": "mom",
+      "n": 1
+     },
+     {
+      "profile_id": "niece",
+      "n": 1
+     },
+     {
+      "profile_id": "tv",
+      "n": 1
+     }
+    ]
+   }
+  },
+  {
+   "title": "a push to Eli after he signed out of the Kitchen iPad",
+   "obj": {
+    "status": 200,
+    "sent": 2,
+    "received": [
+     {
+      "to": "eli",
+      "title": "Anderson House",
+      "body": "Notifications are working on this device.",
+      "url": "#me",
+      "tag": "test",
+      "ttl": "600",
+      "urgency": "high",
+      "vapid": "valid"
+     },
+     {
+      "to": "eli-phone",
+      "title": "Anderson House",
+      "body": "Notifications are working on this device.",
+      "url": "#me",
+      "tag": "test",
+      "ttl": "600",
+      "urgency": "high",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "test push as tv",
+   "obj": {
+    "status": 200,
+    "sent": 1,
+    "ok": 1,
+    "received": [
+     {
+      "to": "tv",
+      "title": "Anderson House",
+      "body": "Notifications are working on this device.",
+      "url": "#me",
+      "tag": "test",
+      "ttl": "600",
+      "urgency": "high",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "test push as ezra",
+   "obj": {
+    "status": 200,
+    "sent": 1,
+    "ok": 1,
+    "received": [
+     {
+      "to": "ezra",
+      "title": "Anderson House",
+      "body": "Notifications are working on this device.",
+      "url": "#me",
+      "tag": "test",
+      "ttl": "600",
+      "urgency": "high",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Fri 8:00 am prayer run, Mea's push service unreachable",
+   "obj": {
+    "status": 200,
+    "job": "prayer",
+    "notified": [
+     "eli(sent 2, ok 2)",
+     "christian(sent 1, ok 1)",
+     "dad(sent 1, ok 1)",
+     "niece(sent 1, ok 0)",
+     "guest-grandmajo(sent 1, ok 1)"
+    ],
+    "skipped": [
+     "mom:author"
+    ],
+    "extra": {
+     "new": [
+      {
+       "title": "Healing for Mr. Patel",
+       "by": "mom"
+      }
+     ]
+    },
+    "received": [
+     {
+      "to": "eli",
+      "title": "Prayer",
+      "body": "New on the family list: Healing for Mr. Patel (for Mr. Patel).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "eli-phone",
+      "title": "Prayer",
+      "body": "New on the family list: Healing for Mr. Patel (for Mr. Patel).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "christian",
+      "title": "Prayer",
+      "body": "New on the family list: Healing for Mr. Patel (for Mr. Patel).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "dad",
+      "title": "Prayer",
+      "body": "New on the family list: Healing for Mr. Patel (for Mr. Patel).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "guest-grandmajo",
+      "title": "Prayer",
+      "body": "New on the family list: Healing for Mr. Patel (for Mr. Patel).",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Fri 8:00 pm prayer run, Mea's push service back",
+   "obj": {
+    "status": 200,
+    "job": "prayer",
+    "notified": [
+     "mom(sent 1, ok 1)"
+    ],
+    "skipped": [
+     "eli:already_today",
+     "christian:already_today",
+     "dad:author",
+     "niece:already_today",
+     "guest-grandmajo:already_today"
+    ],
+    "extra": {
+     "new": [
+      {
+       "title": "Rain for the garden",
+       "by": "dad"
+      }
+     ]
+    },
+    "received": [
+     {
+      "to": "mom",
+      "title": "Prayer",
+      "body": "New on the family list: Rain for the garden.",
+      "url": "#prayer",
+      "tag": "prayer",
+      "ttl": "43200",
+      "urgency": "normal",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Mae (christian) saves a subscription with no keys (only endpoint is validated)",
+   "obj": "200 {\"ok\":true}"
+  },
+  {
+   "title": "Sat 8:00 am morning job with that row present",
+   "obj": {
+    "status": 500,
+    "job": "morning",
+    "notified": [],
+    "skipped": [],
+    "extra": {
+     "error": "internal"
+    },
+    "received": [
+     {
+      "to": "eli",
+      "title": "Larder Ledger",
+      "body": "5 to use up: Chicken alfredo (12d), Beef and bean chili (9d), Roasted sweet potatoes (8d), Sunday pot roast (6d)…",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "eli-phone",
+      "title": "Larder Ledger",
+      "body": "5 to use up: Chicken alfredo (12d), Beef and bean chili (9d), Roasted sweet potatoes (8d), Sunday pot roast (6d)…",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "same job after Mae's row is fixed",
+   "obj": {
+    "status": 200,
+    "job": "morning",
+    "notified": [
+     "christian(sent 1, ok 1)",
+     "mom(sent 1, ok 1)",
+     "dad(sent 1, ok 1)",
+     "niece(sent 1, ok 1)",
+     "guest-grandmajo(sent 1, ok 1)"
+    ],
+    "skipped": [
+     "eli:already_today"
+    ],
+    "extra": {
+     "due": [
+      "Chicken alfredo (12d)",
+      "Beef and bean chili (9d)",
+      "Roasted sweet potatoes (8d)",
+      "Sunday pot roast (6d)",
+      "Spaghetti and meatballs (5d)"
+     ]
+    },
+    "received": [
+     {
+      "to": "christian",
+      "title": "Larder Ledger",
+      "body": "5 to use up: Chicken alfredo (12d), Beef and bean chili (9d), Roasted sweet potatoes (8d), Sunday pot roast (6d)…",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "mom",
+      "title": "Larder Ledger",
+      "body": "5 to use up: Chicken alfredo (12d), Beef and bean chili (9d), Roasted sweet potatoes (8d), Sunday pot roast (6d)…",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "dad",
+      "title": "Larder Ledger",
+      "body": "5 to use up: Chicken alfredo (12d), Beef and bean chili (9d), Roasted sweet potatoes (8d), Sunday pot roast (6d)…",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "niece",
+      "title": "Larder Ledger",
+      "body": "5 to use up: Chicken alfredo (12d), Beef and bean chili (9d), Roasted sweet potatoes (8d), Sunday pot roast (6d)…",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "valid"
+     },
+     {
+      "to": "guest-grandmajo",
+      "title": "Larder Ledger",
+      "body": "5 to use up: Chicken alfredo (12d), Beef and bean chili (9d), Roasted sweet potatoes (8d), Sunday pot roast (6d)…",
+      "url": "#leftovers",
+      "tag": "leftovers",
+      "ttl": "21600",
+      "urgency": "normal",
+      "vapid": "valid"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Sun 8:00 pm park run — the first scheduled run after Ezra went quiet at 11:00 am",
+   "obj": {
+    "status": 200,
+    "job": "park",
+    "notified": [],
+    "skipped": [],
+    "extra": {
+     "stale": [],
+     "parkDay": true
+    },
+    "received": []
+   }
+  }
+ ]
+}

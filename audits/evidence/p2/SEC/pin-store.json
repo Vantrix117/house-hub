@@ -1,0 +1,82 @@
+{
+ "pair": {
+  "status": 200,
+  "token_len": 43
+ },
+ "create": {
+  "status": 200,
+  "returns_pin_hash": false,
+  "profile_keys": [
+   "id",
+   "name",
+   "emoji",
+   "color",
+   "kind",
+   "is_admin",
+   "sort_order",
+   "has_pin",
+   "is_guest",
+   "expires_at",
+   "created_by",
+   "photo"
+  ]
+ },
+ "login": {
+  "status": 200,
+  "returns_pin_hash": false,
+  "token_len": 43
+ },
+ "db_pin_hash": {
+  "format": "pbkdf2:10000:<salt 22 chars>:<hash 43 chars>",
+  "contains_plain_pin": false
+ },
+ "db_pairing_code": {
+  "format": "pbkdf2:10000:<salt>:<hash>",
+  "contains_plain_code": false
+ },
+ "db_sessions": [
+  {
+   "token_hash_len": 43,
+   "equals_plain_token": false,
+   "lifetime_days": 301,
+   "device_id": "rig-kitchen-ipad"
+  },
+  {
+   "token_hash_len": 43,
+   "equals_plain_token": false,
+   "lifetime_days": 365,
+   "device_id": "BXDdner-Ry9H"
+  },
+  {
+   "token_hash_len": 43,
+   "equals_plain_token": false,
+   "lifetime_days": 365,
+   "device_id": "BXDdner-Ry9H"
+  }
+ ],
+ "db_device": {
+  "token_hash_len": 43,
+  "equals_plain_token": false
+ },
+ "profiles_expose_hash": false,
+ "profiles_fields": [
+  "id",
+  "name",
+  "emoji",
+  "color",
+  "kind",
+  "is_admin",
+  "sort_order",
+  "has_pin",
+  "is_guest",
+  "expires_at",
+  "created_by",
+  "photo"
+ ],
+ "verify_ms_per_guess_node": 2.47,
+ "offline_crack": {
+  "found_matches_pin": true,
+  "ms": 12800,
+  "note": "single Node thread, no GPU"
+ }
+}

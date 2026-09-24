@@ -1,0 +1,207 @@
+{
+ "A cold load index.html#me: tab / hash / me.display / chatForm.hidden": {
+  "tab": "home",
+  "hash": "#home",
+  "meDisplay": "none",
+  "chatFormHidden": true
+ },
+ "A cold load index.html#chat: tab / hash / me.display / chatForm.hidden": {
+  "tab": "home",
+  "hash": "#home",
+  "meDisplay": "none",
+  "chatFormHidden": true
+ },
+ "A cold load index.html#apps: tab / hash / me.display / chatForm.hidden": {
+  "tab": "home",
+  "hash": "#home",
+  "meDisplay": "none",
+  "chatFormHidden": true
+ },
+ "B board loaded": {
+  "tab": "home",
+  "kind": "kiosk"
+ },
+ "B1 #me via same-doc navigation: tab / home / me / viewsScrollH": {
+  "tab": "me",
+  "home": {
+   "on": false,
+   "display": "grid",
+   "top": 24,
+   "h": 1040
+  },
+  "me": {
+   "on": true,
+   "display": "block",
+   "top": 1064,
+   "h": 645
+  },
+  "viewsScrollH": 1733,
+  "viewportH": 1080
+ },
+ "B1 screenshot at the top (board shown, Me below the fold)": "audits/evidence/p2/PROF/verify-kiosk-hash-nav-1-me-top.png",
+ "B1 after scrolling #views: element centres + hit-test": {
+  "forest": {
+   "x": 843,
+   "y": 959,
+   "inViewport": true,
+   "hitIsIt": true,
+   "rect": {
+    "x": 756,
+    "y": 883,
+    "w": 175,
+    "h": 151
+   }
+  },
+  "forget": {
+   "x": 1430,
+   "y": 909,
+   "inViewport": true,
+   "hitIsIt": true,
+   "rect": {
+    "x": 1320,
+    "y": 887,
+    "w": 219,
+    "h": 44
+   }
+  },
+  "switchBtn": {
+   "x": 1482,
+   "y": 567,
+   "inViewport": true,
+   "hitIsIt": true,
+   "rect": {
+    "x": 1429,
+    "y": 545,
+    "w": 107,
+    "h": 44
+   }
+  },
+  "syncnow": {
+   "x": 1149,
+   "y": 909,
+   "inViewport": true,
+   "hitIsIt": true,
+   "rect": {
+    "x": 989,
+    "y": 887,
+    "w": 319,
+    "h": 44
+   }
+  },
+  "themeCard": {
+   "x": 360,
+   "y": 641,
+   "w": 592,
+   "h": 415
+  },
+  "tvBg": {
+   "position": "fixed",
+   "pe": "none",
+   "z": "0",
+   "tvZ": "1"
+  }
+ },
+ "B1 screenshot scrolled (as the TV shows it)": "audits/evidence/p2/PROF/verify-kiosk-hash-nav-1-me-scrolled.png",
+ "B1 screenshot scrolled, backdrop hidden (what is under it)": "audits/evidence/p2/PROF/verify-kiosk-hash-nav-1-me-scrolled-nobg.png",
+ "B1 Appearance-card region: pixels identical with and without backdrop?": {
+  "identical": false,
+  "bytesA": 42767,
+  "bytesB": 41961
+ },
+ "B1 mouse click at the unseen Forest card: before → after": {
+  "before": {
+   "dataTheme": "(none)",
+   "ls": null
+  },
+  "after": {
+   "dataTheme": "forest",
+   "ls": "\"forest\"",
+   "queue": []
+  }
+ },
+ "B1 screenshot after the click": "audits/evidence/p2/PROF/verify-kiosk-hash-nav-1-me-after-forest.png",
+ "B1 click at the unseen \"Forget this device\": dialogs": [
+  {
+   "type": "confirm",
+   "message": "Forget this device? You will need the pairing code to use the hub here again."
+  }
+ ],
+ "B1 device still paired after dismissing": true,
+ "B2 #chat: tab / chatForm / home / chat view": {
+  "tab": "chat",
+  "chatForm": {
+   "hidden": false,
+   "display": "flex",
+   "top": 982,
+   "bottom": 1056
+  },
+  "home": {
+   "on": false,
+   "display": "grid",
+   "top": 24,
+   "h": 1040
+  },
+  "chat": {
+   "on": true,
+   "display": "block",
+   "top": 1064,
+   "h": 514
+  }
+ },
+ "B2 composer": {
+  "top": 991,
+  "inViewport": true,
+  "hitIsInput": true,
+  "disabled": false,
+  "placeholder": "Ask or tell the house…",
+  "formZ": "19",
+  "formPos": "fixed"
+ },
+ "B2 screenshot (composer over the board)": "audits/evidence/p2/PROF/verify-kiosk-hash-nav-1-chat.png",
+ "B2 send: network": [
+  "POST /api/chat",
+  "RESP 403 {\"error\":\"no_chat\",\"message\":\"The display profile has no chat.\"}"
+ ],
+ "B2 last bubble after send": {
+  "text": "The display profile has no chat.",
+  "cls": "msg bot glass-strong err",
+  "top": 692,
+  "bottom": 749,
+  "inViewport": true
+ },
+ "B2 views scroll": {
+  "scrollTop": 522,
+  "scrollH": 1602,
+  "clientH": 1080
+ },
+ "B2 screenshot after send": "audits/evidence/p2/PROF/verify-kiosk-hash-nav-1-chat-sent.png",
+ "B2 screenshot after send, backdrop hidden": "audits/evidence/p2/PROF/verify-kiosk-hash-nav-1-chat-sent-nobg.png",
+ "B3 #apps: tab / home / apps view": {
+  "tab": "apps",
+  "home": {
+   "on": false,
+   "display": "grid",
+   "top": 24,
+   "h": 1040
+  },
+  "apps": {
+   "on": true,
+   "display": "block",
+   "top": 1064,
+   "h": 349
+  }
+ },
+ "B3 empty message": {
+  "text": "No apps for this profile yet.",
+  "top": 1146,
+  "onScreen": false
+ },
+ "B4 #home again: tab / me.display / chatForm.hidden": {
+  "tab": "home",
+  "meDisplay": "none",
+  "chatFormHidden": true
+ },
+ "page errors / console errors": [
+  "error: Failed to load resource: the server responded with a status of 403 (Forbidden)"
+ ]
+}

@@ -1,0 +1,120 @@
+{
+ "webkit": {
+  "origins": {
+   "allowed": "http://localhost:59499",
+   "evil": "http://127.0.0.1:59499",
+   "api": "http://localhost:59500"
+  },
+  "A_raw_forged_origin": {
+   "preflight": {
+    "status": 204,
+    "acao": null,
+    "acah": "Content-Type, X-Device-Token, X-Profile-Token"
+   },
+   "put": {
+    "status": 200,
+    "acao": null
+   },
+   "row_persisted": true
+  },
+  "B_browser_evil_origin_cors": {
+   "fetch": {
+    "origin": "http://127.0.0.1:59499",
+    "ok": false,
+    "error": "Load failed"
+   },
+   "row_persisted": false
+  },
+  "B_browser_evil_origin_nocors": {
+   "fetch": {
+    "origin": "http://127.0.0.1:59499",
+    "ok": true,
+    "status": 0,
+    "type": "opaque",
+    "body": ""
+   },
+   "row_persisted": false,
+   "note": "no-cors drops the X-*-Token headers (not CORS-safelisted), so the server sees no tokens"
+  },
+  "C_browser_allowed_origin_cors": {
+   "fetch": {
+    "origin": "http://localhost:59499",
+    "ok": true,
+    "status": 200,
+    "type": "cors",
+    "body": "{\"key\":\"item:xo-allowed-cors-webkit\",\"value\":{\"id\":\"xo-allowed-cors-webkit\",\"name\":\"probe xo-allowed-cors-webkit\",\"size\":\"Small\",\"dateLogged\":\"2026-09-22\"},\"updated_at\":1790225594042,\"applied\":true}"
+   },
+   "row_persisted": true
+  },
+  "browser_requests_seen": [
+   "PUT /api/data/leftovers/item:xo-evil-cors-webkit?scope=family",
+   "POST /api/data/leftovers/batch?scope=family",
+   "PUT /api/data/leftovers/item:xo-allowed-cors-webkit?scope=family"
+  ],
+  "console": [
+   "error: Origin http://127.0.0.1:59499 is not allowed by Access-Control-Allow-Origin. Status code: 204",
+   "error: Failed to load resource: Origin http://127.0.0.1:59499 is not allowed by Access-Control-Allow-Origin. Status code: 204",
+   "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ]
+ },
+ "chromium": {
+  "origins": {
+   "allowed": "http://localhost:59507",
+   "evil": "http://127.0.0.1:59507",
+   "api": "http://localhost:59508"
+  },
+  "A_raw_forged_origin": {
+   "preflight": {
+    "status": 204,
+    "acao": null,
+    "acah": "Content-Type, X-Device-Token, X-Profile-Token"
+   },
+   "put": {
+    "status": 200,
+    "acao": null
+   },
+   "row_persisted": true
+  },
+  "B_browser_evil_origin_cors": {
+   "fetch": {
+    "origin": "http://127.0.0.1:59507",
+    "ok": false,
+    "error": "Failed to fetch"
+   },
+   "row_persisted": false
+  },
+  "B_browser_evil_origin_nocors": {
+   "fetch": {
+    "origin": "http://127.0.0.1:59507",
+    "ok": true,
+    "status": 0,
+    "type": "opaque",
+    "body": ""
+   },
+   "row_persisted": false,
+   "note": "no-cors drops the X-*-Token headers (not CORS-safelisted), so the server sees no tokens"
+  },
+  "C_browser_allowed_origin_cors": {
+   "fetch": {
+    "origin": "http://localhost:59507",
+    "ok": true,
+    "status": 200,
+    "type": "cors",
+    "body": "{\"key\":\"item:xo-allowed-cors-chromium\",\"value\":{\"id\":\"xo-allowed-cors-chromium\",\"name\":\"probe xo-allowed-cors-chromium\",\"size\":\"Small\",\"dateLogged\":\"2026-09-22\"},\"updated_at\":1790225595861,\"applied\":t"
+   },
+   "row_persisted": true
+  },
+  "browser_requests_seen": [
+   "PUT /api/data/leftovers/item:xo-evil-cors-chromium?scope=family",
+   "POST /api/data/leftovers/batch?scope=family",
+   "PUT /api/data/leftovers/item:xo-allowed-cors-chromium?scope=family"
+  ],
+  "console": [
+   "error: Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "error: Access to fetch at 'http://localhost:59508/api/data/leftovers/item:xo-evil-cors-chromium?scope=family' from origin 'http://127.0.0.1:59507' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on t",
+   "error: Failed to load resource: net::ERR_FAILED",
+   "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+   "error: Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+ }
+}

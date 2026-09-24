@@ -1,0 +1,112 @@
+{
+ "S3 a deploy reaching an open iPad (Chromium)": [
+  {
+   "cacheControl": "max-age=600",
+   "waitBeforeColdOpensMs": 0,
+   "httpCache": "on (own Chrome, no routes)",
+   "bump": {
+    "newCacheActive": true,
+    "openPage": {
+     "stillTheSamePage": true,
+     "controllerchangeEvents": 1,
+     "toasts": [
+      "Hub updated — it will use the new version next time it opens."
+     ],
+     "runningBuild": "(original index.html)"
+    },
+    "caches": {
+     "hub-v27-audit": 70
+    },
+    "newCacheIndexHtml": "OLD index.html",
+    "coldOpen1": "(original index.html)",
+    "coldOpen2": "(original index.html)"
+   },
+   "noBump": {
+    "coldOpen1": "(original index.html)",
+    "coldOpen2": "(original index.html)",
+    "coldOpen3": "(original index.html)"
+   }
+  },
+  {
+   "cacheControl": "max-age=20",
+   "waitBeforeColdOpensMs": 25000,
+   "httpCache": "on (own Chrome, no routes)",
+   "bump": {
+    "newCacheActive": true,
+    "openPage": {
+     "stillTheSamePage": true,
+     "controllerchangeEvents": 1,
+     "toasts": [
+      "Hub updated — it will use the new version next time it opens."
+     ],
+     "runningBuild": "(original index.html)"
+    },
+    "caches": {
+     "hub-v27-audit": 70
+    },
+    "newCacheIndexHtml": "OLD index.html",
+    "coldOpen1": "(original index.html)",
+    "coldOpen2": "deploy-with-version-bump"
+   },
+   "noBump": {
+    "coldOpen1": "deploy-with-version-bump",
+    "coldOpen2": "deploy-with-version-bump",
+    "coldOpen3": "deploy-with-version-bump"
+   }
+  },
+  {
+   "cacheControl": "max-age=600",
+   "waitBeforeColdOpensMs": 0,
+   "httpCache": "off (Playwright disables it in routed contexts)",
+   "bump": {
+    "newCacheActive": true,
+    "openPage": {
+     "stillTheSamePage": true,
+     "controllerchangeEvents": 1,
+     "toasts": [
+      "Hub updated — it will use the new version next time it opens."
+     ],
+     "runningBuild": "(original index.html)"
+    },
+    "caches": {
+     "hub-v27-audit": 70
+    },
+    "newCacheIndexHtml": "deployed index.html",
+    "coldOpen1": "deploy-with-version-bump",
+    "coldOpen2": "deploy-with-version-bump"
+   },
+   "noBump": {
+    "coldOpen1": "deploy-with-version-bump",
+    "coldOpen2": "deploy-without-bump",
+    "coldOpen3": "deploy-without-bump"
+   }
+  },
+  {
+   "cacheControl": "no-cache",
+   "waitBeforeColdOpensMs": 0,
+   "httpCache": "off (Playwright disables it in routed contexts)",
+   "bump": {
+    "newCacheActive": true,
+    "openPage": {
+     "stillTheSamePage": true,
+     "controllerchangeEvents": 1,
+     "toasts": [
+      "Hub updated — it will use the new version next time it opens."
+     ],
+     "runningBuild": "(original index.html)"
+    },
+    "caches": {
+     "hub-v27-audit": 70
+    },
+    "newCacheIndexHtml": "deployed index.html",
+    "coldOpen1": "deploy-with-version-bump",
+    "coldOpen2": "deploy-with-version-bump"
+   },
+   "noBump": {
+    "coldOpen1": "deploy-with-version-bump",
+    "coldOpen2": "deploy-without-bump",
+    "coldOpen3": "deploy-without-bump"
+   }
+  }
+ ]
+}

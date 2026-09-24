@@ -1,0 +1,203 @@
+{
+ "steps": {
+  "s1_open": {
+   "typeofRally": "function",
+   "rallySource": "async function rally(name,x,y){if(!hubOn()||hub.profile.kind!=='adult')return;setMeet(x,y,",
+   "kind": "adult",
+   "canWrite": true,
+   "appFrame": {
+    "controls": 80,
+    "rallyControls": [],
+    "textHits": [],
+    "attrHits": []
+   },
+   "shell": {
+    "controls": 65,
+    "rallyControls": [],
+    "textHits": [],
+    "attrHits": []
+   },
+   "meetBar": {
+    "hidden": false,
+    "name": "Meet at The Wildwood Tree",
+    "meta": "set by Mae 12 min ago",
+    "buttons": [
+     {
+      "id": "meet-go",
+      "text": "Go",
+      "hidden": true
+     },
+     {
+      "id": "meet-done",
+      "text": "Done",
+      "hidden": false
+     }
+    ]
+   },
+   "shot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-a-meet-bar-seeded.png"
+  },
+  "s3_listItems": 33,
+  "s3_sheetShot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-b0-sheet-half.png",
+  "s3_itemClick": "pointer tap",
+  "s3_meetHere": {
+   "card": {
+    "title": "133Frogs & Fireflies",
+    "actions": [
+     "Directions",
+     "Meet here",
+     "Zoom"
+    ]
+   },
+   "cardShot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-b-ride-card.png",
+   "dialogs": [
+    {
+     "type": "confirm",
+     "message": "Meet at Frogs & Fireflies?\n\nOK sets the pin for everyone. Tap Rally afterwards to buzz the other adults."
+    }
+   ],
+   "newRequests": [
+    {
+     "method": "POST",
+     "path": "/api/activity"
+    },
+    {
+     "method": "POST",
+     "path": "/api/data/dollywood-live/batch?scope=family"
+    }
+   ],
+   "meetBar": {
+    "hidden": false,
+    "name": "Meet at Frogs & Fireflies",
+    "meta": "set by Eli just now",
+    "buttons": [
+     {
+      "id": "meet-go",
+      "text": "Go",
+      "hidden": true
+     },
+     {
+      "id": "meet-done",
+      "text": "Done",
+      "hidden": false
+     }
+    ]
+   },
+   "appFrame": {
+    "controls": 118,
+    "rallyControls": [],
+    "textHits": [],
+    "attrHits": []
+   },
+   "rallyRequestsSoFar": [],
+   "shot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-c-after-meet-here.png"
+  },
+  "s4_longPress": {
+   "dialogs": [
+    {
+     "type": "confirm",
+     "message": "Set the family meeting point here?"
+    }
+   ],
+   "newRequests": [
+    {
+     "method": "POST",
+     "path": "/api/activity"
+    },
+    {
+     "method": "POST",
+     "path": "/api/data/dollywood-live/batch?scope=family"
+    }
+   ],
+   "meetBar": {
+    "hidden": false,
+    "name": "Meet at here",
+    "meta": "set by Eli just now",
+    "buttons": [
+     {
+      "id": "meet-go",
+      "text": "Go",
+      "hidden": true
+     },
+     {
+      "id": "meet-done",
+      "text": "Done",
+      "hidden": false
+     }
+    ]
+   },
+   "rallyRequestsSoFar": [],
+   "shot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-d-after-long-press.png"
+  },
+  "s6_server": {
+   "meetRow": {
+    "value": {
+     "x": 966,
+     "y": 936,
+     "name": "here",
+     "note": "",
+     "by": "eli",
+     "byName": "Eli",
+     "at": 1790080800500
+    },
+    "updated_at": 1790080800001
+   },
+   "feed": [
+    {
+     "who": "eli",
+     "app": "dollywood-live",
+     "text": "Meeting point: here"
+    },
+    {
+     "who": "eli",
+     "app": "dollywood-live",
+     "text": "Meeting point: Frogs & Fireflies"
+    },
+    {
+     "who": "christian",
+     "app": "dollywood-live",
+     "text": "Meeting point: The Wildwood Tree"
+    }
+   ],
+   "allApiRequestsDuringUiSteps": [
+    "GET /api/data/hub?scope=family&since=…",
+    "GET /api/profiles",
+    "GET /api/admin/usage",
+    "GET /api/data/reminders?scope=family&since=…",
+    "GET /api/data/f260?scope=person&since=…",
+    "GET /api/data/leftovers?scope=family&since=…",
+    "GET /api/data/prayer?scope=person&since=…",
+    "GET /api/data/dollywood-live?scope=person&since=…",
+    "GET /api/dollywood/waits",
+    "GET /api/data/dollywood-live?scope=family&since=…",
+    "GET /api/data/hub?scope=person&since=…",
+    "GET /api/media/photos/christian/rigphotochristian-256.jpg",
+    "GET /api/data/timer?scope=person&since=…",
+    "GET /api/data/kidverse?scope=person&since=…",
+    "GET /api/data/kidverse?scope=family&since=…",
+    "POST /api/activity",
+    "POST /api/data/dollywood-live/batch?scope=family"
+   ],
+   "rallyRequestsFromUi": []
+  },
+  "s7_control": {
+   "rallyRequests": [
+    {
+     "method": "POST",
+     "path": "/api/dollywood/rally"
+    }
+   ],
+   "status": 200,
+   "meetMeta": "set by Eli just now",
+   "feedTop": [
+    "Set a meeting point: Positive control (console)",
+    "Meeting point: Positive control (console)"
+   ]
+  }
+ },
+ "logs": [],
+ "verdictInputs": {
+  "rallyControlsInUi": 0,
+  "rallyRequestsFromUi": 0,
+  "rallyRequestsFromConsole": 1
+ }
+}

@@ -1,0 +1,82 @@
+{
+  "sequential": {
+    "usedAtStart": 1,
+    "okSends": 59,
+    "first429": {
+      "afterSends": 59,
+      "body": {
+        "error": "daily_cap",
+        "message": "That's 60 messages for today — the assistant is resting until tomorrow.",
+        "used": 60,
+        "cap": 60
+      }
+    },
+    "usedNow": 60
+  },
+  "concurrent": {
+    "usedBefore": 57,
+    "fired": 10,
+    "status200": 3,
+    "status429": 7,
+    "usedAfter": 60,
+    "cap": 60
+  },
+  "failedUpstream": {
+    "usedSequence": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "e500": {
+      "http": 200,
+      "error": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (mock internal error)."
+      }
+    },
+    "eStream": {
+      "http": 200,
+      "error": {
+        "error": "upstream",
+        "message": "Overloaded"
+      }
+    },
+    "e429": {
+      "http": 200,
+      "error": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (rate limited upstream)."
+      }
+    },
+    "historyTail": [
+      "user: stream error please",
+      "user: upstream 429 please",
+      "user: What are this week's memory verses?",
+      "assistant: For week 37: Matthew 28:18-20: Go and make disciples everywh"
+    ]
+  },
+  "lwwLostButTicked": {
+    "key": "38-2",
+    "chip": "✓ Week 38 day 3 checked off",
+    "toolResult": "{\"week\":38,\"day\":3,\"done\":true}",
+    "serverHasIt": false,
+    "feedTop": "Added a reminder: Kiara has her dentist check-up Friday at 3:30 (via chat)"
+  },
+  "usageVsCap": {
+    "capUsedToday": 4,
+    "usageRowsForEli": [
+      {
+        "profile_id": "eli",
+        "day": "2026-09-22",
+        "messages": 5
+      }
+    ],
+    "usageKeys": [
+      "chat",
+      "push",
+      "devices",
+      "push_subscriptions"
+    ]
+  }
+}

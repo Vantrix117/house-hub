@@ -1,0 +1,125 @@
+{
+ "cc": "max-age=600",
+ "fix": false,
+ "oldVersion": "hub-v27",
+ "newVersion": "hub-v27-verify",
+ "steps": [
+  {
+   "name": "1 first load, SW active",
+   "controller": true,
+   "active": "activated",
+   "installing": false,
+   "waiting": false,
+   "caches": {
+    "hub-v27": {
+     "index.html": "v1",
+     "apps/hub.js": "v1",
+     "sw.js VERSION": "hub-v27"
+    }
+   },
+   "running": {
+    "index.html": "v1",
+    "apps/hub.js": "v1"
+   },
+   "toastCalls": []
+  },
+  {
+   "name": "2 deployed — what the server serves now (Node fetch, no browser cache)",
+   "server": {
+    "index.html": "v2",
+    "apps/hub.js": "v2",
+    "sw.js VERSION": "hub-v27-verify",
+    "Cache-Control": "max-age=600"
+   },
+   "secondsSinceFirstLoad": 1
+  },
+  {
+   "name": "3 after reg.update(): new SW installed + activated",
+   "controller": true,
+   "active": "activated",
+   "installing": false,
+   "waiting": false,
+   "caches": {
+    "hub-v27-verify": {
+     "index.html": "v1",
+     "apps/hub.js": "v1",
+     "sw.js VERSION": "hub-v27-verify"
+    }
+   },
+   "running": {
+    "index.html": "v1",
+    "apps/hub.js": "v1"
+   },
+   "toastCalls": [
+    "Hub updated — it will use the new version next time it opens."
+   ]
+  },
+  {
+   "name": "4.1 re-open #1",
+   "controller": true,
+   "active": "activated",
+   "installing": false,
+   "waiting": false,
+   "caches": {
+    "hub-v27-verify": {
+     "index.html": "v2",
+     "apps/hub.js": "v1",
+     "sw.js VERSION": "hub-v27-verify"
+    }
+   },
+   "running": {
+    "index.html": "v1",
+    "apps/hub.js": "v1"
+   },
+   "toastCalls": [],
+   "requests": [
+    {
+     "url": "/index.html",
+     "fromServiceWorker": true,
+     "fromDiskCache": true,
+     "cc": "max-age=600"
+    },
+    {
+     "url": "/apps/hub.js",
+     "fromServiceWorker": true,
+     "fromDiskCache": true,
+     "cc": "max-age=600"
+    }
+   ]
+  },
+  {
+   "name": "4.2 re-open #2",
+   "controller": true,
+   "active": "activated",
+   "installing": false,
+   "waiting": false,
+   "caches": {
+    "hub-v27-verify": {
+     "index.html": "v2",
+     "apps/hub.js": "v1",
+     "sw.js VERSION": "hub-v27-verify"
+    }
+   },
+   "running": {
+    "index.html": "v2",
+    "apps/hub.js": "v1"
+   },
+   "toastCalls": [],
+   "requests": [
+    {
+     "url": "/index.html",
+     "fromServiceWorker": true,
+     "fromDiskCache": true,
+     "cc": "max-age=600"
+    },
+    {
+     "url": "/apps/hub.js",
+     "fromServiceWorker": true,
+     "fromDiskCache": true,
+     "cc": "max-age=600"
+    }
+   ]
+  }
+ ],
+ "pageErrors": []
+}

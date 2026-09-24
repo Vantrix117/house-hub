@@ -1,0 +1,17 @@
+node "audits/tools/phase2/PROF/verify-future-stamp-lock-1.mjs"   (local rig, clock:'real', WebKit; run 2026-09-24)
+── A. raw API ──
+A1 ezra PUT +1h → 200 applied=true ; stored updated_at − server now = 300 s
+A2 mom PUT (normal clock, 1 s later) → 200 applied=false ; row now {"id":"fsA","name":"Ezra future"}
+A3 mom DELETE (server-stamped) → 200 applied=false ; row now {"id":"fsA","name":"Ezra future"}
+A4 ezra PUT +20 s; mom PUT now → applied=false
+A4 mom PUT after 21.5 s → applied=true ; row now {"id":"fsT","name":"Mom after 21.5 s"}
+
+── B. through hub.js (Mom's phone, Larder) ──
+Mom phone cache: {"b1":{"id":"fsB1","name":"B1 original"},"b2":{"id":"fsB2","name":"B2 original"},"skew":-14}
+B1 (pulled first) Mom sees "Ezra future B1" → edit applied=true ; server row {"id":"fsB1","name":"Mom edit B1"}
+B2 (stale cache) Mom cache before "B2 original"
+   1st edit applied=false ; Mom's app now shows "Ezra future B2"
+   2nd edit applied=true ; Mom's app now shows "Mom edit B2 (2nd)" ; server {"id":"fsB2","name":"Mom edit B2 (2nd)"}
+B3 kid device clock +1 h: hub.skew = -3600 s; stored updated_at − server now = -0 s
+B4 kid fast clock, reopened offline: hub.skew = 0 ; after reconnect stored updated_at − server now = 299 s
+   mom normal-clock PUT to that row → applied=false

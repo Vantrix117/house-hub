@@ -1,0 +1,152 @@
+{
+ "pair": {
+  "status": 200,
+  "got_device_token": true
+ },
+ "profiles_has_pin": {
+  "eli": {
+   "name": "Eli",
+   "has_pin": true,
+   "guest": false
+  },
+  "christian": {
+   "name": "Mae",
+   "has_pin": true,
+   "guest": false
+  },
+  "mom": {
+   "name": "Elizabeth",
+   "has_pin": true,
+   "guest": false
+  },
+  "dad": {
+   "name": "David",
+   "has_pin": true,
+   "guest": false
+  },
+  "niece": {
+   "name": "Mea",
+   "has_pin": false,
+   "guest": false
+  },
+  "guest-grandmajo": {
+   "name": "Grandma Jo",
+   "has_pin": false,
+   "guest": true
+  }
+ },
+ "baseline_device_only_family_read": {
+  "status": 200,
+  "items": 17
+ },
+ "baseline_kid_on_tap": {
+  "status": 200,
+  "got_session": true
+ },
+ "baseline_kid_family_write": {
+  "status": 200
+ },
+ "baseline_kid_add_guest": {
+  "status": 403,
+  "error": "adults_only"
+ },
+ "baseline_kid_rally": {
+  "status": 403,
+  "error": "adults_only"
+ },
+ "baseline_pinless_guest_on_tap": {
+  "status": 200,
+  "got_session": true,
+  "kind": "adult"
+ },
+ "baseline_guest_add_guest": {
+  "status": 403,
+  "error": "guests_cannot_invite"
+ },
+ "baseline_guest_rally": {
+  "status": 403,
+  "error": "adults_only"
+ },
+ "claim": {
+  "status": 200,
+  "got_session": true,
+  "name": "Mea",
+  "kind": "adult"
+ },
+ "claim_repeat": [
+  {
+   "status": 409,
+   "error": "pin_already_set"
+  },
+  {
+   "status": 409,
+   "error": "pin_already_set"
+  },
+  {
+   "status": 409,
+   "error": "pin_already_set"
+  },
+  {
+   "status": 409,
+   "error": "pin_already_set"
+  },
+  {
+   "status": 409,
+   "error": "pin_already_set"
+  }
+ ],
+ "claim_on_pinned_adult": {
+  "status": 409,
+  "error": "pin_already_set"
+ },
+ "claim_on_guest": {
+  "status": 403,
+  "error": "guest_pin_fixed"
+ },
+ "mea_me": "Mea",
+ "mea_add_guest": {
+  "status": 200
+ },
+ "mea_rally": {
+  "status": 200
+ },
+ "mea_person_rows_visible": {
+  "f260": 0,
+  "verses": 0,
+  "hub": 0,
+  "timer": 0,
+  "prayer": 0,
+  "tally": 0
+ },
+ "real_mea_login_after_claim": {
+  "status": 401,
+  "error": "wrong_pin"
+ },
+ "real_mea_create_after_claim": {
+  "status": 409,
+  "error": "pin_already_set"
+ },
+ "activity_total_before_after": [
+  36,
+  38
+ ],
+ "activity_lines_by_mea": [
+  "Set a meeting point: Claimed rally",
+  "Added a guest: Claimed guest"
+ ],
+ "activity_mentions_pin": [],
+ "admin_sees_has_pin": true,
+ "admin_reset": {
+  "status": 200
+ },
+ "claimer_session_after_reset": {
+  "status": 401,
+  "error": "profile_session_invalid"
+ },
+ "real_mea_create_after_reset": {
+  "status": 200
+ },
+ "ui_mea_tile_subtitle": "Create your PIN",
+ "ui_pad_title": "Create your PIN",
+ "ui_signed_in_as": "Mea"
+}

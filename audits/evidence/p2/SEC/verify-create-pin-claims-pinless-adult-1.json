@@ -1,0 +1,66 @@
+{
+ "seed_niece": {
+  "name": "Mea",
+  "kind": "adult",
+  "has_pin": false,
+  "is_guest": false
+ },
+ "pair": {
+  "status": 200,
+  "got_device_token": true
+ },
+ "claim": {
+  "status": 200,
+  "got_profile_token": true,
+  "profile": {
+   "id": "niece",
+   "name": "Mea",
+   "kind": "adult",
+   "has_pin": true
+  }
+ },
+ "me_with_claimed_token": {
+  "status": 200,
+  "id": "niece",
+  "kind": "adult"
+ },
+ "real_mea_after": {
+  "create_pin": {
+   "status": 409,
+   "error": "pin_already_set"
+  },
+  "login_with_her_own_pin": {
+   "status": 401,
+   "error": "wrong_pin"
+  }
+ },
+ "repeat_12": {
+  "statuses": [
+   409
+  ],
+  "any_429": false,
+  "note": "after the one-shot claim every call is 409 — there is no secret to guess, so a throttle has nothing to limit"
+ },
+ "activity_mentions_mea_pin": 0,
+ "admin_sees_has_pin": true,
+ "capability_delta": {
+  "kid_tap_login": 200,
+  "kid_family_write": 200,
+  "kid_add_guest": {
+   "status": 403,
+   "error": "adults_only"
+  },
+  "claimed_mea_add_guest": {
+   "status": 200
+  }
+ },
+ "ui_picker_niece_label": "Create your PIN",
+ "ui_pad_title": "Create your PIN",
+ "ui_signed_in_as": {
+  "id": "niece",
+  "name": "Mea",
+  "kind": "adult"
+ },
+ "ui_after_has_pin": true,
+ "console_errors": []
+}

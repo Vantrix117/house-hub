@@ -1,0 +1,144 @@
+{
+  "runAt": "2026-09-24T04:57:26.051Z",
+  "steps": [
+    {
+      "k": "ezra /api/me kind",
+      "v": "kid"
+    },
+    {
+      "k": "kid get_data dollywood-live meet",
+      "v": {
+        "ok": true,
+        "result": "{\"x\":855,\"y\":921,\"name\":\"The Wildwood Tree\",\"note\":\"\",\"by\":\"christian\",\"byName\":\"Mae\",\"at\":1790225125754}"
+      }
+    },
+    {
+      "k": "kid system prompt: map/fridge hint present",
+      "v": {
+        "neverChange": true,
+        "grownUpMap": true
+      }
+    },
+    {
+      "k": "before (as eli)",
+      "v": {
+        "meet": "The Wildwood Tree",
+        "kiaraBeacon": null,
+        "eliLoc": [
+          762,
+          842
+        ],
+        "ezraHeight": 43
+      }
+    },
+    {
+      "k": "kid chat set_data dollywood-live meet",
+      "v": {
+        "http": 200,
+        "ok": true,
+        "chip": "✓ Saved meet in dollywood-live",
+        "result": "saved"
+      }
+    },
+    {
+      "k": "kid chat set_data dollywood-live kidshare:kiara",
+      "v": {
+        "http": 200,
+        "ok": true,
+        "chip": "✓ Saved kidshare:kiara in dollywood-live",
+        "result": "saved"
+      }
+    },
+    {
+      "k": "kid chat set_data dollywood-live loc:eli",
+      "v": {
+        "http": 200,
+        "ok": true,
+        "chip": "✓ Saved loc:eli in dollywood-live",
+        "result": "saved"
+      }
+    },
+    {
+      "k": "kid chat set_data dollywood-live kid:ezra",
+      "v": {
+        "http": 200,
+        "ok": true,
+        "chip": "✓ Saved kid:ezra in dollywood-live",
+        "result": "saved"
+      }
+    },
+    {
+      "k": "after (as eli)",
+      "v": {
+        "meet": "Candy shop (Ezra)",
+        "kiaraBeacon": true,
+        "eliLoc": [
+          5,
+          5
+        ],
+        "ezraHeight": 60
+      }
+    },
+    {
+      "k": "kid chat finish_leftover (control)",
+      "v": {
+        "ok": false,
+        "result": "That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.",
+        "stillThere": true
+      }
+    },
+    {
+      "k": "kid chat set_data leftovers null",
+      "v": {
+        "ok": true,
+        "chip": "✓ Saved item:lo0003 in leftovers",
+        "tombstoned": true
+      }
+    },
+    {
+      "k": "kid POST /api/dollywood/rally (control)",
+      "v": {
+        "status": 403,
+        "error": "adults_only"
+      }
+    },
+    {
+      "k": "kid raw PUT /api/data kidshare:kiara (control)",
+      "v": {
+        "status": 200,
+        "applied": true
+      }
+    },
+    {
+      "k": "kid chat set_data prayer (visibleTo app, control)",
+      "v": {
+        "ok": false,
+        "result": "Kids cannot change that app."
+      }
+    },
+    {
+      "k": "family feed (as eli)",
+      "v": {
+        "newest": [
+          "Eli: Added a reminder: Kiara has her dentist check-up Friday at 3:30 (via chat) @2026-09-24T12:15:00.000Z",
+          "Eli: Logged Blueberry pancakes (Small) in the fridge (via chat) @2026-09-24T11:55:00.000Z",
+          "Ezra: Prayed for Mae's job interview on Thursday (family list) @2026-09-24T11:32:00.000Z"
+        ],
+        "ezraViaChat": [
+          "Changed item:lo0003 in leftovers (via chat) @2026-09-24T04:57:26.553Z",
+          "Changed kid:ezra in dollywood-live (via chat) @2026-09-24T04:57:26.383Z",
+          "Changed loc:eli in dollywood-live (via chat) @2026-09-24T04:57:26.322Z",
+          "Changed kidshare:kiara in dollywood-live (via chat) @2026-09-24T04:57:26.275Z",
+          "Changed meet in dollywood-live (via chat) @2026-09-24T04:57:26.221Z"
+        ]
+      }
+    },
+    {
+      "k": "adult (Mae) park map mentions kid meet name",
+      "v": {
+        "shown": true,
+        "wildwood": true
+      }
+    }
+  ]
+}

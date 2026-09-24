@@ -1,0 +1,53 @@
+{
+ "0 iPad Home open": {
+  "feedLines": 30,
+  "feedGETsSoFar": 1,
+  "lastPull": 1790227641534
+ },
+ "A after the iPad's next 30 s pull": {
+  "remPutStatus": 200,
+  "activityPostStatus": 200,
+  "momLineOnServer": true,
+  "pullLandedAfterPost": true,
+  "secondsAfterPost": 31,
+  "momReminderOnIpad": true,
+  "momFeedLineOnIpad": false,
+  "feedGETsSinceOpen": 0
+ },
+ "B tab Apps→Home, then visibilitychange": {
+  "momFeedLineAfterTabSwitch": false,
+  "momFeedLineAfterVisibility": false,
+  "feedGETsSinceOpen": 0
+ },
+ "C Eli adds a reminder on Home": {
+  "ownReminderShown": true,
+  "ownLineOnServer": true,
+  "ownLineInFeed": false,
+  "afterNextPull": {
+   "pulled": true,
+   "ownLineInFeed": false
+  },
+  "feedGETsSinceOpen": 0
+ },
+ "D after tapping Refresh": {
+  "momFeedLineOnIpad": true,
+  "ownLineInFeed": true,
+  "feedGETsSinceOpen": 1,
+  "minutesOpen": 1.1
+ },
+ "shots": [
+  "audits/evidence/p2/PWA/verify-feed-not-live-2-after-pull-ipad-portrait-light.png",
+  "audits/evidence/p2/PWA/verify-feed-not-live-2-after-refresh-ipad-portrait-light.png"
+ ],
+ "E kiosk TV board (fake clock): feed GETs": {
+  "kind": "kiosk",
+  "atOpen": 1,
+  "after2minFake": 1,
+  "after5minFake": 2,
+  "urls": [
+   "/api/activity?limit=100",
+   "/api/activity?limit=100"
+  ],
+  "probeIndexOfMomLine": 12
+ }
+}

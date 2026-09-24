@@ -1,0 +1,149 @@
+{
+ "0. server push_subscriptions before (seeded)": [],
+ "1a. Eli, Me → Notifications before": {
+  "signedInAs": "eli",
+  "toggleAriaChecked": "false",
+  "help": "Fridge warnings and reading nudges, sent to this device. Works from the Home Screen app.",
+  "prefsVisible": false,
+  "browserSub": null
+ },
+ "1b. Eli taps the toggle": {
+  "signedInAs": "eli",
+  "toggleAriaChecked": "true",
+  "help": "On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.",
+  "prefsVisible": true,
+  "browserSub": "KITCHEN-IPAD",
+  "toast": "Notifications on for this device.",
+  "serverSubs": [
+   {
+    "profile_id": "eli",
+    "n": 1
+   }
+  ]
+ },
+ "1c. Eli: Send a test notification (API, Kitchen iPad session)": {
+  "sent": 1,
+  "ok": 1,
+  "received": [
+   {
+    "endpoint": "KITCHEN-IPAD",
+    "title": "Anderson House",
+    "body": "Notifications are working on this device.",
+    "url": "#me"
+   }
+  ]
+ },
+ "2. Eli taps Me → Switch": {
+  "pickerShown": true,
+  "hubSession": null,
+  "eliKitchenSessionAfter": "401 profile_session_invalid",
+  "browserSubStillThere": true,
+  "serverSubs": [
+   {
+    "profile_id": "eli",
+    "n": 1
+   }
+  ]
+ },
+ "3a. admin test push to eli (from his phone) after the Switch": {
+  "sent": 1,
+  "ok": 1,
+  "received": [
+   {
+    "endpoint": "KITCHEN-IPAD",
+    "title": "Anderson House",
+    "body": "Notifications are working on this device.",
+    "url": "#me"
+   }
+  ]
+ },
+ "3b. evening job (8 pm F260 nudge) after the Switch": {
+  "notified": [
+   "eli(sent 1, ok 1)"
+  ],
+  "skipped": [],
+  "received": [
+   {
+    "endpoint": "KITCHEN-IPAD",
+    "title": "F260",
+    "body": "No reading checked off today yet. Acts 6 is next (week 38, day 3).",
+    "url": "#f260"
+   }
+  ]
+ },
+ "3c. behind job (forced) after the Switch": {
+  "notified": [],
+  "skipped": [],
+  "received": []
+ },
+ "4a. Mom, Me → Notifications on the same iPad": {
+  "loadedAs": "mom",
+  "signedInAs": "mom",
+  "toggleAriaChecked": "true",
+  "help": "On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.",
+  "prefsVisible": true,
+  "browserSub": "KITCHEN-IPAD",
+  "shot": "audits/evidence/p2/PWA/verify-shared-push-mom-me-ipad-portrait-light.png",
+  "momServerTest": {
+   "sent": 0,
+   "ok": 0
+  },
+  "received": []
+ },
+ "4b. Mom taps \"Send a test notification\"": {
+  "toast": "No subscription on the server for this device yet.",
+  "received": []
+ },
+ "5. Mom signed in on Home, Eli's F260 nudge tapped": {
+  "toastVisible": null,
+  "signedInAs": "mom",
+  "hash": "#f260",
+  "viewerOpen": true,
+  "appInViewer": "f260",
+  "appProfile": "mom"
+ },
+ "6. Mom taps the toggle off": {
+  "signedInAs": "mom",
+  "toggleAriaChecked": "false",
+  "help": "Fridge warnings and reading nudges, sent to this device. Works from the Home Screen app.",
+  "prefsVisible": false,
+  "browserSub": null,
+  "toast": "Notifications off for this device.",
+  "unsubscribedCalls": "1",
+  "serverSubs": [
+   {
+    "profile_id": "eli",
+    "n": 1
+   }
+  ],
+  "eliRowsStillTargeted": {
+   "sent": 1,
+   "details": [
+    {
+     "endpoint": "http://127.0.0.1:52477/push/KITCHEN-IPAD…",
+     "status": 201,
+     "ok": true,
+     "error": null
+    }
+   ]
+  },
+  "note": "the stand-in receiver still accepts KITCHEN-IPAD; a real push service would answer 410 for an unsubscribed endpoint and pushTo would prune the row (reminders.js:43)",
+  "received": [
+   {
+    "endpoint": "KITCHEN-IPAD",
+    "title": "Anderson House",
+    "body": "Notifications are working on this device.",
+    "url": "#me"
+   }
+  ]
+ },
+ "7. Ezra signed in on Home, the F260 nudge tapped": {
+  "toastVisible": "That app is not available for this profile.",
+  "signedInAs": "ezra",
+  "hash": "#f260",
+  "viewerOpen": false,
+  "appInViewer": null,
+  "appProfile": null
+ },
+ "page errors": []
+}

@@ -1,0 +1,103 @@
+{
+  "scenario": "consequence",
+  "at": "2026-09-24T06:36:42.909Z",
+  "candidateIds": [
+    "38-2",
+    "38-3",
+    "38-4",
+    "39-0",
+    "39-1",
+    "39-2",
+    "39-3",
+    "39-4",
+    "40-0",
+    "40-1",
+    "40-2",
+    "40-3",
+    "40-4",
+    "41-0"
+  ],
+  "trials": [
+    {
+      "mode": "race",
+      "id": "38-2",
+      "serverHasIt": true,
+      "frameStore": true,
+      "frameUi": false,
+      "shellStore": true,
+      "stale": true,
+      "changesInFrame": 0,
+      "timeline": [
+        {
+          "at": 0,
+          "who": "shell",
+          "ev": "fetch-start",
+          "kind": "GET"
+        },
+        {
+          "at": 0,
+          "who": "shell",
+          "ev": "iframe-pull-kicked"
+        },
+        {
+          "at": 1,
+          "who": "frame",
+          "ev": "fetch-start",
+          "kind": "GET"
+        },
+        {
+          "at": 16,
+          "who": "shell",
+          "ev": "fetch-end",
+          "kind": "GET"
+        },
+        {
+          "at": 18,
+          "who": "frame",
+          "ev": "fetch-end",
+          "kind": "GET"
+        },
+        {
+          "at": 32,
+          "who": "frame",
+          "ev": "storage",
+          "key": "hub.cache"
+        },
+        {
+          "at": 33,
+          "who": "frame",
+          "ev": "sync",
+          "key": "synced/0/onLine=true"
+        }
+      ]
+    }
+  ],
+  "staleId": "38-2",
+  "shotPhoneStale": "audits/evidence/p2/SYNC/verify2-refreshscope-consequence-phone.png",
+  "shotIpad": "audits/evidence/p2/SYNC/verify2-refreshscope-consequence-ipad-ticked.png",
+  "after35s": {
+    "frameStore": true,
+    "frameUi": false,
+    "shellStore": true,
+    "changesInFrame": 0
+  },
+  "afterPhoneTick": {
+    "phoneTicked": "38-3",
+    "serverHasPhoneTick": true,
+    "serverStillHasIpadTick": false
+  },
+  "ipadAfter": {
+    "store": false,
+    "ui": false
+  },
+  "shotIpadAfter": "audits/evidence/p2/SYNC/verify2-refreshscope-consequence-ipad-after-phone-tick.png",
+  "summary": {
+    "race": "STALE",
+    "shell-only": "",
+    "frame-only": ""
+  },
+  "logs": {
+    "phone": [],
+    "ipad": []
+  }
+}

@@ -1,0 +1,109 @@
+
+== F6 iPad Home feed on open
+{
+ "lines": 30,
+ "groups": 18,
+ "showMore": true,
+ "cached": 30
+}
+
+== F1 Mom posts a line from her phone
+{
+ "status": 200,
+ "id": 39
+}
+
+== F1 iPad after 40 s (the 30 s pull ran?)
+{
+ "pulledSinceOpen": true,
+ "secondsWaited": 40,
+ "momLineOnIpad": false,
+ "onServer": true
+}
+
+== F1 after tapping Refresh
+{
+ "momLineOnIpad": true,
+ "shots": [
+  "audits/evidence/p2/PWA/feed-f1-after-40s-ipad-portrait-light.png",
+  "audits/evidence/p2/PWA/feed-f1-after-refresh-ipad-portrait-light.png"
+ ]
+}
+
+== F2 Eli adds a reminder on Home
+{
+ "reminderShown": true,
+ "feedHasOwnLine": false,
+ "serverHasLine": true
+}
+
+== F3 two "used up" taps 150 ms apart, 400 ms network
+{
+ "tapped": [
+  "Chicken alfredo",
+  "Beef and bean chili"
+ ],
+ "finishedLines": {
+  "Finished the Chicken alfredo": 2,
+  "Finished the Beef and bean chili": 1
+ }
+}
+
+== F4 Eli adds a reminder while offline
+{
+ "activityQueue": [
+  {
+   "text": "Added a reminder: Audit offline: call the plumber",
+   "at": "2026-09-24T04:44:15.569Z"
+  }
+ ]
+}
+
+== F4 35 s after coming back online
+{
+ "reminderItemFlushed": true,
+ "activityLineOnServer": false,
+ "stillQueued": [
+  "Added a reminder: Audit offline: call the plumber"
+ ]
+}
+
+== F4 after Grandma Jo adds a reminder on the same iPad
+[
+ {
+  "who": "guest-grandmajo",
+  "name": "Grandma Jo",
+  "text": "Added a reminder: Audit: guest line",
+  "created": "2026-09-22T12:40:00.092Z"
+ },
+ {
+  "who": "guest-grandmajo",
+  "name": "Grandma Jo",
+  "text": "Added a reminder: Audit offline: call the plumber",
+  "created": "2026-09-22T12:40:00.091Z"
+ },
+ {
+  "who": "eli",
+  "name": "Eli",
+  "text": "Added a reminder: Audit: buy stamps",
+  "created": "2026-09-22T12:40:00.045Z"
+ }
+]
+shot audits/evidence/p2/PWA/feed-f4-misattributed-ipad-portrait-light.png
+
+== F5 queued offline, session revoked, back online
+{
+ "queuedBefore": [
+  "Audit 401 line 1",
+  "Audit 401 line 2"
+ ],
+ "logoutStatus": 200,
+ "queueAfter": [
+  "Audit 401 line 2",
+  "Audit 401 line 3"
+ ],
+ "onServer": [],
+ "gateShown": true
+}
+
+wrote audits/evidence/p2/PWA/feed-run.json

@@ -1,0 +1,178 @@
+{
+  "upstream500": {
+    "bubbles": [
+      {
+        "who": "user",
+        "text": "Is the chili still good to eat?",
+        "err": false,
+        "chips": []
+      },
+      {
+        "who": "bot",
+        "text": "The assistant is unavailable right now (Internal server error).",
+        "err": true,
+        "chips": []
+      }
+    ],
+    "shot": "audits/evidence/p2/CHAT/04-upstream-500-iphone-light.png"
+  },
+  "afterReload": {
+    "bubbles": [
+      {
+        "who": "bot",
+        "text": "You're on week 38: 2 of 5 readings done, 12-day streak. Next up: Acts 6. This week's memory verses are Acts 2:42 and Acts 4:31.",
+        "err": false,
+        "chips": []
+      },
+      {
+        "who": "user",
+        "text": "Is the chili still good to eat?",
+        "err": false,
+        "chips": []
+      }
+    ],
+    "shot": "audits/evidence/p2/CHAT/04-after-reload-iphone-light.png"
+  },
+  "toggleUnchecked": {
+    "bubbles": [
+      {
+        "who": "bot",
+        "text": "OK.\n✓ Week 38 day 1 unchecked",
+        "err": false,
+        "chips": [
+          "chip chip-ok | ✓ Week 38 day 1 unchecked"
+        ]
+      }
+    ],
+    "shot": "audits/evidence/p2/CHAT/04-toggle-unchecked-iphone-light.png"
+  },
+  "offlineSend": {
+    "bubbles": [
+      {
+        "who": "user",
+        "text": "Add yogurt to the fridge list",
+        "err": false,
+        "chips": []
+      },
+      {
+        "who": "bot",
+        "text": "Load failed",
+        "err": true,
+        "chips": []
+      }
+    ],
+    "state": {
+      "sendDisabled": false,
+      "inputDisabled": false,
+      "inputValue": "",
+      "placeholder": "Ask or tell the house…",
+      "typing": false,
+      "cap": "6/60 today"
+    },
+    "shot": "audits/evidence/p2/CHAT/04-offline-send-iphone-light.png"
+  },
+  "hang": {
+    "at30s": {
+      "sendDisabled": true,
+      "inputDisabled": false,
+      "inputValue": "",
+      "placeholder": "Ask or tell the house…",
+      "typing": true,
+      "cap": "6/60 today"
+    },
+    "shot30": "audits/evidence/p2/CHAT/04-hang-30s-iphone-light.png",
+    "secondSendWhileHung": {
+      "state": {
+        "sendDisabled": true,
+        "inputDisabled": false,
+        "inputValue": "hello? second message",
+        "placeholder": "Ask or tell the house…",
+        "typing": true,
+        "cap": "6/60 today"
+      },
+      "userBubbles": [
+        "Add yogurt to the fridge list",
+        "What is for dinner?"
+      ]
+    },
+    "at120s": {
+      "sendDisabled": false,
+      "inputDisabled": false,
+      "inputValue": "hello? second message",
+      "placeholder": "Ask or tell the house…",
+      "typing": false,
+      "cap": "6/60 today"
+    },
+    "replyAfterMs": 120678,
+    "final": [
+      {
+        "who": "bot",
+        "text": "Load failed",
+        "err": true,
+        "chips": []
+      }
+    ]
+  },
+  "cap": {
+    "state": {
+      "sendDisabled": false,
+      "inputDisabled": true,
+      "inputValue": "",
+      "placeholder": "Back tomorrow — that is enough for today.",
+      "typing": false,
+      "cap": "60/60 today"
+    },
+    "capCounterInViewport": false,
+    "afterTappingSend": {
+      "sendDisabled": false,
+      "inputDisabled": true,
+      "inputValue": "",
+      "placeholder": "Back tomorrow — that is enough for today.",
+      "typing": false,
+      "cap": "60/60 today"
+    },
+    "bubbleCountUnchanged": true,
+    "shot": "audits/evidence/p2/CHAT/04-cap-reached-iphone-light.png",
+    "serverAnswer": {
+      "status": 429,
+      "body": {
+        "error": "daily_cap",
+        "message": "That's 60 messages for today — the assistant is resting until tomorrow.",
+        "used": 60,
+        "cap": 60
+      }
+    }
+  },
+  "kid": {
+    "spokenAfterVerse": [
+      "Acts 2:42. The first believers kept learning, sharing meals and praying together. Acts 4:31. They prayed, the place shook, and they spoke God's word boldly."
+    ],
+    "spokenAfterPlainReply": [
+      "Acts 2:42. The first believers kept learning, sharing meals and praying together. Acts 4:31. They prayed, the place shook, and they spoke God's word boldly."
+    ],
+    "refusedToolBubble": [
+      {
+        "who": "bot",
+        "text": "A grown-up can help with the fridge!",
+        "err": false,
+        "chips": []
+      }
+    ],
+    "shot": "audits/evidence/p2/CHAT/04-kid-refused-tool-ipad-light.png"
+  },
+  "kioskChat": {
+    "form": {
+      "hidden": true,
+      "display": "none",
+      "rect": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "postStatus": null,
+    "errBubble": null,
+    "shot": "audits/evidence/p2/CHAT/04-kiosk-chat-tv-light.png"
+  }
+}

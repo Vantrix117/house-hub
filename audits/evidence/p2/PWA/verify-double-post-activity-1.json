@@ -1,0 +1,121 @@
+{
+ "rig round trip of one POST /api/activity, no added delay (ms)": 5,
+ "A0 one tap, 400 ms network (control)": {
+  "itemsBefore": 14,
+  "tapped": [
+   "Finished the Chicken alfredo"
+  ],
+  "browserPOSTs": {
+   "Finished the Chicken alfredo": 1
+  },
+  "serverLines": {
+   "Finished the Chicken alfredo": 1
+  },
+  "queueLeft": "[]"
+ },
+ "A1 two taps 150 ms apart, no added delay (control)": {
+  "itemsBefore": 13,
+  "tapped": [
+   "Finished the Beef and bean chili",
+   "Finished the Roasted sweet potatoes"
+  ],
+  "browserPOSTs": {
+   "Finished the Beef and bean chili": 1,
+   "Finished the Roasted sweet potatoes": 1
+  },
+  "serverLines": {
+   "Finished the Beef and bean chili": 1,
+   "Finished the Roasted sweet potatoes": 1
+  },
+  "queueLeft": "[]"
+ },
+ "A2 two taps 150 ms apart, 400 ms network (the claim)": {
+  "itemsBefore": 11,
+  "tapped": [
+   "Finished the Sunday pot roast",
+   "Finished the Spaghetti and meatballs"
+  ],
+  "browserPOSTs": {
+   "Finished the Sunday pot roast": 2,
+   "Finished the Spaghetti and meatballs": 1
+  },
+  "serverLines": {
+   "Finished the Sunday pot roast": 2,
+   "Finished the Spaghetti and meatballs": 1
+  },
+  "queueLeft": "[]"
+ },
+ "A3 three taps 150 ms apart, 400 ms network": {
+  "itemsBefore": 9,
+  "tapped": [
+   "Finished the Blueberry pancakes",
+   "Finished the Audit dish 1",
+   "Finished the Audit dish 2"
+  ],
+  "browserPOSTs": {
+   "Finished the Blueberry pancakes": 3,
+   "Finished the Audit dish 1": 2,
+   "Finished the Audit dish 2": 1
+  },
+  "serverLines": {
+   "Finished the Blueberry pancakes": 3,
+   "Finished the Audit dish 1": 2,
+   "Finished the Audit dish 2": 1
+  },
+  "queueLeft": "[]"
+ },
+ "B shell then frame 100 ms later, 400 ms network": {
+  "browserPOSTs": {
+   "Audit shell line X": 2,
+   "Audit frame line Y": 1
+  },
+  "serverLines": {
+   "Audit shell line X": 2,
+   "Audit frame line Y": 1
+  }
+ },
+ "C Kid Verse: one Done ★ tap, no added delay": {
+  "before": {
+   "earned": null,
+   "badges": null,
+   "doneLabel": "Done ★"
+  },
+  "after": {
+   "earned": 1,
+   "badges": [
+    "first"
+   ]
+  },
+  "browserPOSTs": [
+   "Ezra read the verse ★",
+   "Ezra read the verse ★",
+   "Ezra earned the First star badge"
+  ],
+  "serverLines": {
+   "Ezra read the verse ★": 2,
+   "Ezra earned the First star badge": 1
+  },
+  "serverRows": [
+   {
+    "who": "ezra",
+    "text": "Ezra earned the First star badge"
+   },
+   {
+    "who": "ezra",
+    "text": "Ezra read the verse ★"
+   },
+   {
+    "who": "ezra",
+    "text": "Ezra read the verse ★"
+   }
+  ]
+ },
+ "C Eli Home feed after Ezra's one tap": {
+  "lines": [
+   "Ezra earned the First star badge",
+   "Ezra read the verse ★",
+   "Ezra read the verse ★"
+  ],
+  "shot": "audits/evidence/p2/PWA/verify-double-post-activity-1-kidverse-feed-ipad-portrait-light.png"
+ }
+}

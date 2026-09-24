@@ -1,0 +1,190 @@
+
+== adults (sort order as the job walks them)
+[
+ "eli",
+ "christian",
+ "mom",
+ "dad",
+ "niece",
+ "guest-grandmajo"
+]
+
+== A1 baseline Wed 23 Sep 8:00 morning, every adult subscribed with keys
+{
+ "at": "2026-09-23T08:00:00-04:00",
+ "job": "morning",
+ "status": 200,
+ "notified": [
+  "eli(ok 1)",
+  "christian(ok 1)",
+  "mom(ok 1)",
+  "dad(ok 1)",
+  "niece(ok 1)",
+  "guest-grandmajo(ok 1)"
+ ],
+ "skipped": [],
+ "received": [
+  "eli:Larder Ledger",
+  "christian:Larder Ledger",
+  "mom:Larder Ledger",
+  "dad:Larder Ledger",
+  "niece:Larder Ledger",
+  "guest-grandmajo:Larder Ledger"
+ ]
+}
+
+== A2 Mae (christian) POST /api/push/subscribe {endpoint} only
+200 {"ok":true}
+
+== A3 Thu 24 Sep 8:00 morning with the keyless row
+{
+ "at": "2026-09-24T08:00:00-04:00",
+ "job": "morning",
+ "status": 500,
+ "notified": [],
+ "skipped": [],
+ "error": {
+  "error": "internal",
+  "message": "Something went wrong on the server."
+ },
+ "received": [
+  "eli:Larder Ledger"
+ ]
+}
+
+== A3 server stderr (TypeError lines)
+[
+ "unhandled TypeError: Cannot read properties of undefined (reading 'p256dh')"
+]
+
+== A4 Fri 25 Sep 8:00 morning, next day, row untouched
+{
+ "at": "2026-09-25T08:00:00-04:00",
+ "job": "morning",
+ "status": 500,
+ "notified": [],
+ "skipped": [],
+ "error": {
+  "error": "internal",
+  "message": "Something went wrong on the server."
+ },
+ "received": [
+  "eli:Larder Ledger"
+ ]
+}
+
+== A5 Eli adds a family prayer
+200
+
+== A5 Fri 8:00 pm prayer job with the keyless row
+{
+ "at": "2026-09-25T20:00:00-04:00",
+ "job": "prayer",
+ "status": 500,
+ "notified": [],
+ "skipped": [],
+ "error": {
+  "error": "internal",
+  "message": "Something went wrong on the server."
+ },
+ "received": []
+}
+
+== A6 Mae re-subscribes with keys
+200
+
+== A6 Fri 25 Sep 8:05 morning after the fix
+{
+ "at": "2026-09-25T08:05:00-04:00",
+ "job": "morning",
+ "status": 200,
+ "notified": [
+  "christian(ok 1)",
+  "mom(ok 1)",
+  "dad(ok 1)",
+  "niece(ok 1)",
+  "guest-grandmajo(ok 1)"
+ ],
+ "skipped": [
+  "eli:already_today"
+ ],
+ "received": [
+  "christian:Larder Ledger",
+  "mom:Larder Ledger",
+  "dad:Larder Ledger",
+  "niece:Larder Ledger",
+  "guest-grandmajo:Larder Ledger"
+ ]
+}
+
+== A6 Fri 8:05 pm prayer job after the fix (is the Eli prayer still announced?)
+{
+ "at": "2026-09-25T20:05:00-04:00",
+ "job": "prayer",
+ "status": 200,
+ "notified": [],
+ "skipped": [],
+ "received": []
+}
+
+== A7 Ezra (kid) POST keyless
+200
+
+== A7 Sat 26 Sep 8:00 morning with only a kid keyless row
+{
+ "at": "2026-09-26T08:00:00-04:00",
+ "job": "morning",
+ "status": 200,
+ "notified": [
+  "eli(ok 1)",
+  "christian(ok 1)",
+  "mom(ok 1)",
+  "dad(ok 1)",
+  "niece(ok 1)",
+  "guest-grandmajo(ok 1)"
+ ],
+ "skipped": [],
+ "received": [
+  "eli:Larder Ledger",
+  "christian:Larder Ledger",
+  "mom:Larder Ledger",
+  "dad:Larder Ledger",
+  "niece:Larder Ledger",
+  "guest-grandmajo:Larder Ledger"
+ ]
+}
+
+== B scheduled() Thu 24 Sep 8:00 NY, Mae keyless (real cron path)
+{
+ "threw": null,
+ "ran": [
+  {
+   "job": "morning",
+   "error": "Cannot read properties of undefined (reading 'p256dh')",
+   "notified": [],
+   "skipped": []
+  },
+  {
+   "job": "prayer",
+   "notified": [],
+   "skipped": []
+  },
+  {
+   "job": "park",
+   "notified": [],
+   "skipped": []
+  }
+ ],
+ "received": [
+  "eli:Larder Ledger"
+ ],
+ "maeRowStillThere": true,
+ "pushLogToday": [
+  {
+   "profile_id": "eli",
+   "kind": "leftovers"
+  }
+ ]
+}
+
+wrote audits/evidence/p2/PWA/verify-keyless-subscription-aborts-job-1.json

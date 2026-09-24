@@ -1,0 +1,424 @@
+{
+  "A": {
+    "name": "A-offline-journal-then-tick",
+    "mode": "offline",
+    "vaultChars": 972800,
+    "order": "journal-then-tick",
+    "target": "38-2",
+    "serverHadTargetBefore": false,
+    "serverHadVaultBefore": false,
+    "queueBeforeReconnect": [
+      "f260.journal.vault",
+      "f260.done",
+      "f260.log",
+      "f260.summary"
+    ],
+    "requests": [
+      [
+        "f260.journal.vault (972800 chars)",
+        "f260.done",
+        "f260.log",
+        "f260.summary"
+      ],
+      [
+        "f260.journal.vault (972800 chars)",
+        "f260.done",
+        "f260.log",
+        "f260.summary"
+      ]
+    ],
+    "responses": [
+      {
+        "status": 413,
+        "body": "{\"error\":\"value_too_large\",\"message\":\"That is too big to save.\"}"
+      },
+      {
+        "status": 413,
+        "body": "{\"error\":\"value_too_large\",\"message\":\"That is too big to save.\"}"
+      }
+    ],
+    "serverHasTick": false,
+    "serverHasVault": false,
+    "phoneLocalTick": true,
+    "phoneLocalVaultChars": 972800,
+    "queueAfter": [],
+    "syncStatesEmitted": [
+      "synced(pending 0)",
+      "offline(pending 0)",
+      "offline(pending 1)",
+      "offline(pending 2)",
+      "offline(pending 3)",
+      "offline(pending 4)",
+      "pending(pending 4)",
+      "pending(pending 4)",
+      "error:value_too_large(pending 4)",
+      "error:value_too_large(pending 0)"
+    ],
+    "syncNow": {
+      "state": "error",
+      "pending": 0,
+      "lastError": "value_too_large",
+      "lastPull": 1790228617162
+    },
+    "shellDotHistory": [
+      "dot dot-synced",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-error",
+      "dot dot-error",
+      "dot dot-error",
+      "dot dot-synced"
+    ],
+    "onScreenFrame": [],
+    "onScreenShell": [],
+    "shot": "audits/evidence/p2/SYNC/verify-413-2-A-offline-journal-then-tick-phone.png",
+    "syncAfterNextPull": "synced",
+    "phoneLocalTickAfterPull": true,
+    "ipadTick": false,
+    "ipadVault": false,
+    "nextTick": {
+      "nextTarget": "38-3",
+      "serverHasEarlierTick": true,
+      "serverHasNextTick": true
+    },
+    "laterJournalSave": {
+      "reply": 413,
+      "serverHasVault": false
+    },
+    "consoleErrors": [
+      "error: Failed to load resource: the server responded with a status of 413 (Payload Too Large)",
+      "error: Failed to load resource: the server responded with a status of 413 (Payload Too Large)",
+      "error: Failed to load resource: the server responded with a status of 413 (Payload Too Large)"
+    ]
+  },
+  "B": {
+    "name": "B-offline-tick-then-journal",
+    "mode": "offline",
+    "vaultChars": 972800,
+    "order": "tick-then-journal",
+    "target": "38-2",
+    "serverHadTargetBefore": false,
+    "serverHadVaultBefore": false,
+    "queueBeforeReconnect": [
+      "f260.done",
+      "f260.log",
+      "f260.summary",
+      "f260.journal.vault"
+    ],
+    "requests": [
+      [
+        "f260.done",
+        "f260.log",
+        "f260.summary",
+        "f260.journal.vault (972800 chars)"
+      ],
+      [
+        "f260.done",
+        "f260.log",
+        "f260.summary",
+        "f260.journal.vault (972800 chars)"
+      ]
+    ],
+    "responses": [
+      {
+        "status": 413,
+        "body": "{\"error\":\"value_too_large\",\"message\":\"That is too big to save.\"}"
+      },
+      {
+        "status": 413,
+        "body": "{\"error\":\"value_too_large\",\"message\":\"That is too big to save.\"}"
+      }
+    ],
+    "serverHasTick": true,
+    "serverHasVault": false,
+    "phoneLocalTick": true,
+    "phoneLocalVaultChars": 972800,
+    "queueAfter": [],
+    "syncStatesEmitted": [
+      "synced(pending 0)",
+      "offline(pending 0)",
+      "offline(pending 1)",
+      "offline(pending 2)",
+      "offline(pending 3)",
+      "offline(pending 4)",
+      "pending(pending 4)",
+      "pending(pending 4)",
+      "error:value_too_large(pending 4)",
+      "error:value_too_large(pending 0)"
+    ],
+    "syncNow": {
+      "state": "error",
+      "pending": 0,
+      "lastError": "value_too_large",
+      "lastPull": 1790228627463
+    },
+    "shellDotHistory": [
+      "dot dot-synced",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-offline",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-error",
+      "dot dot-error",
+      "dot dot-error",
+      "dot dot-synced"
+    ],
+    "onScreenFrame": [],
+    "onScreenShell": [],
+    "shot": "audits/evidence/p2/SYNC/verify-413-2-B-offline-tick-then-journal-phone.png",
+    "syncAfterNextPull": "synced",
+    "phoneLocalTickAfterPull": true,
+    "ipadTick": true,
+    "ipadVault": false,
+    "consoleErrors": [
+      "error: Failed to load resource: the server responded with a status of 413 (Payload Too Large)",
+      "error: Failed to load resource: the server responded with a status of 413 (Payload Too Large)"
+    ]
+  },
+  "C": {
+    "name": "C-inflight-tick",
+    "mode": "inflight",
+    "vaultChars": 972800,
+    "order": "journal-then-tick",
+    "target": "38-2",
+    "serverHadTargetBefore": false,
+    "serverHadVaultBefore": false,
+    "vaultUploadsInFlightAtTap": 2,
+    "tickClickedAt": 1790228633837,
+    "queueWhileInFlight": [
+      "f260.journal.vault",
+      "f260.done",
+      "f260.log",
+      "f260.summary"
+    ],
+    "firstReplyAfterTickMs": 2657,
+    "requests": [
+      [
+        "f260.journal.vault (972800 chars)"
+      ],
+      [
+        "f260.journal.vault (972800 chars)"
+      ]
+    ],
+    "responses": [
+      {
+        "status": 413,
+        "body": "{\"error\":\"value_too_large\",\"message\":\"That is too big to save.\"}"
+      },
+      {
+        "status": 413,
+        "body": "{\"error\":\"value_too_large\",\"message\":\"That is too big to save.\"}"
+      }
+    ],
+    "serverHasTick": false,
+    "serverHasVault": false,
+    "phoneLocalTick": true,
+    "phoneLocalVaultChars": 972800,
+    "queueAfter": [],
+    "syncStatesEmitted": [
+      "synced(pending 0)",
+      "pending(pending 1)",
+      "pending(pending 2)",
+      "pending(pending 3)",
+      "pending(pending 4)",
+      "error:value_too_large(pending 4)"
+    ],
+    "syncNow": {
+      "state": "error",
+      "pending": 4,
+      "lastError": "value_too_large",
+      "lastPull": 1790228632159
+    },
+    "shellDotHistory": [
+      "dot dot-synced",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-error",
+      "dot dot-pending",
+      "dot dot-error"
+    ],
+    "onScreenFrame": [],
+    "onScreenShell": [],
+    "shot": "audits/evidence/p2/SYNC/verify-413-2-C-inflight-tick-phone.png",
+    "syncAfterNextPull": "synced",
+    "phoneLocalTickAfterPull": true,
+    "ipadTick": false,
+    "ipadVault": false,
+    "nextTick": {
+      "nextTarget": "38-3",
+      "serverHasEarlierTick": true,
+      "serverHasNextTick": true
+    },
+    "laterJournalSave": {
+      "reply": 413,
+      "serverHasVault": false
+    },
+    "consoleErrors": [
+      "error: Failed to load resource: the server responded with a status of 413 (Payload Too Large)",
+      "error: Failed to load resource: the server responded with a status of 413 (Payload Too Large)",
+      "error: Failed to load resource: the server responded with a status of 413 (Payload Too Large)"
+    ]
+  },
+  "D": {
+    "name": "D-control-inflight-small",
+    "mode": "inflight",
+    "vaultChars": 10240,
+    "order": "journal-then-tick",
+    "target": "38-2",
+    "serverHadTargetBefore": false,
+    "serverHadVaultBefore": false,
+    "vaultUploadsInFlightAtTap": 2,
+    "tickClickedAt": 1790228647748,
+    "queueWhileInFlight": [
+      "f260.journal.vault",
+      "f260.done",
+      "f260.log",
+      "f260.summary"
+    ],
+    "firstReplyAfterTickMs": 2660,
+    "requests": [
+      [
+        "f260.journal.vault (10240 chars)"
+      ],
+      [
+        "f260.journal.vault (10240 chars)"
+      ],
+      [
+        "f260.done",
+        "f260.log",
+        "f260.summary"
+      ]
+    ],
+    "responses": [
+      {
+        "status": 200,
+        "body": "{\"results\":[{\"key\":\"f260.journal.vault\",\"value\":{\"v\":2,\"pass\":{\"salt\":\"c2FsdA==\",\"iter\":200000,\"iv\":\"aXY=\",\"wk"
+      },
+      {
+        "status": 200,
+        "body": "{\"results\":[{\"key\":\"f260.journal.vault\",\"value\":{\"v\":2,\"pass\":{\"salt\":\"c2FsdA==\",\"iter\":200000,\"iv\":\"aXY=\",\"wk"
+      },
+      {
+        "status": 200,
+        "body": "{\"results\":[{\"key\":\"f260.done\",\"value\":{\"1-0\":true,\"1-1\":true,\"1-2\":true,\"1-3\":true,\"1-4\":true,\"2-0\":true,\"2-1"
+      }
+    ],
+    "serverHasTick": true,
+    "serverHasVault": true,
+    "phoneLocalTick": true,
+    "phoneLocalVaultChars": 10240,
+    "queueAfter": [],
+    "syncStatesEmitted": [
+      "synced(pending 0)",
+      "pending(pending 1)",
+      "pending(pending 2)",
+      "pending(pending 3)",
+      "pending(pending 4)",
+      "pending(pending 3)",
+      "synced(pending 0)"
+    ],
+    "syncNow": {
+      "state": "synced",
+      "pending": 0,
+      "lastError": null,
+      "lastPull": 1790228646033
+    },
+    "shellDotHistory": [
+      "dot dot-synced",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-pending",
+      "dot dot-synced",
+      "dot dot-pending",
+      "dot dot-synced"
+    ],
+    "onScreenFrame": [],
+    "onScreenShell": [],
+    "shot": "audits/evidence/p2/SYNC/verify-413-2-D-control-inflight-small-phone.png",
+    "syncAfterNextPull": "synced",
+    "phoneLocalTickAfterPull": true,
+    "ipadTick": true,
+    "ipadVault": true,
+    "consoleErrors": []
+  },
+  "E": {
+    "name": "E-cross-device-overwrite",
+    "step1": {
+      "server": "I:901120",
+      "phone": "I:901120",
+      "ipad": "I:901120"
+    },
+    "step2": {
+      "server": "I:901120",
+      "phone": "P:972800",
+      "phoneQueue": [],
+      "phoneSync": "error"
+    },
+    "step3": {
+      "server": "J:906240",
+      "phone": "J:906240",
+      "ipad": "J:906240"
+    }
+  },
+  "F": {
+    "name": "F-batch-cap-201",
+    "target": "38-2",
+    "queued": 203,
+    "requests": [
+      {
+        "frame": "shell",
+        "n": 3
+      },
+      {
+        "frame": "app",
+        "n": 203
+      }
+    ],
+    "replies": [
+      "shell 200 {\"results\":[{\"key\":\"f260.done\",\"value\":{\"1-0\":true,\"1-1\":tru",
+      "app 400 {\"error\":\"bad_batch\",\"message\":\"items must be an array of at"
+    ],
+    "reply": {
+      "frame": "shell",
+      "status": 200,
+      "body": "{\"results\":[{\"key\":\"f260.done\",\"value\":{\"1-0\":true,\"1-1\":true,\"1-2\":true,\"1-3\":true,\"1-4\":true,\"2-0\":true,\"2-1"
+    },
+    "serverHasTick": true,
+    "serverHasK0": false,
+    "queueAfter": 0
+  }
+}

@@ -1,0 +1,2515 @@
+{
+  "cmd": "node audits/tools/phase2/SYNC/verify2-refreshscope-no-onchange-1.mjs --engine chromium --runs 3 --wait 40",
+  "results": [
+    {
+      "run": 1,
+      "overlay": false,
+      "overlayActive": false,
+      "idPhone": "38-2",
+      "idIpad": "38-3",
+      "serverBefore": 200,
+      "offlineState": {
+        "store": true,
+        "ui": true
+      },
+      "at4s": {
+        "store": false,
+        "ui": false,
+        "storeOther": true,
+        "uiOther": true,
+        "sync": "synced",
+        "busy": false
+      },
+      "serverTick": false,
+      "serverOther": true,
+      "later": {
+        "store": false,
+        "ui": false,
+        "storeOther": true,
+        "uiOther": true,
+        "sync": "synced",
+        "busy": false
+      },
+      "afterSeconds": 40,
+      "changesAfterReconnect": [
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        }
+      ],
+      "followOn": {
+        "idNext": "38-4",
+        "server": {
+          "phoneTick": false,
+          "ipadTick": true,
+          "nextTick": true
+        }
+      },
+      "trace": [
+        {
+          "t": 2,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 3,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "hub.js"
+        },
+        {
+          "t": 6,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "hub.js",
+          "status": 200
+        },
+        {
+          "t": 10,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 0
+        },
+        {
+          "t": 10,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 0
+        },
+        {
+          "t": 59,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 1
+        },
+        {
+          "t": 59,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 2
+        },
+        {
+          "t": 60,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231815841,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:358:25"
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "onChange",
+          "key": null,
+          "bulk": true,
+          "cf": null
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231815841,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:362:76"
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done"
+          ]
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231815841,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:358:25"
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231815841,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:362:76"
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done",
+            "f260.log"
+          ]
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231815841,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:358:25"
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231815841,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:362:76"
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 77,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ]
+        },
+        {
+          "t": 1700,
+          "ev": "--- iPad reconnects ---"
+        },
+        {
+          "t": 4219,
+          "ev": "--- phone reconnects ---"
+        },
+        {
+          "t": 4220,
+          "who": "shell",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 3
+        },
+        {
+          "t": 4220,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/hub?scope=family&since=1790231811577"
+        },
+        {
+          "t": 4221,
+          "who": "frame",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 3
+        },
+        {
+          "t": 4221,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231811600"
+        },
+        {
+          "t": 4221,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person"
+        },
+        {
+          "t": 4221,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person"
+        },
+        {
+          "t": 4226,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/hub?scope=family&since=1790231811577",
+          "status": 200
+        },
+        {
+          "t": 4226,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/reminders?scope=family&since=1790231811588"
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person",
+          "status": 200
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231815841,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4228,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231811600",
+          "status": 200
+        },
+        {
+          "t": 4228,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person",
+          "status": 200
+        },
+        {
+          "t": 4228,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4228,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4228,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4228,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:362:76"
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 0
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "storage(queue)",
+          "keys": []
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4230,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/reminders?scope=family&since=1790231811588",
+          "status": 200
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231811779"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:358:25"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231816969,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4231,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231811600"
+        },
+        {
+          "t": 4232,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:358:25"
+        },
+        {
+          "t": 4232,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231816969,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4234,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231811779",
+          "status": 200
+        },
+        {
+          "t": 4234,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4235,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:358:25"
+        },
+        {
+          "t": 4235,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231816969,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4235,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231811600",
+          "status": 200
+        },
+        {
+          "t": 4235,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4235,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4235,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/leftovers?scope=family&since=1790231811633"
+        },
+        {
+          "t": 4237,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/leftovers?scope=family&since=1790231811633",
+          "status": 200
+        },
+        {
+          "t": 4238,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/prayer?scope=person&since=1790231811637"
+        },
+        {
+          "t": 4240,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/prayer?scope=person&since=1790231811637",
+          "status": 200
+        },
+        {
+          "t": 4240,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/hub?scope=person&since=1790231811661"
+        },
+        {
+          "t": 4242,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/hub?scope=person&since=1790231811661",
+          "status": 200
+        },
+        {
+          "t": 4242,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/timer?scope=person&since=1790231811666"
+        },
+        {
+          "t": 4244,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/timer?scope=person&since=1790231811666",
+          "status": 200
+        },
+        {
+          "t": 4244,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/dollywood-live?scope=family&since=1790231811769"
+        },
+        {
+          "t": 4246,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/dollywood-live?scope=family&since=1790231811769",
+          "status": 200
+        },
+        {
+          "t": 4246,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=person&since=1790231811777"
+        },
+        {
+          "t": 4247,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=person&since=1790231811777",
+          "status": 200
+        },
+        {
+          "t": 4248,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231820018"
+        },
+        {
+          "t": 4250,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231820018",
+          "status": 200
+        },
+        {
+          "t": 4250,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        }
+      ],
+      "traceTailAtEnd": [
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4234,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231811779",
+          "status": 200
+        },
+        {
+          "t": 4234,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4235,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:358:25"
+        },
+        {
+          "t": 4235,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231816969,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 25852,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231820019"
+        },
+        {
+          "t": 25861,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231820019",
+          "status": 200
+        },
+        {
+          "t": 25861,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:15)"
+        },
+        {
+          "t": 25861,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at refreshScope (http://localhost:59268/apps/hub.js:192:61)"
+        },
+        {
+          "t": 25861,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231820034"
+        },
+        {
+          "t": 25863,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231820034",
+          "status": 200
+        },
+        {
+          "t": 25863,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 26006,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231816969,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:59268/apps/hub.js:32:58)<    at http://localhost:59268/apps/hub.js:358:25"
+        },
+        {
+          "t": 26006,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231816969,
+          "storeTickAfterHandler": false
+        }
+      ],
+      "png": "audits/evidence/p2/SYNC/verify2-refreshscope-base-chromium-run1-phone.png",
+      "logs": []
+    },
+    {
+      "run": 2,
+      "overlay": false,
+      "overlayActive": false,
+      "idPhone": "38-2",
+      "idIpad": "38-3",
+      "serverBefore": 200,
+      "offlineState": {
+        "store": true,
+        "ui": true
+      },
+      "at4s": {
+        "store": false,
+        "ui": false,
+        "storeOther": true,
+        "uiOther": true,
+        "sync": "synced",
+        "busy": false
+      },
+      "serverTick": false,
+      "serverOther": true,
+      "later": null,
+      "afterSeconds": null,
+      "changesAfterReconnect": [
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        }
+      ],
+      "followOn": {
+        "idNext": "38-4",
+        "server": {
+          "phoneTick": false,
+          "ipadTick": true,
+          "nextTick": true
+        }
+      },
+      "trace": [
+        {
+          "t": 1,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 2,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 3,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "hub.js"
+        },
+        {
+          "t": 5,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "hub.js",
+          "status": 200
+        },
+        {
+          "t": 8,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 0
+        },
+        {
+          "t": 9,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 0
+        },
+        {
+          "t": 59,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 1
+        },
+        {
+          "t": 59,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 2
+        },
+        {
+          "t": 60,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 75,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231868493,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:358:25"
+        },
+        {
+          "t": 75,
+          "who": "shell",
+          "ev": "onChange",
+          "key": null,
+          "bulk": true,
+          "cf": null
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231868493,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:362:76"
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done"
+          ]
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231868493,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:358:25"
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231868493,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:362:76"
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done",
+            "f260.log"
+          ]
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231868493,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:358:25"
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231868493,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:362:76"
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 76,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ]
+        },
+        {
+          "t": 1701,
+          "ev": "--- iPad reconnects ---"
+        },
+        {
+          "t": 4219,
+          "ev": "--- phone reconnects ---"
+        },
+        {
+          "t": 4220,
+          "who": "shell",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 3
+        },
+        {
+          "t": 4220,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/hub?scope=family&since=1790231864265"
+        },
+        {
+          "t": 4221,
+          "who": "frame",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 3
+        },
+        {
+          "t": 4221,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231864312"
+        },
+        {
+          "t": 4221,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person"
+        },
+        {
+          "t": 4222,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person"
+        },
+        {
+          "t": 4226,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/hub?scope=family&since=1790231864265",
+          "status": 200
+        },
+        {
+          "t": 4226,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/reminders?scope=family&since=1790231864277"
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person",
+          "status": 200
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231868493,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4228,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231864312",
+          "status": 200
+        },
+        {
+          "t": 4228,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person",
+          "status": 200
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:362:76"
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 0
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "storage(queue)",
+          "keys": []
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231864436"
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:358:25"
+        },
+        {
+          "t": 4230,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/reminders?scope=family&since=1790231864277",
+          "status": 200
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231869616,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4231,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:358:25"
+        },
+        {
+          "t": 4231,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231869616,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4231,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231872661"
+        },
+        {
+          "t": 4232,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231864436",
+          "status": 200
+        },
+        {
+          "t": 4234,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4234,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231872661",
+          "status": 200
+        },
+        {
+          "t": 4235,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:358:25"
+        },
+        {
+          "t": 4235,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231869616,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4235,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4235,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4235,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/leftovers?scope=family&since=1790231864319"
+        },
+        {
+          "t": 4237,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/leftovers?scope=family&since=1790231864319",
+          "status": 200
+        },
+        {
+          "t": 4237,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/prayer?scope=person&since=1790231864323"
+        },
+        {
+          "t": 4240,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/prayer?scope=person&since=1790231864323",
+          "status": 200
+        },
+        {
+          "t": 4240,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/hub?scope=person&since=1790231864342"
+        },
+        {
+          "t": 4242,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/hub?scope=person&since=1790231864342",
+          "status": 200
+        },
+        {
+          "t": 4242,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/timer?scope=person&since=1790231864346"
+        },
+        {
+          "t": 4244,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/timer?scope=person&since=1790231864346",
+          "status": 200
+        },
+        {
+          "t": 4244,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/dollywood-live?scope=family&since=1790231864350"
+        },
+        {
+          "t": 4246,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/dollywood-live?scope=family&since=1790231864350",
+          "status": 200
+        },
+        {
+          "t": 4246,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=person&since=1790231864432"
+        },
+        {
+          "t": 4248,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=person&since=1790231864432",
+          "status": 200
+        },
+        {
+          "t": 4248,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231872667"
+        },
+        {
+          "t": 4250,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231872667",
+          "status": 200
+        },
+        {
+          "t": 4251,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        }
+      ],
+      "traceTailAtEnd": [
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231864436"
+        },
+        {
+          "t": 4230,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:358:25"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231869616,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at refreshScope (http://localhost:49910/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4231,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4232,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231864436",
+          "status": 200
+        },
+        {
+          "t": 4234,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4235,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231869616,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:49910/apps/hub.js:32:58)<    at http://localhost:49910/apps/hub.js:358:25"
+        },
+        {
+          "t": 4235,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231869616,
+          "storeTickAfterHandler": false
+        }
+      ],
+      "png": "audits/evidence/p2/SYNC/verify2-refreshscope-base-chromium-run2-phone.png",
+      "logs": []
+    },
+    {
+      "run": 3,
+      "overlay": false,
+      "overlayActive": false,
+      "idPhone": "38-2",
+      "idIpad": "38-3",
+      "serverBefore": 200,
+      "offlineState": {
+        "store": true,
+        "ui": true
+      },
+      "at4s": {
+        "store": false,
+        "ui": false,
+        "storeOther": true,
+        "uiOther": true,
+        "sync": "synced",
+        "busy": false
+      },
+      "serverTick": false,
+      "serverOther": true,
+      "later": null,
+      "afterSeconds": null,
+      "changesAfterReconnect": [
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        }
+      ],
+      "followOn": {
+        "idNext": "38-4",
+        "server": {
+          "phoneTick": false,
+          "ipadTick": true,
+          "nextTick": true
+        }
+      },
+      "trace": [
+        {
+          "t": 1,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 2,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 3,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "hub.js"
+        },
+        {
+          "t": 5,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "hub.js",
+          "status": 200
+        },
+        {
+          "t": 9,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 0
+        },
+        {
+          "t": 9,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 0
+        },
+        {
+          "t": 64,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 1
+        },
+        {
+          "t": 64,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 2
+        },
+        {
+          "t": 64,
+          "who": "frame",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 81,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231885216,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:358:25"
+        },
+        {
+          "t": 81,
+          "who": "shell",
+          "ev": "onChange",
+          "key": null,
+          "bulk": true,
+          "cf": null
+        },
+        {
+          "t": 81,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231885216,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 81,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:362:76"
+        },
+        {
+          "t": 81,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 81,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done"
+          ]
+        },
+        {
+          "t": 81,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231885216,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:358:25"
+        },
+        {
+          "t": 82,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231885216,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 82,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:362:76"
+        },
+        {
+          "t": 82,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 82,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done",
+            "f260.log"
+          ]
+        },
+        {
+          "t": 82,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231885216,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:358:25"
+        },
+        {
+          "t": 82,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": true,
+          "rowT": 1790231885216,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 82,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:362:76"
+        },
+        {
+          "t": 82,
+          "who": "shell",
+          "ev": "sync",
+          "state": "offline",
+          "pending": 3
+        },
+        {
+          "t": 83,
+          "who": "shell",
+          "ev": "storage(queue)",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ]
+        },
+        {
+          "t": 1697,
+          "ev": "--- iPad reconnects ---"
+        },
+        {
+          "t": 4206,
+          "ev": "--- phone reconnects ---"
+        },
+        {
+          "t": 4207,
+          "who": "shell",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 3
+        },
+        {
+          "t": 4207,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/hub?scope=family&since=1790231880955"
+        },
+        {
+          "t": 4208,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person"
+        },
+        {
+          "t": 4209,
+          "who": "frame",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 3
+        },
+        {
+          "t": 4209,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231880980"
+        },
+        {
+          "t": 4209,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person"
+        },
+        {
+          "t": 4212,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/hub?scope=family&since=1790231880955",
+          "status": 200
+        },
+        {
+          "t": 4212,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/reminders?scope=family&since=1790231880968"
+        },
+        {
+          "t": 4213,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person",
+          "status": 200
+        },
+        {
+          "t": 4213,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": true,
+          "rowT": 1790231885216,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4213,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [
+            "f260.done",
+            "f260.log",
+            "f260.summary"
+          ],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4213,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4213,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4213,
+          "who": "shell",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4213,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4214,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231880980",
+          "status": 200
+        },
+        {
+          "t": 4214,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "POST",
+          "p": "/api/data/f260/batch?scope=person",
+          "status": 200
+        },
+        {
+          "t": 4215,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:362:76"
+        },
+        {
+          "t": 4215,
+          "who": "frame",
+          "ev": "sync",
+          "state": "pending",
+          "pending": 0
+        },
+        {
+          "t": 4215,
+          "who": "frame",
+          "ev": "storage(queue)",
+          "keys": []
+        },
+        {
+          "t": 4215,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4215,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4215,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231881158"
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:358:25"
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231886351,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4216,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/reminders?scope=family&since=1790231880968",
+          "status": 200
+        },
+        {
+          "t": 4216,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:358:25"
+        },
+        {
+          "t": 4216,
+          "who": "shell",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231886351,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4216,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231889374"
+        },
+        {
+          "t": 4217,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231881158",
+          "status": 200
+        },
+        {
+          "t": 4217,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4218,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/f260?scope=person&since=1790231889374",
+          "status": 200
+        },
+        {
+          "t": 4219,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:358:25"
+        },
+        {
+          "t": 4219,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231886351,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4219,
+          "who": "shell",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4219,
+          "who": "shell",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4219,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/leftovers?scope=family&since=1790231881007"
+        },
+        {
+          "t": 4220,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/leftovers?scope=family&since=1790231881007",
+          "status": 200
+        },
+        {
+          "t": 4220,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/prayer?scope=person&since=1790231881018"
+        },
+        {
+          "t": 4222,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/prayer?scope=person&since=1790231881018",
+          "status": 200
+        },
+        {
+          "t": 4222,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/hub?scope=person&since=1790231881047"
+        },
+        {
+          "t": 4225,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/hub?scope=person&since=1790231881047",
+          "status": 200
+        },
+        {
+          "t": 4225,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/timer?scope=person&since=1790231881146"
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/timer?scope=person&since=1790231881146",
+          "status": 200
+        },
+        {
+          "t": 4227,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/dollywood-live?scope=family&since=1790231881150"
+        },
+        {
+          "t": 4229,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/dollywood-live?scope=family&since=1790231881150",
+          "status": 200
+        },
+        {
+          "t": 4229,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=person&since=1790231881155"
+        },
+        {
+          "t": 4231,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=person&since=1790231881155",
+          "status": 200
+        },
+        {
+          "t": 4231,
+          "who": "shell",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231889378"
+        },
+        {
+          "t": 4232,
+          "who": "shell",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231889378",
+          "status": 200
+        },
+        {
+          "t": 4232,
+          "who": "shell",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        }
+      ],
+      "traceTailAtEnd": [
+        {
+          "t": 4215,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4215,
+          "who": "frame",
+          "ev": "fetch>",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231881158"
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:358:25"
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231886351,
+          "storeTickAfterHandler": false
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:15)"
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "read",
+          "k": "queue",
+          "keys": [],
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at refreshScope (http://localhost:53019/apps/hub.js:192:61)"
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.done",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.log",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "onChange",
+          "key": "f260.summary",
+          "bulk": false,
+          "cf": null
+        },
+        {
+          "t": 4216,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4217,
+          "who": "frame",
+          "ev": "fetch<",
+          "m": "GET",
+          "p": "/api/data/kidverse?scope=family&since=1790231881158",
+          "status": 200
+        },
+        {
+          "t": 4217,
+          "who": "frame",
+          "ev": "sync",
+          "state": "synced",
+          "pending": 0
+        },
+        {
+          "t": 4219,
+          "who": "frame",
+          "ev": "read",
+          "k": "cache",
+          "tick": false,
+          "rowT": 1790231886351,
+          "fn": "    at Storage.getItem (eval at evaluate (:311:30), <anonymous>:11:19)<    at lsGet (http://localhost:53019/apps/hub.js:32:58)<    at http://localhost:53019/apps/hub.js:358:25"
+        },
+        {
+          "t": 4219,
+          "who": "frame",
+          "ev": "storage(cache)",
+          "tick": false,
+          "rowT": 1790231886351,
+          "storeTickAfterHandler": false
+        }
+      ],
+      "png": "audits/evidence/p2/SYNC/verify2-refreshscope-base-chromium-run3-phone.png",
+      "logs": []
+    }
+  ]
+}

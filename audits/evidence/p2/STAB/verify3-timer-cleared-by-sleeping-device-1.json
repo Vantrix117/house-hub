@@ -1,0 +1,332 @@
+{
+ "steps": [
+  {
+   "s": 5,
+   "k": "rig: B installed clock flows naturally before sleep (ms over 2 s)",
+   "v": 2012
+  },
+  {
+   "s": 5,
+   "k": "rig: AudioContext native in engine (A / B)",
+   "v": [
+    "undefined",
+    "undefined"
+   ]
+  },
+  {
+   "s": 14,
+   "k": "P1 timer1 (1 min) started on A; ends",
+   "v": "2026-09-24T07:16:18.999Z"
+  },
+  {
+   "s": 14,
+   "k": "P1 B pill after pull (before sleep)",
+   "v": "0:56"
+  },
+  {
+   "s": 14,
+   "k": "P1 B asleep (hidden + clock paused)",
+   "v": true
+  },
+  {
+   "s": 74,
+   "k": "P1 A at end+4 s: beeps / toasts / pill",
+   "v": {
+    "beeps": 1,
+    "toasts": [
+     "Timer done — 1:00 is up."
+    ],
+    "pillVisible": false,
+    "pillText": "",
+    "localTimer": null,
+    "writes": [
+     {
+      "at": "07:16:18.520",
+      "value": null,
+      "prevEndAt": 1790234178999
+     }
+    ]
+   }
+  },
+  {
+   "s": 74,
+   "k": "P1 server at end+4 s",
+   "v": {
+    "value": null,
+    "updated_at": 1790234179295
+   }
+  },
+  {
+   "s": 140,
+   "k": "P1 server just before B wakes (end+70 s)",
+   "v": {
+    "value": null,
+    "updated_at": 1790234179295
+   }
+  },
+  {
+   "s": 144,
+   "k": "P1 B after waking at end+70 s: beeps / toasts / pill / writes",
+   "v": {
+    "beeps": 0,
+    "toasts": [],
+    "pillVisible": false,
+    "pillText": "",
+    "localTimer": null,
+    "writes": [
+     {
+      "at": "07:17:29.012",
+      "value": null,
+      "prevEndAt": 1790234178999
+     }
+    ]
+   }
+  },
+  {
+   "s": 144,
+   "k": "P1 server after B woke",
+   "v": {
+    "value": null,
+    "updated_at": 1790234249010
+   }
+  },
+  {
+   "s": 144,
+   "k": "P1 A after B woke (no pill to lose; no new alert)",
+   "v": {
+    "beeps": 1,
+    "toasts": [
+     "Timer done — 1:00 is up."
+    ],
+    "pillVisible": false,
+    "pillText": "",
+    "localTimer": null,
+    "writes": [
+     {
+      "at": "07:16:18.520",
+      "value": null,
+      "prevEndAt": 1790234178999
+     }
+    ]
+   }
+  },
+  {
+   "s": 153,
+   "k": "P2 timer1b (1 min) started on A; ends",
+   "v": "2026-09-24T07:18:37.658Z"
+  },
+  {
+   "s": 153,
+   "k": "P2 B pill after pull (before sleep)",
+   "v": "0:57"
+  },
+  {
+   "s": 213,
+   "k": "P2 A at end+4 s: beeps / toasts (A alerted and cleared timer1b)",
+   "v": {
+    "beeps": 2,
+    "toasts": [
+     "Timer done — 1:00 is up.",
+     "Timer done — 1:00 is up."
+    ],
+    "pill": false
+   }
+  },
+  {
+   "s": 218,
+   "k": "P2 A starts timer2 (10 min) at end1b+9 s; ends",
+   "v": "2026-09-24T07:28:44.152Z"
+  },
+  {
+   "s": 218,
+   "k": "P2 server after timer2 started",
+   "v": {
+    "value": {
+     "endAt": 1790234924152,
+     "total": 600,
+     "startedAt": 1790234324152
+    },
+    "updated_at": 1790234324150
+   }
+  },
+  {
+   "s": 279,
+   "k": "P2 A just before B wakes (timer2 running)",
+   "v": "8:57"
+  },
+  {
+   "s": 279,
+   "k": "P2 server just before B wakes",
+   "v": {
+    "value": {
+     "endAt": 1790234924152,
+     "total": 600,
+     "startedAt": 1790234324152
+    },
+    "updated_at": 1790234324150
+   }
+  },
+  {
+   "s": 283,
+   "k": "P2 B after waking: beeps / toasts / pill / writes",
+   "v": {
+    "beeps": 0,
+    "toasts": [],
+    "pillVisible": false,
+    "pillText": "",
+    "localTimer": null,
+    "writes": [
+     {
+      "at": "07:17:29.012",
+      "value": null,
+      "prevEndAt": 1790234178999
+     },
+     {
+      "at": "07:19:47.822",
+      "value": null,
+      "prevEndAt": 1790234317658
+     }
+    ]
+   }
+  },
+  {
+   "s": 283,
+   "k": "P2 server 4 s after B woke",
+   "v": {
+    "value": null,
+    "updated_at": 1790234387818
+   }
+  },
+  {
+   "s": 302,
+   "k": "P2 A: timer2 pill gone at end1b+N s (null = still there after 35 s)",
+   "v": 93
+  },
+  {
+   "s": 302,
+   "k": "P2 A after: pill / local timer.active / new beeps / new toasts",
+   "v": {
+    "pill": false,
+    "localTimer": null,
+    "newBeeps": 0,
+    "newToasts": []
+   }
+  },
+  {
+   "s": 302,
+   "k": "P2 A pill log",
+   "v": [
+    {
+     "at": "07:16:18",
+     "visible": false,
+     "text": ""
+    },
+    {
+     "at": "07:17:39",
+     "visible": true,
+     "text": "0:59"
+    },
+    {
+     "at": "07:18:37",
+     "visible": false,
+     "text": ""
+    },
+    {
+     "at": "07:18:45",
+     "visible": true,
+     "text": "9:59"
+    },
+    {
+     "at": "07:19:44",
+     "visible": true,
+     "text": "8:59"
+    },
+    {
+     "at": "07:20:10",
+     "visible": false,
+     "text": ""
+    }
+   ]
+  },
+  {
+   "s": 302,
+   "k": "P2 timer2 seconds still to run when it vanished",
+   "v": 513
+  },
+  {
+   "s": 310,
+   "k": "P3 timer3 (1 min) started on A; ends / C pill before close",
+   "v": [
+    "2026-09-24T07:21:15.002Z",
+    "0:57"
+   ]
+  },
+  {
+   "s": 375,
+   "k": "P3 A starts timer4 (10 min) at end3+9 s; server",
+   "v": {
+    "value": {
+     "endAt": 1790235081628,
+     "total": 600,
+     "startedAt": 1790234481628
+    },
+    "updated_at": 1790234481626
+   }
+  },
+  {
+   "s": 440,
+   "k": "P3 C reopened at end3+70 s: beeps / toasts / pill / writes",
+   "v": {
+    "beeps": 0,
+    "toasts": [],
+    "pillVisible": false,
+    "pillText": "",
+    "localTimer": null,
+    "writes": [
+     {
+      "at": "07:22:25.211",
+      "value": null,
+      "prevEndAt": 1790234475002
+     }
+    ]
+   }
+  },
+  {
+   "s": 440,
+   "k": "P3 server 4 s after C reopened",
+   "v": {
+    "value": null,
+    "updated_at": 1790234545211
+   }
+  },
+  {
+   "s": 452,
+   "k": "P3 A: timer4 pill gone at end3+N s (null = still there)",
+   "v": 86
+  },
+  {
+   "s": 452,
+   "k": "P3 A after: pill / new beeps / timer4 seconds left",
+   "v": {
+    "pill": false,
+    "newBeeps": 0,
+    "secondsLeft": 521
+   }
+  }
+ ],
+ "evidence": {
+  "p1-B-after-wake": "audits\\evidence\\p2\\STAB\\verify3-timer-cleared-by-sleeping-device-1-p1-B-after-wake.png",
+  "p2-A-before-B-wakes": "audits\\evidence\\p2\\STAB\\verify3-timer-cleared-by-sleeping-device-1-p2-A-before-B-wakes.png",
+  "p2-B-after-wake": "audits\\evidence\\p2\\STAB\\verify3-timer-cleared-by-sleeping-device-1-p2-B-after-wake.png",
+  "p2-A-after-B-wakes": "audits\\evidence\\p2\\STAB\\verify3-timer-cleared-by-sleeping-device-1-p2-A-after-B-wakes.png",
+  "p3-A-after-C-reopens": "audits\\evidence\\p2\\STAB\\verify3-timer-cleared-by-sleeping-device-1-p3-A-after-C-reopens.png"
+ },
+ "logsA": [
+  "pageerror: /localhost:51714/api/data/timer?scope=person&since=1790234120343 due to access control checks.",
+  "pageerror: /localhost:51714/api/data/timer?scope=person&since=1790234259016 due to access control checks.",
+  "pageerror: /localhost:51714/api/data/timer?scope=person&since=1790234325522 due to access control checks.",
+  "pageerror: /localhost:51714/api/data/timer?scope=person&since=1790234416465 due to access control checks.",
+  "pageerror: /localhost:51714/api/data/timer?scope=person&since=1790234482948 due to access control checks."
+ ],
+ "logsB": []
+}

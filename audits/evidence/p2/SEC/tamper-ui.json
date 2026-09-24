@@ -1,0 +1,28 @@
+{
+ "client_believes": {
+  "kind": "adult",
+  "isAdmin": true,
+  "canWrite": true,
+  "htmlKind": "adult"
+ },
+ "apps_shown_to_tampered_kid": [
+  "leftovers",
+  "prayer",
+  "tally",
+  "timer",
+  "dollywood-live",
+  "kidverse",
+  "verses"
+ ],
+ "adult_only_apps_visible": true,
+ "me_admin_panel": {
+  "admin_card_present": true,
+  "admin_data_loaded": false,
+  "shows_error": true
+ },
+ "admin_action_from_tampered_client": {
+  "status": 403,
+  "error": "admin_only"
+ },
+ "conclusion": "The UI trusts localStorage, so the admin panel and adult tiles APPEAR; every privileged call still 403s because the server re-derives kind/is_admin from the DB behind the (still-kid) token. The kid-excluded apps are all person-scoped, so opening one shows only the kid’s own empty data."
+}

@@ -1,0 +1,184 @@
+{
+ "engine": "chromium",
+ "a_loadWithHashChat": {
+  "hash": "#home",
+  "kind": "kiosk",
+  "tabAttr": "home",
+  "formHidden": true,
+  "formRect": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "viewsOn": [
+   "view-home"
+  ],
+  "homeDisplay": "grid",
+  "chatDisplay": "none",
+  "hitAtFormCentre": null,
+  "hitInsideForm": false,
+  "tvBoardRendered": true,
+  "chatTitleVisible": false,
+  "viewsScrollTop": 0,
+  "viewsScrollHeight": 1088,
+  "chatLogHtmlLen": 0
+ },
+ "a_shot": "audits/evidence/p2/CHAT/verify-kiosk-hashchange-1-load-tv-light-chromium.png",
+ "b_afterHashchange": {
+  "hash": "#chat",
+  "kind": "kiosk",
+  "tabAttr": "chat",
+  "formHidden": false,
+  "formRect": [
+   470,
+   982,
+   1200,
+   74
+  ],
+  "viewsOn": [
+   "view-chat"
+  ],
+  "homeDisplay": "grid",
+  "chatDisplay": "block",
+  "hitAtFormCentre": "chat-in",
+  "hitInsideForm": true,
+  "tvBoardRendered": true,
+  "chatTitleVisible": true,
+  "viewsScrollTop": 0,
+  "viewsScrollHeight": 1602,
+  "chatLogHtmlLen": 0
+ },
+ "b_shot": "audits/evidence/p2/CHAT/verify-kiosk-hashchange-1-after-hashchange-tv-light-chromium.png",
+ "c_post": {
+  "status": 403,
+  "body": "{\"error\":\"no_chat\",\"message\":\"The display profile has no chat.\"}"
+ },
+ "c_after": {
+  "hash": "#chat",
+  "kind": "kiosk",
+  "tabAttr": "chat",
+  "formHidden": false,
+  "formRect": [
+   470,
+   982,
+   1200,
+   74
+  ],
+  "viewsOn": [
+   "view-chat"
+  ],
+  "homeDisplay": "grid",
+  "chatDisplay": "block",
+  "hitAtFormCentre": "chat-in",
+  "hitInsideForm": true,
+  "tvBoardRendered": true,
+  "chatTitleVisible": true,
+  "viewsScrollTop": 522,
+  "viewsScrollHeight": 1602,
+  "chatLogHtmlLen": 315
+ },
+ "c_errBubble": {
+  "text": "The display profile has no chat.",
+  "rect": [
+   398,
+   692,
+   334,
+   58
+  ],
+  "hit": "DIV.msg bot glass-strong err",
+  "painted": true
+ },
+ "c_userBubbles": [
+  "hello from the tv"
+ ],
+ "c_shot": "audits/evidence/p2/CHAT/verify-kiosk-hashchange-1-after-send-tv-light-chromium.png",
+ "c_layers": {
+  "viewHome": {
+   "position": "static",
+   "zIndex": "auto",
+   "display": "grid",
+   "pointerEvents": "auto",
+   "rect": [
+    24,
+    -498,
+    1872,
+    1040
+   ]
+  },
+  "tv": {
+   "position": "relative",
+   "zIndex": "1",
+   "display": "grid",
+   "pointerEvents": "auto",
+   "rect": [
+    24,
+    -498,
+    1872,
+    1040
+   ]
+  },
+  "tvBg": {
+   "position": "fixed",
+   "zIndex": "0",
+   "display": "block",
+   "pointerEvents": "none",
+   "rect": [
+    0,
+    0,
+    1920,
+    1080
+   ]
+  },
+  "viewChat": {
+   "position": "static",
+   "zIndex": "auto",
+   "display": "block",
+   "pointerEvents": "auto",
+   "rect": [
+    360,
+    542,
+    1200,
+    514
+   ]
+  },
+  "chatForm": {
+   "position": "fixed",
+   "zIndex": "19",
+   "display": "flex",
+   "pointerEvents": "auto",
+   "rect": [
+    470,
+    982,
+    1200,
+    74
+   ]
+  }
+ },
+ "c_shot_bgHidden": "audits/evidence/p2/CHAT/verify-kiosk-hashchange-1-after-send-bg-hidden-tv-light-chromium.png",
+ "d_serverHistoryAsTv": {
+  "status": 200,
+  "body": {
+   "messages": [],
+   "used": 0,
+   "cap": 60,
+   "enabled": true
+  },
+  "headers": {
+   "access-control-allow-headers": "Content-Type, X-Device-Token, X-Profile-Token",
+   "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS",
+   "access-control-allow-origin": "http://localhost:49992",
+   "access-control-max-age": "86400",
+   "cache-control": "no-store",
+   "connection": "keep-alive",
+   "content-type": "application/json",
+   "date": "Thu, 24 Sep 2026 05:02:52 GMT",
+   "keep-alive": "timeout=5",
+   "transfer-encoding": "chunked",
+   "vary": "Origin"
+  }
+ },
+ "logs": [
+  "error: Failed to load resource: the server responded with a status of 403 (Forbidden)"
+ ]
+}

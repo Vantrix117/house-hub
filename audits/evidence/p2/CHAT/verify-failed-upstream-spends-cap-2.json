@@ -1,0 +1,86 @@
+{
+  "localReject": {
+    "usedBefore": 0,
+    "http": 400,
+    "body": {
+      "error": "bad_message",
+      "message": "Say something first."
+    },
+    "usedAfter": 0
+  },
+  "upstream": [
+    {
+      "kind": "http500",
+      "usedBefore": 0,
+      "usedAfter": 1,
+      "http": 200,
+      "error": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (mock 500)."
+      },
+      "done": null
+    },
+    {
+      "kind": "http529",
+      "usedBefore": 1,
+      "usedAfter": 2,
+      "http": 200,
+      "error": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (Overloaded)."
+      },
+      "done": null
+    },
+    {
+      "kind": "http429",
+      "usedBefore": 2,
+      "usedAfter": 3,
+      "http": 200,
+      "error": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (rate limited)."
+      },
+      "done": null
+    },
+    {
+      "kind": "streamError",
+      "usedBefore": 3,
+      "usedAfter": 4,
+      "http": 200,
+      "error": {
+        "error": "upstream",
+        "message": "Overloaded"
+      },
+      "done": null
+    }
+  ],
+  "afterRecovery": {
+    "usedBefore": 4,
+    "usedAfter": 5,
+    "reply": "Back now.",
+    "doneUsed": 5,
+    "failedTextsSentUpstream": 0,
+    "lastUpstreamMsgs": [
+      "user: are you back?"
+    ],
+    "historyTail": [
+      "user: outage try http500",
+      "user: outage try http529",
+      "user: outage try http429",
+      "user: outage try streamError",
+      "user: are you back?",
+      "assistant: Back now."
+    ]
+  },
+  "failAfterTool": {
+    "usedBefore": 5,
+    "usedAfter": 6,
+    "toolsRan": [
+      "f260_status"
+    ],
+    "error": {
+      "error": "upstream",
+      "message": "The assistant is unavailable right now (mock 500 after tool)."
+    }
+  }
+}

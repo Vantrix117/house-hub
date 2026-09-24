@@ -1,0 +1,152 @@
+[
+ {
+  "step": "0. seed: push rows / paired devices",
+  "v": {
+   "rows": [],
+   "devices": [
+    "Kitchen iPad",
+    "Eli's phone (skeptic 2)",
+    "Mom's phone (skeptic 2)",
+    "Downstairs TV",
+    "Eli's iPhone",
+    "Mae's iPhone",
+    "Study PC"
+   ],
+   "kitchenIpadDeviceId": "rig-kitchen-ipad"
+  }
+ },
+ {
+  "step": "0b. Mom turns notifications on on her own phone (POST /api/push/subscribe from that device)",
+  "v": {
+   "status": 200,
+   "rows": [
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ]
+  }
+ },
+ {
+  "step": "C. control — Mom on the Kitchen iPad, this browser has no PushSubscription",
+  "v": {
+   "signedInAs": "mom",
+   "switchOn": "false",
+   "help": "Fridge warnings and reading nudges, sent to this device.",
+   "testButtonVisible": false,
+   "browserSub": null
+  }
+ },
+ {
+  "step": "A1. Eli taps Notifications on, on the Kitchen iPad",
+  "v": {
+   "toast": "Notifications on for this device.",
+   "signedInAs": "eli",
+   "switchOn": "true",
+   "help": "On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.",
+   "testButtonVisible": true,
+   "browserSub": "kitchen-ipad",
+   "rows": [
+    {
+     "profile_id": "eli",
+     "n": 1
+    },
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ]
+  }
+ },
+ {
+  "step": "A2. Mom signs in on the Kitchen iPad → Me → Notifications",
+  "v": {
+   "signedInAs": "mom",
+   "switchOn": "true",
+   "help": "On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.",
+   "testButtonVisible": true,
+   "browserSub": "kitchen-ipad",
+   "rows": [
+    {
+     "profile_id": "eli",
+     "n": 1
+    },
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ]
+  }
+ },
+ {
+  "step": "A3. Mom taps \"Send a test notification\" on the Kitchen iPad",
+  "v": {
+   "toast": "Sent — it should appear in a moment.",
+   "deliveredTo": [
+    {
+     "to": "mom-phone",
+     "title": "Anderson House",
+     "body": "Notifications are working on this device."
+    }
+   ]
+  }
+ },
+ {
+  "step": "B1. Eli on the iPad: server rows (iPad row → unreachable endpoint, phone row ok)",
+  "v": {
+   "signedInAs": "eli",
+   "switchOn": "true",
+   "help": "On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.",
+   "testButtonVisible": true,
+   "browserSub": "kitchen-ipad",
+   "rows": [
+    {
+     "profile_id": "eli",
+     "n": 2
+    },
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ]
+  }
+ },
+ {
+  "step": "B2. what the route returns for the same call (raw, Kitchen iPad token)",
+  "v": {
+   "sent": 2,
+   "ok": 1,
+   "details": [
+    {
+     "endpoint": "http://127.0.0.1:60972/push/kitchen-ipad…",
+     "status": 0,
+     "ok": false,
+     "error": "fetch failed"
+    },
+    {
+     "endpoint": "http://127.0.0.1:63862/push/eli-phone…",
+     "status": 201,
+     "ok": true,
+     "error": null
+    }
+   ]
+  }
+ },
+ {
+  "step": "B3. Eli taps \"Send a test notification\" on the Kitchen iPad",
+  "v": {
+   "toast": "Sent — it should appear in a moment.",
+   "deliveredTo": [
+    {
+     "to": "eli-phone",
+     "title": "Anderson House",
+     "body": "Notifications are working on this device."
+    }
+   ]
+  }
+ },
+ {
+  "step": "console (errors only)",
+  "v": []
+ }
+]

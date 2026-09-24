@@ -1,0 +1,73 @@
+{
+ "0. seed: adults and has_pin": {
+  "eli": true,
+  "christian": true,
+  "mom": true,
+  "dad": true,
+  "niece": false,
+  "guest-grandmajo": false
+ },
+ "A1. signed in as": {
+  "id": "ezra",
+  "kind": "kid",
+  "htmlKind": "kid"
+ },
+ "A2. Mea card label on picker": "Create your PIN",
+ "A3. pad title / hint": "Create your PIN / Choose 4 to 8 digits. You will type it once more to confirm.",
+ "A4. after first 1111 hint": "Type it again to confirm.",
+ "A5. after the kid typed 1111 twice, shell is": {
+  "id": "niece",
+  "kind": "adult",
+  "htmlKind": "adult",
+  "tabs": [
+   "home",
+   "apps",
+   "chat",
+   "me"
+  ],
+  "apps": [
+   "f260",
+   "leftovers",
+   "prayer",
+   "tally",
+   "timer",
+   "dollywood",
+   "dollywood-live",
+   "kidverse",
+   "verses"
+  ]
+ },
+ "A6. server /api/me with the new session": "200 {\"id\":\"niece\",\"kind\":\"adult\",\"has_pin\":true}",
+ "shotA": "audits/evidence/p2/PROF/verify-pin-claim-kid-as-mea-ipad.png",
+ "B1. Mea creates her own PIN 4321 (API)": "409 pin_already_set: A PIN is already set. Ask the admin to reset it.",
+ "B2. Mea card label on her phone": "PIN",
+ "B3. pad title / hint": "Mea / Enter your PIN",
+ "B4. Mea types 4321 → message": "Wrong PIN.",
+ "shotB": "audits/evidence/p2/PROF/verify-pin-claim-mea-locked-out-iphone.png",
+ "C1. Eli resets David's PIN": "200 {\"ok\":true,\"id\":\"dad\"}",
+ "C2. TV signed in as": {
+  "id": "tv",
+  "kind": "kiosk"
+ },
+ "C3. David card label on the TV picker": "Create your PIN",
+ "C4. TV shell after 9999 twice": {
+  "id": "dad",
+  "kind": "adult",
+  "device": "Downstairs TV (rig)"
+ },
+ "C4b. David's person-scope rows / chat msgs readable from the TV": {
+  "hub": 0,
+  "f260": 10,
+  "prayer": 0,
+  "verses": 2,
+  "leftovers": 0,
+  "kidverse": 0,
+  "chatHistory": 4
+ },
+ "shotC": "audits/evidence/p2/PROF/verify-pin-claim-tv-as-david.png",
+ "C5. David then creates his PIN (Kitchen iPad token)": "409 pin_already_set",
+ "D1. no device token at all": "401 device_not_paired",
+ "D2. device token + Ezra's (kid) profile token": "200 → mom kind=adult",
+ "D3. PIN on a kid profile": "400 no_pin_for_kind",
+ "D4. 8 more create calls on the claimed profile": "409,409,409,409,409,409,409,409"
+}

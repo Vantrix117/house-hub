@@ -1,0 +1,94 @@
+
+== 0 signed in on the iPad
+{
+ "profile": "eli",
+ "queue": 0
+}
+
+== 1 Eli adds a reminder offline
+{
+ "tAction": "2026-09-24T05:22:30.316Z",
+ "navigatorOnLine": false,
+ "queue": [
+  {
+   "app_id": "reminders",
+   "text": "Added a reminder: Verify offline: fix the gate latch",
+   "at": "2026-09-24T05:22:30.385Z"
+  }
+ ]
+}
+
+== 2a 40 s after coming back online
+{
+ "reminderItemOnServer": true,
+ "reminderBy": "eli",
+ "lineOnServer": [],
+ "stillQueued": [
+  "Added a reminder: Verify offline: fix the gate latch"
+ ],
+ "lastPull": "2026-09-24T05:23:00.479Z",
+ "syncState": "synced"
+}
+
+== 2b after visibilitychange (app brought back to front)
+{
+ "lineOnServer": [],
+ "stillQueued": [
+  "Added a reminder: Verify offline: fix the gate latch"
+ ]
+}
+
+== 2c after reloading the page (app relaunched)
+{
+ "profile": "eli",
+ "lineOnServer": [],
+ "stillQueued": [
+  "Added a reminder: Verify offline: fix the gate latch"
+ ]
+}
+
+== 3a after Switch → Grandma Jo (before she does anything)
+{
+ "profile": "guest-grandmajo",
+ "lineOnServer": [],
+ "stillQueued": [
+  "Added a reminder: Verify offline: fix the gate latch"
+ ]
+}
+
+== 4 server feed after Grandma Jo adds her reminder
+{
+ "eliOfflineLine": [
+  {
+   "profile_id": "guest-grandmajo",
+   "name": "Grandma Jo",
+   "created_at": "2026-09-24T05:23:21.631Z"
+  }
+ ],
+ "grandmaLine": [
+  {
+   "profile_id": "guest-grandmajo",
+   "name": "Grandma Jo",
+   "created_at": "2026-09-24T05:23:21.640Z"
+  }
+ ],
+ "queueAfter": [],
+ "reminderItemBy": "eli",
+ "reminderItemByName": "Eli",
+ "eliActedAt": "2026-09-24T05:22:30.316Z",
+ "grandmaActedAt": "2026-09-24T05:23:21.610Z",
+ "stampLagSeconds": 51
+}
+
+== shot
+audits/evidence/p2/PWA/verify-offline-activity-misattributed-1-feed-ipad-portrait-light.png
+
+== feed text on the iPad
+[
+ "Added a reminder: Kiara has her dentist check-up Friday at 3:30 (via chat)just now",
+ "Logged Blueberry pancakes (Small) in the fridge (via chat)just now",
+ "Prayed for Mae's job interview on Thursday (family list)just now",
+ "Prayed for Grandpa's knee to heal (family list)just now",
+ "Added a reminder: Church potluck Sunday: we are bringing the baked zitijust now",
+ "Prayed for Grandma Jo's visit this week (family list)just now"
+]

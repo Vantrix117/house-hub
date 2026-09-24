@@ -1,0 +1,42 @@
+{
+  "before": {
+    "deviceListed": true,
+    "dadSubs": 1
+  },
+  "dialog": "Forget this device? You will need the pairing code to use the hub here again.",
+  "apiRequestsFromForget": [],
+  "hubKeysLeft": [
+    "hub.registry"
+  ],
+  "after": {
+    "deviceListed": true,
+    "dadSubs": 1,
+    "meEzra": "200 ezra",
+    "meDad": "200 dad",
+    "writeWithOldTokens": 200,
+    "pushTest": {
+      "status": 200,
+      "body": {
+        "sent": 1,
+        "ok": 1,
+        "details": [
+          {
+            "endpoint": "http://127.0.0.1:49452/push/forgotten-ph…",
+            "status": 201,
+            "ok": true,
+            "error": null
+          }
+        ]
+      },
+      "receiverHits": [
+        "/push/forgotten-phone 205B"
+      ]
+    }
+  },
+  "control": {
+    "unpair": 200,
+    "deviceListed": false,
+    "dadSubs": 0,
+    "me": "401 device_not_paired"
+  }
+}

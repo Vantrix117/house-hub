@@ -1,0 +1,137 @@
+{
+ "receiverPort": 62735,
+ "scenarios": {
+  "A: test pressed on the Kitchen iPad, Eli registered only on his phone (API)": {
+   "phoneSubscribe": 200,
+   "subsPerProfile": [
+    {
+     "profile_id": "eli",
+     "n": 1
+    }
+   ],
+   "status": 200,
+   "body": {
+    "sent": 1,
+    "ok": 1,
+    "details": [
+     {
+      "endpoint": "http://127.0.0.1:62735/push/eli-phone…",
+      "status": 201,
+      "ok": true,
+      "error": null
+     }
+    ]
+   },
+   "received": [
+    {
+     "to": "eli-phone",
+     "vapid": "valid",
+     "body": "Notifications are working on this device."
+    }
+   ],
+   "toastTheUiWouldShow": "Sent — it should appear in a moment."
+  },
+  "B: shared Kitchen iPad — Mom has notifications on there; Eli presses the real #notif-test button": {
+   "momSubscribe": 200,
+   "subsPerProfile": [
+    {
+     "profile_id": "eli",
+     "n": 1
+    },
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ],
+   "rigBeforeUnhide": {
+    "profile": "eli",
+    "prefsHidden": true,
+    "help": "This browser cannot receive push notifications.",
+    "protocol": "http:"
+   },
+   "response": {
+    "sent": 1,
+    "ok": 1,
+    "details": [
+     {
+      "endpoint": "http://127.0.0.1:62735/push/eli-phone…",
+      "status": 201,
+      "ok": true,
+      "error": null
+     }
+    ]
+   },
+   "received": [
+    {
+     "to": "eli-phone",
+     "vapid": "valid",
+     "body": "Notifications are working on this device."
+    }
+   ],
+   "toastShown": "Sent — it should appear in a moment.",
+   "screenshot": "audits\\evidence\\p2\\PWA\\verify-test-button-counts-all-devices-1-B-ipad-portrait-light.png"
+  },
+  "C: Eli registered on the iPad (endpoint unreachable) + phone; test pressed on the iPad": {
+   "status": 200,
+   "body": {
+    "sent": 2,
+    "ok": 1,
+    "details": [
+     {
+      "endpoint": "http://127.0.0.1:62486/push/eli-ipad-dea…",
+      "status": 0,
+      "ok": false,
+      "error": "fetch failed"
+     },
+     {
+      "endpoint": "http://127.0.0.1:62735/push/eli-phone…",
+      "status": 201,
+      "ok": true,
+      "error": null
+     }
+    ]
+   },
+   "received": [
+    {
+     "to": "eli-phone",
+     "vapid": "valid",
+     "body": "Notifications are working on this device."
+    }
+   ],
+   "toastTheUiWouldShow": "Sent — it should appear in a moment."
+  },
+  "D: Eli registered on iPad + phone, both fine; test pressed on the iPad": {
+   "status": 200,
+   "body": {
+    "sent": 2,
+    "ok": 2,
+    "details": [
+     {
+      "endpoint": "http://127.0.0.1:62735/push/eli-ipad…",
+      "status": 201,
+      "ok": true,
+      "error": null
+     },
+     {
+      "endpoint": "http://127.0.0.1:62735/push/eli-phone…",
+      "status": 201,
+      "ok": true,
+      "error": null
+     }
+    ]
+   },
+   "received": [
+    {
+     "to": "eli-ipad",
+     "vapid": "valid",
+     "body": "Notifications are working on this device."
+    },
+    {
+     "to": "eli-phone",
+     "vapid": "valid",
+     "body": "Notifications are working on this device."
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,84 @@
+
+## A0. Dad iPad (clock +180 s) opened Prayer online: hub learnt the skew from its pull
+  rigNote: {"seededFamilyPrayerRowsStampedAheadOfServer":[{"key":"rotationFor","ahead_s":6259},{"key":"prayer:s002","ahead_s":9559},{"key":"prayer:s001","ahead_s":11839},{"key":"prayerDays","ahead_s":11899},{"key":"prayer:s003","ahead_s":11899}]}
+  skew_s: -180
+  deviceNow: 1790237800919
+  deviceAheadOfReal_s: 179.9
+  rows: {"P1":"s004","P2":"s007","P3":"s008","P4":"s006","P5":"s005","TODAY":"2026-09-24"}
+
+## Server rows before
+  s004: {"title":"Kiara's first weeks at preschool","prayedToday":[],"lastPrayedAt":"2026-09-23","updated_at":1790210700000,"aheadOfServerNow_s":-26921}
+  s007: {"title":"Mea's nursing exams","prayedToday":[],"lastPrayedAt":"2026-09-23","updated_at":1790210700000,"aheadOfServerNow_s":-26921}
+  s008: {"title":"Pastor Tim and Rebecca","prayedToday":[],"lastPrayedAt":"2026-09-11","updated_at":1789173900000,"aheadOfServerNow_s":-1063721}
+  s006: {"title":"Our neighbors, the Nguyens","prayedToday":[],"lastPrayedAt":"2026-09-18","updated_at":1789778700000,"aheadOfServerNow_s":-458921}
+  s005: {"title":"The Carters in Peru","prayedToday":[],"lastPrayedAt":"2026-09-20","updated_at":1789951500000,"aheadOfServerNow_s":-286121}
+
+## A1. Dad reopened Prayer OFFLINE (before any pull in this page session) and, through the UI, marked P1-P3 prayed and edited P5's title
+  skew: 0
+  sync: offline
+  onLine: false
+  deviceNow: 1790237801658
+  deviceAheadOfReal_s: 175.9
+  dadEditTitle: The Carters in Peru (Dad: update from Sunday)
+  queued: [{"key":"prayer:s004","stampAheadOfReal_s":176},{"key":"prayer:s007","stampAheadOfReal_s":176.5},{"key":"prayer:s008","stampAheadOfReal_s":177},{"key":"prayer:s005","stampAheadOfReal_s":179.3}]
+
+## M1. Mae (correct clock) reopened Prayer offline and marked P4 prayed
+  skew: 0
+  queuedP4: {"title":"Our neighbors, the Nguyens","updated_at":1790237628378}
+
+## B0. Mom opened Prayer online (family list); her copy of P1 and P4 before anyone reconnects
+  P1: {"title":"Kiara's first weeks at preschool","prayedToday":[],"t":1790210700000,"queued":null,"sync":"synced","lastError":null,"lastPull":1790237630584,"skew":-13,"deviceNow":1790237631924}
+  P4: {"title":"Our neighbors, the Nguyens","prayedToday":[],"t":1789778700000,"queued":null,"sync":"synced","lastError":null,"lastPull":1790237630584,"skew":-13,"deviceNow":1790237631926}
+  shellLastPull: 1790237630501
+
+## T0. Dad and Mae back online; their queues flushed
+  dadQueueEmpty: true
+  maeQueueEmpty: true
+  sinceMomOpened_s: 0.2
+  server: {"s004":{"title":"Kiara's first weeks at preschool","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237801844,"aheadOfServerNow_s":169.7},"s007":{"title":"Mea's nursing exams","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237802326,"aheadOfServerNow_s":170.2},"s008":{"title":"Pastor Tim and Rebecca","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237802819,"aheadOfServerNow_s":170.7},"s006":{"title":"Our neighbors, the Nguyens","prayedToday":["Mae"],"lastPrayedAt":"2026-09-24","updated_at":1790237628378,"aheadOfServerNow_s":-3.8},"s005":{"title":"The Carters in Peru (Dad: update from Sunday)","prayedToday":[],"lastPrayedAt":"2026-09-20","updated_at":1790237805137,"aheadOfServerNow_s":173}}
+  dadSkewNow_s: -180
+
+## B1. Mom (stale, inside her 30 s poll) edited P1 and P4 through the Edit sheet; after her flush
+  staleProof: {"P1":{"momCachedT":1790210700000,"serverT":1790237801844,"momHasDadsWrite":false},"P4":{"momCachedT":1789778700000,"serverT":1790237628378,"momHasMaesWrite":false},"momFrameLastPullBeforeT0":true,"momShellLastPull":1790237630501}
+  momP1: {"before":"Kiara's first weeks at preschool","title":"Kiara's first weeks at preschool (Mom: her teacher says she is settling in)","sheetShows":"Kiara's first weeks at preschool (Mom: her teacher says she is settling in)","savedAt":1790237633521,"closedAt":1790237634814}
+  momP4: {"before":"Our neighbors, the Nguyens","title":"Our neighbors, the Nguyens (Mom: baby due in March)","sheetShows":"Our neighbors, the Nguyens (Mom: baby due in March)","savedAt":1790237636311,"closedAt":1790237636948}
+  P1: {"server":{"title":"Kiara's first weeks at preschool","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237801844,"aheadOfServerNow_s":164.4},"momCache":{"title":"Kiara's first weeks at preschool","prayedToday":["David"],"t":1790237801844,"queued":null,"sync":"synced","lastError":null,"lastPull":1790237630584,"skew":-13,"deviceNow":1790237637457}}
+  P4: {"server":{"title":"Our neighbors, the Nguyens (Mom: baby due in March)","prayedToday":[],"lastPrayedAt":"2026-09-18","updated_at":1790237636281,"aheadOfServerNow_s":-1.2},"momCache":{"title":"Our neighbors, the Nguyens (Mom: baby due in March)","prayedToday":[],"t":1790237636281,"queued":null,"sync":"synced","lastError":null,"lastPull":1790237630584,"skew":-13,"deviceNow":1790237637472}}
+
+## B2. Mom's screen after Done
+  P1_row: {"title":"Kiara's first weeks at preschool","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null}
+  P1_revertedOnScreen_ms_after_Done: 3089
+  P4_row: {"title":"Our neighbors, the Nguyens (Mom: baby due in March)","markedPrayed":"false","whoPrayed":null,"toast":null}
+  momFrameSync: {"state":"synced","lastError":null,"pending":0}
+  momShellSync: {"state":"synced","lastError":null}
+
+## B3. After Mom's next pull (Dad's stamps still ahead): Mom edits P5, and retries P1
+  momPulledAt_rel_s: 28.5
+  P5_serverBefore: {"title":"The Carters in Peru (Dad: update from Sunday)","prayedToday":[],"lastPrayedAt":"2026-09-20","updated_at":1790237805137,"aheadOfServerNow_s":144.6}
+  momP5: {"before":"The Carters in Peru (Dad: update from Sunday)","title":"The Carters in Peru (Dad: update from Sunday) (Mom: and from Tuesday)","sheetShows":"The Carters in Peru (Dad: update from Sunday) (Mom: and from Tuesday)","savedAt":1790237663577,"closedAt":1790237664450}
+  P5_server: {"title":"The Carters in Peru (Dad: update from Sunday) (Mom: and from Tuesday)","prayedToday":[],"lastPrayedAt":"2026-09-20","updated_at":1790237805138,"aheadOfServerNow_s":137.6}
+  momRetry: {"before":"Kiara's first weeks at preschool","title":"Kiara's first weeks at preschool (Mom again: teacher says she is settling in)","sheetShows":"Kiara's first weeks at preschool (Mom again: teacher says she is settling in)","savedAt":1790237666262,"closedAt":1790237667132}
+  P1_server: {"title":"Kiara's first weeks at preschool (Mom again: teacher says she is settling in)","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237801845,"aheadOfServerNow_s":134.3}
+
+## C1. Eli (offline, stale) edited P2 at ~T0+45 s
+  eliP2: {"before":"Mea's nursing exams","title":"Mea's nursing exams (Eli: exam results come out Monday)","sheetShows":"Mea's nursing exams (Eli: exam results come out Monday)","savedAt":1790237678440,"closedAt":1790237678922}
+  P2_server_now: {"title":"Mea's nursing exams","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237802326,"aheadOfServerNow_s":123.4}
+  P3_server_now: {"title":"Pastor Tim and Rebecca","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237802819,"aheadOfServerNow_s":123.9}
+  eliQueued: {"title":"Mea's nursing exams (Eli: exam results come out Monday)","updated_at":1790237678411}
+
+## C2. Eli edited P3 after Dad's P3 stamp had passed, then reconnected
+  eliP3: {"before":"Pastor Tim and Rebecca","title":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","sheetShows":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","savedAt":1790237812352,"closedAt":1790237812835}
+  P2_server: {"title":"Mea's nursing exams","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237802326,"aheadOfServerNow_s":-11.3}
+  P3_server: {"title":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","prayedToday":[],"lastPrayedAt":"2026-09-11","updated_at":1790237812332,"aheadOfServerNow_s":-1.3}
+  eliP2cache: {"title":"Mea's nursing exams","prayedToday":["David"],"t":1790237802326,"queued":null,"sync":"synced","lastError":null,"lastPull":1790237812876,"skew":-12,"deviceNow":1790237813611}
+  eliP3cache: {"title":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","prayedToday":[],"t":1790237812332,"queued":null,"sync":"synced","lastError":null,"lastPull":1790237812876,"skew":-12,"deviceNow":1790237813613}
+  eliSync: {"state":"synced","lastError":null}
+
+## Final (every device pulled again)
+  server: {"s004":{"title":"Kiara's first weeks at preschool (Mom again: teacher says she is settling in)","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237801845,"aheadOfServerNow_s":-43.3},"s007":{"title":"Mea's nursing exams","prayedToday":["David"],"lastPrayedAt":"2026-09-24","updated_at":1790237802326,"aheadOfServerNow_s":-42.8},"s008":{"title":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","prayedToday":[],"lastPrayedAt":"2026-09-11","updated_at":1790237812332,"aheadOfServerNow_s":-32.8},"s006":{"title":"Our neighbors, the Nguyens (Mom: baby due in March)","prayedToday":[],"lastPrayedAt":"2026-09-18","updated_at":1790237636281,"aheadOfServerNow_s":-208.9},"s005":{"title":"The Carters in Peru (Dad: update from Sunday) (Mom: and from Tuesday)","prayedToday":[],"lastPrayedAt":"2026-09-20","updated_at":1790237805138,"aheadOfServerNow_s":-40.1}}
+  ui: {"dad":{"s004":{"title":"Kiara's first weeks at preschool (Mom again: teacher says she is settling in)","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null},"s007":{"title":"Mea's nursing exams","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null},"s008":{"title":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","markedPrayed":"false","whoPrayed":null,"toast":null},"s006":{"title":"Our neighbors, the Nguyens (Mom: baby due in March)","markedPrayed":"false","whoPrayed":null,"toast":null},"s005":{"title":"The Carters in Peru (Dad: update from Sunday) (Mom: and from Tuesday)","markedPrayed":"false","whoPrayed":null,"toast":null}},"mae":{"s004":{"title":"Kiara's first weeks at preschool (Mom again: teacher says she is settling in)","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null},"s007":{"title":"Mea's nursing exams","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null},"s008":{"title":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","markedPrayed":"false","whoPrayed":null,"toast":null},"s006":{"title":"Our neighbors, the Nguyens (Mom: baby due in March)","markedPrayed":"false","whoPrayed":null,"toast":null},"s005":{"title":"The Carters in Peru (Dad: update from Sunday) (Mom: and from Tuesday)","markedPrayed":"false","whoPrayed":null,"toast":null}},"mom":{"s004":{"title":"Kiara's first weeks at preschool (Mom again: teacher says she is settling in)","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null},"s007":{"title":"Mea's nursing exams","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null},"s008":{"title":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","markedPrayed":"false","whoPrayed":null,"toast":null},"s006":{"title":"Our neighbors, the Nguyens (Mom: baby due in March)","markedPrayed":"false","whoPrayed":null,"toast":null},"s005":{"title":"The Carters in Peru (Dad: update from Sunday) (Mom: and from Tuesday)","markedPrayed":"false","whoPrayed":null,"toast":null}},"eli":{"s004":{"title":"Kiara's first weeks at preschool (Mom again: teacher says she is settling in)","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null},"s007":{"title":"Mea's nursing exams","markedPrayed":"true","whoPrayed":"Prayed today: David","toast":null},"s008":{"title":"Pastor Tim and Rebecca (Eli: they start the new church plant soon)","markedPrayed":"false","whoPrayed":null,"toast":null},"s006":{"title":"Our neighbors, the Nguyens (Mom: baby due in March)","markedPrayed":"false","whoPrayed":null,"toast":null},"s005":{"title":"The Carters in Peru (Dad: update from Sunday) (Mom: and from Tuesday)","markedPrayed":"false","whoPrayed":null,"toast":null}}}
+  lostTextOnServer: {"(Mom: her teacher says she is settling in)":[],"(Eli: exam results come out Monday)":[]}
+  lostTextInLocalStorage: {"dad":{"(Mom: her teacher says she is settling in)":[],"(Eli: exam results come out Monday)":[]},"mae":{"(Mom: her teacher says she is settling in)":[],"(Eli: exam results come out Monday)":[]},"mom":{"(Mom: her teacher says she is settling in)":[],"(Eli: exam results come out Monday)":[]},"eli":{"(Mom: her teacher says she is settling in)":[],"(Eli: exam results come out Monday)":[]}}
+  feedPrayerLines: ["Prayed for Mae's job interview on Thursday (family list)","Prayed for Grandpa's knee to heal (family list)","Prayed for Grandma Jo's visit this week (family list)","Prayed for Grandpa's knee to heal (family list)","Prayed for David's knee, and patience with the therapy","Prayed for Our small group","Prayed for Mae's job interview on Thursday","Prayed for Ezra and Kiara settling into school"]
+
+wrote audits/evidence/p2/PROF/verify4-p2-prof-14-1.json

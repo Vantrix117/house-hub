@@ -1,0 +1,86 @@
+{
+  "runAt": "2026-09-24T04:57:51.283Z",
+  "ezra profile kind": "kid",
+  "control: kid set_data f260 (adult-only app)": {
+    "http": 200,
+    "ok": false,
+    "chip": null,
+    "toolResult": "Kids cannot change that app."
+  },
+  "control: kid finish_leftover": {
+    "http": 200,
+    "ok": false,
+    "chip": null,
+    "toolResult": "That is a grown-up tool; kids cannot use it. Tell the child a parent can do that."
+  },
+  "kid get_data dollywood-live family (keys seen)": {
+    "ok": true,
+    "excerpt": "[{\"key\":\"kid:ezra\",\"value\":{\"height_in\":43,\"at\":1788214800000,\"by\":\"mom\"}},{\"key\":\"kid:kiara\",\"value\":{\"height_in\":40,\"at\":1788214920000,\"by\":\"mom\"}},{\"key\":\"me"
+  },
+  "before: meet / loc:eli / kidshare:kiara / kid:kiara": {
+    "meet": "The Wildwood Tree",
+    "locEli": {
+      "x": 762,
+      "y": 842
+    },
+    "kidKiara": {
+      "height_in": 40,
+      "at": 1788214920000,
+      "by": "mom"
+    }
+  },
+  "chat set_data meet (as ezra)": {
+    "http": 200,
+    "ok": true,
+    "chip": "✓ Saved meet in dollywood-live",
+    "toolResult": "saved"
+  },
+  "chat set_data kidshare:kiara=true (as ezra)": {
+    "http": 200,
+    "ok": true,
+    "chip": "✓ Saved kidshare:kiara in dollywood-live",
+    "toolResult": "saved"
+  },
+  "chat set_data loc:eli (as ezra)": {
+    "http": 200,
+    "ok": true,
+    "chip": "✓ Saved loc:eli in dollywood-live",
+    "toolResult": "saved"
+  },
+  "chat set_data kid:kiara height 70 (as ezra)": {
+    "http": 200,
+    "ok": true,
+    "chip": "✓ Saved kid:kiara in dollywood-live",
+    "toolResult": "saved"
+  },
+  "after (read as eli)": {
+    "meet": {
+      "name": "Candy shop",
+      "byName": "David"
+    },
+    "locEli": {
+      "x": 7,
+      "y": 7
+    },
+    "kidshareKiara": true,
+    "kidKiara": 70
+  },
+  "activity feed: ezra via-chat lines": [
+    "Ezra: Changed kid:kiara in dollywood-live (via chat)",
+    "Ezra: Changed loc:eli in dollywood-live (via chat)",
+    "Ezra: Changed kidshare:kiara in dollywood-live (via chat)",
+    "Ezra: Changed meet in dollywood-live (via chat)"
+  ],
+  "POST /api/dollywood/rally as ezra": {
+    "status": 403,
+    "error": "adults_only"
+  },
+  "raw PUT /api/data/dollywood-live/meet as ezra": {
+    "status": 200,
+    "applied": true
+  },
+  "raw PUT kidshare:ezra (own beacon) as ezra": {
+    "status": 200,
+    "applied": false
+  }
+}

@@ -1,0 +1,138 @@
+{
+ "script": "audits/tools/phase2/SEC/ui-route-multi-pair.mjs",
+ "engine": "webkit",
+ "device": "iphone-safari",
+ "windows": [
+  {
+   "window": 1,
+   "hub_keys_before_pairing": [
+    "hub.registry"
+   ],
+   "paired_via_ui_device_id": "5tcYOdvKFKu9",
+   "tries": [
+    {
+     "pin": "0000",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "1111",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "2222",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "3333",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "5555",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "6666",
+     "http": 429,
+     "message": "Too many attempts. Try again in 15 min."
+    }
+   ],
+   "screenshot_locked": "audits/evidence/p2/SEC/ui-route-multi-pair-window1-locked.png"
+  },
+  {
+   "window": 2,
+   "hub_keys_before_pairing": [
+    "hub.registry"
+   ],
+   "paired_via_ui_device_id": "5Smh7YfIbzH5",
+   "tries": [
+    {
+     "pin": "7777",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "8888",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "9999",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "1212",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "3434",
+     "http": 401,
+     "message": "Wrong PIN."
+    }
+   ]
+  },
+  {
+   "window": 3,
+   "hub_keys_before_pairing": [
+    "hub.registry"
+   ],
+   "paired_via_ui_device_id": "0JnmjrMPT8qi",
+   "tries": [
+    {
+     "pin": "5656",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "7878",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "9090",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "1357",
+     "http": 401,
+     "message": "Wrong PIN."
+    },
+    {
+     "pin": "correct",
+     "http": 200,
+     "message": "(signed in)"
+    }
+   ],
+   "signed_in_as": {
+    "id": "eli",
+    "isAdmin": true
+   },
+   "admin_route_from_page": {
+    "ok": true,
+    "devices": 8
+   },
+   "admin_card_text": "Profiles Eli · adminAdult · PIN set EditReset PIN MaeAdult · PIN set EditReset PIN🦖 EzraKid Edit🦄 KiaraKid Edit🌷 ElizabethAdult · PIN set EditReset PIN🎣 DavidAdult · PIN set EditReset PIN🌻 MeaAdu",
+   "screenshot_admin": "audits/evidence/p2/SEC/ui-route-multi-pair-window3-admin.png"
+  }
+ ],
+ "setup": {
+  "reset_status": 200,
+  "create_pin_status": 200,
+  "devices_before": 5
+ },
+ "summary": {
+  "windows": 3,
+  "guesses_submitted": 16,
+  "reached_verification_401": 14,
+  "blocked_429": 1,
+  "signed_in_200": 1,
+  "devices_after": 8
+ }
+}

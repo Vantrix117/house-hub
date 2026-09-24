@@ -1,0 +1,67 @@
+{
+ "A offline queue, revoke, online + immediate activity()": {
+  "queuedBefore": [
+   "VerA line 1",
+   "VerA line 2"
+  ],
+  "logoutStatus": 200,
+  "activity3": "ok",
+  "queueAfter": [
+   "VerA line 2",
+   "VerA line 3"
+  ],
+  "onServer": [],
+  "canWrite": false,
+  "gateShown": true
+ },
+ "B offline queue, revoke, online, wait 3 s (no write)": {
+  "queuedBefore": [
+   "VerB line 1",
+   "VerB line 2"
+  ],
+  "queueAfterReconnect": [
+   "VerB line 1",
+   "VerB line 2"
+  ],
+  "onServer": [],
+  "canWrite": false,
+  "gateShown": true,
+  "lastError": "profile_session_invalid",
+  "afterMomWrites": {
+   "queue": [],
+   "onServer": [
+    {
+     "who": "mom",
+     "text": "VerB Mom line"
+    },
+    {
+     "who": "mom",
+     "text": "VerB line 2"
+    },
+    {
+     "who": "mom",
+     "text": "VerB line 1"
+    }
+   ]
+  }
+ },
+ "C online, admin resets Mom PIN, Mom adds a reminder": {
+  "beforeSignIn": {
+   "resetStatus": 200,
+   "activityQueue": [],
+   "reminderInLocalQueue": [
+    "VerC buy stamps"
+   ],
+   "feedOnServer": [],
+   "reminderOnServer": false,
+   "gateShown": true,
+   "lastError": "profile_session_invalid"
+  },
+  "newPin": "mom",
+  "afterSignIn": {
+   "activityQueue": [],
+   "feedOnServer": [],
+   "reminderOnServer": true
+  }
+ }
+}

@@ -1,0 +1,681 @@
+{
+ "engine": "webkit",
+ "clock": "real",
+ "steps": [
+  {
+   "t": "6.7",
+   "k": "P1 C starts 1 min in the Timer app → server",
+   "v": {
+    "endAtInS": 59,
+    "updated_at": 1790234167124
+   }
+  },
+  {
+   "t": "8.0",
+   "k": "P1 A pill / B pill after a pull",
+   "v": {
+    "A": "0:58",
+    "B": "0:58"
+   }
+  },
+  {
+   "t": "8.0",
+   "k": "P1 B sleeps",
+   "v": {
+    "bClockAtSleep": 1790234169387,
+    "realAtSleep": 1790234169417,
+    "skewS": 0
+   }
+  },
+  {
+   "t": "69.8",
+   "k": "P1 at end+4 s: A (Home) alerts",
+   "v": {
+    "beeps": [
+     {
+      "at": 1790234227403,
+      "where": "shell"
+     }
+    ],
+    "toasts": [
+     "Timer done — 1:00 is up."
+    ],
+    "notes": [
+     "1:00 is up."
+    ]
+   }
+  },
+  {
+   "t": "69.8",
+   "k": "P1 at end+4 s: C (Timer app) alerts",
+   "v": {
+    "beeps": [
+     {
+      "at": 1790234226704,
+      "where": "timer.html"
+     }
+    ],
+    "toasts": [],
+    "notes": []
+   }
+  },
+  {
+   "t": "69.8",
+   "k": "P1 at end+4 s: server timer.active",
+   "v": {
+    "now": 1790234231157,
+    "value": null,
+    "updated_at": 1790234227390
+   }
+  },
+  {
+   "t": "133.8",
+   "k": "P1 B wakes 66 s after the end",
+   "v": {
+    "sleptForS": 123,
+    "bClockNowMinusReal": -18
+   }
+  },
+  {
+   "t": "133.8",
+   "k": "P1 B alerts on wake (beep / toast / notification)",
+   "v": {
+    "beeps": [],
+    "toasts": [],
+    "notes": []
+   }
+  },
+  {
+   "t": "133.8",
+   "k": "P1 B pill after wake",
+   "v": null
+  },
+  {
+   "t": "133.8",
+   "k": "P1 B timer writes on wake",
+   "v": [
+    {
+     "at": 1790234293332,
+     "items": [
+      {
+       "key": "timer.active",
+       "value": null,
+       "updated_at": 1790234293162
+      }
+     ]
+    },
+    {
+     "at": 1790234293336,
+     "response": [
+      {
+       "key": "timer.active",
+       "value": null,
+       "updated_at": 1790234293162,
+       "applied": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "t": "133.8",
+   "k": "P1 server timer.active after B woke",
+   "v": {
+    "now": 1790234295163,
+    "value": null,
+    "updated_at": 1790234293162
+   }
+  },
+  {
+   "t": "133.8",
+   "k": "P1 A pill after B woke (already gone at end)",
+   "v": null
+  },
+  {
+   "t": "135.9",
+   "k": "P2 C starts 1 min (T2) → server",
+   "v": {
+    "endAtInS": 59,
+    "updated_at": 1790234296364
+   }
+  },
+  {
+   "t": "137.3",
+   "k": "P2 A pill / B pill after a pull (B now holds T2 in its cache)",
+   "v": {
+    "A": "0:58",
+    "B": "0:58"
+   }
+  },
+  {
+   "t": "137.3",
+   "k": "P2 B sleeps",
+   "v": {
+    "bClockAtSleep": 1790234298642,
+    "realAtSleep": 1790234298664,
+    "skewS": 0
+   }
+  },
+  {
+   "t": "199.0",
+   "k": "P2 T2 end+4 s: A alerts",
+   "v": {
+    "beeps": [
+     {
+      "at": 1790234355991,
+      "where": "shell"
+     }
+    ],
+    "toasts": [
+     "Timer done — 1:00 is up."
+    ],
+    "notes": [
+     "1:00 is up."
+    ]
+   }
+  },
+  {
+   "t": "199.0",
+   "k": "P2 T2 end+4 s: C alerts",
+   "v": {
+    "beeps": [
+     {
+      "at": 1790234355961,
+      "where": "timer.html"
+     }
+    ],
+    "toasts": [],
+    "notes": []
+   }
+  },
+  {
+   "t": "202.0",
+   "k": "P2 T2 end+5 s: Mom starts a 3-min timer (T3) on C → server",
+   "v": {
+    "value": {
+     "endAt": 1790234542481,
+     "total": 180,
+     "startedAt": 1790234362481
+    },
+    "updated_at": 1790234362469,
+    "endAtInS": 179
+   }
+  },
+  {
+   "t": "202.7",
+   "k": "P2 A pill (T3) / C app",
+   "v": {
+    "A": "2:59",
+    "C": {
+     "t": "2:58",
+     "go": "Pause",
+     "done": false
+    }
+   }
+  },
+  {
+   "t": "261.0",
+   "k": "P2 server just before B wakes",
+   "v": {
+    "now": 1790234422383,
+    "value": {
+     "endAt": 1790234542481,
+     "total": 180,
+     "startedAt": 1790234362481
+    },
+    "updated_at": 1790234362469
+   }
+  },
+  {
+   "t": "263.0",
+   "k": "P2 B wakes 66 s after T2 ended (T3 still has ~2 min)",
+   "v": {
+    "sleptForS": 123,
+    "bClockNowMinusReal": -16
+   }
+  },
+  {
+   "t": "263.0",
+   "k": "P2 B alerts on wake",
+   "v": {
+    "beeps": [],
+    "toasts": [],
+    "notes": []
+   }
+  },
+  {
+   "t": "263.0",
+   "k": "P2 B timer writes on wake (request + server results)",
+   "v": [
+    {
+     "at": 1790234422576,
+     "items": [
+      {
+       "key": "timer.active",
+       "value": null,
+       "updated_at": 1790234422392
+      }
+     ]
+    },
+    {
+     "at": 1790234422580,
+     "response": [
+      {
+       "key": "timer.active",
+       "value": null,
+       "updated_at": 1790234422392,
+       "applied": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "t": "263.0",
+   "k": "P2 server after B woke",
+   "v": {
+    "now": 1790234424412,
+    "value": null,
+    "updated_at": 1790234422392,
+    "T3updated_at": 1790234362469,
+    "T3msLeft": 118069
+   }
+  },
+  {
+   "t": "263.0",
+   "k": "P2 immediately after: A pill / C app",
+   "v": {
+    "A": "1:58",
+    "C": {
+     "t": "1:58",
+     "go": "Pause",
+     "done": false
+    }
+   }
+  },
+  {
+   "t": "297.5",
+   "k": "P2 within one poll: first moment A/C changed",
+   "v": {
+    "afterS": 9,
+    "A": null,
+    "C": {
+     "t": "3:00",
+     "go": "Start",
+     "done": false
+    }
+   }
+  },
+  {
+   "t": "297.5",
+   "k": "P2 A pill / C app after one poll",
+   "v": {
+    "A": null,
+    "C": {
+     "t": "3:00",
+     "go": "Start",
+     "done": false
+    },
+    "serverT3LeftS": 84
+   }
+  },
+  {
+   "t": "387.1",
+   "k": "P2 T3 end+6 s: A alerts in [T3 end−3 s, +6 s]",
+   "v": {
+    "beeps": [],
+    "toasts": [],
+    "notes": []
+   }
+  },
+  {
+   "t": "387.1",
+   "k": "P2 T3 end+6 s: B alerts",
+   "v": {
+    "beeps": [],
+    "toasts": [],
+    "notes": []
+   }
+  },
+  {
+   "t": "387.1",
+   "k": "P2 T3 end+6 s: C alerts",
+   "v": {
+    "beeps": [],
+    "toasts": [],
+    "notes": []
+   }
+  },
+  {
+   "t": "387.1",
+   "k": "P2 T3 end+6 s: server / A pill / C app",
+   "v": {
+    "server": {
+     "now": 1790234548498,
+     "value": null,
+     "updated_at": 1790234422392
+    },
+    "A": null,
+    "C": {
+     "t": "3:00",
+     "go": "Start",
+     "done": false
+    }
+   }
+  }
+ ],
+ "allWrites": {
+  "A": [
+   {
+    "at": 1790234227668,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234227390
+     }
+    ]
+   },
+   {
+    "at": 1790234227673,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234227390,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234356251,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234355979
+     }
+    ]
+   },
+   {
+    "at": 1790234356262,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234355979,
+      "applied": true
+     }
+    ]
+   }
+  ],
+  "B": [
+   {
+    "at": 1790234293332,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234293162
+     }
+    ]
+   },
+   {
+    "at": 1790234293336,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234293162,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234422576,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234422392
+     }
+    ]
+   },
+   {
+    "at": 1790234422580,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234422392,
+      "applied": true
+     }
+    ]
+   }
+  ],
+  "C": [
+   {
+    "at": 1790234166572,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234166295
+     },
+     {
+      "key": "lastPreset",
+      "value": 60,
+      "updated_at": 1790234166296
+     }
+    ]
+   },
+   {
+    "at": 1790234166579,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234166295,
+      "applied": true
+     },
+     {
+      "key": "lastPreset",
+      "value": 60,
+      "updated_at": 1790234166296,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234167394,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": {
+       "endAt": 1790234227141,
+       "total": 60,
+       "startedAt": 1790234167141
+      },
+      "updated_at": 1790234167124
+     }
+    ]
+   },
+   {
+    "at": 1790234167398,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": {
+       "endAt": 1790234227141,
+       "total": 60,
+       "startedAt": 1790234167141
+      },
+      "updated_at": 1790234167124,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234226954,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234226674
+     }
+    ]
+   },
+   {
+    "at": 1790234226958,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234226674,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234295827,
+    "items": [
+     {
+      "key": "lastPreset",
+      "value": 60,
+      "updated_at": 1790234295560
+     }
+    ]
+   },
+   {
+    "at": 1790234295841,
+    "response": [
+     {
+      "key": "lastPreset",
+      "value": 60,
+      "updated_at": 1790234295560,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234296630,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": {
+       "endAt": 1790234356367,
+       "total": 60,
+       "startedAt": 1790234296367
+      },
+      "updated_at": 1790234296364
+     }
+    ]
+   },
+   {
+    "at": 1790234296634,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": {
+       "endAt": 1790234356367,
+       "total": 60,
+       "startedAt": 1790234296367
+      },
+      "updated_at": 1790234296364,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234356205,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234355930
+     }
+    ]
+   },
+   {
+    "at": 1790234356210,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": null,
+      "updated_at": 1790234355930,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234361998,
+    "items": [
+     {
+      "key": "lastPreset",
+      "value": 180,
+      "updated_at": 1790234361734
+     }
+    ]
+   },
+   {
+    "at": 1790234362001,
+    "response": [
+     {
+      "key": "lastPreset",
+      "value": 180,
+      "updated_at": 1790234361734,
+      "applied": true
+     }
+    ]
+   },
+   {
+    "at": 1790234362732,
+    "items": [
+     {
+      "key": "timer.active",
+      "value": {
+       "endAt": 1790234542481,
+       "total": 180,
+       "startedAt": 1790234362481
+      },
+      "updated_at": 1790234362469
+     }
+    ]
+   },
+   {
+    "at": 1790234362736,
+    "response": [
+     {
+      "key": "timer.active",
+      "value": {
+       "endAt": 1790234542481,
+       "total": 180,
+       "startedAt": 1790234362481
+      },
+      "updated_at": 1790234362469,
+      "applied": true
+     }
+    ]
+   }
+  ]
+ },
+ "logs": {
+  "A": [],
+  "B": [],
+  "C": []
+ },
+ "track": {
+  "A": {
+   "failed": 0,
+   "failedUrls": {}
+  },
+  "B": {
+   "failed": 0,
+   "failedUrls": {}
+  },
+  "C": {
+   "failed": 0,
+   "failedUrls": {}
+  }
+ }
+}

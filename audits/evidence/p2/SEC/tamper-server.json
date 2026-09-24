@@ -1,0 +1,99 @@
+{
+ "forged": {
+  "made_up_profile_token": {
+   "status": 401,
+   "error": "profile_session_invalid"
+  },
+  "made_up_device_token": {
+   "status": 401,
+   "error": "device_not_paired"
+  },
+  "no_device_token": {
+   "status": 401,
+   "error": "device_not_paired"
+  }
+ },
+ "kid_as_admin": {
+  "usage": {
+   "status": 403,
+   "error": "admin_only"
+  },
+  "rotate_pairing": {
+   "status": 403,
+   "error": "admin_only"
+  },
+  "reset_someone_pin": {
+   "status": 403,
+   "error": "admin_only"
+  },
+  "unpair_device": {
+   "status": 403,
+   "error": "admin_only"
+  },
+  "add_guest": {
+   "status": 403,
+   "error": "adults_only"
+  },
+  "rally": {
+   "status": 403,
+   "error": "adults_only"
+  }
+ },
+ "kiosk_writes": {
+  "put_family_data": {
+   "status": 403,
+   "error": "read_only"
+  },
+  "post_activity": {
+   "status": 403,
+   "error": "read_only"
+  },
+  "chat": {
+   "status": 403,
+   "error": "no_chat"
+  }
+ },
+ "kid_visibleTo": {
+  "read_family_prayer": {
+   "status": 200,
+   "items": 17
+  },
+  "write_family_reminders": {
+   "status": 200,
+   "applied": true
+  },
+  "write_own_f260": {
+   "status": 200,
+   "applied": true
+  },
+  "write_other_person_scope": {
+   "ezra_wrote": 200,
+   "eli_sees_ezras_value": false,
+   "note": "person scope is keyed to the signed-in id; Ezra cannot write into Eli’s scope"
+  }
+ },
+ "sessions": {
+  "token_on_wrong_device": {
+   "status": 401,
+   "error": "profile_session_invalid",
+   "note": "a stolen profile token is useless without the exact device it was created on"
+  },
+  "token_on_right_device": {
+   "status": 200,
+   "who": "Eli"
+  },
+  "niece_login_no_pin": {
+   "status": 403,
+   "error": "needs_pin_setup"
+  },
+  "lifetime_days": 301,
+  "logout_is_per_token": {
+   "logged_out_token_now": 401,
+   "other_device_session_still_valid": 200,
+   "note": "Switch / logout deletes only the presented token; a token stolen earlier from another device is not revoked"
+  },
+  "reset_pin_revokes_all": {
+   "note": "reset-pin deletes every session row for the profile (index.js:449)"
+  }
+ }
+}

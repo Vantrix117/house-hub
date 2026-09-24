@@ -1,0 +1,144 @@
+{
+ "run_at": "2026-09-24T07:54:55.906Z",
+ "engine": "webkit",
+ "device": "ipad-portrait",
+ "profile": "niece (Mea, adult)",
+ "setup_create_pin": 200,
+ "S0_control_online_switch": {
+  "token_before": "200 niece",
+  "logout_requests": [
+   "POST /api/logout"
+  ],
+  "logout_responses": [
+   200
+  ],
+  "picker_shown": true,
+  "token_after": "401 profile_session_invalid"
+ },
+ "S1_signed_in": {
+  "session_device_matches_rig_device": true,
+  "token_before_switch": "200 niece"
+ },
+ "S2_offline_switch": {
+  "navigator_onLine": false,
+  "ms_click_to_picker": 468,
+  "logout_requests_attempted": [
+   "POST /api/logout"
+  ],
+  "logout_request_failures": [
+   "Blocked by Web Inspector"
+  ],
+  "logout_responses_received": [],
+  "picker_shown": true,
+  "local_hub_session": null,
+  "token_copies_left_on_device": [],
+  "device_token_left_on_device": true,
+  "screenshot": "audits/evidence/p2/SEC/verify4-p2-sec-03-2-offline-switch.png"
+ },
+ "S3_reconnect": {
+  "after_online_event": {
+   "requests": [
+    "GET /api/data/hub",
+    "GET /api/data/reminders",
+    "GET /api/data/leftovers",
+    "GET /api/data/dollywood-live",
+    "GET /api/data/kidverse"
+   ],
+   "token": "200 niece"
+  },
+  "after_35s_on_picker": {
+   "requests": [
+    "GET /api/data/hub",
+    "GET /api/data/reminders",
+    "GET /api/data/leftovers",
+    "GET /api/data/dollywood-live",
+    "GET /api/data/kidverse"
+   ],
+   "logout_requests": [],
+   "token": "200 niece"
+  },
+  "after_reload": {
+   "requests": [
+    "GET /api/profiles",
+    "GET /api/media/photos/eli/rigphotoeli-256.jpg",
+    "GET /api/media/photos/christian/rigphotochristian-256.jpg"
+   ],
+   "logout_requests": [],
+   "token": "200 niece"
+  },
+  "logout_requests_total_after_reconnect": []
+ },
+ "S3b_leftover_token_power": {
+  "read_person_f260": "200",
+  "write_person_row": "200",
+  "other_device_same_token": "401 profile_session_invalid"
+ },
+ "S4_later_revocation": {
+  "next_person_ezra_signs_in": {
+   "logout_requests": [],
+   "token": "200 niece"
+  },
+  "ezra_switches_online": {
+   "token": "200 niece"
+  },
+  "mea_signs_in_again": {
+   "new_token_differs": true,
+   "old_token": "200 niece"
+  },
+  "mea_switches_online": {
+   "new_token": "401 profile_session_invalid",
+   "old_token": "200 niece"
+  },
+  "every_admin_cron_job": {
+   "status": {
+    "morning": 200,
+    "evening": 200,
+    "behind": 200,
+    "prayer": 200,
+    "park": 200
+   },
+   "old_token": "200 niece"
+  },
+  "pairing_code_rotated": {
+   "status": 200,
+   "old_token": "200 niece"
+  },
+  "worker_clock_moved": {
+   "day_30": "200 niece",
+   "day_180": "200 niece",
+   "day_364.9": "200 niece",
+   "day_365.1": "401 profile_session_invalid",
+   "back_to_day_0": "200 niece"
+  }
+ },
+ "S5a_hanging_connection_switch": {
+  "ms_click_to_picker": 12964,
+  "local_hub_session": null,
+  "token_after": "200 niece"
+ },
+ "S5b_forget_device_online": {
+  "requests": [
+   "GET /api/data/f260",
+   "GET /api/data/leftovers",
+   "GET /api/data/prayer",
+   "GET /api/data/hub",
+   "GET /api/data/timer",
+   "GET /api/data/dollywood-live",
+   "GET /api/data/kidverse"
+  ],
+  "local_device_after": null,
+  "session_token_after": "200 niece",
+  "device_token_family_read_after": "200"
+ },
+ "S4b_known_revocations": {
+  "admin_reset_pin_mea": 200,
+  "old_token_after_reset_pin": "401 profile_session_invalid",
+  "second_device_token_before_unpair": "200 kiara",
+  "admin_unpair": 200,
+  "second_device_token_after_unpair": "401 device_not_paired"
+ },
+ "page_errors": [
+  "pageerror: /localhost:65414/api/data/reminders?scope=family&since=1790080800001 due to access control checks.",
+  "pageerror: /localhost:65414/api/data/reminders?scope=family&since=1790080860000 due to access control checks."
+ ]
+}

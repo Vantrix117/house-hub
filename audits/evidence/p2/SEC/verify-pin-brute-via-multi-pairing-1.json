@@ -1,0 +1,107 @@
+{
+ "target": {
+  "id": "eli",
+  "kind": "adult",
+  "is_admin": true,
+  "pin_hash_algo": "pbkdf2"
+ },
+ "A_per_device_limit": {
+  "seq": [
+   {
+    "attempt": 1,
+    "status": 401,
+    "error": "wrong_pin"
+   },
+   {
+    "attempt": 2,
+    "status": 401,
+    "error": "wrong_pin"
+   },
+   {
+    "attempt": 3,
+    "status": 401,
+    "error": "wrong_pin"
+   },
+   {
+    "attempt": 4,
+    "status": 401,
+    "error": "wrong_pin"
+   },
+   {
+    "attempt": 5,
+    "status": 401,
+    "error": "wrong_pin"
+   },
+   {
+    "attempt": 6,
+    "status": 429,
+    "error": "too_many_attempts"
+   },
+   {
+    "attempt": 7,
+    "status": 429,
+    "error": "too_many_attempts"
+   }
+  ],
+  "wrong_pin_responses": 5,
+  "first_429_at": 6,
+  "expect": "5 wrong_pin then 429 on the 6th",
+  "holds": true
+ },
+ "E_correct_pin_locked": {
+  "status": 429,
+  "error": "too_many_attempts",
+  "holds": true
+ },
+ "BC_multi_pairing_bypass": {
+  "ip": "198.51.100.42",
+  "devices_attempted": 40,
+  "devices_paired": 40,
+  "pair_429": 0,
+  "guesses_reaching_verify": 200,
+  "guesses_blocked_429": 40,
+  "expect": "paired=40, verify=200, blocked=40",
+  "holds": true
+ },
+ "D_admin_escalation": {
+  "statuses": [
+   {
+    "pin_is_correct": false,
+    "status": 401,
+    "error": "wrong_pin"
+   },
+   {
+    "pin_is_correct": false,
+    "status": 401,
+    "error": "wrong_pin"
+   },
+   {
+    "pin_is_correct": false,
+    "status": 401,
+    "error": "wrong_pin"
+   },
+   {
+    "pin_is_correct": true,
+    "status": 200
+   }
+  ],
+  "got_session_token": true,
+  "session_profile_id": "eli",
+  "session_is_admin": true,
+  "holds": true
+ },
+ "time_to_exhaust_4digit": {
+  "space": 10000,
+  "guesses_per_device_per_15min": 5,
+  "devices_to_cover_space_in_one_window": 2000,
+  "with_100_devices_expected_minutes": 150,
+  "with_1000_devices_worst_case_minutes": 30
+ },
+ "verdict_inputs": {
+  "A_holds": true,
+  "E_holds": true,
+  "BC_holds": true,
+  "D_holds": true,
+  "all_hold": true
+ }
+}

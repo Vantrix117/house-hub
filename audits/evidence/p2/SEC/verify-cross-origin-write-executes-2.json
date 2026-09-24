@@ -1,0 +1,315 @@
+{
+ "finding": "cross-origin-write-executes",
+ "engines": {
+  "chromium": {
+   "allowed_origin": "http://localhost:64836",
+   "evil_origin": "http://127.0.0.1:64836",
+   "A": {
+    "label": "A evil PUT with tokens",
+    "page_origin": "http://127.0.0.1:64836",
+    "fetch_result": {
+     "threw": "TypeError: Failed to fetch"
+    },
+    "server_saw": [
+     {
+      "method": "OPTIONS",
+      "path": "/api/data/leftovers/item:xo-evil-put-chromium?scope=family",
+      "origin": "http://127.0.0.1:64836",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": null,
+      "acrm": "PUT",
+      "acrh": "content-type,x-device-token,x-profile-token",
+      "status": 204,
+      "acao": null
+     }
+    ],
+    "row_persisted": false
+   },
+   "B": {
+    "label": "B evil POST batch with tokens",
+    "page_origin": "http://127.0.0.1:64836",
+    "fetch_result": {
+     "threw": "TypeError: Failed to fetch"
+    },
+    "server_saw": [
+     {
+      "method": "OPTIONS",
+      "path": "/api/data/leftovers/batch?scope=family",
+      "origin": "http://127.0.0.1:64836",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": null,
+      "acrm": "POST",
+      "acrh": "x-device-token,x-profile-token",
+      "status": 204,
+      "acao": null
+     }
+    ],
+    "row_persisted": false
+   },
+   "C": {
+    "label": "C evil no-cors POST batch",
+    "page_origin": "http://127.0.0.1:64836",
+    "fetch_result": {
+     "type": "opaque",
+     "status": 0
+    },
+    "server_saw": [
+     {
+      "method": "POST",
+      "path": "/api/data/leftovers/batch?scope=family",
+      "origin": "http://127.0.0.1:64836",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": "text/plain",
+      "acrm": null,
+      "acrh": null,
+      "status": 401,
+      "acao": null
+     }
+    ],
+    "row_persisted": false
+   },
+   "D": {
+    "label": "D evil no-cors PUT",
+    "page_origin": "http://127.0.0.1:64836",
+    "fetch_result": {
+     "threw": "TypeError: Failed to execute 'fetch' on 'Window': 'PUT' is unsupported in no-cors mode."
+    },
+    "server_saw": []
+   },
+   "E": {
+    "label": "E allowed-origin PUT with tokens (control)",
+    "page_origin": "http://localhost:64836",
+    "fetch_result": {
+     "status": 200
+    },
+    "server_saw": [
+     {
+      "method": "OPTIONS",
+      "path": "/api/data/leftovers/item:xo-allowed-put-chromium?scope=family",
+      "origin": "http://localhost:64836",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": null,
+      "acrm": "PUT",
+      "acrh": "content-type,x-device-token,x-profile-token",
+      "status": 204,
+      "acao": "http://localhost:64836"
+     },
+     {
+      "method": "PUT",
+      "path": "/api/data/leftovers/item:xo-allowed-put-chromium?scope=family",
+      "origin": "http://localhost:64836",
+      "has_device_token": true,
+      "has_profile_token": true,
+      "content_type": "application/json",
+      "acrm": null,
+      "acrh": null,
+      "status": 200,
+      "acao": "http://localhost:64836"
+     }
+    ],
+    "row_persisted": true
+   },
+   "F": {
+    "label": "F Node fetch with forged Origin (not a browser)",
+    "status": 200,
+    "acao": null,
+    "server_saw": [
+     {
+      "method": "PUT",
+      "path": "/api/data/leftovers/item:xo-node-chromium?scope=family",
+      "origin": "https://evil.example.com",
+      "has_device_token": true,
+      "has_profile_token": true,
+      "content_type": "application/json",
+      "acrm": null,
+      "acrh": null,
+      "status": 200,
+      "acao": null
+     }
+    ],
+    "row_persisted": true
+   },
+   "G": {
+    "label": "G evil no-cors POST /api/pair (no tokens needed)",
+    "page_origin": "http://127.0.0.1:64836",
+    "fetch_result": {
+     "type": "opaque",
+     "status": 0
+    },
+    "server_saw": [
+     {
+      "method": "POST",
+      "path": "/api/pair",
+      "origin": "http://127.0.0.1:64836",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": "text/plain",
+      "acrm": null,
+      "acrh": null,
+      "status": 401,
+      "acao": null
+     }
+    ]
+   }
+  },
+  "webkit": {
+   "allowed_origin": "http://localhost:50263",
+   "evil_origin": "http://127.0.0.1:50263",
+   "A": {
+    "label": "A evil PUT with tokens",
+    "page_origin": "http://127.0.0.1:50263",
+    "fetch_result": {
+     "threw": "TypeError: Load failed"
+    },
+    "server_saw": [
+     {
+      "method": "OPTIONS",
+      "path": "/api/data/leftovers/item:xo-evil-put-webkit?scope=family",
+      "origin": "http://127.0.0.1:50263",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": null,
+      "acrm": "PUT",
+      "acrh": "content-type,x-device-token,x-profile-token",
+      "status": 204,
+      "acao": null
+     }
+    ],
+    "row_persisted": false
+   },
+   "B": {
+    "label": "B evil POST batch with tokens",
+    "page_origin": "http://127.0.0.1:50263",
+    "fetch_result": {
+     "threw": "TypeError: Load failed"
+    },
+    "server_saw": [
+     {
+      "method": "OPTIONS",
+      "path": "/api/data/leftovers/batch?scope=family",
+      "origin": "http://127.0.0.1:50263",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": null,
+      "acrm": "POST",
+      "acrh": "x-device-token,x-profile-token",
+      "status": 204,
+      "acao": null
+     }
+    ],
+    "row_persisted": false
+   },
+   "C": {
+    "label": "C evil no-cors POST batch",
+    "page_origin": "http://127.0.0.1:50263",
+    "fetch_result": {
+     "type": "opaque",
+     "status": 0
+    },
+    "server_saw": [
+     {
+      "method": "POST",
+      "path": "/api/data/leftovers/batch?scope=family",
+      "origin": "http://127.0.0.1:50263",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": "text/plain",
+      "acrm": null,
+      "acrh": null,
+      "status": 401,
+      "acao": null
+     }
+    ],
+    "row_persisted": false
+   },
+   "D": {
+    "label": "D evil no-cors PUT",
+    "page_origin": "http://127.0.0.1:50263",
+    "fetch_result": {
+     "threw": "TypeError: Method must be GET, POST or HEAD in no-cors mode."
+    },
+    "server_saw": []
+   },
+   "E": {
+    "label": "E allowed-origin PUT with tokens (control)",
+    "page_origin": "http://localhost:50263",
+    "fetch_result": {
+     "status": 200
+    },
+    "server_saw": [
+     {
+      "method": "OPTIONS",
+      "path": "/api/data/leftovers/item:xo-allowed-put-webkit?scope=family",
+      "origin": "http://localhost:50263",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": null,
+      "acrm": "PUT",
+      "acrh": "content-type,x-device-token,x-profile-token",
+      "status": 204,
+      "acao": "http://localhost:50263"
+     },
+     {
+      "method": "PUT",
+      "path": "/api/data/leftovers/item:xo-allowed-put-webkit?scope=family",
+      "origin": "http://localhost:50263",
+      "has_device_token": true,
+      "has_profile_token": true,
+      "content_type": "application/json",
+      "acrm": null,
+      "acrh": null,
+      "status": 200,
+      "acao": "http://localhost:50263"
+     }
+    ],
+    "row_persisted": true
+   },
+   "F": {
+    "label": "F Node fetch with forged Origin (not a browser)",
+    "status": 200,
+    "acao": null,
+    "server_saw": [
+     {
+      "method": "PUT",
+      "path": "/api/data/leftovers/item:xo-node-webkit?scope=family",
+      "origin": "https://evil.example.com",
+      "has_device_token": true,
+      "has_profile_token": true,
+      "content_type": "application/json",
+      "acrm": null,
+      "acrh": null,
+      "status": 200,
+      "acao": null
+     }
+    ],
+    "row_persisted": true
+   },
+   "G": {
+    "label": "G evil no-cors POST /api/pair (no tokens needed)",
+    "page_origin": "http://127.0.0.1:50263",
+    "fetch_result": {
+     "type": "opaque",
+     "status": 0
+    },
+    "server_saw": [
+     {
+      "method": "POST",
+      "path": "/api/pair",
+      "origin": "http://127.0.0.1:50263",
+      "has_device_token": false,
+      "has_profile_token": false,
+      "content_type": "text/plain",
+      "acrm": null,
+      "acrh": null,
+      "status": 401,
+      "acao": null
+     }
+    ]
+   }
+  }
+ }
+}

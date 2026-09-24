@@ -1,0 +1,71 @@
+{
+ "setup": {
+  "create_pin": 200,
+  "meA": 200,
+  "meB": 200,
+  "meB2": 200,
+  "note": "each login mints a new token; older tokens for the same profile+device are not replaced"
+ },
+ "self_service": {
+  "change_own_pin": {
+   "status": 409,
+   "error": "pin_already_set"
+  },
+  "note": "no endpoint lets a non-admin change their PIN or end their other sessions"
+ },
+ "logout_per_token": {
+  "logout": 200,
+  "loggedOut_B": 401,
+  "same_device_other_token_B2": 200,
+  "other_device_A": 200
+ },
+ "ui_switch_offline": {
+  "local_session_after": null,
+  "server_token_B2_after": 200
+ },
+ "borrower_copied": {
+  "same_as_owner_token": true,
+  "works_before": 200,
+  "after_owner_switch": 401
+ },
+ "borrower_device_token_only": {
+  "family_prayer_read_no_profile": {
+   "status": 200,
+   "items": 17
+  },
+  "mint_kid_session": 200,
+  "adult_without_pin": {
+   "status": 401,
+   "error": "wrong_pin"
+  }
+ },
+ "tv_switch": {
+  "logout_requests": 0,
+  "local_session_after": null,
+  "server_tv_token_after": 200
+ },
+ "lifetime": {
+  "d0": 200,
+  "d200": 200,
+  "d364": 200,
+  "d365_5": 401,
+  "d366": 401,
+  "device_token_at_d366": 200
+ },
+ "admin_revoke": {
+  "note": "fresh niece tokens on A and B, then admin reset-pin",
+  "loginA": 200,
+  "loginB": 200,
+  "reset": 200,
+  "after": {
+   "A": 401,
+   "B": 401,
+   "B2_from_offline_switch": 401
+  }
+ },
+ "admin_unpair": {
+  "before": 200,
+  "unpair": 200,
+  "after": 401
+ }
+}

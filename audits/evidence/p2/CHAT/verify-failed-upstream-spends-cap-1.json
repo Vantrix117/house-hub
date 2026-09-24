@@ -1,0 +1,72 @@
+{
+  "control": {
+    "before": 1,
+    "after": 2,
+    "reply": "Hello Mae.",
+    "done": {
+      "usage": {
+        "input": 10,
+        "output": 20
+      },
+      "stop_reason": "end_turn",
+      "used": 2,
+      "cap": 60
+    }
+  },
+  "perKind": [
+    {
+      "kind": "http500",
+      "usedBefore": 1,
+      "usedAfter": 2,
+      "http": 200,
+      "errorEvent": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (mock internal error)."
+      },
+      "doneEvent": null
+    },
+    {
+      "kind": "http429",
+      "usedBefore": 2,
+      "usedAfter": 3,
+      "http": 200,
+      "errorEvent": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (rate limited upstream)."
+      },
+      "doneEvent": null
+    },
+    {
+      "kind": "streamError",
+      "usedBefore": 3,
+      "usedAfter": 4,
+      "http": 200,
+      "errorEvent": {
+        "error": "upstream",
+        "message": "Overloaded"
+      },
+      "doneEvent": null
+    }
+  ],
+  "outage": {
+    "usedAtStart": 1,
+    "failedSends": 59,
+    "answered": 0,
+    "upstreamCallsMade": 59,
+    "capHit": {
+      "afterFailedSends": 59,
+      "body": {
+        "error": "daily_cap",
+        "message": "That's 60 messages for today — the assistant is resting until tomorrow.",
+        "used": 60,
+        "cap": 60
+      }
+    },
+    "usedNow": 60,
+    "historyTail": [
+      "user: outage retry 58",
+      "user: What are this week's memory verses?",
+      "assistant: For week 37: Matthew 28:18-20: Go and ma"
+    ]
+  }
+}

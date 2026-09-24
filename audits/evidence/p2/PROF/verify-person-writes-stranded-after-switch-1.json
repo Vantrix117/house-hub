@@ -1,0 +1,66 @@
+{
+ "setup: reset Eli PIN / create PIN": "200 / 200",
+ "1. Eli signed in on the iPad; theme on this device": "system",
+ "1. server: Eli theme before": "(no row)",
+ "1. server: Eli f260.done count before": "187",
+ "2. Eli offline: ticked F260 reading": "38-2",
+ "2. localStorage queues (offline, Eli signed in)": {
+  "hub.queue.hub.person.eli": [
+   "theme"
+  ],
+  "hub.queue.f260.person.eli": [
+   "f260.done",
+   "f260.log",
+   "f260.summary"
+  ]
+ },
+ "2. hub.sync (Eli)": {
+  "state": "offline",
+  "pending": 4
+ },
+ "3. after Ezra 40 s: localStorage queues": {
+  "hub.queue.hub.person.eli": [
+   "theme"
+  ],
+  "hub.queue.f260.person.eli": [
+   "f260.done",
+   "f260.log",
+   "f260.summary"
+  ]
+ },
+ "3. hub.sync (Ezra) — what the Me tab \"Waiting to send\" shows": {
+  "state": "synced",
+  "pending": 0
+ },
+ "3. POSTs to /api/data/*/batch since the switch": [],
+ "3. server: Eli theme": "(no row)",
+ "3. server: Eli f260.done has the offline tick?": "no",
+ "4. after TV 8 s: Eli queues still on the iPad?": {
+  "hub": [
+   "theme"
+  ],
+  "f260": [
+   "f260.done",
+   "f260.log",
+   "f260.summary"
+  ]
+ },
+ "4. server: Eli theme / tick": "(no row) / tick no",
+ "5. Eli phone: theme / sees the tick?": "system / no",
+ "phoneShot": "audits\\evidence\\p2\\PROF\\verify-person-writes-stranded-after-switch-1-phone.png",
+ "6. Eli back on the iPad (5 s): Eli queues": {
+  "hub": [],
+  "f260": []
+ },
+ "6. server: Eli theme / tick": "forest / tick yes",
+ "logs (tail)": [
+  "info: Web Inspector blocked http://localhost:64132/api/media/album/alb0019-256.jpg from loading",
+  "info: Web Inspector blocked http://localhost:64132/api/media/album/alb0018-256.jpg from loading",
+  "info: Web Inspector blocked http://localhost:64132/api/media/album/alb0017-256.jpg from loading",
+  "info: Web Inspector blocked http://localhost:64132/api/media/album/alb0016-256.jpg from loading",
+  "info: Web Inspector blocked http://localhost:64132/api/media/album/alb0015-256.jpg from loading",
+  "info: Web Inspector blocked http://localhost:64132/api/media/album/alb0014-256.jpg from loading",
+  "info: Web Inspector blocked http://localhost:64132/api/logout from loading",
+  "info: Web Inspector blocked http://localhost:64132/api/profiles from loading"
+ ]
+}

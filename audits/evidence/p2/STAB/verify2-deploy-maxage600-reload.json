@@ -1,0 +1,74 @@
+{
+ "cc": "max-age=600",
+ "fix": false,
+ "reopenBy": "page.reload()",
+ "oldVersion": "hub-v27",
+ "newVersion": "hub-v27-verify2",
+ "steps": [
+  {
+   "step": "1 before the deploy",
+   "controller": true,
+   "waiting": false,
+   "installing": false,
+   "caches": {
+    "hub-v27": {
+     "index.html": "v1",
+     "apps/hub.js": "v1"
+    }
+   },
+   "runningShell": "v1",
+   "runningHub": "v1",
+   "toast": []
+  },
+  {
+   "step": "3 re-open #1 (update check → new SW)",
+   "controller": true,
+   "waiting": false,
+   "installing": false,
+   "caches": {
+    "hub-v27-verify2": {
+     "index.html": "v2",
+     "apps/hub.js": "v1"
+    }
+   },
+   "runningShell": "v1",
+   "runningHub": "v1",
+   "toast": [
+    "Hub updated — it will use the new version next time it opens."
+   ]
+  },
+  {
+   "step": "4.2 re-open #2",
+   "controller": true,
+   "waiting": false,
+   "installing": false,
+   "caches": {
+    "hub-v27-verify2": {
+     "index.html": "v2",
+     "apps/hub.js": "v1"
+    }
+   },
+   "runningShell": "v2",
+   "runningHub": "v1",
+   "toast": []
+  },
+  {
+   "step": "4.3 re-open #3",
+   "controller": true,
+   "waiting": false,
+   "installing": false,
+   "caches": {
+    "hub-v27-verify2": {
+     "index.html": "v2",
+     "apps/hub.js": "v1"
+    }
+   },
+   "runningShell": "v2",
+   "runningHub": "v1",
+   "toast": []
+  }
+ ],
+ "deployedAt": "2026-09-24T05:52:22.633Z",
+ "prodRequests": 0,
+ "pageErrors": []
+}

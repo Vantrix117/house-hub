@@ -1,0 +1,14 @@
+tv   GET  /api/me                                    → 200 {"id":"tv","kind":"kiosk"}
+tv   PUT  /api/data/leftovers/item:kx (family)       → 403 {"error":"read_only","message":"This profile can only look, not change things."}
+tv   POST /api/chat                                  → 403 {"error":"no_chat","message":"The display profile has no chat."}
+tv   GET  /api/push/config                           → 200 {"public_key":"BAvrBJThmqbSVI4k172Ruk43vQxk_1r6F6UrAW7Xgzl9bQJLs1-aaVsu5qWPEqIhRzMmYcxV3YzLZRom1vlPSPc","enabled":true}
+tv   POST /api/push/subscribe                        → 200 {"ok":true}
+eli  GET  /api/admin/usage → push_subscriptions      → 200 [{"profile_id":"tv","n":1}]
+tv   POST /api/push/test                             → 200 {"sent":1,"ok":1,"details":[{"endpoint":"http://127.0.0.1:62425/push/tv…","status":201,"ok":true,"error":null}]}
+receiver hits after tv test: [{"url":"/push/tv","method":"POST","bytes":205,"ttl":"600","urgency":"high","hasVapid":true}]
+tv   POST /api/push/test {profile_id:"eli"}          → 403 {"error":"admin_only","message":"Only the admin can do that."}
+tv   DELETE /api/push/subscribe                      → 200 {"ok":true}
+eli  GET  /api/admin/usage → push_subscriptions      → 200 []
+ezra POST /api/push/subscribe                        → 200 {"ok":true}
+ezra DELETE /api/push/subscribe                      → 200 {"ok":true}
+(device only) POST /api/push/subscribe               → 401 {"error":"profile_required","message":"Choose a profile first."}

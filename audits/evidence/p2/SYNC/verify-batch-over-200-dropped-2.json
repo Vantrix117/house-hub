@@ -1,0 +1,108 @@
+{
+  "A_online_200": {
+    "n": 200,
+    "offline": false,
+    "serverBefore": 0,
+    "pendingAfterBurst": 200,
+    "syncTrace": [
+      "1.9s synced/0/null"
+    ],
+    "batches": [
+      {
+        "status": 200,
+        "items": 200,
+        "body": "{\"results\":[{\"key\":\"item:vA0\",\"value\":{\"id\":\"vA0\",\"text\":\"vA reminder 0\",\"by\":\"eli\",\"byNam"
+      }
+    ],
+    "serverAfter": 200,
+    "queueAfter": 0,
+    "phoneLists": 200,
+    "syncAfterPullAndFlush": {
+      "state": "synced",
+      "pending": 0,
+      "lastError": null
+    },
+    "batchesAfterRetry": 1,
+    "ipadLists": 200,
+    "phoneListsAfterReload": 200,
+    "serverAfterReload": 200
+  },
+  "B_online_201": {
+    "n": 201,
+    "offline": false,
+    "serverBefore": 0,
+    "pendingAfterBurst": 201,
+    "syncTrace": [
+      "8.1s error/201/bad_batch"
+    ],
+    "batches": [
+      {
+        "status": 400,
+        "items": 201,
+        "body": "{\"error\":\"bad_batch\",\"message\":\"items must be an array of at most 200.\"}"
+      }
+    ],
+    "serverAfter": 0,
+    "queueAfter": 0,
+    "phoneLists": 201,
+    "syncAfterPullAndFlush": {
+      "state": "synced",
+      "pending": 0,
+      "lastError": null
+    },
+    "batchesAfterRetry": 1,
+    "ipadLists": 0,
+    "phoneListsAfterReload": 201,
+    "serverAfterReload": 0
+  },
+  "C_offline_201": {
+    "n": 201,
+    "offline": true,
+    "serverBefore": 0,
+    "pendingAfterBurst": 201,
+    "queuedWhileOffline": 201,
+    "syncTrace": [
+      "14.6s synced/0/null"
+    ],
+    "batches": [
+      {
+        "status": 400,
+        "items": 201,
+        "body": "{\"error\":\"bad_batch\",\"message\":\"items must be an array of at most 200.\"}"
+      }
+    ],
+    "serverAfter": 0,
+    "queueAfter": 0,
+    "phoneLists": 201,
+    "syncAfterPullAndFlush": {
+      "state": "synced",
+      "pending": 0,
+      "lastError": null
+    },
+    "batchesAfterRetry": 1,
+    "ipadLists": 0,
+    "phoneListsAfterReload": 201,
+    "serverAfterReload": 0
+  },
+  "D_prayer_import_250": {
+    "serverBefore": 19,
+    "localBefore": 19,
+    "batches": [
+      {
+        "url": "/api/data/prayer/batch?scope=person",
+        "status": 400,
+        "items": 275,
+        "body": "{\"error\":\"bad_batch\",\"message\":\"items must be an array of at most 200.\"}"
+      }
+    ],
+    "localAfter": 250,
+    "shownRows": 0,
+    "serverAfter": 19,
+    "queueAfter": 0,
+    "sync": {
+      "state": "error",
+      "pending": 290,
+      "lastError": "bad_batch"
+    }
+  }
+}

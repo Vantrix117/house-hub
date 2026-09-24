@@ -1,0 +1,252 @@
+{
+ "partA": [
+  {
+   "title": "adults (sort order)",
+   "obj": [
+    "eli",
+    "christian",
+    "mom",
+    "dad",
+    "niece",
+    "guest-grandmajo"
+   ]
+  },
+  {
+   "title": "Mae POSTs {endpoint} with no keys",
+   "obj": {
+    "status": 200,
+    "body": {
+     "ok": true
+    }
+   }
+  },
+  {
+   "title": "Sat 26 Sep 8:00 am forced morning, keyless row present",
+   "obj": {
+    "at": "2026-09-26T08:00:00-04:00",
+    "status": 500,
+    "error": "internal",
+    "notified": [],
+    "received": [
+     "eli"
+    ],
+    "subsStored": {
+     "christian": 1,
+     "dad": 1,
+     "eli": 1,
+     "guest-grandmajo": 1,
+     "mom": 1,
+     "niece": 1
+    }
+   }
+  },
+  {
+   "title": "Sun 27 Sep 8:00 am forced morning, keyless row still present",
+   "obj": {
+    "at": "2026-09-27T08:00:00-04:00",
+    "status": 500,
+    "error": "internal",
+    "notified": [],
+    "received": [
+     "eli"
+    ],
+    "subsStored": {
+     "christian": 1,
+     "dad": 1,
+     "eli": 1,
+     "guest-grandmajo": 1,
+     "mom": 1,
+     "niece": 1
+    }
+   }
+  },
+  {
+   "title": "Mon 28 Sep 8:00 am forced morning, Mae re-subscribed with keys",
+   "obj": {
+    "at": "2026-09-28T08:00:00-04:00",
+    "status": 200,
+    "notified": [
+     "eli",
+     "christian",
+     "mom",
+     "dad",
+     "niece",
+     "guest-grandmajo"
+    ],
+    "due": [
+     "Chicken alfredo (14d)",
+     "Beef and bean chili (11d)",
+     "Roasted sweet potatoes (10d)",
+     "Sunday pot roast (8d)",
+     "Spaghetti and meatballs (7d)",
+     "Blueberry pancakes (6d)"
+    ],
+    "received": [
+     "eli",
+     "christian",
+     "mom",
+     "dad",
+     "niece",
+     "guest-grandmajo"
+    ],
+    "subsStored": {
+     "christian": 1,
+     "dad": 1,
+     "eli": 1,
+     "guest-grandmajo": 1,
+     "mom": 1,
+     "niece": 1
+    }
+   }
+  }
+ ],
+ "partB": [
+  {
+   "title": "adults (sort order), all subscribed with valid keys",
+   "obj": [
+    "eli",
+    "christian",
+    "mom",
+    "dad",
+    "niece",
+    "guest-grandmajo"
+   ]
+  },
+  {
+   "title": "Fri 8:00 pm scheduled run, all rows valid (baseline + prayer watermark)",
+   "obj": {
+    "at": "2026-09-25T20:00:00-04:00",
+    "nyHour": 20,
+    "ran": [
+     {
+      "job": "evening",
+      "error": null,
+      "notified": [
+       "christian",
+       "dad",
+       "eli",
+       "mom"
+      ]
+     },
+     {
+      "job": "prayer",
+      "error": null,
+      "notified": [],
+      "new": []
+     },
+     {
+      "job": "park",
+      "error": null,
+      "notified": []
+     }
+    ],
+    "endpointsHit": [
+     "christian",
+     "dad",
+     "eli",
+     "mom"
+    ],
+    "maeRowStored": "{\"endpoint\":\"http://127.0.0.1:9/push/christian\",\"keys\":{\"p256dh\":\"BMWIqX74FczEfp5KVmwmEeY5Gr0Dohy2vG60Y0gYwVYG5qTBXJaPyFYZ7NqzdIRjkyBqqgVhuKwHQ7IJU5Q7d-o\",\"auth\":\"wmtehAW56hDeaocEQUM8dg\"}}"
+   }
+  },
+  {
+   "title": "Sat 8:00 am scheduled run, Mae keyless",
+   "obj": {
+    "at": "2026-09-26T08:00:00-04:00",
+    "nyHour": 8,
+    "ran": [
+     {
+      "job": "morning",
+      "error": "Cannot read properties of undefined (reading 'p256dh')",
+      "notified": []
+     },
+     {
+      "job": "prayer",
+      "error": "Cannot read properties of undefined (reading 'p256dh')",
+      "notified": []
+     },
+     {
+      "job": "park",
+      "error": null,
+      "notified": []
+     }
+    ],
+    "endpointsHit": [
+     "eli",
+     "eli"
+    ],
+    "maeRowStored": "{\"endpoint\":\"http://127.0.0.1:9/push/christian-bad\"}"
+   }
+  },
+  {
+   "title": "Sun 8:00 am scheduled run, Mae still keyless",
+   "obj": {
+    "at": "2026-09-27T08:00:00-04:00",
+    "nyHour": 8,
+    "ran": [
+     {
+      "job": "morning",
+      "error": "Cannot read properties of undefined (reading 'p256dh')",
+      "notified": []
+     },
+     {
+      "job": "prayer",
+      "error": null,
+      "notified": [],
+      "new": []
+     },
+     {
+      "job": "park",
+      "error": null,
+      "notified": []
+     }
+    ],
+    "endpointsHit": [
+     "eli"
+    ],
+    "maeRowStored": "{\"endpoint\":\"http://127.0.0.1:9/push/christian-bad\"}"
+   }
+  },
+  {
+   "title": "Mon 8:00 am scheduled run, Mae fixed",
+   "obj": {
+    "at": "2026-09-28T08:00:00-04:00",
+    "nyHour": 8,
+    "ran": [
+     {
+      "job": "morning",
+      "error": null,
+      "notified": [
+       "eli",
+       "christian",
+       "mom",
+       "dad",
+       "niece",
+       "guest-grandmajo"
+      ]
+     },
+     {
+      "job": "prayer",
+      "error": null,
+      "notified": [],
+      "new": []
+     },
+     {
+      "job": "park",
+      "error": null,
+      "notified": []
+     }
+    ],
+    "endpointsHit": [
+     "eli",
+     "christian",
+     "mom",
+     "dad",
+     "niece",
+     "guest-grandmajo"
+    ],
+    "maeRowStored": "{\"endpoint\":\"http://127.0.0.1:9/push/christian\",\"keys\":{\"p256dh\":\"BMWIqX74FczEfp5KVmwmEeY5Gr0Dohy2vG60Y0gYwVYG5qTBXJaPyFYZ7NqzdIRjkyBqqgVhuKwHQ7IJU5Q7d-o\",\"auth\":\"wmtehAW56hDeaocEQUM8dg\"}}"
+   }
+  }
+ ]
+}

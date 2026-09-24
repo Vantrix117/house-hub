@@ -1,0 +1,162 @@
+{
+ "0. offline writer (a preloaded adult session on the rig iPad)": "christian",
+ "A 1. queued offline (reminders / leftovers / activity)": {
+  "rem": 1,
+  "left": 1,
+  "act": [
+   "Added a reminder: A offline: dentist 3pm 1790226580046"
+  ],
+  "sync": {
+   "state": "offline",
+   "pending": 2,
+   "lastError": null,
+   "lastPull": 1790226580027
+  }
+ },
+ "A 2. online at the picker for 1.5 s: reminder on server?": "false",
+ "A 3. after tv signed in (4 s): profile / sync": {
+  "profile": "tv",
+  "kind": "kiosk",
+  "sync": {
+   "state": "synced",
+   "pending": 0,
+   "lastError": null,
+   "lastPull": 1790226583527
+  }
+ },
+ "A 3. sync-state changes seen by hub.onSync": [
+  {
+   "state": "pending",
+   "pending": 2,
+   "lastError": null
+  },
+  {
+   "state": "pending",
+   "pending": 2,
+   "lastError": null
+  },
+  {
+   "state": "error",
+   "pending": 1,
+   "lastError": "read_only"
+  },
+  {
+   "state": "error",
+   "pending": 0,
+   "lastError": "read_only"
+  },
+  {
+   "state": "synced",
+   "pending": 0,
+   "lastError": null
+  }
+ ],
+ "A 3. POSTs to the API after the card tap (status, body)": [
+  {
+   "path": "/api/login",
+   "status": 200,
+   "body": "{\"profile_token\":\"(redacted)\",\"profile\":{\"id\":\"tv\",\"name\":\"Downstairs TV\",\"emoji\":\"📺\",\"color\":\"#4C4C58\",\"kind\":\"kiosk\",\"is_admin\":false,\"sort_order\":8,\"has_pin"
+  },
+  {
+   "path": "/api/data/reminders/batch?scope=family",
+   "status": 403,
+   "body": "{\"error\":\"read_only\",\"message\":\"This profile can only look, not change things.\"}"
+  },
+  {
+   "path": "/api/data/leftovers/batch?scope=family",
+   "status": 403,
+   "body": "{\"error\":\"read_only\",\"message\":\"This profile can only look, not change things.\"}"
+  }
+ ],
+ "A 3. localStorage family queues now": {
+  "rem": {},
+  "left": {}
+ },
+ "A 3. activity queue now": [
+  "Added a reminder: A offline: dentist 3pm 1790226580046"
+ ],
+ "A 3. sync dot / visible toast": {
+  "dot": "dot dot-synced Sync: synced",
+  "toast": null
+ },
+ "A 4. server: reminder landed?": "NO",
+ "A 4. server: fridge item landed?": "NO",
+ "A.shot": "audits/evidence/p2/PROF/verify2-kiosk-A-after-tv.png",
+ "A' 5. feed after Ezra's next hub.activity (newest first)": [
+  "ezra (Ezra): Ezra ping (verify2)",
+  "ezra (Ezra): Added a reminder: A offline: dentist 3pm 1790226580046"
+ ],
+ "A' 5. server: reminder landed after a writer signed in?": "false",
+ "B 1. queued offline (reminders / leftovers / activity)": {
+  "rem": 1,
+  "left": 1,
+  "act": [
+   "Added a reminder: B offline: dentist 3pm 1790226592764"
+  ],
+  "sync": {
+   "state": "offline",
+   "pending": 2,
+   "lastError": null,
+   "lastPull": 1790226592741
+  }
+ },
+ "B 2. online at the picker for 1.5 s: reminder on server?": "false",
+ "B 3. after ezra signed in (4 s): profile / sync": {
+  "profile": "ezra",
+  "kind": "kid",
+  "sync": {
+   "state": "synced",
+   "pending": 0,
+   "lastError": null,
+   "lastPull": 1790226596189
+  }
+ },
+ "B 3. sync-state changes seen by hub.onSync": [
+  {
+   "state": "pending",
+   "pending": 2,
+   "lastError": null
+  },
+  {
+   "state": "pending",
+   "pending": 2,
+   "lastError": null
+  },
+  {
+   "state": "synced",
+   "pending": 0,
+   "lastError": null
+  }
+ ],
+ "B 3. POSTs to the API after the card tap (status, body)": [
+  {
+   "path": "/api/login",
+   "status": 200,
+   "body": "{\"profile_token\":\"(redacted)\",\"profile\":{\"id\":\"ezra\",\"name\":\"Ezra\",\"emoji\":\"🦖\",\"color\":\"#137F77\",\"kind\":\"kid\",\"is_admin\":false,\"sort_order\":3,\"has_pin\":false,\""
+  },
+  {
+   "path": "/api/data/reminders/batch?scope=family",
+   "status": 200,
+   "body": "{\"results\":[{\"key\":\"item:muf2ovmstheoh\",\"value\":{\"id\":\"muf2ovmstheoh\",\"text\":\"B offline: dentist 3pm 1790226592764\",\"by\":\"christian\",\"byName\":\"Mae\",\"createdAt\":"
+  },
+  {
+   "path": "/api/data/leftovers/batch?scope=family",
+   "status": 200,
+   "body": "{\"results\":[{\"key\":\"item:B-fridge-1790226593209\",\"value\":{\"id\":\"B-fridge-1790226593209\",\"name\":\"Soup B-fridge-1790226593209\",\"addedAt\":1790226593211},\"updated_a"
+  }
+ ],
+ "B 3. localStorage family queues now": {
+  "rem": {},
+  "left": {}
+ },
+ "B 3. activity queue now": [
+  "Added a reminder: B offline: dentist 3pm 1790226592764"
+ ],
+ "B 3. sync dot / visible toast": {
+  "dot": "dot dot-synced Sync: synced",
+  "toast": null
+ },
+ "B 4. server: reminder landed?": "yes (byName=Mae)",
+ "B 4. server: fridge item landed?": "yes",
+ "B.shot": "audits/evidence/p2/PROF/verify2-kiosk-B-after-ezra.png"
+}
