@@ -2,7 +2,7 @@
 // Phase 4 scorecard compare like with like. Static analysis only (regex over the file, comments stripped with line
 // numbers kept); every hit is listed with its line so a reader can check it. It reads files and writes JSON; it runs no app.
 //
-//   node audits/tools/phase3/compliance.mjs                 → all apps in apps.json, table on stdout
+//   node audits/tools/phase3/compliance.mjs                 → the shell (index.html) + all apps in apps.json, table on stdout
 //   node audits/tools/phase3/compliance.mjs tally timer     → just those
 //
 // Output: audits/evidence/p3/_compliance/<app>.json (full hit lists) and _summary.json.
@@ -18,7 +18,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const OUT = path.join(ROOT, 'audits', 'evidence', 'p3', '_compliance');
 fs.mkdirSync(OUT, { recursive: true });
 
-const apps = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps.json'), 'utf8')).apps;
+// The shell (index.html) is counted too, as the pseudo-app "shell" (added for Phase 4).
+const apps = [{ id: 'shell', file: 'index.html' }, ...JSON.parse(fs.readFileSync(path.join(ROOT, 'apps.json'), 'utf8')).apps];
 const want = process.argv.slice(2);
 const list = want.length ? apps.filter(a => want.includes(a.id)) : apps;
 

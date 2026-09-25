@@ -1,0 +1,3929 @@
+{
+ "note": "Every design.css custom property resolved on :root of the shell page (getComputedStyle, var() substituted; colours probed through `color: var(--x)`, lengths through margin-left, times through transition-duration). Columns = theme keys (system-light/-dark = no data-theme on a light/dark OS; hearth-dark = Hearth chosen on a dark OS; the named ones on a light OS). kinds: tokens whose value differs for a kid or kiosk profile. frameDiffs: tokens an app document resolves differently from the shell in the same job (app-local overrides).",
+ "themes": [
+  "system-light",
+  "system-dark",
+  "hearth-dark",
+  "parchment",
+  "frost",
+  "midnight",
+  "forest"
+ ],
+ "tokens": {
+  "--font-sans": {
+   "all": "ui-rounded, -apple-system, system-ui, \"Segoe UI Variable\", \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif"
+  },
+  "--font-serif": {
+   "all": "ui-serif, \"New York\", \"Iowan Old Style\", \"Palatino Linotype\", Georgia, \"Times New Roman\", serif"
+  },
+  "--font-display": {
+   "all": "ui-serif, \"New York\", \"Iowan Old Style\", \"Palatino Linotype\", Georgia, \"Times New Roman\", serif"
+  },
+  "--font-mono": {
+   "all": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+  },
+  "--fs-xs": {
+   "all": "12px"
+  },
+  "--fs-sm": {
+   "all": "14px"
+  },
+  "--fs-md": {
+   "all": "16px"
+  },
+  "--fs-lg": {
+   "all": "18px"
+  },
+  "--fs-xl": {
+   "all": "22px"
+  },
+  "--fs-2xl": {
+   "all": "28px"
+  },
+  "--fs-3xl": {
+   "all": "36px"
+  },
+  "--fs-4xl": {
+   "all": "48px"
+  },
+  "--fs-hero": {
+   "all": "clamp(34px, 7.5vw, 46px) (=46px here)"
+  },
+  "--lh-tight": {
+   "all": "1.1"
+  },
+  "--lh-snug": {
+   "all": "1.25"
+  },
+  "--lh": {
+   "all": "1.45"
+  },
+  "--ls-tight": {
+   "all": "-0.02em (=-0.3px here)"
+  },
+  "--ls-caps": {
+   "all": ".08em (=1.3px here)"
+  },
+  "--sp-1": {
+   "all": "4px"
+  },
+  "--sp-2": {
+   "all": "8px"
+  },
+  "--sp-3": {
+   "all": "12px"
+  },
+  "--sp-4": {
+   "all": "16px"
+  },
+  "--sp-5": {
+   "all": "20px"
+  },
+  "--sp-6": {
+   "all": "24px"
+  },
+  "--sp-8": {
+   "all": "32px"
+  },
+  "--sp-10": {
+   "all": "40px"
+  },
+  "--sp-12": {
+   "all": "48px"
+  },
+  "--sp-16": {
+   "all": "64px"
+  },
+  "--r-sm": {
+   "all": "12px"
+  },
+  "--r": {
+   "all": "16px"
+  },
+  "--r-lg": {
+   "all": "22px"
+  },
+  "--r-xl": {
+   "all": "28px"
+  },
+  "--r-2xl": {
+   "all": "36px"
+  },
+  "--r-full": {
+   "all": "999px"
+  },
+  "--tap": {
+   "all": "44px"
+  },
+  "--tap-lg": {
+   "all": "60px"
+  },
+  "--max": {
+   "all": "1200px"
+  },
+  "--max-read": {
+   "all": "720px"
+  },
+  "--safe-top": {
+   "all": "0px"
+  },
+  "--safe-bottom": {
+   "all": "0px"
+  },
+  "--safe-left": {
+   "all": "0px"
+  },
+  "--safe-right": {
+   "all": "0px"
+  },
+  "--bg": {
+   "system-light": "#F7F2EB",
+   "system-dark": "#1A1512",
+   "hearth-dark": "#1A1512",
+   "parchment": "#E7D9BE",
+   "frost": "#EDF0F5",
+   "midnight": "#1A1512",
+   "forest": "#10171A"
+  },
+  "--bg-2": {
+   "system-light": "#EFE7DC",
+   "system-dark": "#120E0B",
+   "hearth-dark": "#120E0B",
+   "parchment": "#DDCBA9",
+   "frost": "#E2E7EE",
+   "midnight": "#120E0B",
+   "forest": "#0B1114"
+  },
+  "--surface": {
+   "system-light": "#FFFCF8",
+   "system-dark": "#241E19",
+   "hearth-dark": "#241E19",
+   "parchment": "#F1E7D2",
+   "frost": "#FAFBFD",
+   "midnight": "#241E19",
+   "forest": "#182225"
+  },
+  "--surface-2": {
+   "system-light": "#EFE7DC",
+   "system-dark": "#15110E",
+   "hearth-dark": "#15110E",
+   "parchment": "#DDCBA9",
+   "frost": "#E2E7EE",
+   "midnight": "#15110E",
+   "forest": "#0C1214"
+  },
+  "--hover": {
+   "system-light": "#F2EADF",
+   "system-dark": "#2D2620",
+   "hearth-dark": "#2D2620",
+   "parchment": "#E9DCC4",
+   "frost": "#E8ECF2",
+   "midnight": "#2D2620",
+   "forest": "#1F2B2E"
+  },
+  "--text": {
+   "system-light": "#2E251D",
+   "system-dark": "#F3EDE5",
+   "hearth-dark": "#F3EDE5",
+   "parchment": "#3A2A1A",
+   "frost": "#1E2430",
+   "midnight": "#F3EDE5",
+   "forest": "#EFE7D6"
+  },
+  "--text-2": {
+   "system-light": "#6A5B4E",
+   "system-dark": "#C9BBAB",
+   "hearth-dark": "#C9BBAB",
+   "parchment": "#5E4A36",
+   "frost": "#4A5566",
+   "midnight": "#C9BBAB",
+   "forest": "#C2B9A4"
+  },
+  "--muted": {
+   "system-light": "#75675B",
+   "system-dark": "#A2948A",
+   "hearth-dark": "#A2948A",
+   "parchment": "#6A5641",
+   "frost": "#5C6879",
+   "midnight": "#A2948A",
+   "forest": "#9C9484"
+  },
+  "--muted-decor": {
+   "system-light": "#A79B8E",
+   "system-dark": "#6E6258",
+   "hearth-dark": "#6E6258",
+   "parchment": "#9E8A70",
+   "frost": "#98A2B0",
+   "midnight": "#6E6258",
+   "forest": "#66625A"
+  },
+  "--line": {
+   "system-light": "#E6DCCE",
+   "system-dark": "#342C25",
+   "hearth-dark": "#342C25",
+   "parchment": "#D3C09E",
+   "frost": "#D5DBE4",
+   "midnight": "#342C25",
+   "forest": "#27343A"
+  },
+  "--line-soft": {
+   "system-light": "#F0E8DC",
+   "system-dark": "#2A231E",
+   "hearth-dark": "#2A231E",
+   "parchment": "#DFD0B3",
+   "frost": "#E4E8EE",
+   "midnight": "#2A231E",
+   "forest": "#1F2A2E"
+  },
+  "--hairline": {
+   "system-light": "#FFFFFF/0.60",
+   "system-dark": "#FFFFFF/0.08",
+   "hearth-dark": "#FFFFFF/0.08",
+   "parchment": "#FFFAF0/0.55",
+   "frost": "#FFFFFF/0.70",
+   "midnight": "#FFFFFF/0.08",
+   "forest": "#FFFFFF/0.08"
+  },
+  "--scrim": {
+   "system-light": "#2A231C/0.45",
+   "system-dark": "#000000/0.62",
+   "hearth-dark": "#000000/0.62",
+   "parchment": "#3A2A1A/0.45",
+   "frost": "#1E2430/0.42",
+   "midnight": "#000000/0.62",
+   "forest": "#000000/0.62"
+  },
+  "--glass": {
+   "system-light": "#FFFCF8/0.66",
+   "system-dark": "#241E19/0.62",
+   "hearth-dark": "#241E19/0.62",
+   "parchment": "#F1E7D2/0.66",
+   "frost": "#FAFBFD/0.62",
+   "midnight": "#241E19/0.62",
+   "forest": "#182225/0.62"
+  },
+  "--glass-strong": {
+   "system-light": "#FFFCF8/0.84",
+   "system-dark": "#241E19/0.84",
+   "hearth-dark": "#241E19/0.84",
+   "parchment": "#F1E7D2/0.86",
+   "frost": "#FAFBFD/0.84",
+   "midnight": "#241E19/0.84",
+   "forest": "#182225/0.84"
+  },
+  "--glass-line": {
+   "system-light": "#FFFFFF/0.55",
+   "system-dark": "#FFFFFF/0.09",
+   "hearth-dark": "#FFFFFF/0.09",
+   "parchment": "#FFFAF0/0.60",
+   "frost": "#FFFFFF/0.70",
+   "midnight": "#FFFFFF/0.09",
+   "forest": "#FFFFFF/0.09"
+  },
+  "--blur": {
+   "all": "18px"
+  },
+  "--glass-spec": {
+   "system-light": "#FFFFFF/0.62",
+   "system-dark": "#FFFFFF/0.14",
+   "hearth-dark": "#FFFFFF/0.14",
+   "parchment": "#FFFAF0/0.60",
+   "frost": "#FFFFFF/0.75",
+   "midnight": "#FFFFFF/0.14",
+   "forest": "#FFFFFF/0.13"
+  },
+  "--glass-edge": {
+   "system-light": "#3A2E24/0.10",
+   "system-dark": "#000000/0.45",
+   "hearth-dark": "#000000/0.45",
+   "parchment": "#3A2A1A/0.12",
+   "frost": "#1E2430/0.10",
+   "midnight": "#000000/0.45",
+   "forest": "#000000/0.45"
+  },
+  "--glass-ring": {
+   "system-light": "#FFFFFF/0.55",
+   "system-dark": "#FFFFFF/0.08",
+   "hearth-dark": "#FFFFFF/0.08",
+   "parchment": "#FFFAF0/0.55",
+   "frost": "#FFFFFF/0.70",
+   "midnight": "#FFFFFF/0.08",
+   "forest": "#FFFFFF/0.08"
+  },
+  "--glass-inner": {
+   "system-light": "#3A2E24/0.10",
+   "system-dark": "#000000/0.40",
+   "hearth-dark": "#000000/0.40",
+   "parchment": "#3A2A1A/0.12",
+   "frost": "#1E2430/0.10",
+   "midnight": "#000000/0.40",
+   "forest": "#000000/0.40"
+  },
+  "--glass-pickup": {
+   "system-light": "12% (=12px here)",
+   "system-dark": "16% (=16px here)",
+   "hearth-dark": "16% (=16px here)",
+   "parchment": "12% (=12px here)",
+   "frost": "10% (=10px here)",
+   "midnight": "16% (=16px here)",
+   "forest": "16% (=16px here)"
+  },
+  "--sheen-x": {
+   "all": "20% (=20px here)"
+  },
+  "--wash": {
+   "system-light": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+   "system-dark": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+   "hearth-dark": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+   "parchment": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+   "frost": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+   "midnight": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+   "forest": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+  },
+  "--mocha": {
+   "system-light": "#8A6A4B",
+   "system-dark": "#CBA77E",
+   "hearth-dark": "#CBA77E",
+   "parchment": "#7A5A3A",
+   "frost": "#7E6A55",
+   "midnight": "#CBA77E",
+   "forest": "#C9A57C"
+  },
+  "--mocha-soft": {
+   "system-light": "#F0E6D9",
+   "system-dark": "#2E251C",
+   "hearth-dark": "#2E251C",
+   "parchment": "#E4D3B4",
+   "frost": "#EDE7E0",
+   "midnight": "#2E251C",
+   "forest": "#2A2520"
+  },
+  "--mocha-ink": {
+   "system-light": "#5E4630",
+   "system-dark": "#E3CBAA",
+   "hearth-dark": "#E3CBAA",
+   "parchment": "#4E3620",
+   "frost": "#55432F",
+   "midnight": "#E3CBAA",
+   "forest": "#E2CBA8"
+  },
+  "--gold": {
+   "system-light": "#B4861B",
+   "system-dark": "#E0B25A",
+   "hearth-dark": "#E0B25A",
+   "parchment": "#9A6F0E",
+   "frost": "#A07A1F",
+   "midnight": "#E0B25A",
+   "forest": "#D9B25E"
+  },
+  "--gold-soft": {
+   "system-light": "#F6EBD0",
+   "system-dark": "#2C2416",
+   "hearth-dark": "#2C2416",
+   "parchment": "#E8D5A2",
+   "frost": "#F2EAD3",
+   "midnight": "#2C2416",
+   "forest": "#2A2618"
+  },
+  "--gold-ink": {
+   "system-light": "#7A5A0F",
+   "system-dark": "#F0CE86",
+   "hearth-dark": "#F0CE86",
+   "parchment": "#5E4408",
+   "frost": "#6B5010",
+   "midnight": "#F0CE86",
+   "forest": "#EFD28A"
+  },
+  "--olive": {
+   "system-light": "#5B8143",
+   "system-dark": "#9DC183",
+   "hearth-dark": "#9DC183",
+   "parchment": "#4E7038",
+   "frost": "#547A40",
+   "midnight": "#9DC183",
+   "forest": "#9CC486"
+  },
+  "--olive-soft": {
+   "system-light": "#E6EEDD",
+   "system-dark": "#1E2718",
+   "hearth-dark": "#1E2718",
+   "parchment": "#D8DDB8",
+   "frost": "#E4EEDD",
+   "midnight": "#1E2718",
+   "forest": "#1B2A1E"
+  },
+  "--olive-ink": {
+   "system-light": "#3E5C2C",
+   "system-dark": "#BFDBAA",
+   "hearth-dark": "#BFDBAA",
+   "parchment": "#324A22",
+   "frost": "#3A5A2A",
+   "midnight": "#BFDBAA",
+   "forest": "#C0DDAC"
+  },
+  "--teal": {
+   "system-light": "#137F77",
+   "system-dark": "#5EC2B8",
+   "hearth-dark": "#5EC2B8",
+   "parchment": "#0F6E67",
+   "frost": "#137F77",
+   "midnight": "#5EC2B8",
+   "forest": "#62C3B8"
+  },
+  "--teal-soft": {
+   "system-light": "#DCECEA",
+   "system-dark": "#12241F",
+   "hearth-dark": "#12241F",
+   "parchment": "#CFDCCF",
+   "frost": "#DAEDEA",
+   "midnight": "#12241F",
+   "forest": "#132925"
+  },
+  "--teal-ink": {
+   "system-light": "#0E5F59",
+   "system-dark": "#93DCD4",
+   "hearth-dark": "#93DCD4",
+   "parchment": "#0A4F49",
+   "frost": "#0D5C56",
+   "midnight": "#93DCD4",
+   "forest": "#98DDD3"
+  },
+  "--terra": {
+   "system-light": "#BC5A38",
+   "system-dark": "#E28A66",
+   "hearth-dark": "#E28A66",
+   "parchment": "#A84B2C",
+   "frost": "#B25538",
+   "midnight": "#E28A66",
+   "forest": "#E08E6B"
+  },
+  "--terra-soft": {
+   "system-light": "#F7E3DA",
+   "system-dark": "#2B1D17",
+   "hearth-dark": "#2B1D17",
+   "parchment": "#E9CFBD",
+   "frost": "#F5E2DA",
+   "midnight": "#2B1D17",
+   "forest": "#2C1F1A"
+  },
+  "--terra-ink": {
+   "system-light": "#8E3E22",
+   "system-dark": "#F1B198",
+   "hearth-dark": "#F1B198",
+   "parchment": "#7A3419",
+   "frost": "#833A22",
+   "midnight": "#F1B198",
+   "forest": "#F0B49A"
+  },
+  "--slate": {
+   "system-light": "#4F5D8C",
+   "system-dark": "#A5B0DC",
+   "hearth-dark": "#A5B0DC",
+   "parchment": "#46527E",
+   "frost": "#4A5A94",
+   "midnight": "#A5B0DC",
+   "forest": "#A6B3DE"
+  },
+  "--slate-soft": {
+   "system-light": "#E4E7F1",
+   "system-dark": "#232738",
+   "hearth-dark": "#232738",
+   "parchment": "#D6D6DC",
+   "frost": "#E2E6F4",
+   "midnight": "#232738",
+   "forest": "#212838"
+  },
+  "--slate-ink": {
+   "system-light": "#3A4569",
+   "system-dark": "#C6CDEB",
+   "hearth-dark": "#C6CDEB",
+   "parchment": "#303A5C",
+   "frost": "#33406E",
+   "midnight": "#C6CDEB",
+   "forest": "#C8D0EC"
+  },
+  "--ok": {
+   "system-light": "#5B8143",
+   "system-dark": "#9DC183",
+   "hearth-dark": "#9DC183",
+   "parchment": "#4E7038",
+   "frost": "#547A40",
+   "midnight": "#9DC183",
+   "forest": "#9CC486"
+  },
+  "--ok-soft": {
+   "system-light": "#E6EEDD",
+   "system-dark": "#1E2718",
+   "hearth-dark": "#1E2718",
+   "parchment": "#D8DDB8",
+   "frost": "#E4EEDD",
+   "midnight": "#1E2718",
+   "forest": "#1B2A1E"
+  },
+  "--ok-ink": {
+   "system-light": "#3E5C2C",
+   "system-dark": "#BFDBAA",
+   "hearth-dark": "#BFDBAA",
+   "parchment": "#324A22",
+   "frost": "#3A5A2A",
+   "midnight": "#BFDBAA",
+   "forest": "#C0DDAC"
+  },
+  "--warn": {
+   "system-light": "#B4861B",
+   "system-dark": "#E0B25A",
+   "hearth-dark": "#E0B25A",
+   "parchment": "#9A6F0E",
+   "frost": "#A07A1F",
+   "midnight": "#E0B25A",
+   "forest": "#D9B25E"
+  },
+  "--warn-soft": {
+   "system-light": "#F6EBD0",
+   "system-dark": "#2C2416",
+   "hearth-dark": "#2C2416",
+   "parchment": "#E8D5A2",
+   "frost": "#F2EAD3",
+   "midnight": "#2C2416",
+   "forest": "#2A2618"
+  },
+  "--warn-ink": {
+   "system-light": "#7A5A0F",
+   "system-dark": "#F0CE86",
+   "hearth-dark": "#F0CE86",
+   "parchment": "#5E4408",
+   "frost": "#6B5010",
+   "midnight": "#F0CE86",
+   "forest": "#EFD28A"
+  },
+  "--danger": {
+   "system-light": "#BC5A38",
+   "system-dark": "#E28A66",
+   "hearth-dark": "#E28A66",
+   "parchment": "#A84B2C",
+   "frost": "#B25538",
+   "midnight": "#E28A66",
+   "forest": "#E08E6B"
+  },
+  "--danger-soft": {
+   "system-light": "#F7E3DA",
+   "system-dark": "#2B1D17",
+   "hearth-dark": "#2B1D17",
+   "parchment": "#E9CFBD",
+   "frost": "#F5E2DA",
+   "midnight": "#2B1D17",
+   "forest": "#2C1F1A"
+  },
+  "--danger-ink": {
+   "system-light": "#8E3E22",
+   "system-dark": "#F1B198",
+   "hearth-dark": "#F1B198",
+   "parchment": "#7A3419",
+   "frost": "#833A22",
+   "midnight": "#F1B198",
+   "forest": "#F0B49A"
+  },
+  "--info": {
+   "system-light": "#137F77",
+   "system-dark": "#5EC2B8",
+   "hearth-dark": "#5EC2B8",
+   "parchment": "#0F6E67",
+   "frost": "#137F77",
+   "midnight": "#5EC2B8",
+   "forest": "#62C3B8"
+  },
+  "--info-soft": {
+   "system-light": "#DCECEA",
+   "system-dark": "#12241F",
+   "hearth-dark": "#12241F",
+   "parchment": "#CFDCCF",
+   "frost": "#DAEDEA",
+   "midnight": "#12241F",
+   "forest": "#132925"
+  },
+  "--info-ink": {
+   "system-light": "#0E5F59",
+   "system-dark": "#93DCD4",
+   "hearth-dark": "#93DCD4",
+   "parchment": "#0A4F49",
+   "frost": "#0D5C56",
+   "midnight": "#93DCD4",
+   "forest": "#98DDD3"
+  },
+  "--accent": {
+   "all": "#4F5D8C"
+  },
+  "--accent-soft": {
+   "system-light": "#E6E6E9",
+   "system-dark": "#2A2729",
+   "hearth-dark": "#2A2729",
+   "parchment": "#DAD4C8",
+   "frost": "#E2E5ED",
+   "midnight": "#2A2729",
+   "forest": "#202A33"
+  },
+  "--accent-tint": {
+   "system-light": "#D1D3DC",
+   "system-dark": "#2F2E37",
+   "hearth-dark": "#2F2E37",
+   "parchment": "#C7C3C0",
+   "frost": "#CED2E0",
+   "midnight": "#2F2E37",
+   "forest": "#263140"
+  },
+  "--accent-deep": {
+   "system-light": "#394365",
+   "system-dark": "#99A1BC",
+   "hearth-dark": "#99A1BC",
+   "parchment": "#343D5C",
+   "frost": "#394365",
+   "midnight": "#99A1BC",
+   "forest": "#99A1BC"
+  },
+  "--accent-strong": {
+   "system-light": "#394365",
+   "system-dark": "#99A1BC",
+   "hearth-dark": "#99A1BC",
+   "parchment": "#343D5C",
+   "frost": "#394365",
+   "midnight": "#99A1BC",
+   "forest": "#99A1BC"
+  },
+  "--accent-glow": {
+   "all": "#4F5D8C/0.35"
+  },
+  "--on-accent": {
+   "system-light": "#FFFCF8",
+   "system-dark": "#17120E",
+   "hearth-dark": "#17120E",
+   "parchment": "#FFF8EC",
+   "frost": "#FFFFFF",
+   "midnight": "#17120E",
+   "forest": "#0E1412"
+  },
+  "--tint": {
+   "all": "#4F5D8C"
+  },
+  "--e1": {
+   "system-light": "0 1px 2px rgba(58,46,36,.06), 0 1px 1px rgba(58,46,36,.04)",
+   "system-dark": "0 1px 2px rgba(0,0,0,.35)",
+   "hearth-dark": "0 1px 2px rgba(0,0,0,.35)",
+   "parchment": "0 1px 2px rgba(58,42,26,.08), 0 1px 1px rgba(58,42,26,.05)",
+   "frost": "0 1px 2px rgba(30,36,48,.06), 0 1px 1px rgba(30,36,48,.04)",
+   "midnight": "0 1px 2px rgba(0,0,0,.35)",
+   "forest": "0 1px 2px rgba(0,0,0,.35)"
+  },
+  "--e2": {
+   "system-light": "0 1px 2px rgba(58,46,36,.05), 0 6px 18px -8px rgba(58,46,36,.16)",
+   "system-dark": "0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6)",
+   "hearth-dark": "0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6)",
+   "parchment": "0 1px 2px rgba(58,42,26,.07), 0 6px 18px -8px rgba(58,42,26,.2)",
+   "frost": "0 1px 2px rgba(30,36,48,.05), 0 6px 18px -8px rgba(30,36,48,.16)",
+   "midnight": "0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6)",
+   "forest": "0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6)"
+  },
+  "--e3": {
+   "system-light": "0 2px 6px rgba(58,46,36,.06), 0 18px 40px -16px rgba(58,46,36,.26)",
+   "system-dark": "0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75)",
+   "hearth-dark": "0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75)",
+   "parchment": "0 2px 6px rgba(58,42,26,.08), 0 18px 40px -16px rgba(58,42,26,.3)",
+   "frost": "0 2px 6px rgba(30,36,48,.06), 0 18px 40px -16px rgba(30,36,48,.26)",
+   "midnight": "0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75)",
+   "forest": "0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75)"
+  },
+  "--e4": {
+   "system-light": "0 4px 12px rgba(58,46,36,.08), 0 32px 72px -24px rgba(58,46,36,.36)",
+   "system-dark": "0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85)",
+   "hearth-dark": "0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85)",
+   "parchment": "0 4px 12px rgba(58,42,26,.1), 0 32px 72px -24px rgba(58,42,26,.4)",
+   "frost": "0 4px 12px rgba(30,36,48,.08), 0 32px 72px -24px rgba(30,36,48,.36)",
+   "midnight": "0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85)",
+   "forest": "0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85)"
+  },
+  "--shadow-sm": {
+   "system-light": "0 1px 2px rgba(58,46,36,.06), 0 1px 1px rgba(58,46,36,.04)",
+   "system-dark": "0 1px 2px rgba(0,0,0,.35)",
+   "hearth-dark": "0 1px 2px rgba(0,0,0,.35)",
+   "parchment": "0 1px 2px rgba(58,42,26,.08), 0 1px 1px rgba(58,42,26,.05)",
+   "frost": "0 1px 2px rgba(30,36,48,.06), 0 1px 1px rgba(30,36,48,.04)",
+   "midnight": "0 1px 2px rgba(0,0,0,.35)",
+   "forest": "0 1px 2px rgba(0,0,0,.35)"
+  },
+  "--shadow": {
+   "system-light": "0 1px 2px rgba(58,46,36,.05), 0 6px 18px -8px rgba(58,46,36,.16)",
+   "system-dark": "0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6)",
+   "hearth-dark": "0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6)",
+   "parchment": "0 1px 2px rgba(58,42,26,.07), 0 6px 18px -8px rgba(58,42,26,.2)",
+   "frost": "0 1px 2px rgba(30,36,48,.05), 0 6px 18px -8px rgba(30,36,48,.16)",
+   "midnight": "0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6)",
+   "forest": "0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6)"
+  },
+  "--shadow-lg": {
+   "system-light": "0 2px 6px rgba(58,46,36,.06), 0 18px 40px -16px rgba(58,46,36,.26)",
+   "system-dark": "0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75)",
+   "hearth-dark": "0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75)",
+   "parchment": "0 2px 6px rgba(58,42,26,.08), 0 18px 40px -16px rgba(58,42,26,.3)",
+   "frost": "0 2px 6px rgba(30,36,48,.06), 0 18px 40px -16px rgba(30,36,48,.26)",
+   "midnight": "0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75)",
+   "forest": "0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75)"
+  },
+  "--glow-accent": {
+   "all": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+  },
+  "--focus": {
+   "all": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+  },
+  "--ease": {
+   "all": "cubic-bezier(.2, .7, .2, 1)"
+  },
+  "--ease-out": {
+   "all": "cubic-bezier(.2, .7, .2, 1)"
+  },
+  "--ease-in-out": {
+   "all": "cubic-bezier(.65, 0, .35, 1)"
+  },
+  "--spring": {
+   "all": "cubic-bezier(.34, 1.4, .64, 1)"
+  },
+  "--dur": {
+   "all": "220ms"
+  },
+  "--dur-1": {
+   "all": "120ms"
+  },
+  "--dur-2": {
+   "all": "220ms"
+  },
+  "--dur-3": {
+   "all": "360ms"
+  },
+  "--g": {
+   "all": ""
+  },
+  "--size": {
+   "all": ""
+  }
+ },
+ "kinds": {
+  "kid": {
+   "system-light": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-system",
+    "diff": {
+     "--fs-sm": {
+      "kid": "16px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kid": "19px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kid": "22px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kid": "26px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kid": "34px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kid": "60px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kid": "clamp(38px, 9vw, 54px) (=54px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kid": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kid": ".08em (=1.5px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--r-sm": {
+      "kid": "16px",
+      "adult": "12px"
+     },
+     "--r": {
+      "kid": "22px",
+      "adult": "16px"
+     },
+     "--r-lg": {
+      "kid": "28px",
+      "adult": "22px"
+     },
+     "--r-xl": {
+      "kid": "36px",
+      "adult": "28px"
+     },
+     "--r-2xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--tap": {
+      "kid": "64px",
+      "adult": "44px"
+     },
+     "--tap-lg": {
+      "kid": "84px",
+      "adult": "60px"
+     },
+     "--wash": {
+      "kid": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #137F77 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kid": "#DEEBE6",
+      "adult": "#E6E6E9"
+     },
+     "--accent-tint": {
+      "kid": "#C2DBD6",
+      "adult": "#D1D3DC"
+     },
+     "--accent-deep": {
+      "kid": "#0E5B56",
+      "adult": "#394365"
+     },
+     "--accent-strong": {
+      "kid": "#0E5B56",
+      "adult": "#394365"
+     },
+     "--accent-glow": {
+      "kid": "#137F77/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kid": "0 8px 24px -8px color-mix(in srgb, #137F77 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kid": "0 0 0 3px color-mix(in srgb, #137F77 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "system-dark": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-dark-system",
+    "diff": {
+     "--fs-sm": {
+      "kid": "16px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kid": "19px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kid": "22px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kid": "26px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kid": "34px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kid": "60px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kid": "clamp(38px, 9vw, 54px) (=54px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kid": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kid": ".08em (=1.5px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--r-sm": {
+      "kid": "16px",
+      "adult": "12px"
+     },
+     "--r": {
+      "kid": "22px",
+      "adult": "16px"
+     },
+     "--r-lg": {
+      "kid": "28px",
+      "adult": "22px"
+     },
+     "--r-xl": {
+      "kid": "36px",
+      "adult": "28px"
+     },
+     "--r-2xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--tap": {
+      "kid": "64px",
+      "adult": "44px"
+     },
+     "--tap-lg": {
+      "kid": "84px",
+      "adult": "60px"
+     },
+     "--wash": {
+      "kid": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #137F77 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kid": "#222C26",
+      "adult": "#2A2729"
+     },
+     "--accent-tint": {
+      "kid": "#203731",
+      "adult": "#2F2E37"
+     },
+     "--accent-deep": {
+      "kid": "#76B5B0",
+      "adult": "#99A1BC"
+     },
+     "--accent-strong": {
+      "kid": "#76B5B0",
+      "adult": "#99A1BC"
+     },
+     "--accent-glow": {
+      "kid": "#137F77/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kid": "0 8px 24px -8px color-mix(in srgb, #137F77 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kid": "0 0 0 3px color-mix(in srgb, #137F77 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "hearth-dark": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--fs-sm": {
+      "kid": "16px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kid": "19px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kid": "22px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kid": "26px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kid": "34px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kid": "60px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kid": "clamp(38px, 9vw, 54px) (=54px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kid": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kid": ".08em (=1.5px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--r-sm": {
+      "kid": "16px",
+      "adult": "12px"
+     },
+     "--r": {
+      "kid": "22px",
+      "adult": "16px"
+     },
+     "--r-lg": {
+      "kid": "28px",
+      "adult": "22px"
+     },
+     "--r-xl": {
+      "kid": "36px",
+      "adult": "28px"
+     },
+     "--r-2xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--tap": {
+      "kid": "64px",
+      "adult": "44px"
+     },
+     "--tap-lg": {
+      "kid": "84px",
+      "adult": "60px"
+     },
+     "--wash": {
+      "kid": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #137F77 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kid": "#222C26",
+      "adult": "#2A2729"
+     },
+     "--accent-tint": {
+      "kid": "#203731",
+      "adult": "#2F2E37"
+     },
+     "--accent-deep": {
+      "kid": "#76B5B0",
+      "adult": "#99A1BC"
+     },
+     "--accent-strong": {
+      "kid": "#76B5B0",
+      "adult": "#99A1BC"
+     },
+     "--accent-glow": {
+      "kid": "#137F77/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kid": "0 8px 24px -8px color-mix(in srgb, #137F77 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kid": "0 0 0 3px color-mix(in srgb, #137F77 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "parchment": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--fs-sm": {
+      "kid": "16px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kid": "19px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kid": "22px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kid": "26px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kid": "34px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kid": "60px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kid": "clamp(38px, 9vw, 54px) (=54px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kid": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kid": ".08em (=1.5px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--r-sm": {
+      "kid": "16px",
+      "adult": "12px"
+     },
+     "--r": {
+      "kid": "22px",
+      "adult": "16px"
+     },
+     "--r-lg": {
+      "kid": "28px",
+      "adult": "22px"
+     },
+     "--r-xl": {
+      "kid": "36px",
+      "adult": "28px"
+     },
+     "--r-2xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--tap": {
+      "kid": "64px",
+      "adult": "44px"
+     },
+     "--tap-lg": {
+      "kid": "84px",
+      "adult": "60px"
+     },
+     "--wash": {
+      "kid": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #137F77 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kid": "#D2D8C5",
+      "adult": "#DAD4C8"
+     },
+     "--accent-tint": {
+      "kid": "#B7CCBA",
+      "adult": "#C7C3C0"
+     },
+     "--accent-deep": {
+      "kid": "#0D544F",
+      "adult": "#343D5C"
+     },
+     "--accent-strong": {
+      "kid": "#0D544F",
+      "adult": "#343D5C"
+     },
+     "--accent-glow": {
+      "kid": "#137F77/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kid": "0 8px 24px -8px color-mix(in srgb, #137F77 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kid": "0 0 0 3px color-mix(in srgb, #137F77 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "frost": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--fs-sm": {
+      "kid": "16px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kid": "19px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kid": "22px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kid": "26px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kid": "34px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kid": "60px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kid": "clamp(38px, 9vw, 54px) (=54px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kid": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kid": ".08em (=1.5px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--r-sm": {
+      "kid": "16px",
+      "adult": "12px"
+     },
+     "--r": {
+      "kid": "22px",
+      "adult": "16px"
+     },
+     "--r-lg": {
+      "kid": "28px",
+      "adult": "22px"
+     },
+     "--r-xl": {
+      "kid": "36px",
+      "adult": "28px"
+     },
+     "--r-2xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--tap": {
+      "kid": "64px",
+      "adult": "44px"
+     },
+     "--tap-lg": {
+      "kid": "84px",
+      "adult": "60px"
+     },
+     "--wash": {
+      "kid": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #137F77 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kid": "#DAEAEA",
+      "adult": "#E2E5ED"
+     },
+     "--accent-tint": {
+      "kid": "#BEDBDA",
+      "adult": "#CED2E0"
+     },
+     "--accent-deep": {
+      "kid": "#0E5B56",
+      "adult": "#394365"
+     },
+     "--accent-strong": {
+      "kid": "#0E5B56",
+      "adult": "#394365"
+     },
+     "--accent-glow": {
+      "kid": "#137F77/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kid": "0 8px 24px -8px color-mix(in srgb, #137F77 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kid": "0 0 0 3px color-mix(in srgb, #137F77 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "midnight": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--fs-sm": {
+      "kid": "16px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kid": "19px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kid": "22px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kid": "26px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kid": "34px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kid": "60px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kid": "clamp(38px, 9vw, 54px) (=54px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kid": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kid": ".08em (=1.5px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--r-sm": {
+      "kid": "16px",
+      "adult": "12px"
+     },
+     "--r": {
+      "kid": "22px",
+      "adult": "16px"
+     },
+     "--r-lg": {
+      "kid": "28px",
+      "adult": "22px"
+     },
+     "--r-xl": {
+      "kid": "36px",
+      "adult": "28px"
+     },
+     "--r-2xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--tap": {
+      "kid": "64px",
+      "adult": "44px"
+     },
+     "--tap-lg": {
+      "kid": "84px",
+      "adult": "60px"
+     },
+     "--wash": {
+      "kid": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #137F77 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kid": "#222C26",
+      "adult": "#2A2729"
+     },
+     "--accent-tint": {
+      "kid": "#203731",
+      "adult": "#2F2E37"
+     },
+     "--accent-deep": {
+      "kid": "#76B5B0",
+      "adult": "#99A1BC"
+     },
+     "--accent-strong": {
+      "kid": "#76B5B0",
+      "adult": "#99A1BC"
+     },
+     "--accent-glow": {
+      "kid": "#137F77/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kid": "0 8px 24px -8px color-mix(in srgb, #137F77 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kid": "0 0 0 3px color-mix(in srgb, #137F77 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "forest": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--fs-sm": {
+      "kid": "16px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kid": "19px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kid": "22px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kid": "26px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kid": "34px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kid": "60px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kid": "clamp(38px, 9vw, 54px) (=54px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kid": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kid": ".08em (=1.5px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--r-sm": {
+      "kid": "16px",
+      "adult": "12px"
+     },
+     "--r": {
+      "kid": "22px",
+      "adult": "16px"
+     },
+     "--r-lg": {
+      "kid": "28px",
+      "adult": "22px"
+     },
+     "--r-xl": {
+      "kid": "36px",
+      "adult": "28px"
+     },
+     "--r-2xl": {
+      "kid": "44px",
+      "adult": "36px"
+     },
+     "--tap": {
+      "kid": "64px",
+      "adult": "44px"
+     },
+     "--tap-lg": {
+      "kid": "84px",
+      "adult": "60px"
+     },
+     "--wash": {
+      "kid": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #137F77 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kid": "#172F30",
+      "adult": "#202A33"
+     },
+     "--accent-tint": {
+      "kid": "#173A3A",
+      "adult": "#263140"
+     },
+     "--accent-deep": {
+      "kid": "#76B5B0",
+      "adult": "#99A1BC"
+     },
+     "--accent-strong": {
+      "kid": "#76B5B0",
+      "adult": "#99A1BC"
+     },
+     "--accent-glow": {
+      "kid": "#137F77/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kid": "#137F77",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kid": "0 8px 24px -8px color-mix(in srgb, #137F77 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kid": "0 0 0 3px color-mix(in srgb, #137F77 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   }
+  },
+  "kiosk": {
+   "system-light": {
+    "from": "themes/tv/board-ipad-typical-ipad-portrait-light-system",
+    "diff": {
+     "--fs-sm": {
+      "kiosk": "18px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kiosk": "22px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kiosk": "26px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kiosk": "32px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kiosk": "40px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kiosk": "56px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kiosk": "84px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kiosk": "clamp(56px, 8vw, 96px) (=65.6px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kiosk": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kiosk": ".08em (=1.8px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--blur": {
+      "kiosk": "28px",
+      "adult": "18px"
+     },
+     "--wash": {
+      "kiosk": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4C4C58 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kiosk": "#E6E3E2",
+      "adult": "#E6E6E9"
+     },
+     "--accent-tint": {
+      "kiosk": "#D0CECE",
+      "adult": "#D1D3DC"
+     },
+     "--accent-deep": {
+      "kiosk": "#37373F",
+      "adult": "#394365"
+     },
+     "--accent-strong": {
+      "kiosk": "#37373F",
+      "adult": "#394365"
+     },
+     "--accent-glow": {
+      "kiosk": "#4C4C58/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kiosk": "0 8px 24px -8px color-mix(in srgb, #4C4C58 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kiosk": "0 0 0 3px color-mix(in srgb, #4C4C58 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "system-dark": {
+    "from": "themes/tv/board-ipad-typical-ipad-portrait-dark-system",
+    "diff": {
+     "--fs-sm": {
+      "kiosk": "18px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kiosk": "22px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kiosk": "26px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kiosk": "32px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kiosk": "40px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kiosk": "56px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kiosk": "84px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kiosk": "clamp(56px, 8vw, 96px) (=65.6px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kiosk": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kiosk": ".08em (=1.8px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--blur": {
+      "kiosk": "28px",
+      "adult": "18px"
+     },
+     "--wash": {
+      "kiosk": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4C4C58 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kiosk": "#2A2422",
+      "adult": "#2A2729"
+     },
+     "--accent-tint": {
+      "kiosk": "#2E2A29",
+      "adult": "#2F2E37"
+     },
+     "--accent-deep": {
+      "kiosk": "#97979E",
+      "adult": "#99A1BC"
+     },
+     "--accent-strong": {
+      "kiosk": "#97979E",
+      "adult": "#99A1BC"
+     },
+     "--accent-glow": {
+      "kiosk": "#4C4C58/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kiosk": "0 8px 24px -8px color-mix(in srgb, #4C4C58 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kiosk": "0 0 0 3px color-mix(in srgb, #4C4C58 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "hearth-dark": {
+    "from": "themes/tv/board-ipad-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--fs-sm": {
+      "kiosk": "18px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kiosk": "22px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kiosk": "26px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kiosk": "32px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kiosk": "40px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kiosk": "56px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kiosk": "84px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kiosk": "clamp(56px, 8vw, 96px) (=65.6px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kiosk": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kiosk": ".08em (=1.8px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--blur": {
+      "kiosk": "28px",
+      "adult": "18px"
+     },
+     "--wash": {
+      "kiosk": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4C4C58 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kiosk": "#2A2422",
+      "adult": "#2A2729"
+     },
+     "--accent-tint": {
+      "kiosk": "#2E2A29",
+      "adult": "#2F2E37"
+     },
+     "--accent-deep": {
+      "kiosk": "#97979E",
+      "adult": "#99A1BC"
+     },
+     "--accent-strong": {
+      "kiosk": "#97979E",
+      "adult": "#99A1BC"
+     },
+     "--accent-glow": {
+      "kiosk": "#4C4C58/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kiosk": "0 8px 24px -8px color-mix(in srgb, #4C4C58 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kiosk": "0 0 0 3px color-mix(in srgb, #4C4C58 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "parchment": {
+    "from": "themes/tv/board-ipad-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--fs-sm": {
+      "kiosk": "18px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kiosk": "22px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kiosk": "26px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kiosk": "32px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kiosk": "40px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kiosk": "56px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kiosk": "84px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kiosk": "clamp(56px, 8vw, 96px) (=65.6px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kiosk": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kiosk": ".08em (=1.8px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--blur": {
+      "kiosk": "28px",
+      "adult": "18px"
+     },
+     "--wash": {
+      "kiosk": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4C4C58 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kiosk": "#DAD1C1",
+      "adult": "#DAD4C8"
+     },
+     "--accent-tint": {
+      "kiosk": "#C6BFB2",
+      "adult": "#C7C3C0"
+     },
+     "--accent-deep": {
+      "kiosk": "#32323A",
+      "adult": "#343D5C"
+     },
+     "--accent-strong": {
+      "kiosk": "#32323A",
+      "adult": "#343D5C"
+     },
+     "--accent-glow": {
+      "kiosk": "#4C4C58/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kiosk": "0 8px 24px -8px color-mix(in srgb, #4C4C58 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kiosk": "0 0 0 3px color-mix(in srgb, #4C4C58 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "frost": {
+    "from": "themes/tv/board-ipad-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--fs-sm": {
+      "kiosk": "18px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kiosk": "22px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kiosk": "26px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kiosk": "32px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kiosk": "40px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kiosk": "56px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kiosk": "84px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kiosk": "clamp(56px, 8vw, 96px) (=65.6px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kiosk": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kiosk": ".08em (=1.8px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--blur": {
+      "kiosk": "28px",
+      "adult": "18px"
+     },
+     "--wash": {
+      "kiosk": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4C4C58 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kiosk": "#E2E2E6",
+      "adult": "#E2E5ED"
+     },
+     "--accent-tint": {
+      "kiosk": "#CDCDD2",
+      "adult": "#CED2E0"
+     },
+     "--accent-deep": {
+      "kiosk": "#37373F",
+      "adult": "#394365"
+     },
+     "--accent-strong": {
+      "kiosk": "#37373F",
+      "adult": "#394365"
+     },
+     "--accent-glow": {
+      "kiosk": "#4C4C58/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kiosk": "0 8px 24px -8px color-mix(in srgb, #4C4C58 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kiosk": "0 0 0 3px color-mix(in srgb, #4C4C58 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "midnight": {
+    "from": "themes/tv/board-ipad-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--fs-sm": {
+      "kiosk": "18px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kiosk": "22px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kiosk": "26px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kiosk": "32px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kiosk": "40px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kiosk": "56px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kiosk": "84px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kiosk": "clamp(56px, 8vw, 96px) (=65.6px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kiosk": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kiosk": ".08em (=1.8px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--blur": {
+      "kiosk": "28px",
+      "adult": "18px"
+     },
+     "--wash": {
+      "kiosk": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4C4C58 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kiosk": "#2A2422",
+      "adult": "#2A2729"
+     },
+     "--accent-tint": {
+      "kiosk": "#2E2A29",
+      "adult": "#2F2E37"
+     },
+     "--accent-deep": {
+      "kiosk": "#97979E",
+      "adult": "#99A1BC"
+     },
+     "--accent-strong": {
+      "kiosk": "#97979E",
+      "adult": "#99A1BC"
+     },
+     "--accent-glow": {
+      "kiosk": "#4C4C58/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kiosk": "0 8px 24px -8px color-mix(in srgb, #4C4C58 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kiosk": "0 0 0 3px color-mix(in srgb, #4C4C58 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "forest": {
+    "from": "themes/tv/board-ipad-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--fs-sm": {
+      "kiosk": "18px",
+      "adult": "14px"
+     },
+     "--fs-md": {
+      "kiosk": "22px",
+      "adult": "16px"
+     },
+     "--fs-lg": {
+      "kiosk": "26px",
+      "adult": "18px"
+     },
+     "--fs-xl": {
+      "kiosk": "32px",
+      "adult": "22px"
+     },
+     "--fs-2xl": {
+      "kiosk": "40px",
+      "adult": "28px"
+     },
+     "--fs-3xl": {
+      "kiosk": "56px",
+      "adult": "36px"
+     },
+     "--fs-4xl": {
+      "kiosk": "84px",
+      "adult": "48px"
+     },
+     "--fs-hero": {
+      "kiosk": "clamp(56px, 8vw, 96px) (=65.6px here)",
+      "adult": "clamp(34px, 7.5vw, 46px) (=46px here)"
+     },
+     "--ls-tight": {
+      "kiosk": "-0.02em (=-0.4px here)",
+      "adult": "-0.02em (=-0.3px here)"
+     },
+     "--ls-caps": {
+      "kiosk": ".08em (=1.8px here)",
+      "adult": ".08em (=1.3px here)"
+     },
+     "--blur": {
+      "kiosk": "28px",
+      "adult": "18px"
+     },
+     "--wash": {
+      "kiosk": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4C4C58 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "adult": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "kiosk": "#1F282C",
+      "adult": "#202A33"
+     },
+     "--accent-tint": {
+      "kiosk": "#262D32",
+      "adult": "#263140"
+     },
+     "--accent-deep": {
+      "kiosk": "#97979E",
+      "adult": "#99A1BC"
+     },
+     "--accent-strong": {
+      "kiosk": "#97979E",
+      "adult": "#99A1BC"
+     },
+     "--accent-glow": {
+      "kiosk": "#4C4C58/0.35",
+      "adult": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "kiosk": "#4C4C58",
+      "adult": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "kiosk": "0 8px 24px -8px color-mix(in srgb, #4C4C58 35%, transparent)",
+      "adult": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "kiosk": "0 0 0 3px color-mix(in srgb, #4C4C58 38%, transparent)",
+      "adult": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   }
+  }
+ },
+ "frameDiffs": {
+  "frame:dollywood": {
+   "system-light|adult": {
+    "from": "devices/dollywood/about-typical-desktop-light-system",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "51% (=51px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "system-dark|adult": {
+    "from": "devices/dollywood/about-typical-desktop-dark-system",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "51% (=51px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "hearth-dark|adult": {
+    "from": "themes/dollywood/about-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "parchment|adult": {
+    "from": "themes/dollywood/about-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "frost|adult": {
+    "from": "themes/dollywood/about-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "midnight|adult": {
+    "from": "themes/dollywood/about-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "forest|adult": {
+    "from": "themes/dollywood/about-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   }
+  },
+  "frame:dollywood-live": {
+   "system-light|adult": {
+    "from": "devices/dollywood-live/amenity-tap-typical-desktop-light-system",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "system-light|kid": {
+    "from": "devices/dollywood-live/kid-family-typical-desktop-light-system",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.5px here)"
+     }
+    }
+   },
+   "system-dark|adult": {
+    "from": "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "system-dark|kid": {
+    "from": "devices/dollywood-live/kid-family-typical-desktop-dark-system",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.5px here)"
+     }
+    }
+   },
+   "hearth-dark|adult": {
+    "from": "themes/dollywood-live/amenity-tap-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "hearth-dark|kid": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.5px here)"
+     }
+    }
+   },
+   "parchment|adult": {
+    "from": "themes/dollywood-live/amenity-tap-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "parchment|kid": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.5px here)"
+     }
+    }
+   },
+   "frost|adult": {
+    "from": "themes/dollywood-live/amenity-tap-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "frost|kid": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.5px here)"
+     }
+    }
+   },
+   "midnight|adult": {
+    "from": "themes/dollywood-live/amenity-tap-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "midnight|kid": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.5px here)"
+     }
+    }
+   },
+   "forest|adult": {
+    "from": "themes/dollywood-live/amenity-tap-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "forest|kid": {
+    "from": "themes/dollywood-live/kid-family-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.2px here)",
+      "page": ".08em (=1.5px here)"
+     }
+    }
+   }
+  },
+  "frame:f260": {
+   "system-light|adult": {
+    "from": "devices/f260/behind-pace-typical-desktop-light-system",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--hover": {
+      "frame": "#E2E3D8",
+      "page": "#F2EADF"
+     },
+     "--sheen-x": {
+      "frame": "26% (=26px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#E4E5DE",
+      "page": "#E6E6E9"
+     },
+     "--accent-tint": {
+      "frame": "#CDD2C7",
+      "page": "#D1D3DC"
+     },
+     "--accent-deep": {
+      "frame": "#2C412C",
+      "page": "#394365"
+     },
+     "--accent-strong": {
+      "frame": "#2C412C",
+      "page": "#394365"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "system-dark|adult": {
+    "from": "devices/f260/behind-pace-typical-desktop-dark-system",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--hover": {
+      "frame": "#30312B",
+      "page": "#2D2620"
+     },
+     "--sheen-x": {
+      "frame": "26% (=26px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#28261E",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#2B2E22",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "hearth-dark|adult": {
+    "from": "themes/f260/behind-pace-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--hover": {
+      "frame": "#30312B",
+      "page": "#2D2620"
+     },
+     "--sheen-x": {
+      "frame": "27% (=27px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#28261E",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#2B2E22",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "parchment|adult": {
+    "from": "themes/f260/behind-pace-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--hover": {
+      "frame": "#DAD4BD",
+      "page": "#E9DCC4"
+     },
+     "--sheen-x": {
+      "frame": "27% (=27px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#D8D3BD",
+      "page": "#DAD4C8"
+     },
+     "--accent-tint": {
+      "frame": "#C2C2AB",
+      "page": "#C7C3C0"
+     },
+     "--accent-deep": {
+      "frame": "#283B28",
+      "page": "#343D5C"
+     },
+     "--accent-strong": {
+      "frame": "#283B28",
+      "page": "#343D5C"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "frost|adult": {
+    "from": "themes/f260/behind-pace-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--hover": {
+      "frame": "#D9E4E9",
+      "page": "#E8ECF2"
+     },
+     "--sheen-x": {
+      "frame": "27% (=27px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#E0E4E2",
+      "page": "#E2E5ED"
+     },
+     "--accent-tint": {
+      "frame": "#C9D1CB",
+      "page": "#CED2E0"
+     },
+     "--accent-deep": {
+      "frame": "#2C412C",
+      "page": "#394365"
+     },
+     "--accent-strong": {
+      "frame": "#2C412C",
+      "page": "#394365"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "midnight|adult": {
+    "from": "themes/f260/behind-pace-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--hover": {
+      "frame": "#30312B",
+      "page": "#2D2620"
+     },
+     "--sheen-x": {
+      "frame": "27% (=27px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#28261E",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#2B2E22",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "forest|adult": {
+    "from": "themes/f260/behind-pace-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--hover": {
+      "frame": "#243638",
+      "page": "#1F2B2E"
+     },
+     "--sheen-x": {
+      "frame": "27% (=27px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#1D2A28",
+      "page": "#202A33"
+     },
+     "--accent-tint": {
+      "frame": "#22312B",
+      "page": "#263140"
+     },
+     "--accent-deep": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   }
+  },
+  "frame:kidverse": {
+   "system-light|adult": {
+    "from": "devices/kidverse/adult-f260-hint-typical-desktop-light-system",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#E4E5DE",
+      "page": "#E6E6E9"
+     },
+     "--accent-tint": {
+      "frame": "#CDD2C7",
+      "page": "#D1D3DC"
+     },
+     "--accent-deep": {
+      "frame": "#2C412C",
+      "page": "#394365"
+     },
+     "--accent-strong": {
+      "frame": "#2C412C",
+      "page": "#394365"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "system-light|kid": {
+    "from": "devices/kidverse/kid-cashed-in-typical-desktop-light-system",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "system-dark|adult": {
+    "from": "devices/kidverse/adult-f260-hint-typical-desktop-dark-system",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#28261E",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#2B2E22",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "system-dark|kid": {
+    "from": "devices/kidverse/kid-cashed-in-typical-desktop-dark-system",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "hearth-dark|adult": {
+    "from": "themes/kidverse/adult-f260-hint-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#28261E",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#2B2E22",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "hearth-dark|kid": {
+    "from": "themes/kidverse/kid-cashed-in-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "parchment|adult": {
+    "from": "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#D8D3BD",
+      "page": "#DAD4C8"
+     },
+     "--accent-tint": {
+      "frame": "#C2C2AB",
+      "page": "#C7C3C0"
+     },
+     "--accent-deep": {
+      "frame": "#283B28",
+      "page": "#343D5C"
+     },
+     "--accent-strong": {
+      "frame": "#283B28",
+      "page": "#343D5C"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "parchment|kid": {
+    "from": "themes/kidverse/kid-cashed-in-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "frost|adult": {
+    "from": "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#E0E4E2",
+      "page": "#E2E5ED"
+     },
+     "--accent-tint": {
+      "frame": "#C9D1CB",
+      "page": "#CED2E0"
+     },
+     "--accent-deep": {
+      "frame": "#2C412C",
+      "page": "#394365"
+     },
+     "--accent-strong": {
+      "frame": "#2C412C",
+      "page": "#394365"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "frost|kid": {
+    "from": "themes/kidverse/kid-cashed-in-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "midnight|adult": {
+    "from": "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#28261E",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#2B2E22",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "midnight|kid": {
+    "from": "themes/kidverse/kid-cashed-in-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "forest|adult": {
+    "from": "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     },
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #3D5A3D 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#1D2A28",
+      "page": "#202A33"
+     },
+     "--accent-tint": {
+      "frame": "#22312B",
+      "page": "#263140"
+     },
+     "--accent-deep": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#8E9F8E",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#3D5A3D/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#3D5A3D",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #3D5A3D 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #3D5A3D 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "forest|kid": {
+    "from": "themes/kidverse/kid-cashed-in-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   }
+  },
+  "frame:prayer": {
+   "system-light|adult": {
+    "from": "devices/prayer/add-filled-typical-desktop-light-system",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "system-light|kid": {
+    "from": "devices/prayer/kid-all-prayed-typical-desktop-light-system",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.5px here)"
+     },
+     "--accent-soft": {
+      "frame": "#DCECEA",
+      "page": "#DEEBE6"
+     }
+    }
+   },
+   "system-dark|adult": {
+    "from": "devices/prayer/add-filled-typical-desktop-dark-system",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     },
+     "--sheen-x": {
+      "frame": "70% (=70px here)",
+      "page": "20% (=20px here)"
+     }
+    }
+   },
+   "system-dark|kid": {
+    "from": "devices/prayer/kid-all-prayed-typical-desktop-dark-system",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.5px here)"
+     },
+     "--accent": {
+      "frame": "#5EC2B8",
+      "page": "#137F77"
+     },
+     "--accent-soft": {
+      "frame": "#12241F",
+      "page": "#222C26"
+     }
+    }
+   },
+   "hearth-dark|adult": {
+    "from": "themes/prayer/add-filled-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "hearth-dark|kid": {
+    "from": "themes/prayer/kid-all-prayed-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.5px here)"
+     },
+     "--accent": {
+      "frame": "#5EC2B8",
+      "page": "#137F77"
+     },
+     "--accent-soft": {
+      "frame": "#12241F",
+      "page": "#222C26"
+     }
+    }
+   },
+   "parchment|adult": {
+    "from": "themes/prayer/add-filled-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "parchment|kid": {
+    "from": "themes/prayer/kid-all-prayed-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.5px here)"
+     },
+     "--accent": {
+      "frame": "#0F6E67",
+      "page": "#137F77"
+     },
+     "--accent-soft": {
+      "frame": "#CFDCCF",
+      "page": "#D2D8C5"
+     }
+    }
+   },
+   "frost|adult": {
+    "from": "themes/prayer/add-filled-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "frost|kid": {
+    "from": "themes/prayer/kid-all-prayed-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.5px here)"
+     },
+     "--accent-soft": {
+      "frame": "#DAEDEA",
+      "page": "#DAEAEA"
+     }
+    }
+   },
+   "midnight|adult": {
+    "from": "themes/prayer/add-filled-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "midnight|kid": {
+    "from": "themes/prayer/kid-all-prayed-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.5px here)"
+     },
+     "--accent": {
+      "frame": "#5EC2B8",
+      "page": "#137F77"
+     },
+     "--accent-soft": {
+      "frame": "#12241F",
+      "page": "#222C26"
+     }
+    }
+   },
+   "forest|adult": {
+    "from": "themes/prayer/add-filled-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.3px here)"
+     }
+    }
+   },
+   "forest|kid": {
+    "from": "themes/prayer/kid-all-prayed-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--ls-tight": {
+      "frame": "-0.02em (=-0.3px here)",
+      "page": "-0.02em (=-0.4px here)"
+     },
+     "--ls-caps": {
+      "frame": ".08em (=1.4px here)",
+      "page": ".08em (=1.5px here)"
+     },
+     "--accent": {
+      "frame": "#62C3B8",
+      "page": "#137F77"
+     },
+     "--accent-soft": {
+      "frame": "#132925",
+      "page": "#172F30"
+     }
+    }
+   }
+  },
+  "frame:timer": {
+   "system-light|adult": {
+    "from": "devices/timer/done-typical-desktop-light-system",
+    "diff": {
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #8A6A4B 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#EFE8E0",
+      "page": "#E6E6E9"
+     },
+     "--accent-tint": {
+      "frame": "#E1D6CB",
+      "page": "#D1D3DC"
+     },
+     "--accent-deep": {
+      "frame": "#634C36",
+      "page": "#394365"
+     },
+     "--accent-strong": {
+      "frame": "#634C36",
+      "page": "#394365"
+     },
+     "--accent-glow": {
+      "frame": "#8A6A4B/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #8A6A4B 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #8A6A4B 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "system-dark|adult": {
+    "from": "devices/timer/done-typical-desktop-dark-system",
+    "diff": {
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #8A6A4B 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#322920",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#3F3226",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#BBA997",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#BBA997",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#8A6A4B/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #8A6A4B 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #8A6A4B 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "hearth-dark|adult": {
+    "from": "themes/timer/done-typical-ipad-portrait-dark-hearth",
+    "diff": {
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #8A6A4B 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n            radial-gradient(90% 50% at 100% 100%, color-m…"
+     },
+     "--accent": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#322920",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#3F3226",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#BBA997",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#BBA997",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#8A6A4B/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #8A6A4B 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #8A6A4B 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "parchment|adult": {
+    "from": "themes/timer/done-typical-ipad-portrait-light-parchment",
+    "diff": {
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #8A6A4B 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 12%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#E3D6BF",
+      "page": "#DAD4C8"
+     },
+     "--accent-tint": {
+      "frame": "#D6C6AF",
+      "page": "#C7C3C0"
+     },
+     "--accent-deep": {
+      "frame": "#5B4632",
+      "page": "#343D5C"
+     },
+     "--accent-strong": {
+      "frame": "#5B4632",
+      "page": "#343D5C"
+     },
+     "--accent-glow": {
+      "frame": "#8A6A4B/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #8A6A4B 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #8A6A4B 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "frost|adult": {
+    "from": "themes/timer/done-typical-ipad-portrait-light-frost",
+    "diff": {
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #8A6A4B 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 10%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#EAE7E4",
+      "page": "#E2E5ED"
+     },
+     "--accent-tint": {
+      "frame": "#DDD5CF",
+      "page": "#CED2E0"
+     },
+     "--accent-deep": {
+      "frame": "#634C36",
+      "page": "#394365"
+     },
+     "--accent-strong": {
+      "frame": "#634C36",
+      "page": "#394365"
+     },
+     "--accent-glow": {
+      "frame": "#8A6A4B/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #8A6A4B 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #8A6A4B 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "midnight|adult": {
+    "from": "themes/timer/done-typical-ipad-portrait-light-midnight",
+    "diff": {
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #8A6A4B 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 16%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#322920",
+      "page": "#2A2729"
+     },
+     "--accent-tint": {
+      "frame": "#3F3226",
+      "page": "#2F2E37"
+     },
+     "--accent-deep": {
+      "frame": "#BBA997",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#BBA997",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#8A6A4B/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #8A6A4B 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #8A6A4B 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   },
+   "forest|adult": {
+    "from": "themes/timer/done-typical-ipad-portrait-light-forest",
+    "diff": {
+     "--wash": {
+      "frame": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #8A6A4B 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…",
+      "page": "radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, #4F5D8C 14%, transparent), transparent 60%),\n\n          radial-gradient(90% 50% at 100% 100%, color-mix…"
+     },
+     "--accent": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--accent-soft": {
+      "frame": "#282C2A",
+      "page": "#202A33"
+     },
+     "--accent-tint": {
+      "frame": "#36352F",
+      "page": "#263140"
+     },
+     "--accent-deep": {
+      "frame": "#BBA997",
+      "page": "#99A1BC"
+     },
+     "--accent-strong": {
+      "frame": "#BBA997",
+      "page": "#99A1BC"
+     },
+     "--accent-glow": {
+      "frame": "#8A6A4B/0.35",
+      "page": "#4F5D8C/0.35"
+     },
+     "--tint": {
+      "frame": "#8A6A4B",
+      "page": "#4F5D8C"
+     },
+     "--glow-accent": {
+      "frame": "0 8px 24px -8px color-mix(in srgb, #8A6A4B 35%, transparent)",
+      "page": "0 8px 24px -8px color-mix(in srgb, #4F5D8C 35%, transparent)"
+     },
+     "--focus": {
+      "frame": "0 0 0 3px color-mix(in srgb, #8A6A4B 38%, transparent)",
+      "page": "0 0 0 3px color-mix(in srgb, #4F5D8C 38%, transparent)"
+     }
+    }
+   }
+  }
+ },
+ "sources": {
+  "system-light": {
+   "page": "themes/shell/home-typical-ipad-portrait-light-system",
+   "profile": "eli",
+   "accent": "#4F5D8C"
+  },
+  "system-dark": {
+   "page": "themes/shell/home-typical-ipad-portrait-dark-system",
+   "profile": "eli",
+   "accent": "#4F5D8C"
+  },
+  "hearth-dark": {
+   "page": "themes/shell/home-typical-ipad-portrait-dark-hearth",
+   "profile": "eli",
+   "accent": "#4F5D8C"
+  },
+  "parchment": {
+   "page": "themes/shell/home-typical-ipad-portrait-light-parchment",
+   "profile": "eli",
+   "accent": "#4F5D8C"
+  },
+  "frost": {
+   "page": "themes/shell/home-typical-ipad-portrait-light-frost",
+   "profile": "eli",
+   "accent": "#4F5D8C"
+  },
+  "midnight": {
+   "page": "themes/shell/home-typical-ipad-portrait-light-midnight",
+   "profile": "eli",
+   "accent": "#4F5D8C"
+  },
+  "forest": {
+   "page": "themes/shell/home-typical-ipad-portrait-light-forest",
+   "profile": "eli",
+   "accent": "#4F5D8C"
+  }
+ },
+ "localTokens": {
+  "frame:dollywood": [
+   "--ink",
+   "--panel",
+   "--panel2",
+   "--panel3",
+   "--dim",
+   "--forest",
+   "--moss",
+   "--ochre",
+   "--clay",
+   "--cream",
+   "--sky",
+   "--attr",
+   "--shop",
+   "--dine",
+   "--coaster",
+   "--rail",
+   "--water",
+   "--lv-glass",
+   "--lv-glass-soft",
+   "--lv-glass-shadow",
+   "--lv-blur",
+   "--cat-attr",
+   "--cat-shop",
+   "--cat-dine",
+   "--cat-ink",
+   "--pop-cat",
+   "--peek",
+   "--barh"
+  ],
+  "frame:dollywood-live": [
+   "--ink",
+   "--panel",
+   "--panel2",
+   "--panel3",
+   "--dim",
+   "--forest",
+   "--moss",
+   "--ochre",
+   "--clay",
+   "--cream",
+   "--sky",
+   "--attr",
+   "--shop",
+   "--dine",
+   "--coaster",
+   "--rail",
+   "--water",
+   "--lv-glass",
+   "--lv-glass-soft",
+   "--lv-glass-shadow",
+   "--lv-blur",
+   "--cat-attr",
+   "--cat-shop",
+   "--cat-dine",
+   "--cat-ink",
+   "--pop-cat",
+   "--peek",
+   "--barh"
+  ],
+  "frame:f260": [
+   "--paper",
+   "--raised",
+   "--sunk",
+   "--ink",
+   "--ink2",
+   "--rule",
+   "--rule-soft",
+   "--hover-base",
+   "--lift",
+   "--lift-lg",
+   "--serif",
+   "--g-law",
+   "--g-hist",
+   "--g-wis",
+   "--g-pro",
+   "--g-gos",
+   "--g-epi",
+   "--on-solid",
+   "--gc"
+  ],
+  "frame:leftovers": [
+   "--ledger",
+   "--ledger-ink",
+   "--ledger-press",
+   "--addbar-h"
+  ],
+  "frame:prayer": [
+   "--paper",
+   "--raised",
+   "--sunk",
+   "--ink",
+   "--ink2",
+   "--rule",
+   "--rule-soft",
+   "--dim",
+   "--d0",
+   "--d1",
+   "--d2",
+   "--d3",
+   "--d4",
+   "--d5",
+   "--d6",
+   "--d7",
+   "--lift",
+   "--lift-lg"
+  ],
+  "frame:tally": [
+   "--tally-hi",
+   "--tally-mid",
+   "--tally-lo",
+   "--disc",
+   "--digits"
+  ]
+ }
+}

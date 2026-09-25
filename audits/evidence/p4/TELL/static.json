@@ -1,0 +1,2063 @@
+{
+ "note": "Per source file, every line matching a web-tell pattern (line numbers 1-based). dialog = alert( / confirm( / prompt( not preceded by a word char, dot or quote (so hub.confirm, confirmModal( and \"confirm(\" in strings are excluded). Long lines (>4000 chars) are skipped and counted.",
+ "files": {
+  "design.css": {
+   "file": "apps/design.css",
+   "lines": 618,
+   "skippedLong": 0,
+   "hits": {
+    "colorScheme": [
+     {
+      "line": 15,
+      "m": "light dark",
+      "text": "color-scheme: light dark;"
+     },
+     {
+      "line": 176,
+      "m": "dark",
+      "text": "@media (prefers-color-scheme: dark) {"
+     }
+    ],
+    "tapHighlight": [
+     {
+      "line": 302,
+      "m": "transparent",
+      "text": "-webkit-tap-highlight-color: transparent;"
+     },
+     {
+      "line": 312,
+      "m": "transparent",
+      "text": "button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }"
+     }
+    ],
+    "touchAction": [
+     {
+      "line": 303,
+      "m": "manipulation",
+      "text": "touch-action: manipulation;"
+     },
+     {
+      "line": 312,
+      "m": "manipulation",
+      "text": "button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }"
+     }
+    ],
+    "overscroll": [
+     {
+      "line": 304,
+      "m": "none",
+      "text": "overscroll-behavior: none;"
+     }
+    ],
+    "focusPlain": [
+     {
+      "line": 313,
+      "m": ":focus",
+      "text": ":focus { outline: none; }"
+     },
+     {
+      "line": 446,
+      "m": ":focus",
+      "text": ".ds .input:focus, .ds .select:focus, .ds .textarea:focus { border-color: var(--accent); box-shadow: var(--focus); }"
+     }
+    ],
+    "outlineNone": [
+     {
+      "line": 313,
+      "m": "none",
+      "text": ":focus { outline: none; }"
+     }
+    ],
+    "focusVisible": [
+     {
+      "line": 314,
+      "m": ":focus-visible",
+      "text": ":focus-visible { box-shadow: var(--focus); border-radius: var(--r-sm); }"
+     }
+    ],
+    "userSelect": [
+     {
+      "line": 355,
+      "m": "none",
+      "text": "cursor: pointer; user-select: none; -webkit-user-select: none;"
+     }
+    ],
+    "hoverGuard": [
+     {
+      "line": 372,
+      "m": "@media (hover: hover",
+      "text": "@media (hover: hover) and (pointer: fine) {"
+     },
+     {
+      "line": 485,
+      "m": "@media (hover: hover",
+      "text": "@media (hover: hover) and (pointer: fine) { .ds button.row:hover { background: var(--hover); } }"
+     }
+    ],
+    "hover": [
+     {
+      "line": 373,
+      "m": ":hover",
+      "text": ".ds .btn:hover { background: var(--hover); box-shadow: var(--e2); }"
+     },
+     {
+      "line": 374,
+      "m": ":hover",
+      "text": ".ds .btn-primary:hover { background: var(--accent-deep); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 12px 28px -10px var(--accent-glow); }"
+     },
+     {
+      "line": 375,
+      "m": ":hover",
+      "text": ".ds .btn-soft:hover { background: var(--accent-tint); box-shadow: none; }"
+     },
+     {
+      "line": 376,
+      "m": ":hover",
+      "text": ".ds .btn-ghost:hover { background: var(--hover); box-shadow: none; }"
+     },
+     {
+      "line": 377,
+      "m": ":hover",
+      "text": ".ds .btn-danger:hover { background: color-mix(in srgb, var(--danger) 24%, var(--surface)); box-shadow: none; }"
+     },
+     {
+      "line": 485,
+      "m": ":hover",
+      "text": "@media (hover: hover) and (pointer: fine) { .ds button.row:hover { background: var(--hover); } }"
+     }
+    ],
+    "appearanceNone": [
+     {
+      "line": 448,
+      "m": "appearance: none",
+      "text": ".ds .select { appearance: none; -webkit-appearance: none; padding-right: var(--sp-10);"
+     }
+    ],
+    "skeleton": [
+     {
+      "line": 539,
+      "m": "skeleton",
+      "text": "/* ── skeletons & empty states ─────────────────────────────────── */"
+     },
+     {
+      "line": 540,
+      "m": "skeleton",
+      "text": ".ds .skeleton { position: relative; overflow: hidden; background: var(--surface-2); border-radius: var(--r-sm); color: transparent !important; min-height: 1em; "
+     },
+     {
+      "line": 541,
+      "m": "skeleton",
+      "text": ".ds .skeleton::after { content: \"\"; position: absolute; inset: 0; transform: translateX(-100%);"
+     },
+     {
+      "line": 543,
+      "m": "shimmer",
+      "text": "animation: hub-shimmer 1.4s infinite; }"
+     },
+     {
+      "line": 544,
+      "m": "shimmer",
+      "text": "@keyframes hub-shimmer { to { transform: translateX(100%); } }"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 0,
+    "tapHighlight": 2,
+    "userSelect": 1,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 1,
+    "scrollbar": 0,
+    "focusVisible": 1,
+    "focusPlain": 2,
+    "outlineNone": 1,
+    "appearanceNone": 1,
+    "touchAction": 2,
+    "dialog": 0,
+    "skeleton": 5,
+    "spinner": 0,
+    "loadingText": 0,
+    "anchor": 0,
+    "hover": 6,
+    "hoverGuard": 2,
+    "colorScheme": 2,
+    "nativeCtl": 0
+   }
+  },
+  "hub.js": {
+   "file": "apps/hub.js",
+   "lines": 501,
+   "skippedLong": 0,
+   "hits": {
+    "colorScheme": [
+     {
+      "line": 73,
+      "m": "dark",
+      "text": "const prefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;"
+     },
+     {
+      "line": 83,
+      "m": "dark",
+      "text": "if (window.matchMedia) try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); } catch {}"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 0,
+    "tapHighlight": 0,
+    "userSelect": 0,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 0,
+    "scrollbar": 0,
+    "focusVisible": 0,
+    "focusPlain": 0,
+    "outlineNone": 0,
+    "appearanceNone": 0,
+    "touchAction": 0,
+    "dialog": 0,
+    "skeleton": 0,
+    "spinner": 0,
+    "loadingText": 0,
+    "anchor": 0,
+    "hover": 0,
+    "hoverGuard": 0,
+    "colorScheme": 2,
+    "nativeCtl": 0
+   }
+  },
+  "shell": {
+   "file": "index.html",
+   "lines": 1717,
+   "skippedLong": 0,
+   "hits": {
+    "viewport": [
+     {
+      "line": 5,
+      "m": "<meta name=\"viewport\" content=\"width=device-width, initial-s",
+      "text": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">"
+     }
+    ],
+    "colorScheme": [
+     {
+      "line": 8,
+      "m": "light",
+      "text": "<meta name=\"theme-color\" content=\"#F7F2EB\" media=\"(prefers-color-scheme: light)\">"
+     },
+     {
+      "line": 9,
+      "m": "dark",
+      "text": "<meta name=\"theme-color\" content=\"#1A1512\" media=\"(prefers-color-scheme: dark)\">"
+     },
+     {
+      "line": 1703,
+      "m": "dark",
+      "text": "window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeColor);"
+     }
+    ],
+    "hover": [
+     {
+      "line": 49,
+      "m": ":hover",
+      "text": "@media (hover: hover) and (pointer: fine) { .pcard:hover { transform: translateY(-3px); box-shadow: var(--e3); } .pcard.last:hover { box-shadow: 0 0 0 2px var(-"
+     },
+     {
+      "line": 235,
+      "m": ":hover",
+      "text": "@media (hover: hover) and (pointer: fine) { .tile:hover { transform: translateY(-3px); box-shadow: var(--e2); } }"
+     },
+     {
+      "line": 339,
+      "m": ":hover",
+      "text": "@media (hover: hover) and (pointer: fine) { #pill button:hover { background: var(--hover); } }"
+     },
+     {
+      "line": 353,
+      "m": ":hover",
+      "text": "@media (hover: hover) and (pointer: fine) { #timer-pill:hover { --g: var(--glass-strong); } }"
+     }
+    ],
+    "hoverGuard": [
+     {
+      "line": 49,
+      "m": "@media (hover: hover",
+      "text": "@media (hover: hover) and (pointer: fine) { .pcard:hover { transform: translateY(-3px); box-shadow: var(--e3); } .pcard.last:hover { box-shadow: 0 0 0 2px var(-"
+     },
+     {
+      "line": 235,
+      "m": "@media (hover: hover",
+      "text": "@media (hover: hover) and (pointer: fine) { .tile:hover { transform: translateY(-3px); box-shadow: var(--e2); } }"
+     },
+     {
+      "line": 339,
+      "m": "@media (hover: hover",
+      "text": "@media (hover: hover) and (pointer: fine) { #pill button:hover { background: var(--hover); } }"
+     },
+     {
+      "line": 353,
+      "m": "@media (hover: hover",
+      "text": "@media (hover: hover) and (pointer: fine) { #timer-pill:hover { --g: var(--glass-strong); } }"
+     }
+    ],
+    "skeleton": [
+     {
+      "line": 50,
+      "m": "skeleton",
+      "text": ".pcard.skeleton { min-height: 156px; box-shadow: none; border-color: transparent; background: var(--surface-2); -webkit-backdrop-filter: none; backdrop-filter: "
+     },
+     {
+      "line": 173,
+      "m": "skeleton",
+      "text": ":root[data-kind=\"kiosk\"] .tv-rem .empty, :root[data-kind=\"kiosk\"] .tv-rem .skeleton { display: none; }"
+     },
+     {
+      "line": 522,
+      "m": "skeleton",
+      "text": "<div class=\"profiles\" id=\"profiles\">${'<div class=\"pcard skeleton\"></div>'.repeat(8)}</div>`);"
+     },
+     {
+      "line": 688,
+      "m": "skeleton",
+      "text": "if (!s) return `${ringHtml(0, '0/5', a.color)}<span style=\"min-width:0\"><span class=\"tlabel\">${esc(a.name)}</span><span class=\"tsub\">${hub.sync.lastPull ? 'Star"
+     },
+     {
+      "line": 888,
+      "m": "skeleton",
+      "text": "// Has this (app, scope) ever been pulled on this device for this person? Then the cache is the truth until the next pull: no skeleton."
+     },
+     {
+      "line": 948,
+      "m": "skeleton",
+      "text": "if (!feed) { ul.innerHTML = Array.from({ length: 4 }, () => '<li><span class=\"avatar avatar-sm avatar-plain skeleton\"></span><div class=\"ftext\"><div class=\"skel"
+     },
+     {
+      "line": 1159,
+      "m": "skeleton",
+      "text": "const sk = '<span class=\"skeleton\">loading</span>';"
+     },
+     {
+      "line": 1222,
+      "m": "skeleton",
+      "text": "if (loading) { ul.innerHTML = '<li class=\"row\"><span class=\"skeleton\" style=\"width:60%\">loading</span></li><li class=\"row\"><span class=\"skeleton\" style=\"width:4"
+     },
+     {
+      "line": 1280,
+      "m": "skeleton",
+      "text": "${p.isAdmin ? '<div class=\"card glass span2\" id=\"admin\"><h2>Admin</h2><div id=\"admin-body\"><div class=\"skeleton\" style=\"height:120px\">loading</div></div></div>'"
+     },
+     {
+      "line": 1468,
+      "m": "skeleton",
+      "text": "chatLog.innerHTML = '<div class=\"mrow bot\"><span class=\"app-icon skeleton\"></span><div class=\"msg bot\"><span class=\"skeleton\" style=\"width:12em\">loading</span><"
+     }
+    ],
+    "overscroll": [
+     {
+      "line": 66,
+      "m": "contain",
+      "text": "#views { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; position: relative;"
+     }
+    ],
+    "spinner": [
+     {
+      "line": 76,
+      "m": "spin 1s",
+      "text": "#ptr.busy span { transform: translateY(calc(var(--safe-top) + 12px)); animation: spin 1s linear infinite; }"
+     },
+     {
+      "line": 77,
+      "m": "@keyframes spin",
+      "text": "@keyframes spin { to { transform: translateY(calc(var(--safe-top) + 12px)) rotate(360deg); } }"
+     }
+    ],
+    "focusPlain": [
+     {
+      "line": 264,
+      "m": ":focus",
+      "text": ".chat-form .input:focus { box-shadow: none; }"
+     }
+    ],
+    "loadingText": [
+     {
+      "line": 921,
+      "m": "Loading",
+      "text": "let clockTimer = null, feed = null, feedLoading = false, feedAgain = false, feedFresh = false, feedLimit = 30, feedSeq = 0;"
+     },
+     {
+      "line": 926,
+      "m": "Loading",
+      "text": "feedLoading = true; const want = feedLimit;"
+     },
+     {
+      "line": 933,
+      "m": "Loading",
+      "text": "finally { feedLoading = false; renderFeed(); if (feedAgain) { feedAgain = false; loadFeed(true); } }"
+     },
+     {
+      "line": 959,
+      "m": "Loading…",
+      "text": "const b = $('#feed-more'); if (b) b.addEventListener('click', () => { b.disabled = true; b.textContent = 'Loading…'; feedLimit = Math.min(100, feedLimit + 30); "
+     }
+    ],
+    "nativeCtl": [
+     {
+      "line": 1254,
+      "m": "file",
+      "text": "<input type=\"file\" id=\"photo-file\" accept=\"image/*\" hidden>"
+     },
+     {
+      "line": 1667,
+      "m": "<select",
+      "text": "<label class=\"field\"><span class=\"label\">Kind</span><select class=\"select\" id=\"pkind\" ${q.is_admin ? 'disabled' : ''}>${['adult', 'kid', 'kiosk'].map(k => `<opt"
+     }
+    ],
+    "dialog": [
+     {
+      "line": 1286,
+      "m": "confirm",
+      "text": "if (!confirm('Forget this device? You will need the pairing code to use the hub here again.')) return;"
+     },
+     {
+      "line": 1367,
+      "m": "confirm",
+      "text": "if (!confirm(`Cash in ${kid.name}'s ${r.total} ${r.total === 1 ? 'star' : 'stars'}? The balance goes back to 0; badges stay.`)) return;"
+     },
+     {
+      "line": 1373,
+      "m": "confirm",
+      "text": "if (!confirm(`Reset ${kid.name}'s stars for this week? This week's ${r.count} ${r.count === 1 ? 'star comes' : 'stars come'} off the balance; badges stay.`)) re"
+     },
+     {
+      "line": 1432,
+      "m": "confirm",
+      "text": "g.onclick = async ev => { const b = ev.target.closest('[data-del]'); if (!b) return; if (!confirm('Remove this photo from the album?')) return; try { await hub."
+     },
+     {
+      "line": 1620,
+      "m": "confirm",
+      "text": "if (!confirm(q.is_guest ? `Clear ${q.name}'s PIN? As a guest they will sign in on tap from now on.` : `Reset ${q.name}'s PIN? They will create a new one next ti"
+     },
+     {
+      "line": 1627,
+      "m": "confirm",
+      "text": "if (!confirm(`Remove ${q.name}? Their guest profile and everything they saved will be deleted.`)) return;"
+     },
+     {
+      "line": 1633,
+      "m": "confirm",
+      "text": "if (!confirm(`Purge ${q.name}'s data now? Their stay has ended; this deletes the profile and everything they saved.`)) return;"
+     },
+     {
+      "line": 1638,
+      "m": "confirm",
+      "text": "if (!confirm('Unpair this device? It will need the pairing code again.')) return;"
+     },
+     {
+      "line": 1643,
+      "m": "confirm",
+      "text": "if (!confirm('Generate a new pairing code? The old one stops working for new devices.')) return;"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 0,
+    "userSelect": 0,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 1,
+    "scrollbar": 0,
+    "focusVisible": 0,
+    "focusPlain": 1,
+    "outlineNone": 0,
+    "appearanceNone": 0,
+    "touchAction": 0,
+    "dialog": 9,
+    "skeleton": 10,
+    "spinner": 2,
+    "loadingText": 4,
+    "anchor": 0,
+    "hover": 4,
+    "hoverGuard": 4,
+    "colorScheme": 3,
+    "nativeCtl": 2
+   }
+  },
+  "f260": {
+   "file": "apps/f260.html",
+   "lines": 2100,
+   "skippedLong": 0,
+   "hits": {
+    "viewport": [
+     {
+      "line": 5,
+      "m": "<meta name=\"viewport\" content=\"width=device-width, initial-s",
+      "text": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">"
+     }
+    ],
+    "touchAction": [
+     {
+      "line": 42,
+      "m": "manipulation",
+      "text": "-webkit-font-smoothing:antialiased; touch-action:manipulation; transition:background .5s;"
+     },
+     {
+      "line": 45,
+      "m": "manipulation",
+      "text": "button{font-family:inherit;font-size:inherit;cursor:pointer;touch-action:manipulation;color:inherit}"
+     }
+    ],
+    "focusVisible": [
+     {
+      "line": 46,
+      "m": ":focus-visible",
+      "text": "button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--slate);outline-offset:3px}"
+     }
+    ],
+    "appearanceNone": [
+     {
+      "line": 78,
+      "m": "-webkit-appearance:none",
+      "text": "border-radius:2px;cursor:pointer;-webkit-appearance:none;appearance:none}"
+     },
+     {
+      "line": 83,
+      "m": "-webkit-appearance:none",
+      "text": ".ygrid button{height:18px;min-height:0;width:100%;border:0;padding:0;border-radius:4px;background:var(--sunk);position:relative;cursor:pointer;-webkit-appearanc"
+     },
+     {
+      "line": 180,
+      "m": "-webkit-appearance:none",
+      "text": ".rf-f{display:block;width:100%;font:inherit;font-size:15.5px;line-height:1.4;color:var(--ink);background:var(--sunk);border:1.5px solid transparent;border-radiu"
+     },
+     {
+      "line": 216,
+      "m": "-webkit-appearance:none",
+      "text": ".wkpick select{font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:transparent;border:0;padding:12px 2px;min-height:48px;-webkit-appearance:"
+     },
+     {
+      "line": 330,
+      "m": "-webkit-appearance:none",
+      "text": ".jf textarea{display:block;width:100%;font:inherit;font-size:17px;line-height:1.45;color:var(--ink);background:var(--sunk);border:1.5px solid transparent;border"
+     },
+     {
+      "line": 350,
+      "m": "-webkit-appearance:none",
+      "text": ".wnbody textarea{display:block;width:100%;font:inherit;font-size:17px;line-height:1.45;color:var(--ink);background:var(--sunk);border:1.5px solid transparent;bo"
+     },
+     {
+      "line": 358,
+      "m": "-webkit-appearance:none",
+      "text": ".jtop .search input{flex:1 1 auto;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;color:var(--ink);min-height:44px;-webkit-appearance:no"
+     },
+     {
+      "line": 394,
+      "m": "-webkit-appearance:none",
+      "text": ".modal input[type=\"password\"],.modal input[type=\"text\"]{display:block;width:100%;font:inherit;font-size:20px;letter-spacing:.06em;min-height:56px;padding:10px 1"
+     },
+     {
+      "line": 399,
+      "m": "-webkit-appearance:none",
+      "text": ".modal textarea{display:block;width:100%;font:inherit;font-size:15px;line-height:1.45;color:var(--ink);min-height:120px;padding:10px 12px;border:1.5px solid var"
+     }
+    ],
+    "focusPlain": [
+     {
+      "line": 181,
+      "m": ":focus",
+      "text": ".rf-f:focus{outline:none;border-color:var(--gold);background:var(--raised)}"
+     },
+     {
+      "line": 331,
+      "m": ":focus",
+      "text": ".jf textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}"
+     },
+     {
+      "line": 351,
+      "m": ":focus",
+      "text": ".wnbody textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}"
+     },
+     {
+      "line": 395,
+      "m": ":focus",
+      "text": ".modal input:focus{outline:none;border-color:var(--slate);background:var(--raised)}"
+     },
+     {
+      "line": 400,
+      "m": ":focus",
+      "text": ".modal textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}"
+     }
+    ],
+    "outlineNone": [
+     {
+      "line": 181,
+      "m": "none",
+      "text": ".rf-f:focus{outline:none;border-color:var(--gold);background:var(--raised)}"
+     },
+     {
+      "line": 331,
+      "m": "none",
+      "text": ".jf textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}"
+     },
+     {
+      "line": 351,
+      "m": "none",
+      "text": ".wnbody textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}"
+     },
+     {
+      "line": 395,
+      "m": "none",
+      "text": ".modal input:focus{outline:none;border-color:var(--slate);background:var(--raised)}"
+     },
+     {
+      "line": 400,
+      "m": "none",
+      "text": ".modal textarea:focus{outline:none;border-color:var(--slate);background:var(--raised)}"
+     }
+    ],
+    "scrollbar": [
+     {
+      "line": 191,
+      "m": "none",
+      "text": ".miles{display:flex;gap:10px;overflow-x:auto;padding:14px 2px 6px;margin:0 -2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}"
+     },
+     {
+      "line": 192,
+      "m": "::-webkit-scrollbar",
+      "text": ".miles::-webkit-scrollbar{display:none}"
+     },
+     {
+      "line": 450,
+      "m": "thin",
+      "text": ".side{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding-right:6px;scrollbar-width:thin}"
+     }
+    ],
+    "userSelect": [
+     {
+      "line": 410,
+      "m": "none",
+      "text": ".pr-text.hidden-text{color:transparent;text-shadow:0 0 14px color-mix(in srgb,var(--ink) 40%,transparent);user-select:none;-webkit-user-select:none}"
+     }
+    ],
+    "hover": [
+     {
+      "line": 477,
+      "m": ":hover",
+      "text": "@media (hover:hover) and (pointer:fine){"
+     },
+     {
+      "line": 478,
+      "m": ":hover",
+      "text": ".btn:hover{background:var(--hover)}"
+     },
+     {
+      "line": 479,
+      "m": ":hover",
+      "text": ".btn.primary:hover{filter:brightness(1.08);background:var(--slate)}"
+     },
+     {
+      "line": 480,
+      "m": ":hover",
+      "text": ".wk-head:hover,.day:hover,.mv:hover{background:var(--hover)}"
+     },
+     {
+      "line": 481,
+      "m": ":hover",
+      "text": ".week.current .wk-head:hover{background:var(--hover)}"
+     },
+     {
+      "line": 482,
+      "m": ":hover",
+      "text": ".refs a:hover{border-bottom-color:var(--slate)}"
+     },
+     {
+      "line": 483,
+      "m": ":hover",
+      "text": ".mark:hover,.mkm:hover{border-color:var(--olive)}"
+     },
+     {
+      "line": 484,
+      "m": ":hover",
+      "text": ".tdone:hover{filter:brightness(1.06)} .today .tundo:hover{background:var(--hover)}"
+     },
+     {
+      "line": 485,
+      "m": ":hover",
+      "text": ".jbtn:hover,.wnbtn:hover{border-color:var(--slate);color:var(--slate)}"
+     },
+     {
+      "line": 486,
+      "m": ":hover",
+      "text": ".ygrid button:hover,.jbar button:hover{filter:brightness(.92)}"
+     },
+     {
+      "line": 487,
+      "m": ":hover",
+      "text": ".switch button:hover,.seg button:hover{color:var(--ink)}"
+     },
+     {
+      "line": 488,
+      "m": ":hover",
+      "text": ".jcard .jc-ft button:hover,.jr .jft button:hover{text-decoration:underline}"
+     }
+    ],
+    "hoverGuard": [
+     {
+      "line": 477,
+      "m": "@media (hover:hover",
+      "text": "@media (hover:hover) and (pointer:fine){"
+     }
+    ],
+    "nativeCtl": [
+     {
+      "line": 619,
+      "m": "<select",
+      "text": "<select id=\"wkSel\"></select>"
+     },
+     {
+      "line": 704,
+      "m": "search",
+      "text": "<label class=\"search\"><svg class=\"ico\"><use href=\"#i-search\"/></svg><input type=\"search\" id=\"jSearch\" placeholder=\"Search entries\" autocomplete=\"off\" autocorrec"
+     },
+     {
+      "line": 734,
+      "m": "checkbox",
+      "text": "<label class=\"showpw\"><input type=\"checkbox\" id=\"showPw\"> Show passcode</label>"
+     }
+    ],
+    "dialog": [
+     {
+      "line": 1131,
+      "m": "alert",
+      "text": "if (st === 'nocrypto') { $('passText').textContent = ''; alert('This browser cannot encrypt the journal (needs a secure https page).'); return Promise.resolve(f"
+     }
+    ],
+    "anchor": [
+     {
+      "line": 1257,
+      "m": "<a href",
+      "text": "'<a href=\"' + esc(refUrl(r)) + '\" target=\"_blank\" rel=\"noopener\" data-ref>' + esc(r.text) + '</a>'"
+     },
+     {
+      "line": 1901,
+      "m": "<a class=\"btn alt\" href",
+      "text": "'<div class=\"row\"><a class=\"btn alt\" href=\"' + esc(link) + '\" target=\"_blank\" rel=\"noopener\">Open passage ↗</a><button type=\"button\" class=\"btn\" data-prclose>Ca"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 0,
+    "userSelect": 1,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 0,
+    "scrollbar": 3,
+    "focusVisible": 1,
+    "focusPlain": 5,
+    "outlineNone": 5,
+    "appearanceNone": 9,
+    "touchAction": 2,
+    "dialog": 1,
+    "skeleton": 0,
+    "spinner": 0,
+    "loadingText": 0,
+    "anchor": 2,
+    "hover": 12,
+    "hoverGuard": 1,
+    "colorScheme": 0,
+    "nativeCtl": 3
+   }
+  },
+  "leftovers": {
+   "file": "apps/leftovers.html",
+   "lines": 384,
+   "skippedLong": 0,
+   "hits": {
+    "viewport": [
+     {
+      "line": 5,
+      "m": "<meta name=\"viewport\" content=\"width=device-width, initial-s",
+      "text": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">"
+     }
+    ],
+    "outlineNone": [
+     {
+      "line": 48,
+      "m": "none",
+      "text": "outline: none; background: var(--surface); color: var(--text); min-height: 52px; }"
+     }
+    ],
+    "focusPlain": [
+     {
+      "line": 49,
+      "m": ":focus",
+      "text": "#name:focus { border-color: var(--ledger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ledger) 22%, transparent); }"
+     }
+    ],
+    "nativeCtl": [
+     {
+      "line": 127,
+      "m": "<select",
+      "text": "<select id=\"size\" aria-label=\"Container size\"></select>"
+     },
+     {
+      "line": 128,
+      "m": "date",
+      "text": "<input type=\"date\" id=\"date\" aria-label=\"Date logged\">"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 0,
+    "userSelect": 0,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 0,
+    "scrollbar": 0,
+    "focusVisible": 0,
+    "focusPlain": 1,
+    "outlineNone": 1,
+    "appearanceNone": 0,
+    "touchAction": 0,
+    "dialog": 0,
+    "skeleton": 0,
+    "spinner": 0,
+    "loadingText": 0,
+    "anchor": 0,
+    "hover": 0,
+    "hoverGuard": 0,
+    "colorScheme": 0,
+    "nativeCtl": 2
+   }
+  },
+  "prayer": {
+   "file": "apps/prayer.html",
+   "lines": 1783,
+   "skippedLong": 0,
+   "hits": {
+    "viewport": [
+     {
+      "line": 5,
+      "m": "<meta name=\"viewport\" content=\"width=device-width, initial-s",
+      "text": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">"
+     }
+    ],
+    "tapHighlight": [
+     {
+      "line": 41,
+      "m": "transparent",
+      "text": "*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}"
+     }
+    ],
+    "hover": [
+     {
+      "line": 93,
+      "m": ":hover",
+      "text": ".mark:hover::before{border-color:var(--olive)}"
+     },
+     {
+      "line": 140,
+      "m": ":hover",
+      "text": ".copybtn:hover{color:var(--accent)}"
+     },
+     {
+      "line": 190,
+      "m": ":hover",
+      "text": ".chip:hover{background:var(--hover)}"
+     },
+     {
+      "line": 198,
+      "m": ":hover",
+      "text": "button.ghost:hover{background:var(--hover);border-color:var(--accent)}"
+     },
+     {
+      "line": 219,
+      "m": ":hover",
+      "text": ".catrow button:hover{color:var(--accent)}"
+     }
+    ],
+    "focusVisible": [
+     {
+      "line": 95,
+      "m": ":focus-visible",
+      "text": ".mark:focus-visible{outline:none}"
+     },
+     {
+      "line": 96,
+      "m": ":focus-visible",
+      "text": ".mark:focus-visible::before{outline:2px solid var(--accent);outline-offset:3px}"
+     },
+     {
+      "line": 141,
+      "m": ":focus-visible",
+      "text": "details.cat > summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}"
+     },
+     {
+      "line": 201,
+      "m": ":focus-visible",
+      "text": "button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}"
+     },
+     {
+      "line": 426,
+      "m": ":focus-visible",
+      "text": ".kid .prayed:focus-visible{outline:none;box-shadow:var(--focus)}"
+     }
+    ],
+    "outlineNone": [
+     {
+      "line": 95,
+      "m": "none",
+      "text": ".mark:focus-visible{outline:none}"
+     },
+     {
+      "line": 184,
+      "m": "none",
+      "text": "input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);"
+     },
+     {
+      "line": 426,
+      "m": "none",
+      "text": ".kid .prayed:focus-visible{outline:none;box-shadow:var(--focus)}"
+     }
+    ],
+    "appearanceNone": [
+     {
+      "line": 176,
+      "m": "-webkit-appearance:none",
+      "text": "-webkit-appearance:none;appearance:none;transition:border-color .18s,box-shadow .18s}"
+     }
+    ],
+    "focusPlain": [
+     {
+      "line": 184,
+      "m": ":focus",
+      "text": "input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);"
+     }
+    ],
+    "touchAction": [
+     {
+      "line": 325,
+      "m": "pan-y",
+      "text": "flex-direction:column;touch-action:pan-y;"
+     }
+    ],
+    "nativeCtl": [
+     {
+      "line": 491,
+      "m": "<select",
+      "text": "<select id=\"f-cat\"></select>"
+     },
+     {
+      "line": 508,
+      "m": "<select",
+      "text": "<select id=\"f-plan\"></select>"
+     },
+     {
+      "line": 516,
+      "m": "<select",
+      "text": "<select id=\"f-pastecat\"></select>"
+     },
+     {
+      "line": 1036,
+      "m": "<select",
+      "text": "+ '<label for=\"e-cat\">Category</label><select id=\"e-cat\">'"
+     },
+     {
+      "line": 1096,
+      "m": "<select",
+      "text": ": o.kind === 'select'   ? '<select id=\"askIn\">' + (o.options || []).map(x => '<option value=\"' + esc(x) + '\"'"
+     },
+     {
+      "line": 1197,
+      "m": "<select",
+      "text": "h += '<label for=\"p-focus\">Category</label><select id=\"p-focus\">'"
+     },
+     {
+      "line": 1207,
+      "m": "<select",
+      "text": "+ '<select id=\"p-cats\" multiple size=\"9\">'"
+     }
+    ],
+    "anchor": [
+     {
+      "line": 1503,
+      "m": "createElement('a')",
+      "text": "const a = document.createElement('a');"
+     }
+    ],
+    "colorScheme": [
+     {
+      "line": 1533,
+      "m": "dark",
+      "text": "const dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);"
+     },
+     {
+      "line": 1539,
+      "m": "dark",
+      "text": "const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 1,
+    "userSelect": 0,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 0,
+    "scrollbar": 0,
+    "focusVisible": 5,
+    "focusPlain": 1,
+    "outlineNone": 3,
+    "appearanceNone": 1,
+    "touchAction": 1,
+    "dialog": 0,
+    "skeleton": 0,
+    "spinner": 0,
+    "loadingText": 0,
+    "anchor": 1,
+    "hover": 5,
+    "hoverGuard": 0,
+    "colorScheme": 2,
+    "nativeCtl": 7
+   }
+  },
+  "tally": {
+   "file": "apps/tally.html",
+   "lines": 162,
+   "skippedLong": 0,
+   "hits": {
+    "viewport": [
+     {
+      "line": 5,
+      "m": "<meta name=\"viewport\" content=\"width=device-width, initial-s",
+      "text": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">"
+     }
+    ],
+    "userSelect": [
+     {
+      "line": 22,
+      "m": "none",
+      "text": "display: grid; place-items: center; user-select: none; -webkit-user-select: none;"
+     },
+     {
+      "line": 36,
+      "m": "none",
+      "text": "width: clamp(110px, 18vw, 200px); opacity: .16; transform: rotate(-6deg); pointer-events: none; user-select: none; -webkit-user-select: none; filter: saturate(."
+     }
+    ],
+    "focusVisible": [
+     {
+      "line": 83,
+      "m": ":focus-visible",
+      "text": ".tbtn:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }"
+     }
+    ],
+    "hoverGuard": [
+     {
+      "line": 88,
+      "m": "@media (hover: hover",
+      "text": "@media (hover: hover) and (pointer: fine) {"
+     },
+     {
+      "line": 109,
+      "m": "@media (hover: hover",
+      "text": "@media (hover: hover) and (pointer: fine) {"
+     }
+    ],
+    "hover": [
+     {
+      "line": 89,
+      "m": ":hover",
+      "text": ".tbtn:hover { transform: translateY(-1px); }"
+     },
+     {
+      "line": 110,
+      "m": ":hover",
+      "text": ".ds .btn.reset:hover { --g: var(--surface); transform: translateY(-1px); }"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 0,
+    "userSelect": 2,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 0,
+    "scrollbar": 0,
+    "focusVisible": 1,
+    "focusPlain": 0,
+    "outlineNone": 0,
+    "appearanceNone": 0,
+    "touchAction": 0,
+    "dialog": 0,
+    "skeleton": 0,
+    "spinner": 0,
+    "loadingText": 0,
+    "anchor": 0,
+    "hover": 2,
+    "hoverGuard": 2,
+    "colorScheme": 0,
+    "nativeCtl": 0
+   }
+  },
+  "timer": {
+   "file": "apps/timer.html",
+   "lines": 142,
+   "skippedLong": 0,
+   "hits": {
+    "viewport": [
+     {
+      "line": 5,
+      "m": "<meta name=\"viewport\" content=\"width=device-width, initial-s",
+      "text": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">"
+     }
+    ],
+    "userSelect": [
+     {
+      "line": 10,
+      "m": "none",
+      "text": "body { display: grid; place-items: center; user-select: none; -webkit-user-select: none; transition: background var(--dur-3) var(--ease);"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 0,
+    "userSelect": 1,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 0,
+    "scrollbar": 0,
+    "focusVisible": 0,
+    "focusPlain": 0,
+    "outlineNone": 0,
+    "appearanceNone": 0,
+    "touchAction": 0,
+    "dialog": 0,
+    "skeleton": 0,
+    "spinner": 0,
+    "loadingText": 0,
+    "anchor": 0,
+    "hover": 0,
+    "hoverGuard": 0,
+    "colorScheme": 0,
+    "nativeCtl": 0
+   }
+  },
+  "dollywood": {
+   "file": "apps/dollywood.html",
+   "lines": 2797,
+   "skippedLong": 2,
+   "hits": {
+    "viewport": [
+     {
+      "line": 3,
+      "m": "<meta name=\"viewport\" content=\"width=device-width,initial-sc",
+      "text": "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">"
+     }
+    ],
+    "hover": [
+     {
+      "line": 26,
+      "m": ":hover",
+      "text": "button:hover{border-color:var(--moss)}"
+     },
+     {
+      "line": 66,
+      "m": ":hover",
+      "text": ".oi:hover{background:var(--panel2)}"
+     },
+     {
+      "line": 78,
+      "m": ":hover",
+      "text": ".info a.btn:hover{border-color:var(--moss)}"
+     },
+     {
+      "line": 101,
+      "m": ":hover",
+      "text": ".bitem:hover{background:var(--panel2)}.bitem.cur{border-left-color:var(--ochre);color:var(--text);background:var(--panel2)}.bitem.ok{text-decoration:line-throug"
+     },
+     {
+      "line": 125,
+      "m": ":hover",
+      "text": ".pop a.btn:hover{border-color:var(--moss)}"
+     },
+     {
+      "line": 134,
+      "m": ":hover",
+      "text": ".offm{cursor:pointer}.offm:hover circle,.offm:hover rect,.offm:hover path{filter:brightness(1.15)}"
+     },
+     {
+      "line": 193,
+      "m": ":hover",
+      "text": ".used a:hover{border-bottom-style:solid}"
+     }
+    ],
+    "focusVisible": [
+     {
+      "line": 27,
+      "m": ":focus-visible",
+      "text": "button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}"
+     },
+     {
+      "line": 187,
+      "m": ":focus-visible",
+      "text": ".bitem:focus-visible{outline:2px solid var(--ochre)}"
+     },
+     {
+      "line": 226,
+      "m": ":focus-visible",
+      "text": "[data-flavor=hub] button:focus-visible,[data-flavor=live] button:focus-visible{outline:none;box-shadow:var(--focus)}"
+     }
+    ],
+    "nativeCtl": [
+     {
+      "line": 29,
+      "m": "number",
+      "text": "select,input[type=text],input[type=number],input[type=search]{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:6px 8px}"
+     },
+     {
+      "line": 107,
+      "m": "range",
+      "text": "input[type=range]{accent-color:var(--ochre);width:120px}"
+     },
+     {
+      "line": 130,
+      "m": "search",
+      "text": "@media(pointer:coarse){button,select,input[type=search]{min-height:42px}.chips button{min-height:40px}.pop .x{width:44px;height:44px}}"
+     },
+     {
+      "line": 167,
+      "m": "checkbox",
+      "text": ".vrow input[type=checkbox]{accent-color:var(--moss);width:18px;height:18px;margin:0}"
+     },
+     {
+      "line": 224,
+      "m": "search",
+      "text": "[data-flavor=hub] button,[data-flavor=hub] select,[data-flavor=hub] input[type=search],[data-flavor=hub] input[type=number],[data-flavor=live] button,[data-flav"
+     },
+     {
+      "line": 590,
+      "m": "<select",
+      "text": "<label class=\"vrow\"><span>Contour interval</span><select id=\"cint\"><option value=\"10\">10 ft</option><option value=\"20\" selected>20 ft</option><option value=\"50\""
+     },
+     {
+      "line": 592,
+      "m": "checkbox",
+      "text": "<label class=\"vrow\"><span>Steepness overlay</span><input type=\"checkbox\" id=\"v-slope\"></label>"
+     },
+     {
+      "line": 596,
+      "m": "<select",
+      "text": "<div class=\"grp bm\"><span class=\"lab\">basemap</span><span class=\"bmwrap\"><svg class=\"ic bmic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 3l9 5-9 5-9-5 "
+     },
+     {
+      "line": 599,
+      "m": "search",
+      "text": "<div class=\"grp srch\"><input type=\"search\" id=\"q\" placeholder=\"Search listings…\" style=\"width:190px\" aria-label=\"Search listings\"></div>"
+     },
+     {
+      "line": 611,
+      "m": "range",
+      "text": "<div class=\"exag\" id=\"exag\"><span>vertical ×</span><input type=\"range\" id=\"exag-r\" min=\"1\" max=\"3\" step=\"0.25\" value=\"1.5\"><b id=\"exag-v\">1.5</b></div>"
+     },
+     {
+      "line": 648,
+      "m": "file",
+      "text": "<span class=\"bmenu\" id=\"bmenu\" hidden><button id=\"b-export\" title=\"Download progress as JSON\">Export progress</button><button id=\"b-import\" title=\"Load progress"
+     },
+     {
+      "line": 653,
+      "m": "range",
+      "text": "<div class=\"profhead\"><h2 id=\"ptitle\">Cross-section</h2><div class=\"pctl\"><button id=\"p-cmp\" aria-pressed=\"false\" title=\"Keep this profile as a grey ghost behin"
+     },
+     {
+      "line": 664,
+      "m": "checkbox",
+      "text": "<h3>Terrain</h3><label class=\"tog\"><input type=\"checkbox\" id=\"l-slope\"><span class=\"sw\" style=\"background:#E8683A\"></span>Steepness — orange ≥25%, red ≥40% grad"
+     },
+     {
+      "line": 673,
+      "m": "number",
+      "text": "<label style=\"font-size:13px\">Plot width in game (m) <input type=\"number\" id=\"sc-plot\" min=\"50\" step=\"10\" style=\"width:100px\"></label>"
+     },
+     {
+      "line": 676,
+      "m": "number",
+      "text": "<label style=\"font-size:13px\">Real metres <input type=\"number\" id=\"sc-in\" step=\"1\" style=\"width:100px\"></label> → <b id=\"sc-out\">—</b> m in game"
+     },
+     {
+      "line": 975,
+      "m": "search",
+      "text": "const srch=n=>VIEW_ONLY()?'':`<div class=\"srch\"><input type=\"search\" id=\"pop-q\" value=\"${n.replace(/\"/g,'&quot;')}\" aria-label=\"Search the web\"><button id=\"pop-"
+     },
+     {
+      "line": 1012,
+      "m": "<select",
+      "text": "let h=`<h2>Official listings</h2><div style=\"display:flex;gap:6px;align-items:center;margin-bottom:8px\"><label style=\"font-size:12.5px;color:var(--dim)\">rider h"
+     },
+     {
+      "line": 1026,
+      "m": "checkbox",
+      "text": "TOG.forEach(([id,name,col])=>{const l=document.createElement('label');l.className='tog';l.innerHTML=`<input type=\"checkbox\" checked><span class=\"sw\" style=\"back"
+     },
+     {
+      "line": 1431,
+      "m": "checkbox",
+      "text": "const shareRow=canShare?`<label class=\"lv-item lv-share\"><span class=\"t\"><b>Share my spot</b><span>${shareOn()?'The family can see where you are':'Off — only yo"
+     },
+     {
+      "line": 1437,
+      "m": "checkbox",
+      "text": "if(hub.profile.kind==='adult'&&hub.canWrite){const kids=KIDS();if(kids.length){box.insertAdjacentHTML('beforeend',`<div class=\"lv-grp\"><span>Kids' beacons</span"
+     }
+    ],
+    "tapHighlight": [
+     {
+      "line": 42,
+      "m": "transparent",
+      "text": "svg#map{display:block;width:100%;height:auto;aspect-ratio:1535/1438;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent}   /* the desk ma"
+     },
+     {
+      "line": 222,
+      "m": "transparent",
+      "text": "[data-flavor=hub] body,[data-flavor=live] body{font-family:var(--font-sans);font-size:15px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}"
+     },
+     {
+      "line": 224,
+      "m": "transparent",
+      "text": "[data-flavor=hub] button,[data-flavor=hub] select,[data-flavor=hub] input[type=search],[data-flavor=hub] input[type=number],[data-flavor=live] button,[data-flav"
+     },
+     {
+      "line": 416,
+      "m": "transparent",
+      "text": ".lv-north{cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:50%!important;padding:0!important;min-height:44px}.lv-north[aria-pressed=true]{bo"
+     }
+    ],
+    "userSelect": [
+     {
+      "line": 42,
+      "m": "none",
+      "text": "svg#map{display:block;width:100%;height:auto;aspect-ratio:1535/1438;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent}   /* the desk ma"
+     }
+    ],
+    "touchAction": [
+     {
+      "line": 42,
+      "m": "none",
+      "text": "svg#map{display:block;width:100%;height:auto;aspect-ratio:1535/1438;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent}   /* the desk ma"
+     },
+     {
+      "line": 43,
+      "m": "none",
+      "text": "#view3d canvas{touch-action:none}"
+     },
+     {
+      "line": 222,
+      "m": "manipulation",
+      "text": "[data-flavor=hub] body,[data-flavor=live] body{font-family:var(--font-sans);font-size:15px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}"
+     },
+     {
+      "line": 224,
+      "m": "manipulation",
+      "text": "[data-flavor=hub] button,[data-flavor=hub] select,[data-flavor=hub] input[type=search],[data-flavor=hub] input[type=number],[data-flavor=live] button,[data-flav"
+     },
+     {
+      "line": 359,
+      "m": "none",
+      "text": "[data-flavor=hub] .build{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;border-radius:24px 24px 0 0;height:calc(var(--peek) + env(safe-area-inset-bo"
+     },
+     {
+      "line": 372,
+      "m": "pan-y",
+      "text": "[data-flavor=hub] .bmain{flex:1;min-height:0;overflow:auto;grid-template-columns:1fr;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:con"
+     },
+     {
+      "line": 422,
+      "m": "none",
+      "text": ".lv-sheet{position:absolute;left:0;right:0;bottom:0;z-index:8;background:var(--lv-glass);-webkit-backdrop-filter:var(--lv-blur);backdrop-filter:var(--lv-blur);b"
+     },
+     {
+      "line": 430,
+      "m": "pan-y",
+      "text": ".lv-body{flex:1;overflow:auto;padding:0 14px 14px;-webkit-overflow-scrolling:touch;touch-action:pan-y}"
+     },
+     {
+      "line": 451,
+      "m": "pan-y",
+      "text": "[data-flavor=live] .pop{left:12px!important;right:12px;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom));width:auto;max-height:calc(100dvh - 20"
+     },
+     {
+      "line": 467,
+      "m": "pan-y",
+      "text": ".lv-steps{display:none;max-height:34dvh;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;border-top:1px solid var(--line-soft);padding:4px 12px"
+     },
+     {
+      "line": 483,
+      "m": "none",
+      "text": "[data-flavor=live] .pop-head{position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;gap:10px;padding:18px 0 6px;margin:0 -18px;padding-left:18px;pa"
+     }
+    ],
+    "outlineNone": [
+     {
+      "line": 226,
+      "m": "none",
+      "text": "[data-flavor=hub] button:focus-visible,[data-flavor=live] button:focus-visible{outline:none;box-shadow:var(--focus)}"
+     }
+    ],
+    "scrollbar": [
+     {
+      "line": 240,
+      "m": "thin",
+      "text": "[data-flavor=hub] .chips{gap:8px;margin:0;overflow-x:auto;flex-wrap:nowrap;padding:2px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-c"
+     },
+     {
+      "line": 241,
+      "m": "::-webkit-scrollbar",
+      "text": "[data-flavor=hub] .chips::-webkit-scrollbar{height:6px}[data-flavor=hub] .chips::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--dim) 45%,transparent"
+     },
+     {
+      "line": 316,
+      "m": "none",
+      "text": "[data-flavor=hub] .chips{display:grid;grid-auto-flow:column;grid-template-rows:auto auto;gap:6px 6px;padding:2px 2px 6px;scrollbar-width:none}"
+     },
+     {
+      "line": 317,
+      "m": "::-webkit-scrollbar",
+      "text": "[data-flavor=hub] .chips::-webkit-scrollbar{display:none}"
+     },
+     {
+      "line": 487,
+      "m": "none",
+      "text": "[data-flavor=live] .pop-act{overflow-x:auto;scrollbar-width:none}[data-flavor=live] .pop-act button{min-height:48px;font-size:15px;font-weight:700;border-radius"
+     }
+    ],
+    "overscroll": [
+     {
+      "line": 372,
+      "m": "contain",
+      "text": "[data-flavor=hub] .bmain{flex:1;min-height:0;overflow:auto;grid-template-columns:1fr;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:con"
+     },
+     {
+      "line": 451,
+      "m": "contain",
+      "text": "[data-flavor=live] .pop{left:12px!important;right:12px;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom));width:auto;max-height:calc(100dvh - 20"
+     }
+    ],
+    "spinner": [
+     {
+      "line": 407,
+      "m": "rotate(360deg)",
+      "text": "@keyframes lvspin{to{transform:rotate(360deg)}}"
+     }
+    ],
+    "appearanceNone": [
+     {
+      "line": 435,
+      "m": "appearance:none",
+      "text": ".lv-share{cursor:pointer}.lv-share input{appearance:none;-webkit-appearance:none;width:50px;height:30px;border-radius:999px;background:color-mix(in srgb,var(--l"
+     }
+    ],
+    "loadingText": [
+     {
+      "line": 647,
+      "m": ">…<",
+      "text": "<span class=\"bmenuwrap\"><button id=\"b-menu\" aria-haspopup=\"true\" aria-expanded=\"false\" aria-controls=\"bmenu\" aria-label=\"Progress: export, import, reset\" title="
+     },
+     {
+      "line": 1155,
+      "m": "Building the 3D",
+      "text": "if(m==='3d'){if(!three){$('readout').textContent='Building the 3D model…';if(!window._3dPending){window._3dPending=true;requestAnimationFrame(()=>requestAnimati"
+     },
+     {
+      "line": 1656,
+      "m": "Loading",
+      "text": "if(!rows.length||parkClosed()){box.innerHTML=stamp+`<div class=\"lv-empty\">${parkClosed()?'The park is closed — waits will show here once rides open.':WAITS.err?"
+     },
+     {
+      "line": 1720,
+      "m": "'…'",
+      "text": "function meetHere(o){const nm=o.name.length>40?o.name.slice(0,38)+'…':o.name;if(!hubOn()||hub.profile.kind!=='adult'){return}"
+     }
+    ],
+    "anchor": [
+     {
+      "line": 971,
+      "m": "<a href",
+      "text": "return `<div class=\"used\">${us.slice(0,3).map(s=>{const i=stepsOf(s.section).indexOf(s);return `<span>Used in step ${i+1}${s.section!==curSec?' of '+SEC[s.secti"
+     },
+     {
+      "line": 1099,
+      "m": "createElement('a')",
+      "text": "$('b-export').onclick=()=>{const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify({version:1,exported:new Date()."
+     },
+     {
+      "line": 1652,
+      "m": "<a href",
+      "text": "s.innerHTML=n?`Wait times via <a href=\"https://queue-times.com/parks/55\" target=\"_blank\" rel=\"noopener\">Queue-Times.com</a> · posted ${wago(WAITS.updated)}`:WAI"
+     }
+    ],
+    "dialog": [
+     {
+      "line": 1098,
+      "m": "confirm",
+      "text": "$('b-reset').onclick=()=>{if(!hubGuard())return;if(confirm('Clear all saved progress?')){doneMap={};save();renderStep()}};"
+     },
+     {
+      "line": 1101,
+      "m": "alert",
+      "text": "$('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!hubGuard()){e.target.value='';return}const r=new FileReader();r.onload=()=>"
+     },
+     {
+      "line": 1587,
+      "m": "confirm",
+      "text": "$('meet-go').onclick=()=>{if(MEET)routeTo({name:`Meet at ${MEET.name}`,pos:[MEET.x,MEET.y],num:0,cat:'meet',meet:true})};$('meet-done').onclick=()=>{if(confirm("
+     },
+     {
+      "line": 1590,
+      "m": "confirm",
+      "text": "if(confirm(`Set the family meeting point ${nm}?`))setMeet(p[0],p[1],nm)},550)});['pointerup','pointercancel','pointermove'].forEach(ev=>svg.addEventListener(ev,"
+     },
+     {
+      "line": 1721,
+      "m": "confirm",
+      "text": "if(confirm(`Meet at ${nm}?\\n\\nOK sets the pin for everyone. Tap Rally afterwards to buzz the other adults.`)){setMeet(o.pos[0],o.pos[1],nm);closePop();setSheet("
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 4,
+    "userSelect": 1,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 2,
+    "scrollbar": 5,
+    "focusVisible": 3,
+    "focusPlain": 0,
+    "outlineNone": 1,
+    "appearanceNone": 1,
+    "touchAction": 11,
+    "dialog": 5,
+    "skeleton": 0,
+    "spinner": 1,
+    "loadingText": 4,
+    "anchor": 3,
+    "hover": 7,
+    "hoverGuard": 0,
+    "colorScheme": 0,
+    "nativeCtl": 20
+   }
+  },
+  "dollywood-live": {
+   "file": "apps/dollywood-live.html",
+   "lines": 1615,
+   "skippedLong": 1,
+   "hits": {
+    "viewport": [
+     {
+      "line": 3,
+      "m": "<meta name=\"viewport\" content=\"width=device-width,initial-sc",
+      "text": "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">"
+     }
+    ],
+    "hover": [
+     {
+      "line": 26,
+      "m": ":hover",
+      "text": "button:hover{border-color:var(--moss)}"
+     },
+     {
+      "line": 66,
+      "m": ":hover",
+      "text": ".oi:hover{background:var(--panel2)}"
+     },
+     {
+      "line": 78,
+      "m": ":hover",
+      "text": ".info a.btn:hover{border-color:var(--moss)}"
+     },
+     {
+      "line": 101,
+      "m": ":hover",
+      "text": ".bitem:hover{background:var(--panel2)}.bitem.cur{border-left-color:var(--ochre);color:var(--text);background:var(--panel2)}.bitem.ok{text-decoration:line-throug"
+     },
+     {
+      "line": 125,
+      "m": ":hover",
+      "text": ".pop a.btn:hover{border-color:var(--moss)}"
+     },
+     {
+      "line": 134,
+      "m": ":hover",
+      "text": ".offm{cursor:pointer}.offm:hover circle,.offm:hover rect,.offm:hover path{filter:brightness(1.15)}"
+     },
+     {
+      "line": 193,
+      "m": ":hover",
+      "text": ".used a:hover{border-bottom-style:solid}"
+     }
+    ],
+    "focusVisible": [
+     {
+      "line": 27,
+      "m": ":focus-visible",
+      "text": "button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}"
+     },
+     {
+      "line": 187,
+      "m": ":focus-visible",
+      "text": ".bitem:focus-visible{outline:2px solid var(--ochre)}"
+     },
+     {
+      "line": 226,
+      "m": ":focus-visible",
+      "text": "[data-flavor=hub] button:focus-visible,[data-flavor=live] button:focus-visible{outline:none;box-shadow:var(--focus)}"
+     }
+    ],
+    "nativeCtl": [
+     {
+      "line": 29,
+      "m": "number",
+      "text": "select,input[type=text],input[type=number],input[type=search]{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:6px 8px}"
+     },
+     {
+      "line": 107,
+      "m": "range",
+      "text": "input[type=range]{accent-color:var(--ochre);width:120px}"
+     },
+     {
+      "line": 130,
+      "m": "search",
+      "text": "@media(pointer:coarse){button,select,input[type=search]{min-height:42px}.chips button{min-height:40px}.pop .x{width:44px;height:44px}}"
+     },
+     {
+      "line": 167,
+      "m": "checkbox",
+      "text": ".vrow input[type=checkbox]{accent-color:var(--moss);width:18px;height:18px;margin:0}"
+     },
+     {
+      "line": 224,
+      "m": "search",
+      "text": "[data-flavor=hub] button,[data-flavor=hub] select,[data-flavor=hub] input[type=search],[data-flavor=hub] input[type=number],[data-flavor=live] button,[data-flav"
+     },
+     {
+      "line": 590,
+      "m": "<select",
+      "text": "<label class=\"vrow\"><span>Contour interval</span><select id=\"cint\"><option value=\"10\">10 ft</option><option value=\"20\" selected>20 ft</option><option value=\"50\""
+     },
+     {
+      "line": 592,
+      "m": "checkbox",
+      "text": "<label class=\"vrow\"><span>Steepness overlay</span><input type=\"checkbox\" id=\"v-slope\"></label>"
+     },
+     {
+      "line": 596,
+      "m": "<select",
+      "text": "<div class=\"grp bm\"><span class=\"lab\">basemap</span><span class=\"bmwrap\"><svg class=\"ic bmic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 3l9 5-9 5-9-5 "
+     },
+     {
+      "line": 599,
+      "m": "search",
+      "text": "<div class=\"grp srch\"><input type=\"search\" id=\"q\" placeholder=\"Search listings…\" style=\"width:190px\" aria-label=\"Search listings\"></div>"
+     },
+     {
+      "line": 648,
+      "m": "file",
+      "text": "<span class=\"bmenu\" id=\"bmenu\" hidden><button id=\"b-export\" title=\"Download progress as JSON\">Export progress</button><button id=\"b-import\" title=\"Load progress"
+     },
+     {
+      "line": 653,
+      "m": "range",
+      "text": "<div class=\"profhead\"><h2 id=\"ptitle\">Cross-section</h2><div class=\"pctl\"><button id=\"p-cmp\" aria-pressed=\"false\" title=\"Keep this profile as a grey ghost behin"
+     },
+     {
+      "line": 664,
+      "m": "checkbox",
+      "text": "<h3>Terrain</h3><label class=\"tog\"><input type=\"checkbox\" id=\"l-slope\"><span class=\"sw\" style=\"background:#E8683A\"></span>Steepness — orange ≥25%, red ≥40% grad"
+     },
+     {
+      "line": 673,
+      "m": "number",
+      "text": "<label style=\"font-size:13px\">Plot width in game (m) <input type=\"number\" id=\"sc-plot\" min=\"50\" step=\"10\" style=\"width:100px\"></label>"
+     },
+     {
+      "line": 676,
+      "m": "number",
+      "text": "<label style=\"font-size:13px\">Real metres <input type=\"number\" id=\"sc-in\" step=\"1\" style=\"width:100px\"></label> → <b id=\"sc-out\">—</b> m in game"
+     },
+     {
+      "line": 975,
+      "m": "search",
+      "text": "const srch=n=>VIEW_ONLY()?'':`<div class=\"srch\"><input type=\"search\" id=\"pop-q\" value=\"${n.replace(/\"/g,'&quot;')}\" aria-label=\"Search the web\"><button id=\"pop-"
+     },
+     {
+      "line": 1012,
+      "m": "<select",
+      "text": "let h=`<h2>Official listings</h2><div style=\"display:flex;gap:6px;align-items:center;margin-bottom:8px\"><label style=\"font-size:12.5px;color:var(--dim)\">rider h"
+     },
+     {
+      "line": 1026,
+      "m": "checkbox",
+      "text": "TOG.forEach(([id,name,col])=>{const l=document.createElement('label');l.className='tog';l.innerHTML=`<input type=\"checkbox\" checked><span class=\"sw\" style=\"back"
+     },
+     {
+      "line": 1301,
+      "m": "checkbox",
+      "text": "const shareRow=canShare?`<label class=\"lv-item lv-share\"><span class=\"t\"><b>Share my spot</b><span>${shareOn()?'The family can see where you are':'Off — only yo"
+     },
+     {
+      "line": 1307,
+      "m": "checkbox",
+      "text": "if(hub.profile.kind==='adult'&&hub.canWrite){const kids=KIDS();if(kids.length){box.insertAdjacentHTML('beforeend',`<div class=\"lv-grp\"><span>Kids' beacons</span"
+     }
+    ],
+    "tapHighlight": [
+     {
+      "line": 42,
+      "m": "transparent",
+      "text": "svg#map{display:block;width:100%;height:auto;aspect-ratio:1535/1438;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent}   /* the desk ma"
+     },
+     {
+      "line": 222,
+      "m": "transparent",
+      "text": "[data-flavor=hub] body,[data-flavor=live] body{font-family:var(--font-sans);font-size:15px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}"
+     },
+     {
+      "line": 224,
+      "m": "transparent",
+      "text": "[data-flavor=hub] button,[data-flavor=hub] select,[data-flavor=hub] input[type=search],[data-flavor=hub] input[type=number],[data-flavor=live] button,[data-flav"
+     },
+     {
+      "line": 416,
+      "m": "transparent",
+      "text": ".lv-north{cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:50%!important;padding:0!important;min-height:44px}.lv-north[aria-pressed=true]{bo"
+     }
+    ],
+    "userSelect": [
+     {
+      "line": 42,
+      "m": "none",
+      "text": "svg#map{display:block;width:100%;height:auto;aspect-ratio:1535/1438;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent}   /* the desk ma"
+     }
+    ],
+    "touchAction": [
+     {
+      "line": 42,
+      "m": "none",
+      "text": "svg#map{display:block;width:100%;height:auto;aspect-ratio:1535/1438;touch-action:none;user-select:none;-webkit-tap-highlight-color:transparent}   /* the desk ma"
+     },
+     {
+      "line": 43,
+      "m": "none",
+      "text": "#view3d canvas{touch-action:none}"
+     },
+     {
+      "line": 222,
+      "m": "manipulation",
+      "text": "[data-flavor=hub] body,[data-flavor=live] body{font-family:var(--font-sans);font-size:15px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}"
+     },
+     {
+      "line": 224,
+      "m": "manipulation",
+      "text": "[data-flavor=hub] button,[data-flavor=hub] select,[data-flavor=hub] input[type=search],[data-flavor=hub] input[type=number],[data-flavor=live] button,[data-flav"
+     },
+     {
+      "line": 359,
+      "m": "none",
+      "text": "[data-flavor=hub] .build{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;border-radius:24px 24px 0 0;height:calc(var(--peek) + env(safe-area-inset-bo"
+     },
+     {
+      "line": 372,
+      "m": "pan-y",
+      "text": "[data-flavor=hub] .bmain{flex:1;min-height:0;overflow:auto;grid-template-columns:1fr;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:con"
+     },
+     {
+      "line": 422,
+      "m": "none",
+      "text": ".lv-sheet{position:absolute;left:0;right:0;bottom:0;z-index:8;background:var(--lv-glass);-webkit-backdrop-filter:var(--lv-blur);backdrop-filter:var(--lv-blur);b"
+     },
+     {
+      "line": 430,
+      "m": "pan-y",
+      "text": ".lv-body{flex:1;overflow:auto;padding:0 14px 14px;-webkit-overflow-scrolling:touch;touch-action:pan-y}"
+     },
+     {
+      "line": 451,
+      "m": "pan-y",
+      "text": "[data-flavor=live] .pop{left:12px!important;right:12px;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom));width:auto;max-height:calc(100dvh - 20"
+     },
+     {
+      "line": 467,
+      "m": "pan-y",
+      "text": ".lv-steps{display:none;max-height:34dvh;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;border-top:1px solid var(--line-soft);padding:4px 12px"
+     },
+     {
+      "line": 483,
+      "m": "none",
+      "text": "[data-flavor=live] .pop-head{position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;gap:10px;padding:18px 0 6px;margin:0 -18px;padding-left:18px;pa"
+     }
+    ],
+    "outlineNone": [
+     {
+      "line": 226,
+      "m": "none",
+      "text": "[data-flavor=hub] button:focus-visible,[data-flavor=live] button:focus-visible{outline:none;box-shadow:var(--focus)}"
+     }
+    ],
+    "scrollbar": [
+     {
+      "line": 240,
+      "m": "thin",
+      "text": "[data-flavor=hub] .chips{gap:8px;margin:0;overflow-x:auto;flex-wrap:nowrap;padding:2px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-c"
+     },
+     {
+      "line": 241,
+      "m": "::-webkit-scrollbar",
+      "text": "[data-flavor=hub] .chips::-webkit-scrollbar{height:6px}[data-flavor=hub] .chips::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--dim) 45%,transparent"
+     },
+     {
+      "line": 316,
+      "m": "none",
+      "text": "[data-flavor=hub] .chips{display:grid;grid-auto-flow:column;grid-template-rows:auto auto;gap:6px 6px;padding:2px 2px 6px;scrollbar-width:none}"
+     },
+     {
+      "line": 317,
+      "m": "::-webkit-scrollbar",
+      "text": "[data-flavor=hub] .chips::-webkit-scrollbar{display:none}"
+     },
+     {
+      "line": 487,
+      "m": "none",
+      "text": "[data-flavor=live] .pop-act{overflow-x:auto;scrollbar-width:none}[data-flavor=live] .pop-act button{min-height:48px;font-size:15px;font-weight:700;border-radius"
+     }
+    ],
+    "overscroll": [
+     {
+      "line": 372,
+      "m": "contain",
+      "text": "[data-flavor=hub] .bmain{flex:1;min-height:0;overflow:auto;grid-template-columns:1fr;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:con"
+     },
+     {
+      "line": 451,
+      "m": "contain",
+      "text": "[data-flavor=live] .pop{left:12px!important;right:12px;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom));width:auto;max-height:calc(100dvh - 20"
+     }
+    ],
+    "spinner": [
+     {
+      "line": 407,
+      "m": "rotate(360deg)",
+      "text": "@keyframes lvspin{to{transform:rotate(360deg)}}"
+     }
+    ],
+    "appearanceNone": [
+     {
+      "line": 435,
+      "m": "appearance:none",
+      "text": ".lv-share{cursor:pointer}.lv-share input{appearance:none;-webkit-appearance:none;width:50px;height:30px;border-radius:999px;background:color-mix(in srgb,var(--l"
+     }
+    ],
+    "loadingText": [
+     {
+      "line": 647,
+      "m": ">…<",
+      "text": "<span class=\"bmenuwrap\"><button id=\"b-menu\" aria-haspopup=\"true\" aria-expanded=\"false\" aria-controls=\"bmenu\" aria-label=\"Progress: export, import, reset\" title="
+     },
+     {
+      "line": 1526,
+      "m": "Loading",
+      "text": "if(!rows.length||parkClosed()){box.innerHTML=stamp+`<div class=\"lv-empty\">${parkClosed()?'The park is closed — waits will show here once rides open.':WAITS.err?"
+     },
+     {
+      "line": 1590,
+      "m": "'…'",
+      "text": "function meetHere(o){const nm=o.name.length>40?o.name.slice(0,38)+'…':o.name;if(!hubOn()||hub.profile.kind!=='adult'){return}"
+     }
+    ],
+    "anchor": [
+     {
+      "line": 971,
+      "m": "<a href",
+      "text": "return `<div class=\"used\">${us.slice(0,3).map(s=>{const i=stepsOf(s.section).indexOf(s);return `<span>Used in step ${i+1}${s.section!==curSec?' of '+SEC[s.secti"
+     },
+     {
+      "line": 1099,
+      "m": "createElement('a')",
+      "text": "$('b-export').onclick=()=>{const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify({version:1,exported:new Date()."
+     },
+     {
+      "line": 1522,
+      "m": "<a href",
+      "text": "s.innerHTML=n?`Wait times via <a href=\"https://queue-times.com/parks/55\" target=\"_blank\" rel=\"noopener\">Queue-Times.com</a> · posted ${wago(WAITS.updated)}`:WAI"
+     }
+    ],
+    "dialog": [
+     {
+      "line": 1098,
+      "m": "confirm",
+      "text": "$('b-reset').onclick=()=>{if(!hubGuard())return;if(confirm('Clear all saved progress?')){doneMap={};save();renderStep()}};"
+     },
+     {
+      "line": 1101,
+      "m": "alert",
+      "text": "$('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!hubGuard()){e.target.value='';return}const r=new FileReader();r.onload=()=>"
+     },
+     {
+      "line": 1457,
+      "m": "confirm",
+      "text": "$('meet-go').onclick=()=>{if(MEET)routeTo({name:`Meet at ${MEET.name}`,pos:[MEET.x,MEET.y],num:0,cat:'meet',meet:true})};$('meet-done').onclick=()=>{if(confirm("
+     },
+     {
+      "line": 1460,
+      "m": "confirm",
+      "text": "if(confirm(`Set the family meeting point ${nm}?`))setMeet(p[0],p[1],nm)},550)});['pointerup','pointercancel','pointermove'].forEach(ev=>svg.addEventListener(ev,"
+     },
+     {
+      "line": 1591,
+      "m": "confirm",
+      "text": "if(confirm(`Meet at ${nm}?\\n\\nOK sets the pin for everyone. Tap Rally afterwards to buzz the other adults.`)){setMeet(o.pos[0],o.pos[1],nm);closePop();setSheet("
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 4,
+    "userSelect": 1,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 2,
+    "scrollbar": 5,
+    "focusVisible": 3,
+    "focusPlain": 0,
+    "outlineNone": 1,
+    "appearanceNone": 1,
+    "touchAction": 11,
+    "dialog": 5,
+    "skeleton": 0,
+    "spinner": 1,
+    "loadingText": 3,
+    "anchor": 3,
+    "hover": 7,
+    "hoverGuard": 0,
+    "colorScheme": 0,
+    "nativeCtl": 19
+   }
+  },
+  "kidverse": {
+   "file": "apps/kidverse.html",
+   "lines": 684,
+   "skippedLong": 0,
+   "hits": {
+    "viewport": [
+     {
+      "line": 5,
+      "m": "<meta name=\"viewport\" content=\"width=device-width, initial-s",
+      "text": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">"
+     }
+    ],
+    "loadingText": [
+     {
+      "line": 150,
+      "m": ">…<",
+      "text": "<h1 id=\"ref\">…</h1>"
+     },
+     {
+      "line": 155,
+      "m": ">…<",
+      "text": "<p id=\"words\">…</p>"
+     },
+     {
+      "line": 167,
+      "m": ">…<",
+      "text": "<div><span class=\"kicker\" id=\"story-kick\">This week's story</span><h2 id=\"story-title\">…</h2><div class=\"story-span\" id=\"story-span\"></div></div>"
+     },
+     {
+      "line": 169,
+      "m": ">…<",
+      "text": "<p id=\"story-text\">…</p>"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 0,
+    "userSelect": 0,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 0,
+    "scrollbar": 0,
+    "focusVisible": 0,
+    "focusPlain": 0,
+    "outlineNone": 0,
+    "appearanceNone": 0,
+    "touchAction": 0,
+    "dialog": 0,
+    "skeleton": 0,
+    "spinner": 0,
+    "loadingText": 4,
+    "anchor": 0,
+    "hover": 0,
+    "hoverGuard": 0,
+    "colorScheme": 0,
+    "nativeCtl": 0
+   }
+  },
+  "verses": {
+   "file": "apps/verses.html",
+   "lines": 389,
+   "skippedLong": 0,
+   "hits": {
+    "viewport": [
+     {
+      "line": 5,
+      "m": "<meta name=\"viewport\" content=\"width=device-width, initial-s",
+      "text": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">"
+     }
+    ],
+    "userSelect": [
+     {
+      "line": 44,
+      "m": "none",
+      "text": ".trainer .text.veiled { filter: blur(9px); user-select: none; -webkit-user-select: none; }"
+     }
+    ],
+    "loadingText": [
+     {
+      "line": 105,
+      "m": ">…<",
+      "text": "<h1 id=\"ref\">…</h1>"
+     }
+    ]
+   },
+   "counts": {
+    "viewport": 1,
+    "tapHighlight": 0,
+    "userSelect": 1,
+    "touchCallout": 0,
+    "userDrag": 0,
+    "overscroll": 0,
+    "scrollbar": 0,
+    "focusVisible": 0,
+    "focusPlain": 0,
+    "outlineNone": 0,
+    "appearanceNone": 0,
+    "touchAction": 0,
+    "dialog": 0,
+    "skeleton": 0,
+    "spinner": 0,
+    "loadingText": 1,
+    "anchor": 0,
+    "hover": 0,
+    "hoverGuard": 0,
+    "colorScheme": 0,
+    "nativeCtl": 0
+   }
+  }
+ }
+}

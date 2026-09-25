@@ -1,0 +1,316 @@
+{
+ "area": "timer",
+ "file": "apps/timer.html",
+ "rules": {
+  "notLiteral": "0, 0px, auto, inherit, initial, unset, none, normal, currentColor, transparent, 100%, 1 (opacity), 0/1 z-index 0 are not literals",
+  "varOnly": "values built only from var(--token), calc() of tokens and color-mix() of tokens are not literals; the percentages inside a token color-mix are counted separately as \"mixRatio\" (ad-hoc derived colours)",
+  "fallback": "a literal inside var(--x, <literal>) is a fallback, counted as status \"fallback\", not a violation",
+  "print": "@media print declarations are exempt",
+  "keyframes": "declarations inside @keyframes are motion frames: counted only for colour",
+  "hairline": "1px and 2px in spacing/borders are sub-grid hairlines: status \"subgrid\", not counted as violations",
+  "circle": "border-radius 50% is a circle: status \"acceptable\"",
+  "relative": "em/%/vw/ch/dvh/cqw values are relative: status \"relative\" (they scale with their parent, unlike px), not violations",
+  "dollywood": "Dollywood template: selectors are split by flavour ([data-flavor=hub] = build guide only, [data-flavor=live] = park map only, html:not([data-flavor=live]) = build guide/standalone); lines 259-308 and 525-565 and SVG-shape selectors are cartography (colour exempt, as scripts/screens-apps.mjs allows); the :where(:root) / :where([data-theme=light]) palette blocks (lines 7-12) are standalone-only (overridden by the hub flavour block at line 212) except the map category colours",
+  "designCss": "apps/design.css: only declarations outside the token/theme/kind blocks are scanned (the component layer, resets, print)",
+  "meta": "<meta name=\"theme-color\"> hex is counted in category colour with status \"meta\" (a token cannot reach a meta tag; hub.js/index.html set it from JS)"
+ },
+ "summary": {
+  "file": "apps/timer.html",
+  "byCategoryStatus": {
+   "mixRatio": {
+    "info": 5
+   },
+   "targetSize": {
+    "violation": 1
+   },
+   "fontWeight": {
+    "violation": 2
+   },
+   "letterSpacing": {
+    "violation": 2
+   },
+   "shadow": {
+    "violation": 2
+   },
+   "duration": {
+    "violation": 2
+   },
+   "easing": {
+    "violation": 1
+   },
+   "fontSize": {
+    "violation": 1
+   },
+   "lineHeight": {
+    "violation": 1
+   },
+   "breakpoint": {
+    "info": 2
+   }
+  },
+  "violations": {
+   "targetSize": {
+    "total": 1,
+    "exactToken": 1,
+    "noToken": 0
+   },
+   "fontWeight": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "letterSpacing": {
+    "total": 2,
+    "exactToken": 1,
+    "noToken": 1
+   },
+   "shadow": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "duration": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "easing": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "fontSize": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "lineHeight": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   }
+  },
+  "distinctViolationValues": {
+   "targetSize": 1,
+   "fontWeight": 2,
+   "letterSpacing": 2,
+   "shadow": 2,
+   "duration": 2,
+   "easing": 1,
+   "fontSize": 1,
+   "lineHeight": 1
+  },
+  "mixRatios": {
+   "count": 5,
+   "distinct": 5
+  },
+  "breakpoints": [
+   "max-height 640",
+   "min-width 720"
+  ]
+ },
+ "hits": [
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "70%",
+   "status": "info",
+   "line": 12,
+   "mix": "color-mix(in srgb, var(--danger-soft) 70%, var(--bg))"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "height",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 17,
+   "selector": ".hd img",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font",
+   "value": "600 var(--fs-lg) var(--font-display)",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 18,
+   "selector": ".hd h1",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": ".01em",
+   "literal": ".01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 18,
+   "selector": ".hd h1",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "filter",
+   "literal": "30%",
+   "status": "info",
+   "line": 26,
+   "mix": "color-mix(in srgb, var(--tint) 30%, transparent)"
+  },
+  {
+   "cat": "shadow",
+   "prop": "filter",
+   "value": "drop-shadow(0 2px 6px color-mix(in srgb, var(--tint) 30%, transparent))",
+   "literal": "drop-shadow(0 2px 6px color-mix(in srgb,  TOKEN  30%, transp",
+   "status": "violation",
+   "token": null,
+   "why": "drop-shadow geometry: no token",
+   "line": 26,
+   "selector": ".dial .ring",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "stroke",
+   "literal": "16%",
+   "status": "info",
+   "line": 28,
+   "mix": "color-mix(in srgb, var(--tint) 16%, var(--surface-2))"
+  },
+  {
+   "cat": "duration",
+   "prop": "transition",
+   "value": "stroke-dashoffset .5s linear, stroke var(--dur-3) var(--ease), opacity var(--dur-2) var(--ease)",
+   "literal": ".5s",
+   "status": "violation",
+   "token": null,
+   "why": "no 500ms token (tokens 120/220/360)",
+   "line": 29,
+   "selector": ".dial .ring .fg",
+   "src": "css",
+   "ms": 500
+  },
+  {
+   "cat": "easing",
+   "prop": "transition",
+   "value": "stroke-dashoffset .5s linear, stroke var(--dur-3) var(--ease), opacity var(--dur-2) var(--ease)",
+   "literal": "linear",
+   "status": "violation",
+   "token": null,
+   "why": "literal easing (tokens --ease/--ease-out/--ease-in-out/--spring)",
+   "line": 29,
+   "selector": ".dial .ring .fg",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(56px, 16vw, 92px)",
+   "literal": "clamp(56px, 16vw, 92px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 31,
+   "selector": ".time",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "300",
+   "literal": "300",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 31,
+   "selector": ".time",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 31,
+   "selector": ".time",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.02em",
+   "literal": "-.02em",
+   "status": "violation",
+   "token": "--ls-tight",
+   "why": "exact",
+   "line": 32,
+   "selector": ".time",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2), 0 0 0 6px ",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 36,
+   "selector": "body.done .dial",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "stroke",
+   "literal": "55%",
+   "status": "info",
+   "line": 37,
+   "mix": "color-mix(in srgb, var(--danger) 55%, var(--surface-2))"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation",
+   "value": "blink 1s steps(2) infinite",
+   "literal": "1s",
+   "status": "violation",
+   "token": null,
+   "why": "no 1000ms token (tokens 120/220/360)",
+   "line": 38,
+   "selector": "body.done .time",
+   "src": "css",
+   "ms": 1000
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "border-color",
+   "literal": "45%",
+   "status": "info",
+   "line": 44,
+   "mix": "color-mix(in srgb, var(--accent) 45%, transparent)"
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-height 640",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 19
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 720",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 48
+  }
+ ]
+}

@@ -1,0 +1,732 @@
+{
+ "area": "kidverse",
+ "file": "apps/kidverse.html",
+ "rules": {
+  "notLiteral": "0, 0px, auto, inherit, initial, unset, none, normal, currentColor, transparent, 100%, 1 (opacity), 0/1 z-index 0 are not literals",
+  "varOnly": "values built only from var(--token), calc() of tokens and color-mix() of tokens are not literals; the percentages inside a token color-mix are counted separately as \"mixRatio\" (ad-hoc derived colours)",
+  "fallback": "a literal inside var(--x, <literal>) is a fallback, counted as status \"fallback\", not a violation",
+  "print": "@media print declarations are exempt",
+  "keyframes": "declarations inside @keyframes are motion frames: counted only for colour",
+  "hairline": "1px and 2px in spacing/borders are sub-grid hairlines: status \"subgrid\", not counted as violations",
+  "circle": "border-radius 50% is a circle: status \"acceptable\"",
+  "relative": "em/%/vw/ch/dvh/cqw values are relative: status \"relative\" (they scale with their parent, unlike px), not violations",
+  "dollywood": "Dollywood template: selectors are split by flavour ([data-flavor=hub] = build guide only, [data-flavor=live] = park map only, html:not([data-flavor=live]) = build guide/standalone); lines 259-308 and 525-565 and SVG-shape selectors are cartography (colour exempt, as scripts/screens-apps.mjs allows); the :where(:root) / :where([data-theme=light]) palette blocks (lines 7-12) are standalone-only (overridden by the hub flavour block at line 212) except the map category colours",
+  "designCss": "apps/design.css: only declarations outside the token/theme/kind blocks are scanned (the component layer, resets, print)",
+  "meta": "<meta name=\"theme-color\"> hex is counted in category colour with status \"meta\" (a token cannot reach a meta tag; hub.js/index.html set it from JS)"
+ },
+ "summary": {
+  "file": "apps/kidverse.html",
+  "byCategoryStatus": {
+   "mixRatio": {
+    "info": 2
+   },
+   "localLiteral": {
+    "violation": 2
+   },
+   "fontSize": {
+    "violation": 6
+   },
+   "fontWeight": {
+    "violation": 16
+   },
+   "lineHeight": {
+    "violation": 8
+   },
+   "targetSize": {
+    "violation": 6
+   },
+   "duration": {
+    "violation": 3
+   },
+   "easing": {
+    "violation": 2
+   },
+   "spacing": {
+    "violation": 1,
+    "subgrid": 1
+   },
+   "zIndex": {
+    "violation": 1
+   },
+   "breakpoint": {
+    "info": 3
+   }
+  },
+  "violations": {
+   "localLiteral": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "fontSize": {
+    "total": 6,
+    "exactToken": 2,
+    "noToken": 4
+   },
+   "fontWeight": {
+    "total": 16,
+    "exactToken": 0,
+    "noToken": 16
+   },
+   "lineHeight": {
+    "total": 8,
+    "exactToken": 0,
+    "noToken": 8
+   },
+   "targetSize": {
+    "total": 6,
+    "exactToken": 6,
+    "noToken": 0
+   },
+   "duration": {
+    "total": 3,
+    "exactToken": 0,
+    "noToken": 3
+   },
+   "easing": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "spacing": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "zIndex": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   }
+  },
+  "distinctViolationValues": {
+   "localLiteral": 2,
+   "fontSize": 5,
+   "fontWeight": 4,
+   "lineHeight": 3,
+   "targetSize": 3,
+   "duration": 2,
+   "easing": 1,
+   "spacing": 1,
+   "zIndex": 1
+  },
+  "mixRatios": {
+   "count": 2,
+   "distinct": 2
+  },
+  "breakpoints": [
+   "min-width 560"
+  ]
+ },
+ "hits": [
+  {
+   "cat": "mixRatio",
+   "prop": "background-image",
+   "literal": "22%",
+   "status": "info",
+   "line": 15,
+   "mix": "color-mix(in srgb, var(--gold) 22%, transparent)"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background-image",
+   "literal": "14%",
+   "status": "info",
+   "line": 15,
+   "mix": "color-mix(in srgb, var(--accent) 14%, transparent)"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "28px",
+   "literal": "28px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 27,
+   "selector": ".ds .top .pill .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "16px",
+   "literal": "16px",
+   "status": "violation",
+   "token": "--fs-md",
+   "why": "exact",
+   "line": 27,
+   "selector": ".ds .top .pill .avatar",
+   "src": "css",
+   "px": 16
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 36,
+   "selector": ".ref h1",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(34px, 9vw, 56px)",
+   "literal": "clamp(34px, 9vw, 56px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 36,
+   "selector": ".ref h1",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(40px, 11vw, 64px)",
+   "literal": "clamp(40px, 11vw, 64px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 37,
+   "selector": ":root[data-kind=\"kid\"] .ref h1",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 38,
+   "selector": ".ref .also",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.35",
+   "literal": "1.35",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.35 step (tokens 1.1/1.25/1.45)",
+   "line": 45,
+   "selector": ".words small",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "max(64px, var(--tap-lg))",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 50,
+   "selector": ".ds .actions .btn",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation",
+   "value": "pulse 1.1s ease-in-out infinite",
+   "literal": "1.1s",
+   "status": "violation",
+   "token": null,
+   "why": "no 1100ms token (tokens 120/220/360)",
+   "line": 57,
+   "selector": ".ds .btn.say.on .icon",
+   "src": "css",
+   "ms": 1100
+  },
+  {
+   "cat": "easing",
+   "prop": "animation",
+   "value": "pulse 1.1s ease-in-out infinite",
+   "literal": "ease-in-out",
+   "status": "violation",
+   "token": null,
+   "why": "literal easing (tokens --ease/--ease-out/--ease-in-out/--spring)",
+   "line": 57,
+   "selector": ".ds .btn.say.on .icon",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 62,
+   "selector": ".stars .count",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 64,
+   "selector": ".stars .sub",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 66,
+   "selector": ".days span",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 70,
+   "selector": ":root[data-kind=\"kid\"] .days",
+   "src": "css",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 75,
+   "selector": ".rewards h2",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 77,
+   "selector": ".rewards .bank",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 78,
+   "selector": ".rewards .bank b",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 78,
+   "selector": ".rewards .bank b",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 82,
+   "selector": ".badges li",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "width",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 83,
+   "selector": ".badges li .bicon",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "height",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 83,
+   "selector": ".badges li .bicon",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "800",
+   "literal": "800",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 83,
+   "selector": ".badges li .bicon",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 85,
+   "selector": ".badges li .bname",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.2",
+   "literal": "1.2",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.2 step (tokens 1.1/1.25/1.45)",
+   "line": 85,
+   "selector": ".badges li .bname",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "10px",
+   "literal": "10px",
+   "status": "violation",
+   "token": null,
+   "why": "no 10px step (nearest --fs-xs 12px); below the 11 px floor",
+   "line": 86,
+   "selector": ".badges li small",
+   "src": "css",
+   "px": 10
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.2",
+   "literal": "1.2",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.2 step (tokens 1.1/1.25/1.45)",
+   "line": 86,
+   "selector": ".badges li small",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.35",
+   "literal": "1.35",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.35 step (tokens 1.1/1.25/1.45)",
+   "line": 91,
+   "selector": ".rewards .paid, .rewards .how",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 96,
+   "selector": ".grown h2",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 99,
+   "selector": ".stepper .wk",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 100,
+   "selector": ".stepper .wk small",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 101,
+   "selector": ".ds .stepper .btn",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "40px",
+   "literal": "40px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 106,
+   "selector": ".kids .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "22px",
+   "literal": "22px",
+   "status": "violation",
+   "token": "--fs-xl",
+   "why": "exact",
+   "line": 106,
+   "selector": ".kids .avatar",
+   "src": "css",
+   "px": 22
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 107,
+   "selector": ".kids .kn",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "10px",
+   "literal": "10px",
+   "status": "violation",
+   "token": null,
+   "why": "no 10px step (nearest --fs-xs 12px); below the 11 px floor",
+   "line": 110,
+   "selector": ".kids .days span",
+   "src": "css",
+   "px": 10
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "50",
+   "literal": "50",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 115,
+   "selector": ".confetti",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation",
+   "value": "fall 1.2s var(--ease-out) var(--d) forwards",
+   "literal": "1.2s",
+   "status": "violation",
+   "token": null,
+   "why": "no 1200ms token (tokens 120/220/360)",
+   "line": 117,
+   "selector": ".confetti i",
+   "src": "css",
+   "ms": 1200
+  },
+  {
+   "cat": "targetSize",
+   "prop": "width",
+   "value": "84px",
+   "literal": "84px",
+   "status": "violation",
+   "token": "--tap-lg (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 124,
+   "selector": ".story-head img",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 125,
+   "selector": ".story-head > div",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 127,
+   "selector": ".story-head h2",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 128,
+   "selector": ".story-span",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.35",
+   "literal": "1.35",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.35 step (tokens 1.1/1.25/1.45)",
+   "line": 131,
+   "selector": ".story small",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "max(64px, var(--tap-lg))",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 134,
+   "selector": ".ds .story-actions .btn",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation",
+   "value": "pulse 1.1s ease-in-out infinite",
+   "literal": "1.1s",
+   "status": "violation",
+   "token": null,
+   "why": "no 1100ms token (tokens 120/220/360)",
+   "line": 139,
+   "selector": ".ds .btn.story-say.on .icon",
+   "src": "css",
+   "ms": 1100
+  },
+  {
+   "cat": "easing",
+   "prop": "animation",
+   "value": "pulse 1.1s ease-in-out infinite",
+   "literal": "ease-in-out",
+   "status": "violation",
+   "token": null,
+   "why": "literal easing (tokens --ease/--ease-out/--ease-in-out/--spring)",
+   "line": 139,
+   "selector": ".ds .btn.story-say.on .icon",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 140,
+   "selector": ".story-sub",
+   "src": "css"
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 560",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 49
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 560",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 81
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 560",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 133
+  }
+ ]
+}

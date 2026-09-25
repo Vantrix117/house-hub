@@ -1,0 +1,555 @@
+{
+ "note": "See the header of audits/tools/phase4/TELL/matrix.mjs. Rows = areas, keys = tells.",
+ "matrix": {
+  "shell": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "14/14 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "PARTIAL",
+    "e": "4/14 controls -webkit-user-select:text; 13 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "PASS",
+    "e": "1 styled"
+   },
+   "4 focus rings": {
+    "s": "PARTIAL",
+    "e": "touch: no ring after tap; keyboard: 3/8 stops paint a ring; pixel check .gcard .btn 0px"
+   },
+   "5 blue links": {
+    "s": "n/a",
+    "e": "0 <a href>"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 FLASH ~393 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 -"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 724 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body hidden/fixed; doc scrolls false; canvas vs content edge n/a (does not scroll)"
+   },
+   "8 tap delay": {
+    "s": "PASS",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation"
+   },
+   "9 scrollbars": {
+    "s": "FAIL",
+    "e": "classic bars (desktop): chrome main#views 15px; content none; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "FAIL",
+    "e": "CLS 0.0254, max landmark move 218 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 2143 chars; .skeleton in source 10"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "FAIL",
+    "e": "9 call sites in source, 9 reachable (all 9 reachable: 4 for any adult (Forget device, album remove, Cash in, Reset week), 5 admin-only); 6 raised at runtime (dismissed)"
+   }
+  },
+  "tv": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "1/1 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "PARTIAL",
+    "e": "0/1 controls -webkit-user-select:text; 7 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "n/a",
+    "e": "no form controls"
+   },
+   "4 focus rings": {
+    "s": "FAIL",
+    "e": "touch: no touch control; keyboard: 0/1 stops paint a ring; pixel check #kiosk-switch 0px"
+   },
+   "5 blue links": {
+    "s": "n/a",
+    "e": "0 <a href>"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 FLASH ~404 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 -"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 60 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body hidden/fixed; doc scrolls false; canvas vs content edge n/a (does not scroll)"
+   },
+   "8 tap delay": {
+    "s": "PASS",
+    "e": "viewport device-width; touchend→click n/a (no touch); body touch-action manipulation"
+   },
+   "9 scrollbars": {
+    "s": "FAIL",
+    "e": "classic bars (desktop): chrome main#views 15px; content none; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "FAIL",
+    "e": "CLS 0.065, max landmark move 155 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 602 chars; .skeleton in source 10"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "PASS",
+    "e": "0 call sites in source, 0 reachable (the kiosk reaches none (tv-me: #forget not clickable))"
+   }
+  },
+  "f260": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "190/190 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "FAIL",
+    "e": "190/190 controls -webkit-user-select:text; 1 draggable img, 8 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "FAIL",
+    "e": "1 native: input#showPw(checkbox)"
+   },
+   "4 focus rings": {
+    "s": "PASS",
+    "e": "touch: no ring after tap; keyboard: 4/4 stops paint a ring; pixel check #tabPlan 532px"
+   },
+   "5 blue links": {
+    "s": "PASS",
+    "e": "52 links, 0 blue+underlined, 0 underlined"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 FLASH ~597 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 FLASH"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 523 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body visible/static; doc scrolls true; canvas vs content edge 1-1"
+   },
+   "8 tap delay": {
+    "s": "PARTIAL",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation; iOS focus zoom: 1 fields < 16 px (textarea#restoreText 15)"
+   },
+   "9 scrollbars": {
+    "s": "FAIL",
+    "e": "classic bars (desktop): chrome div.side 10px; content document 15px; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "FAIL",
+    "e": "CLS 0.5938, max landmark move 405 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 592 chars; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "PASS",
+    "e": "1 call sites in source, 0 reachable (1 latent alert(), only when crypto.subtle is missing (insecure http), unreachable on the https site)"
+   }
+  },
+  "leftovers": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "9/9 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "FAIL",
+    "e": "9/9 controls -webkit-user-select:text; 0 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "FAIL",
+    "e": "2 native: select#size(select-one), input#date(text)"
+   },
+   "4 focus rings": {
+    "s": "PARTIAL",
+    "e": "touch: no ring after tap; keyboard: 6/7 stops paint a ring"
+   },
+   "5 blue links": {
+    "s": "n/a",
+    "e": "0 <a href>"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 FLASH ~391 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 FLASH"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 139 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body visible/static; doc scrolls false; canvas vs content edge n/a (does not scroll)"
+   },
+   "8 tap delay": {
+    "s": "PARTIAL",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation; iOS focus zoom: 2 fields < 16 px (select#size 15, input#date 15)"
+   },
+   "9 scrollbars": {
+    "s": "PARTIAL",
+    "e": "classic bars (desktop): chrome none; content document 15px; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "PARTIAL",
+    "e": "CLS 0.0937, max landmark move 0 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 245 chars; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "PASS",
+    "e": "0 call sites in source, 0 reachable"
+   }
+  },
+  "prayer": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "29/29 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "FAIL",
+    "e": "29/29 controls -webkit-user-select:text; 0 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "PARTIAL",
+    "e": "6 styled (one is <select multiple>)"
+   },
+   "4 focus rings": {
+    "s": "PASS",
+    "e": "touch: no ring after tap; keyboard: 6/6 stops paint a ring; pixel check #listSwitch button 516px"
+   },
+   "5 blue links": {
+    "s": "n/a",
+    "e": "0 <a href>"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 FLASH ~305 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 FLASH"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 649 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body visible/static; doc scrolls true; canvas vs content edge 1-1.08"
+   },
+   "8 tap delay": {
+    "s": "PASS",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation"
+   },
+   "9 scrollbars": {
+    "s": "PARTIAL",
+    "e": "classic bars (desktop): chrome none; content document 15px; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "PARTIAL",
+    "e": "CLS 0.006, max landmark move 97 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 52 chars; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "PASS",
+    "e": "0 call sites in source, 0 reachable"
+   }
+  },
+  "tally": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "3/3 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "PARTIAL",
+    "e": "0/3 controls -webkit-user-select:text; 1 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "n/a",
+    "e": "no form controls"
+   },
+   "4 focus rings": {
+    "s": "PARTIAL",
+    "e": "touch: no ring after tap; keyboard: 2/3 stops paint a ring; pixel check #reset 0px, #plus 1752px"
+   },
+   "5 blue links": {
+    "s": "n/a",
+    "e": "0 <a href>"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 palette ~293 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 palette"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 36 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body auto/static; doc scrolls false; canvas vs content edge n/a (does not scroll)"
+   },
+   "8 tap delay": {
+    "s": "PASS",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation"
+   },
+   "9 scrollbars": {
+    "s": "PASS",
+    "e": "classic bars (desktop): chrome none; content none; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "PASS",
+    "e": "CLS 0.0013, max landmark move 0 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 19 chars; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "PASS",
+    "e": "0 call sites in source, 0 reachable"
+   }
+  },
+  "timer": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "8/8 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "PARTIAL",
+    "e": "0/8 controls -webkit-user-select:text; 1 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "n/a",
+    "e": "no form controls"
+   },
+   "4 focus rings": {
+    "s": "FAIL",
+    "e": "touch: no ring after tap; keyboard: 0/4 stops paint a ring; pixel check #go 0px"
+   },
+   "5 blue links": {
+    "s": "n/a",
+    "e": "0 <a href>"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 FLASH ~438 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 FLASH"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 79 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body visible/static; doc scrolls false; canvas vs content edge n/a (does not scroll)"
+   },
+   "8 tap delay": {
+    "s": "PASS",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation"
+   },
+   "9 scrollbars": {
+    "s": "PASS",
+    "e": "classic bars (desktop): chrome none; content none; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "PASS",
+    "e": "CLS 0.0005, max landmark move 0 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 69 chars; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "PASS",
+    "e": "0 call sites in source, 0 reachable"
+   }
+  },
+  "dollywood": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "54/54 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "FAIL",
+    "e": "54/54 controls -webkit-user-select:text; 0 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "FAIL",
+    "e": "14 native: select#bmap(select-one), input#q(search), input#vx(range), input(checkbox), input#l-slope(checkbox), input#l-seclab(checkbox)"
+   },
+   "4 focus rings": {
+    "s": "PASS",
+    "e": "touch: no ring after tap; keyboard: 3/3 stops paint a ring"
+   },
+   "5 blue links": {
+    "s": "PASS",
+    "e": "5 links, 0 blue+underlined, 0 underlined"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 -, C-0 DARK (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 not run"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 409 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body visible/static; doc scrolls true; canvas vs content edge 1-1"
+   },
+   "8 tap delay": {
+    "s": "PARTIAL",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation; iOS focus zoom: 6 fields < 16 px (select#cint 13, select#bmap 15, input#q 15, select#hf 12.5, input#sc-plot 13, input#sc-in 13)"
+   },
+   "9 scrollbars": {
+    "s": "FAIL",
+    "e": "classic bars (desktop): chrome div#chips.chips 10px, div#tab-list.tabbody 15px; content document 15px, div#b-list.blist 15px; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "FAIL",
+    "e": "CLS 0.1283, max landmark move 862 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 11179 chars, \"…\" ×1; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "FAIL",
+    "e": "5 call sites in source, 2 reachable (2 reachable (Reset progress confirm, bad-import alert); 3 park-map confirms are dead code in the guide); 1 raised at runtime (dismissed)"
+   }
+  },
+  "dollywood-live": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "13/13 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "FAIL",
+    "e": "13/13 controls -webkit-user-select:text; 0 draggable img, 1 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "FAIL",
+    "e": "7 native: input#pop-q(search), input#q(search), select#hf(select-one), select#cint(select-one), input(checkbox), input#l-slope(checkbox)"
+   },
+   "4 focus rings": {
+    "s": "PARTIAL",
+    "e": "touch: no ring after tap; keyboard: 12/13 stops paint a ring"
+   },
+   "5 blue links": {
+    "s": "PARTIAL",
+    "e": "6 links, 0 blue+underlined, 2 underlined"
+   },
+   "6 white flash": {
+    "s": "PASS",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 -, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 not run"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 642 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body hidden/static; doc scrolls false; canvas vs content edge n/a (does not scroll)"
+   },
+   "8 tap delay": {
+    "s": "PARTIAL",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation; iOS focus zoom: 6 fields < 16 px (select#bmap 15, input#q 15, select#hf 12.5, select#cint 14, input#sc-plot 13, input#sc-in 13)"
+   },
+   "9 scrollbars": {
+    "s": "FAIL",
+    "e": "classic bars (desktop): chrome div.lv-body 15px; content none; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "PASS",
+    "e": "CLS 0.0123, max landmark move 0 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 4048 chars; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "FAIL",
+    "e": "5 call sites in source, 3 reachable (3 reachable (meeting point long-press, Meet here, Clear meeting point); confirm+alert of the hidden guide UI unreachable); 2 raised at runtime (dismissed)"
+   }
+  },
+  "kidverse": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "4/4 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "PARTIAL",
+    "e": "0/4 controls -webkit-user-select:text; 2 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "n/a",
+    "e": "no form controls"
+   },
+   "4 focus rings": {
+    "s": "FAIL",
+    "e": "touch: no ring after tap; keyboard: 0/4 stops paint a ring; pixel check #done 0px"
+   },
+   "5 blue links": {
+    "s": "n/a",
+    "e": "0 <a href>"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 FLASH ~358 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 FLASH"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 186 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body auto/static; doc scrolls true; canvas vs content edge 1-1.24"
+   },
+   "8 tap delay": {
+    "s": "PASS",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation"
+   },
+   "9 scrollbars": {
+    "s": "PARTIAL",
+    "e": "classic bars (desktop): chrome none; content document 15px; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "PARTIAL",
+    "e": "CLS 0.0555, max landmark move 0 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 357 chars, \"…\" ×4; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "PASS",
+    "e": "0 call sites in source, 0 reachable"
+   }
+  },
+  "verses": {
+   "1 tap highlight": {
+    "s": "PASS",
+    "e": "18/18 controls transparent (Chromium computed)"
+   },
+   "2 selection/callout": {
+    "s": "PARTIAL",
+    "e": "16/18 controls -webkit-user-select:text; 1 draggable img, 0 links; -webkit-touch-callout rules 0"
+   },
+   "3 form controls": {
+    "s": "n/a",
+    "e": "no form controls"
+   },
+   "4 focus rings": {
+    "s": "FAIL",
+    "e": "touch: no ring after tap; keyboard: 0/2 stops paint a ring; pixel check #show 0px"
+   },
+   "5 blue links": {
+    "s": "n/a",
+    "e": "0 <a href>"
+   },
+   "6 white flash": {
+    "s": "PARTIAL",
+    "e": "Chromium A-0 -, A-400 -, B-0 -, B-400 FLASH ~399 ms, C-0 - (light frames in C are the viewer's 360 ms fade over a light Home, not counted); WebKit B-400 FLASH"
+   },
+   "7 rubber-band": {
+    "s": "DEVICE",
+    "e": "html=auto/auto body=none/none over 178 docs (body is not a scroll container, so body's value is inert: overscroll-body.json); body auto/static; doc scrolls true; canvas vs content edge 1-1.2"
+   },
+   "8 tap delay": {
+    "s": "PASS",
+    "e": "viewport device-width; touchend→click 1 ms; body touch-action manipulation"
+   },
+   "9 scrollbars": {
+    "s": "PARTIAL",
+    "e": "classic bars (desktop): chrome none; content document 15px; iPad/iPhone overlay"
+   },
+   "10 layout shift": {
+    "s": "PASS",
+    "e": "CLS 0.0009, max landmark move 0 px (cold, held pull, in the viewer)"
+   },
+   "11 spinner vs skeleton": {
+    "s": "PARTIAL",
+    "e": "at 900 ms: 0 skeletons, 0 spinners, text 0 chars; .skeleton in source 0"
+   },
+   "12 alert/confirm/prompt": {
+    "s": "PASS",
+    "e": "0 call sites in source, 0 reachable"
+   }
+  }
+ }
+}

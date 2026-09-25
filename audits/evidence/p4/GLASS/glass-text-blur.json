@@ -1,0 +1,2085 @@
+{
+ "note": "See the header of audits/tools/phase4/GLASS/glass-text-blur.mjs. Per job and text: the ink, the line boxes, and the WCAG ratio of the ink against every background pixel inside them (text hidden), p10 and median, with the real Chromium blur (\"blur\") and with backdrop-filter off (\"noblur\", the WebKit rig's view). req = 4.5 (3 for large text).",
+ "jobs": {
+  "tabbar-apps-light": {
+   "job": {
+    "id": "tabbar-apps-light",
+    "mod": "shell",
+    "screen": "home",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "system",
+    "doc": "page",
+    "sel": "#tabbar .tab:not(.on)",
+    "under": {
+     "doc": "page",
+     "sel": "#views",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button.tab",
+      "text": "Apps",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 390,
+      "p10": 5.26,
+      "med": 5.26,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Chat",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 360,
+      "p10": 5.26,
+      "med": 5.3,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Me",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 240,
+      "p10": 5.34,
+      "med": 5.34,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button.tab",
+      "text": "Apps",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 390,
+      "p10": 4.6,
+      "med": 5.34,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Chat",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 360,
+      "p10": 4.6,
+      "med": 5.34,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Me",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 240,
+      "p10": 5.34,
+      "med": 5.34,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "under": {
+    "scroller": "views",
+    "top": 928,
+    "range": 2063
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-tabbar-apps-light.png",
+   "summary": [
+    {
+     "text": "Apps",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.26,
+      5.26
+     ],
+     "noblur": [
+      4.6,
+      5.34
+     ]
+    },
+    {
+     "text": "Chat",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.26,
+      5.3
+     ],
+     "noblur": [
+      4.6,
+      5.34
+     ]
+    },
+    {
+     "text": "Me",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.34,
+      5.34
+     ],
+     "noblur": [
+      5.34,
+      5.34
+     ]
+    }
+   ]
+  },
+  "tabbar-apps-dark": {
+   "job": {
+    "id": "tabbar-apps-dark",
+    "mod": "shell",
+    "screen": "home",
+    "device": "ipad-portrait",
+    "mode": "dark",
+    "theme": "system",
+    "doc": "page",
+    "sel": "#tabbar .tab:not(.on)",
+    "under": {
+     "doc": "page",
+     "sel": "#views",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button.tab",
+      "text": "Apps",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 390,
+      "p10": 5.46,
+      "med": 5.46,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Chat",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 360,
+      "p10": 5.47,
+      "med": 5.48,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Me",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 240,
+      "p10": 5.6,
+      "med": 5.6,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button.tab",
+      "text": "Apps",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 390,
+      "p10": 4.35,
+      "med": 5.6,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Chat",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 360,
+      "p10": 4.35,
+      "med": 5.6,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Me",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 240,
+      "p10": 5.6,
+      "med": 5.6,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "dark"
+   },
+   "under": {
+    "scroller": "views",
+    "top": 928,
+    "range": 2063
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-tabbar-apps-dark.png",
+   "summary": [
+    {
+     "text": "Apps",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.46,
+      5.46
+     ],
+     "noblur": [
+      4.35,
+      5.6
+     ]
+    },
+    {
+     "text": "Chat",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.47,
+      5.48
+     ],
+     "noblur": [
+      4.35,
+      5.6
+     ]
+    },
+    {
+     "text": "Me",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.6,
+      5.6
+     ],
+     "noblur": [
+      5.6,
+      5.6
+     ]
+    }
+   ]
+  },
+  "tabbar-apps-midnight": {
+   "job": {
+    "id": "tabbar-apps-midnight",
+    "mod": "shell",
+    "screen": "home",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "midnight",
+    "doc": "page",
+    "sel": "#tabbar .tab:not(.on)",
+    "under": {
+     "doc": "page",
+     "sel": "#views",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button.tab",
+      "text": "Apps",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 390,
+      "p10": 5.46,
+      "med": 5.46,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Chat",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 360,
+      "p10": 5.47,
+      "med": 5.48,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Me",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 240,
+      "p10": 5.6,
+      "med": 5.6,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button.tab",
+      "text": "Apps",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 390,
+      "p10": 4.35,
+      "med": 5.6,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Chat",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 360,
+      "p10": 4.35,
+      "med": 5.6,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Me",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 240,
+      "p10": 5.6,
+      "med": 5.6,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": "midnight",
+    "scheme": "dark"
+   },
+   "under": {
+    "scroller": "views",
+    "top": 928,
+    "range": 2063
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-tabbar-apps-midnight.png",
+   "summary": [
+    {
+     "text": "Apps",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.46,
+      5.46
+     ],
+     "noblur": [
+      4.35,
+      5.6
+     ]
+    },
+    {
+     "text": "Chat",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.47,
+      5.48
+     ],
+     "noblur": [
+      4.35,
+      5.6
+     ]
+    },
+    {
+     "text": "Me",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.6,
+      5.6
+     ],
+     "noblur": [
+      5.6,
+      5.6
+     ]
+    }
+   ]
+  },
+  "tabbar-apps-phone-light": {
+   "job": {
+    "id": "tabbar-apps-phone-light",
+    "mod": "shell",
+    "screen": "home",
+    "device": "iphone-pwa",
+    "mode": "light",
+    "theme": "system",
+    "doc": "page",
+    "sel": "#tabbar .tab:not(.on)",
+    "under": {
+     "doc": "page",
+     "sel": "#views",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button.tab",
+      "text": "Apps",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 405,
+      "p10": 5.21,
+      "med": 5.21,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Chat",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 360,
+      "p10": 5.26,
+      "med": 5.26,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Me",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 240,
+      "p10": 5.3,
+      "med": 5.3,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button.tab",
+      "text": "Apps",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 405,
+      "p10": 4.48,
+      "med": 5.34,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Chat",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 360,
+      "p10": 4.6,
+      "med": 5.34,
+      "req": 4.5
+     },
+     {
+      "sel": "button.tab",
+      "text": "Me",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 240,
+      "p10": 4.56,
+      "med": 5.34,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "under": {
+    "scroller": "views",
+    "top": 1567,
+    "range": 3483
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-tabbar-apps-phone-light.png",
+   "summary": [
+    {
+     "text": "Apps",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.21,
+      5.21
+     ],
+     "noblur": [
+      4.48,
+      5.34
+     ]
+    },
+    {
+     "text": "Chat",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.26,
+      5.26
+     ],
+     "noblur": [
+      4.6,
+      5.34
+     ]
+    },
+    {
+     "text": "Me",
+     "sel": "button.tab",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.3,
+      5.3
+     ],
+     "noblur": [
+      4.56,
+      5.34
+     ]
+    }
+   ]
+  },
+  "composer-placeholder-phone": {
+   "job": {
+    "id": "composer-placeholder-phone",
+    "mod": "shell-me",
+    "screen": "chat",
+    "device": "iphone-pwa",
+    "mode": "light",
+    "theme": "system",
+    "doc": "page",
+    "sel": "#chat-in",
+    "placeholder": true,
+    "under": null
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "input#chat-in.input",
+      "text": "Ask or tell the house…",
+      "color": "rgb(167, 155, 142)",
+      "fs": 16,
+      "fw": 400,
+      "px": 3306,
+      "p10": 2.62,
+      "med": 2.64,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "input#chat-in.input",
+      "text": "Ask or tell the house…",
+      "color": "rgb(167, 155, 142)",
+      "fs": 16,
+      "fw": 400,
+      "px": 3306,
+      "p10": 2.6,
+      "med": 2.62,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-composer-placeholder-phone.png",
+   "summary": [
+    {
+     "text": "Ask or tell the house…",
+     "sel": "input#chat-in.input",
+     "fs": 16,
+     "req": 4.5,
+     "blur": [
+      2.62,
+      2.64
+     ],
+     "noblur": [
+      2.6,
+      2.62
+     ]
+    }
+   ]
+  },
+  "prayer-nav-dark": {
+   "job": {
+    "id": "prayer-nav-dark",
+    "mod": "prayer",
+    "screen": "today",
+    "device": "ipad-portrait",
+    "mode": "dark",
+    "theme": "system",
+    "doc": "app",
+    "sel": "body > nav button:not([aria-current=true])",
+    "under": {
+     "doc": "app",
+     "sel": "auto",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button",
+      "text": "List",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 304,
+      "p10": 5.46,
+      "med": 5.46,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Record",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 624,
+      "p10": 5.59,
+      "med": 5.6,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Add",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 336,
+      "p10": 5.71,
+      "med": 5.71,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "More",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 448,
+      "p10": 5.71,
+      "med": 5.71,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button",
+      "text": "List",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 304,
+      "p10": 3.78,
+      "med": 5.72,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Record",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 624,
+      "p10": 5.72,
+      "med": 5.72,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Add",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 336,
+      "p10": 5.72,
+      "med": 5.72,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "More",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 448,
+      "p10": 5.72,
+      "med": 5.72,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "dark"
+   },
+   "under": {
+    "scroller": "HTML",
+    "top": 190,
+    "range": 422
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-prayer-nav-dark.png",
+   "summary": [
+    {
+     "text": "List",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.46,
+      5.46
+     ],
+     "noblur": [
+      3.78,
+      5.72
+     ]
+    },
+    {
+     "text": "Record",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.59,
+      5.6
+     ],
+     "noblur": [
+      5.72,
+      5.72
+     ]
+    },
+    {
+     "text": "Add",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.71,
+      5.71
+     ],
+     "noblur": [
+      5.72,
+      5.72
+     ]
+    },
+    {
+     "text": "More",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.71,
+      5.71
+     ],
+     "noblur": [
+      5.72,
+      5.72
+     ]
+    }
+   ]
+  },
+  "prayer-nav-midnight": {
+   "job": {
+    "id": "prayer-nav-midnight",
+    "mod": "prayer",
+    "screen": "today",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "midnight",
+    "doc": "app",
+    "sel": "body > nav button:not([aria-current=true])",
+    "under": {
+     "doc": "app",
+     "sel": "auto",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button",
+      "text": "List",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 304,
+      "p10": 5.46,
+      "med": 5.46,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Record",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 624,
+      "p10": 5.59,
+      "med": 5.6,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Add",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 336,
+      "p10": 5.71,
+      "med": 5.71,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "More",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 448,
+      "p10": 5.71,
+      "med": 5.71,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button",
+      "text": "List",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 304,
+      "p10": 3.78,
+      "med": 5.72,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Record",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 624,
+      "p10": 5.72,
+      "med": 5.72,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Add",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 336,
+      "p10": 5.72,
+      "med": 5.72,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "More",
+      "color": "rgb(162, 148, 138)",
+      "fs": 12,
+      "fw": 600,
+      "px": 448,
+      "p10": 5.72,
+      "med": 5.72,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": "midnight",
+    "scheme": "dark"
+   },
+   "under": {
+    "scroller": "HTML",
+    "top": 190,
+    "range": 422
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-prayer-nav-midnight.png",
+   "summary": [
+    {
+     "text": "List",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.46,
+      5.46
+     ],
+     "noblur": [
+      3.78,
+      5.72
+     ]
+    },
+    {
+     "text": "Record",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.59,
+      5.6
+     ],
+     "noblur": [
+      5.72,
+      5.72
+     ]
+    },
+    {
+     "text": "Add",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.71,
+      5.71
+     ],
+     "noblur": [
+      5.72,
+      5.72
+     ]
+    },
+    {
+     "text": "More",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.71,
+      5.71
+     ],
+     "noblur": [
+      5.72,
+      5.72
+     ]
+    }
+   ]
+  },
+  "prayer-nav-forest": {
+   "job": {
+    "id": "prayer-nav-forest",
+    "mod": "prayer",
+    "screen": "today",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "forest",
+    "doc": "app",
+    "sel": "body > nav button:not([aria-current=true])",
+    "under": {
+     "doc": "app",
+     "sel": "auto",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button",
+      "text": "List",
+      "color": "rgb(156, 148, 132)",
+      "fs": 12,
+      "fw": 600,
+      "px": 304,
+      "p10": 5.27,
+      "med": 5.27,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Record",
+      "color": "rgb(156, 148, 132)",
+      "fs": 12,
+      "fw": 600,
+      "px": 624,
+      "p10": 5.39,
+      "med": 5.4,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Add",
+      "color": "rgb(156, 148, 132)",
+      "fs": 12,
+      "fw": 600,
+      "px": 336,
+      "p10": 5.47,
+      "med": 5.47,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "More",
+      "color": "rgb(156, 148, 132)",
+      "fs": 12,
+      "fw": 600,
+      "px": 448,
+      "p10": 5.47,
+      "med": 5.47,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button",
+      "text": "List",
+      "color": "rgb(156, 148, 132)",
+      "fs": 12,
+      "fw": 600,
+      "px": 304,
+      "p10": 3.69,
+      "med": 5.46,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Record",
+      "color": "rgb(156, 148, 132)",
+      "fs": 12,
+      "fw": 600,
+      "px": 624,
+      "p10": 5.46,
+      "med": 5.46,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Add",
+      "color": "rgb(156, 148, 132)",
+      "fs": 12,
+      "fw": 600,
+      "px": 336,
+      "p10": 5.46,
+      "med": 5.46,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "More",
+      "color": "rgb(156, 148, 132)",
+      "fs": 12,
+      "fw": 600,
+      "px": 448,
+      "p10": 5.46,
+      "med": 5.46,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": "forest",
+    "scheme": "dark"
+   },
+   "under": {
+    "scroller": "HTML",
+    "top": 190,
+    "range": 422
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-prayer-nav-forest.png",
+   "summary": [
+    {
+     "text": "List",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.27,
+      5.27
+     ],
+     "noblur": [
+      3.69,
+      5.46
+     ]
+    },
+    {
+     "text": "Record",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.39,
+      5.4
+     ],
+     "noblur": [
+      5.46,
+      5.46
+     ]
+    },
+    {
+     "text": "Add",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.47,
+      5.47
+     ],
+     "noblur": [
+      5.46,
+      5.46
+     ]
+    },
+    {
+     "text": "More",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.47,
+      5.47
+     ],
+     "noblur": [
+      5.46,
+      5.46
+     ]
+    }
+   ]
+  },
+  "prayer-nav-light": {
+   "job": {
+    "id": "prayer-nav-light",
+    "mod": "prayer",
+    "screen": "today",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "system",
+    "doc": "app",
+    "sel": "body > nav button:not([aria-current=true])",
+    "under": {
+     "doc": "app",
+     "sel": "auto",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button",
+      "text": "List",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 304,
+      "p10": 5.17,
+      "med": 5.17,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Record",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 624,
+      "p10": 5.25,
+      "med": 5.25,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Add",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 336,
+      "p10": 5.3,
+      "med": 5.3,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "More",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 448,
+      "p10": 5.3,
+      "med": 5.3,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button",
+      "text": "List",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 304,
+      "p10": 4.31,
+      "med": 5.26,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Record",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 624,
+      "p10": 5.26,
+      "med": 5.26,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "Add",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 336,
+      "p10": 5.26,
+      "med": 5.26,
+      "req": 4.5
+     },
+     {
+      "sel": "button",
+      "text": "More",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 600,
+      "px": 448,
+      "p10": 5.26,
+      "med": 5.26,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "under": {
+    "scroller": "HTML",
+    "top": 190,
+    "range": 422
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-prayer-nav-light.png",
+   "summary": [
+    {
+     "text": "List",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.17,
+      5.17
+     ],
+     "noblur": [
+      4.31,
+      5.26
+     ]
+    },
+    {
+     "text": "Record",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.25,
+      5.25
+     ],
+     "noblur": [
+      5.26,
+      5.26
+     ]
+    },
+    {
+     "text": "Add",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.3,
+      5.3
+     ],
+     "noblur": [
+      5.26,
+      5.26
+     ]
+    },
+    {
+     "text": "More",
+     "sel": "button",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      5.3,
+      5.3
+     ],
+     "noblur": [
+      5.26,
+      5.26
+     ]
+    }
+   ]
+  },
+  "prayer-sheet-meta-light": {
+   "job": {
+    "id": "prayer-sheet-meta-light",
+    "mod": "prayer",
+    "screen": "detail",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "system",
+    "doc": "app",
+    "sel": "#sheetInner > .meta",
+    "under": null
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "div.meta",
+      "text": "Health Needs",
+      "color": "rgb(117, 103, 91)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 1411,
+      "p10": 4.71,
+      "med": 4.76,
+      "req": 4.5
+     },
+     {
+      "sel": "div.meta",
+      "text": "For Dad",
+      "color": "rgb(117, 103, 91)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 765,
+      "p10": 4.63,
+      "med": 4.66,
+      "req": 4.5
+     },
+     {
+      "sel": "div.meta",
+      "text": "Last prayed September 21, 2026 · on the ",
+      "color": "rgb(117, 103, 91)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 7225,
+      "p10": 4.55,
+      "med": 4.6,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "div.meta",
+      "text": "Health Needs",
+      "color": "rgb(117, 103, 91)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 1411,
+      "p10": 4.72,
+      "med": 4.8,
+      "req": 4.5
+     },
+     {
+      "sel": "div.meta",
+      "text": "For Dad",
+      "color": "rgb(117, 103, 91)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 765,
+      "p10": 4.62,
+      "med": 4.65,
+      "req": 4.5
+     },
+     {
+      "sel": "div.meta",
+      "text": "Last prayed September 21, 2026 · on the ",
+      "color": "rgb(117, 103, 91)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 7225,
+      "p10": 4.56,
+      "med": 4.61,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-prayer-sheet-meta-light.png",
+   "summary": [
+    {
+     "text": "Health Needs",
+     "sel": "div.meta",
+     "fs": 13.5,
+     "req": 4.5,
+     "blur": [
+      4.71,
+      4.76
+     ],
+     "noblur": [
+      4.72,
+      4.8
+     ]
+    },
+    {
+     "text": "For Dad",
+     "sel": "div.meta",
+     "fs": 13.5,
+     "req": 4.5,
+     "blur": [
+      4.63,
+      4.66
+     ],
+     "noblur": [
+      4.62,
+      4.65
+     ]
+    },
+    {
+     "text": "Last prayed September 21, 2026 · on the ",
+     "sel": "div.meta",
+     "fs": 13.5,
+     "req": 4.5,
+     "blur": [
+      4.55,
+      4.6
+     ],
+     "noblur": [
+      4.56,
+      4.61
+     ]
+    }
+   ]
+  },
+  "prayer-sheet-meta-dark": {
+   "job": {
+    "id": "prayer-sheet-meta-dark",
+    "mod": "prayer",
+    "screen": "detail",
+    "device": "ipad-portrait",
+    "mode": "dark",
+    "theme": "system",
+    "doc": "app",
+    "sel": "#sheetInner > .meta",
+    "under": null
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "div.meta",
+      "text": "Health Needs",
+      "color": "rgb(162, 148, 138)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 1411,
+      "p10": 3.77,
+      "med": 3.83,
+      "req": 4.5
+     },
+     {
+      "sel": "div.meta",
+      "text": "For Dad",
+      "color": "rgb(162, 148, 138)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 765,
+      "p10": 4.43,
+      "med": 4.56,
+      "req": 4.5
+     },
+     {
+      "sel": "div.meta",
+      "text": "Last prayed September 21, 2026 · on the ",
+      "color": "rgb(162, 148, 138)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 7225,
+      "p10": 5.55,
+      "med": 5.68,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "div.meta",
+      "text": "Health Needs",
+      "color": "rgb(162, 148, 138)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 1411,
+      "p10": 3.78,
+      "med": 3.89,
+      "req": 4.5
+     },
+     {
+      "sel": "div.meta",
+      "text": "For Dad",
+      "color": "rgb(162, 148, 138)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 765,
+      "p10": 4.49,
+      "med": 4.58,
+      "req": 4.5
+     },
+     {
+      "sel": "div.meta",
+      "text": "Last prayed September 21, 2026 · on the ",
+      "color": "rgb(162, 148, 138)",
+      "fs": 13.5,
+      "fw": 500,
+      "px": 7225,
+      "p10": 5.6,
+      "med": 5.72,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "dark"
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-prayer-sheet-meta-dark.png",
+   "summary": [
+    {
+     "text": "Health Needs",
+     "sel": "div.meta",
+     "fs": 13.5,
+     "req": 4.5,
+     "blur": [
+      3.77,
+      3.83
+     ],
+     "noblur": [
+      3.78,
+      3.89
+     ]
+    },
+    {
+     "text": "For Dad",
+     "sel": "div.meta",
+     "fs": 13.5,
+     "req": 4.5,
+     "blur": [
+      4.43,
+      4.56
+     ],
+     "noblur": [
+      4.49,
+      4.58
+     ]
+    },
+    {
+     "text": "Last prayed September 21, 2026 · on the ",
+     "sel": "div.meta",
+     "fs": 13.5,
+     "req": 4.5,
+     "blur": [
+      5.55,
+      5.68
+     ],
+     "noblur": [
+      5.6,
+      5.72
+     ]
+    }
+   ]
+  },
+  "dlive-pill-light": {
+   "job": {
+    "id": "dlive-pill-light",
+    "mod": "dollywood-live",
+    "screen": "map",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "system",
+    "doc": "app",
+    "sel": "#lv-pill *",
+    "under": null
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "span#lv-emoji.lv-emoji",
+      "text": "🧭",
+      "color": "rgb(46, 37, 29)",
+      "fs": 22,
+      "fw": 400,
+      "px": 841,
+      "p10": 2.8,
+      "med": 3.79,
+      "req": 4.5
+     },
+     {
+      "sel": "b#loc-sec",
+      "text": "Location is off for this site",
+      "color": "rgb(46, 37, 29)",
+      "fs": 15.5,
+      "fw": 700,
+      "px": 3680,
+      "p10": 11.95,
+      "med": 11.96,
+      "req": 4.5
+     },
+     {
+      "sel": "span#loc-acc",
+      "text": "Allow Location for the Hub in Settings ›",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12.5,
+      "fw": 400,
+      "px": 7830,
+      "p10": 4.29,
+      "med": 4.33,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "span#lv-emoji.lv-emoji",
+      "text": "🧭",
+      "color": "rgb(46, 37, 29)",
+      "fs": 22,
+      "fw": 400,
+      "px": 841,
+      "p10": 2.8,
+      "med": 3.79,
+      "req": 4.5
+     },
+     {
+      "sel": "b#loc-sec",
+      "text": "Location is off for this site",
+      "color": "rgb(46, 37, 29)",
+      "fs": 15.5,
+      "fw": 700,
+      "px": 3680,
+      "p10": 11.89,
+      "med": 11.91,
+      "req": 4.5
+     },
+     {
+      "sel": "span#loc-acc",
+      "text": "Allow Location for the Hub in Settings ›",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12.5,
+      "fw": 400,
+      "px": 7830,
+      "p10": 4.29,
+      "med": 4.32,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-dlive-pill-light.png",
+   "summary": [
+    {
+     "text": "🧭",
+     "sel": "span#lv-emoji.lv-emoji",
+     "fs": 22,
+     "req": 4.5,
+     "blur": [
+      2.8,
+      3.79
+     ],
+     "noblur": [
+      2.8,
+      3.79
+     ]
+    },
+    {
+     "text": "Location is off for this site",
+     "sel": "b#loc-sec",
+     "fs": 15.5,
+     "req": 4.5,
+     "blur": [
+      11.95,
+      11.96
+     ],
+     "noblur": [
+      11.89,
+      11.91
+     ]
+    },
+    {
+     "text": "Allow Location for the Hub in Settings ›",
+     "sel": "span#loc-acc",
+     "fs": 12.5,
+     "req": 4.5,
+     "blur": [
+      4.29,
+      4.33
+     ],
+     "noblur": [
+      4.29,
+      4.32
+     ]
+    }
+   ]
+  },
+  "dlive-meet-light": {
+   "job": {
+    "id": "dlive-meet-light",
+    "mod": "dollywood-live",
+    "screen": "map",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "system",
+    "doc": "app",
+    "sel": "#lv-meet *",
+    "under": null
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "div.f",
+      "text": "⚑",
+      "color": "rgb(255, 255, 255)",
+      "fs": 18,
+      "fw": 400,
+      "px": 276,
+      "p10": 5.17,
+      "med": 5.17,
+      "req": 4.5
+     },
+     {
+      "sel": "b#meet-name",
+      "text": "Meet at The Wildwood Tree",
+      "color": "rgb(46, 37, 29)",
+      "fs": 14.5,
+      "fw": 700,
+      "px": 3366,
+      "p10": 12.36,
+      "med": 12.44,
+      "req": 4.5
+     },
+     {
+      "sel": "span#meet-meta",
+      "text": "set by Mae 12 min ago",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 400,
+      "px": 1800,
+      "p10": 4.44,
+      "med": 4.48,
+      "req": 4.5
+     },
+     {
+      "sel": "button#meet-done",
+      "text": "Done",
+      "color": "rgb(46, 37, 29)",
+      "fs": 13,
+      "fw": 700,
+      "px": 496,
+      "p10": 14.68,
+      "med": 14.68,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "div.f",
+      "text": "⚑",
+      "color": "rgb(255, 255, 255)",
+      "fs": 18,
+      "fw": 400,
+      "px": 276,
+      "p10": 5.17,
+      "med": 5.17,
+      "req": 4.5
+     },
+     {
+      "sel": "b#meet-name",
+      "text": "Meet at The Wildwood Tree",
+      "color": "rgb(46, 37, 29)",
+      "fs": 14.5,
+      "fw": 700,
+      "px": 3366,
+      "p10": 12.35,
+      "med": 12.41,
+      "req": 4.5
+     },
+     {
+      "sel": "span#meet-meta",
+      "text": "set by Mae 12 min ago",
+      "color": "rgb(117, 103, 91)",
+      "fs": 12,
+      "fw": 400,
+      "px": 1800,
+      "p10": 4.39,
+      "med": 4.47,
+      "req": 4.5
+     },
+     {
+      "sel": "button#meet-done",
+      "text": "Done",
+      "color": "rgb(46, 37, 29)",
+      "fs": 13,
+      "fw": 700,
+      "px": 496,
+      "p10": 14.68,
+      "med": 14.68,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-dlive-meet-light.png",
+   "summary": [
+    {
+     "text": "⚑",
+     "sel": "div.f",
+     "fs": 18,
+     "req": 4.5,
+     "blur": [
+      5.17,
+      5.17
+     ],
+     "noblur": [
+      5.17,
+      5.17
+     ]
+    },
+    {
+     "text": "Meet at The Wildwood Tree",
+     "sel": "b#meet-name",
+     "fs": 14.5,
+     "req": 4.5,
+     "blur": [
+      12.36,
+      12.44
+     ],
+     "noblur": [
+      12.35,
+      12.41
+     ]
+    },
+    {
+     "text": "set by Mae 12 min ago",
+     "sel": "span#meet-meta",
+     "fs": 12,
+     "req": 4.5,
+     "blur": [
+      4.44,
+      4.48
+     ],
+     "noblur": [
+      4.39,
+      4.47
+     ]
+    },
+    {
+     "text": "Done",
+     "sel": "button#meet-done",
+     "fs": 13,
+     "req": 4.5,
+     "blur": [
+      14.68,
+      14.68
+     ],
+     "noblur": [
+      14.68,
+      14.68
+     ]
+    }
+   ]
+  },
+  "timer-pill-home": {
+   "job": {
+    "id": "timer-pill-home",
+    "mod": "timer",
+    "screen": "pill",
+    "device": "ipad-portrait",
+    "mode": "light",
+    "theme": "system",
+    "doc": "page",
+    "sel": "#timer-pill *",
+    "under": {
+     "doc": "page",
+     "sel": "#views",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "span#timer-pill-time.tp-time",
+      "text": "6:20",
+      "color": "color(srgb 0.389647 0.299294 0.211765)",
+      "fs": 16,
+      "fw": 600,
+      "px": 600,
+      "p10": 20.27,
+      "med": 20.44,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "span#timer-pill-time.tp-time",
+      "text": "6:20",
+      "color": "color(srgb 0.389647 0.299294 0.211765)",
+      "fs": 16,
+      "fw": 600,
+      "px": 600,
+      "p10": 20.01,
+      "med": 20.32,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "under": {
+    "scroller": "views",
+    "top": 928,
+    "range": 2063
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-timer-pill-home.png",
+   "summary": [
+    {
+     "text": "6:20",
+     "sel": "span#timer-pill-time.tp-time",
+     "fs": 16,
+     "req": 4.5,
+     "blur": [
+      20.27,
+      20.44
+     ],
+     "noblur": [
+      20.01,
+      20.32
+     ]
+    }
+   ]
+  },
+  "leftovers-bar-labels": {
+   "job": {
+    "id": "leftovers-bar-labels",
+    "mod": "leftovers",
+    "screen": "main",
+    "device": "iphone-pwa",
+    "mode": "light",
+    "theme": "system",
+    "doc": "app",
+    "sel": "#add label, #add button, #add .hint, #add small",
+    "under": {
+     "doc": "app",
+     "sel": "auto",
+     "to": "mid"
+    }
+   },
+   "goError": null,
+   "arms": {
+    "blur": [
+     {
+      "sel": "button.log",
+      "text": "Log",
+      "color": "rgb(255, 252, 248)",
+      "fs": 16,
+      "fw": 600,
+      "px": 520,
+      "p10": 7.41,
+      "med": 7.41,
+      "req": 4.5
+     }
+    ],
+    "noblur": [
+     {
+      "sel": "button.log",
+      "text": "Log",
+      "color": "rgb(255, 252, 248)",
+      "fs": 16,
+      "fw": 600,
+      "px": 520,
+      "p10": 7.41,
+      "med": 7.41,
+      "req": 4.5
+     }
+    ]
+   },
+   "applied": {
+    "theme": null,
+    "scheme": "light"
+   },
+   "under": {
+    "scroller": "HTML",
+    "top": 134,
+    "range": 297
+   },
+   "shot": "audits/evidence/p4/GLASS/shots/text-leftovers-bar-labels.png",
+   "summary": [
+    {
+     "text": "Log",
+     "sel": "button.log",
+     "fs": 16,
+     "req": 4.5,
+     "blur": [
+      7.41,
+      7.41
+     ],
+     "noblur": [
+      7.41,
+      7.41
+     ]
+    }
+   ]
+  }
+ }
+}

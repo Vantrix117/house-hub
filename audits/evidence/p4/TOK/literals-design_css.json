@@ -1,0 +1,1772 @@
+{
+ "area": "design.css",
+ "file": "apps/design.css",
+ "rules": {
+  "notLiteral": "0, 0px, auto, inherit, initial, unset, none, normal, currentColor, transparent, 100%, 1 (opacity), 0/1 z-index 0 are not literals",
+  "varOnly": "values built only from var(--token), calc() of tokens and color-mix() of tokens are not literals; the percentages inside a token color-mix are counted separately as \"mixRatio\" (ad-hoc derived colours)",
+  "fallback": "a literal inside var(--x, <literal>) is a fallback, counted as status \"fallback\", not a violation",
+  "print": "@media print declarations are exempt",
+  "keyframes": "declarations inside @keyframes are motion frames: counted only for colour",
+  "hairline": "1px and 2px in spacing/borders are sub-grid hairlines: status \"subgrid\", not counted as violations",
+  "circle": "border-radius 50% is a circle: status \"acceptable\"",
+  "relative": "em/%/vw/ch/dvh/cqw values are relative: status \"relative\" (they scale with their parent, unlike px), not violations",
+  "dollywood": "Dollywood template: selectors are split by flavour ([data-flavor=hub] = build guide only, [data-flavor=live] = park map only, html:not([data-flavor=live]) = build guide/standalone); lines 259-308 and 525-565 and SVG-shape selectors are cartography (colour exempt, as scripts/screens-apps.mjs allows); the :where(:root) / :where([data-theme=light]) palette blocks (lines 7-12) are standalone-only (overridden by the hub flavour block at line 212) except the map category colours",
+  "designCss": "apps/design.css: only declarations outside the token/theme/kind blocks are scanned (the component layer, resets, print)",
+  "meta": "<meta name=\"theme-color\"> hex is counted in category colour with status \"meta\" (a token cannot reach a meta tag; hub.js/index.html set it from JS)"
+ },
+ "summary": {
+  "file": "apps/design.css",
+  "byCategoryStatus": {
+   "fontWeight": {
+    "violation": 20
+   },
+   "letterSpacing": {
+    "violation": 1
+   },
+   "lineHeight": {
+    "violation": 4
+   },
+   "opacity": {
+    "violation": 7
+   },
+   "colour": {
+    "violation": 18
+   },
+   "mixRatio": {
+    "info": 15
+   },
+   "shadow": {
+    "violation": 16
+   },
+   "glassFilter": {
+    "violation": 4
+   },
+   "zIndex": {
+    "violation": 6
+   },
+   "spacing": {
+    "violation": 5,
+    "subgrid": 3
+   },
+   "radius": {
+    "acceptable": 3,
+    "violation": 3
+   },
+   "localLiteral": {
+    "violation": 6
+   },
+   "targetSize": {
+    "violation": 6
+   },
+   "duration": {
+    "violation": 9
+   },
+   "blur": {
+    "violation": 2
+   },
+   "print": {
+    "exempt": 3
+   },
+   "breakpoint": {
+    "info": 4
+   }
+  },
+  "violations": {
+   "fontWeight": {
+    "total": 20,
+    "exactToken": 0,
+    "noToken": 20
+   },
+   "letterSpacing": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "lineHeight": {
+    "total": 4,
+    "exactToken": 0,
+    "noToken": 4
+   },
+   "opacity": {
+    "total": 7,
+    "exactToken": 0,
+    "noToken": 7
+   },
+   "colour": {
+    "total": 18,
+    "exactToken": 1,
+    "noToken": 17
+   },
+   "shadow": {
+    "total": 16,
+    "exactToken": 0,
+    "noToken": 16
+   },
+   "glassFilter": {
+    "total": 4,
+    "exactToken": 0,
+    "noToken": 4
+   },
+   "zIndex": {
+    "total": 6,
+    "exactToken": 0,
+    "noToken": 6
+   },
+   "spacing": {
+    "total": 5,
+    "exactToken": 3,
+    "noToken": 2
+   },
+   "radius": {
+    "total": 3,
+    "exactToken": 0,
+    "noToken": 3
+   },
+   "localLiteral": {
+    "total": 6,
+    "exactToken": 0,
+    "noToken": 6
+   },
+   "targetSize": {
+    "total": 6,
+    "exactToken": 0,
+    "noToken": 6
+   },
+   "duration": {
+    "total": 9,
+    "exactToken": 1,
+    "noToken": 8
+   },
+   "blur": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   }
+  },
+  "distinctViolationValues": {
+   "fontWeight": 3,
+   "letterSpacing": 1,
+   "lineHeight": 2,
+   "opacity": 6,
+   "colour": 13,
+   "shadow": 15,
+   "glassFilter": 2,
+   "zIndex": 4,
+   "spacing": 3,
+   "radius": 3,
+   "localLiteral": 5,
+   "targetSize": 6,
+   "duration": 8,
+   "blur": 1
+  },
+  "mixRatios": {
+   "count": 15,
+   "distinct": 13
+  },
+  "breakpoints": [
+   "min-width 700",
+   "min-width 1024",
+   "min-width 720"
+  ]
+ },
+ "hits": [
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 306,
+   "selector": "h1, h2, h3, h4",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.01em",
+   "literal": "-.01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 306,
+   "selector": "h1, h2, h3, h4",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 331,
+   "selector": ".ds .serif",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 332,
+   "selector": ".ds .display",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 333,
+   "selector": ".ds .kicker",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 354,
+   "selector": ".ds .btn",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.2",
+   "literal": "1.2",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.2 step (tokens 1.1/1.25/1.45)",
+   "line": 354,
+   "selector": ".ds .btn",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".45",
+   "literal": ".45",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 360,
+   "selector": ".ds .btn:disabled",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "background",
+   "value": "linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white) 0%, var(--accent-deep) 100%)",
+   "literal": "white",
+   "status": "violation",
+   "token": null,
+   "why": "pure white: no --white / --on-solid token (gap); nearest roles --on-accent (light themes) or --surface",
+   "line": 361,
+   "selector": ".ds .btn-primary",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "88%",
+   "status": "info",
+   "line": 361,
+   "mix": "color-mix(in srgb, var(--accent-deep) 88%, white)"
+  },
+  {
+   "cat": "colour",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 rgba(255,255,255,.22), var(--glow-accent)",
+   "literal": "rgba(255,255,255,.22)",
+   "status": "violation",
+   "token": null,
+   "why": "white at 0.22: a highlight; design.css has theme-aware highlight tokens but no scale (gap: --highlight-*)",
+   "line": 361,
+   "selector": ".ds .btn-primary",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 rgba(255,255,255,.22), var(--glow-accent)",
+   "literal": "inset 0 1px 0 rgba(255,255,255,.22), TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 361,
+   "selector": ".ds .btn-primary",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 rgba(255,255,255,.22), 0 12px 28px -10px var(--accent-glow)",
+   "literal": "rgba(255,255,255,.22)",
+   "status": "violation",
+   "token": null,
+   "why": "white at 0.22: a highlight; design.css has theme-aware highlight tokens but no scale (gap: --highlight-*)",
+   "line": 374,
+   "selector": ".ds .btn-primary:hover",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 rgba(255,255,255,.22), 0 12px 28px -10px var(--accent-glow)",
+   "literal": "inset 0 1px 0 rgba(255,255,255,.22), 0 12px 28px -10px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 374,
+   "selector": ".ds .btn-primary:hover",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "24%",
+   "status": "info",
+   "line": 377,
+   "mix": "color-mix(in srgb, var(--danger) 24%, var(--surface))"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 395,
+   "selector": ".ds .glass, .ds .card.glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .d",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "saturate(1.4)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 396,
+   "selector": ".ds .glass, .ds .card.glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .d",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "brightness(1.02)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 396,
+   "selector": ".ds .glass, .ds .card.glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .d",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "saturate(1.4)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 396,
+   "selector": ".ds .glass, .ds .card.glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .d",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "brightness(1.02)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 396,
+   "selector": ".ds .glass, .ds .card.glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .d",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--g",
+   "literal": "78%",
+   "status": "info",
+   "line": 400,
+   "mix": "color-mix(in srgb, var(--surface) 78%, var(--bg))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--g",
+   "literal": "96%",
+   "status": "info",
+   "line": 403,
+   "mix": "color-mix(in srgb, var(--surface) 96%, transparent)"
+  },
+  {
+   "cat": "colour",
+   "prop": "background",
+   "value": "radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--accent) 70%, white) 0%, var(--accent) 45%, var(--accent-deep) 100%)",
+   "literal": "white",
+   "status": "violation",
+   "token": null,
+   "why": "pure white: no --white / --on-solid token (gap); nearest roles --on-accent (light themes) or --surface",
+   "line": 412,
+   "selector": ".ds .hero",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "70%",
+   "status": "info",
+   "line": 412,
+   "mix": "color-mix(in srgb, var(--accent) 70%, white)"
+  },
+  {
+   "cat": "colour",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 rgba(255,255,255,.28), var(--e3), 0 20px 48px -20px var(--accent-glow)",
+   "literal": "rgba(255,255,255,.28)",
+   "status": "violation",
+   "token": null,
+   "why": "white at 0.28: a highlight; design.css has theme-aware highlight tokens but no scale (gap: --highlight-*)",
+   "line": 413,
+   "selector": ".ds .hero",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 rgba(255,255,255,.28), var(--e3), 0 20px 48px -20px var(--accent-glow)",
+   "literal": "inset 0 1px 0 rgba(255,255,255,.28), TOKEN , 0 20px 48px -20",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 413,
+   "selector": ".ds .hero",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "background",
+   "value": "linear-gradient(180deg, rgba(255,255,255,.14), transparent 40%, rgba(0,0,0,.08))",
+   "literal": "rgba(255,255,255,.14)",
+   "status": "violation",
+   "token": null,
+   "why": "white at 0.14: a highlight; design.css has theme-aware highlight tokens but no scale (gap: --highlight-*)",
+   "line": 415,
+   "selector": ".ds .hero::after",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "colour",
+   "prop": "background",
+   "value": "linear-gradient(180deg, rgba(255,255,255,.14), transparent 40%, rgba(0,0,0,.08))",
+   "literal": "rgba(0,0,0,.08)",
+   "status": "violation",
+   "token": null,
+   "why": "black at 0.08: a shade; no shade scale exists (gap: --shade-*)",
+   "line": 415,
+   "selector": ".ds .hero::after",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 416,
+   "selector": ".ds .hero > *",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 417,
+   "selector": ".ds .hero-kicker",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".85",
+   "literal": ".85",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 417,
+   "selector": ".ds .hero-kicker",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 418,
+   "selector": ".ds .hero-title",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".9",
+   "literal": ".9",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 419,
+   "selector": ".ds .hero-sub",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".95",
+   "literal": ".95",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 420,
+   "selector": ".ds .hero-art",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "background",
+   "value": "rgba(255,255,255,.92)",
+   "literal": "rgba(255,255,255,.92)",
+   "status": "violation",
+   "token": null,
+   "why": "white at 0.92: a highlight; design.css has theme-aware highlight tokens but no scale (gap: --highlight-*)",
+   "line": 423,
+   "selector": ".ds .hero .btn-primary",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "colour",
+   "prop": "color",
+   "value": "#FFFCF8",
+   "literal": "#FFFCF8",
+   "status": "violation",
+   "token": "--surface",
+   "why": "exact value of --surface@hearth, --surface@tp-hearth, --on-accent@hearth, --on-accent@tp-hearth",
+   "line": 429,
+   "selector": ".ds .hero .on-dark",
+   "src": "css",
+   "match": "exact"
+  },
+  {
+   "cat": "colour",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 2px rgba(58,46,36,.04)",
+   "literal": "rgba(58,46,36,.04)",
+   "status": "violation",
+   "token": null,
+   "why": "translucent colour #3A2E24 at 0.04",
+   "line": 442,
+   "selector": ".ds .input, .ds .select, .ds .textarea",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 2px rgba(58,46,36,.04)",
+   "literal": "inset 0 1px 2px rgba(58,46,36,.04)",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 442,
+   "selector": ".ds .input, .ds .select, .ds .textarea",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "background-image",
+   "value": "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%237D6F62' stroke-width='2' stroke-linecap='round' ",
+   "literal": "#7D6F62 (url-encoded)",
+   "status": "violation",
+   "token": "--muted",
+   "why": "inside a data: URI, so it cannot follow the theme; nearest Hearth token --muted (ΔE 2.7)",
+   "line": 449,
+   "selector": ".ds .select",
+   "src": "css",
+   "match": "near"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 451,
+   "selector": ".ds .label",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 2px rgba(0,0,0,.12)",
+   "literal": "rgba(0,0,0,.12)",
+   "status": "violation",
+   "token": null,
+   "why": "black at 0.12: a shade; no shade scale exists (gap: --shade-*)",
+   "line": 456,
+   "selector": ".ds .switch",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 2px rgba(0,0,0,.12)",
+   "literal": "inset 0 1px 2px rgba(0,0,0,.12)",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 456,
+   "selector": ".ds .switch",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "inset",
+   "value": "-6px 0",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 457,
+   "selector": ".ds .switch::before",
+   "src": "css",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 458,
+   "selector": ".ds .switch::after",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "background",
+   "value": "#fff",
+   "literal": "#fff",
+   "status": "violation",
+   "token": null,
+   "why": "pure white: no --white / --on-solid token (gap); nearest roles --on-accent (light themes) or --surface",
+   "line": 459,
+   "selector": ".ds .switch::after",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "colour",
+   "prop": "box-shadow",
+   "value": "0 1px 3px rgba(0,0,0,.25)",
+   "literal": "rgba(0,0,0,.25)",
+   "status": "violation",
+   "token": null,
+   "why": "black at 0.25: a shade; no shade scale exists (gap: --shade-*)",
+   "line": 459,
+   "selector": ".ds .switch::after",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 1px 3px rgba(0,0,0,.25)",
+   "literal": "0 1px 3px rgba(0,0,0,.25)",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 459,
+   "selector": ".ds .switch::after",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".4",
+   "literal": ".4",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 462,
+   "selector": ".ds .switch:disabled",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "4px",
+   "literal": "4",
+   "status": "violation",
+   "token": "--sp-1",
+   "why": "on-scale px: use the token",
+   "line": 465,
+   "selector": ".ds .seg",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4
+   ],
+   "sub": []
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "4px",
+   "literal": "4",
+   "status": "violation",
+   "token": "--sp-1",
+   "why": "on-scale px: use the token",
+   "line": 465,
+   "selector": ".ds .seg",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4
+   ],
+   "sub": []
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "calc(var(--r) - 4px)",
+   "literal": "4",
+   "status": "violation",
+   "token": null,
+   "why": "no 4px step (tokens 12/16/22/28/36/999)",
+   "line": 466,
+   "selector": ".ds .seg button",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 466,
+   "selector": ".ds .seg button",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 479,
+   "selector": ".ds .row-title",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 488,
+   "selector": ".ds .kv b",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 491,
+   "selector": ".ds .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 491,
+   "selector": ".ds .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 492,
+   "selector": ".ds .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "30%",
+   "status": "info",
+   "line": 493,
+   "mix": "color-mix(in srgb, var(--tint) 30%, var(--surface))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "55%",
+   "status": "info",
+   "line": 493,
+   "mix": "color-mix(in srgb, var(--tint) 55%, var(--surface))"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2.5px var(--surface), 0 0 0 5px var(--tint), var(--e1)",
+   "literal": "0 0 0 2.5px TOKEN , 0 0 0 5px TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 494,
+   "selector": ".ds .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "32px",
+   "literal": "32px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 496,
+   "selector": ".ds .avatar-sm",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--surface), 0 0 0 3.5px var(--tint)",
+   "literal": "0 0 0 2px TOKEN , 0 0 0 3.5px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 496,
+   "selector": ".ds .avatar-sm",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 497,
+   "selector": ".ds .avatar-lg",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "96px",
+   "literal": "96px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 498,
+   "selector": ".ds .avatar-xl",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 4px var(--surface), 0 0 0 8px var(--tint), var(--e2)",
+   "literal": "0 0 0 4px TOKEN , 0 0 0 8px TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 498,
+   "selector": ".ds .avatar-xl",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "36px",
+   "literal": "36px",
+   "status": "violation",
+   "token": null,
+   "why": "min target 36px < 44 (below --tap)",
+   "line": 500,
+   "selector": ".ds .person-chip",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "2px var(--sp-3) 2px 2px",
+   "literal": "2 2 2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 500,
+   "selector": ".ds .person-chip",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2,
+    2,
+    2
+   ]
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "14%",
+   "status": "info",
+   "line": 501,
+   "mix": "color-mix(in srgb, var(--tint) 14%, var(--surface))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "color",
+   "literal": "70%",
+   "status": "info",
+   "line": 501,
+   "mix": "color-mix(in srgb, var(--tint) 70%, var(--text))"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 501,
+   "selector": ".ds .person-chip",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "30px",
+   "literal": "30px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 502,
+   "selector": ".ds .person-chip .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "32px",
+   "literal": "32px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 504,
+   "selector": ".ds .people .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-left",
+   "value": "-8px",
+   "literal": "8",
+   "status": "violation",
+   "token": "--sp-2",
+   "why": "on-scale px: use the token",
+   "line": 504,
+   "selector": ".ds .people .avatar",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    8
+   ],
+   "sub": []
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--surface)",
+   "literal": "0 0 0 2px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 504,
+   "selector": ".ds .people .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "32px",
+   "literal": "32px",
+   "status": "violation",
+   "token": null,
+   "why": "min target 32px < 44 (below --tap)",
+   "line": 508,
+   "selector": ".ds .chip",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 509,
+   "selector": ".ds .chip",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "0 6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 515,
+   "selector": ".ds .badge",
+   "src": "css",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "colour",
+   "prop": "color",
+   "value": "#fff",
+   "literal": "#fff",
+   "status": "violation",
+   "token": null,
+   "why": "pure white: no --white / --on-solid token (gap); nearest roles --on-accent (light themes) or --surface",
+   "line": 516,
+   "selector": ".ds .badge",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 516,
+   "selector": ".ds .badge",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 516,
+   "selector": ".ds .badge",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--surface)",
+   "literal": "0 0 0 2px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 516,
+   "selector": ".ds .badge",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "40px",
+   "literal": "40px",
+   "status": "violation",
+   "token": null,
+   "why": "min target 40px < 44 (below --tap)",
+   "line": 517,
+   "selector": ".ds .pill",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 518,
+   "selector": ".ds .pill",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 519,
+   "selector": ".ds .dot",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "stroke",
+   "literal": "18%",
+   "status": "info",
+   "line": 527,
+   "mix": "color-mix(in srgb, var(--tint) 18%, var(--surface-2))"
+  },
+  {
+   "cat": "duration",
+   "prop": "transition",
+   "value": "stroke-dashoffset .8s var(--ease-out)",
+   "literal": ".8s",
+   "status": "violation",
+   "token": null,
+   "why": "no 800ms token (tokens 120/220/360)",
+   "line": 528,
+   "selector": ".ds .ring .fg",
+   "src": "css",
+   "ms": 800
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 531,
+   "selector": ".ds .ring-lbl",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "background",
+   "value": "linear-gradient(90deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint))",
+   "literal": "white",
+   "status": "violation",
+   "token": null,
+   "why": "pure white: no --white / --on-solid token (gap); nearest roles --on-accent (light themes) or --surface",
+   "line": 534,
+   "selector": ".ds .bar > i",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "75%",
+   "status": "info",
+   "line": 534,
+   "mix": "color-mix(in srgb, var(--tint) 75%, white)"
+  },
+  {
+   "cat": "duration",
+   "prop": "transition",
+   "value": "width .8s var(--ease-out)",
+   "literal": ".8s",
+   "status": "violation",
+   "token": null,
+   "why": "no 800ms token (tokens 120/220/360)",
+   "line": 534,
+   "selector": ".ds .bar > i",
+   "src": "css",
+   "ms": 800
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 535,
+   "selector": ".ds .stat",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 536,
+   "selector": ".ds .stat b",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 536,
+   "selector": ".ds .stat b",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "70%",
+   "status": "info",
+   "line": 542,
+   "mix": "color-mix(in srgb, var(--surface) 70%, transparent)"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation",
+   "value": "hub-shimmer 1.4s infinite",
+   "literal": "1.4s",
+   "status": "violation",
+   "token": null,
+   "why": "no 1400ms token (tokens 120/220/360)",
+   "line": 543,
+   "selector": ".ds .skeleton::after",
+   "src": "css",
+   "ms": 1400
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".6",
+   "literal": ".6",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 546,
+   "selector": ".ds .empty .icon",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "20",
+   "literal": "20",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 552,
+   "selector": ".ds .topbar",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "52px",
+   "literal": "52px",
+   "status": "violation",
+   "token": "--tap / --tap-lg",
+   "why": "a target size between the two tokens",
+   "line": 552,
+   "selector": ".ds .topbar",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 -1px 0 var(--glass-edge), 0 1px 0 var(--glass-ring)",
+   "literal": "inset 0 -1px 0 TOKEN , 0 1px 0 TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 554,
+   "selector": ".ds .topbar",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 555,
+   "selector": ".ds .topbar .title",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "20",
+   "literal": "20",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 556,
+   "selector": ".ds .tabbar",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), 0 -1px 0 var(--glass-ring), 0 -12px 40px -24px var(--glass-inner)",
+   "literal": "inset 0 1px 0 TOKEN , 0 -1px 0 TOKEN , 0 -12px 40px -24px TO",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 558,
+   "selector": ".ds .tabbar",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 560,
+   "selector": ".ds .tab",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "56px",
+   "literal": "56px",
+   "status": "violation",
+   "token": "--tap / --tap-lg",
+   "why": "a target size between the two tokens",
+   "line": 560,
+   "selector": ".ds .tab",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 560,
+   "selector": ".ds .tab",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 561,
+   "selector": ".ds .tab",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset -1px 0 0 var(--hairline), 1px 0 0 var(--glass-ring)",
+   "literal": "inset -1px 0 0 TOKEN , 1px 0 0 TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 571,
+   "selector": ".ds .tabbar.sidebar",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "48px",
+   "literal": "48px",
+   "status": "violation",
+   "token": "--tap / --tap-lg",
+   "why": "a target size between the two tokens",
+   "line": 573,
+   "selector": ".ds .tabbar.sidebar .tab",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "50",
+   "literal": "50",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 579,
+   "selector": ".ds .sheet-backdrop",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "3px",
+   "literal": "3",
+   "status": "violation",
+   "token": null,
+   "why": "no 3px step (tokens 12/16/22/28/36/999)",
+   "line": 584,
+   "selector": ".ds .sheet::before",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".6",
+   "literal": ".6",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 584,
+   "selector": ".ds .sheet::before",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "prop": "background",
+   "value": "linear-gradient(to bottom, rgba(255,255,255,.14), transparent 40%), color-mix(in srgb, var(--text) 90%, transparent)",
+   "literal": "rgba(255,255,255,.14)",
+   "status": "violation",
+   "token": null,
+   "why": "white at 0.14: a highlight; design.css has theme-aware highlight tokens but no scale (gap: --highlight-*)",
+   "line": 589,
+   "selector": ".ds .toast",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "90%",
+   "status": "info",
+   "line": 589,
+   "mix": "color-mix(in srgb, var(--text) 90%, transparent)"
+  },
+  {
+   "cat": "colour",
+   "prop": "border",
+   "value": "1px solid rgba(255,255,255,.12)",
+   "literal": "rgba(255,255,255,.12)",
+   "status": "violation",
+   "token": null,
+   "why": "white at 0.12: a highlight; design.css has theme-aware highlight tokens but no scale (gap: --highlight-*)",
+   "line": 589,
+   "selector": ".ds .toast",
+   "src": "css",
+   "match": "none"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 590,
+   "selector": ".ds .toast",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "60",
+   "literal": "60",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 590,
+   "selector": ".ds .toast",
+   "src": "css"
+  },
+  {
+   "cat": "blur",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(10px)",
+   "literal": "blur(10px)",
+   "status": "violation",
+   "token": null,
+   "why": "no 10px blur token (only --blur 18/28)",
+   "line": 591,
+   "selector": ".ds .toast",
+   "src": "css"
+  },
+  {
+   "cat": "blur",
+   "prop": "backdrop-filter",
+   "value": "blur(10px)",
+   "literal": "blur(10px)",
+   "status": "violation",
+   "token": null,
+   "why": "no 10px blur token (only --blur 18/28)",
+   "line": 591,
+   "selector": ".ds .toast",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation-delay",
+   "value": "40ms",
+   "literal": "40ms",
+   "status": "violation",
+   "token": null,
+   "why": "no 40ms token (tokens 120/220/360)",
+   "line": 598,
+   "selector": ".ds .stagger > :nth-child(2)",
+   "src": "css",
+   "ms": 40
+  },
+  {
+   "cat": "duration",
+   "prop": "animation-delay",
+   "value": "80ms",
+   "literal": "80ms",
+   "status": "violation",
+   "token": null,
+   "why": "no 80ms token (tokens 120/220/360)",
+   "line": 598,
+   "selector": ".ds .stagger > :nth-child(3)",
+   "src": "css",
+   "ms": 80
+  },
+  {
+   "cat": "duration",
+   "prop": "animation-delay",
+   "value": "120ms",
+   "literal": "120ms",
+   "status": "violation",
+   "token": "--dur-1",
+   "why": "exact",
+   "line": 599,
+   "selector": ".ds .stagger > :nth-child(4)",
+   "src": "css",
+   "ms": 120
+  },
+  {
+   "cat": "duration",
+   "prop": "animation-delay",
+   "value": "160ms",
+   "literal": "160ms",
+   "status": "violation",
+   "token": null,
+   "why": "no 160ms token (tokens 120/220/360)",
+   "line": 599,
+   "selector": ".ds .stagger > :nth-child(5)",
+   "src": "css",
+   "ms": 160
+  },
+  {
+   "cat": "duration",
+   "prop": "animation-delay",
+   "value": "200ms",
+   "literal": "200ms",
+   "status": "violation",
+   "token": null,
+   "why": "no 200ms token (tokens 120/220/360)",
+   "line": 599,
+   "selector": ".ds .stagger > :nth-child(n+6)",
+   "src": "css",
+   "ms": 200
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "18px",
+   "literal": "18",
+   "status": "violation",
+   "token": null,
+   "why": "no 18px step (tokens 12/16/22/28/36/999)",
+   "line": 606,
+   "selector": ".ds .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "22%",
+   "status": "info",
+   "line": 607,
+   "mix": "color-mix(in srgb, var(--tint) 22%, var(--surface))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "8%",
+   "status": "info",
+   "line": 607,
+   "mix": "color-mix(in srgb, var(--tint) 8%, var(--surface))"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), var(--e1)",
+   "literal": "inset 0 1px 0 TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 608,
+   "selector": ".ds .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation-duration",
+   "value": ".01ms !important",
+   "literal": ".01ms",
+   "status": "violation",
+   "token": null,
+   "why": "no 0.01ms token (tokens 120/220/360)",
+   "line": 612,
+   "selector": "*, *::before, *::after",
+   "src": "css",
+   "ms": 0.01
+  },
+  {
+   "cat": "print",
+   "prop": "background",
+   "value": "#fff",
+   "status": "exempt",
+   "line": 615
+  },
+  {
+   "cat": "print",
+   "prop": "color",
+   "value": "#000",
+   "status": "exempt",
+   "line": 615
+  },
+  {
+   "cat": "print",
+   "prop": "display",
+   "value": "none",
+   "status": "exempt",
+   "line": 616
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 700",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 345
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 346
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 569
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 720",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 587
+  }
+ ]
+}

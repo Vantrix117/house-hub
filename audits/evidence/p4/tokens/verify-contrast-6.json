@@ -1,0 +1,924 @@
+{
+  "script": "audits/tools/phase4/tokens/verify-contrast-6.mjs",
+  "row": ".ds .hero .btn-primary { background: var(--hero-btn-bg); color: var(--hero-btn-ink); box-shadow: var(--e2); }",
+  "shippedLine": "apps/design.css:423 .ds .hero .btn-primary { background: rgba(255,255,255,.92); color: var(--accent-deep); box-shadow: var(--e2); }",
+  "hoverRulesAt": [
+    373,
+    374
+  ],
+  "rowAfterHover": true,
+  "model": {
+    "mixLight": "0%",
+    "mixDark": "100%",
+    "bg": "color-mix(in srgb, var(--accent-fill) var(--hero-btn-mix), #FFFFFF)",
+    "ink": "var(--accent-ink)",
+    "heroBg": "linear-gradient(160deg, var(--accent-wash), var(--accent-fill))",
+    "inkSwapKiosk": true,
+    "inkSwapIC": true
+  },
+  "analytic": {
+    "heroRow": {
+      "light": {
+        "min": 6.5801,
+        "floor": 6.58,
+        "at": "butter: #735A00 on #FFFFFF"
+      },
+      "light 7:1": {
+        "min": 9.3735,
+        "floor": 9.37,
+        "at": "mint: #00522A on #FFFFFF"
+      },
+      "dark": {
+        "min": 6.8617,
+        "floor": 6.86,
+        "at": "bubblegum: #FFC2D9 on #613146"
+      },
+      "dark 7:1": {
+        "min": 8.3569,
+        "floor": 8.35,
+        "at": "mint: #D2F3DE on #144C31"
+      }
+    },
+    "heroShipped": {
+      "light": {
+        "min": 6.4713,
+        "floor": 6.47,
+        "at": "mint: #0E6B3B on #F9FEFB (white .92 over #B9F2D0)"
+      },
+      "light 7:1": {
+        "min": 9.1913,
+        "floor": 9.19,
+        "at": "aqua: #004F52 on #F9FEFE (white .92 over #B5EEF0)"
+      },
+      "dark": {
+        "min": 1.197,
+        "floor": 1.19,
+        "at": "graphite: #DADADF on #EEEEEE (white .92 over #26262A)"
+      },
+      "dark 7:1": {
+        "min": 1.004,
+        "floor": 1,
+        "at": "graphite: #EDEDF0 on #EEEEEE (white .92 over #26262A)"
+      }
+    },
+    "heroPerFamily": {
+      "bubblegum": 6.86,
+      "peach": 6.79,
+      "butter": 6.58,
+      "mint": 6.59,
+      "aqua": 6.91,
+      "sky": 7.14,
+      "periwinkle": 7.01,
+      "lavender": 6.93,
+      "graphite": 7.39
+    },
+    "heroButtonVsHero": {
+      "light": {
+        "min": 1.0757,
+        "at": "mint: capsule #FFFFFF vs hero stop #E9FBF0"
+      },
+      "light 7:1": {
+        "min": 1.0757,
+        "at": "mint: capsule #FFFFFF vs hero stop #E9FBF0"
+      },
+      "dark": {
+        "min": 1,
+        "at": "bubblegum: capsule #613146 vs hero stop #613146"
+      },
+      "dark 7:1": {
+        "min": 1,
+        "at": "bubblegum: capsule #613146 vs hero stop #613146"
+      }
+    }
+  },
+  "semantic": {
+    "success-strong": {
+      "v": 3.7082348954060507,
+      "pair": "#008533 on #ECE2CD",
+      "theme": "parchment",
+      "surface": "--bg"
+    },
+    "warning-strong": {
+      "v": 3.799503252362987,
+      "pair": "#9F6400 on #ECE2CD",
+      "theme": "parchment",
+      "surface": "--bg"
+    },
+    "danger-strong": {
+      "v": 5.2422934039170945,
+      "pair": "#F07E79 on #213029",
+      "theme": "forest",
+      "surface": "--surface-2"
+    },
+    "success-graphic": {
+      "v": 3.7082348954060507,
+      "pair": "#008533 on #ECE2CD",
+      "theme": "parchment",
+      "surface": "--bg"
+    },
+    "warning-graphic": {
+      "v": 3.0656219703694956,
+      "pair": "#BC6D00 on #ECE2CD",
+      "theme": "parchment",
+      "surface": "--bg"
+    },
+    "danger-graphic": {
+      "v": 5.2422934039170945,
+      "pair": "#F07E79 on #213029",
+      "theme": "forest",
+      "surface": "--surface-2"
+    },
+    "anyStrong": {
+      "f": "success",
+      "v": 3.7082348954060507,
+      "pair": "#008533 on #ECE2CD",
+      "theme": "parchment",
+      "surface": "--bg"
+    },
+    "anyGraphic": {
+      "f": "warning",
+      "v": 3.0656219703694956,
+      "pair": "#BC6D00 on #ECE2CD",
+      "theme": "parchment",
+      "surface": "--bg"
+    },
+    "lightOnly": {
+      "success": {
+        "onParchmentPage": 3.7082348954060507,
+        "onWhite": 4.769675969914307,
+        "maxOnLightPage": 4.27439769019734
+      },
+      "warning": {
+        "onParchmentPage": 3.799503252362987,
+        "onWhite": 4.887068880900166,
+        "maxOnLightPage": 4.379600641242359
+      },
+      "danger": {
+        "onParchmentPage": 7.427187196627223,
+        "onWhite": 9.553137084086744,
+        "maxOnLightPage": 8.56114908935681
+      }
+    },
+    "onLabel": 4.769675969914307,
+    "switchLightMin": {
+      "v": 3.7082348954060507,
+      "pair": "#008533 on #ECE2CD",
+      "theme": "parchment",
+      "surface": "--bg"
+    }
+  },
+  "text": {
+    "text2": {
+      "page, card, sheet": {
+        "v": 8.138107001531798,
+        "theme": "frost",
+        "pair": "#48484E on #F2F2F7 (--bg)"
+      },
+      "wells": {
+        "v": 8.138107001531798,
+        "theme": "frost",
+        "pair": "#48484E on #F2F2F7 (--surface-2)"
+      },
+      "fields": {
+        "v": 7.8371841193136085,
+        "theme": "frost",
+        "pair": "#48484E on #EEEEF0 (--fill-field)"
+      },
+      "hover fill": {
+        "v": 7.504819030374697,
+        "theme": "frost",
+        "pair": "#48484E on #E9E9EE (--hover)"
+      }
+    },
+    "text2PerPalette": {
+      "hearth": 8.21,
+      "parchment": 8.36,
+      "frost": 7.5,
+      "midnight": 8.58,
+      "forest": 8.86,
+      "graphite": 9.15
+    },
+    "text3": 5.07,
+    "text2hi": 10.38
+  },
+  "darkStrong": {
+    "perFamily": {
+      "bubblegum": {
+        "strong": "#FF9BC4",
+        "asText": 7.06,
+        "at": "#FF9BC4 on forest --surface-2 #213029",
+        "onLabel": 8.67
+      },
+      "peach": {
+        "strong": "#FFA566",
+        "asText": 7.12,
+        "at": "#FFA566 on forest --surface-2 #213029",
+        "onLabel": 8.68
+      },
+      "butter": {
+        "strong": "#DABC43",
+        "asText": 7.4,
+        "at": "#DABC43 on forest --surface-2 #213029",
+        "onLabel": 8.97
+      },
+      "mint": {
+        "strong": "#63D99B",
+        "asText": 7.85,
+        "at": "#63D99B on forest --surface-2 #213029",
+        "onLabel": 9.26
+      },
+      "aqua": {
+        "strong": "#00D7E0",
+        "asText": 7.76,
+        "at": "#00D7E0 on forest --surface-2 #213029",
+        "onLabel": 9.22
+      },
+      "sky": {
+        "strong": "#89C3FF",
+        "asText": 7.44,
+        "at": "#89C3FF on forest --surface-2 #213029",
+        "onLabel": 8.98
+      },
+      "periwinkle": {
+        "strong": "#ACB8FF",
+        "asText": 7.27,
+        "at": "#ACB8FF on forest --surface-2 #213029",
+        "onLabel": 8.84
+      },
+      "lavender": {
+        "strong": "#CCABFF",
+        "asText": 7.13,
+        "at": "#CCABFF on forest --surface-2 #213029",
+        "onLabel": 8.72
+      },
+      "graphite": {
+        "strong": "#C4C4CC",
+        "asText": 7.97,
+        "at": "#C4C4CC on forest --surface-2 #213029",
+        "onLabel": 9.8
+      }
+    },
+    "minText": {
+      "v": 7.0667180216396925,
+      "pair": "#FF9BC4 on forest --surface-2 #213029",
+      "f": "bubblegum"
+    },
+    "minOn": {
+      "v": 8.67356763663465,
+      "f": "bubblegum"
+    },
+    "oldBubblegumOnForestWell": 6.973841260173873,
+    "bubblegumInkHi": "#FFE0EB"
+  },
+  "engines": {
+    "webkit": {
+      "version": "26.6",
+      "contexts": 2457,
+      "mismatches": [],
+      "unparsed": 0,
+      "min": {
+        "light": {
+          "v": 6.58011556485078,
+          "ctx": "hearth/kiara(butter)/adult/none",
+          "pair": "#735A00 on #FFFFFF",
+          "floor": 6.58
+        },
+        "light 7:1": {
+          "v": 9.373532076887159,
+          "ctx": "hearth/niece(mint)/adult/Increase Contrast (attr)",
+          "pair": "#00522A on #FFFFFF",
+          "floor": 9.37
+        },
+        "dark": {
+          "v": 6.861678175804601,
+          "ctx": "midnight/christian(bubblegum)/adult/none",
+          "pair": "#FFC2D9 on #613146",
+          "floor": 6.86
+        },
+        "dark 7:1": {
+          "v": 8.356944758483257,
+          "ctx": "midnight/niece(mint)/adult/Increase Contrast (attr)",
+          "pair": "#D2F3DE on #144C31",
+          "floor": 8.35
+        }
+      },
+      "rowFailures": [],
+      "shipped": {
+        "light": {
+          "v": 6.471262303401805,
+          "ctx": "hearth/niece(mint)/adult/none",
+          "floor": 6.47
+        },
+        "light 7:1": {
+          "v": 9.191255367546429,
+          "ctx": "hearth/ezra(aqua)/adult/Increase Contrast (attr)",
+          "floor": 9.19
+        },
+        "dark": {
+          "v": 1.197002981663432,
+          "ctx": "midnight/tv(graphite)/adult/none",
+          "floor": 1.19
+        },
+        "dark 7:1": {
+          "v": 1.0040178851186503,
+          "ctx": "midnight/tv(graphite)/adult/Increase Contrast (attr)",
+          "floor": 1
+        }
+      },
+      "hover": [
+        {
+          "theme": "midnight",
+          "fam": "bubblegum",
+          "hoverMedia": true,
+          "hovered": true,
+          "bg": "color(srgb 0.380392 0.192157 0.27451)",
+          "fg": "rgb(255, 194, 217)",
+          "got": "#613146",
+          "want": "#613146",
+          "ok": true,
+          "ratio": 6.862
+        },
+        {
+          "theme": "hearth",
+          "fam": "butter",
+          "hoverMedia": true,
+          "hovered": true,
+          "bg": "color(srgb 1 1 1)",
+          "fg": "rgb(115, 90, 0)",
+          "got": "#FFFFFF",
+          "want": "#FFFFFF",
+          "ok": true,
+          "ratio": 6.58
+        },
+        {
+          "theme": "graphite",
+          "fam": "mint",
+          "hoverMedia": true,
+          "hovered": true,
+          "bg": "color(srgb 0.078431 0.298039 0.192157)",
+          "fg": "rgb(166, 231, 193)",
+          "got": "#144C31",
+          "want": "#144C31",
+          "ok": true,
+          "ratio": 7.032
+        }
+      ],
+      "nested": [
+        {
+          "theme": "midnight",
+          "got": [
+            "#613146",
+            "#FFC2D9"
+          ],
+          "want": [
+            "#613146",
+            "#FFC2D9"
+          ],
+          "ok": true,
+          "ratio": 6.862
+        },
+        {
+          "theme": "hearth",
+          "got": [
+            "#FFFFFF",
+            "#A3134F"
+          ],
+          "want": [
+            "#FFFFFF",
+            "#A3134F"
+          ],
+          "ok": true,
+          "ratio": 7.599
+        },
+        {
+          "theme": "forest",
+          "got": [
+            "#613146",
+            "#FFC2D9"
+          ],
+          "want": [
+            "#613146",
+            "#FFC2D9"
+          ],
+          "ok": true,
+          "ratio": 6.862
+        }
+      ],
+      "mediaSupport": {
+        "contrast": true,
+        "transparency": false
+      }
+    },
+    "chromium": {
+      "version": "154.0.8037.57",
+      "contexts": 2457,
+      "mismatches": [],
+      "unparsed": 0,
+      "min": {
+        "light": {
+          "v": 6.58011556485078,
+          "ctx": "hearth/kiara(butter)/adult/none",
+          "pair": "#735A00 on #FFFFFF",
+          "floor": 6.58
+        },
+        "light 7:1": {
+          "v": 9.373532076887159,
+          "ctx": "hearth/niece(mint)/adult/Increase Contrast (attr)",
+          "pair": "#00522A on #FFFFFF",
+          "floor": 9.37
+        },
+        "dark": {
+          "v": 6.861678175804601,
+          "ctx": "midnight/christian(bubblegum)/adult/none",
+          "pair": "#FFC2D9 on #613146",
+          "floor": 6.86
+        },
+        "dark 7:1": {
+          "v": 8.356943910040236,
+          "ctx": "midnight/niece(mint)/adult/Increase Contrast (attr)",
+          "pair": "#D2F3DE on #144C31",
+          "floor": 8.35
+        }
+      },
+      "rowFailures": [],
+      "shipped": {
+        "light": {
+          "v": 6.471262303401805,
+          "ctx": "hearth/niece(mint)/adult/none",
+          "floor": 6.47
+        },
+        "light 7:1": {
+          "v": 9.191255367546429,
+          "ctx": "hearth/ezra(aqua)/adult/Increase Contrast (attr)",
+          "floor": 9.19
+        },
+        "dark": {
+          "v": 1.197002981663432,
+          "ctx": "midnight/tv(graphite)/adult/none",
+          "floor": 1.19
+        },
+        "dark 7:1": {
+          "v": 1.0040178851186503,
+          "ctx": "midnight/tv(graphite)/adult/Increase Contrast (attr)",
+          "floor": 1
+        }
+      },
+      "hover": [
+        {
+          "theme": "midnight",
+          "fam": "bubblegum",
+          "hoverMedia": true,
+          "hovered": true,
+          "bg": "color(srgb 0.380392 0.192157 0.27451)",
+          "fg": "rgb(255, 194, 217)",
+          "got": "#613146",
+          "want": "#613146",
+          "ok": true,
+          "ratio": 6.862
+        },
+        {
+          "theme": "hearth",
+          "fam": "butter",
+          "hoverMedia": true,
+          "hovered": true,
+          "bg": "color(srgb 1 1 1)",
+          "fg": "rgb(115, 90, 0)",
+          "got": "#FFFFFF",
+          "want": "#FFFFFF",
+          "ok": true,
+          "ratio": 6.58
+        },
+        {
+          "theme": "graphite",
+          "fam": "mint",
+          "hoverMedia": true,
+          "hovered": true,
+          "bg": "color(srgb 0.0784314 0.298039 0.192157)",
+          "fg": "rgb(166, 231, 193)",
+          "got": "#144C31",
+          "want": "#144C31",
+          "ok": true,
+          "ratio": 7.032
+        }
+      ],
+      "nested": [
+        {
+          "theme": "midnight",
+          "got": [
+            "#613146",
+            "#FFC2D9"
+          ],
+          "want": [
+            "#613146",
+            "#FFC2D9"
+          ],
+          "ok": true,
+          "ratio": 6.862
+        },
+        {
+          "theme": "hearth",
+          "got": [
+            "#FFFFFF",
+            "#A3134F"
+          ],
+          "want": [
+            "#FFFFFF",
+            "#A3134F"
+          ],
+          "ok": true,
+          "ratio": 7.599
+        },
+        {
+          "theme": "forest",
+          "got": [
+            "#613146",
+            "#FFC2D9"
+          ],
+          "want": [
+            "#613146",
+            "#FFC2D9"
+          ],
+          "ok": true,
+          "ratio": 6.862
+        }
+      ],
+      "mediaSupport": {
+        "contrast": true,
+        "transparency": true
+      }
+    }
+  },
+  "claims": [
+    {
+      "claim": "hero row, light adult ≥ 6.58",
+      "mine": 6.58,
+      "stated": 6.58,
+      "ok": true
+    },
+    {
+      "claim": "hero row, dark adult ≥ 6.86",
+      "mine": 6.86,
+      "stated": 6.86,
+      "ok": true
+    },
+    {
+      "claim": "hero row, light 7:1 ≥ 9.37",
+      "mine": 9.37,
+      "stated": 9.37,
+      "ok": true
+    },
+    {
+      "claim": "hero row, dark 7:1 ≥ 8.35",
+      "mine": 8.35,
+      "stated": 8.35,
+      "ok": true
+    },
+    {
+      "claim": "shipped rule under new tokens, dark 1.19",
+      "mine": 1.19,
+      "stated": 1.19,
+      "ok": true
+    },
+    {
+      "claim": "shipped rule under new tokens, light ≥ 6.47",
+      "mine": 6.47,
+      "stated": 6.47,
+      "ok": true
+    },
+    {
+      "claim": "lowest semantic -strong on any surface 3.70 (success on Parchment page)",
+      "mine": 3.7,
+      "stated": 3.7,
+      "ok": true
+    },
+    {
+      "claim": "warning -strong on Parchment page 3.79",
+      "mine": 3.79,
+      "stated": 3.79,
+      "ok": true
+    },
+    {
+      "claim": "success -strong on white 4.77 (true 4.7697: 4.76 rounded down, the same pair as the ≥ 4.76 label bound)",
+      "mine": 4.76,
+      "stated": 4.77,
+      "ok": true
+    },
+    {
+      "claim": "warning -strong on white 4.88",
+      "mine": 4.88,
+      "stated": 4.88,
+      "ok": true
+    },
+    {
+      "claim": "danger -strong as text on Parchment's page 7.42 (light; dark #F07E79 is 5.24 on Forest's well)",
+      "mine": 7.42,
+      "stated": 7.42,
+      "ok": true
+    },
+    {
+      "claim": "lowest semantic graphic 3.06 (warning graphic on Parchment page)",
+      "mine": 3.06,
+      "stated": 3.06,
+      "ok": true
+    },
+    {
+      "claim": "semantic -on on -strong ≥ 4.76",
+      "mine": 4.76,
+      "stated": 4.76,
+      "ok": true
+    },
+    {
+      "claim": "switch on, light 3.70 on Parchment page",
+      "mine": 3.7,
+      "stated": 3.7,
+      "ok": true
+    },
+    {
+      "claim": "--text-2 page, card, sheet 8.13",
+      "mine": 8.13,
+      "stated": 8.13,
+      "ok": true
+    },
+    {
+      "claim": "--text-2 wells 8.13",
+      "mine": 8.13,
+      "stated": 8.13,
+      "ok": true
+    },
+    {
+      "claim": "--text-2 fields 7.83",
+      "mine": 7.83,
+      "stated": 7.83,
+      "ok": true
+    },
+    {
+      "claim": "--text-2 hover fill 7.50",
+      "mine": 7.5,
+      "stated": 7.5,
+      "ok": true
+    },
+    {
+      "claim": "--text-3 lowest 5.07",
+      "mine": 5.07,
+      "stated": 5.07,
+      "ok": true
+    },
+    {
+      "claim": "--text-2-hi lowest 10.38",
+      "mine": 10.38,
+      "stated": 10.38,
+      "ok": true
+    },
+    {
+      "claim": "dark -strong as text, lowest ≥ 7.06",
+      "mine": 7.06,
+      "stated": 7.06,
+      "ok": true
+    },
+    {
+      "claim": "dark -on on -strong, lowest ≥ 8.67",
+      "mine": 8.67,
+      "stated": 8.67,
+      "ok": true
+    },
+    {
+      "claim": "dark Bubblegum -strong is #FF9BC4",
+      "mine": "#FF9BC4",
+      "stated": "#FF9BC4",
+      "ok": true
+    },
+    {
+      "claim": "dark Bubblegum -strong as text 7.06",
+      "mine": 7.06,
+      "stated": 7.06,
+      "ok": true
+    },
+    {
+      "claim": "dark Bubblegum on/strong 8.67",
+      "mine": 8.67,
+      "stated": 8.67,
+      "ok": true
+    },
+    {
+      "claim": "old #FF99C3 on Forest well 6.97",
+      "mine": 6.97,
+      "stated": 6.97,
+      "ok": true
+    },
+    {
+      "claim": "§2.3 --text-2 lowest, hearth 8.21",
+      "mine": 8.21,
+      "stated": 8.21,
+      "ok": true
+    },
+    {
+      "claim": "§2.3 --text-2 lowest, parchment 8.36",
+      "mine": 8.36,
+      "stated": 8.36,
+      "ok": true
+    },
+    {
+      "claim": "§2.3 --text-2 lowest, frost 7.5",
+      "mine": 7.5,
+      "stated": 7.5,
+      "ok": true
+    },
+    {
+      "claim": "§2.3 --text-2 lowest, midnight 8.58",
+      "mine": 8.58,
+      "stated": 8.58,
+      "ok": true
+    },
+    {
+      "claim": "§2.3 --text-2 lowest, forest 8.86",
+      "mine": 8.86,
+      "stated": 8.86,
+      "ok": true
+    },
+    {
+      "claim": "§2.3 --text-2 lowest, graphite 9.15",
+      "mine": 9.15,
+      "stated": 9.15,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, bubblegum 6.86",
+      "mine": 6.86,
+      "stated": 6.86,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, peach 6.79",
+      "mine": 6.79,
+      "stated": 6.79,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, butter 6.58",
+      "mine": 6.58,
+      "stated": 6.58,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, mint 6.59",
+      "mine": 6.59,
+      "stated": 6.59,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, aqua 6.91",
+      "mine": 6.91,
+      "stated": 6.91,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, sky 7.14",
+      "mine": 7.14,
+      "stated": 7.14,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, periwinkle 7.01",
+      "mine": 7.01,
+      "stated": 7.01,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, lavender 6.93",
+      "mine": 6.93,
+      "stated": 6.93,
+      "ok": true
+    },
+    {
+      "claim": "§2.4 hero button ink / bg, graphite 7.39",
+      "mine": 7.39,
+      "stated": 7.39,
+      "ok": true
+    },
+    {
+      "claim": "webkit: row paints exactly the tokens in every context",
+      "mine": "2457/2457",
+      "stated": "all",
+      "ok": true
+    },
+    {
+      "claim": "webkit: no context under 4.5 (7 in 7:1 modes)",
+      "mine": 0,
+      "stated": 0,
+      "ok": true
+    },
+    {
+      "claim": "webkit: engine min light equals analytic",
+      "mine": 6.58,
+      "stated": 6.58,
+      "ok": true
+    },
+    {
+      "claim": "webkit: engine min dark equals analytic",
+      "mine": 6.86,
+      "stated": 6.86,
+      "ok": true
+    },
+    {
+      "claim": "webkit: engine min light 7:1 equals analytic",
+      "mine": 9.37,
+      "stated": 9.37,
+      "ok": true
+    },
+    {
+      "claim": "webkit: engine min dark 7:1 equals analytic",
+      "mine": 8.35,
+      "stated": 8.35,
+      "ok": true
+    },
+    {
+      "claim": "webkit: hover keeps the capsule",
+      "mine": [
+        true,
+        true,
+        true
+      ],
+      "stated": "all true",
+      "ok": true
+    },
+    {
+      "claim": "webkit: nested data-accent re-derives",
+      "mine": [
+        true,
+        true,
+        true
+      ],
+      "stated": "all true",
+      "ok": true
+    },
+    {
+      "claim": "webkit: today's rule, dark ~1.19-1.20",
+      "mine": 1.19,
+      "stated": 1.19,
+      "ok": true
+    },
+    {
+      "claim": "chromium: row paints exactly the tokens in every context",
+      "mine": "2457/2457",
+      "stated": "all",
+      "ok": true
+    },
+    {
+      "claim": "chromium: no context under 4.5 (7 in 7:1 modes)",
+      "mine": 0,
+      "stated": 0,
+      "ok": true
+    },
+    {
+      "claim": "chromium: engine min light equals analytic",
+      "mine": 6.58,
+      "stated": 6.58,
+      "ok": true
+    },
+    {
+      "claim": "chromium: engine min dark equals analytic",
+      "mine": 6.86,
+      "stated": 6.86,
+      "ok": true
+    },
+    {
+      "claim": "chromium: engine min light 7:1 equals analytic",
+      "mine": 9.37,
+      "stated": 9.37,
+      "ok": true
+    },
+    {
+      "claim": "chromium: engine min dark 7:1 equals analytic",
+      "mine": 8.35,
+      "stated": 8.35,
+      "ok": true
+    },
+    {
+      "claim": "chromium: hover keeps the capsule",
+      "mine": [
+        true,
+        true,
+        true
+      ],
+      "stated": "all true",
+      "ok": true
+    },
+    {
+      "claim": "chromium: nested data-accent re-derives",
+      "mine": [
+        true,
+        true,
+        true
+      ],
+      "stated": "all true",
+      "ok": true
+    },
+    {
+      "claim": "chromium: today's rule, dark ~1.19-1.20",
+      "mine": 1.19,
+      "stated": 1.19,
+      "ok": true
+    }
+  ],
+  "allOk": true
+}

@@ -1,0 +1,120 @@
+{
+ "method": "CDP Performance.getMetrics delta over 8000 ms windows, page idle (no input)",
+ "arms": {
+  "located_noPreference": {
+   "state": {
+    "gps": "on",
+    "pill": "good",
+    "running": [
+     "mepulse@me-pulse 2400ms xInfinity",
+     "mepulse@me-pulse2 2400ms xInfinity",
+     "lvlive@lv-live 2000ms xInfinity",
+     "fabring@loc-btn 2200ms xInfinity"
+    ]
+   },
+   "all_run1": {
+    "busyPct": 17.4,
+    "stylePerSec": 60,
+    "layoutPerSec": 60.1,
+    "scriptPct": 0
+   },
+   "all_run2": {
+    "busyPct": 21.1,
+    "stylePerSec": 60.1,
+    "layoutPerSec": 60.1,
+    "scriptPct": 0
+   },
+   "ablation": {
+    "paused_mepulse": {
+     "stillRunning": [
+      "lvlive",
+      "fabring"
+     ],
+     "busyPct": 6.9,
+     "stylePerSec": 60,
+     "layoutPerSec": 0.1,
+     "scriptPct": 0
+    },
+    "paused_lvlive": {
+     "stillRunning": [
+      "mepulse",
+      "mepulse",
+      "fabring"
+     ],
+     "busyPct": 19.8,
+     "stylePerSec": 60.1,
+     "layoutPerSec": 60.1,
+     "scriptPct": 0
+    },
+    "paused_fabring": {
+     "stillRunning": [
+      "mepulse",
+      "mepulse",
+      "lvlive"
+     ],
+     "busyPct": 21,
+     "stylePerSec": 59.1,
+     "layoutPerSec": 59.1,
+     "scriptPct": 0
+    },
+    "paused_all": {
+     "stillRunning": [],
+     "busyPct": 0.1,
+     "stylePerSec": 0.1,
+     "layoutPerSec": 0.1,
+     "scriptPct": 0
+    },
+    "only_mepulse": {
+     "stillRunning": [
+      "mepulse",
+      "mepulse"
+     ],
+     "busyPct": 0.2,
+     "stylePerSec": 0.1,
+     "layoutPerSec": 0.1,
+     "scriptPct": 0
+    },
+    "only_lvlive": {
+     "stillRunning": [
+      "lvlive"
+     ],
+     "busyPct": 7.9,
+     "stylePerSec": 58.4,
+     "layoutPerSec": 0.4,
+     "scriptPct": 0
+    },
+    "only_fabring": {
+     "stillRunning": [
+      "fabring"
+     ],
+     "busyPct": 6.1,
+     "stylePerSec": 60.1,
+     "layoutPerSec": 0,
+     "scriptPct": 0
+    }
+   }
+  },
+  "located_reduce": {
+   "state": {
+    "gps": "on",
+    "pill": "good",
+    "running": []
+   },
+   "busyPct": 0.6,
+   "stylePerSec": 0.3,
+   "layoutPerSec": 0.4,
+   "scriptPct": 0
+  },
+  "notLocated_noPreference": {
+   "state": {
+    "gps": "off",
+    "pill": "searching",
+    "running": []
+   },
+   "busyPct": 0.4,
+   "stylePerSec": 0.1,
+   "layoutPerSec": 0.3,
+   "scriptPct": 0
+  }
+ }
+}

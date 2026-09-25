@@ -1,0 +1,26 @@
+/* House Hub design tokens v3 — Phase 4 PROPOSAL. The person and app identity rules TOKENS.md quotes (§1 "People", migration table).
+   NOT app code. browser-check.mjs loads this file over today's component half of apps/design.css in WebKit and Chromium
+   (browser-check.json → identity).
+
+   BATCH 1A, in the same commit as the hub.avatarHtml change (apps/hub.js:459-462). Every avatar the shell (index.html:455, 16 calls),
+   Kid Verse (2), Verses (1) and Prayer (1) draw comes from hub.avatarHtml, which then emits the person's family on the avatar itself,
+   INSTEAD OF today's inline --tint hex:
+     <span class="avatar ${cls}" data-accent="${p.hue || H[String(p.color).toLowerCase()] || 'graphite'}">…</span>
+   (a record with no colour and no hue is graphite: never another person's family, ACCENT-6). So a face always wears its own
+   person's fill, ink and ring, whatever data-accent the page around it carries (the signed-in person, or the TV's graphite). */
+.ds .avatar { background: var(--accent-fill); color: var(--accent-ink);
+  box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 5px var(--accent-graphic), var(--e1); }
+.ds .avatar-sm { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent-graphic); }
+.ds .avatar-xl { box-shadow: 0 0 0 4px var(--surface), 0 0 0 8px var(--accent-graphic), var(--e2); }
+
+/* BATCH 2 (the shell batch), in ONE commit with: a "hue" on every apps.json entry, and a data-accent on every tile, glance card and
+   icon in index.html (the tile :700, the glance cards :894, 904, 913, 1165, 1176, 1188, the TV pane icons :1118, the cards :1153,
+   1203, 1206, 1256, 1257, 1272). Until that commit .ds .app-icon keeps today's --tint recipe (apps/design.css:606-608), which the
+   gate passes as written (glyph >= 3.86). The corner is size x --r-icon-ratio (D9); the five index.html size rows set only --icon-box. */
+.ds .app-icon { --icon-box: 56px; width: var(--icon-box); height: var(--icon-box); border-radius: calc(var(--icon-box) * var(--r-icon-ratio));
+  background: var(--tile-bg); color: var(--accent-ink); box-shadow: inset 0 1px 0 var(--hairline), var(--e1); }
+.card h2 .app-icon { --icon-box: 40px; }                                   /* index.html:109 (was 40 x 40, radius 13) */
+:root[data-kind="kiosk"] .tv-pane h2 .app-icon { --icon-box: 44px; }       /* :139 (44, radius 14) */
+:root[data-kind="kiosk"] .tv-rem h2 .app-icon { --icon-box: 36px; }        /* :167 (36, radius 11) */
+.kid-cta .app-icon { --icon-box: 64px; }                                   /* :188 (64, radius 20) */
+.mrow .app-icon { --icon-box: 30px; margin-bottom: 4px; }                  /* :247 (30, radius 10) */

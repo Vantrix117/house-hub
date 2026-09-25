@@ -1,0 +1,110 @@
+{
+ "note": "See the header of audits/tools/phase4/TELL/dialogs.mjs.",
+ "runs": {
+  "shell-adult-me": {
+   "profile": "eli",
+   "device": "ipad-portrait",
+   "variant": "typical",
+   "raised": [
+    {
+     "type": "confirm",
+     "message": "Forget this device? You will need the pairing code to use the hub here again."
+    },
+    {
+     "type": "confirm",
+     "message": "Remove this photo from the album?"
+    }
+   ],
+   "steps": [
+    "clicked #forget",
+    "clicked #album-grid [data-del]",
+    "rewards buttons 0"
+   ]
+  },
+  "shell-admin": {
+   "profile": "eli",
+   "device": "ipad-portrait",
+   "variant": "typical",
+   "raised": [
+    {
+     "type": "confirm",
+     "message": "Reset Eli's PIN? They will create a new one next time they tap their name."
+    },
+    {
+     "type": "confirm",
+     "message": "Remove Grandma Jo? Their guest profile and everything they saved will be deleted."
+    },
+    {
+     "type": "confirm",
+     "message": "Unpair this device? It will need the pairing code again."
+    }
+   ],
+   "steps": [
+    "clicked #admin-body [data-resetpin]",
+    "clicked #admin-body [data-remove]",
+    "missing #admin-body [data-purge]",
+    "clicked #admin-body [data-unpair]"
+   ]
+  },
+  "shell-mom-me": {
+   "profile": "mom",
+   "device": "ipad-portrait",
+   "variant": "typical",
+   "raised": [
+    {
+     "type": "confirm",
+     "message": "Forget this device? You will need the pairing code to use the hub here again."
+    }
+   ],
+   "steps": [
+    "admin panel present: false",
+    "clicked #forget"
+   ]
+  },
+  "tv-me": {
+   "profile": "tv",
+   "device": "tv",
+   "variant": "typical",
+   "raised": [],
+   "steps": [
+    "click fail #forget elementHandle.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m",
+    "clicked #forget"
+   ]
+  },
+  "dollywood-reset": {
+   "profile": "eli",
+   "device": "ipad-portrait",
+   "variant": "typical",
+   "raised": [
+    {
+     "type": "confirm",
+     "message": "Clear all saved progress?"
+    }
+   ],
+   "steps": [
+    "clicked #b-menu",
+    "clicked #b-reset"
+   ]
+  },
+  "dollywood-live-park": {
+   "profile": "eli",
+   "device": "ipad-portrait",
+   "variant": "park",
+   "raised": [
+    {
+     "type": "confirm",
+     "message": "Set the family meeting point near Treetop Tower?"
+    },
+    {
+     "type": "confirm",
+     "message": "Clear the meeting point for everyone?"
+    }
+   ],
+   "steps": [
+    "map box [0,48,820,1132] frame [0,48]",
+    "meet-done visible: true",
+    "clicked #meet-done"
+   ]
+  }
+ }
+}

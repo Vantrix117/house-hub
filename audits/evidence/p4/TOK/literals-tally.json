@@ -1,0 +1,618 @@
+{
+ "area": "tally",
+ "file": "apps/tally.html",
+ "rules": {
+  "notLiteral": "0, 0px, auto, inherit, initial, unset, none, normal, currentColor, transparent, 100%, 1 (opacity), 0/1 z-index 0 are not literals",
+  "varOnly": "values built only from var(--token), calc() of tokens and color-mix() of tokens are not literals; the percentages inside a token color-mix are counted separately as \"mixRatio\" (ad-hoc derived colours)",
+  "fallback": "a literal inside var(--x, <literal>) is a fallback, counted as status \"fallback\", not a violation",
+  "print": "@media print declarations are exempt",
+  "keyframes": "declarations inside @keyframes are motion frames: counted only for colour",
+  "hairline": "1px and 2px in spacing/borders are sub-grid hairlines: status \"subgrid\", not counted as violations",
+  "circle": "border-radius 50% is a circle: status \"acceptable\"",
+  "relative": "em/%/vw/ch/dvh/cqw values are relative: status \"relative\" (they scale with their parent, unlike px), not violations",
+  "dollywood": "Dollywood template: selectors are split by flavour ([data-flavor=hub] = build guide only, [data-flavor=live] = park map only, html:not([data-flavor=live]) = build guide/standalone); lines 259-308 and 525-565 and SVG-shape selectors are cartography (colour exempt, as scripts/screens-apps.mjs allows); the :where(:root) / :where([data-theme=light]) palette blocks (lines 7-12) are standalone-only (overridden by the hub flavour block at line 212) except the map category colours",
+  "designCss": "apps/design.css: only declarations outside the token/theme/kind blocks are scanned (the component layer, resets, print)",
+  "meta": "<meta name=\"theme-color\"> hex is counted in category colour with status \"meta\" (a token cannot reach a meta tag; hub.js/index.html set it from JS)"
+ },
+ "summary": {
+  "file": "apps/tally.html",
+  "byCategoryStatus": {
+   "mixRatio": {
+    "info": 8
+   },
+   "opacity": {
+    "violation": 2
+   },
+   "glassFilter": {
+    "violation": 13
+   },
+   "localLiteral": {
+    "violation": 2
+   },
+   "zIndex": {
+    "violation": 4
+   },
+   "shadow": {
+    "violation": 6
+   },
+   "spacing": {
+    "violation": 1
+   },
+   "fontWeight": {
+    "violation": 4
+   },
+   "lineHeight": {
+    "violation": 3
+   },
+   "fontSize": {
+    "violation": 1
+   }
+  },
+  "violations": {
+   "opacity": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "glassFilter": {
+    "total": 13,
+    "exactToken": 0,
+    "noToken": 13
+   },
+   "localLiteral": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "zIndex": {
+    "total": 4,
+    "exactToken": 0,
+    "noToken": 4
+   },
+   "shadow": {
+    "total": 6,
+    "exactToken": 0,
+    "noToken": 6
+   },
+   "spacing": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "fontWeight": {
+    "total": 4,
+    "exactToken": 0,
+    "noToken": 4
+   },
+   "lineHeight": {
+    "total": 3,
+    "exactToken": 0,
+    "noToken": 3
+   },
+   "fontSize": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   }
+  },
+  "distinctViolationValues": {
+   "opacity": 2,
+   "glassFilter": 3,
+   "localLiteral": 2,
+   "zIndex": 2,
+   "shadow": 1,
+   "spacing": 1,
+   "fontWeight": 3,
+   "lineHeight": 2,
+   "fontSize": 1
+  },
+  "mixRatios": {
+   "count": 8,
+   "distinct": 7
+  },
+  "breakpoints": []
+ },
+ "hits": [
+  {
+   "cat": "mixRatio",
+   "prop": "--tally-hi",
+   "literal": "74%",
+   "status": "info",
+   "line": 14,
+   "mix": "color-mix(in srgb, var(--accent) 74%, var(--bg))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--tally-mid",
+   "literal": "84%",
+   "status": "info",
+   "line": 15,
+   "mix": "color-mix(in srgb, var(--accent) 84%, var(--bg))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--tally-lo",
+   "literal": "80%",
+   "status": "info",
+   "line": 16,
+   "mix": "color-mix(in srgb, var(--accent-deep) 80%, var(--bg))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--tally-hi",
+   "literal": "62%",
+   "status": "info",
+   "line": 27,
+   "mix": "color-mix(in srgb, var(--accent) 62%, var(--bg))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--tally-mid",
+   "literal": "52%",
+   "status": "info",
+   "line": 28,
+   "mix": "color-mix(in srgb, var(--accent) 52%, var(--bg))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--tally-lo",
+   "literal": "34%",
+   "status": "info",
+   "line": 29,
+   "mix": "color-mix(in srgb, var(--accent) 34%, var(--bg))"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".16",
+   "literal": ".16",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 36,
+   "selector": ".art",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "filter",
+   "value": "saturate(.5)",
+   "literal": "saturate(.5)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 36,
+   "selector": ".art",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--disc",
+   "value": "clamp(240px, 74vw, 360px)",
+   "literal": "clamp(240px, 74vw, 360px)",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 40,
+   "selector": ".dial",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 42,
+   "selector": ".dial",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e3), 0 30px 70p",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 50,
+   "selector": ".dial",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "saturate(1.4)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 51,
+   "selector": ".dial",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "brightness(1.02)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 51,
+   "selector": ".dial",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "saturate(1.4)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 51,
+   "selector": ".dial",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "brightness(1.02)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 51,
+   "selector": ".dial",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "inset",
+   "value": "10px",
+   "literal": "10",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 10px (nearest --sp-2)",
+   "line": 54,
+   "selector": ".dial::before",
+   "src": "css",
+   "offGrid": [
+    10
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".8",
+   "literal": ".8",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 54,
+   "selector": ".dial::before",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 58,
+   "selector": ".count",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 58,
+   "selector": ".count",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "min(clamp(96px, 26vw, 168px), calc(var(--disc) * 1.35 / max(var(--digits), 3)))",
+   "literal": "min(clamp(96px, 26vw, 168px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 60,
+   "selector": ".count",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 64,
+   "selector": ".ds main .row",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "300",
+   "literal": "300",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 72,
+   "selector": ".tbtn",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 72,
+   "selector": ".tbtn",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 78,
+   "selector": ".tbtn",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "saturate(1.4)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 79,
+   "selector": ".tbtn",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "brightness(1.02)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 79,
+   "selector": ".tbtn",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "saturate(1.4)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 79,
+   "selector": ".tbtn",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "brightness(1.02)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 79,
+   "selector": ".tbtn",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e1)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 82,
+   "selector": ".tbtn:active",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 84,
+   "selector": ".tbtn.big",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e3)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 84,
+   "selector": ".tbtn.big",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--g",
+   "literal": "96%",
+   "status": "info",
+   "line": 86,
+   "mix": "color-mix(in srgb, var(--surface) 96%, transparent)"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e1)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 103,
+   "selector": ".ds .who, .ds .btn.reset",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "saturate(1.4)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 104,
+   "selector": ".ds .who, .ds .btn.reset",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "-webkit-backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "brightness(1.02)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 104,
+   "selector": ".ds .who, .ds .btn.reset",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "saturate(1.4)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 104,
+   "selector": ".ds .who, .ds .btn.reset",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "backdrop-filter",
+   "value": "blur(var(--blur)) saturate(1.4) brightness(1.02)",
+   "literal": "brightness(1.02)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 104,
+   "selector": ".ds .who, .ds .btn.reset",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 106,
+   "selector": ".ds .btn.reset",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 106,
+   "selector": ".ds .btn.reset",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 108,
+   "selector": ".ds .btn.reset:active",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--g",
+   "literal": "96%",
+   "status": "info",
+   "line": 113,
+   "mix": "color-mix(in srgb, var(--surface) 96%, transparent)"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "2",
+   "literal": "2",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 117,
+   "selector": ".ds .who",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.3",
+   "literal": "1.3",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.3 step (tokens 1.1/1.25/1.45)",
+   "line": 118,
+   "selector": ".ds .who",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--disc",
+   "value": "clamp(260px, 80vw, 400px)",
+   "literal": "clamp(260px, 80vw, 400px)",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 124,
+   "selector": ":root[data-kind=\"kid\"] .dial",
+   "src": "css"
+  }
+ ]
+}

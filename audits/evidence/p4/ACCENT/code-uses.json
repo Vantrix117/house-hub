@@ -1,0 +1,3517 @@
+{
+ "note": "Per file: every match of the person-colour tokens, with the line, the CSS property it sits in and a role. role: ink (color/stroke/fill/caret/text), fill (background/stop-color), line (border/outline/box-shadow), glass (inside a glass recipe: the pickup), def (the token is (re)defined here), js (inside script: inline style or SVG attribute). token: raw = --accent/--tint (the unadapted profile hex); adapted = --accent-deep/-strong/-soft/-tint; on = --on-accent; other = glow/pickup. Lines longer than 6000 characters are skipped (the generated Dollywood exports; the template is scanned instead).",
+ "files": {
+  "design.css": {
+   "file": "apps/design.css",
+   "total": 100,
+   "byRole": {
+    "ink": 14,
+    "fill": 21,
+    "line": 7,
+    "glass": 1,
+    "def": 56,
+    "js": 0,
+    "other": 1
+   },
+   "rawInk": [
+    "501 .ds .person-chip → color",
+    "527 .ds .ring .bg → stroke",
+    "528 .ds .ring .fg → stroke",
+    "605 .ds .icon .duo → fill",
+    "608 .ds .app-icon → color"
+   ],
+   "rawLine": [
+    "446 .ds .input:focus, .ds .select:focus, .ds .textarea:focus → border-color",
+    "494 .ds .avatar → box-shadow",
+    "496 .ds .avatar-sm → box-shadow",
+    "498 .ds .avatar-xl → box-shadow"
+   ],
+   "adaptedInk": 7,
+   "overrides": [
+    "70  accent",
+    "86  accent",
+    "87  accent-soft",
+    "87  accent",
+    "88  accent-tint",
+    "88  accent",
+    "89  accent-deep",
+    "89  accent",
+    "90  accent-strong",
+    "90  accent-deep",
+    "91  accent",
+    "93  tint",
+    "93  accent",
+    "102  accent",
+    "121 :root[data-theme=\"parchment\"], .tp[data-preview=\"parchment\"] accent",
+    "129  accent-soft",
+    "129  accent",
+    "130  accent-deep",
+    "130  accent",
+    "141 :root[data-theme=\"frost\"], .tp[data-preview=\"frost\"] accent",
+    "149  accent-soft",
+    "149  accent",
+    "150  accent-deep",
+    "150  accent",
+    "161 :root[data-theme=\"midnight\"], :root[data-theme=\"dark\"], .tp[data-preview=\"midnight\"] accent",
+    "169  accent-soft",
+    "169  accent",
+    "170  accent-deep",
+    "170  accent",
+    "182 :root:not([data-theme]) accent",
+    "190  accent-soft",
+    "190  accent",
+    "191  accent-deep",
+    "191  accent",
+    "203 :root[data-theme=\"forest\"] accent",
+    "211  accent-soft",
+    "211  accent",
+    "212  accent-deep",
+    "212  accent",
+    "223 .tp[data-preview=\"forest\"] accent",
+    "231  accent-soft",
+    "231  accent",
+    "232  accent-deep",
+    "232  accent",
+    "243 .tp[data-preview=\"hearth\"], .tp[data-preview=\"system\"] accent",
+    "251  accent-soft",
+    "251  accent",
+    "252  accent-deep",
+    "252  accent",
+    "262 .tp[data-preview=\"system\"] .tp-half accent",
+    "270  accent-soft",
+    "270  accent",
+    "271  accent-deep",
+    "271  accent"
+   ],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 70,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": null,
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),"
+    },
+    {
+     "line": 86,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent",
+     "role": "def",
+     "sel": null,
+     "text": "--accent: var(--mocha);"
+    },
+    {
+     "line": 87,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 87,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 88,
+     "token": "accent-tint",
+     "kind": "adapted",
+     "prop": "--accent-tint",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-tint: color-mix(in srgb, var(--accent) 26%, var(--surface));"
+    },
+    {
+     "line": 88,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-tint",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-tint: color-mix(in srgb, var(--accent) 26%, var(--surface));"
+    },
+    {
+     "line": 89,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 72%, black);   /* filled buttons, text on soft — AA on paper for every family colour */"
+    },
+    {
+     "line": 89,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 72%, black);   /* filled buttons, text on soft — AA on paper for every family colour */"
+    },
+    {
+     "line": 90,
+     "token": "accent-strong",
+     "kind": "adapted",
+     "prop": "--accent-strong",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-strong: var(--accent-deep);"
+    },
+    {
+     "line": 90,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-strong",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-strong: var(--accent-deep);"
+    },
+    {
+     "line": 91,
+     "token": "accent-glow",
+     "kind": "other",
+     "prop": "--accent-glow",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-glow: color-mix(in srgb, var(--accent) 35%, transparent);"
+    },
+    {
+     "line": 91,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-glow",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-glow: color-mix(in srgb, var(--accent) 35%, transparent);"
+    },
+    {
+     "line": 93,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "--tint: var(--accent);   /* per-element person colour (avatars, chips, rings); defaults to the signed-in accent */"
+    },
+    {
+     "line": 93,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "--tint: var(--accent);   /* per-element person colour (avatars, chips, rings); defaults to the signed-in accent */"
+    },
+    {
+     "line": 101,
+     "token": "accent-glow",
+     "kind": "other",
+     "prop": "--glow-accent",
+     "role": "def",
+     "sel": null,
+     "text": "--glow-accent: 0 8px 24px -8px var(--accent-glow);"
+    },
+    {
+     "line": 102,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--focus",
+     "role": "def",
+     "sel": null,
+     "text": "--focus: 0 0 0 3px color-mix(in srgb, var(--accent) 38%, transparent);"
+    },
+    {
+     "line": 121,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": ":root[data-theme=\"parchment\"], .tp[data-preview=\"parchment\"]",
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),"
+    },
+    {
+     "line": 129,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 129,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 130,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 66%, black);"
+    },
+    {
+     "line": 130,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 66%, black);"
+    },
+    {
+     "line": 141,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": ":root[data-theme=\"frost\"], .tp[data-preview=\"frost\"]",
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),"
+    },
+    {
+     "line": 149,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 149,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 150,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 72%, black);"
+    },
+    {
+     "line": 150,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 72%, black);"
+    },
+    {
+     "line": 161,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": ":root[data-theme=\"midnight\"], :root[data-theme=\"dark\"], .tp[data-preview=\"midnight\"]",
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),"
+    },
+    {
+     "line": 169,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 169,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 170,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 170,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 182,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": ":root:not([data-theme])",
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),"
+    },
+    {
+     "line": 190,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 190,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 191,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 191,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 203,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": ":root[data-theme=\"forest\"]",
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),"
+    },
+    {
+     "line": 211,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 211,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 212,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 212,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 223,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": ".tp[data-preview=\"forest\"]",
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),"
+    },
+    {
+     "line": 231,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 231,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 232,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 232,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 243,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": ".tp[data-preview=\"hearth\"], .tp[data-preview=\"system\"]",
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),"
+    },
+    {
+     "line": 251,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 251,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 252,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 72%, black);"
+    },
+    {
+     "line": 252,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 72%, black);"
+    },
+    {
+     "line": 262,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--wash",
+     "role": "def",
+     "sel": ".tp[data-preview=\"system\"] .tp-half",
+     "text": "--wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),"
+    },
+    {
+     "line": 270,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 270,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));"
+    },
+    {
+     "line": 271,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 271,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": null,
+     "text": "--accent-deep: color-mix(in srgb, var(--accent) 58%, white);"
+    },
+    {
+     "line": 315,
+     "token": "accent-tint",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": "::selection",
+     "text": "::selection { background: var(--accent-tint); }"
+    },
+    {
+     "line": 334,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .accent",
+     "text": ".ds .accent { color: var(--accent-deep); }"
+    },
+    {
+     "line": 361,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .btn-primary",
+     "text": ".ds .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white) 0%, var(--accent-deep) 100%); border-color: transparent"
+    },
+    {
+     "line": 361,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .btn-primary",
+     "text": ".ds .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white) 0%, var(--accent-deep) 100%); border-color: transparent"
+    },
+    {
+     "line": 361,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .btn-primary",
+     "text": ".ds .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white) 0%, var(--accent-deep) 100%); border-color: transparent"
+    },
+    {
+     "line": 361,
+     "token": "glow-accent",
+     "kind": "other",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".ds .btn-primary",
+     "text": ".ds .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white) 0%, var(--accent-deep) 100%); border-color: transparent"
+    },
+    {
+     "line": 362,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .btn-soft",
+     "text": ".ds .btn-soft { background: var(--accent-soft); border-color: transparent; color: var(--accent-deep); box-shadow: none; }"
+    },
+    {
+     "line": 362,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .btn-soft",
+     "text": ".ds .btn-soft { background: var(--accent-soft); border-color: transparent; color: var(--accent-deep); box-shadow: none; }"
+    },
+    {
+     "line": 374,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .btn-primary:hover",
+     "text": ".ds .btn-primary:hover { background: var(--accent-deep); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 12px 28px -10px var(--accent-glow); }"
+    },
+    {
+     "line": 374,
+     "token": "accent-glow",
+     "kind": "other",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".ds .btn-primary:hover",
+     "text": ".ds .btn-primary:hover { background: var(--accent-deep); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 12px 28px -10px var(--accent-glow); }"
+    },
+    {
+     "line": 375,
+     "token": "accent-tint",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .btn-soft:hover",
+     "text": ".ds .btn-soft:hover { background: var(--accent-tint); box-shadow: none; }"
+    },
+    {
+     "line": 392,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": ".glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .ds .tabbar, .ds .sheet",
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 392,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "?",
+     "role": "glass",
+     "sel": ".glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .ds .tabbar, .ds .sheet",
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 411,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .hero",
+     "text": "color: var(--on-accent);"
+    },
+    {
+     "line": 412,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .hero",
+     "text": "background: radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--accent) 70%, white) 0%, var(--accent) 45%, var(--accent-deep) 100%);"
+    },
+    {
+     "line": 412,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .hero",
+     "text": "background: radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--accent) 70%, white) 0%, var(--accent) 45%, var(--accent-deep) 100%);"
+    },
+    {
+     "line": 412,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .hero",
+     "text": "background: radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--accent) 70%, white) 0%, var(--accent) 45%, var(--accent-deep) 100%);"
+    },
+    {
+     "line": 413,
+     "token": "accent-glow",
+     "kind": "other",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".ds .hero",
+     "text": "box-shadow: inset 0 1px 0 rgba(255,255,255,.28), var(--e3), 0 20px 48px -20px var(--accent-glow);"
+    },
+    {
+     "line": 423,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .hero .btn-primary",
+     "text": ".ds .hero .btn-primary { background: rgba(255,255,255,.92); color: var(--accent-deep); box-shadow: var(--e2); }"
+    },
+    {
+     "line": 424,
+     "token": "accent-tint",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .hero-soft",
+     "text": ".ds .hero-soft { color: var(--text); background: linear-gradient(135deg, var(--accent-tint), var(--surface) 70%); box-shadow: var(--e2); }"
+    },
+    {
+     "line": 426,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .hero-soft .hero-kicker",
+     "text": ".ds .hero-soft .hero-kicker { color: var(--accent-deep); opacity: 1; }"
+    },
+    {
+     "line": 433,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .card-art .art",
+     "text": ".ds .card-art .art { height: 120px; background: var(--accent-soft); display: grid; place-items: center; }"
+    },
+    {
+     "line": 446,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-color",
+     "role": "line",
+     "sel": ".ds .input:focus, .ds .select:focus, .ds .textarea:focus",
+     "text": ".ds .input:focus, .ds .select:focus, .ds .textarea:focus { border-color: var(--accent); box-shadow: var(--focus); }"
+    },
+    {
+     "line": 481,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .row-lead, .ds .row-art",
+     "text": ".ds .row-lead, .ds .row-art { width: var(--tap); height: var(--tap); flex: none; display: grid; place-items: center; border-radius: var(--r-sm); background: var"
+    },
+    {
+     "line": 481,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .row-lead, .ds .row-art",
+     "text": ".ds .row-lead, .ds .row-art { width: var(--tap); height: var(--tap); flex: none; display: grid; place-items: center; border-radius: var(--r-sm); background: var"
+    },
+    {
+     "line": 493,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .avatar",
+     "text": "background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)));"
+    },
+    {
+     "line": 493,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .avatar",
+     "text": "background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)));"
+    },
+    {
+     "line": 494,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".ds .avatar",
+     "text": "box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 5px var(--tint), var(--e1); }"
+    },
+    {
+     "line": 496,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".ds .avatar-sm",
+     "text": ".ds .avatar-sm { --size: 32px; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--tint); }"
+    },
+    {
+     "line": 498,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".ds .avatar-xl",
+     "text": ".ds .avatar-xl { --size: 96px; box-shadow: 0 0 0 4px var(--surface), 0 0 0 8px var(--tint), var(--e2); }"
+    },
+    {
+     "line": 501,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .person-chip",
+     "text": "background: color-mix(in srgb, var(--tint) 14%, var(--surface)); color: color-mix(in srgb, var(--tint) 70%, var(--text)); font-weight: 600; font-size: var(--fs-"
+    },
+    {
+     "line": 501,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .person-chip",
+     "text": "background: color-mix(in srgb, var(--tint) 14%, var(--surface)); color: color-mix(in srgb, var(--tint) 70%, var(--text)); font-weight: 600; font-size: var(--fs-"
+    },
+    {
+     "line": 510,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .chip-accent",
+     "text": ".ds .chip-accent { background: var(--accent-soft); color: var(--accent-deep); }"
+    },
+    {
+     "line": 510,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .chip-accent",
+     "text": ".ds .chip-accent { background: var(--accent-soft); color: var(--accent-deep); }"
+    },
+    {
+     "line": 527,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "stroke",
+     "role": "ink",
+     "sel": ".ds .ring .bg",
+     "text": ".ds .ring .bg { stroke: color-mix(in srgb, var(--tint) 18%, var(--surface-2)); }"
+    },
+    {
+     "line": 528,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "stroke",
+     "role": "ink",
+     "sel": ".ds .ring .fg",
+     "text": ".ds .ring .fg { stroke: var(--tint); stroke-dasharray: 138; stroke-dashoffset: calc(138 - 138 * var(--p, 0)); transition: stroke-dashoffset .8s var(--ease-out);"
+    },
+    {
+     "line": 534,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .bar > i",
+     "text": ".ds .bar > i { display: block; height: 100%; width: calc(100% * var(--p, 0)); border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var("
+    },
+    {
+     "line": 534,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .bar > i",
+     "text": ".ds .bar > i { display: block; height: 100%; width: calc(100% * var(--p, 0)); border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var("
+    },
+    {
+     "line": 564,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .tab.on",
+     "text": ".ds .tab.on { color: var(--accent-deep); }"
+    },
+    {
+     "line": 567,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .tab-ind",
+     "text": "background: var(--accent-soft); transition: left var(--dur-3) var(--spring); z-index: 0; }"
+    },
+    {
+     "line": 605,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "fill",
+     "role": "ink",
+     "sel": ".ds .icon .duo",
+     "text": ".ds .icon .duo { fill: var(--tint); fill-opacity: .2; stroke: none; }"
+    },
+    {
+     "line": 607,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .app-icon",
+     "text": "background: linear-gradient(160deg, color-mix(in srgb, var(--tint) 22%, var(--surface)), color-mix(in srgb, var(--tint) 8%, var(--surface)));"
+    },
+    {
+     "line": 607,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".ds .app-icon",
+     "text": "background: linear-gradient(160deg, color-mix(in srgb, var(--tint) 22%, var(--surface)), color-mix(in srgb, var(--tint) 8%, var(--surface)));"
+    },
+    {
+     "line": 608,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .app-icon",
+     "text": "color: var(--tint); box-shadow: inset 0 1px 0 var(--hairline), var(--e1); }"
+    }
+   ]
+  },
+  "shell": {
+   "file": "index.html",
+   "total": 62,
+   "byRole": {
+    "ink": 14,
+    "fill": 7,
+    "line": 5,
+    "glass": 0,
+    "def": 34,
+    "js": 0,
+    "other": 2
+   },
+   "rawInk": [
+    "26 .hero-soft .hero-art → color"
+   ],
+   "rawLine": [
+    "47 .pcard.last → box-shadow",
+    "49 .pcard.last:hover → box-shadow",
+    "58 .pin-dots i.on → border-color",
+    "154 :root[data-kind=\"kiosk\"] .tv-face .avatar → box-shadow"
+   ],
+   "adaptedInk": 11,
+   "overrides": [
+    "118 .fresh .bar tint",
+    "119 .fresh .stale .bar tint",
+    "198 .star-big .icon tint",
+    "351 #timer-pill .tp-ring .ring tint",
+    "351 #timer-pill .tp-ring .ring accent",
+    "533  tint",
+    "553 function padHtml(p, title, hint) tint",
+    "683 function ringHtml(p, label, color, big) tint",
+    "700 const parts = await Promise.all(apps.map(async a => tint",
+    "894 function parkCardHtml(who) tint",
+    "899 <ul class=\"park-list\">$ tint",
+    "904 function starsCardHtml(n) tint",
+    "913 function kidsCardHtml(kids) tint",
+    "916 <div class=\"kids-line\">$ tint",
+    "955  tint",
+    "955  tint-ink",
+    "1045  tint",
+    "1070  tint",
+    "1070  tint-ink",
+    "1118 if (!v.querySelector('#tv')) tint",
+    "1153  tint",
+    "1165 if (canSee('f260')) tint",
+    "1176  tint",
+    "1188 if (canSee('prayer')) tint",
+    "1203  tint",
+    "1206  tint",
+    "1252 function renderMe() tint",
+    "1256 $ tint",
+    "1257 $ tint",
+    "1272 $ tint",
+    "1358 body.innerHTML = kids.map(k => tint",
+    "1389 function renderGuests() tint",
+    "1431 function renderAlbum() tint",
+    "1593 <ul class=\"list admin-people\">$ tint"
+   ],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 26,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".hero-soft .hero-art",
+     "text": ".hero-soft .hero-art { color: var(--accent); opacity: .8; }"
+    },
+    {
+     "line": 47,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".pcard.last",
+     "text": ".pcard.last { box-shadow: 0 0 0 2px var(--tint), var(--e3); }"
+    },
+    {
+     "line": 48,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".pcard.last .psub",
+     "text": ".pcard.last .psub { color: var(--accent-deep); }"
+    },
+    {
+     "line": 49,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".pcard.last:hover",
+     "text": "@media (hover: hover) and (pointer: fine) { .pcard:hover { transform: translateY(-3px); box-shadow: var(--e3); } .pcard.last:hover { box-shadow: 0 0 0 2px var(-"
+    },
+    {
+     "line": 58,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".pin-dots i.on",
+     "text": ".pin-dots i.on { background: var(--accent); border-color: var(--accent); transform: scale(1.15); }"
+    },
+    {
+     "line": 58,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-color",
+     "role": "line",
+     "sel": ".pin-dots i.on",
+     "text": ".pin-dots i.on { background: var(--accent); border-color: var(--accent); transform: scale(1.15); }"
+    },
+    {
+     "line": 74,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": "#ptr span",
+     "text": "color: var(--accent-deep); transform: translateY(-56px) rotate(0deg); transition: transform var(--dur-3) var(--spring); }"
+    },
+    {
+     "line": 118,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".fresh .bar",
+     "text": ".fresh .bar { --tint: var(--warn); }"
+    },
+    {
+     "line": 119,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".fresh .stale .bar",
+     "text": ".fresh .stale .bar { --tint: var(--danger); }"
+    },
+    {
+     "line": 154,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ":root[data-kind=\"kiosk\"] .tv-face .avatar",
+     "text": ":root[data-kind=\"kiosk\"] .tv-face .avatar { --size: 72px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--tint); }"
+    },
+    {
+     "line": 161,
+     "token": "tint-ink",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ":root[data-kind=\"kiosk\"] .tv-lines .who",
+     "text": ":root[data-kind=\"kiosk\"] .tv-lines .who { font-weight: 700; color: var(--tint-ink, var(--text)); white-space: nowrap; }"
+    },
+    {
+     "line": 183,
+     "token": "tint-ink",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".feed .fwho",
+     "text": ".feed .fwho { font-weight: 700; color: var(--tint-ink, var(--text)); }"
+    },
+    {
+     "line": 185,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".kid-cta",
+     "text": ".kid-cta { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-5); border-radius: var(--r-xl); background: var(--surface); color: var(--acce"
+    },
+    {
+     "line": 198,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".star-big .icon",
+     "text": ".star-big .icon { width: 1.1em; height: 1.1em; color: var(--gold); --tint: var(--gold); }"
+    },
+    {
+     "line": 210,
+     "token": "tint-ink",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".feed .ficon",
+     "text": ".feed .ficon { width: 22px; height: 22px; border-radius: 7px; flex: none; display: grid; place-items: center; margin-top: 1px; color: var(--tint-ink, var(--text"
+    },
+    {
+     "line": 210,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".feed .ficon",
+     "text": ".feed .ficon { width: 22px; height: 22px; border-radius: 7px; flex: none; display: grid; place-items: center; margin-top: 1px; color: var(--tint-ink, var(--text"
+    },
+    {
+     "line": 249,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".msg.user",
+     "text": ".msg.user { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white), var(--accent-deep)); color: var(--on-accent); border-bottom-r"
+    },
+    {
+     "line": 249,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".msg.user",
+     "text": ".msg.user { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white), var(--accent-deep)); color: var(--on-accent); border-bottom-r"
+    },
+    {
+     "line": 249,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".msg.user",
+     "text": ".msg.user { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white), var(--accent-deep)); color: var(--on-accent); border-bottom-r"
+    },
+    {
+     "line": 275,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".photo-btn .photo-badge",
+     "text": ".photo-btn .photo-badge { position: absolute; right: -2px; bottom: -2px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; back"
+    },
+    {
+     "line": 281,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".album-item figcaption",
+     "text": ".album-item figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 8px; font-size: var(--fs-xs); color: var(--on-accent); background: linea"
+    },
+    {
+     "line": 292,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "border-color",
+     "role": "line",
+     "sel": ".theme-card.on",
+     "text": ".theme-card.on { border-color: var(--accent-deep); }"
+    },
+    {
+     "line": 295,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".theme-swatch .tp-hero",
+     "text": ".theme-swatch .tp-hero { left: 8px; top: 8px; right: 8px; height: 22px; background: linear-gradient(120deg, var(--accent), var(--accent-deep)); }"
+    },
+    {
+     "line": 295,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".theme-swatch .tp-hero",
+     "text": ".theme-swatch .tp-hero { left: 8px; top: 8px; right: 8px; height: 22px; background: linear-gradient(120deg, var(--accent), var(--accent-deep)); }"
+    },
+    {
+     "line": 312,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".emoji-grid button.on",
+     "text": ".emoji-grid button.on { border-color: var(--text); background: var(--accent-soft); transform: scale(1.06); }"
+    },
+    {
+     "line": 349,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": "#timer-pill .icon",
+     "text": "#timer-pill .icon { width: 20px; height: 20px; color: var(--accent-deep); }"
+    },
+    {
+     "line": 350,
+     "token": "accent-strong",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": "#timer-pill .tp-time",
+     "text": "#timer-pill .tp-time { font-variant-numeric: tabular-nums; letter-spacing: .01em; min-width: 3.2em; text-align: left; color: var(--accent-strong); }"
+    },
+    {
+     "line": 351,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "#timer-pill .tp-ring .ring",
+     "text": "#timer-pill .tp-ring .ring { --tint: var(--accent); width: 22px; height: 22px; } #timer-pill .tp-ring .ring circle { stroke-width: 7; }"
+    },
+    {
+     "line": 351,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "#timer-pill .tp-ring .ring",
+     "text": "#timer-pill .tp-ring .ring { --tint: var(--accent); width: 22px; height: 22px; } #timer-pill .tp-ring .ring circle { stroke-width: 7; }"
+    },
+    {
+     "line": 360,
+     "token": "accent-strong",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": "#pill #pill-timer",
+     "text": "#pill #pill-timer { color: var(--accent-strong); font-variant-numeric: tabular-nums; gap: 6px; }"
+    },
+    {
+     "line": 361,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": "#pill #pill-timer .icon",
+     "text": "#pill #pill-timer .icon { color: var(--accent-deep); }"
+    },
+    {
+     "line": 368,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": null,
+     "text": "<path d=\"M-20 250c120-70 220-90 340-60s220 90 500 20v120H-20z\" fill=\"var(--accent)\" fill-opacity=\".14\"/>"
+    },
+    {
+     "line": 369,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": null,
+     "text": "<path d=\"M-20 290c160-90 300-80 420-30s240 40 420-40v110H-20z\" fill=\"var(--accent)\" fill-opacity=\".22\"/>"
+    },
+    {
+     "line": 533,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "<button class=\"pcard glass-strong${p.id === last ? ' last' : ''}\" data-id=\"${esc(p.id)}\" style=\"--tint:${esc(p.color || FALLBACK)}\">"
+    },
+    {
+     "line": 553,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "function padHtml(p, title, hint)",
+     "text": "<div class=\"pin-wrap card glass-strong gate-card pop-in\" style=\"--tint:${esc(p.color || FALLBACK)}\">"
+    },
+    {
+     "line": 683,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "function ringHtml(p, label, color, big)",
+     "text": "return `<span class=\"ringwrap${big ? ' lg' : ''}\"><svg class=\"ring${big ? ' ring-lg' : ''}\" viewBox=\"0 0 52 52\" style=\"--p:${p};--tint:${esc(color || FALLBACK)}"
+    },
+    {
+     "line": 700,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "const parts = await Promise.all(apps.map(async a =>",
+     "text": "return `<button class=\"tile${wide ? ' wide' : ''}\" data-id=\"${esc(a.id)}\" style=\"--tint:${esc(a.color || FALLBACK)}\" aria-label=\"Open ${esc(a.name)}\">"
+    },
+    {
+     "line": 894,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "function parkCardHtml(who)",
+     "text": "return `<div class=\"card gcard park-card\" style=\"--tint:${esc((a && a.color) || FALLBACK)}\"><img class=\"spot\" src=\"art/app/dollywood-live.svg\" alt=\"\" width=\"200"
+    },
+    {
+     "line": 899,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "<ul class=\"park-list\">$",
+     "text": "<ul class=\"park-list\">${who.map(w => `<li style=\"--tint:${esc(w.color || FALLBACK)}\">${avatar(w, 'avatar-sm')}<span class=\"pn\">${esc(w.name)}</span><span class="
+    },
+    {
+     "line": 904,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "function starsCardHtml(n)",
+     "text": "return `<div class=\"card gcard stars-card\" style=\"--tint:var(--gold)\"><img class=\"spot\" src=\"art/hero/play.svg\" alt=\"\" width=\"300\" height=\"200\">"
+    },
+    {
+     "line": 913,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "function kidsCardHtml(kids)",
+     "text": "return `<div class=\"card gcard kids-card\" style=\"--tint:var(--gold)\"><img class=\"spot\" src=\"art/hero/play.svg\" alt=\"\" width=\"300\" height=\"200\">"
+    },
+    {
+     "line": 916,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "<div class=\"kids-line\">$",
+     "text": "<div class=\"kids-line\">${kids.map(k => `<span class=\"kid-chip\" style=\"--tint:${esc(k.color || FALLBACK)}\">${avatar(k, 'avatar-sm')}<span>${esc(k.name)} <b>★${k."
+    },
+    {
+     "line": 955,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "ul.innerHTML = groups.map(g => `<li style=\"--tint:${esc(g.p.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(g.p.color || FALLBACK)} 70%, var(--text))\">$"
+    },
+    {
+     "line": 955,
+     "token": "tint-ink",
+     "kind": "adapted",
+     "prop": "--tint-ink",
+     "role": "def",
+     "sel": null,
+     "text": "ul.innerHTML = groups.map(g => `<li style=\"--tint:${esc(g.p.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(g.p.color || FALLBACK)} 70%, var(--text))\">$"
+    },
+    {
+     "line": 1045,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "const faceHtml = (q, cls, extra) => `<span class=\"tv-face${cls ? ' ' + cls : ''}\" style=\"--tint:${esc(q.color || FALLBACK)}\">${avatar(q, 'avatar-plain')}<span>$"
+    },
+    {
+     "line": 1070,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "t.feed.innerHTML = lines.length ? lines.map(a => `<li style=\"--tint:${esc(a.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(a.color || FALLBACK)} 70%, v"
+    },
+    {
+     "line": 1070,
+     "token": "tint-ink",
+     "kind": "adapted",
+     "prop": "--tint-ink",
+     "role": "def",
+     "sel": null,
+     "text": "t.feed.innerHTML = lines.length ? lines.map(a => `<li style=\"--tint:${esc(a.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(a.color || FALLBACK)} 70%, v"
+    },
+    {
+     "line": 1118,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "if (!v.querySelector('#tv'))",
+     "text": "const icon = (id, tint) => `<span class=\"app-icon\" style=\"--tint:var(--${tint})\">${id === 'star' ? ICON_STAR : `<svg class=\"icon\"><use href=\"#i-${id}\"/></svg>`}"
+    },
+    {
+     "line": 1153,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "<div class=\"card\"><h2><span class=\"app-icon\" style=\"--tint:var(--gold)\"><svg class=\"icon\"><use href=\"#i-bell\"/></svg></span>Reminders</h2><ul class=\"list\" id=\"r"
+    },
+    {
+     "line": 1165,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "if (canSee('f260'))",
+     "text": "cards.push(`<div class=\"card gcard\" style=\"--tint:${esc(a.color || FALLBACK)}\"><img class=\"spot\" src=\"art/app/f260.svg\" alt=\"\" width=\"200\" height=\"160\">"
+    },
+    {
+     "line": 1176,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "",
+     "text": "cards.push(`<div class=\"card gcard\" style=\"--tint:${esc((a && a.color) || FALLBACK)}\"><img class=\"spot\" src=\"art/app/leftovers.svg\" alt=\"\" width=\"200\" height=\"1"
+    },
+    {
+     "line": 1188,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "if (canSee('prayer'))",
+     "text": "cards.push(`<div class=\"card gcard prayer-card\" style=\"--tint:${esc(a.color || FALLBACK)}\"><img class=\"spot\" src=\"art/app/prayer.svg\" alt=\"\" width=\"200\" height="
+    },
+    {
+     "line": 1203,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "<div class=\"card\"><h2><span class=\"app-icon\" style=\"--tint:var(--gold)\"><svg class=\"icon\"><use href=\"#i-bell\"/></svg></span>Reminders</h2><ul class=\"list\" id=\"r"
+    },
+    {
+     "line": 1206,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "<div class=\"card\"><h2><span class=\"app-icon\" style=\"--tint:var(--terra)\"><svg class=\"icon\"><use href=\"#i-flame\"/></svg></span>Around the house <button class=\"bt"
+    },
+    {
+     "line": 1252,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "function renderMe()",
+     "text": "<div class=\"hero me-hero\" style=\"--tint:${esc(p.color || FALLBACK)}\"><button class=\"photo-btn\" id=\"photo-btn\" aria-label=\"Change your photo\" ${p.kind === 'adult"
+    },
+    {
+     "line": 1256,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "$",
+     "text": "${p.kind === 'adult' && !isGuest() ? `<div class=\"card glass\" id=\"guests\"><h2><span class=\"app-icon\" style=\"--tint:var(--olive)\"><svg class=\"icon\"><use href=\"#i"
+    },
+    {
+     "line": 1257,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "$",
+     "text": "${p.kind === 'adult' ? `<div class=\"card glass span2\" id=\"album\"><h2><span class=\"app-icon\" style=\"--tint:var(--terra)\"><svg class=\"icon\"><use href=\"#i-camera\"/"
+    },
+    {
+     "line": 1272,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "$",
+     "text": "${p.kind === 'adult' && !isGuest() ? '<div class=\"card glass span2\" id=\"rewards\"><h2><span class=\"app-icon\" style=\"--tint:var(--gold)\">' + ICON_STAR + '</span>K"
+    },
+    {
+     "line": 1358,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "body.innerHTML = kids.map(k =>",
+     "text": "return `<div class=\"hstack reward-kid\" data-kid=\"${esc(k.id)}\" style=\"--tint:${esc(k.color || FALLBACK)};flex-wrap:wrap;padding:var(--sp-2) 0\">${avatar(k, 'avat"
+    },
+    {
+     "line": 1389,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "function renderGuests()",
+     "text": "g.innerHTML = rows.map(q => `<div class=\"row\" style=\"--tint:${esc(q.color || FALLBACK)}\">${avatar(q)}<div class=\"row-main\"><div class=\"row-title\">${esc(q.name)}"
+    },
+    {
+     "line": 1431,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "function renderAlbum()",
+     "text": "g.innerHTML = rows.map(ph => `<figure class=\"album-item\" style=\"--tint:${esc(FALLBACK)}\"><img src=\"${esc(hub.photoUrl(ph, 'sm'))}\" alt=\"${esc(ph.caption || '')}"
+    },
+    {
+     "line": 1593,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "<ul class=\"list admin-people\">$",
+     "text": "<ul class=\"list admin-people\">${list.map(q => `<li class=\"row prow\" style=\"--tint:${esc(q.color || FALLBACK)}\">${avatar(q)}"
+    }
+   ]
+  },
+  "f260": {
+   "file": "apps/f260.html",
+   "total": 11,
+   "byRole": {
+    "ink": 4,
+    "fill": 0,
+    "line": 0,
+    "glass": 6,
+    "def": 1,
+    "js": 0,
+    "other": 0
+   },
+   "rawInk": [],
+   "rawLine": [],
+   "adaptedInk": 0,
+   "overrides": [
+    "28 :root[data-scheme=\"dark\"] on-accent"
+   ],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 28,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "--on-solid",
+     "role": "def",
+     "sel": ":root[data-scheme=\"dark\"]",
+     "text": ":root[data-scheme=\"dark\"]{--on-solid:var(--on-accent)}"
+    },
+    {
+     "line": 58,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "glass",
+     "sel": ".switch",
+     "text": "background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--g"
+    },
+    {
+     "line": 58,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "background",
+     "role": "glass",
+     "sel": ".switch",
+     "text": "background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--g"
+    },
+    {
+     "line": 208,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".btn.primary",
+     "text": ".btn.primary{background:var(--slate);border-color:var(--slate);color:var(--on-accent)}"
+    },
+    {
+     "line": 253,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ring .rc",
+     "text": ".ring .rc{position:absolute;inset:0;display:none;place-items:center;color:var(--on-accent)}"
+    },
+    {
+     "line": 272,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".mark",
+     "text": ".mark{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:2px solid var(--rule);background:transparent;display:grid;place-items:center;padding:0;color"
+    },
+    {
+     "line": 292,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".mkm",
+     "text": ".mkm{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:2px solid var(--rule);background:transparent;display:grid;place-items:center;padding:0;color:"
+    },
+    {
+     "line": 385,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "glass",
+     "sel": ".modal .card",
+     "text": ".modal .card{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--ac"
+    },
+    {
+     "line": 385,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "background",
+     "role": "glass",
+     "sel": ".modal .card",
+     "text": ".modal .card{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--ac"
+    },
+    {
+     "line": 422,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "glass",
+     "sel": ".readbar",
+     "text": "background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--g"
+    },
+    {
+     "line": 422,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "background",
+     "role": "glass",
+     "sel": ".readbar",
+     "text": "background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--g"
+    }
+   ]
+  },
+  "leftovers": {
+   "file": "apps/leftovers.html",
+   "total": 5,
+   "byRole": {
+    "ink": 0,
+    "fill": 3,
+    "line": 0,
+    "glass": 1,
+    "def": 0,
+    "js": 0,
+    "other": 1
+   },
+   "rawInk": [],
+   "rawLine": [],
+   "adaptedInk": 0,
+   "overrides": [],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 39,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": "form",
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 39,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "?",
+     "role": "glass",
+     "sel": "form",
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 72,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".stripe",
+     "text": ".stripe { width: 5px; flex: none; background: var(--tint); }"
+    },
+    {
+     "line": 80,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".bar > i",
+     "text": "background: linear-gradient(90deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint)); transition: width .8s var(--ease-out); }"
+    },
+    {
+     "line": 80,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".bar > i",
+     "text": "background: linear-gradient(90deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint)); transition: width .8s var(--ease-out); }"
+    }
+   ]
+  },
+  "prayer": {
+   "file": "apps/prayer.html",
+   "total": 43,
+   "byRole": {
+    "ink": 13,
+    "fill": 11,
+    "line": 10,
+    "glass": 1,
+    "def": 7,
+    "js": 0,
+    "other": 1
+   },
+   "rawInk": [
+    "118 .who .init,.asker .init → color",
+    "140 .copybtn:hover → color",
+    "219 .catrow button:hover → color",
+    "359 #kitchen .k-cat → color",
+    "387 .micbtn → color"
+   ],
+   "rawLine": [
+    "96 .mark:focus-visible::before → outline",
+    "141 details.cat > summary:focus-visible → outline",
+    "184 input:focus,textarea:focus,select:focus → border-color",
+    "198 button.ghost:hover → border-color",
+    "201 button:focus-visible → outline",
+    "419 .kid .avatar → box-shadow"
+   ],
+   "adaptedInk": 2,
+   "overrides": [
+    "39 body.shared accent",
+    "39 body.shared accent-soft",
+    "115 .who .avatar,.asker .avatar tint",
+    "115 .who .avatar,.asker .avatar accent",
+    "300 .fab accent-deep",
+    "416 .kid .avatar tint",
+    "416 .kid .avatar accent"
+   ],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 39,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent",
+     "role": "def",
+     "sel": "body.shared",
+     "text": "body.shared{ --accent:var(--teal); --accent-soft:var(--teal-soft); }"
+    },
+    {
+     "line": 39,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": "body.shared",
+     "text": "body.shared{ --accent:var(--teal); --accent-soft:var(--teal-soft); }"
+    },
+    {
+     "line": 89,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".mark",
+     "text": "display:grid;place-items:center;padding:0;color:var(--on-accent);"
+    },
+    {
+     "line": 96,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "outline",
+     "role": "line",
+     "sel": ".mark:focus-visible::before",
+     "text": ".mark:focus-visible::before{outline:2px solid var(--accent);outline-offset:3px}"
+    },
+    {
+     "line": 115,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".who .avatar,.asker .avatar",
+     "text": ".who .avatar,.asker .avatar{--tint:var(--accent);"
+    },
+    {
+     "line": 115,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".who .avatar,.asker .avatar",
+     "text": ".who .avatar,.asker .avatar{--tint:var(--accent);"
+    },
+    {
+     "line": 116,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".who .avatar,.asker .avatar",
+     "text": "background:radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)))}"
+    },
+    {
+     "line": 116,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".who .avatar,.asker .avatar",
+     "text": "background:radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)))}"
+    },
+    {
+     "line": 118,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".who .init,.asker .init",
+     "text": ".who .init,.asker .init{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent)}"
+    },
+    {
+     "line": 118,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".who .init,.asker .init",
+     "text": ".who .init,.asker .init{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent)}"
+    },
+    {
+     "line": 140,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".copybtn:hover",
+     "text": ".copybtn:hover{color:var(--accent)}"
+    },
+    {
+     "line": 141,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "outline",
+     "role": "line",
+     "sel": "details.cat > summary:focus-visible",
+     "text": "details.cat > summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}"
+    },
+    {
+     "line": 157,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".prompt",
+     "text": ".prompt{background:var(--accent-soft);border-radius:var(--r);padding:15px 18px;margin:26px 0 0;"
+    },
+    {
+     "line": 184,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-color",
+     "role": "line",
+     "sel": "input:focus,textarea:focus,select:focus",
+     "text": "input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);"
+    },
+    {
+     "line": 185,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": "input:focus,textarea:focus,select:focus",
+     "text": "box-shadow:0 0 0 4px var(--accent-soft)}"
+    },
+    {
+     "line": 191,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".chip[aria-pressed=\"true\"]",
+     "text": ".chip[aria-pressed=\"true\"]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}"
+    },
+    {
+     "line": 191,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "border-color",
+     "role": "line",
+     "sel": ".chip[aria-pressed=\"true\"]",
+     "text": ".chip[aria-pressed=\"true\"]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}"
+    },
+    {
+     "line": 191,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".chip[aria-pressed=\"true\"]",
+     "text": ".chip[aria-pressed=\"true\"]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}"
+    },
+    {
+     "line": 193,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": "button.act",
+     "text": "border-radius:var(--r-sm);cursor:pointer;background:var(--accent-deep);color:var(--on-accent);"
+    },
+    {
+     "line": 193,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": "button.act",
+     "text": "border-radius:var(--r-sm);cursor:pointer;background:var(--accent-deep);color:var(--on-accent);"
+    },
+    {
+     "line": 194,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "border",
+     "role": "line",
+     "sel": "button.act",
+     "text": "border:1.5px solid var(--accent-deep);width:100%;margin-top:28px;letter-spacing:-.012em;"
+    },
+    {
+     "line": 198,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-color",
+     "role": "line",
+     "sel": "button.ghost:hover",
+     "text": "button.ghost:hover{background:var(--hover);border-color:var(--accent)}"
+    },
+    {
+     "line": 201,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "outline",
+     "role": "line",
+     "sel": "button:focus-visible",
+     "text": "button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}"
+    },
+    {
+     "line": 219,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".catrow button:hover",
+     "text": ".catrow button:hover{color:var(--accent)}"
+    },
+    {
+     "line": 266,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".fab",
+     "text": "border-radius:50%;color:var(--on-accent);"
+    },
+    {
+     "line": 281,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": "nav button[aria-current=\"true\"]",
+     "text": "nav button[aria-current=\"true\"]{color:var(--accent-deep);background:var(--accent-soft)}"
+    },
+    {
+     "line": 281,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": "nav button[aria-current=\"true\"]",
+     "text": "nav button[aria-current=\"true\"]{color:var(--accent-deep);background:var(--accent-soft)}"
+    },
+    {
+     "line": 289,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": "nav,.sheet,.fab,#kitchen .close",
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 289,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "?",
+     "role": "glass",
+     "sel": "nav,.sheet,.fab,#kitchen .close",
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 300,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--g",
+     "role": "def",
+     "sel": ".fab",
+     "text": ".fab{--g:var(--accent-deep);"
+    },
+    {
+     "line": 334,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": "#pray .cat",
+     "text": "#pray .cat{font-size:13.5px;font-weight:600;color:var(--accent-deep)}"
+    },
+    {
+     "line": 350,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": "#pray .ctrl button.go",
+     "text": "#pray .ctrl button.go{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent);"
+    },
+    {
+     "line": 350,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "border-color",
+     "role": "line",
+     "sel": "#pray .ctrl button.go",
+     "text": "#pray .ctrl button.go{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent);"
+    },
+    {
+     "line": 350,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": "#pray .ctrl button.go",
+     "text": "#pray .ctrl button.go{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent);"
+    },
+    {
+     "line": 359,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": "#kitchen .k-cat",
+     "text": "#kitchen .k-cat{font-size:13.5px;font-weight:700;color:var(--accent);margin:34px 0 8px}"
+    },
+    {
+     "line": 387,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".micbtn",
+     "text": ".micbtn{flex:none;width:52px;border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);color:var(--accent);display:grid;place-items:center;c"
+    },
+    {
+     "line": 416,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".kid .avatar",
+     "text": ".kid .avatar{--size:44px;--tint:var(--accent);width:var(--size);height:var(--size);border-radius:50%;flex:none;"
+    },
+    {
+     "line": 416,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".kid .avatar",
+     "text": ".kid .avatar{--size:44px;--tint:var(--accent);width:var(--size);height:var(--size);border-radius:50%;flex:none;"
+    },
+    {
+     "line": 418,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".kid .avatar",
+     "text": "background:radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)));"
+    },
+    {
+     "line": 418,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".kid .avatar",
+     "text": "background:radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)));"
+    },
+    {
+     "line": 419,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".kid .avatar",
+     "text": "box-shadow:0 0 0 2.5px var(--surface), 0 0 0 5px var(--tint)}"
+    },
+    {
+     "line": 422,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".kid .prayed",
+     "text": "font-size:var(--fs-lg);font-weight:700;background:var(--accent-deep);color:var(--on-accent);cursor:pointer;"
+    },
+    {
+     "line": 422,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".kid .prayed",
+     "text": "font-size:var(--fs-lg);font-weight:700;background:var(--accent-deep);color:var(--on-accent);cursor:pointer;"
+    }
+   ]
+  },
+  "tally": {
+   "file": "apps/tally.html",
+   "total": 14,
+   "byRole": {
+    "ink": 1,
+    "fill": 0,
+    "line": 1,
+    "glass": 3,
+    "def": 6,
+    "js": 0,
+    "other": 3
+   },
+   "rawInk": [],
+   "rawLine": [],
+   "adaptedInk": 0,
+   "overrides": [
+    "14 body.ds accent",
+    "15 body.ds accent",
+    "16 body.ds accent-deep",
+    "27 :root[data-scheme=\"dark\"] body.ds accent",
+    "28 :root[data-scheme=\"dark\"] body.ds accent",
+    "29 :root[data-scheme=\"dark\"] body.ds accent"
+   ],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 14,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tally-hi",
+     "role": "def",
+     "sel": "body.ds",
+     "text": "--tally-hi: color-mix(in srgb, var(--accent) 74%, var(--bg));"
+    },
+    {
+     "line": 15,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tally-mid",
+     "role": "def",
+     "sel": "body.ds",
+     "text": "--tally-mid: color-mix(in srgb, var(--accent) 84%, var(--bg));"
+    },
+    {
+     "line": 16,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--tally-lo",
+     "role": "def",
+     "sel": "body.ds",
+     "text": "--tally-lo: color-mix(in srgb, var(--accent-deep) 80%, var(--bg));"
+    },
+    {
+     "line": 21,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": null,
+     "text": "color: var(--on-accent);"
+    },
+    {
+     "line": 27,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tally-hi",
+     "role": "def",
+     "sel": ":root[data-scheme=\"dark\"] body.ds",
+     "text": "--tally-hi: color-mix(in srgb, var(--accent) 62%, var(--bg));"
+    },
+    {
+     "line": 28,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tally-mid",
+     "role": "def",
+     "sel": ":root[data-scheme=\"dark\"] body.ds",
+     "text": "--tally-mid: color-mix(in srgb, var(--accent) 52%, var(--bg));"
+    },
+    {
+     "line": 29,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tally-lo",
+     "role": "def",
+     "sel": ":root[data-scheme=\"dark\"] body.ds",
+     "text": "--tally-lo: color-mix(in srgb, var(--accent) 34%, var(--bg));"
+    },
+    {
+     "line": 47,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": null,
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 47,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "?",
+     "role": "glass",
+     "sel": null,
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 50,
+     "token": "accent-glow",
+     "kind": "other",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": null,
+     "text": "box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e3)"
+    },
+    {
+     "line": 75,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": null,
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 75,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "?",
+     "role": "glass",
+     "sel": null,
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 100,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": ".ds .who, .ds .btn.reset",
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    },
+    {
+     "line": 100,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "?",
+     "role": "glass",
+     "sel": ".ds .who, .ds .btn.reset",
+     "text": "radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),"
+    }
+   ]
+  },
+  "timer": {
+   "file": "apps/timer.html",
+   "total": 10,
+   "byRole": {
+    "ink": 4,
+    "fill": 1,
+    "line": 2,
+    "glass": 0,
+    "def": 3,
+    "js": 0,
+    "other": 0
+   },
+   "rawInk": [
+    "28 .dial .ring .bg → stroke",
+    "29 .dial .ring .fg → stroke"
+   ],
+   "rawLine": [
+    "26 .dial .ring → filter",
+    "44 .presets .btn.on → border-color"
+   ],
+   "adaptedInk": 2,
+   "overrides": [
+    "22 .dial tint",
+    "22 .dial accent",
+    "36 body.done .dial tint"
+   ],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 22,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".dial",
+     "text": ".dial { --tint: var(--accent); width: min(82vw, 52vh, 400px); aspect-ratio: 1; border-radius: var(--r-full);"
+    },
+    {
+     "line": 22,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": ".dial",
+     "text": ".dial { --tint: var(--accent); width: min(82vw, 52vh, 400px); aspect-ratio: 1; border-radius: var(--r-full);"
+    },
+    {
+     "line": 26,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "filter",
+     "role": "line",
+     "sel": ".dial .ring",
+     "text": ".dial .ring { width: 100%; height: 100%; filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--tint) 30%, transparent)); }"
+    },
+    {
+     "line": 28,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "stroke",
+     "role": "ink",
+     "sel": ".dial .ring .bg",
+     "text": ".dial .ring .bg { stroke: color-mix(in srgb, var(--tint) 16%, var(--surface-2)); }"
+    },
+    {
+     "line": 29,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "stroke",
+     "role": "ink",
+     "sel": ".dial .ring .fg",
+     "text": ".dial .ring .fg { stroke: var(--tint); transition: stroke-dashoffset .5s linear, stroke var(--dur-3) var(--ease), opacity var(--dur-2) var(--ease); }"
+    },
+    {
+     "line": 32,
+     "token": "accent-strong",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".time",
+     "text": "font-variant-numeric: tabular-nums; letter-spacing: -.02em; color: var(--accent-strong); font-family: var(--font-sans);"
+    },
+    {
+     "line": 36,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": "body.done .dial",
+     "text": "body.done .dial { --tint: var(--danger); box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner"
+    },
+    {
+     "line": 44,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".presets .btn.on",
+     "text": ".presets .btn.on { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent-deep); box-shadow: none"
+    },
+    {
+     "line": 44,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-color",
+     "role": "line",
+     "sel": ".presets .btn.on",
+     "text": ".presets .btn.on { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent-deep); box-shadow: none"
+    },
+    {
+     "line": 44,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".presets .btn.on",
+     "text": ".presets .btn.on { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent-deep); box-shadow: none"
+    }
+   ]
+  },
+  "kidverse": {
+   "file": "apps/kidverse.html",
+   "total": 6,
+   "byRole": {
+    "ink": 1,
+    "fill": 0,
+    "line": 0,
+    "glass": 0,
+    "def": 3,
+    "js": 1,
+    "other": 1
+   },
+   "rawInk": [],
+   "rawLine": [],
+   "adaptedInk": 0,
+   "overrides": [
+    "55 .ds .btn.done accent",
+    "137 .ds .btn.story-heard accent",
+    "372  tint"
+   ],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 17,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": "body.ds",
+     "text": "radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%);"
+    },
+    {
+     "line": 55,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent",
+     "role": "def",
+     "sel": ".ds .btn.done",
+     "text": ".ds .btn.done { --accent: var(--gold); }"
+    },
+    {
+     "line": 88,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".badges li.on .bicon",
+     "text": ".badges li.on .bicon { background: var(--gold); color: var(--on-accent); border-color: transparent; box-shadow: var(--e1); }"
+    },
+    {
+     "line": 137,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent",
+     "role": "def",
+     "sel": ".ds .btn.story-heard",
+     "text": ".ds .btn.story-heard { --accent: var(--gold); }"
+    },
+    {
+     "line": 372,
+     "token": "tint",
+     "kind": "raw",
+     "prop": "--tint",
+     "role": "def",
+     "sel": null,
+     "text": "g.innerHTML = `<h2>${STAR}Kids’ stars</h2>${stepper}<ul class=\"kids\" id=\"kids\">${kids.length ? kids.map(k => `<li data-kid=\"${esc(k.id)}\" style=\"--tint:${esc(k."
+    },
+    {
+     "line": 372,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "script",
+     "role": "js",
+     "sel": "\" style=\"--tint:$",
+     "text": "g.innerHTML = `<h2>${STAR}Kids’ stars</h2>${stepper}<ul class=\"kids\" id=\"kids\">${kids.length ? kids.map(k => `<li data-kid=\"${esc(k.id)}\" style=\"--tint:${esc(k."
+    }
+   ]
+  },
+  "verses": {
+   "file": "apps/verses.html",
+   "total": 11,
+   "byRole": {
+    "ink": 1,
+    "fill": 0,
+    "line": 0,
+    "glass": 0,
+    "def": 9,
+    "js": 0,
+    "other": 1
+   },
+   "rawInk": [],
+   "rawLine": [],
+   "adaptedInk": 0,
+   "overrides": [
+    "56 .ds .btn.not accent",
+    "56 .ds .btn.not accent-soft",
+    "56 .ds .btn.not accent-deep",
+    "57 .ds .btn.almost accent",
+    "57 .ds .btn.almost accent-soft",
+    "57 .ds .btn.almost accent-deep",
+    "58 .ds .btn.got accent",
+    "58 .ds .btn.got accent-soft",
+    "58 .ds .btn.got accent-deep"
+   ],
+   "hardFallbacks": [],
+   "uses": [
+    {
+     "line": 18,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "?",
+     "role": "other",
+     "sel": "body.ds",
+     "text": "radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%);"
+    },
+    {
+     "line": 56,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent",
+     "role": "def",
+     "sel": ".ds .btn.not",
+     "text": ".ds .btn.not { --accent: var(--terra); --accent-soft: var(--terra-soft); --accent-deep: var(--terra-ink); }"
+    },
+    {
+     "line": 56,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": ".ds .btn.not",
+     "text": ".ds .btn.not { --accent: var(--terra); --accent-soft: var(--terra-soft); --accent-deep: var(--terra-ink); }"
+    },
+    {
+     "line": 56,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": ".ds .btn.not",
+     "text": ".ds .btn.not { --accent: var(--terra); --accent-soft: var(--terra-soft); --accent-deep: var(--terra-ink); }"
+    },
+    {
+     "line": 57,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent",
+     "role": "def",
+     "sel": ".ds .btn.almost",
+     "text": ".ds .btn.almost { --accent: var(--gold); --accent-soft: var(--gold-soft); --accent-deep: var(--gold-ink); }"
+    },
+    {
+     "line": 57,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": ".ds .btn.almost",
+     "text": ".ds .btn.almost { --accent: var(--gold); --accent-soft: var(--gold-soft); --accent-deep: var(--gold-ink); }"
+    },
+    {
+     "line": 57,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": ".ds .btn.almost",
+     "text": ".ds .btn.almost { --accent: var(--gold); --accent-soft: var(--gold-soft); --accent-deep: var(--gold-ink); }"
+    },
+    {
+     "line": 58,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--accent",
+     "role": "def",
+     "sel": ".ds .btn.got",
+     "text": ".ds .btn.got { --accent: var(--olive); --accent-soft: var(--olive-soft); --accent-deep: var(--olive-ink); }"
+    },
+    {
+     "line": 58,
+     "token": "accent-soft",
+     "kind": "adapted",
+     "prop": "--accent-soft",
+     "role": "def",
+     "sel": ".ds .btn.got",
+     "text": ".ds .btn.got { --accent: var(--olive); --accent-soft: var(--olive-soft); --accent-deep: var(--olive-ink); }"
+    },
+    {
+     "line": 58,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "--accent-deep",
+     "role": "def",
+     "sel": ".ds .btn.got",
+     "text": ".ds .btn.got { --accent: var(--olive); --accent-soft: var(--olive-soft); --accent-deep: var(--olive-ink); }"
+    },
+    {
+     "line": 59,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".ds .btn.got.btn-primary",
+     "text": ".ds .btn.got.btn-primary { background: var(--olive); border-color: var(--olive); color: var(--on-accent); }"
+    }
+   ]
+  },
+  "dollywood (template)": {
+   "file": "../dollywood-build-project/scripts/template.html",
+   "total": 84,
+   "byRole": {
+    "ink": 21,
+    "fill": 29,
+    "line": 14,
+    "glass": 13,
+    "def": 3,
+    "js": 2,
+    "other": 2
+   },
+   "rawInk": [
+    "406 .fab-primary[data-gps=locating] → color",
+    "429 .lv-tabs button[aria-pressed=true] svg → stroke",
+    "440 .lv-item .d small → color",
+    "464 .lv-route-head svg → stroke",
+    "524 .lv-from b → color",
+    "529 [data-flavor=live] .secpoly.lv-here → fill",
+    "551 .lv-edge .arrow → fill",
+    "1508 const body=line(pts, → stroke",
+    "1511 function drawRoute() → fill"
+   ],
+   "rawLine": [
+    "406 .fab-primary[data-gps=locating]::after → border",
+    "406 .fab-primary[data-gps=locating]::after → border-top-color",
+    "413 .fab-primary[aria-pressed=true] → box-shadow",
+    "414 @keyframes fabring → box-shadow",
+    "414 70% → box-shadow",
+    "414 100% → box-shadow",
+    "416 .lv-north[aria-pressed=true] → box-shadow",
+    "555 .lv-pill[data-state=searching] .lv-emoji.st::after → border",
+    "555 .lv-pill[data-state=searching] .lv-emoji.st::after → border-top-color",
+    "560 .lv-cross i → border"
+   ],
+   "adaptedInk": 1,
+   "overrides": [
+    "215 [data-flavor=hub],[data-flavor=live] accent",
+    "215 [data-flavor=hub],[data-flavor=live] accent",
+    "220 :root[data-scheme=dark][data-flavor=hub],:root[data-scheme=dark][data-flavor=live] accent"
+   ],
+   "hardFallbacks": [
+    551,
+    1318,
+    1319,
+    1508,
+    1511,
+    1551,
+    1551,
+    1551,
+    1552,
+    1552
+   ],
+   "uses": [
+    {
+     "line": 28,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": "button[aria-pressed=true],button.on",
+     "text": "button[aria-pressed=true],button.on{background:var(--forest);border-color:var(--moss);color:var(--on-accent)}"
+    },
+    {
+     "line": 152,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".chips button[aria-pressed=true] .cbar b",
+     "text": ".chips button[aria-pressed=true] .cbar b{background:var(--on-accent,#fff)}"
+    },
+    {
+     "line": 215,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--lv-glass",
+     "role": "def",
+     "sel": "[data-flavor=hub],[data-flavor=live]",
+     "text": "--lv-glass:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--g"
+    },
+    {
+     "line": 215,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "--lv-glass",
+     "role": "glass",
+     "sel": "[data-flavor=hub],[data-flavor=live]",
+     "text": "--lv-glass:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--g"
+    },
+    {
+     "line": 215,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--lv-glass-soft",
+     "role": "def",
+     "sel": "[data-flavor=hub],[data-flavor=live]",
+     "text": "--lv-glass:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--g"
+    },
+    {
+     "line": 215,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "--lv-glass-soft",
+     "role": "glass",
+     "sel": "[data-flavor=hub],[data-flavor=live]",
+     "text": "--lv-glass:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix(in srgb,var(--accent) var(--g"
+    },
+    {
+     "line": 220,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "--lv-glass",
+     "role": "def",
+     "sel": ":root[data-scheme=dark][data-flavor=hub],:root[data-scheme=dark][data-flavor=live]",
+     "text": "--lv-glass:linear-gradient(to bottom,color-mix(in srgb,var(--glass-spec) 40%,transparent) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,colo"
+    },
+    {
+     "line": 220,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "--lv-glass",
+     "role": "glass",
+     "sel": ":root[data-scheme=dark][data-flavor=hub],:root[data-scheme=dark][data-flavor=live]",
+     "text": "--lv-glass:linear-gradient(to bottom,color-mix(in srgb,var(--glass-spec) 40%,transparent) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,colo"
+    },
+    {
+     "line": 225,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": "ria-pressed=true],[data-flavor=hub] button.on,[data-flavor=live] button[aria-pressed=true]",
+     "text": "[data-flavor=hub] button[aria-pressed=true],[data-flavor=hub] button.on,[data-flavor=live] button[aria-pressed=true]{background:var(--accent-deep);border-color:"
+    },
+    {
+     "line": 225,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "border-color",
+     "role": "line",
+     "sel": "ria-pressed=true],[data-flavor=hub] button.on,[data-flavor=live] button[aria-pressed=true]",
+     "text": "[data-flavor=hub] button[aria-pressed=true],[data-flavor=hub] button.on,[data-flavor=live] button[aria-pressed=true]{background:var(--accent-deep);border-color:"
+    },
+    {
+     "line": 225,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": "ria-pressed=true],[data-flavor=hub] button.on,[data-flavor=live] button[aria-pressed=true]",
+     "text": "[data-flavor=hub] button[aria-pressed=true],[data-flavor=hub] button.on,[data-flavor=live] button[aria-pressed=true]{background:var(--accent-deep);border-color:"
+    },
+    {
+     "line": 234,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] header",
+     "text": "[data-flavor=hub] header{padding:18px 22px;margin-bottom:14px;border-radius:20px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radia"
+    },
+    {
+     "line": 234,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] header",
+     "text": "[data-flavor=hub] header{padding:18px 22px;margin-bottom:14px;border-radius:20px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radia"
+    },
+    {
+     "line": 244,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": "[data-flavor=hub] .chips button[aria-pressed=true]",
+     "text": "[data-flavor=hub] .chips button[aria-pressed=true]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}"
+    },
+    {
+     "line": 244,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "border-color",
+     "role": "line",
+     "sel": "[data-flavor=hub] .chips button[aria-pressed=true]",
+     "text": "[data-flavor=hub] .chips button[aria-pressed=true]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}"
+    },
+    {
+     "line": 244,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": "[data-flavor=hub] .chips button[aria-pressed=true]",
+     "text": "[data-flavor=hub] .chips button[aria-pressed=true]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}"
+    },
+    {
+     "line": 245,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] .toolbar",
+     "text": "[data-flavor=hub] .toolbar{border-radius:16px;padding:8px 10px;gap:8px 4px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-grad"
+    },
+    {
+     "line": 245,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] .toolbar",
+     "text": "[data-flavor=hub] .toolbar{border-radius:16px;padding:8px 10px;gap:8px 4px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-grad"
+    },
+    {
+     "line": 249,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] aside.side",
+     "text": "[data-flavor=hub] aside.side{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix("
+    },
+    {
+     "line": 249,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] aside.side",
+     "text": "[data-flavor=hub] aside.side{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%,color-mix("
+    },
+    {
+     "line": 287,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] .readout,[data-flavor=hub] .exag",
+     "text": "[data-flavor=hub] .readout,[data-flavor=hub] .exag{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sh"
+    },
+    {
+     "line": 287,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] .readout,[data-flavor=hub] .exag",
+     "text": "[data-flavor=hub] .readout,[data-flavor=hub] .exag{background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sh"
+    },
+    {
+     "line": 290,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] .pop",
+     "text": "[data-flavor=hub] .pop{padding-top:20px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%"
+    },
+    {
+     "line": 290,
+     "token": "glass-pickup",
+     "kind": "other",
+     "prop": "background",
+     "role": "glass",
+     "sel": "[data-flavor=hub] .pop",
+     "text": "[data-flavor=hub] .pop{padding-top:20px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%"
+    },
+    {
+     "line": 290,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-top",
+     "role": "other",
+     "sel": "[data-flavor=hub] .pop",
+     "text": "[data-flavor=hub] .pop{padding-top:20px;background:linear-gradient(to bottom,var(--glass-spec) 0,transparent 34%),radial-gradient(90% 70% at var(--sheen-x) -10%"
+    },
+    {
+     "line": 292,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": "[data-flavor=hub] .pop .badge",
+     "text": "[data-flavor=hub] .pop .badge{background:var(--pop-cat,var(--accent))!important;color:var(--cat-ink)}"
+    },
+    {
+     "line": 295,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "background",
+     "role": "fill",
+     "sel": "[data-flavor=hub] .chips button[aria-pressed=true]::before",
+     "text": "[data-flavor=hub] .chips button[aria-pressed=true]::before{background:var(--on-accent)}"
+    },
+    {
+     "line": 329,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": "[data-flavor=hub] .toolbar .grp.tools button[aria-pressed=true]",
+     "text": "[data-flavor=hub] .toolbar .grp.tools button[aria-pressed=true]{background:var(--accent-deep);border-color:var(--accent-deep)}"
+    },
+    {
+     "line": 329,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "border-color",
+     "role": "line",
+     "sel": "[data-flavor=hub] .toolbar .grp.tools button[aria-pressed=true]",
+     "text": "[data-flavor=hub] .toolbar .grp.tools button[aria-pressed=true]{background:var(--accent-deep);border-color:var(--accent-deep)}"
+    },
+    {
+     "line": 398,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-emoji",
+     "text": ".lv-emoji{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:22px;flex:none;background:radial-gradient(circle at 35% 30%,color-m"
+    },
+    {
+     "line": 398,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-emoji",
+     "text": ".lv-emoji{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:22px;flex:none;background:radial-gradient(circle at 35% 30%,color-m"
+    },
+    {
+     "line": 406,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".fab-primary[data-gps=locating]",
+     "text": ".fab-primary[data-gps=locating]{background:var(--lv-glass-soft)!important;color:var(--accent)}.fab-primary[data-gps=locating]::after{content:\"\";position:absolut"
+    },
+    {
+     "line": 406,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border",
+     "role": "line",
+     "sel": ".fab-primary[data-gps=locating]::after",
+     "text": ".fab-primary[data-gps=locating]{background:var(--lv-glass-soft)!important;color:var(--accent)}.fab-primary[data-gps=locating]::after{content:\"\";position:absolut"
+    },
+    {
+     "line": 406,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-top-color",
+     "role": "line",
+     "sel": ".fab-primary[data-gps=locating]::after",
+     "text": ".fab-primary[data-gps=locating]{background:var(--lv-glass-soft)!important;color:var(--accent)}.fab-primary[data-gps=locating]::after{content:\"\";position:absolut"
+    },
+    {
+     "line": 412,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".fab-primary",
+     "text": ".fab-primary{background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 60%,white),var(--accent) 75%)!important;border-color:transparent!impor"
+    },
+    {
+     "line": 412,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".fab-primary",
+     "text": ".fab-primary{background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 60%,white),var(--accent) 75%)!important;border-color:transparent!impor"
+    },
+    {
+     "line": 412,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".fab-primary",
+     "text": ".fab-primary{background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 60%,white),var(--accent) 75%)!important;border-color:transparent!impor"
+    },
+    {
+     "line": 413,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".fab-primary[aria-pressed=true]",
+     "text": ".fab-primary[aria-pressed=true]{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 32%,transparent),var(--shadow-lg);animation:fabring 2.2s infinite}"
+    },
+    {
+     "line": 414,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": "@keyframes fabring",
+     "text": "@keyframes fabring{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 40%,transparent),var(--shadow-lg)}70%{box-shadow:0 0 0 14px color-mix(in srgb,var(--a"
+    },
+    {
+     "line": 414,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": "70%",
+     "text": "@keyframes fabring{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 40%,transparent),var(--shadow-lg)}70%{box-shadow:0 0 0 14px color-mix(in srgb,var(--a"
+    },
+    {
+     "line": 414,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": "100%",
+     "text": "@keyframes fabring{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 40%,transparent),var(--shadow-lg)}70%{box-shadow:0 0 0 14px color-mix(in srgb,var(--a"
+    },
+    {
+     "line": 416,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "box-shadow",
+     "role": "line",
+     "sel": ".lv-north[aria-pressed=true]",
+     "text": ".lv-north{cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:50%!important;padding:0!important;min-height:44px}.lv-north[aria-pressed=true]{bo"
+    },
+    {
+     "line": 428,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-tabs button[aria-pressed=true]",
+     "text": ".lv-tabs button[aria-pressed=true]{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--text);border-color:transparent}"
+    },
+    {
+     "line": 429,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "stroke",
+     "role": "ink",
+     "sel": ".lv-tabs button[aria-pressed=true] svg",
+     "text": ".lv-tabs button[aria-pressed=true] svg{stroke:var(--accent)}"
+    },
+    {
+     "line": 440,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".lv-item .d small",
+     "text": ".lv-item .d{font-weight:700;font-size:14px;flex:none;text-align:right;line-height:1.2}.lv-item .d small{display:block;font-weight:600;color:var(--accent);font-s"
+    },
+    {
+     "line": 445,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".lv-styles button[aria-pressed=true] span",
+     "text": ".lv-styles button b{font-size:15px}.lv-styles button span{font-size:12px;color:var(--dim)}.lv-styles button[aria-pressed=true] span{color:var(--on-accent);opaci"
+    },
+    {
+     "line": 451,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-top",
+     "role": "other",
+     "sel": "[data-flavor=live] .pop",
+     "text": "[data-flavor=live] .pop{left:12px!important;right:12px;top:auto!important;bottom:calc(86px + env(safe-area-inset-bottom));width:auto;max-height:calc(100dvh - 20"
+    },
+    {
+     "line": 453,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-gobtn",
+     "text": ".lv-gobtn{background:var(--accent-deep)!important;border-color:var(--accent-deep)!important;color:var(--on-accent)!important;font-weight:700}"
+    },
+    {
+     "line": 453,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "border-color",
+     "role": "line",
+     "sel": ".lv-gobtn",
+     "text": ".lv-gobtn{background:var(--accent-deep)!important;border-color:var(--accent-deep)!important;color:var(--on-accent)!important;font-weight:700}"
+    },
+    {
+     "line": 453,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".lv-gobtn",
+     "text": ".lv-gobtn{background:var(--accent-deep)!important;border-color:var(--accent-deep)!important;color:var(--on-accent)!important;font-weight:700}"
+    },
+    {
+     "line": 458,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-turn",
+     "text": ".lv-turn{width:46px;height:46px;border-radius:12px;flex:none;display:grid;place-items:center;background:var(--accent-deep,var(--accent));color:var(--on-accent);"
+    },
+    {
+     "line": 458,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".lv-turn",
+     "text": ".lv-turn{width:46px;height:46px;border-radius:12px;flex:none;display:grid;place-items:center;background:var(--accent-deep,var(--accent));color:var(--on-accent);"
+    },
+    {
+     "line": 461,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-step .g",
+     "text": ".lv-step .g{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--accent) 18%,transparent)}.lv-s"
+    },
+    {
+     "line": 462,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-step.now .g",
+     "text": ".lv-step.now .g{background:var(--accent-deep,var(--accent))}.lv-step.now .g svg{stroke:var(--on-accent)}"
+    },
+    {
+     "line": 462,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "stroke",
+     "role": "ink",
+     "sel": ".lv-step.now .g svg",
+     "text": ".lv-step.now .g{background:var(--accent-deep,var(--accent))}.lv-step.now .g svg{stroke:var(--on-accent)}"
+    },
+    {
+     "line": 464,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "stroke",
+     "role": "ink",
+     "sel": ".lv-route-head svg",
+     "text": ".lv-route-head svg{width:30px;height:30px;flex:none;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}"
+    },
+    {
+     "line": 471,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-step .n",
+     "text": ".lv-step .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:800;flex:none;background:color-mix(in srgb,var"
+    },
+    {
+     "line": 472,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-step.now .n",
+     "text": ".lv-step.now .n{background:var(--accent-deep);color:var(--on-accent)}.lv-step.now .t{font-weight:700}"
+    },
+    {
+     "line": 472,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".lv-step.now .n",
+     "text": ".lv-step.now .n{background:var(--accent-deep);color:var(--on-accent)}.lv-step.now .t{font-weight:700}"
+    },
+    {
+     "line": 491,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "color",
+     "role": "ink",
+     "sel": "[data-flavor=live] .lv-link",
+     "text": "[data-flavor=live] .lv-about .kv{margin-top:0}[data-flavor=live] .lv-link{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;font-weight:600;f"
+    },
+    {
+     "line": 493,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": "[data-flavor=live] .pop .badge",
+     "text": "[data-flavor=live] .pop .badge{background:var(--pop-cat,var(--accent))!important;color:var(--cat-ink)}"
+    },
+    {
+     "line": 503,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-chips button[aria-pressed=true]",
+     "text": ".lv-chips{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 6px}.lv-chips button{min-height:34px;padding:4px 12px;border-radius:999px;font-size:13px;font-weight"
+    },
+    {
+     "line": 503,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".lv-chips button[aria-pressed=true]",
+     "text": ".lv-chips{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 6px}.lv-chips button{min-height:34px;padding:4px 12px;border-radius:999px;font-size:13px;font-weight"
+    },
+    {
+     "line": 504,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-hero-card",
+     "text": ".lv-hero-card{display:block;width:100%;text-align:left;margin:2px 0 10px;padding:12px 14px;border-radius:16px;border:1px solid var(--glass-edge);background:line"
+    },
+    {
+     "line": 523,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-from",
+     "text": ".lv-from{display:inline-flex;align-items:center;gap:6px;margin:8px 0 2px;padding:6px 12px;border-radius:999px;background:color-mix(in srgb,var(--accent) 18%,tra"
+    },
+    {
+     "line": 524,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".lv-from b",
+     "text": ".lv-from b{color:var(--accent)}"
+    },
+    {
+     "line": 529,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "fill",
+     "role": "ink",
+     "sel": "[data-flavor=live] .secpoly.lv-here",
+     "text": "[data-flavor=live] .secpoly.lv-here{stroke:none;fill:var(--accent)!important;fill-opacity:.16!important;filter:url(#lv-here-soft)}"
+    },
+    {
+     "line": 551,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "fill",
+     "role": "ink",
+     "sel": ".lv-edge .arrow",
+     "text": ".lv-edge{pointer-events:none}.lv-edge .arrow{fill:var(--accent,#2F80ED);stroke:white;stroke-width:1.5px;stroke-linejoin:round}.lv-edge .lab{font-family:var(--fo"
+    },
+    {
+     "line": 555,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border",
+     "role": "line",
+     "sel": ".lv-pill[data-state=searching] .lv-emoji.st::after",
+     "text": ".lv-pill[data-state=searching] .lv-emoji.st::after{content:\"\";position:absolute;inset:2px;border-radius:50%;border:2.5px solid color-mix(in srgb,var(--accent) 3"
+    },
+    {
+     "line": 555,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border-top-color",
+     "role": "line",
+     "sel": ".lv-pill[data-state=searching] .lv-emoji.st::after",
+     "text": ".lv-pill[data-state=searching] .lv-emoji.st::after{content:\"\";position:absolute;inset:2px;border-radius:50%;border:2.5px solid color-mix(in srgb,var(--accent) 3"
+    },
+    {
+     "line": 556,
+     "token": "accent-deep",
+     "kind": "adapted",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-act",
+     "text": ".lv-act{pointer-events:auto;flex:none;min-height:36px;padding:6px 12px;border-radius:999px;border:0;background:var(--accent-deep,var(--accent));color:var(--on-a"
+    },
+    {
+     "line": 556,
+     "token": "on-accent",
+     "kind": "on",
+     "prop": "color",
+     "role": "ink",
+     "sel": ".lv-act",
+     "text": ".lv-act{pointer-events:auto;flex:none;min-height:36px;padding:6px 12px;border-radius:999px;border:0;background:var(--accent-deep,var(--accent));color:var(--on-a"
+    },
+    {
+     "line": 559,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "background",
+     "role": "fill",
+     "sel": ".lv-cross::before,.lv-cross::after",
+     "text": ".lv-cross::before,.lv-cross::after{content:\"\";position:absolute;background:var(--accent);box-shadow:0 0 0 1.5px #fff}.lv-cross::before{left:50%;top:0;bottom:0;w"
+    },
+    {
+     "line": 560,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "border",
+     "role": "line",
+     "sel": ".lv-cross i",
+     "text": ".lv-cross i{position:absolute;inset:18px;border-radius:50%;border:2.5px solid var(--accent);box-shadow:0 0 0 1.5px #fff,inset 0 0 0 1.5px #fff}"
+    },
+    {
+     "line": 1318,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "script",
+     "role": "js",
+     "sel": "if(!inFrame([me.x,me.y]))",
+     "text": "if(!inFrame([me.x,me.y])){if(!onProperty([me.x,me.y]))return;drawEdge(G.me,me.x,me.y,k,'You',hubOn()&&hub.profile.emoji||'•','var(--accent,#2F80ED)');return}"
+    },
+    {
+     "line": 1319,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "script",
+     "role": "js",
+     "sel": "function drawMe()",
+     "text": "const cx=me.x,cy=Y(me.y),col='var(--accent,#2F80ED)',weak=me.src==='gps'&&me.acc>60,stale=!!me.stale||(me.src==='gps'&&fixAge()>120e3);"
+    },
+    {
+     "line": 1508,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "stroke",
+     "role": "ink",
+     "sel": "const body=line(pts,",
+     "text": "const body=line(pts,{stroke:'var(--accent,#2F80ED)','stroke-width':6.5,'stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':ROUTE.straight?`${8"
+    },
+    {
+     "line": 1511,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "fill",
+     "role": "ink",
+     "sel": "function drawRoute()",
+     "text": "g.appendChild(el('path',{d:`M${cx} ${cy}l-${12*k} -${18*k}a${12*k} ${12*k} 0 1 1 ${24*k} 0z`,fill:'var(--accent,#2F80ED)',stroke:'#fff','stroke-width':2.5*k,fil"
+    },
+    {
+     "line": 1549,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "flood-color",
+     "role": "fill",
+     "sel": ");gr.appendChild(el('feDropShadow',",
+     "text": "const gr=el('filter',{id:'lv-glow-route',x:'-20%',y:'-20%',width:'140%',height:'140%'});gr.appendChild(el('feDropShadow',{dx:0,dy:0,stdDeviation:2.5,style:'floo"
+    },
+    {
+     "line": 1551,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "stop-color",
+     "role": "fill",
+     "sel": ");g.appendChild(el('stop',",
+     "text": "const g=el('radialGradient',{id:'lv-me',cx:'35%',cy:'30%',r:'75%'});g.appendChild(el('stop',{offset:'0%',style:'stop-color:color-mix(in srgb,var(--accent,#2F80E"
+    },
+    {
+     "line": 1551,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "stop-color",
+     "role": "fill",
+     "sel": "));g.appendChild(el('stop',",
+     "text": "const g=el('radialGradient',{id:'lv-me',cx:'35%',cy:'30%',r:'75%'});g.appendChild(el('stop',{offset:'0%',style:'stop-color:color-mix(in srgb,var(--accent,#2F80E"
+    },
+    {
+     "line": 1551,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "stop-color",
+     "role": "fill",
+     "sel": "));g.appendChild(el('stop',",
+     "text": "const g=el('radialGradient',{id:'lv-me',cx:'35%',cy:'30%',r:'75%'});g.appendChild(el('stop',{offset:'0%',style:'stop-color:color-mix(in srgb,var(--accent,#2F80E"
+    },
+    {
+     "line": 1552,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "stop-color",
+     "role": "fill",
+     "sel": ");c.appendChild(el('stop',",
+     "text": "const c=el('radialGradient',{id:'lv-cone',gradientUnits:'userSpaceOnUse',cx:0,cy:0,r:48});c.appendChild(el('stop',{offset:'0%',style:'stop-color:var(--accent,#2"
+    },
+    {
+     "line": 1552,
+     "token": "accent",
+     "kind": "raw",
+     "prop": "stop-color",
+     "role": "fill",
+     "sel": "));c.appendChild(el('stop',",
+     "text": "const c=el('radialGradient',{id:'lv-cone',gradientUnits:'userSpaceOnUse',cx:0,cy:0,r:48});c.appendChild(el('stop',{offset:'0%',style:'stop-color:var(--accent,#2"
+    }
+   ]
+  }
+ }
+}

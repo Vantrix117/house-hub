@@ -1,0 +1,30 @@
+/* GLASS-7, the component half (Phase 6 batch 1b) — Phase 4 PROPOSAL, not app code. TOKENS.md §7 quotes this file exactly, and
+   browser-check.mjs loads it after today's .ds component CSS (apps/design.css from line 290) in WebKit and Chromium to prove it
+   keeps the sheet's grabber (.ds .sheet::before), the sheet's scrolling (overflow: auto), the fixed tab bar and the sticky top
+   bar, adds no horizontal overflow, and keeps the drifting layer clear of the tabs (bottom bar and desktop sidebar).
+
+   Scoped under .ds like every design.css component (the template's glass classes adopt it in their own batch).
+   Nothing here sets position or overflow on a bar, a sheet or a pill: they are fixed, sticky, scrolling or JS-positioned already
+   (#timer-pill is position: fixed, index.html:344). */
+
+/* 1. Every glass surface paints the recipe with the person pickup painted in place, centred, no drift. */
+.ds :is(.glass, .btn-glass, .pill) { background: var(--glass-bg-tinted); }
+.ds :is(.glass-strong, .sheet) { background: var(--glass-bg-strong-tinted); }
+
+/* 2. The two bars also carry the DRIFTING pickup, on ::after (no .ds component uses ::after on them), moved by transform only,
+      so a scroll or tilt frame re-resolves one layer's transform and no token. Both bars are positioned stacking contexts
+      (fixed / sticky, z-index 20), so z-index: -1 paints the layer over the bar's own background and under its content. The
+      layer is the bar's middle half and drifts at most 25 % of its own width either way (12.5 % of the bar), so it never
+      leaves the bar: no overflow, no clip-path. */
+.ds :is(.tabbar, .topbar) { background: var(--glass-bg-strong); }
+.ds :is(.tabbar, .topbar)::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 25%; right: 25%; z-index: -1; pointer-events: none;
+  background: var(--glass-pickup-layer);
+  transform: translateX(calc((var(--sheen-x) - 50%) / 2)); will-change: transform;
+}
+/* the bottom bar: the layer is the top third, and the radial's colour ends 70 % x 62 % - 10 % = 33 % down the layer, i.e. 11 %
+   down the bar (8 px of 72), above the tab icons (gated at their real position) */
+.ds .tabbar::after { bottom: 67%; }
+/* the desktop sidebar (class="tabbar sidebar", index.html:393; design.css:570): its tabs start at the top of a full-height bar,
+   so it carries no drifting pickup; the person's colour is in the selected tab */
+@media (min-width: 1024px) { .ds .tabbar.sidebar::after { content: none; } }

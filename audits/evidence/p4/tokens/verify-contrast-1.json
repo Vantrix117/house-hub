@@ -1,0 +1,3771 @@
+{
+ "script": "audits/tools/phase4/tokens/verify-contrast-1.mjs",
+ "source": "audits/tools/phase4/tokens/proposed-tokens.css",
+ "rules": 43,
+ "method": "Own cascade (specificity, order, @media at 1440 fine pointer, no prefers-*); WCAG 2.x luminance; color-mix premultiplied in sRGB; translucent layers composited in gamma sRGB, unblurred; OKLCH chroma; CIEDE2000 (D65); Machado 2009 severity 1.0 in linear sRGB, clipped.",
+ "counts": {
+  "claims": 356,
+  "compared": 337,
+  "mismatches": 2,
+  "thresholdFailures": 5,
+  "cvdPairsPerScheme": 36
+ },
+ "mismatches": [
+  {
+   "id": "2.5 badge-bg vs card (min) — section: \"badge vs card ≥ 5.29\"",
+   "stated": 5.29,
+   "computed": 6.005,
+   "threshold": 3,
+   "match": false,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "ACCENT-8 pastel fills dichromat range, upper \"7.85\" (max over the per-scheme dichromat minima)",
+   "stated": 7.85,
+   "computed": 1.51,
+   "threshold": null,
+   "match": false,
+   "pass": null,
+   "where": "periwinkle/lavender",
+   "note": "interpretation: largest of the four per-scheme protan/deutan minima"
+  }
+ ],
+ "failures": [
+  {
+   "id": "7:1 modes: legacy --accent (= accent-strong) as text on opaque, min",
+   "stated": null,
+   "computed": 4.589,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "parchment/lavender/kiosk/bg",
+   "note": "not swapped by the 7:1 modes; the section says \"All text gated at 7:1\" for Increase Contrast"
+  },
+  {
+   "id": "7:1 modes: accent-on on accent-strong (primary button label), min",
+   "stated": null,
+   "computed": 5.902,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "hearth/lavender/kiosk",
+   "note": "strong/on are not swapped by the 7:1 modes"
+  },
+  {
+   "id": "7:1 modes: badge-ink on badge-bg, min",
+   "stated": null,
+   "computed": 6.421,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "midnight/kiosk",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: toast-ink-2 over every backdrop, min",
+   "stated": null,
+   "computed": 6.588,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "midnight/kiosk/3",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: sel-ink-strong on sel-fill-strong, min",
+   "stated": null,
+   "computed": 5.902,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "hearth/lavender/kiosk",
+   "note": ""
+  }
+ ],
+ "sensitivity": [
+  {
+   "id": "sensitivity: tab label on glass-strong + FULL accent pickup (radial centre) over #767676, min",
+   "stated": null,
+   "computed": 4.659,
+   "threshold": 4.5,
+   "match": null,
+   "pass": true,
+   "where": "parchment/mint",
+   "note": "upper bound on the pickup: the radial is centred at y=-10% with a 70% radius and ends at 62%, i.e. by y≈33% of the bar, so bottom-row labels get none"
+  },
+  {
+   "id": "sensitivity: tab icon (accent-graphic) on glass-strong + FULL accent pickup over #767676, min",
+   "stated": null,
+   "computed": 2.417,
+   "threshold": 3,
+   "match": null,
+   "pass": false,
+   "where": "forest/lavender",
+   "note": "icons sit higher in the bar than labels"
+  },
+  {
+   "id": "sensitivity: dark text-2 on glass + full specular sheen over white, min",
+   "stated": null,
+   "computed": 3.55,
+   "threshold": 4.5,
+   "match": null,
+   "pass": false,
+   "where": "midnight/glass/text-2 (spec at full, white backdrop)",
+   "note": "the sheen is full only at the top edge"
+  },
+  {
+   "id": "sensitivity: dark text-2 on glass + full specular sheen over the PAGE, min",
+   "stated": null,
+   "computed": 6.646,
+   "threshold": 4.5,
+   "match": null,
+   "pass": true,
+   "where": "midnight/glass-strong",
+   "note": "realistic backdrop"
+  },
+  {
+   "id": "sensitivity: tab icon on glass-strong + pickup at y≈25% (×0.19) over #767676, min",
+   "stated": null,
+   "computed": 3.18,
+   "threshold": 3,
+   "match": null,
+   "pass": true,
+   "where": "forest/lavender",
+   "note": "geometry-weighted pickup"
+  },
+  {
+   "id": "sensitivity: dark primary text on glass + full specular sheen over white, min",
+   "stated": null,
+   "computed": 5.055,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "forest/glass/text (spec at full, white backdrop)",
+   "note": "the sheen is full only at the top edge"
+  }
+ ],
+ "fixExperiment": {
+  "css": ":root[data-kind=\"kiosk\"], :root[data-contrast=\"more\"] {\n  --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi);\n  --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi);\n  --graphite-strong: var(--graphite-ink-hi);\n  --badge-bg: var(--danger-ink-hi);\n  --toast-ink-2: var(--toast-ink);\n}",
+  "results": {
+   "legacy --accent as text on opaque": {
+    "min": 7.288,
+    "where": "parchment/mint/kiosk/bg",
+    "pass7": true
+   },
+   "accent-on on accent-strong": {
+    "min": 9.374,
+    "where": "hearth/mint/kiosk",
+    "pass7": true
+   },
+   "X-on on X-strong (12 families)": {
+    "min": 4.77,
+    "where": "hearth/success/kiosk",
+    "pass7": false
+   },
+   "badge-ink on badge-bg": {
+    "min": 10.739,
+    "where": "hearth/kiosk",
+    "pass7": true
+   },
+   "sel-ink-strong on sel-fill-strong": {
+    "min": 9.374,
+    "where": "hearth/mint/kiosk",
+    "pass7": true
+   },
+   "toast-ink-2 over every backdrop": {
+    "min": 10.024,
+    "where": "midnight/kiosk/white",
+    "pass7": true
+   },
+   "progress-fill on progress-track (non-text >= 3)": {
+    "min": 7.014,
+    "where": "hearth/peach/kiosk",
+    "pass7": true
+   },
+   "switch-on vs surface (non-text >= 3)": {
+    "min": 3.93,
+    "where": "forest/kiosk",
+    "pass7": false
+   },
+   "switch-knob on switch-on (non-text >= 3)": {
+    "min": 4.028,
+    "where": "midnight/kiosk",
+    "pass7": false
+   },
+   "badge-bg vs every opaque surface (non-text >= 3)": {
+    "min": 8.349,
+    "where": "parchment/kiosk/bg",
+    "pass7": true
+   },
+   "semantic strong luminance ratio success|warning vs danger": {
+    "min": 1.577,
+    "where": "midnight/kiosk/warning",
+    "pass7": false
+   }
+  }
+ },
+ "claims": [
+  {
+   "id": "2.1 light bubblegum ink/fill",
+   "stated": 5.27,
+   "computed": 5.268,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light bubblegum ink/wash",
+   "stated": 6.98,
+   "computed": 6.978,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light bubblegum ink/all surfaces",
+   "stated": 5.91,
+   "computed": 5.908,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light bubblegum ink-hi/fill",
+   "stated": 7.05,
+   "computed": 7.051,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light bubblegum ink/fill-strong",
+   "stated": 3.77,
+   "computed": 3.775,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light bubblegum on/strong",
+   "stated": 5.93,
+   "computed": 5.926,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light bubblegum strong/all surfaces",
+   "stated": 4.61,
+   "computed": 4.607,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light bubblegum graphic/surfaces",
+   "stated": 3.6,
+   "computed": 3.603,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light bubblegum fill C",
+   "stated": 0.068,
+   "computed": 0.0677,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach ink/fill",
+   "stated": 5.04,
+   "computed": 5.037,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach ink/wash",
+   "stated": 6.24,
+   "computed": 6.238,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach ink/all surfaces",
+   "stated": 5.28,
+   "computed": 5.285,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach ink-hi/fill",
+   "stated": 7.01,
+   "computed": 7.014,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach ink/fill-strong",
+   "stated": 3.36,
+   "computed": 3.362,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach on/strong",
+   "stated": 5.94,
+   "computed": 5.939,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach strong/all surfaces",
+   "stated": 4.62,
+   "computed": 4.617,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach graphic/surfaces",
+   "stated": 4.93,
+   "computed": 4.93,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light peach fill C",
+   "stated": 0.061,
+   "computed": 0.0609,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter ink/fill",
+   "stated": 5.77,
+   "computed": 5.765,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter ink/wash",
+   "stated": 6.07,
+   "computed": 6.069,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter ink/all surfaces",
+   "stated": 5.12,
+   "computed": 5.116,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter ink-hi/fill",
+   "stated": 8.24,
+   "computed": 8.243,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter ink/fill-strong",
+   "stated": 3.27,
+   "computed": 3.27,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter on/strong",
+   "stated": 5.92,
+   "computed": 5.921,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter strong/all surfaces",
+   "stated": 4.6,
+   "computed": 4.603,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter graphic/surfaces",
+   "stated": 3.14,
+   "computed": 3.141,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light butter fill C",
+   "stated": 0.093,
+   "computed": 0.0929,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint ink/fill",
+   "stated": 5.24,
+   "computed": 5.235,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint ink/wash",
+   "stated": 6.13,
+   "computed": 6.129,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint ink/all surfaces",
+   "stated": 5.13,
+   "computed": 5.126,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint ink-hi/fill",
+   "stated": 7.44,
+   "computed": 7.443,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint ink/fill-strong",
+   "stated": 3.26,
+   "computed": 3.261,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint on/strong",
+   "stated": 5.93,
+   "computed": 5.931,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint strong/all surfaces",
+   "stated": 4.61,
+   "computed": 4.611,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint graphic/surfaces",
+   "stated": 4.86,
+   "computed": 4.856,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light mint fill C",
+   "stated": 0.074,
+   "computed": 0.0742,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua ink/fill",
+   "stated": 5.42,
+   "computed": 5.417,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua ink/wash",
+   "stated": 6.42,
+   "computed": 6.422,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua ink/all surfaces",
+   "stated": 5.38,
+   "computed": 5.376,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua ink-hi/fill",
+   "stated": 7.34,
+   "computed": 7.344,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua ink/fill-strong",
+   "stated": 3.41,
+   "computed": 3.414,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua on/strong",
+   "stated": 6.08,
+   "computed": 6.082,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua strong/all surfaces",
+   "stated": 4.73,
+   "computed": 4.728,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua graphic/surfaces",
+   "stated": 3.83,
+   "computed": 3.832,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light aqua fill C",
+   "stated": 0.058,
+   "computed": 0.0577,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky ink/fill",
+   "stated": 5.68,
+   "computed": 5.677,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky ink/wash",
+   "stated": 7.35,
+   "computed": 7.349,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky ink/all surfaces",
+   "stated": 6.18,
+   "computed": 6.179,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky ink-hi/fill",
+   "stated": 7.07,
+   "computed": 7.068,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky ink/fill-strong",
+   "stated": 3.94,
+   "computed": 3.945,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky on/strong",
+   "stated": 5.94,
+   "computed": 5.937,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky strong/all surfaces",
+   "stated": 4.62,
+   "computed": 4.616,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky graphic/surfaces",
+   "stated": 4.13,
+   "computed": 4.133,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light sky fill C",
+   "stated": 0.057,
+   "computed": 0.0569,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle ink/fill",
+   "stated": 5.86,
+   "computed": 5.861,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle ink/wash",
+   "stated": 7.9,
+   "computed": 7.901,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle ink/all surfaces",
+   "stated": 6.68,
+   "computed": 6.678,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle ink-hi/fill",
+   "stated": 7.03,
+   "computed": 7.029,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle ink/fill-strong",
+   "stated": 4.26,
+   "computed": 4.259,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle on/strong",
+   "stated": 5.95,
+   "computed": 5.947,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle strong/all surfaces",
+   "stated": 4.62,
+   "computed": 4.624,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle graphic/surfaces",
+   "stated": 3.14,
+   "computed": 3.138,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light periwinkle fill C",
+   "stated": 0.061,
+   "computed": 0.0613,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender ink/fill",
+   "stated": 5.86,
+   "computed": 5.858,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender ink/wash",
+   "stated": 7.92,
+   "computed": 7.915,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender ink/all surfaces",
+   "stated": 6.71,
+   "computed": 6.711,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender ink-hi/fill",
+   "stated": 7.04,
+   "computed": 7.044,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender ink/fill-strong",
+   "stated": 4.28,
+   "computed": 4.275,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender on/strong",
+   "stated": 5.9,
+   "computed": 5.902,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender strong/all surfaces",
+   "stated": 4.59,
+   "computed": 4.589,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender graphic/surfaces",
+   "stated": 7.31,
+   "computed": 7.31,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light lavender fill C",
+   "stated": 0.072,
+   "computed": 0.0724,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light graphite ink/fill",
+   "stated": 7.09,
+   "computed": 7.091,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light graphite ink/wash",
+   "stated": 8.26,
+   "computed": 8.262,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light graphite ink/all surfaces",
+   "stated": 7.05,
+   "computed": 7.051,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light graphite ink-hi/fill",
+   "stated": 10.87,
+   "computed": 10.873,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light graphite ink/fill-strong",
+   "stated": 4.47,
+   "computed": 4.475,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light graphite on/strong",
+   "stated": 5.93,
+   "computed": 5.926,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 light graphite strong/all surfaces",
+   "stated": 4.61,
+   "computed": 4.608,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 light graphite graphic/surfaces",
+   "stated": 7.44,
+   "computed": 7.441,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark bubblegum fill/card",
+   "stated": 1.47,
+   "computed": 1.468,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark bubblegum ink/fill",
+   "stated": 7.17,
+   "computed": 7.173,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark bubblegum ink/all surfaces",
+   "stated": 9.19,
+   "computed": 9.194,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark bubblegum ink/fill-strong",
+   "stated": 5.35,
+   "computed": 5.355,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark bubblegum on/strong",
+   "stated": 8.56,
+   "computed": 8.56,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark bubblegum strong/surfaces",
+   "stated": 6.97,
+   "computed": 6.974,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark bubblegum graphic/surfaces",
+   "stated": 5.11,
+   "computed": 5.112,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark bubblegum fill C",
+   "stated": 0.075,
+   "computed": 0.0748,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark peach fill/card",
+   "stated": 1.49,
+   "computed": 1.49,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark peach ink/fill",
+   "stated": 7.16,
+   "computed": 7.156,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark peach ink/all surfaces",
+   "stated": 9.31,
+   "computed": 9.312,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark peach ink/fill-strong",
+   "stated": 5.31,
+   "computed": 5.314,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark peach on/strong",
+   "stated": 8.69,
+   "computed": 8.687,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark peach strong/surfaces",
+   "stated": 7.12,
+   "computed": 7.125,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark peach graphic/surfaces",
+   "stated": 5.25,
+   "computed": 5.247,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark peach fill C",
+   "stated": 0.075,
+   "computed": 0.0751,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark butter fill/card",
+   "stated": 1.53,
+   "computed": 1.528,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark butter ink/fill",
+   "stated": 7.13,
+   "computed": 7.127,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark butter ink/all surfaces",
+   "stated": 9.51,
+   "computed": 9.51,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark butter ink/fill-strong",
+   "stated": 5.2,
+   "computed": 5.2,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark butter on/strong",
+   "stated": 8.97,
+   "computed": 8.973,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark butter strong/surfaces",
+   "stated": 7.41,
+   "computed": 7.407,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark butter graphic/surfaces",
+   "stated": 10.32,
+   "computed": 10.323,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark butter fill C",
+   "stated": 0.075,
+   "computed": 0.075,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark mint fill/card",
+   "stated": 1.59,
+   "computed": 1.589,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark mint ink/fill",
+   "stated": 7.03,
+   "computed": 7.032,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark mint ink/all surfaces",
+   "stated": 9.75,
+   "computed": 9.755,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark mint ink/fill-strong",
+   "stated": 5.06,
+   "computed": 5.061,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark mint on/strong",
+   "stated": 9.27,
+   "computed": 9.266,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark mint strong/surfaces",
+   "stated": 7.85,
+   "computed": 7.851,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark mint graphic/surfaces",
+   "stated": 3.71,
+   "computed": 3.711,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark mint fill C",
+   "stated": 0.074,
+   "computed": 0.0744,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark aqua fill/card",
+   "stated": 1.57,
+   "computed": 1.573,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark aqua ink/fill",
+   "stated": 7.1,
+   "computed": 7.097,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark aqua ink/all surfaces",
+   "stated": 9.75,
+   "computed": 9.747,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark aqua ink/fill-strong",
+   "stated": 5.18,
+   "computed": 5.183,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark aqua on/strong",
+   "stated": 9.22,
+   "computed": 9.223,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark aqua strong/surfaces",
+   "stated": 7.76,
+   "computed": 7.764,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark aqua graphic/surfaces",
+   "stated": 6.07,
+   "computed": 6.07,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark aqua fill C",
+   "stated": 0.063,
+   "computed": 0.0632,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark sky fill/card",
+   "stated": 1.53,
+   "computed": 1.528,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark sky ink/fill",
+   "stated": 7.15,
+   "computed": 7.149,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark sky ink/all surfaces",
+   "stated": 9.53,
+   "computed": 9.534,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark sky ink/fill-strong",
+   "stated": 5.26,
+   "computed": 5.256,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark sky on/strong",
+   "stated": 8.99,
+   "computed": 8.987,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark sky strong/surfaces",
+   "stated": 7.45,
+   "computed": 7.446,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark sky graphic/surfaces",
+   "stated": 8.48,
+   "computed": 8.477,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark sky fill C",
+   "stated": 0.075,
+   "computed": 0.0749,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark periwinkle fill/card",
+   "stated": 1.51,
+   "computed": 1.51,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark periwinkle ink/fill",
+   "stated": 7.13,
+   "computed": 7.125,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark periwinkle ink/all surfaces",
+   "stated": 9.39,
+   "computed": 9.393,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark periwinkle ink/fill-strong",
+   "stated": 5.29,
+   "computed": 5.288,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark periwinkle on/strong",
+   "stated": 8.84,
+   "computed": 8.841,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark periwinkle strong/surfaces",
+   "stated": 7.28,
+   "computed": 7.275,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark periwinkle graphic/surfaces",
+   "stated": 5.53,
+   "computed": 5.529,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark periwinkle fill C",
+   "stated": 0.076,
+   "computed": 0.0756,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark lavender fill/card",
+   "stated": 1.49,
+   "computed": 1.489,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark lavender ink/fill",
+   "stated": 7.15,
+   "computed": 7.148,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark lavender ink/all surfaces",
+   "stated": 9.3,
+   "computed": 9.295,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark lavender ink/fill-strong",
+   "stated": 5.34,
+   "computed": 5.337,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark lavender on/strong",
+   "stated": 8.73,
+   "computed": 8.726,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark lavender strong/surfaces",
+   "stated": 7.13,
+   "computed": 7.132,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark lavender graphic/surfaces",
+   "stated": 3.28,
+   "computed": 3.283,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark lavender fill C",
+   "stated": 0.074,
+   "computed": 0.0745,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark graphite fill/card",
+   "stated": 1.44,
+   "computed": 1.443,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark graphite ink/fill",
+   "stated": 7.87,
+   "computed": 7.873,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark graphite ink/all surfaces",
+   "stated": 9.92,
+   "computed": 9.921,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark graphite ink/fill-strong",
+   "stated": 6.12,
+   "computed": 6.121,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark graphite on/strong",
+   "stated": 9.81,
+   "computed": 9.808,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark graphite strong/surfaces",
+   "stated": 7.97,
+   "computed": 7.973,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark graphite graphic/surfaces",
+   "stated": 11.18,
+   "computed": 11.18,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.1 dark: ink on its fill >= 7 for every family",
+   "stated": 7,
+   "computed": 7.032,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": "stated as a floor"
+  },
+  {
+   "id": "2.2 light success ink/fill",
+   "stated": 6.76,
+   "computed": 6.761,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.2 dark success ink/fill",
+   "stated": 7.06,
+   "computed": 7.06,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.2 light warning ink/fill",
+   "stated": 6.24,
+   "computed": 6.237,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.2 dark warning ink/fill",
+   "stated": 7.15,
+   "computed": 7.147,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.2 light danger ink/fill",
+   "stated": 5.49,
+   "computed": 5.488,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.2 dark danger ink/fill",
+   "stated": 7.19,
+   "computed": 7.185,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.2/2.5 badge-ink on badge-bg (min both schemes)",
+   "stated": 6.42,
+   "computed": 6.421,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight",
+   "note": ""
+  },
+  {
+   "id": "2.5 badge-bg vs card (min) — section: \"badge vs card ≥ 5.29\"",
+   "stated": 5.29,
+   "computed": 6.005,
+   "threshold": 3,
+   "match": false,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.5 badge-bg vs sheet (surface-raised), min — where 5.29 actually comes from",
+   "stated": 5.29,
+   "computed": 5.286,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "graphite",
+   "note": ""
+  },
+  {
+   "id": "2.2 semantic strong luminance ratio (success|warning vs danger, both schemes) min",
+   "stated": 1.58,
+   "computed": 1.577,
+   "threshold": 1.3,
+   "match": true,
+   "pass": true,
+   "where": "midnight/warning-vs-danger",
+   "note": ""
+  },
+  {
+   "id": "2.2 semantic graphic vs every person graphic ΔE00 min (closest success/Mint light)",
+   "stated": 10.74,
+   "computed": 10.742,
+   "threshold": 10,
+   "match": true,
+   "pass": true,
+   "where": "light success/mint",
+   "note": ""
+  },
+  {
+   "id": "2.2 CVD reported: success vs warning, protanopia, light (graphic)",
+   "stated": 3.9,
+   "computed": 3.92,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.2 CVD reported: success vs danger, deuteranopia, dark (graphic)",
+   "stated": 8.6,
+   "computed": 8.608,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "TOK-1 --X-on on --X-strong, low end (12 families, both schemes)",
+   "stated": 4.77,
+   "computed": 4.77,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "light success",
+   "note": ""
+  },
+  {
+   "id": "TOK-1 --X-on on --X-strong, high end",
+   "stated": 10.2,
+   "computed": 10.196,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "dark success",
+   "note": ""
+  },
+  {
+   "id": "2.3 hearth text/page",
+   "stated": 14.95,
+   "computed": 14.954,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 hearth text-2 lowest opaque",
+   "stated": 8.22,
+   "computed": 8.216,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hover",
+   "note": ""
+  },
+  {
+   "id": "2.3 hearth text-3 lowest opaque",
+   "stated": 5.56,
+   "computed": 5.557,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hover",
+   "note": ""
+  },
+  {
+   "id": "2.3 hearth text-2 on --glass over worst",
+   "stated": 5.82,
+   "computed": 5.822,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 hearth field-border lowest",
+   "stated": 3.07,
+   "computed": 3.072,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "hover",
+   "note": ""
+  },
+  {
+   "id": "2.3 hearth card ÷ page",
+   "stated": 1.13,
+   "computed": 1.127,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 hearth glass alpha",
+   "stated": 78,
+   "computed": 78,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 hearth glass-strong alpha",
+   "stated": 90,
+   "computed": 90,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 parchment text/page",
+   "stated": 12.26,
+   "computed": 12.259,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 parchment text-2 lowest opaque",
+   "stated": 8.37,
+   "computed": 8.366,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "bg",
+   "note": ""
+  },
+  {
+   "id": "2.3 parchment text-3 lowest opaque",
+   "stated": 6.22,
+   "computed": 6.215,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "bg",
+   "note": ""
+  },
+  {
+   "id": "2.3 parchment text-2 on --glass over worst",
+   "stated": 5.97,
+   "computed": 5.967,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 parchment field-border lowest",
+   "stated": 3.23,
+   "computed": 3.233,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "bg",
+   "note": ""
+  },
+  {
+   "id": "2.3 parchment card ÷ page",
+   "stated": 1.2,
+   "computed": 1.203,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 parchment glass alpha",
+   "stated": 78,
+   "computed": 78,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 parchment glass-strong alpha",
+   "stated": 90,
+   "computed": 90,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 frost text/page",
+   "stated": 15.08,
+   "computed": 15.082,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 frost text-2 lowest opaque",
+   "stated": 7.5,
+   "computed": 7.505,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hover",
+   "note": ""
+  },
+  {
+   "id": "2.3 frost text-3 lowest opaque",
+   "stated": 5.08,
+   "computed": 5.077,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hover",
+   "note": ""
+  },
+  {
+   "id": "2.3 frost text-2 on --glass over worst",
+   "stated": 5.37,
+   "computed": 5.366,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 frost field-border lowest",
+   "stated": 3.03,
+   "computed": 3.031,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "hover",
+   "note": ""
+  },
+  {
+   "id": "2.3 frost card ÷ page",
+   "stated": 1.12,
+   "computed": 1.116,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 frost glass alpha",
+   "stated": 78,
+   "computed": 78,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 frost glass-strong alpha",
+   "stated": 90,
+   "computed": 90,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 midnight text/page",
+   "stated": 17.73,
+   "computed": 17.726,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 midnight text-2 lowest opaque",
+   "stated": 8.58,
+   "computed": 8.582,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 midnight text-3 lowest opaque",
+   "stated": 5.52,
+   "computed": 5.52,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 midnight text-2 on --glass over worst",
+   "stated": 5.23,
+   "computed": 5.235,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 midnight field-border lowest",
+   "stated": 3.14,
+   "computed": 3.145,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 midnight card ÷ page",
+   "stated": 1.2,
+   "computed": 1.204,
+   "threshold": 1.2,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 midnight glass alpha",
+   "stated": 80,
+   "computed": 80,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 midnight glass-strong alpha",
+   "stated": 90,
+   "computed": 90,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 forest text/page",
+   "stated": 16.88,
+   "computed": 16.883,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 forest text-2 lowest opaque",
+   "stated": 8.86,
+   "computed": 8.862,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 forest text-3 lowest opaque",
+   "stated": 5.68,
+   "computed": 5.675,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 forest text-2 on --glass over worst",
+   "stated": 5.31,
+   "computed": 5.307,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 forest field-border lowest",
+   "stated": 3.45,
+   "computed": 3.446,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 forest card ÷ page",
+   "stated": 1.22,
+   "computed": 1.225,
+   "threshold": 1.2,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 forest glass alpha",
+   "stated": 80,
+   "computed": 80,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 forest glass-strong alpha",
+   "stated": 90,
+   "computed": 90,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 graphite text/page",
+   "stated": 19.29,
+   "computed": 19.287,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 graphite text-2 lowest opaque",
+   "stated": 9.16,
+   "computed": 9.16,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 graphite text-3 lowest opaque",
+   "stated": 5.42,
+   "computed": 5.418,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 graphite text-2 on --glass over worst",
+   "stated": 5.87,
+   "computed": 5.869,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 graphite field-border lowest",
+   "stated": 3.35,
+   "computed": 3.353,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "surface-2",
+   "note": ""
+  },
+  {
+   "id": "2.3 graphite card ÷ page",
+   "stated": 1.23,
+   "computed": 1.234,
+   "threshold": 1.2,
+   "match": true,
+   "pass": true,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 graphite glass alpha",
+   "stated": 80,
+   "computed": 80,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.3 graphite glass-strong alpha",
+   "stated": 90,
+   "computed": 90,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "",
+   "note": ""
+  },
+  {
+   "id": "2.4 bubblegum ink / card",
+   "stated": 7.11,
+   "computed": 7.108,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 bubblegum ink / page",
+   "stated": 5.91,
+   "computed": 5.908,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 bubblegum ink / fill",
+   "stated": 5.27,
+   "computed": 5.268,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 bubblegum on / strong",
+   "stated": 5.93,
+   "computed": 5.926,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 bubblegum strong as text / page",
+   "stated": 4.61,
+   "computed": 4.607,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 bubblegum graphic / page",
+   "stated": 3.6,
+   "computed": 3.603,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 bubblegum hero button ink / bg",
+   "stated": 7.17,
+   "computed": 7.173,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight",
+   "note": ""
+  },
+  {
+   "id": "2.4 bubblegum tab label on glass over #767676",
+   "stated": 6.33,
+   "computed": 6.334,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 peach ink / card",
+   "stated": 6.36,
+   "computed": 6.357,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 peach ink / page",
+   "stated": 5.28,
+   "computed": 5.285,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 peach ink / fill",
+   "stated": 5.04,
+   "computed": 5.037,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 peach on / strong",
+   "stated": 5.94,
+   "computed": 5.939,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 peach strong as text / page",
+   "stated": 4.62,
+   "computed": 4.617,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 peach graphic / page",
+   "stated": 4.93,
+   "computed": 4.93,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 peach hero button ink / bg",
+   "stated": 6.8,
+   "computed": 6.797,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 peach tab label on glass over #767676",
+   "stated": 5.67,
+   "computed": 5.666,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 butter ink / card",
+   "stated": 6.15,
+   "computed": 6.154,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 butter ink / page",
+   "stated": 5.12,
+   "computed": 5.116,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 butter ink / fill",
+   "stated": 5.77,
+   "computed": 5.765,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 butter on / strong",
+   "stated": 5.92,
+   "computed": 5.921,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 butter strong as text / page",
+   "stated": 4.6,
+   "computed": 4.603,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 butter graphic / page",
+   "stated": 3.14,
+   "computed": 3.141,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 butter hero button ink / bg",
+   "stated": 6.58,
+   "computed": 6.58,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 butter tab label on glass over #767676",
+   "stated": 5.48,
+   "computed": 5.485,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 mint ink / card",
+   "stated": 6.17,
+   "computed": 6.167,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 mint ink / page",
+   "stated": 5.13,
+   "computed": 5.126,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 mint ink / fill",
+   "stated": 5.24,
+   "computed": 5.235,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 mint on / strong",
+   "stated": 5.93,
+   "computed": 5.931,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 mint strong as text / page",
+   "stated": 4.61,
+   "computed": 4.611,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 mint graphic / page",
+   "stated": 4.86,
+   "computed": 4.856,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 mint hero button ink / bg",
+   "stated": 6.59,
+   "computed": 6.594,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 mint tab label on glass over #767676",
+   "stated": 5.5,
+   "computed": 5.496,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 aqua ink / card",
+   "stated": 6.47,
+   "computed": 6.467,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 aqua ink / page",
+   "stated": 5.38,
+   "computed": 5.376,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 aqua ink / fill",
+   "stated": 5.42,
+   "computed": 5.417,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 aqua on / strong",
+   "stated": 6.08,
+   "computed": 6.082,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 aqua strong as text / page",
+   "stated": 4.73,
+   "computed": 4.728,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 aqua graphic / page",
+   "stated": 3.83,
+   "computed": 3.832,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 aqua hero button ink / bg",
+   "stated": 6.91,
+   "computed": 6.915,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 aqua tab label on glass over #767676",
+   "stated": 5.76,
+   "computed": 5.764,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 sky ink / card",
+   "stated": 7.43,
+   "computed": 7.433,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 sky ink / page",
+   "stated": 6.18,
+   "computed": 6.179,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 sky ink / fill",
+   "stated": 5.68,
+   "computed": 5.677,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 sky on / strong",
+   "stated": 5.94,
+   "computed": 5.937,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 sky strong as text / page",
+   "stated": 4.62,
+   "computed": 4.616,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 sky graphic / page",
+   "stated": 4.13,
+   "computed": 4.133,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 sky hero button ink / bg",
+   "stated": 7.15,
+   "computed": 7.149,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight",
+   "note": ""
+  },
+  {
+   "id": "2.4 sky tab label on glass over #767676",
+   "stated": 6.62,
+   "computed": 6.624,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 periwinkle ink / card",
+   "stated": 8.03,
+   "computed": 8.034,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 periwinkle ink / page",
+   "stated": 6.68,
+   "computed": 6.678,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 periwinkle ink / fill",
+   "stated": 5.86,
+   "computed": 5.861,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 periwinkle on / strong",
+   "stated": 5.95,
+   "computed": 5.947,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 periwinkle strong as text / page",
+   "stated": 4.62,
+   "computed": 4.624,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 periwinkle graphic / page",
+   "stated": 3.14,
+   "computed": 3.138,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 periwinkle hero button ink / bg",
+   "stated": 7.13,
+   "computed": 7.125,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight",
+   "note": ""
+  },
+  {
+   "id": "2.4 periwinkle tab label on glass over #767676",
+   "stated": 7.16,
+   "computed": 7.16,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender ink / card",
+   "stated": 8.07,
+   "computed": 8.074,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender ink / page",
+   "stated": 6.71,
+   "computed": 6.711,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender ink / fill",
+   "stated": 5.86,
+   "computed": 5.858,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender on / strong",
+   "stated": 5.9,
+   "computed": 5.902,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender strong as text / page",
+   "stated": 4.59,
+   "computed": 4.589,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender graphic / page",
+   "stated": 4.61,
+   "computed": 4.606,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender hero button ink / bg",
+   "stated": 7.15,
+   "computed": 7.148,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender tab label on glass over #767676",
+   "stated": 7.2,
+   "computed": 7.195,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 graphite ink / card",
+   "stated": 8.48,
+   "computed": 8.483,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 graphite ink / page",
+   "stated": 7.05,
+   "computed": 7.051,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 graphite ink / fill",
+   "stated": 7.09,
+   "computed": 7.091,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 graphite on / strong",
+   "stated": 5.93,
+   "computed": 5.926,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth",
+   "note": ""
+  },
+  {
+   "id": "2.4 graphite strong as text / page",
+   "stated": 4.61,
+   "computed": 4.608,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 graphite graphic / page",
+   "stated": 7.44,
+   "computed": 7.441,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 graphite hero button ink / bg",
+   "stated": 7.87,
+   "computed": 7.873,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight",
+   "note": ""
+  },
+  {
+   "id": "2.4 graphite tab label on glass over #767676",
+   "stated": 7.56,
+   "computed": 7.56,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment",
+   "note": ""
+  },
+  {
+   "id": "2.4 lavender graphic on card (dark) \"3.76\"",
+   "stated": 3.76,
+   "computed": 3.761,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.4 focus/today ring (accent-graphic) on every opaque surface, min",
+   "stated": 3.14,
+   "computed": 3.138,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/periwinkle/focus-ring-color/bg",
+   "note": ""
+  },
+  {
+   "id": "2.4 selected label on its pill (sel-ink/sel-fill), min",
+   "stated": 5.04,
+   "computed": 5.037,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth/peach",
+   "note": ""
+  },
+  {
+   "id": "2.4 progress fill on its track, min",
+   "stated": 4.01,
+   "computed": 4.005,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "hearth/lavender",
+   "note": ""
+  },
+  {
+   "id": "2.4 hero button (dark), min",
+   "stated": 7.03,
+   "computed": 7.032,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight/mint",
+   "note": ""
+  },
+  {
+   "id": "ACCENT-4 hero button, min all",
+   "stated": 6.58,
+   "computed": 6.58,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth/butter",
+   "note": ""
+  },
+  {
+   "id": "DARK-3 dark --accent-ink on cards (surface), min",
+   "stated": 10.53,
+   "computed": 10.531,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "forest/bubblegum",
+   "note": ""
+  },
+  {
+   "id": "DARK-3 dark --accent-graphic on every opaque surface, min",
+   "stated": 3.28,
+   "computed": 3.283,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest/lavender/surface-2",
+   "note": ""
+  },
+  {
+   "id": "ICON-3 tile glyph accent-ink on accent-fill-strong, min",
+   "stated": 3.26,
+   "computed": 3.261,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "hearth/mint",
+   "note": ""
+  },
+  {
+   "id": "legacy --accent as text on every opaque surface, min (Parchment page, Lavender)",
+   "stated": 4.59,
+   "computed": 4.589,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/lavender/bg",
+   "note": ""
+  },
+  {
+   "id": "COLOR-4 --text-3 on --accent-wash (page wash over bg), min — a floor (\">= 5.08\"): threshold check only",
+   "stated": null,
+   "computed": 5.483,
+   "threshold": 5.08,
+   "match": null,
+   "pass": true,
+   "where": "graphite/aqua",
+   "note": "stated as \"≥ 5.08 on every opaque surface and on --accent-wash\""
+  },
+  {
+   "id": "CVD light graphics normal min ΔE00",
+   "stated": 14.61,
+   "computed": 14.605,
+   "threshold": 10,
+   "match": true,
+   "pass": true,
+   "where": "mint/aqua",
+   "note": ""
+  },
+  {
+   "id": "CVD light graphics protan min ΔE00",
+   "stated": 11.27,
+   "computed": 11.274,
+   "threshold": 10,
+   "match": true,
+   "pass": true,
+   "where": "peach/mint",
+   "note": ""
+  },
+  {
+   "id": "CVD light graphics deutan min ΔE00",
+   "stated": 11.03,
+   "computed": 11.029,
+   "threshold": 10,
+   "match": true,
+   "pass": true,
+   "where": "sky/lavender",
+   "note": ""
+  },
+  {
+   "id": "CVD light graphics tritan min ΔE00",
+   "stated": 5.14,
+   "computed": 5.143,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "aqua/sky",
+   "note": ""
+  },
+  {
+   "id": "CVD light pastel fills NORMAL-vision min ΔE00 (contrast.json cvd.fill.normal)",
+   "stated": 7.85,
+   "computed": 7.852,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "periwinkle/lavender",
+   "note": ""
+  },
+  {
+   "id": "CVD light pastel fills protan min ΔE00 (contrast.json cvd.fill.protan)",
+   "stated": 1.09,
+   "computed": 1.085,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "periwinkle/lavender",
+   "note": ""
+  },
+  {
+   "id": "CVD light pastel fills deutan min ΔE00 (reported)",
+   "stated": 0.48,
+   "computed": 0.481,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "periwinkle/lavender",
+   "note": ""
+  },
+  {
+   "id": "CVD dark graphics normal min ΔE00",
+   "stated": 13.25,
+   "computed": 13.253,
+   "threshold": 10,
+   "match": true,
+   "pass": true,
+   "where": "sky/periwinkle",
+   "note": ""
+  },
+  {
+   "id": "CVD dark graphics protan min ΔE00",
+   "stated": 12.67,
+   "computed": 12.669,
+   "threshold": 10,
+   "match": true,
+   "pass": true,
+   "where": "aqua/graphite",
+   "note": ""
+  },
+  {
+   "id": "CVD dark graphics deutan min ΔE00",
+   "stated": 12.76,
+   "computed": 12.764,
+   "threshold": 10,
+   "match": true,
+   "pass": true,
+   "where": "sky/periwinkle",
+   "note": ""
+  },
+  {
+   "id": "CVD dark graphics tritan min ΔE00",
+   "stated": 5.26,
+   "computed": 5.26,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "bubblegum/peach",
+   "note": ""
+  },
+  {
+   "id": "CVD dark pastel fills NORMAL-vision min ΔE00 (contrast.json cvd.fill.normal)",
+   "stated": 7.24,
+   "computed": 7.242,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "periwinkle/lavender",
+   "note": ""
+  },
+  {
+   "id": "CVD dark pastel fills protan min ΔE00 (contrast.json cvd.fill.protan)",
+   "stated": 1.51,
+   "computed": 1.51,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "periwinkle/lavender",
+   "note": ""
+  },
+  {
+   "id": "CVD dark pastel fills deutan min ΔE00 (reported)",
+   "stated": 0.37,
+   "computed": 0.368,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "sky/periwinkle",
+   "note": ""
+  },
+  {
+   "id": "ACCENT-8 pastel fills dichromat range, upper \"7.85\" (max over the per-scheme dichromat minima)",
+   "stated": 7.85,
+   "computed": 1.51,
+   "threshold": null,
+   "match": false,
+   "pass": null,
+   "where": "periwinkle/lavender",
+   "note": "interpretation: largest of the four per-scheme protan/deutan minima"
+  },
+  {
+   "id": "2.5 switch-on vs surface, min",
+   "stated": 3.93,
+   "computed": 3.93,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "forest",
+   "note": ""
+  },
+  {
+   "id": "2.5 switch-knob on switch-on, min",
+   "stated": 4.03,
+   "computed": 4.028,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "midnight",
+   "note": ""
+  },
+  {
+   "id": "2.5 switch-off-ring on every opaque surface, min",
+   "stated": 3.03,
+   "computed": 3.031,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "frost/hover",
+   "note": ""
+  },
+  {
+   "id": "2.5 cell-empty on every opaque surface, min",
+   "stated": 3.03,
+   "computed": 3.031,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "frost/hover",
+   "note": ""
+  },
+  {
+   "id": "2.5 status dots on glass-strong (over page/card/#767676), min",
+   "stated": 3.29,
+   "computed": 3.287,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/status-pending/over mid",
+   "note": ""
+  },
+  {
+   "id": "2.5 toast-ink over every backdrop, min",
+   "stated": 10,
+   "computed": 10.024,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "midnight/over white",
+   "note": ""
+  },
+  {
+   "id": "2.5 toast-ink-2 over every backdrop, min",
+   "stated": 6.59,
+   "computed": 6.588,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight/over white",
+   "note": ""
+  },
+  {
+   "id": "2.5 glass-inverse-ink on glass-inverse over every backdrop, min",
+   "stated": 6.53,
+   "computed": 6.526,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight/over white",
+   "note": ""
+  },
+  {
+   "id": "2.5 star-stroke on every opaque surface, min",
+   "stated": 5.12,
+   "computed": 5.116,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/bg",
+   "note": ""
+  },
+  {
+   "id": "2.5 tv-text on tv-panel over any photo, min",
+   "stated": 7.26,
+   "computed": 7.26,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "white",
+   "note": ""
+  },
+  {
+   "id": "2.5 tv-text-2 on tv-panel over any photo, min",
+   "stated": 5.11,
+   "computed": 5.108,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "white",
+   "note": ""
+  },
+  {
+   "id": "verify: primary text on opaque surfaces, min",
+   "stated": 12.04,
+   "computed": 12.036,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "forest/adult/surface-2",
+   "note": ""
+  },
+  {
+   "id": "verify: primary text on glass over the worst backdrop, min",
+   "stated": 7.21,
+   "computed": 7.207,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "forest/adult/glass",
+   "note": ""
+  },
+  {
+   "id": "verify: secondary on page/card/sheet, min",
+   "stated": 8.14,
+   "computed": 8.138,
+   "threshold": 6,
+   "match": true,
+   "pass": true,
+   "where": "frost/adult/bg",
+   "note": ""
+  },
+  {
+   "id": "verify: secondary on wells (surface-2, fill-field, hover), min",
+   "stated": 7.5,
+   "computed": 7.505,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "frost/adult/hover",
+   "note": ""
+  },
+  {
+   "id": "verify: secondary on glass over the worst backdrop, min",
+   "stated": 5.23,
+   "computed": 5.235,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "midnight/adult/glass",
+   "note": ""
+  },
+  {
+   "id": "verify: tertiary / placeholder on opaque, min",
+   "stated": 5.08,
+   "computed": 5.077,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "frost/adult/text-3/hover",
+   "note": ""
+  },
+  {
+   "id": "verify: hue inks on their fills (all families, all modes), min",
+   "stated": 5.04,
+   "computed": 5.037,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "hearth/adult/peach",
+   "note": ""
+  },
+  {
+   "id": "verify: tab labels (accent-ink) on glass-strong over #767676, min",
+   "stated": 5.48,
+   "computed": 5.485,
+   "threshold": 4.5,
+   "match": true,
+   "pass": true,
+   "where": "parchment/butter/adult",
+   "note": ""
+  },
+  {
+   "id": "verify: text-hi (ink-hi on fill), min",
+   "stated": 7.01,
+   "computed": 7.014,
+   "threshold": 7,
+   "match": true,
+   "pass": true,
+   "where": "hearth/peach",
+   "note": ""
+  },
+  {
+   "id": "verify: non-text field-border lowest (on hover)",
+   "stated": 3.03,
+   "computed": 3.031,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "frost/hover",
+   "note": ""
+  },
+  {
+   "id": "verify: large-text numerals (accent-graphic, timer-done) on opaque, min",
+   "stated": 3.14,
+   "computed": 3.138,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/periwinkle/accent-graphic/bg",
+   "note": ""
+  },
+  {
+   "id": "verify: graphic kind lowest (tab icon on glass, tile glyph, semantic graphic)",
+   "stated": 3.07,
+   "computed": 3.066,
+   "threshold": 3,
+   "match": true,
+   "pass": true,
+   "where": "parchment/warning-graphic/bg",
+   "note": ""
+  },
+  {
+   "id": "verify: dark chips (fill ÷ card), min",
+   "stated": 1.44,
+   "computed": 1.443,
+   "threshold": 1.4,
+   "match": true,
+   "pass": true,
+   "where": "forest/graphite",
+   "note": ""
+  },
+  {
+   "id": "verify: person fill chroma C, min (light + dark)",
+   "stated": 0.057,
+   "computed": 0.0569,
+   "threshold": null,
+   "match": true,
+   "pass": null,
+   "where": "light/sky",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: text-2 / text-3 on opaque, min",
+   "stated": null,
+   "computed": 10.383,
+   "threshold": 7,
+   "match": null,
+   "pass": true,
+   "where": "frost/kiosk/text-2/hover",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: accent-ink on accent-fill, min",
+   "stated": null,
+   "computed": 7.014,
+   "threshold": 7,
+   "match": null,
+   "pass": true,
+   "where": "hearth/peach/kiosk",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: accent-ink on opaque surfaces, min",
+   "stated": null,
+   "computed": 7.288,
+   "threshold": 7,
+   "match": null,
+   "pass": true,
+   "where": "parchment/mint/kiosk/bg",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: text-2 on glass over the worst backdrop, min",
+   "stated": null,
+   "computed": 10.923,
+   "threshold": 7,
+   "match": null,
+   "pass": true,
+   "where": "forest/contrast/glass",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: legacy --accent (= accent-strong) as text on opaque, min",
+   "stated": null,
+   "computed": 4.589,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "parchment/lavender/kiosk/bg",
+   "note": "not swapped by the 7:1 modes; the section says \"All text gated at 7:1\" for Increase Contrast"
+  },
+  {
+   "id": "7:1 modes: tab label accent-ink on glass-strong over #767676, min",
+   "stated": null,
+   "computed": 8.571,
+   "threshold": 7,
+   "match": null,
+   "pass": true,
+   "where": "parchment/mint/contrast",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: primary text on glass over the worst backdrop, min",
+   "stated": null,
+   "computed": 12.302,
+   "threshold": 7,
+   "match": null,
+   "pass": true,
+   "where": "forest/contrast/glass",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: accent-on on accent-strong (primary button label), min",
+   "stated": null,
+   "computed": 5.902,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "hearth/lavender/kiosk",
+   "note": "strong/on are not swapped by the 7:1 modes"
+  },
+  {
+   "id": "7:1 modes: badge-ink on badge-bg, min",
+   "stated": null,
+   "computed": 6.421,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "midnight/kiosk",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: toast-ink-2 over every backdrop, min",
+   "stated": null,
+   "computed": 6.588,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "midnight/kiosk/3",
+   "note": ""
+  },
+  {
+   "id": "7:1 modes: sel-ink-strong on sel-fill-strong, min",
+   "stated": null,
+   "computed": 5.902,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "hearth/lavender/kiosk",
+   "note": ""
+  },
+  {
+   "id": "sensitivity: tab label on glass-strong + FULL accent pickup (radial centre) over #767676, min",
+   "stated": null,
+   "computed": 4.659,
+   "threshold": 4.5,
+   "match": null,
+   "pass": true,
+   "where": "parchment/mint",
+   "note": "upper bound on the pickup: the radial is centred at y=-10% with a 70% radius and ends at 62%, i.e. by y≈33% of the bar, so bottom-row labels get none"
+  },
+  {
+   "id": "sensitivity: tab icon (accent-graphic) on glass-strong + FULL accent pickup over #767676, min",
+   "stated": null,
+   "computed": 2.417,
+   "threshold": 3,
+   "match": null,
+   "pass": false,
+   "where": "forest/lavender",
+   "note": "icons sit higher in the bar than labels"
+  },
+  {
+   "id": "sensitivity: dark text-2 on glass + full specular sheen over white, min",
+   "stated": null,
+   "computed": 3.55,
+   "threshold": 4.5,
+   "match": null,
+   "pass": false,
+   "where": "midnight/glass/text-2 (spec at full, white backdrop)",
+   "note": "the sheen is full only at the top edge"
+  },
+  {
+   "id": "sensitivity: dark text-2 on glass + full specular sheen over the PAGE, min",
+   "stated": null,
+   "computed": 6.646,
+   "threshold": 4.5,
+   "match": null,
+   "pass": true,
+   "where": "midnight/glass-strong",
+   "note": "realistic backdrop"
+  },
+  {
+   "id": "sensitivity: tab icon on glass-strong + pickup at y≈25% (×0.19) over #767676, min",
+   "stated": null,
+   "computed": 3.18,
+   "threshold": 3,
+   "match": null,
+   "pass": true,
+   "where": "forest/lavender",
+   "note": "geometry-weighted pickup"
+  },
+  {
+   "id": "baseline: tab icon on glass-strong over #767676 (no pickup), min",
+   "stated": null,
+   "computed": 3.365,
+   "threshold": 3,
+   "match": null,
+   "pass": true,
+   "where": "parchment/periwinkle",
+   "note": ""
+  },
+  {
+   "id": "sensitivity: dark primary text on glass + full specular sheen over white, min",
+   "stated": null,
+   "computed": 5.055,
+   "threshold": 7,
+   "match": null,
+   "pass": false,
+   "where": "forest/glass/text (spec at full, white backdrop)",
+   "note": "the sheen is full only at the top edge"
+  }
+ ]
+}
