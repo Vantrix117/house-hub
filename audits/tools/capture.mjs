@@ -139,6 +139,7 @@ function plan(catalog) {
   const jobs = [];
   for (const s of catalog) {
     if (F.area && !F.area.includes(s.area)) continue;
+    if (s.optIn && !(F.area && F.area.includes(s.area))) continue;   // opt-in areas (the Phase 5 design preview) run only when named with --area
     if (F.file && !F.file.includes(s.file)) continue;
     if (F.screen && !F.screen.includes(s.screen)) continue;
     for (const state of s.states || ['typical']) {
@@ -294,7 +295,8 @@ async function capture(browser, srv, S, job) {
     }
     if (s.after) await s.after(t);
     fs.mkdirSync(path.dirname(job.file), { recursive: true });
-    await page.screenshot({ path: job.file, ...(s.animations === 'allow' ? {} : { animations: 'disabled' }), caret: 'hide', scale: SCALE === 'css' ? 'css' : 'device', timeout: 20000 });
+    // s.fullPage (opt-in, added in Phase 5 for the design preview): capture the whole document, not only the viewport
+    await page.screenshot({ path: job.file, ...(s.animations === 'allow' ? {} : { animations: 'disabled' }), ...(s.fullPage ? { fullPage: true } : {}), caret: 'hide', scale: SCALE === 'css' ? 'css' : 'device', timeout: 20000 });
   } catch (e) {
     ok = false; error = String(e && e.message || e).split('\n')[0];
     try { fs.mkdirSync(path.dirname(job.file), { recursive: true }); await page.screenshot({ path: job.file, scale: 'css' }); } catch {}

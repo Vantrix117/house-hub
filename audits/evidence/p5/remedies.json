@@ -1,0 +1,3954 @@
+{
+ "improvements": [
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P1",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 1,
+   "text": "Escape every name and emoji in the Family pane, the family card, the own row and the kids' heights (`hub.escape` or `textContent`); reject `<` in names on the server as a second layer",
+   "delight": 5,
+   "effort": "S",
+   "ratio": 5,
+   "evidence": "P3-DOLLYWOOD-LIVE-01; `apps/dollywood-live.html:1302, 1306, 1316, 1547`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-01"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:840"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P2",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 2,
+   "text": "Kids' beacons and heights for household adults only, and always shown: gate on `kind==='adult' && !is_guest`, and render them before the \"No one else is sharing\" return",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-DOLLYWOOD-LIVE-02, -05; `audits/evidence/p3/dollywood-live/verify-guest-can-flip-kid-beacon-1.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-02"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:841"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P3",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 3,
+   "text": "Resume GPS after the person pull (on `onSync`, or on a change to `share`) and never show \"not sharing\" copy while Share is on",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-DOLLYWOOD-LIVE-03, UX-DOLLYWOOD-LIVE-3; `audits/evidence/p3/dollywood-live/geo.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-03",
+    "UX-DOLLYWOOD-LIVE-3"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:842"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P4",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 4,
+   "text": "A complete, kid-safe denied state that fits the phone: route the error through the designed state with its Set my spot chip, allow two lines or tap-to-expand, and use icon-led wording for a kid",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-DOLLYWOOD-LIVE-17, P3-DOLLYWOOD-LIVE-10, UX-DOLLYWOOD-LIVE-1; `audits/evidence/p3/dollywood-live/theme-denied.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-17",
+    "P3-DOLLYWOOD-LIVE-10",
+    "UX-DOLLYWOOD-LIVE-1"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:843"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P5",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 5,
+   "text": "The kid's map follows the beacon: on a `kidshare` change, start or stop the watch, show or hide ◎, release the wake lock and tombstone its own row when it goes off; no Share switch for a kid; the parent's map reloads the family after the switch (from the completeness critic)",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-DOLLYWOOD-LIVE-12, -13, -16; `audits/evidence/p3/dollywood-live/critic-kid-beacon.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-12"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:844"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P6",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Call `renderMeet()` from `setMe()`, and `loadMeet()` on the 30 s timer and on becoming visible, so walk time, Go, the age and the 2 h expiry stay current",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-DOLLYWOOD-LIVE-04, -18; `audits/evidence/p3/dollywood-live/verify-meet-bar-stale-after-place-2.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-04"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:845"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P7",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 7,
+   "text": "Staleness in the arriving and far pill branches (\"Last seen N ago\" and Find me)",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-DOLLYWOOD-LIVE-07; `audits/evidence/p3/dollywood-live/states.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-07"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:846"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P8",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 8,
+   "text": "Fix the amenity token parse, and make the compass orient the current view (sync `#l-upright` with the start rotation) instead of fitting `SEC[curSec]`",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-DOLLYWOOD-LIVE-08, -09; `audits/evidence/p3/dollywood-live/functional.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-08"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:847"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P9",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 9,
+   "text": "Publish only on the property, and have Home's park card (and chat's `where_is_family`) ignore off-property rows",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-DOLLYWOOD-LIVE-06; `audits/evidence/p3/dollywood-live/verify-publish-off-site-2.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-06"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:848"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P10",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 10,
+   "text": "Kid filter parity on Waits: the height chip (or a clear \"too short\" glyph) instead of fading, with the filter chip kept in view",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "UX-DOLLYWOOD-LIVE-5; `apps/dollywood-live.html:1532`",
+   "ids": [
+    "UX-DOLLYWOOD-LIVE-5"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:849"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P11",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 11,
+   "text": "Search's rider-height filter keeps no-requirement rides (or is dropped for the who-chips), and a no-match search says so (from the completeness critic)",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-DOLLYWOOD-LIVE-14 (primary P3-DOLLYWOOD-06; one template fix), UX-DOLLYWOOD-LIVE-4; `audits/evidence/p3/dollywood-live/critic-search-height.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-14",
+    "P3-DOLLYWOOD-06",
+    "UX-DOLLYWOOD-LIVE-4"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:850"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P12",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 12,
+   "text": "Raise the five sub-44 control rules to 44 px, wrap the seven `:hover` rules in a fine-pointer query, and give markers without a colour a neutral design.css token instead of Elizabeth's `#8A6A4B`",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-DOLLYWOOD-LIVE-5, -6, -7",
+   "ids": [
+    "VIS-DOLLYWOOD-LIVE-5"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:851"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P13",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 13,
+   "text": "Apply the 6 h age limit to waits on every failed refresh, and dim or mark old waits on the chips, the hero, the Nearby rows and the directions bar (from the completeness critic)",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-DOLLYWOOD-LIVE-15; `audits/evidence/p3/dollywood-live/verify-critic-waits-stale-while-open-4-1.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-15"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:852"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P14",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 14,
+   "text": "A number field or picker for a kid's measured height instead of one tap per inch from 36 (from the completeness critic)",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-DOLLYWOOD-LIVE-7; `apps/dollywood-live.html:1548`",
+   "ids": [
+    "UX-DOLLYWOOD-LIVE-7"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:853"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P15",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 15,
+   "text": "De-collide family and meeting-point labels (as `drawNames` does for rides), with an 11 px floor",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "VIS-DOLLYWOOD-LIVE-1, -2; `audits/screens/dollywood-live/map-overflow-ipad-portrait-light.png`",
+   "ids": [
+    "VIS-DOLLYWOOD-LIVE-1"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:854"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P16",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 16,
+   "text": "Strip the build guide's leftovers from the park map (coaster engineering card, listings-style Search, contour and Layers controls) and hide an empty About",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "UX-DOLLYWOOD-LIVE-4, VIS-DOLLYWOOD-LIVE-3",
+   "ids": [
+    "UX-DOLLYWOOD-LIVE-4",
+    "VIS-DOLLYWOOD-LIVE-3"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:855"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-P17",
+   "app": "dollywood-live",
+   "kind": "polish",
+   "rank": 17,
+   "text": "Wait tiles and dark map: band fills and ink from design.css tokens (pastel fills with a deep ink), labels of 11 px or more, and a dimmed illustration in dark palettes",
+   "delight": 2,
+   "effort": "M",
+   "ratio": 1,
+   "evidence": "VIS-DOLLYWOOD-LIVE-8; `audits/evidence/p3/dollywood-live/vischeck-contrast.json`",
+   "ids": [
+    "VIS-DOLLYWOOD-LIVE-8"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:856"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-F1",
+   "app": "dollywood-live",
+   "kind": "feature",
+   "rank": 1,
+   "text": "Wire the Rally control the Meet-here dialog already promises (`POST /api/dollywood/rally` exists, `worker/src/index.js:97`)",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P2-PWA-18; `audits/evidence/p3/dollywood-live/rally-guest-loading.json`",
+   "ids": [
+    "P2-PWA-18"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:862"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-F2",
+   "app": "dollywood-live",
+   "kind": "feature",
+   "rank": 2,
+   "text": "Add the known alias (\"Dollywood Express\" → \"Dollywood Express Train Depot\") and report unmatched feed names at export or verify time. Delight lowered from the investigator's 4 because only one ride is shown to be affected.",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-DOLLYWOOD-LIVE-11; `audits/evidence/p3/dollywood-live/verify-waits-name-match-drops-1.json`",
+   "ids": [
+    "P3-DOLLYWOOD-LIVE-11"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:863"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-F3",
+   "app": "dollywood-live",
+   "kind": "feature",
+   "rank": 3,
+   "text": "Find-My-style arrival and leave nudges (\"Mae reached the meeting point\", \"left the park\")",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "GAP-DOLLYWOOD-LIVE-1; P2-PWA-02",
+   "ids": [
+    "GAP-DOLLYWOOD-LIVE-1",
+    "P2-PWA-02"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:864"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-F4",
+   "app": "dollywood-live",
+   "kind": "feature",
+   "rank": 4,
+   "text": "A wait-time trend arrow (Thrill-Data style)",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "GAP-DOLLYWOOD-LIVE-2",
+   "ids": [
+    "GAP-DOLLYWOOD-LIVE-2"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:865"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-I1",
+   "app": "dollywood-live",
+   "kind": "idea",
+   "rank": 1,
+   "text": "A shared \"heading to X\" that others can follow, so the family converges without a manual pin",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "Jobs analysis (§1); VIS-DOLLYWOOD-LIVE-2",
+   "ids": [
+    "VIS-DOLLYWOOD-LIVE-2"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:871"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-LIVE-I2",
+   "app": "dollywood-live",
+   "kind": "idea",
+   "rank": 2,
+   "text": "A park hours and showtimes strip beside the waits",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "GAP-DOLLYWOOD-LIVE-3",
+   "ids": [
+    "GAP-DOLLYWOOD-LIVE-3"
+   ],
+   "src": "audits/03-apps/dollywood-live.md:872"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P1",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 1,
+   "text": "Make the phone 3D button a toggle, or show a 2D / Map button while in 3D (template `:333` and the handler at `:1154`)",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-DOLLYWOOD-04; `audits/evidence/p3/dollywood/repro-new.json`",
+   "ids": [
+    "P3-DOLLYWOOD-04"
+   ],
+   "src": "audits/03-apps/dollywood.md:939"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P2",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 2,
+   "text": "Validate and confirm Import: require a done map of known step ids and say \"Replace 24 ticks with 2?\" (or merge); replace Reset's `confirm()` with a 10 s undo toast, and give Import the same",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-DOLLYWOOD-02, UX-DOLLYWOOD-10",
+   "ids": [
+    "P3-DOLLYWOOD-02",
+    "UX-DOLLYWOOD-10"
+   ],
+   "src": "audits/03-apps/dollywood.md:940"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P3",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 3,
+   "text": "Hold writes until the first pull lands: in hub.js, migrate only after a successful first pull of that scope; in the guide, show \"Loading your progress…\" and disable Mark done and Import until then",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P2-SYNC-03 (pointer P3-DOLLYWOOD-01), UX-DOLLYWOOD-5; `data-checks.json` M1, M2, L1, L2",
+   "ids": [
+    "P2-SYNC-03",
+    "P3-DOLLYWOOD-01",
+    "UX-DOLLYWOOD-5"
+   ],
+   "src": "audits/03-apps/dollywood.md:941"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P4",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 4,
+   "text": "Open the … menu downward inside the phone sheet, or as its own sheet",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-DOLLYWOOD-03; `audits/evidence/p3/dollywood/phone-progress-menu-clipped.png`",
+   "ids": [
+    "P3-DOLLYWOOD-03"
+   ],
+   "src": "audits/03-apps/dollywood.md:942"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P5",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 5,
+   "text": "Fix the rider-height filter: no requirement, or a requirement at or below N",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-DOLLYWOOD-06",
+   "ids": [
+    "P3-DOLLYWOOD-06"
+   ],
+   "src": "audits/03-apps/dollywood.md:943"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P6",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Full-contrast done rows: keep the tick in olive ink and drop the .55 opacity",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "VIS-DOLLYWOOD-1",
+   "ids": [
+    "VIS-DOLLYWOOD-1"
+   ],
+   "src": "audits/03-apps/dollywood.md:944"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P7",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 7,
+   "text": "Small correctness fixes: rotate the box in `fitBoxPhone`; fit the whole park when Whole park is pressed; re-render the step after the plot changes, and apply a cleared plot in `adopt()` without pre-filling from `dw-plot` once signed in; keep the touch hint in `setMode`; anchor \"?\" and View ▾ inside the screen; hide `.lv-northwrap` outside the park map; fix the \"Info tab\" copy; ignore Ctrl, Cmd and Alt in the shortcut handler, and pan with the arrows only when the map is on screen",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-DOLLYWOOD-05, -07, -10 to -18",
+   "ids": [
+    "P3-DOLLYWOOD-05"
+   ],
+   "src": "audits/03-apps/dollywood.md:945"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P8",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 8,
+   "text": "Calm the idle page: run the rAF loop only in 3D (and render only on camera change); pulse the highlight three times, then hold; reuse the tag and label textures across exaggeration rebuilds",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-DOLLYWOOD-08, -09; \"Checked and not a bug\"",
+   "ids": [
+    "P3-DOLLYWOOD-08"
+   ],
+   "src": "audits/03-apps/dollywood.md:946"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-P9",
+   "app": "dollywood",
+   "kind": "polish",
+   "rank": 9,
+   "text": "Move the type to the house scale (system-ui titles, Dynamic Type sizes, rounded numerals only) and the chips, tools, legend and link buttons to 44 px",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "VIS-DOLLYWOOD-2, -3, -12",
+   "ids": [
+    "VIS-DOLLYWOOD-2"
+   ],
+   "src": "audits/03-apps/dollywood.md:947"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-F1",
+   "app": "dollywood",
+   "kind": "feature",
+   "rank": 1,
+   "text": "An in-app pending / offline cue: \"Saved on this device — will sync\" under the card while `hub.sync` is offline or pending",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "UX-DOLLYWOOD-6; `data-checks.json` O1",
+   "ids": [
+    "UX-DOLLYWOOD-6"
+   ],
+   "src": "audits/03-apps/dollywood.md:953"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-F2",
+   "app": "dollywood",
+   "kind": "feature",
+   "rank": 2,
+   "text": "Show the profile next to the cut: scroll to it or show it over the map, and clear the \"Tap two points\" pill",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "UX-DOLLYWOOD-8",
+   "ids": [
+    "UX-DOLLYWOOD-8"
+   ],
+   "src": "audits/03-apps/dollywood.md:954"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-F3",
+   "app": "dollywood",
+   "kind": "feature",
+   "rank": 3,
+   "text": "A Home card for the person's build (\"Entrance 7/9 · next: Planting…\" with Mark done), so ticking takes 1-2 taps from Home",
+   "delight": 5,
+   "effort": "M",
+   "ratio": 2.5,
+   "evidence": "UX-DOLLYWOOD-1; `audits/evidence/p3/dollywood/taps.json`",
+   "ids": [
+    "UX-DOLLYWOOD-1"
+   ],
+   "src": "audits/03-apps/dollywood.md:955"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-F4",
+   "app": "dollywood",
+   "kind": "feature",
+   "rank": 4,
+   "text": "Search results under the field (tap to fly) and a \"No matches\" state",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "UX-DOLLYWOOD-4; `audits/evidence/p3/dollywood/ipad-search-no-match.png`",
+   "ids": [
+    "UX-DOLLYWOOD-4"
+   ],
+   "src": "audits/03-apps/dollywood.md:956"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-F5",
+   "app": "dollywood",
+   "kind": "feature",
+   "rank": 5,
+   "text": "Per-step rows (`step:<id>`) instead of one whole-map row, with a one-time conversion, so two devices never erase each other",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "P2-SYNC-01; `data-checks.json` L2",
+   "ids": [
+    "P2-SYNC-01"
+   ],
+   "src": "audits/03-apps/dollywood.md:957"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-F6",
+   "app": "dollywood",
+   "kind": "feature",
+   "rank": 6,
+   "text": "A map-and-card layout on iPad landscape and desktop: a sticky map beside the step card, like LEGO Builder's step pane",
+   "delight": 5,
+   "effort": "L",
+   "ratio": 1.7,
+   "evidence": "UX-DOLLYWOOD-1, -2",
+   "ids": [
+    "UX-DOLLYWOOD-1"
+   ],
+   "src": "audits/03-apps/dollywood.md:958"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-I1",
+   "app": "dollywood",
+   "kind": "idea",
+   "rank": 1,
+   "text": "A section-complete moment: a calm check and \"Showstreet done — 21 steps\" when a section fills (a completion cue for the builder, not a reward system)",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "Chip progress (`apps/dollywood.html:1075-1076`); the checker's \"flat 9/9 finish\"",
+   "ids": [],
+   "src": "audits/03-apps/dollywood.md:964"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-I2",
+   "app": "dollywood",
+   "kind": "idea",
+   "rank": 2,
+   "text": "\"Show in 3D\" for the current step: fly the orbit camera to the step's target",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "GAP-DOLLYWOOD-1",
+   "ids": [
+    "GAP-DOLLYWOOD-1"
+   ],
+   "src": "audits/03-apps/dollywood.md:965"
+  },
+  {
+   "id": "IMP-DOLLYWOOD-I3",
+   "app": "dollywood",
+   "kind": "idea",
+   "rank": 3,
+   "text": "A read-only \"build together\" view so another adult can follow the build without writing the builder's row",
+   "delight": 2,
+   "effort": "L",
+   "ratio": 0.7,
+   "evidence": "GAP-DOLLYWOOD-2",
+   "ids": [
+    "GAP-DOLLYWOOD-2"
+   ],
+   "src": "audits/03-apps/dollywood.md:966"
+  },
+  {
+   "id": "IMP-F260-P1",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 1,
+   "text": "Merge, don't replace, the recall entry on a practice rating (`{...recall[id], s, t}`), and advance the Leitner fields as Verses does, so both trainers share one schedule",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-F260-01; `apps/f260.html:1915`; `recall.json`",
+   "ids": [
+    "P3-F260-01"
+   ],
+   "src": "audits/03-apps/f260.md:883"
+  },
+  {
+   "id": "IMP-F260-P2",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 2,
+   "text": "Undo (and any untick) also un-logs today when no reading ticked today remains, so \"Read today ✓\", the streak, Home and the 8 pm nudge follow",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-F260-02; `logic.json` `undo`",
+   "ids": [
+    "P3-F260-02"
+   ],
+   "src": "audits/03-apps/f260.md:884"
+  },
+  {
+   "id": "IMP-F260-P3",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 3,
+   "text": "Treat an unread today as pending in the streak, and say \"Read today to keep your 12-day streak\" instead of \"Start a new streak\"",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-F260-03; `apps/f260.html:1385-1395`",
+   "ids": [
+    "P3-F260-03"
+   ],
+   "src": "audits/03-apps/f260.md:885"
+  },
+  {
+   "id": "IMP-F260-P4",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 4,
+   "text": "Guard the journal vault: before saving, check that the cached row still carries the key wrap this device unlocked (`pass.salt`); on a mismatch lock, drop the stale key and say so; never write a vault without `pass`, and let unlock report one instead of throwing",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-F260-13; `apps/f260.html:1015-1025, 1036-1039`; `critic-vault-stale-device.json`",
+   "ids": [
+    "P3-F260-13"
+   ],
+   "src": "audits/03-apps/f260.md:886"
+  },
+  {
+   "id": "IMP-F260-P5",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 5,
+   "text": "Tell the truth about where data lives: \"your devices\", and the Erase and Restore confirms say they apply everywhere",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-F260-15, P3-F260-12; UX-F260-1",
+   "ids": [
+    "P3-F260-15",
+    "P3-F260-12",
+    "UX-F260-1"
+   ],
+   "src": "audits/03-apps/f260.md:887"
+  },
+  {
+   "id": "IMP-F260-P6",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Keep Done `aria-disabled` with \"Loading your plan…\" until data arrives, and write no `weekStart` or summary until a pull has landed or the person acts (also stops a guest's first peek enrolling them in the nudges)",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "UX-F260-5; P3-F260-05; P2-SYNC-05, P2-SYNC-17",
+   "ids": [
+    "UX-F260-5",
+    "P3-F260-05",
+    "P2-SYNC-05",
+    "P2-SYNC-17"
+   ],
+   "src": "audits/03-apps/f260.md:888"
+  },
+  {
+   "id": "IMP-F260-P7",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 7,
+   "text": "Scroll the weeks pane to the current week on open (the scroll already exists for other paths)",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "UX-F260-6; `apps/f260.html:1693`",
+   "ids": [
+    "UX-F260-6"
+   ],
+   "src": "audits/03-apps/f260.md:889"
+  },
+  {
+   "id": "IMP-F260-P8",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 8,
+   "text": "Small CSS and class fixes that leave the layout alone: rename the heatmap cell class (e.g. `now`); let the `#reflect` exception win in reading mode; give `.wnbody .jft` the `.jr .jft` rules; style `.seg[disabled]` and `.help`; hide `::-webkit-search-cancel-button`; no radius on `.wk-head` in print",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-F260-08, P3-F260-09; VIS-F260-4 to -8",
+   "ids": [
+    "P3-F260-08",
+    "P3-F260-09",
+    "VIS-F260-4"
+   ],
+   "src": "audits/03-apps/f260.md:890"
+  },
+  {
+   "id": "IMP-F260-P9",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 9,
+   "text": "Copy, number and date fixes: floor the percentage; pluralise pace from the rounded number; drop the duplicate \"last read\"; clear `finished` below 260; let Undo restore the previous week; key the day on New York time; save a HEAR field or week note only when its text changed, so an untouched entry keeps its date; clamp a week's duration to at least 1 day and stamp `weekStart` when a week's first reading is ticked, not when the stepper passes it; highlight search matches on the raw text and escape the pieces between them",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-F260-04, -06, -07, -10, -11, -17, -18, -19, -20; UX-F260-9; `audits/evidence/p3/f260/critic-dates.json`",
+   "ids": [
+    "P3-F260-04",
+    "UX-F260-9"
+   ],
+   "src": "audits/03-apps/f260.md:891"
+  },
+  {
+   "id": "IMP-F260-P10",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 10,
+   "text": "After today's tick, relabel or demote the primary button (e.g. \"Read Acts 7 too\" in a quieter style) so it stops reading as a status",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-F260-13",
+   "ids": [
+    "UX-F260-13"
+   ],
+   "src": "audits/03-apps/f260.md:892"
+  },
+  {
+   "id": "IMP-F260-P11",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 11,
+   "text": "AA-safe text and graphic tokens (a Phase 4 token change): darker gold and muted inks for text, past weeks in a muted ink instead of opacity, and `--sunk` cells with a 3:1 edge",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "VIS-F260-1, VIS-F260-2; `contrast.json`",
+   "ids": [
+    "VIS-F260-1",
+    "VIS-F260-2"
+   ],
+   "src": "audits/03-apps/f260.md:893"
+  },
+  {
+   "id": "IMP-F260-P12",
+   "app": "f260",
+   "kind": "polish",
+   "rank": 12,
+   "text": "Keep the Face ID wrap per device (keyed by credential id) and show \"Use Face ID\" and \"On.\" only where this device's credential exists, so one device's Enable or Turn off leaves the others alone",
+   "delight": 2,
+   "effort": "M",
+   "ratio": 1,
+   "evidence": "P3-F260-14; `apps/f260.html:1060, 1083, 1091`; `critic-faceid.json`",
+   "ids": [
+    "P3-F260-14"
+   ],
+   "src": "audits/03-apps/f260.md:894"
+  },
+  {
+   "id": "IMP-F260-F1",
+   "app": "f260",
+   "kind": "feature",
+   "rank": 1,
+   "text": "Catch-up line: when an earlier week has gaps, a line in the existing Today meta or hero, \"1 reading left in week 30 · Catch up\", that opens that day, as YouVersion does. Text only, inside the existing layout",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "GAP-F260-1; `logic.json` `gap` (offered only after 73 readings)",
+   "ids": [
+    "GAP-F260-1"
+   ],
+   "src": "audits/03-apps/f260.md:900"
+  },
+  {
+   "id": "IMP-F260-F2",
+   "app": "f260",
+   "kind": "feature",
+   "rank": 2,
+   "text": "Journal from the Today card: a \"HEAR\" action beside Done that opens today's panel directly (needs the owner's OK: it changes the F260 layout)",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "UX-F260-11; `taps.json` `jobs[1]`",
+   "ids": [
+    "UX-F260-11"
+   ],
+   "src": "audits/03-apps/f260.md:901"
+  },
+  {
+   "id": "IMP-F260-F3",
+   "app": "f260",
+   "kind": "feature",
+   "rank": 3,
+   "text": "Printable checklist: checkboxes, with ticks for readings already done",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-F260-7; `print.json`",
+   "ids": [
+    "VIS-F260-7"
+   ],
+   "src": "audits/03-apps/f260.md:902"
+  },
+  {
+   "id": "IMP-F260-F4",
+   "app": "f260",
+   "kind": "feature",
+   "rank": 4,
+   "text": "Choose the reading-reminder time per person (as Books and Journal do); the toggle already lives in Me, the hour goes in `push_prefs`",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "`worker/src/reminders.js:247-253`; `index.html:1266`",
+   "ids": [],
+   "src": "audits/03-apps/f260.md:903"
+  },
+  {
+   "id": "IMP-F260-F5",
+   "app": "f260",
+   "kind": "feature",
+   "rank": 5,
+   "text": "Undo instead of \"can't be undone\": a one-level snapshot for Reset and Erase with an Undo toast for 10 s, and Reset says it clears the Verses review schedule too",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "UX-F260-2; P3-F260-16; `apps/f260.html:1763-1770`",
+   "ids": [
+    "UX-F260-2",
+    "P3-F260-16"
+   ],
+   "src": "audits/03-apps/f260.md:904"
+  },
+  {
+   "id": "IMP-F260-I1",
+   "app": "f260",
+   "kind": "idea",
+   "rank": 1,
+   "text": "Award art instead of emoji milestones: the 14 milestones as small duotone badges from the art set, keeping the same tests and dates",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "VIS-F260-12; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`",
+   "ids": [
+    "VIS-F260-12"
+   ],
+   "src": "audits/03-apps/f260.md:910"
+  },
+  {
+   "id": "IMP-F260-I2",
+   "app": "f260",
+   "kind": "idea",
+   "rank": 2,
+   "text": "An across-the-room reading glance for the kitchen iPad: a read-only large-type Today state (the reference at 60 px or more, the ring, the adults' \"read today\" faces), reusing reading mode's big type (needs the owner's OK)",
+   "delight": 3,
+   "effort": "L",
+   "ratio": 1,
+   "evidence": "UX-F260-12; `layout.json` `glance`",
+   "ids": [
+    "UX-F260-12"
+   ],
+   "src": "audits/03-apps/f260.md:911"
+  },
+  {
+   "id": "IMP-KIDVERSE-P1",
+   "app": "kidverse",
+   "kind": "polish",
+   "rank": 1,
+   "text": "Guard every write until the first pull lands: keep Done ★, \"I heard it\" and the week stepper disabled (with a skeleton) until both kidverse scopes are pulled, reusing the existing `pulled()` check in `award()`, `heard()` and `setWeek()`",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-KIDVERSE-01, P3-KIDVERSE-03, P3-KIDVERSE-11; `award-first-pull.json`; `adult-week.json` C; `critic-heard-first2.json`",
+   "ids": [
+    "P3-KIDVERSE-01",
+    "P3-KIDVERSE-03",
+    "P3-KIDVERSE-11"
+   ],
+   "src": "audits/03-apps/kidverse.md:888"
+  },
+  {
+   "id": "IMP-KIDVERSE-P2",
+   "app": "kidverse",
+   "kind": "polish",
+   "rank": 2,
+   "text": "A day strip that adds up: a mark per source on each day (star, book, heart), an aria-label that counts what is shown, day letters at 4.5:1 and the today ring and empty dots at 3:1",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-KIDVERSE-04; VIS-KIDVERSE-1, VIS-KIDVERSE-2",
+   "ids": [
+    "P3-KIDVERSE-04",
+    "VIS-KIDVERSE-1",
+    "VIS-KIDVERSE-2"
+   ],
+   "src": "audits/03-apps/kidverse.md:889"
+  },
+  {
+   "id": "IMP-KIDVERSE-P3",
+   "app": "kidverse",
+   "kind": "polish",
+   "rank": 3,
+   "text": "Done ★ on the first screen: smaller scene art on phones and landscape, or \"Read it to me\" and Done ★ beside the art",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-KIDVERSE-2; `visual.json` P",
+   "ids": [
+    "UX-KIDVERSE-2"
+   ],
+   "src": "audits/03-apps/kidverse.md:890"
+  },
+  {
+   "id": "IMP-KIDVERSE-P4",
+   "app": "kidverse",
+   "kind": "polish",
+   "rank": 4,
+   "text": "Paint the star buttons gold with the gold fill and ink tokens directly (or redeclare `--accent-deep` on them, as `apps/verses.html:56-58` does), so the star means the same for every kid",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-KIDVERSE-14 (formerly VIS-KIDVERSE-4); `verify-critic-star-buttons-not-gold-5-1-ezra-hearth-done.png`",
+   "ids": [
+    "P3-KIDVERSE-14",
+    "VIS-KIDVERSE-4"
+   ],
+   "src": "audits/03-apps/kidverse.md:891"
+  },
+  {
+   "id": "IMP-KIDVERSE-P5",
+   "app": "kidverse",
+   "kind": "polish",
+   "rank": 5,
+   "text": "Repaint the story card on a week step; show `earned` (\"869 ever\") or nothing instead of \"all time\"; add the year to older dates",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-KIDVERSE-05, P3-KIDVERSE-06, UX-KIDVERSE-9",
+   "ids": [
+    "P3-KIDVERSE-05",
+    "P3-KIDVERSE-06",
+    "UX-KIDVERSE-9"
+   ],
+   "src": "audits/03-apps/kidverse.md:892"
+  },
+  {
+   "id": "IMP-KIDVERSE-P6",
+   "app": "kidverse",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Grown-ups panel on iPhone: each kid's count before the dots or on its own line, long names wrapping above the dots",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-KIDVERSE-5",
+   "ids": [
+    "VIS-KIDVERSE-5"
+   ],
+   "src": "audits/03-apps/kidverse.md:893"
+  },
+  {
+   "id": "IMP-KIDVERSE-P7",
+   "app": "kidverse",
+   "kind": "polish",
+   "rank": 7,
+   "text": "For adults, put the week stepper and Kids' stars first, above the kid art",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-KIDVERSE-10",
+   "ids": [
+    "UX-KIDVERSE-10"
+   ],
+   "src": "audits/03-apps/kidverse.md:894"
+  },
+  {
+   "id": "IMP-KIDVERSE-P8",
+   "app": "kidverse",
+   "kind": "polish",
+   "rank": 8,
+   "text": "A Reset week that holds: `applyLedger` resets the verse days a reset row lists even after `days` is rebuilt for a new week, and marks story or prayed days dated before the reset `'reset'` instead of crediting them later",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-KIDVERSE-12, P3-KIDVERSE-13; `critic-reset-crossweek.json`; `critic-reset-uncredited-prayed.json`",
+   "ids": [
+    "P3-KIDVERSE-12",
+    "P3-KIDVERSE-13"
+   ],
+   "src": "audits/03-apps/kidverse.md:895"
+  },
+  {
+   "id": "IMP-KIDVERSE-F1",
+   "app": "kidverse",
+   "kind": "feature",
+   "rank": 1,
+   "text": "Pick a week directly (or \"Follow my F260 week\"), household adults only, with a feed line \"This week's verse: James 1:2-4\" that also fills the TV's kid line; it also removes the 51 taps back to week 1 at the year's end, since the stepper does not wrap after 52 (`apps/kidverse.html:369-370`)",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-KIDVERSE-03; UX-KIDVERSE-3; GAP-KIDVERSE-1; P2-HOME-07",
+   "ids": [
+    "P3-KIDVERSE-03",
+    "UX-KIDVERSE-3",
+    "GAP-KIDVERSE-1",
+    "P2-HOME-07"
+   ],
+   "src": "audits/03-apps/kidverse.md:901"
+  },
+  {
+   "id": "IMP-KIDVERSE-F2",
+   "app": "kidverse",
+   "kind": "feature",
+   "rank": 2,
+   "text": "Spoken feedback and instructions for pre-readers (\"Tap the star when you are done\", \"You already have your star today\", \"New badge: Story lover\"), and story buttons that look different from the verse's",
+   "delight": 5,
+   "effort": "M",
+   "ratio": 2.5,
+   "evidence": "UX-KIDVERSE-1; `speech.json`",
+   "ids": [
+    "UX-KIDVERSE-1"
+   ],
+   "src": "audits/03-apps/kidverse.md:902"
+  },
+  {
+   "id": "IMP-KIDVERSE-F3",
+   "app": "kidverse",
+   "kind": "feature",
+   "rank": 3,
+   "text": "Highlight each word of the paraphrase and story as it is read, from `SpeechSynthesisUtterance` boundary events",
+   "delight": 5,
+   "effort": "M",
+   "ratio": 2.5,
+   "evidence": "§2 (Books read-aloud, Speak Screen); `speech.json`",
+   "ids": [],
+   "src": "audits/03-apps/kidverse.md:903"
+  },
+  {
+   "id": "IMP-KIDVERSE-F4",
+   "app": "kidverse",
+   "kind": "feature",
+   "rank": 4,
+   "text": "Stars and heard days stored so two devices cannot erase each other: one row per earned star (`verse:<date>`, `story:<date>`, `prayed:<date>`) and per heard day, with totals derived, as the ledger does for parents, or a merge on write; prayed days matched by profile id",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "P3-KIDVERSE-02, P3-KIDVERSE-07, P3-KIDVERSE-10; `stale-device.json`; `critic-heard-races.json`",
+   "ids": [
+    "P3-KIDVERSE-02",
+    "P3-KIDVERSE-07",
+    "P3-KIDVERSE-10"
+   ],
+   "src": "audits/03-apps/kidverse.md:904"
+  },
+  {
+   "id": "IMP-KIDVERSE-F5",
+   "app": "kidverse",
+   "kind": "feature",
+   "rank": 5,
+   "text": "Story art that follows the theme: dark variants of the pale scenes and light variants of 03 and 09, or a transparent background over a token panel, via `scripts/make-art.mjs`",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "VIS-KIDVERSE-6",
+   "ids": [
+    "VIS-KIDVERSE-6"
+   ],
+   "src": "audits/03-apps/kidverse.md:905"
+  },
+  {
+   "id": "IMP-KIDVERSE-I1",
+   "app": "kidverse",
+   "kind": "idea",
+   "rank": 1,
+   "text": "Past weeks shelf: earlier weeks' scene cards a kid can tap to hear an old verse or story again (read-only, no new stars)",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "§2; only `VERSES[w - 1]` is reachable (`apps/kidverse.html:345`)",
+   "ids": [],
+   "src": "audits/03-apps/kidverse.md:911"
+  },
+  {
+   "id": "IMP-KIDVERSE-I2",
+   "app": "kidverse",
+   "kind": "idea",
+   "rank": 2,
+   "text": "Record a parent's voice: an adult records the verse once a week (the media store), and \"Read it to me\" plays Mom's or Dad's voice instead of the synthetic one",
+   "delight": 5,
+   "effort": "L",
+   "ratio": 1.7,
+   "evidence": "`speech.json`; `worker/src/media.js`",
+   "ids": [],
+   "src": "audits/03-apps/kidverse.md:912"
+  },
+  {
+   "id": "IMP-LEFTOVERS-P1",
+   "app": "leftovers",
+   "kind": "polish",
+   "rank": 1,
+   "text": "Undo toast on ✓: keep the finished card in place for 5 s with \"Undo\", ignore ✓ taps for about 400 ms after any re-render (the user's own, `hub.onChange` from another device, and the midnight rollover), and animate the card out. This fixes the double-tap loss, the remote-change shift and one-tap deletion.",
+   "delight": 5,
+   "effort": "S",
+   "ratio": 5,
+   "evidence": "P3-LEFTOVERS-01, P3-LEFTOVERS-12, UX-LEFTOVERS-1; `apps/leftovers.html:306-311, 371, 378`",
+   "ids": [
+    "P3-LEFTOVERS-01",
+    "P3-LEFTOVERS-12",
+    "UX-LEFTOVERS-1"
+   ],
+   "src": "audits/03-apps/leftovers.md:1026"
+  },
+  {
+   "id": "IMP-LEFTOVERS-P2",
+   "app": "leftovers",
+   "kind": "polish",
+   "rank": 2,
+   "text": "One set of words for \"old\": \"eat soon\" for 4-6 days and \"use it up\" for 7+, in the Larder, on the Home card, on the badge and in the 8 am push. The push may keep its early 5-day trigger.",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-LEFTOVERS-02; `thresholds.json`",
+   "ids": [
+    "P3-LEFTOVERS-02"
+   ],
+   "src": "audits/03-apps/leftovers.md:1027"
+  },
+  {
+   "id": "IMP-LEFTOVERS-P3",
+   "app": "leftovers",
+   "kind": "polish",
+   "rank": 3,
+   "text": "New York calendar-day maths: ages from the NY date (Intl with America/New_York) and a rounded day difference, as `worker/src/reminders.js:14-19` does, with the day re-checked on submit (the rollover run at the top of the handler, so the date box's value and `max` never disagree). Show \"today\", \"yesterday\" or \"Tue 15 Sep\" instead of ISO dates and \"0d ago\".",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-LEFTOVERS-03, -07, -08, -14; VIS-LEFTOVERS-5",
+   "ids": [
+    "P3-LEFTOVERS-03",
+    "VIS-LEFTOVERS-5"
+   ],
+   "src": "audits/03-apps/leftovers.md:1028"
+  },
+  {
+   "id": "IMP-LEFTOVERS-P4",
+   "app": "leftovers",
+   "kind": "polish",
+   "rank": 4,
+   "text": "Kid view: for `data-kind=\"kid\"`, hide the ✓ (as chat already refuses fridge clean-up to kids) or keep it behind undo, use the kid type scale, and show a food emoji or icon per item with one big colour state",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "P3-LEFTOVERS-13, UX-LEFTOVERS-2; `kid.json`",
+   "ids": [
+    "P3-LEFTOVERS-13",
+    "UX-LEFTOVERS-2"
+   ],
+   "src": "audits/03-apps/leftovers.md:1029"
+  },
+  {
+   "id": "IMP-LEFTOVERS-P5",
+   "app": "leftovers",
+   "kind": "polish",
+   "rank": 5,
+   "text": "Glanceable iPad hero: a large \"1 to use up · 2 aging\" summary in ui-rounded numerals (at least 5.8 mm cap at 2 m), plus a pending mark on offline items and plain-language sync errors",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "UX-LEFTOVERS-3, -7, -8; `visual.json`",
+   "ids": [
+    "UX-LEFTOVERS-3"
+   ],
+   "src": "audits/03-apps/leftovers.md:1030"
+  },
+  {
+   "id": "IMP-LEFTOVERS-P6",
+   "app": "leftovers",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Guard the form and the list until the first pull: `preventDefault` from the first byte, the button and select filled in the HTML, \"Nothing logged yet.\" only after a successful pull, and \"last copy\" wording only when a copy exists. Treat a non-ISO or future `dateLogged` as unknown or today, with Worker-side validation.",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-LEFTOVERS-04, -05, -06, -09; VIS-LEFTOVERS-1",
+   "ids": [
+    "P3-LEFTOVERS-04",
+    "VIS-LEFTOVERS-1"
+   ],
+   "src": "audits/03-apps/leftovers.md:1031"
+  },
+  {
+   "id": "IMP-LEFTOVERS-P7",
+   "app": "leftovers",
+   "kind": "polish",
+   "rank": 7,
+   "text": "Visual pass: pastel state pairs with a glowing dark variant and distinct luminance per state, a shape or icon per state, concentric radii, a custom select, a 0.97 press scale, and the error line in `--danger-ink` at 13 px or more",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "VIS-LEFTOVERS-2, -3, -5, -8, -10; P3-LEFTOVERS-15",
+   "ids": [
+    "VIS-LEFTOVERS-2",
+    "P3-LEFTOVERS-15"
+   ],
+   "src": "audits/03-apps/leftovers.md:1032"
+  },
+  {
+   "id": "IMP-LEFTOVERS-F1",
+   "app": "leftovers",
+   "kind": "feature",
+   "rank": 1,
+   "text": "Edit an item: tap a card to open a sheet showing the full name, where the name, size, date or a use-by can be fixed. It solves long names and wrong dates.",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "GAP-LEFTOVERS-1, P3-LEFTOVERS-11; `audits/screens/leftovers/main-overflow-iphone-pwa-light.png`",
+   "ids": [
+    "GAP-LEFTOVERS-1",
+    "P3-LEFTOVERS-11"
+   ],
+   "src": "audits/03-apps/leftovers.md:1038"
+  },
+  {
+   "id": "IMP-LEFTOVERS-F2",
+   "app": "leftovers",
+   "kind": "feature",
+   "rank": 2,
+   "text": "Recently finished (7 days) with Restore, like Reminders' \"Show Completed\": tombstoned items stay listed for a week, and one tap restores them with their original date and author",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "UX-LEFTOVERS-1, P3-LEFTOVERS-01, -12, -13, P2-CHAT-03",
+   "ids": [
+    "UX-LEFTOVERS-1",
+    "P3-LEFTOVERS-01",
+    "P2-CHAT-03"
+   ],
+   "src": "audits/03-apps/leftovers.md:1039"
+  },
+  {
+   "id": "IMP-LEFTOVERS-F3",
+   "app": "leftovers",
+   "kind": "feature",
+   "rank": 3,
+   "text": "An honest Hearth action: either give the hub chat a real tool, or rename it \"Copy the use-soon list\", hide it when nothing is aging, and show the copied text",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-LEFTOVERS-4, P3-LEFTOVERS-10; `roles.json`",
+   "ids": [
+    "UX-LEFTOVERS-4",
+    "P3-LEFTOVERS-10"
+   ],
+   "src": "audits/03-apps/leftovers.md:1040"
+  },
+  {
+   "id": "IMP-LEFTOVERS-I1",
+   "app": "leftovers",
+   "kind": "idea",
+   "rank": 1,
+   "text": "Swipe to finish, plus \"someone ate some\": an iOS-style trailing swipe (keeping the ✓ for grandparents) and a \"half left\" state instead of all-or-nothing",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "`taps.json`",
+   "ids": [],
+   "src": "audits/03-apps/leftovers.md:1046"
+  },
+  {
+   "id": "IMP-LEFTOVERS-I2",
+   "app": "leftovers",
+   "kind": "idea",
+   "rank": 2,
+   "text": "Use-by presets per food: common foods (rice 4 days, soup 4, pie 3) get their own threshold when logged, so the rule gets smarter without becoming a shopping list",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "GAP-LEFTOVERS-1; `apps/leftovers.html:137`",
+   "ids": [
+    "GAP-LEFTOVERS-1"
+   ],
+   "src": "audits/03-apps/leftovers.md:1047"
+  },
+  {
+   "id": "IMP-PRAYER-P1",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 1,
+   "text": "Per-person done on the family list: an adult's tick reads and writes `prayedBy[TODAY]` for \"me\", as kid mode does, instead of the shared `lastPrayedAt`; others' ticks show as faces only",
+   "delight": 5,
+   "effort": "S",
+   "ratio": 5,
+   "evidence": "P3-PRAYER-05; `audits/evidence/p3/prayer/family-tick.json`",
+   "ids": [
+    "P3-PRAYER-05"
+   ],
+   "src": "audits/03-apps/prayer.md:1058"
+  },
+  {
+   "id": "IMP-PRAYER-P2",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 2,
+   "text": "Collision-free ids: `hub.uid()` or `crypto.randomUUID()` in `nextId()` and in Send to family list",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-PRAYER-01; `audits/evidence/p3/prayer/id-collision.json`",
+   "ids": [
+    "P3-PRAYER-01"
+   ],
+   "src": "audits/03-apps/prayer.md:1059"
+  },
+  {
+   "id": "IMP-PRAYER-P3",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 3,
+   "text": "Keep the answer when un-answering: \"Put back on the list\" keeps the note (or moves it into `updates[]`) and shows an Undo toast",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-PRAYER-04; `audits/evidence/p3/prayer/unanswer.json`",
+   "ids": [
+    "P3-PRAYER-04"
+   ],
+   "src": "audits/03-apps/prayer.md:1060"
+  },
+  {
+   "id": "IMP-PRAYER-P4",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 4,
+   "text": "Keep open groups open: remember which `<details>` are open across `renderAll` and `absorbRemote`",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-PRAYER-07; `audits/evidence/p3/prayer/list-collapse.json`",
+   "ids": [
+    "P3-PRAYER-07"
+   ],
+   "src": "audits/03-apps/prayer.md:1061"
+  },
+  {
+   "id": "IMP-PRAYER-P5",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 5,
+   "text": "Scroll \"Add to the list\" into view when the form opens (logic only). Clearing the + needs a layout change in a Do-not-touch file, so it is flagged for the owner rather than proposed",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "UX-PRAYER-1, VIS-PRAYER-2; `audits/evidence/p3/prayer/layout.json`",
+   "ids": [
+    "UX-PRAYER-1",
+    "VIS-PRAYER-2"
+   ],
+   "src": "audits/03-apps/prayer.md:1062"
+  },
+  {
+   "id": "IMP-PRAYER-P6",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Name the two Mores (\"Share\" on Today, \"Settings\" in the tab bar) and put \"My list\" or \"Family list\" in the Settings title and in the Add heading and button (\"Add to the Family list\")",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "UX-PRAYER-4, UX-PRAYER-5, P3-PRAYER-20; `audits/evidence/p3/prayer/leads.json`; `audits/evidence/p3/prayer/critic-add-focus.json`",
+   "ids": [
+    "UX-PRAYER-4",
+    "UX-PRAYER-5",
+    "P3-PRAYER-20"
+   ],
+   "src": "audits/03-apps/prayer.md:1063"
+  },
+  {
+   "id": "IMP-PRAYER-P7",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 7,
+   "text": "Kid cards a pre-reader can read: a different done label and icon (\"Prayed!\" filled, \"I prayed\" before), the asker's face larger, and tap-to-hear the request with `speechSynthesis`, within the existing card and ids; not a reward system",
+   "delight": 5,
+   "effort": "M",
+   "ratio": 2.5,
+   "evidence": "UX-PRAYER-2; `audits/screens/prayer/kid-typical-ipad-portrait-light.png`",
+   "ids": [
+    "UX-PRAYER-2"
+   ],
+   "src": "audits/03-apps/prayer.md:1064"
+  },
+  {
+   "id": "IMP-PRAYER-P8",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 8,
+   "text": "Escape and validate ids: `esc()` every id (row ids and plan ids) placed in markup, skip rows whose id is not the key suffix, and drop plans whose id fails `/^[A-Za-z0-9_-]+$/` on load",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-PRAYER-06, P3-PRAYER-17; `audits/evidence/p3/prayer/xss-id.json`; `audits/evidence/p3/prayer/critic-sweep-planxss.json`",
+   "ids": [
+    "P3-PRAYER-06",
+    "P3-PRAYER-17"
+   ],
+   "src": "audits/03-apps/prayer.md:1065"
+  },
+  {
+   "id": "IMP-PRAYER-P9",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 9,
+   "text": "Copy fixes: a time-neutral headline, no cheer at 0/0, a distinct Needs-attention count, correct delete copy, category counts that agree, and a Sunday-neutral review line when nothing has gone cold (\"Sunday: a good day to look over the list.\")",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-PRAYER-12, -13, -14, -15, -16, -22; `audits/evidence/p3/prayer/leads.json`; `audits/evidence/p3/prayer/critic-sweep-sunday.json`",
+   "ids": [
+    "P3-PRAYER-12"
+   ],
+   "src": "audits/03-apps/prayer.md:1066"
+  },
+  {
+   "id": "IMP-PRAYER-P10",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 10,
+   "text": "Family teal all the way: also rebind `--accent-deep` under `body.shared`",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-PRAYER-4; `audits/evidence/p3/prayer/contrast.json`",
+   "ids": [
+    "VIS-PRAYER-4"
+   ],
+   "src": "audits/03-apps/prayer.md:1067"
+  },
+  {
+   "id": "IMP-PRAYER-P11",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 11,
+   "text": "Contrast and tokens pass: darker gold and teal inks for labels, dates and the pill; done titles at 4.5:1 in dark; px swapped for `--fs`, `--sp`, `--r-full` and `--dur` tokens",
+   "delight": 2,
+   "effort": "M",
+   "ratio": 1,
+   "evidence": "VIS-PRAYER-1; `audits/evidence/p3/_compliance/prayer.json`",
+   "ids": [
+    "VIS-PRAYER-1"
+   ],
+   "src": "audits/03-apps/prayer.md:1068"
+  },
+  {
+   "id": "IMP-PRAYER-P12",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 12,
+   "text": "An honest share panel: show the For and category that will be copied, each editable or removable, next to the title",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-PRAYER-18; `audits/evidence/p3/prayer/critic-push-share.json`",
+   "ids": [
+    "P3-PRAYER-18"
+   ],
+   "src": "audits/03-apps/prayer.md:1074"
+  },
+  {
+   "id": "IMP-PRAYER-P13",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 13,
+   "text": "Kitchen view keeps up: rebuild it from `absorbRemote` while it is open, and at the day rollover",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-PRAYER-19; `audits/evidence/p3/prayer/critic-sweep-kitchen.json`",
+   "ids": [
+    "P3-PRAYER-19"
+   ],
+   "src": "audits/03-apps/prayer.md:1075"
+  },
+  {
+   "id": "IMP-PRAYER-P14",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 14,
+   "text": "Plan and streak bookkeeping: an un-tick that leaves nothing marked today takes the day back out of `prayerDays`; Remove re-points a focus plan's category as Rename does",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-PRAYER-21, P3-PRAYER-23; `audits/evidence/p3/prayer/critic-sweep-untick.json`; `audits/evidence/p3/prayer/critic-add-focus.json`",
+   "ids": [
+    "P3-PRAYER-21",
+    "P3-PRAYER-23"
+   ],
+   "src": "audits/03-apps/prayer.md:1076"
+  },
+  {
+   "id": "IMP-PRAYER-P15",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 15,
+   "text": "Prayed marks by profile id: store ids in `prayedBy` (names or faces drawn at render) in Prayer, chat's `mark_prayed`, the TV and Kid Verse together",
+   "delight": 2,
+   "effort": "M",
+   "ratio": 1,
+   "evidence": "P3-PRAYER-24, P3-KIDVERSE-07; `audits/evidence/p3/prayer/critic-sweep-guest.json`",
+   "ids": [
+    "P3-PRAYER-24",
+    "P3-KIDVERSE-07"
+   ],
+   "src": "audits/03-apps/prayer.md:1077"
+  },
+  {
+   "id": "IMP-PRAYER-P16",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 16,
+   "text": "The prayer push announces only rows it has never seen (compare keys or `createdAt`, not titles)",
+   "delight": 1,
+   "effort": "S",
+   "ratio": 1,
+   "evidence": "P3-PRAYER-25; `audits/evidence/p3/prayer/critic-push-share.json`",
+   "ids": [
+    "P3-PRAYER-25"
+   ],
+   "src": "audits/03-apps/prayer.md:1078"
+  },
+  {
+   "id": "IMP-PRAYER-P17",
+   "app": "prayer",
+   "kind": "polish",
+   "rank": 17,
+   "text": "Keyboard: Escape closes the sheet, Kitchen view and `ask()` panels; Enter submits Add and single-line `ask()` fields",
+   "delight": 1,
+   "effort": "S",
+   "ratio": 1,
+   "evidence": "P3-PRAYER-26; `audits/evidence/p3/prayer/critic-keys.json`",
+   "ids": [
+    "P3-PRAYER-26"
+   ],
+   "src": "audits/03-apps/prayer.md:1079"
+  },
+  {
+   "id": "IMP-PRAYER-F1",
+   "app": "prayer",
+   "kind": "feature",
+   "rank": 1,
+   "text": "A room-scale family prayer board: family list only, titles at about 90 px cap height, the asker's face and who prayed today, on the TV board (`index.html`) and as larger Kitchen-view type through tokens",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "UX-PRAYER-3; `audits/evidence/p3/prayer/layout.json`",
+   "ids": [
+    "UX-PRAYER-3"
+   ],
+   "src": "audits/03-apps/prayer.md:1085"
+  },
+  {
+   "id": "IMP-PRAYER-F2",
+   "app": "prayer",
+   "kind": "feature",
+   "rank": 2,
+   "text": "Show who asked and who prayed in the family detail sheet (reuse the row's asker and faces markup)",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-PRAYER-6",
+   "ids": [
+    "UX-PRAYER-6"
+   ],
+   "src": "audits/03-apps/prayer.md:1086"
+  },
+  {
+   "id": "IMP-PRAYER-F3",
+   "app": "prayer",
+   "kind": "feature",
+   "rank": 3,
+   "text": "Safe restore: Import restores the personal list only, or merges family rows without deleting or overwriting newer ones; a file picker beside paste",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "P3-PRAYER-03, UX-PRAYER-12; `audits/evidence/p3/prayer/import-family.json`",
+   "ids": [
+    "P3-PRAYER-03",
+    "UX-PRAYER-12"
+   ],
+   "src": "audits/03-apps/prayer.md:1087"
+  },
+  {
+   "id": "IMP-PRAYER-F4",
+   "app": "prayer",
+   "kind": "feature",
+   "rank": 4,
+   "text": "Answered-journal browsing: group Record → Answered by year and month, with search inside Record, added below the existing list",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "GAP-PRAYER-2; `apps/prayer.html:967-969`",
+   "ids": [
+    "GAP-PRAYER-2"
+   ],
+   "src": "audits/03-apps/prayer.md:1088"
+  },
+  {
+   "id": "IMP-PRAYER-F5",
+   "app": "prayer",
+   "kind": "feature",
+   "rank": 5,
+   "text": "A reminder to pray at a chosen time: a per-person push time in Me → Notifications, reusing the push kinds",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "GAP-PRAYER-1; https://www.echoprayer.com/",
+   "ids": [
+    "GAP-PRAYER-1"
+   ],
+   "src": "audits/03-apps/prayer.md:1089"
+  },
+  {
+   "id": "IMP-PRAYER-I1",
+   "app": "prayer",
+   "kind": "idea",
+   "rank": 1,
+   "text": "\"Around the table\" pass-the-iPad Pray now: a family Pray now that shows each asker's face large and records everyone at the table with one tap each",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "`audits/screens/prayer/pray-mode-typical-iphone-pwa-light.png`",
+   "ids": [],
+   "src": "audits/03-apps/prayer.md:1095"
+  },
+  {
+   "id": "IMP-PRAYER-I2",
+   "app": "prayer",
+   "kind": "idea",
+   "rank": 2,
+   "text": "Answered-prayer anniversaries on the TV: \"A year ago today: <family answered prayer>\", family list only, never private titles",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "`apps/prayer.html:778-791`",
+   "ids": [],
+   "src": "audits/03-apps/prayer.md:1096"
+  },
+  {
+   "id": "IMP-PRAYER-I3",
+   "app": "prayer",
+   "kind": "idea",
+   "rank": 3,
+   "text": "Tell the asker, gently: a quiet line on the asker's Home (\"Ezra and Mom prayed for Grandma Jo's visit\"); not a push and not a reward",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "`apps/prayer.html:1597-1603`",
+   "ids": [],
+   "src": "audits/03-apps/prayer.md:1097"
+  },
+  {
+   "id": "IMP-TALLY-P1",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 1,
+   "text": "Undo toast after Reset (and after −): \"Reset from 37. Undo\" for 5 s, keeping the last value in the row (for example `{count, prev}`) so undo also works from another device",
+   "delight": 5,
+   "effort": "S",
+   "ratio": 5,
+   "evidence": "UX-TALLY-1; `audiences.json` kid 13 → 0",
+   "ids": [
+    "UX-TALLY-1"
+   ],
+   "src": "audits/03-apps/tally.md:738"
+  },
+  {
+   "id": "IMP-TALLY-P2",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 2,
+   "text": "Disable + and − and show a skeleton dial until the data has arrived (a successful pull or a warm cache); never paint a placeholder 0",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-TALLY-2; P3-TALLY-02; P3-TALLY-07; `first-load.json` 37 → 1",
+   "ids": [
+    "UX-TALLY-2",
+    "P3-TALLY-02",
+    "P3-TALLY-07"
+   ],
+   "src": "audits/03-apps/tally.md:739"
+  },
+  {
+   "id": "IMP-TALLY-P3",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 3,
+   "text": "Rounded numerals (a `--font-rounded` token), `toLocaleString` grouping, and a 200-300 ms roll or bump on change that respects reduced motion",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "VIS-TALLY-3, VIS-TALLY-6",
+   "ids": [
+    "VIS-TALLY-3",
+    "VIS-TALLY-6"
+   ],
+   "src": "audits/03-apps/tally.md:740"
+  },
+  {
+   "id": "IMP-TALLY-P4",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 4,
+   "text": "Kid-safe Reset: a ↺ icon, smaller, placed away from + (for example top right, beside the pill), relying on the undo toast rather than a confirm",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-TALLY-1; `layout.json` gap 24 px",
+   "ids": [
+    "UX-TALLY-1"
+   ],
+   "src": "audits/03-apps/tally.md:741"
+  },
+  {
+   "id": "IMP-TALLY-P5",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 5,
+   "text": "Send Tally's queued taps even when Tally is closed: the shell declares `hub.use('tally', 'person')`, or flushes every `hub.queue.*.<pid>` of the signed-in person on `online` and `closeViewer`; the frame also flushes on `pagehide` with `fetch(..., {keepalive: true})`. This touches hub.js and index.html, not Tally, so it is shared with Phase 2 (P2-PROF-02).",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-TALLY-05; `critic-stranded.json`, `critic-stranded-online.json`",
+   "ids": [
+    "P3-TALLY-05"
+   ],
+   "src": "audits/03-apps/tally.md:742"
+  },
+  {
+   "id": "IMP-TALLY-P6",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Discs that reach 3:1 against the wash in every palette: tint them with the accent in dark mode, and strengthen the − disc in light",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "VIS-TALLY-1, VIS-TALLY-4, VIS-TALLY-5",
+   "ids": [
+    "VIS-TALLY-1",
+    "VIS-TALLY-4",
+    "VIS-TALLY-5"
+   ],
+   "src": "audits/03-apps/tally.md:743"
+  },
+  {
+   "id": "IMP-TALLY-P7",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 7,
+   "text": "Press feedback that works on iOS: a passive `touchstart` listener, or a `.pressed` class on `pointerdown`, with a ~0.97 scale; an optional short WebAudio tick",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "VIS-TALLY-7",
+   "ids": [
+    "VIS-TALLY-7"
+   ],
+   "src": "audits/03-apps/tally.md:744"
+  },
+  {
+   "id": "IMP-TALLY-P8",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 8,
+   "text": "Height-aware dial (`min(vw, vh)`) and a larger, kid-scaled pill carrying `hub.avatarHtml`",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-TALLY-2, VIS-TALLY-8, UX-TALLY-5",
+   "ids": [
+    "VIS-TALLY-2",
+    "VIS-TALLY-8",
+    "UX-TALLY-5"
+   ],
+   "src": "audits/03-apps/tally.md:745"
+  },
+  {
+   "id": "IMP-TALLY-P9",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 9,
+   "text": "An in-app sync dot from `hub.onSync`, and `aria-live=\"polite\"` on the count",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-TALLY-4; the P2 Sync UX pointer",
+   "ids": [
+    "UX-TALLY-4"
+   ],
+   "src": "audits/03-apps/tally.md:746"
+  },
+  {
+   "id": "IMP-TALLY-P10",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 10,
+   "text": "Disable − at zero, and every control on the kiosk (`aria-disabled` plus a view-only pill when `!hub.canWrite`); send no write when the value does not change; round and clamp the count on read (a finite, non-negative integer)",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-TALLY-04, P3-TALLY-08, P3-TALLY-09",
+   "ids": [
+    "P3-TALLY-04",
+    "P3-TALLY-08",
+    "P3-TALLY-09"
+   ],
+   "src": "audits/03-apps/tally.md:747"
+  },
+  {
+   "id": "IMP-TALLY-P11",
+   "app": "tally",
+   "kind": "polish",
+   "rank": 11,
+   "text": "`hub.migrate` skips guests (`hub.session.profile.is_guest`) and leaves the migrated mark unset for them. This is a hub.js fix shared by every `hub.migrate` caller.",
+   "delight": 1,
+   "effort": "S",
+   "ratio": 1,
+   "evidence": "P3-TALLY-06",
+   "ids": [
+    "P3-TALLY-06"
+   ],
+   "src": "audits/03-apps/tally.md:748"
+  },
+  {
+   "id": "IMP-TALLY-F1",
+   "app": "tally",
+   "kind": "feature",
+   "rank": 1,
+   "text": "Count with deltas so devices add up: the Worker applies +1/−1 to the stored value, or each device keeps its own row (`count:<deviceId>`) and the page shows the sum. This also turns P3-TALLY-05's loss into a delay, but does not send the stranded taps sooner (polish 5 does).",
+   "delight": 5,
+   "effort": "M",
+   "ratio": 2.5,
+   "evidence": "P3-TALLY-01; `two-devices.json` (5, 12 and 4 lost)",
+   "ids": [
+    "P3-TALLY-01"
+   ],
+   "src": "audits/03-apps/tally.md:754"
+  },
+  {
+   "id": "IMP-TALLY-F2",
+   "app": "tally",
+   "kind": "feature",
+   "rank": 2,
+   "text": "A Home or wide-tile widget with the count and a + button (`apps.json` tile `wide` plus `widgetHtml` in index.html), bringing counting to 1-2 taps and showing the kids' counts on the iPad",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "UX-TALLY-3; `apps.json:7`",
+   "ids": [
+    "UX-TALLY-3"
+   ],
+   "src": "audits/03-apps/tally.md:755"
+  },
+  {
+   "id": "IMP-TALLY-F3",
+   "app": "tally",
+   "kind": "feature",
+   "rank": 3,
+   "text": "Several named general-purpose counters per person (`item:<id>` rows `{name, count, lastReset}`) with a short list of recent resets: counters only, not a routine or reward system",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "GAP-TALLY-1",
+   "ids": [
+    "GAP-TALLY-1"
+   ],
+   "src": "audits/03-apps/tally.md:756"
+  },
+  {
+   "id": "IMP-TALLY-I1",
+   "app": "tally",
+   "kind": "idea",
+   "rank": 1,
+   "text": "Across-the-room mode on the iPad: when idle, hide Reset and enlarge the count (for example a kids' game score on the Kitchen iPad)",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "`glance.json`: 4.3 m for 2 digits, 1.8 m for 7",
+   "ids": [],
+   "src": "audits/03-apps/tally.md:762"
+  },
+  {
+   "id": "IMP-TIMER-P1",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 1,
+   "text": "A clear \"Time's up\" moment: a label with a bell icon and a steady, high-contrast done state, so it reads by more than colour",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-TIMER-4; `visual.json` V4",
+   "ids": [
+    "UX-TIMER-4"
+   ],
+   "src": "audits/03-apps/timer.md:546"
+  },
+  {
+   "id": "IMP-TIMER-P2",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 2,
+   "text": "Undo instead of silent cancel: a preset tap or Reset while running shows \"Timer cancelled — Undo\" for 5 s and restores `endAt`",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-TIMER-1; `basics.json` C",
+   "ids": [
+    "UX-TIMER-1"
+   ],
+   "src": "audits/03-apps/timer.md:547"
+  },
+  {
+   "id": "IMP-TIMER-P3",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 3,
+   "text": "A bigger dial on the iPad: size it from vmin and drop the 400 px cap, so the digits reach 15 mm for 3 m",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-TIMER-5; `visual.json` V3",
+   "ids": [
+    "UX-TIMER-5"
+   ],
+   "src": "audits/03-apps/timer.md:548"
+  },
+  {
+   "id": "IMP-TIMER-P4",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 4,
+   "text": "A skeleton until ready: a dial without digits and a disabled Start until this page's first timer pull has landed, even with a warm cache; never start blind over an unknown record",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-TIMER-01, UX-TIMER-9",
+   "ids": [
+    "P3-TIMER-01",
+    "UX-TIMER-9"
+   ],
+   "src": "audits/03-apps/timer.md:549"
+  },
+  {
+   "id": "IMP-TIMER-P5",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 5,
+   "text": "Keep the dial round at 0: rename the `empty` class (it collides with design.css's `.ds .empty`)",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-TIMER-02",
+   "ids": [
+    "P3-TIMER-02"
+   ],
+   "src": "audits/03-apps/timer.md:550"
+  },
+  {
+   "id": "IMP-TIMER-P6",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Keep Pause strong and say Resume: a tinted Pause while running, \"Resume\" and \"Paused\" after pausing",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "VIS-TIMER-1, UX-TIMER-2",
+   "ids": [
+    "VIS-TIMER-1",
+    "UX-TIMER-2"
+   ],
+   "src": "audits/03-apps/timer.md:551"
+  },
+  {
+   "id": "IMP-TIMER-P7",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 7,
+   "text": "Hide the in-app title when framed, and use the system font for it",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-TIMER-2",
+   "ids": [
+    "VIS-TIMER-2"
+   ],
+   "src": "audits/03-apps/timer.md:552"
+  },
+  {
+   "id": "IMP-TIMER-P8",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 8,
+   "text": "Accessible state: `aria-pressed` on the chips and a polite live region at minute marks and \"Time's up\"",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-TIMER-10",
+   "ids": [
+    "UX-TIMER-10"
+   ],
+   "src": "audits/03-apps/timer.md:553"
+  },
+  {
+   "id": "IMP-TIMER-P9",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 9,
+   "text": "Keep chat clear of the pill: pad the chat log by the pill's height while it shows",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-TIMER-5",
+   "ids": [
+    "VIS-TIMER-5"
+   ],
+   "src": "audits/03-apps/timer.md:554"
+  },
+  {
+   "id": "IMP-TIMER-P10",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 10,
+   "text": "A visible ring track (at least 3:1 against the dial), from the visual check",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-TIMER-7; `vischeck-track.json`",
+   "ids": [
+    "VIS-TIMER-7"
+   ],
+   "src": "audits/03-apps/timer.md:555"
+  },
+  {
+   "id": "IMP-TIMER-P11",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 11,
+   "text": "Reuse one `AudioContext` (or close it after the chime)",
+   "delight": 1,
+   "effort": "S",
+   "ratio": 1,
+   "evidence": "P3-TIMER-03",
+   "ids": [
+    "P3-TIMER-03"
+   ],
+   "src": "audits/03-apps/timer.md:556"
+  },
+  {
+   "id": "IMP-TIMER-P12",
+   "app": "timer",
+   "kind": "polish",
+   "rank": 12,
+   "text": "Count down like a clock: `Math.ceil` for the display and finish at `endAt` (`endAt - Date.now() <= 0`), in the app and the shell",
+   "delight": 1,
+   "effort": "S",
+   "ratio": 1,
+   "evidence": "P3-TIMER-05",
+   "ids": [
+    "P3-TIMER-05"
+   ],
+   "src": "audits/03-apps/timer.md:557"
+  },
+  {
+   "id": "IMP-TIMER-F1",
+   "app": "timer",
+   "kind": "feature",
+   "rank": 1,
+   "text": "Unlock the chime on Start and ring until stopped: create or resume one `AudioContext` inside the Start tap (app and shell), repeat the chime until a big Stop / +1 min is tapped, and set `navigator.audioSession.type = 'playback'` where supported",
+   "delight": 5,
+   "effort": "S",
+   "ratio": 5,
+   "evidence": "U-1, GAP-TIMER-2; `apps/timer.html:93-111`; `index.html:788-822`",
+   "ids": [
+    "GAP-TIMER-2"
+   ],
+   "src": "audits/03-apps/timer.md:563"
+  },
+  {
+   "id": "IMP-TIMER-F2",
+   "app": "timer",
+   "kind": "feature",
+   "rank": 2,
+   "text": "Persist pause across devices: `timer.active {pausedLeft, total}`, \"Paused 9:28\" everywhere, Resume continues",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-TIMER-2; `sync2.json` S2",
+   "ids": [
+    "UX-TIMER-2"
+   ],
+   "src": "audits/03-apps/timer.md:564"
+  },
+  {
+   "id": "IMP-TIMER-F3",
+   "app": "timer",
+   "kind": "feature",
+   "rank": 3,
+   "text": "Notify whenever the page is hidden at 0, whichever app is open, and offer \"Alert me when it's done\" (permission) on first Start",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-TIMER-04, GAP-TIMER-1; `verify-critic-notify-suppressed-while-app-open-3-2.json` A against C",
+   "ids": [
+    "P3-TIMER-04",
+    "GAP-TIMER-1"
+   ],
+   "src": "audits/03-apps/timer.md:565"
+  },
+  {
+   "id": "IMP-TIMER-F4",
+   "app": "timer",
+   "kind": "feature",
+   "rank": 4,
+   "text": "Missed-timer notice: \"Timer ended 4 min ago\" on return, in the app and as a shell toast",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-TIMER-3; `background.json` B5/B6",
+   "ids": [
+    "UX-TIMER-3"
+   ],
+   "src": "audits/03-apps/timer.md:566"
+  },
+  {
+   "id": "IMP-TIMER-F5",
+   "app": "timer",
+   "kind": "feature",
+   "rank": 5,
+   "text": "Several named timers: person rows `timer:<id> {label, endAt, total}` (\"Pasta\", \"Oven\") as small dials; the pill shows the soonest with a count",
+   "delight": 5,
+   "effort": "M",
+   "ratio": 2.5,
+   "evidence": "GAP-TIMER-3",
+   "ids": [
+    "GAP-TIMER-3"
+   ],
+   "src": "audits/03-apps/timer.md:567"
+  },
+  {
+   "id": "IMP-TIMER-F6",
+   "app": "timer",
+   "kind": "feature",
+   "rank": 6,
+   "text": "Ring on a locked phone: when a timer starts, schedule a Web Push for `endAt` to the owner's subscriptions (a Durable Object alarm, or a 1-minute cron that scans `timer.active` rows), through the existing push path and a new per-person toggle; from the critic",
+   "delight": 5,
+   "effort": "M",
+   "ratio": 2.5,
+   "evidence": "PWA-GAP-1 pointer; `worker/src/reminders.js:240` (no timer job); `verify-critic-locked-phone-no-alert-2-1.json`",
+   "ids": [
+    "PWA-GAP-1"
+   ],
+   "src": "audits/03-apps/timer.md:568"
+  },
+  {
+   "id": "IMP-TIMER-F7",
+   "app": "timer",
+   "kind": "feature",
+   "rank": 7,
+   "text": "Custom duration and +1 min: a minute/second wheel or keypad, +1 min while running, recents",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "GAP-TIMER-3; `apps/timer.html:61-66`",
+   "ids": [
+    "GAP-TIMER-3"
+   ],
+   "src": "audits/03-apps/timer.md:569"
+  },
+  {
+   "id": "IMP-TIMER-F8",
+   "app": "timer",
+   "kind": "feature",
+   "rank": 8,
+   "text": "One-tap start from Home: a wide tile or Home card with the last preset and two favourites, and a large running countdown on the kitchen iPad",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "UX-TIMER-7; `apps.json:8`",
+   "ids": [
+    "UX-TIMER-7"
+   ],
+   "src": "audits/03-apps/timer.md:570"
+  },
+  {
+   "id": "IMP-TIMER-I1",
+   "app": "timer",
+   "kind": "idea",
+   "rank": 1,
+   "text": "A pictorial kid timer: chips as filled discs (small, medium, big), play and pause glyphs, and a shrinking coloured disc a pre-reader can follow; no rewards or routines",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "UX-TIMER-6",
+   "ids": [
+    "UX-TIMER-6"
+   ],
+   "src": "audits/03-apps/timer.md:576"
+  },
+  {
+   "id": "IMP-TIMER-I2",
+   "app": "timer",
+   "kind": "idea",
+   "rank": 2,
+   "text": "Say it: a `start_timer` chat tool, or `hub.voiceInput` on the Timer, so hands-busy cooks can start or add time by voice",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "`worker/src/chat.js` (no timer tool); Apple's Siri timers",
+   "ids": [],
+   "src": "audits/03-apps/timer.md:577"
+  },
+  {
+   "id": "IMP-TIMER-I3",
+   "app": "timer",
+   "kind": "idea",
+   "rank": 3,
+   "text": "Household-visible kitchen timers: an opt-in \"show on the kitchen screens\" flag so a cooking timer appears large on the TV board and the shared iPad for everyone",
+   "delight": 4,
+   "effort": "L",
+   "ratio": 1.3,
+   "evidence": "GAP-HOME-1; P2-PROF-08",
+   "ids": [
+    "GAP-HOME-1",
+    "P2-PROF-08"
+   ],
+   "src": "audits/03-apps/timer.md:578"
+  },
+  {
+   "id": "IMP-VERSES-P1",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 1,
+   "text": "Keep the Leitner fields when F260 practises a verse: write `{...recall[id], s, t}` at `apps/f260.html:1915`, or apply the same box rule (the same fix as P3-F260-01's)",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "P3-VERSES-01 (= P3-F260-01); `audits/evidence/p3/verses/f260-practice-wipes-1-0.json`",
+   "ids": [
+    "P3-VERSES-01",
+    "P3-F260-01"
+   ],
+   "src": "audits/03-apps/verses.md:681"
+  },
+  {
+   "id": "IMP-VERSES-P2",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 2,
+   "text": "Undo the last rating: keep the previous row for about 5 s and put an Undo action on the toast",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-VERSES-2; `apps/verses.html:294-304`",
+   "ids": [
+    "UX-VERSES-2"
+   ],
+   "src": "audits/03-apps/verses.md:682"
+  },
+  {
+   "id": "IMP-VERSES-P3",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 3,
+   "text": "Say the real next review in the toast (\"again in 7 days\"; \"stays in box 5\" at the top box)",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-VERSES-05; `audits/evidence/p3/verses/toast-not-yet.json`",
+   "ids": [
+    "P3-VERSES-05"
+   ],
+   "src": "audits/03-apps/verses.md:683"
+  },
+  {
+   "id": "IMP-VERSES-P4",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 4,
+   "text": "Hold the rating buttons behind a skeleton card until the first pull of verses / f260 / kidverse lands, and never write the summary before it",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-VERSES-03, P3-VERSES-07, UX-VERSES-5",
+   "ids": [
+    "P3-VERSES-03",
+    "P3-VERSES-07",
+    "UX-VERSES-5"
+   ],
+   "src": "audits/03-apps/verses.md:684"
+  },
+  {
+   "id": "IMP-VERSES-P5",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 5,
+   "text": "Roll over at midnight: re-render on `visibilitychange` and on a minute tick when the day key changes",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-VERSES-04; `audits/evidence/p3/verses/midnight.json`",
+   "ids": [
+    "P3-VERSES-04"
+   ],
+   "src": "audits/03-apps/verses.md:685"
+  },
+  {
+   "id": "IMP-VERSES-P6",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 6,
+   "text": "Keep Read aloud after Show (move `#say` out of `#act-show`) so the revealed text can be heard",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-VERSES-06; `audits/evidence/p3/verses/kid-flow.json`",
+   "ids": [
+    "P3-VERSES-06"
+   ],
+   "src": "audits/03-apps/verses.md:686"
+  },
+  {
+   "id": "IMP-VERSES-P7",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 7,
+   "text": "Count a day with nothing due as kept, or say \"Practise one to keep your streak\" on the done card",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "P3-VERSES-11; `audits/evidence/p3/verses/critic-streak.json`",
+   "ids": [
+    "P3-VERSES-11"
+   ],
+   "src": "audits/03-apps/verses.md:687"
+  },
+  {
+   "id": "IMP-VERSES-P8",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 8,
+   "text": "Honest copy: \"Nothing due\" / \"No verses yet\" instead of \"all done\", no gold star when nothing was reviewed, Practise-anyway not counted as due, a button to F260 in the empty state and \"you can start reviewing it here straight away\" instead of \"on its review day\"",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-VERSES-4, P3-VERSES-08, GAP-VERSES-3, P3-VERSES-14",
+   "ids": [
+    "UX-VERSES-4",
+    "P3-VERSES-08",
+    "GAP-VERSES-3",
+    "P3-VERSES-14"
+   ],
+   "src": "audits/03-apps/verses.md:688"
+  },
+  {
+   "id": "IMP-VERSES-P9",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 9,
+   "text": "Solid trainer card, concentric buttons, content height instead of a fixed `min-height`, pastel fill with deep ink for Show and Got it in light mode (fixing the 4.4:1), clearer dark rating fills",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "VIS-VERSES-1, -2, -3, -4, -7",
+   "ids": [
+    "VIS-VERSES-1"
+   ],
+   "src": "audits/03-apps/verses.md:689"
+  },
+  {
+   "id": "IMP-VERSES-P10",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 10,
+   "text": "Plain schedule words (\"every week\") instead of box numbers, and one count per screen",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "UX-VERSES-8, UX-VERSES-9 (from the visual check)",
+   "ids": [
+    "UX-VERSES-8",
+    "UX-VERSES-9"
+   ],
+   "src": "audits/03-apps/verses.md:690"
+  },
+  {
+   "id": "IMP-VERSES-P11",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 11,
+   "text": "Ignore taps on the card for about 400 ms after a rating, or slide the next card in, so a double tap cannot reveal the next verse",
+   "delight": 2,
+   "effort": "S",
+   "ratio": 2,
+   "evidence": "P3-VERSES-12; `audits/evidence/p3/verses/critic-doubletap.json`",
+   "ids": [
+    "P3-VERSES-12"
+   ],
+   "src": "audits/03-apps/verses.md:691"
+  },
+  {
+   "id": "IMP-VERSES-P12",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 12,
+   "text": "Let Enter and Space activate a focused button; keep the Show shortcut for when nothing is focused",
+   "delight": 1,
+   "effort": "S",
+   "ratio": 1,
+   "evidence": "P3-VERSES-10",
+   "ids": [
+    "P3-VERSES-10"
+   ],
+   "src": "audits/03-apps/verses.md:692"
+  },
+  {
+   "id": "IMP-VERSES-P13",
+   "app": "verses",
+   "kind": "polish",
+   "rank": 13,
+   "text": "`aria-hidden=\"true\"` on `#text` until Show",
+   "delight": 1,
+   "effort": "S",
+   "ratio": 1,
+   "evidence": "P3-VERSES-13; `audits/evidence/p3/verses/critic-veiled-a11y.json`",
+   "ids": [
+    "P3-VERSES-13"
+   ],
+   "src": "audits/03-apps/verses.md:693"
+  },
+  {
+   "id": "IMP-VERSES-F1",
+   "app": "verses",
+   "kind": "feature",
+   "rank": 1,
+   "text": "A Verses card on Home that reads the existing `verses.summary` (\"3 verses due · 13-day streak\") with a one-tap start: 1 tap plus 2 per verse",
+   "delight": 4,
+   "effort": "S",
+   "ratio": 4,
+   "evidence": "UX-VERSES-3; GAP-HOME-2; `audits/evidence/p3/verses/taps.json`",
+   "ids": [
+    "UX-VERSES-3",
+    "GAP-HOME-2"
+   ],
+   "src": "audits/03-apps/verses.md:699"
+  },
+  {
+   "id": "IMP-VERSES-F2",
+   "app": "verses",
+   "kind": "feature",
+   "rank": 2,
+   "text": "Show the next interval on each rating button (\"Not yet · tomorrow\", \"Almost · 4 days\", \"Got it · 2 weeks\"), as Anki does",
+   "delight": 3,
+   "effort": "S",
+   "ratio": 3,
+   "evidence": "GAP-VERSES-2",
+   "ids": [
+    "GAP-VERSES-2"
+   ],
+   "src": "audits/03-apps/verses.md:700"
+  },
+  {
+   "id": "IMP-VERSES-F3",
+   "app": "verses",
+   "kind": "feature",
+   "rank": 3,
+   "text": "A kid mode a pre-reader can do: speak Kid Verse's own paraphrase for the week (`VERSES[].words`) and show that week's scene art, with picture-only prompts; no new rewards",
+   "delight": 5,
+   "effort": "M",
+   "ratio": 2.5,
+   "evidence": "UX-VERSES-1; `apps/kidverse.html:188`",
+   "ids": [
+    "UX-VERSES-1"
+   ],
+   "src": "audits/03-apps/verses.md:701"
+  },
+  {
+   "id": "IMP-VERSES-F4",
+   "app": "verses",
+   "kind": "feature",
+   "rank": 4,
+   "text": "Per-verse rows (`recall:<id>`, `log:<day>`) so two devices never erase each other's reviews; F260 reads the same map (`apps/f260.html:893, 1363`), so both apps change together",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "P3-VERSES-02; `audits/evidence/p3/verses/two-devices-A.json`",
+   "ids": [
+    "P3-VERSES-02"
+   ],
+   "src": "audits/03-apps/verses.md:702"
+  },
+  {
+   "id": "IMP-VERSES-F5",
+   "app": "verses",
+   "kind": "feature",
+   "rank": 5,
+   "text": "Verse text and hints inside Verses: paste or edit the text (writing `f260.verses` as F260 does) and a first-letter hint before Show",
+   "delight": 4,
+   "effort": "M",
+   "ratio": 2,
+   "evidence": "GAP-VERSES-1; `audits/evidence/p3/verses/texts-count.json`",
+   "ids": [
+    "GAP-VERSES-1"
+   ],
+   "src": "audits/03-apps/verses.md:703"
+  },
+  {
+   "id": "IMP-VERSES-F6",
+   "app": "verses",
+   "kind": "feature",
+   "rank": 6,
+   "text": "Choose a verse to practise by tapping any row in Due today or Coming up",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "`apps/verses.html:366-371`",
+   "ids": [],
+   "src": "audits/03-apps/verses.md:704"
+  },
+  {
+   "id": "IMP-VERSES-I1",
+   "app": "verses",
+   "kind": "idea",
+   "rank": 1,
+   "text": "Record yourself reciting and play it back, as Remember Me does",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "https://remem.me/",
+   "ids": [],
+   "src": "audits/03-apps/verses.md:710"
+  },
+  {
+   "id": "IMP-VERSES-I2",
+   "app": "verses",
+   "kind": "idea",
+   "rank": 2,
+   "text": "An evening \"3 verses to review\" push, a per-person toggle using the existing push jobs and the summary row",
+   "delight": 3,
+   "effort": "M",
+   "ratio": 1.5,
+   "evidence": "CLAUDE.md Push; `apps/verses.html:239-245`",
+   "ids": [],
+   "src": "audits/03-apps/verses.md:711"
+  },
+  {
+   "id": "IMP-VERSES-I3",
+   "app": "verses",
+   "kind": "idea",
+   "rank": 3,
+   "text": "Practice modes on verses that have text: word scramble, fill-in-the-gaps, type the first letters",
+   "delight": 4,
+   "effort": "L",
+   "ratio": 1.3,
+   "evidence": "https://remem.me/",
+   "ids": [],
+   "src": "audits/03-apps/verses.md:712"
+  }
+ ],
+ "gapRows": [
+  {
+   "row": "TOK-1",
+   "gap": "\"On\" tokens per fill; retire the literal #fff (badge, knob, F260 `--on-solid`)",
+   "source": "GAP-TOK-2",
+   "tokens": "`--X-on` ×12 (4.76-10.19), `--accent-on`, `--badge-bg/-ink`, `--switch-knob`; the badge line moves in batch 1a (gated as written and rewritten)",
+   "status": "T+R",
+   "ids": [
+    "GAP-TOK-2"
+   ],
+   "src": "audits/04-design-system.md:8675"
+  },
+  {
+   "row": "TOK-2",
+   "gap": "Theme-aware person palette stored as a name",
+   "source": "GAP-TOK-3",
+   "tokens": "9 families × 8 roles × 2 schemes; `data-accent`; the `H` fallback for stored sessions (gated)",
+   "status": "T+R (hub.js `publicProfile` + `hue`, Worker column)",
+   "ids": [
+    "GAP-TOK-3"
+   ],
+   "src": "audits/04-design-system.md:8676"
+  },
+  {
+   "row": "TOK-3",
+   "gap": "Scope selector re-deriving accent tokens; `--tint-*`",
+   "source": "GAP-TOK-6",
+   "tokens": "the `:root,[data-accent],[data-scheme],[data-theme-preview]` role block; `--tint-fill/-fill-strong/-ink/-graphic`",
+   "status": "T (nested scope gated, both engines; every `data-scheme` element also carries `data-accent`, gated)",
+   "ids": [
+    "GAP-TOK-6"
+   ],
+   "src": "audits/04-design-system.md:8677"
+  },
+  {
+   "row": "TOK-4",
+   "gap": "Named tint scale instead of 27 ratios / 168 recipes",
+   "source": "CONS-TOK-3",
+   "tokens": "wash, fill, fill-strong, strong, `--accent-glow`, `--hero-bg`, `--tile-bg`, `--wash`",
+   "status": "T+R (lint on color-mix of a person colour)",
+   "ids": [
+    "CONS-TOK-3"
+   ],
+   "src": "audits/04-design-system.md:8678"
+  },
+  {
+   "row": "TOK-5",
+   "gap": "Non-text controls at 3:1",
+   "source": "P4-TOK-01/02, GAP-TOK-1",
+   "tokens": "`--switch-*`, `--focus-ring`, `--track-info`, `--cell-empty`, `--status-*`, `--muted-decor`",
+   "status": "T (≥ 3.03)",
+   "ids": [
+    "P4-TOK-01",
+    "GAP-TOK-1"
+   ],
+   "src": "audits/04-design-system.md:8679"
+  },
+  {
+   "row": "TOK-6",
+   "gap": "`--placeholder` ≥ 4.5; `--muted` on `--surface-2`",
+   "source": "GAP-TOK-1",
+   "tokens": "`--placeholder` = `--text-3` (≥ 5.07 on every opaque surface)",
+   "status": "T+R (global `::placeholder`; design.css:445 moves in 1a)",
+   "ids": [
+    "GAP-TOK-1"
+   ],
+   "src": "audits/04-design-system.md:8680"
+  },
+  {
+   "row": "TOK-7",
+   "gap": "Highlight/shade scale for rgba literals",
+   "source": "GAP-TOK-7",
+   "tokens": "`--hi-1…4`, `--shade-1…5`",
+   "status": "T+R (lint)",
+   "ids": [
+    "GAP-TOK-7"
+   ],
+   "src": "audits/04-design-system.md:8681"
+  },
+  {
+   "row": "TOK-8",
+   "gap": "Categorical / semantic ramp",
+   "source": "CONS-TOK-1",
+   "tokens": "`--cat-1…8`, `--fresh/--aging/--use-soon` (bars), `--success/warning/danger-fill` + `-ink` (Larder chips), `--wait-*`",
+   "status": "T+R",
+   "ids": [
+    "CONS-TOK-1"
+   ],
+   "src": "audits/04-design-system.md:8682"
+  },
+  {
+   "row": "TOK-9",
+   "gap": "Weight tokens; fluid display scale",
+   "source": "GAP-TOK-5",
+   "tokens": "`--fw-*`, `--fs-display`, `--fs-numeral-s/m/l/xl`",
+   "status": "T",
+   "ids": [
+    "GAP-TOK-5"
+   ],
+   "src": "audits/04-design-system.md:8683"
+  },
+  {
+   "row": "TOK-10",
+   "gap": "Kind scales reach everything",
+   "source": "GAP-TOK-4",
+   "tokens": "`--ts` = width × user × kind; `--fs-floor`; legacy `--fs-*` now scale",
+   "status": "T+R (apps' px literals move to roles)",
+   "ids": [
+    "GAP-TOK-4"
+   ],
+   "src": "audits/04-design-system.md:8684"
+  },
+  {
+   "row": "TOK-11",
+   "gap": "Spacing adoption; snap 6/10/14; kind-scaled spacing",
+   "source": "GAP-TOK-4",
+   "tokens": "`--sp-*` × `--space-k`, `--pad-*`, `--gap-*`, `--sp-0-5/-1-5`",
+   "status": "T+R",
+   "ids": [
+    "GAP-TOK-4"
+   ],
+   "src": "audits/04-design-system.md:8685"
+  },
+  {
+   "row": "TOK-12",
+   "gap": "Icon-radius ratio; control-radius role; kiosk radii",
+   "source": "CONS-TOK-4/-2",
+   "tokens": "`--r-icon-ratio`, `--r-control`, `--r-button`, `--shape-k` for the role radii, **and kiosk overrides of the legacy `--r-sm…--r-2xl` the TV board reads (× 1.5, gated)**",
+   "status": "T+R: the control radius and the kiosk radii are tokens (T); **no rule reads `--r-icon-ratio` today** (`.ds .app-icon` keeps `border-radius: 18px`, `apps/design.css:606`, and the shell sets five literal icon radii, `index.html:109, 139, 167, 188, 247`), so the icon ratio is applied by the batch-2 `.app-icon` rewrite, `calc(var(--icon-box) * var(--r-icon-ratio))`, with the five literals setting only `--icon-box` (gated in both engines: 12.6 px on 56, 9 px on 40)",
+   "ids": [
+    "CONS-TOK-4"
+   ],
+   "src": "audits/04-design-system.md:8686"
+  },
+  {
+   "row": "TOK-13",
+   "gap": "Ring width, pressed, glow",
+   "source": "GAP-TOK-5",
+   "tokens": "`--ring-w-sm/-/-lg`, `--shadow-pressed`, `--glow-accent(-lg)`",
+   "status": "T",
+   "ids": [
+    "GAP-TOK-5"
+   ],
+   "src": "audits/04-design-system.md:8687"
+  },
+  {
+   "row": "TOK-14",
+   "gap": "Composite glass tokens",
+   "source": "GAP-TOK-5",
+   "tokens": "`--glass-bg(-strong)`, `--glass-filter(-strong)`, `--glass-shadow`",
+   "status": "T",
+   "ids": [
+    "GAP-TOK-5"
+   ],
+   "src": "audits/04-design-system.md:8688"
+  },
+  {
+   "row": "TOK-15",
+   "gap": "Press scale, long durations, retire `--dur`/`--ease-out`, shared springs",
+   "source": "GAP-TOK-5/-9",
+   "tokens": "`--press-scale(-sm)`, `--press-dim`, `--dur-press` 0 (an instant press-in), `--dur-progress` 350 ms, `--dur-shimmer…crossfade`, `--pulse-scale`, `--spring-*`; `--dur` removed (0 readers, gated); `--ease-out` kept as a deprecated alias (5 reads)",
+   "status": "T",
+   "ids": [
+    "GAP-TOK-5"
+   ],
+   "src": "audits/04-design-system.md:8689"
+  },
+  {
+   "row": "TOK-16",
+   "gap": "z-index ladder; breakpoints",
+   "source": "GAP-TOK-5",
+   "tokens": "`--z-*`; documented breakpoints",
+   "status": "T+R (`@media` uses the documented values)",
+   "ids": [
+    "GAP-TOK-5"
+   ],
+   "src": "audits/04-design-system.md:8690"
+  },
+  {
+   "row": "TOK-17",
+   "gap": "Targets through tokens; kiosk `--tap`",
+   "source": "GAP-TOK-4",
+   "tokens": "`--tap/-lg/-row` with per-kind bases, growing with text size",
+   "status": "T+R",
+   "ids": [
+    "GAP-TOK-4"
+   ],
+   "src": "audits/04-design-system.md:8691"
+  },
+  {
+   "row": "TOK-18",
+   "gap": "One source per palette",
+   "source": "GAP-TOK-8",
+   "tokens": "One block per palette; cards carry attributes",
+   "status": "T (preview gated)",
+   "ids": [
+    "GAP-TOK-8"
+   ],
+   "src": "audits/04-design-system.md:8692"
+  },
+  {
+   "row": "TOK-19",
+   "gap": "Verification gates",
+   "source": "GAP-TOK-1/-7",
+   "tokens": "`contrast.mjs` (102,583 evaluations), `browser-check.mjs` (WebKit + Chromium, the GLASS-7 and identity component rules and Prayer's meta included), `rev2-runtime.mjs` (the TV fit, F260's buttons, kid fonts, big numerals and the text floor on the rig, the Dollywood pair included), the mutation test (25 faults)",
+   "status": "T+R (the rgba/named/JS lint is Phase 6)",
+   "ids": [
+    "GAP-TOK-1"
+   ],
+   "src": "audits/04-design-system.md:8693"
+  },
+  {
+   "row": "TOK-20",
+   "gap": "One vocabulary; namespace colliding app classes; one segmented control",
+   "source": "CONS-TOK-1/-2",
+   "tokens": "The migration tables above",
+   "status": "Open: a component-naming change, not a token; done per app batch",
+   "ids": [
+    "CONS-TOK-1"
+   ],
+   "src": "audits/04-design-system.md:8694"
+  },
+  {
+   "row": "TOK-21",
+   "gap": "Prune unused / exact-alias tokens",
+   "source": "GAP-TOK-9",
+   "tokens": "`--dur`, `--shadow-sm` and `--info` **removed** (0 readers each, gated). Marked `/* deprecated */` in §9: `--info-soft` / `--info-ink` (1 reader), `--ease-out`, `--shadow` and `--shadow-lg` (exact aliases). `--accent-strong` is no longer an alias: it is the strong role. `--sp-12` / `--sp-16` / `--bg-2` stay (the guide reads them)",
+   "status": "T (the deprecated aliases are deleted when the lint finds no reader)",
+   "ids": [
+    "GAP-TOK-9"
+   ],
+   "src": "audits/04-design-system.md:8695"
+  },
+  {
+   "row": "MOTION-1",
+   "gap": "Real spring family",
+   "source": "design.css:108",
+   "tokens": "`--spring-snappy/-gentle/-bouncy` + durations (bouncy 340 ms)",
+   "status": "T (overshoot and range gated)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8696"
+  },
+  {
+   "row": "MOTION-2",
+   "gap": "Complete duration scale; `--dur-3` ≤ 350",
+   "source": "Table MOTION-1",
+   "tokens": "`--dur-*`: every UI transition token gated within 200-350 ms, including bouncy (340), exit (200), progress (350, was 800) and the legacy `--dur-1/-2/-3` (→ 200 / 200 / 350); the press-in is instant (0); the keyframe loops keep their long durations; **`--dur-crossfade` (2500 ms, the TV album crossfade) is the one ambient transition outside the range, an owner-approved exception (D18), gated as such**",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8697"
+  },
+  {
+   "row": "MOTION-3",
+   "gap": "Press tokens + a `.pressable` rule usable outside `.ds`",
+   "source": "Table MOTION-3",
+   "tokens": "`--press-scale(-sm)`, `--press-dim`, `--dur-press` (0), the release on `--dur-snappy`",
+   "status": "T+R: `.pressable` is a **global** opt-in rule, not scoped to `.ds` (§8). `.ds .btn` gets it in batch 1b; F260, Prayer, the Larder and the Dollywood template adopt it in their own batches",
+   "ids": [],
+   "src": "audits/04-design-system.md:8698"
+  },
+  {
+   "row": "MOTION-4",
+   "gap": "Exit keyframes; interruptible entry",
+   "source": "remeasure-interrupt",
+   "tokens": "`--dur-exit` (200), `--ease-exit`, `--enter-distance`",
+   "status": "R (a WAAPI close helper in hub.js)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8699"
+  },
+  {
+   "row": "MOTION-5",
+   "gap": "`hub.sheet()` / `hub.toast()`",
+   "source": "index.html:743-760",
+   "tokens": "`--r-sheet`, `--pad-sheet`, `--toast-*`, `--z-sheet/-toast`, `--e-up`",
+   "status": "R (SDK)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8700"
+  },
+  {
+   "row": "MOTION-6",
+   "gap": "Reduce Motion live; crossfade substitute",
+   "source": "hub.js:442",
+   "tokens": "`[data-motion=reduce]` + mirrored `@media` + opt-out; the bootstrap applies the switch before paint; `--pulse-scale: 1`. **Batch 1b keeps the global kill (`apps/design.css:611-613`), re-keyed** as `:root[data-motion=\"reduce\"] *` plus `@media (prefers-reduced-motion: reduce) { :root:not([data-motion=\"full\"]) * }`, as an opacity-only substitute (§8); retired only when the lint finds no literal duration",
+   "status": "T+R (hub.js live, `hub.reducedMotion`, `hub.scrollTo`; the re-keyed kill)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8701"
+  },
+  {
+   "row": "MOTION-7",
+   "gap": "Loading primitive",
+   "source": "Table MOTION-5",
+   "tokens": "`--sk-line`, `--dur-shimmer`, `--min-h-*`",
+   "status": "R (`hub.pulled(scope)`)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8702"
+  },
+  {
+   "row": "MOTION-8",
+   "gap": "Stable-height rule",
+   "source": "Table MOTION-6",
+   "tokens": "`--min-h-row/-glance/-hero/-chips`",
+   "status": "T+R (per-card heights measured in Phase 6)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8703"
+  },
+  {
+   "row": "MOTION-9",
+   "gap": "Ambient loops: transform/opacity, stop after N",
+   "source": "P4-MOTION-03",
+   "tokens": "`--dur-ambient`, `--ambient-iterations`, `--pulse-scale` (all neutralised under reduce)",
+   "status": "T+R",
+   "ids": [
+    "P4-MOTION-03"
+   ],
+   "src": "audits/04-design-system.md:8704"
+  },
+  {
+   "row": "MOTION-10",
+   "gap": "Entrance once per mount",
+   "source": "P4-MOTION-01",
+   "tokens": "—",
+   "status": "R (`data-entered` rule)",
+   "ids": [
+    "P4-MOTION-01"
+   ],
+   "src": "audits/04-design-system.md:8705"
+  },
+  {
+   "row": "MOTION-11",
+   "gap": "Document `touchstart` for iOS `:active`",
+   "source": "GAP-MOTION-3",
+   "tokens": "—",
+   "status": "R (hub.js)",
+   "ids": [
+    "GAP-MOTION-3"
+   ],
+   "src": "audits/04-design-system.md:8706"
+  },
+  {
+   "row": "ICON-1",
+   "gap": "Icon size scale with kid/TV multipliers",
+   "source": "design.css:546",
+   "tokens": "`--icon-xs…xl` × `--icon-k`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8707"
+  },
+  {
+   "row": "ICON-2",
+   "gap": "Stroke rule",
+   "source": "rollup.json",
+   "tokens": "`--icon-stroke` + non-scaling stroke",
+   "status": "T+R",
+   "ids": [],
+   "src": "audits/04-design-system.md:8708"
+  },
+  {
+   "row": "ICON-3",
+   "gap": "Ink rule for icons on tints",
+   "source": "P4-ICON-03",
+   "tokens": "`--X-ink` / `--accent-ink` on `--tile-bg` (≥ 3.26)",
+   "status": "T+R: `.app-icon` (`apps/design.css:606-608`) paints its glyph in `color: var(--tint)`, and `--tint` aliases `--accent-strong`, not the ink. **Batch 2** rewrites it to `--tile-bg` with `--accent-ink` (`identity-component.css`), in the commit that gives every tile and icon a `data-accent` (it was batch 1b until revision 4, which would have painted every tile in the signed-in person's family, and on the TV in graphite)",
+   "ids": [
+    "P4-ICON-03"
+   ],
+   "src": "audits/04-design-system.md:8709"
+  },
+  {
+   "row": "ICON-4",
+   "gap": "App and person colours as raw hex",
+   "source": "P4-ICON-01",
+   "tokens": "`data-accent` on tiles and avatars; dark `--accent-ink`",
+   "status": "T+R: `hub.avatarHtml` writes the person's `data-accent` in batch 1a; the apps.json `hue` (the nine in D5) and a `data-accent` on every tile, glance card and icon land with the `.app-icon` rewrite in batch 2",
+   "ids": [
+    "P4-ICON-01"
+   ],
+   "src": "audits/04-design-system.md:8710"
+  },
+  {
+   "row": "ICON-5",
+   "gap": "Shared open-source sprite",
+   "source": "GAP-ICON-2",
+   "tokens": "—",
+   "status": "R (a Lucide sprite + LICENSE)",
+   "ids": [
+    "GAP-ICON-2"
+   ],
+   "src": "audits/04-design-system.md:8711"
+  },
+  {
+   "row": "ICON-6",
+   "gap": "Duotone through `<use>`",
+   "source": "P4-ICON-02",
+   "tokens": "`--icon-duo`, `--icon-duo-opacity`",
+   "status": "T+R",
+   "ids": [
+    "P4-ICON-02"
+   ],
+   "src": "audits/04-design-system.md:8712"
+  },
+  {
+   "row": "ICON-7",
+   "gap": "`.icon-fill` modifier",
+   "source": "P4-ICON-05",
+   "tokens": "fills from `currentColor`",
+   "status": "R",
+   "ids": [
+    "P4-ICON-05"
+   ],
+   "src": "audits/04-design-system.md:8713"
+  },
+  {
+   "row": "ICON-8",
+   "gap": "No text glyphs or emoji as control icons",
+   "source": "VIS-ICON-1",
+   "tokens": "—",
+   "status": "R (lint and content rule, per app batch)",
+   "ids": [
+    "VIS-ICON-1"
+   ],
+   "src": "audits/04-design-system.md:8714"
+  },
+  {
+   "row": "ICON-9",
+   "gap": "Themed select chevron",
+   "source": "design.css:449",
+   "tokens": "`--chevron-mask` + `--chevron-colour` (gated ≥ 3)",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8715"
+  },
+  {
+   "row": "ICON-10",
+   "gap": "Map compass colours",
+   "source": "P4-ICON-04",
+   "tokens": "`--map-north`, `--glass-bg`",
+   "status": "T+R (sibling template)",
+   "ids": [
+    "P4-ICON-04"
+   ],
+   "src": "audits/04-design-system.md:8716"
+  },
+  {
+   "row": "ICON-11",
+   "gap": "Style-guide icon inventory",
+   "source": "docs/design.html:241",
+   "tokens": "—",
+   "status": "Open: style-guide work; Phase 5's preview shows the icon set",
+   "ids": [],
+   "src": "audits/04-design-system.md:8717"
+  },
+  {
+   "row": "TYPE-1",
+   "gap": "A plain text face; kid maps to rounded",
+   "source": "design.css:18",
+   "tokens": "`--font-text`, `--font-rounded`, `--font-ui`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8718"
+  },
+  {
+   "row": "TYPE-2",
+   "gap": "Large titles in the text face; serif as a reading role",
+   "source": "design.css:19-20",
+   "tokens": "`--font-display` → text; `--font-serif`",
+   "status": "T (D6)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8719"
+  },
+  {
+   "row": "TYPE-3",
+   "gap": "Dynamic Type role tokens",
+   "source": "design.css:22-24",
+   "tokens": "11 roles × size/lh/fw/ls + `--text-*`",
+   "status": "T (gated)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8720"
+  },
+  {
+   "row": "TYPE-4",
+   "gap": "Weight tokens",
+   "source": "code-scan.json",
+   "tokens": "`--fw-*`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8721"
+  },
+  {
+   "row": "TYPE-5",
+   "gap": "Per-role tracking",
+   "source": "design.css:25-26",
+   "tokens": "`--ls-*`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8722"
+  },
+  {
+   "row": "TYPE-6",
+   "gap": "Kid caption steps; kid floor 15-16",
+   "source": "design.css:280-284",
+   "tokens": "kid `--fs-floor` 16 (every role ≥ 16 in kid mode, gated)",
+   "status": "T+R: the floor binds roles, not px literals. Kid Verse's badge captions (10 px, batch 1a), Prayer's `.date` and nine Larder literals (their app batches) are named rows, and so is the **park map** (kid-visible: apps.json gives it no `visibleTo`): its six sub-11 literals and SVG label rule, and its kid-floor row, every `font-size` literal under 16 px in the template moved to its nearest role (template batch). With them the rig measures no kid text under 16 px on Home and every kid-visible app, the park map included (`rev2-runtime.json` → `E`, `F`)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8723"
+  },
+  {
+   "row": "TYPE-7",
+   "gap": "TV floor ≈ 28",
+   "source": "design.css:286-289",
+   "tokens": "The kiosk keeps today's TV sizes and spacing at every width (pinned, gated exactly; the board fits at 1920 × 1080 as today, `rev2-runtime.json`), with an 18 px floor on the role tokens. The 28 px floor, 32.3 px body and 96 px margin sit behind the opt-in `data-tv-scale=\"10ft\"` at 1600 px+ (gated both ways)",
+   "status": "T+R: the TV re-layout batch (`index.html:134-166`) turns the opt-in on, with `scripts/test-tv.mjs` and the fit check passing at 1920 × 1080 (D16)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8724"
+  },
+  {
+   "row": "TYPE-8",
+   "gap": "iPad tier",
+   "source": "GAP-TYPE-1",
+   "tokens": "`--ts-width` 1.12 at ≥ 744 + coarse pointer",
+   "status": "T (gated; desktop keeps 1)",
+   "ids": [
+    "GAP-TYPE-1"
+   ],
+   "src": "audits/04-design-system.md:8725"
+  },
+  {
+   "row": "TYPE-9",
+   "gap": "Text-size preference",
+   "source": "f260.html:50",
+   "tokens": "`data-text-size` → `--ts-user`; stored as `app_data(person,'hub','textSize')` with server-wins adoption and a device-local kiosk (§1); F260's `f260.big` migrates to `l` if D17 is accepted",
+   "status": "T+R (`hub.setTextSize`, the Me switch, the F260 migration or D17's alternative; `test-prefs.mjs` cases 1, 4, 5 and 6, §1)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8726"
+  },
+  {
+   "row": "TYPE-10",
+   "gap": "Numeral role",
+   "source": "Table TYPE-7",
+   "tokens": "`--font-numeral`, `--numeral-features`, `--fs-numeral-*`, `--ls-numeral`",
+   "status": "T+R: every numeral read (every `tabular-nums` rule, the Timer digits, the clocks, the timer pill, the star counts) moves to `--font-numeral` in batch 1a; with the move, every rendered one is ui-rounded for adult, kid and kiosk (`rev2-runtime.json` → `D`)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8727"
+  },
+  {
+   "row": "TYPE-11",
+   "gap": "11 px floor respected by SVG labels",
+   "source": "P4-TYPE-01",
+   "tokens": "`--fs-floor`",
+   "status": "T+R: F260's ring caption and Kid Verse's day letters and badge captions move to `--fs-caption2` in batch 1a. **The Dollywood pair** (template batch, in `../dollywood-build-project/scripts/template.html`, then rebuild, `verify.py`, export): the compass N (`:418`, 9 px), the wait tile MIN (`:500`, 9.5) and the toolbar group labels (`:156`, 10.5) move to `--fs-caption2`; the SVG labels (section names, listing numbers, contour heights, the cross-section axis, the wait-chip text and its MIN, the amenity, family and meeting-point labels) are sized `max(--fs-floor, design px) / map scale` in `apply()` (`:800-802`) and the profile code, as the family labels already are. With those rows the rig measures, as rendered (SVG × its screen scale), no adult text under 11 px in the build guide and the park map, and no kid text under 16 px in the park map (`rev2-runtime.json` → `F`)",
+   "ids": [
+    "P4-TYPE-01"
+   ],
+   "src": "audits/04-design-system.md:8728"
+  },
+  {
+   "row": "TYPE-12",
+   "gap": "Lint for px sizes, font literals, sub-11 text",
+   "source": "code-scan.json",
+   "tokens": "—",
+   "status": "R (`screens-apps.mjs` extension)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8729"
+  },
+  {
+   "row": "TYPE-13",
+   "gap": "Key/value role pair",
+   "source": "colour-only.json",
+   "tokens": "`--text-label` / `--text-value`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8730"
+  },
+  {
+   "row": "SHAPE-1",
+   "gap": "Size-class margin",
+   "source": "index.html:66-67",
+   "tokens": "`--margin` 16/20/28/32; the TV's 96 only with the 10-foot opt-in",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8731"
+  },
+  {
+   "row": "SHAPE-2",
+   "gap": "Named columns + a rule per app type",
+   "source": "design.css:33",
+   "tokens": "`--col-narrow/-read/-wide`",
+   "status": "T+R",
+   "ids": [],
+   "src": "audits/04-design-system.md:8732"
+  },
+  {
+   "row": "SHAPE-3",
+   "gap": "Component padding/gap tokens",
+   "source": "Table SHAPE-4",
+   "tokens": "`--pad-*`, `--gap-*`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8733"
+  },
+  {
+   "row": "SHAPE-4",
+   "gap": "Role radii",
+   "source": "Tables SHAPE-4/6/7",
+   "tokens": "`--r-control/-card/-sheet/-button/-inset`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8734"
+  },
+  {
+   "row": "SHAPE-5",
+   "gap": "Concentric rule",
+   "source": "VIS-SHAPE-1",
+   "tokens": "`--r-card` = control + padding",
+   "status": "T (gated)",
+   "ids": [
+    "VIS-SHAPE-1"
+   ],
+   "src": "audits/04-design-system.md:8735"
+  },
+  {
+   "row": "SHAPE-6",
+   "gap": "Kid containers concentric",
+   "source": "Table SHAPE-9",
+   "tokens": "`--shape-k` + `--space-k` (38 = 18 + 20)",
+   "status": "T (gated)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8736"
+  },
+  {
+   "row": "SHAPE-7",
+   "gap": "Elevation roles",
+   "source": "GAP-SHAPE-1",
+   "tokens": "`--elev-*`",
+   "status": "T",
+   "ids": [
+    "GAP-SHAPE-1"
+   ],
+   "src": "audits/04-design-system.md:8737"
+  },
+  {
+   "row": "SHAPE-8",
+   "gap": "Upward elevation; `--glow-accent-lg`",
+   "source": "design.css:413",
+   "tokens": "`--e-up`, `--elev-bar-up`, `--glow-accent-lg`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8738"
+  },
+  {
+   "row": "SHAPE-9",
+   "gap": "Shared min-target rule, sidebar tab, toast actions",
+   "source": "P4-SHAPE-01/02",
+   "tokens": "`--tap`, `--btn-h`",
+   "status": "T+R",
+   "ids": [
+    "P4-SHAPE-01"
+   ],
+   "src": "audits/04-design-system.md:8739"
+  },
+  {
+   "row": "SHAPE-10",
+   "gap": "Dollywood target literals",
+   "source": "P4-SHAPE-03",
+   "tokens": "`--tap`, `--tap-lg`",
+   "status": "T+R (sibling template)",
+   "ids": [
+    "P4-SHAPE-03"
+   ],
+   "src": "audits/04-design-system.md:8740"
+  },
+  {
+   "row": "SHAPE-11",
+   "gap": "Border-width token",
+   "source": "f260.html:100",
+   "tokens": "`--border-w(-strong)`, `--hairline-w`",
+   "status": "T",
+   "ids": [],
+   "src": "audits/04-design-system.md:8741"
+  },
+  {
+   "row": "SHAPE-12",
+   "gap": "One capsule button shape; `--btn-h`, `--btn-pad-x`",
+   "source": "CONS-SHAPE-4",
+   "tokens": "`--r-button`, `--btn-h(-lg)`, `--btn-pad-x`",
+   "status": "T",
+   "ids": [
+    "CONS-SHAPE-4"
+   ],
+   "src": "audits/04-design-system.md:8742"
+  },
+  {
+   "row": "SHAPE-13",
+   "gap": "App-icon radius ratio",
+   "source": "Table SHAPE-8",
+   "tokens": "`--r-icon-ratio`",
+   "status": "T+R (value: D9): the batch-2 `.app-icon` rewrite reads it, and the five literal radii at `index.html:109, 139, 167, 188, 247` move to `--icon-box` (TOK-12)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8743"
+  },
+  {
+   "row": "SHAPE-14",
+   "gap": "Toast component contract",
+   "source": "VIS-SHAPE-4, P4-SHAPE-04",
+   "tokens": "`--toast-*`, `--r-button`, `--tap`, `--z-toast`, `--margin`; sizing rule (added after the completeness critic): `left: 0; right: 0; margin-inline: auto; width: max-content; max-width: calc(100% - 2 * var(--margin))`, no `translateX`, sidebar offset `left: 220px` at ≥ 1024",
+   "status": "T+R (`hub.toast`)",
+   "ids": [
+    "VIS-SHAPE-4",
+    "P4-SHAPE-04"
+   ],
+   "src": "audits/04-design-system.md:8744"
+  },
+  {
+   "row": "GLASS-1",
+   "gap": "Reduced-transparency fallback + in-app switch",
+   "source": "GAP-GLASS-1",
+   "tokens": "`--glass-solid(-strong)`, `[data-transparency=reduce]` + mirror + opt-out; stored as `app_data(person,'hub','transparency')` with server-wins adoption and a device-local kiosk (§1)",
+   "status": "T+R (`hub.setTransparency`, the Me > Appearance switch; `test-prefs.mjs` cases 2, 4 and 5, §1)",
+   "ids": [
+    "GAP-GLASS-1"
+   ],
+   "src": "audits/04-design-system.md:8745"
+  },
+  {
+   "row": "GLASS-2",
+   "gap": "Increased-contrast glass",
+   "source": "GAP-GLASS-1",
+   "tokens": "`[data-contrast=more]` + mirror",
+   "status": "T (neutral text, inks, person solids (swapped in the light palettes; the dark pastel solid is already ≥ 7), badge, toast, inverse glass and text on every glass gated at 7:1; semantic solid labels AA; the no-theme dark root gets it too)",
+   "ids": [
+    "GAP-GLASS-1"
+   ],
+   "src": "audits/04-design-system.md:8746"
+  },
+  {
+   "row": "GLASS-3",
+   "gap": "Recipe as tokens; promote `--lv-*`",
+   "source": "CONS-GLASS-1",
+   "tokens": "`--glass-bg(-strong)`, `--glass-filter`, `--glass-shadow`",
+   "status": "T",
+   "ids": [
+    "CONS-GLASS-1"
+   ],
+   "src": "audits/04-design-system.md:8747"
+  },
+  {
+   "row": "GLASS-4",
+   "gap": "Blur scale",
+   "source": "design.css:285-288, 591; prayer.html:234-235; template.html:420; index.html:131",
+   "tokens": "`--blur-sm` 8 (the toast's 10, Prayer's veil 6 and the park-map scale), `--blur` 20, `--blur-lg` 32, `--scrim-blur` 0, and **`--blur-photo` 24 for the TV album backdrop** (`index.html:131`), applied once per photo to a static bitmap on the kiosk, never as a live filter under the crossfade (§7)",
+   "status": "T+R (the TV backdrop's canvas pre-blur in the shell batch)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8748"
+  },
+  {
+   "row": "GLASS-5",
+   "gap": "Inverse glass",
+   "source": "VIS-DARK-1",
+   "tokens": "`--glass-inverse(-line/-ink)`, `--toast-*`",
+   "status": "T (gated)",
+   "ids": [
+    "VIS-DARK-1"
+   ],
+   "src": "audits/04-design-system.md:8749"
+  },
+  {
+   "row": "GLASS-6",
+   "gap": "Content-glass role rule; a look-only class",
+   "source": "P4-GLASS-02",
+   "tokens": "The rule: content cards use `--material-solid-bg`; `--material-look-*` / `--glass-look` deprecated (the `.card.glass` migration and panels over photos only)",
+   "status": "T+R (lint flags `.glass` and the look on content cards; the TV board's `.tv-pane` sections leave `.glass-strong` for `--material-solid-bg` in batch 2)",
+   "ids": [
+    "P4-GLASS-02"
+   ],
+   "src": "audits/04-design-system.md:8750"
+  },
+  {
+   "row": "GLASS-7",
+   "gap": "Compositor-only sheen",
+   "source": "P4-GLASS-01",
+   "tokens": "Option (b): **no token contains `var(--sheen-x)`** (gated statically; a mutation putting it back is caught). `--glass-bg(-strong)` hold the sheen and the fill only. The person pickup is `--glass-pickup-layer` (the tile-end tone), painted in place by `--glass-bg(-strong)-tinted` on every glass surface, and drifted only on the tab bar and the top bar by an `::after` layer moved by `transform: translateX(…var(--sheen-x)…)` that never leaves its bar. A child writing `--sheen-x` changes no token (gated; both engines)",
+   "status": "T+R: `glass7-component.css` in batch 1b (and the template's glass classes), gated in both engines against today's components: the grabber, the scrolling sheet, the fixed tab bar and timer pill, the sticky top bar, no sideways overflow, the tabs clear of the pickup, no layer on the sidebar. hub.js writes `--sheen-x` on the two bars only, never `:root`",
+   "ids": [
+    "P4-GLASS-01"
+   ],
+   "src": "audits/04-design-system.md:8751"
+  },
+  {
+   "row": "GLASS-8",
+   "gap": "backdrop-filter only with translucent fills",
+   "source": "P4-GLASS-03",
+   "tokens": "`--material-chrome-*` vs `--material-solid-bg`; Prayer's `.fab` becomes solid",
+   "status": "T+R",
+   "ids": [
+    "P4-GLASS-03"
+   ],
+   "src": "audits/04-design-system.md:8752"
+  },
+  {
+   "row": "GLASS-9",
+   "gap": "Kiosk look-only glass",
+   "source": "P4-GLASS-04",
+   "tokens": "kiosk `--glass-filter: none`, glass = look; once the `.tv-pane` sections are solid (batch 2), only the `.kiosk-switch` control paints it",
+   "status": "T",
+   "ids": [
+    "P4-GLASS-04"
+   ],
+   "src": "audits/04-design-system.md:8753"
+  },
+  {
+   "row": "GLASS-10",
+   "gap": "Toolbar variant: floating vs solid",
+   "source": "VIS-GLASS-2",
+   "tokens": "`--material-chrome-*` / `--material-solid-bg`",
+   "status": "T+R",
+   "ids": [
+    "VIS-GLASS-2"
+   ],
+   "src": "audits/04-design-system.md:8754"
+  },
+  {
+   "row": "GLASS-11",
+   "gap": "One glass layer; scrims do not blur",
+   "source": "VIS-GLASS-1",
+   "tokens": "`--scrim-blur: 0`, material roles",
+   "status": "T+R",
+   "ids": [
+    "VIS-GLASS-1"
+   ],
+   "src": "audits/04-design-system.md:8755"
+  },
+  {
+   "row": "GLASS-12",
+   "gap": "Named material roles",
+   "source": "CONS-GLASS-2",
+   "tokens": "chrome / solid (/ look, deprecated)",
+   "status": "T",
+   "ids": [
+    "CONS-GLASS-2"
+   ],
+   "src": "audits/04-design-system.md:8756"
+  },
+  {
+   "row": "COLOR-1",
+   "gap": "`color-scheme` tied to the theme",
+   "source": "P4-COLOR-04",
+   "tokens": "`color-scheme` in every palette and hue block (gated per theme, incl. a stale scheme and a missing theme); the bootstrap sets `style.colorScheme`, and `applyTheme()` re-sets it on every call",
+   "status": "T+R (the `applyTheme` line, batch 1a)",
+   "ids": [
+    "P4-COLOR-04"
+   ],
+   "src": "audits/04-design-system.md:8757"
+  },
+  {
+   "row": "COLOR-2",
+   "gap": "Fill vs ink roles; lint on mid-tone ink",
+   "source": "P4-COLOR-01",
+   "tokens": "8 roles; bare legacy names → ink; the pre-pass and the pairing rule",
+   "status": "T (+ the lint, R)",
+   "ids": [
+    "P4-COLOR-01"
+   ],
+   "src": "audits/04-design-system.md:8758"
+  },
+  {
+   "row": "COLOR-3",
+   "gap": "Person ink; accent-on-light; `--tint-ink` floor",
+   "source": "P4-COLOR-02/03",
+   "tokens": "`--accent-ink`, `--tint-ink`, `--hero-btn-*`. The accent-on-light pair (the hero button) reaches the button only through the batch-1a `.ds .hero .btn-primary` row, which is gated as written (1.19 in dark) and as rewritten (≥ 6.58), in both engines",
+   "status": "T+R (gated): the batch-1a hero-button row",
+   "ids": [
+    "P4-COLOR-02"
+   ],
+   "src": "audits/04-design-system.md:8759"
+  },
+  {
+   "row": "COLOR-4",
+   "gap": "`--muted` on wells and color-mix surfaces",
+   "source": "P4-COLOR-06",
+   "tokens": "`--text-3` ≥ 5.07 on every opaque surface and ≥ 5.48 on `--accent-wash`",
+   "status": "T (gated)",
+   "ids": [
+    "P4-COLOR-06"
+   ],
+   "src": "audits/04-design-system.md:8760"
+  },
+  {
+   "row": "COLOR-5",
+   "gap": "AA tertiary ink; no opacity on text",
+   "source": "CONS-COLOR-1",
+   "tokens": "`--text-3`",
+   "status": "T+R (lint)",
+   "ids": [
+    "CONS-COLOR-1"
+   ],
+   "src": "audits/04-design-system.md:8761"
+  },
+  {
+   "row": "COLOR-6",
+   "gap": "`--placeholder`, `--field-border`, a global `::placeholder`",
+   "source": "P4-COLOR-05",
+   "tokens": "`--placeholder`, `--field-border` (≥ 3.03)",
+   "status": "T+R",
+   "ids": [
+    "P4-COLOR-05"
+   ],
+   "src": "audits/04-design-system.md:8762"
+  },
+  {
+   "row": "COLOR-7",
+   "gap": "Today marker, track, empty cell; dark wells lighter",
+   "source": "CONS-COLOR-2",
+   "tokens": "`--today-ring`, `--track(-info)`, `--cell-empty`; dark wells lighter (gated)",
+   "status": "T",
+   "ids": [
+    "CONS-COLOR-2"
+   ],
+   "src": "audits/04-design-system.md:8763"
+  },
+  {
+   "row": "COLOR-8",
+   "gap": "Eight house hue families + a dark chip recipe (≥ 1.5 step or a ring)",
+   "source": "VIS-COLOR-1",
+   "tokens": "8 families; **dark chips ≥ 1.52 off every card, gated at 1.5** (per-family minima 1.52-1.58; one pair reaches 1.708, the Mint chip on Graphite's card; seven fills lifted in revision 1)",
+   "status": "T (gated)",
+   "ids": [
+    "VIS-COLOR-1"
+   ],
+   "src": "audits/04-design-system.md:8764"
+  },
+  {
+   "row": "COLOR-9",
+   "gap": "Tile gradient recipe",
+   "source": "VIS-COLOR-1",
+   "tokens": "`--tile-bg` (glyph gated ≥ 3.26)",
+   "status": "T+R: the same `.app-icon` rewrite, in batch 2 (today a 22 % → 8 % tint with the raw colour as ink)",
+   "ids": [
+    "VIS-COLOR-1"
+   ],
+   "src": "audits/04-design-system.md:8765"
+  },
+  {
+   "row": "COLOR-10",
+   "gap": "Semantic rule",
+   "source": "CONS-COLOR-4",
+   "tokens": "Semantic families, luminance ratios, F4 ≥ 10.74, glyph tokens, `--timer-done`, `--attention`",
+   "status": "T (gated)",
+   "ids": [
+    "CONS-COLOR-4"
+   ],
+   "src": "audits/04-design-system.md:8766"
+  },
+  {
+   "row": "COLOR-11",
+   "gap": "Grouped neutral; dark card ≥ 1.2",
+   "source": "VIS-COLOR-1",
+   "tokens": "Hearth/Frost grouped; dark cards 1.20-1.23",
+   "status": "T (gated)",
+   "ids": [
+    "VIS-COLOR-1"
+   ],
+   "src": "audits/04-design-system.md:8767"
+  },
+  {
+   "row": "COLOR-12",
+   "gap": "Literal badge and wait-band colours",
+   "source": "design.css:516",
+   "tokens": "`--badge-*` (the 1a rewrite is gated), `--wait-*`",
+   "status": "T+R (template)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8768"
+  },
+  {
+   "row": "COLOR-13",
+   "gap": "prefers-contrast: more palette",
+   "source": "P2 GAP",
+   "tokens": "`[data-contrast=more]` + mirror",
+   "status": "T (gated)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8769"
+  },
+  {
+   "row": "DARK-1",
+   "gap": "Per-scheme `color-scheme`; author button backgrounds; token chevron",
+   "source": "P4-DARK-03",
+   "tokens": "`color-scheme` per block; `--chevron-*`",
+   "status": "T+R (component half gives every button a background)",
+   "ids": [
+    "P4-DARK-03"
+   ],
+   "src": "audits/04-design-system.md:8770"
+  },
+  {
+   "row": "DARK-2",
+   "gap": "An explicit Hearth block",
+   "source": "P4-DARK-02",
+   "tokens": "`[data-theme=hearth]`; stale-scheme gate; a dark root with no `data-theme` → Midnight **in every mode**, through a (0,1,0) guard (gated in the script and both engines; a mutation back to (0,3,0) is caught)",
+   "status": "T+R (hub.js keeps the attribute)",
+   "ids": [
+    "P4-DARK-02"
+   ],
+   "src": "audits/04-design-system.md:8771"
+  },
+  {
+   "row": "DARK-3",
+   "gap": "Dark-lifted person foreground",
+   "source": "P4-DARK-01",
+   "tokens": "dark `--accent-ink` (≥ 10.53 on cards), `--accent-graphic` (≥ 3.28)",
+   "status": "T (gated)",
+   "ids": [
+    "P4-DARK-01"
+   ],
+   "src": "audits/04-design-system.md:8772"
+  },
+  {
+   "row": "DARK-4",
+   "gap": "Dark soft fills ≥ 1.4 off the card",
+   "source": "GAP-DARK-1",
+   "tokens": "dark `-fill` ≥ 1.52 off every card (per-family minima 1.52-1.58, up to 1.708 on Graphite's card; gated at 1.5, above the 1.4 asked)",
+   "status": "T (gated)",
+   "ids": [
+    "GAP-DARK-1"
+   ],
+   "src": "audits/04-design-system.md:8773"
+  },
+  {
+   "row": "DARK-5",
+   "gap": "Dark depth ladder",
+   "source": "GAP-DARK-2",
+   "tokens": "card ≥ 1.20; wells and sheets lighter",
+   "status": "T (gated)",
+   "ids": [
+    "GAP-DARK-2"
+   ],
+   "src": "audits/04-design-system.md:8774"
+  },
+  {
+   "row": "DARK-6",
+   "gap": "Dark elevation = surface step + hairline",
+   "source": "GAP-DARK-2",
+   "tokens": "dark `--e1…e4`, `--surface-raised`",
+   "status": "T",
+   "ids": [
+    "GAP-DARK-2"
+   ],
+   "src": "audits/04-design-system.md:8775"
+  },
+  {
+   "row": "DARK-7",
+   "gap": "Solid focus ring ≥ 3",
+   "source": "GAP-DARK-3",
+   "tokens": "`--focus-ring-*` (outline)",
+   "status": "T (≥ 3.13)",
+   "ids": [
+    "GAP-DARK-3"
+   ],
+   "src": "audits/04-design-system.md:8776"
+  },
+  {
+   "row": "DARK-8",
+   "gap": "Toast per scheme",
+   "source": "VIS-DARK-1",
+   "tokens": "`--toast-bg/-ink/-ink-2`",
+   "status": "T (gated)",
+   "ids": [
+    "VIS-DARK-1"
+   ],
+   "src": "audits/04-design-system.md:8777"
+  },
+  {
+   "row": "DARK-9",
+   "gap": "Theme-applied hook",
+   "source": "P4-DARK-04",
+   "tokens": "—",
+   "status": "R (`hub:theme` event)",
+   "ids": [
+    "P4-DARK-04"
+   ],
+   "src": "audits/04-design-system.md:8778"
+  },
+  {
+   "row": "DARK-10",
+   "gap": "Art pipeline dark form",
+   "source": "CONS-DARK-1",
+   "tokens": "`--art-plate` (a stopgap)",
+   "status": "Partly: the plate stops bright slabs; the art stays open until `scripts/make-art.mjs` emits `var()` fills",
+   "ids": [
+    "CONS-DARK-1"
+   ],
+   "src": "audits/04-design-system.md:8779"
+  },
+  {
+   "row": "DARK-11",
+   "gap": "Dollywood category/water/wait literals in dark",
+   "source": "local-tokens.json",
+   "tokens": "`--map-*`, `--cat-*`, `--wait-*`",
+   "status": "Partly: categories and waits T+R; water and terrain stay a documented exemption (D12)",
+   "ids": [],
+   "src": "audits/04-design-system.md:8780"
+  },
+  {
+   "row": "DARK-12",
+   "gap": "`--placeholder` applied everywhere",
+   "source": "summary.json",
+   "tokens": "`--placeholder`",
+   "status": "T+R",
+   "ids": [],
+   "src": "audits/04-design-system.md:8781"
+  },
+  {
+   "row": "ACCENT-1",
+   "gap": "Per-scheme person colour",
+   "source": "GAP-TOK-3",
+   "tokens": "families × schemes",
+   "status": "T",
+   "ids": [
+    "GAP-TOK-3"
+   ],
+   "src": "audits/04-design-system.md:8782"
+  },
+  {
+   "row": "ACCENT-2",
+   "gap": "Person-colour roles documented and enforced",
+   "source": "P4-ACCENT-02/04",
+   "tokens": "role rules; `--tint-ink/-graphic`",
+   "status": "T+R (lint)",
+   "ids": [
+    "P4-ACCENT-02"
+   ],
+   "src": "audits/04-design-system.md:8783"
+  },
+  {
+   "row": "ACCENT-3",
+   "gap": "Selected-state token or rule",
+   "source": "P4-ACCENT-01",
+   "tokens": "`--sel-fill/-ink/-fill-strong/-ink-strong/-weight`. `--sel-fill` (the pastel) is under 3:1 against the card, so the non-colour cue is required.",
+   "status": "T+R: the batch-1b tab, segmented and chip rule applies `--sel-weight` plus a ≥ 3:1 indicator (`--sel-fill-strong` or `--accent-graphic` underline/filled icon)",
+   "ids": [
+    "P4-ACCENT-01"
+   ],
+   "src": "audits/04-design-system.md:8784"
+  },
+  {
+   "row": "ACCENT-4",
+   "gap": "Hero button pair per scheme",
+   "source": "P4-ACCENT-03",
+   "tokens": "`--hero-btn-bg/-ink` (≥ 6.58; ≥ 6.86 in dark). They apply through the batch-1a row `.ds .hero .btn-primary { background: var(--hero-btn-bg); color: var(--hero-btn-ink); box-shadow: var(--e2); }` (`apps/design.css:423`), gated in every palette × person × mode and rendered in both engines",
+   "status": "T+R: the batch-1a hero-button row",
+   "ids": [
+    "P4-ACCENT-03"
+   ],
+   "src": "audits/04-design-system.md:8785"
+  },
+  {
+   "row": "ACCENT-5",
+   "gap": "Scoped accent",
+   "source": "CONS-ACCENT-3",
+   "tokens": "`data-accent` on any element",
+   "status": "T (gated, both engines)",
+   "ids": [
+    "CONS-ACCENT-3"
+   ],
+   "src": "audits/04-design-system.md:8786"
+  },
+  {
+   "row": "ACCENT-6",
+   "gap": "Neutral default",
+   "source": "CONS-ACCENT-1",
+   "tokens": "graphite on `:root` (the default is a token)",
+   "status": "T+R. Three fallbacks give a record with no colour **Elizabeth's #8A6A4B** today, and `H` maps that hex to Peach, her family. Each becomes graphite: **`hub.avatarHtml`** (`apps/hub.js:461`) emits `data-accent=\"graphite\"` when there is no hue and no colour (batch 1a); the shell's **`FALLBACK`** (`index.html:450`) becomes graphite's #4C4C58 in batch 1a and the hue name `'graphite'` in batch 2; the **Worker** (`worker/src/index.js:182`) gives a new profile `hue = null` (graphite) and graphite's #4C4C58 when no colour is sent (batch 1a, with `006-profile-hue.sql`). The template's family-marker fallbacks (`#8A6A4B`, exported at `apps/dollywood-live.html:1213, 1214, 1302, 1306, 1316`) move to `--graphite-graphic` in its batch. And the batch-2 shell rule paints the PIN pad from the chosen person's `data-accent`",
+   "ids": [
+    "CONS-ACCENT-1"
+   ],
+   "src": "audits/04-design-system.md:8787"
+  },
+  {
+   "row": "ACCENT-7",
+   "gap": "App and semantic colours separate from people",
+   "source": "CONS-ACCENT-2",
+   "tokens": "semantic ≥ 10.74 ΔE00 from every person (gated)",
+   "status": "Partly: the semantic half is closed; apps sharing families is decision D5",
+   "ids": [
+    "CONS-ACCENT-2"
+   ],
+   "src": "audits/04-design-system.md:8788"
+  },
+  {
+   "row": "ACCENT-8",
+   "gap": "Profile palette registry (≥ 8, CVD ≥ 10)",
+   "source": "VIS-ACCENT-1",
+   "tokens": "8 hues + graphite; graphics ≥ 11.02 under CVD",
+   "status": "T+R (picker, Worker, `006-profile-hue.sql`). Pastel fills cannot separate for dichromats (dichromat minima 0.48-1.30, reported; 7.24-7.85 even with normal vision), so identity rides on the ring and the face.",
+   "ids": [
+    "VIS-ACCENT-1"
+   ],
+   "src": "audits/04-design-system.md:8789"
+  },
+  {
+   "row": "ACCENT-9",
+   "gap": "Refresh the session profile",
+   "source": "P4-ACCENT-05",
+   "tokens": "— (the `H` fallback covers sessions until the refresh lands)",
+   "status": "R (hub.js), **in batch 1a**",
+   "ids": [
+    "P4-ACCENT-05"
+   ],
+   "src": "audits/04-design-system.md:8790"
+  },
+  {
+   "row": "ACCENT-10",
+   "gap": "Style-guide contrast for all colours and palettes",
+   "source": "GAP-TOK-1",
+   "tokens": "`contrast.mjs`",
+   "status": "T+R (`test-design.mjs` runs it)",
+   "ids": [
+    "GAP-TOK-1"
+   ],
+   "src": "audits/04-design-system.md:8791"
+  },
+  {
+   "row": "TELL-1",
+   "gap": "Theme bootstrap before first paint",
+   "source": "P4-TELL-03",
+   "tokens": "`bootstrap.js`: theme, scheme, `colorScheme`, **`theme-color` (every meta set to the palette's v3 `--bg`, `media` dropped, created if missing)**, kind, accent with the fallback, text size, contrast, transparency, motion; gated in 12 cases, each also asserting `theme-color`",
+   "status": "T+R (inline in every `<head>`, in Prayer right after its own meta, which stays with its id; the shell's `index.html:8-9` deleted in batch 1a)",
+   "ids": [
+    "P4-TELL-03"
+   ],
+   "src": "audits/04-design-system.md:8792"
+  },
+  {
+   "row": "TELL-2",
+   "gap": "Focus rule that shadows cannot override",
+   "source": "P4-TELL-01",
+   "tokens": "`--focus-ring-w/-offset/-color` as an outline",
+   "status": "T+R",
+   "ids": [
+    "P4-TELL-01"
+   ],
+   "src": "audits/04-design-system.md:8793"
+  },
+  {
+   "row": "TELL-3",
+   "gap": "Base chrome rules outside `.ds`",
+   "source": "CONS-TELL-1",
+   "tokens": "—",
+   "status": "R (base CSS, batch 1b)",
+   "ids": [
+    "CONS-TELL-1"
+   ],
+   "src": "audits/04-design-system.md:8794"
+  },
+  {
+   "row": "TELL-4",
+   "gap": "Overscroll on `html`; canvas `--bg`",
+   "source": "P4-TELL-06",
+   "tokens": "`--bg`",
+   "status": "T+R",
+   "ids": [
+    "P4-TELL-06"
+   ],
+   "src": "audits/04-design-system.md:8795"
+  },
+  {
+   "row": "TELL-5",
+   "gap": "`--fs-field` everywhere; form resets",
+   "source": "P4-TELL-02",
+   "tokens": "`--fs-field`",
+   "status": "T+R",
+   "ids": [
+    "P4-TELL-02"
+   ],
+   "src": "audits/04-design-system.md:8796"
+  },
+  {
+   "row": "TELL-6",
+   "gap": "Scrollbar tokens; scheme-following",
+   "source": "P4-TELL-04",
+   "tokens": "`--scrollbar-*`, `color-scheme`",
+   "status": "T+R",
+   "ids": [
+    "P4-TELL-04"
+   ],
+   "src": "audits/04-design-system.md:8797"
+  },
+  {
+   "row": "TELL-7",
+   "gap": "`--viewer-loading-bg`",
+   "source": "VIS-TELL-1",
+   "tokens": "`--viewer-loading-bg`",
+   "status": "T",
+   "ids": [
+    "VIS-TELL-1"
+   ],
+   "src": "audits/04-design-system.md:8798"
+  },
+  {
+   "row": "TELL-8",
+   "gap": "Reserved heights for script-filled strips",
+   "source": "P4-TELL-05",
+   "tokens": "`--min-h-chips`",
+   "status": "T+R",
+   "ids": [
+    "P4-TELL-05"
+   ],
+   "src": "audits/04-design-system.md:8799"
+  },
+  {
+   "row": "TELL-9",
+   "gap": "Per-scope pulled signal + skeleton",
+   "source": "GAP-TELL-1",
+   "tokens": "`--sk-line`, `--dur-shimmer`",
+   "status": "R (SDK)",
+   "ids": [
+    "GAP-TELL-1"
+   ],
+   "src": "audits/04-design-system.md:8800"
+  },
+  {
+   "row": "TELL-10",
+   "gap": "Shared confirm sheet and undo toast",
+   "source": "CONS-TELL-2",
+   "tokens": "`--toast-*`, `--r-sheet`",
+   "status": "R (SDK)",
+   "ids": [
+    "CONS-TELL-2"
+   ],
+   "src": "audits/04-design-system.md:8801"
+  }
+ ]
+}

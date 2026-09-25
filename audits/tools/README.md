@@ -182,3 +182,17 @@ Experiment and verification scripts for each app live in `phase3/<app-id>/`: the
 | `node audits/tools/phase3/compliance.mjs [app-id …]` | Counts, per app, the hardcoded colours, font sizes, radii, spacing, shadows, durations and z-indexes. It also counts inline styles, undefined tokens, `prefers-color-scheme` use, hub.js bypasses, native dialogs and unguarded `:hover` rules. Every hit is listed with its line in `audits/evidence/p3/_compliance/<app-id>.json`, and the roll-up is `_summary.json`. It is regex-based, so review the hits. |
 | `node audits/tools/phase3/check-citations.mjs [report.md …]` | Checks that every repo path cited in the Phase 3 reports exists and that every `file:line` is inside its file. It exits 1 if any citation is broken. |
 | `node audits/tools/phase3/cited-evidence.mjs` | Rewrites `audits/evidence/p3/.gitignore` so that evidence PNGs no report cites stay on disk but out of git. Rerun it after editing a report. |
+
+## Phase 5 tools: `phase5/`
+
+| Command | What it does |
+|---|---|
+| `node audits/tools/phase5/catalog.mjs` | Every finding and positive of Phases 2-4 → `audits/evidence/p5/catalog.json` |
+| `node audits/tools/phase5/remedies.mjs` | The Phase 3 improvements and Phase 4 gap rows, with the IDs each names → `audits/evidence/p5/remedies.json` |
+| `node audits/tools/phase5/build-findings.mjs` | Writes `audits/05-findings.md` from the catalogue, the registers, `fixes-*.mjs` and `plan-batches.mjs`; exits 1 if a finding has no fix |
+| `node audits/tools/capture.mjs --area preview --out audits/screens-preview` | Captures `audits/design-preview.html` (the `preview` area is opt-in: default runs skip it) |
+| `node audits/tools/phase5/preview-sheets.mjs` | Contact sheets for those captures, without touching `audits/01-capture.md` |
+| `node audits/tools/phase5/preview-check.mjs` | The preview in WebKit and Chromium at three widths and both schemes: every computed ratio passes, no horizontal scroll |
+| `node audits/tools/phase5/preview-assets.mjs` | The preview's "before" JPEGs from the Phase 1 Prayer captures |
+
+Two opt-in screen flags were added to `capture.mjs` for the preview: `fullPage` (capture the whole document) and `optIn` (run only when named with `--area`; `phase4/measure.mjs` skips such areas too). A default run still plans the 4,447 Phase 1 captures.

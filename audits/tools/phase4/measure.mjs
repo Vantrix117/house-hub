@@ -76,6 +76,7 @@ function plan(catalog) {
     const R = RUNS[run]; if (!R) throw new Error('unknown run ' + run);
     for (const s of catalog) {
       if (F.area && !F.area.includes(s.area)) continue;
+      if (s.optIn && !(F.area && F.area.includes(s.area))) continue;   // opt-in areas (the Phase 5 design preview) are not measured unless named
       if (F.file && !F.file.includes(s.file)) continue;
       if (F.screen && !F.screen.includes(s.screen)) continue;
       const states = (s.states || ['typical']).filter(st => R.states.includes(st));

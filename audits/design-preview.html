@@ -1,0 +1,400 @@
+<!doctype html>
+<!-- House Hub audit, Phase 5 design preview. It renders the Phase 4 token PROPOSAL
+     (audits/tools/phase4/tokens/proposed-tokens.css) so the household can see it before Phase 6. Not app code.
+     Every swatch below takes its colours from the token file; every contrast figure is computed in the page from the
+     rendered colours (WCAG 2 relative luminance), so the numbers cannot drift from the tokens.
+     ?section=<id> shows one section (the capture rig uses it); the default shows all. -->
+<html lang="en" data-theme="hearth" data-scheme="light" data-accent="periwinkle">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>House Hub — design preview (Phase 5)</title>
+<link rel="stylesheet" href="tools/phase4/tokens/proposed-tokens.css">
+<script>
+  // Follow the device's scheme for the page itself (as System would: Hearth by day, Midnight at night). Every section
+  // also shows light and dark side by side, so both appear in either mode.
+  (function () {
+    var dark = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+    var d = document.documentElement;
+    d.dataset.theme = dark ? 'midnight' : 'hearth'; d.dataset.scheme = dark ? 'dark' : 'light'; d.style.colorScheme = dark ? 'dark' : 'light';
+    var s = new URLSearchParams(location.search).get('section'); if (s) d.dataset.only = s;
+  })();
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); color: var(--text); font: var(--text-body); -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+  body { margin: 0; padding: calc(var(--safe-top) + var(--sp-6)) var(--margin-right) calc(var(--safe-bottom) + var(--sp-12)) var(--margin-left); background: var(--wash), var(--bg); background-attachment: fixed; }
+  main { max-width: var(--col-wide); margin: 0 auto; }
+  h1 { font: var(--text-large-title); letter-spacing: var(--ls-large-title); margin: 0 0 var(--sp-2); }
+  h2 { font: var(--text-title1); letter-spacing: var(--ls-title1); margin: var(--sp-12) 0 var(--sp-2); }
+  h3 { font: var(--text-headline); margin: 0 0 var(--sp-2); }
+  p, li { color: var(--text-2); max-width: 70ch; }
+  .lede { font: var(--text-callout); color: var(--text-2); }
+  .kicker { font: var(--text-caption1); font-weight: var(--fw-semibold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-3); }
+  nav.toc { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-4) 0; }
+  nav.toc a { font: var(--text-subheadline); font-weight: var(--fw-semibold); color: var(--accent-ink); background: var(--accent-fill); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-full); text-decoration: none; min-height: var(--tap); display: inline-flex; align-items: center; }
+  [data-only] section:not(.only) { display: none; }
+  [data-only] header.page nav, [data-only] header.page .intro { display: none; }
+  .note { font: var(--text-footnote); color: var(--text-3); }
+  .card { background: var(--material-solid-bg); border-radius: var(--r-card); padding: var(--pad-card); box-shadow: var(--elev-card); }
+  .grid { display: grid; gap: var(--gap-grid); }
+  /* scheme panels: a light and a dark scope, each re-deriving every token (proposal: data-theme-preview + data-scheme) */
+  .panel { background: var(--bg); color: var(--text); border-radius: var(--r-card); padding: var(--sp-4); box-shadow: var(--elev-card); }
+  .pair { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-1) var(--sp-2); border-radius: var(--r-control); padding: var(--sp-2) var(--sp-3); min-height: var(--tap); }
+  .pair .lbl { font: var(--text-subheadline); font-weight: var(--fw-semibold); }
+  .ratio { font: var(--text-caption1); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ratio.pass::before { content: "✓ "; } .ratio.fail::before { content: "✕ "; }
+  .ratio.fail { font-weight: var(--fw-bold); text-decoration: underline wavy; }
+  .mark { display: inline-block; width: 22px; height: 22px; border-radius: 50%; border: 4px solid currentColor; vertical-align: middle; }
+  .fam { display: grid; gap: var(--sp-2); }
+  .fam h3 { display: flex; justify-content: space-between; align-items: baseline; }
+  .fams { grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
+  .twin { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: var(--sp-2); }
+  .twin > * { min-width: 0; }
+  #acc { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+  .twin > .panel { padding: var(--sp-2); display: grid; gap: var(--sp-1-5); align-content: start; }
+  .tile-sw { height: 44px; border-radius: var(--r-control); background: var(--tile-bg); display: flex; align-items: center; justify-content: center; font-weight: var(--fw-bold); color: var(--accent-ink); }
+  table.t { width: 100%; border-collapse: collapse; font: var(--text-subheadline); }
+  table.t th, table.t td { text-align: left; padding: var(--sp-2) var(--sp-2); border-bottom: var(--hairline-w) solid var(--separator); vertical-align: top; }
+  table.t th { font: var(--text-footnote); font-weight: var(--fw-semibold); color: var(--text-3); }
+  .scroll-x { overflow-x: auto; }
+  .hex { font-family: var(--font-mono); font-size: var(--fs-footnote); }
+  /* type specimens */
+  .spec { display: grid; grid-template-columns: minmax(120px, 180px) 1fr; gap: var(--sp-2) var(--sp-4); align-items: baseline; }
+  .spec .name { font: var(--text-footnote); color: var(--text-3); }
+  .spec .name b { display: block; color: var(--text-2); font-weight: var(--fw-semibold); }
+  .num { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); font-weight: var(--fw-semibold); line-height: 1; }
+  .rounded { font-family: var(--font-rounded); }
+  /* device frames, scaled to fit the column (data-w / data-h are the device's CSS size) */
+  .frames { display: flex; flex-wrap: wrap; gap: var(--sp-4); align-items: flex-start; }
+  .fwrap { flex: 0 1 auto; }
+  .fcap { font: var(--text-footnote); color: var(--text-3); margin-top: var(--sp-2); max-width: 430px; }
+  .frame { position: relative; overflow: hidden; border-radius: 28px; box-shadow: 0 0 0 1px var(--separator), var(--elev-float); transform-origin: 0 0; }
+  .fbox { position: relative; }
+  /* glass stage */
+  .stage { position: absolute; inset: 0; background: url("../apps/dollywood/illustrated_lo.jpg") 60% 78% / 300% auto; }
+  .gl-bar { position: absolute; left: 0; right: 0; top: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--sp-4); background: var(--glass-bg-strong-tinted); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--glass-shadow); color: var(--text); font: var(--text-headline); }
+  .gl-pill { position: absolute; left: 50%; top: 72px; transform: translateX(-50%); padding: var(--sp-2) var(--sp-4); border-radius: var(--r-full); background: var(--glass-bg-tinted); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--glass-shadow); font: var(--text-subheadline); font-weight: var(--fw-semibold); white-space: nowrap; color: var(--text); }
+  .gl-fab { position: absolute; right: var(--sp-4); bottom: 300px; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--glass-bg-tinted); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--glass-shadow); color: var(--accent-ink); font-size: 28px; font-weight: var(--fw-bold); }
+  .gl-sheet { position: absolute; left: 0; right: 0; bottom: 64px; border-radius: var(--r-sheet) var(--r-sheet) 0 0; padding: var(--sp-3) var(--pad-sheet) var(--sp-4); background: var(--glass-bg-strong-tinted); -webkit-backdrop-filter: var(--glass-filter-strong); backdrop-filter: var(--glass-filter-strong); box-shadow: var(--glass-shadow); color: var(--text); }
+  .gl-sheet .grab { width: 36px; height: 5px; border-radius: 3px; background: var(--track-info); margin: 0 auto var(--sp-3); }
+  .gl-sheet .row { display: flex; justify-content: space-between; padding: var(--sp-2) 0; border-bottom: var(--hairline-w) solid var(--separator); font: var(--text-body); }
+  .gl-sheet .row span:last-child { color: var(--text-2); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; }
+  .gl-tab { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; background: var(--glass-bg-strong-tinted); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--glass-shadow); font: var(--text-caption1); color: var(--text-2); text-align: center; }
+  .gl-tab .on { color: var(--sel-ink); font-weight: var(--sel-weight); }
+  .gl-tab .on span { background: var(--sel-fill); padding: 4px 12px; border-radius: var(--r-full); }
+  .rt { --glass: var(--glass-solid); --glass-strong: var(--glass-strong-solid); --glass-filter: none; --glass-filter-strong: none; --glass-pickup: 0%; }
+  /* tiles */
+  .home { position: absolute; inset: 0; background: var(--wash), var(--bg); color: var(--text); padding: 56px 20px 20px; }
+  .home .apps { display: grid; justify-content: space-between; row-gap: 22px; }
+  .home .app { display: grid; justify-items: center; gap: 6px; }
+  .home .ico { border-radius: calc(var(--isz) * var(--r-icon-ratio)); background: var(--tile-bg); width: var(--isz); height: var(--isz); display: grid; place-items: center; box-shadow: var(--elev-control); }
+  .home .ico i { width: 58%; height: 58%; background: var(--accent-ink); -webkit-mask: var(--glyph) center / contain no-repeat; mask: var(--glyph) center / contain no-repeat; }
+  .home .app b { font: var(--text-caption1); font-weight: var(--fw-medium); color: var(--text); text-align: center; max-width: calc(var(--isz) + 24px); }
+  .home h4 { font: var(--text-title2); margin: 0 0 18px; }
+  /* accents */
+  .people { display: grid; gap: var(--sp-2); }
+  .person { display: grid; grid-template-columns: 44px 1fr auto; gap: var(--sp-3); align-items: center; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-control); background: var(--surface); }
+  .ava { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-fill); color: var(--accent-ink); font-weight: var(--fw-bold); box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--accent-graphic); }
+  .person .who { font: var(--text-headline); }
+  .person .bits { display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap; margin-top: 4px; }
+  .chip { font: var(--text-footnote); font-weight: var(--sel-weight); color: var(--sel-ink); background: var(--sel-fill); padding: 3px 10px; border-radius: var(--r-full); }
+  .btnp { font: var(--text-footnote); font-weight: var(--fw-semibold); color: var(--accent-on); background: var(--accent-strong); padding: 6px 14px; border-radius: var(--r-full); border: 0; }
+  .bar { width: 72px; height: 8px; border-radius: 4px; background: var(--progress-track); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 62%; background: var(--progress-fill); border-radius: 4px; }
+  .cvd { display: flex; gap: var(--sp-3); flex-wrap: wrap; align-items: center; }
+  .cvd .ava { width: 36px; height: 36px; font-size: 14px; }
+  /* Prayer after-mock (Today): the same layout, order and controls as apps/prayer.html today, restyled only through tokens */
+  .pr { position: absolute; inset: 0; background: var(--bg); color: var(--text); font: var(--text-body); overflow: hidden; }
+  .pr .vbar { height: 48px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 12px; background: var(--material-solid-bg); border-bottom: var(--hairline-w) solid var(--separator); font: var(--text-headline); }
+  .pr .vbar .back { color: var(--accent-ink); font: var(--text-body); }
+  .pr .vbar .rel { justify-self: end; color: var(--text-2); }
+  .pr .body { padding: 20px 20px 0; }
+  .pr .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .pr .date { font: var(--text-subheadline); color: var(--text-2); }
+  .pr .seg { display: inline-grid; grid-template-columns: 1fr 1fr; background: var(--fill-field); border-radius: var(--r-full); padding: 3px; }
+  .pr .seg span { padding: 8px 14px; border-radius: var(--r-full); font: var(--text-subheadline); color: var(--text-2); min-height: 38px; display: grid; place-items: center; }
+  .pr .seg .on { background: var(--surface); color: var(--text); font-weight: var(--sel-weight); box-shadow: var(--elev-control); }
+  .pr h5 { font: var(--text-large-title); letter-spacing: var(--ls-large-title); margin: 18px 0 16px; }
+  .pr .prog { height: 8px; border-radius: 4px; background: var(--progress-track); overflow: hidden; }
+  .pr .prog i { display: block; width: 33%; height: 100%; background: var(--progress-fill); border-radius: 4px; }
+  .pr .stats { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 18px; font: var(--text-subheadline); color: var(--text-2); }
+  .pr .stats b { font-family: var(--font-numeral); font-variant-numeric: tabular-nums; font-size: var(--fs-title3); color: var(--text); margin-right: 4px; }
+  .pr .acts { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+  .pr .now { min-height: var(--tap-lg); border-radius: var(--r-full); background: var(--accent-strong); color: var(--accent-on); font: var(--text-headline); display: grid; place-items: center; box-shadow: var(--glow-accent); }
+  .pr .more { min-height: var(--tap-lg); padding: 0 20px; border-radius: var(--r-full); background: var(--accent-fill); color: var(--accent-ink); font: var(--text-headline); display: grid; place-items: center; }
+  .pr .list { margin-top: 20px; background: var(--material-solid-bg); border-radius: var(--r-card); box-shadow: var(--elev-card); padding: 0 16px; }
+  .pr .it { display: grid; grid-template-columns: 30px 1fr; gap: 14px; padding: 14px 0; border-bottom: var(--hairline-w) solid var(--separator); min-height: var(--tap-row); }
+  .pr .it:last-child { border-bottom: 0; }
+  .pr .ck { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--field-border); margin-top: 1px; }
+  .pr .it.done .ck { background: var(--accent-strong); border-color: var(--accent-strong); position: relative; }
+  .pr .it.done .ck::after { content: ""; position: absolute; left: 8px; top: 3px; width: 7px; height: 13px; border: solid var(--accent-on); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+  .pr .it .tt { font: var(--text-headline); }
+  .pr .it.done .tt { color: var(--text-2); font-weight: var(--fw-regular); }
+  .pr .it .cat { font: var(--text-footnote); color: var(--text-3); margin-top: 2px; }
+  .pr .it .nt { font: var(--text-subheadline); color: var(--text-2); margin-top: 6px; }
+  .pr .fab { position: absolute; right: 20px; bottom: 100px; width: 60px; height: 60px; border-radius: 50%; background: var(--accent-strong); color: var(--accent-on); display: grid; place-items: center; font-size: 30px; box-shadow: var(--glow-accent-lg), var(--elev-float); }
+  .pr .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; padding-bottom: 20px; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--glass-bg-strong-tinted); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--e-up); }
+  .pr .tabs span { display: grid; justify-items: center; align-content: center; gap: 3px; font: var(--text-caption2); color: var(--text-2); }
+  .pr .tabs svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .pr .tabs .on { color: var(--sel-ink); font-weight: var(--sel-weight); }
+  .pr .tabs .on svg { background: var(--sel-fill); border-radius: var(--r-full); padding: 3px 14px; width: 52px; height: 30px; }
+  .before img { display: block; width: 100%; height: 100%; }
+  @media (max-width: 600px) { .spec { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+<header class="page">
+  <div class="kicker">House Hub audit · Phase 5</div>
+  <h1>Design preview</h1>
+  <p class="lede intro">The Phase 4 token proposal (<span class="hex">audits/tools/phase4/tokens/proposed-tokens.css</span>), rendered. Nothing here is app code; Phase 6 ships it only after the household approves the plan and this preview. Every swatch reads its colour from the token file, and every ratio is computed on this page from the rendered colours. ✓ passes its threshold (4.5:1 for text, 3:1 for large text, icons and marks); ✕ fails.</p>
+  <p class="note intro">Limits of the screenshots: the audit's WebKit build paints no backdrop blur and falls back to Windows fonts (Segoe UI for SF Pro, Palatino for New York), so glass reads flatter and type slightly wider than on an iPad or iPhone. The ratios do not depend on either.</p>
+  <nav class="toc" aria-label="Sections"><a href="#palette">Palette</a><a href="#neutrals">Neutrals</a><a href="#type">Type</a><a href="#glass">Glass</a><a href="#tiles">Tiles</a><a href="#accents">Accents</a><a href="#prayer">Prayer, before and after</a></nav>
+</header>
+
+<section id="palette">
+  <h2>The house pastels, light and dark</h2>
+  <p>Each family has the same roles: <b>fill</b> (the house pastel, exact), <b>ink</b> (text and icons on it), <b>strong</b> (solid buttons, with the <b>on</b> label), <b>graphic</b> (rings and marks), and the <b>tile</b> gradient from fill to its saturated end (its glyph is an icon, checked at 3:1 against the saturated end). Light uses Hearth's white card; dark uses Midnight's, where the pastel becomes the glowing foreground on a deep tint. Graphite is the neutral family (the TV, signed-out states); success, warning and danger are the semantic families.</p>
+  <div class="grid fams" id="fams"></div>
+  <h3 style="margin-top:var(--sp-8)">The constitution's starting pairs</h3>
+  <p class="note">The eight fill/ink pairs from <span class="hex">audits/HUB-AUDIT-PROMPT.md:57-64</span>, computed from their literal hex. The proposal keeps every one unchanged in light (the fill is never dulled; no ink needed darkening).</p>
+  <div class="scroll-x"><table class="t" id="house"><thead><tr><th>Name</th><th>Fill</th><th>Ink</th><th>Ink on fill</th><th>Ink on white</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section id="neutrals">
+  <h2>Neutrals and surfaces, every palette</h2>
+  <p>Grouped iOS structure: a page, white (or raised dark) cards, wells. The five named palettes plus Graphite, the proposed iOS near-black (decision D2). Text, secondary and tertiary text are checked against the card and the well.</p>
+  <div class="grid fams" id="grounds"></div>
+</section>
+
+<section id="type">
+  <h2>Type scale</h2>
+  <p>iOS Dynamic Type roles in the system face (SF Pro on Apple devices; never embedded), bold large titles (decision D6), rounded numerals, and a floor of 11 px. The iPad tier multiplies by 1.12 on touch screens 744 px and wider; kid mode is rounded everywhere with a 16 px floor; the TV keeps today's sizes until the Phase 6 re-layout turns on the 10-foot scale (decision D16).</p>
+  <div class="card"><div class="spec" id="spec"></div></div>
+  <h3 style="margin-top:var(--sp-6)">Sizes per audience (px)</h3>
+  <div class="scroll-x card"><table class="t" id="sizes"><thead><tr><th>Role</th><th>Phone</th><th>iPad</th><th>Kid</th><th>TV today</th><th>TV 10-foot</th></tr></thead><tbody></tbody></table></div>
+  <h3 style="margin-top:var(--sp-6)">Numerals and glance roles (read from 2-3 m)</h3>
+  <div class="card" style="display:flex;flex-wrap:wrap;gap:var(--sp-8);align-items:flex-end">
+    <div><div class="kicker">Timer · --fs-numeral-l</div><div class="num" style="font-size:var(--fs-numeral-l)">12:48</div></div>
+    <div><div class="kicker">Tally · --fs-glance-1</div><div class="num" style="font-size:var(--fs-glance-1);color:var(--accent-ink)">37</div></div>
+    <div><div class="kicker">Today's reading · --fs-glance-2</div><div class="num" style="font-size:var(--fs-glance-2)">2/5</div></div>
+    <div><div class="kicker">Glance card · --fs-glance-3</div><div style="font:var(--fw-bold) var(--fs-glance-3)/1.1 var(--font-ui)">3 to eat</div></div>
+    <div class="rounded"><div class="kicker">Kid mode · rounded</div><div style="font-size:calc(var(--fs-title1) * 1.2);font-weight:var(--fw-bold)">Ezra's verse ★</div></div>
+  </div>
+</section>
+
+<section id="glass">
+  <h2>Glass over busy content</h2>
+  <p>Liquid Glass is for the navigation and control layer only: bars, sheets, pills and floating buttons. Content cards stay solid. The person's colour is caught faintly in the pane. Shown over the park map's illustrated art, the busiest picture in the hub, in light, dark, and with Reduce Transparency (solid panes, no blur) — the in-app switch Safari needs (decision D11).</p>
+  <div class="frames" id="glassframes"></div>
+</section>
+
+<section id="tiles">
+  <h2>App tiles at phone and iPad density</h2>
+  <p>iOS home-screen density: 60 px icons in four columns on the phone, 76 px in six on the iPad, corners at 22.5 % of the icon (decision D9), each tile a pastel-to-saturated gradient within one hue with the ink glyph (decision D5 gives each app its hue). The glyphs are today's icons; the proposal moves them to one open-source set (Lucide, ISC).</p>
+  <div class="frames" id="tileframes"></div>
+</section>
+
+<section id="accents">
+  <h2>The household's accents, side by side</h2>
+  <p>Each person gets a distinct house pastel (decision D3), always paired with a face or initial so nobody relies on hue alone. Shown as the avatar ring, a selected chip, a primary button and progress, in light and dark. Below, the nine faces as seen with the three common colour-vision deficiencies (simulated).</p>
+  <div class="twin" id="acc"></div>
+  <div class="card" style="margin-top:var(--sp-4)"><div class="grid" id="cvd" style="gap:var(--sp-3)"></div></div>
+</section>
+
+<section id="prayer">
+  <h2>Prayer, before and after</h2>
+  <p>Prayer is the most-used app (every adult and both kids, daily; <span class="hex">audits/05-findings.md</span>, "Why the app batches are in this order"). CLAUDE.md keeps its layout and element ids, so the "after" keeps the same screen, order and controls and changes only what tokens change: Eli's periwinkle on the primary action, progress and selection; bold system titles; rounded numerals; a solid grouped list with done rows at full contrast; glass only on the tab bar. "Before" is the Phase 1 capture (<span class="hex">audits/screens/prayer/today-typical-iphone-pwa-*.png</span>).</p>
+  <div class="frames" id="prayerframes"></div>
+</section>
+</main>
+
+<script>
+(function () {
+  var only = document.documentElement.dataset.only;
+  if (only) { var s = document.getElementById(only); if (s) s.classList.add('only'); }
+
+  // ── colour maths: any CSS colour → sRGB via a 1x1 canvas; WCAG 2 contrast ──
+  var cv = document.createElement('canvas'); cv.width = cv.height = 1;
+  var cx = cv.getContext('2d', { willReadFrequently: true });
+  function rgba(c) { cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = c; cx.fillRect(0, 0, 1, 1); var d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; }
+  function over(f, b) { var a = f[3]; return [f[0] * a + b[0] * (1 - a), f[1] * a + b[1] * (1 - a), f[2] * a + b[2] * (1 - a), 1]; }
+  function lin(v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+  function lum(c) { return 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]); }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function floor2(x) { return Math.floor(x * 100) / 100; }
+  function ownBg(el) { // the element's painted background, composited over its ancestors'
+    var chain = [], e = el; while (e && e.nodeType === 1) { chain.push(getComputedStyle(e).backgroundColor); e = e.parentElement; }
+    var c = [255, 255, 255, 1]; for (var i = chain.length - 1; i >= 0; i--) c = over(rgba(chain[i]), c); return c;
+  }
+  function measure(root) { // every [data-min] element: its text (or border) colour against its own background
+    (root || document).querySelectorAll('[data-min]').forEach(function (el) {
+      var out = el.querySelector('.ratio') || el; var fgEl = el.querySelector('[data-fg]') || el;
+      var bgEl = el.querySelector('[data-bg]') || el;
+      var fgProp = fgEl.dataset.fgProp || 'color';
+      var fg = rgba(getComputedStyle(fgEl)[fgProp]), bg = ownBg(bgEl);
+      var r = ratio(over(fg, bg), bg), min = +el.dataset.min;
+      out.textContent = floor2(r).toFixed(2) + ':1';
+      out.classList.add(r >= min ? 'pass' : 'fail');
+      out.title = (r >= min ? 'passes ' : 'fails ') + min + ':1';
+    });
+  }
+  function h(tag, attrs, html) { var e = document.createElement(tag); for (var k in attrs || {}) { if (k === 'style') e.style.cssText = attrs[k]; else e.setAttribute(k, attrs[k]); } if (html != null) e.innerHTML = html; return e; }
+
+  // ── palette ──
+  var FAMS = [['bubblegum', 'Bubblegum'], ['peach', 'Peach'], ['butter', 'Butter'], ['mint', 'Mint'], ['aqua', 'Aqua'], ['sky', 'Sky'], ['periwinkle', 'Periwinkle'], ['lavender', 'Lavender'], ['graphite', 'Graphite'], ['success', 'Success'], ['warning', 'Warning'], ['danger', 'Danger']];
+  var fams = document.getElementById('fams');
+  FAMS.forEach(function (f) {
+    var id = f[0];
+    var side = function (theme, scheme) {
+      var p = h('div', { 'class': 'panel', 'data-theme-preview': theme, 'data-scheme': scheme, 'data-accent': 'periwinkle' });
+      p.appendChild(h('div', { 'class': 'kicker' }, scheme));
+      p.appendChild(h('div', { 'class': 'pair', 'data-min': '4.5', style: 'background:var(--' + id + '-fill);color:var(--' + id + '-ink)' }, '<span class="lbl">ink on fill</span><span class="ratio"></span>'));
+      p.appendChild(h('div', { 'class': 'pair', 'data-min': '4.5', style: 'background:var(--' + id + '-strong);color:var(--' + id + '-on)' }, '<span class="lbl">on strong</span><span class="ratio"></span>'));
+      p.appendChild(h('div', { 'class': 'pair', 'data-min': '4.5', style: 'background:var(--surface);color:var(--' + id + '-ink)' }, '<span class="lbl">ink on card</span><span class="ratio"></span>'));
+      p.appendChild(h('div', { 'class': 'pair', 'data-min': '3', style: 'background:var(--surface);color:var(--' + id + '-graphic)' }, '<span class="mark" aria-hidden="true"></span><span class="lbl" style="color:var(--text-2)">graphic</span><span class="ratio"></span>'));
+      if (!/success|warning|danger/.test(id)) {
+        var t = h('div', { 'class': 'pair', 'data-min': '3', 'data-accent': id, style: 'background:var(--tile-bg);color:var(--accent-ink)' }, '<span class="lbl">glyph on tile end</span><span class="ratio"></span>');
+        t.appendChild(h('span', { 'data-bg': '', style: 'display:none;background:var(--accent-fill-strong)' }));   // worst end of the gradient
+        p.appendChild(t);
+      }
+      return p;
+    };
+    var card = h('div', { 'class': 'fam card' });
+    card.appendChild(h('h3', null, f[1] + ' <span class="hex" id="hex-' + id + '"></span>'));
+    var tw = h('div', { 'class': 'twin' }); tw.appendChild(side('hearth', 'light')); tw.appendChild(side('midnight', 'dark')); card.appendChild(tw);
+    fams.appendChild(card);
+  });
+  // the tile pair measures against its gradient's saturated end (the lower-contrast stop)
+  document.querySelectorAll('#fams .pair[data-accent]').forEach(function (t) { var probe = t.querySelector('[data-bg]'); probe.style.display = 'block'; probe.style.position = 'absolute'; probe.style.width = probe.style.height = '1px'; probe.style.opacity = '1'; t.style.position = 'relative'; });
+  var HOUSE = [['Bubblegum', '#FFC8DD', '#A3134F'], ['Peach', '#FFD6B8', '#9A3F0A'], ['Butter', '#FFF1A8', '#735A00'], ['Mint', '#B9F2D0', '#0E6B3B'], ['Aqua', '#B5EEF0', '#0B6468'], ['Sky', '#BFDDFF', '#1A4F9C'], ['Periwinkle', '#CCD3FF', '#3440A8'], ['Lavender', '#E0CCFF', '#5E2BAE']];
+  var tb = document.querySelector('#house tbody');
+  HOUSE.forEach(function (r) {
+    var f = rgba(r[1]), i = rgba(r[2]), w = [255, 255, 255, 1];
+    var a = ratio(i, f), b = ratio(i, w);
+    tb.appendChild(h('tr', null, '<td>' + r[0] + '</td><td><span class="mark" style="border-color:' + r[1] + ';background:' + r[1] + '"></span> <span class="hex">' + r[1] + '</span></td><td><span class="mark" style="border-color:' + r[2] + ';background:' + r[2] + '"></span> <span class="hex">' + r[2] + '</span></td><td class="ratio ' + (a >= 4.5 ? 'pass' : 'fail') + '">' + floor2(a).toFixed(2) + ':1</td><td class="ratio ' + (b >= 4.5 ? 'pass' : 'fail') + '">' + floor2(b).toFixed(2) + ':1</td>'));
+  });
+
+  // ── neutrals ──
+  var GROUNDS = [['hearth', 'light', 'Hearth', 'the default and System by day'], ['parchment', 'light', 'Parchment', 'soft tan reading paper'], ['frost', 'light', 'Frost', 'iOS grouped exactly'], ['midnight', 'dark', 'Midnight', 'System by night'], ['forest', 'dark', 'Forest', 'deep green, gold ink'], ['graphite', 'dark', 'Graphite', 'iOS near-black (proposed, D2)']];
+  var gr = document.getElementById('grounds');
+  GROUNDS.forEach(function (g) {
+    var p = h('div', { 'class': 'panel', 'data-theme-preview': g[0], 'data-scheme': g[1], 'data-accent': 'periwinkle', style: 'background:var(--wash),var(--bg)' });
+    p.appendChild(h('h3', null, g[2] + ' <span class="note">· ' + g[3] + '</span>'));
+    var c = h('div', { style: 'background:var(--surface);border-radius:var(--r-card);padding:var(--sp-3);display:grid;gap:4px;box-shadow:var(--elev-card)' });
+    [['--text', 'Text on card', 4.5], ['--text-2', 'Secondary on card', 4.5], ['--text-3', 'Tertiary on card', 4.5]].forEach(function (t) { c.appendChild(h('div', { 'class': 'pair', 'data-min': t[2], style: 'color:var(' + t[0] + ');padding:4px 0;min-height:32px' }, '<span class="lbl">' + t[1] + '</span><span class="ratio"></span>')); });
+    c.appendChild(h('div', { 'class': 'pair', 'data-min': '4.5', style: 'background:var(--surface-2);color:var(--text-3);padding:6px 10px' }, '<span class="lbl">Tertiary on a well</span><span class="ratio"></span>'));
+    c.appendChild(h('div', { 'class': 'pair', 'data-min': '3', style: 'color:var(--field-border);padding:4px 0;min-height:32px' }, '<span class="mark" aria-hidden="true" style="border-radius:8px;width:44px"></span><span class="lbl" style="color:var(--text-2)">Field border</span><span class="ratio"></span>'));
+    p.appendChild(c);
+    gr.appendChild(p);
+  });
+
+  // ── type ──
+  var ROLES = [['Large Title', 'large-title', 34, 700], ['Title 1', 'title1', 28, 700], ['Title 2', 'title2', 22, 700], ['Title 3', 'title3', 20, 600], ['Headline', 'headline', 17, 600], ['Body', 'body', 17, 400], ['Callout', 'callout', 16, 400], ['Subheadline', 'subheadline', 15, 400], ['Footnote', 'footnote', 13, 400], ['Caption 1', 'caption1', 12, 400], ['Caption 2', 'caption2', 11, 500]];
+  var spec = document.getElementById('spec'), sizes = document.querySelector('#sizes tbody');
+  var clampF = function (px, k, floor) { return Math.max(floor, Math.round(px * k * 10) / 10); };
+  var TVOLD = { 'large-title': 56, title1: 40, title2: 32, title3: 26, headline: 22, body: 22, callout: 22, subheadline: 18, footnote: 18, caption1: 18, caption2: 18 };   // today's kiosk --fs-* mapping (proposal §9, pinned)
+  ROLES.forEach(function (r) {
+    spec.appendChild(h('div', { 'class': 'name' }, '<b>' + r[0] + '</b>' + r[2] + ' px · ' + r[3]));
+    spec.appendChild(h('div', { style: 'font:var(--text-' + r[1] + ');letter-spacing:var(--ls-' + r[1] + ')' }, r[0] === 'Large Title' ? '6 to pray today' : r[0] === 'Body' ? 'Walking to the mailbox without the cane.' : r[0].indexOf('Caption') === 0 ? 'Logged by Mae · 2 days ago' : 'Acts 6 · Week 38 · Day 3'));
+    sizes.appendChild(h('tr', null, '<td>' + r[0] + '</td><td class="ratio">' + r[2] + '</td><td class="ratio">' + clampF(r[2], 1.12, 11) + '</td><td class="ratio">' + clampF(r[2], 1.2, 16) + '</td><td class="ratio">' + TVOLD[r[1]] + '</td><td class="ratio">' + clampF(r[2], 1.9, 28) + '</td>'));
+  });
+
+  // ── device frames ──
+  function frame(host, w, hgt, fill, cap, attrs) {
+    var wrap = h('div', { 'class': 'fwrap' }), box = h('div', { 'class': 'fbox' }), fr = h('div', { 'class': 'frame', style: 'width:' + w + 'px;height:' + hgt + 'px' });
+    for (var k in attrs || {}) fr.setAttribute(k, attrs[k]);
+    fill(fr); box.appendChild(fr); wrap.appendChild(box); if (cap) wrap.appendChild(h('div', { 'class': 'fcap' }, cap)); host.appendChild(wrap);
+    wrap._fit = function (avail) { var s = Math.min(1, avail / w); fr.style.transform = 'scale(' + s + ')'; box.style.width = w * s + 'px'; box.style.height = hgt * s + 'px'; wrap.style.width = w * s + 'px'; };
+    return wrap;
+  }
+  var allFrames = [];
+  function fitAll() { allFrames.forEach(function (f) { var host = f.parentElement, cols = +(f.dataset.cols || 2); var avail = (host.clientWidth - (cols - 1) * 16) / cols; f._fit(Math.max(160, avail)); }); }
+
+  // glass
+  var gf = document.getElementById('glassframes');
+  [['hearth', 'light', false, 'Light · Eli (periwinkle)'], ['midnight', 'dark', false, 'Dark · Eli'], ['hearth', 'light', true, 'Light · Reduce Transparency'], ['midnight', 'dark', true, 'Dark · Reduce Transparency']].forEach(function (v) {
+    var f = frame(gf, 390, 700, function (fr) {
+      fr.innerHTML = '<div class="stage"></div><div class="gl-bar"><span style="color:var(--accent-ink)">‹ Hub</span><span>Park map</span><span style="color:var(--text-2)">⋯</span></div>' +
+        '<div class="gl-pill">Mae shared her spot · 2 min ago</div><div class="gl-fab" aria-hidden="true">+</div>' +
+        '<div class="gl-sheet"><div class="grab"></div><div style="font:var(--text-title3);margin-bottom:4px">Nearby</div><div class="row"><span>Lightning Rod</span><span>35 min</span></div><div class="row"><span>Thunderhead</span><span>20 min</span></div><div class="row" style="border:0"><span>Mystery Mine</span><span>10 min</span></div></div>' +
+        '<div class="gl-tab"><div class="on"><span>Map</span></div><div>Waits</div><div>Family</div><div>Search</div></div>';
+    }, v[3], { 'data-theme-preview': v[0], 'data-scheme': v[1], 'data-accent': 'periwinkle', 'class': 'frame' + (v[2] ? ' rt' : '') });
+    f.dataset.cols = 4; allFrames.push(f);
+  });
+
+  // tiles
+  var APPS = [['f260', 'F260', 'periwinkle'], ['leftovers', 'Larder', 'mint'], ['prayer', 'Prayer', 'peach'], ['tally', 'Tally', 'aqua'], ['timer', 'Timer', 'bubblegum'], ['dollywood', 'Build guide', 'lavender'], ['dollywood-live', 'Park map', 'sky'], ['kidverse', 'Kid Verse', 'butter'], ['verses', 'Verses', 'mint']];
+  var tf = document.getElementById('tileframes');
+  [['iPhone · light', 430, 560, 60, 4, 'hearth', 'light'], ['iPhone · dark', 430, 560, 60, 4, 'midnight', 'dark'], ['iPad · light', 820, 470, 76, 6, 'hearth', 'light'], ['iPad · dark', 820, 470, 76, 6, 'midnight', 'dark']].forEach(function (d) {
+    var f = frame(tf, d[1], d[2], function (fr) {
+      var hm = h('div', { 'class': 'home' }); hm.appendChild(h('h4', null, 'Apps'));
+      var g = h('div', { 'class': 'apps', style: '--isz:' + d[3] + 'px;grid-template-columns:repeat(' + d[4] + ', ' + (d[3] + 24) + 'px)' });
+      APPS.forEach(function (a) { g.appendChild(h('div', { 'class': 'app', 'data-accent': a[2] }, '<div class="ico"><i style="--glyph:url(../icons/' + a[0] + '.svg)"></i></div><b>' + a[1] + '</b>')); });
+      hm.appendChild(g); fr.appendChild(hm);
+    }, d[0] + ' · ' + d[3] + ' px icons, ' + d[4] + ' columns', { 'data-theme-preview': d[5], 'data-scheme': d[6], 'data-accent': 'periwinkle' });
+    f.dataset.cols = 2; allFrames.push(f);
+  });
+
+  // accents
+  var PEOPLE = [['Eli', 'E', 'periwinkle'], ['Mae', 'M', 'bubblegum'], ['Elizabeth', 'E', 'peach'], ['David', 'D', 'sky'], ['Mea', 'M', 'mint'], ['Ezra', 'E', 'aqua'], ['Kiara', 'K', 'butter'], ['Downstairs TV', 'TV', 'graphite'], ['A guest', 'G', 'lavender']];
+  var acc = document.getElementById('acc');
+  [['hearth', 'light'], ['midnight', 'dark']].forEach(function (s) {
+    var p = h('div', { 'class': 'panel', 'data-theme-preview': s[0], 'data-scheme': s[1], 'data-accent': 'periwinkle' });
+    p.appendChild(h('div', { 'class': 'kicker', style: 'margin-bottom:8px' }, s[1]));
+    var list = h('div', { 'class': 'people' });
+    PEOPLE.forEach(function (pp) {
+      var row = h('div', { 'class': 'person', 'data-accent': pp[2] });
+      row.innerHTML = '<div class="ava">' + pp[1] + '</div><div><div class="who">' + pp[0] + '</div><div class="bits"><span class="chip">Selected</span><span class="bar"><i></i></span></div></div><button class="btnp" type="button" data-min="4.5">Done <span class="ratio" style="font-weight:400"></span></button>';
+      list.appendChild(row);
+    });
+    p.appendChild(list); acc.appendChild(p);
+  });
+  var cvd = document.getElementById('cvd');
+  var svgNS = 'http://www.w3.org/2000/svg';
+  var filt = document.createElementNS(svgNS, 'svg'); filt.setAttribute('width', '0'); filt.setAttribute('height', '0'); filt.style.position = 'absolute';
+  // Machado, Oliveira & Fernandes (2009) matrices at severity 1.0 (linear-RGB approximations applied in sRGB here: a preview, not a gate)
+  var M = { protanopia: '0.152 1.053 -0.205 0 0  0.115 0.786 0.099 0 0  -0.004 -0.048 1.052 0 0  0 0 0 1 0', deuteranopia: '0.367 0.861 -0.228 0 0  0.280 0.673 0.047 0 0  -0.012 0.043 0.969 0 0  0 0 0 1 0', tritanopia: '1.256 -0.077 -0.179 0 0  -0.078 0.931 0.148 0 0  0.005 0.691 0.304 0 0  0 0 0 1 0' };
+  var defs = ''; for (var k in M) defs += '<filter id="cvd-' + k + '" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="' + M[k] + '"/></filter>';
+  filt.innerHTML = defs; document.body.appendChild(filt);
+  [['Normal vision', ''], ['Protanopia', 'protanopia'], ['Deuteranopia', 'deuteranopia'], ['Tritanopia', 'tritanopia']].forEach(function (c) {
+    var row = h('div', { 'class': 'cvd', style: c[1] ? 'filter:url(#cvd-' + c[1] + ')' : '' });
+    row.appendChild(h('span', { 'class': 'note', style: 'width:110px' }, c[0]));
+    PEOPLE.forEach(function (pp) { row.appendChild(h('span', { 'data-accent': pp[2], style: 'display:inline-grid' }, '<span class="ava">' + pp[1] + '</span>')); });
+    cvd.appendChild(row);
+  });
+
+  // Prayer before/after
+  var pf = document.getElementById('prayerframes');
+  var ICONS = { today: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>', list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>', record: '<path d="M6 3h12v18l-6-4-6 4z"/>', add: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>', more: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>' };
+  function after(fr) {
+    fr.innerHTML = '<div class="pr">' +
+      '<div class="vbar"><span class="back">‹ Hub</span><span>Prayer ⌄</span><span class="rel">↻</span></div>' +
+      '<div class="body"><div class="top"><span class="date">Tuesday, September 22 · Morning</span><span class="seg"><span class="on">Mine</span><span>Family</span></span></div>' +
+      '<h5>6 to pray through this morning.</h5><div class="prog"><i></i></div>' +
+      '<div class="stats"><span><b>3/9</b>today</span><span><b>9</b>days in a row</span><span><b>18</b>days this month</span><span><b>5</b>answered</span></div>' +
+      '<div class="acts"><span class="now">Pray now</span><span class="more">··· More</span></div>' +
+      '<div class="list">' +
+        '<div class="it"><span class="ck"></span><div><div class="tt">Dad\'s knee recovery</div><div class="cat">Health Needs</div><div class="nt">Walking to the mailbox without the cane.</div></div></div>' +
+        '<div class="it"><span class="ck"></span><div><div class="tt">Patience and gentleness at home</div><div class="cat">Personal</div></div></div>' +
+        '<div class="it done"><span class="ck"></span><div><div class="tt">Ezra and Kiara settling into school</div><div class="cat">Children and Youth</div><div class="nt">Ezra says his teacher Mrs. Ortiz is "the nicest one."</div></div></div>' +
+        '<div class="it done"><span class="ck"></span><div><div class="tt">Mae\'s job interview on Thursday</div><div class="cat">Work and Job Search</div></div></div>' +
+      '</div></div>' +
+      '<span class="fab">+</span>' +
+      '<div class="tabs">' + [['today', 'Today', 1], ['list', 'List'], ['record', 'Record'], ['add', 'Add'], ['more', 'More']].map(function (t) { return '<span class="' + (t[2] ? 'on' : '') + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICONS[t[0]] + '</svg>' + t[1] + '</span>'; }).join('') + '</div></div>';
+  }
+  [['light', 'hearth'], ['dark', 'midnight']].forEach(function (m) {
+    var b = frame(pf, 430, 932, function (fr) { fr.classList.add('before'); fr.innerHTML = '<img alt="Prayer Today as it is now, ' + m[0] + ' (Phase 1 capture)" src="design-preview-assets/prayer-before-iphone-' + m[0] + '.jpg">'; }, 'Before · ' + m[0] + ' · the shipped app (Phase 1 capture, iPhone Home Screen app)');
+    var a = frame(pf, 430, 932, after, 'After · ' + m[0] + ' · the same screen on the proposed tokens (Eli, periwinkle)', { 'data-theme-preview': m[1], 'data-scheme': m[0], 'data-accent': 'periwinkle' });
+    b.dataset.cols = a.dataset.cols = 4; allFrames.push(b, a);
+  });
+
+  fitAll(); addEventListener('resize', fitAll);
+  measure();
+  var imgs = [].slice.call(document.images).map(function (i) { return i.decode ? i.decode().catch(function () {}) : null; });
+  Promise.all(imgs).then(function () { window.__previewReady = true; });
+})();
+</script>
+</body>
+</html>
