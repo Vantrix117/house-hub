@@ -1,0 +1,6 @@
+<!-- audits/03-apps/timer.md:335 · section "4. Issues and bugs" · area timer · kind UX · rated medium -->
+- **UX-TIMER-4 — "Time's up" is shown only by colour and blinking: no words and no icon** (medium; corrected by the visual check).
+  - At 0 the page text is only "Kitchen timer 0:00 1 min … Start Reset" (`basics.json` `E_done.dial.text`).
+  - For Elizabeth, the done ring and digits (`--danger`) have a luminance ratio of 1.1 against her running ring (`--accent`) in Hearth, Parchment and Frost, and 1.9 in Midnight and Forest (`visual.json` V4).
+  - Correction from the visual check: the done state also washes the whole page pink (`apps/timer.html:12`) and adds a 6 px danger halo (`apps/timer.html:36`), so it is not the ring alone. It is still colour-only: a colour-blind or across-the-room viewer has no non-colour cue during the blink's dim phase. If the beep is silent (U-1), this is the only signal.
+  - Evidence: `audits/evidence/p3/timer/visual.json` (V4), `audits/evidence/p3/timer/visual-done-hearth-ipad.png`, `audits/screens/timer/running-typical-ipad-portrait-light.png`, `audits/screens/timer/done-typical-iphone-pwa-light.png`. Run `node "audits/tools/phase3/timer/visual.mjs"`.

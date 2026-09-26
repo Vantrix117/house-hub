@@ -1,0 +1,2 @@
+<!-- audits/03-apps/dollywood-live.md:687 · section "4. Issues and bugs" · area dollywood-live · kind GAP · rated medium -->
+- **GAP-DOLLYWOOD-LIVE-1 — No Find-My-style arrival or leave alerts** (medium). Nothing tells a parent "Mae reached the meeting point" or "Ezra's phone left the park". The only proximity signal is the server's stale-kid push, which barely fires (P2-PWA-02), and the "Meet at <name>" push cannot be sent (P2-PWA-18).

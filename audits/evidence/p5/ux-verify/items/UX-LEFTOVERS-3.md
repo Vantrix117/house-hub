@@ -1,0 +1,12 @@
+<!-- audits/03-apps/leftovers.md:753 · section "4. Issues and bugs" · area leftovers · kind UX · rated medium -->
+- **UX-LEFTOVERS-3 — Nothing in the Larder can be read from 2 m on the Kitchen iPad** (medium).
+  - Cap heights on the 11" iPad (0.1924 mm per CSS px, canvas `measureText('H')`), against Phase 2's H1 (cap ≥ distance/200: 10 mm at 2 m) and H2 (≥ distance/344: 5.8 mm at 2 m), `audits/02-shell.md:519-520`:
+    - the 28 px title: 3.85 mm;
+    - item names (16 px): 2.31 mm;
+    - chips, group titles and meta: 1.73 mm;
+    - group subtitles: 1.35 mm.
+  - Every string fails both heuristics at 2 m and 3 m, and there is no iPad or ambient scale.
+  - The state that matters is a 13 px banner reading "1 item at a week or older" (`apps/leftovers.html:213`); the investigator's quote "1 to use up" was wrong (checker).
+  - The investigator's p2Ref P2-VIS-06 (dark-mode Home hero contrast) does not fit. The related Phase 2 item is UX-HOME-1.
+  - Evidence: `apps/leftovers.html:23, 30, 75, 82`; `audits/evidence/p3/leftovers/visual.json` (`type`); `audits/screens/leftovers/main-typical-ipad-portrait-light.png`.
+  - Run: `node "audits/tools/phase3/leftovers/visual.mjs"`. Observed: `h1 {"px":28,…"capMm":3.85,…"at2m":"fail"}`, `name {"px":16,…"capMm":2.31,…"at2m":"fail"}`.

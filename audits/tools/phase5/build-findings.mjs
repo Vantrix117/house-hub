@@ -4,12 +4,14 @@
 //   audits/evidence/p5/remedies.json  Phase 3 improvements and Phase 4 gap rows that name findings (remedies.mjs)
 //   fixes-*.mjs                       the Phase 5 fix, effort and batch for every finding
 //   plan-batches.mjs                  the batches, their files, backups and checks
+//   audits/evidence/p5/ux-verify/verdicts.json  step 3: the two-skeptic verdicts on the high and medium UX/VIS/CONS/GAP
+//                                     items (ux-verify/verdicts.mjs); a verdict's severity wins, a refuted item leaves the list
 // It fails (exit 1) if a catalogued finding has no fix or a fix names an unknown ID.
 //   node audits/tools/phase5/build-findings.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { BATCHES, APPS, APP_TESTS } from './plan-batches.mjs';
+import { BATCHES, APPS, APP_TESTS, APP_ORDER } from './plan-batches.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..', '..');
@@ -17,13 +19,16 @@ const A = p => path.join(ROOT, 'audits', p);
 const cat = JSON.parse(fs.readFileSync(A('evidence/p5/catalog.json'), 'utf8'));
 const reg = JSON.parse(fs.readFileSync(A('evidence/p5/registers.json'), 'utf8'));
 const rem = JSON.parse(fs.readFileSync(A('evidence/p5/remedies.json'), 'utf8'));
+const VP = A('evidence/p5/ux-verify/verdicts.json');
+const VER = fs.existsSync(VP) ? Object.fromEntries(JSON.parse(fs.readFileSync(VP, 'utf8')).results.map(r => [r.id, r])) : {};
+const refuted = cat.filter(i => VER[i.id] && VER[i.id].final.holds === 'refuted');
 const FIX = {};
 for (const f of fs.readdirSync(HERE).filter(f => /^fixes-.*\.mjs$/.test(f))) Object.assign(FIX, (await import(pathToFileURL(path.join(HERE, f)).href)).default);
 
-const items = cat.filter(i => i.kind !== 'OK');
+const items = cat.filter(i => i.kind !== 'OK' && !refuted.includes(i));
 const ids = new Set(items.map(i => i.id));
 const missing = items.filter(i => !FIX[i.id]).map(i => i.id);
-const unknown = Object.keys(FIX).filter(k => !ids.has(k));
+const unknown = Object.keys(FIX).filter(k => !ids.has(k) && !refuted.some(i => i.id === k));
 if (missing.length || unknown.length) { console.error('missing fixes:', missing.join(' ') || '-'); console.error('unknown ids:', unknown.join(' ') || '-'); process.exit(1); }
 
 // ── derive per-finding fields ──
@@ -60,7 +65,12 @@ const F = items.map(i => {
   const [batch, effort, fix, why0] = FIX[i.id];
   const b = i.block.replace(/\r/g, '');
   const kindWord = /security/i.test(i.title + ' ' + b.slice(0, 600)) && i.kind === 'defect' ? 'bug (security)' : /\bperf\b/i.test(i.title + ' ' + b.slice(0, 300)) && i.kind === 'defect' ? 'bug (perf)' : TYPE[i.kind];
-  const sev = (reg[i.id] && reg[i.id].sev) || i.severity || 'low';
+  const v = VER[i.id];
+  const sev = v ? v.final.severity : (reg[i.id] && reg[i.id].sev) || i.severity || 'low';
+  // step 3 record: "was medium; s1 medium, s2 low; tie-break low"
+  const vr = x => x ? (x.holds === 'refuted' ? 'refuted' : x.severity + (x.holds === 'partly' ? ' (partly)' : '')) : 'no verdict';
+  const corr = v && [v.tie, v.s1, v.s2].find(x => x && x.correction && x.holds !== 'refuted');
+  const ver = v ? `was ${v.rated}; skeptics ${vr(v.s1)} and ${vr(v.s2)}${v.tie ? `; tie-break ${vr(v.tie)}` : ''}.${corr ? ' Correction: ' + firstSentences(corr.correction, 300) : ''}` : null;
   // design items rarely label the field: their first detail line is what happens now
   const firstBody = () => {
     const ls = b.split('\n').slice(1).map(s => s.replace(/^\s*[-*]\s+/, ''));
@@ -90,7 +100,7 @@ const F = items.map(i => {
     .split(/\s+\((?:investigator rating: |amended |investigator only[^)]*; )?(?:critical|high|medium|low|info)\b/i)[0]
     .split(/\s+—\s+(?:bug|security|perf)\b/i)[0].replace(/\s*\((?:bug|security|perf)[^)]*\)\s*$/i, '').replace(/\s*\((?:gap|ux)[^)]*\)\.?$/i, '').replace(/\.$/, '').trim();
   const title2 = /-a\d+$/.test(i.id) || /^(moved to|Pointer)/i.test(title) ? (s => s[0].toUpperCase() + s.slice(1))(title.split(/\.\s/)[0]) : title;
-  return { ...i, title: title2, area, rigArea, batch, effort, fix, why, sev, type: kindWord, now, code, shots, scripts, imps, gaps, pointer: /^Pointer to /.test(fix) };
+  return { ...i, title: title2, area, rigArea, batch, effort, fix, why, sev, ver, type: kindWord, now, code, shots, scripts, imps, gaps, pointer: /^Pointer to /.test(fix) };
 });
 
 // ── app batch order: daily use x gap ──
@@ -98,7 +108,9 @@ const appRows = Object.entries(APPS).map(([id, a]) => {
   const mine = F.filter(f => f.batch === 'A:' + id && !f.pointer);
   const gap = mine.reduce((s, f) => s + W[f.sev], 0);
   return { id, ...a, n: mine.length, gap, score: +(a.use * gap).toFixed(1) };
-}).sort((x, y) => y.score - x.score);
+}).sort((x, y) => APP_ORDER.indexOf(x.id) - APP_ORDER.indexOf(y.id));
+const byScore = [...appRows].sort((x, y) => y.score - x.score).map(r => r.id);
+const orderDiffers = byScore.join() !== APP_ORDER.join();
 const appNo = {}; appRows.forEach((r, k) => { appNo[r.id] = String(3 + k); });
 const bno = b => b.startsWith('A:') ? appNo[b.slice(2)] : b;
 for (const f of F) f.bn = bno(f.batch);
@@ -133,7 +145,7 @@ P('');
 P('- **One entry per finding.** Every finding Phases 2-4 filed is here once, with its original ID: the adversarially verified defects (`P2-*`, `P3-*`, `P4-*`) and the usability, visual, consistency and gap items (`UX-*`, `VIS-*`, `CONS-*`, `GAP-*`). Positive items (`OK-*`), refuted claims and unresolved questions are not findings; they are counted under "What this report does not list".');
 P('- **Entry fields**, as the constitution asks: ID · Title · Area · Type · Severity · Evidence · What happens now · Why it matters · Proposed fix · Effort · How it will be verified. "Batch" says which Phase 6 commit carries the fix.');
 P('- **Type.** Defects are *bug* (with *security* or *perf* when the finding was filed as such). `UX-*` items are *usability*, `VIS-*` *visual*, `CONS-*` *visual (consistency)*, `GAP-*` *feature gap*. The constitution\'s fifth type, *improvement*, is the Phase 3 improvement tables: each fix below names the improvement that proposed it (`IMP-<APP>-P|F|I<rank>`), and the 15 improvements that fix no finding are listed as their own entries at the end of their app batch.');
-P('- **Severity.** Defects carry the severity their report confirmed (the registers in `audits/02-shell.md:117-217`, `audits/03-apps.md` and `audits/04-design-system.md` are authoritative), under the rule in `audits/02-shell.md:25-37`: critical = household data lost or silently overwritten through the shipped UI, an account or private content exposed, or an app unusable on the iPad, iPhone or TV. Usability, visual and gap items carry the rating their investigator gave; those were not adversarially verified.');
+P('- **Severity.** Defects carry the severity their report confirmed (the registers in `audits/02-shell.md:117-217`, `audits/03-apps.md` and `audits/04-design-system.md` are authoritative), under the rule in `audits/02-shell.md:25-37`: critical = household data lost or silently overwritten through the shipped UI, an account or private content exposed, or an app unusable on the iPad, iPhone or TV. ' + (Object.keys(VER).length ? `Usability, visual, consistency and gap items that their investigator rated high or medium (${Object.keys(VER).length}) were each checked by two independent skeptics, with a tie-breaker where they disagreed (step 3, \`audits/evidence/p5/ux-verify/verdicts.md\`). The severity is the verdict's, and the entry's "Verified" line gives the earlier rating and each vote; ${refuted.length} refuted items left the list. Items rated low or info keep their investigator's rating, as the household decided (\`audits/05-decisions.md\`, "Other items").` : 'Usability, visual and gap items carry the rating their investigator gave; those were not adversarially verified.'));
 P('- **Pointers.** A finding filed twice keeps both IDs; the pointer\'s fix says "Pointer to <primary>" and it is not counted again.');
 P('- **Evidence** gives the report entry (`audits/…md:line`, which holds the full evidence, reproduction and verification record), then up to four code lines and two screenshots taken from that entry.');
 P('- **"How it will be verified"** names the entry\'s own reproduction scripts, which Phase 6 reruns after the fix: the defect\'s printed observation must flip. The batch adds its capture-rig recapture, measurement rerun and repo tests (section "The plan").');
@@ -143,7 +155,7 @@ P('');
 P(`- **${F.length} findings** (${prim.length} counted once, ${F.length - prim.length} pointers): ${sevOrder.map(s => `${bySev[s] || 0} ${s}`).join(', ')}. By type: ${Object.entries(byType).map(([k, v]) => `${v} ${k}`).join(', ')}.`);
 P(`- **Every critical defect is pulled forward.** The ${crit.length} critical findings sit in the nine 0x batches, ahead of the design work${critOutside.length ? `, except ${critOutside.map(f => f.id).join(', ')}` : ''}. Most share a few root causes in the SDK: writes before the app\'s own first load (0b), queued writes dropped or stranded (0c), and whole-map rows under last-write-wins (0e, 0f, 0g).`);
 P('- **Then the design system (batch 1)**: the Phase 4 token proposal (`audits/tools/phase4/tokens/proposed-tokens.css`, verified over six rounds: 0 failing pairs, 26/26 planted faults caught, 17 minor issues open), with the shared components every app needs (undo toast, confirm sheet, loading state, pressable, focus ring). It closes most visual and consistency items at once.');
-P(`- **Then the shell (2a-2c) and one app per batch** (3-11), ordered by estimated daily use × open gap: ${appRows.map(r => `${appNo[r.id]} ${r.name}`).join(', ')}.`);
+P(`- **Then the shell (2a-2c) and one app per batch** (3-11), in the order the household confirmed (\`audits/05-decisions.md\`, "App batch order"): ${appRows.map(r => `${appNo[r.id]} ${r.name}`).join(', ')}.`);
 P('- **The design preview** (`audits/design-preview.html`) renders the proposed token set live: the house pastels with their computed contrast in light and dark, the type scale, glass over busy content, tiles at phone and iPad density, the household\'s accents side by side, and a before/after of Prayer, the most-used app. Its captures are in `audits/screens-preview/`.');
 P('- **Decisions for the household.** Phase 6 needs the owner\'s answers to D1-D18 (from Phase 4) and P5-D1-P5-D9 (below) before batch 1. The preview shows each colour and type choice.');
 P('');
@@ -155,7 +167,7 @@ P('| Order | Batch | What | Findings (crit / high / med / low / info) | Effort |
 P('|---|---|---|---|---|---|');
 ORDER.forEach((n, k) => { const m = bmeta(n); const mine = prim.filter(f => f.bn === n); P(`| ${k + 1} | **${n}** | ${btitle(n)} | ${mine.length} (${sevCell(mine)}) | ${m.effort} | ${(m.needs || []).join(', ') || '—'} |`); });
 P('');
-P('**Why the app batches are in this order.** No app has usage data (every Phase 3 report says so), so daily use is estimated from each report\'s jobs table (§1): people × sessions a day. Gap is the weight of the app\'s open findings after the critical batches (critical 8, high 4, medium 2, low 1).');
+P('**Why the app batches are in this order.** No app has usage data (every Phase 3 report says so), so daily use is estimated from each report\'s jobs table (§1): people × sessions a day. Gap is the weight of the app\'s open findings after the critical batches (critical 8, high 4, medium 2, low 1). The household confirmed this order (`audits/05-decisions.md`, "App batch order"), and the plan keeps it' + (orderDiffers ? `; with the step 3 severities the scores alone would give ${byScore.map(id => APPS[id].name).join(' → ')}.` : '; the scores with the step 3 severities give the same order.'));
 P('');
 P('| Batch | App | Use (sessions/day) | Basis | Open findings | Gap weight | Use × gap |');
 P('|---|---|---|---|---|---|---|');
@@ -211,6 +223,7 @@ for (const n of ORDER) {
     P(`#### ${f.id} — ${esc(f.title)}`);
     P('');
     P(`- **Area** ${f.area} · **Type** ${f.type} · **Severity** ${f.sev}${f.pointer ? ' (pointer)' : ''} · **Effort** ${f.effort} · **Batch** ${f.bn}`);
+    if (f.ver) P(`- **Verified (step 3).** ${f.ver}`);
     P(`- **Evidence.** \`${f.file}:${f.line}\`${f.code.length ? '; ' + f.code.map(c => '`' + c + '`').join(', ') : ''}${f.shots.length ? '; ' + f.shots.map(c => '`' + c + '`').join(', ') : ''}`);
     if (!f.pointer) P(`- **What happens now.** ${f.now}`);
     if (!f.pointer) P(`- **Why it matters.** ${f.why || bmeta(n).why}`);
@@ -267,6 +280,7 @@ P('');
 const oks = cat.filter(i => i.kind === 'OK').length;
 P(`- **${oks} positive items** (\`OK-*\`): what works, kept in their reports as the baseline Phase 6 must not break.`);
 P('- **Refuted claims** (each report\'s "Checked and not a bug") and **unresolved questions** (each report\'s "Unresolved"): they are not findings. The unresolved ones are device checks or data questions; they are gathered under "Device checks" below.');
+if (refuted.length) P(`- **${refuted.length} items refuted in step 3** by both skeptics or the tie-breaker: ${refuted.map(i => `${i.id} (\`${i.file}:${i.line}\`)`).join(', ')}. Each verdict, with what the skeptics observed, is in \`audits/evidence/p5/ux-verify/verdicts.md\`.`);
 P('- **The Phase 2 shell deviation tables** (`audits/02-shell.md:5747`, "Deviations from the house style") carry no IDs; Phase 4 measured the same deviations system-wide and filed them as the `P4-*`, `VIS-*`, `CONS-*` and `GAP-*` entries of batch 1, which close them.');
 P('- **The Phase 1 leads** (`audits/01-leads.md`) were all confirmed, refuted or narrowed in Phases 2 and 3 (each report\'s "Leads" table); a confirmed lead is a finding above under its Phase 2 or 3 ID.');
 P('');
@@ -281,6 +295,7 @@ P('- `audits/tools/phase5/remedies.mjs` → `audits/evidence/p5/remedies.json` (
 P('- `audits/evidence/p5/registers.json` (the three registers\' severities, parsed).');
 P('- `audits/tools/phase5/fixes-shell.mjs`, `fixes-reading.mjs`, `fixes-home-apps.mjs`, `fixes-dollywood.mjs`, `fixes-system.mjs` (the fix, effort and batch of every finding) and `plan-batches.mjs` (the batches).');
 P('- `audits/tools/phase5/build-findings.mjs` (this file).');
+if (Object.keys(VER).length) P('- Step 3: `audits/tools/phase5/ux-verify/targets.mjs` (the high and medium UX/VIS/CONS/GAP items → `audits/evidence/p5/ux-verify/targets.json` and `items/<ID>.md`), `ux-verify/verdicts.mjs` (the workflow result → `verdicts.json` and `verdicts.md`), the skeptics\' scripts in `audits/tools/phase5/ux-verify/<ID>/` and their outputs in `audits/evidence/p5/ux-verify/<ID>/`.');
 P('- The design preview: `audits/design-preview.html` (its before images in `audits/design-preview-assets/`, made by `audits/tools/phase5/preview-assets.mjs`), its capture area `audits/tools/areas/preview.mjs`, the captures in `audits/screens-preview/`, `audits/tools/phase5/preview-sheets.mjs` (contact sheets without touching `audits/01-capture.md`) and `audits/tools/phase5/preview-check.mjs` (the two-engine check).');
 fs.writeFileSync(A('05-findings.md'), L.join('\n') + '\n');
 console.log(`written audits/05-findings.md: ${F.length} findings (${prim.length} primaries), ${ORDER.length} batches`);

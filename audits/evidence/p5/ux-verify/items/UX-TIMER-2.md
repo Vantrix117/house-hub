@@ -1,0 +1,7 @@
+<!-- audits/03-apps/timer.md:321 · section "4. Issues and bugs" · area timer · kind UX · rated medium -->
+- **UX-TIMER-2 — Pause exists only in one page's memory, and a paused timer looks exactly like an idle one** (medium).
+  - Pause clears `timer.active` (`apps/timer.html:114`). Pausing at 2:55 left the server row and the Home pill null, and reopening showed 3:00 (`basics.json` `D_*`).
+  - In `sync2.mjs` S2 the phone paused at 9:28, and 24 s later Eli's iPad Timer showed 10:00 / Start: it treats the clear as "cleared elsewhere" and resets (`apps/timer.html:135`).
+  - From the visual check: after Pause the app shows the remaining time with a primary "Start", a full-colour ring and no "Paused" label, dimming or blink, styled exactly like an idle timer of that length; `stop()` resets the label to "Start" (`apps/timer.html:92`).
+  - Evidence: `audits/evidence/p3/timer/basics.json`, `audits/evidence/p3/timer/sync2.json`, `audits/evidence/p3/timer/sync2-phone-paused.png`, `audits/evidence/p3/timer/sync2-ipad-after-phone-pause.png`, `audits/evidence/p3/timer/basics-paused-iphone-light.png`, `audits/screens/timer/paused-typical-ipad-portrait-light.png`, `audits/screens/timer/paused-typical-iphone-safari-dark.png`. Runs: `basics.mjs` (D) and `sync2.mjs` (S2, about 2.5 min).
+  - Expected: store the pause (for example `{pausedLeft, total}`), show "Paused 9:28" in the app, the pill and other devices, and label the button "Resume".

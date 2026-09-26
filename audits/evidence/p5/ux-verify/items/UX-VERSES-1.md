@@ -1,0 +1,6 @@
+<!-- audits/03-apps/verses.md:528 · section "4. Issues and bugs" · area verses · kind UX · rated high -->
+- **UX-VERSES-1 — A pre-reader cannot practise: no verse words, the reference is the only thing read aloud, and every prompt is text** (high).
+  - Ezra's card is a serif reference ("Acts 2:42") with the hint "Say the verse out loud, then tap Show." Read aloud says only "Acts, chapter 2, verse 42". Kids have no verse text (`textShown` false before and after Show), so Show reveals nothing; after Show the hint is the adult line "Did you get it? Be honest — that is what makes it stick." (`apps/verses.html:222, 228, 326-327`).
+  - A 4-5-year-old can tap the eye and then the green ✓ by icon, colour and position (the visual checker's "partly"), but cannot practise a verse they are never given. Kid Verse already holds a kid paraphrase for every week (`apps/kidverse.html:188` onward, `VERSES[].words`) that Verses never uses.
+  - High: the kid job (job 3) cannot be done without a reading adult, and the app is listed for both kids (`apps.json:12`).
+  - Evidence: `audits/evidence/p3/verses/kid-flow.json`; `audits/evidence/p3/verses/kid-flow-revealed-iphone-pwa.png`; `audits/evidence/p3/verses/kid-flow-revealed-ipad-portrait.png`; `audits/screens/verses/kid-revealed-typical-iphone-pwa-light.png`. Run `node "audits/tools/phase3/verses/kid-flow.mjs"`.

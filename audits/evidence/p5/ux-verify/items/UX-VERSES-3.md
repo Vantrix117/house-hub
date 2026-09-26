@@ -1,0 +1,2 @@
+<!-- audits/03-apps/verses.md:534 · section "4. Issues and bugs" · area verses · kind UX · rated medium -->
+- **UX-VERSES-3 — The daily review is 8 taps from Home; there is no Verses card although a summary is written for one** (medium). J1 took 8 taps with `homeHasVersesCard: false`. `verses.summary {due, streak, …}` is written "for the Home card" (`apps/verses.html:172, 238-245`) that `index.html` never reads (its channels at `index.html:458` have no `verses`). The same gap as GAP-HOME-2, measured here. Evidence: `audits/evidence/p3/verses/taps.json`.

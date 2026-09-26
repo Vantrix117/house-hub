@@ -50,7 +50,9 @@ export const BATCHES = {
     why: 'The downstairs TV runs 24/7 and is read from the sofa; today it hides reminders and uses phone-sized text.',
     verify: ['scripts/test-tv.mjs (200 crossfades, constant nodes, fits 1920x1080)', 'capture rig: --area tv --out audits/screens-after/… + pxdiff', 'audits/tools/phase4/tokens/rev2-runtime.mjs fit check with data-tv-scale="10ft"'] },
 };
-// App batches: one app per batch (constitution). Order is computed from daily use x gap (see build-findings.mjs).
+// App batches: one app per batch (constitution). Order: the household's answer (audits/05-decisions.md, "App batch order"),
+// which confirmed the order computed from daily use x gap; build-findings.mjs keeps it and says if the scores ever disagree.
+export const APP_ORDER = ['prayer', 'f260', 'verses', 'timer', 'kidverse', 'leftovers', 'dollywood', 'dollywood-live', 'tally'];
 // use = estimated household sessions per day, from each app's jobs table in audits/03-apps/<id>.md §1 (no usage data exists).
 export const APPS = {
   prayer: { name: 'Prayer', use: 7, useWhy: 'every adult daily plus Ezra and Kiara daily (prayer.md §1)', files: 'apps/prayer.html (restyle through tokens only; layout and ids stay)' },

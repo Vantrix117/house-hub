@@ -1,0 +1,4 @@
+<!-- audits/03-apps/dollywood-live.md:644 · section "4. Issues and bugs" · area dollywood-live · kind VIS · rated medium -->
+- **VIS-DOLLYWOOD-LIVE-1 — Family marker labels pile into an unreadable stack with long names** (medium).
+  - `drawFam` draws each name pill with no collision handling (`apps/dollywood-live.html:1219-1221`), unlike the ride labels. In the overflow seed 4-5 long-name pills stack around Thunderhead and the Great Tree Swing ("Kiara Seraphina Josephine" covers "Ezra Bartholomew Anderson"), and a guest's label is clipped at the left edge. The same happens on iPhone.
+  - Evidence: `audits/screens/dollywood-live/map-overflow-ipad-portrait-light.png`, `audits/screens/dollywood-live/meet-overflow-iphone-pwa-light.png`, `audits/screens/_sheets/dollywood-live--map.jpg`. Lead `audits/01-leads.md:335`.

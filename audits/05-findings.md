@@ -13,17 +13,17 @@
 - **One entry per finding.** Every finding Phases 2-4 filed is here once, with its original ID: the adversarially verified defects (`P2-*`, `P3-*`, `P4-*`) and the usability, visual, consistency and gap items (`UX-*`, `VIS-*`, `CONS-*`, `GAP-*`). Positive items (`OK-*`), refuted claims and unresolved questions are not findings; they are counted under "What this report does not list".
 - **Entry fields**, as the constitution asks: ID · Title · Area · Type · Severity · Evidence · What happens now · Why it matters · Proposed fix · Effort · How it will be verified. "Batch" says which Phase 6 commit carries the fix.
 - **Type.** Defects are *bug* (with *security* or *perf* when the finding was filed as such). `UX-*` items are *usability*, `VIS-*` *visual*, `CONS-*` *visual (consistency)*, `GAP-*` *feature gap*. The constitution's fifth type, *improvement*, is the Phase 3 improvement tables: each fix below names the improvement that proposed it (`IMP-<APP>-P|F|I<rank>`), and the 15 improvements that fix no finding are listed as their own entries at the end of their app batch.
-- **Severity.** Defects carry the severity their report confirmed (the registers in `audits/02-shell.md:117-217`, `audits/03-apps.md` and `audits/04-design-system.md` are authoritative), under the rule in `audits/02-shell.md:25-37`: critical = household data lost or silently overwritten through the shipped UI, an account or private content exposed, or an app unusable on the iPad, iPhone or TV. Usability, visual and gap items carry the rating their investigator gave; those were not adversarially verified.
+- **Severity.** Defects carry the severity their report confirmed (the registers in `audits/02-shell.md:117-217`, `audits/03-apps.md` and `audits/04-design-system.md` are authoritative), under the rule in `audits/02-shell.md:25-37`: critical = household data lost or silently overwritten through the shipped UI, an account or private content exposed, or an app unusable on the iPad, iPhone or TV. Usability, visual, consistency and gap items that their investigator rated high or medium (71) were each checked by two independent skeptics, with a tie-breaker where they disagreed (step 3, `audits/evidence/p5/ux-verify/verdicts.md`). The severity is the verdict's, and the entry's "Verified" line gives the earlier rating and each vote; 0 refuted items left the list. Items rated low or info keep their investigator's rating, as the household decided (`audits/05-decisions.md`, "Other items").
 - **Pointers.** A finding filed twice keeps both IDs; the pointer's fix says "Pointer to <primary>" and it is not counted again.
 - **Evidence** gives the report entry (`audits/…md:line`, which holds the full evidence, reproduction and verification record), then up to four code lines and two screenshots taken from that entry.
 - **"How it will be verified"** names the entry's own reproduction scripts, which Phase 6 reruns after the fix: the defect's printed observation must flip. The batch adds its capture-rig recapture, measurement rerun and repo tests (section "The plan").
 
 ## Summary
 
-- **623 findings** (577 counted once, 46 pointers): 41 critical, 14 high, 134 medium, 375 low, 13 info. By type: 237 bug, 4 bug (perf), 113 usability, 51 feature gap, 120 visual, 14 bug (security), 38 visual (consistency).
+- **623 findings** (577 counted once, 46 pointers): 41 critical, 10 high, 105 medium, 408 low, 13 info. By type: 237 bug, 4 bug (perf), 113 usability, 51 feature gap, 120 visual, 14 bug (security), 38 visual (consistency).
 - **Every critical defect is pulled forward.** The 41 critical findings sit in the nine 0x batches, ahead of the design work. Most share a few root causes in the SDK: writes before the app's own first load (0b), queued writes dropped or stranded (0c), and whole-map rows under last-write-wins (0e, 0f, 0g).
 - **Then the design system (batch 1)**: the Phase 4 token proposal (`audits/tools/phase4/tokens/proposed-tokens.css`, verified over six rounds: 0 failing pairs, 26/26 planted faults caught, 17 minor issues open), with the shared components every app needs (undo toast, confirm sheet, loading state, pressable, focus ring). It closes most visual and consistency items at once.
-- **Then the shell (2a-2c) and one app per batch** (3-11), ordered by estimated daily use × open gap: 3 Prayer, 4 F260 Reading Plan, 5 Verses, 6 Kitchen timer, 7 Kid Verse, 8 Larder Ledger, 9 Dollywood build guide, 10 Dollywood park map, 11 Tally counter.
+- **Then the shell (2a-2c) and one app per batch** (3-11), in the order the household confirmed (`audits/05-decisions.md`, "App batch order"): 3 Prayer, 4 F260 Reading Plan, 5 Verses, 6 Kitchen timer, 7 Kid Verse, 8 Larder Ledger, 9 Dollywood build guide, 10 Dollywood park map, 11 Tally counter.
 - **The design preview** (`audits/design-preview.html`) renders the proposed token set live: the house pastels with their computed contrast in light and dark, the type scale, glass over busy content, tiles at phone and iPad density, the household's accents side by side, and a before/after of Prayer, the most-used app. Its captures are in `audits/screens-preview/`.
 - **Decisions for the household.** Phase 6 needs the owner's answers to D1-D18 (from Phase 4) and P5-D1-P5-D9 (below) before batch 1. The preview shows each colour and type choice.
 
@@ -40,35 +40,35 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c |
 | 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c |
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b |
-| 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 2 / 0 / 0 / 0) | M | 0b |
+| 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 26 / 109 / 7) | L | the household's decisions D1-D18 and P5-D1-P5-D9 (below) |
-| 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles | 45 (0 / 2 / 9 / 33 / 1) | L | 1 |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | the household's decisions D1-D18 and P5-D1-P5-D9 (below) |
+| 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles | 45 (0 / 1 / 7 / 36 / 1) | L | 1 |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c |
-| 13 | **2c** | The TV board | 12 (0 / 0 / 4 / 8 / 0) | M | 1 |
-| 14 | **3** | Prayer | 36 (0 / 0 / 8 / 27 / 1) | L | 1, 2a |
+| 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 |
+| 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a |
 | 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a |
-| 16 | **5** | Verses | 19 (0 / 1 / 6 / 11 / 1) | M | 1, 2a |
-| 17 | **6** | Kitchen timer | 24 (0 / 0 / 12 / 12 / 0) | M | 1, 2a |
-| 18 | **7** | Kid Verse | 16 (0 / 0 / 6 / 10 / 0) | M | 1, 2a |
-| 19 | **8** | Larder Ledger | 16 (0 / 0 / 4 / 12 / 0) | M | 1, 2a |
-| 20 | **9** | Dollywood build guide | 48 (0 / 0 / 13 / 34 / 1) | L | 1, 2a |
-| 21 | **10** | Dollywood park map | 42 (0 / 0 / 16 / 25 / 1) | L | 1, 2a |
-| 22 | **11** | Tally counter | 14 (0 / 0 / 2 / 12 / 0) | M | 1, 2a |
+| 16 | **5** | Verses | 19 (0 / 0 / 5 / 13 / 1) | M | 1, 2a |
+| 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a |
+| 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a |
+| 19 | **8** | Larder Ledger | 16 (0 / 0 / 2 / 14 / 0) | M | 1, 2a |
+| 20 | **9** | Dollywood build guide | 48 (0 / 0 / 10 / 37 / 1) | L | 1, 2a |
+| 21 | **10** | Dollywood park map | 42 (0 / 0 / 13 / 28 / 1) | L | 1, 2a |
+| 22 | **11** | Tally counter | 14 (0 / 0 / 1 / 13 / 0) | M | 1, 2a |
 
-**Why the app batches are in this order.** No app has usage data (every Phase 3 report says so), so daily use is estimated from each report's jobs table (§1): people × sessions a day. Gap is the weight of the app's open findings after the critical batches (critical 8, high 4, medium 2, low 1).
+**Why the app batches are in this order.** No app has usage data (every Phase 3 report says so), so daily use is estimated from each report's jobs table (§1): people × sessions a day. Gap is the weight of the app's open findings after the critical batches (critical 8, high 4, medium 2, low 1). The household confirmed this order (`audits/05-decisions.md`, "App batch order"), and the plan keeps it; with the step 3 severities the scores alone would give Prayer → F260 Reading Plan → Kitchen timer → Verses → Kid Verse → Larder Ledger → Dollywood build guide → Dollywood park map → Tally counter.
 
 | Batch | App | Use (sessions/day) | Basis | Open findings | Gap weight | Use × gap |
 |---|---|---|---|---|---|---|
-| 3 | Prayer | 7 | every adult daily plus Ezra and Kiara daily (prayer.md §1) | 36 | 43 | 301 |
+| 3 | Prayer | 7 | every adult daily plus Ezra and Kiara daily (prayer.md §1) | 36 | 41 | 287 |
 | 4 | F260 Reading Plan | 4 | four adult readers, daily (f260.md §1) | 38 | 44 | 176 |
-| 5 | Verses | 4 | four adults daily, kids a few times a week (verses.md §1) | 19 | 27 | 108 |
-| 6 | Kitchen timer | 3 | several times a day around meals (timer.md §1) | 24 | 36 | 108 |
-| 7 | Kid Verse | 2 | both kids daily (kidverse.md §1) | 16 | 22 | 44 |
-| 8 | Larder Ledger | 2 | about one log and one finish a day in the app; the Home card carries the glances (leftovers.md §1) | 16 | 20 | 40 |
-| 9 | Dollywood build guide | 0.4 | Eli, a few build sessions a week (dollywood.md §1) | 48 | 60 | 24 |
-| 10 | Dollywood park map | 0.2 | park days only, then heavily (dollywood-live.md §1) | 42 | 57 | 11.4 |
-| 11 | Tally counter | 0.5 | occasional bursts (tally.md §1) | 14 | 16 | 8 |
+| 5 | Verses | 4 | four adults daily, kids a few times a week (verses.md §1) | 19 | 23 | 92 |
+| 6 | Kitchen timer | 3 | several times a day around meals (timer.md §1) | 24 | 33 | 99 |
+| 7 | Kid Verse | 2 | both kids daily (kidverse.md §1) | 16 | 21 | 42 |
+| 8 | Larder Ledger | 2 | about one log and one finish a day in the app; the Home card carries the glances (leftovers.md §1) | 16 | 18 | 36 |
+| 9 | Dollywood build guide | 0.4 | Eli, a few build sessions a week (dollywood.md §1) | 48 | 57 | 22.8 |
+| 10 | Dollywood park map | 0.2 | park days only, then heavily (dollywood-live.md §1) | 42 | 54 | 10.8 |
+| 11 | Tally counter | 0.5 | occasional bursts (tally.md §1) | 14 | 15 | 7.5 |
 
 ### Batch details
 
@@ -428,6 +428,7 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 #### UX-DOLLYWOOD-5 — While the first pull loads, the guide looks like a first-time user and Mark done is live
 
 - **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0b
+- **Verified (step 3).** was medium; skeptics medium and medium.
 - **Evidence.** `audits/03-apps/dollywood.md:680`; `audits/evidence/p3/dollywood/first-open-loading.png`, `audits/screens/dollywood/steps-loading-iphone-pwa-light.png`
 - **What happens now.** On a fresh device with the pull held 5 s: "0 of 9 done", every chip 0/N, an enabled Mark done and no loading cue (L1). After the pull: "7 of 9 done". A tick in that window replaced the server row, 24 → 1 (L2).
 - **Why it matters.** It looks like a first-time user and accepts ticks that erase progress.
@@ -614,12 +615,6 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/02-shell.md:3177`; `apps/f260.html:1506-1509`, `index.html:1164`, `worker/src/chat.js:299`, `worker/src/reminders.js:88-96`
 - **Proposed fix.** Pointer to P2-HOME-02.
 
-#### UX-TALLY-2 — While loading there is no skeleton or busy state, and taps first do nothing
-
-- **Area** tally · **Type** usability · **Severity** medium (pointer) · **Effort** S · **Batch** 0b
-- **Evidence.** `audits/03-apps/tally.md:493`; `apps/tally.html:130`; `audits/evidence/p3/tally/loading-at-1500ms-iphone.png`, `audits/screens/tally/main-loading-ipad-portrait-light.png`
-- **Proposed fix.** Pointer to P3-TALLY-07 for the display; buttons disabled with aria-busy while loading. (Phase 3: IMP-TALLY-P2)
-
 #### GAP-TELL-1 — No app uses a skeleton, and `hub.js` gives apps no "pulled" signal to know when to show one
 
 - **Area** design system, all areas · **Type** feature gap · **Severity** low (pointer) · **Effort** S · **Batch** 0b
@@ -643,6 +638,13 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Area** leftovers · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 0b
 - **Evidence.** `audits/03-apps/leftovers.md:339`; `index.html:458`, `apps/hub.js:51`, `apps/hub.js:337`, `apps/hub.js:334-337`; `audits/screens/leftovers/stalled-loading-ipad-landscape-dark.png`, `audits/evidence/p3/leftovers/before-ready-B-stalled-7s-iphone.png`
 - **Proposed fix.** Pointer to P2-SYNC-15: a loading state until the first pull; "Nothing logged yet" only after it.
+
+#### UX-TALLY-2 — While loading there is no skeleton or busy state, and taps first do nothing
+
+- **Area** tally · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 0b
+- **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: "Taps first do nothing" holds only on the first open of Tally on a device (no tally cache) with a slow first pull. On a normal network the dead window is about 0.2 s, and on any later open it is about 0.1 s even with a 9 s held pull.
+- **Evidence.** `audits/03-apps/tally.md:493`; `apps/tally.html:130`; `audits/evidence/p3/tally/loading-at-1500ms-iphone.png`, `audits/screens/tally/main-loading-ipad-portrait-light.png`
+- **Proposed fix.** Pointer to P3-TALLY-07 for the display; buttons disabled with aria-busy while loading. (Phase 3: IMP-TALLY-P2)
 
 #### UX-TIMER-9 — Before data loads the app shows a fake idle 5:00 with a live-looking Start that ignores taps
 
@@ -1207,7 +1209,8 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 
 #### UX-LEFTOVERS-1 — One tap on ✓ deletes a family item for everyone, with no undo, no confirm and no completed history
 
-- **Area** leftovers · **Type** usability · **Severity** high · **Effort** S · **Batch** 0h
+- **Area** leftovers · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0h
+- **Verified (step 3).** was high; skeptics high and medium; tie-break medium. Correction: The facts are right. The rating should be medium, not high. One detail should be added: the tombstone and the feed line keep no size or date, so re-logging cannot restore those fields exactly.
 - **Evidence.** `audits/03-apps/leftovers.md:738`; `apps/leftovers.html:306-311`, `apps/leftovers.html:275-283`; `audits/screens/leftovers/finished-typical-iphone-pwa-light.png`
 - **What happens now.** `removeItem` writes a tombstone and posts "Finished the X" (`apps/leftovers.html:306-311`). There is no toast, no undo and no "Show completed".
 - **Why it matters.** One tap deletes a family item for everyone.
@@ -1216,7 +1219,8 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 
 #### UX-LEFTOVERS-2 — Kids get the full adult page: a ✓ on every family item, the add bar, the mic and the Hearth block, in small type with nothing to recognise
 
-- **Area** leftovers · **Type** usability · **Severity** high · **Effort** S · **Batch** 0h
+- **Area** leftovers · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0h
+- **Verified (step 3).** was high; skeptics high and medium; tie-break medium. Correction: "Only the card radius changes" is too narrow. Kid mode also rounds the alert, ✓, name box, Log and mic from 12 px to 16 px (--r-sm), and the add bar from 16 px to 22 px (--r). No text size changes.
 - **Evidence.** `audits/03-apps/leftovers.md:744`; `apps/leftovers.html:18`, `apps/leftovers.html:180`, `apps/design.css:283`, `worker/src/chat.js:52`; `audits/evidence/p3/leftovers/kid-ezra-larder-ipad.png`, `audits/screens/leftovers/kid-typical-ipad-portrait-light.png`
 - **What happens now.** The app has no `data-kind="kid"` rules (only kiosk ones, `apps/leftovers.html:18, 96`), and `canEdit = hub.canWrite` (`apps/leftovers.html:180`), which is true for kids.
 - **Why it matters.** Kids get the full adult page with the ✓ buttons.
@@ -1246,6 +1250,7 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 #### GAP-CHAT-02 — Chat actions are neither confirmed nor undoable
 
 - **Area** shell / platform · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 0i
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: 'None of the 12 tools is an undo' is true only in the sense that no tool restores a previous state. The evidence for it (`undoLikeTools: []`) is a tool-name regex. toggle_f260_reading can reverse itself, and finish_leftover or add_list_item can counter each other, though lossily.
 - **Evidence.** `audits/02-shell.md:4399`; `apps/leftovers.html:306-311`
 - **What happens now.** The SSE protocol has no confirm step (chat.js:4-9).
 - **Why it matters.** Chat acts at once with no way back.
@@ -1299,81 +1304,20 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** The dark hero becomes a deep tint with the glowing ink (`--hero-bg` + `--accent-ink`, Phase 4 batch-1a row for .ds .hero), gated at 4.5:1 for every person in every palette.
 - **How it will be verified.** Rerun `node "audits/tools/phase2/VIS/verify3-dark-hero-contrast-2.mjs"`, `node "audits/tools/phase2/VIS/verify3-dark-hero-contrast-1.mjs"` — the defect must no longer reproduce; plus batch 1's checks.
 
-#### CONS-ICON-1 — Eleven icon families; no app uses the shell's own set
-
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** medium · **Effort** L · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:2979`; `index.html:913-916`, `apps/f260.html:617-620`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
-- **What happens now.** The shell (F1-F3) is one custom 1.75 recipe. Each app brings its own: F260: Feather/Lucide-derived paths at 2 on 18 px, a 20-grid tick at 2.6, colour emoji, text glyphs and CSS chevrons.
-- **Why it matters.** Eleven icon families.
-- **Proposed fix.** One icon set: a Lucide (ISC) sprite with the licence notice, one weight, --icon-* sizes; apps adopt it in their batches (glyph-by-glyph map in 04 ICON).
-- **How it will be verified.** Rerun `node "audits/tools/phase4/ICON/static.mjs"`, `node "audits/tools/phase4/ICON/report.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
-
-#### GAP-DARK-1 — Dark soft fills sit 1.01-1.22:1 from the card, so every soft-filled state goes muddy or vanishes; one token choice explains six per-app Phase 3 findings
-
-- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:4848`; `apps/design.css:163-168`, `apps/design.css:169`; `audits/evidence/p4/SCORE/shots/forest/tally/main-typical-ipad-portrait-light.png`, `audits/evidence/p4/SCORE/shots/midnight/leftovers/main-typical-ipad-portrait-light.png`
-- **What happens now.** In Midnight the semantic `-soft` tokens (`apps/design.css:163-168`) against `--surface` #241E19 measure: mocha 1.10, gold 1.08, olive 1.07, teal 1.02, terra 1.01, slate 1.11; Forest 1.02-1.10. `--accent-soft` (`color-mix(accent 14%, surface)`, `apps/design.css:169`) measures 1.08-1.22 (Forest 1.08-1.21).
-- **Why it matters.** Expiry states, rating choices, the tally buttons and the kids' progress dots all rely on the soft fill. For pre-readers the fill is the state cue. Under System, the always-on iPad runs dark every evening.
-- **Proposed fix.** Dark fills sit ≥ 1.5:1 from the card (deep pastel tints in the proposal). (Phase 4 gap row DARK-4)
-- **How it will be verified.** Rerun `node "audits/tools/phase4/DARK/palette-dark.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
-
-#### GAP-ICON-1 — The design system has no icon tokens, size scale, weight rule, ink rule or shared sprite, and the style guide shows one glyph
-
-- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:3052`; `apps/design.css:602-603`
-- **What happens now.** `.icon` at 24 / 32 px with a 1.75 stroke (`apps/design.css:602-603`);
-- **Why it matters.** No icon system.
-- **Proposed fix.** Icon tokens, size scale, weight and ink rules, and a sprite shown in docs/design.html.
-- **How it will be verified.** Rerun `node "audits/tools/phase4/ICON/report.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
-
-#### GAP-TOK-1 — The contrast gate checks 15 pair kinds; design.css's components paint 27 more, and 18 of those fail somewhere
-
-- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:661`; `scripts/test-design.mjs:47-53`, `apps/design.css:47`, `index.html:449`
-- **What happens now.** Areas: design.css, docs, the shell, Kid Verse, Dollywood, Verses.
-- **Why it matters.** CLAUDE.md tells future changes that the palette is proven AA ("WCAG AA on every text pair for all eight family colours in all five palettes"). The proof covers about a third of what is painted, so regressions in placeholders, badges, switches, rings and focus ship green.
-- **Proposed fix.** contrast.mjs becomes the design gate: every component pair design.css paints (42 kinds) is gated, not only the 15 token pairs; scripts/test-design.mjs runs it. (Phase 4 gap row TOK-5, TOK-6)
-- **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/pairs.mjs"`, `node "audits/tools/phase4/TOK/guide-contrast.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
-
 #### GAP-TOK-2 — Only `--accent-deep` has an "on" colour; every other filled surface picks white or `--on-accent` by hand
 
 - **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics medium (partly) and medium. Correction: 'A household member cannot read it' is overstated. At 2.61 the 12 px bold digit is hard to read but not invisible, and the badge disc itself stays highly visible, so the 'food to eat' cue survives.
 - **Evidence.** `audits/04-design-system.md:699`; `apps/design.css:92`, `index.html:703`, `apps/f260.html:26`, `apps/verses.html:59`
 - **What happens now.** `--on-accent` is the only "on" token (apps/design.css:92), and it is tuned for `--accent-deep`. Everything else is hand-picked:
 - **Why it matters.** The badge is the Apps grid's at-a-glance cue, on the Larder tile, that food must be eaten. In the dark palettes, and in System at night, a household member cannot read it. This meets the rule's "text a household member needs … on a primary surface": at least medium.
 - **Proposed fix.** An -on token for every fill (--X-on, --accent-on, --badge-ink) and the pairing lint (no white on a fill). (Phase 4 gap row TOK-1)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/pairs.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
 
-#### GAP-TOK-3 — Profile and app colours are single light-theme hex values that never re-tune; as foregrounds in Midnight and Forest, 17 of 19 fall under 3:1
-
-- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:717`; `worker/seed.sql:4-11`, `index.html:449`, `apps/hub.js:461`, `index.html:450`; `audits/screens/shell/apps-typical-ipad-portrait-dark.png`
-- **What happens now.** design.css re-tunes every hue family per palette (for example `--olive` #5B8143 → #9DC183 in Midnight). The person and app colours, though, are each one hex, stored in:
-- **Why it matters.** Pre-readers find apps by icon and colour, and System goes dark every night. The TV and the dark palettes lose the per-person colour cue.
-- **Proposed fix.** People and apps carry a hue family name (data-accent, apps.json "hue", the profile hue column), re-tuned per scheme. (Phase 4 gap row TOK-2, ACCENT-1)
-- **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/tokens.mjs"`, `node "audits/tools/phase4/TOK/appcolours.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
-
-#### GAP-TOK-4 — Kid and kiosk scale only the tokenised subset; every literal size escapes them
-
-- **Area** design system (TV) · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:741`; `apps/design.css:280-289`, `index.html:60`
-- **What happens now.** Areas: design.css, the shell, F260, the Larder, Prayer, the park map.
-- **Why it matters.** Kid mode and the 10-foot TV depend on the kind scale, but the Larder and the park map keep adult type for pre-readers.
-- **Proposed fix.** Kid and kiosk scale every role through --ts-kind / --space-k / --shape-k; literal sizes move to roles app by app (lint row). (Phase 4 gap row TOK-10, TOK-11)
-- **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/usage.mjs"`, `node "audits/tools/phase4/TOK/literals.mjs"`, `node "audits/tools/phase4/TOK/adoption.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
-
-#### GAP-TOK-5 — There are no weight, z-index, opacity, breakpoint, press-scale, fluid-type or composite-glass tokens, so each area invents its own
-
-- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:765`; `index.html:261`, `apps/dollywood.html:215`
-- **What happens now.** What each area invents (Table TOK-F): Weights: literal weights in all 11 areas: design.css 20 (600 ×10, 700 ×7, 400 ×3), shell 26, F260 87 (800 ×16), Prayer 52, park map 40, Kid Verse 16.
-- **Why it matters.** Without shared layers, overlays from different areas can collide; without shared weights, hierarchy drifts from app to app. Hand-copied glass diverges from the recipe the moment the recipe changes.
-- **Proposed fix.** Weight, z-index, opacity, press-scale and composite glass tokens (proposal §1). (Phase 4 gap row TOK-9, TOK-13)
-- **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/literals.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
-
 #### GAP-TYPE-1 — No iPad type tier: body, secondary, button and tab text is the same size on the 820 px iPad as on the 430 px iPhone, in every area
 
 - **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: Minor: I count F260 as 172/181 same-size selectors, not 173/181. Otherwise the numbers and the design.css claim check out.
 - **Evidence.** `audits/04-design-system.md:1379`; `apps/design.css:573`, `apps/design.css:22-24`; `audits/screens/shell/home-typical-ipad-portrait-light.png`, `audits/screens/shell/home-typical-iphone-pwa-light.png`
 - **What happens now.** Of the selectors seen on both devices, the same size on both: shell 160/163, F260 173/181, Prayer 131/132, Larder 31/31, park map 146/146, Verses 51/53, Kid Verse 55/57, Tally 8/10, Timer 10/12, build guide 107/113. Table TYPE-4 lists what grows.
 - **Why it matters.** The iPad is read from 2-3 m, yet reminders, Larder meta, prayer rows and captions stay at 12-16 px.
@@ -1383,6 +1327,7 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 #### GAP-TYPE-2 — No text-size preference and no Dynamic Type hook; F260's page zoom is the only control, and it leaves its 9.5 px label at 10.92 px
 
 - **Area** design system (F260) · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 1
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: The item says F260's page zoom is 'the only control'. Pinch zoom (no user-scalable=no in any viewport meta), iOS Display Zoom or Accessibility Zoom, and desktop browser zoom also enlarge the hub. They are clumsy, which supports medium, but they are workarounds the item should name.
 - **Evidence.** `audits/04-design-system.md:1393`; `apps/design.css:293`, `apps/f260.html:44`, `apps/prayer.html:50`, `apps/f260.html:50`
 - **What happens now.** Every size is a px literal or a px token, and `html` sets `text-size-adjust: 100%` (`apps/design.css:293`). NOT FOUND IN CODE, in `index.html`, `apps/*.html`, `apps/design.css` and the template: `font: -apple-system-body` or any `-apple-system-*` text style, `rem`-based font sizes (F260 and Prayer use `rem` only for max-widths, …
 - **Why it matters.** A grandparent who needs larger text cannot get it outside F260, and inside F260 some text is still below the floor.
@@ -1470,68 +1415,25 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** Apps-grid tiles, picker cards and the chat composer keep a visible outline focus (--focus-ring, outline not shadow).
 - **How it will be verified.** Rerun `node "audits/tools/phase4/CRIT/verify-critic-focus-invisible-tiles-picker-cards-chat-1-1.mjs"`, `node "audits/tools/phase4/CRIT/verify-critic-focus-invisible-tiles-picker-cards-chat-1-2.mjs"`, `node "audits/tools/phase4/CRITIC/focus-other-components.mjs"` — the defect must no longer reproduce; plus batch 1's checks.
 
-#### VIS-ACCENT-1 — The profile colours are neither pastel nor distinct enough as fills: the soft fills are near-grey, and 6 of 21 household pairs sit under ΔE00 5 as fills
-
-- **Area** design system, all areas · **Type** visual · **Severity** medium · **Effort** S · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:5682`; `index.html:449`, `worker/seed.sql:4-11`
-- **What happens now.** The colours are mid-tones. Every profile colour sits at OKLCH L 0.42-0.65: too dark to be a fill, too light and too grey to be an ink.
-- **Why it matters.** Profile colours are near-grey and too close.
-- **Proposed fix.** Each person starts with a distinct house pastel family (decision D3); the nine people's colours are CVD-separated (gated ΔE00). The admin may assign any of the 18 (household answer 2026-09-26); an app colour is not CVD-separated from the people's, so the picker's CVD check (GAP-ACCENT-1) warns. (Phase 4 gap row ACCENT-8)
-- **How it will be verified.** Rerun `node "audits/tools/phase4/ACCENT/tokens.mjs"`, `node "audits/tools/phase4/ACCENT/cvd-strip.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
-
-#### VIS-COLOR-1 — The fills and tiles sit at about a third of the house chroma in all five palettes, two house hues are missing, and dark cards barely lift off the page
-
-- **Area** design system, all areas · **Type** visual · **Severity** medium · **Effort** M · **Batch** 1
-- **Evidence.** `audits/04-design-system.md:7309`; `apps/design.css:606-608`, `apps/design.css:412`; `audits/screens/shell/apps-typical-ipad-portrait-light.png`, `audits/screens/shell/home-typical-ipad-portrait-light.png`
-- **What happens now.** (Table COLOR-8): Soft fills. They sit at the pastels' lightness (L 0.87-0.94, against 0.876-0.953) but at about a third of their chroma (C 0.008-0.070, against 0.057-0.093). Parchment's gold-soft, at 0.070, is the only exception. `--accent-soft` for the ten swatches is 0.004-0.047. Tiles.
-- **Why it matters.** This is the house style's central colour rule, and the main reason every area scores 3-5 on Colour & palette.
-- **Proposed fix.** The house pastels at full chroma for fills and tiles (pastel-to-saturated tile gradients), both missing hues added, dark cards lifted. (Phase 4 gap row COLOR-8, COLOR-9)
-- **How it will be verified.** Rerun `node "audits/tools/phase4/COLOR/palette.mjs"`, `node "audits/tools/phase4/COLOR/tiles.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
-
 #### VIS-F260-1 — Much of F260's secondary text fails AA in every palette
 
 - **Area** f260 · **Type** visual · **Severity** medium · **Effort** M · **Batch** 1
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: Minor points. (1) Hearth's 4.49 muted captions, and so most of its 150 failures, only occur in New Testament weeks 31-52: body.nt (apps/f260.html:26-30, toggled at 1499) tints the paper with teal. In weeks 1-30 the same text is 4.90 and passes, and gold is 2.96 rather than 2.71.
 - **Evidence.** `audits/03-apps/f260.md:703`; `apps/f260.html:235`, `apps/f260.html:71`, `apps/f260.html:193`; `audits/evidence/p3/f260/contrast-hearth-light-iphone.png`, `audits/evidence/p3/f260/contrast-midnight-light-iphone.png`
 - **What happens now.** Rendered 10th-percentile contrast of 203 text items on the Plan page at 430 px. Failing: Hearth 150, Parchment 91, Frost 91, Midnight 41, Forest 41, System-dark 41, Hearth on a dark OS 42.
 - **Why it matters.** Much of F260's secondary text fails AA.
 - **Proposed fix.** Secondary text reads --text-2/--text-3 and hue text reads -ink tokens (batch-1a pre-pass rows for F260), no opacity dimming. (Phase 3: IMP-F260-P11)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/f260/contrast.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
 
-#### VIS-F260-2 — Empty progress cells are almost invisible: 1.04:1 in dark, 1.10:1 in light
-
-- **Area** f260 · **Type** visual · **Severity** medium · **Effort** S · **Batch** 1
-- **Evidence.** `audits/03-apps/f260.md:710`; `apps/f260.html:16`; `audits/evidence/p3/f260/vischeck-empty-cells-ipad-landscape-dark.png`, `audits/screens/f260/today-timeout-loading-ipad-landscape-dark.png`
-- **What happens now.** Empty progress cells are almost invisible: 1.04:1 in dark, 1.10:1 in light (medium; from the visual check). Unread year-grid weeks, empty heatmap days, unread book-bar segments and the meter track all fill with `--sunk` (`apps/f260.html:16, 65, 77, 83, 92`). Against the page they measure 1.04:1 in System/Midnight dark and 1.10:1 in Hearth light, far below 3:1 for meaningful graphics. On an empty or early plan in dark, the 52-week grid, the heatmap and the book bar read as a blank area. Evidence: `audits/evidence/p3/f260/vischeck-empty-cells.json`; `audits/evidence/p3/f260/vischeck-empty-cells-ipad-landscape-dark.png`; `audits/screens/f260/today-timeout-loading-ipad-landscape-dark.png`; `audits/screens/f260/finished-hero-overflow-ipad-portrait-dark.png`. Run: `node "audits/tools/phase3/f260/vischeck-empty-cells.mjs"`.
-- **Why it matters.** Empty progress is invisible.
-- **Proposed fix.** Empty cells use --cell-empty (a ≥ 3:1 ring) in every palette. (Phase 3: IMP-F260-P11)
-- **How it will be verified.** Rerun `node "audits/tools/phase3/f260/vischeck-empty-cells.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
-
-#### VIS-KIDVERSE-1 — Day-dot letters, 10 px badge hints and the unearned "50" glyph fail text contrast
-
-- **Area** kidverse · **Type** visual · **Severity** medium · **Effort** S · **Batch** 1
-- **Evidence.** `audits/03-apps/kidverse.md:700`; `audits/screens/kidverse/kid-stars-typical-iphone-pwa-light.png`, `audits/evidence/p3/kidverse/visual-C-kid-forest-rewards.png`
-- **What happens now.** Rendered contrast (lib-vis `contrastSweep`, 430 px, kid and adult): day letters (`--muted-decor` on `--surface-2`) 2.22:1 Hearth, 2.09:1 Parchment, 2.08:1 Frost, 3.18:1 Midnight, 3.11:1 Forest, at 12 px on the kid card and 10 px in the adult panel; badge hints 10 px at 4.37-4.45:1;
-- **Why it matters.** They fail text contrast.
-- **Proposed fix.** Day letters, badge hints and the unearned glyph read --text-3 on --surface-2 (≥ 4.5:1), at --fs-caption2 minimum. (Phase 3: IMP-KIDVERSE-P2)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 1's checks.
-
 #### VIS-PRAYER-1 — Gold labels, the "shared" pill, done titles and dark nav labels fail contrast
 
 - **Area** prayer · **Type** visual · **Severity** medium · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: The Midnight/Forest/System-dark failures are wrong. Done row titles measure about 6.0-6.2:1, not 3.24-3.27, and the 'Record' nav label measures about 5.5-5.7:1, not 3.40-3.56. They pass AA, and the p3 p10 values were sampling artifacts (the p3 medians were 6.21/6.08).
 - **Evidence.** `audits/03-apps/prayer.md:886`; `apps/prayer.html:107-108`; `audits/screens/prayer/today-typical-iphone-pwa-light.png`, `audits/screens/prayer/record-typical-ipad-portrait-dark.png`
 - **What happens now.** "Answered recently" (13 px gold on gold-soft): 2.78 Hearth, 3.11 Parchment, 3.30 Frost.
 - **Why it matters.** Labels and done titles fail contrast.
 - **Proposed fix.** Gold, teal and terra text move to their -ink tokens; done titles use --text-2 without opacity (batch-1a pre-pass rows for Prayer). (Phase 3: IMP-PRAYER-P11)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/prayer/contrast.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
-
-#### VIS-TALLY-1 — In every dark palette the dial and the +/− buttons barely stand out from the page
-
-- **Area** tally · **Type** visual · **Severity** medium · **Effort** S · **Batch** 1
-- **Evidence.** `audits/03-apps/tally.md:517`; `apps/tally.html:26-31`; `audits/evidence/p3/tally/theme-system-darkos-eli.png`, `audits/screens/tally/main-typical-ipad-portrait-dark.png`
-- **What happens now.** The glass discs are near-black brown on a dark accent wash. The button fill measures: − against the wash: 1.13-1.45:1 (Midnight, System-dark, Forest);
-- **Why it matters.** The dial and buttons vanish in dark.
-- **Proposed fix.** Discs tinted from the accent family in dark (≥ 3:1 against the wash). (Phase 3: IMP-TALLY-P6)
-- **How it will be verified.** Rerun `node "audits/tools/phase3/tally/themes.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
 
 #### CONS-ACCENT-1 — Signed out, the accent falls back to Elizabeth's colour, so every PIN pad fills its dots and Continue in #8A6A4B (Midnight #CBA77E), whoever is signing in
 
@@ -1631,6 +1533,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Why it matters.** In four apps glass means "this floats and controls"; in five it means "anything", so it stops telling the family what can be tapped.
 - **Proposed fix.** Glass on the navigation layer only, in every area (content glass rows per app; open issue 15). (Phase 4 gap row GLASS-12)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/GLASS/layers.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
+
+#### CONS-ICON-1 — Eleven icon families; no app uses the shell's own set
+
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The count 'eleven icon families' does not match the report's own Table ICON-1: it lists 12 families (F1-F8 plus glyphs, emoji, CSS chevrons and art-as-icon), or 10 distinct recipes if F1-F3 count as the one shell recipe as the item states.
+- **Evidence.** `audits/04-design-system.md:2979`; `index.html:913-916`, `apps/f260.html:617-620`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
+- **What happens now.** The shell (F1-F3) is one custom 1.75 recipe. Each app brings its own: F260: Feather/Lucide-derived paths at 2 on 18 px, a 20-grid tick at 2.6, colour emoji, text glyphs and CSS chevrons.
+- **Why it matters.** Eleven icon families.
+- **Proposed fix.** One icon set: a Lucide (ISC) sprite with the licence notice, one weight, --icon-* sizes; apps adopt it in their batches (glyph-by-glyph map in 04 ICON).
+- **How it will be verified.** Rerun `node "audits/tools/phase4/ICON/static.mjs"`, `node "audits/tools/phase4/ICON/report.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
 
 #### CONS-ICON-2 — One drawing, several meanings
 
@@ -1821,6 +1733,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** Literal px sizes move to roles app by app (the lint row per app batch).
 - **How it will be verified.** Rerun `node "audits/tools/phase4/TYPE/code-scan.mjs"`, `node "audits/tools/phase4/TYPE/report.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
 
+#### GAP-DARK-1 — Dark soft fills sit 1.01-1.22:1 from the card, so every soft-filled state goes muddy or vanishes; one token choice explains six per-app Phase 3 findings
+
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The measured token contrasts are right, but the causal claim is wrong. The -soft tokens do not explain VIS-TALLY-1 (glass discs), VIS-KIDVERSE-3 (the 1.14/1.15 figures are surface-2 against surface), the Prayer kid fills (accent-deep against olive) or VIS-F260-2 (--sunk).
+- **Evidence.** `audits/04-design-system.md:4848`; `apps/design.css:163-168`, `apps/design.css:169`; `audits/evidence/p4/SCORE/shots/forest/tally/main-typical-ipad-portrait-light.png`, `audits/evidence/p4/SCORE/shots/midnight/leftovers/main-typical-ipad-portrait-light.png`
+- **What happens now.** In Midnight the semantic `-soft` tokens (`apps/design.css:163-168`) against `--surface` #241E19 measure: mocha 1.10, gold 1.08, olive 1.07, teal 1.02, terra 1.01, slate 1.11; Forest 1.02-1.10. `--accent-soft` (`color-mix(accent 14%, surface)`, `apps/design.css:169`) measures 1.08-1.22 (Forest 1.08-1.21).
+- **Why it matters.** Expiry states, rating choices, the tally buttons and the kids' progress dots all rely on the soft fill. For pre-readers the fill is the state cue. Under System, the always-on iPad runs dark every evening.
+- **Proposed fix.** Dark fills sit ≥ 1.5:1 from the card (deep pastel tints in the proposal). (Phase 4 gap row DARK-4)
+- **How it will be verified.** Rerun `node "audits/tools/phase4/DARK/palette-dark.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
+
 #### GAP-DARK-2 — The dark depth ladder is flat and "sunken" goes darker, so wells, tracks and skeletons read as holes
 
 - **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
@@ -1838,6 +1760,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Why it matters.** The house style requires it, and a household member who turns on Reduce Transparency still gets the translucent composer, sheets and tab bar.
 - **Proposed fix.** Reduce Transparency and Increase Contrast blocks (attribute + media mirror) and the Me → Appearance switches (decision D11). (Phase 4 gap row GLASS-1, GLASS-2)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/GLASS/prefs.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
+
+#### GAP-ICON-1 — The design system has no icon tokens, size scale, weight rule, ink rule or shared sprite, and the style guide shows one glyph
+
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low and low (partly). Correction: Minor points only. The style guide has three #i-plus copies on hex --tint tiles plus one bare icon-lg, not four each on a hex tint. F260 carries its own 11-symbol sprite, so index.html is not the only inline sprite; what is true is that no shared, loadable sprite exists.
+- **Evidence.** `audits/04-design-system.md:3052`; `apps/design.css:602-603`
+- **What happens now.** `.icon` at 24 / 32 px with a 1.75 stroke (`apps/design.css:602-603`);
+- **Why it matters.** No icon system.
+- **Proposed fix.** Icon tokens, size scale, weight and ink rules, and a sprite shown in docs/design.html.
+- **How it will be verified.** Rerun `node "audits/tools/phase4/ICON/report.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
 
 #### GAP-ICON-2 — A custom shell set rather than one open-source set; Lucide and Feather paths ship without their licence notice
 
@@ -1874,6 +1806,46 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Why it matters.** Without roles each app picks its own depth. The token proposal needs the roles to make depth consistent.
 - **Proposed fix.** Elevation role tokens (--elev-card/-control/-float/-overlay/-toast/-bar-up). (Phase 4 gap row SHAPE-7)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/SHAPE/analyze.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
+
+#### GAP-TOK-1 — The contrast gate checks 15 pair kinds; design.css's components paint 27 more, and 18 of those fail somewhere
+
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The claim that the gate never running Hearth on a dark OS makes P2-VIS-03 'invisible to the test' is misleading. Hearth on a dark OS paints the same token values as Midnight, and the System-dark run already checks those.
+- **Evidence.** `audits/04-design-system.md:661`; `scripts/test-design.mjs:47-53`, `apps/design.css:47`, `index.html:449`
+- **What happens now.** Areas: design.css, docs, the shell, Kid Verse, Dollywood, Verses.
+- **Why it matters.** CLAUDE.md tells future changes that the palette is proven AA ("WCAG AA on every text pair for all eight family colours in all five palettes"). The proof covers about a third of what is painted, so regressions in placeholders, badges, switches, rings and focus ship green.
+- **Proposed fix.** contrast.mjs becomes the design gate: every component pair design.css paints (42 kinds) is gated, not only the 15 token pairs; scripts/test-design.mjs runs it. (Phase 4 gap row TOK-5, TOK-6)
+- **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/pairs.mjs"`, `node "audits/tools/phase4/TOK/guide-contrast.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
+
+#### GAP-TOK-3 — Profile and app colours are single light-theme hex values that never re-tune; as foregrounds in Midnight and Forest, 17 of 19 fall under 3:1
+
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'The TV and the dark palettes lose the per-person colour cue' is overstated. The hues remain distinguishable and the rings and glyphs remain visible, only dimmer (1.9-3.0). As rendered, 6 of 9 app glyphs (adult grid) and 3 of 7 (kid grid) fall under 3:1, not the 8 of 9 from the 22%-stop worst case.
+- **Evidence.** `audits/04-design-system.md:717`; `worker/seed.sql:4-11`, `index.html:449`, `apps/hub.js:461`, `index.html:450`; `audits/screens/shell/apps-typical-ipad-portrait-dark.png`
+- **What happens now.** design.css re-tunes every hue family per palette (for example `--olive` #5B8143 → #9DC183 in Midnight). The person and app colours, though, are each one hex, stored in:
+- **Why it matters.** Pre-readers find apps by icon and colour, and System goes dark every night. The TV and the dark palettes lose the per-person colour cue.
+- **Proposed fix.** People and apps carry a hue family name (data-accent, apps.json "hue", the profile hue column), re-tuned per scheme. (Phase 4 gap row TOK-2, ACCENT-1)
+- **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/tokens.mjs"`, `node "audits/tools/phase4/TOK/appcolours.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
+
+#### GAP-TOK-4 — Kid and kiosk scale only the tokenised subset; every literal size escapes them
+
+- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The shell citations are wrong: index.html:60 is the adult PIN pad, :124 is a kiosk rule, and :188 is an icon size. None of them is a [data-kind=kid] rule restating 64/84px, and the kid CTA already uses var(--tap-lg).
+- **Evidence.** `audits/04-design-system.md:741`; `apps/design.css:280-289`, `index.html:60`
+- **What happens now.** Areas: design.css, the shell, F260, the Larder, Prayer, the park map.
+- **Why it matters.** Kid mode and the 10-foot TV depend on the kind scale, but the Larder and the park map keep adult type for pre-readers.
+- **Proposed fix.** Kid and kiosk scale every role through --ts-kind / --space-k / --shape-k; literal sizes move to roles app by app (lint row). (Phase 4 gap row TOK-10, TOK-11)
+- **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/usage.mjs"`, `node "audits/tools/phase4/TOK/literals.mjs"`, `node "audits/tools/phase4/TOK/adoption.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
+
+#### GAP-TOK-5 — There are no weight, z-index, opacity, breakpoint, press-scale, fluid-type or composite-glass tokens, so each area invents its own
+
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The counts hold (25 saturate copies, 16/18 breakpoints). The 'why it matters' overstates the risk. Overlays from different areas cannot collide, because apps live in separate iframe documents with their own stacking contexts. The hand-copied glass has not diverged.
+- **Evidence.** `audits/04-design-system.md:765`; `index.html:261`, `apps/dollywood.html:215`
+- **What happens now.** What each area invents (Table TOK-F): Weights: literal weights in all 11 areas: design.css 20 (600 ×10, 700 ×7, 400 ×3), shell 26, F260 87 (800 ×16), Prayer 52, park map 40, Kid Verse 16.
+- **Why it matters.** Without shared layers, overlays from different areas can collide; without shared weights, hierarchy drifts from app to app. Hand-copied glass diverges from the recipe the moment the recipe changes.
+- **Proposed fix.** Weight, z-index, opacity, press-scale and composite glass tokens (proposal §1). (Phase 4 gap row TOK-9, TOK-13)
+- **How it will be verified.** Rerun `node "audits/tools/phase4/TOK/literals.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
 
 #### GAP-TOK-6 — design.css cannot scope the accent to one component, because the derived accent tokens resolve once on `:root`
 
@@ -2163,6 +2135,26 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** Glance roles for the reference and counts on the Kitchen iPad.
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 1's checks.
 
+#### VIS-ACCENT-1 — The profile colours are neither pastel nor distinct enough as fills: the soft fills are near-grey, and 6 of 21 household pairs sit under ΔE00 5 as fills
+
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'As fills, people run together' is true only of the 14% accent-soft, which is never shown side by side for different people.
+- **Evidence.** `audits/04-design-system.md:5682`; `index.html:449`, `worker/seed.sql:4-11`
+- **What happens now.** The colours are mid-tones. Every profile colour sits at OKLCH L 0.42-0.65: too dark to be a fill, too light and too grey to be an ink.
+- **Why it matters.** Profile colours are near-grey and too close.
+- **Proposed fix.** Each person starts with a distinct house pastel family (decision D3); the nine people's colours are CVD-separated (gated ΔE00). The admin may assign any of the 18 (household answer 2026-09-26); an app colour is not CVD-separated from the people's, so the picker's CVD check (GAP-ACCENT-1) warns. (Phase 4 gap row ACCENT-8)
+- **How it will be verified.** Rerun `node "audits/tools/phase4/ACCENT/tokens.mjs"`, `node "audits/tools/phase4/ACCENT/cvd-strip.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
+
+#### VIS-COLOR-1 — The fills and tiles sit at about a third of the house chroma in all five palettes, two house hues are missing, and dark cards barely lift off the page
+
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The rating is inflated: the item shows no effect on use beyond cosmetic, so it is low, not medium. The bar figure '2.27-2.99' covers only the start stop in the light palettes. Recomputed from tokens it is 1.83-2.98, with gold (the warn fridge bar) lowest at 1.83-1.93.
+- **Evidence.** `audits/04-design-system.md:7309`; `apps/design.css:606-608`, `apps/design.css:412`; `audits/screens/shell/apps-typical-ipad-portrait-light.png`, `audits/screens/shell/home-typical-ipad-portrait-light.png`
+- **What happens now.** (Table COLOR-8): Soft fills. They sit at the pastels' lightness (L 0.87-0.94, against 0.876-0.953) but at about a third of their chroma (C 0.008-0.070, against 0.057-0.093). Parchment's gold-soft, at 0.070, is the only exception. `--accent-soft` for the ten swatches is 0.004-0.047. Tiles.
+- **Why it matters.** This is the house style's central colour rule, and the main reason every area scores 3-5 on Colour & palette.
+- **Proposed fix.** The house pastels at full chroma for fills and tiles (pastel-to-saturated tile gradients), both missing hues added, dark cards lifted. (Phase 4 gap row COLOR-8, COLOR-9)
+- **How it will be verified.** Rerun `node "audits/tools/phase4/COLOR/palette.mjs"`, `node "audits/tools/phase4/COLOR/tiles.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
+
 #### VIS-DARK-1 — Toasts invert to a light slab in dark, the brightest object on a dark screen
 
 - **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
@@ -2217,6 +2209,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** The family-marker fallback becomes graphite (the token default), not Elizabeth's colour.
 - **How it will be verified.** recapture its screens (capture area dollywood-live) and compare; plus batch 1's checks.
 
+#### VIS-F260-2 — Empty progress cells are almost invisible: 1.04:1 in dark, 1.10:1 in light
+
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low and low. Correction: The measurements and the dark-mode description are accurate. The medium rating is inflated: nothing is hidden that the adjacent text does not state, the done state stays well above 3:1, and in light palettes (1.09-1.14) the empty cells are still visible on screen.
+- **Evidence.** `audits/03-apps/f260.md:710`; `apps/f260.html:16`; `audits/evidence/p3/f260/vischeck-empty-cells-ipad-landscape-dark.png`, `audits/screens/f260/today-timeout-loading-ipad-landscape-dark.png`
+- **What happens now.** Empty progress cells are almost invisible: 1.04:1 in dark, 1.10:1 in light (medium; from the visual check). Unread year-grid weeks, empty heatmap days, unread book-bar segments and the meter track all fill with `--sunk` (`apps/f260.html:16, 65, 77, 83, 92`). Against the page they measure 1.04:1 in System/Midnight dark and 1.10:1 in Hearth light, far below 3:1 for meaningful graphics. On an empty or early plan in dark, the 52-week grid, the heatmap and the book bar read as a blank area. Evidence: `audits/evidence/p3/f260/vischeck-empty-cells.json`; `audits/evidence/p3/f260/vischeck-empty-cells-ipad-landscape-dark.png`; `audits/screens/f260/today-timeout-loading-ipad-landscape-dark.png`; `audits/screens/f260/finished-hero-overflow-ipad-portrait-dark.png`. Run: `node "audits/tools/phase3/f260/vischeck-empty-cells.mjs"`.
+- **Why it matters.** Empty progress is invisible.
+- **Proposed fix.** Empty cells use --cell-empty (a ≥ 3:1 ring) in every palette. (Phase 3: IMP-F260-P11)
+- **How it will be verified.** Rerun `node "audits/tools/phase3/f260/vischeck-empty-cells.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
+
 #### VIS-F260-10 — Large text wraps the Today meta line on a 430 px iPhone
 
 - **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
@@ -2261,6 +2263,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Why it matters.** Glyphs stand in for icons.
 - **Proposed fix.** Text glyphs and emoji used as icons become Lucide icons (emoji stay only as people's faces). (Phase 4 gap row ICON-8)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/ICON/static.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
+
+#### VIS-KIDVERSE-1 — Day-dot letters, 10 px badge hints and the unearned "50" glyph fail text contrast
+
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low and low (partly). Correction: The note that 'the checker measured the dark day-letter glyph at 2.79:1 against the card' uses the wrong background. The letter sits on its own dot (--surface-2), so 3.18:1 in Midnight is the correct pair.
+- **Evidence.** `audits/03-apps/kidverse.md:700`; `audits/screens/kidverse/kid-stars-typical-iphone-pwa-light.png`, `audits/evidence/p3/kidverse/visual-C-kid-forest-rewards.png`
+- **What happens now.** Rendered contrast (lib-vis `contrastSweep`, 430 px, kid and adult): day letters (`--muted-decor` on `--surface-2`) 2.22:1 Hearth, 2.09:1 Parchment, 2.08:1 Frost, 3.18:1 Midnight, 3.11:1 Forest, at 12 px on the kid card and 10 px in the adult panel; badge hints 10 px at 4.37-4.45:1;
+- **Why it matters.** They fail text contrast.
+- **Proposed fix.** Day letters, badge hints and the unearned glyph read --text-3 on --surface-2 (≥ 4.5:1), at --fs-caption2 minimum. (Phase 3: IMP-KIDVERSE-P2)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 1's checks.
 
 #### VIS-KIDVERSE-2 — The today ring and the empty day dots are under 3:1 in both schemes
 
@@ -2405,6 +2417,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Why it matters.** On the primary device the shell looks like a stretched phone layout, while the apps inside it are inset. On the phone, F260's stripes nearly touch the screen edge.
 - **Proposed fix.** Margins by size class (16/20/28/32) from --margin with safe areas.
 - **How it will be verified.** Rerun `node "audits/tools/phase4/SHAPE/verify.mjs"`, `node "audits/tools/phase4/SHAPE/remeasure.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
+
+#### VIS-TALLY-1 — In every dark palette the dial and the +/− buttons barely stand out from the page
+
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The item presents 3:1 as the target the disc fill fails. But the + and − glyphs identify the buttons at 11-14:1, so the fill-to-wash ratio is not the WCAG 1.4.11 measure, and the buttons do not 'barely stand out' in practice. They are plainly visible as discs, only low in luminance contrast.
+- **Evidence.** `audits/03-apps/tally.md:517`; `apps/tally.html:26-31`; `audits/evidence/p3/tally/theme-system-darkos-eli.png`, `audits/screens/tally/main-typical-ipad-portrait-dark.png`
+- **What happens now.** The glass discs are near-black brown on a dark accent wash. The button fill measures: − against the wash: 1.13-1.45:1 (Midnight, System-dark, Forest);
+- **Why it matters.** The dial and buttons vanish in dark.
+- **Proposed fix.** Discs tinted from the accent family in dark (≥ 3:1 against the wash). (Phase 3: IMP-TALLY-P6)
+- **How it will be verified.** Rerun `node "audits/tools/phase3/tally/themes.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 1's checks.
 
 #### VIS-TALLY-3 — The count is in the serif display face, not ui-rounded, in adult and kid mode
 
@@ -2630,15 +2652,6 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** Home re-renders only the cards whose data changed, and never replaces a focused input: skip the reminders card while #rem-in has focus or text, and keep the draft in memory across renders.
 - **How it will be verified.** Rerun `node "audits/tools/phase2/HOME/verify-reminder-draft-wiped-by-pull-1.mjs"`, `node "audits/tools/phase2/HOME/verify-reminder-draft-wiped-by-pull-2.mjs"`, `node "audits/tools/phase2/HOME/leads.mjs"` — the defect must no longer reproduce; plus batch 2a's checks.
 
-#### UX-HOME-1 — Key numbers on the 24/7 iPad Home are 2.3–3.1 mm tall
-
-- **Area** shell / platform · **Type** usability · **Severity** high · **Effort** M · **Batch** 2a
-- **Evidence.** `audits/02-shell.md:546`; `apps/design.css:22-24`
-- **What happens now.** Only the greeting reaches H2 at 2 m, and nothing reaches H1.
-- **Why it matters.** The Kitchen iPad is read from across the room; today its key numbers are 2-3 mm tall.
-- **Proposed fix.** Glance roles from the proposed tokens (`--fs-glance-1/2/3`, 44-96 px) for Home's key numbers on the iPad, and a calm "kitchen" layout when idle: today's reading, the running timer, food to eat soon.
-- **How it will be verified.** Rerun `node "audits/tools/phase2/HOME/glance.mjs"` — the defect must no longer reproduce; recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
-
 #### P2-HOME-03 — After Me → Switch, the next person lands on Me, not Home
 
 - **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2a
@@ -2669,33 +2682,27 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 #### UX-CHAT-01 — Kid chat has to be read; only the verse is spoken
 
 - **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** S · **Batch** 2a
+- **Verified (step 3).** was medium; skeptics medium and medium.
 - **Evidence.** `audits/02-shell.md:4370`; `index.html:1456-1459`; `audits/evidence/p2/CHAT/04-kid-refused-tool-ipad-light.png`, `audits/screens/shell/chat-kid-typical-iphone-pwa-light.png`
 - **What happens now.** `speakForKid` runs only for tool events with `speak:true`, which means only `read_todays_verse` (index.html:1456-1459, 1497).
 - **Why it matters.** Pre-readers cannot read chat replies.
 - **Proposed fix.** For kids, every chat reply is spoken (speakForKid on each message) and a speaker button replays it.
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 2a's checks.
 
-#### UX-HOME-3 — On iPhone, Home is 4.7 screens tall
+#### UX-HOME-1 — Key numbers on the 24/7 iPad Home are 2.3–3.1 mm tall
 
 - **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** M · **Batch** 2a
-- **Evidence.** `audits/02-shell.md:593`; `index.html:105-107`; `audits/screens/shell/home-typical-iphone-pwa-light.png`
-- **What happens now.** Home is four full-width cards of 398×196–288 px, in one column below 720 px (`index.html:105-107`).
-- **Why it matters.** The phone Home is 4.7 screens tall; reminders and the feed are never seen.
-- **Proposed fix.** On iPhone, Home becomes a short glance: a compact hero and horizontally paged cards (or a two-column small-card grid), with reminders reachable in one screen.
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 2a's checks.
-
-#### UX-HOME-7 — Kid Home is text-heavy
-
-- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** M · **Batch** 2a
-- **Evidence.** `audits/02-shell.md:665`; `index.html:1146-1156`
-- **What happens now.** The only one-tap entry is a text button (`index.html:1146-1156, 902-910`).
-- **Why it matters.** Ezra and Kiara cannot read the text-heavy Home.
-- **Proposed fix.** Kid Home becomes picture-first: big tiles for Kid Verse, Prayer, Timer and Tally with the art, stars shown as stars, and no adult reminders block.
-- **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
+- **Verified (step 3).** was high; skeptics medium and medium. Correction: The headline range '2.3-3.1 mm' leaves out the smallest key information the constitution names, leftovers expiring. The fridge item names and 'Nd' days are 12 px, 1.6-1.7 mm, so the key-information range is about 1.6-3.1 mm.
+- **Evidence.** `audits/02-shell.md:546`; `apps/design.css:22-24`
+- **What happens now.** Only the greeting reaches H2 at 2 m, and nothing reaches H1.
+- **Why it matters.** The Kitchen iPad is read from across the room; today its key numbers are 2-3 mm tall.
+- **Proposed fix.** Glance roles from the proposed tokens (`--fs-glance-1/2/3`, 44-96 px) for Home's key numbers on the iPad, and a calm "kitchen" layout when idle: today's reading, the running timer, food to eat soon.
+- **How it will be verified.** Rerun `node "audits/tools/phase2/HOME/glance.mjs"` — the defect must no longer reproduce; recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
 
 #### UX-HOME-8 — One tap on ✓ deletes a household reminder, with no undo
 
 - **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** S · **Batch** 2a
+- **Verified (step 3).** was medium; skeptics medium and low; tie-break medium. Correction: No stated fact is wrong. One detail is incomplete: the feed line, the 'only trace', does not reach the tapping device's own Home feed until someone refreshes by hand (loadFeed returns early once feedFresh is set, index.html:925).
 - **Evidence.** `audits/02-shell.md:673`; `index.html:1224-1226`, `index.html:1228-1235`
 - **What happens now.** The ✓ is 44×44 px and appears for every adult-kind profile, guests included (`index.html:1224-1226`).
 - **Why it matters.** One mis-tap deletes a household reminder for everyone.
@@ -2705,20 +2712,12 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 #### UX-SYNC-a1 — Nobody is told when a change did not sync
 
 - **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** M · **Batch** 2a
+- **Verified (step 3).** was medium; skeptics medium and medium (partly). Correction: Minor: 'nobody is told' is slightly broad. Larder, and the Dollywood pair, do tell an offline user that changes are waiting.
 - **Evidence.** `audits/02-shell.md:2910`; `index.html:769`, `index.html:326`, `apps/hub.js:311`
 - **What happens now.** The tab-bar dot (index.html:769) is covered by the full-screen viewer while any app is open (index.html:326). In e7 the element on top of `#syncdot` was the app `frame`, and F260 showed no sync wording with 3 writes waiting offline (e7-phone-f260-offline-pending.png).
 - **Why it matters.** Nobody knows when a change did not sync.
 - **Proposed fix.** Every app shows the shared sync status (hub.onSync) in the viewer bar: a small "Saving…" / "Offline — 3 changes waiting" line visible over the app, not only under it.
 - **How it will be verified.** Rerun `node "audits/tools/phase2/SYNC/e7-sync-ui.mjs"` — the defect must no longer reproduce; recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
-
-#### VIS-HOME-1 — The Apps grid uses one size everywhere: 48 px icon, 29 px glyph, 12 px label
-
-- **Area** shell / platform · **Type** visual · **Severity** medium · **Effort** M · **Batch** 2a
-- **Evidence.** `audits/02-shell.md:587`; `index.html:217`, `index.html:218-229`
-- **What happens now.** On the phone, 4 columns at a 103 px pitch matches iOS density, so "tiles too big on the phone" is refuted for this grid in pitch terms. What looks big is the card chrome around a 29 px glyph, about half the size of an iOS icon.
-- **Why it matters.** The grid looks like a web page of cards, not a home screen.
-- **Proposed fix.** Apps grid density per size class: iOS-sized icons (60 px on iPhone, 76 px on iPad) with the house tile gradient, labels at caption size, 4 columns on phone and 6-8 on iPad.
-- **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
 
 #### GAP-ACCENT-1 — The colour picker cannot keep people apart: swatches are named by hex, duplicates are allowed, and nothing checks lightness, contrast or colour-blind distance
 
@@ -2900,6 +2899,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** Day separators and times in the chat log.
 - **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
 
+#### UX-HOME-3 — On iPhone, Home is 4.7 screens tall
+
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a
+- **Verified (step 3).** was medium; skeptics low and low. Correction: The facts are right. Still, '4.7 screens tall' mostly measures the 30-row activity feed, a naturally long log at the bottom (2513 of 4415 px). The dashboard content above it is about 2 phone screens. The medium rating is inflated.
+- **Evidence.** `audits/02-shell.md:593`; `index.html:105-107`; `audits/screens/shell/home-typical-iphone-pwa-light.png`
+- **What happens now.** Home is four full-width cards of 398×196–288 px, in one column below 720 px (`index.html:105-107`).
+- **Why it matters.** The phone Home is 4.7 screens tall; reminders and the feed are never seen.
+- **Proposed fix.** On iPhone, Home becomes a short glance: a compact hero and horizontally paged cards (or a two-column small-card grid), with reminders reachable in one screen.
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 2a's checks.
+
 #### UX-HOME-4 — The viewer's "Hub" button always goes to Apps, and Escape does nothing
 
 - **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
@@ -2926,6 +2935,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Why it matters.** Pre-readers cannot use a text-only list.
 - **Proposed fix.** The Switch-app sheet shows each app's tile icon and colour beside its name, in a grid kids can use.
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 2a's checks.
+
+#### UX-HOME-7 — Kid Home is text-heavy
+
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'The only one-tap entry is a text button' is true only for launching an app directly. The large CTA has a 64 px icon tile and leads in one tap to an all-icon Apps grid, so the kid flow is completable without reading.
+- **Evidence.** `audits/02-shell.md:665`; `index.html:1146-1156`
+- **What happens now.** The only one-tap entry is a text button (`index.html:1146-1156, 902-910`).
+- **Why it matters.** Ezra and Kiara cannot read the text-heavy Home.
+- **Proposed fix.** Kid Home becomes picture-first: big tiles for Kid Verse, Prayer, Timer and Tally with the art, stars shown as stars, and no adult reminders block.
+- **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
 
 #### UX-PROF-a1 — An offline picker still offers a guest whose stay has ended
 
@@ -2990,6 +3009,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** The viewer bar becomes solid material (nothing passes beneath it). (Phase 4 gap row GLASS-10)
 - **How it will be verified.** recapture its screens (capture area every area) and compare; plus batch 2a's checks.
 
+#### VIS-HOME-1 — The Apps grid uses one size everywhere: 48 px icon, 29 px glyph, 12 px label
+
+- **Area** shell / platform · **Type** visual · **Severity** low · **Effort** M · **Batch** 2a
+- **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: Two details are off. First, 'a 29 px glyph, about half the size of an iOS icon' compares the glyph with a whole iOS icon. The comparable element is the 48 px icon plate, which is about 80% of a 60 pt iOS icon.
+- **Evidence.** `audits/02-shell.md:587`; `index.html:217`, `index.html:218-229`
+- **What happens now.** On the phone, 4 columns at a 103 px pitch matches iOS density, so "tiles too big on the phone" is refuted for this grid in pitch terms. What looks big is the card chrome around a 29 px glyph, about half the size of an iOS icon.
+- **Why it matters.** The grid looks like a web page of cards, not a home screen.
+- **Proposed fix.** Apps grid density per size class: iOS-sized icons (60 px on iPhone, 76 px on iPad) with the house tile gradient, labels at caption size, 4 columns on phone and 6-8 on iPad.
+- **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
+
 #### VIS-HOME-2 — The timer pill sits on content
 
 - **Area** shell / platform (Timer) · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a
@@ -3038,12 +3067,6 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/02-shell.md:2624`; `index.html:1216`
 - **Proposed fix.** Pointer to P2-PWA-05.
 
-#### UX-DOLLYWOOD-6 — A tick made offline looks exactly like a synced one
-
-- **Area** dollywood · **Type** usability · **Severity** medium (pointer) · **Effort** S · **Batch** 2a
-- **Evidence.** `audits/03-apps/dollywood.md:683`; `audits/evidence/p3/dollywood/offline-before-tick-online.png`, `audits/evidence/p3/dollywood/offline-after-tick.png`
-- **Proposed fix.** Pointer to UX-SYNC-a1: the shared sync status in the viewer bar shows pending offline ticks. (Phase 3: IMP-DOLLYWOOD-F1)
-
 #### P2-VIS-07 — On a cold load Me paints final empty states, and Kids' rewards stays at ★0 until Me is re-entered
 
 - **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2a
@@ -3073,6 +3096,13 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Area** shell / platform (TV) · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 2a
 - **Evidence.** `audits/02-shell.md:5233`; `index.html:326`, `apps/f260.html:41`, `apps/prayer.html:47`, `apps/f260.html:603`
 - **Proposed fix.** Pointer to P2-PROF-12.
+
+#### UX-DOLLYWOOD-6 — A tick made offline looks exactly like a synced one
+
+- **Area** dollywood · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Verified (step 3).** was medium; skeptics medium and low; tie-break low. Correction: The facts are right. The rating is too high: it should be low, not medium. The report does not say that the offline tick reliably reaches the server on reconnect (its own evidence shows 25).
+- **Evidence.** `audits/03-apps/dollywood.md:683`; `audits/evidence/p3/dollywood/offline-before-tick-online.png`, `audits/evidence/p3/dollywood/offline-after-tick.png`
+- **Proposed fix.** Pointer to UX-SYNC-a1: the shared sync status in the viewer bar shows pending offline ticks. (Phase 3: IMP-DOLLYWOOD-F1)
 
 #### UX-KIDVERSE-7 — Offline, a star shows as earned with no sign that it has not been saved
 
@@ -3345,18 +3375,10 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** The TV shows as many reminders as fit and a "+3 more" line; the list is newest first; the prayed-today faces wrap into a fixed-height row.
 - **How it will be verified.** Rerun `node "audits/tools/phase2/VIS/verify-tv-board-overflows-1080-1.mjs"`, `node "audits/tools/phase2/VIS/leads.mjs"` — the defect must no longer reproduce; plus batch 2c's checks.
 
-#### UX-HOME-2 — On the TV the board's news is its smallest text
-
-- **Area** shell / platform (TV) · **Type** usability · **Severity** medium · **Effort** M · **Batch** 2c
-- **Evidence.** `audits/02-shell.md:556`; `apps/design.css:417`, `index.html:136`
-- **What happens now.** The date kicker (`.hero-kicker` stays at `--fs-xs`, `apps/design.css:417`), face labels, ★ counts, feed times and bylines all fail H2 at 3 m on a 55" TV.
-- **Why it matters.** The TV is read from the sofa at 3 m; its newest facts are its smallest text.
-- **Proposed fix.** On the TV, news lines and names use the 10-foot scale (`data-tv-scale="10ft"`, decision D16) with the re-laid-out grid.
-- **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 2c's checks.
-
 #### VIS-TYPE-1 — TV board: the kiosk block uses its phone-sized steps for information text; names, star counts, times and bylines are 18 px and the date 12 px
 
 - **Area** design system (TV) · **Type** visual · **Severity** medium · **Effort** M · **Batch** 2c
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: Small detail: 'names … are 18 px' applies to the face captions under avatars. The names in the 'Around the house' feed lines (.who) inherit the line size, 26 px (22 px under 1050 px height).
 - **Evidence.** `audits/04-design-system.md:1408`; `apps/design.css:286-289`, `index.html:153`, `apps/design.css:417`, `index.html:175`; `audits/screens/tv/board-typical-tv-light.png`
 - **What happens now.** Re-measured live in System and Midnight, as eight size tiers (Table TYPE-6). Only the clock, verse refs and greeting are 10-foot sizes.
 - **Why it matters.** The kids look for their stars and the parents look for who prayed, from across the room.
@@ -3416,6 +3438,16 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Why it matters.** Feed lines show 2-3 words.
 - **Proposed fix.** On a portrait kiosk iPad the board stacks panes in one column so each feed line has the full width.
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 2c's checks.
+
+#### UX-HOME-2 — On the TV the board's news is its smallest text
+
+- **Area** shell / platform (TV) · **Type** usability · **Severity** low · **Effort** M · **Batch** 2c
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The headline 'the board's news is its smallest text' is misleading. The feed's news lines themselves are 26 px (11.6 mm on 55 inches) and pass H2.
+- **Evidence.** `audits/02-shell.md:556`; `apps/design.css:417`, `index.html:136`
+- **What happens now.** The date kicker (`.hero-kicker` stays at `--fs-xs`, `apps/design.css:417`), face labels, ★ counts, feed times and bylines all fail H2 at 3 m on a 55" TV.
+- **Why it matters.** The TV is read from the sofa at 3 m; its newest facts are its smallest text.
+- **Proposed fix.** On the TV, news lines and names use the 10-foot scale (`data-tv-scale="10ft"`, decision D16) with the re-laid-out grid.
+- **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 2c's checks.
 
 #### UX-PROF-a2 — The TV lists guests under "Reading today" as not read
 
@@ -3485,36 +3517,20 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Proposed fix.** The Add screen names its target ("Add to My list" / "Add to the Family list") and offers the switch. (Phase 3: IMP-PRAYER-P6)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/prayer/critic-add-focus.mjs"`, `node "audits/tools/phase3/prayer/verify-critic-add-screen-no-list-name-4-1.mjs"`, `node "audits/tools/phase3/prayer/verify-critic-add-screen-no-list-name-4-2.mjs"` — the defect must no longer reproduce; plus batch 3's checks.
 
-#### UX-PRAYER-1 — The Add form's main button starts hidden under the tab bar
-
-- **Area** prayer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 3
-- **Evidence.** `audits/03-apps/prayer.md:855`; `apps/prayer.html:479-501`; `audits/evidence/p3/prayer/layout-add-iphone.png`, `audits/screens/prayer/add-typical-iphone-pwa-light.png`
-- **What happens now.** When Add opens, "Add to the list" sits at y 846-904 while the nav starts at y 807 on the iPhone PWA and at 695 on iPad landscape; on desktop it is at y 843 with the nav at 775. It is visible on iPad portrait.
-- **Why it matters.** The main button starts hidden.
-- **Proposed fix.** Scroll the Add button into view (or pin it above the tab bar) when Add opens. (Phase 3: IMP-PRAYER-P5)
-- **How it will be verified.** Rerun `node "audits/tools/phase3/prayer/layout.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 3's checks.
-
 #### UX-PRAYER-2 — Kid cards: prayed and not-prayed look almost the same, the untapped button already says "Prayed", and nothing tells a pre-reader what a request is
 
 - **Area** prayer · **Type** usability · **Severity** medium · **Effort** M · **Batch** 3
+- **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: 'A 4-5-year-old or a colour-blind viewer cannot tell done from not done' is overstated. For colour-typical vision the two fills differ clearly in hue (dE 26-36); only the luminance ratio is low (1.06-1.75). The near-invisible case is simulated protanopia on Kiara's dark palette (dE 4.2).
 - **Evidence.** `audits/03-apps/prayer.md:859`; `apps/prayer.html:1587-1588`, `apps/prayer.html:427`; `audits/evidence/p3/prayer/vischeck-kid-states-ezra-dark.png`, `audits/screens/prayer/kid-typical-ipad-portrait-light.png`
 - **What happens now.** Every kid button reads "✓ Prayed", with the same check and label before and after the tap (`apps/prayer.html:1587-1588`). Only the fill changes, from the profile colour to olive (`:427`), plus a faded title.
 - **Why it matters.** A pre-reader cannot tell prayed from not prayed.
 - **Proposed fix.** Kid cards: "Pray" (hands icon) before, a big ✓ and the kid's face after, a clear colour change, and each request read aloud on tap. (Phase 3: IMP-PRAYER-P7)
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 3's checks.
 
-#### UX-PRAYER-3 — Nothing in Prayer is legible from across the room, including "Kitchen view — Big type for the counter"
-
-- **Area** prayer · **Type** usability · **Severity** medium · **Effort** M · **Batch** 3
-- **Evidence.** `audits/03-apps/prayer.md:865`; `apps/prayer.html:357-362`; `audits/screens/prayer/kitchen-typical-ipad-landscape-light.png`
-- **What happens now.** Measured readable distances on the iPad: h1 0.88 m, row titles 0.50 m, meta 0.38 m, nav 0.35 m, kid titles 0.96 m, Kitchen items (24 px) 0.69 m and its heading 1.0 m. 2-3 m needs roughly 90-130 px type.
-- **Why it matters.** "Big type for the counter" is not legible from across the room.
-- **Proposed fix.** Kitchen view uses the glance roles (titles ≥ 44 px) and a dark calm layout for the counter. (Phase 3: IMP-PRAYER-F1)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 3's checks.
-
 #### UX-PRAYER-4 — Settings never says which list it edits, and silently edits the family plan
 
 - **Area** prayer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 3
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: The report understates one point: the list choice carries across devices, because activeList is a person-scope row, not just 'the list last chosen on Today' on that device. It also leaves out that Paste writes to the family list in the same way.
 - **Evidence.** `audits/03-apps/prayer.md:868`; `apps/prayer.html:707-708`, `apps/prayer.html:503-532`; `audits/screens/prayer/settings-typical-iphone-pwa-light.png`
 - **What happens now.** Plans, categories and paste all act on the list last chosen on Today (`apps/prayer.html:707-708, 1171-1227`). The headings are "Settings, Prayer plan, Paste a list, Categories, Backup" and never name "My list" or "Family". On Family, a plan change rewrites the house's plan row.
 - **Why it matters.** Family plans change silently.
@@ -3619,6 +3635,26 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Why it matters.** A grandparent who marks the wrong request answered has 6 seconds to hit a 22 px word.
 - **Proposed fix.** Prayer's toast action at var(--tap) (use the shared toast).
 - **How it will be verified.** Rerun `node "audits/tools/phase4/SHAPE/verify-prayer-undo-target-2.mjs"`, `node "audits/tools/phase4/SHAPE/verify.mjs"` — the defect must no longer reproduce; plus batch 3's checks.
+
+#### UX-PRAYER-1 — The Add form's main button starts hidden under the tab bar
+
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Verified (step 3).** was medium; skeptics low and low (partly). Correction: The facts are correct. The item also applies to iPhone Safari (save at 846 against a nav at 615) and to the + button path. The rating is inflated: medium should be low, because a single scroll reveals the button and the flow is occasional.
+- **Evidence.** `audits/03-apps/prayer.md:855`; `apps/prayer.html:479-501`; `audits/evidence/p3/prayer/layout-add-iphone.png`, `audits/screens/prayer/add-typical-iphone-pwa-light.png`
+- **What happens now.** When Add opens, "Add to the list" sits at y 846-904 while the nav starts at y 807 on the iPhone PWA and at 695 on iPad landscape; on desktop it is at y 843 with the nav at 775. It is visible on iPad portrait.
+- **Why it matters.** The main button starts hidden.
+- **Proposed fix.** Scroll the Add button into view (or pin it above the tab bar) when Add opens. (Phase 3: IMP-PRAYER-P5)
+- **How it will be verified.** Rerun `node "audits/tools/phase3/prayer/layout.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 3's checks.
+
+#### UX-PRAYER-3 — Nothing in Prayer is legible from across the room, including "Kitchen view — Big type for the counter"
+
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** M · **Batch** 3
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The '2-3 m needs roughly 90-130 px type' figure is wrong under the report's own heuristic: about 69-104 px (comfortable) or 40-61 px (minimum).
+- **Evidence.** `audits/03-apps/prayer.md:865`; `apps/prayer.html:357-362`; `audits/screens/prayer/kitchen-typical-ipad-landscape-light.png`
+- **What happens now.** Measured readable distances on the iPad: h1 0.88 m, row titles 0.50 m, meta 0.38 m, nav 0.35 m, kid titles 0.96 m, Kitchen items (24 px) 0.69 m and its heading 1.0 m. 2-3 m needs roughly 90-130 px type.
+- **Why it matters.** "Big type for the counter" is not legible from across the room.
+- **Proposed fix.** Kitchen view uses the glance roles (titles ≥ 44 px) and a dark calm layout for the counter. (Phase 3: IMP-PRAYER-F1)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 3's checks.
 
 #### UX-PRAYER-5 — Two different controls are both called "More"
 
@@ -3794,6 +3830,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### GAP-F260-1 — A reading missed in an earlier week is not offered again until the rest of the plan is read
 
 - **Area** f260 · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 4
+- **Verified (step 3).** was medium; skeptics medium (partly) and low (partly); tie-break medium (partly). Correction: Two things in the report are wrong. First, it says 'The only cue before that is a half-filled 26×20 grid cell'. In fact the plan's week list also keeps Week 30's header undimmed with a 4-of-5 ring, and the Malachi book bar reads 75%. The grid cell is also a tap target that jumps to week 30.
 - **Evidence.** `audits/03-apps/f260.md:733`; `apps/f260.html:1480-1489`; `audits/screens/f260/behind-pace-typical-iphone-safari-light.png`, `audits/screens/f260/behind-typical-iphone-pwa-light.png`
 - **What happens now.** A reading missed in an earlier week is not offered again until the rest of the plan is read (medium). `nextReading` orders weeks `curWeek..52` first and earlier weeks last (`apps/f260.html:1480-1489`). With 30-2 unticked and the plan at week 38, the Today card offers "Acts 6" and nothing mentions week 30; ticking forward, 30-2 came up only after 73 more readings, labelled "· catching up". The only cue before that is a half-filled 26×20 grid cell. Being behind overall is surfaced (pace, "Pick up where you left off"; `audits/screens/f260/behind-pace-typical-iphone-safari-light.png`), but not the specific missed reading. YouVersion surfaces missed days and offers to catch up. Evidence: `audits/evidence/p3/f260/logic.json` (`gap`, `readingsBefore30_2Offered: 73`); `audits/screens/f260/behind-typical-iphone-pwa-light.png`. Run: `node "audits/tools/phase3/f260/logic.mjs" gap`.
 - **Why it matters.** A missed reading is not offered for 73 readings.
@@ -4143,27 +4180,10 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 ### Batch 5 — Verses (20)
 
-#### UX-VERSES-1 — A pre-reader cannot practise: no verse words, the reference is the only thing read aloud, and every prompt is text
-
-- **Area** verses · **Type** usability · **Severity** high · **Effort** M · **Batch** 5
-- **Evidence.** `audits/03-apps/verses.md:528`; `apps/verses.html:222`, `apps/kidverse.html:188`, `apps.json:12`; `audits/evidence/p3/verses/kid-flow-revealed-iphone-pwa.png`, `audits/evidence/p3/verses/kid-flow-revealed-ipad-portrait.png`
-- **What happens now.** Ezra's card is a serif reference ("Acts 2:42") with the hint "Say the verse out loud, then tap Show." Read aloud says only "Acts, chapter 2, verse 42". Kids have no verse text (`textShown` false before and after Show), so Show reveals nothing;
-- **Why it matters.** A pre-reader cannot practise at all.
-- **Proposed fix.** Kid practice: the paraphrase from Kid Verse is read aloud, big picture buttons (a star for "Got it", a smile for "Almost"), no reading needed. (Phase 3: IMP-VERSES-F3)
-- **How it will be verified.** Rerun `node "audits/tools/phase3/verses/kid-flow.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 5's checks.
-
-#### GAP-HOME-2 — Verses writes a summary "for the Home card" that Home never reads
-
-- **Area** shell / platform (Verses) · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 5
-- **Evidence.** `audits/02-shell.md:660`; `apps/verses.html:172`
-- **What happens now.** `apps/verses.html:172, 238-243` writes `verses.summary {due, streak, boxes, …}`.
-- **Why it matters.** The daily review is 8 taps away though the data for a card exists.
-- **Proposed fix.** Add the Verses Home card the app already writes a summary for ("3 verses to review · 12-day streak"), one tap to the trainer. (Phase 3: IMP-VERSES-F1)
-- **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 5's checks.
-
 #### GAP-VERSES-1 — For most cards Show reveals nothing, because the only text source is a paste in F260
 
 - **Area** verses · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 5
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: The shares come from the audit's own synthetic seed (audits/tools/seed/f260.mjs), not measured household data, so 'most cards' is the seeded story. It is structurally likely, though, because no bulk text source exists.
 - **Evidence.** `audits/03-apps/verses.md:554`; `apps/verses.html:215`; `audits/screens/verses/revealed-typical-iphone-pwa-light.png`
 - **What happens now.** For most cards Show reveals nothing, because the only text source is a paste in F260 (medium). The veiled text exists only when F260 has pasted text for that verse (`apps/verses.html:215, 326`). Share with text in the seed: Eli 7/64, Mae 1/31, Elizabeth 4/75, David 0/11. Without text, Show only swaps the buttons and asks "Did you get it?", so the person must check the verse elsewhere. Verses has no paste or hint flow of its own; Remember Me shows the text and offers puzzles, gaps and typing. Evidence: `audits/evidence/p3/verses/texts-count.json`; `audits/screens/verses/revealed-typical-iphone-pwa-light.png`. Run `node "audits/tools/phase3/verses/texts-count.mjs"`.
 - **Why it matters.** Show reveals nothing for most cards.
@@ -4197,14 +4217,25 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Proposed fix.** A day with nothing due keeps the streak. (Phase 3: IMP-VERSES-P7)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/verses/critic-streak.mjs"`, `node "audits/tools/phase3/verses/verify-critic-streak-breaks-on-nothing-due-day-1-1.mjs"`, `node "audits/tools/phase3/verses/verify-critic-streak-breaks-on-nothing-due-day-1-2.mjs"` — the defect must no longer reproduce; plus batch 5's checks.
 
-#### UX-VERSES-2 — A mis-tapped rating cannot be undone
+#### UX-VERSES-1 — A pre-reader cannot practise: no verse words, the reference is the only thing read aloud, and every prompt is text
 
-- **Area** verses · **Type** usability · **Severity** medium · **Effort** S · **Batch** 5
-- **Evidence.** `audits/03-apps/verses.md:533`; `apps/verses.html:294-304`, `apps/hub.js:431-434`; `audits/screens/verses/rated-typical-iphone-pwa-light.png`, `audits/evidence/p3/verses/kid-flow-revealed-iphone-pwa.png`
-- **What happens now.** A mis-tapped rating cannot be undone (medium). `rate()` writes the new box, due date and streak and advances (`apps/verses.html:294-304`); the previous values are not kept, and the toast (`apps/hub.js:431-434`, 2.2 s) has no action. A thumb on Not yet instead of Got it demotes the verse and zeroes its streak; on the phone the buttons are 12 px apart. Evidence: `audits/screens/verses/rated-typical-iphone-pwa-light.png`; `audits/evidence/p3/verses/kid-flow-revealed-iphone-pwa.png`.
-- **Why it matters.** A mis-tap cannot be undone.
-- **Proposed fix.** An Undo toast after each rating restores the previous box, due date and streak. (Phase 3: IMP-VERSES-P2)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 5's checks.
+- **Area** verses · **Type** usability · **Severity** medium · **Effort** M · **Batch** 5
+- **Verified (step 3).** was high; skeptics medium (partly) and medium (partly). Correction: Severity is inflated: high needs a broken core daily flow, but job 3 is secondary ('a few times a week', usually with a parent), and Kid Verse already delivers the week's verse to kids with words and read-aloud.
+- **Evidence.** `audits/03-apps/verses.md:528`; `apps/verses.html:222`, `apps/kidverse.html:188`, `apps.json:12`; `audits/evidence/p3/verses/kid-flow-revealed-iphone-pwa.png`, `audits/evidence/p3/verses/kid-flow-revealed-ipad-portrait.png`
+- **What happens now.** Ezra's card is a serif reference ("Acts 2:42") with the hint "Say the verse out loud, then tap Show." Read aloud says only "Acts, chapter 2, verse 42". Kids have no verse text (`textShown` false before and after Show), so Show reveals nothing;
+- **Why it matters.** A pre-reader cannot practise at all.
+- **Proposed fix.** Kid practice: the paraphrase from Kid Verse is read aloud, big picture buttons (a star for "Got it", a smile for "Almost"), no reading needed. (Phase 3: IMP-VERSES-F3)
+- **How it will be verified.** Rerun `node "audits/tools/phase3/verses/kid-flow.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 5's checks.
+
+#### GAP-HOME-2 — Verses writes a summary "for the Home card" that Home never reads
+
+- **Area** shell / platform (Verses) · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 5
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'Timer has no Home presence' is only partly true. A running timer shows a pill on Home and on every tab, and the investigator's metric counted only cards and entry buttons. The adult Kids card also shows Kid Verse data, without a link.
+- **Evidence.** `audits/02-shell.md:660`; `apps/verses.html:172`
+- **What happens now.** `apps/verses.html:172, 238-243` writes `verses.summary {due, streak, boxes, …}`.
+- **Why it matters.** The daily review is 8 taps away though the data for a card exists.
+- **Proposed fix.** Add the Verses Home card the app already writes a summary for ("3 verses to review · 12-day streak"), one tap to the trainer. (Phase 3: IMP-VERSES-F1)
+- **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 5's checks.
 
 #### GAP-VERSES-2 — Not yet drops a verse only one box, and the buttons do not show the next interval
 
@@ -4269,6 +4300,16 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Proposed fix.** Empty-state copy: "Mark a memory verse as memorised in F260 and you can review it here straight away", with a button to F260. (Phase 3: IMP-VERSES-P8)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/verses/critic-empty-copy.mjs"`, `node "audits/tools/phase3/verses/verify-critic-empty-state-copy-review-day-wrong-4-1.mjs"`, `node "audits/tools/phase3/verses/verify-critic-empty-state-copy-review-day-wrong-4-2.mjs"` — the defect must no longer reproduce; plus batch 5's checks.
 
+#### UX-VERSES-2 — A mis-tapped rating cannot be undone
+
+- **Area** verses · **Type** usability · **Severity** low · **Effort** S · **Batch** 5
+- **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: 'A thumb on Not yet instead of Got it' is not the adjacent slip: Almost sits between them on both the phone (stacked, 84 px apart) and the iPad (row).
+- **Evidence.** `audits/03-apps/verses.md:533`; `apps/verses.html:294-304`, `apps/hub.js:431-434`; `audits/screens/verses/rated-typical-iphone-pwa-light.png`, `audits/evidence/p3/verses/kid-flow-revealed-iphone-pwa.png`
+- **What happens now.** A mis-tapped rating cannot be undone (medium). `rate()` writes the new box, due date and streak and advances (`apps/verses.html:294-304`); the previous values are not kept, and the toast (`apps/hub.js:431-434`, 2.2 s) has no action. A thumb on Not yet instead of Got it demotes the verse and zeroes its streak; on the phone the buttons are 12 px apart. Evidence: `audits/screens/verses/rated-typical-iphone-pwa-light.png`; `audits/evidence/p3/verses/kid-flow-revealed-iphone-pwa.png`.
+- **Why it matters.** A mis-tap cannot be undone.
+- **Proposed fix.** An Undo toast after each rating restores the previous box, due date and streak. (Phase 3: IMP-VERSES-P2)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 5's checks.
+
 #### UX-VERSES-4 — The pill says "all done" when nothing was done, and "Nothing due today" shows the celebration star
 
 - **Area** verses · **Type** usability · **Severity** low · **Effort** S · **Batch** 5
@@ -4316,7 +4357,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-VERSES-3 — The daily review is 8 taps from Home; there is no Verses card although a summary is written for one
 
-- **Area** verses · **Type** usability · **Severity** medium (pointer) · **Effort** S · **Batch** 5
+- **Area** verses · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 5
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: '8 taps from Home' overstates the gap. It is 2 taps to open the app (Apps tab, then the Verses tile); the other 6 are the Show and Got it taps for 3 due cards, which any design needs. A Home card would cut 2 taps to 1.
 - **Evidence.** `audits/03-apps/verses.md:534`; `apps/verses.html:172`, `index.html:458`
 - **Proposed fix.** Pointer to GAP-HOME-2: the Home card built from verses.summary brings the review to one tap. (Phase 3: IMP-VERSES-F1)
 
@@ -4336,6 +4378,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### GAP-HOME-1 — A running kitchen timer is visible only to its owner
 
 - **Area** shell / platform (Timer) · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 6
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: Nothing stated is wrong. The item leaves out that the owner already has a room-readable surface: the Timer app's own countdown is 88 px / 12.1 mm on the iPad (passes H1 at 2 m). The 'too small to read across the room' point applies to the Home pill only.
 - **Evidence.** `audits/02-shell.md:566`; `index.html:780`, `index.html:1119-1128`
 - **What happens now.** The pill reads `timer.active` from the signed-in person's own scope (`index.html:780, 786, 814`). The TV board has no timer pane (`index.html:1119-1128`).
 - **Why it matters.** Whoever is in the kitchen needs to see a timer someone else started.
@@ -4345,6 +4388,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### GAP-TIMER-2 — The alert is one 0.85 s three-pip beep that never repeats and needs no acknowledgement
 
 - **Area** timer · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 6
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: Small caveat: 'needs no acknowledgement' holds for the sound only. The in-app done state (red wash, blinking digits) does wait for a tap.
 - **Evidence.** `audits/03-apps/timer.md:377`; `apps/timer.html:96-99`, `index.html:810`
 - **What happens now.** Three 250 ms notes at 880 Hz at 0, 0.3 and 0.6 s, once (`apps/timer.html:96-99`). A minute later the probe still counted 1 context and 3 oscillators (B3); the shell's toast lasts 4 s (`index.html:810`; B4 `oneMinuteLater.toast: null`). Only the blinking digits remain, and only in the app.
 - **Why it matters.** One short beep is easy to miss.
@@ -4354,6 +4398,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### GAP-TIMER-3 — Only six fixed presets: no custom time, +1 min, label, second timer or recents
 
 - **Area** timer · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 6
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: One minor nuance: the app does remember one last-used preset per person (lastPreset, apps/timer.html:81,124), which is a one-item 'recent'. A second concurrent timer is possible, but only under another person's profile, because the record is per person. Neither changes the substance.
 - **Evidence.** `audits/03-apps/timer.md:381`; `apps/timer.html:61-66`, `apps/timer.html:80`
 - **What happens now.** Only six fixed presets: no custom time, +1 min, label, second timer or recents (medium). Six chips (`apps/timer.html:61-66`) and one record per person (`apps/timer.html:80`); custom entry, +1 min, labels, multiple timers, recents and sound choice are NOT FOUND IN CODE. A 12-minute pizza plus an oven timer cannot be set.
 - **Why it matters.** Clock's timers do all of these.
@@ -4381,6 +4426,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### PWA-GAP-1 — "Timer done" is a local notification only
 
 - **Area** shell / platform (Timer) · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 6
+- **Verified (step 3).** was medium; skeptics medium and medium.
 - **Evidence.** `audits/02-shell.md:4818`; `index.html:797-803`, `index.html:804-810`, `index.html:1561`
 - **What happens now.** `timerNotify` calls `showNotification` only if permission is already `granted` (index.html:797-803).
 - **Why it matters.** A timer that ends while the phone is locked is silent.
@@ -4390,6 +4436,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### UX-TIMER-1 — One tap on any preset chip cancels a running timer on every device, with no confirm and no undo
 
 - **Area** timer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 6
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: No factual error. One framing note: Reset clearing the timer without a confirm is expected, because Reset is an explicit cancel control. The real problem is only the preset chips.
 - **Evidence.** `audits/03-apps/timer.md:315`; `apps/timer.html:121-125`, `apps/timer.html:120`; `audits/evidence/p3/timer/audience-kid-running-iphone-pwa.png`
 - **What happens now.** The preset handler runs `stop(); write(null)` and loads the new preset (`apps/timer.html:121-125`). In `basics.mjs` the timer read 9:57 with Pause; one tap on "3 min" gave 3:00 with Start, and the server row became `timer.active: null`, so the pill vanished on every device of the person.
 - **Why it matters.** One tap cancels a running timer on every device.
@@ -4399,6 +4446,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### UX-TIMER-2 — Pause exists only in one page's memory, and a paused timer looks exactly like an idle one
 
 - **Area** timer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 6
+- **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: 'Styled exactly like an idle timer of that length' is slightly overstated. The paused ring keeps its partial progress (--p = left/total, 0.9833 at 9:50 of 10:00), while an idle dial's ring is always full.
 - **Evidence.** `audits/03-apps/timer.md:321`; `apps/timer.html:114`, `apps/timer.html:135`, `apps/timer.html:92`; `audits/evidence/p3/timer/sync2-phone-paused.png`, `audits/evidence/p3/timer/sync2-ipad-after-phone-pause.png`
 - **What happens now.** Pause clears `timer.active` (`apps/timer.html:114`). Pausing at 2:55 left the server row and the Home pill null, and reopening showed 3:00 (`basics.json` `D_*`).
 - **Why it matters.** A paused timer looks idle.
@@ -4408,38 +4456,12 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### UX-TIMER-3 — A timer that ends while the only device is asleep or closed leaves no trace
 
 - **Area** timer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 6
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: No substantive error. A precision note: the shell does not clear every ended record silently. A record seen within 60 s of its end still gets the beep, toast and notification (index.html:806-810), so 'no trace' applies only to a return more than 60 s after the end.
 - **Evidence.** `audits/03-apps/timer.md:327`; `index.html:806`, `apps/timer.html:129`, `index.html:801`, `sw.js:62-64`
 - **What happens now.** B5: app closed, page hidden through the end, back 2 min later: no beep, toast or notification, and no pill. B6: the whole page closed with the Timer open, reopened on `#timer` 2 min after 0: "1:00 Start", not the done state.
 - **Why it matters.** A timer ending while the device sleeps leaves no trace.
 - **Proposed fix.** A timer that ended unseen shows "Timer ended at 6:42" on the next open and in the pill for 10 min. (Phase 3: IMP-TIMER-F4)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/timer/background.mjs"` — the defect must no longer reproduce; recapture its screens (capture area timer) and compare; plus batch 6's checks.
-
-#### UX-TIMER-4 — "Time's up" is shown only by colour and blinking: no words and no icon
-
-- **Area** timer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 6
-- **Evidence.** `audits/03-apps/timer.md:335`; `apps/timer.html:12`, `apps/timer.html:36`; `audits/evidence/p3/timer/visual-done-hearth-ipad.png`, `audits/screens/timer/running-typical-ipad-portrait-light.png`
-- **What happens now.** At 0 the page text is only "Kitchen timer 0:00 1 min … Start Reset" (`basics.json` `E_done.dial.text`).
-- **Why it matters.** The done state relies on colour.
-- **Proposed fix.** "Time's up" in words with a bell icon, not only colour and blinking. (Phase 3: IMP-TIMER-P1)
-- **How it will be verified.** Rerun `node "audits/tools/phase3/timer/visual.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 6's checks.
-
-#### UX-TIMER-5 — The digits read only to about 2.5 m on the Kitchen iPad, because the dial is capped at 400 px
-
-- **Area** timer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 6
-- **Evidence.** `audits/03-apps/timer.md:340`; `apps/timer.html:22`; `audits/screens/timer/idle-typical-ipad-landscape-light.png`, `audits/evidence/p3/timer/visual-idle-hearth-ipad.png`
-- **What happens now.** The digits render 64 px high (an 88 px font; canvas `actualBoundingBox`), 12.3 mm on an 11-inch iPad: readable to 2.46 m by h ≥ d/200. Reading at 3 m needs 15 mm.
-- **Why it matters.** Digits read only to 2.5 m.
-- **Proposed fix.** Lift the 400 px dial cap on the iPad (digits at --fs-glance-1). (Phase 3: IMP-TIMER-P3)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 6's checks.
-
-#### UX-TIMER-6 — Kid mode enlarges the controls, but every one is a word
-
-- **Area** timer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 6
-- **Evidence.** `audits/03-apps/timer.md:345`; `apps/design.css:280-284`, `apps/timer.html:60-71`, `apps/timer.html:106`; `audits/evidence/p3/timer/audience-kid-idle-iphone-pwa.png`, `audits/evidence/p3/timer/audience-kid-running-ipad-portrait.png`
-- **What happens now.** For Ezra the kid tokens make the chips 64 px and Start/Reset 84 px tall (`apps/design.css:280-284`), but no control has an icon (`hasIcon: false`). Labels are "1 min" … "30 min", Start, Pause and Reset (`apps/timer.html:60-71`).
-- **Why it matters.** Every kid control is a word.
-- **Proposed fix.** Kid controls get icons (play, pause, reset) and preset pictures (egg, pasta). (Phase 3: IMP-TIMER-I1)
-- **How it will be verified.** Rerun `node "audits/tools/phase3/timer/audience.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 6's checks.
 
 #### GAP-TIMER-1 — The Timer never offers the "Timer done" notification: the only permission prompt is the Me push switch
 
@@ -4503,6 +4525,36 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Why it matters.** Small, but a kitchen timer should not ring before its time, and "1:00" should not turn into "0:59" half a second after Start.
 - **Proposed fix.** Display with Math.ceil and fire at endAt (endAt - now <= 0), in the app and the shell. (Phase 3: IMP-TIMER-P12)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/timer/verify-critic-early-finish-rounding-4-2.mjs"`, `node "audits/tools/phase3/timer/critic-early-finish.mjs"`, `node "audits/tools/phase3/timer/verify-critic-early-finish-rounding-4-1.mjs"` — the defect must no longer reproduce; plus batch 6's checks.
+
+#### UX-TIMER-4 — "Time's up" is shown only by colour and blinking: no words and no icon
+
+- **Area** timer · **Type** usability · **Severity** low · **Effort** S · **Batch** 6
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'Only by colour' is wrong: the blink (a luminance/opacity change), the full ring in place of the progress arc (a shape change), 0:00, and Start returning as the primary button are all non-colour cues.
+- **Evidence.** `audits/03-apps/timer.md:335`; `apps/timer.html:12`, `apps/timer.html:36`; `audits/evidence/p3/timer/visual-done-hearth-ipad.png`, `audits/screens/timer/running-typical-ipad-portrait-light.png`
+- **What happens now.** At 0 the page text is only "Kitchen timer 0:00 1 min … Start Reset" (`basics.json` `E_done.dial.text`).
+- **Why it matters.** The done state relies on colour.
+- **Proposed fix.** "Time's up" in words with a bell icon, not only colour and blinking. (Phase 3: IMP-TIMER-P1)
+- **How it will be verified.** Rerun `node "audits/tools/phase3/timer/visual.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 6's checks.
+
+#### UX-TIMER-5 — The digits read only to about 2.5 m on the Kitchen iPad, because the dial is capped at 400 px
+
+- **Area** timer · **Type** usability · **Severity** low · **Effort** S · **Batch** 6
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'Both iPad orientations get a 400 px dial because of the cap' is wrong for landscape: 52vh of the 772 px viewer frame is 401 px, so the height limits the dial there and removing the cap changes nothing. The cap binds only in portrait, where the uncapped dial would be 589 px (digits about 18 mm).
+- **Evidence.** `audits/03-apps/timer.md:340`; `apps/timer.html:22`; `audits/screens/timer/idle-typical-ipad-landscape-light.png`, `audits/evidence/p3/timer/visual-idle-hearth-ipad.png`
+- **What happens now.** The digits render 64 px high (an 88 px font; canvas `actualBoundingBox`), 12.3 mm on an 11-inch iPad: readable to 2.46 m by h ≥ d/200. Reading at 3 m needs 15 mm.
+- **Why it matters.** Digits read only to 2.5 m.
+- **Proposed fix.** Lift the 400 px dial cap on the iPad (digits at --fs-glance-1). (Phase 3: IMP-TIMER-P3)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 6's checks.
+
+#### UX-TIMER-6 — Kid mode enlarges the controls, but every one is a word
+
+- **Area** timer · **Type** usability · **Severity** low · **Effort** S · **Batch** 6
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'While running, Pause loses its fill and looks like Reset' is wrong: Pause loses only the accent gradient and keeps a filled, bordered, shadowed button, while Reset is bare text (measured in both devices and visible in audience-kid-running-ipad-portrait.png).
+- **Evidence.** `audits/03-apps/timer.md:345`; `apps/design.css:280-284`, `apps/timer.html:60-71`, `apps/timer.html:106`; `audits/evidence/p3/timer/audience-kid-idle-iphone-pwa.png`, `audits/evidence/p3/timer/audience-kid-running-ipad-portrait.png`
+- **What happens now.** For Ezra the kid tokens make the chips 64 px and Start/Reset 84 px tall (`apps/design.css:280-284`), but no control has an icon (`hasIcon: false`). Labels are "1 min" … "30 min", Start, Pause and Reset (`apps/timer.html:60-71`).
+- **Why it matters.** Every kid control is a word.
+- **Proposed fix.** Kid controls get icons (play, pause, reset) and preset pictures (egg, pasta). (Phase 3: IMP-TIMER-I1)
+- **How it will be verified.** Rerun `node "audits/tools/phase3/timer/audience.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 6's checks.
 
 #### UX-TIMER-7 — Starting a timer takes 3 taps from Home (4 for another length); Home has no timer card
 
@@ -4595,18 +4647,10 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Proposed fix.** A reset marks story and prayed days up to its date as reset before crediting (time-stamped marks for the reset's own day). (Phase 3: IMP-KIDVERSE-P8)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/kidverse/critic-reset-uncredited-prayed.mjs"`, `node "audits/tools/phase3/kidverse/verify-critic-reset-misses-uncredited-prayed-days-4-1.mjs"`, `node "audits/tools/phase3/kidverse/verify-critic-reset-misses-uncredited-prayed-days-4-2.mjs"` — the defect must no longer reproduce; plus batch 7's checks.
 
-#### UX-KIDVERSE-1 — Several kid steps need reading: identical "Read it to me" buttons, the "I heard it" check, and text-only toasts
-
-- **Area** kidverse · **Type** usability · **Severity** medium · **Effort** M · **Batch** 7
-- **Evidence.** `audits/03-apps/kidverse.md:656`; `apps/kidverse.html:665`; `audits/evidence/p3/kidverse/webtells-toast-over-content.png`, `audits/screens/kidverse/kid-story-typical-iphone-pwa-light.png`
-- **What happens now.** Verse: speaker, then star, works by icon and position, but Done ★ is off the first iPhone screen and nothing tells the child to listen first.
-- **Why it matters.** Several kid steps need reading.
-- **Proposed fix.** Distinct pictures for the two speaker buttons (a verse scroll, a storybook), a big picture "I heard it" (an ear + star), and spoken toasts. (Phase 3: IMP-KIDVERSE-F2)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 7's checks.
-
 #### UX-KIDVERSE-2 — Done ★ is below the first screen on iPhone, iPad landscape and desktop; "I heard it" is two screens down
 
 - **Area** kidverse · **Type** usability · **Severity** medium · **Effort** M · **Batch** 7
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: The report understates the landscape, desktop and Safari case. There, 'Read it to me' is off the first screen as well as Done ★, so the whole action row is hidden. 'I heard it is two screens down' is loose: its top sits at 1.89 viewport heights, on the second screen, about one screen of scrolling.
 - **Evidence.** `audits/03-apps/kidverse.md:663`; `audits/evidence/p3/kidverse/visual-P-kid-iphone-first-screen.png`, `audits/screens/kidverse/kid-typical-iphone-pwa-light.png`
 - **What happens now.** Standalone at 430×932 the scene art takes 274 px; Done ★ spans 851-935 px, so in the shell (48 px viewer bar) only its top edge shows; the stars card starts at 951 px, "I heard it" at 1713 px, on a 2304 px page.
 - **Why it matters.** Done ★ is below the first screen.
@@ -4639,6 +4683,16 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Why it matters.** Each star uploads about 15 KB twice after a year, and every device keeps and re-downloads it.
 - **Proposed fix.** Fold credited days older than the look-back into counters; upload once per change.
 - **How it will be verified.** Rerun `node "audits/tools/phase3/kidverse/verify-stars-row-growth-1.mjs"`, `node "audits/tools/phase3/kidverse/verify-stars-row-growth-2.mjs"`, `node "audits/tools/phase3/kidverse/rowsize.mjs"` — the defect must no longer reproduce; plus batch 7's checks.
+
+#### UX-KIDVERSE-1 — Several kid steps need reading: identical "Read it to me" buttons, the "I heard it" check, and text-only toasts
+
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** M · **Batch** 7
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The headline 'several kid steps need reading' overstates it. No step needs reading to complete. Reading is needed only to understand text-only feedback and to know to listen before tapping. 'Past midnight a pressed Done today ★ can show beside 0 stars' is not supported.
+- **Evidence.** `audits/03-apps/kidverse.md:656`; `apps/kidverse.html:665`; `audits/evidence/p3/kidverse/webtells-toast-over-content.png`, `audits/screens/kidverse/kid-story-typical-iphone-pwa-light.png`
+- **What happens now.** Verse: speaker, then star, works by icon and position, but Done ★ is off the first iPhone screen and nothing tells the child to listen first.
+- **Why it matters.** Several kid steps need reading.
+- **Proposed fix.** Distinct pictures for the two speaker buttons (a verse scroll, a storybook), a big picture "I heard it" (an ear + star), and spoken toasts. (Phase 3: IMP-KIDVERSE-F2)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 7's checks.
 
 #### UX-KIDVERSE-4 — After a parent's Reset week, the stars card says "No stars yet" while the story card says "Heard 1 day this week"
 
@@ -4718,6 +4772,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### GAP-LEFTOVERS-1 — No way to fix a mistake or give a food its own use-by: no edit and no per-item expiry
 
 - **Area** leftovers · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 8
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: "Loses logged by" is true only when someone other than the original logger fixes the item; the same person re-logging keeps their own name. The report leaves out two things. The ✓-and-re-log fix also posts a false "Finished the <item>" line to the family feed, which strengthens the item.
 - **Evidence.** `audits/03-apps/leftovers.md:862`; `apps/leftovers.html:137`, `apps/leftovers.html:249-311`
 - **What happens now.** Items can only be added or removed. A wrong date or size needs delete and re-add, which loses "logged by".
 - **Why it matters.** Mistakes need delete and re-add.
@@ -4732,24 +4787,6 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Why it matters.** The lock screen says a 5-day chili must be used up, the app calls it "eat soon", and Home calls an 8-day dish "to eat this week" while the app says "a week or older". People learn to ignore one of the three.
 - **Proposed fix.** One freshness rule shared by the Larder, Home, the Apps badge and the 8 am push ("eat soon" 4-6 days, "use it up" 7+), from one function. (Phase 3: IMP-LEFTOVERS-P2)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/leftovers/verify-thresholds-disagree-1.mjs"`, `node "audits/tools/phase3/leftovers/verify-thresholds-disagree-2.mjs"`, `node "audits/tools/phase3/leftovers/thresholds.mjs"` — the defect must no longer reproduce; plus batch 8's checks.
-
-#### UX-LEFTOVERS-3 — Nothing in the Larder can be read from 2 m on the Kitchen iPad
-
-- **Area** leftovers · **Type** usability · **Severity** medium · **Effort** M · **Batch** 8
-- **Evidence.** `audits/03-apps/leftovers.md:753`; `apps/leftovers.html:213`, `apps/leftovers.html:23`; `audits/screens/leftovers/main-typical-ipad-portrait-light.png`
-- **What happens now.** Cap heights on the 11" iPad (0.1924 mm per CSS px, canvas `measureText('H')`), against Phase 2's H1 (cap ≥ distance/200: 10 mm at 2 m) and H2 (≥ distance/344: 5.8 mm at 2 m), `audits/02-shell.md:519-520`: the 28 px title: 3.85 mm;
-- **Why it matters.** Nothing reads from 2 m.
-- **Proposed fix.** Glance roles on the Kitchen iPad: the oldest item and its age at --fs-glance-3. (Phase 3: IMP-LEFTOVERS-P5)
-- **How it will be verified.** Rerun `node "audits/tools/phase3/leftovers/visual.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 8's checks.
-
-#### UX-LEFTOVERS-4 — "Copy list for Hearth" tells people to ask Claude for something the hub's Claude cannot do
-
-- **Area** leftovers · **Type** usability · **Severity** medium · **Effort** S · **Batch** 8
-- **Evidence.** `audits/03-apps/leftovers.md:764`; `apps/leftovers.html:114-115`, `apps/leftovers.html:152`, `apps/leftovers.html:331`, `apps/leftovers.html:113-117`; `audits/evidence/p3/leftovers/roles-hearth-copied-iphone.png`, `audits/screens/leftovers/copy-typical-iphone-pwa-light.png`
-- **What happens now.** The block says to copy, then tell Claude "push my leftovers to Hearth", and that "it'll add them straight to the Hearth Calendar" (`apps/leftovers.html:114-115`). The hub's Chat tab is Claude, but the Worker has no Hearth tool: 0 occurrences of "hearth" in `worker/src`.
-- **Why it matters.** It tells people to ask Claude for something it cannot do.
-- **Proposed fix.** Remove the Hearth instructions, or add a real Hearth path (a chat tool) before telling people to use it. (Phase 3: IMP-LEFTOVERS-F3)
-- **How it will be verified.** Rerun `node "audits/tools/phase3/leftovers/roles.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 8's checks.
 
 #### P3-LEFTOVERS-10 — "Copy failed — select manually" leaves nothing to select (from the visual check)
 
@@ -4768,6 +4805,26 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Why it matters.** "Church potluck baked ziti (th…" and "Vegetable fried rice with scra…" hide the part that says which dish it is.
 - **Proposed fix.** Names wrap to two lines; a tap opens the edit sheet with the full name. (Phase 3: IMP-LEFTOVERS-F1)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/leftovers/verify-vis-long-item-names-are-cut-off-with-no-way-to-read--3-2.mjs"`, `node "audits/tools/phase3/leftovers/verify-vis-long-item-names-are-cut-off-with-no-way-to-read--3-1.mjs"`, `node "audits/tools/phase3/leftovers/entry.mjs"` — the defect must no longer reproduce; plus batch 8's checks.
+
+#### UX-LEFTOVERS-3 — Nothing in the Larder can be read from 2 m on the Kitchen iPad
+
+- **Area** leftovers · **Type** usability · **Severity** low · **Effort** M · **Batch** 8
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: Cap millimetres come from WebKit's integer-rounded actualBoundingBoxAscent, so they overstate slightly (item names about 2.2 mm, not 2.31; chips about 1.6 mm, not 1.73).
+- **Evidence.** `audits/03-apps/leftovers.md:753`; `apps/leftovers.html:213`, `apps/leftovers.html:23`; `audits/screens/leftovers/main-typical-ipad-portrait-light.png`
+- **What happens now.** Cap heights on the 11" iPad (0.1924 mm per CSS px, canvas `measureText('H')`), against Phase 2's H1 (cap ≥ distance/200: 10 mm at 2 m) and H2 (≥ distance/344: 5.8 mm at 2 m), `audits/02-shell.md:519-520`: the 28 px title: 3.85 mm;
+- **Why it matters.** Nothing reads from 2 m.
+- **Proposed fix.** Glance roles on the Kitchen iPad: the oldest item and its age at --fs-glance-3. (Phase 3: IMP-LEFTOVERS-P5)
+- **How it will be verified.** Rerun `node "audits/tools/phase3/leftovers/visual.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 8's checks.
+
+#### UX-LEFTOVERS-4 — "Copy list for Hearth" tells people to ask Claude for something the hub's Claude cannot do
+
+- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8
+- **Verified (step 3).** was medium; skeptics medium and low (partly); tie-break low (partly). Correction: The report says "The hub's Chat tab is Claude". That is true only in the code, not in anything a household member sees, so the "tell Claude" instruction does not clearly point at the hub assistant.
+- **Evidence.** `audits/03-apps/leftovers.md:764`; `apps/leftovers.html:114-115`, `apps/leftovers.html:152`, `apps/leftovers.html:331`, `apps/leftovers.html:113-117`; `audits/evidence/p3/leftovers/roles-hearth-copied-iphone.png`, `audits/screens/leftovers/copy-typical-iphone-pwa-light.png`
+- **What happens now.** The block says to copy, then tell Claude "push my leftovers to Hearth", and that "it'll add them straight to the Hearth Calendar" (`apps/leftovers.html:114-115`). The hub's Chat tab is Claude, but the Worker has no Hearth tool: 0 occurrences of "hearth" in `worker/src`.
+- **Why it matters.** It tells people to ask Claude for something it cannot do.
+- **Proposed fix.** Remove the Hearth instructions, or add a real Hearth path (a chat tool) before telling people to use it. (Phase 3: IMP-LEFTOVERS-F3)
+- **How it will be verified.** Rerun `node "audits/tools/phase3/leftovers/roles.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 8's checks.
 
 #### UX-LEFTOVERS-5 — Log with an empty name does nothing, with no message and no focus
 
@@ -4869,15 +4926,6 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 ### Batch 9 — Dollywood build guide (49)
 
-#### GAP-DOLLYWOOD-1 — The 3D view never shows the current step
-
-- **Area** dollywood · **Type** feature gap · **Severity** medium · **Effort** L · **Batch** 9
-- **Evidence.** `audits/03-apps/dollywood.md:772`; `apps/dollywood.html:1157`, `apps/dollywood.html:1153`; `audits/screens/dollywood/view-3d-typical-ipad-portrait-light.png`
-- **What happens now.** LEGO Builder's core is a step you can zoom and spin. Here the 3D code never reads the current section or step: no `curSec`, `curIdx`, `stepTarget` or `highlight` between `apps/dollywood.html:1157` and `:1290` (NOT FOUND IN CODE), and entering 3D hides the 2D map that carries the step highlight …
-- **Why it matters.** The one 3D view never shows what to build.
-- **Proposed fix.** The 3D view highlights and frames the current step (read curSec/curIdx), like LEGO Builder's step view. (Phase 3: IMP-DOLLYWOOD-I2)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
-
 #### P3-DOLLYWOOD-03 — On phones the … menu opens out of the sheet: Export and Import cannot be reached, and only a sliver of Reset can
 
 - **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9
@@ -4932,36 +4980,20 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Proposed fix.** The keyboard shortcuts ignore events with Ctrl, Cmd or Alt held (template :849), so browser shortcuts never tick or untick a step.
 - **How it will be verified.** Rerun `node "audits/tools/phase3/dollywood/critic-keys-plot.mjs"`, `node "audits/tools/phase3/dollywood/verify-critic-critic-modifier-shortcuts-write-progress-1-1.mjs"`, `node "audits/tools/phase3/dollywood/verify-critic-critic-modifier-shortcuts-write-progress-1-2.mjs"` — the defect must no longer reproduce; plus batch 9's checks.
 
-#### UX-DOLLYWOOD-1 — Ticking the step just built takes 3-4 taps plus a scroll, and Home has no build-guide card
-
-- **Area** dollywood · **Type** usability · **Severity** medium · **Effort** M · **Batch** 9
-- **Evidence.** `audits/03-apps/dollywood.md:665`; `index.html:458-459`; `audits/screens/dollywood/map-typical-ipad-portrait-light.png`, `audits/screens/dollywood/map-typical-desktop-light.png`
-- **What happens now.** J1 is 4 taps on the iPhone (the sheet must be raised first) and 3 taps plus a scroll on the iPad and desktop. On iPad portrait the card title sits at y=1400 in a 1132 px viewport; on desktop the card starts at y=1441 in 852.
-- **Why it matters.** Ticking the step just built takes 3-4 taps and a scroll.
-- **Proposed fix.** A sticky "Mark done" on the step card, the card scrolled into view on open, and a build-guide Home card ("Next: Blueprint the section · 7 of 9"). (Phase 3: IMP-DOLLYWOOD-F3, IMP-DOLLYWOOD-F6)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
-
 #### UX-DOLLYWOOD-2 — On iPad and desktop, the card's Next and Show on map move a map the person cannot see
 
 - **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 9
+- **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: The claim is wrong for iPad portrait. At the natural scroll that brings the card's buttons into view, 694 of the 738 px map is on screen together with the card, and the target Next frames is visible. The '261 px' figure is an artefact of centring the card.
 - **Evidence.** `audits/03-apps/dollywood.md:669`; `apps/dollywood.html:1140`; `audits/screens/dollywood/step-on-map-typical-ipad-portrait-light.png`
 - **What happens now.** `mapIntoView` returns early unless on a phone (`apps/dollywood.html:1140`).
 - **Why it matters.** The map moves out of sight.
 - **Proposed fix.** On iPad and desktop, Next and Show on map scroll the map into view (mapIntoView for every size).
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
 
-#### UX-DOLLYWOOD-3 — A phone's first screen is header, chips and parking lots; the park sits under the peeking sheet
-
-- **Area** dollywood · **Type** usability · **Severity** medium · **Effort** M · **Batch** 9
-- **Evidence.** `audits/03-apps/dollywood.md:673`; `audits/evidence/p3/dollywood/phone-first-screen.png`, `audits/screens/dollywood/map-typical-iphone-pwa-light.png`
-- **What happens now.** The map starts at y=470 and the sheet at 766 (viewport 884). 56 of 68 markers are under the sheet and 11 are in view. The chips wrap to 2 rows, and only 2 of 13 are fully visible.
-- **Why it matters.** The first screen is header and parking lots.
-- **Proposed fix.** On phones, open on the map with the sheet peeking below the park, and one row of scrollable chips.
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
-
 #### UX-DOLLYWOOD-4 — Below 1180 px, search results appear about 2,000 px from the search box, and a no-match search says only "0 of 145"
 
 - **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 9
+- **Verified (step 3).** was medium; skeptics medium and medium (partly). Correction: The limit is 'at or below 1180 px', not 'below 1180 px'. iPad landscape (exactly 1180 wide) is affected too, with a 2,264 px gap. The visual-check line saying there is no clear button is wrong: the search field is type=search and shows a native clear glyph in every capture.
 - **Evidence.** `audits/03-apps/dollywood.md:676`; `audits/evidence/p3/dollywood/ipad-search-no-match.png`, `audits/screens/dollywood/search-none-typical-ipad-portrait-light.png`
 - **What happens now.** Searching "zipline" on iPad portrait put the results list top at y=2506 (search box bottom 428, viewport 1132), with no empty-state message. A single match does fly to it and open its card ("thunder").
 - **Why it matters.** Results appear 2,000 px away.
@@ -4971,6 +5003,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### VIS-DOLLYWOOD-1 — Completed steps are struck through at 2.2:1 (light) and 3.5:1 (dark)
 
 - **Area** dollywood · **Type** visual · **Severity** medium · **Effort** S · **Batch** 9
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: 'Barely legible' overstates it. At 2.2:1 in bold the rows are faint but readable in both the iPad capture and my own. The Midnight figure depends on which background is used (3.62 against the card, about 3.75 against the page).
 - **Evidence.** `audits/03-apps/dollywood.md:714`; `apps/dollywood.html:100-101`; `audits/evidence/p3/dollywood/ipad-card-hearth.png`, `audits/evidence/p3/dollywood/ipad-card-midnight.png`
 - **What happens now.** `.bitem.ok` combines the dim colour, opacity .55 and a line-through (`apps/dollywood.html:100-101`). Rendered contrast of the 13 px text: Hearth 2.23, Parchment 2.31, Frost 2.26, Midnight 3.62, Forest 3.49 (AA needs 4.5). The checker confirmed the rows are barely legible.
 - **Why it matters.** Done steps fail contrast at 2.2:1.
@@ -4980,6 +5013,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### VIS-DOLLYWOOD-2 — 35 tap targets under 44 px on the phone, 15 on the iPad
 
 - **Area** dollywood · **Type** visual · **Severity** medium · **Effort** M · **Batch** 9
+- **Verified (step 3).** was medium; skeptics medium and medium (partly). Correction: Minor details only. The phone list in the report adds up to 34 items; the 35th is the Basemap select (42x42), which is counted but not named. The card link buttons measure 35 px tall, not about 33.
 - **Evidence.** `audits/03-apps/dollywood.md:717`; `apps/dollywood.html:1148`, `apps/dollywood.html:300`
 - **What happens now.** Phone: the 13 section chips (36 px tall), six tool and zoom buttons (32 px wide), nine coaster-legend items (17 px tall, tappable, `apps/dollywood.html:1148`), "?" (32×32), the sheet handle (22 px tall), Next unfinished (40 px), … (44×40), Compare (36 px), the exaggeration slider (20 px).
 - **Why it matters.** 35 targets under 44 px on the phone.
@@ -4993,6 +5027,16 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **What happens now.** The pane headings. The hub flavour remaps `.tabbody h2` to `--font-display` (`apps/dollywood.html:223`). The live flavour remaps only `.pop h2` (`apps/dollywood-live.html:223`).
 - **Why it matters.** One export shows Times headings next to SF Pro Rounded, and the two exports of one template disagree.
 - **Proposed fix.** The template names real stacks (--font-serif / --font-text) instead of generic families.
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
+
+#### GAP-DOLLYWOOD-1 — The 3D view never shows the current step
+
+- **Area** dollywood · **Type** feature gap · **Severity** low · **Effort** L · **Batch** 9
+- **Verified (step 3).** was medium; skeptics low and low. Correction: The code claim is correct. The report misses that Previous, Next, Mark done and Show on map all force the view back to 2D (apps/dollywood.html:1085-1087). The 2D map is therefore the app's designated view for a step, and the 3D view is not simply a place where the step is missing.
+- **Evidence.** `audits/03-apps/dollywood.md:772`; `apps/dollywood.html:1157`, `apps/dollywood.html:1153`; `audits/screens/dollywood/view-3d-typical-ipad-portrait-light.png`
+- **What happens now.** LEGO Builder's core is a step you can zoom and spin. Here the 3D code never reads the current section or step: no `curSec`, `curIdx`, `stepTarget` or `highlight` between `apps/dollywood.html:1157` and `:1290` (NOT FOUND IN CODE), and entering 3D hides the 2D map that carries the step highlight …
+- **Why it matters.** The one 3D view never shows what to build.
+- **Proposed fix.** The 3D view highlights and frames the current step (read curSec/curIdx), like LEGO Builder's step view. (Phase 3: IMP-DOLLYWOOD-I2)
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
 
 #### GAP-DOLLYWOOD-2 — No shared, read-only view of a build
@@ -5111,6 +5155,26 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Why it matters.** On a phone the section names and listing numbers are how the map is read, and at 5.5-6.8 px they cannot be read.
 - **Proposed fix.** Map labels in screen px with an 11 px floor (--fs-caption2), independent of the map scale. (Phase 4 gap row TYPE-11)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/TYPE/verify-build-guide-svg-labels-under-11-1.mjs"`, `node "audits/tools/phase4/TYPE/hidden-text.mjs"` — the defect must no longer reproduce; plus batch 9's checks.
+
+#### UX-DOLLYWOOD-1 — Ticking the step just built takes 3-4 taps plus a scroll, and Home has no build-guide card
+
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** M · **Batch** 9
+- **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The report frames it as the cost of every tick ('Ticking the step just built takes 3-4 taps plus a scroll'). In fact it is the cold-start cost per session: within a session each tick is 1 tap, and the card stays in view and advances by itself.
+- **Evidence.** `audits/03-apps/dollywood.md:665`; `index.html:458-459`; `audits/screens/dollywood/map-typical-ipad-portrait-light.png`, `audits/screens/dollywood/map-typical-desktop-light.png`
+- **What happens now.** J1 is 4 taps on the iPhone (the sheet must be raised first) and 3 taps plus a scroll on the iPad and desktop. On iPad portrait the card title sits at y=1400 in a 1132 px viewport; on desktop the card starts at y=1441 in 852.
+- **Why it matters.** Ticking the step just built takes 3-4 taps and a scroll.
+- **Proposed fix.** A sticky "Mark done" on the step card, the card scrolled into view on open, and a build-guide Home card ("Next: Blueprint the section · 7 of 9"). (Phase 3: IMP-DOLLYWOOD-F3, IMP-DOLLYWOOD-F6)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
+
+#### UX-DOLLYWOOD-3 — A phone's first screen is header, chips and parking lots; the park sits under the peeking sheet
+
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** M · **Batch** 9
+- **Verified (step 3).** was medium; skeptics low and low.
+- **Evidence.** `audits/03-apps/dollywood.md:673`; `audits/evidence/p3/dollywood/phone-first-screen.png`, `audits/screens/dollywood/map-typical-iphone-pwa-light.png`
+- **What happens now.** The map starts at y=470 and the sheet at 766 (viewport 884). 56 of 68 markers are under the sheet and 11 are in view. The chips wrap to 2 rows, and only 2 of 13 are fully visible.
+- **Why it matters.** The first screen is header and parking lots.
+- **Proposed fix.** On phones, open on the map with the sheet peeking below the park, and one row of scrollable chips.
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
 
 #### UX-DOLLYWOOD-7 — On phones, Next unfinished from the peeking sheet leaves the new step hidden
 
@@ -5320,6 +5384,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### GAP-DOLLYWOOD-LIVE-1 — No Find-My-style arrival or leave alerts
 
 - **Area** dollywood-live · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 10
+- **Verified (step 3).** was medium; skeptics low and medium; tie-break medium. Correction: The claims are accurate. Only the rating is too high: medium should be low, since checking the live map or Family pane is a reasonable workaround and the related defects are filed and rated on their own.
 - **Evidence.** `audits/03-apps/dollywood-live.md:687`
 - **What happens now.** No Find-My-style arrival or leave alerts (medium). Nothing tells a parent "Mae reached the meeting point" or "Ezra's phone left the park". The only proximity signal is the server's stale-kid push, which barely fires (P2-PWA-02), and the "Meet at <name>" push cannot be sent (P2-PWA-18).
 - **Why it matters.** Find My's most useful family feature is missing on park days.
@@ -5425,36 +5490,10 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Proposed fix.** When kidshare:<kid> turns true, the kid's open map starts locating and publishing on the next onChange.
 - **How it will be verified.** Rerun `node "audits/tools/phase3/dollywood-live/verify-critic-kid-beacon-on-needs-reopen-2-1.mjs"`, `node "audits/tools/phase3/dollywood-live/critic-kid-beacon.mjs"`, `node "audits/tools/phase3/dollywood-live/verify-critic-kid-beacon-on-needs-reopen-2-2.mjs"` — the defect must no longer reproduce; plus batch 10's checks.
 
-#### UX-DOLLYWOOD-LIVE-1 — The location-denied state is incomplete, and a kid gets adult "Settings › Safari" wording
-
-- **Area** dollywood-live · **Type** usability · **Severity** medium · **Effort** S · **Batch** 10
-- **Evidence.** `audits/03-apps/dollywood-live.md:613`; `apps/dollywood-live.html:1404-1405`, `apps/dollywood-live.html:1267`; `audits/evidence/p3/dollywood-live/denied-adult-iphone.png`, `audits/evidence/p3/dollywood-live/denied-kid-iphone.png`
-- **What happens now.** The missing designed state and its Set my spot chip were filed here first; the completeness critic reclassified that part as a bug against the code's own design, and it is now P3-DOLLYWOOD-LIVE-17 (confirmed 2/2). What stays here is the wording.
-- **Why it matters.** A kid gets adult Settings instructions.
-- **Proposed fix.** Kid-appropriate denied wording ("Ask a grown-up to turn on location") with a picture; adults get the steps. (Phase 3: IMP-DOLLYWOOD-LIVE-P4)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 10's checks.
-
-#### UX-DOLLYWOOD-LIVE-4 — The build guide's engineering panels leak into the family park map
-
-- **Area** dollywood-live · **Type** usability · **Severity** medium · **Effort** M · **Batch** 10
-- **Evidence.** `audits/03-apps/dollywood-live.md:625`; `apps/dollywood-live.html:1464`, `apps/dollywood-live.html:936`; `audits/screens/dollywood-live/coaster-card-typical-ipad-portrait-light.png`, `audits/screens/dollywood-live/search-query-typical-iphone-safari-dark.png`
-- **What happens now.** The ride card's Track button opens the guide's coaster survey card: "Mapped track 936 m" (metric beside feet elsewhere), "Ground under track 1053–1098 ft", "In Planet Coaster 2: Wooden coaster; keep the station fly-through", an OpenStreetMap disclaimer and an elevation chart.
-- **Why it matters.** Engineering detail crowds the family map.
-- **Proposed fix.** The park map hides the build guide's engineering panels (coaster survey, OSM disclaimer, metric track data); Track shows a family-friendly ride card. (Phase 3: IMP-DOLLYWOOD-LIVE-P11, IMP-DOLLYWOOD-LIVE-P16)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 10's checks.
-
-#### UX-DOLLYWOOD-LIVE-5 — Kid mode needs reading
-
-- **Area** dollywood-live · **Type** usability · **Severity** medium · **Effort** M · **Batch** 10
-- **Evidence.** `audits/03-apps/dollywood-live.md:630`; `apps/dollywood-live.html:1532`; `audits/screens/dollywood-live/kid-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/kid-typical-ipad-portrait-dark.png`
-- **What happens now.** A pre-reader's pill shows "Location is off for this site / Allow Location …" (beacon on) or "Rides and the family, live / Kiara · just looking".
-- **Why it matters.** Kids cannot use the map without reading.
-- **Proposed fix.** Kid mode: picture-first pill and Waits (ride art, a height badge "too short" with an icon), no reading needed. (Phase 3: IMP-DOLLYWOOD-LIVE-P10)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 10's checks.
-
 #### VIS-DOLLYWOOD-LIVE-1 — Family marker labels pile into an unreadable stack with long names
 
 - **Area** dollywood-live · **Type** visual · **Severity** medium · **Effort** M · **Batch** 10
+- **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: The title and text blame long names, but the collision also happens with the real short names. In the park seed Ezra's marker hides Elizabeth's label and marker on iPad and iPhone, so exposure is wider than stated.
 - **Evidence.** `audits/03-apps/dollywood-live.md:644`; `apps/dollywood-live.html:1219-1221`; `audits/screens/dollywood-live/map-overflow-ipad-portrait-light.png`, `audits/screens/dollywood-live/meet-overflow-iphone-pwa-light.png`
 - **What happens now.** `drawFam` draws each name pill with no collision handling (`apps/dollywood-live.html:1219-1221`), unlike the ride labels. In the overflow seed 4-5 long-name pills stack around Thunderhead and the Great Tree Swing ("Kiara Seraphina Josephine" covers "Ezra Bartholomew Anderson"), and a guest's label is clipped at the …
 - **Why it matters.** Long names pile into an unreadable stack.
@@ -5560,6 +5599,16 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Proposed fix.** The five further park-map controls (handle, About, layer rows, heights, …) at var(--tap). (Phase 4 gap row SHAPE-10)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/SHAPE/verify-parkmap-targets-18-1.mjs"` — the defect must no longer reproduce; plus batch 10's checks.
 
+#### UX-DOLLYWOOD-LIVE-1 — The location-denied state is incomplete, and a kid gets adult "Settings › Safari" wording
+
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10
+- **Verified (step 3).** was medium; skeptics low and low. Correction: The facts are right, but medium is inflated. The wording is correct and actionable for the adult who is always with a 5-year-old at the park. A pre-reader is not helped by any wording, and nothing is broken or misleading, so the rating should be low.
+- **Evidence.** `audits/03-apps/dollywood-live.md:613`; `apps/dollywood-live.html:1404-1405`, `apps/dollywood-live.html:1267`; `audits/evidence/p3/dollywood-live/denied-adult-iphone.png`, `audits/evidence/p3/dollywood-live/denied-kid-iphone.png`
+- **What happens now.** The missing designed state and its Set my spot chip were filed here first; the completeness critic reclassified that part as a bug against the code's own design, and it is now P3-DOLLYWOOD-LIVE-17 (confirmed 2/2). What stays here is the wording.
+- **Why it matters.** A kid gets adult Settings instructions.
+- **Proposed fix.** Kid-appropriate denied wording ("Ask a grown-up to turn on location") with a picture; adults get the steps. (Phase 3: IMP-DOLLYWOOD-LIVE-P4)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 10's checks.
+
 #### UX-DOLLYWOOD-LIVE-2 — A view-only kid is told to tap a button that is hidden for her
 
 - **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10
@@ -5567,6 +5616,26 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **What happens now.** Nearby's empty text reads "Find yourself first: tap ◎, or use Set my spot." (`apps/dollywood-live.html:1290`), but ◎ is hidden for view-only users (`apps/dollywood-live.html:1485`). Set my spot is still offered to her;
 - **Why it matters.** The kid is told to tap a hidden button.
 - **Proposed fix.** View-only kids get "A grown-up can show where you are" instead of "tap ◎".
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 10's checks.
+
+#### UX-DOLLYWOOD-LIVE-4 — The build guide's engineering panels leak into the family park map
+
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** M · **Batch** 10
+- **Verified (step 3).** was medium; skeptics low and low. Correction: The facts are right, but the severity is inflated. The only misleading element, the height select, is P3-DOLLYWOOD-LIVE-14. What remains is clutter in an optional card and in secondary panes, so it is low.
+- **Evidence.** `audits/03-apps/dollywood-live.md:625`; `apps/dollywood-live.html:1464`, `apps/dollywood-live.html:936`; `audits/screens/dollywood-live/coaster-card-typical-ipad-portrait-light.png`, `audits/screens/dollywood-live/search-query-typical-iphone-safari-dark.png`
+- **What happens now.** The ride card's Track button opens the guide's coaster survey card: "Mapped track 936 m" (metric beside feet elsewhere), "Ground under track 1053–1098 ft", "In Planet Coaster 2: Wooden coaster; keep the station fly-through", an OpenStreetMap disclaimer and an elevation chart.
+- **Why it matters.** Engineering detail crowds the family map.
+- **Proposed fix.** The park map hides the build guide's engineering panels (coaster survey, OSM disclaimer, metric track data); Track shows a family-friendly ride card. (Phase 3: IMP-DOLLYWOOD-LIVE-P11, IMP-DOLLYWOOD-LIVE-P16)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 10's checks.
+
+#### UX-DOLLYWOOD-LIVE-5 — Kid mode needs reading
+
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** M · **Batch** 10
+- **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: Waits rows are not left without a reason: each one prints the ride's height requirement in its subline ('55"', '48"'). What is missing is only the 'needs N"' chip that Nearby and Search show. The fade is not kid mode either.
+- **Evidence.** `audits/03-apps/dollywood-live.md:630`; `apps/dollywood-live.html:1532`; `audits/screens/dollywood-live/kid-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/kid-typical-ipad-portrait-dark.png`
+- **What happens now.** A pre-reader's pill shows "Location is off for this site / Allow Location …" (beacon on) or "Rides and the family, live / Kiara · just looking".
+- **Why it matters.** Kids cannot use the map without reading.
+- **Proposed fix.** Kid mode: picture-first pill and Waits (ride art, a height badge "too short" with an icon), no reading needed. (Phase 3: IMP-DOLLYWOOD-LIVE-P10)
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 10's checks.
 
 #### UX-DOLLYWOOD-LIVE-6 — The waits error state says the same thing twice
@@ -5700,20 +5769,12 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 #### UX-TALLY-1 — Reset to zero wipes the count in one tap, with no confirm and no undo, and pre-readers are shown it
 
 - **Area** tally · **Type** usability · **Severity** medium · **Effort** S · **Batch** 11
+- **Verified (step 3).** was medium; skeptics medium and medium. Correction: Minor: "three identical-material buttons" is not exact. Only + and Reset share the glass-strong fill. The minus button uses the lighter --glass and reads darker, and Reset is a pill, not a disc. The substance still holds: nothing about Reset (no icon, no colour) signals that it destroys the count.
 - **Evidence.** `audits/03-apps/tally.md:486`; `apps/tally.html:155`, `apps/tally.html:140`; `audits/evidence/p3/tally/kid-after-reset-ipad-portrait.png`, `audits/screens/tally/kid-typical-iphone-pwa-light.png`
 - **What happens now.** Reset calls `set(0)` at once (`apps/tally.html:155`). As Ezra the count went 13 → 0 with no dialog, no toast and no undo (`audiences.json` kid: `dialogs:[]`, `toast:null`).
 - **Why it matters.** One tap wipes the count, and pre-readers are shown it.
 - **Proposed fix.** Reset shows an Undo toast ("Reset from 37 · Undo") and moves away from + as a smaller ↺ icon; kids get the same undo. (Phase 3: IMP-TALLY-P1, IMP-TALLY-P4)
 - **How it will be verified.** Rerun `node "audits/tools/phase3/tally/audiences.mjs"` — the defect must no longer reproduce; recapture its screens (as cited above) and compare; plus batch 11's checks.
-
-#### UX-TALLY-3 — Counting takes 3 taps from Home, and Home never shows the count
-
-- **Area** tally · **Type** usability · **Severity** medium · **Effort** M · **Batch** 11
-- **Evidence.** `audits/03-apps/tally.md:501`; `apps.json:7`; `audits/evidence/p3/tally/kid-apps-grid-ipad-portrait.png`
-- **What happens now.** Home → Apps → Tally tile → + is 3 taps for Eli on iPhone and Ezra on iPad. Home has no Tally card or button.
-- **Why it matters.** Counting takes 3 taps and Home never shows the count.
-- **Proposed fix.** A wide Home widget with the count and a + button (1 tap to count). (Phase 3: IMP-TALLY-F2)
-- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 11's checks.
 
 #### GAP-TALLY-1 — One counter per person, with no history, step size or feedback sound
 
@@ -5759,6 +5820,16 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Why it matters.** Kids tap + fast. On the iPad each tap pays to re-blur a flat wash that looks the same with or without the blur.
 - **Proposed fix.** Tally's dial and pill become solid; glass stays on + and −.
 - **How it will be verified.** Rerun `node "audits/tools/phase4/GLASS/verify-tally-taps-glass-cost-2.mjs"` — the defect must no longer reproduce; plus batch 11's checks.
+
+#### UX-TALLY-3 — Counting takes 3 taps from Home, and Home never shows the count
+
+- **Area** tally · **Type** usability · **Severity** low · **Effort** M · **Batch** 11
+- **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The item says counting 'misses the brief's target' as if this were a defect. EOU-1 (04-design-system.md:193) is a +1 bonus criterion, and the penalty rule EOU-5 only fires at 4 or more taps, so 3 taps is neutral under the house rubric.
+- **Evidence.** `audits/03-apps/tally.md:501`; `apps.json:7`; `audits/evidence/p3/tally/kid-apps-grid-ipad-portrait.png`
+- **What happens now.** Home → Apps → Tally tile → + is 3 taps for Eli on iPhone and Ezra on iPad. Home has no Tally card or button.
+- **Why it matters.** Counting takes 3 taps and Home never shows the count.
+- **Proposed fix.** A wide Home widget with the count and a + button (1 tap to count). (Phase 3: IMP-TALLY-F2)
+- **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 11's checks.
 
 #### UX-TALLY-4 — VoiceOver hears "Add one" but never the new count
 
@@ -5866,7 +5937,7 @@ Every ID and its batch, sorted by ID.
 | CONS-ACCENT-4 | low | 1 | CONS-COLOR-1 | low | 1 | CONS-COLOR-2 | low | 1 |
 | CONS-COLOR-3 | low | 1 | CONS-COLOR-4 | low | 1 | CONS-DARK-1 | low | 1 |
 | CONS-GLASS-1 | low | 1 | CONS-GLASS-2 | low | 1 | CONS-GLASS-3 | info | 1 |
-| CONS-ICON-1 | medium | 1 | CONS-ICON-2 | low | 1 | CONS-MOTION-1 | low | 1 |
+| CONS-ICON-1 | low | 1 | CONS-ICON-2 | low | 1 | CONS-MOTION-1 | low | 1 |
 | CONS-MOTION-2 | info | 1 | CONS-MOTION-3 | low | 1 | CONS-MOTION-4 | low | 1 |
 | CONS-MOTION-5 | info | 1 | CONS-SHAPE-1 | low | 1 | CONS-SHAPE-2 | low | 1 |
 | CONS-SHAPE-3 | low | 1 | CONS-SHAPE-4 | low | 1 | CONS-SHAPE-5 | low | 1 |
@@ -5875,19 +5946,19 @@ Every ID and its batch, sorted by ID.
 | CONS-TOK-4 | info | 2a | CONS-TYPE-1 | low | 1 | CONS-TYPE-2 | low | 1 |
 | CONS-TYPE-3 | low | 1 | CONS-TYPE-4 | low | 1 | CONS-TYPE-5 | low | 1 |
 | CONS-TYPE-6 | low | 9 | CONS-TYPE-7 | low | 1 | GAP-ACCENT-1 | low | 2a |
-| GAP-CHAT-01 | low | 2b | GAP-CHAT-02 | medium | 0i | GAP-DARK-1 | medium | 1 |
-| GAP-DARK-2 | low | 1 | GAP-DARK-3 | low (ptr) | 1 | GAP-DOLLYWOOD-1 | medium | 9 |
+| GAP-CHAT-01 | low | 2b | GAP-CHAT-02 | medium | 0i | GAP-DARK-1 | low | 1 |
+| GAP-DARK-2 | low | 1 | GAP-DARK-3 | low (ptr) | 1 | GAP-DOLLYWOOD-1 | low | 9 |
 | GAP-DOLLYWOOD-2 | low | 9 | GAP-DOLLYWOOD-LIVE-1 | medium | 10 | GAP-DOLLYWOOD-LIVE-2 | low | 10 |
 | GAP-DOLLYWOOD-LIVE-3 | info | 10 | GAP-DOLLYWOOD-LIVE-4 | low | 10 | GAP-F260-1 | medium | 4 |
-| GAP-GLASS-1 | low | 1 | GAP-HOME-1 | medium | 6 | GAP-HOME-2 | medium | 5 |
-| GAP-ICON-1 | medium | 1 | GAP-ICON-2 | low | 1 | GAP-KIDVERSE-1 | low | 7 |
+| GAP-GLASS-1 | low | 1 | GAP-HOME-1 | medium | 6 | GAP-HOME-2 | low | 5 |
+| GAP-ICON-1 | low | 1 | GAP-ICON-2 | low | 1 | GAP-KIDVERSE-1 | low | 7 |
 | GAP-LEFTOVERS-1 | medium | 8 | GAP-MOTION-1 | low | 1 | GAP-MOTION-2 | info | 1 |
 | GAP-MOTION-3 | low | 1 | GAP-PRAYER-1 | info | 2b | GAP-PRAYER-2 | info | 3 |
 | GAP-PROF-a1 | low | 0d | GAP-PROF-a2 | low | 2a | GAP-SHAPE-1 | low | 1 |
 | GAP-SYNC-a1 | low | 0c | GAP-TALLY-1 | low | 11 | GAP-TELL-1 | low (ptr) | 0b |
 | GAP-TIMER-1 | low | 6 | GAP-TIMER-2 | medium | 6 | GAP-TIMER-3 | medium | 6 |
-| GAP-TOK-1 | medium | 1 | GAP-TOK-2 | medium | 1 | GAP-TOK-3 | medium | 1 |
-| GAP-TOK-4 | medium | 1 | GAP-TOK-5 | medium | 1 | GAP-TOK-6 | low | 1 |
+| GAP-TOK-1 | low | 1 | GAP-TOK-2 | medium | 1 | GAP-TOK-3 | low | 1 |
+| GAP-TOK-4 | low | 1 | GAP-TOK-5 | low | 1 | GAP-TOK-6 | low | 1 |
 | GAP-TOK-7 | low | 1 | GAP-TOK-8 | low | 1 | GAP-TOK-9 | info | 1 |
 | GAP-TYPE-1 | medium | 1 | GAP-TYPE-2 | medium | 1 | GAP-TYPE-3 | low | 1 |
 | GAP-VERSES-1 | medium | 5 | GAP-VERSES-2 | low | 5 | GAP-VERSES-3 | low | 5 |
@@ -5992,28 +6063,28 @@ Every ID and its batch, sorted by ID.
 | PWA-VIS-3 | low (ptr) | 2a | PWA-VIS-4 | low | 2c | UX-CHAT-01 | medium | 2a |
 | UX-CHAT-02 | low | 2a | UX-CHAT-03 | low | 2a | UX-CHAT-04 | low | 2a |
 | UX-CHAT-05 | low | 2a | UX-CHAT-06 | low | 2a | UX-CHAT-07 | low | 2a |
-| UX-DOLLYWOOD-1 | medium | 9 | UX-DOLLYWOOD-2 | medium | 9 | UX-DOLLYWOOD-3 | medium | 9 |
-| UX-DOLLYWOOD-4 | medium | 9 | UX-DOLLYWOOD-5 | medium | 0b | UX-DOLLYWOOD-6 | medium (ptr) | 2a |
+| UX-DOLLYWOOD-1 | low | 9 | UX-DOLLYWOOD-2 | medium | 9 | UX-DOLLYWOOD-3 | low | 9 |
+| UX-DOLLYWOOD-4 | medium | 9 | UX-DOLLYWOOD-5 | medium | 0b | UX-DOLLYWOOD-6 | low (ptr) | 2a |
 | UX-DOLLYWOOD-7 | low | 9 | UX-DOLLYWOOD-8 | low | 9 | UX-DOLLYWOOD-9 | low | 9 |
 | UX-DOLLYWOOD-10 | low | 1 | UX-DOLLYWOOD-11 | low | 9 | UX-DOLLYWOOD-12 | low | 9 |
-| UX-DOLLYWOOD-13 | low | 9 | UX-DOLLYWOOD-14 | info | 9 | UX-DOLLYWOOD-LIVE-1 | medium | 10 |
-| UX-DOLLYWOOD-LIVE-2 | low | 10 | UX-DOLLYWOOD-LIVE-3 | low | 0b | UX-DOLLYWOOD-LIVE-4 | medium | 10 |
-| UX-DOLLYWOOD-LIVE-5 | medium | 10 | UX-DOLLYWOOD-LIVE-6 | low | 10 | UX-DOLLYWOOD-LIVE-7 | low | 10 |
+| UX-DOLLYWOOD-13 | low | 9 | UX-DOLLYWOOD-14 | info | 9 | UX-DOLLYWOOD-LIVE-1 | low | 10 |
+| UX-DOLLYWOOD-LIVE-2 | low | 10 | UX-DOLLYWOOD-LIVE-3 | low | 0b | UX-DOLLYWOOD-LIVE-4 | low | 10 |
+| UX-DOLLYWOOD-LIVE-5 | low | 10 | UX-DOLLYWOOD-LIVE-6 | low | 10 | UX-DOLLYWOOD-LIVE-7 | low | 10 |
 | UX-F260-1 | low | 4 | UX-F260-2 | low | 4 | UX-F260-3 | low | 4 |
 | UX-F260-4 | low | 4 | UX-F260-5 | low | 0b | UX-F260-6 | low | 4 |
 | UX-F260-7 | low | 4 | UX-F260-8 | low | 4 | UX-F260-9 | low | 4 |
 | UX-F260-10 | low | 4 | UX-F260-11 | low | 4 | UX-F260-12 | low | 1 |
-| UX-F260-13 | low | 4 | UX-F260-14 | low | 4 | UX-HOME-1 | high | 2a |
-| UX-HOME-2 | medium | 2c | UX-HOME-3 | medium | 2a | UX-HOME-4 | low | 2a |
-| UX-HOME-5 | low | 2a | UX-HOME-6 | low | 2a | UX-HOME-7 | medium | 2a |
-| UX-HOME-8 | medium | 2a | UX-KIDVERSE-1 | medium | 7 | UX-KIDVERSE-2 | medium | 7 |
+| UX-F260-13 | low | 4 | UX-F260-14 | low | 4 | UX-HOME-1 | medium | 2a |
+| UX-HOME-2 | low | 2c | UX-HOME-3 | low | 2a | UX-HOME-4 | low | 2a |
+| UX-HOME-5 | low | 2a | UX-HOME-6 | low | 2a | UX-HOME-7 | low | 2a |
+| UX-HOME-8 | medium | 2a | UX-KIDVERSE-1 | low | 7 | UX-KIDVERSE-2 | medium | 7 |
 | UX-KIDVERSE-3 | low | 0d | UX-KIDVERSE-4 | low | 7 | UX-KIDVERSE-5 | low | 7 |
 | UX-KIDVERSE-6 | low | 0b | UX-KIDVERSE-7 | low (ptr) | 2a | UX-KIDVERSE-8 | low | 1 |
-| UX-KIDVERSE-9 | low | 7 | UX-KIDVERSE-10 | low | 7 | UX-LEFTOVERS-1 | high | 0h |
-| UX-LEFTOVERS-2 | high | 0h | UX-LEFTOVERS-3 | medium | 8 | UX-LEFTOVERS-4 | medium | 8 |
+| UX-KIDVERSE-9 | low | 7 | UX-KIDVERSE-10 | low | 7 | UX-LEFTOVERS-1 | medium | 0h |
+| UX-LEFTOVERS-2 | medium | 0h | UX-LEFTOVERS-3 | low | 8 | UX-LEFTOVERS-4 | low | 8 |
 | UX-LEFTOVERS-5 | low | 8 | UX-LEFTOVERS-6 | low | 8 | UX-LEFTOVERS-7 | low (ptr) | 2a |
-| UX-LEFTOVERS-8 | low | 8 | UX-LEFTOVERS-9 | low | 8 | UX-PRAYER-1 | medium | 3 |
-| UX-PRAYER-2 | medium | 3 | UX-PRAYER-3 | medium | 3 | UX-PRAYER-4 | medium | 3 |
+| UX-LEFTOVERS-8 | low | 8 | UX-LEFTOVERS-9 | low | 8 | UX-PRAYER-1 | low | 3 |
+| UX-PRAYER-2 | medium | 3 | UX-PRAYER-3 | low | 3 | UX-PRAYER-4 | medium | 3 |
 | UX-PRAYER-5 | low | 3 | UX-PRAYER-6 | low | 3 | UX-PRAYER-7 | low | 3 |
 | UX-PRAYER-8 | low | 0b | UX-PRAYER-9 | low | 3 | UX-PRAYER-10 | low | 3 |
 | UX-PRAYER-11 | low | 3 | UX-PRAYER-12 | low | 3 | UX-PRAYER-13 | low | 3 |
@@ -6021,15 +6092,15 @@ Every ID and its batch, sorted by ID.
 | UX-PROF-a3 | low | 2a | UX-PROF-a4 | low | 2a | UX-PROF-a5 | low | 2a |
 | UX-PROF-a6 | low | 0c | UX-PROF-a7 | low | 0d | UX-PROF-a8 | low | 2a |
 | UX-PROF-a9 | low | 2a | UX-SYNC-a1 | medium | 2a | UX-SYNC-a2 | low | 2c |
-| UX-TALLY-1 | medium | 11 | UX-TALLY-2 | medium (ptr) | 0b | UX-TALLY-3 | medium | 11 |
+| UX-TALLY-1 | medium | 11 | UX-TALLY-2 | low (ptr) | 0b | UX-TALLY-3 | low | 11 |
 | UX-TALLY-4 | low | 11 | UX-TALLY-5 | low | 11 | UX-TALLY-6 | low (ptr) | 11 |
 | UX-TIMER-1 | medium | 6 | UX-TIMER-2 | medium | 6 | UX-TIMER-3 | medium | 6 |
-| UX-TIMER-4 | medium | 6 | UX-TIMER-5 | medium | 6 | UX-TIMER-6 | medium | 6 |
+| UX-TIMER-4 | low | 6 | UX-TIMER-5 | low | 6 | UX-TIMER-6 | low | 6 |
 | UX-TIMER-7 | low | 6 | UX-TIMER-8 | low (ptr) | 2a | UX-TIMER-9 | low (ptr) | 0b |
-| UX-TIMER-10 | low | 6 | UX-VERSES-1 | high | 5 | UX-VERSES-2 | medium | 5 |
-| UX-VERSES-3 | medium (ptr) | 5 | UX-VERSES-4 | low | 5 | UX-VERSES-5 | low | 0b |
+| UX-TIMER-10 | low | 6 | UX-VERSES-1 | medium | 5 | UX-VERSES-2 | low | 5 |
+| UX-VERSES-3 | low (ptr) | 5 | UX-VERSES-4 | low | 5 | UX-VERSES-5 | low | 0b |
 | UX-VERSES-6 | low | 1 | UX-VERSES-7 | low | 1 | UX-VERSES-8 | low | 5 |
-| UX-VERSES-9 | low | 5 | VIS-ACCENT-1 | medium | 1 | VIS-COLOR-1 | medium | 1 |
+| UX-VERSES-9 | low | 5 | VIS-ACCENT-1 | low | 1 | VIS-COLOR-1 | low | 1 |
 | VIS-DARK-1 | low | 1 | VIS-DOLLYWOOD-1 | medium | 9 | VIS-DOLLYWOOD-2 | medium | 9 |
 | VIS-DOLLYWOOD-3 | low | 1 | VIS-DOLLYWOOD-4 | low | 9 | VIS-DOLLYWOOD-5 | low | 1 |
 | VIS-DOLLYWOOD-6 | low | 9 | VIS-DOLLYWOOD-7 | low | 1 | VIS-DOLLYWOOD-8 | low | 9 |
@@ -6040,14 +6111,14 @@ Every ID and its batch, sorted by ID.
 | VIS-DOLLYWOOD-LIVE-4 | low | 10 | VIS-DOLLYWOOD-LIVE-5 | low | 10 | VIS-DOLLYWOOD-LIVE-6 | low | 10 |
 | VIS-DOLLYWOOD-LIVE-7 | low | 1 | VIS-DOLLYWOOD-LIVE-8 | low | 10 | VIS-DOLLYWOOD-LIVE-9 | low | 10 |
 | VIS-DOLLYWOOD-LIVE-10 | low | 10 | VIS-DOLLYWOOD-LIVE-11 | low | 10 | VIS-DOLLYWOOD-LIVE-12 | low | 10 |
-| VIS-DOLLYWOOD-LIVE-13 | low | 10 | VIS-F260-1 | medium | 1 | VIS-F260-2 | medium | 1 |
+| VIS-DOLLYWOOD-LIVE-13 | low | 10 | VIS-F260-1 | medium | 1 | VIS-F260-2 | low | 1 |
 | VIS-F260-3 | low | 4 | VIS-F260-4 | low | 4 | VIS-F260-5 | low | 4 |
 | VIS-F260-6 | low | 4 | VIS-F260-7 | low | 4 | VIS-F260-8 | low | 4 |
 | VIS-F260-9 | low | 4 | VIS-F260-10 | low | 1 | VIS-F260-11 | low | 1 |
 | VIS-F260-12 | low | 4 | VIS-F260-13 | low | 4 | VIS-F260-14 | low | 1 |
 | VIS-F260-15 | low | 4 | VIS-F260-16 | info | 1 | VIS-GLASS-1 | low | 1 |
-| VIS-GLASS-2 | low | 2a | VIS-HOME-1 | medium | 2a | VIS-HOME-2 | low | 2a |
-| VIS-HOME-3 | low | 2a | VIS-ICON-1 | low | 1 | VIS-KIDVERSE-1 | medium | 1 |
+| VIS-GLASS-2 | low | 2a | VIS-HOME-1 | low | 2a | VIS-HOME-2 | low | 2a |
+| VIS-HOME-3 | low | 2a | VIS-ICON-1 | low | 1 | VIS-KIDVERSE-1 | low | 1 |
 | VIS-KIDVERSE-2 | low | 1 | VIS-KIDVERSE-3 | low | 1 | VIS-KIDVERSE-4 | low (ptr) | 1 |
 | VIS-KIDVERSE-5 | low | 7 | VIS-KIDVERSE-6 | low | 1 | VIS-KIDVERSE-7 | low | 1 |
 | VIS-KIDVERSE-8 | low | 1 | VIS-KIDVERSE-9 | low | 7 | VIS-KIDVERSE-10 | low | 1 |
@@ -6060,7 +6131,7 @@ Every ID and its batch, sorted by ID.
 | VIS-PRAYER-7 | low | 1 | VIS-PRAYER-8 | low | 3 | VIS-PRAYER-9 | low | 3 |
 | VIS-PRAYER-10 | low | 1 | VIS-PRAYER-11 | low | 3 | VIS-PROF-a1 | low | 1 |
 | VIS-SHAPE-1 | low | 1 | VIS-SHAPE-2 | low | 1 | VIS-SHAPE-3 | low | 9 |
-| VIS-SHAPE-4 | low (ptr) | 3 | VIS-TALLY-1 | medium | 1 | VIS-TALLY-2 | low | 11 |
+| VIS-SHAPE-4 | low (ptr) | 3 | VIS-TALLY-1 | low | 1 | VIS-TALLY-2 | low | 11 |
 | VIS-TALLY-3 | low | 1 | VIS-TALLY-4 | low | 11 | VIS-TALLY-5 | low | 1 |
 | VIS-TALLY-6 | low | 11 | VIS-TALLY-7 | low | 1 | VIS-TALLY-8 | low | 11 |
 | VIS-TALLY-9 | low | 1 | VIS-TALLY-10 | low | 11 | VIS-TALLY-11 | info | 1 |
@@ -6089,4 +6160,5 @@ The local rig cannot show real Liquid Glass blur, SF Pro and SF Pro Rounded, tou
 - `audits/evidence/p5/registers.json` (the three registers' severities, parsed).
 - `audits/tools/phase5/fixes-shell.mjs`, `fixes-reading.mjs`, `fixes-home-apps.mjs`, `fixes-dollywood.mjs`, `fixes-system.mjs` (the fix, effort and batch of every finding) and `plan-batches.mjs` (the batches).
 - `audits/tools/phase5/build-findings.mjs` (this file).
+- Step 3: `audits/tools/phase5/ux-verify/targets.mjs` (the high and medium UX/VIS/CONS/GAP items → `audits/evidence/p5/ux-verify/targets.json` and `items/<ID>.md`), `ux-verify/verdicts.mjs` (the workflow result → `verdicts.json` and `verdicts.md`), the skeptics' scripts in `audits/tools/phase5/ux-verify/<ID>/` and their outputs in `audits/evidence/p5/ux-verify/<ID>/`.
 - The design preview: `audits/design-preview.html` (its before images in `audits/design-preview-assets/`, made by `audits/tools/phase5/preview-assets.mjs`), its capture area `audits/tools/areas/preview.mjs`, the captures in `audits/screens-preview/`, `audits/tools/phase5/preview-sheets.mjs` (contact sheets without touching `audits/01-capture.md`) and `audits/tools/phase5/preview-check.mjs` (the two-engine check).

@@ -1,0 +1,12 @@
+<!-- audits/03-apps/prayer.md:886 · section "4. Issues and bugs" · area prayer · kind VIS · rated medium -->
+- **VIS-PRAYER-1 — Gold labels, the "shared" pill, done titles and dark nav labels fail contrast** (medium; amended from the visual check).
+  - Rendered p10 contrast:
+    - "Answered recently" (13 px gold on gold-soft): 2.78 Hearth, 3.11 Parchment, 3.30 Frost.
+    - Record answered dates (12.5 px gold): 2.96, 3.24, 3.47.
+    - "shared" pill (11 px teal on teal-soft): 3.64-4.29.
+    - "not prayed in N days" (terra): 4.05.
+    - Unpressed Mine/Family: 4.37-4.45.
+    - Midnight, Forest and System-dark: done row titles (17.5 px muted) 3.24-3.27.
+    - From the visual check: the unselected nav label "Record" (12 px) is 3.56 in Midnight and System-dark and 3.40 in Forest; provisional, because the rig paints the nav without blur.
+  - Kid mode and Settings pass in every palette.
+  - Evidence: `audits/evidence/p3/prayer/contrast.json`; `audits/tools/phase3/prayer/contrast.mjs`; `apps/prayer.html:107-108, 146, 153`; `audits/screens/prayer/today-typical-iphone-pwa-light.png`; `audits/screens/prayer/record-typical-ipad-portrait-dark.png`; `audits/screens/prayer/today-typical-iphone-pwa-dark.png`.
