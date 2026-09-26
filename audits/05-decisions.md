@@ -51,6 +51,14 @@ The owner's answers to D1-D18 (`04-design-system.md`, "Decisions for the househo
   - tests, in the style of `test-hub.mjs`: kitchen writes family data, cannot read or write person scope, and credits the tapped person.
 - **Where it goes.** The data and server half joins batch 0d (security: server-side kind rules). The shell half joins batch 2a, and supersedes that batch's idle-return fix.
 
+#### Plan notes from step 4 (2026-09-26, for the owner to confirm with the preview)
+
+Step 4 planned this as KITCHEN-1 (batch 0d) and KITCHEN-2 (batch 2a) in `05-findings.md`. P2-PROF-09 is closed by them. Three points the answer left open are settled there as follows:
+
+- **The migration is not all additive.** The device role is an added column. But the profile kinds are fixed by a CHECK constraint, `kind IN ('adult','kid','kiosk')` (`worker/schema.sql:9`), and SQLite cannot alter one. Adding `'kitchen'` means rebuilding the `profiles` table: create a new table, copy the rows, drop the old one and rename. The plan does this after the D1 export and checks it row for row. The alternative, reusing the kiosk kind with a flag, would leave every existing "kiosk means TV" check to be reworked, so the plan does not take it.
+- **Timer and Tally store per person** (`apps.json` `scope: person`). "Family scope only" would leave the kitchen with no working Timer or Tally. So the kitchen may also write its **own** person rows, for those two apps only. These rows belong to the kitchen, never to a person. Batch 6's family timers channel (GAP-HOME-1) then shows the kitchen's timer to everyone.
+- **Who is on the face row.** For Prayed, the row shows everyone in the household, kids included, so a kid earns the prayer ★. For finishing a food and adding a photo it shows the adults only. P5-D2 keeps kids read-only in the Larder, the server refuses a kid named on a Larder write, and today only adults can add to the album. Guests, the kitchen and the TV are never on the row.
+
 ### Admin-assigned colours (2026-09-26, amends D3 and D4)
 
 - **The answer.** The admin assigns each profile's colour as they see fit. The D3 set becomes the **starting** colours, and sky becomes the **default** for a new guest. Neither is fixed any more.

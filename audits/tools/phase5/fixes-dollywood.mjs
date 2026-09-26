@@ -96,5 +96,4 @@ export default {
   'VIS-DOLLYWOOD-16': ['A:dollywood', 'S', 'Frame the phone 3D camera on the terrain above the sheet.', 'Mostly sky.'],
   'VIS-DOLLYWOOD-17': ['A:dollywood', 'S', 'Let the toolbar\'s search flex into the first row at 1440 px.', 'Search alone on a second row.'],
   'GAP-DOLLYWOOD-1': ['A:dollywood', 'L', 'The 3D view highlights and frames the current step (read curSec/curIdx), like LEGO Builder\'s step view.', 'The one 3D view never shows what to build.'],
-  'GAP-DOLLYWOOD-2': ['A:dollywood', 'M', 'A read-only "Eli\'s build" view for other adults (family mirror of progress per step).', 'Nobody else can follow the build.'],
 };

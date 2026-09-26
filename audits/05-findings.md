@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. |
-| **Date** | 2026-09-25 |
+| **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
 | **Reproduce** | `node audits/tools/phase5/catalog.mjs` (every finding of Phases 2-4 → `audits/evidence/p5/catalog.json`), `node audits/tools/phase5/remedies.mjs` (the remedies Phases 3-4 proposed), `node audits/tools/phase5/build-findings.mjs` (this file, from `fixes-*.mjs` and `plan-batches.mjs`; it fails if any finding has no fix). |
@@ -14,18 +14,22 @@
 - **Entry fields**, as the constitution asks: ID · Title · Area · Type · Severity · Evidence · What happens now · Why it matters · Proposed fix · Effort · How it will be verified. "Batch" says which Phase 6 commit carries the fix.
 - **Type.** Defects are *bug* (with *security* or *perf* when the finding was filed as such). `UX-*` items are *usability*, `VIS-*` *visual*, `CONS-*` *visual (consistency)*, `GAP-*` *feature gap*. The constitution's fifth type, *improvement*, is the Phase 3 improvement tables: each fix below names the improvement that proposed it (`IMP-<APP>-P|F|I<rank>`), and the 15 improvements that fix no finding are listed as their own entries at the end of their app batch.
 - **Severity.** Defects carry the severity their report confirmed (the registers in `audits/02-shell.md:117-217`, `audits/03-apps.md` and `audits/04-design-system.md` are authoritative), under the rule in `audits/02-shell.md:25-37`: critical = household data lost or silently overwritten through the shipped UI, an account or private content exposed, or an app unusable on the iPad, iPhone or TV. Usability, visual, consistency and gap items that their investigator rated high or medium (71) were each checked by two independent skeptics, with a tie-breaker where they disagreed (step 3, `audits/evidence/p5/ux-verify/verdicts.md`). The severity is the verdict's, and the entry's "Verified" line gives the earlier rating and each vote; 0 refuted items left the list. Items rated low or info keep their investigator's rating, as the household decided (`audits/05-decisions.md`, "Other items").
+- **Household work** (KITCHEN-1, KITCHEN-2): work the household's answers add that no finding filed. Each opens its batch, with the same fields less Severity, and is not in the finding counts.
 - **Pointers.** A finding filed twice keeps both IDs; the pointer's fix says "Pointer to <primary>" and it is not counted again.
 - **Evidence** gives the report entry (`audits/…md:line`, which holds the full evidence, reproduction and verification record), then up to four code lines and two screenshots taken from that entry.
 - **"How it will be verified"** names the entry's own reproduction scripts, which Phase 6 reruns after the fix: the defect's printed observation must flip. The batch adds its capture-rig recapture, measurement rerun and repo tests (section "The plan").
 
 ## Summary
 
-- **623 findings** (577 counted once, 46 pointers): 41 critical, 10 high, 105 medium, 408 low, 13 info. By type: 237 bug, 4 bug (perf), 113 usability, 51 feature gap, 120 visual, 14 bug (security), 38 visual (consistency).
+- **622 findings** (576 counted once, 46 pointers): 41 critical, 10 high, 105 medium, 407 low, 13 info. By type: 237 bug, 4 bug (perf), 113 usability, 50 feature gap, 120 visual, 14 bug (security), 38 visual (consistency).
 - **Every critical defect is pulled forward.** The 41 critical findings sit in the nine 0x batches, ahead of the design work. Most share a few root causes in the SDK: writes before the app's own first load (0b), queued writes dropped or stranded (0c), and whole-map rows under last-write-wins (0e, 0f, 0g).
 - **Then the design system (batch 1)**: the Phase 4 token proposal (`audits/tools/phase4/tokens/proposed-tokens.css`, verified over six rounds: 0 failing pairs, 26/26 planted faults caught, 17 minor issues open), with the shared components every app needs (undo toast, confirm sheet, loading state, pressable, focus ring). It closes most visual and consistency items at once.
 - **Then the shell (2a-2c) and one app per batch** (3-11), in the order the household confirmed (`audits/05-decisions.md`, "App batch order"): 3 Prayer, 4 F260 Reading Plan, 5 Verses, 6 Kitchen timer, 7 Kid Verse, 8 Larder Ledger, 9 Dollywood build guide, 10 Dollywood park map, 11 Tally counter.
 - **The design preview** (`audits/design-preview.html`) renders the proposed token set live: the house pastels with their computed contrast in light and dark, the type scale, glass over busy content, tiles at phone and iPad density, the household's accents side by side, and a before/after of Prayer, the most-used app. Its captures are in `audits/screens-preview/`.
-- **Decisions for the household.** Phase 6 needs the owner's answers to D1-D18 (from Phase 4) and P5-D1-P5-D9 (below) before batch 1. The preview shows each colour and type choice.
+- **The household has answered every decision** (D1-D18 from Phase 4, P5-D1-P5-D9 below; `audits/05-decisions.md`, 2026-09-25, and admin-assigned colours, 2026-09-26). Where an answer differs from a recommendation, the answer wins and this plan follows it: the D3 colour set as the starting colours with the admin free to assign any of the 18 families, guests sky by default (D4), nine separate app hues (D5), four glass levels with Frosted the default (D8), the TV's 10-foot scale on in 2c (D16), and the Kitchen device in place of an idle return (P5-D5).
+- **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
+- **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
+- **What is left before Phase 6:** the owner approves the rebuilt preview (`audits/05-decisions.md`, "Before Phase 6 can start", item 5). Batch 0a follows.
 
 ## The plan
 
@@ -36,14 +40,14 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 1 | **0a** | The hub boots with Reduce Motion on | 1 (1 / 0 / 0 / 0 / 0) | S | — |
 | 2 | **0b** | SDK: no write before the first load, safe migration, one household day | 36 (10 / 1 / 7 / 18 / 0) | L | — |
 | 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — |
-| 4 | **0d** | Security: accounts, private content, stored script, kid safety | 15 (3 / 4 / 3 / 5 / 0) | M | — |
+| 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — |
 | 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c |
 | 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c |
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | the household's decisions D1-D18 and P5-D1-P5-D9 (below) |
-| 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles | 45 (0 / 1 / 7 / 36 / 1) | L | 1 |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | the owner's approval of the rebuilt design preview (audits/05-decisions.md, "Before Phase 6 can start", item 5); the decisions themselves are answered |
+| 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 |
 | 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a |
@@ -52,7 +56,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a |
 | 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a |
 | 19 | **8** | Larder Ledger | 16 (0 / 0 / 2 / 14 / 0) | M | 1, 2a |
-| 20 | **9** | Dollywood build guide | 48 (0 / 0 / 10 / 37 / 1) | L | 1, 2a |
+| 20 | **9** | Dollywood build guide | 47 (0 / 0 / 10 / 36 / 1) | L | 1, 2a |
 | 21 | **10** | Dollywood park map | 42 (0 / 0 / 13 / 28 / 1) | L | 1, 2a |
 | 22 | **11** | Tally counter | 14 (0 / 0 / 1 / 13 / 0) | M | 1, 2a |
 
@@ -66,7 +70,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 6 | Kitchen timer | 3 | several times a day around meals (timer.md §1) | 24 | 33 | 99 |
 | 7 | Kid Verse | 2 | both kids daily (kidverse.md §1) | 16 | 21 | 42 |
 | 8 | Larder Ledger | 2 | about one log and one finish a day in the app; the Home card carries the glances (leftovers.md §1) | 16 | 18 | 36 |
-| 9 | Dollywood build guide | 0.4 | Eli, a few build sessions a week (dollywood.md §1) | 48 | 57 | 22.8 |
+| 9 | Dollywood build guide | 0.4 | Eli, a few build sessions a week (dollywood.md §1) | 47 | 56 | 22.4 |
 | 10 | Dollywood park map | 0.2 | park days only, then heavily (dollywood-live.md §1) | 42 | 54 | 10.8 |
 | 11 | Tally counter | 0.5 | occasional bursts (tally.md §1) | 14 | 15 | 7.5 |
 
@@ -92,12 +96,13 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 - **Backup.** Export the production D1 first (the Worker starts clamping future timestamps).
 - **Verification.** each entry's reproduction script; node "audits/tools/phase2/SYNC/verify-batch-over-200-dropped-1.mjs"; scripts/test-hub.mjs (offline write → flush, kiosk read-only); scripts/smoke-api.sh against the local Worker (120 checks). Name anything not verified; a visual finding is marked FIXED only with an after-screenshot (constitution, Phase 6).
 
-#### Batch 0d — Security: accounts, private content, stored script, kid safety
+#### Batch 0d — Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules
 
-- **Why now.** An account (the admin's included) can be taken over after any Reset PIN or by brute force with the pairing code; a guest name can run script in everyone's park map and replay the admin's tokens; private prayer titles reach the family feed and the TV; a guest can switch a child's location beacon.
-- **Files.** worker/src/index.js, worker/src/auth.js, worker/src/data.js, worker/src/chat.js, apps/hub.js, index.html, apps/prayer.html (escaping only; layout and ids stay), ../dollywood-build-project/scripts/template.html → both exports
-- **Backup.** Export the production D1 before the additive migration (a PIN-claim table or column; per-profile rate-limit keys).
-- **Verification.** each entry's reproduction script (the XSS scripts must find no live node; the takeover and brute-force scripts must be refused); scripts/smoke-api.sh (PIN flows, rate limits, admin 403s, guests, rally); scripts/test-guests.mjs, test-prayer-faces.mjs. Name anything not verified; a visual finding is marked FIXED only with an after-screenshot (constitution, Phase 6).
+- **Why now.** An account (the admin's included) can be taken over after any Reset PIN or by brute force with the pairing code; a guest name can run script in everyone's park map and replay the admin's tokens; private prayer titles reach the family feed and the TV; a guest can switch a child's location beacon. The Kitchen device's server rules (KITCHEN-1) belong here too: which kind may write what is a security rule.
+- **Household work.** KITCHEN-1 (first under this batch in "Findings, by batch").
+- **Files.** worker/src/index.js, worker/src/auth.js, worker/src/data.js, worker/src/chat.js, worker/migrations/ (PIN claim, kitchen), worker/schema.sql, worker/seed.sql, scripts/smoke-api.sh and a new kitchen test in scripts/ (KITCHEN-1), CLAUDE.md, apps/hub.js, index.html, apps/prayer.html (escaping only; layout and ids stay), ../dollywood-build-project/scripts/template.html → both exports
+- **Backup.** Export the production D1 before the migrations: the PIN claim (a table or column; per-profile rate-limit keys, additive) and the kitchen one (KITCHEN-1: an additive device role, and a rebuild of `profiles` to widen its kind CHECK). They take the next free numbers from 006.
+- **Verification.** each entry's reproduction script (the XSS scripts must find no live node; the takeover and brute-force scripts must be refused); scripts/smoke-api.sh (PIN flows, rate limits, admin 403s, guests, rally); scripts/test-guests.mjs, test-prayer-faces.mjs; test-kitchen.mjs (new, KITCHEN-1). Name anything not verified; a visual finding is marked FIXED only with an after-screenshot (constitution, Phase 6).
 
 #### Batch 0e — F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt
 
@@ -139,17 +144,18 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 #### Batch 1 — Design tokens, design.css and shared components
 
 - **Why now.** Most visual findings share causes in the token layer: mid-tone hues used as text, one light-theme hex per person, no iPad type tier, glass without Reduce Transparency, focus rings that vanish. Phase 4 measured them across 3,662 screen x theme x device jobs and proposed one verified token set.
-- **Files.** apps/design.css (token half replaced by audits/tools/phase4/tokens/proposed-tokens.css; component half moved onto roles), apps/hub.js (theme, accent, preferences, bootstrap), a new additive migration, 006-profile-hue.sql, under worker/migrations/, the tests that hard-code page colours; the Phase 4 batch-1a pre-pass rows in every app
-- **Needs first.** the household's decisions D1-D18 and P5-D1-P5-D9 (below).
-- **Backup.** Export the production D1 before 006-profile-hue.sql (additive column).
+- **Files.** apps/design.css (token half replaced by audits/tools/phase4/tokens/proposed-tokens.css; component half moved onto roles), apps/hub.js (theme, accent, preferences, bootstrap), a new additive migration, `<n>-profile-hue.sql` under worker/migrations/ (Phase 4 named it 006; batch 0d's migrations land first, so it takes the next free number), the tests that hard-code page colours; the Phase 4 batch-1a pre-pass rows in every app
+- **Needs first.** the owner's approval of the rebuilt design preview (audits/05-decisions.md, "Before Phase 6 can start", item 5); the decisions themselves are answered.
+- **Backup.** Export the production D1 before the profile-hue migration (additive column).
 - **Verification.** node audits/tools/phase4/tokens/contrast.mjs (0 failing) and browser-check.mjs; the measurement rig after the change: node audits/tools/phase4/measure.mjs --run themes|devices|states --out … then aggregate.mjs, compared with the committed audits/evidence/p4/measure/*.json; capture rig, all areas: node audits/tools/capture.mjs --out audits/screens-after/… (one folder per batch), then pxdiff against audits/screens; scripts/test-design.mjs, screens-themes.mjs, screens-apps.mjs, screens-shell.mjs, test-prefs.mjs; rescore the rubric for every row (the Phase 4 scorecard method). Name anything not verified; a visual finding is marked FIXED only with an after-screenshot (constitution, Phase 6).
 
-#### Batch 2a — Hub shell: Home, Apps, Me, Chat, profiles
+#### Batch 2a — Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device
 
 - **Why now.** The shell is what every household member sees first, many times a day, on the always-on Kitchen iPad.
-- **Files.** index.html, apps/hub.js
-- **Needs first.** 1.
-- **Verification.** each entry's reproduction script; capture rig: --area shell --out audits/screens-after/… + pxdiff; scripts/test-hub.mjs, test-home.mjs, test-apps.mjs, test-guests.mjs, test-photos.mjs, test-timer.mjs, screens-shell.mjs. Name anything not verified; a visual finding is marked FIXED only with an after-screenshot (constitution, Phase 6).
+- **Household work.** KITCHEN-2 (first under this batch in "Findings, by batch").
+- **Files.** index.html, apps/hub.js; for the Kitchen face sheet (KITCHEN-2), the calls in apps/prayer.html (data code only; layout and ids stay) and apps/leftovers.html, the kitchen test's UI half, CLAUDE.md
+- **Needs first.** 1, 0d (KITCHEN-1).
+- **Verification.** each entry's reproduction script; capture rig: --area shell --out audits/screens-after/… + pxdiff; scripts/test-hub.mjs, test-home.mjs, test-apps.mjs, test-guests.mjs, test-photos.mjs, test-timer.mjs, test-kitchen.mjs, screens-shell.mjs. Name anything not verified; a visual finding is marked FIXED only with an after-screenshot (constitution, Phase 6).
 
 #### Batch 2b — Worker: push, reminders, chat and PWA
 
@@ -209,7 +215,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### Batch 9 — Dollywood build guide
 
-- **Why now.** Dollywood build guide is used Eli, a few build sessions a week (dollywood.md §1); 48 open findings remain after the critical batches.
+- **Why now.** Dollywood build guide is used Eli, a few build sessions a week (dollywood.md §1); 47 open findings remain after the critical batches.
 - **Files.** ../dollywood-build-project/scripts/template.html → apps/dollywood.html
 - **Needs first.** 1, 2a.
 - **Verification.** each entry's reproduction script; capture rig: node audits/tools/capture.mjs --area dollywood --out audits/screens-after/… (one folder per batch), then pxdiff against audits/screens; the measurement rig for this area: node audits/tools/phase4/measure.mjs --area dollywood --run themes (then aggregate.mjs) and compare with audits/evidence/p4/measure/; scripts/test-dollywood-sync.mjs; the sibling repo's verify.py; rescore this app's rubric row (the Phase 4 scorecard method) and record the change. Name anything not verified; a visual finding is marked FIXED only with an after-screenshot (constitution, Phase 6).
@@ -230,26 +236,26 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 ### Rules that hold in every batch
 
-- **Backups and migrations.** Before any batch that changes stored data shape or schema (0b, 0c, 0d, 0e, 0f, 0g, 1), export the production D1 (`npx wrangler d1 export house-hub --remote --output <file>`) and record where it is. Migrations are additive (`worker/migrations/`, `schema.sql` kept in sync). Row reshaping (per-item rows in 0e-0g) is done by the client on first open after the fix, and the old rows stay readable until every device has moved.
+- **Backups and migrations.** Before any batch that changes stored data shape or schema (0b, 0c, 0d, 0e, 0f, 0g, 1), export the production D1 (`npx wrangler d1 export house-hub --remote --output <file>`, pre-approved by the household), check the file and keep it local and git-ignored. Migrations are additive (`worker/migrations/`, `schema.sql` kept in sync), with one exception: KITCHEN-1 rebuilds `profiles` to widen its kind CHECK, verified row for row against the export. Row reshaping (per-item rows in 0e-0g) is done by the client on first open after the fix, and the old rows stay readable until every device has moved.
 - **Protected files.** `apps/prayer.html` and `apps/f260.html` keep their layouts and element ids; their fixes are data code, copy and token restyling (CLAUDE.md). The Dollywood pair is changed only in `../dollywood-build-project/scripts/template.html`, rebuilt, checked with `verify.py`, then exported. No build step, bundler or framework.
 - **After each batch** (constitution, Phase 6): rerun the capture rig for every affected screen into an after-run folder (`audits/screens-after/…`, git-ignored like the baseline) and compare with the Phase 1 baseline (`audits/tools/lib/pxdiff.mjs`); rescore the rubric for what changed; rerun the repo tests; update this file's entries with FIXED / PARTIAL / DEFERRED / NEEDS DEVICE CHECK and the commit hash.
 - **Declined features** stay out: no kid routines/stars app and no shared grocery list; the Kid Verse and Tally fixes add no reward or routine system, and the Larder fixes do not make it a shopping list.
 
 ## Decisions for the household
 
-Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisions for the household"): System's day palette, Graphite, who gets which colour, guests' colour, app tile hues, bold titles instead of serif, 17 px body, glass opacity, icon corners, the celebration spring, the accessibility switches, park-map colours, Prayer's fonts, Forest's gold, dark primary buttons, the TV scale, F260's text size, and the TV crossfade. The design preview shows the colour, type and glass choices. Phase 5 adds:
+**All answered.** The owner answered D1-D18 (`audits/04-design-system.md`, "Decisions for the household") and the nine below on 2026-09-25, and amended D3 and D4 on 2026-09-26 (the admin assigns every profile's colour). The answers, and what each changes in the plan, are in `audits/05-decisions.md`; they override this report's recommendations. The rebuilt design preview shows the colour, type and glass answers.
 
-| # | Decision | Recommendation | Alternative |
-|---|---|---|---|
-| P5-D1 | Base of the token proposal. The judges' totals were migration 142, fidelity 140, access 133; because of an orchestration error the synthesis was built on fidelity with migration's compatibility layer grafted on (`audits/04-design-system.md`, "How the set was assembled"). | Keep the synthesis as built: it already carries every migration strength the judges named, and it is the version verified over six rounds. | Rebuild on the migration proposal (then re-verify from round 1). |
-| P5-D2 | Kids in the Larder (P3-LEFTOVERS-13, UX-LEFTOVERS-2). | A read-only picture view for kids (food cards with art and freshness colour, no ✓, no add bar). | Hide the Larder from kids (add a visibleTo without ezra and kiara). |
-| P5-D3 | Chat writes (GAP-CHAT-02, P2-CHAT-01). | Act at once with an Undo on the chip for 30 s (as iOS does). | Confirm every write before it happens. |
-| P5-D4 | How a reset PIN is reclaimed (P2-PROF-04). | The admin's Reset shows a one-time code, valid 24 h, that the person enters before choosing a new PIN. | The admin sets a temporary PIN that must be changed on first use. |
-| P5-D5 | Idle return on the shared Kitchen iPad (P2-PROF-09). | Back to the picker after 10 minutes without a touch; the TV is exempt. | 30 minutes, or off. |
-| P5-D6 | Tally's Reset (UX-TALLY-1). | Undo toast, no confirm; a smaller ↺ away from +. | A confirm sheet. |
-| P5-D7 | Notifications for kids (P2-PROF-16). | Off: kids cannot subscribe. | Allowed, for the Kid Verse reminder only. |
-| P5-D8 | Guests' rights (P3-DOLLYWOOD-LIVE-02, UX-KIDVERSE-3, PWA-UX-2). | Guests use the apps but cannot switch kids' beacons, step the family week or receive household pushes. | Treat guests as adults everywhere. |
-| P5-D9 | A "Timer done" alert on a locked phone (PWA-GAP-1). | A server-scheduled push at endAt (a Worker alarm); the one new moving part in the plan. | Keep local-only alerts and say so in the Timer. |
+| # | Decision | Recommendation | Alternative | Answer |
+|---|---|---|---|---|
+| P5-D1 | Base of the token proposal. The judges' totals were migration 142, fidelity 140, access 133; because of an orchestration error the synthesis was built on fidelity with migration's compatibility layer grafted on (`audits/04-design-system.md`, "How the set was assembled"). | Keep the synthesis as built: it already carries every migration strength the judges named, and it is the version verified over six rounds. | Rebuild on the migration proposal (then re-verify from round 1). | Keep the synthesis |
+| P5-D2 | Kids in the Larder (P3-LEFTOVERS-13, UX-LEFTOVERS-2). | A read-only picture view for kids (food cards with art and freshness colour, no ✓, no add bar). | Hide the Larder from kids (add a visibleTo without ezra and kiara). | Read-only picture view; the server refuses kid writes |
+| P5-D3 | Chat writes (GAP-CHAT-02, P2-CHAT-01). | Act at once with an Undo on the chip for 30 s (as iOS does). | Confirm every write before it happens. | Act at once, Undo for 30 s |
+| P5-D4 | How a reset PIN is reclaimed (P2-PROF-04). | The admin's Reset shows a one-time code, valid 24 h, that the person enters before choosing a new PIN. | The admin sets a temporary PIN that must be changed on first use. | One-time code, 24 h |
+| P5-D5 | Idle return on the shared Kitchen iPad (P2-PROF-09). | Back to the picker after 10 minutes without a touch; the TV is exempt. | 30 minutes, or off. | **Replaced:** a shared Kitchen mode for that iPad with no personal sign-ins (KITCHEN-1, KITCHEN-2) |
+| P5-D6 | Tally's Reset (UX-TALLY-1). | Undo toast, no confirm; a smaller ↺ away from +. | A confirm sheet. | Undo toast |
+| P5-D7 | Notifications for kids (P2-PROF-16). | Off: kids cannot subscribe. | Allowed, for the Kid Verse reminder only. | Off |
+| P5-D8 | Guests' rights (P3-DOLLYWOOD-LIVE-02, UX-KIDVERSE-3, PWA-UX-2). | Guests use the apps but cannot switch kids' beacons, step the family week or receive household pushes. | Treat guests as adults everywhere. | Apps, not household |
+| P5-D9 | A "Timer done" alert on a locked phone (PWA-GAP-1). | A server-scheduled push at endAt (a Worker alarm); the one new moving part in the plan. | Keep local-only alerts and say so in the Timer. | Server push at endAt |
 
 ## Findings, by batch
 
@@ -855,7 +861,24 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/02-shell.md:2584`; `index.html:1063`, `apps/hub.js:381`, `worker/src/index.js:398-400`
 - **Proposed fix.** Pointer to P2-PWA-06.
 
-### Batch 0d — Security: accounts, private content, stored script, kid safety (17)
+### Batch 0d — Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules (17 + 1 household work)
+
+#### KITCHEN-1 — Kitchen device, data and server half: a device role, a kitchen profile kind, and server rules for what a kitchen session may write
+
+- **Area** shell / platform (Kitchen device) · **Type** household work (P5-D5 as answered) · **Effort** M · **Batch** 0d
+- **Evidence.** `audits/05-decisions.md:42`; `worker/schema.sql:9`, `worker/src/auth.js:110`, `worker/src/index.js:231`, `worker/src/index.js:470`
+- **What happens now.** The only shared kinds are adult, kid and kiosk (`worker/schema.sql:9`); the kiosk cannot write at all (`worker/src/auth.js:110`), so the Kitchen iPad today is signed in as a person, and whoever picks it up inherits that person (P2-PROF-09). A paired device has no role (the `devices` table in `worker/schema.sql`), and `POST /api/login` lets any paired device sign in as any profile (`worker/src/index.js:231`).
+- **Why it matters.** The household chose a shared Kitchen mode for the counter iPad instead of an idle return (P5-D5 as answered): family apps with no personal sign-ins. Only the server can make that hold; a client-only mode is one crafted request away from a personal session.
+- **Proposed fix.**
+  - A migration, with the D1 export first: `devices.role` (NULL or `'kitchen'`, `ADD COLUMN`, additive), and `'kitchen'` added to the profile kinds, plus one seeded kitchen profile. SQLite cannot alter a CHECK constraint, so widening `kind IN ('adult','kid','kiosk')` (`worker/schema.sql:9`) means SQLite's table rebuild of `profiles` (new table, copy, drop, rename, in one batch). It is the plan's one non-additive schema step; it is checked by row counts and a column-by-column compare before and after, and `schema.sql` follows. `sessions.profile_id` has no foreign key, so sessions survive it.
+  - Login: a device whose role is kitchen can sign in only as the kitchen profile, with no PIN; the kitchen profile can sign in only from such a device (`worker/src/index.js:231`). Nobody picks a person there.
+  - Writes: a kitchen session may write family scope (Larder, the family prayer list, family reminders, the album), and person scope only under its own profile id and only for Timer and Tally, which store `scope: person` today (`apps.json`), until batch 6's family timers channel (GAP-HOME-1). It can read no one's person scope. Chat and admin refuse it, as they refuse the kiosk (`worker/src/chat.js:391`, `requireAdmin` in `worker/src/auth.js`); push subscription refuses it too, a new rule, since today it checks only for a profile (`worker/src/index.js:410-412`).
+  - The kitchen profile is not a person: `GET /api/profiles` marks it so every picker leaves it out (the server refuses its sign-in there anyway), `hub.people()` and the face sheet skip it, the admin's Reset PIN refuses it, and Edit accepts only its colour (the admin assigns every profile's colour, `audits/05-decisions.md`, "Admin-assigned colours"), not its name, kind or PIN.
+  - The device learns its role: `GET /api/device` (device token only) returns `{ role }`. The shell asks at boot and after any 401; on a kitchen device it signs in as the kitchen profile instead of showing the picker. So a device whose role is set while it holds a personal session moves to the kitchen on its next request.
+  - Attribution: a write from a kitchen session that credits someone (a name added to a family prayer's `prayedBy[date]`, `apps/prayer.html:1599-1601`; the person an activity line such as "Finished the soup" is filed under, `apps/leftovers.html:308-309`, which the Worker today takes from the session; the `by` of an album photo, `worker/src/index.js:361-369`, where only adults may add today) must name a household profile (not a guest, not the kitchen or the TV); the Worker checks it against `profiles` and refuses anything else, and refuses a kid named on a Larder write (P5-D2: kids are read-only there). Kid Verse's prayer credit already reads those names (`apps/kidverse.html:426-430`), so a kid who taps their face earns that day's prayer star with no Kid Verse change.
+  - Role changes: `PUT /api/admin/devices/:id/role`, from the admin's own session on another device, with a fresh admin PIN check. Setting kitchen ends that device's other sessions; clearing it ends the device's kitchen session, and the Worker also refuses a kitchen session on any request from a device that is no longer a kitchen. So the next request gets a 401, `GET /api/device` answers no role, and the shell shows the picker. The admin's kind editor (`worker/src/index.js:470`) does not offer kitchen: a profile becomes the kitchen only through the seed.
+  - CLAUDE.md in the same commit: the kitchen profile in "Profiles", the kitchen rules in "How the hub works", and `test-kitchen.mjs` in the Tests table.
+- **How it will be verified.** a new kitchen test, `test-kitchen.mjs` in the repo scripts folder, in the style of `test-hub.mjs`: the kitchen device writes family data; it cannot read or write any person's scope; it cannot sign in as a person, and no other device can sign in as the kitchen; a face tap on Prayed credits the tapped person (Ezra's prayer star appears after Kid Verse opens); a name outside the household is refused; new `scripts/smoke-api.sh` cases: the role endpoint is admin only and needs the PIN; kitchen chat, push and admin calls get 403; the kitchen is absent from `GET /api/profiles`' picker list; a kid named on a Larder write is refused; after the role is cleared, the old kitchen session gets 401; the migration on a copy of the production export: same row count and same values in every `profiles` column before and after; plus batch 0d's checks.
 
 #### P2-PROF-04 — After any Reset PIN, any paired device can create that adult's PIN and take over the account, admin included
 
@@ -2641,7 +2664,21 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/03-apps/kidverse.md:710`; `apps/kidverse.html:55`, `apps/design.css:89`; `audits/evidence/p3/kidverse/verify-critic-star-buttons-not-gold-5-1-ezra-hearth-done.png`, `audits/evidence/p3/kidverse/visual-C-kid-midnight-top.png`
 - **Proposed fix.** Pointer to P3-KIDVERSE-14. (Phase 3: IMP-KIDVERSE-P4)
 
-### Batch 2a — Hub shell: Home, Apps, Me, Chat, profiles (56)
+### Batch 2a — Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device (56 + 1 household work)
+
+#### KITCHEN-2 — Kitchen device, shell half: no picker, no Me tab, the family apps only, and a face-tap sheet for credit
+
+- **Area** shell / platform (Kitchen device) · **Type** household work (P5-D5 as answered) · **Effort** M · **Batch** 2a
+- **Evidence.** `audits/05-decisions.md:42`; `index.html:478-481`, `index.html:1704-1706`, `apps/prayer.html:1599-1601`, `worker/src/index.js:549`
+- **What happens now.** A paired device with no stored session opens on the profile picker (`index.html:1704-1706`), and Switch returns any device to it; the Apps list is per person, with the kiosk seeing none (`index.html:478-481`). An action that credits someone credits the signed-in person: Prayed adds `hub.profile.name` (`apps/prayer.html:1599-1601`). Admin → Devices can only unpair (`worker/src/index.js:549`).
+- **Why it matters.** This is what the family sees on the counter iPad all day. It replaces the idle return that P2-PROF-09 proposed: with no personal sign-in on the Kitchen iPad, there is nothing to time out.
+- **Proposed fix.**
+  - A kitchen device never shows the picker: at boot and after any 401 the shell asks `GET /api/device` (KITCHEN-1) and, on a kitchen device, signs in as the kitchen. It opens on a kitchen Home (the calm, glanceable layout of UX-HOME-1: the running timer, food to eat soon, today's family prayers, reminders) with no Me tab and no Chat tab.
+  - Its Apps list is fixed: Larder, Prayer (the family list only, adult-sized: no private lists), Timer and Tally. `visibleApps` gets a kitchen branch next to the kiosk's (`index.html:478-481`). The family album is a Home card with an Add button.
+  - `hub.whoDidThis()`: a sheet with a row of the household's faces, no PIN, returning the chosen profile. Prayer's Prayed shows everyone in the household, kids included; the Larder's finish and the album's Add show the adults only (P5-D2; the album admits adults today). They send the chosen person instead of `hub.profile`. It is attribution, not a sign-in: nothing else changes hands. Prayer changes only in data code (its layout and ids stay, CLAUDE.md); the sheet is the SDK's overlay.
+  - Admin → Devices gains "Kitchen" per device, set and cleared only from the admin panel on Eli's own devices, confirmed with the admin PIN (KITCHEN-1's endpoint). The kitchen device itself has no way in to admin, as the decision says.
+  - CLAUDE.md in the same commit: the kitchen shell in "How the hub works" and the kitchen device in "Admin operations".
+- **How it will be verified.** `test-kitchen.mjs` (UI half): no picker and no Me or Chat tab at 390, 820 and 1280; only the four apps; Prayed, finish and the album's Add open the face sheet, and the chosen person shows on another device's list and in the feed; the Larder's sheet has no kids; the kitchen is in no other device's picker; the role set while the iPad holds Eli's session moves it to the kitchen Home on its next request, with no picker; clearing the role puts it on the picker on its next request, and it can no longer act as the kitchen; setting and clearing the role from Admin → Devices refuses a wrong PIN; capture rig: a kitchen state for the shell area (`--area shell`), into the batch 2a after-run folder; plus batch 2a's checks.
 
 #### P2-HOME-01 — A half-typed family reminder is erased by the routine 30 s pull
 
@@ -2667,8 +2704,8 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/02-shell.md:1361`; `index.html:1704-1706`, `index.html:1282`, `index.html:1711`, `apps/f260.html:2038-2049`
 - **What happens now.** At boot, a stored session goes straight to the shell (index.html:1704-1706). The only exits are the manual Switch (index.html:1282), a 401, the kiosk's Switch (1133) and a guest's expiry. The session survives a PWA relaunch.
 - **Why it matters.** whoever picks up the kitchen iPad inherits an adult's unrestricted chat and private prayer list and, for Eli, the admin panel.
-- **Proposed fix.** Idle return on shared devices: after N minutes without a touch (default 10, admin-set, decision P5-D5), the Kitchen iPad returns to the picker; adults need their PIN again; the TV is exempt.
-- **How it will be verified.** Rerun `node "audits/tools/phase2/PROF/verify-no-idle-signout-2.mjs"` — the defect must no longer reproduce; plus batch 2a's checks.
+- **Proposed fix.** Closed by the Kitchen device (KITCHEN-1 in 0d, KITCHEN-2 in 2a), which replaces the idle return this entry first proposed (P5-D5 as answered, `audits/05-decisions.md:42`): the Kitchen iPad signs in only as the kitchen, the server refuses a personal sign-in there, and whoever picks it up gets the family apps, never an adult's chat, private prayers or admin panel. No idle timer; the TV is unchanged.
+- **How it will be verified.** The Phase 2 script `audits/tools/phase2/PROF/verify-no-idle-signout-2.mjs` signs Eli in on an ordinary device and keeps the session for 12 h; with no idle timer it will still do so, so it is not the check. The check is the kitchen test (KITCHEN-1, KITCHEN-2): the kitchen device cannot sign in as any person (Eli included), and its session gets 403 on chat, private prayer rows and admin; plus batch 2a's checks.
 
 #### P2-PWA-05 — "Around the house" loads once per page session
 
@@ -2696,7 +2733,7 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/02-shell.md:546`; `apps/design.css:22-24`
 - **What happens now.** Only the greeting reaches H2 at 2 m, and nothing reaches H1.
 - **Why it matters.** The Kitchen iPad is read from across the room; today its key numbers are 2-3 mm tall.
-- **Proposed fix.** Glance roles from the proposed tokens (`--fs-glance-1/2/3`, 44-96 px) for Home's key numbers on the iPad, and a calm "kitchen" layout when idle: today's reading, the running timer, food to eat soon.
+- **Proposed fix.** Glance roles from the proposed tokens (`--fs-glance-1/2/3`, 44-96 px) for Home's key numbers on the iPad, and a calm "kitchen" layout when idle: today's reading, the running timer, food to eat soon. On the Kitchen device that layout is its Home (KITCHEN-2).
 - **How it will be verified.** Rerun `node "audits/tools/phase2/HOME/glance.mjs"` — the defect must no longer reproduce; recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
 
 #### UX-HOME-8 — One tap on ✓ deletes a household reminder, with no undo
@@ -4924,7 +4961,7 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 |---|---|---|---|---|---|
 | IMP-LEFTOVERS-I1 | Swipe to finish, plus "someone ate some": an iOS-style trailing swipe (keeping the ✓ for grandparents) and a "half left" state instead of all-or-nothing | idea | 3 | M | `audits/03-apps/leftovers.md:1046` |
 
-### Batch 9 — Dollywood build guide (49)
+### Batch 9 — Dollywood build guide (48)
 
 #### P3-DOLLYWOOD-03 — On phones the … menu opens out of the sheet: Export and Import cannot be reached, and only a sliver of Reset can
 
@@ -5038,15 +5075,6 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 - **Why it matters.** The one 3D view never shows what to build.
 - **Proposed fix.** The 3D view highlights and frames the current step (read curSec/curIdx), like LEGO Builder's step view. (Phase 3: IMP-DOLLYWOOD-I2)
 - **How it will be verified.** recapture its screens (as cited above) and compare; plus batch 9's checks.
-
-#### GAP-DOLLYWOOD-2 — No shared, read-only view of a build
-
-- **Area** dollywood · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 9
-- **Evidence.** `audits/03-apps/dollywood.md:775`; `apps.json:9`, `apps/dollywood.html:1062`
-- **What happens now.** Progress is one person's row (`apps.json:9` scope `person`; `apps/dollywood.html:1062`), so another adult cannot follow Eli's build, as LEGO's Build Together allows.
-- **Why it matters.** Nobody else can follow the build.
-- **Proposed fix.** A read-only "Eli's build" view for other adults (family mirror of progress per step). (Phase 3: IMP-DOLLYWOOD-I3)
-- **How it will be verified.** recapture its screens (capture area dollywood) and compare; plus batch 9's checks.
 
 #### P3-DOLLYWOOD-08 — Sitting idle in 2D, the step highlight's infinite pulse keeps the main thread busy (15.8-27.7% in Chromium)
 
@@ -5917,12 +5945,12 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 | `palette` | The eight house pastels plus Graphite and the three semantic families, light and dark: ink on fill, the label on the strong fill, ink on the card, the graphic mark and the tile glyph, each with its computed ratio; and the constitution's eight starting pairs from their literal hex. |
 | `neutrals` | Page, card, well, text, secondary, tertiary and field border for Hearth, Parchment, Frost, Midnight, Forest and the proposed Graphite. |
 | `type` | The Dynamic Type roles, their sizes for the phone, the iPad tier, kid mode, the TV today and the TV 10-foot scale, the rounded numerals and the glance roles. |
-| `glass` | A bar, a pill, a floating button, a sheet and a tab bar over the park map's illustrated art, light and dark, and with Reduce Transparency. |
-| `tiles` | App tiles at iPhone density (60 px, 4 columns) and iPad density (76 px, 6 columns), light and dark, each app in its proposed hue (D5). |
-| `accents` | The nine accents (the household, the TV and a guest) as avatar ring, selected chip, primary button and progress, light and dark, plus a colour-vision-deficiency simulation. |
+| `glass` | The four glass levels of D8 (Clear, Current, Frosted the default, Solid), each a stage that loads this page in `?stage=glass` mode so the real `:root[data-glass]` rules paint it, light and dark: a bar, a pill, a floating button, a sheet and a tab bar over busy art, with the outline halo on Clear and Current. |
+| `tiles` | App tiles at iPhone density (60 px, 4 columns) and iPad density (76 px, 6 columns), light and dark, each app in its own hue (D5), and the tiles on all six palettes. |
+| `accents` | The starting colours of D3 (the household, the TV) and a guest in sky (D4) as avatar ring, selected chip, primary button and progress, light and dark, plus a colour-vision-deficiency simulation. The admin can give any profile any of the 18 families (2026-09-26). |
 | `prayer` | Prayer → Today before (the Phase 1 capture) and after (the same layout, order and controls on the proposed tokens, as CLAUDE.md requires for Prayer), light and dark. Prayer is the most-used app by the estimate above. |
 
-- **Verified.** Every ratio on the page is computed from the rendered colours (WCAG 2), not typed in. `node audits/tools/phase5/preview-check.mjs` loads the page in the audit's WebKit and in Chromium at 390, 820 and 1440 px in light and dark: 178 of 178 pairs pass their threshold in all 12 runs, with no horizontal scroll and no page error (`audits/evidence/p5/preview-check.json`).
+- **Verified.** Every ratio on the page is computed from the rendered colours (WCAG 2), not typed in. `node audits/tools/phase5/preview-check.mjs` loads the page in the audit's WebKit and in Chromium at 390, 820 and 1440 px in light and dark and also checks the people, guest and app colour maps and the glass stages: 280 of 280 pairs pass their threshold in all 12 runs, with no map or stage issue, no horizontal scroll and no page error (`audits/evidence/p5/preview-check.json`).
 - **Captured with the rig.** `node audits/tools/capture.mjs --area preview --out audits/screens-preview` took 70 captures (7 sections × 5 devices × light and dark, whole page), 0 failed; `audits/screens-preview/manifest.json` lists them with their SHA-256. Contact sheets (JPEG, committed): `audits/screens-preview/_sheets/preview--palette.jpg`, `preview--neutrals.jpg`, `preview--type.jpg`, `preview--glass.jpg`, `preview--tiles.jpg`, `preview--accents.jpg`, `preview--prayer.jpg`. The full-size PNGs stay on disk and out of git, like the Phase 1 set.
 - **Rig changes.** Two opt-in screen flags were added to the capture rig for this: `fullPage` (capture the whole document) and `optIn` (an area that runs only when named with `--area`). A default `node audits/tools/capture.mjs` still plans the same 4,447 Phase 1 captures, and `audits/tools/phase4/measure.mjs` skips opt-in areas, so the baseline and the Phase 4 measurements are unchanged.
 - **Not shown by the screenshots.** This WebKit paints no backdrop blur and uses Windows fallback fonts, so glass reads flatter and type slightly wider than on an iPad or iPhone (`audits/01-capture.md:103`). The ratios do not depend on either. Seeing the preview on the Kitchen iPad, an iPhone and the TV is the first device check of batch 1.
@@ -5948,203 +5976,206 @@ Every ID and its batch, sorted by ID.
 | CONS-TYPE-6 | low | 9 | CONS-TYPE-7 | low | 1 | GAP-ACCENT-1 | low | 2a |
 | GAP-CHAT-01 | low | 2b | GAP-CHAT-02 | medium | 0i | GAP-DARK-1 | low | 1 |
 | GAP-DARK-2 | low | 1 | GAP-DARK-3 | low (ptr) | 1 | GAP-DOLLYWOOD-1 | low | 9 |
-| GAP-DOLLYWOOD-2 | low | 9 | GAP-DOLLYWOOD-LIVE-1 | medium | 10 | GAP-DOLLYWOOD-LIVE-2 | low | 10 |
-| GAP-DOLLYWOOD-LIVE-3 | info | 10 | GAP-DOLLYWOOD-LIVE-4 | low | 10 | GAP-F260-1 | medium | 4 |
-| GAP-GLASS-1 | low | 1 | GAP-HOME-1 | medium | 6 | GAP-HOME-2 | low | 5 |
-| GAP-ICON-1 | low | 1 | GAP-ICON-2 | low | 1 | GAP-KIDVERSE-1 | low | 7 |
-| GAP-LEFTOVERS-1 | medium | 8 | GAP-MOTION-1 | low | 1 | GAP-MOTION-2 | info | 1 |
-| GAP-MOTION-3 | low | 1 | GAP-PRAYER-1 | info | 2b | GAP-PRAYER-2 | info | 3 |
-| GAP-PROF-a1 | low | 0d | GAP-PROF-a2 | low | 2a | GAP-SHAPE-1 | low | 1 |
-| GAP-SYNC-a1 | low | 0c | GAP-TALLY-1 | low | 11 | GAP-TELL-1 | low (ptr) | 0b |
-| GAP-TIMER-1 | low | 6 | GAP-TIMER-2 | medium | 6 | GAP-TIMER-3 | medium | 6 |
-| GAP-TOK-1 | low | 1 | GAP-TOK-2 | medium | 1 | GAP-TOK-3 | low | 1 |
-| GAP-TOK-4 | low | 1 | GAP-TOK-5 | low | 1 | GAP-TOK-6 | low | 1 |
-| GAP-TOK-7 | low | 1 | GAP-TOK-8 | low | 1 | GAP-TOK-9 | info | 1 |
-| GAP-TYPE-1 | medium | 1 | GAP-TYPE-2 | medium | 1 | GAP-TYPE-3 | low | 1 |
-| GAP-VERSES-1 | medium | 5 | GAP-VERSES-2 | low | 5 | GAP-VERSES-3 | low | 5 |
-| P2-CHAT-01 | medium | 0i | P2-CHAT-02 | medium | 0d | P2-CHAT-03 | critical | 0i |
-| P2-CHAT-04 | medium | 0i | P2-CHAT-05 | medium | 2b | P2-CHAT-06 | low (ptr) | 0d |
-| P2-CHAT-07 | low | 0d | P2-CHAT-08 | low | 2b | P2-CHAT-09 | critical | 0i |
-| P2-CHAT-10 | low | 2b | P2-CHAT-11 | low | 2b | P2-CHAT-12 | low | 2b |
-| P2-CHAT-13 | low | 2b | P2-CHAT-14 | low (ptr) | 2c | P2-HOME-01 | high | 2a |
-| P2-HOME-02 | high | 0b | P2-HOME-03 | medium | 2a | P2-HOME-04 | low (ptr) | 0b |
-| P2-HOME-05 | low | 2a | P2-HOME-06 | low | 2a | P2-HOME-07 | low | 2c |
-| P2-PROF-01 | critical (ptr) | 0c | P2-PROF-02 | critical | 0c | P2-PROF-03 | high (ptr) | 0c |
-| P2-PROF-04 | critical | 0d | P2-PROF-05 | medium | 0d | P2-PROF-06 | critical (ptr) | 0d |
-| P2-PROF-07 | medium (ptr) | 0c | P2-PROF-08 | medium | 6 | P2-PROF-09 | medium | 2a |
-| P2-PROF-10 | low | 2c | P2-PROF-11 | low (ptr) | 2c | P2-PROF-12 | low | 2a |
-| P2-PROF-13 | medium | 0c | P2-PROF-14 | critical | 0c | P2-PROF-15 | low | 0c |
-| P2-PROF-16 | low | 2b | P2-PROF-17 | low (ptr) | 2b | P2-PROF-18 | low | 2a |
-| P2-PROF-19 | critical | 0c | P2-PWA-01 | critical | 0d | P2-PWA-02 | high | 2b |
-| P2-PWA-03 | medium | 2b | P2-PWA-04 | medium | 2b | P2-PWA-05 | medium | 2a |
-| P2-PWA-06 | medium | 0c | P2-PWA-07 | medium (ptr) | 1 | P2-PWA-08 | medium | 2b |
-| P2-PWA-09 | medium | 2b | P2-PWA-10 | low | 2b | P2-PWA-11 | low | 2b |
-| P2-PWA-12 | low | 2b | P2-PWA-13 | low | 0c | P2-PWA-14 | low | 0c |
-| P2-PWA-15 | low | 2b | P2-PWA-16 | low | 2b | P2-PWA-17 | low | 2a |
-| P2-PWA-18 | medium | 10 | P2-SEC-01 | high | 0d | P2-SEC-02 | low | 0d |
-| P2-SEC-03 | low | 0c | P2-STAB-01 | critical | 0a | P2-STAB-02 | high (ptr) | 0c |
-| P2-STAB-03 | critical | 0g | P2-STAB-04 | high (ptr) | 0b | P2-STAB-05 | medium (ptr) | 2b |
-| P2-STAB-06 | medium (ptr) | 2a | P2-STAB-07 | medium | 0b | P2-STAB-08 | low | 6 |
-| P2-STAB-09 | low | 6 | P2-STAB-10 | low (ptr) | 2b | P2-STAB-11 | low | 2c |
-| P2-STAB-12 | medium | 2c | P2-STAB-13 | medium | 6 | P2-SYNC-01 | critical | 0e |
-| P2-SYNC-02 | critical | 0b | P2-SYNC-03 | critical | 0b | P2-SYNC-04 | high | 0c |
-| P2-SYNC-05 | critical | 0b | P2-SYNC-06 | critical | 0c | P2-SYNC-07 | critical | 0c |
-| P2-SYNC-08 | medium (ptr) | 0c | P2-SYNC-09 | critical | 0c | P2-SYNC-10 | medium (ptr) | 2a |
-| P2-SYNC-11 | low | 0c | P2-SYNC-12 | low | 2c | P2-SYNC-13 | low | 2a |
-| P2-SYNC-14 | low | 2a | P2-SYNC-15 | low | 0b | P2-SYNC-16 | low | 0c |
-| P2-SYNC-17 | critical | 0b | P2-SYNC-18 | critical | 0c | P2-SYNC-19 | critical | 0e |
-| P2-SYNC-20 | critical | 0e | P2-VIS-01 | critical (ptr) | 0a | P2-VIS-02 | medium | 2c |
-| P2-VIS-03 | medium | 1 | P2-VIS-04 | low (ptr) | 0b | P2-VIS-05 | low | 2a |
-| P2-VIS-06 | high | 1 | P2-VIS-07 | low (ptr) | 2a | P3-DOLLYWOOD-01 | critical (ptr) | 0b |
-| P3-DOLLYWOOD-02 | critical | 0h | P3-DOLLYWOOD-03 | medium | 9 | P3-DOLLYWOOD-04 | medium | 9 |
-| P3-DOLLYWOOD-05 | medium | 9 | P3-DOLLYWOOD-06 | medium | 9 | P3-DOLLYWOOD-07 | medium | 9 |
-| P3-DOLLYWOOD-08 | low | 9 | P3-DOLLYWOOD-09 | low | 9 | P3-DOLLYWOOD-10 | low | 9 |
-| P3-DOLLYWOOD-11 | low | 9 | P3-DOLLYWOOD-12 | low | 9 | P3-DOLLYWOOD-13 | low | 9 |
-| P3-DOLLYWOOD-14 | low | 9 | P3-DOLLYWOOD-15 | low | 9 | P3-DOLLYWOOD-16 | medium | 9 |
-| P3-DOLLYWOOD-17 | low | 9 | P3-DOLLYWOOD-18 | low | 9 | P3-DOLLYWOOD-LIVE-01 | critical | 0d |
-| P3-DOLLYWOOD-LIVE-02 | high | 0d | P3-DOLLYWOOD-LIVE-03 | medium | 10 | P3-DOLLYWOOD-LIVE-04 | medium | 10 |
-| P3-DOLLYWOOD-LIVE-05 | medium | 10 | P3-DOLLYWOOD-LIVE-06 | medium | 10 | P3-DOLLYWOOD-LIVE-07 | medium | 10 |
-| P3-DOLLYWOOD-LIVE-08 | medium | 10 | P3-DOLLYWOOD-LIVE-09 | medium | 10 | P3-DOLLYWOOD-LIVE-10 | medium | 10 |
-| P3-DOLLYWOOD-LIVE-11 | low | 10 | P3-DOLLYWOOD-LIVE-12 | medium | 10 | P3-DOLLYWOOD-LIVE-13 | medium | 10 |
-| P3-DOLLYWOOD-LIVE-14 | medium (ptr) | 9 | P3-DOLLYWOOD-LIVE-15 | low | 10 | P3-DOLLYWOOD-LIVE-16 | low | 10 |
-| P3-DOLLYWOOD-LIVE-17 | low | 10 | P3-DOLLYWOOD-LIVE-18 | low | 10 | P3-F260-01 | critical | 0e |
-| P3-F260-02 | medium | 4 | P3-F260-03 | medium | 4 | P3-F260-04 | low | 4 |
-| P3-F260-05 | low | 0b | P3-F260-06 | low | 0b | P3-F260-07 | low | 4 |
-| P3-F260-08 | low | 4 | P3-F260-09 | low | 4 | P3-F260-10 | low | 4 |
-| P3-F260-11 | low | 4 | P3-F260-12 | low | 4 | P3-F260-13 | critical | 0e |
-| P3-F260-14 | medium | 0e | P3-F260-15 | medium | 4 | P3-F260-16 | medium | 4 |
-| P3-F260-17 | medium | 4 | P3-F260-18 | low | 4 | P3-F260-19 | low | 4 |
-| P3-F260-20 | low | 4 | P3-KIDVERSE-01 | critical | 0b | P3-KIDVERSE-02 | critical | 0f |
-| P3-KIDVERSE-03 | critical | 0b | P3-KIDVERSE-04 | medium | 7 | P3-KIDVERSE-05 | medium | 7 |
-| P3-KIDVERSE-06 | low | 7 | P3-KIDVERSE-07 | low | 0g | P3-KIDVERSE-08 | low | 0b |
-| P3-KIDVERSE-09 | low | 7 | P3-KIDVERSE-10 | critical | 0f | P3-KIDVERSE-11 | critical | 0b |
-| P3-KIDVERSE-12 | medium | 7 | P3-KIDVERSE-13 | medium | 7 | P3-KIDVERSE-14 | low | 1 |
-| P3-LEFTOVERS-01 | critical | 0h | P3-LEFTOVERS-02 | medium | 8 | P3-LEFTOVERS-03 | medium | 0b |
-| P3-LEFTOVERS-04 | medium | 0i | P3-LEFTOVERS-05 | low (ptr) | 0b | P3-LEFTOVERS-06 | low | 0b |
-| P3-LEFTOVERS-07 | low | 0b | P3-LEFTOVERS-08 | low | 0b | P3-LEFTOVERS-09 | low | 0i |
-| P3-LEFTOVERS-10 | low | 8 | P3-LEFTOVERS-11 | low | 8 | P3-LEFTOVERS-12 | critical | 0h |
-| P3-LEFTOVERS-13 | critical | 0h | P3-LEFTOVERS-14 | low | 0b | P3-LEFTOVERS-15 | low | 1 |
-| P3-PRAYER-01 | critical | 0g | P3-PRAYER-02 | critical | 0b | P3-PRAYER-03 | critical | 0g |
-| P3-PRAYER-04 | critical | 0g | P3-PRAYER-05 | high | 0g | P3-PRAYER-06 | high | 0d |
-| P3-PRAYER-07 | medium | 3 | P3-PRAYER-08 | medium | 3 | P3-PRAYER-09 | low | 3 |
-| P3-PRAYER-10 | low | 0b | P3-PRAYER-11 | low | 0b | P3-PRAYER-12 | low | 3 |
-| P3-PRAYER-13 | low | 3 | P3-PRAYER-14 | low | 3 | P3-PRAYER-15 | low | 3 |
-| P3-PRAYER-16 | low | 3 | P3-PRAYER-17 | high | 0d | P3-PRAYER-18 | medium | 0d |
-| P3-PRAYER-19 | medium | 3 | P3-PRAYER-20 | medium | 3 | P3-PRAYER-21 | low | 3 |
-| P3-PRAYER-22 | low | 3 | P3-PRAYER-23 | low | 3 | P3-PRAYER-24 | low | 0g |
-| P3-PRAYER-25 | low | 2b | P3-PRAYER-26 | low | 3 | P3-TALLY-01 | critical | 0f |
-| P3-TALLY-02 | critical | 0b | P3-TALLY-03 | critical (ptr) | 0b | P3-TALLY-04 | low | 11 |
-| P3-TALLY-05 | critical | 0c | P3-TALLY-06 | medium | 0b | P3-TALLY-07 | medium | 0b |
-| P3-TALLY-08 | low | 11 | P3-TALLY-09 | low | 11 | P3-TIMER-01 | medium | 0b |
-| P3-TIMER-02 | low | 6 | P3-TIMER-03 | low | 6 | P3-TIMER-04 | low | 6 |
-| P3-TIMER-05 | low | 6 | P3-VERSES-01 | critical (ptr) | 0e | P3-VERSES-02 | critical | 0e |
-| P3-VERSES-03 | critical | 0b | P3-VERSES-04 | medium | 0b | P3-VERSES-05 | medium | 5 |
-| P3-VERSES-06 | medium | 5 | P3-VERSES-07 | low | 0b | P3-VERSES-08 | low | 5 |
-| P3-VERSES-09 | low | 0b | P3-VERSES-10 | low | 5 | P3-VERSES-11 | medium | 5 |
-| P3-VERSES-12 | low | 5 | P3-VERSES-13 | low | 5 | P3-VERSES-14 | low | 5 |
-| P4-ACCENT-01 | medium | 1 | P4-ACCENT-02 | medium (ptr) | 1 | P4-ACCENT-03 | medium (ptr) | 1 |
-| P4-ACCENT-04 | low | 1 | P4-ACCENT-05 | low | 1 | P4-ACCENT-06 | low | 10 |
-| P4-COLOR-01 | medium | 1 | P4-COLOR-02 | medium | 1 | P4-COLOR-03 | medium | 1 |
-| P4-COLOR-04 | low | 1 | P4-COLOR-05 | low | 1 | P4-COLOR-06 | low | 1 |
-| P4-DARK-01 | medium (ptr) | 1 | P4-DARK-02 | medium | 1 | P4-DARK-03 | low (ptr) | 1 |
-| P4-DARK-04 | low | 1 | P4-GLASS-01 | low | 1 | P4-GLASS-02 | low | 1 |
-| P4-GLASS-03 | low | 1 | P4-GLASS-04 | low | 2c | P4-GLASS-05 | low | 11 |
-| P4-ICON-01 | medium | 1 | P4-ICON-02 | low | 1 | P4-ICON-03 | low | 1 |
-| P4-ICON-04 | low | 10 | P4-ICON-05 | low | 1 | P4-MOTION-01 | low | 2a |
-| P4-MOTION-02 | low | 2a | P4-MOTION-03 | low | 10 | P4-MOTION-04 | low | 1 |
-| P4-SHAPE-01 | low | 1 | P4-SHAPE-02 | low | 3 | P4-SHAPE-03 | low | 10 |
-| P4-SHAPE-04 | low | 1 | P4-TELL-01 | medium | 1 | P4-TELL-02 | low | 1 |
-| P4-TELL-03 | low | 1 | P4-TELL-04 | low | 1 | P4-TELL-05 | low | 9 |
-| P4-TELL-06 | low | 1 | P4-TELL-07 | medium | 1 | P4-TOK-01 | low | 1 |
-| P4-TOK-02 | low | 1 | P4-TYPE-01 | low | 9 | PWA-GAP-1 | medium | 6 |
-| PWA-GAP-2 | low | 2b | PWA-GAP-3 | low | 2a | PWA-GAP-4 | low | 2b |
-| PWA-UX-1 | low (ptr) | 2b | PWA-UX-2 | low | 2b | PWA-UX-3 | low (ptr) | 2a |
-| PWA-UX-4 | low | 2a | PWA-VIS-1 | low (ptr) | 2a | PWA-VIS-2 | low (ptr) | 2a |
-| PWA-VIS-3 | low (ptr) | 2a | PWA-VIS-4 | low | 2c | UX-CHAT-01 | medium | 2a |
-| UX-CHAT-02 | low | 2a | UX-CHAT-03 | low | 2a | UX-CHAT-04 | low | 2a |
-| UX-CHAT-05 | low | 2a | UX-CHAT-06 | low | 2a | UX-CHAT-07 | low | 2a |
-| UX-DOLLYWOOD-1 | low | 9 | UX-DOLLYWOOD-2 | medium | 9 | UX-DOLLYWOOD-3 | low | 9 |
-| UX-DOLLYWOOD-4 | medium | 9 | UX-DOLLYWOOD-5 | medium | 0b | UX-DOLLYWOOD-6 | low (ptr) | 2a |
-| UX-DOLLYWOOD-7 | low | 9 | UX-DOLLYWOOD-8 | low | 9 | UX-DOLLYWOOD-9 | low | 9 |
-| UX-DOLLYWOOD-10 | low | 1 | UX-DOLLYWOOD-11 | low | 9 | UX-DOLLYWOOD-12 | low | 9 |
-| UX-DOLLYWOOD-13 | low | 9 | UX-DOLLYWOOD-14 | info | 9 | UX-DOLLYWOOD-LIVE-1 | low | 10 |
-| UX-DOLLYWOOD-LIVE-2 | low | 10 | UX-DOLLYWOOD-LIVE-3 | low | 0b | UX-DOLLYWOOD-LIVE-4 | low | 10 |
-| UX-DOLLYWOOD-LIVE-5 | low | 10 | UX-DOLLYWOOD-LIVE-6 | low | 10 | UX-DOLLYWOOD-LIVE-7 | low | 10 |
-| UX-F260-1 | low | 4 | UX-F260-2 | low | 4 | UX-F260-3 | low | 4 |
-| UX-F260-4 | low | 4 | UX-F260-5 | low | 0b | UX-F260-6 | low | 4 |
-| UX-F260-7 | low | 4 | UX-F260-8 | low | 4 | UX-F260-9 | low | 4 |
-| UX-F260-10 | low | 4 | UX-F260-11 | low | 4 | UX-F260-12 | low | 1 |
-| UX-F260-13 | low | 4 | UX-F260-14 | low | 4 | UX-HOME-1 | medium | 2a |
-| UX-HOME-2 | low | 2c | UX-HOME-3 | low | 2a | UX-HOME-4 | low | 2a |
-| UX-HOME-5 | low | 2a | UX-HOME-6 | low | 2a | UX-HOME-7 | low | 2a |
-| UX-HOME-8 | medium | 2a | UX-KIDVERSE-1 | low | 7 | UX-KIDVERSE-2 | medium | 7 |
-| UX-KIDVERSE-3 | low | 0d | UX-KIDVERSE-4 | low | 7 | UX-KIDVERSE-5 | low | 7 |
-| UX-KIDVERSE-6 | low | 0b | UX-KIDVERSE-7 | low (ptr) | 2a | UX-KIDVERSE-8 | low | 1 |
-| UX-KIDVERSE-9 | low | 7 | UX-KIDVERSE-10 | low | 7 | UX-LEFTOVERS-1 | medium | 0h |
-| UX-LEFTOVERS-2 | medium | 0h | UX-LEFTOVERS-3 | low | 8 | UX-LEFTOVERS-4 | low | 8 |
-| UX-LEFTOVERS-5 | low | 8 | UX-LEFTOVERS-6 | low | 8 | UX-LEFTOVERS-7 | low (ptr) | 2a |
-| UX-LEFTOVERS-8 | low | 8 | UX-LEFTOVERS-9 | low | 8 | UX-PRAYER-1 | low | 3 |
-| UX-PRAYER-2 | medium | 3 | UX-PRAYER-3 | low | 3 | UX-PRAYER-4 | medium | 3 |
-| UX-PRAYER-5 | low | 3 | UX-PRAYER-6 | low | 3 | UX-PRAYER-7 | low | 3 |
-| UX-PRAYER-8 | low | 0b | UX-PRAYER-9 | low | 3 | UX-PRAYER-10 | low | 3 |
-| UX-PRAYER-11 | low | 3 | UX-PRAYER-12 | low | 3 | UX-PRAYER-13 | low | 3 |
-| UX-PRAYER-14 | low | 3 | UX-PROF-a1 | low | 2a | UX-PROF-a2 | low | 2c |
-| UX-PROF-a3 | low | 2a | UX-PROF-a4 | low | 2a | UX-PROF-a5 | low | 2a |
-| UX-PROF-a6 | low | 0c | UX-PROF-a7 | low | 0d | UX-PROF-a8 | low | 2a |
-| UX-PROF-a9 | low | 2a | UX-SYNC-a1 | medium | 2a | UX-SYNC-a2 | low | 2c |
-| UX-TALLY-1 | medium | 11 | UX-TALLY-2 | low (ptr) | 0b | UX-TALLY-3 | low | 11 |
-| UX-TALLY-4 | low | 11 | UX-TALLY-5 | low | 11 | UX-TALLY-6 | low (ptr) | 11 |
-| UX-TIMER-1 | medium | 6 | UX-TIMER-2 | medium | 6 | UX-TIMER-3 | medium | 6 |
-| UX-TIMER-4 | low | 6 | UX-TIMER-5 | low | 6 | UX-TIMER-6 | low | 6 |
-| UX-TIMER-7 | low | 6 | UX-TIMER-8 | low (ptr) | 2a | UX-TIMER-9 | low (ptr) | 0b |
-| UX-TIMER-10 | low | 6 | UX-VERSES-1 | medium | 5 | UX-VERSES-2 | low | 5 |
-| UX-VERSES-3 | low (ptr) | 5 | UX-VERSES-4 | low | 5 | UX-VERSES-5 | low | 0b |
-| UX-VERSES-6 | low | 1 | UX-VERSES-7 | low | 1 | UX-VERSES-8 | low | 5 |
-| UX-VERSES-9 | low | 5 | VIS-ACCENT-1 | low | 1 | VIS-COLOR-1 | low | 1 |
-| VIS-DARK-1 | low | 1 | VIS-DOLLYWOOD-1 | medium | 9 | VIS-DOLLYWOOD-2 | medium | 9 |
-| VIS-DOLLYWOOD-3 | low | 1 | VIS-DOLLYWOOD-4 | low | 9 | VIS-DOLLYWOOD-5 | low | 1 |
-| VIS-DOLLYWOOD-6 | low | 9 | VIS-DOLLYWOOD-7 | low | 1 | VIS-DOLLYWOOD-8 | low | 9 |
-| VIS-DOLLYWOOD-9 | low | 9 | VIS-DOLLYWOOD-10 | low | 9 | VIS-DOLLYWOOD-11 | low | 9 |
-| VIS-DOLLYWOOD-12 | low | 1 | VIS-DOLLYWOOD-13 | low | 9 | VIS-DOLLYWOOD-14 | low | 9 |
-| VIS-DOLLYWOOD-15 | low | 9 | VIS-DOLLYWOOD-16 | low | 9 | VIS-DOLLYWOOD-17 | low | 9 |
-| VIS-DOLLYWOOD-LIVE-1 | medium | 10 | VIS-DOLLYWOOD-LIVE-2 | low | 10 | VIS-DOLLYWOOD-LIVE-3 | low | 10 |
-| VIS-DOLLYWOOD-LIVE-4 | low | 10 | VIS-DOLLYWOOD-LIVE-5 | low | 10 | VIS-DOLLYWOOD-LIVE-6 | low | 10 |
-| VIS-DOLLYWOOD-LIVE-7 | low | 1 | VIS-DOLLYWOOD-LIVE-8 | low | 10 | VIS-DOLLYWOOD-LIVE-9 | low | 10 |
-| VIS-DOLLYWOOD-LIVE-10 | low | 10 | VIS-DOLLYWOOD-LIVE-11 | low | 10 | VIS-DOLLYWOOD-LIVE-12 | low | 10 |
-| VIS-DOLLYWOOD-LIVE-13 | low | 10 | VIS-F260-1 | medium | 1 | VIS-F260-2 | low | 1 |
-| VIS-F260-3 | low | 4 | VIS-F260-4 | low | 4 | VIS-F260-5 | low | 4 |
-| VIS-F260-6 | low | 4 | VIS-F260-7 | low | 4 | VIS-F260-8 | low | 4 |
-| VIS-F260-9 | low | 4 | VIS-F260-10 | low | 1 | VIS-F260-11 | low | 1 |
-| VIS-F260-12 | low | 4 | VIS-F260-13 | low | 4 | VIS-F260-14 | low | 1 |
-| VIS-F260-15 | low | 4 | VIS-F260-16 | info | 1 | VIS-GLASS-1 | low | 1 |
-| VIS-GLASS-2 | low | 2a | VIS-HOME-1 | low | 2a | VIS-HOME-2 | low | 2a |
-| VIS-HOME-3 | low | 2a | VIS-ICON-1 | low | 1 | VIS-KIDVERSE-1 | low | 1 |
-| VIS-KIDVERSE-2 | low | 1 | VIS-KIDVERSE-3 | low | 1 | VIS-KIDVERSE-4 | low (ptr) | 1 |
-| VIS-KIDVERSE-5 | low | 7 | VIS-KIDVERSE-6 | low | 1 | VIS-KIDVERSE-7 | low | 1 |
-| VIS-KIDVERSE-8 | low | 1 | VIS-KIDVERSE-9 | low | 7 | VIS-KIDVERSE-10 | low | 1 |
-| VIS-KIDVERSE-11 | low | 7 | VIS-LEFTOVERS-1 | low | 0b | VIS-LEFTOVERS-2 | low | 1 |
-| VIS-LEFTOVERS-3 | low | 1 | VIS-LEFTOVERS-4 | low | 8 | VIS-LEFTOVERS-5 | low | 8 |
-| VIS-LEFTOVERS-6 | low | 8 | VIS-LEFTOVERS-7 | low | 1 | VIS-LEFTOVERS-8 | low | 8 |
-| VIS-LEFTOVERS-9 | low | 8 | VIS-LEFTOVERS-10 | low | 1 | VIS-LEFTOVERS-11 | low | 8 |
-| VIS-PRAYER-1 | medium | 1 | VIS-PRAYER-2 | low | 3 | VIS-PRAYER-3 | low | 3 |
-| VIS-PRAYER-4 | low | 1 | VIS-PRAYER-5 | low | 3 | VIS-PRAYER-6 | low | 3 |
-| VIS-PRAYER-7 | low | 1 | VIS-PRAYER-8 | low | 3 | VIS-PRAYER-9 | low | 3 |
-| VIS-PRAYER-10 | low | 1 | VIS-PRAYER-11 | low | 3 | VIS-PROF-a1 | low | 1 |
-| VIS-SHAPE-1 | low | 1 | VIS-SHAPE-2 | low | 1 | VIS-SHAPE-3 | low | 9 |
-| VIS-SHAPE-4 | low (ptr) | 3 | VIS-TALLY-1 | low | 1 | VIS-TALLY-2 | low | 11 |
-| VIS-TALLY-3 | low | 1 | VIS-TALLY-4 | low | 11 | VIS-TALLY-5 | low | 1 |
-| VIS-TALLY-6 | low | 11 | VIS-TALLY-7 | low | 1 | VIS-TALLY-8 | low | 11 |
-| VIS-TALLY-9 | low | 1 | VIS-TALLY-10 | low | 11 | VIS-TALLY-11 | info | 1 |
-| VIS-TELL-1 | low | 9 | VIS-TIMER-1 | low | 6 | VIS-TIMER-2 | low | 6 |
-| VIS-TIMER-3 | low | 1 | VIS-TIMER-4 | low | 6 | VIS-TIMER-5 | low | 2a |
-| VIS-TIMER-6 | low | 1 | VIS-TIMER-7 | low | 1 | VIS-TYPE-1 | medium | 2c |
-| VIS-TYPE-2 | low | 9 | VIS-VERSES-1 | low | 5 | VIS-VERSES-2 | low | 1 |
-| VIS-VERSES-3 | low | 1 | VIS-VERSES-4 | low | 1 | VIS-VERSES-5 | low | 1 |
-| VIS-VERSES-6 | info | 5 | VIS-VERSES-7 | low | 1 |  | |  |
+| GAP-DOLLYWOOD-LIVE-1 | medium | 10 | GAP-DOLLYWOOD-LIVE-2 | low | 10 | GAP-DOLLYWOOD-LIVE-3 | info | 10 |
+| GAP-DOLLYWOOD-LIVE-4 | low | 10 | GAP-F260-1 | medium | 4 | GAP-GLASS-1 | low | 1 |
+| GAP-HOME-1 | medium | 6 | GAP-HOME-2 | low | 5 | GAP-ICON-1 | low | 1 |
+| GAP-ICON-2 | low | 1 | GAP-KIDVERSE-1 | low | 7 | GAP-LEFTOVERS-1 | medium | 8 |
+| GAP-MOTION-1 | low | 1 | GAP-MOTION-2 | info | 1 | GAP-MOTION-3 | low | 1 |
+| GAP-PRAYER-1 | info | 2b | GAP-PRAYER-2 | info | 3 | GAP-PROF-a1 | low | 0d |
+| GAP-PROF-a2 | low | 2a | GAP-SHAPE-1 | low | 1 | GAP-SYNC-a1 | low | 0c |
+| GAP-TALLY-1 | low | 11 | GAP-TELL-1 | low (ptr) | 0b | GAP-TIMER-1 | low | 6 |
+| GAP-TIMER-2 | medium | 6 | GAP-TIMER-3 | medium | 6 | GAP-TOK-1 | low | 1 |
+| GAP-TOK-2 | medium | 1 | GAP-TOK-3 | low | 1 | GAP-TOK-4 | low | 1 |
+| GAP-TOK-5 | low | 1 | GAP-TOK-6 | low | 1 | GAP-TOK-7 | low | 1 |
+| GAP-TOK-8 | low | 1 | GAP-TOK-9 | info | 1 | GAP-TYPE-1 | medium | 1 |
+| GAP-TYPE-2 | medium | 1 | GAP-TYPE-3 | low | 1 | GAP-VERSES-1 | medium | 5 |
+| GAP-VERSES-2 | low | 5 | GAP-VERSES-3 | low | 5 | P2-CHAT-01 | medium | 0i |
+| P2-CHAT-02 | medium | 0d | P2-CHAT-03 | critical | 0i | P2-CHAT-04 | medium | 0i |
+| P2-CHAT-05 | medium | 2b | P2-CHAT-06 | low (ptr) | 0d | P2-CHAT-07 | low | 0d |
+| P2-CHAT-08 | low | 2b | P2-CHAT-09 | critical | 0i | P2-CHAT-10 | low | 2b |
+| P2-CHAT-11 | low | 2b | P2-CHAT-12 | low | 2b | P2-CHAT-13 | low | 2b |
+| P2-CHAT-14 | low (ptr) | 2c | P2-HOME-01 | high | 2a | P2-HOME-02 | high | 0b |
+| P2-HOME-03 | medium | 2a | P2-HOME-04 | low (ptr) | 0b | P2-HOME-05 | low | 2a |
+| P2-HOME-06 | low | 2a | P2-HOME-07 | low | 2c | P2-PROF-01 | critical (ptr) | 0c |
+| P2-PROF-02 | critical | 0c | P2-PROF-03 | high (ptr) | 0c | P2-PROF-04 | critical | 0d |
+| P2-PROF-05 | medium | 0d | P2-PROF-06 | critical (ptr) | 0d | P2-PROF-07 | medium (ptr) | 0c |
+| P2-PROF-08 | medium | 6 | P2-PROF-09 | medium | 2a | P2-PROF-10 | low | 2c |
+| P2-PROF-11 | low (ptr) | 2c | P2-PROF-12 | low | 2a | P2-PROF-13 | medium | 0c |
+| P2-PROF-14 | critical | 0c | P2-PROF-15 | low | 0c | P2-PROF-16 | low | 2b |
+| P2-PROF-17 | low (ptr) | 2b | P2-PROF-18 | low | 2a | P2-PROF-19 | critical | 0c |
+| P2-PWA-01 | critical | 0d | P2-PWA-02 | high | 2b | P2-PWA-03 | medium | 2b |
+| P2-PWA-04 | medium | 2b | P2-PWA-05 | medium | 2a | P2-PWA-06 | medium | 0c |
+| P2-PWA-07 | medium (ptr) | 1 | P2-PWA-08 | medium | 2b | P2-PWA-09 | medium | 2b |
+| P2-PWA-10 | low | 2b | P2-PWA-11 | low | 2b | P2-PWA-12 | low | 2b |
+| P2-PWA-13 | low | 0c | P2-PWA-14 | low | 0c | P2-PWA-15 | low | 2b |
+| P2-PWA-16 | low | 2b | P2-PWA-17 | low | 2a | P2-PWA-18 | medium | 10 |
+| P2-SEC-01 | high | 0d | P2-SEC-02 | low | 0d | P2-SEC-03 | low | 0c |
+| P2-STAB-01 | critical | 0a | P2-STAB-02 | high (ptr) | 0c | P2-STAB-03 | critical | 0g |
+| P2-STAB-04 | high (ptr) | 0b | P2-STAB-05 | medium (ptr) | 2b | P2-STAB-06 | medium (ptr) | 2a |
+| P2-STAB-07 | medium | 0b | P2-STAB-08 | low | 6 | P2-STAB-09 | low | 6 |
+| P2-STAB-10 | low (ptr) | 2b | P2-STAB-11 | low | 2c | P2-STAB-12 | medium | 2c |
+| P2-STAB-13 | medium | 6 | P2-SYNC-01 | critical | 0e | P2-SYNC-02 | critical | 0b |
+| P2-SYNC-03 | critical | 0b | P2-SYNC-04 | high | 0c | P2-SYNC-05 | critical | 0b |
+| P2-SYNC-06 | critical | 0c | P2-SYNC-07 | critical | 0c | P2-SYNC-08 | medium (ptr) | 0c |
+| P2-SYNC-09 | critical | 0c | P2-SYNC-10 | medium (ptr) | 2a | P2-SYNC-11 | low | 0c |
+| P2-SYNC-12 | low | 2c | P2-SYNC-13 | low | 2a | P2-SYNC-14 | low | 2a |
+| P2-SYNC-15 | low | 0b | P2-SYNC-16 | low | 0c | P2-SYNC-17 | critical | 0b |
+| P2-SYNC-18 | critical | 0c | P2-SYNC-19 | critical | 0e | P2-SYNC-20 | critical | 0e |
+| P2-VIS-01 | critical (ptr) | 0a | P2-VIS-02 | medium | 2c | P2-VIS-03 | medium | 1 |
+| P2-VIS-04 | low (ptr) | 0b | P2-VIS-05 | low | 2a | P2-VIS-06 | high | 1 |
+| P2-VIS-07 | low (ptr) | 2a | P3-DOLLYWOOD-01 | critical (ptr) | 0b | P3-DOLLYWOOD-02 | critical | 0h |
+| P3-DOLLYWOOD-03 | medium | 9 | P3-DOLLYWOOD-04 | medium | 9 | P3-DOLLYWOOD-05 | medium | 9 |
+| P3-DOLLYWOOD-06 | medium | 9 | P3-DOLLYWOOD-07 | medium | 9 | P3-DOLLYWOOD-08 | low | 9 |
+| P3-DOLLYWOOD-09 | low | 9 | P3-DOLLYWOOD-10 | low | 9 | P3-DOLLYWOOD-11 | low | 9 |
+| P3-DOLLYWOOD-12 | low | 9 | P3-DOLLYWOOD-13 | low | 9 | P3-DOLLYWOOD-14 | low | 9 |
+| P3-DOLLYWOOD-15 | low | 9 | P3-DOLLYWOOD-16 | medium | 9 | P3-DOLLYWOOD-17 | low | 9 |
+| P3-DOLLYWOOD-18 | low | 9 | P3-DOLLYWOOD-LIVE-01 | critical | 0d | P3-DOLLYWOOD-LIVE-02 | high | 0d |
+| P3-DOLLYWOOD-LIVE-03 | medium | 10 | P3-DOLLYWOOD-LIVE-04 | medium | 10 | P3-DOLLYWOOD-LIVE-05 | medium | 10 |
+| P3-DOLLYWOOD-LIVE-06 | medium | 10 | P3-DOLLYWOOD-LIVE-07 | medium | 10 | P3-DOLLYWOOD-LIVE-08 | medium | 10 |
+| P3-DOLLYWOOD-LIVE-09 | medium | 10 | P3-DOLLYWOOD-LIVE-10 | medium | 10 | P3-DOLLYWOOD-LIVE-11 | low | 10 |
+| P3-DOLLYWOOD-LIVE-12 | medium | 10 | P3-DOLLYWOOD-LIVE-13 | medium | 10 | P3-DOLLYWOOD-LIVE-14 | medium (ptr) | 9 |
+| P3-DOLLYWOOD-LIVE-15 | low | 10 | P3-DOLLYWOOD-LIVE-16 | low | 10 | P3-DOLLYWOOD-LIVE-17 | low | 10 |
+| P3-DOLLYWOOD-LIVE-18 | low | 10 | P3-F260-01 | critical | 0e | P3-F260-02 | medium | 4 |
+| P3-F260-03 | medium | 4 | P3-F260-04 | low | 4 | P3-F260-05 | low | 0b |
+| P3-F260-06 | low | 0b | P3-F260-07 | low | 4 | P3-F260-08 | low | 4 |
+| P3-F260-09 | low | 4 | P3-F260-10 | low | 4 | P3-F260-11 | low | 4 |
+| P3-F260-12 | low | 4 | P3-F260-13 | critical | 0e | P3-F260-14 | medium | 0e |
+| P3-F260-15 | medium | 4 | P3-F260-16 | medium | 4 | P3-F260-17 | medium | 4 |
+| P3-F260-18 | low | 4 | P3-F260-19 | low | 4 | P3-F260-20 | low | 4 |
+| P3-KIDVERSE-01 | critical | 0b | P3-KIDVERSE-02 | critical | 0f | P3-KIDVERSE-03 | critical | 0b |
+| P3-KIDVERSE-04 | medium | 7 | P3-KIDVERSE-05 | medium | 7 | P3-KIDVERSE-06 | low | 7 |
+| P3-KIDVERSE-07 | low | 0g | P3-KIDVERSE-08 | low | 0b | P3-KIDVERSE-09 | low | 7 |
+| P3-KIDVERSE-10 | critical | 0f | P3-KIDVERSE-11 | critical | 0b | P3-KIDVERSE-12 | medium | 7 |
+| P3-KIDVERSE-13 | medium | 7 | P3-KIDVERSE-14 | low | 1 | P3-LEFTOVERS-01 | critical | 0h |
+| P3-LEFTOVERS-02 | medium | 8 | P3-LEFTOVERS-03 | medium | 0b | P3-LEFTOVERS-04 | medium | 0i |
+| P3-LEFTOVERS-05 | low (ptr) | 0b | P3-LEFTOVERS-06 | low | 0b | P3-LEFTOVERS-07 | low | 0b |
+| P3-LEFTOVERS-08 | low | 0b | P3-LEFTOVERS-09 | low | 0i | P3-LEFTOVERS-10 | low | 8 |
+| P3-LEFTOVERS-11 | low | 8 | P3-LEFTOVERS-12 | critical | 0h | P3-LEFTOVERS-13 | critical | 0h |
+| P3-LEFTOVERS-14 | low | 0b | P3-LEFTOVERS-15 | low | 1 | P3-PRAYER-01 | critical | 0g |
+| P3-PRAYER-02 | critical | 0b | P3-PRAYER-03 | critical | 0g | P3-PRAYER-04 | critical | 0g |
+| P3-PRAYER-05 | high | 0g | P3-PRAYER-06 | high | 0d | P3-PRAYER-07 | medium | 3 |
+| P3-PRAYER-08 | medium | 3 | P3-PRAYER-09 | low | 3 | P3-PRAYER-10 | low | 0b |
+| P3-PRAYER-11 | low | 0b | P3-PRAYER-12 | low | 3 | P3-PRAYER-13 | low | 3 |
+| P3-PRAYER-14 | low | 3 | P3-PRAYER-15 | low | 3 | P3-PRAYER-16 | low | 3 |
+| P3-PRAYER-17 | high | 0d | P3-PRAYER-18 | medium | 0d | P3-PRAYER-19 | medium | 3 |
+| P3-PRAYER-20 | medium | 3 | P3-PRAYER-21 | low | 3 | P3-PRAYER-22 | low | 3 |
+| P3-PRAYER-23 | low | 3 | P3-PRAYER-24 | low | 0g | P3-PRAYER-25 | low | 2b |
+| P3-PRAYER-26 | low | 3 | P3-TALLY-01 | critical | 0f | P3-TALLY-02 | critical | 0b |
+| P3-TALLY-03 | critical (ptr) | 0b | P3-TALLY-04 | low | 11 | P3-TALLY-05 | critical | 0c |
+| P3-TALLY-06 | medium | 0b | P3-TALLY-07 | medium | 0b | P3-TALLY-08 | low | 11 |
+| P3-TALLY-09 | low | 11 | P3-TIMER-01 | medium | 0b | P3-TIMER-02 | low | 6 |
+| P3-TIMER-03 | low | 6 | P3-TIMER-04 | low | 6 | P3-TIMER-05 | low | 6 |
+| P3-VERSES-01 | critical (ptr) | 0e | P3-VERSES-02 | critical | 0e | P3-VERSES-03 | critical | 0b |
+| P3-VERSES-04 | medium | 0b | P3-VERSES-05 | medium | 5 | P3-VERSES-06 | medium | 5 |
+| P3-VERSES-07 | low | 0b | P3-VERSES-08 | low | 5 | P3-VERSES-09 | low | 0b |
+| P3-VERSES-10 | low | 5 | P3-VERSES-11 | medium | 5 | P3-VERSES-12 | low | 5 |
+| P3-VERSES-13 | low | 5 | P3-VERSES-14 | low | 5 | P4-ACCENT-01 | medium | 1 |
+| P4-ACCENT-02 | medium (ptr) | 1 | P4-ACCENT-03 | medium (ptr) | 1 | P4-ACCENT-04 | low | 1 |
+| P4-ACCENT-05 | low | 1 | P4-ACCENT-06 | low | 10 | P4-COLOR-01 | medium | 1 |
+| P4-COLOR-02 | medium | 1 | P4-COLOR-03 | medium | 1 | P4-COLOR-04 | low | 1 |
+| P4-COLOR-05 | low | 1 | P4-COLOR-06 | low | 1 | P4-DARK-01 | medium (ptr) | 1 |
+| P4-DARK-02 | medium | 1 | P4-DARK-03 | low (ptr) | 1 | P4-DARK-04 | low | 1 |
+| P4-GLASS-01 | low | 1 | P4-GLASS-02 | low | 1 | P4-GLASS-03 | low | 1 |
+| P4-GLASS-04 | low | 2c | P4-GLASS-05 | low | 11 | P4-ICON-01 | medium | 1 |
+| P4-ICON-02 | low | 1 | P4-ICON-03 | low | 1 | P4-ICON-04 | low | 10 |
+| P4-ICON-05 | low | 1 | P4-MOTION-01 | low | 2a | P4-MOTION-02 | low | 2a |
+| P4-MOTION-03 | low | 10 | P4-MOTION-04 | low | 1 | P4-SHAPE-01 | low | 1 |
+| P4-SHAPE-02 | low | 3 | P4-SHAPE-03 | low | 10 | P4-SHAPE-04 | low | 1 |
+| P4-TELL-01 | medium | 1 | P4-TELL-02 | low | 1 | P4-TELL-03 | low | 1 |
+| P4-TELL-04 | low | 1 | P4-TELL-05 | low | 9 | P4-TELL-06 | low | 1 |
+| P4-TELL-07 | medium | 1 | P4-TOK-01 | low | 1 | P4-TOK-02 | low | 1 |
+| P4-TYPE-01 | low | 9 | PWA-GAP-1 | medium | 6 | PWA-GAP-2 | low | 2b |
+| PWA-GAP-3 | low | 2a | PWA-GAP-4 | low | 2b | PWA-UX-1 | low (ptr) | 2b |
+| PWA-UX-2 | low | 2b | PWA-UX-3 | low (ptr) | 2a | PWA-UX-4 | low | 2a |
+| PWA-VIS-1 | low (ptr) | 2a | PWA-VIS-2 | low (ptr) | 2a | PWA-VIS-3 | low (ptr) | 2a |
+| PWA-VIS-4 | low | 2c | UX-CHAT-01 | medium | 2a | UX-CHAT-02 | low | 2a |
+| UX-CHAT-03 | low | 2a | UX-CHAT-04 | low | 2a | UX-CHAT-05 | low | 2a |
+| UX-CHAT-06 | low | 2a | UX-CHAT-07 | low | 2a | UX-DOLLYWOOD-1 | low | 9 |
+| UX-DOLLYWOOD-2 | medium | 9 | UX-DOLLYWOOD-3 | low | 9 | UX-DOLLYWOOD-4 | medium | 9 |
+| UX-DOLLYWOOD-5 | medium | 0b | UX-DOLLYWOOD-6 | low (ptr) | 2a | UX-DOLLYWOOD-7 | low | 9 |
+| UX-DOLLYWOOD-8 | low | 9 | UX-DOLLYWOOD-9 | low | 9 | UX-DOLLYWOOD-10 | low | 1 |
+| UX-DOLLYWOOD-11 | low | 9 | UX-DOLLYWOOD-12 | low | 9 | UX-DOLLYWOOD-13 | low | 9 |
+| UX-DOLLYWOOD-14 | info | 9 | UX-DOLLYWOOD-LIVE-1 | low | 10 | UX-DOLLYWOOD-LIVE-2 | low | 10 |
+| UX-DOLLYWOOD-LIVE-3 | low | 0b | UX-DOLLYWOOD-LIVE-4 | low | 10 | UX-DOLLYWOOD-LIVE-5 | low | 10 |
+| UX-DOLLYWOOD-LIVE-6 | low | 10 | UX-DOLLYWOOD-LIVE-7 | low | 10 | UX-F260-1 | low | 4 |
+| UX-F260-2 | low | 4 | UX-F260-3 | low | 4 | UX-F260-4 | low | 4 |
+| UX-F260-5 | low | 0b | UX-F260-6 | low | 4 | UX-F260-7 | low | 4 |
+| UX-F260-8 | low | 4 | UX-F260-9 | low | 4 | UX-F260-10 | low | 4 |
+| UX-F260-11 | low | 4 | UX-F260-12 | low | 1 | UX-F260-13 | low | 4 |
+| UX-F260-14 | low | 4 | UX-HOME-1 | medium | 2a | UX-HOME-2 | low | 2c |
+| UX-HOME-3 | low | 2a | UX-HOME-4 | low | 2a | UX-HOME-5 | low | 2a |
+| UX-HOME-6 | low | 2a | UX-HOME-7 | low | 2a | UX-HOME-8 | medium | 2a |
+| UX-KIDVERSE-1 | low | 7 | UX-KIDVERSE-2 | medium | 7 | UX-KIDVERSE-3 | low | 0d |
+| UX-KIDVERSE-4 | low | 7 | UX-KIDVERSE-5 | low | 7 | UX-KIDVERSE-6 | low | 0b |
+| UX-KIDVERSE-7 | low (ptr) | 2a | UX-KIDVERSE-8 | low | 1 | UX-KIDVERSE-9 | low | 7 |
+| UX-KIDVERSE-10 | low | 7 | UX-LEFTOVERS-1 | medium | 0h | UX-LEFTOVERS-2 | medium | 0h |
+| UX-LEFTOVERS-3 | low | 8 | UX-LEFTOVERS-4 | low | 8 | UX-LEFTOVERS-5 | low | 8 |
+| UX-LEFTOVERS-6 | low | 8 | UX-LEFTOVERS-7 | low (ptr) | 2a | UX-LEFTOVERS-8 | low | 8 |
+| UX-LEFTOVERS-9 | low | 8 | UX-PRAYER-1 | low | 3 | UX-PRAYER-2 | medium | 3 |
+| UX-PRAYER-3 | low | 3 | UX-PRAYER-4 | medium | 3 | UX-PRAYER-5 | low | 3 |
+| UX-PRAYER-6 | low | 3 | UX-PRAYER-7 | low | 3 | UX-PRAYER-8 | low | 0b |
+| UX-PRAYER-9 | low | 3 | UX-PRAYER-10 | low | 3 | UX-PRAYER-11 | low | 3 |
+| UX-PRAYER-12 | low | 3 | UX-PRAYER-13 | low | 3 | UX-PRAYER-14 | low | 3 |
+| UX-PROF-a1 | low | 2a | UX-PROF-a2 | low | 2c | UX-PROF-a3 | low | 2a |
+| UX-PROF-a4 | low | 2a | UX-PROF-a5 | low | 2a | UX-PROF-a6 | low | 0c |
+| UX-PROF-a7 | low | 0d | UX-PROF-a8 | low | 2a | UX-PROF-a9 | low | 2a |
+| UX-SYNC-a1 | medium | 2a | UX-SYNC-a2 | low | 2c | UX-TALLY-1 | medium | 11 |
+| UX-TALLY-2 | low (ptr) | 0b | UX-TALLY-3 | low | 11 | UX-TALLY-4 | low | 11 |
+| UX-TALLY-5 | low | 11 | UX-TALLY-6 | low (ptr) | 11 | UX-TIMER-1 | medium | 6 |
+| UX-TIMER-2 | medium | 6 | UX-TIMER-3 | medium | 6 | UX-TIMER-4 | low | 6 |
+| UX-TIMER-5 | low | 6 | UX-TIMER-6 | low | 6 | UX-TIMER-7 | low | 6 |
+| UX-TIMER-8 | low (ptr) | 2a | UX-TIMER-9 | low (ptr) | 0b | UX-TIMER-10 | low | 6 |
+| UX-VERSES-1 | medium | 5 | UX-VERSES-2 | low | 5 | UX-VERSES-3 | low (ptr) | 5 |
+| UX-VERSES-4 | low | 5 | UX-VERSES-5 | low | 0b | UX-VERSES-6 | low | 1 |
+| UX-VERSES-7 | low | 1 | UX-VERSES-8 | low | 5 | UX-VERSES-9 | low | 5 |
+| VIS-ACCENT-1 | low | 1 | VIS-COLOR-1 | low | 1 | VIS-DARK-1 | low | 1 |
+| VIS-DOLLYWOOD-1 | medium | 9 | VIS-DOLLYWOOD-2 | medium | 9 | VIS-DOLLYWOOD-3 | low | 1 |
+| VIS-DOLLYWOOD-4 | low | 9 | VIS-DOLLYWOOD-5 | low | 1 | VIS-DOLLYWOOD-6 | low | 9 |
+| VIS-DOLLYWOOD-7 | low | 1 | VIS-DOLLYWOOD-8 | low | 9 | VIS-DOLLYWOOD-9 | low | 9 |
+| VIS-DOLLYWOOD-10 | low | 9 | VIS-DOLLYWOOD-11 | low | 9 | VIS-DOLLYWOOD-12 | low | 1 |
+| VIS-DOLLYWOOD-13 | low | 9 | VIS-DOLLYWOOD-14 | low | 9 | VIS-DOLLYWOOD-15 | low | 9 |
+| VIS-DOLLYWOOD-16 | low | 9 | VIS-DOLLYWOOD-17 | low | 9 | VIS-DOLLYWOOD-LIVE-1 | medium | 10 |
+| VIS-DOLLYWOOD-LIVE-2 | low | 10 | VIS-DOLLYWOOD-LIVE-3 | low | 10 | VIS-DOLLYWOOD-LIVE-4 | low | 10 |
+| VIS-DOLLYWOOD-LIVE-5 | low | 10 | VIS-DOLLYWOOD-LIVE-6 | low | 10 | VIS-DOLLYWOOD-LIVE-7 | low | 1 |
+| VIS-DOLLYWOOD-LIVE-8 | low | 10 | VIS-DOLLYWOOD-LIVE-9 | low | 10 | VIS-DOLLYWOOD-LIVE-10 | low | 10 |
+| VIS-DOLLYWOOD-LIVE-11 | low | 10 | VIS-DOLLYWOOD-LIVE-12 | low | 10 | VIS-DOLLYWOOD-LIVE-13 | low | 10 |
+| VIS-F260-1 | medium | 1 | VIS-F260-2 | low | 1 | VIS-F260-3 | low | 4 |
+| VIS-F260-4 | low | 4 | VIS-F260-5 | low | 4 | VIS-F260-6 | low | 4 |
+| VIS-F260-7 | low | 4 | VIS-F260-8 | low | 4 | VIS-F260-9 | low | 4 |
+| VIS-F260-10 | low | 1 | VIS-F260-11 | low | 1 | VIS-F260-12 | low | 4 |
+| VIS-F260-13 | low | 4 | VIS-F260-14 | low | 1 | VIS-F260-15 | low | 4 |
+| VIS-F260-16 | info | 1 | VIS-GLASS-1 | low | 1 | VIS-GLASS-2 | low | 2a |
+| VIS-HOME-1 | low | 2a | VIS-HOME-2 | low | 2a | VIS-HOME-3 | low | 2a |
+| VIS-ICON-1 | low | 1 | VIS-KIDVERSE-1 | low | 1 | VIS-KIDVERSE-2 | low | 1 |
+| VIS-KIDVERSE-3 | low | 1 | VIS-KIDVERSE-4 | low (ptr) | 1 | VIS-KIDVERSE-5 | low | 7 |
+| VIS-KIDVERSE-6 | low | 1 | VIS-KIDVERSE-7 | low | 1 | VIS-KIDVERSE-8 | low | 1 |
+| VIS-KIDVERSE-9 | low | 7 | VIS-KIDVERSE-10 | low | 1 | VIS-KIDVERSE-11 | low | 7 |
+| VIS-LEFTOVERS-1 | low | 0b | VIS-LEFTOVERS-2 | low | 1 | VIS-LEFTOVERS-3 | low | 1 |
+| VIS-LEFTOVERS-4 | low | 8 | VIS-LEFTOVERS-5 | low | 8 | VIS-LEFTOVERS-6 | low | 8 |
+| VIS-LEFTOVERS-7 | low | 1 | VIS-LEFTOVERS-8 | low | 8 | VIS-LEFTOVERS-9 | low | 8 |
+| VIS-LEFTOVERS-10 | low | 1 | VIS-LEFTOVERS-11 | low | 8 | VIS-PRAYER-1 | medium | 1 |
+| VIS-PRAYER-2 | low | 3 | VIS-PRAYER-3 | low | 3 | VIS-PRAYER-4 | low | 1 |
+| VIS-PRAYER-5 | low | 3 | VIS-PRAYER-6 | low | 3 | VIS-PRAYER-7 | low | 1 |
+| VIS-PRAYER-8 | low | 3 | VIS-PRAYER-9 | low | 3 | VIS-PRAYER-10 | low | 1 |
+| VIS-PRAYER-11 | low | 3 | VIS-PROF-a1 | low | 1 | VIS-SHAPE-1 | low | 1 |
+| VIS-SHAPE-2 | low | 1 | VIS-SHAPE-3 | low | 9 | VIS-SHAPE-4 | low (ptr) | 3 |
+| VIS-TALLY-1 | low | 1 | VIS-TALLY-2 | low | 11 | VIS-TALLY-3 | low | 1 |
+| VIS-TALLY-4 | low | 11 | VIS-TALLY-5 | low | 1 | VIS-TALLY-6 | low | 11 |
+| VIS-TALLY-7 | low | 1 | VIS-TALLY-8 | low | 11 | VIS-TALLY-9 | low | 1 |
+| VIS-TALLY-10 | low | 11 | VIS-TALLY-11 | info | 1 | VIS-TELL-1 | low | 9 |
+| VIS-TIMER-1 | low | 6 | VIS-TIMER-2 | low | 6 | VIS-TIMER-3 | low | 1 |
+| VIS-TIMER-4 | low | 6 | VIS-TIMER-5 | low | 2a | VIS-TIMER-6 | low | 1 |
+| VIS-TIMER-7 | low | 1 | VIS-TYPE-1 | medium | 2c | VIS-TYPE-2 | low | 9 |
+| VIS-VERSES-1 | low | 5 | VIS-VERSES-2 | low | 1 | VIS-VERSES-3 | low | 1 |
+| VIS-VERSES-4 | low | 1 | VIS-VERSES-5 | low | 1 | VIS-VERSES-6 | info | 5 |
+| VIS-VERSES-7 | low | 1 |  | |  |  | |  |
+
+Household work: KITCHEN-1 → 0d, KITCHEN-2 → 2a.
 
 ## What this report does not list
 
 - **89 positive items** (`OK-*`): what works, kept in their reports as the baseline Phase 6 must not break.
+- **1 item the household cut**: GAP-DOLLYWOOD-2, No shared, read-only view of a build (`audits/03-apps/dollywood.md:775`; cut at `audits/05-decisions.md:95`). Not planned; not to be proposed again.
 - **Refuted claims** (each report's "Checked and not a bug") and **unresolved questions** (each report's "Unresolved"): they are not findings. The unresolved ones are device checks or data questions; they are gathered under "Device checks" below.
 - **The Phase 2 shell deviation tables** (`audits/02-shell.md:5747`, "Deviations from the house style") carry no IDs; Phase 4 measured the same deviations system-wide and filed them as the `P4-*`, `VIS-*`, `CONS-*` and `GAP-*` entries of batch 1, which close them.
 - **The Phase 1 leads** (`audits/01-leads.md`) were all confirmed, refuted or narrowed in Phases 2 and 3 (each report's "Leads" table); a confirmed lead is a finding above under its Phase 2 or 3 ID.
@@ -6158,7 +6189,7 @@ The local rig cannot show real Liquid Glass blur, SF Pro and SF Pro Rounded, tou
 - `audits/tools/phase5/catalog.mjs` → `audits/evidence/p5/catalog.json` (712 items: every finding and positive of Phases 2-4, with its source line).
 - `audits/tools/phase5/remedies.mjs` → `audits/evidence/p5/remedies.json` (172 Phase 3 improvements, 127 Phase 4 gap rows, with the IDs each names).
 - `audits/evidence/p5/registers.json` (the three registers' severities, parsed).
-- `audits/tools/phase5/fixes-shell.mjs`, `fixes-reading.mjs`, `fixes-home-apps.mjs`, `fixes-dollywood.mjs`, `fixes-system.mjs` (the fix, effort and batch of every finding) and `plan-batches.mjs` (the batches).
+- `audits/tools/phase5/fixes-shell.mjs`, `fixes-reading.mjs`, `fixes-home-apps.mjs`, `fixes-dollywood.mjs`, `fixes-system.mjs` (the fix, effort and batch of every finding) and `plan-batches.mjs` (the batches, the household work `WORK` and the cut list `CUT`).
 - `audits/tools/phase5/build-findings.mjs` (this file).
 - Step 3: `audits/tools/phase5/ux-verify/targets.mjs` (the high and medium UX/VIS/CONS/GAP items → `audits/evidence/p5/ux-verify/targets.json` and `items/<ID>.md`), `ux-verify/verdicts.mjs` (the workflow result → `verdicts.json` and `verdicts.md`), the skeptics' scripts in `audits/tools/phase5/ux-verify/<ID>/` and their outputs in `audits/evidence/p5/ux-verify/<ID>/`.
 - The design preview: `audits/design-preview.html` (its before images in `audits/design-preview-assets/`, made by `audits/tools/phase5/preview-assets.mjs`), its capture area `audits/tools/areas/preview.mjs`, the captures in `audits/screens-preview/`, `audits/tools/phase5/preview-sheets.mjs` (contact sheets without touching `audits/01-capture.md`) and `audits/tools/phase5/preview-check.mjs` (the two-engine check).
