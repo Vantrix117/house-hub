@@ -255,9 +255,12 @@ async function capture(browser, srv, S, job) {
     /** The app iframe's Frame (after openApp). */
     appFrame: id => page.frames().find(f => f.url().includes(`/apps/${id}.html`)),
     /** Tap (touch devices) or click. */
-    async tap(target, opts = {}) { const loc = typeof target === 'string' ? page.locator(target).first() : target; if (dev.hasTouch) await loc.tap(opts); else await loc.click(opts); },
+    // Phase 6 (batch 0b): in the loading state the apps now disable their controls until the data arrives, and Playwright's
+    // actionability wait would sit on a disabled button until it times out. A finger does not wait: it taps what is there
+    // (a disabled control ignores it), so loading-state taps are forced, with a short cap.
+    async tap(target, opts = {}) { opts = state === 'loading' ? { force: true, timeout: 3000, ...opts } : opts; const loc = typeof target === 'string' ? page.locator(target).first() : target; if (dev.hasTouch) await loc.tap(opts); else await loc.click(opts); },
     /** Tap inside a frame (e.g. the app Frame from openApp); opts.force skips Playwright's actionability waits. */
-    async tapIn(frameOrLoc, selector, opts = {}) { const loc = selector ? frameOrLoc.locator(selector).first() : frameOrLoc; if (dev.hasTouch) await loc.tap(opts); else await loc.click(opts); },
+    async tapIn(frameOrLoc, selector, opts = {}) { opts = state === 'loading' ? { force: true, timeout: 3000, ...opts } : opts; const loc = selector ? frameOrLoc.locator(selector).first() : frameOrLoc; if (dev.hasTouch) await loc.tap(opts); else await loc.click(opts); },
     /** Hold matching requests unanswered for the rest of the capture (settle does not wait for them). match: '/api/…' prefix, RegExp or (url) => bool. */
     async hold(match) { await ctx.route(matcher(match), holdRoute); },
     /** Answer matching API requests with a canned response (CORS headers for the site added). */

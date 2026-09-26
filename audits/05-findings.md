@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batch 0a (`ae274a6`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batch 0a (`ae274a6`, 2026-09-26) done; 2 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26) done; 47 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -39,7 +39,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | Order | Batch | What | Findings (crit / high / med / low / info) | Effort | Needs | Status |
 |---|---|---|---|---|---|---|
 | 1 | **0a** | The hub boots with Reduce Motion on | 1 (1 / 0 / 0 / 0 / 0) | S | — | 1/1 fixed, `ae274a6` |
-| 2 | **0b** | SDK: no write before the first load, safe migration, one household day | 36 (10 / 1 / 7 / 18 / 0) | L | — | open |
+| 2 | **0b** | SDK: no write before the first load, safe migration, one household day | 36 (10 / 1 / 7 / 18 / 0) | L | — | 36/36 fixed, `d968db8` |
 | 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — | open |
 | 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — | open |
 | 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | open |
@@ -282,7 +282,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-02 — The first open of Prayer on a device overwrites the family list's settings and wipes the family's prayed-days history
 
-- **Area** shell / platform (Prayer) · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0b
+- **Area** shell / platform (Prayer) · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** hub.ready waits on the app's own channels (hub.isLoaded) and hub.set refuses an unloaded channel; Prayer loads, saves and migrates only after its person and family channels have pulled. Ezra's first open: server rows CHANGED {} (was prayerDays 29→0, plans replaced); family keys POSTed on first open []. After: `audits/evidence/p6/0b/p2/SYNC/verify-ready-seen-ezra-real.json`, `audits/evidence/p6/0b/p2/SYNC/e8-ready-seen.json`.
 - **Evidence.** `audits/02-shell.md:2391`; `apps/hub.js:334`, `index.html:457-458`, `apps/prayer.html:624-627`, `apps/hub.js:236`
 - **What happens now.** 1. `seen` is true when any channel on the page has `since > 0` (apps/hub.js:334). The shell's channel list declares `prayer|person` but not `prayer|family` (index.html:457-458), so Prayer's `hub.ready` resolves before its first family pull. 2.
 - **Why it matters.** the family streak, longest streak, month count and calendar (apps/prayer.html:732-760) reset for everyone. The family plan's settings are lost. Nothing can be rebuilt, because last-write-wins keeps no history.
@@ -291,7 +292,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-03 — A device with pre-hub F260 data migrates its old copy over the person's real progress when F260's first pull has not landed
 
-- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b
+- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** hub.migrate is async: it waits for the scope to load and a fresh successful pull, then writes only keys the server lacks, never for guests. e2h: server done 187 / week 38 kept, migrated mark set; verify-1 arms A-G all "overwritten = false" (failed-pull arms stay on the loading state and migrate nothing). After: `audits/evidence/p6/0b/p2/SYNC/e2h-migrate-race.json`, `audits/evidence/p6/0b/p2/SYNC/verify-migrate-race-overwrites-history-1.json`.
 - **Evidence.** `audits/02-shell.md:2421`; `index.html:1287`, `apps/hub.js:391-392`, `apps/f260.html:905`, `sw.js:62-68`
 - **What happens now.** The comment on `hub.migrate` says a key moves "only if that key is still empty on the server" (apps/hub.js:391-392). The actual check is `!hub.has(...)` on the local cache (:406-407). F260 migrates every `f260.*` legacy key straight after `hub.ready` (apps/f260.html:905). Every other device of Eli's adopts the newer rows.
 - **Why it matters.** a year of readings, the streak and memorised verses are replaced on every device of that person, from one open.
@@ -300,7 +302,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-05 — A first F260 open without data overwrites the whole week-start history
 
-- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b
+- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** F260 writes weekStart only when a week really starts (first tick or setCurrent), never on open. e2d: no POSTs during the held pull, weekStart 38 weeks kept; verify-2: all five variants "intact". After: `audits/evidence/p6/0b/p2/SYNC/e2d-slow-first-pull.json`, `audits/evidence/p6/0b/p2/SYNC/verify2-slow-first-pull.json`, `audits/evidence/p6/0b/p2/SYNC/e2d-phone-f260-at-7s.png`.
 - **Evidence.** `audits/02-shell.md:2491`; `apps/hub.js:337`, `apps/f260.html:909`, `apps/f260.html:938`, `apps/f260.html:1327`
 - **What happens now.** With GET `/api/data/f260` held for 8 s on a new phone, `hub.ready` gave up at 6 s (apps/hub.js:337). F260 rendered Week 1 "Genesis 1-2". At about 6.4 s it POSTed `f260.weekStart = {"1":"2026-09-24"}` and a week-1 summary (apps/f260.html:909, 938, 1509). The summary healed when the data arrived. The 38-week start history did not.
 - **Why it matters.** the plan's pace, the "started" date and the per-week "took N days" figures (apps/f260.html:1327) go permanently wrong on every device.
@@ -309,7 +312,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-17 — Tapping Done in F260 during a slow or failed first pull wipes the person's whole reading history on the server
 
-- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0b
+- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Done is disabled "Loading your progress…" until the f260 channel has pulled. critic-done-during-stall: at 7 s Done read "Loading your progress…", the tap landed after the data: done 187→188, log 169→170 (was wiped). verify2-2 A-D all 188/170, weekStart intact; verify2-1's stall arm now times out on the disabled Done (the fix holding), and f260-loading.mjs shows a forced tap during the hold POSTs nothing. After: `audits/evidence/p6/0b/p2/SYNC/critic-done-during-stall.json`, `audits/evidence/p6/0b/p2/SYNC/verify2-done-during-stalled-pull-2.json`, `audits/evidence/p6/0b/f260-loading.json`, `audits/evidence/p6/0b/f260-loading-held-iphone.png`.
 - **Evidence.** `audits/02-shell.md:2753`; `index.html:458`, `apps/hub.js:334-337`, `apps/f260.html:908-924`, `apps/hub.js:236-239`
 - **What happens now.** `hub.ready` races the first pull against 6 s only when no channel has a cache (apps/hub.js:334-337). When the pull fails it resolves at once. F260 builds its state from the empty cache (apps/f260.html:908-924).
 - **Why it matters.** It is the most destructive route found to the household's "F260 progress not saving" report. The reset-looking screen invites exactly the tap that makes the loss permanent. Undo only toggles the one tick in the empty map.
@@ -318,7 +322,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-KIDVERSE-01 — Done ★ tapped during a slow or failed first load overwrites the kid's whole stars row; reconcile then re-credits paid stars
 
-- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b
+- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Done ★ is disabled "Getting your stars…" until both kidverse scopes have pulled; award() and reconcile() run only when loaded. verify-award-1/2: slow, fail, outage, latency and blip arms leave total/earned/badges/payouts intact and add exactly one star after load; kidverse-first-load A: direct award() returns false with 0 POSTs. After: `audits/evidence/p6/0b/p3/kidverse/verify-award-first-pull-wipes-stars-1.json`, `audits/evidence/p6/0b/p3/kidverse/verify-award-first-pull-wipes-stars-2.json`, `audits/evidence/p6/0b/kidverse-first-load-A-outage.png`, `audits/evidence/p6/0b/kidverse-first-load-A-after.png`.
 - **Evidence.** `audits/03-apps/kidverse.md:159`; `index.html:458-459`, `apps/kidverse.html:323-335`, `apps/hub.js:334-337`, `worker/src/data.js:60-62`; `audits/evidence/p3/kidverse/award-first-pull-hold-phone-after-tap.png`, `audits/evidence/p3/kidverse/award-first-pull-fail-ipad-after.png`
 - **What happens now.** `award()` writes `myStars() + 1` with no `pulled()` guard (`apps/kidverse.html:323-335`). `reconcile()` has the guard, and its comment says why: a fresh row from an empty cache "would out-date the kid's real stars (last write wins)" (`:465-469`). `hub.ready` resolves after 6 s, or at once when the pull fails (`apps/hub.js:334-337`).
 - **Why it matters.** It erases a child's earned history, badges and payout bookkeeping, and it inflates a balance a parent already paid out. Adults and the TV read the same overwritten mirror.
@@ -327,7 +332,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-KIDVERSE-03 — On a stalled or failed first load an adult sees "Week 1", and + writes week 2 over the family's real week
 
-- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b
+- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** The adult week stepper is disabled ("Loading the family week…") until the family scope has pulled. verify-week-stepper-1: the tap stepped the real week 38→39, not 1→2; -2's fail arm now times out on the disabled + (the fix holding); kidverse-first-load B: setWeek(2) sends 0 POSTs, server keeps week 38. After: `audits/evidence/p6/0b/p3/kidverse/verify-week-stepper-stalled-overwrite-1.json`, `audits/evidence/p6/0b/p3/kidverse/adult-week.json`, `audits/evidence/p6/0b/kidverse-first-load-B-outage.png`.
 - **Evidence.** `audits/03-apps/kidverse.md:252`; `index.html:459`, `apps/kidverse.html:370`, `apps/hub.js:337`, `apps/hub.js:295`; `audits/evidence/p3/kidverse/adult-week-C-stalled-stepper.png`, `audits/evidence/p3/kidverse/verify-week-stepper-stalled-overwrite-1-V1-held-9s-at-tap.png`
 - **What happens now.** `familyWeek()` falls back to 1 when there is no row (`apps/kidverse.html:253, 276`). The stepper shows "Week 1 · the family is on" with + enabled (`:369`), and `setWeek` has no pull guard (`:336-340`). At 7.0 s into a held pull the adult saw Genesis 1:27 / Week 1 and tapped +.
 - **Why it matters.** A setting that decides what every child hears this week is silently reset, and each kid device shows the wrong verse and story until an adult notices.
@@ -336,7 +342,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-KIDVERSE-11 — "I heard it" tapped during a slow or failed first load replaces the week's story row, dropping earlier heard days
 
-- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b
+- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** "I heard it" is disabled "Getting your story…" until the story rows have pulled. All three heard scripts: earlier heard days survive ("Heard 2 days this week"). After: `audits/evidence/p6/0b/p3/kidverse/critic-heard-first2.json`, `audits/evidence/p6/0b/p3/kidverse/verify-critic-heard-first-load-overwrites-story-row-3-1.json`, `audits/evidence/p6/0b/p3/kidverse/verify-critic-heard-first-load-overwrites-story-row-3-2.json`.
 - **Evidence.** `audits/03-apps/kidverse.md:501`; `apps/kidverse.html:631-639`, `apps/hub.js:334-337`, `apps/hub.js:295-296`, `apps/kidverse.html:599-604`; `audits/evidence/p3/kidverse/critic-heard-first2-phone-after.png`, `audits/evidence/p3/kidverse/verify-critic-heard-first-load-overwrites-story-row-3-2-A-phone-after.png`
 - **What happens now.** `heard()` has no `pulled()` check (`apps/kidverse.html:631-639`), unlike `reconcile()` (`:467-469`). On an empty cache `normStory` returns `{week, days: {}}` (`:599-604`), and the button is enabled for any kid whatever the pull state. `hub.ready` resolves after 6 s (`apps/hub.js:334-337`).
 - **Why it matters.** The week's heard days that the story card and the parents' F260 line show are silently cut back. The kid is also shown, and taps under, a placeholder week-1 story nobody read to them.
@@ -345,7 +352,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-02 — A slow or failed first pull on a new device overwrites the person's prayed-days history and plans
 
-- **Area** prayer · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b
+- **Area** prayer · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Prayer paints a loading state and writes nothing until its channels have pulled. slow-start hold9s: first paint "Loading your prayer list…", posts [], prayerDays 41 and plans unchanged (was 8+6 keys POSTed, 41→0); verify-1/2 latency, fail503, hold9s and network-error arms: no wipe. After: `audits/evidence/p6/0b/p3/prayer/slow-start.json`, `audits/evidence/p6/0b/p3/prayer/verify-slow-start-person-wipe-1.json`, `audits/evidence/p6/0b/p3/prayer/verify-slow-start-person-wipe-2.json`, `audits/evidence/p6/0b/p3/prayer/slow-start-hold9s-first-paint.png`.
 - **Evidence.** `audits/03-apps/prayer.md:222`; `apps/hub.js:334-337`, `apps/prayer.html:624-639`, `apps/prayer.html:826-833`, `apps/prayer.html:685-695`; `audits/evidence/p3/prayer/slow-start-hold9s-first-paint.png`, `audits/evidence/p3/prayer/slow-start-control-first-paint.png`
 - **What happens now.** On a device with no cache for the app's channels, `hub.ready` races the first pull against 6 s, and resolves at once if the pull fails (`apps/hub.js:334-337`). Prayer then builds its lists from the empty cache (`apps/prayer.html:624-639`) and paints "Nothing on the list today." with all-zero stats.
 - **Why it matters.** Months of "days in a row", the month count, the Record calendar and a person's named plans are replaced for good by a cellular hiccup on a new phone, and the family list's plan and streak with them.
@@ -354,7 +362,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-TALLY-02 — A tap during a slow or failed first load replaces the saved count
 
-- **Area** tally · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b
+- **Area** tally · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** +, − and Reset are disabled (aria-busy) until the count has arrived. first-load hold/fail: shownAtReady "", the tap lands after load on the real count 37→38 (was 37→1); kid 12→13; tally-loading.mjs: forced taps at 2 s change nothing and send nothing. After: `audits/evidence/p6/0b/p3/tally/first-load.json`, `audits/evidence/p6/0b/p3/tally/verify-first-load-tap-overwrites-count-2.json`, `audits/evidence/p6/0b/tally-loading-hold-light.png`, `audits/evidence/p6/0b/tally-loading-fail-dark.png`.
 - **Evidence.** `audits/03-apps/tally.md:191`; `apps/hub.js:334-337`, `index.html:458`, `apps/tally.html:145-157`, `apps/hub.js:252-253`; `audits/evidence/p3/tally/first-load-hold-at-tap.png`, `audits/evidence/p3/tally/verify-first-load-tap-overwrites-count-2-hold10-at-tap.png`
 - **What happens now.** On a device with no tally cache, `hub.ready` races the first pull against 6 s, and resolves at once if the pull fails (`apps/hub.js:334-337`). The shell does not sync the tally channel (`index.html:458`), so the app frame's own pull is the only one. Tally then paints 0 and wires + and − (`apps/tally.html:145-157`).
 - **Why it matters.** The count is replaced for good. The screen already shows 0, as if the count had been wiped, which invites exactly the tap that makes the loss permanent. Kids, Tally's likeliest users, are hit the same way (Ezra 12 → 1).
@@ -363,7 +372,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-VERSES-03 — A rating before Verses' own data arrives on a device replaces the whole review log (on a cold kid device, the whole schedule too)
 
-- **Area** verses · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b
+- **Area** verses · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** No rating until the verses and f260 channels (and kidverse family for kids) have pulled: Show and the ratings are disabled on a skeleton card. verify-first-open-1 slow/control and -2 latency: server log 13→14 days (was cut to 1); the offline and kid arms now time out on the disabled Show (the fix holding); verses-first-open.mjs A/B: offline and cold-kid taps queue nothing. After: `audits/evidence/p6/0b/p3/verses/verify-first-open-wipes-log-1-slow-result.json`, `audits/evidence/p6/0b/p3/verses/verify-first-open-wipes-log-2-latency.json`, `audits/evidence/p6/0b/verses-A-offline-loading-iphone.png`, `audits/evidence/p6/0b/verses-B-kid-cold-loading-iphone.png`.
 - **Evidence.** `audits/03-apps/verses.md:205`; `index.html:458`, `apps/hub.js:334-337`, `apps/verses.html:297-298`, `apps/hub.js:295`; `audits/evidence/p3/verses/first-open-log-offline-before-rating.png`, `audits/evidence/p3/verses/first-open-log-offline-ipad-after.png`
 - **What happens now.** The shell already caches the person's `f260` scope (`index.html:458`). On a first Verses open some channel therefore has `since > 0`, and `hub.ready` skips its wait (`apps/hub.js:334-337`). Verses paints its due cards within about 150-450 ms while its own `verses/person` channel is still empty, with a "0" day streak.
 - **Why it matters.** The day-streak history is permanently replaced by one day. For a kid, the day's ratings are lost and the wrong week is practised.
@@ -372,7 +382,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-HOME-02 — "Today's reading" shows yesterday's reading as done until F260 is opened
 
-- **Area** shell / platform (F260) · **Type** bug · **Severity** high · **Effort** S · **Batch** 0b
+- **Area** shell / platform (F260) · **Type** bug · **Severity** high · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** F260's summary carries readOn; Home computes "read today" and the streak from the synced f260.log for today's New York date (F260's own streak rule), chat's f260_status reads the log too, and the 8 pm job already did. verify-stale-1: Tue "reading done · read today ✓"; Wed "a reading waiting" (was "reading done"); Sat, 3 unread days later, no streak. After: `audits/evidence/p6/0b/p2/HOME/verify-stale-1.json`, `audits/evidence/p6/0b/p2/HOME/verify-stale-2.json`.
 - **Evidence.** `audits/02-shell.md:303`; `apps/f260.html:1504-1509`, `index.html:732`, `index.html:1161-1169`, `worker/src/chat.js:299`
 - **What happens now.** F260 writes `f260.summary = {week, weekDone, total, streak, readToday: !!log[today], next, finished}` with no date field (`apps/f260.html:1504-1509`). It does so only while F260 is open. Closing the viewer blanks the frame (`index.html:732`). Home uses `f.readToday` and `f.streak` as they are (`index.html:1161-1169`).
 - **Why it matters.** Every morning, the main glance card tells an adult who read yesterday that today's reading is done. The streak is frozen the same way. Someone who trusts Home for about 3 days loses the streak while Home still shows it.
@@ -381,7 +392,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-STAB-07 — F260 and Kid Verse left open keep showing yesterday after midnight
 
-- **Area** shell / platform (F260, Kid Verse) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b
+- **Area** shell / platform (F260, Kid Verse) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** F260 and Kid Verse re-render on hub.onDay (and on visibility when the day changed); the shell re-renders Home at the household midnight. midnight.mjs: F260 rolls to "TODAY / Mon, Sep 28"; Kid Verse drops last week's stars and rings Monday; the kid Home card goes from 3 stars to "No stars yet". After: `audits/evidence/p6/0b/p2/STAB/midnight.json`, `audits/evidence/p6/0b/p2/STAB/midnight-tue.json`.
 - **Evidence.** `audits/02-shell.md:3234`; `apps/f260.html:1556-1561`, `apps/kidverse.html:343-361`, `apps/kidverse.html:327-329`
 - **What happens now.** F260 still showed "READ TODAY ✓ / Tue, Sep 22" at Wed 00:02, after 3 minutes of real pulls and a hide/show cycle (`verify-stale-midnight-1.json`, `verify-open-apps-stale-2-A-f260-wed-0003.png`). Kid Verse, at Mon 00:02. The main card still said "4 stars this week", Sunday was highlighted, and "Done today ★" was still pressed.
 - **Why it matters.** A reader sees "Read today ✓" on a new day. A pre-reader sees a pressed "Done today ★" and may not tap, and the verse star can only be earned for today (apps/kidverse.html:327-329).
@@ -390,7 +402,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-03 — After the March DST change, every older item reads one day young in the Larder and on Home
 
-- **Area** leftovers · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b
+- **Area** leftovers · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Ages are hub.daysBetween(dateLogged, hub.today()) in the Larder and on Home. verify-dst-1/2 and dates: ages equal calendar days across spring-forward and fall-back. After: `audits/evidence/p6/0b/p3/leftovers/verify-dst-spring-forward-off-by-one-1.json`, `audits/evidence/p6/0b/p3/leftovers/verify-dst-spring-forward-off-by-one-2.json`, `audits/evidence/p6/0b/p3/leftovers/dates-dst.json`.
 - **Evidence.** `audits/03-apps/leftovers.md:259`; `apps/leftovers.html:167`, `index.html:679`, `worker/src/reminders.js:19`, `index.html:699`; `audits/evidence/p3/leftovers/dates-spring-forward-2027-larder.png`, `audits/evidence/p3/leftovers/verify-dst-spring-forward-off-by-one-1-sat20-2100-larder.png`
 - **What happens now.** `daysBetween` floors (local midnight today − local midnight of `dateLogged`) / 86400000 (`apps/leftovers.html:167`), and Home's `ageDays` uses the same formula (`index.html:679`). A span that crosses spring-forward is one hour short, so it floors a day low.
 - **Why it matters.** The Larder's main signal, the week-old warning, arrives a day late for a whole week's worth of food, and the app, Home and the lock screen disagree about the same dish.
@@ -399,7 +412,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-TALLY-06 — A guest who opens Tally first on a device receives the household's legacy count; the next household adult gets 0
 
-- **Area** tally · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b
+- **Area** tally · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** hub.profile.isGuest now reaches the SDK and hub.migrate skips guests without marking the scope. critic-guest-migrate: the guest sees 0, no mark, no server row; Mom then gets 23. After: `audits/evidence/p6/0b/p3/tally/critic-guest-migrate.json`, `audits/evidence/p6/0b/p3/tally/verify-critic-guest-gets-legacy-migration-2-2.json`.
 - **Evidence.** `audits/03-apps/tally.md:355`; `apps/hub.js:392`, `apps/hub.js:400`, `apps/f260.html:905`, `apps/dollywood.html:1107`; `audits/evidence/p3/tally/verify-critic-guest-gets-legacy-migration-2-2-guest.png`, `audits/evidence/p3/tally/verify-critic-guest-gets-legacy-migration-2-2-mom.png`
 - **What happens now.** `hub.migrate` gives person-scope legacy data to any profile whose kind is `'adult'` (`apps/hub.js:400`). Guests are created with kind `'adult'` and `is_guest` 1 (`worker/src/index.js:170, 197-198`), and `publicProfile` drops `is_guest` (`apps/hub.js:60-62`), so `hub.profile` cannot tell a guest from a household adult.
 - **Why it matters.** The household's pre-profile count lands in a temporary visitor's profile and is later purged, and the adult who should have received it sees 0.
@@ -408,7 +422,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-TALLY-07 — On a slow or failed first load Tally shows 0 as the person's count
 
-- **Area** tally · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b
+- **Area** tally · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** A skeleton pill replaces the markup's placeholder 0 until the count arrives. fake-zero-5-1/5-2: in every hold, fail and abort sample the dial is empty with + disabled and aria-busy, then the real 37; no 0 is ever painted. After: `audits/evidence/p6/0b/p3/tally/verify-critic-fake-zero-while-loading-5-1.json`, `audits/evidence/p6/0b/p3/tally/verify-critic-fake-zero-while-loading-5-2.json`, `audits/evidence/p6/0b/tally-loading-hold-light.png`.
 - **Evidence.** `audits/03-apps/tally.md:391`; `apps/tally.html:134`, `apps/hub.js:334-337`, `apps/tally.html:145-157`, `apps/hub.js:342`; `audits/evidence/p3/tally/verify-critic-fake-zero-while-loading-5-1-fail-zero.png`, `audits/evidence/p3/tally/verify-critic-fake-zero-while-loading-5-2-abort-zero.png`
 - **What happens now.** The markup's placeholder 0 (`apps/tally.html:134`) is painted as the count. `hub.ready` waits for the first pull only when no channel has a cache, caps the wait at 6 s, and resolves at once if the pull fails (`apps/hub.js:334-337`).
 - **Why it matters.** The screen says the count was wiped. That invites exactly the tap that makes the wipe permanent (P3-TALLY-02), and on a kid's device it looks as if their count is gone.
@@ -417,7 +432,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-TIMER-01 — While the page's first timer pull is slow or fails, the app shows an idle timer, and one Start tap replaces the person's running timer on every device
 
-- **Area** timer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b
+- **Area** timer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Start, Reset and the presets stay disabled on a skeleton dial until this page's own timer pull has succeeded, the device is truly offline with a pulled cache, or the server has been unreachable for 8 s with a pulled cache. verify-slowload-1: hold9, lat8, fail and ctrl all replaced:false; timer-stale-taps: forced taps change nothing in the warm, cold and fail arms, and offline with a warm cache Start works and queues timer.active. After: `audits/evidence/p6/0b/p3/timer/verify-slowload-start-replaces-running-timer-1.json`, `audits/evidence/p6/0b/timer-stale-taps-warm-loading.png`, `audits/evidence/p6/0b/timer-stale-taps-offwarm-started.png`.
 - **Evidence.** `audits/03-apps/timer.md:131`; `apps/hub.js:334-337`, `apps/timer.html:57`, `apps/timer.html:76`, `apps/timer.html:81`; `audits/evidence/p3/timer/critic-warm-stale-hold-before-tap.png`, `audits/evidence/p3/timer/critic-warm-stale-ctrl-before-tap.png`
 - **What happens now.** The markup ships "5:00" with a primary Start (`apps/timer.html:57, 63, 69`), and the handlers attach only after `hub.ready` (`apps/timer.html:76, 113`). On a device with no cache, `hub.ready` races the first pull against 6 s and resolves at once if the pull fails (`apps/hub.js:334-337`).
 - **Why it matters.** The person's real countdown (the oven) is silently replaced and now ends at the wrong time on all their devices, including the Kitchen iPad's pill and the Kitchen iPad's open Timer, where it was started.
@@ -426,7 +442,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-VERSES-04 — Left open past midnight, Verses keeps saying "All done for today" / "Come back tomorrow!" while verses are due
 
-- **Area** verses · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b
+- **Area** verses · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Verses re-renders on hub.onDay. midnight and verify-midnight-1/2: at 00:05 Eli goes from "All done for today" to "9 to go" and Ezra from "Come back tomorrow!" to "2 to go". After: `audits/evidence/p6/0b/p3/verses/midnight.json`, `audits/evidence/p6/0b/p3/verses/verify-midnight-stale-all-done-1.json`, `audits/evidence/p6/0b/p3/verses/midnight-eli-ipad-after.png`.
 - **Evidence.** `audits/03-apps/verses.md:247`; `apps/verses.html:294`, `apps/verses.html:310`, `apps/verses.html:380-381`, `apps/verses.html:149`; `audits/evidence/p3/verses/midnight-eli-ipad-after.png`, `audits/evidence/p3/verses/midnight-ezra-iphone-after.png`
 - **What happens now.** "Today" is computed only inside `render()` (`apps/verses.html:310`). `render()` runs at load, after a tap and on `hub.onChange` (`apps/verses.html:380-381`); the app has no timer and no visibility handler (setInterval / setTimeout / visibilitychange in `apps/verses.html`: NOT FOUND IN CODE).
 - **Why it matters.** The morning review looks finished, and a kid is told to come back tomorrow on a day he should practise.
@@ -435,7 +452,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-DOLLYWOOD-5 — While the first pull loads, the guide looks like a first-time user and Mark done is live
 
-- **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0b
+- **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** The build guide (template, rebuilt and exported) shows "Loading your progress…", chips without counts and a disabled Mark done / Next unfinished until the person scope has pulled. data-checks L1: during load "Loading your progress…", markDone.disabled true; after load "7 of 9 done"; L2: a tick during load changes nothing (server stays 24). After: `audits/evidence/p6/0b/p3/dollywood/data-checks-L1-L2.json`, `audits/evidence/p6/0b/p3/dollywood/first-open-loading.png`.
 - **Verified (step 3).** was medium; skeptics medium and medium.
 - **Evidence.** `audits/03-apps/dollywood.md:680`; `audits/evidence/p3/dollywood/first-open-loading.png`, `audits/screens/dollywood/steps-loading-iphone-pwa-light.png`
 - **What happens now.** On a fresh device with the pull held 5 s: "0 of 9 done", every chip 0/N, an enabled Mark done and no loading cue (L1). After the pull: "7 of 9 done". A tick in that window replaced the server row, 24 → 1 (L2).
@@ -445,7 +463,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-15 — `hub.sync.state` starts as "offline" while the device is online, so apps show false offline wording and Home shows final "empty" wording
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** hub.sync.state starts "pending"; Home, the TV and the kids' cards show skeletons until each card's channel has pulled (hub.isLoaded), offline included. e11: state "pending", no false offline line; v-initial-offline-2: Larder never paints the offline line on a warm open; Home cold load shows skeletons, then the data with 0 skeletons once the pull lands (channels now pull in parallel). After: `audits/evidence/p6/0b/p2/SYNC/e11-initial-offline-state.json`, `audits/evidence/p6/0b/p2/SYNC/v-initial-offline-2.json`, `audits/evidence/p6/0b/p2/SYNC/v-initial-offline-2-home-cold-midpull.png`.
 - **Evidence.** `audits/02-shell.md:2699`; `apps/hub.js:51`, `apps/hub.js:334-337`, `index.html:1158`
 - **What happens now.** the state is `'offline'` from script load until the first pull ends (apps/hub.js:51, 311), and `onSync` fires at once with it (:125).
 - **Why it matters.** false alarms teach the family to ignore the real ones. This is also the root cause of the "final empty wording instead of skeletons" lead.
@@ -454,7 +473,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-F260-05 — Opening F260 once enrols a guest or Mea in the 8 pm and Sunday reading nudges
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Viewing the plan writes nothing: weekStart and the summary are written only on a tick or setting change (the summary is refreshed on open only for someone who already has F260 data). guest and verify-first-open-enrols-guest-1/2: opening F260 writes nothing for Grandma Jo or Mea, and the evening and behind jobs no longer list them. After: `audits/evidence/p6/0b/p3/f260/guest.json`, `audits/evidence/p6/0b/p3/f260/verify-first-open-enrols-guest-1.json`, `audits/evidence/p6/0b/p3/f260/verify-first-open-enrols-guest-2.json`.
 - **Evidence.** `audits/03-apps/f260.md:275`; `apps/f260.html:938`, `apps/f260.html:1506-1509`, `worker/src/reminders.js:82-99`, `worker/src/reminders.js:56`; `audits/evidence/p3/f260/guest-guest-grandmajo-first-open-ipad.png`, `audits/evidence/p3/f260/verify-first-open-enrols-guest-2-guest-grandmajo-home-after-ipad.png`
 - **What happens now.** With no start date for the current week, boot writes `weekStart[curWeek] = today` (`apps/f260.html:938`), and the first render saves `f260.summary` (`apps/f260.html:1506-1509`).
 - **Why it matters.** A grandparent who peeks at the plan once starts getting "No reading checked off today yet" every evening, and "N readings behind" on Sundays.
@@ -463,7 +483,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-F260-06 — A device in another time zone files the reading under its own date
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** The day key is hub.today(). verify-other-timezone-1/2 and time: the London phone logs 2026-09-22, the evening job sees readToday true, DST streak and heatmap correct. After: `audits/evidence/p6/0b/p3/f260/verify-other-timezone-logs-next-day-1.json`, `audits/evidence/p6/0b/p3/f260/verify-other-timezone-logs-next-day-2.json`, `audits/evidence/p6/0b/p3/f260/time.json`.
 - **Evidence.** `audits/03-apps/f260.md:299`; `apps/f260.html:932`, `apps/f260.html:1662`, `worker/src/reminders.js:13`, `worker/wrangler.toml:25`; `audits/evidence/p3/f260/verify-other-timezone-logs-next-day-1-london-after-iphone.png`, `audits/evidence/p3/f260/verify-other-timezone-logs-next-day-1-ny-tue-ipad.png`
 - **What happens now.** `dayKey` uses the device's local date (`apps/f260.html:932`), and a tick sets `log[dayKey()]` (`apps/f260.html:1662`). The Worker works in America/New_York (`worker/src/reminders.js:13, 89-96`). Eli's phone set to Europe/London taps Done on a New York Tuesday evening: the log gets 2026-09-23, not 22.
 - **Why it matters.** Two devices show a different "read today" for the same row at the same moment, and a nudge can be wrong in both directions.
@@ -472,7 +493,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-KIDVERSE-08 — "Today" is each device's local date, so a device in a western time zone can add a second verse star in one household day
 
-- **Area** kidverse · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** kidverse · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** One star per household day: dayKey is hub.today() and isoWeek is the ISO week of the household date (the same formula as the shell). verify-device-local-day-1/2 and dates: a Los Angeles phone at 22:30 on 23 Sep stores 2026-09-24 and the New York iPad then gets "already have today's star"; total stays 2. After: `audits/evidence/p6/0b/p3/kidverse/verify-device-local-day-1.json`, `audits/evidence/p6/0b/p3/kidverse/verify-device-local-day-2.json`, `audits/evidence/p6/0b/p3/kidverse/dates.json`.
 - **Evidence.** `audits/03-apps/kidverse.md:413`; `apps/kidverse.html:259`, `worker/src/reminders.js:13-18`, `worker/src/chat.js:112`, `index.html:834`; `audits/evidence/p3/kidverse/dates-Z-ny-ipad-after-second-star.png`, `audits/evidence/p3/kidverse/verify-device-local-day-1-B-ny-ipad-after.png`
 - **What happens now.** `dayKey` uses the device's local date (`apps/kidverse.html:259`; the story module's copy at `:592`), and `award()` allows one star per `dayKey()` (`:327-329`). A phone set to America/Los_Angeles at 22:30 PT on Wed 23 Sep stored `days['2026-09-23']`.
 - **Why it matters.** It breaks the one-star-a-day rule, in the kid's favour.
@@ -481,7 +503,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-06 — Tapping Log or pressing Enter before the app is ready reloads the page and loses the typed name
 
-- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** An inline handler right after the form calls preventDefault from the first byte and holds the entry; it is logged once the list has loaded. verify-submit-before-ready-1/2 and before-ready A: no reload, the name kept, the item lands on the server. After: `audits/evidence/p6/0b/p3/leftovers/verify-submit-before-ready-reloads-1.json`, `audits/evidence/p6/0b/p3/leftovers/verify-submit-before-ready-reloads-2.json`, `audits/evidence/p6/0b/p3/leftovers/verify-submit-before-ready-reloads-2-A-after-tap-iphone.png`.
 - **Evidence.** `audits/03-apps/leftovers.md:381`; `index.html:458`, `apps/leftovers.html:120-131`, `apps/leftovers.html:172`, `apps/hub.js:334-337`; `audits/evidence/p3/leftovers/before-ready-A-typed-iphone.png`, `audits/evidence/p3/leftovers/verify-submit-before-ready-reloads-2-A-after-tap-iphone.png`
 - **What happens now.** The form is live from first paint (`apps/leftovers.html:120-131`). It has no `action`, and its inputs have no `name`. `form.onsubmit` is attached only after `await hub.ready()` (`apps/leftovers.html:172, 289`), which on a cold cache waits up to 6 s (`apps/hub.js:334-337`).
 - **Why it matters.** The cook types tonight's dish, taps Log, and the page blanks. The item never reaches the list or the 8 am push.
@@ -490,7 +513,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-07 — A device in another time zone writes and reads its own local date
 
-- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Household dates via hub.today() (the date box's value and max included). verify-other-timezone-ages-1/2 and timezone: London and Los Angeles phones write New York's date and show the same ages as the New York iPad (0 differing items). After: `audits/evidence/p6/0b/p3/leftovers/verify-other-timezone-ages-1.json`, `audits/evidence/p6/0b/p3/leftovers/verify-other-timezone-ages-2.json`, `audits/evidence/p6/0b/p3/leftovers/timezone.json`.
 - **Evidence.** `audits/03-apps/leftovers.md:423`; `apps/leftovers.html:166-167`, `apps/leftovers.html:191-193`, `apps/leftovers.html:295`, `worker/src/reminders.js:14-19`; `audits/evidence/p3/leftovers/tz-london-ipad.png`, `audits/evidence/p3/leftovers/verify-other-timezone-ages-2-london-ipad.png`
 - **What happens now.** `todayStr()` and `daysBetween()` use the device's own zone (`apps/leftovers.html:166-167`). The date box's default and `max` come from `todayStr()` (`apps/leftovers.html:191-193`), and `dateLogged` is a bare date with no zone (`apps/leftovers.html:295`). The Worker uses New York dates throughout (`worker/src/reminders.js:14-19`;
 - **Why it matters.** A traveller's new item shows a negative or one-day age at home, and the traveller sees every other item a day older or younger than the kitchen does.
@@ -499,7 +523,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-08 — The first item logged in the minute after midnight gets yesterday's date
 
-- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Submit re-keys the day (hub.today()) before it reads the date box; hub.onDay moves the box at midnight. verify-midnight-first-minute-yesterday-1/2 and midnight: "Midnight popcorn" is stored 2026-09-23 and reads 0d; leftovers-midnight-tap.mjs taps 2-3 s after midnight while the box still showed the old day: both Logs get the new date. After: `audits/evidence/p6/0b/p3/leftovers/verify-midnight-first-minute-yesterday-1.json`, `audits/evidence/p6/0b/p3/leftovers/midnight.json`, `audits/evidence/p6/0b/p3/leftovers/verify-midnight-first-minute-yesterday-1.png`.
 - **Evidence.** `audits/03-apps/leftovers.md:457`; `apps/leftovers.html:295`, `apps/leftovers.html:364-375`, `apps/leftovers.html:166`, `apps/leftovers.html:300`; `audits/evidence/p3/leftovers/midnight-after-tick-ipad.png`, `audits/evidence/p3/leftovers/verify-midnight-first-minute-yesterday-1.png`
 - **What happens now.** Submit takes the date box's value (`apps/leftovers.html:295`). The box moves to the new day only on the 60 s rollover tick or on `visibilitychange` (`apps/leftovers.html:364-375`). So "Midnight popcorn", logged at 00:00:11 on Wednesday, was stored as 2026-09-22 and read "1d ago" at once.
 - **Why it matters.** A late snack put away just after midnight starts life a day old.
@@ -508,7 +533,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-14 — After one Log in the minute after midnight, the next Log is refused with "must be yesterday or earlier" while the box shows today (from the critic)
 
-- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** After a Log the box resets value and max to the household day together. critic-midnight-second-log (Chromium and WebKit) and verify-2-1/2-2: both Logs save 2026-09-23, value equals max, 0 invalid events. After: `audits/evidence/p6/0b/p3/leftovers/critic-midnight-second-log.json`, `audits/evidence/p6/0b/p3/leftovers/verify-critic-midnight-second-log-blocked-2-1.json`, `audits/evidence/p6/0b/p3/leftovers/verify-critic-midnight-second-log-blocked-2-2.json`.
 - **Evidence.** `audits/03-apps/leftovers.md:669`; `apps/leftovers.html:191-193`, `apps/leftovers.html:364-375`, `apps/leftovers.html:300`, `apps/leftovers.html:120`; `audits/evidence/p3/leftovers/critic-midnight-second-log-chromium-ipad.png`, `audits/evidence/p3/leftovers/verify-critic-midnight-second-log-blocked-2-1-chromium-ipad-portrait-click.png`
 - **What happens now.** `max` is set once at load (`apps/leftovers.html:191-193`) and moved only by `rollover()`, on the 60 s tick or `visibilitychange` (`apps/leftovers.html:364-375`). Submit resets the date box to `todayStr()` without touching `max` (`apps/leftovers.html:300`), and the form has no `novalidate` (`apps/leftovers.html:120`).
 - **Why it matters.** Right after midnight the cook's second dish will not save, and the only message blames the date that the box shows as today.
@@ -517,7 +543,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-10 — Taps before the data loads throw; the Mine/Family choice and screen changes are lost
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** A capture-phase guard stops taps while the data is unset, and Mine/Family, Pray now, More, the nav and + are disabled until load. verify-tap-before-ready-1/2 and leads L6: no page errors in any arm (was a TypeError on D); the Family tap hits a disabled button and the page stays put. After: `audits/evidence/p6/0b/p3/prayer/verify-tap-before-ready-1.json`, `audits/evidence/p6/0b/p3/prayer/verify-tap-before-ready-2.json`, `audits/evidence/p6/0b/p3/prayer/verify-tap-before-ready-1-A-record-before-load.png`.
 - **Evidence.** `audits/03-apps/prayer.md:441`; `index.html:458`, `apps/prayer.html:611`, `apps/hub.js:334-337`, `apps/prayer.html:1267`; `audits/evidence/p3/prayer/verify-tap-before-ready-1-A-record-before-load.png`, `audits/evidence/p3/prayer/verify-tap-before-ready-2-hold4s-during-window.png`
 - **What happens now.** The document click handler is live before `load()` sets `D` (`apps/prayer.html:611, 1230-1231`; boot at `:1752-1758`). With the Prayer pulls held 4 s on a new device, the Family tap threw "undefined is not an object (evaluating 'D.activeList = t.dataset.list')" and the Record tap threw on `D.lists`.
 - **Why it matters.** On a new phone the first taps silently do nothing, and the page jumps back to Today.
@@ -526,7 +553,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-11 — A phone outside New York time files prayed marks under its own local date
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** TODAY is hub.today(); daysSince, shift and the weekday use the household date; the shell's TV reads prayedBy with the same date. verify-other-timezone-date-1: David in Los Angeles files under 2026-09-23 and the TV shows David and Elizabeth; dates TZ: onNewYorkTodayList true. (verify-2's east arm then unticks a row someone else ticked: that is P3-PRAYER-05, batch 0g.) After: `audits/evidence/p6/0b/p3/prayer/verify-other-timezone-date-1.json`, `audits/evidence/p6/0b/p3/prayer/dates.json`, `audits/evidence/p6/0b/p3/prayer/verify-other-timezone-date-1-tv.png`.
 - **Evidence.** `audits/03-apps/prayer.md:466`; `apps/prayer.html:711-712`, `index.html:834`, `worker/src/chat.js:112`, `worker/src/chat.js:244-246`; `audits/evidence/p3/prayer/verify-other-timezone-date-1-tv.png`, `audits/evidence/p3/prayer/verify-other-timezone-date-2-tv-east.png`
 - **What happens now.** `TODAY` is the device's local date (`apps/prayer.html:711-712`) and `setPrayed` writes `prayedBy[TODAY]` (`:1598-1602`). The New York TV reads `prayedBy[today]` with its own local date (`index.html:834, 1058-1059`). David's phone in Los Angeles at Tue 22:30 PDT (Wed 01:30 New York) filed his tap under 2026-09-22, and the TV omitted him.
 - **Why it matters.** A travelling parent's prayer is missing from the TV board, and the app and chat disagree about which day a mark belongs to.
@@ -535,7 +563,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-VERSES-07 — On a slow first load Verses shows "all done / Nothing to train yet" and saves a zero summary
 
-- **Area** verses · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** verses · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** render() shows the loading card until the channels have pulled and writeSummary() is refused before it. verify-stalled-load-zero-summary-1/2 and stalled-load: "Loading…" then the real "3 to go"; never "all done" or "Nothing to train yet"; the server summary is never zeroed. After: `audits/evidence/p6/0b/p3/verses/verify-stalled-load-zero-summary-1.json`, `audits/evidence/p6/0b/p3/verses/stalled-load-adult.json`, `audits/evidence/p6/0b/p3/verses/stalled-load-adult-iphone.png`.
 - **Evidence.** `audits/03-apps/verses.md:319`; `apps/hub.js:337`, `apps/verses.html:239-245`, `apps/hub.js:310`; `audits/evidence/p3/verses/stalled-load-adult-iphone.png`, `audits/screens/verses/trainer-stalled-loading-desktop-light.png`
 - **What happens now.** On a new device with every data GET delayed 9 s, `hub.ready` gives up after 6 s (`apps/hub.js:337`). At 6.6 s Eli sees "Eli · all done" over the empty state, although he has 64 memorised verses and 3 due. `render()` calls `writeSummary()` every time with no pull guard (`apps/verses.html:239-245, 356`);
 - **Why it matters.** Ten critical data losses share one cause: hub.ready resolves before the app's own data has arrived (apps/hub.js:334-337), so a tap or an automatic save writes from an empty state over the real row. The same batch gives every app one "today" in New York time with a midnight event, because the apps disagree about the date today.
@@ -544,7 +573,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-VERSES-09 — A device in another time zone files reviews under its own date, so other devices count the wrong day
 
-- **Area** verses · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** verses · **Type** bug · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Log keys, last and due use hub.today / hub.addDays / hub.daysBetween. verify-other-timezone-day-1/2/3: the London phone stores last 2026-09-22, due 2026-09-29; the New York iPad shows "streak 14 · reviewed today". After: `audits/evidence/p6/0b/p3/verses/verify-other-timezone-day-1-result.json`, `audits/evidence/p6/0b/p3/verses/verify-other-timezone-day-2.json`, `audits/evidence/p6/0b/p3/verses/verify-other-timezone-day-3.json`.
 - **Evidence.** `audits/03-apps/verses.md:359`; `apps/verses.html:203`, `apps/kidverse.html:259`, `apps/f260.html:932`, `apps/prayer.html:711`; `audits/evidence/p3/verses/tz-ny-kid-ipad.png`, `audits/evidence/p3/verses/verify-other-timezone-day-1-ny-ezra-ipad.png`
 - **What happens now.** Eli rated on a phone set to Europe/London at 20:30 New York time (01:30 Wednesday in London). His row was stored with last 2026-09-23 and due 2026-09-30, under log key 2026-09-23. The New York iPad shows "13 day streak · keep it going today", so tonight's review does not count today.
 - **Why it matters.** Ten critical data losses share one cause: hub.ready resolves before the app's own data has arrived (apps/hub.js:334-337), so a tap or an automatic save writes from an empty state over the real row. The same batch gives every app one "today" in New York time with a midnight event, because the apps disagree about the date today.
@@ -553,7 +583,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-DOLLYWOOD-LIVE-3 — While the data loads, the map says you are offline and not sharing
 
-- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** The park map (template, rebuilt and exported) says "Loading…" in the Family header while the family pull is in flight, keeps Share my spot disabled "Loading…" until the person scope loads, and the pill reads "Eli · loading…". rally-guest-loading C_loading: famSync "Loading…" (was "offline — showing last known"). After: `audits/evidence/p6/0b/p3/dollywood-live/rally-guest-loading.json`, `audits/evidence/p6/0b/p3/dollywood-live/loading-family-ipad-dark.png`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:621`; `apps/dollywood-live.html:1298`, `apps/dollywood-live.html:1269`; `audits/evidence/p3/dollywood-live/loading-family-ipad-dark.png`
 - **What happens now.** With the family pull in flight, the Family header reads "offline — showing last known" (`apps/dollywood-live.html:1298`), Share my spot shows "Off", and the pill says "Only you see your dot until you switch on Share my spot" (`apps/dollywood-live.html:1269`), because `share` and `hub.sync` are read before the first …
 - **Why it matters.** The map says you are offline and not sharing while it loads.
@@ -562,7 +593,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-F260-5 — While data loads, a live-looking green Done does nothing and "0 of 0 chapters" shows
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Until the first pull Done is disabled "Loading your progress…" and the stat wells are skeletons. f260-loading.mjs: during a 9 s hold Done disabled, strip empty, no weeks, a forced tap POSTs nothing; after release "Acts 6", 187 of 260, Done enabled. After: `audits/evidence/p6/0b/f260-loading.json`, `audits/evidence/p6/0b/f260-loading-held-iphone.png`, `audits/evidence/p6/0b/f260-loading-after-iphone.png`.
 - **Evidence.** `audits/03-apps/f260.md:690`; `apps/f260.html:562-576`; `audits/evidence/p3/f260/layout-loading-iphone.png`, `audits/screens/f260/today-loading-iphone-pwa-light.png`
 - **What happens now.** While data loads, a live-looking green Done does nothing and "0 of 0 chapters" shows (low). With the first pull held for 5 s, the static page shows "Done" with no `aria-disabled`, a tap gives no feedback, the title is empty and the strip reads "0 of 260 readings 0 of 0 chapters 1 current week"; there is no skeleton. After the 6 s fallback a tap wipes history (P2-SYNC-17). Evidence: `apps/f260.html:562-576, 580-586`; `layout.json` `loading`; `audits/evidence/p3/f260/layout-loading-iphone.png`; `audits/screens/f260/today-loading-iphone-pwa-light.png`.
 - **Why it matters.** A live-looking Done does nothing.
@@ -571,7 +603,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-KIDVERSE-6 — On a cold load: "…" placeholders and the week-1 art for about 4.7 s, then a 368 px jump
 
-- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Skeleton art plate and text lines of the loaded size until the week arrives. webtells: the cold-load jump went from 368 px to 0 px for the measured week (Done at 851, story at 1138); other weeks' paraphrases can still move about one line. After: `audits/evidence/p6/0b/p3/kidverse/webtells.json`, `audits/evidence/p6/0b/kidverse-first-load-C-loading.png`.
 - **Evidence.** `audits/03-apps/kidverse.md:678`; `apps/kidverse.html:147`; `audits/screens/kidverse/kid-loading-iphone-pwa-light.png`, `audits/screens/kidverse/kid-loading-ipad-portrait-dark.png`
 - **What happens now.** On a new phone with every GET held 1.5 s: at 87 ms the frame showed "…" for the reference and paraphrase, the hard-coded 01-creation art (`apps/kidverse.html:147, 166`), no Done ★ and the story card top at 770 px.
 - **Why it matters.** Placeholders then a 368 px jump.
@@ -580,7 +613,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-8 — No loading state; the kid page is blank while loading
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** A loading state on both pages: "Loading your prayer list…" with skeleton stats and rows (adult) and "Getting the family list…" with skeleton cards (kid). Recaptured by the rig (prayer today-loading, kid-loading). After: `audits/evidence/p6/0b/p3/prayer/slow-start-hold9s-first-paint.png`, `audits/screens-after/0b/manifest.json`.
 - **Evidence.** `audits/03-apps/prayer.md:874`; `audits/screens/prayer/today-loading-iphone-pwa-light.png`, `audits/screens/prayer/kid-loading-ipad-portrait-light.png`
 - **What happens now.** No skeleton or spinner exists (NOT FOUND IN CODE). The adult loading page shows Pray now and More over nothing, then the content arrives; the kid page is empty. On a slow first open the empty state "Nothing on the list today." poses as real data (P3-PRAYER-02).
 - **Why it matters.** A blank kid page while loading.
@@ -589,7 +623,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-VERSES-5 — While loading, Verses is a blank page with an empty pill
 
-- **Area** verses · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** verses · **Type** usability · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** The static page starts as the skeleton trainer card with disabled controls and "Eli · loading…" in the pill. Recaptured by the rig (verses trainer-loading). After: `audits/evidence/p6/0b/verses-A-offline-loading-iphone.png`, `audits/evidence/p6/0b/verses-B-kid-cold-loading-iphone.png`, `audits/screens-after/0b/manifest.json`.
 - **Evidence.** `audits/03-apps/verses.md:536`; `apps/verses.html:103`; `audits/screens/verses/trainer-loading-iphone-pwa-light.png`
 - **What happens now.** While loading, Verses is a blank page with an empty pill (low). `#trainer`, `#done` and `#empty` all start hidden until `render()` (`apps/verses.html:103, 119, 126`); no skeleton, no spinner. Evidence: `audits/screens/verses/trainer-loading-iphone-pwa-light.png`.
 - **Why it matters.** A blank page with an empty pill.
@@ -598,7 +633,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-LEFTOVERS-1 — While loading, the Log and Copy buttons are empty boxes and the size and date fields are blank
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 0b
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Log and Copy labels and icons and the size options are in the markup; the date box is filled before the first await; three placeholder cards while loading. Recaptured by the rig (leftovers main-loading). After: `audits/evidence/p6/0b/p3/leftovers/before-ready-B-stalled-7s-iphone.png`, `audits/screens-after/0b/manifest.json`.
 - **Evidence.** `audits/03-apps/leftovers.md:805`; `apps/leftovers.html:189-196`; `audits/screens/leftovers/main-loading-iphone-pwa-light.png`
 - **What happens now.** Labels and options are filled in only after `hub.ready` (`apps/leftovers.html:189-196, 349-359`). There is no skeleton.
 - **Why it matters.** Empty boxes while loading.
@@ -607,56 +643,65 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-DOLLYWOOD-01 — Legacy build-guide progress migrates over the person's real progress when the first pull is slow, fails or runs offline (pointer to P2-SYNC-03)
 
-- **Area** dollywood · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0b
+- **Area** dollywood · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-03 (async migrate); the template now migrates only after the first load, re-reads everything on the migrated event, and moves off a step the migration has just ticked (test-dollywood-sync caught the build guide left on it, where Mark done would untick it). verify-migrate-race-progress-1 A-E and -2 C/H5/H7/F: overwritten false, server 24 kept; dollywood-first-load: an empty server row still receives the legacy tick (1 of 9) with no reload. (The shell does not add the build guide's channel after all: the app waits for its own pull, and the extra request every 30 s on every device bought nothing.) After: `audits/evidence/p6/0b/p3/dollywood/verify-migrate-race-overwrites-progress-1.json`, `audits/evidence/p6/0b/p3/dollywood/verify-migrate-race-overwrites-progress-2.json`, `audits/evidence/p6/0b/dollywood-first-load.json`.
 - **Evidence.** `audits/03-apps/dollywood.md:145`; `apps/hub.js:406-407`, `apps/dollywood.html:1062`, `index.html:458-459`, `apps/hub.js:324-337`; `audits/evidence/p3/dollywood/migration-race-after.png`, `audits/evidence/p3/dollywood/verify-migrate-race-overwrites-progress-1-B-phone.png`
 - **Proposed fix.** Pointer to P2-SYNC-03 (safe migration after a successful pull); the shell also declares the dollywood person channel. (Phase 3: IMP-DOLLYWOOD-P3)
 
 #### P3-TALLY-03 — Pre-hub Tally data on a device migrates over the real count when the first pull has not landed (pointer to P2-SYNC-03)
 
-- **Area** tally · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0b
+- **Area** tally · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-03. verify-legacy-migrate-overwrites-count-1/2: hold9, fail, abort and chromium arms keep the server at 37 (was 37→5); the legacy key stays on the device. After: `audits/evidence/p6/0b/p3/tally/verify-legacy-migrate-overwrites-count-1.json`, `audits/evidence/p6/0b/p3/tally/first-load.json`.
 - **Evidence.** `audits/03-apps/tally.md:244`; `apps/hub.js:406-407`, `index.html:457-458`, `apps/tally.html:147`, `apps/hub.js:393-411`; `audits/evidence/p3/tally/verify-legacy-migrate-overwrites-count-1-hold9.png`, `audits/evidence/p3/tally/verify-legacy-migrate-overwrites-count-2-ipad.png`
 - **Proposed fix.** Pointer to P2-SYNC-03 (safe migration after a successful pull).
 
 #### P2-STAB-04 — Home says "reading done / read today ✓" every morning after a reading day (pointer → P2-HOME-02, high)
 
-- **Area** shell / platform · **Type** bug · **Severity** high (pointer) · **Effort** S · **Batch** 0b
+- **Area** shell / platform · **Type** bug · **Severity** high (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Pointer to P2-HOME-02 (Home reads the log for today). After: `audits/evidence/p6/0b/p2/HOME/verify-stale-1.json`.
 - **Evidence.** `audits/02-shell.md:3177`; `apps/f260.html:1506-1509`, `index.html:1164`, `worker/src/chat.js:299`, `worker/src/reminders.js:88-96`
 - **Proposed fix.** Pointer to P2-HOME-02.
 
 #### GAP-TELL-1 — No app uses a skeleton, and `hub.js` gives apps no "pulled" signal to know when to show one
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low (pointer) · **Effort** S · **Batch** 0b
+- **Area** design system, all areas · **Type** feature gap · **Severity** low (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** hub.isLoaded() / hub.loaded() give every app the "pulled" signal, and the eight apps in this batch, Home and the TV use it for skeleton or loading states. The shared loading component itself (CONS-MOTION-4) is batch 1. After: `audits/evidence/p6/0b/p3/prayer/slow-start-hold9s-first-paint.png`, `audits/evidence/p6/0b/tally-loading-hold-light.png`.
 - **Evidence.** `audits/04-design-system.md:6397`; `apps/design.css:539-544`, `index.html:76-77`, `apps/dollywood-live.html:406-407`
 - **Proposed fix.** Pointer to CONS-MOTION-4: hub.loaded gives apps the "pulled" signal the skeletons need. (Phase 4 gap row TELL-9)
 
 #### P2-HOME-04 — A first load with nothing cached shows final "nothing here" wording and ★0 instead of loading states
 
-- **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 0b
+- **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-15: Home cards (no fake 0/5 ring or fridge hint), the kids' star cards (no ★0) and the reminders show skeletons until their channel has pulled. Recaptured: shell home-loading, home-kid-loading. After: `audits/evidence/p6/0b/p2/SYNC/v-initial-offline-2-home-cold-midpull.png`, `audits/screens-after/0b-shell/manifest.json`.
 - **Evidence.** `audits/02-shell.md:374`; `index.html:1158`, `index.html:888-889`, `index.html:1146-1156`, `index.html:1053-1071`; `audits/screens/shell/home-loading-ipad-portrait-light.png`
 - **Proposed fix.** Pointer to P2-SYNC-15: closed by the first-load signal (Home shows skeletons until each card's channel has pulled once).
 
 #### P2-VIS-04 — On a cold cache, Home and the TV show false "empty" facts, then jump
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 0b
+- **Area** shell / platform (TV) · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-15: the TV's verse, prayed, stars and feed panes read "Loading…" until their data has arrived, never a false "Week 1", "No one yet" or "Nothing has happened yet". Recaptured: tv board-loading. After: `audits/evidence/p6/0b/p2/SYNC/v-initial-offline-2.json`, `audits/evidence/p6/0b/p3/prayer/verify-other-timezone-date-1-tv.png`, `audits/screens-after/0b-shell/manifest.json`.
 - **Evidence.** `audits/02-shell.md:5533`; `apps/hub.js:51`, `index.html:1158`, `index.html:1221`, `index.html:911-917`; `audits/evidence/p2/HOME/verify1-switch-guest-pending.png`
 - **Proposed fix.** Pointer to P2-SYNC-15.
 
 #### P3-LEFTOVERS-05 — A slow first open shows "0 in the fridge" and "Nothing logged yet." as "the last copy saved here" (from the visual check)
 
-- **Area** leftovers · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 0b
+- **Area** leftovers · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-15: render() waits for the first pull; offline with no cache it says so instead of claiming a saved copy. before-ready B at 7 s: no tally, no "Nothing logged yet", placeholders; then "6 in the fridge". After: `audits/evidence/p6/0b/p3/leftovers/before-ready.json`, `audits/evidence/p6/0b/p3/leftovers/before-ready-B-stalled-7s-iphone.png`.
 - **Evidence.** `audits/03-apps/leftovers.md:339`; `index.html:458`, `apps/hub.js:51`, `apps/hub.js:337`, `apps/hub.js:334-337`; `audits/screens/leftovers/stalled-loading-ipad-landscape-dark.png`, `audits/evidence/p3/leftovers/before-ready-B-stalled-7s-iphone.png`
 - **Proposed fix.** Pointer to P2-SYNC-15: a loading state until the first pull; "Nothing logged yet" only after it.
 
 #### UX-TALLY-2 — While loading there is no skeleton or busy state, and taps first do nothing
 
-- **Area** tally · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 0b
+- **Area** tally · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Pointer to P3-TALLY-07: disabled with aria-busy and a skeleton while loading. After: `audits/evidence/p6/0b/tally-loading-hold-light.png`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: "Taps first do nothing" holds only on the first open of Tally on a device (no tally cache) with a slow first pull. On a normal network the dead window is about 0.2 s, and on any later open it is about 0.1 s even with a 9 s held pull.
 - **Evidence.** `audits/03-apps/tally.md:493`; `apps/tally.html:130`; `audits/evidence/p3/tally/loading-at-1500ms-iphone.png`, `audits/screens/tally/main-loading-ipad-portrait-light.png`
 - **Proposed fix.** Pointer to P3-TALLY-07 for the display; buttons disabled with aria-busy while loading. (Phase 3: IMP-TALLY-P2)
 
 #### UX-TIMER-9 — Before data loads the app shows a fake idle 5:00 with a live-looking Start that ignores taps
 
-- **Area** timer · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 0b
+- **Area** timer · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 0b · **Status** FIXED (`d968db8`)
+- **Phase 6 (FIXED).** Pointer to P3-TIMER-01: a skeleton dial and a disabled "Loading…" Start instead of a fake 5:00. After: `audits/evidence/p6/0b/timer-stale-taps-cold-loading.png`.
 - **Evidence.** `audits/03-apps/timer.md:355`; `apps/timer.html:57`, `apps/timer.html:76`; `audits/evidence/p3/timer/slowload-at-2s-iphone.png`, `audits/screens/timer/running-loading-ipad-portrait-light.png`
 - **Proposed fix.** Pointer to P3-TIMER-01 (disabled until loaded, a skeleton dial). (Phase 3: IMP-TIMER-P4)
 
