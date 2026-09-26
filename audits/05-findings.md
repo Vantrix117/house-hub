@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batch 0a (`ae274a6`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,35 +30,36 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
+- **Phase 6 so far:** batch 0a (`ae274a6`, 2026-09-26) done; 2 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
 One batch per commit (constitution). Critical defects are pulled forward into the 0x batches; then batch 1 = design tokens, design.css and shared components; batch 2 = the hub shell (split into the shell UI, the Worker, and the TV board); then one app per batch.
 
-| Order | Batch | What | Findings (crit / high / med / low / info) | Effort | Needs |
-|---|---|---|---|---|---|
-| 1 | **0a** | The hub boots with Reduce Motion on | 1 (1 / 0 / 0 / 0 / 0) | S | — |
-| 2 | **0b** | SDK: no write before the first load, safe migration, one household day | 36 (10 / 1 / 7 / 18 / 0) | L | — |
-| 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — |
-| 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — |
-| 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c |
-| 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c |
-| 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b |
-| 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b |
-| 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — |
-| 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) |
-| 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c |
-| 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 |
-| 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a |
-| 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a |
-| 16 | **5** | Verses | 19 (0 / 0 / 5 / 13 / 1) | M | 1, 2a |
-| 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a |
-| 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a |
-| 19 | **8** | Larder Ledger | 16 (0 / 0 / 2 / 14 / 0) | M | 1, 2a |
-| 20 | **9** | Dollywood build guide | 47 (0 / 0 / 10 / 36 / 1) | L | 1, 2a |
-| 21 | **10** | Dollywood park map | 42 (0 / 0 / 13 / 28 / 1) | L | 1, 2a |
-| 22 | **11** | Tally counter | 14 (0 / 0 / 1 / 13 / 0) | M | 1, 2a |
+| Order | Batch | What | Findings (crit / high / med / low / info) | Effort | Needs | Status |
+|---|---|---|---|---|---|---|
+| 1 | **0a** | The hub boots with Reduce Motion on | 1 (1 / 0 / 0 / 0 / 0) | S | — | 1/1 fixed, `ae274a6` |
+| 2 | **0b** | SDK: no write before the first load, safe migration, one household day | 36 (10 / 1 / 7 / 18 / 0) | L | — | open |
+| 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — | open |
+| 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — | open |
+| 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | open |
+| 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | open |
+| 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | open |
+| 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | open |
+| 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | open |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | open |
+| 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | open |
+| 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | open |
+| 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | open |
+| 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a | open |
+| 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a | open |
+| 16 | **5** | Verses | 19 (0 / 0 / 5 / 13 / 1) | M | 1, 2a | open |
+| 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a | open |
+| 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a | open |
+| 19 | **8** | Larder Ledger | 16 (0 / 0 / 2 / 14 / 0) | M | 1, 2a | open |
+| 20 | **9** | Dollywood build guide | 47 (0 / 0 / 10 / 36 / 1) | L | 1, 2a | open |
+| 21 | **10** | Dollywood park map | 42 (0 / 0 / 13 / 28 / 1) | L | 1, 2a | open |
+| 22 | **11** | Tally counter | 14 (0 / 0 / 1 / 13 / 0) | M | 1, 2a | open |
 
 **Why the app batches are in this order.** No app has usage data (every Phase 3 report says so), so daily use is estimated from each report's jobs table (§1): people × sessions a day. Gap is the weight of the app's open findings after the critical batches (critical 8, high 4, medium 2, low 1). The household confirmed this order (`audits/05-decisions.md`, "App batch order"), and the plan keeps it; with the step 3 severities the scores alone would give Prayer → F260 Reading Plan → Kitchen timer → Verses → Kid Verse → Larder Ledger → Dollywood build guide → Dollywood park map → Tally counter.
 
@@ -262,7 +263,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-STAB-01 — With Reduce Motion on, the whole hub is a blank page
 
-- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0a
+- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0a · **Status** FIXED (`ae274a6`)
+- **Phase 6 (FIXED).** hub.js defines hub.sheenFrom before its reduced-motion return (apps/hub.js:442); index.html:662 calls it only if it is a function. With Reduce Motion on, all 11 skeptic cases and all 6 STAB cases boot (shell or gate shown, 0 page errors) in WebKit and Chromium, and the render matches Reduce Motion off (4 pairs, 0 pixels over tolerance). After: `audits/evidence/p6/0a/VIS/verify-rm2.json`, `audits/evidence/p6/0a/STAB/reduced-motion.json`, `audits/evidence/p6/0a/VIS/verify-rm2-webkit-iphone-eli-reduce.png`, `audits/evidence/p6/0a/VIS/verify-rm2-webkit-ipad-unpaired-reduce.png`.
 - **Evidence.** `audits/02-shell.md:3097`; `apps/hub.js:442`, `apps/hub.js:447`, `index.html:662`, `index.html:1703-1705`
 - **What happens now.** Under `prefers-reduced-motion: reduce`, hub.js leaves its sheen block early (apps/hub.js:442), before it assigns `hub.sheenFrom` (apps/hub.js:447). The shell then calls `hub.sheenFrom(views)` without a guard (index.html:662). The call sits inside the boot IIFE, before the boot routing at index.html:1703-1705.
 - **Why it matters.** Any family device with Reduce Motion on shows an empty page with nothing to tap. On iOS the setting is Settings → Accessibility → Motion → Reduce Motion. On Windows, Chrome and Edge report it when "Animation effects" is off.
@@ -271,7 +273,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-VIS-01 — With Reduce Motion on, the hub is a blank page on every device
 
-- **Area** shell / platform · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0a
+- **Area** shell / platform · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0a · **Status** FIXED (`ae274a6`)
+- **Phase 6 (FIXED).** Pointer to P2-STAB-01; its own check (density-motion.mjs, last block) now prints shellHidden=false under reduce. After: `audits/evidence/p6/0a/VIS/density-motion.json`, `audits/evidence/p6/0a/VIS/reduced-motion-reduce-webkit-ipad.png`.
 - **Evidence.** `audits/02-shell.md:5435`; `apps/hub.js:442`, `apps/hub.js:447`, `index.html:662`, `index.html:442`
 - **Proposed fix.** Pointer to P2-STAB-01.
 

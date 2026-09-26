@@ -8,6 +8,8 @@
 //                                     items (ux-verify/verdicts.mjs); a verdict's severity wins, a refuted item leaves the list
 //   plan-batches.mjs WORK and CUT     step 4: the work the household's answers add (the Kitchen device), which no finding
 //                                     filed, and the items they cut (listed under "What this report does not list")
+//   ../phase6/status.mjs              Phase 6: each closed finding's status and its batch's commit (Status lines, the
+//                                     plan's Status column); an ID there that is not a finding of that batch fails the build
 // It fails (exit 1) if a catalogued finding has no fix, a fix names an unknown ID, a cut ID is not catalogued, or work
 // names an unknown batch.
 //   node audits/tools/phase5/build-findings.mjs
@@ -15,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { BATCHES, APPS, APP_TESTS, APP_ORDER, WORK, CUT } from './plan-batches.mjs';
+import { STATUS, BATCHES as DONE } from '../phase6/status.mjs';   // Phase 6: what each batch closed, and its commit
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..', '..');
@@ -130,6 +133,11 @@ const bmeta = n => BATCHES[n] || (() => { const r = appRows.find(r => appNo[r.id
 // ── counts ──
 const count = (arr, key) => arr.reduce((m, f) => (m[f[key]] = (m[f[key]] || 0) + 1, m), {});
 const prim = F.filter(f => !f.pointer);
+// Phase 6 status: every STATUS id must be a listed finding in the batch it names
+const statusBad = Object.entries(STATUS).filter(([id, s]) => { const f = F.find(x => x.id === id); return !f || f.bn !== s.batch; }).map(([id]) => id);
+if (statusBad.length) { console.error('status ids not in their batch:', statusBad.join(' ')); process.exit(1); }
+const stCell = s => `${s.status} (\`${DONE[s.batch].commit}\`)`;
+const doneIn = n => { const mine = prim.filter(f => f.bn === n); const fixed = mine.filter(f => STATUS[f.id] && STATUS[f.id].status === 'FIXED').length; return DONE[n] ? `${fixed}/${mine.length} fixed, \`${DONE[n].commit}\`` : 'open'; };
 const sevOrder = ['critical', 'high', 'medium', 'low', 'info'];
 const bySev = count(prim, 'sev'), byType = count(prim, 'type');
 const sevCell = arr => sevOrder.map(s => arr.filter(f => f.sev === s).length).join(' / ');
@@ -143,7 +151,7 @@ P('# House Hub audit, Phase 5: findings, plan and design preview');
 P('');
 P('| | |');
 P('|---|---|');
-P('| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. |');
+P('| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. ' + (Object.keys(DONE).length ? `Phase 6 has since changed app code in batch${Object.keys(DONE).length > 1 ? 'es' : ''} ${Object.entries(DONE).map(([n, d]) => `${n} (\`${d.commit}\`)`).join(', ')}; each entry's Status line says what closed, and \`audits/06-implementation.md\` holds each batch's record.` : '') + ' |');
 P('| **Date** | 2026-09-25; rebuilt 2026-09-26 with the household\'s answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |');
 P('| **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |');
 P('| **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |');
@@ -171,15 +179,16 @@ P('- **The household has answered every decision** (D1-D18 from Phase 4, P5-D1-P
 P(`- **The Kitchen device** (P5-D5 as answered) is new work: ${WORK.map(w => `${w.id} in batch ${w.batch}`).join(', ')}. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (\`audits/05-decisions.md\`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the \`profiles\` table, the plan\'s one non-additive schema step (\`worker/schema.sql:9\`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.`);
 P(`- **Cut by the household:** ${Object.keys(CUT).join(', ')} (\`audits/05-decisions.md\`, "Features kept or cut"). It is not planned.`);
 P('- **The preview is approved** (2026-09-26), with one change: Forest\'s text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner\'s device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.');
+if (Object.keys(DONE).length) { const st = Object.values(STATUS); const cnt = k => st.filter(s => s.status === k).length; P(`- **Phase 6 so far:** batch${Object.keys(DONE).length > 1 ? 'es' : ''} ${Object.entries(DONE).map(([n, d]) => `${n} (\`${d.commit}\`, ${d.date})`).join(', ')} done; ${cnt('FIXED')} entries FIXED, ${cnt('PARTIAL')} PARTIAL, ${cnt('DEFERRED')} DEFERRED, ${cnt('NEEDS DEVICE CHECK')} NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry\'s Status line track it; \`audits/06-implementation.md\` has each batch\'s reruns, captures, tests and what was not verified.`); }
 P('');
 P('## The plan');
 P('');
 P('One batch per commit (constitution). Critical defects are pulled forward into the 0x batches; then batch 1 = design tokens, design.css and shared components; batch 2 = the hub shell (split into the shell UI, the Worker, and the TV board); then one app per batch.');
 P('');
-P('| Order | Batch | What | Findings (crit / high / med / low / info) | Effort | Needs |');
-P('|---|---|---|---|---|---|');
+P('| Order | Batch | What | Findings (crit / high / med / low / info) | Effort | Needs | Status |');
+P('|---|---|---|---|---|---|---|');
 const workIn = n => WORK.filter(w => w.batch === n);
-ORDER.forEach((n, k) => { const m = bmeta(n); const mine = prim.filter(f => f.bn === n); const w = workIn(n); P(`| ${k + 1} | **${n}** | ${btitle(n)} | ${mine.length} (${sevCell(mine)})${w.length ? ' + ' + w.map(x => x.id).join(', ') : ''} | ${m.effort} | ${(m.needs || []).join(', ') || '—'} |`); });
+ORDER.forEach((n, k) => { const m = bmeta(n); const mine = prim.filter(f => f.bn === n); const w = workIn(n); P(`| ${k + 1} | **${n}** | ${btitle(n)} | ${mine.length} (${sevCell(mine)})${w.length ? ' + ' + w.map(x => x.id).join(', ') : ''} | ${m.effort} | ${(m.needs || []).join(', ') || '—'} | ${doneIn(n)} |`); });
 P('');
 P('**Why the app batches are in this order.** No app has usage data (every Phase 3 report says so), so daily use is estimated from each report\'s jobs table (§1): people × sessions a day. Gap is the weight of the app\'s open findings after the critical batches (critical 8, high 4, medium 2, low 1). The household confirmed this order (`audits/05-decisions.md`, "App batch order"), and the plan keeps it' + (orderDiffers ? `; with the step 3 severities the scores alone would give ${byScore.map(id => APPS[id].name).join(' → ')}.` : '; the scores with the step 3 severities give the same order.'));
 P('');
@@ -250,7 +259,8 @@ for (const n of ORDER) {
   for (const f of mine) {
     P(`#### ${f.id} — ${esc(f.title)}`);
     P('');
-    P(`- **Area** ${f.area} · **Type** ${f.type} · **Severity** ${f.sev}${f.pointer ? ' (pointer)' : ''} · **Effort** ${f.effort} · **Batch** ${f.bn}`);
+    P(`- **Area** ${f.area} · **Type** ${f.type} · **Severity** ${f.sev}${f.pointer ? ' (pointer)' : ''} · **Effort** ${f.effort} · **Batch** ${f.bn}${STATUS[f.id] ? ` · **Status** ${stCell(STATUS[f.id])}` : ''}`);
+    if (STATUS[f.id]) P(`- **Phase 6 (${STATUS[f.id].status}).** ${STATUS[f.id].note} After: ${STATUS[f.id].after.map(p => '`' + p + '`').join(', ')}.`);
     if (f.ver) P(`- **Verified (step 3).** ${f.ver}`);
     P(`- **Evidence.** \`${f.file}:${f.line}\`${f.code.length ? '; ' + f.code.map(c => '`' + c + '`').join(', ') : ''}${f.shots.length ? '; ' + f.shots.map(c => '`' + c + '`').join(', ') : ''}`);
     if (!f.pointer) P(`- **What happens now.** ${f.now}`);
