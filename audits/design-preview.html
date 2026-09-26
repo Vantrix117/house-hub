@@ -1,9 +1,13 @@
 <!doctype html>
-<!-- House Hub audit, Phase 5 design preview. It renders the Phase 4 token PROPOSAL
-     (audits/tools/phase4/tokens/proposed-tokens.css) so the household can see it before Phase 6. Not app code.
+<!-- House Hub audit, Phase 5 design preview. It renders the token PROPOSAL, revision 6d
+     (audits/tools/phase4/tokens/proposed-tokens.css), with the household's decisions (audits/05-decisions.md), so the owner
+     can approve it before Phase 6. Not app code.
      Every swatch below takes its colours from the token file; every contrast figure is computed in the page from the
      rendered colours (WCAG 2 relative luminance), so the numbers cannot drift from the tokens.
-     ?section=<id> shows one section (the capture rig uses it); the default shows all. -->
+     ?section=<id> shows one section (the capture rig uses it); the default shows all.
+     ?stage=glass&theme=<palette>&scheme=<light|dark>&glass=<clear|current|frosted|solid> renders one glass stage full-bleed, with
+     the level set on <html> exactly as the bootstrap sets it (tools/phase4/tokens/bootstrap.js:12), so the token file's own
+     :root[data-glass] and :root[data-transparency] rules apply. The glass section shows these stages in iframes. -->
 <html lang="en" data-theme="hearth" data-scheme="light" data-accent="periwinkle">
 <head>
 <meta charset="utf-8">
@@ -14,10 +18,17 @@
   // Follow the device's scheme for the page itself (as System would: Hearth by day, Midnight at night). Every section
   // also shows light and dark side by side, so both appear in either mode.
   (function () {
+    var q = new URLSearchParams(location.search), d = document.documentElement;
+    if (q.get('stage') === 'glass') {   // one glass stage: palette, person and level on <html>, as the bootstrap writes them
+      var th = q.get('theme') || 'hearth', sc = q.get('scheme') || 'light', lv = q.get('glass') || 'frosted';
+      d.dataset.theme = th; d.dataset.scheme = sc; d.style.colorScheme = sc; d.dataset.accent = q.get('accent') || 'periwinkle'; d.dataset.kind = 'adult';
+      if (lv === 'solid') d.dataset.transparency = 'reduce'; else { d.dataset.glass = lv; d.dataset.transparency = 'full'; }   // an explicit choice, as bootstrap.js:12 writes it
+      d.dataset.stage = 'glass';
+      return;
+    }
     var dark = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
-    var d = document.documentElement;
     d.dataset.theme = dark ? 'midnight' : 'hearth'; d.dataset.scheme = dark ? 'dark' : 'light'; d.style.colorScheme = dark ? 'dark' : 'light';
-    var s = new URLSearchParams(location.search).get('section'); if (s) d.dataset.only = s;
+    var s = q.get('section'); if (s) d.dataset.only = s;
   })();
 </script>
 <style>
@@ -51,7 +62,7 @@
   .fams { grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
   .twin { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: var(--sp-2); }
   .twin > * { min-width: 0; }
-  #acc { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+  #acc, #appearance, #neighbours { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
   .twin > .panel { padding: var(--sp-2); display: grid; gap: var(--sp-1-5); align-content: start; }
   .tile-sw { height: 44px; border-radius: var(--r-control); background: var(--tile-bg); display: flex; align-items: center; justify-content: center; font-weight: var(--fw-bold); color: var(--accent-ink); }
   table.t { width: 100%; border-collapse: collapse; font: var(--text-subheadline); }
@@ -81,9 +92,37 @@
   .gl-sheet .row { display: flex; justify-content: space-between; padding: var(--sp-2) 0; border-bottom: var(--hairline-w) solid var(--separator); font: var(--text-body); }
   .gl-sheet .row span:last-child { color: var(--text-2); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; }
   .gl-tab { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; background: var(--glass-bg-strong-tinted); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--glass-shadow); font: var(--text-caption1); color: var(--text-2); text-align: center; }
+  .gl-tab > div { display: grid; justify-items: center; gap: 2px; }
+  .gl-tab svg, .gl-bar svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .gl-tab .on { color: var(--sel-ink); font-weight: var(--sel-weight); }
-  .gl-tab .on span { background: var(--sel-fill); padding: 4px 12px; border-radius: var(--r-full); }
-  .rt { --glass: var(--glass-solid); --glass-strong: var(--glass-strong-solid); --glass-filter: none; --glass-filter-strong: none; --glass-pickup: 0%; }
+  .gl-tab .on svg { background: var(--sel-fill); border-radius: var(--r-full); padding: 2px 12px; width: 48px; height: 26px; }
+  /* the halo on see-through glass, applied as batch 1b will (proposed-tokens.css §5): none on Frosted and Solid */
+  :is(.gl-bar, .gl-pill, .gl-fab, .gl-sheet, .gl-tab, .pr .tabs) { text-shadow: var(--glass-text-shadow); }
+  :is(.gl-bar, .gl-pill, .gl-fab, .gl-sheet, .gl-tab, .pr .tabs) svg { filter: var(--glass-icon-filter); }
+  /* stage mode: one glass stage, full-bleed, nothing else on the page */
+  [data-stage] body { padding: 0; background: var(--bg); }
+  [data-stage] body > main { display: none; }
+  .stagebox { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+  iframe.gframe { display: block; border: 0; width: 100%; height: 100%; }
+  .gcap b { color: var(--text); }
+  a.gcap { color: var(--text-3); text-decoration: none; display: block; min-height: var(--tap); }
+  a.gcap span:last-child, a.gcap { text-underline-offset: 3px; }
+  .pals { display: grid; gap: var(--sp-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); }
+  .pals .panel { background: var(--wash), var(--bg); }
+  .pals .row9 { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .pals .row9 > span { display: grid; justify-items: center; gap: 2px; width: 52px; font: var(--text-caption2); color: var(--text); text-align: center; }
+  /* Me > Appearance: the four-level glass control (D8, D11) */
+  .segs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--fill-field); border-radius: var(--r-full); padding: 3px; gap: 2px; }
+  .segs span { min-height: var(--tap); display: grid; place-items: center; border-radius: var(--r-full); font: var(--text-subheadline); color: var(--text-2); text-align: center; padding: 0 4px; }
+  .segs .on { background: var(--sel-fill-strong); color: var(--sel-ink-strong); font-weight: var(--sel-weight); box-shadow: var(--elev-control); }
+  /* status neighbours: an app tile beside the status chip nearest its hue */
+  .nb { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; padding: var(--sp-2) 0; border-bottom: var(--hairline-w) solid var(--separator); }
+  .nb:last-child { border-bottom: 0; }
+  .nb .ico { --isz: 48px; width: var(--isz); height: var(--isz); border-radius: calc(var(--isz) * var(--r-icon-ratio)); background: var(--tile-bg); display: grid; place-items: center; box-shadow: var(--elev-control); }
+  .nb .ico i { width: 58%; height: 58%; background: var(--accent-ink); -webkit-mask: var(--glyph) center / contain no-repeat; mask: var(--glyph) center / contain no-repeat; }
+  .nb .nm { font: var(--text-subheadline); font-weight: var(--fw-semibold); min-width: 84px; }
+  .schip { font: var(--text-footnote); font-weight: var(--fw-semibold); padding: 4px 10px; border-radius: var(--r-full); display: inline-flex; gap: 6px; align-items: center; }
+  .grp { margin: var(--sp-8) 0 var(--sp-3); }
   /* tiles */
   .home { position: absolute; inset: 0; background: var(--wash), var(--bg); color: var(--text); padding: 56px 20px 20px; }
   .home .apps { display: grid; justify-content: space-between; row-gap: 22px; }
@@ -148,15 +187,21 @@
 <header class="page">
   <div class="kicker">House Hub audit · Phase 5</div>
   <h1>Design preview</h1>
-  <p class="lede intro">The Phase 4 token proposal (<span class="hex">audits/tools/phase4/tokens/proposed-tokens.css</span>), rendered. Nothing here is app code; Phase 6 ships it only after the household approves the plan and this preview. Every swatch reads its colour from the token file, and every ratio is computed on this page from the rendered colours. ✓ passes its threshold (4.5:1 for text, 3:1 for large text, icons and marks); ✕ fails.</p>
-  <p class="note intro">Limits of the screenshots: the audit's WebKit build paints no backdrop blur and falls back to Windows fonts (Segoe UI for SF Pro, Palatino for New York), so glass reads flatter and type slightly wider than on an iPad or iPhone. The ratios do not depend on either.</p>
-  <nav class="toc" aria-label="Sections"><a href="#palette">Palette</a><a href="#neutrals">Neutrals</a><a href="#type">Type</a><a href="#glass">Glass</a><a href="#tiles">Tiles</a><a href="#accents">Accents</a><a href="#prayer">Prayer, before and after</a></nav>
+  <p class="lede intro">The token proposal, revision 6d (<span class="hex">audits/tools/phase4/tokens/proposed-tokens.css</span>), rendered with the household's answers (<span class="hex">audits/05-decisions.md</span>): the new colour for each person (D3), sky for guests (D4), nine app colours of their own (D5) and four glass levels with Frosted as the default (D8). Nothing here is app code; Phase 6 starts only after the owner approves this preview. Every swatch reads its colour from the token file, and every ratio is computed on this page from the rendered colours. ✓ passes its threshold (4.5:1 for text, 3:1 for large text, icons and marks); ✕ fails.</p>
+  <p class="note intro">Limits of the screenshots: the audit's WebKit build paints no backdrop blur and falls back to Windows fonts (Segoe UI for SF Pro, Palatino for New York), so glass reads flatter and type slightly wider than on an iPad or iPhone. The ratios do not depend on either. Open this page on the iPad and an iPhone to judge the real blur.</p>
+  <nav class="toc" aria-label="Sections"><a href="#palette">Palette</a><a href="#neutrals">Neutrals</a><a href="#type">Type</a><a href="#glass">Glass levels</a><a href="#tiles">App tiles</a><a href="#accents">People</a><a href="#prayer">Prayer, before and after</a></nav>
 </header>
 
 <section id="palette">
   <h2>The house pastels, light and dark</h2>
-  <p>Each family has the same roles: <b>fill</b> (the house pastel, exact), <b>ink</b> (text and icons on it), <b>strong</b> (solid buttons, with the <b>on</b> label), <b>graphic</b> (rings and marks), and the <b>tile</b> gradient from fill to its saturated end (its glyph is an icon, checked at 3:1 against the saturated end). Light uses Hearth's white card; dark uses Midnight's, where the pastel becomes the glowing foreground on a deep tint. Graphite is the neutral family (the TV, signed-out states); success, warning and danger are the semantic families.</p>
+  <p>Each family has the same roles: <b>fill</b> (the house pastel, exact), <b>ink</b> (text and icons on it), <b>strong</b> (solid buttons, with the <b>on</b> label), <b>graphic</b> (rings and marks), and the <b>tile</b> gradient from fill to its saturated end (its glyph is an icon, checked at 3:1 against the saturated end). Light uses Hearth's white card; dark uses Midnight's, where the pastel becomes the glowing foreground on a deep tint (decision D15). There are three groups: the eight people's pastels, then the nine app colours, which sit between them and belong to no person, then graphite and the status colours.</p>
+  <h3 class="grp">People (D3; sky is for guests, D4)</h3>
   <div class="grid fams" id="fams"></div>
+  <h3 class="grp">Apps (D5)</h3>
+  <p class="note">Made by <span class="hex">audits/tools/phase5/app-hues.mjs</span>. Each app colour sits between two house pastels and is tuned until it passes the same contrast rules as a person's. It is held apart from every person, and no app sits closer to the status colours than the closest person does. Taken one status at a time, four apps are nearer: see "App colours beside the status colours" under App tiles. CIEDE2000 distances are in <span class="hex">audits/evidence/p5/app-hues.json</span>.</p>
+  <div class="grid fams" id="appfams"></div>
+  <h3 class="grp">Neutral and status</h3>
+  <div class="grid fams" id="semfams"></div>
   <h3 style="margin-top:var(--sp-8)">The constitution's starting pairs</h3>
   <p class="note">The eight fill/ink pairs from <span class="hex">audits/HUB-AUDIT-PROMPT.md:57-64</span>, computed from their literal hex. The proposal keeps every one unchanged in light (the fill is never dulled; no ink needed darkening).</p>
   <div class="scroll-x"><table class="t" id="house"><thead><tr><th>Name</th><th>Fill</th><th>Ink</th><th>Ink on fill</th><th>Ink on white</th></tr></thead><tbody></tbody></table></div>
@@ -164,13 +209,13 @@
 
 <section id="neutrals">
   <h2>Neutrals and surfaces, every palette</h2>
-  <p>Grouped iOS structure: a page, white (or raised dark) cards, wells. The five named palettes plus Graphite, the proposed iOS near-black (decision D2). Text, secondary and tertiary text are checked against the card and the well.</p>
+  <p>Grouped iOS structure: a page, white (or raised dark) cards, wells. The five named palettes plus Graphite, the iOS near-black, added as a choice in Me (decision D2; System stays Hearth by day and Midnight at night, D1). Text, secondary and tertiary text are checked against the card and the well.</p>
   <div class="grid fams" id="grounds"></div>
 </section>
 
 <section id="type">
   <h2>Type scale</h2>
-  <p>iOS Dynamic Type roles in the system face (SF Pro on Apple devices; never embedded), bold large titles (decision D6), rounded numerals, and a floor of 11 px. The iPad tier multiplies by 1.12 on touch screens 744 px and wider; kid mode is rounded everywhere with a 16 px floor; the TV keeps today's sizes until the Phase 6 re-layout turns on the 10-foot scale (decision D16).</p>
+  <p>iOS Dynamic Type roles in the system face (SF Pro on Apple devices; never embedded), bold large titles (decision D6; serif only for adults' reading text), rounded numerals, and a floor of 11 px. Body text is 17 px, 19 px on the iPad (D7): the iPad tier multiplies by 1.12 on touch screens 744 px and wider. Kid mode is rounded everywhere with a 16 px floor. One text size applies across the hub (D17). The TV keeps today's sizes until batch 2c re-lays out the board and makes the 10-foot scale its default (D16).</p>
   <div class="card"><div class="spec" id="spec"></div></div>
   <h3 style="margin-top:var(--sp-6)">Sizes per audience (px)</h3>
   <div class="scroll-x card"><table class="t" id="sizes"><thead><tr><th>Role</th><th>Phone</th><th>iPad</th><th>Kid</th><th>TV today</th><th>TV 10-foot</th></tr></thead><tbody></tbody></table></div>
@@ -185,20 +230,33 @@
 </section>
 
 <section id="glass">
-  <h2>Glass over busy content</h2>
-  <p>Liquid Glass is for the navigation and control layer only: bars, sheets, pills and floating buttons. Content cards stay solid. The person's colour is caught faintly in the pane. Shown over the park map's illustrated art, the busiest picture in the hub, in light, dark, and with Reduce Transparency (solid panes, no blur) — the in-app switch Safari needs (decision D11).</p>
+  <h2>The four glass levels</h2>
+  <p>Glass is for the navigation and control layer only: bars, sheets, pills and floating buttons. Content cards stay solid. The person's colour is caught faintly in the pane. Each person picks a level in Me → Appearance (decisions D8 and D11); <b>Frosted is the default</b>. The stages sit over the park map's illustrated art, the busiest picture in the hub. Each stage is the page itself with the level set on <span class="hex">&lt;html&gt;</span> as the bootstrap sets it, so the token file's own rules paint it. The figures under each stage are read from that page.</p>
+  <ul class="note">
+    <li><b>Clear</b> is under 50 % opaque. <b>Current</b> is today's look. Both are see-through, so text and icons on them get a thin outline in the card's colour, which keeps them readable over a photo. Judge whether that outline looks right: strokes read slightly heavier, and in dark slightly embossed. At 11 px the letters' counters narrow, and a selected tab's colour reads mostly as outline. Measured as rendered by <span class="hex">audits/tools/phase5/halo-check.mjs</span> (the 10th percentile of the ring just outside each glyph, in all six palettes), Clear over a black or white photo reads at least text 10.28:1, secondary text 7.89:1 and icons 7.05:1. Tertiary text reads at least 5.93:1 over mid grey (#767676), but only about 1.3:1 over a photo, so tertiary text is never allowed on glass over a photo. Tap a stage's caption to open it full size.</li>
+    <li><b>Frosted</b> (78-80 % pills, 90 % bars) needs no outline.</li>
+    <li><b>Solid</b> is Reduce Transparency: opaque panes and no blur. Safari cannot report the iOS setting, so this switch is the way to get it on the iPad and iPhone.</li>
+  </ul>
   <div class="frames" id="glassframes"></div>
+  <h3 style="margin-top:var(--sp-6)">Me → Appearance</h3>
+  <div class="twin" id="appearance"></div>
 </section>
 
 <section id="tiles">
   <h2>App tiles at phone and iPad density</h2>
-  <p>iOS home-screen density: 60 px icons in four columns on the phone, 76 px in six on the iPad, corners at 22.5 % of the icon (decision D9), each tile a pastel-to-saturated gradient within one hue with the ink glyph (decision D5 gives each app its hue). The glyphs are today's icons; the proposal moves them to one open-source set (Lucide, ISC).</p>
+  <p>iOS home-screen density: 60 px icons in four columns on the phone, 76 px in six on the iPad, corners at 22.5 % of the icon (decision D9). Each tile is a gradient from pastel to saturated within the app's own colour, with the ink glyph. The nine app colours are their own, never a person's (D5): Timer coral, Prayer apricot, Kid Verse honey, Verses pistachio, the Larder leaf, Tally seafoam, the park map lagoon, F260 cornflower, the build guide orchid. The glyphs are today's icons; the proposal moves them to one open-source set (Lucide, ISC).</p>
   <div class="frames" id="tileframes"></div>
+  <h3 style="margin-top:var(--sp-6)">The tiles on every palette</h3>
+  <p class="note">Each app colour passes its contrast rules on all six palettes (<span class="hex">contrast.mjs</span> gates this). Here the tiles sit on each palette's own page.</p>
+  <div class="pals" id="tilepalettes"></div>
+  <h3 style="margin-top:var(--sp-6)">App colours beside the status colours</h3>
+  <p class="note">Four apps sit near a status colour, and the Timer's coral beside the danger chip is the closest pair in the house. Neither is read by colour alone: a tile always carries its glyph and name, and a status chip always carries ✓, ! or ✕. The last row is the closest app and person pair: F260's cornflower beside a guest's sky. Judge whether the pairs below are distinct enough.</p>
+  <div class="twin" id="neighbours"></div>
 </section>
 
 <section id="accents">
-  <h2>The household's accents, side by side</h2>
-  <p>Each person gets a distinct house pastel (decision D3), always paired with a face or initial so nobody relies on hue alone. Shown as the avatar ring, a selected chip, a primary button and progress, in light and dark. Below, the nine faces as seen with the three common colour-vision deficiencies (simulated).</p>
+  <h2>The household's colours, side by side</h2>
+  <p>Each person has their own house pastel (decision D3): Eli periwinkle, Mae peach, Elizabeth bubblegum, David mint, Mea butter, Ezra aqua, Kiara lavender, and graphite for the TV. Guests share sky, the one pastel nobody in the house holds; two guests may both be sky, since the face and the name tell them apart (D4). A colour always comes with a face or initial, so nobody relies on hue alone. Shown as the avatar ring, a selected chip, a primary button and progress, in light and dark. Below, the faces and the app tiles as seen with the three common colour-vision deficiencies (simulated, and not gated: a tile carries its glyph and name).</p>
   <div class="twin" id="acc"></div>
   <div class="card" style="margin-top:var(--sp-4)"><div class="grid" id="cvd" style="gap:var(--sp-3)"></div></div>
 </section>
@@ -212,6 +270,27 @@
 
 <script>
 (function () {
+  // ── the glass stage (the park map's controls over its art), shared by stage mode and nothing else ──
+  var GI = { back: '<path d="M15 18l-6-6 6-6"/>', more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>', map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>', waits: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', family: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14c2.8 0 5 2.2 5 5"/>', search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>' };
+  function gsvg(k) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + GI[k] + '</svg>'; }
+  function glassStage() {
+    return '<div class="stage"></div><div class="gl-bar"><span style="color:var(--accent-ink);display:flex;align-items:center;gap:2px">' + gsvg('back') + 'Hub</span><span>Park map</span><span style="color:var(--text-2);display:flex">' + gsvg('more') + '</span></div>' +
+      '<div class="gl-pill">Mae shared her spot · 2 min ago</div><div class="gl-fab" aria-hidden="true">+</div>' +
+      '<div class="gl-sheet"><div class="grab"></div><div style="font:var(--text-title3);margin-bottom:4px">Nearby</div><div class="row"><span>Lightning Rod</span><span>35 min</span></div><div class="row"><span>Thunderhead</span><span>20 min</span></div><div class="row" style="border:0"><span>Mystery Mine</span><span>10 min</span></div>' +
+      '<div style="margin-top:6px;font:var(--text-footnote);color:var(--text-2)">Updated 1 min ago · waits from queue-times</div></div>' +
+      '<div class="gl-tab">' + [['map', 'Map', 1], ['waits', 'Waits'], ['family', 'Family'], ['search', 'Search']].map(function (t) { return '<div class="' + (t[2] ? 'on' : '') + '">' + gsvg(t[0]) + '<span>' + t[1] + '</span></div>'; }).join('') + '</div>';
+  }
+  if (document.documentElement.dataset.stage === 'glass') {
+    var sb = document.createElement('div'); sb.className = 'stagebox'; sb.innerHTML = glassStage(); document.body.appendChild(sb);
+    var cs = getComputedStyle(document.documentElement);
+    window.__stage = { theme: document.documentElement.dataset.theme, glass: document.documentElement.dataset.glass || null, transparency: document.documentElement.dataset.transparency || null,
+      alpha: cs.getPropertyValue('--glass-alpha').trim(), alphaStrong: cs.getPropertyValue('--glass-alpha-strong').trim(), glassFill: cs.getPropertyValue('--glass').trim(),
+      filter: cs.getPropertyValue('--glass-filter').trim(), halo: getComputedStyle(sb.querySelector('.gl-pill')).textShadow !== 'none',
+      iconHalo: getComputedStyle(sb.querySelector('.gl-tab svg')).filter !== 'none', hscroll: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+    var st = new Image(); st.src = '../apps/dollywood/illustrated_lo.jpg';
+    (st.decode ? st.decode() : Promise.resolve()).catch(function () {}).then(function () { window.__previewReady = true; });
+    return;
+  }
   var only = document.documentElement.dataset.only;
   if (only) { var s = document.getElementById(only); if (s) s.classList.add('only'); }
 
@@ -243,9 +322,19 @@
   function h(tag, attrs, html) { var e = document.createElement(tag); for (var k in attrs || {}) { if (k === 'style') e.style.cssText = attrs[k]; else e.setAttribute(k, attrs[k]); } if (html != null) e.innerHTML = html; return e; }
 
   // ── palette ──
-  var FAMS = [['bubblegum', 'Bubblegum'], ['peach', 'Peach'], ['butter', 'Butter'], ['mint', 'Mint'], ['aqua', 'Aqua'], ['sky', 'Sky'], ['periwinkle', 'Periwinkle'], ['lavender', 'Lavender'], ['graphite', 'Graphite'], ['success', 'Success'], ['warning', 'Warning'], ['danger', 'Danger']];
-  var fams = document.getElementById('fams');
+  // who and what each family belongs to (05-decisions.md D3, D4, D5; the app map is APP_HUES in tools/phase5/app-hues.mjs)
+  var PEOPLE = [['Eli', 'E', 'periwinkle'], ['Mae', 'M', 'peach'], ['Elizabeth', 'E', 'bubblegum'], ['David', 'D', 'mint'], ['Mea', 'M', 'butter'], ['Ezra', 'E', 'aqua'], ['Kiara', 'K', 'lavender'], ['Downstairs TV', 'TV', 'graphite'], ['Guest · Jo', 'J', 'sky'], ['Guest · Sam', 'S', 'sky']];
+  var APPS = [['timer', 'Timer', 'coral'], ['prayer', 'Prayer', 'apricot'], ['kidverse', 'Kid Verse', 'honey'], ['verses', 'Verses', 'pistachio'], ['leftovers', 'Larder', 'leaf'], ['tally', 'Tally', 'seafoam'], ['dollywood-live', 'Park map', 'lagoon'], ['f260', 'F260', 'cornflower'], ['dollywood', 'Build guide', 'orchid']];
+  window.__previewMaps = { people: PEOPLE.map(function (p) { return [p[0], p[2]]; }), apps: APPS.map(function (a) { return [a[0], a[2]]; }) };
+  var whoOf = function (id) { var w = PEOPLE.filter(function (p) { return p[2] === id; }).map(function (p) { return /^Guest/.test(p[0]) ? 'guests' : p[0]; }); w = w.filter(function (x, i) { return w.indexOf(x) === i; }); return w.join(', '); };
+  var appOf = function (id) { return APPS.filter(function (a) { return a[2] === id; }).map(function (a) { return a[1]; }).join(', '); };
+  var cap = function (s) { return s.charAt(0).toUpperCase() + s.slice(1); };
+  var FAMS = [];
+  ['periwinkle', 'peach', 'bubblegum', 'mint', 'butter', 'aqua', 'lavender', 'sky'].forEach(function (id) { FAMS.push([id, cap(id), whoOf(id), 'fams']); });
+  APPS.forEach(function (a) { FAMS.push([a[2], cap(a[2]), a[1], 'appfams']); });
+  [['graphite', 'the TV, signed-out states'], ['success', 'status'], ['warning', 'status'], ['danger', 'status']].forEach(function (s) { FAMS.push([s[0], cap(s[0]), s[1], 'semfams']); });
   FAMS.forEach(function (f) {
+    var fams = document.getElementById(f[3]);
     var id = f[0];
     var side = function (theme, scheme) {
       var p = h('div', { 'class': 'panel', 'data-theme-preview': theme, 'data-scheme': scheme, 'data-accent': 'periwinkle' });
@@ -262,7 +351,7 @@
       return p;
     };
     var card = h('div', { 'class': 'fam card' });
-    card.appendChild(h('h3', null, f[1] + ' <span class="hex" id="hex-' + id + '"></span>'));
+    card.appendChild(h('h3', null, f[1] + ' <span class="note">' + f[2] + '</span>'));
     var tw = h('div', { 'class': 'twin' }); tw.appendChild(side('hearth', 'light')); tw.appendChild(side('midnight', 'dark')); card.appendChild(tw);
     fams.appendChild(card);
   });
@@ -310,22 +399,48 @@
     return wrap;
   }
   var allFrames = [];
-  function fitAll() { allFrames.forEach(function (f) { var host = f.parentElement, cols = +(f.dataset.cols || 2); var avail = (host.clientWidth - (cols - 1) * 16) / cols; f._fit(Math.max(160, avail)); }); }
+  function fitAll() { allFrames.forEach(function (f) { var host = f.parentElement, cols = f.dataset.cols === 'stage' ? (host.clientWidth < 700 ? 1 : 2) : +(f.dataset.cols || 2); var avail = (host.clientWidth - (cols - 1) * 16) / cols; f._fit(Math.max(160, avail)); }); }
 
-  // glass
-  var gf = document.getElementById('glassframes');
-  [['hearth', 'light', false, 'Light · Eli (periwinkle)'], ['midnight', 'dark', false, 'Dark · Eli'], ['hearth', 'light', true, 'Light · Reduce Transparency'], ['midnight', 'dark', true, 'Dark · Reduce Transparency']].forEach(function (v) {
-    var f = frame(gf, 390, 700, function (fr) {
-      fr.innerHTML = '<div class="stage"></div><div class="gl-bar"><span style="color:var(--accent-ink)">‹ Hub</span><span>Park map</span><span style="color:var(--text-2)">⋯</span></div>' +
-        '<div class="gl-pill">Mae shared her spot · 2 min ago</div><div class="gl-fab" aria-hidden="true">+</div>' +
-        '<div class="gl-sheet"><div class="grab"></div><div style="font:var(--text-title3);margin-bottom:4px">Nearby</div><div class="row"><span>Lightning Rod</span><span>35 min</span></div><div class="row"><span>Thunderhead</span><span>20 min</span></div><div class="row" style="border:0"><span>Mystery Mine</span><span>10 min</span></div></div>' +
-        '<div class="gl-tab"><div class="on"><span>Map</span></div><div>Waits</div><div>Family</div><div>Search</div></div>';
-    }, v[3], { 'data-theme-preview': v[0], 'data-scheme': v[1], 'data-accent': 'periwinkle', 'class': 'frame' + (v[2] ? ' rt' : '') });
-    f.dataset.cols = 4; allFrames.push(f);
+  // glass: four levels x light/dark, each an iframe of this page in stage mode (the real :root rules paint it)
+  var gf = document.getElementById('glassframes'), stages = [];
+  var LEVELS = [['clear', 'Clear'], ['current', 'Current'], ['frosted', 'Frosted · default'], ['solid', 'Solid']];
+  if (!only || only === 'glass') [['hearth', 'light'], ['midnight', 'dark']].forEach(function (s) {
+    LEVELS.forEach(function (lv) {
+      var ifr;
+      var f = frame(gf, 390, 700, function (fr) {
+        ifr = h('iframe', { 'class': 'gframe', title: lv[1] + ' glass, ' + s[1], scrolling: 'no', src: 'design-preview.html?stage=glass&theme=' + s[0] + '&scheme=' + s[1] + '&glass=' + lv[0] });
+        fr.appendChild(ifr);
+      }, '<a class="gcap" href="design-preview.html?stage=glass&amp;theme=' + s[0] + '&amp;scheme=' + s[1] + '&amp;glass=' + lv[0] + '" target="_blank" rel="noopener"><b>' + lv[1] + '</b> · ' + s[1] + ' · <span data-stage-cap>…</span> · open full size</a>');
+      f.dataset.cols = 'stage'; allFrames.push(f);
+      stages.push({ level: lv[0], scheme: s[1], theme: s[0], iframe: ifr, cap: f.querySelector('[data-stage-cap]') });
+    });
+  });
+  function stageReady(st) {
+    return new Promise(function (res) {
+      (function poll() {
+        var w = st.iframe.contentWindow;
+        if (w && w.__previewReady === true && w.__stage) {
+          var d = w.__stage; st.result = d;
+          st.cap.textContent = st.level === 'solid' ? 'opaque panes, no blur' : 'pills ' + d.alpha + ' · bars ' + d.alphaStrong + ' opaque · ' + (d.halo ? 'outline on' : 'no outline');
+          res(); return;
+        }
+        setTimeout(poll, 50);
+      })();
+    });
+  }
+  // Me > Appearance: the level control, one per scheme
+  var ap = document.getElementById('appearance');
+  [['hearth', 'light'], ['midnight', 'dark']].forEach(function (s) {
+    var p = h('div', { 'class': 'panel', 'data-theme-preview': s[0], 'data-scheme': s[1], 'data-accent': 'periwinkle', style: 'padding:var(--sp-4);gap:var(--sp-3)' });
+    p.appendChild(h('div', { 'class': 'kicker' }, s[1] + ' · Eli'));
+    var c = h('div', { 'class': 'card', style: 'display:grid;gap:var(--sp-2)' });
+    c.appendChild(h('div', { style: 'font:var(--text-headline)' }, 'Glass'));
+    c.appendChild(h('div', { 'class': 'segs', role: 'radiogroup', 'aria-label': 'Glass' }, LEVELS.map(function (lv) { return '<span role="radio" aria-checked="' + (lv[0] === 'frosted') + '" class="' + (lv[0] === 'frosted' ? 'on' : '') + '"' + '>' + lv[1].split(' ·')[0] + '</span>'; }).join('')));
+    c.appendChild(h('div', { style: 'font:var(--text-footnote);color:var(--text-2)' }, 'Frosted is the default. Solid is the same as Reduce Transparency. The choice follows you to every device.'));
+    p.appendChild(c); ap.appendChild(p);
   });
 
   // tiles
-  var APPS = [['f260', 'F260', 'periwinkle'], ['leftovers', 'Larder', 'mint'], ['prayer', 'Prayer', 'peach'], ['tally', 'Tally', 'aqua'], ['timer', 'Timer', 'bubblegum'], ['dollywood', 'Build guide', 'lavender'], ['dollywood-live', 'Park map', 'sky'], ['kidverse', 'Kid Verse', 'butter'], ['verses', 'Verses', 'mint']];
   var tf = document.getElementById('tileframes');
   [['iPhone · light', 430, 560, 60, 4, 'hearth', 'light'], ['iPhone · dark', 430, 560, 60, 4, 'midnight', 'dark'], ['iPad · light', 820, 470, 76, 6, 'hearth', 'light'], ['iPad · dark', 820, 470, 76, 6, 'midnight', 'dark']].forEach(function (d) {
     var f = frame(tf, d[1], d[2], function (fr) {
@@ -337,8 +452,30 @@
     f.dataset.cols = 2; allFrames.push(f);
   });
 
+  // status neighbours: the four apps nearest a status colour, tile beside chip
+  var nbh = document.getElementById('neighbours');
+  var NB = [['timer', 'Timer', 'coral', 'danger', '✕', 'Expired'], ['prayer', 'Prayer', 'apricot', 'danger', '✕', 'Overdue'], ['kidverse', 'Kid Verse', 'honey', 'warning', '!', 'Eat today'], ['leftovers', 'Larder', 'leaf', 'success', '✓', 'Fresh']];
+  [['hearth', 'light'], ['midnight', 'dark']].forEach(function (s) {
+    var p = h('div', { 'class': 'panel', 'data-theme-preview': s[0], 'data-scheme': s[1], 'data-accent': 'periwinkle' });
+    p.appendChild(h('div', { 'class': 'kicker' }, s[1]));
+    NB.forEach(function (n) {
+      p.appendChild(h('div', { 'class': 'nb' }, '<span data-accent="' + n[2] + '" style="display:contents"><span class="ico"><i style="--glyph:url(../icons/' + n[0] + '.svg)"></i></span></span><span class="nm">' + n[1] + '</span>' +
+        '<span data-min="4.5" style="display:inline-flex;gap:var(--sp-2);align-items:center"><span class="schip" data-fg data-bg style="background:var(--' + n[3] + '-fill);color:var(--' + n[3] + '-ink)">' + n[4] + ' ' + n[5] + '</span><span class="ratio" style="color:var(--text-2)"></span></span>'));
+    });
+    p.appendChild(h('div', { 'class': 'nb' }, '<span data-accent="cornflower" style="display:contents"><span class="ico"><i style="--glyph:url(../icons/f260.svg)"></i></span></span><span class="nm">F260</span><span data-accent="sky" style="display:inline-flex;align-items:center;gap:var(--sp-2)"><span class="ava" style="width:40px;height:40px">J</span><span style="font:var(--text-subheadline)">Guest · Jo</span></span>'));
+    nbh.appendChild(p);
+  });
+  // the tiles on every palette
+  var tp = document.getElementById('tilepalettes');
+  [['hearth', 'light', 'Hearth'], ['parchment', 'light', 'Parchment'], ['frost', 'light', 'Frost'], ['midnight', 'dark', 'Midnight'], ['forest', 'dark', 'Forest'], ['graphite', 'dark', 'Graphite']].forEach(function (g) {
+    var p = h('div', { 'class': 'panel', 'data-theme-preview': g[0], 'data-scheme': g[1], 'data-accent': 'periwinkle' });
+    p.appendChild(h('div', { 'class': 'kicker', style: 'margin-bottom:var(--sp-2)' }, g[2]));
+    var r = h('div', { 'class': 'row9 nb', style: 'border:0;padding:0' });
+    APPS.forEach(function (a) { r.appendChild(h('span', { 'data-accent': a[2] }, '<span class="ico" style="--isz:44px"><i style="--glyph:url(../icons/' + a[0] + '.svg)"></i></span>' + a[1])); });
+    p.appendChild(r); tp.appendChild(p);
+  });
+
   // accents
-  var PEOPLE = [['Eli', 'E', 'periwinkle'], ['Mae', 'M', 'bubblegum'], ['Elizabeth', 'E', 'peach'], ['David', 'D', 'sky'], ['Mea', 'M', 'mint'], ['Ezra', 'E', 'aqua'], ['Kiara', 'K', 'butter'], ['Downstairs TV', 'TV', 'graphite'], ['A guest', 'G', 'lavender']];
   var acc = document.getElementById('acc');
   [['hearth', 'light'], ['midnight', 'dark']].forEach(function (s) {
     var p = h('div', { 'class': 'panel', 'data-theme-preview': s[0], 'data-scheme': s[1], 'data-accent': 'periwinkle' });
@@ -363,6 +500,10 @@
     row.appendChild(h('span', { 'class': 'note', style: 'width:110px' }, c[0]));
     PEOPLE.forEach(function (pp) { row.appendChild(h('span', { 'data-accent': pp[2], style: 'display:inline-grid' }, '<span class="ava">' + pp[1] + '</span>')); });
     cvd.appendChild(row);
+    var arow = h('div', { 'class': 'cvd', style: (c[1] ? 'filter:url(#cvd-' + c[1] + ');' : '') + 'margin-bottom:var(--sp-2)' });
+    arow.appendChild(h('span', { 'class': 'note', style: 'width:110px' }, 'apps'));
+    APPS.forEach(function (a) { arow.appendChild(h('span', { 'class': 'nb', 'data-accent': a[2], style: 'display:inline-grid;padding:0;border:0' }, '<span class="ico" style="--isz:36px" title="' + a[1] + '"><i style="--glyph:url(../icons/' + a[0] + '.svg)"></i></span>')); });
+    cvd.appendChild(arow);
   });
 
   // Prayer before/after
@@ -393,7 +534,10 @@
   fitAll(); addEventListener('resize', fitAll);
   measure();
   var imgs = [].slice.call(document.images).map(function (i) { return i.decode ? i.decode().catch(function () {}) : null; });
-  Promise.all(imgs).then(function () { window.__previewReady = true; });
+  Promise.all(imgs.concat(stages.map(stageReady))).then(function () {
+    window.__stages = stages.map(function (st) { return { level: st.level, scheme: st.scheme, theme: st.theme, result: st.result }; });
+    window.__previewReady = true;
+  });
 })();
 </script>
 </body>
