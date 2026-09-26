@@ -121,7 +121,24 @@ Step 4 planned this as KITCHEN-1 (batch 0d) and KITCHEN-2 (batch 2a) in `05-find
 2. Rebuild `audits/design-preview.html`: the new people map, the app hues, and the four glass levels. Recapture into `audits/screens-preview`, rebuild the sheets and send them to the owner.
 3. Two-skeptic verification of the high and medium usability, visual, consistency and gap items. Update the severities in `05-findings.md` through `build-findings.mjs`.
 4. Add the Kitchen device work to `plan-batches.mjs` and the fix files, and cut GAP-DOLLYWOOD-2. Rebuild `05-findings.md`.
-5. The owner approves the rebuilt preview. Phase 6 then begins with batch 0a.
+5. The owner approves the rebuilt preview. Phase 6 then begins with batch 0a. **Done 2026-09-26** (below, "Preview approved").
 6. Device checks for the owner, on the Kitchen iPad, an iPhone and the TV:
    - the preview, looking at real blur and fonts;
    - push, keep-awake, and the Timer beep on iOS.
+
+## Preview approved (2026-09-26)
+
+The owner approved the rebuilt design preview, including the three Kitchen plan notes from step 4, with one change:
+
+- **Forest's text is gold.** Revision 6d gave Forest cream text (`#F1ECDF`), and its gold appeared only in a faint background wash, so "Deep green, gold ink" was not true. Revision 6e makes every Forest text role gold:
+  - `--text` `#FBEFC8`: a pale gold, as bright as the glass contrast rules allow (7:1 over the worst glass background);
+  - `--text-2` `#D8BE7A`, `--text-3` `#C8AF70` and `--text-2-hi` `#E6CD8C`: richer golds.
+  - On a card they read at 13.78:1, 8.71:1 and 7.40:1, and tertiary text on a well at 6.46:1.
+  - A first try with a deeper gold (`#F2DC9B`, `#B89F63`) failed seven glass checks (as low as 6.10:1 against 7:1, and 3.98:1 against 4.5:1), so the primary text is paler than the secondary.
+- **Gated.** `contrast.mjs` has a new check, "Forest text is gold": each of the four roles needs a hue of 38-50° and a chroma of at least 0.15. Planted with the old cream values, it fails 4 of 4. On revision 6e:
+  - `contrast.mjs`: 0 failing checks;
+  - `halo-check.mjs`: re-run on the new file, OK;
+  - `browser-check.mjs`: OK;
+  - `preview-check.mjs`: 280 pass and 0 fail in each of 12 runs.
+  The preview was recaptured (70 of 70) and its contact sheets rebuilt.
+- **Why the preview was black.** It needs its token stylesheet, images and iframes next to it, so a viewer that opens the HTML by itself shows an unstyled black page in dark mode. `audits/tools/phase5/preview-standalone.mjs` now builds `audits/design-preview-standalone.html`, one file with everything inlined, which opens anywhere. `design-preview.html` stays the source for the rig and the checks.

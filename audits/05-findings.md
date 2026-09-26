@@ -29,7 +29,7 @@
 - **The household has answered every decision** (D1-D18 from Phase 4, P5-D1-P5-D9 below; `audits/05-decisions.md`, 2026-09-25, and admin-assigned colours, 2026-09-26). Where an answer differs from a recommendation, the answer wins and this plan follows it: the D3 colour set as the starting colours with the admin free to assign any of the 18 families, guests sky by default (D4), nine separate app hues (D5), four glass levels with Frosted the default (D8), the TV's 10-foot scale on in 2c (D16), and the Kitchen device in place of an idle return (P5-D5).
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
-- **What is left before Phase 6:** the owner approves the rebuilt preview (`audits/05-decisions.md`, "Before Phase 6 can start", item 5). Batch 0a follows.
+- **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
 
 ## The plan
 
@@ -46,7 +46,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | the owner's approval of the rebuilt design preview (audits/05-decisions.md, "Before Phase 6 can start", item 5); the decisions themselves are answered |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 |
@@ -145,7 +145,6 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 - **Why now.** Most visual findings share causes in the token layer: mid-tone hues used as text, one light-theme hex per person, no iPad type tier, glass without Reduce Transparency, focus rings that vanish. Phase 4 measured them across 3,662 screen x theme x device jobs and proposed one verified token set.
 - **Files.** apps/design.css (token half replaced by audits/tools/phase4/tokens/proposed-tokens.css; component half moved onto roles), apps/hub.js (theme, accent, preferences, bootstrap), a new additive migration, `<n>-profile-hue.sql` under worker/migrations/ (Phase 4 named it 006; batch 0d's migrations land first, so it takes the next free number), the tests that hard-code page colours; the Phase 4 batch-1a pre-pass rows in every app
-- **Needs first.** the owner's approval of the rebuilt design preview (audits/05-decisions.md, "Before Phase 6 can start", item 5); the decisions themselves are answered.
 - **Backup.** Export the production D1 before the profile-hue migration (additive column).
 - **Verification.** node audits/tools/phase4/tokens/contrast.mjs (0 failing) and browser-check.mjs; the measurement rig after the change: node audits/tools/phase4/measure.mjs --run themes|devices|states --out … then aggregate.mjs, compared with the committed audits/evidence/p4/measure/*.json; capture rig, all areas: node audits/tools/capture.mjs --out audits/screens-after/… (one folder per batch), then pxdiff against audits/screens; scripts/test-design.mjs, screens-themes.mjs, screens-apps.mjs, screens-shell.mjs, test-prefs.mjs; rescore the rubric for every row (the Phase 4 scorecard method). Name anything not verified; a visual finding is marked FIXED only with an after-screenshot (constitution, Phase 6).
 

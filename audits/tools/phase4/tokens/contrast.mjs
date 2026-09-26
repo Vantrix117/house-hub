@@ -988,6 +988,20 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
     const w = E.computed([rootEl('forest', { accent: 'sky' })])('--wash') || '';
     record('structure:Forest keeps its gold wash', { kind: 'structure' }, /#FFDB7E/i.test(w) ? 1 : 0, 1, 'forest --wash');
   }
+  // L4b. Forest's ink is gold, not cream (owner, 2026-09-26): every text role has a gold hue (38-50 deg) and chroma
+  //      (max - min channel) >= 0.15; the old cream #F1ECDF has the hue but chroma 0.07, so it fails, as it should
+  {
+    const g = E.computed([rootEl('forest', { accent: 'sky' })]);
+    const hsl = hex => { const m = /^#([0-9a-f]{6})$/i.exec((hex || '').trim()); if (!m) return null;
+      const [r, gg, b] = [0, 2, 4].map(i => parseInt(m[1].slice(i, i + 2), 16) / 255), mx = Math.max(r, gg, b), mn = Math.min(r, gg, b), d = mx - mn, l = (mx + mn) / 2;
+      const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+      const h = d === 0 ? 0 : mx === r ? 60 * (((gg - b) / d) % 6) : mx === gg ? 60 * ((b - r) / d + 2) : 60 * ((r - gg) / d + 4);
+      return { h: (h + 360) % 360, s, c: d }; };
+    for (const role of ['text', 'text-2', 'text-3', 'text-2-hi']) {
+      const c = hsl(g('--' + role));
+      record('structure:Forest text is gold', { kind: 'structure' }, c && c.h >= 38 && c.h <= 50 && c.c >= 0.15 ? 1 : 0, 1, `forest --${role} ${g('--' + role)}`);
+    }
+  }
   // L5. the pre-paint bootstrap (bootstrap.js, pasted inline in every <head>) run against a stub document, then through the cascade
   {
     const code = boot;
