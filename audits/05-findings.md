@@ -1476,7 +1476,7 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/04-design-system.md:5682`; `index.html:449`, `worker/seed.sql:4-11`
 - **What happens now.** The colours are mid-tones. Every profile colour sits at OKLCH L 0.42-0.65: too dark to be a fill, too light and too grey to be an ink.
 - **Why it matters.** Profile colours are near-grey and too close.
-- **Proposed fix.** Each person gets a distinct house pastel family (decision D3), CVD-separated (gated ΔE00). (Phase 4 gap row ACCENT-8)
+- **Proposed fix.** Each person starts with a distinct house pastel family (decision D3); the nine people's colours are CVD-separated (gated ΔE00). The admin may assign any of the 18 (household answer 2026-09-26); an app colour is not CVD-separated from the people's, so the picker's CVD check (GAP-ACCENT-1) warns. (Phase 4 gap row ACCENT-8)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/ACCENT/tokens.mjs"`, `node "audits/tools/phase4/ACCENT/cvd-strip.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
 
 #### VIS-COLOR-1 — The fills and tiles sit at about a third of the house chroma in all five palettes, two house hues are missing, and dark cards barely lift off the page
@@ -1548,7 +1548,7 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/04-design-system.md:5646`; `index.html:700`, `apps/design.css:77`, `apps/timer.html:22`, `worker/seed.sql:4-11`
 - **What happens now.** App colours. They are painted through the same `--tint` as people (`index.html:700, 1165-1188`); see Table ACCENT-8.
 - **Why it matters.** One hue means a person, an app and a status.
-- **Proposed fix.** App hues and people hues are separate roles (tile = glyph + name; person = ring + face; decision D5); the Timer's running ring uses the owner's colour, never --danger. (Phase 4 gap row ACCENT-7)
+- **Proposed fix.** App tiles keep their own hues (D5); a person is always ring + face and a tile always glyph + name, so neither is read by colour alone, even when the admin gives a person an app's colour (household answer 2026-09-26); the Timer's running ring uses the owner's colour, never --danger. (Phase 4 gap row ACCENT-7)
 - **How it will be verified.** Rerun `node "audits/tools/phase4/ACCENT/app-vs-person.mjs"` — the defect must no longer reproduce; recapture its screens (capture area every area) and compare; plus batch 1's checks.
 
 #### CONS-ACCENT-3 — A local accent override does not re-derive the tokens that paint: Kid Verse and Prayer's Family list get it wrong, Verses gets it right
@@ -2726,7 +2726,7 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/04-design-system.md:5696`; `index.html:1398`, `index.html:308`, `index.html:1393`, `worker/src/index.js:183`
 - **What happens now.** The swatches are unnamed. Each carries `aria-label="#4F5D8C"` and so on (`index.html:1398, 1666`). The selected swatch is shown only by a `--text` border and a scale (`index.html:308`).
 - **Why it matters.** The picker cannot keep people apart.
-- **Proposed fix.** The admin colour picker offers the named hue families, warns on duplicates and shows the CVD check.
+- **Proposed fix.** The admin colour picker (Me → Admin → Edit, for every profile, guests included) offers all 18 named families: the nine people's colours first, then the nine app colours, each labelled with the app that uses it. It warns on a duplicate, on a colour an app uses and on a colour a colour-blind viewer would confuse with another person's (the CVD check); the admin decides (household answer 2026-09-26). The Worker accepts only the 18 names.
 - **How it will be verified.** recapture its screens (capture area every area) and compare; plus batch 2a's checks.
 
 #### GAP-PROF-a2 — The admin panel cannot manage the household (index.html:1599, 1620, 1627, 1633, 1638, 1643, 1666-1667, 1681; index.js:453-480; `admin-panel.mjs`; `admin-edit-guest-kind.png`)
@@ -2735,7 +2735,7 @@ Phase 4 lists D1-D18 with recommendations (`audits/04-design-system.md`, "Decisi
 - **Evidence.** `audits/02-shell.md:1129`; `index.html:1599`
 - **What happens now.** There is no control to add or remove a household person. Only guests can be removed (index.js:206-227, 490-500).
 - **Why it matters.** The household cannot be managed from the hub; a second admin is impossible.
-- **Proposed fix.** Admin → Household: add or remove a household person, transfer or add an admin (server-checked), set a person's kind and hue.
+- **Proposed fix.** Admin → Household: add or remove a household person, transfer or add an admin (server-checked), set a person's kind and hue (any of the 18 families, guests included; GAP-ACCENT-1).
 - **How it will be verified.** recapture its screens (capture area shell, tv) and compare; plus batch 2a's checks.
 
 #### P2-HOME-05 — Every successful pull rebuilds all of adult Home, even when nothing changed

@@ -1021,6 +1021,8 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
     for (const [hx, hue] of Object.entries(WANT)) record('bootstrap:the fallback table carries the household’s colour decisions (D3 people, D4 guests)', { kind: 'structure' }, H[hx] === hue ? 1 : 0, 1, `${hx} → ${H[hx]} (want ${hue})`);
     const household = Object.entries(WANT).filter(([hx]) => !['#8c4f7a', '#4c7b6a'].includes(hx)).map(([, h]) => h);
     record('bootstrap:the eight household people hold eight different families, and the guests’ family is none of them (D4)', { kind: 'structure' }, new Set(household).size === household.length && !household.includes('sky') ? 1 : 0, 1, household.join(','));
+    const A = (code.match(/var A=' ([a-z ]+) '/) || [, ''])[1].split(' ');
+    record('bootstrap:the hues a profile may store are exactly the 18 accent families (people + apps; admin-assigned, 2026-09-26)', { kind: 'structure' }, JSON.stringify([...A].sort()) === JSON.stringify([...ACCENTS].sort()) ? 1 : 0, 1, A.join(','));
     const cases = [
       ['System on a dark OS', { 'hub.session': { profile: { kind: 'adult', color: '#4F5D8C' } } }, { '(prefers-color-scheme: dark)': true }, { theme: 'midnight', scheme: 'dark', choice: 'system', accent: 'periwinkle' }],
       ['System on a light OS (no static theme-color meta: the snippet creates one)', {}, {}, { theme: 'hearth', scheme: 'light', choice: 'system' }, 'none'],
@@ -1038,6 +1040,13 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
       ['no one signed in: a stored glass level is not applied (it belongs to a person)', { 'hub.prefs': { glass: 'clear' } }, {}, { glass: undefined, transparency: undefined }],
       ['the glass level Solid (D8) is Reduce Transparency', { 'hub.session': { profile: { kind: 'adult', color: '#4F5D8C' } }, 'hub.prefs': { glass: 'solid' } }, {}, { transparency: 'reduce' }],
       ['a new session carries its hue', { 'hub.session': { profile: { kind: 'adult', color: '#123456', hue: 'sky' } } }, {}, { accent: 'sky' }],
+      // admin-assigned colours (household answer 2026-09-26, amending D3/D4): any of the 18 families, for anyone, guests included
+      ['the admin gave a household person an app family (orchid): the stored hue wins', { 'hub.session': { profile: { kind: 'adult', color: '#4F5D8C', hue: 'orchid' } } }, {}, { accent: 'orchid' }],
+      ['the admin gave a guest a colour (coral): the stored hue wins over the sky default', { 'hub.session': { profile: { kind: 'adult', color: '#137F77', is_guest: true, hue: 'coral' } } }, {}, { accent: 'coral' }],
+      ['a guest with no stored hue is sky (the D4 default)', { 'hub.session': { profile: { kind: 'adult', color: '#4F5D8C', is_guest: true } } }, {}, { accent: 'sky' }],
+      ['an unknown stored hue name is ignored: the fallback table applies (Mae #BC5A38 → peach)', { 'hub.session': { profile: { kind: 'adult', color: '#BC5A38', hue: 'neon' } } }, {}, { accent: 'peach' }],
+      ['a stored hue of two names ("sky periwinkle") is not a name: the fallback table applies (Eli #4F5D8C → periwinkle)', { 'hub.session': { profile: { kind: 'adult', color: '#4F5D8C', hue: 'sky periwinkle' } } }, {}, { accent: 'periwinkle' }],
+      ['an unknown stored hue on a guest falls back to sky', { 'hub.session': { profile: { kind: 'adult', color: '#123456', is_guest: true, hue: 'neon' } } }, {}, { accent: 'sky' }],
       ['an unknown hex falls back to graphite, never to another person', { 'hub.session': { profile: { kind: 'adult', color: '#123456' } } }, {}, { accent: 'graphite' }],
       ['Prayer (its own meta id="themeColor", apps/prayer.html:9, the bootstrap right after it) on System, light OS', {}, {}, { theme: 'hearth', scheme: 'light' }, 'prayer'],
       ['Prayer on Midnight', { 'hub.theme': 'midnight' }, {}, { theme: 'midnight', scheme: 'dark' }, 'prayer'],
@@ -1050,7 +1059,7 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
       // the attributes it wrote, through the cascade: the inline colorScheme equals the CSS color-scheme, and the accent is that family
       const el = { isRoot: true, attrs: Object.fromEntries(Object.entries(attrs).filter(([k]) => k !== 'data-theme-choice').map(([k, v]) => [k.slice(5), v])) };
       const g = E.computed([el]);
-      const okCss = colorScheme === g('color-scheme') && (!got.accent || hex(evalColour(g('--accent-strong'))) === hex(evalColour(g(`--${got.accent}-strong`))));
+      const okCss = colorScheme === g('color-scheme') && (!got.accent || (() => { try { return hex(evalColour(g('--accent-strong'))) === hex(evalColour(g(`--${got.accent}-strong`))); } catch (e) { return false; } })());   // an accent with no family fails here, not by a crash
       // theme-color (TELL-1): every theme-color meta, static or created, carries the resolved palette's --bg and no media query
       const bgHex = hex(evalColour(g('--bg')));
       const okMeta = tc.length >= 1 && tc.every(m => m.name === 'theme-color' && (m.content || '').toUpperCase() === bgHex && !('media' in m));
@@ -1142,7 +1151,8 @@ const MUTATIONS = [
   { name: 'Kid Verse dark honey fill back on Mae\'s peach (verify-rev6 round 3, issue 1)', expect: 'apphue:app vs person in every role', mutate: s => s.replace(/(--honey-wash: #3[0-9A-F]{5}; --honey-fill: )#[0-9A-F]{6}/, '$1#5F3712') },
   { name: 'Kid Verse dark honey glyph back on the warning ink (verify-rev6 round 2, issue 1)', expect: 'apphue:an app ink is no closer', mutate: s => s.replace(/(--honey-wash: #3[0-9A-F]{5};[^\n]*?--honey-ink: )#[0-9A-F]{6}/, '$1#FACD98') },
   { name: 'Kid Verse honey back on the warning colour in dark (verify-rev6 issue 2)', expect: 'apphue:an app fill is no closer', mutate: s => s.replace(/--honey-fill: #[0-9A-F]{6}; (--honey-fill-strong: #[0-9A-F]{6}; --honey-strong: #[0-9A-F]{6}; --honey-graphic: #[0-9A-F]{6}; --honey-ink: #[0-9A-F]{6}; --honey-ink-hi: #[0-9A-F]{6}; --honey-on: #2)/, '--honey-fill: #5A390A; $1') },
-  { name: 'the bootstrap gives a guest a household colour (verify-rev6 issue 3)', expect: 'bootstrap:the pre-paint snippet', mutate: s => s, boot: b => b.replace("p.is_guest?'sky':", '') },
+  { name: 'the bootstrap gives a guest a household colour (verify-rev6 issue 3)', expect: 'bootstrap:the pre-paint snippet', mutate: s => s, boot: b => b.replace("?p.hue:p.is_guest?'sky':", '?p.hue:') },
+  { name: 'the bootstrap trusts any stored hue name (an unknown hue paints no family)', expect: 'bootstrap:the pre-paint snippet', mutate: s => s, boot: b => b.replace("p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:", 'p.hue?p.hue:') },
   { name: 'the glass levels moved after Increase Contrast (a see-through level beats it)', expect: 'structure:Increase Contrast beats', mutate: s => { const m = s.match(/:root\[data-glass="current"\][\s\S]*?:root\[data-glass="clear"\][\s\S]*?\}\n/)[0]; return s.replace(m, '') + '\n' + m; } },
   { name: 'the dark hero capsule back to the deep fill (no edge: 1.00 against the end stop)', expect: 'accent:the dark hero capsule', mutate: s => s.replace('--hero-btn-bg: color-mix(in srgb, var(--accent-strong) var(--hero-btn-mix), #FFFFFF);', '--hero-btn-bg: color-mix(in srgb, var(--accent-fill) var(--hero-btn-mix), #FFFFFF);') },
   { name: 'Reduce Transparency leaves --blur at 20 px', expect: 'structure:no live blur', mutate: s => s.replace('--scrim-blur: 0px; --blur: 0px; --blur-sm: 0px; --blur-lg: 0px;\n', '--scrim-blur: 0px;\n') },

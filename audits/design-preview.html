@@ -62,7 +62,7 @@
   .fams { grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
   .twin { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: var(--sp-2); }
   .twin > * { min-width: 0; }
-  #acc, #appearance, #neighbours { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+  #acc, #appearance, #neighbours, #picker { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
   .twin > .panel { padding: var(--sp-2); display: grid; gap: var(--sp-1-5); align-content: start; }
   .tile-sw { height: 44px; border-radius: var(--r-control); background: var(--tile-bg); display: flex; align-items: center; justify-content: center; font-weight: var(--fw-bold); color: var(--accent-ink); }
   table.t { width: 100%; border-collapse: collapse; font: var(--text-subheadline); }
@@ -122,6 +122,11 @@
   .nb .ico i { width: 58%; height: 58%; background: var(--accent-ink); -webkit-mask: var(--glyph) center / contain no-repeat; mask: var(--glyph) center / contain no-repeat; }
   .nb .nm { font: var(--text-subheadline); font-weight: var(--fw-semibold); min-width: 84px; }
   .schip { font: var(--text-footnote); font-weight: var(--fw-semibold); padding: 4px 10px; border-radius: var(--r-full); display: inline-flex; gap: 6px; align-items: center; }
+  .pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: var(--sp-2); }
+  .pick > span { display: grid; justify-items: center; gap: 3px; min-height: var(--tap); text-align: center; font: var(--text-caption2); color: var(--text-2); }
+  .pick .sw { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-fill); box-shadow: inset 0 0 0 3px var(--accent-graphic); display: grid; place-items: center; font-weight: var(--fw-bold); color: var(--accent-ink); }
+  .pick .cur .sw { box-shadow: inset 0 0 0 3px var(--accent-graphic), 0 0 0 3px var(--surface), 0 0 0 5px var(--text); }
+  .pick b { color: var(--text); font-weight: var(--fw-semibold); }
   .grp { margin: var(--sp-8) 0 var(--sp-3); }
   /* tiles */
   .home { position: absolute; inset: 0; background: var(--wash), var(--bg); color: var(--text); padding: 56px 20px 20px; }
@@ -256,9 +261,12 @@
 
 <section id="accents">
   <h2>The household's colours, side by side</h2>
-  <p>Each person has their own house pastel (decision D3): Eli periwinkle, Mae peach, Elizabeth bubblegum, David mint, Mea butter, Ezra aqua, Kiara lavender, and graphite for the TV. Guests share sky, the one pastel nobody in the house holds; two guests may both be sky, since the face and the name tell them apart (D4). A colour always comes with a face or initial, so nobody relies on hue alone. Shown as the avatar ring, a selected chip, a primary button and progress, in light and dark. Below, the faces and the app tiles as seen with the three common colour-vision deficiencies (simulated, and not gated: a tile carries its glyph and name).</p>
+  <p>These are the starting colours (decision D3): Eli periwinkle, Mae peach, Elizabeth bubblegum, David mint, Mea butter, Ezra aqua, Kiara lavender, and graphite for the TV. A new guest starts as sky, the one pastel nobody in the house holds; two guests may both be sky, since the face and the name tell them apart (D4). The admin can change anyone's colour, guests included, to any of the 18 (answer of 2026-09-26; the picker is below). A colour always comes with a face or initial, so nobody relies on hue alone. Shown as the avatar ring, a selected chip, a primary button and progress, in light and dark. Below, the faces and the app tiles as seen with the three common colour-vision deficiencies (simulated, and not gated: a tile carries its glyph and name).</p>
   <div class="twin" id="acc"></div>
   <div class="card" style="margin-top:var(--sp-4)"><div class="grid" id="cvd" style="gap:var(--sp-3)"></div></div>
+  <h3 style="margin-top:var(--sp-6)">Me → Admin → Edit: the colour picker</h3>
+  <p class="note">Batch 2a (GAP-ACCENT-1). Here the admin is recolouring Mae. All 18 colours are offered: the people's nine first, then the nine app colours, each named with its app. A colour someone already has, one an app uses, or one a colour-blind viewer would confuse with another person's gets a note, not a block; the admin decides. The nine people's colours are kept apart for colour-blind viewers by the gate; the app colours are not, so the picker checks.</p>
+  <div class="twin" id="picker"></div>
 </section>
 
 <section id="prayer">
@@ -473,6 +481,36 @@
     var r = h('div', { 'class': 'row9 nb', style: 'border:0;padding:0' });
     APPS.forEach(function (a) { r.appendChild(h('span', { 'data-accent': a[2] }, '<span class="ico" style="--isz:44px"><i style="--glyph:url(../icons/' + a[0] + '.svg)"></i></span>' + a[1])); });
     p.appendChild(r); tp.appendChild(p);
+  });
+
+  // the admin colour picker (all 18 families; the notes are notes, not blocks)
+  var pk = document.getElementById('picker');
+  [['hearth', 'light'], ['midnight', 'dark']].forEach(function (s) {
+    var p = h('div', { 'class': 'panel', 'data-theme-preview': s[0], 'data-scheme': s[1], 'data-accent': 'peach', style: 'display:grid;gap:var(--sp-3)' });
+    p.appendChild(h('div', { 'class': 'kicker' }, s[1] + ' · editing Mae'));
+    var grid = function (ids, label) {
+      var c = h('div', { style: 'display:grid;gap:var(--sp-2)' }); c.appendChild(h('div', { style: 'font:var(--text-footnote);font-weight:var(--fw-semibold);color:var(--text-2)' }, label));
+      var g = h('div', { 'class': 'pick', role: 'radiogroup', 'aria-label': label });
+      ids.forEach(function (id) {
+        var who = whoOf(id), app = appOf(id), mine = id === 'peach';
+        var note = mine ? 'Mae now' : who ? 'also ' + who : app ? app : '';
+        g.appendChild(h('span', { role: 'radio', 'aria-checked': String(mine), 'class': mine ? 'cur' : '', 'data-accent': id }, '<span class="sw">M</span><b>' + cap(id) + '</b>' + (note ? '<span>' + note + '</span>' : '')));
+      });
+      c.appendChild(g); return c;
+    };
+    p.appendChild(grid(['periwinkle', 'peach', 'bubblegum', 'mint', 'butter', 'aqua', 'lavender', 'sky', 'graphite'], "People's colours"));
+    p.appendChild(grid(APPS.map(function (a) { return a[2]; }), 'App colours (shared with the app named)'));
+    // the colour-blind check: Mae's peach beside the choice it warns about (apricot), as seen normally and with protanopia and deuteranopia
+    var cb = h('div', { 'class': 'cbcheck', style: 'display:grid;gap:var(--sp-2)' });
+    cb.appendChild(h('div', { style: 'font:var(--text-footnote);font-weight:var(--fw-semibold);color:var(--text-2)' }, 'Colour-blind check: Mae’s peach beside Apricot'));
+    var sw = function (id, flt, label) { return '<span style="display:inline-flex;align-items:center;gap:14px;padding-left:6px"><span data-accent="' + id + '" style="display:inline-grid;' + (flt ? 'filter:url(#cvd-' + flt + ')' : '') + '"><span class="ava" style="width:36px;height:36px;font-size:14px">M</span></span><span style="font:var(--text-footnote);color:var(--text)">' + label + '</span></span>'; };
+    [['', 'Normal vision'], ['protanopia', 'Protanopia'], ['deuteranopia', 'Deuteranopia']].forEach(function (c) {
+      var r = h('div', { style: 'display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);align-items:center' }, '<span class="note" style="width:104px">' + c[1] + '</span>' + sw('peach', c[0], 'Peach · Mae now') + sw('apricot', c[0], 'Apricot · Prayer'));
+      cb.appendChild(r);
+    });
+    cb.appendChild(h('div', { 'class': 'cbwarn', style: 'font:var(--text-footnote);color:var(--warning-ink);background:var(--warning-fill);border-radius:var(--r-control);padding:var(--sp-2) var(--sp-3)', 'data-min': '4.5' }, '! Apricot (Prayer) is hard to tell from Mae’s peach with protanopia or deuteranopia. You can still choose it; her face tells her apart. <span class="ratio"></span>'));
+    p.appendChild(cb);
+    pk.appendChild(p);
   });
 
   // accents

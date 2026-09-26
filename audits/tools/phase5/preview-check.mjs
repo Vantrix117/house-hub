@@ -72,9 +72,18 @@ for (const [name, launch] of [['webkit', () => pw.webkit.launch()], ['chromium',
     const page = await ctx.newPage(); const errs = []; page.on('pageerror', e => errs.push(e.message));
     await page.goto(`http://127.0.0.1:${port}/audits/design-preview.html`, { waitUntil: 'load' });
     await page.waitForFunction(() => window.__previewReady === true, null, { timeout: 30000 });
-    const r = await page.evaluate(() => ({ pass: document.querySelectorAll('.ratio.pass').length, fail: [...document.querySelectorAll('.ratio.fail')].map(e => (e.closest('.pair,tr,.person,.nb,.segs') || e).innerText.replace(/\s+/g, ' ').slice(0, 80)), hscroll: document.documentElement.scrollWidth - document.documentElement.clientWidth, maps: window.__previewMaps, stages: window.__stages }));
+    const r = await page.evaluate(() => ({ pass: document.querySelectorAll('.ratio.pass').length, fail: [...document.querySelectorAll('.ratio.fail')].map(e => (e.closest('.pair,tr,.person,.nb,.segs') || e).innerText.replace(/\s+/g, ' ').slice(0, 80)), hscroll: document.documentElement.scrollWidth - document.documentElement.clientWidth, maps: window.__previewMaps, stages: window.__stages, picker: [...document.querySelectorAll('#picker > .panel')].map(p => ({ radios: [...p.querySelectorAll('[role=radio]')].map(r => ({ hue: r.dataset.accent, text: r.innerText.replace(/\s+/g, ' '), checked: r.getAttribute('aria-checked') })), cvdRows: p.querySelectorAll('.cbcheck [style*="cvd-"]').length, warn: !!p.querySelector('.cbwarn') })) }));
     const mapIssues = mapCheck(r.maps), stageIssues = r.stages.flatMap(stageCheck);
     if (r.stages.length !== 8) stageIssues.push(`${r.stages.length} glass stages (expected 8)`);
+    // the admin picker (household answer 2026-09-26): all 18 families, each app colour named with its app, one current choice, the CVD check
+    if (r.picker.length !== 2) mapIssues.push(`${r.picker.length} picker panels (expected 2)`);
+    for (const pk of r.picker) {
+      const hues = pk.radios.map(x => x.hue);
+      if (JSON.stringify([...hues].sort()) !== JSON.stringify([...PERSON_HUES, ...Object.values(APP_EXPECTED)].sort())) mapIssues.push('picker does not offer exactly the 18 families: ' + hues.join(','));
+      for (const [id, hue] of Object.entries(APP_EXPECTED)) { const x = pk.radios.find(y => y.hue === hue); const name = r.maps.apps.find(([a]) => a === id) && ({ timer: 'Timer', prayer: 'Prayer', kidverse: 'Kid Verse', verses: 'Verses', leftovers: 'Larder', tally: 'Tally', 'dollywood-live': 'Park map', f260: 'F260', dollywood: 'Build guide' })[id]; if (!x || !x.text.includes(name)) mapIssues.push(`picker: ${hue} is not labelled ${name}`); }
+      if (pk.radios.filter(x => x.checked === 'true').length !== 1) mapIssues.push('picker: not exactly one current colour');
+      if (pk.cvdRows < 2 || !pk.warn) mapIssues.push('picker: no colour-blind check');
+    }
     out.push({ engine: name, width: w, scheme, pass: r.pass, fail: r.fail, hscroll: r.hscroll, errors: errs, mapIssues, stageIssues, stages: r.stages });
     if (r.fail.length || r.hscroll > 0 || errs.length || mapIssues.length || stageIssues.length) problems.push(`${name} ${w} ${scheme}`);
     await ctx.close();

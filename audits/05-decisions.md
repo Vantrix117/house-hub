@@ -51,6 +51,21 @@ The owner's answers to D1-D18 (`04-design-system.md`, "Decisions for the househo
   - tests, in the style of `test-hub.mjs`: kitchen writes family data, cannot read or write person scope, and credits the tapped person.
 - **Where it goes.** The data and server half joins batch 0d (security: server-side kind rules). The shell half joins batch 2a, and supersedes that batch's idle-return fix.
 
+### Admin-assigned colours (2026-09-26, amends D3 and D4)
+
+- **The answer.** The admin assigns each profile's colour as they see fit. The D3 set becomes the **starting** colours, and sky becomes the **default** for a new guest. Neither is fixed any more.
+- **Which colours.** **All 18** named families are offered: the nine people's colours (the eight pastels and graphite) and the nine app colours of D5. This departs from the recommendation, which was the people's nine only.
+  - What it costs: a person can share an app tile's colour, and two people can look alike to a colour-blind viewer (below). A person is still always a ring and a face, and a tile always a glyph and a name, so neither is read by colour alone.
+  - The picker labels an app colour with the app that uses it, and warns when a colour is already a person's or an app's. The admin decides.
+- **Guests.** A new guest starts as sky. The admin can give any guest another colour.
+- **Plan impact.**
+  - Batch 2a, GAP-ACCENT-1 and GAP-PROF-a2: the admin picker, in Me → Admin → Edit, covers every profile including guests and offers all 18 families.
+  - Batch 0d: the Worker accepts only the 18 names as a profile `hue`, admin only. It still writes `hue = 'sky'` for a new guest.
+  - Batch 1: ACCENT-9 already makes a recolour reach people who are signed in.
+  - The token bootstrap (`audits/tools/phase4/tokens/bootstrap.js`) now lets a stored hue win for everyone, guests included. An unknown name is ignored, and only then does a guest fall back to sky. `contrast.mjs` gates this with six new cases and two new mutations.
+  - **What stays gated.** Every contrast check already covers all 18 families, so a person wearing an app colour still meets every contrast rule.
+  - **What is no longer guaranteed.** Colour-blind separation is gated only among the nine people's colours. Some app colours sit close to a person's for a colour-blind viewer: apricot and peach read almost alike with protanopia, and cornflower and periwinkle with deuteranopia. So two people can look alike to a colour-blind viewer if the admin picks such a pair. The picker's colour-blind check (GAP-ACCENT-1) warns about this, and the face still tells them apart.
+
 ## Features kept or cut
 
 - **Kept:**

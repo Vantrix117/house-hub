@@ -8,5 +8,6 @@ var s=g('hub.session',null),p=s&&s.profile,r=g('hub.prefs',{})||{};d.setAttribut
 d.setAttribute('data-scheme',S[t]);d.style.colorScheme=S[t];
 var ms=document.querySelectorAll('meta[name="theme-color"]'),i;if(!ms.length){var mt=document.createElement('meta');mt.setAttribute('name','theme-color');document.head.appendChild(mt);ms=[mt]}
 for(i=0;i<ms.length;i++){ms[i].removeAttribute('media');ms[i].setAttribute('content',B[t])}
-if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.is_guest?'sky':p.hue||H[String(p.color||'').toLowerCase()]||'graphite')}
+var A=' bubblegum peach butter mint aqua sky periwinkle lavender graphite coral apricot honey pistachio leaf seafoam lagoon cornflower orchid ';
+if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:p.is_guest?'sky':H[String(p.color||'').toLowerCase()]||'graphite')}
 ['textSize:data-text-size','contrast:data-contrast','transparency:data-transparency','motion:data-motion'].forEach(function(x){x=x.split(':');if(r[x[0]])d.setAttribute(x[1],r[x[0]])});if(r.glass&&p&&p.kind!=='kiosk'){if(r.glass==='solid')d.setAttribute('data-transparency','reduce');else{d.setAttribute('data-glass',r.glass);d.setAttribute('data-transparency','full')}}}catch(e){}})(document.documentElement)
