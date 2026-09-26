@@ -676,7 +676,7 @@
   }
 
   // ── apps grid + widgets ───────────────────────────────────────
-  const ageDays = s => { const then = new Date(s + 'T00:00:00'); const now = new Date(); now.setHours(0, 0, 0, 0); return Math.floor((now - then) / 86400000); };
+  const ageDays = s => hub.daysBetween(s, hub.today());   // calendar days in New York, as the Larder and the 8 am job count them: a DST change cannot shift it
   const fridgeDue = () => hub.list('item:', { app: 'leftovers', scope: 'family' }).map(r => r.value)
     .map(i => ({ ...i, days: ageDays(i.dateLogged) })).filter(i => i.days >= 4).sort((a, b) => b.days - a.days);
   function ringHtml(p, label, color, big) {
@@ -685,8 +685,8 @@
   function widgetHtml(a) {
     if (a.id === 'f260') {
       const s = hub.get('f260.summary', { app: 'f260', scope: 'person' });
-      if (!s) return `${ringHtml(0, '0/5', a.color)}<span style="min-width:0"><span class="tlabel">${esc(a.name)}</span><span class="tsub">${hub.sync.lastPull ? 'Start week 1' : '<span class="skeleton">loading</span>'}</span></span>`;
-      return `${ringHtml(s.weekDone / 5, s.weekDone + '/5', a.color)}<span style="min-width:0"><span class="tlabel">${esc(a.name)}</span><span class="tsub">Week ${s.week}${s.next ? ' · next: ' + esc(s.next.ref) : ' · done'}${s.streak ? ' · ' + s.streak + '-day streak' : ''}</span></span>`;
+      if (!s) return `${ringHtml(0, '0/5', a.color)}<span style="min-width:0"><span class="tlabel">${esc(a.name)}</span><span class="tsub">${hub.isLoaded('f260', 'person') ? 'Start week 1' : '<span class="skeleton">loading</span>'}</span></span>`;
+      return `${ringHtml(s.weekDone / 5, s.weekDone + '/5', a.color)}<span style="min-width:0"><span class="tlabel">${esc(a.name)}</span><span class="tsub">Week ${s.week}${s.next ? ' · next: ' + esc(s.next.ref) : ' · done'}${f260Streak(s) ? ' · ' + f260Streak(s) + '-day streak' : ''}</span></span>`;
     }
     return `<span class="tlabel">${esc(a.name)}</span>`;
   }
@@ -831,15 +831,24 @@
   const fmtDate = d => d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   const fmtTime = d => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   const ago = t => { const s = Math.max(0, (Date.now() - t) / 1000); return s < 60 ? 'just now' : s < 3600 ? Math.floor(s / 60) + 'm' : s < 86400 ? Math.floor(s / 3600) + 'h' : s < 7 * 86400 ? Math.floor(s / 86400) + 'd' : new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); };
-  const dayKey = d => { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const dayKey = d => hub.today(d ? +d : Date.now());   // the household's date (New York), whatever zone this device is set to
+  // F260's summary says whether the person read on the day it was written (readOn); on any later day that is not "today".
+  // A summary saved before readOn existed dates from its row's save time.
+  // Best of all is the reading log itself (f260.log, { 'YYYY-MM-DD': true }, which the shell already syncs): read today and
+  // the streak are then computed for today, with F260's own rule (streakInfo: up to 2 rest days in a row keep a streak).
+  const f260On = f => { if (!f) return null; if (f.readOn) return f.readOn; const r = hub.list('f260.summary', { app: 'f260', scope: 'person' })[0]; return r && r.updated_at ? hub.today(r.updated_at) : null; };
+  const f260Log = () => { const l = hub.get('f260.log', { app: 'f260', scope: 'person' }); return l && typeof l === 'object' ? l : null; };
+  const logStreak = days => { let d = hub.today(), n = 0, gap = 0; for (let i = 0; i < 400; i++) { if (days[d]) { n++; gap = 0; } else if (++gap > 2) break; d = hub.addDays(d, -1); } return n; };
+  const f260Today = f => { const l = f260Log(); return l ? !!l[hub.today()] : !!(f && f.readToday && f260On(f) === hub.today()); };
+  const f260Streak = f => { const l = f260Log(); if (l) return logStreak(l); const on = f && f.streak && f260On(f); return on && on === hub.today() ? f.streak : 0; };   // no log: trust a summary's streak only on the day it was written
   const timeOfDay = () => { const h = new Date().getHours(); return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'; };
   function greeting() { return 'Good ' + timeOfDay(); }
   function prayerStreak() {
     const days = new Set(hub.get('prayerDays', { app: 'prayer', scope: 'person', default: [] }));
     if (!days.size) return 0;
-    let d = new Date(); let n = 0;
-    if (!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
-    while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+    let d = hub.today(); let n = 0;
+    if (!days.has(d)) d = hub.addDays(d, -1);
+    while (days.has(d)) { n++; d = hub.addDays(d, -1); }
     return n;
   }
   // What the prayer app puts on today's list for this person's own list — a read-only port of its todaySet():
@@ -850,8 +859,8 @@
     const act = hub.list('prayer:', P).map(r => r.value).filter(p => p && p.id && p.status === 'active');
     const plans = hub.get('plans', { ...P, default: [] }) || [];
     const plan = plans.find(x => x && x.id === hub.get('activePlan', P)) || plans[0] || { id: '', mode: 'everything', includeDaily: true, rotationSize: 3, dayMap: {} };
-    const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
-    const since = s => s ? Math.round((new Date(today + 'T12:00:00') - new Date(s + 'T12:00:00')) / 86400000) : 9999;
+    const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(today + 'T12:00:00Z').getUTCDay()];
+    const since = s => s ? hub.daysBetween(s, today) : 9999;
     let picked;
     if (plan.mode === 'focus') picked = act.filter(p => p.category === plan.focusCategory);
     else if (plan.mode === 'byDay') { const cats = (plan.dayMap || {})[dow] || []; picked = act.filter(p => cats.includes(p.category) || (plan.includeDaily !== false && p.cadence === 'daily')); }
@@ -878,7 +887,8 @@
   }
   // Kids' stars. The kid verse app writes app_data(kidverse, person, 'stars') = { week: 'YYYY-Www', count: n } for the kid
   // and mirrors it into app_data(kidverse, family, 'stars:<kidId>') with the same shape so adults' Home can read it.
-  const isoWeek = (d = new Date()) => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + String(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)).padStart(2, '0'); };
+  // ISO week of the household date ('YYYY-Www'), computed exactly as Kid Verse does, so the shell and the kid's app agree
+  const isoWeek = (day = hub.today()) => { const [y, m, d] = String(day).split('-').map(Number); const t = new Date(Date.UTC(y, m - 1, d)); const wd = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - wd); const yy = t.getUTCFullYear(); return yy + '-W' + String(Math.ceil(((t - Date.UTC(yy, 0, 1)) / 86400000 + 1) / 7)).padStart(2, '0'); };
   const starsOf = v => v && typeof v === 'object' && v.week === isoWeek() ? Math.max(0, Math.floor(Number(v.count) || 0)) : 0;
   // item 20: the same row also carries total (the balance to cash in), earned, badges { id: date } and payouts — see CLAUDE.md "Stars & badges"
   const rewardsOf = v => { const o = v && typeof v === 'object' ? v : {}; const b = o.badges && typeof o.badges === 'object' ? Object.keys(o.badges).filter(k => o.badges[k]) : []; return { total: Math.max(0, Math.floor(Number(o.total) || 0)), earned: Math.max(0, Math.floor(Number(o.earned) || 0)), badges: b.length, badgeIds: b }; };
@@ -899,22 +909,22 @@
         <ul class="park-list">${who.map(w => `<li style="--tint:${esc(w.color || FALLBACK)}">${avatar(w, 'avatar-sm')}<span class="pn">${esc(w.name)}</span><span class="pt">${esc(agoText(w.t))}</span></li>`).join('')}</ul>
       </div></div>${a && canSee('dollywood-live') ? '<button class="btn btn-soft" data-open="dollywood-live">Open the map</button>' : ''}</div>`;
   }
-  function starsCardHtml(n) {
+  function starsCardHtml(n, loaded = true) {   // loaded false: the kid's stars row has never arrived on this device — a skeleton, never ★0
     const kv = appById('kidverse'), can = !!kv && canSee('kidverse');
     return `<div class="card gcard stars-card" style="--tint:var(--gold)"><img class="spot" src="art/hero/play.svg" alt="" width="300" height="200">
       <h2><span class="app-icon">${ICON_STAR}</span>Stars</h2>
-      <div class="gbody"><span class="star-big" aria-hidden="true">${ICON_STAR}<b>${n}</b></span><div class="grow">
-        <div class="gbig one">${n ? n + (n === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet'}</div>
-        <div class="gsub">${n ? 'Every verse earns one more.' : 'Learn a verse to earn your first!'}</div>
+      <div class="gbody"><span class="star-big" aria-hidden="true">${ICON_STAR}<b>${loaded ? n : '·'}</b></span><div class="grow">
+        <div class="gbig one">${!loaded ? '<span class="skeleton">loading</span>' : n ? n + (n === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet'}</div>
+        <div class="gsub">${!loaded ? '' : n ? 'Every verse earns one more.' : 'Learn a verse to earn your first!'}</div>
       </div></div>${can ? `<button class="btn btn-soft" data-open="kidverse">Open ${esc(kv.name)}</button>` : ''}</div>`;
   }
-  function kidsCardHtml(kids) {
+  function kidsCardHtml(kids, loaded = true) {   // loaded false: the family stars rows have never arrived here — skeletons, not ★0
     const total = kids.reduce((s, k) => s + k.stars, 0), bank = kids.reduce((s, k) => s + (k.total || 0), 0);   // item 20: bank = every kid's balance
     return `<div class="card gcard kids-card" style="--tint:var(--gold)"><img class="spot" src="art/hero/play.svg" alt="" width="300" height="200">
       <h2><span class="app-icon">${ICON_STAR}</span>Kids</h2>
       <div class="gbody"><div class="grow">
-        <div class="kids-line">${kids.map(k => `<span class="kid-chip" style="--tint:${esc(k.color || FALLBACK)}">${avatar(k, 'avatar-sm')}<span>${esc(k.name)} <b>★${k.stars}</b>${k.badges ? ' · ' + k.badges + (k.badges === 1 ? ' badge' : ' badges') : ''}</span></span>`).join('')}</div>
-        <div class="gsub">${total ? total + (total === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week.'}${bank ? ' · ' + bank + ' to cash in' : ''}</div>
+        <div class="kids-line">${kids.map(k => `<span class="kid-chip" style="--tint:${esc(k.color || FALLBACK)}">${avatar(k, 'avatar-sm')}<span>${esc(k.name)} <b>${loaded ? '★' + k.stars : '<span class="skeleton">★0</span>'}</b>${loaded && k.badges ? ' · ' + k.badges + (k.badges === 1 ? ' badge' : ' badges') : ''}</span></span>`).join('')}</div>
+        <div class="gsub">${!loaded ? '' : total ? total + (total === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week.'}${loaded && bank ? ' · ' + bank + ' to cash in' : ''}</div>
       </div></div></div>`;
   }
   // ── the family feed: cached for an instant paint, grouped by person, an icon per line, "Show more" in pages of 30 ──
@@ -1051,24 +1061,26 @@
         t.greet.textContent = 'Good ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening') + ', Anderson house.';
         // verse of the week: the family kidverse week row picks the F260 week; refs from the table, one kid line if the row carries it
         const wk = hub.get('week', KV); const n = Math.min(52, Math.max(1, Math.floor(Number(wk && typeof wk === 'object' ? (wk.week || wk.w || wk.n) : wk) || 1)));
-        t.verseHd.textContent = 'Verse of the week · Week ' + n;
-        t.refs.innerHTML = (MEMORY[n - 1] || []).map(r => `<span>${esc(r)}</span>`).join('');
+        const weekIn = hub.isLoaded('kidverse', 'family');   // before the family week arrives, never a false "Week 1"
+        t.verseHd.textContent = weekIn ? 'Verse of the week · Week ' + n : 'Verse of the week';
+        t.refs.innerHTML = weekIn ? (MEMORY[n - 1] || []).map(r => `<span>${esc(r)}</span>`).join('') : '<span class="tv-quiet">Loading…</span>';
         t.kidline.textContent = wk && typeof wk === 'object' ? String(wk.line || wk.kid || wk.text || '').trim() : '';
         // who prayed today: the names each family prayer row records under prayedBy[today] → faces (hub.people by name)
         const names = new Set();
         for (const r of hub.list('prayer:', FAM_PRAYER)) { const l = r.value && r.value.prayedBy && r.value.prayedBy[today]; if (Array.isArray(l)) for (const x of l) names.add(String(x)); }
         const ppl = people();
-        t.prayed.innerHTML = names.size ? [...names].map(nm => faceHtml(ppl.find(x => x.name === nm) || { name: nm, emoji: nm.charAt(0) || '·', color: FALLBACK })).join('') : '<div class="tv-quiet">No one yet today.</div>';
+        t.prayed.innerHTML = names.size ? [...names].map(nm => faceHtml(ppl.find(x => x.name === nm) || { name: nm, emoji: nm.charAt(0) || '·', color: FALLBACK })).join('') : `<div class="tv-quiet">${hub.isLoaded('prayer', 'family') ? 'No one yet today.' : 'Loading…'}</div>`;   // never a false "no one" before the list has arrived
         // reading today: an adult whose "Read week…" feed line is dated today (F260 streaks are person scope, unreadable here)
         const readers = new Set((feed || []).filter(a => a && a.profile_id && /^Read week/.test(a.text || '') && dayKey(new Date(a.created_at)) === today).map(a => a.profile_id));
         const adults = ppl.filter(q => q.kind === 'adult');
         t.read.innerHTML = adults.length ? adults.map(q => faceHtml(q, readers.has(q.id) ? '' : 'off', readers.has(q.id) ? ' ✓' : '')).join('') : '<div class="tv-quiet">No readers yet.</div>';
         // the kids' stars (family mirror rows) and the latest five feed lines
         const kids = kidStars();
-        t.stars.innerHTML = kids.length ? kids.map(k => faceHtml(k, '', ` <b>★${k.stars}</b>`)).join('') : '<div class="tv-quiet">No stars yet.</div>';
+        const starsIn = hub.isLoaded('kidverse', 'family');
+        t.stars.innerHTML = kids.length ? kids.map(k => faceHtml(k, '', starsIn ? ` <b>★${k.stars}</b>` : ' <b>…</b>')).join('') : '<div class="tv-quiet">No stars yet.</div>';
         const lines = (feed || []).slice(0, 5);
         t.feed.innerHTML = lines.length ? lines.map(a => `<li style="--tint:${esc(a.color || FALLBACK)};--tint-ink:color-mix(in srgb, ${esc(a.color || FALLBACK)} 70%, var(--text))">${avatar(a, 'avatar-sm')}<span class="who">${esc(a.name || 'Someone')}</span><span class="txt">${esc(a.text || '')}</span><span class="when">${esc(agoText(a.created_at))}</span></li>`).join('')
-          : '<li class="tv-quiet">Nothing has happened yet.</li>';
+          : `<li class="tv-quiet">${feed ? 'Nothing has happened yet.' : 'Loading…'}</li>`;   // feed null: never fetched on this device
         // reminders: the shell's own renderer fills #remlist; the card only shows when there is at least one
         renderReminders();
         t.remCard.hidden = !hub.list('item:', { app: 'reminders', scope: 'family' }).length;
@@ -1145,7 +1157,7 @@
     const park = atPark();
     if (p.kind === 'kid') {
       const stars = starsOf(hub.get('stars', { app: 'kidverse', scope: 'person' }));
-      const kcards = [starsCardHtml(stars)]; if (park.length) kcards.push(parkCardHtml(park));
+      const kcards = [starsCardHtml(stars, hub.isLoaded('kidverse', 'person'))]; if (park.length) kcards.push(parkCardHtml(park));
       v.innerHTML = heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: stars ? `${stars} ${stars === 1 ? 'star' : 'stars'} this week — ready to play?` : 'Ready to play?', art: 'play' }) + `
         <div class="stack-lg">
           <button class="kid-cta" id="kid-apps"><span class="app-icon"><svg class="icon"><use href="#i-sparkle"/></svg></span>Let's play — open your apps</button>
@@ -1155,18 +1167,18 @@
       $('#kid-apps').addEventListener('click', () => { buzz(); showTab('apps'); });
       renderReminders(); return;
     }
-    const pulled = !!hub.sync.lastPull || hub.sync.state === 'offline';
+    const pulled = !!hub.sync.lastPull;   // offline with nothing cached is still "not loaded": skeletons, never final empty wording
     const sk = '<span class="skeleton">loading</span>';
     const cards = []; const bits = [];
     const f = canSee('f260') ? hub.get('f260.summary', { app: 'f260', scope: 'person' }) : null;
     if (canSee('f260')) {
       const a = appById('f260'); const loaded = pulled || cached('f260', 'person');
-      if (f && f.next) bits.push(f.readToday ? 'reading done' : 'a reading waiting');
+      if (f && f.next) bits.push(f260Today(f) ? 'reading done' : 'a reading waiting');
       cards.push(`<div class="card gcard" style="--tint:${esc(a.color || FALLBACK)}"><img class="spot" src="art/app/f260.svg" alt="" width="200" height="160">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-book"/></svg></span>Today's reading</h2>
-        <div class="gbody">${f ? ringHtml(f.weekDone / 5, f.weekDone + '/5', a.color, true) : ringHtml(0, '0/5', a.color, true)}<div class="grow">
+        <div class="gbody">${f ? ringHtml(f.weekDone / 5, f.weekDone + '/5', a.color, true) : ringHtml(0, loaded ? '0/5' : '·', a.color, true)}<div class="grow">
           <div class="gbig">${!loaded && !f ? sk : f ? (f.next ? esc(f.next.ref) : 'Plan complete') : 'Start with Genesis 1-2'}</div>
-          <div class="gsub">${f ? `Week ${f.week}, day ${f.next ? f.next.day : 5}${f.readToday ? ' · read today ✓' : ''}${f.streak ? ' · ' + f.streak + '-day streak' : ''}` : 'Week 1 of 52'}</div>
+          <div class="gsub">${f ? `Week ${f.week}, day ${f.next ? f.next.day : 5}${f260Today(f) ? ' · read today ✓' : ''}${f260Streak(f) ? ' · ' + f260Streak(f) + '-day streak' : ''}` : !loaded ? '' : 'Week 1 of 52'}</div>
         </div></div><button class="btn btn-soft" data-open="f260">Open F260</button></div>`);
     }
     {
@@ -1177,7 +1189,7 @@
         <h2><span class="app-icon"><svg class="icon"><use href="#i-bowl"/></svg></span>In the fridge</h2>
         <div class="gbody"><div class="grow">
           <div class="gbig">${!loaded ? sk : due.length ? due.length + ' to eat this week' : 'Nothing aging'}</div>
-          ${due.length ? `<div class="fresh">${bars}</div>` : `<div class="gsub">Log leftovers when you put them away.</div>`}
+          ${due.length ? `<div class="fresh">${bars}</div>` : loaded ? `<div class="gsub">Log leftovers when you put them away.</div>` : ''}
         </div></div>${a && canSee('leftovers') ? '<button class="btn btn-soft" data-open="leftovers">Open the ledger</button>' : ''}</div>`);
     }
     if (canSee('prayer')) {
@@ -1193,7 +1205,7 @@
         </div></div><button class="btn btn-soft" data-open="prayer">Open prayer</button></div>`);
     }
     if (park.length) { bits.push(park.length + ' at the park'); cards.push(parkCardHtml(park)); }
-    const kids = kidStars(); if (kids.length) cards.push(kidsCardHtml(kids));
+    const kids = kidStars(); if (kids.length) cards.push(kidsCardHtml(kids, hub.isLoaded('kidverse', 'family')));
     const remCount = hub.list('item:', { app: 'reminders', scope: 'family' }).length;
     if (remCount) bits.push(remCount + (remCount === 1 ? ' reminder' : ' reminders'));
     const sub = !pulled && !cached('reminders', 'family') ? '' : bits.length ? bits.join(' · ') : 'All quiet in the house.';
@@ -1218,7 +1230,7 @@
   function renderReminders() {
     const ul = $('#remlist'); if (!ul) return;
     const items = hub.list('item:', { app: 'reminders', scope: 'family' }).map(r => r.value).sort((a, b) => a.createdAt - b.createdAt);
-    const loading = !hub.sync.lastPull && hub.sync.state !== 'offline' && !items.length;
+    const loading = !hub.isLoaded('reminders', 'family') && !items.length;   // never "Nothing to remember" before the list has arrived, offline included
     if (loading) { ul.innerHTML = '<li class="row"><span class="skeleton" style="width:60%">loading</span></li><li class="row"><span class="skeleton" style="width:40%">loading</span></li>'; return; }
     if (!items.length) { ul.innerHTML = '<li class="empty" style="padding:var(--sp-3) 0"><div class="empty-art" style="width:120px"><img src="art/empty/list.svg" alt=""></div>Nothing to remember right now.</li>'; return; }
     const canEdit = hub.profile && hub.profile.kind === 'adult';
@@ -1240,6 +1252,9 @@
     if (tab === 'apps' && (ch.app === 'f260' || ch.app === 'leftovers')) renderGrid();
   });
   let lastPullSeen = 0;
+  // The household's midnight: this week's stars, "read today", ages. The TV board repaints its own day every tick
+  // (rebuilding it would add timers), so the kiosk is left alone.
+  hub.onDay(() => { if (hub.isKiosk) return; if (tab === 'home') renderHome(); if (tab === 'apps') renderGrid(); });
   hub.onSync(s => { if (s.lastPull && s.lastPull !== lastPullSeen) { lastPullSeen = s.lastPull; if (tab === 'home') renderHome(); if (tab === 'apps') renderGrid(); } });
 
   // ── me ────────────────────────────────────────────────────────
@@ -1319,7 +1334,7 @@
   // is visible at once on Home, in Me and on the TV board, and a star the kid earns meanwhile can never undo it (see CLAUDE.md).
   // A reset lists only this week's dates up to today and undoes only stars earned before its `at` (the row's earnedAt stamps).
   const BADGE_NAMES = { first: 'First star', week: 'Full week', ten: 'Ten stars', story: 'Story lover', prayer: 'Prayer warrior', fifty: 'Fifty stars' };
-  const weekDayKeys = () => { const d = new Date(), m = new Date(d.getFullYear(), d.getMonth(), d.getDate()); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return Array.from({ length: 7 }, (_, i) => { const x = new Date(m); x.setDate(m.getDate() + i); return dayKey(x); }); };
+  const weekDayKeys = () => { const t = hub.today(), mon = hub.addDays(t, -((new Date(t + 'T12:00:00Z').getUTCDay() + 6) % 7)); return Array.from({ length: 7 }, (_, i) => hub.addDays(mon, i)); };   // this household week, Monday first
   function rewardRow(v) {
     const o = v && typeof v === 'object' ? JSON.parse(JSON.stringify(v)) : {};
     const cur = o.week === isoWeek();
@@ -1538,7 +1553,8 @@
     prefsEl.onclick = ev => {
       const b = ev.target.closest('[data-pref]'); if (!b) return;
       const next = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', String(next));
-      hub.set('push_prefs', { ...prefs, [b.dataset.pref]: next }, { app: 'hub', scope: 'person' }); prefs[b.dataset.pref] = next;
+      try { hub.set('push_prefs', { ...prefs, [b.dataset.pref]: next }, { app: 'hub', scope: 'person' }); prefs[b.dataset.pref] = next; }
+      catch (e) { b.setAttribute('aria-checked', String(!next)); }   // not loaded yet (the SDK says so): the switch goes back rather than pretend
     };
     const test = $('#notif-test');
     if (test) test.onclick = async () => {

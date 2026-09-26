@@ -85,7 +85,7 @@ const todayState = f => f.evaluate(() => ({
   meta: document.getElementById('todayMeta').textContent, ring: document.getElementById('todayRingN').textContent,
   plan: document.getElementById('planView').style.display !== 'none', journal: document.getElementById('journalView').classList.contains('on'),
   summary: hub.get('f260.summary'), done: hub.get('f260.done') || {}, log: hub.get('f260.log') || {}, view: hub.get('f260.view'),
-  today: (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()
+  today: hub.today ? hub.today() : (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()
 }));
 async function openF260(page) {
   await page.click('.tab[data-tab=apps]'); await page.waitForSelector('.tile[data-id=f260]'); await page.click('.tile[data-id=f260]');
@@ -113,11 +113,13 @@ async function doneBox(page, f) {                    // the Done button's box in
     ok(d.inside && d.scrollY === 0, `standalone: Done button inside the viewport without scrolling (y ${d.box && Math.round(d.box.y)}–${d.box && Math.round(d.box.y + d.box.height)} of 844)`, JSON.stringify(d));
     ok(d.box && d.box.height >= 60, `Done button is ${d.box && Math.round(d.box.height)} px tall (≥ 60)`);
     let s = await todayState(A.page.mainFrame());
-    const first = s.summary && s.summary.next ? s.summary.next.ref : null;
+    // Audit batch 0b (P3-F260-05): viewing the plan writes nothing, so a person with no F260 data has no summary until the first tick.
+    const first = s.summary && s.summary.next ? s.summary.next.ref : 'Genesis 1-2';
     ok(s.plan && !s.journal, 'plan view is showing');
-    ok(first && s.title === first, `hero shows the same next reading as the summary (${s.title})`, JSON.stringify(s.summary));
+    ok(!s.summary, 'opening the plan with no progress writes no summary (P3-F260-05)', JSON.stringify(s.summary));
+    ok(s.title === first, `hero shows the plan's first reading (${s.title})`);
     ok(/Week \d+ · Day \d+ · \d+ chapters? · ~\d+ min/.test(s.meta), `meta has week/day/chapters/minutes (${s.meta})`);
-    ok(s.ring === s.summary.weekDone + '/5', `ring shows this week ${s.ring}`);
+    ok(s.ring === (s.summary ? s.summary.weekDone : 0) + '/5', `ring shows this week ${s.ring}`);
     ok(await A.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), 'no horizontal scroll at 390');
     ok(await A.page.evaluate(() => { const t = document.getElementById('today'), side = document.querySelector('.side'); return t.getBoundingClientRect().bottom <= side.getBoundingClientRect().top + 1; }), 'the dashboards sit below the hero');
     await A.page.screenshot({ path: path.join(SHOTS, 'rm10-today-390.png') });
@@ -131,13 +133,14 @@ async function doneBox(page, f) {                    // the Done button's box in
 
     console.log('\n## Done ticks the reading and the hub follows');
     const before = await todayState(fa);
-    const [w0, d0] = [before.summary.next.week, before.summary.next.day];
+    const bnext = before.summary ? before.summary.next : { week: 1, day: 1, ref: 'Genesis 1-2' }, bdone = before.summary ? before.summary.weekDone : 0;
+    const [w0, d0] = [bnext.week, bnext.day];
     await fa.click('#todayDone'); await sleep(300);
     s = await todayState(fa);
     ok(s.done[w0 + '-' + (d0 - 1)] === true, `f260.done has ${w0}-${d0 - 1}`);
     ok(s.log[s.today] === true, 'f260.log has today');
-    ok(s.summary.weekDone === before.summary.weekDone + 1 && s.summary.readToday === true, `summary weekDone ${before.summary.weekDone} → ${s.summary.weekDone}, readToday`, JSON.stringify(s.summary));
-    ok(s.summary.next && s.summary.next.ref !== before.summary.next.ref && s.title === s.summary.next.ref, `hero moved on to ${s.title}`);
+    ok(s.summary.weekDone === bdone + 1 && s.summary.readToday === true && s.summary.readOn === s.today, `summary weekDone ${bdone} → ${s.summary.weekDone}, readToday, readOn today`, JSON.stringify(s.summary));
+    ok(s.summary.next && s.summary.next.ref !== bnext.ref && s.title === s.summary.next.ref, `hero moved on to ${s.title}`);
     ok(s.kind === 'Read today ✓' && s.ring === s.summary.weekDone + '/5', `kicker "${s.kind}", ring ${s.ring}`);
     ok(await fa.evaluate(id => document.querySelector('[data-day="' + id + '"]').classList.contains('done') && document.querySelector('[data-day="' + id + '"] .mark').getAttribute('aria-pressed') === 'true', w0 + '-' + (d0 - 1)), 'the plan row is ticked too (same path as its .mark)');
     ok(!(await fa.$eval('#todayUndo', b => b.hidden)), 'Undo is offered');

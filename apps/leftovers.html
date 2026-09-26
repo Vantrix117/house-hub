@@ -61,6 +61,15 @@
   .mic.on { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); animation: pulse 1s infinite; }
   @keyframes pulse { 50% { transform: scale(.94); } }
   .err { color: var(--danger); font-size: 12px; }
+  .wait { color: var(--text-2); font-size: 13px; }
+
+  /* ── loading: until this device has pulled the list once, grey cards stand in for it (never "0" or "Nothing logged") ── */
+  .loading { font-size: 13px; color: var(--muted); margin: 0 0 10px 2px; }
+  .skel { position: relative; height: 74px; border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--line-soft); }
+  .skel::before, .skel::after { content: ""; position: absolute; left: 19px; height: 12px; border-radius: var(--r-full); background: var(--surface-2); }
+  .skel::before { top: 20px; width: 42%; } .skel::after { top: 42px; width: 64%; height: 8px; }
+  .skel:nth-child(2) { opacity: .75; } .skel:nth-child(3) { opacity: .5; }
+  .copy:disabled { opacity: .55; cursor: default; }
 
   /* ── the grouped list: Use it up · Aging · Fresh, oldest first ── */
   .group { margin-bottom: 18px; }
@@ -108,12 +117,15 @@
 
   <div id="alert"></div>
 
-  <div id="list" class="sans"></div>
+  <div id="list" class="sans" aria-busy="true">
+    <p class="loading">Loading the fridge…</p>
+    <div class="list" aria-hidden="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+  </div>
 
   <div class="hearth sans">
     <p>Want this week's warnings on the Hearth wall display? Copy the list below and tell Claude
        "push my leftovers to Hearth" — it'll add them straight to the Hearth Calendar.</p>
-    <button type="button" class="copy" id="copy"></button>
+    <button type="button" class="copy" id="copy" disabled aria-disabled="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Copy list for Hearth</button>
   </div>
 </div>
 
@@ -121,14 +133,25 @@
   <div class="namerow">
     <input id="name" placeholder="What is it? e.g. Chicken alfredo" autocomplete="off" enterkeyhint="done" aria-label="Leftover name">
     <button type="button" class="mic" id="mic" aria-label="Say the name" hidden></button>
-    <button type="submit" class="log"></button>
+    <button type="submit" class="log"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Log</button>
   </div>
   <div class="pair">
-    <select id="size" aria-label="Container size"></select>
+    <select id="size" aria-label="Container size"><option>Small</option><option selected>Medium</option><option>Large</option><option>Family-size</option></select>
     <input type="date" id="date" aria-label="Date logged">
   </div>
+  <span class="wait" id="wait" role="status" hidden></span>
   <span class="err" id="err" hidden></span>
 </form>
+<script>
+  // From the first byte a Log tap or Enter only raises a flag: the browser's own submit (no action, so a GET of this page)
+  // would reload the frame and lose the typed name. The app below takes the entry over and logs it once the list has loaded.
+  document.getElementById('add').onsubmit = e => {
+    e.preventDefault();
+    const n = document.getElementById('name').value.trim(); if (!n) return;
+    window.__larderHeld = true;
+    const w = document.getElementById('wait'); w.textContent = 'Logging “' + n + '” as soon as the list has loaded…'; w.hidden = false;
+  };
+</script>
 
 <script src="hub.js" data-app="leftovers" data-scope="family"></script>
 <script>
@@ -163,37 +186,33 @@
     return s;
   }
 
-  const todayStr = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
-  const daysBetween = s => { const then = new Date(s + 'T00:00:00'); const now = new Date(); now.setHours(0, 0, 0, 0); return Math.floor((now - then) / 86400000); };
+  // One household day: dates are New York's (as the Worker and the 8 am push), whatever zone this device is in, and an age
+  // is a count of calendar days — a millisecond division comes up an hour short across spring-forward and floors a day low.
+  const $ = id => document.getElementById(id);
+  let dayKey = hub.today();
+  $('date').value = $('date').max = dayKey;   // before the first await, so the box is never blank while loading
+  const daysBetween = s => hub.daysBetween(s, dayKey);
   const statusFor = d => d >= WARN_DAYS ? { label: 'Use it up', tone: 'urgent' }
                        : d >= AGING_DAYS ? { label: 'Aging', tone: 'warn' }
                        : { label: 'Fresh', tone: 'fresh' };
 
   await hub.ready();
-  // Family data lives on the server already; this only rescues an item cached on a device that never synced.
-  hub.migrate([{ from: 'leftovers.items', scope: 'family', to: v => (Array.isArray(v) ? v : []).filter(i => i && i.id).map(i => ['item:' + i.id, i]) }]);
+  // Family data lives on the server already; this only rescues an item cached on a device that never synced. Async: it
+  // waits for a fresh pull, and its change event re-renders.
+  hub.migrate([{ from: 'leftovers.items', scope: 'family', to: v => (Array.isArray(v) ? v : []).filter(i => i && i.id).map(i => ['item:' + i.id, i]) }]).catch(console.error);
 
   const items = () => hub.list('item:').map(r => r.value);
-  const $ = id => document.getElementById(id);
-  const errEl = $('err'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally'), modeEl = $('mode'), form = $('add');
+  const errEl = $('err'), waitEl = $('wait'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally'), modeEl = $('mode'), form = $('add');
   const setErr = m => { errEl.textContent = m; errEl.hidden = !m; };
+  const setWait = m => { waitEl.textContent = m; waitEl.hidden = !m; };
   const canEdit = hub.canWrite;
 
   // Only speak up when sync ISN'T working — silence means the house list is fine.
   hub.onSync(s => {
-    if (s.state === 'offline') { modeEl.textContent = "Can't reach the house list — showing the last copy saved here." + (s.pending ? ' Your changes will send when it is back.' : ''); modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
+    if (s.state === 'offline') { modeEl.textContent = (hub.isLoaded() ? "Can't reach the house list — showing the last copy saved here." : "Can't reach the house list yet — the fridge shows up once it connects.") + (s.pending ? ' Your changes will send when it is back.' : ''); modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
     else if (s.state === 'error') { modeEl.textContent = 'The house list had a problem: ' + (s.lastError || 'unknown') + '.'; modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
     else modeEl.hidden = true;
   });
-
-  SIZES.forEach(s => { const o = document.createElement('option'); o.value = o.textContent = s; $('size').append(o); });
-  $('size').value = SIZES[1];
-  let dayKey = todayStr();
-  $('date').value = dayKey;
-  $('date').max = dayKey;
-
-  const logBtn = document.querySelector('#add .log');
-  logBtn.append(svg('plus', 18), document.createTextNode(' Log'));
 
   // The page's bottom padding follows the real height of the bar (the mic slot and the error line change it).
   if (canEdit && 'ResizeObserver' in window) {
@@ -201,6 +220,11 @@
   }
 
   function render() {
+    // Until this device has pulled the list once, the cache is empty, not the fridge: keep the markup's grey cards and
+    // leave the tally, the alert and "Nothing logged yet" for real data (hub.loaded() below re-renders).
+    if (!hub.isLoaded()) return;
+    listEl.removeAttribute('aria-busy');
+    copyBtn.disabled = false; copyBtn.removeAttribute('aria-disabled');
     const sorted = items().sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged));
     tallyEl.textContent = sorted.length + ' in the fridge';
 
@@ -286,26 +310,35 @@
     return card;
   }
 
-  form.onsubmit = e => {
-    e.preventDefault();
+  // An entry made before the list has loaded is held (the name stays in the box) and logged once it has.
+  let held = !!window.__larderHeld;
+  function submit() {
     const name = $('name').value.trim();
-    if (!name) return;
-    if (!canEdit) { hub.kioskNudge(); setErr('This profile can only look at the list.'); return; }
+    if (!name) { held = false; setWait(''); return; }
+    if (!canEdit) { held = false; setWait(''); hub.kioskNudge(); setErr('This profile can only look at the list.'); return; }
+    if (!hub.isLoaded()) { held = true; setErr(''); setWait('Logging “' + name + '” as soon as the list has loaded…'); return; }
+    held = false; setWait('');
+    rollover();   // re-key the day first: in the minute after midnight the box can still hold yesterday
     const item = {
-      id: hub.uid(), name, size: $('size').value, dateLogged: $('date').value || todayStr(),
+      id: hub.uid(), name, size: $('size').value, dateLogged: $('date').value || dayKey,
       by: hub.profile.id, byName: hub.profile.name,
     };
+    try { hub.set('item:' + item.id, item); }
+    catch (err) { setErr(err && err.error === 'not_loaded' ? 'Still loading — try again in a moment.' : "Couldn't log that — try again."); return; }
     $('name').value = ''; $('name').blur();
     $('size').value = SIZES[1];
-    $('date').value = todayStr();
-    hub.set('item:' + item.id, item);
+    $('date').value = $('date').max = dayKey;   // value and max always agree
     hub.activity('Logged ' + item.name + ' (' + item.size + ') in the fridge');
     setErr(''); render();
-  };
+  }
+  form.onsubmit = e => { e.preventDefault(); submit(); };
+  // The browser checks the date against max before submit fires, so the day is re-keyed on the tap / Enter itself.
+  form.addEventListener('click', e => { if (e.target.closest && e.target.closest('.log')) rollover(); }, true);
+  $('name').addEventListener('keydown', e => { if (e.key === 'Enter') rollover(); });
 
   function removeItem(id) {
     const it = hub.get('item:' + id);
-    hub.remove('item:' + id);
+    try { hub.remove('item:' + id); } catch { return; }   // the SDK's toast has said why
     if (it) hub.activity('Finished the ' + it.name);
     render();
   }
@@ -353,16 +386,16 @@
       state === 'copied' ? ' Copied!' : state === 'failed' ? ' Copy failed — select manually' : ' Copy list for Hearth'));
   }
   copyBtn.onclick = async () => {
+    if (!hub.isLoaded()) return;   // an empty cache would copy "Nothing aging"
     setCopy(await copyText(buildHearthText()) ? 'copied' : 'failed');
     setTimeout(() => setCopy('idle'), 2000);
   };
-  setCopy('idle');
 
-  // Midnight rollover: "Nd ago", the groups and the date box's default/max all key off today's date, so when the
-  // day changes while the page is open (an iPad left on the counter overnight) everything is recomputed. A timer
-  // checks the day key every minute; the visibility hook catches a device that slept through the timer.
+  // Midnight rollover: "Nd ago", the groups and the date box's default/max all key off the household's date, so when
+  // the day changes while the page is open (an iPad left on the counter overnight) everything is recomputed.
+  // hub.onDay checks every 20 s and on wake; a Log tap re-keys too (submit, above).
   function rollover() {
-    const now = todayStr();
+    const now = hub.today();
     if (now === dayKey) return false;
     const wasToday = $('date').value === dayKey;
     dayKey = now;
@@ -371,12 +404,13 @@
     render();
     return true;
   }
-  setInterval(rollover, 60000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) rollover(); });
+  hub.onDay(rollover);
   window.__larder = { render, rollover, today: () => dayKey };   // test hook (scripts/test-leftovers.mjs)
 
   hub.onChange(render);   // someone else logged or finished something
   render();
+  // The first pull has answered on this device: paint the real list, and log an entry that was waiting for it.
+  hub.loaded().then(() => { rollover(); render(); if (held) submit(); });
 })();
 </script>
 </body>

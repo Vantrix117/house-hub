@@ -123,38 +123,63 @@
   :root[data-kind="kid"] .tbtn.big { width: 168px; height: 168px; }
   :root[data-kind="kid"] .dial { --disc: clamp(260px, 80vw, 400px); }
 
+  /* loading: until the count has been pulled once the dial holds a skeleton, never a placeholder 0 (a 0 invites the tap
+     that would write over the real count), and the buttons are visibly off. The shimmer stops under reduced motion (design.css). */
+  .count.skeleton { width: 1.3em; height: .6em; min-height: 0; border-radius: var(--r-full); }
+  .tbtn:disabled, .tbtn:disabled:active, .tbtn:disabled:hover,
+  .ds .btn.reset:disabled, .ds .btn.reset:disabled:active, .ds .btn.reset:disabled:hover { opacity: .45; cursor: default; transform: none; }
+
   @media (prefers-reduced-motion: reduce) { .tbtn, .count, .ds .btn.reset { transition: none; } }
 </style>
 </head>
 <body class="ds">
 <div class="who kicker" id="who"></div>
-<main>
+<main aria-busy="true">
   <img class="art" src="../art/app/tally.svg" alt="" aria-hidden="true">
   <div class="dial">
-    <div class="count" id="n">0</div>
+    <div class="count skeleton" id="n" role="img" aria-label="Loading your count"></div>
   </div>
   <div class="row">
-    <button class="tbtn" id="minus" aria-label="Subtract one">−</button>
-    <button class="tbtn big" id="plus" aria-label="Add one">+</button>
+    <button class="tbtn" id="minus" aria-label="Subtract one" disabled aria-disabled="true">−</button>
+    <button class="tbtn big" id="plus" aria-label="Add one" disabled aria-disabled="true">+</button>
   </div>
-  <button class="btn btn-ghost reset" id="reset">Reset to zero</button>
+  <button class="btn btn-ghost reset" id="reset" disabled aria-disabled="true">Reset to zero</button>
 </main>
 <script src="hub.js" data-app="tally" data-scope="person"></script>
 <script>
   (async () => {
+    const who = () => { if (hub.profile) document.getElementById('who').textContent = hub.profile.name + "'s counter"; };
+    who();                               // the name is known from the session at once: no empty pill while loading
     await hub.ready();
-    // Legacy key from before profiles existed (goes to the first adult who opens the app on this device).
-    hub.migrate([{ from: 'tally.count', to: 'count', parse: raw => Number(raw) || 0 }]);
-    const el = document.getElementById('n');
-    document.getElementById('who').textContent = hub.profile.name + "'s counter";
+    // Legacy key from before profiles existed. The SDK waits for the load and a fresh pull, skips guests and kids, and
+    // writes only if the server has no count; its change event (key null, migrated) re-renders through onChange below.
+    hub.migrate([{ from: 'tally.count', to: 'count', parse: raw => Number(raw) || 0 }]).catch(() => {});
+    const el = document.getElementById('n'), main = document.querySelector('main');
+    const btns = ['plus', 'minus', 'reset'].map(id => document.getElementById(id));
+    who();
+    // Nothing is shown or written until the count has been pulled once on this device: hub.ready gives up after 6 s
+    // (or at once when the pull fails), and a tap on an empty cache would replace the real count for good.
+    let live = hub.isLoaded();
     const n = () => Number(hub.get('count', { default: 0 })) || 0;
-    const show = () => { const v = n(); el.textContent = v; el.style.setProperty('--digits', String(v).length); };
-    const set = v => { if (!hub.canWrite) { hub.kioskNudge(); return; } hub.set('count', Math.max(0, v)); show(); };
+    const show = () => {
+      if (!live) return;
+      const v = n(); el.classList.remove('skeleton'); el.removeAttribute('role'); el.removeAttribute('aria-label');
+      el.textContent = v; el.style.setProperty('--digits', String(v).length);
+    };
+    const set = v => {
+      if (!live) return;
+      if (!hub.canWrite) { hub.kioskNudge(); return; }
+      try { hub.set('count', Math.max(0, v)); } catch (e) { if (e && e.error === 'not_loaded') return; throw e; }
+      show();
+    };
+    const wake = () => { live = true; main.removeAttribute('aria-busy'); btns.forEach(b => { b.disabled = false; b.removeAttribute('aria-disabled'); }); show(); };
     document.getElementById('plus').onclick = () => set(n() + 1);
     document.getElementById('minus').onclick = () => set(n() - 1);
     document.getElementById('reset').onclick = () => set(0);
     hub.onChange(show);
-    show();
+    if (live) wake(); else hub.loaded().then(wake);
+    let retry = 0;                       // a failed first pull: try again in 5 s rather than waiting for the 30 s poll
+    hub.onSync(s => { if (!live && !retry && (s.state === 'error' || s.state === 'offline')) retry = setTimeout(() => { retry = 0; if (!live) hub.pull(); }, 5000); });
   })();
 </script>
 </body>

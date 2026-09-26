@@ -4,13 +4,17 @@
  *
  * Then:
  *   await hub.ready();                      // profile + cached data available; pulls in the background
- *   hub.profile                             // { id, name, kind, isAdmin, color, emoji }
+ *   hub.isLoaded() / await hub.loaded()     // this app's data has been pulled from the server at least once on this
+ *                                           // device. Until then hub.set refuses (HubError 'not_loaded'): a value
+ *                                           // computed from an empty cache must never overwrite the real row.
+ *   hub.today() / hub.onDay(fn)             // the household's date (America/New_York, 'YYYY-MM-DD'); fn at midnight
+ *   hub.profile                             // { id, name, kind, isAdmin, isGuest, color, emoji }
  *   hub.get(key, {scope}) / hub.set(key, value, {scope}) / hub.remove(key, {scope})
  *   hub.list(prefix, {scope})               // live items [{key, value, updated_at}]
  *   hub.onChange(({scope, key, value}) => …) // fires when another device changed something
  *   hub.activity('Checked off Week 3 Day 2')
  *   hub.voiceInput(text => …)               // Web Speech; returns null when unsupported
- *   hub.sync.state                          // 'synced' | 'pending' | 'offline' | 'error'
+ *   hub.sync.state                          // 'synced' | 'pending' | 'offline' | 'error' ('pending' until the first pull answers)
  *
  * Offline-first: every scope has a localStorage cache and a write queue. Writes apply locally at once,
  * flush in batches when online, and resolve conflicts by updated_at (last write wins). Data is pulled on
@@ -48,7 +52,7 @@
     appId, api: lsGet(LS.api, null) || DEFAULT_API,
     device: lsGet(LS.device, null), session: lsGet(LS.session, null),
     profile: null, skew: 0,
-    sync: { state: 'offline', pending: 0, lastError: null, lastPull: 0 },
+    sync: { state: 'pending', pending: 0, lastError: null, lastPull: 0 },   // not 'offline' before the first pull has even answered
     HubError,
   };
   const listeners = { change: new Set(), sync: new Set(), auth: new Set() };
@@ -58,7 +62,7 @@
 
   // ── profile / theme (applied synchronously so there is no flash) ──────────
   function publicProfile(p) {
-    return p ? { id: p.id, name: p.name, kind: p.kind, isAdmin: !!p.is_admin, color: p.color, emoji: p.emoji, hasPin: !!p.has_pin, photo: p.photo || null } : null;
+    return p ? { id: p.id, name: p.name, kind: p.kind, isAdmin: !!p.is_admin, isGuest: !!p.is_guest, color: p.color, emoji: p.emoji, hasPin: !!p.has_pin, photo: p.photo || null } : null;
   }
   // Named palettes in design.css. 'system' = Hearth by day, Midnight at night. 'light'/'dark' are kept as aliases.
   hub.THEMES = [
@@ -88,7 +92,8 @@
   hub.setTheme = t => {
     t = themeId(t);
     lsSet(LS.theme, t === 'system' ? undefined : t); applyTheme();
-    if (hasPrefs() && hub.canWrite && hub.get('theme', PREFS) !== t) hub.set('theme', t, PREFS);
+    // the chosen theme depends on nothing stored, so it may be written before the prefs have pulled (it is newer, so it wins)
+    if (hasPrefs() && hub.canWrite && hub.get('theme', PREFS) !== t) try { hub.set('theme', t, { ...PREFS, unloaded: true }); } catch (e) { console.error(e); }
     tell({ type: 'hub:theme', theme: t });
   };
   hub.theme = () => themeId(lsGet(LS.theme, 'system'));
@@ -233,6 +238,10 @@
     if (!hub.profile) throw new HubError(401, 'profile_required', 'Choose a profile first.');
     if (hub.isKiosk) { kioskNudge(); throw new HubError(403, 'read_only', 'This screen only looks.'); }
     if (typeof key !== 'string' || !/^[A-Za-z0-9_.:\-\/]{1,200}$/.test(key)) throw new Error('hub.set: bad key ' + key);
+    // Never write into data this device has not pulled yet: whatever the app computed came from an empty cache and,
+    // under last-write-wins, would replace the real row for good. opts.unloaded = true is for a brand-new row whose
+    // value depends on nothing stored (a fresh item:<id>).
+    if (!(store[ch].since > 0) && !(opts && opts.unloaded)) { loadingNudge(); throw new HubError(0, 'not_loaded', 'Still loading — try again in a moment.'); }
     const t = Math.max(Date.now() + hub.skew, (store[ch].items[key] ? store[ch].items[key].t : 0) + 1);
     const v = value === undefined ? null : value;
     store[ch].items[key] = { v, t }; saveStore(ch);
@@ -247,6 +256,20 @@
   let nudgedAt = 0;
   function kioskNudge() { if (Date.now() - nudgedAt < 2500) return; nudgedAt = Date.now(); hub.toast('This screen only looks — sign in on a phone to change things.', 2600); }
   hub.kioskNudge = kioskNudge;
+  let loadNudgedAt = 0;
+  function loadingNudge() { if (Date.now() - loadNudgedAt < 2500) return; loadNudgedAt = Date.now(); hub.toast('Still loading your data — try again in a moment.', 2600); }
+
+  // ── first load ────────────────────────────────────────────────────────────
+  // A channel is loaded once a pull of it has completed on this device (its cache carries the server's `since`),
+  // whichever window pulled it: the shell and an app frame share one localStorage.
+  const chLoaded = ch => { if (!store[ch]) loadScope(ch); return store[ch].since > 0; };
+  const channelsOf = (app, scope) => [...CH.keys()].filter(ch => CH.get(ch).app === app && (!scope || CH.get(ch).scope === scope));
+  /** True when every channel of `app` (default: this app), or just its `scope`, has been pulled at least once. */
+  hub.isLoaded = (app = appId, scope) => { const chs = channelsOf(app, scope); return chs.length > 0 && chs.every(chLoaded); };
+  const loadWaiters = new Set();
+  function checkLoaded() { for (const w of [...loadWaiters]) if (hub.isLoaded(w.app, w.scope)) { loadWaiters.delete(w); w.resolve(true); } }
+  /** Resolves (true) once hub.isLoaded(app, scope); it waits as long as that takes, through offline spells. */
+  hub.loaded = (app = appId, scope) => new Promise(resolve => { if (hub.isLoaded(app, scope)) resolve(true); else loadWaiters.add({ app, scope, resolve }); });
 
   // ── sync ──────────────────────────────────────────────────────────────────
   function scheduleFlush(ms = 250) { clearTimeout(flushTimer); flushTimer = setTimeout(() => flush(), ms); }
@@ -299,6 +322,7 @@
     }
     store[ch].since = res.now;
     saveStore(ch);
+    checkLoaded();
     return changed;
   }
   hub.pull = function () {
@@ -306,8 +330,20 @@
     pulling = (async () => {
       if (!hub.device) return false;
       try {
-        let changed = false;
-        for (const ch of CH.keys()) { if (CH.get(ch).scope === 'person' && !hub.session) continue; changed = (await pullScope(ch)) || changed; }
+        // Every channel at once: each is its own cache and request, and one after another a slow network multiplied the
+        // time every app and Home card spent on its loading state. A failed channel still fails the pull (as before),
+        // but no longer stops the others from arriving.
+        // A channel declared while this pull is in flight (the TV board adds the family prayer list after boot, and its
+        // hub.pull() gets this promise) is pulled in a further round rather than waiting for the next 30 s tick.
+        let changed = false; const done = new Set();
+        for (;;) {
+          const chs = [...CH.keys()].filter(ch => !done.has(ch) && !(CH.get(ch).scope === 'person' && !hub.session));
+          if (!chs.length) break;
+          chs.forEach(ch => done.add(ch));
+          const res = await Promise.allSettled(chs.map(ch => pullScope(ch)));
+          changed = res.some(r => r.status === 'fulfilled' && r.value) || changed;
+          const bad = res.find(r => r.status === 'rejected'); if (bad) throw bad.reason;
+        }
         setSync({ state: Object.values(queue).some(q => Object.keys(q).length) ? 'pending' : 'synced', lastError: null, lastPull: Date.now() });
         if (hub.sync.pending) scheduleFlush(0);
         adoptTheme();
@@ -331,7 +367,7 @@
       }
       for (const ch of CH.keys()) loadScope(ch);
       adoptTheme();                                   // this person's theme from the cache, before the first paint settles
-      const seen = [...CH.keys()].some(ch => store[ch].since > 0);
+      const seen = hub.isLoaded();                   // this app's own channels, not whatever the shell happened to cache
       if (navigator.onLine === false) setSync({ state: 'offline' });
       const first = hub.pull();
       if (!seen) await Promise.race([first, new Promise(r => setTimeout(r, 6000))]);
@@ -356,6 +392,7 @@
             const sig = it => JSON.stringify(Object.keys(it).sort().map(k => [k, it[k].t, it[k].v]));
             const before = sig((store[ch] || {}).items || {});
             store[ch] = lsGet(ev.key, { items: {}, since: 0 });
+            checkLoaded();
             if (sig(store[ch].items) !== before) {
               for (const cb of listeners.change) { try { cb({ app, scope, key: null, value: null, updated_at: 0, remote: true, bulk: true }); } catch (e) { console.error(e); } }
             }
@@ -388,15 +425,32 @@
 
   // ── legacy migration ──────────────────────────────────────────────────────
   /* entries: [{ from: 'tally.count', to: 'count', scope: 'person', parse: raw => value }]
-     Runs once per device per (app, scope). Person-scope data goes to the first ADULT who opens the app on
-     this device and only if that key is still empty on the server. Originals are left untouched. */
-  hub.migrate = function (entries) {
+     Runs once per device per (app, scope). Person-scope data goes to the first household ADULT (never a guest) who
+     opens the app on this device, and only if that key is still empty on the server: it waits until the scope has
+     loaded and then for a fresh pull that succeeds, so the check reads the server's rows, not an empty cache.
+     Originals are left untouched. Returns a promise of the keys moved; a change event (key null, migrated: true)
+     tells the app to re-render. */
+  hub.migrate = async function (entries) {
+    const eligible = e => { const s = e.scope || SCOPES[0]; return CH.has(chKey(appId, s)) && hub.canWrite && !(hub.profile && hub.profile.isGuest) && !(s === 'person' && hub.profile.kind !== 'adult'); };
+    const todo = entries.filter(e => eligible(e) && !lsGet(LS.migrated, {})[`${appId}.${e.scope || SCOPES[0]}`]);
+    if (!todo.length) return [];
+    const who = pid();
+    for (const s of new Set(todo.map(e => e.scope || SCOPES[0]))) await hub.loaded(appId, s);
+    for (;;) {                                       // one pull that succeeds, started after the scope loaded
+      const before = hub.sync.lastPull; await hub.pull();
+      if (hub.sync.lastPull > before && !hub.sync.lastError) break;
+      await new Promise(r => setTimeout(r, 15000));
+    }
+    if (pid() !== who) return [];                    // the person switched meanwhile: the next open migrates
+    try { return migrateNow(todo); } catch (e) { console.error(e); return []; }
+  };
+  function migrateNow(entries) {
     const done = lsGet(LS.migrated, {});
     const moved = [], ran = new Set();   // a scope is marked done only when an adult writer actually looked at it
     for (const e of entries) {
       const s = e.scope || SCOPES[0];
       const mark = `${appId}.${s}`;
-      if (done[mark] || !CH.has(chKey(appId, s)) || !hub.canWrite) continue;
+      if (done[mark] || !CH.has(chKey(appId, s)) || !hub.canWrite || (hub.profile && hub.profile.isGuest)) continue;
       if (s === 'person' && hub.profile.kind !== 'adult') continue;
       ran.add(mark);
       let raw; try { raw = localStorage.getItem(e.from); } catch { raw = null; }
@@ -408,7 +462,33 @@
     }
     for (const mark of ran) done[mark] = Date.now();
     if (ran.size) lsSet(LS.migrated, done);
+    if (moved.length) for (const cb of listeners.change) { try { cb({ app: appId, scope: null, key: null, value: null, updated_at: 0, remote: false, migrated: true }); } catch (e) { console.error(e); } }
     return moved;
+  }
+
+  // ── the household's day ───────────────────────────────────────────────────
+  // One "today" for every device: the Worker, the 8 am / 8 pm jobs and chat all use America/New_York, so a phone set to
+  // another zone must file a tick, a star or a prayed mark under the house's date, not its own.
+  const NY_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
+  /** 'YYYY-MM-DD' in New York for a time (default now). */
+  hub.today = (t = Date.now()) => { const p = {}; for (const x of NY_DAY.formatToParts(new Date(t))) p[x.type] = x.value; return `${p.year}-${p.month}-${p.day}`; };
+  const dayNum = d => { const [y, m, dd] = String(d).split('-').map(Number); return Date.UTC(y, m - 1, dd) / 86400000; };
+  /** Whole calendar days from date a to date b ('YYYY-MM-DD'); DST cannot shift it. */
+  hub.daysBetween = (a, b) => Math.round(dayNum(b) - dayNum(a));
+  /** The date n days after d ('YYYY-MM-DD'). */
+  hub.addDays = (d, n) => new Date((dayNum(d) + n) * 86400000).toISOString().slice(0, 10);
+  // hub.onDay(fn): fn(today) when the household's date changes while the page is open (checked every 20 s, on focus
+  // and when the page becomes visible, so a sleeping iPad catches up the moment it wakes).
+  const dayCbs = new Set(); let dayNow = null, dayTimer = null;
+  function checkDay() { const d = hub.today(); if (d === dayNow) return; const was = dayNow; dayNow = d; if (was) for (const cb of dayCbs) { try { cb(d); } catch (e) { console.error(e); } } }
+  hub.onDay = cb => {
+    dayCbs.add(cb);
+    if (!dayTimer) {
+      dayNow = hub.today(); dayTimer = setInterval(checkDay, 20000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) checkDay(); });
+      window.addEventListener('focus', checkDay); window.addEventListener('pageshow', checkDay);
+    }
+    return () => dayCbs.delete(cb);
   };
 
   // ── voice input ───────────────────────────────────────────────────────────

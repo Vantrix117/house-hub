@@ -43,6 +43,8 @@
   .trainer .text { font-family: var(--font-serif); font-size: var(--fs-lg); line-height: var(--lh); color: var(--text); text-wrap: pretty; margin: 0; padding: var(--sp-3) var(--sp-2); border-radius: var(--r-lg); background: var(--surface-2); transition: filter var(--dur-2) var(--ease); }
   .trainer .text.veiled { filter: blur(9px); user-select: none; -webkit-user-select: none; }
   .trainer .text[hidden] { display: none; }
+  /* loading: the reference is a skeleton bar about as wide as a reference (design.css .ds .skeleton) */
+  .ds .trainer h1.skeleton { width: min(72%, 340px); margin: 0 auto; border-radius: var(--r-lg); }
 
   /* the buttons: never smaller than 60 px (kids: 64), stacked at phone width */
   .actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
@@ -98,21 +100,21 @@
 </head>
 <body class="ds">
 <div class="wrap">
-  <div class="top"><span class="pill" id="who"></span></div>
+  <div class="top"><span class="pill" id="who"><span>Loading…</span></span></div>
 
-  <section class="card trainer glass-strong" id="trainer" hidden>
+  <section class="card trainer glass-strong" id="trainer" aria-busy="true">
     <div class="kick"><span class="kicker" id="kick">Memory verse</span><span class="chip box" id="boxchip" hidden></span></div>
-    <h1 id="ref">…</h1>
-    <p class="hint" id="hint">Say it from memory, then tap Show.</p>
+    <h1 id="ref" class="skeleton" aria-hidden="true">&nbsp;</h1>
+    <p class="hint" id="hint">Loading your verses…</p>
     <p class="text veiled" id="text" hidden></p>
     <div class="actions" id="act-show">
-      <button class="btn btn-glass say" id="say" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read aloud</span></button>
-      <button class="btn btn-primary" id="show" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show</span></button>
+      <button class="btn btn-glass say" id="say" type="button" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read aloud</span></button>
+      <button class="btn btn-primary" id="show" type="button" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show</span></button>
     </div>
     <div class="actions three" id="act-rate" hidden>
-      <button class="btn btn-soft not" type="button" data-rate="not"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg><span>Not yet</span></button>
-      <button class="btn btn-soft almost" type="button" data-rate="almost"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg><span>Almost</span></button>
-      <button class="btn btn-primary got" type="button" data-rate="got"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span>Got it</span></button>
+      <button class="btn btn-soft not" type="button" disabled aria-disabled="true" data-rate="not"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg><span>Not yet</span></button>
+      <button class="btn btn-soft almost" type="button" disabled aria-disabled="true" data-rate="almost"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg><span>Almost</span></button>
+      <button class="btn btn-primary got" type="button" disabled aria-disabled="true" data-rate="got"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span>Got it</span></button>
     </div>
   </section>
 
@@ -199,11 +201,16 @@
   const $ = s => document.querySelector(s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const obj = v => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
-  const pad = n => String(n).padStart(2, '0');
-  const dayKey = d => { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+  // one household day (New York), not the device's: a phone abroad must file its review under the date every other
+  // device, the Home card and the day streak count by (P3-VERSES-09)
+  const dayKey = () => hub.today();
   const isDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
-  const shiftDay = (key, n) => { const [y, m, d] = key.split('-').map(Number); return dayKey(new Date(y, m - 1, d + n)); };
-  const daysBetween = (a, b) => { const [y1, m1, d1] = a.split('-').map(Number), [y2, m2, d2] = b.split('-').map(Number); return Math.round((new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1)) / 86400000); };
+  const shiftDay = (key, n) => hub.addDays(key, n);
+  const daysBetween = (a, b) => hub.daysBetween(a, b);
+  // Nothing is rated, summarised or shown as "all done" until every channel it reads has pulled once on this device:
+  // a rating computed from an empty cache replaces the whole log (a kid's whole recall map too, and a kid's week comes
+  // from kidverse/family) under last-write-wins (P3-VERSES-03, -07).
+  const loaded = () => hub.isLoaded() && hub.isLoaded('f260', 'person') && (!hub.isKid || hub.isLoaded('kidverse', 'family'));
   const clampBox = b => Math.min(5, Math.max(1, Math.floor(Number(b) || 1)));
   const clampWeek = w => Math.min(52, Math.max(1, Math.floor(Number(w) || 1)));
   const parseId = id => { const m = /^(\d{1,2})-([01])$/.exec(String(id)); if (!m) return null; const w = +m[1]; return w >= 1 && w <= 52 ? { w, i: +m[2] } : null; };
@@ -237,7 +244,7 @@
 
   // ── the summary for the Home card, in this app's own person scope ────────────────────────────────────────
   function writeSummary() {
-    if (!hub.canWrite) return;
+    if (!hub.canWrite || !loaded()) return;
     const today = dayKey(), lg = log();
     const s = { due: dueIds(today).length, streak: dayStreak(lg, today), boxes: boxCounts(), total: trained().length, reviewedToday: Math.max(0, Math.floor(Number(lg[today]) || 0)), week: hub.isKid ? familyWeek() : null, at: today };
     try { if (JSON.stringify(s) !== JSON.stringify(hub.get('summary'))) hub.set('summary', s); } catch (e) { console.error(e); }
@@ -288,7 +295,7 @@
   let againIds = null;       // kids: "Practise again" reopens the week's two even though they were rated today
 
   function rate(kind) {
-    if (!cur) return;
+    if (!cur || !loaded()) return;
     if (!hub.canWrite) { hub.kioskNudge(); return; }
     if (!['got', 'almost', 'not'].includes(kind)) return;
     const today = dayKey(), rc = { ...recall() }, prev = norm(rc[cur]);
@@ -306,7 +313,24 @@
   }
   const currentQueue = () => { if (againIds && !againIds.length) againIds = null; return againIds ? againIds.slice() : dueIds(dayKey()); };
 
+  // the loading card: the trainer's own frame with a skeleton reference and every button disabled — no "0 to go",
+  // no "all done", no stats (UX-VERSES-5, P3-VERSES-07)
+  function paintLoading(on) {
+    const tr = $('#trainer'), ref = $('#ref');
+    tr.setAttribute('aria-busy', on ? 'true' : 'false');
+    ref.classList.toggle('skeleton', on); if (on) ref.setAttribute('aria-hidden', 'true'); else ref.removeAttribute('aria-hidden');
+    for (const b of tr.querySelectorAll('button')) { b.disabled = on; if (on) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled'); }
+    if (!on) return;
+    $('#who').innerHTML = hub.avatarHtml(hub.profile, '', 'sm') + '<span>' + esc(hub.profile.name) + ' · <b>loading…</b></span>';
+    tr.hidden = false; $('#done').hidden = $('#empty').hidden = $('#stats').hidden = $('#queue').hidden = true;
+    $('#kick').textContent = 'Memory verse'; $('#boxchip').hidden = true; ref.textContent = ' '; $('#text').hidden = true;
+    $('#hint').textContent = hub.sync.state === 'offline' ? 'Waiting for a connection to load your verses…' : 'Loading your verses…';
+    $('#act-show').hidden = !hub.canWrite; $('#act-rate').hidden = true;
+  }
+
   function render() {
+    if (!loaded()) { paintLoading(true); return; }
+    paintLoading(false);
     const today = dayKey();
     const kid = hub.isKid, canWrite = hub.canWrite;
     const queue = currentQueue();
@@ -361,9 +385,10 @@
   (async () => {
     await hub.ready();
     $('#say').addEventListener('click', speak);
-    $('#show').addEventListener('click', () => { if (!cur) return; revealed = true; render(); });
+    $('#show').addEventListener('click', () => { if (!cur || !loaded()) return; revealed = true; render(); });
     $('#act-rate').addEventListener('click', e => { const b = e.target.closest('[data-rate]'); if (b) rate(b.dataset.rate); });
     $('#again').addEventListener('click', () => {
+      if (!loaded()) return;
       if (!hub.canWrite) { hub.kioskNudge(); return; }
       const today = dayKey();
       if (hub.isKid) { const w = familyWeek(); againIds = [w + '-0', w + '-1']; }
@@ -372,12 +397,18 @@
     });
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} }
-      if (!cur || !hub.canWrite || e.target.closest('input, textarea')) return;
+      if (!cur || !hub.canWrite || !loaded() || e.target.closest('input, textarea')) return;
       if (e.key === 'Enter' || e.key === ' ') { if (!revealed) { e.preventDefault(); revealed = true; render(); } }
       else if (revealed && (e.key === '1' || e.key === '2' || e.key === '3')) rate({ 1: 'not', 2: 'almost', 3: 'got' }[e.key]);
     });
     window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
     hub.onChange(() => render());
+    // the card appears once every channel it reads has pulled (hub.onChange does not fire for a pull that changes nothing)
+    Promise.all([hub.loaded(), hub.loaded('f260', 'person'), hub.isKid ? hub.loaded('kidverse', 'family') : true]).then(() => render());
+    hub.onSync(() => { if (!loaded()) render(); });   // the loading line says so while the device is offline
+    // past midnight (or waking the next morning) the due list is the new day's: a kid's reopened pair and an adult's
+    // 'Practise one anyway' pick were yesterday's (P3-VERSES-04). hub.onDay also checks on visibilitychange and focus.
+    hub.onDay(() => { againIds = null; render(); });
     render();
     // for the test script
     window.verses = { REFS, INTERVALS, rate, dueIds: () => dueIds(dayKey()), trained, dayStreak: () => dayStreak(log(), dayKey()), boxCounts, summary: writeSummary, current: () => cur, sayRef };

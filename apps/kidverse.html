@@ -139,20 +139,30 @@
   .ds .btn.story-say.on .icon { animation: pulse 1.1s ease-in-out infinite; }
   .story-sub { color: var(--muted); font-size: var(--fs-sm); font-weight: 600; text-align: center; min-height: 1.5em; }
   @media (prefers-reduced-motion: reduce) { .ds .btn.story-say.on .icon { animation: none; } }
+
+  /* 0b — until the family week and the stars have pulled once on this device: skeletons of the loaded size (never a
+     made-up "Week 1" or a zero, and nothing jumps when the data lands), and Done ★ / I heard it / the week stepper wait,
+     calm and readable, instead of writing a value computed from an empty cache over the real rows. The design.css
+     shimmer is already off under reduced motion. */
+  .ds .sk { display: inline-block; vertical-align: middle; width: var(--w, 60%); height: .8em; min-height: 0; }
+  .ds .sk.l { display: block; box-sizing: border-box; width: var(--w, 100%); height: calc(1em * var(--lh-snug)); border-block: .2em solid transparent; background-clip: padding-box; }   /* exactly one text line tall (margins would collapse) */
+  .days span.skd { opacity: .6; }
+  .ds .btn.loading:disabled { opacity: 1; background: var(--surface-2); color: var(--muted); border-color: transparent; box-shadow: none; }
 </style>
 </head>
 <body class="ds">
 <div class="wrap">
   <div class="top"><span class="pill" id="who"></span></div>
-  <div class="scene glass-strong"><img id="art" src="../art/story/01-creation.svg" alt="" width="240" height="160"></div>
+  <!-- 0b: a blank 3:2 plate and skeletons until the family week has pulled (render() swaps in the week's art and text) -->
+  <div class="scene glass-strong"><img id="art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160"></div>
   <div class="ref">
     <span class="kicker" id="kick">This week's verse</span>
-    <h1 id="ref">…</h1>
-    <div class="also" id="also"></div>
+    <h1 id="ref"><span class="skeleton sk" style="--w:62%"></span></h1>
+    <div class="also" id="also"><span class="skeleton sk" style="--w:45%"></span></div>
   </div>
   <div class="card words">
     <span class="kicker">In our own words</span>
-    <p id="words">…</p>
+    <p id="words"><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l" style="--w:60%"></span></p>
     <small>A simple paraphrase for little ears — not the Bible's own words. Open the Bible together to read the real verse.</small>
   </div>
   <div class="actions">
@@ -163,10 +173,10 @@
   <!-- item 17: this week's story — the grown-ups' F260 reading for the family week, retold in two sentences for a small child -->
   <section class="card story" id="story" aria-labelledby="story-title">
     <div class="story-head">
-      <img id="story-art" src="../art/story/01-creation.svg" alt="" width="240" height="160">
-      <div><span class="kicker" id="story-kick">This week's story</span><h2 id="story-title">…</h2><div class="story-span" id="story-span"></div></div>
+      <img id="story-art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160">
+      <div><span class="kicker" id="story-kick">This week's story</span><h2 id="story-title"><span class="skeleton sk" style="--w:70%"></span></h2><div class="story-span" id="story-span"><span class="skeleton sk" style="--w:85%"></span></div></div>
     </div>
-    <p id="story-text">…</p>
+    <p id="story-text"><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l" style="--w:55%"></span></p>
     <small>A short retelling in our own words of what the grown-ups are reading this week — not the Bible's own words. Open the Bible together to read the real story.</small>
     <div class="story-actions" id="story-actions">
       <button class="btn btn-glass story-say" id="story-say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
@@ -256,11 +266,22 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const STAR = '<svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
   const pad = n => String(n).padStart(2, '0');
-  const dayKey = (d = new Date()) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  // ISO week, the same formula the Home shell uses (index.html isoWeek) so the shapes agree
-  const isoWeek = (d = new Date()) => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
-  const weekDays = (d = new Date()) => { const m = new Date(d.getFullYear(), d.getMonth(), d.getDate()); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return Array.from({ length: 7 }, (_, i) => { const x = new Date(m); x.setDate(m.getDate() + i); return dayKey(x); }); };
+  // One household day (0b): "today", the ISO week and the week's Mon–Sun are the house's (America/New_York, hub.today()),
+  // never the device's own zone — so a phone set to Los Angeles cannot earn a second ★ in one household day, and the
+  // week key matches the shell's (index.html isoWeek, same formula over the same date).
+  const dayKey = () => hub.today();
+  const utcOf = day => { const [y, m, d] = String(day).split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+  const isoWeek = (day = hub.today()) => { const t = utcOf(day); const wd = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - wd); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
+  const weekDays = (day = hub.today()) => { const mon = hub.addDays(day, -((utcOf(day).getUTCDay() + 6) % 7)); return Array.from({ length: 7 }, (_, i) => hub.addDays(mon, i)); };
   const DOW = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  // First load (0b): hub.ready() gives up waiting after 6 s (or at once when the pull fails), so until a channel has really
+  // pulled on this device its cache may be empty — a star, a heard day or a week step computed from it would replace the
+  // real row (last write wins). The week needs the family scope; the stars and story rows need both.
+  const weekReady = () => hub.isLoaded('kidverse', 'family');
+  const allReady = () => hub.isLoaded();
+  const SK = (w, cls = '') => `<span class="skeleton sk${cls}" style="--w:${w}"></span>`;
+  const BLANK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E";
+  const setBusy = (btn, busy) => { btn.disabled = busy; btn.setAttribute('aria-disabled', busy ? 'true' : 'false'); btn.classList.toggle('loading', busy); };
 
   // stars: { week: 'YYYY-Www', count, days: { 'YYYY-MM-DD': true }, total } — a stale week starts over at 0 (index.html does the same)
   function normStars(v) {
@@ -324,38 +345,50 @@
     if (!hub.profile) return false;
     if (!hub.canWrite) { hub.kioskNudge(); return false; }            // the display profile only looks
     if (hub.profile.kind !== 'kid') { hub.toast('Stars are for the kids — sign in as one of them to earn a star.'); return false; }
+    if (!allReady()) { render(); return false; }                        // 0b: never from an unpulled row (the button is disabled meanwhile)
     const s = myStars(); const today = dayKey();
     if (s.days[today]) { hub.toast('You already have today’s star — come back tomorrow!'); return false; }   // one per day
     s.days[today] = true; s.count = weekCount(s); s.total += 1; s.earned += 1; stamp(s, 'verse', today);   // item 20: count spans all sources; earned never resets; earnedAt dates the star for a parent's reset
-    hub.set('stars', s, { scope: 'person' });                            // mine
-    hub.set('stars:' + hub.profile.id, s, { scope: 'family' });          // the mirror adults and the TV read
+    try {
+      hub.set('stars', s, { scope: 'person' });                          // mine
+      hub.set('stars:' + hub.profile.id, s, { scope: 'family' });        // the mirror adults and the TV read
+    } catch (e) { render(); return false; }                              // not_loaded / read_only: the SDK has said so
     hub.activity(hub.profile.name + ' read the verse ★');
     confetti(); render();
     return true;
   }
   function setWeek(w) {
     if (!hub.canWrite || hub.profile.kind !== 'adult') { hub.kioskNudge(); return; }
-    hub.set('week', { week: clampWeek(w), by: hub.profile.id, at: Date.now() }, { scope: 'family' });
+    if (!weekReady()) { render(); return; }                              // 0b: the family's real week has not arrived yet
+    try { hub.set('week', { week: clampWeek(w), by: hub.profile.id, at: Date.now() }, { scope: 'family' }); } catch {}
     render();
   }
 
   // ── render ─────────────────────────────────────────────────────────────────────────────────────────────
   function render() {
     const p = hub.profile; if (!p) return;
+    const wkOk = weekReady(), ok = allReady();
+    $('.wrap').setAttribute('aria-busy', ok ? 'false' : 'true');
     const w = familyWeek(), v = VERSES[w - 1], scene = sceneFor(w);
-    const art = $('#art'); const src = '../art/story/' + scene + '.svg'; if (!art.getAttribute('src').endsWith(src)) art.src = src;
-    art.dataset.scene = scene;
-    $('#who').innerHTML = hub.avatarHtml(p, 'avatar-sm') + `<span><b>${esc(p.name)}</b> · Week ${w}</span>`;
+    const art = $('#art'); const src = wkOk ? '../art/story/' + scene + '.svg' : BLANK; if (!art.getAttribute('src').endsWith(src)) art.src = src;
+    art.dataset.scene = wkOk ? scene : '';
+    $('#who').innerHTML = hub.avatarHtml(p, 'avatar-sm') + `<span><b>${esc(p.name)}</b> · ${wkOk ? 'Week ' + w : SK('3.2em')}</span>`;
     $('#kick').textContent = p.kind === 'kid' ? p.name + "'s verse this week" : 'This week’s verse';
-    $('#ref').textContent = v.refs[v.p];
-    $('#also').textContent = 'Also this week: ' + v.refs[1 - v.p];
-    $('#words').textContent = v.words;
-    $('#say').setAttribute('aria-label', 'Read it to me: ' + v.refs[v.p]);
-    // Done ★ + my stars: kids only (adults and the TV look, they do not earn)
+    if (wkOk) { $('#ref').textContent = v.refs[v.p]; $('#also').textContent = 'Also this week: ' + v.refs[1 - v.p]; $('#words').textContent = v.words; }
+    else { $('#ref').innerHTML = SK('62%'); $('#also').innerHTML = SK('45%'); $('#words').innerHTML = SK('100%', ' l') + SK('100%', ' l') + SK('60%', ' l'); }   // three lines: the usual paraphrase at phone width
+    const say = $('#say'); setBusy(say, !wkOk); say.classList.remove('loading');   // nothing to read until the week is known
+    say.setAttribute('aria-label', wkOk ? 'Read it to me: ' + v.refs[v.p] : 'Read it to me');
+    // Done ★ + my stars: kids only (adults and the TV look, they do not earn). Until the stars rows have pulled, the same
+    // shapes with skeletons in them, and Done ★ waits ("Getting your stars…") — its tap would overwrite the whole row.
     const done = $('#done'), mine = $('#mine');
-    if (p.kind === 'kid') {
+    if (p.kind === 'kid' && !ok) {
+      done.hidden = false; setBusy(done, true); done.classList.remove('today'); done.removeAttribute('aria-pressed');
+      done.querySelector('span').textContent = 'Getting your stars…';
+      mine.hidden = false;
+      mine.innerHTML = `<div class="count">${STAR}${SK('.9em')}</div><div class="sub">${SK('11em')}</div><div class="days" aria-hidden="true">${'<span class="skd"></span>'.repeat(7)}</div>`;
+    } else if (p.kind === 'kid') {
       const s = myStars(), today = s.days[dayKey()];
-      done.hidden = false; done.classList.toggle('today', !!today); done.setAttribute('aria-pressed', today ? 'true' : 'false');
+      done.hidden = false; setBusy(done, false); done.classList.toggle('today', !!today); done.setAttribute('aria-pressed', today ? 'true' : 'false');
       done.querySelector('span').textContent = today ? 'Done today ★' : 'Done ★';
       mine.hidden = false;
       mine.innerHTML = `<div class="count">${STAR}<b id="star-count">${s.count}</b></div><div class="sub">${s.count ? s.count + (s.count === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week'}${s.total > s.count ? ' · ' + s.total + ' all time' : ''}</div>${daysHtml(s)}`;
@@ -364,12 +397,15 @@
     // grown-ups (and the TV): the week stepper (adults only) and every kid's stars, read-only
     const g = $('#grown');
     if (p.kind === 'kid') { g.hidden = true; return; }
-    const kids = hub.people().filter(q => q && q.kind === 'kid').map(q => ({ ...q, s: kidStars(q.id) }));
+    const kids = hub.people().filter(q => q && q.kind === 'kid').map(q => ({ ...q, s: wkOk ? kidStars(q.id) : null }));
     let f260 = null; try { const fs = hub.get('f260.summary', { app: 'f260', scope: 'person' }); if (fs && fs.week) f260 = clampWeek(fs.week); } catch {}
-    const stepper = p.kind === 'adult' ? `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week"${w <= 1 ? ' disabled' : ''}>−</button><div class="wk" id="week-now">Week ${w}<small>the family is on</small></div><button class="btn" id="week-up" aria-label="Next week"${w >= 52 ? ' disabled' : ''}>+</button></div>` +
-      (f260 && f260 !== w ? `<p class="hint">Your F260 plan is on week ${f260}.<button class="btn btn-soft" id="week-f260">Use week ${f260}</button></p>` : '<p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>') : '';
+    // the stepper stays disabled until the family week has pulled: "+" on a made-up Week 1 would write week 2 over the real one
+    const stepper = p.kind !== 'adult' ? '' : !wkOk
+      ? `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week" disabled aria-disabled="true">−</button><div class="wk" id="week-now">${SK('3.4em')}<small>Loading the family week…</small></div><button class="btn" id="week-up" aria-label="Next week" disabled aria-disabled="true">+</button></div><p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>`
+      : `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week"${w <= 1 ? ' disabled' : ''}>−</button><div class="wk" id="week-now">Week ${w}<small>the family is on</small></div><button class="btn" id="week-up" aria-label="Next week"${w >= 52 ? ' disabled' : ''}>+</button></div>` +
+      (f260 && f260 !== w ? `<p class="hint">Your F260 plan is on week ${f260}.<button class="btn btn-soft" id="week-f260">Use week ${f260}</button></p>` : '<p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>');
     g.hidden = false;
-    g.innerHTML = `<h2>${STAR}Kids’ stars</h2>${stepper}<ul class="kids" id="kids">${kids.length ? kids.map(k => `<li data-kid="${esc(k.id)}" style="--tint:${esc(k.color || 'var(--accent)')}">${hub.avatarHtml(k, 'avatar-sm')}<span class="kn">${esc(k.name)}<b>★${k.s.count}</b></span>${daysHtml(k.s, true)}</li>`).join('') : '<li class="none">No kid profiles yet.</li>'}</ul>`;
+    g.innerHTML = `<h2>${STAR}Kids’ stars</h2>${stepper}<ul class="kids" id="kids">${kids.length ? kids.map(k => `<li data-kid="${esc(k.id)}" style="--tint:${esc(k.color || 'var(--accent)')}">${hub.avatarHtml(k, 'avatar-sm')}<span class="kn">${esc(k.name)}${k.s ? `<b>★${k.s.count}</b>` : ' ' + SK('2em')}</span>${k.s ? daysHtml(k.s, true) : `<div class="days" aria-hidden="true">${'<span class="skd"></span>'.repeat(7)}</div>`}</li>`).join('') : '<li class="none">No kid profiles yet.</li>'}</ul>`;
     const dn = $('#week-down'), up = $('#week-up'), uf = $('#week-f260');
     if (dn) dn.onclick = () => setWeek(w - 1);
     if (up) up.onclick = () => setWeek(w + 1);
@@ -412,7 +448,7 @@
   }
   const creditedCount = (s, kind) => Object.values(s.credited[kind]).filter(x => x === true).length;
   function weekCount(s) { let n = 0; for (const d of weekDays()) { if (s.days[d] === true) n++; if (s.credited.story[d] === true) n++; if (s.credited.prayed[d] === true) n++; } return n; }
-  function lastDays(n) { return Array.from({ length: n }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return dayKey(d); }); }
+  function lastDays(n) { const t = hub.today(); return Array.from({ length: n }, (_, i) => hub.addDays(t, -i)); }   // the household's last n days, today first
   const stamp = (s, kind, d) => { s.earnedAt[kind + ':' + d] = Date.now() + (Number(hub.skew) || 0); };   // when a star was earned, on the server's clock
   // the story companion (item 17) marks the days a kid heard the story in family story:<kid>; read every date-shaped mark it may carry
   function storyDays(id) {
@@ -462,11 +498,10 @@
     if (done.length) s.count = weekCount(s);
     return done;
   }
-  // Never reconcile from an empty cache: until both kidverse scopes have been pulled on this device, a fresh zero row would
-  // out-date the kid's real stars (last write wins). hub.onSync runs it as soon as the first pull lands.
-  const pulled = () => ['person', 'family'].every(sc => { try { const c = JSON.parse(localStorage.getItem('hub.cache.kidverse.' + sc + (sc === 'person' ? '.' + hub.profile.id : ''))); return !!(c && c.since > 0); } catch { return false; } });
+  // Never reconcile from an empty cache: until both kidverse scopes have been pulled on this device (hub.isLoaded), a fresh
+  // zero row would out-date the kid's real stars (last write wins). hub.loaded() and hub.onSync run it once they land.
   function reconcile(celebrate = true, withConfetti = true) {
-    const p = hub.profile; if (!p || p.kind !== 'kid' || !hub.canWrite || !pulled()) return false;
+    const p = hub.profile; if (!p || p.kind !== 'kid' || !hub.canWrite || !allReady()) return false;
     const s = myStars(); let changed = false;
     const led = applyLedger(s, ledgerRows(p.id)); if (led.length) changed = true;   // a parent cashed in or reset the week
     const recent = new Set(lastDays(14));
@@ -475,7 +510,7 @@
     const count = weekCount(s); if (count !== s.count) { s.count = count; changed = true; }
     const fresh = BADGES.filter(b => !s.badges[b.id] && b.test(s));
     for (const b of fresh) { s.badges[b.id] = dayKey(); changed = true; }
-    if (changed) { hub.set('stars', s, { scope: 'person' }); hub.set('stars:' + p.id, s, { scope: 'family' }); }
+    if (changed) { try { hub.set('stars', s, { scope: 'person' }); hub.set('stars:' + p.id, s, { scope: 'family' }); } catch { return false; } }
     if (fresh.length && celebrate) {
       if (withConfetti) confetti(); hub.toast('New badge: ' + fresh.map(b => b.name).join(' and ') + '!', 3200);
       for (const b of fresh) hub.activity(p.name + ' earned the ' + b.name + ' badge');
@@ -490,7 +525,7 @@
   const fmtDay = k => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(k); if (!m) return k; try { return new Date(+m[1], m[2] - 1, +m[3]).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); } catch { return k; } };
   function renderRewards() {
     const p = hub.profile, el = $('#rewards'); if (!el) return;
-    if (!p || p.kind !== 'kid') { el.hidden = true; return; }
+    if (!p || p.kind !== 'kid' || !allReady()) { el.hidden = true; return; }   // 0b: no "0 to cash in" before the row has pulled (it sits last: nothing below it jumps)
     const s = myStars(); const n = Object.keys(s.badges).length; const last = s.payouts[s.payouts.length - 1];
     el.hidden = false;
     el.innerHTML = `<h2>${STAR}My rewards</h2>
@@ -511,15 +546,21 @@
   (async () => {
     if (hub.profile && hub.profile.kind === 'kid') hub.use('prayer', 'family');   // item 20: prayed days come from the family prayer list
     if (hub.profile && hub.profile.kind === 'adult') hub.use('f260', 'person');   // the adult's own F260 week, for the "use week N" hint
+    window.kidverse = { award, setWeek, VERSES, sceneFor };   // for the test script, and the story below (its art follows the verse's)
+    render();                                                  // 0b: paint now — the cache if it has pulled before, else skeletons (hub.ready can take 6 s)
+    hub.loaded('kidverse', 'family').then(() => render());     // the family week landed: the verse, the art, the stepper
     await hub.ready();
-    $('#say').addEventListener('click', () => speak(VERSES[familyWeek() - 1]));
+    $('#say').addEventListener('click', () => { if (weekReady()) speak(VERSES[familyWeek() - 1]); });
     $('#done').addEventListener('click', award);
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} } });
     window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
     hub.onChange(render);
     render();
-    window.kidverse = { award, setWeek, VERSES, sceneFor };   // for the test script
     rewardsInit();                                             // item 20
+    hub.loaded().then(() => { render(); reconcile(); });       // both scopes pulled: Done ★ wakes, reconcile may run
+    // left open past midnight (P2-STAB-07): a new household day (hub.onDay also checks when the page is shown again) —
+    // today's ★ is un-pressed, the dots move, and on a Monday the week starts over
+    hub.onDay(() => { render(); reconcile(); });
   })();
 })();
 </script>
@@ -589,8 +630,16 @@
   ];
   const $ = s => document.querySelector(s);
   const pad = n => String(n).padStart(2, '0');
-  const dayKey = (d = new Date()) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-  const isoWeek = (d = new Date()) => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
+  // the household's day and ISO week (hub.today(), America/New_York) — the same as the verse above and the shell
+  const dayKey = () => hub.today();
+  const isoWeek = (day = hub.today()) => { const [y, m, d] = String(day).split('-').map(Number); const t = new Date(Date.UTC(y, m - 1, d)); const wd = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - wd); const yy = t.getUTCFullYear(); return yy + '-W' + pad(Math.ceil(((t - Date.UTC(yy, 0, 1)) / 86400000 + 1) / 7)); };
+  // first load (0b): the story follows the family week, and "I heard it" rewrites the whole week's story row — neither
+  // before this device has pulled them (hub.ready stops waiting after 6 s)
+  const weekReady = () => hub.isLoaded('kidverse', 'family');
+  const allReady = () => hub.isLoaded();
+  const SK = (w, cls = '') => `<span class="skeleton sk${cls}" style="--w:${w}"></span>`;
+  const BLANK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E";
+  const setBusy = (btn, busy) => { btn.disabled = busy; btn.setAttribute('aria-disabled', busy ? 'true' : 'false'); btn.classList.toggle('loading', busy); };
   const clampWeek = w => Math.min(52, Math.max(1, Math.floor(Number(w) || 1)));
   const familyWeek = () => { const v = hub.get('week', { scope: 'family' }); return clampWeek(v && typeof v === 'object' ? v.week : v); };
   // the same scene the verse above uses (window.kidverse.sceneFor), so the story and the picture agree
@@ -632,11 +681,14 @@
     if (!hub.profile) return false;
     if (!hub.canWrite) { hub.kioskNudge(); return false; }
     if (hub.profile.kind !== 'kid') { hub.toast('The story is for the kids — sign in as one of them to mark it heard.'); return false; }
+    if (!allReady()) { renderStory(); return false; }                   // 0b: never from an unpulled row (the button is disabled meanwhile)
     const s = myStory(), today = dayKey();
     if (s.days[today]) { hub.toast('You already heard today’s story — come back tomorrow!'); return false; }
     s.days[today] = true;
-    hub.set('story', s, { scope: 'person' });
-    hub.set('story:' + hub.profile.id, s, { scope: 'family' });
+    try {
+      hub.set('story', s, { scope: 'person' });
+      hub.set('story:' + hub.profile.id, s, { scope: 'family' });
+    } catch (e) { renderStory(); return false; }                        // not_loaded / read_only: the SDK has said so
     hub.activity(hub.profile.name + " heard this week's story");
     hub.toast('Great listening!');
     try { if (window.kidverse && typeof window.kidverse.onStoryDone === 'function') window.kidverse.onStoryDone(s); } catch (e) { console.error(e); }
@@ -647,19 +699,24 @@
 
   function renderStory() {
     const p = hub.profile; if (!p) return;
+    const wkOk = weekReady(), ok = allReady();
     const w = familyWeek(), st = STORIES[w - 1];
-    const art = $('#story-art'), src = '../art/story/' + sceneFor(w) + '.svg';
+    const art = $('#story-art'), src = wkOk ? '../art/story/' + sceneFor(w) + '.svg' : BLANK;
     if (!art.getAttribute('src').endsWith(src)) art.src = src;
-    art.dataset.scene = sceneFor(w);
+    art.dataset.scene = wkOk ? sceneFor(w) : '';
     $('#story-kick').textContent = p.kind === 'kid' ? p.name + "'s story this week" : 'This week’s story';
-    $('#story-title').textContent = st.t;
-    $('#story-span').textContent = 'Week ' + w + ' · the grown-ups are reading ' + st.r;
-    $('#story-text').textContent = st.s;
-    $('#story-say').setAttribute('aria-label', 'Read the story to me: ' + st.t);
+    if (wkOk) { $('#story-title').textContent = st.t; $('#story-span').textContent = 'Week ' + w + ' · the grown-ups are reading ' + st.r; $('#story-text').textContent = st.s; }
+    else { $('#story-title').innerHTML = SK('70%'); $('#story-span').innerHTML = SK('85%'); $('#story-text').innerHTML = SK('100%', ' l').repeat(4) + SK('55%', ' l'); }   // skeletons, never week 1's story
+    const say = $('#story-say'); setBusy(say, !wkOk); say.classList.remove('loading');
+    say.setAttribute('aria-label', wkOk ? 'Read the story to me: ' + st.t : 'Read the story to me');
     const btn = $('#story-heard'), sub = $('#story-sub');
-    if (p.kind === 'kid') {
+    if (p.kind === 'kid' && !ok) {                                       // "I heard it" waits: its tap rewrites the week's story row
+      btn.hidden = false; setBusy(btn, true); btn.classList.remove('today'); btn.removeAttribute('aria-pressed');
+      btn.querySelector('span').textContent = 'Getting your story…';
+      sub.hidden = false; sub.innerHTML = SK('14em');
+    } else if (p.kind === 'kid') {
       const s = myStory(), today = !!s.days[dayKey()], n = heardDays(s);
-      btn.hidden = false; btn.classList.toggle('today', today); btn.setAttribute('aria-pressed', today ? 'true' : 'false');
+      btn.hidden = false; setBusy(btn, false); btn.classList.toggle('today', today); btn.setAttribute('aria-pressed', today ? 'true' : 'false');
       btn.querySelector('span').textContent = today ? 'Heard it today ✓' : 'I heard it';
       sub.hidden = false;
       sub.textContent = n ? 'Heard ' + n + (n === 1 ? ' day' : ' days') + ' this week' : 'Tap “I heard it” after someone reads it to you';
@@ -668,12 +725,16 @@
   }
 
   (async () => {
+    renderStory();                                                       // 0b: at once — the cache if pulled before, else skeletons
+    hub.loaded('kidverse', 'family').then(() => renderStory());
+    hub.loaded().then(() => renderStory());                              // the story rows landed: "I heard it" wakes
     await hub.ready();
-    $('#story-say').addEventListener('click', () => speakStory(STORIES[familyWeek() - 1]));
+    $('#story-say').addEventListener('click', () => { if (weekReady()) speakStory(STORIES[familyWeek() - 1]); });
     $('#story-heard').addEventListener('click', heard);
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} } });
     window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
     hub.onChange(renderStory);
+    hub.onDay(() => renderStory());                                      // past midnight: un-press "Heard it today", new week on Monday
     renderStory();
     window.kidverse = Object.assign(window.kidverse || {}, { STORIES, heard, renderStory });   // for the test script
   })();

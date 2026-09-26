@@ -46,28 +46,34 @@
   .actions { display: flex; gap: var(--sp-3); justify-content: center; margin-top: var(--sp-4); width: 100%; }
   .actions .btn-lg { flex: 1; }
   @media (min-width: 720px) { main { width: min(100%, 640px); } .presets { grid-template-columns: repeat(6, 1fr); } }
+
+  /* loading: until this page has pulled the timer, the dial holds a skeleton bar (not an idle "5:00") and every control
+     is off, so a slow pull never lets Start, Reset or a preset replace a timer running on another device.
+     The shimmer stops under reduced motion (design.css). */
+  .time .tsk { display: block; width: 2.3em; height: .6em; border-radius: var(--r-full); }
+  .dial[aria-busy="true"] .ring .fg { opacity: 0; }   /* no arc until there is a real time (not .empty: .ds .empty pads the disc) */
 </style>
 </head>
 <body class="ds">
 <main>
   <header class="hd"><img src="../art/app/timer.svg" alt=""><h1>Kitchen timer</h1></header>
-  <div class="dial glass" id="dial">
+  <div class="dial glass" id="dial" aria-busy="true">
     <span class="ringwrap lg">
-      <svg class="ring ring-lg" viewBox="0 0 52 52" style="--p:1" aria-hidden="true"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg>
-      <div class="time" id="t">5:00</div>
+      <svg class="ring ring-lg" viewBox="0 0 52 52" style="--p:0" aria-hidden="true"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg>
+      <div class="time" id="t"><span class="skeleton tsk" role="img" aria-label="Loading your timer"></span></div>
     </span>
   </div>
   <div class="presets" id="presets">
-    <button class="btn" data-s="60">1 min</button>
-    <button class="btn" data-s="180">3 min</button>
-    <button class="btn on" data-s="300">5 min</button>
-    <button class="btn" data-s="600">10 min</button>
-    <button class="btn" data-s="900">15 min</button>
-    <button class="btn" data-s="1800">30 min</button>
+    <button class="btn" data-s="60" disabled aria-disabled="true">1 min</button>
+    <button class="btn" data-s="180" disabled aria-disabled="true">3 min</button>
+    <button class="btn" data-s="300" disabled aria-disabled="true">5 min</button>
+    <button class="btn" data-s="600" disabled aria-disabled="true">10 min</button>
+    <button class="btn" data-s="900" disabled aria-disabled="true">15 min</button>
+    <button class="btn" data-s="1800" disabled aria-disabled="true">30 min</button>
   </div>
   <div class="actions">
-    <button class="btn btn-primary btn-lg" id="go">Start</button>
-    <button class="btn btn-ghost btn-lg" id="reset">Reset</button>
+    <button class="btn btn-primary btn-lg" id="go" disabled aria-disabled="true">Loading…</button>
+    <button class="btn btn-ghost btn-lg" id="reset" disabled aria-disabled="true">Reset</button>
   </div>
 </main>
 <script src="hub.js" data-app="timer" data-scope="person"></script>
@@ -89,7 +95,13 @@
     };
     const active = () => { const a = hub.get(ACTIVE); return a && typeof a === 'object' && a.endAt > 0 ? a : null; };
     const write = a => { if (!hub.canWrite) return; try { if (a) hub.set(ACTIVE, a); else if (hub.has(ACTIVE)) hub.remove(ACTIVE); } catch {} };
-    const stop = () => { clearInterval(tick); tick = null; go.textContent = 'Start'; go.classList.add('btn-primary'); };
+    // Live only once THIS page has pulled the timer: hub.sync.lastPull is this window's own (0 until a pull of it
+    // succeeds), while the channel may be "loaded" from a shell cache minutes old. Start, Reset or a preset on that
+    // stale idle view would replace a timer started since on another device (last write wins) — so all stay off.
+    let live = false;
+    const ctrls = [...document.querySelectorAll('#presets [data-s], #go, #reset')];
+    const label = () => { go.textContent = !live ? 'Loading…' : tick ? 'Pause' : 'Start'; go.classList.toggle('btn-primary', !tick); };
+    const stop = () => { clearInterval(tick); tick = null; label(); };
     function beep() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -103,30 +115,50 @@
     function run() {                     // count down to endAt (Start, or resuming a timer that is already running)
       clearInterval(tick);
       document.body.classList.remove('done');
-      go.textContent = 'Pause'; go.classList.remove('btn-primary');
       const step = () => {
         left = Math.max(0, Math.round((endAt - Date.now()) / 1000)); show();
         if (left === 0) finish();
       };
       step(); if (left > 0) tick = setInterval(step, 250);
+      label();
     }
     go.onclick = () => {
+      if (!live) return;
       if (tick) { stop(); write(null); return; }
       if (left === 0) left = total;
       endAt = Date.now() + left * 1000;
       write({ endAt, total, startedAt: Date.now() });
       run();
     };
-    document.getElementById('reset').onclick = () => { stop(); write(null); left = total; document.body.classList.remove('done'); show(); };
+    document.getElementById('reset').onclick = () => { if (!live) return; stop(); write(null); left = total; document.body.classList.remove('done'); show(); };
     document.getElementById('presets').addEventListener('click', ev => {
-      const b = ev.target.closest('[data-s]'); if (!b) return;
+      const b = ev.target.closest('[data-s]'); if (!b || !live) return;
       stop(); write(null); total = left = +b.dataset.s; document.body.classList.remove('done'); show();
-      if (hub.canWrite) hub.set('lastPreset', total);
+      if (hub.canWrite) try { hub.set('lastPreset', total); } catch {}
     });
     // resume a timer that is already running (started before the app was closed, or on another device)
     const resume = a => { total = Number(a.total) > 0 ? Number(a.total) : total; endAt = Number(a.endAt); run(); };
     const a0 = active();
-    if (a0 && a0.endAt > Date.now()) resume(a0); else show();
+    if (a0 && a0.endAt > Date.now()) resume(a0);   // a cached running timer is real; an idle view waits for the pull
+    // Truly offline (navigator.onLine false, e.g. the Kitchen iPad's Wi-Fi drops) there is nothing fresher to wait for
+    // and a cooking timer must still start, so a loaded cache is enough; online, a held pull still waits. When the server
+    // cannot be reached at all (Wi-Fi up, internet or Worker down: every pull fails) a loaded cache is used after 8 s
+    // rather than locking the timer for as long as the outage lasts.
+    const bornAt = Date.now();
+    const unreachable = () => (hub.sync.state === 'error' || hub.sync.state === 'offline') && Date.now() - bornAt > 8000;
+    const wake = () => {
+      if (live || !(hub.isLoaded() && (hub.sync.lastPull > 0 || navigator.onLine === false || unreachable()))) return;
+      live = true; dial.removeAttribute('aria-busy');
+      ctrls.forEach(b => { b.disabled = false; b.removeAttribute('aria-disabled'); });
+      if (!tick) {
+        total = Number(hub.get('lastPreset', { default: 300 })) || 300;
+        const a = active(); if (a && a.endAt > Date.now()) resume(a); else { left = total; show(); }
+      }
+      label();
+    };
+    let retry = 0;                       // a failed first pull: try again in 5 s rather than waiting for the 30 s poll
+    window.addEventListener('offline', wake); window.addEventListener('online', wake);
+    hub.onSync(s => { wake(); if (!live && !retry && (s.state === 'error' || s.state === 'offline')) retry = setTimeout(() => { retry = 0; if (!live) hub.pull(); }, 5000); });
     hub.onChange(ch => {
       if (ch.app !== 'timer') return;
       const a = active();

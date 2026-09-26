@@ -225,6 +225,9 @@ html:not([data-flavor=live]) #coaster path.c-dash{stroke-opacity:var(--cd,.8)}
 [data-flavor=hub] button[aria-pressed=true],[data-flavor=hub] button.on,[data-flavor=live] button[aria-pressed=true]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}
 [data-flavor=hub] button:focus-visible,[data-flavor=live] button:focus-visible{outline:none;box-shadow:var(--focus)}
 [data-flavor=hub] button.done{background:var(--olive-soft);border-color:var(--olive);color:var(--olive-ink)}
+/* the first pull in flight (signed in, nothing pulled yet): no counts or bars that read as "nothing done", writes greyed */
+#build[aria-busy=true] button:disabled,#sc-plot:disabled,.lv-share input:disabled,.lv-kid button:disabled{opacity:.5;cursor:default}
+#build[aria-busy=true] .blist{opacity:.55}#build[aria-busy=true] .bhead .bar,.chips[aria-busy=true] .cbar{visibility:hidden}.lv-empty[aria-busy=true]::before{display:none}
 [data-flavor=hub] .pop,[data-flavor=live] .pop{border-radius:18px;box-shadow:var(--shadow-lg);padding:16px 18px 14px}
 [data-flavor=hub] .pop .x,[data-flavor=live] .pop .x{min-height:36px;min-width:36px;border-radius:50%}
 [data-flavor=hub] .oi,[data-flavor=live] .oi{min-height:46px;align-items:center;border-radius:10px;padding:6px 8px}
@@ -1051,14 +1054,17 @@ function updScale(){const v=parseFloat($('sc-plot').value);scale.plot=v>0?v:null
   $('sc-vert').textContent=scale.fac?(1/scale.fac).toFixed(2):'—';const i=parseFloat($('sc-in').value);$('sc-out').textContent=(scale.fac&&i>=0)?Math.round(i*scale.fac):'—';
 }
 const hubOnline=()=>!!(window.hub&&hub.profile);   // signed in through the House Hub SDK (standalone with no session keeps localStorage)
-const hubGuard=()=>{if(hubOnline()&&!hub.canWrite){hub.kioskNudge();return false}return true};
-const savePlot=()=>{const v=$('sc-plot').value;if(hubOnline()){if(hub.canWrite)try{hub.set('plot',v||null)}catch(e){}}else{try{localStorage.setItem('dw-plot',v)}catch(e){}}};
+/* Signed in, the person's rows are not on this device until the first pull lands (hub.loaded): an empty cache reads as a
+   first-time user, and a tick then would replace the server's whole progress map. Until then: a loading line, no writes. */
+let HUBWAIT=false;try{HUBWAIT=hubOnline()&&typeof hub.isLoaded==='function'&&!hub.isLoaded()}catch(e){}
+const hubGuard=()=>{if(hubOnline()&&!hub.canWrite){hub.kioskNudge();return false}if(HUBWAIT){try{hub.toast('Still loading your progress — try again in a moment.',2600)}catch(e){}return false}return true};
+const savePlot=()=>{const v=$('sc-plot').value;if(hubOnline()){if(hub.canWrite&&!HUBWAIT)try{hub.set('plot',v||null)}catch(e){}}else{try{localStorage.setItem('dw-plot',v)}catch(e){}}};
 $('sc-plot').addEventListener('input',()=>{updScale();savePlot()});$('sc-in').addEventListener('input',updScale);
 try{$('sc-plot').value=localStorage.getItem('dw-plot')||''}catch(e){}updScale();
 
 /* ============================ build steps ============================ */
 const PHN={terrain:'Terrain',paths:'Paths',structures:'Structures',rides:'Rides',detail:'Detail',finish:'Finish'};const KEY='dollywood-build-progress-v2';
-let doneMap={};try{doneMap=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}   // first paint / standalone; replaced by the person's hub copy once ready
+let doneMap={};try{doneMap=hubOnline()?(HUBWAIT?{}:Object.assign({},hub.get('progress',{default:{}}))):JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}   // signed in: the person's pulled copy (never the device's legacy key); standalone: localStorage
 const save=()=>{if(hubOnline()){if(!hub.canWrite){hub.kioskNudge();return}try{hub.set('progress',Object.assign({},doneMap))}catch(e){}}else{try{localStorage.setItem(KEY,JSON.stringify(doneMap))}catch(e){}}};let curSec='entrance',curIdx=0;
 const stepsOf=id=>D.steps.filter(s=>s.section===id);
 /* the measurement line, in Planet Coaster 2 units: horizontal metres take the Scale tab's factor; feet ranges become metres
@@ -1072,15 +1078,16 @@ function gameLine(elev,sec){if(!elev)return'';const fac=scale.fac||1,out=[];cons
       else if(sec&&v>900&&!seen.has('s'+v)){seen.add('s'+v);const up=v-sec.lo;out.push(`<b>${(up*0.3048).toFixed(1)} m</b> above the section low (${fmt(v)} ft, low ${fmt(sec.lo)} ft)`)}}}
   const mRe=/(\d[\d,]*)\s*(?:x|×)?\s*(\d[\d,]*)?\s*m\b(?!²)/g;while((m=mRe.exec(elev))){const a=NUM(m[1]);if(!seen.has('m'+a)){seen.add('m'+a);out.push(m[2]?`<b>${Math.round(a*fac)} × ${Math.round(NUM(m[2])*fac)} m</b> footprint (${m[1]} × ${m[2]} m real)`:`<b>${Math.round(a*fac)} m</b> across (${m[1]} m real)`)}}
   if(!out.length)return'';return `<div class="meas game">In game · ${out.join(' · ')} <span>${scale.fac?`at ${(scale.fac*100).toFixed(0)}% scale (Scale tab), relief kept true`:'at 1:1 — set a plot width in the Scale tab to convert'}</span></div>`}
-function chipProgress(){D.sections.forEach(s=>{const b=chips.querySelector(`[data-sec="${s.id}"]`);if(!b||s.id==='all')return;const ss=stepsOf(s.id),dn=ss.filter(x=>doneMap[x.id]).length;
-  b.querySelector('.cl').textContent=s.name+`  ${s.hi-s.lo} ft`+(ss.length?`  ·  ${dn}/${ss.length}`:'');const bar=b.querySelector('.cbar b');if(bar)bar.style.width=ss.length?(dn/ss.length*100)+'%':'0';b.title=ss.length?`${dn} of ${ss.length} steps done`:'no steps yet'})}
+function chipProgress(){chips.setAttribute('aria-busy',String(HUBWAIT));D.sections.forEach(s=>{const b=chips.querySelector(`[data-sec="${s.id}"]`);if(!b||s.id==='all')return;const ss=stepsOf(s.id),dn=ss.filter(x=>doneMap[x.id]).length;
+  b.querySelector('.cl').textContent=s.name+`  ${s.hi-s.lo} ft`+(ss.length&&!HUBWAIT?`  ·  ${dn}/${ss.length}`:'');const bar=b.querySelector('.cbar b');if(bar)bar.style.width=ss.length&&!HUBWAIT?(dn/ss.length*100)+'%':'0';b.title=HUBWAIT?'Loading your progress…':ss.length?`${dn} of ${ss.length} steps done`:'no steps yet'})}
 function renderStep(){if(FLAVOR==='live'){highlight(null);return}const st=stepsOf(curSec),now=st[curIdx],sec=SEC[curSec];$('b-sec').textContent=sec.name+' — build steps';
-  const nd=st.filter(s=>doneMap[s.id]).length;$('b-count').textContent=st.length?`${nd} of ${st.length} done`:'not written yet';$('b-bar').style.width=st.length?(nd/st.length*100)+'%':'0';
-  chipProgress();const nu=nextUnfinished();$('b-nextun').disabled=!nu;$('b-nextun').title=nu?`Next unfinished: ${nu.s.title}${nu.s.section!==curSec?' ('+SEC[nu.s.section].name+')':''}`:'Every step is done';
+  const nd=st.filter(s=>doneMap[s.id]).length;$('b-count').textContent=HUBWAIT?'Loading your progress…':st.length?`${nd} of ${st.length} done`:'not written yet';$('b-bar').style.width=st.length&&!HUBWAIT?(nd/st.length*100)+'%':'0';
+  $('build').setAttribute('aria-busy',String(HUBWAIT));['b-reset','b-import','sc-plot'].forEach(id=>{const el=$(id);if(el){el.disabled=HUBWAIT;el.setAttribute('aria-disabled',String(HUBWAIT))}});   // every control that writes waits for the first pull
+  chipProgress();const nu=HUBWAIT?null:nextUnfinished();$('b-nextun').disabled=!nu;$('b-nextun').title=HUBWAIT?'Loading your progress…':nu?`Next unfinished: ${nu.s.title}${nu.s.section!==curSec?' ('+SEC[nu.s.section].name+')':''}`:'Every step is done';
   const box=$('b-now');if(!now){box.innerHTML='<p style="color:var(--dim);margin:0">No build steps for this section.</p>';highlight(null);renderStepList();return}
   box.innerHTML=`<span class="pill ${now.phase}">${PHN[now.phase]}</span><span class="pill">step ${curIdx+1} of ${st.length}</span><h3>${now.title}</h3><p>${now.body}</p>${now.elev?`<div class="meas">${now.elev}</div>${gameLine(now.elev,sec)}`:''}
    ${now.conf==='approximate'?'<p class="approx">Position estimated — not from mapped data. Check it against the park map before committing.</p>':''}
-   <div class="bctl"><button id="b-prev">Previous</button><button id="b-next">Next</button><button id="b-done" class="${doneMap[now.id]?'done':''}">${doneMap[now.id]?'Done ✓':'Mark done'}</button><button id="b-show">Show on map</button></div>`;
+   <div class="bctl"><button id="b-prev">Previous</button><button id="b-next">Next</button>${HUBWAIT?'<button id="b-done" disabled aria-disabled="true" title="Loading your progress…">Mark done</button>':`<button id="b-done" class="${doneMap[now.id]?'done':''}">${doneMap[now.id]?'Done ✓':'Mark done'}</button>`}<button id="b-show">Show on map</button></div>`;
   $('b-prev').onclick=()=>stepNav(-1);$('b-next').onclick=()=>stepNav(1);$('b-show').onclick=go;$('b-done').onclick=stepDone;highlight(stepTarget(now),now.section);renderStepList()}
 function stepNav(d){const st=stepsOf(curSec);if(!st.length)return;curIdx=Math.max(0,Math.min(st.length-1,curIdx+d));renderStep();go()}
 function stepDone(){if(!hubGuard())return;const st=stepsOf(curSec),now=st[curIdx];if(!now)return;doneMap[now.id]=!doneMap[now.id];save();if(doneMap[now.id]){if(hubOnline())try{hub.activity('Ticked '+now.title)}catch(e){}if(curIdx<st.length-1)curIdx++}renderStep();go()}
@@ -1101,15 +1108,23 @@ $('b-import').onclick=()=>$('b-file').click();
 $('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!hubGuard()){e.target.value='';return}const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);doneMap=j.done||j;save();renderStep()}catch(err){alert('Not a progress file')}};r.readAsText(f);e.target.value=''});
 /* House Hub: progress and plot are person-scope rows ('progress', 'plot') so a tick on the PC shows on the iPad.
    Legacy localStorage moves over once per device (adults only — hub.migrate enforces that). Without a session the
-   page keeps its localStorage-only behaviour. Remote changes re-read the map and repaint the ticks in place. */
+   page keeps its localStorage-only behaviour. Remote changes re-read the map and repaint the ticks in place.
+   hub.migrate is async: it moves a key only after a fresh successful pull shows it absent, then fires a change with
+   key null (migrated: true), which adopt() treats as "re-read everything". */
 (async()=>{if(!window.hub||typeof hub.ready!=='function')return;try{await hub.ready({optional:true})}catch(e){return}
   if(!hub.profile)return;
-  try{hub.migrate([{from:KEY,to:'progress'},{from:'dw-plot',to:'plot',parse:r=>r||null}])}catch(e){}
   const adopt=ev=>{const all=!ev||ev.bulk||ev.key==null;
-    if(all||ev.key==='progress'){doneMap=Object.assign({},hub.get('progress',{default:{}}));renderStep()}
+    if(all||ev.key==='progress'){doneMap=Object.assign({},hub.get('progress',{default:{}}));
+      // a migration lands after the first paint: if it just ticked the step on screen, move on to the first undone one (as a
+      // first open does), so Mark done is not left on a finished step where a tap would untick it
+      if(ev&&ev.migrated){const st=stepsOf(curSec);if(st[curIdx]&&doneMap[st[curIdx].id]){const f=st.findIndex(x=>!doneMap[x.id]);curIdx=f<0?0:f}}
+      renderStep()}
     if(all||ev.key==='plot'){const v=hub.get('plot'),el=$('sc-plot');if(v!=null&&document.activeElement!==el&&el.value!==String(v)){el.value=v;updScale()}}};
+  hub.onChange(adopt);
+  if(HUBWAIT){try{await hub.loaded()}catch(e){}HUBWAIT=false}   // "Loading your progress…" and no Mark done until the first pull lands
   doneMap=Object.assign({},hub.get('progress',{default:{}}));{const st=stepsOf(curSec),f=st.findIndex(x=>!doneMap[x.id]);curIdx=f<0?0:f}
-  adopt(null);hub.onChange(adopt)})();
+  adopt(null);
+  Promise.resolve().then(()=>hub.migrate([{from:KEY,to:'progress'},{from:'dw-plot',to:'plot',parse:r=>r||null}])).catch(()=>{})})();
 
 /* ============================ sections ============================ */
 const chips=$('chips');
@@ -1180,6 +1195,9 @@ const ftOf=m=>{const f=m*3.28084;return f<15?'here':f<1000?Math.round(f/10)*10+'
 const walkOf=m=>{const s=Math.round(m/1.25/60);return s<1?'under a minute':s+' min walk'};
 const agoOf=t=>{const s=(Date.now()-t)/1000;return s<50?'just now':s<3600?Math.round(s/60)+' min ago':Math.round(s/3600)+' h ago'};
 const hubOn=()=>!!(window.hub&&hub.profile);
+/* pulled at least once on this device (both channels, or one scope): before that the share switch, the kids' rows and the
+   family list are an empty cache, not "off" / "nobody" — they say Loading… and their switches wait */
+const hubLoaded=scope=>{try{return !hubOn()||typeof hub.isLoaded!=='function'||hub.isLoaded(undefined,scope)}catch(e){return true}};
 function sectionAt(x,y){for(const s of D.sections){if(s.id==='all'||!s.poly.length)continue;let inside=false;const P=s.poly;
   for(let i=0,j=P.length-1;i<P.length;j=i++){const xi=P[i][0],yi=P[i][1],xj=P[j][0],yj=P[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))inside=!inside}
   if(inside)return s}return null}
@@ -1266,7 +1284,7 @@ function updLoc(){const sec=$('loc-sec'),acc=$('loc-acc'),live=$('lv-live'),pill
   if(placeMode){state='placing';title='Line up the crosshair on you';sub='then tap I’m here';action=['I’m here',()=>{const c=svg.getBoundingClientRect();const p=toMap({clientX:c.left+c.width/2,clientY:c.top+c.height/2});livePlace(p);$('lv-cross').classList.remove('on')}]}
   else if(gpsErr===1&&!me){state='denied';title='Location is off for this site';sub=window.top!==window?'Allow Location for the Hub in Settings › Safari, or use Set my spot':'Allow it in Settings, or use Set my spot';action=['Set my spot',()=>$('loc-place').click()]}
   else if(!me){if(watchId!=null){state='searching';title='Finding you…';sub=gpsErr===3||gpsErr===2?'Still looking — walk into the open':'Looking for satellites'}
-    else{state='idle';title=VIEW_ONLY()?'Rides and the family, live':'Where are you?';sub=who?(VIEW_ONLY()?`${who} · just looking`:shareOn()?`Sharing as ${who} once you have a fix`:'Only you see your dot until you switch on Share my spot'):'Open from the Hub, signed in, to share your spot';if(!VIEW_ONLY())action=['Find me',()=>startGps()]}}
+    else{state='idle';title=VIEW_ONLY()?'Rides and the family, live':'Where are you?';sub=who?(VIEW_ONLY()?`${who} · just looking`:!hubLoaded('person')?`${who} · loading…`:shareOn()?`Sharing as ${who} once you have a fix`:'Only you see your dot until you switch on Share my spot'):'Open from the Hub, signed in, to share your spot';if(!VIEW_ONLY())action=['Find me',()=>startGps()]}}
   else if(!inFrame([me.x,me.y])){const gap=frameGap([me.x,me.y]),e=edgePt([me.x,me.y]);
     if(onProperty([me.x,me.y])){state='arriving';const gate=OFF.find(o=>/^Entrance/i.test(o.name)&&o.pos)||OFFNUM[2];const gd=gate&&gate.pos?Math.hypot(gate.pos[0]-me.x,gate.pos[1]-me.y):null;
       title=`At Dollywood — ${me.y>HM?'the parking lots':'beyond the mapped park'}`;sub=`${ftOf(gap)} ${compassOf(me.x-e[0],me.y-e[1])} of the map${gd?` · gates ${ftOf(gd)}, ${walkOf(gd)}`:''}${accNote}`}
@@ -1295,16 +1313,17 @@ function goItem(o){setSheet('peek');follow=false;liveBtn();fitBox([o.pos[0]-90,o
 function renderFam(){const box=$('fam-list'),st=$('fam-sync');if(!box)return;
   if(!window.hub){box.innerHTML='<div class="lv-empty">Open this map from the House Hub, signed in, to share your spot and see everyone else\'s.</div>';st.textContent='';return}
   if(!hub.profile){box.innerHTML='<div class="lv-empty">Sign in to your Hub profile to share your spot and see the family.</div>';st.textContent='';return}
-  st.textContent=hub.sync&&hub.sync.state==='synced'?'up to date':hub.sync&&hub.sync.state==='offline'?'offline — showing last known':'';
+  const famOK=hubLoaded(),meOK=hubLoaded('person'),off=hub.sync&&hub.sync.state==='offline';   // hub.sync reads 'pending' until the first pull answers
+  st.textContent=!famOK?(off?'offline — loads when you are back online':'Loading…'):hub.sync&&hub.sync.state==='synced'?'up to date':off?'offline — showing last known':'';
   const rows=Object.entries(FAM).filter(([,f])=>f&&f.t).sort((a,b)=>b[1].t-a[1].t);   // < 4 h are on the map; older rows show greyed with their last-seen time
   const canShare=hub.canWrite&&!VIEW_ONLY();
-  const shareRow=canShare?`<label class="lv-item lv-share"><span class="t"><b>Share my spot</b><span>${shareOn()?'The family can see where you are':'Off — only you see your dot'}</span></span><input type="checkbox" id="lv-share" ${shareOn()?'checked':''} aria-label="Share my spot with the family"></label>`:'';
-  const meRow=canShare?`<div class="lv-item" style="cursor:default"><span class="n" style="background:${hub.profile.color||'#8A6A4B'}">${hub.profile.emoji||'•'}</span><span class="t"><b>${hub.profile.name} (you)</b><span>${me&&me.src==='gps'?placeOf([me.x,me.y])+(shareOn()?' · sharing':' · not sharing'):'no fix yet'}</span></span></div>`:'';
-  const wire=()=>{const c=$('lv-share');if(c)c.onchange=()=>setShare(c.checked)};
-  if(!rows.length){box.innerHTML=shareRow+meRow+'<div class="lv-empty">No one else is sharing right now. Anyone who switches on Share my spot will show up here.</div>';wire();return}
+  const shareRow=canShare?`<label class="lv-item lv-share"><span class="t"><b>Share my spot</b><span>${!meOK?'Loading…':shareOn()?'The family can see where you are':'Off — only you see your dot'}</span></span><input type="checkbox" id="lv-share" ${meOK&&shareOn()?'checked':''}${meOK?'':' disabled aria-disabled="true"'} aria-label="Share my spot with the family"></label>`:'';
+  const meRow=canShare?`<div class="lv-item" style="cursor:default"><span class="n" style="background:${hub.profile.color||'#8A6A4B'}">${hub.profile.emoji||'•'}</span><span class="t"><b>${hub.profile.name} (you)</b><span>${me&&me.src==='gps'?placeOf([me.x,me.y])+(!meOK?'':shareOn()?' · sharing':' · not sharing'):'no fix yet'}</span></span></div>`:'';
+  const wire=()=>{const c=$('lv-share');if(c)c.onchange=()=>{if(hubLoaded('person'))setShare(c.checked);else renderFam()}};
+  if(!rows.length){box.innerHTML=shareRow+meRow+(famOK?'<div class="lv-empty">No one else is sharing right now. Anyone who switches on Share my spot will show up here.</div>':'<div class="lv-empty" aria-busy="true">Loading the family…</div>');wire();return}
   box.innerHTML=shareRow+meRow+rows.map(([id,f])=>{const s=inFrame([f.x,f.y])?sectionAt(f.x,f.y):null;const d=me&&inFrame([me.x,me.y])&&inFrame([f.x,f.y])?Math.hypot(f.x-me.x,f.y-me.y):null;
     const stale=Date.now()-f.t>4*3600e3;return`<button class="lv-item" data-f="${id}"${stale?' style="opacity:.55"':''}><span class="n" style="background:${f.color||'#8A6A4B'}">${f.emoji||'•'}</span><span class="t"><b>${f.name||id}</b><span>${placeOf([f.x,f.y])} · ${agoOf(f.t)}</span></span><span class="d">${d!=null?ftOf(d):''}<small>${d!=null?walkOf(d):''}</small></span></button>`}).join('');
-  if(hub.profile.kind==='adult'&&hub.canWrite){const kids=KIDS();if(kids.length){box.insertAdjacentHTML('beforeend',`<div class="lv-grp"><span>Kids' beacons</span><em>show their spot to the family</em></div>`+kids.map(k=>{let on=false;try{on=hub.get('kidshare:'+k.id,{scope:'family'})===true}catch(e){}return `<label class="lv-item lv-share"><span class="n" style="background:${k.color||'#8A6A4B'}">${k.emoji||'•'}</span><span class="t"><b>${k.name}'s beacon</b><span>${on?'On — their device shares its spot with the family':'Off — their device only looks'}</span></span><input type="checkbox" data-kid="${k.id}" ${on?'checked':''} aria-label="${k.name}'s beacon"></label>`}).join(''));
+  if(hub.profile.kind==='adult'&&hub.canWrite){const kids=KIDS();if(kids.length){box.insertAdjacentHTML('beforeend',`<div class="lv-grp"><span>Kids' beacons</span><em>show their spot to the family</em></div>`+kids.map(k=>{let on=false;try{on=hub.get('kidshare:'+k.id,{scope:'family'})===true}catch(e){}return `<label class="lv-item lv-share"><span class="n" style="background:${k.color||'#8A6A4B'}">${k.emoji||'•'}</span><span class="t"><b>${k.name}'s beacon</b><span>${!famOK?'Loading…':on?'On — their device shares its spot with the family':'Off — their device only looks'}</span></span><input type="checkbox" data-kid="${k.id}" ${famOK&&on?'checked':''}${famOK?'':' disabled aria-disabled="true"'} aria-label="${k.name}'s beacon"></label>`}).join(''));
     box.querySelectorAll('input[data-kid]').forEach(c=>c.onchange=()=>{try{hub.set('kidshare:'+c.dataset.kid,c.checked,{scope:'family'});if(!c.checked)hub.remove('loc:'+c.dataset.kid,{scope:'family'})}catch(e){}renderFam()})}}
   box.querySelectorAll('.lv-item[data-f]').forEach(b=>b.onclick=()=>showFamily(b.dataset.f));wire();renderKids()}
 function setShare(on){try{hub.set('share',!!on,{scope:'person'})}catch(e){}
@@ -1483,7 +1502,8 @@ function liveInit(){document.title='Dollywood park map';svg.setAttribute('preser
       hub.onChange(ev=>{if(ev.scope==='family'&&(!ev.key||ev.key.startsWith('loc:')||ev.key==='meet'||ev.key.startsWith('kid')))loadFam();if(ev.key&&ev.key.startsWith('kid'))renderNear()});if(hub.onSync)hub.onSync(()=>renderFam());loadMeet();markNoride();
       setInterval(()=>{drawFam();renderFam()},30000);
       if(VIEW_ONLY()){const b=$('loc-btn');if(b)b.hidden=true}
-      if(shareOn())startGps()}}          // sharing already on for this person: resume without a tap
+      if(shareOn())startGps();          // sharing already on for this person: resume without a tap
+      if(typeof hub.loaded==='function'&&!hubLoaded())hub.loaded().then(()=>{loadFam();updLoc();renderNear();markNoride();if(shareOn()&&watchId==null)startGps()}).catch(()=>{})}}   // first pull landed: the real share state, the family, the pill
     let intent=false;try{intent=localStorage.getItem(TRACK_KEY())==='1'}catch(e){}
     if(watchId==null&&!VIEW_ONLY()&&intent)startGps(true);   // asked for before on this device: back without a tap, same view. Never on a first open: locating is the person's call (a ◎ tap or Share my spot)
     updLoc();renderFam()})()}
@@ -1544,8 +1564,9 @@ const wireWho=box=>box.querySelectorAll('.lv-who-chips button').forEach(b=>b.onc
 function markNoride(){const kid=whoKid();document.querySelectorAll('.mk').forEach(m=>{const o=OFFNUM[+m.dataset.pick.slice(2)];m.classList.toggle('mk-noride',!!kid&&!fits(o,kid))})}
 const needChip=o=>{const kid=whoKid();if(!kid||fits(o,kid))return'';return `<span class="wt need">needs ${o.height_in}"</span>`};
 function renderKids(){const box=$('kid-list');if(!box||!hubOn())return;const kids=KIDS();if(!kids.length||hub.profile.kind!=='adult'){box.innerHTML='';return}
-  box.innerHTML=`<div class="lv-grp"><span>Kids' heights</span><em>for who-can-ride</em></div>`+kids.map(k=>{const h=kidHeight(k.id);return `<div class="lv-kid" data-k="${k.id}"><span class="n" style="background:${k.color||'#8A6A4B'}">${k.emoji||'•'}</span><span class="t"><b>${k.name}</b><span>${h?`${h}" — rides up to ${h}" minimums`:'tap + to enter a measured height'}</span></span><span class="st"><button data-d="-1" aria-label="Shorter">−</button><b>${h?h+'"':'—'}</b><button data-d="1" aria-label="Taller">+</button></span></div>`}).join('');
-  box.querySelectorAll('.lv-kid button').forEach(b=>b.onclick=()=>{const id=b.closest('.lv-kid').dataset.k,h=(kidHeight(id)||36)+(+b.dataset.d);if(!hub.canWrite)return hub.kioskNudge&&hub.kioskNudge();try{hub.set('kid:'+id,{height_in:Math.max(28,Math.min(72,h)),at:Date.now(),by:hub.profile.id},{scope:'family'})}catch(e){}renderKids();renderNear();markNoride()})}
+  const ok=hubLoaded('family'),dis=ok?'':' disabled aria-disabled="true"';   // a step is stored height ± 1: never from an unpulled cache
+  box.innerHTML=`<div class="lv-grp"><span>Kids' heights</span><em>for who-can-ride</em></div>`+kids.map(k=>{const h=kidHeight(k.id);return `<div class="lv-kid" data-k="${k.id}"><span class="n" style="background:${k.color||'#8A6A4B'}">${k.emoji||'•'}</span><span class="t"><b>${k.name}</b><span>${!ok?'Loading…':h?`${h}" — rides up to ${h}" minimums`:'tap + to enter a measured height'}</span></span><span class="st"><button data-d="-1" aria-label="Shorter"${dis}>−</button><b>${h&&ok?h+'"':'—'}</b><button data-d="1" aria-label="Taller"${dis}>+</button></span></div>`}).join('');
+  box.querySelectorAll('.lv-kid button').forEach(b=>b.onclick=()=>{if(!hubLoaded('family'))return;const id=b.closest('.lv-kid').dataset.k,h=(kidHeight(id)||36)+(+b.dataset.d);if(!hub.canWrite)return hub.kioskNudge&&hub.kioskNudge();try{hub.set('kid:'+id,{height_in:Math.max(28,Math.min(72,h)),at:Date.now(),by:hub.profile.id},{scope:'family'})}catch(e){}renderKids();renderNear();markNoride()})}
 function whoRow(o){if(!hubOn()||!o.height_in)return'';const kids=KIDS();if(!kids.length)return'';
   return `<div class="lv-who">${kids.map(k=>{const h=kidHeight(k.id);const ok=h?h>=o.height_in:null;return `<span class="${ok==null?'':ok?'ok':'no'}"><i>${k.emoji||'•'}</i>${k.name}${ok==null?' · height?':ok?' ✓':` · ${o.height_in-h}" short`}</span>`}).join('')}</div>`}
 

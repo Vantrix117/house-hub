@@ -321,6 +321,8 @@ async function artSample(page, sel) {
     await K.page.click('.tab[data-tab=me]'); await K.page.click('#switch'); await K.page.waitForSelector('.pcard[data-id]');
     await signIn(K.page, 'kiara'); await K.page.click('.tab[data-tab=home]');
     await K.page.waitForSelector('#view-home .stars-card');
+    // Audit batch 0b (P2-HOME-04): until Kiara's stars row has been pulled on this device the card is a skeleton, never ★0
+    await K.page.waitForFunction(() => hub.isLoaded('kidverse', 'person') && !document.querySelector('.stars-card .skeleton'), null, { timeout: 15000 });
     ok(await text(K.page, '.stars-card .gbig') === 'No stars yet', '(c) no stars row → 0 with an inviting line', await text(K.page, '.stars-card .gbig'));
     ok(await text(K.page, '.stars-card .gsub') === 'Learn a verse to earn your first!', '(c) the inviting empty line');
     await sleep(600);

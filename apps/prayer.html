@@ -428,6 +428,15 @@ ul.kids{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:16px}
 .kid .kwho{grid-column:1 / -1;display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);font-weight:500;color:var(--muted);min-height:32px}
 .kid .kwho .who{margin-left:0}
 .kid .kwho .who .avatar,.kid .kwho .who .init,.kid .kwho .who .more{--size:32px;font-size:16px;box-shadow:0 0 0 2px var(--raised)}
+
+/* ── loading: until both lists have pulled once on this device, quiet bars stand where the rows and stats go
+   (never a 0 or "Nothing on the list today." posing as real data); the reduced-motion rule above stops the pulse ── */
+.sk{display:block;height:.85em;border-radius:6px;background:var(--sunk);animation:skpulse 1.6s ease-in-out infinite}
+.strip .sk{display:inline-block;width:6.5em;height:1.15em}
+li.row .sk + .sk{margin-top:9px;height:.7em}
+.kid .sk{grid-column:1 / -1;height:1.5em}
+.kid .sk + .sk{height:1em}
+@keyframes skpulse{50%{opacity:.5}}
 </style>
 </head>
 <body>
@@ -627,9 +636,10 @@ function listFromHub(scope, label){
   L.prayers = hub.list('prayer:', {scope}).map(r => { SNAP[scope][r.key] = JSON.stringify(r.value); return r.value; });
   return L;
 }
+// Only ever called once both prayer channels have pulled (boot waits on hub.loaded), so every key read here is the
+// server's row, not an empty cache that save() would then stamp over the real one.
 function load(){
   if(USE_LOCAL_STORAGE){
-    migrateLegacy();
     D = { version:3, activeList: hub.get('activeList', {scope:'person'}) || 'personal',
       lastExport: hub.get('lastExport', {scope:'person'}) || null,
       lists:{ personal: listFromHub('person', 'My list'), shared: listFromHub('family', 'Family list') } };
@@ -638,6 +648,8 @@ function load(){
   if(KID()) D.activeList = 'shared';       // a kid only ever sees the family list
 }
 // One-time: the pre-profiles localStorage blob (both lists) into this adult's person scope + the family scope.
+// hub.migrate is async: it waits for a fresh pull and writes only keys the server does not have, then fires onChange
+// (migrated: true), which absorbRemote() turns into a reload + repaint.
 function migrateLegacy(){
   const split = which => v => {
     const L = v && v.lists && v.lists[which]; if(!L) return [];
@@ -646,13 +658,19 @@ function migrateLegacy(){
     for(const p of (L.prayers || [])) if(p && p.id) out.push(['prayer:' + p.id, p]);
     return out;
   };
-  hub.migrate([{ from: LEGACY_KEY, scope: 'person', to: split('personal') },
-               { from: LEGACY_KEY, scope: 'family', to: split('shared') }]);
+  return hub.migrate([{ from: LEGACY_KEY, scope: 'person', to: split('personal') },
+                      { from: LEGACY_KEY, scope: 'family', to: split('shared') }]);
+}
+// hub.set refuses a channel that has not pulled yet (not_loaded) or a read-only profile: SNAP moves only when the
+// write took, so the next save() retries, and a refusal never breaks the render that triggered it.
+function hubWrite(fn){
+  try{ fn(); return true; }
+  catch(e){ if(!e || !/^(not_loaded|read_only)$/.test(e.error)) console.error(e); return false; }
 }
 function put(scope, key, v){
   const j = JSON.stringify(v);
   if(SNAP[scope][key] === j) return;
-  SNAP[scope][key] = j; hub.set(key, v, {scope});
+  if(hubWrite(() => hub.set(key, v, {scope}))) SNAP[scope][key] = j;
 }
 function migrate(){
   if(!D.lists) D = freshData();
@@ -683,13 +701,15 @@ function migrate(){
   }
 }
 function save(){
-  if(!USE_LOCAL_STORAGE || !hub.canWrite) return;
+  // Nothing is written before both lists have pulled: list settings and prayerDays built from an empty cache would
+  // replace the family's (and this person's) real history for good under last-write-wins (P2-SYNC-02, P3-PRAYER-02).
+  if(!USE_LOCAL_STORAGE || !hub.canWrite || !D || !hub.isLoaded()) return;
   for(const which of ['personal','shared']){
     const scope = SCOPE[which], L = D.lists[which];
     for(const k of LIST_KEYS) put(scope, k, L[k]);
     const seen = new Set();
     for(const p of L.prayers){ seen.add('prayer:' + p.id); put(scope, 'prayer:' + p.id, p); }
-    for(const key of Object.keys(SNAP[scope])) if(key.startsWith('prayer:') && !seen.has(key)){ delete SNAP[scope][key]; hub.remove(key, {scope}); }
+    for(const key of Object.keys(SNAP[scope])) if(key.startsWith('prayer:') && !seen.has(key)){ if(hubWrite(() => hub.remove(key, {scope}))) delete SNAP[scope][key]; }
   }
   if(!KID()) put('person', 'activeList', D.activeList);
   put('person', 'lastExport', D.lastExport);
@@ -709,10 +729,16 @@ const PL = () => L().plans.find(p => p.id === L().activePlan) || L().plans[0];
 
 const pad = n => String(n).padStart(2,'0');
 const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-const TODAY = iso(new Date());
+// One household day (New York, like chat's mark_prayed and the TV's "who prayed today"), not the device's: a phone in
+// Los Angeles at 22:30 must file prayedBy / prayerDays under the house's date. Re-read at midnight via hub.onDay (boot).
+// The fallbacks are for check.js, whose hub stand-in has no date helpers.
+const houseDay = () => hub.today ? hub.today() : iso(new Date());
+let TODAY = houseDay();
 const dObj = s => new Date(s+'T12:00:00');
-const daysSince = s => s ? Math.round((dObj(TODAY) - dObj(s))/86400000) : 9999;
-const shift = (s,n) => { const d = dObj(s); d.setDate(d.getDate()+n); return iso(d); };
+const daysSince = s => !s ? 9999 : hub.daysBetween ? hub.daysBetween(String(s).slice(0,10), TODAY)
+  : Math.round((dObj(TODAY) - dObj(s))/86400000);
+const shift = (s,n) => { if(hub.addDays) return hub.addDays(s, n); const d = dObj(s); d.setDate(d.getDate()+n); return iso(d); };
+const dowToday = () => DOW[dObj(TODAY).getDay()];     // the weekday of the house's date
 const pretty = s => s ? dObj(s).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'}) : '';
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const byId = id => L().prayers.find(p => p.id === id);
@@ -745,12 +771,12 @@ function longestStreak(){
   return best;
 }
 function monthDays(){
-  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
+  const n = dObj(TODAY), y = n.getFullYear(), m = n.getMonth();
   return L().prayerDays.filter(d => { const t = dObj(d);
     return t.getFullYear() === y && t.getMonth() === m; }).length;
 }
 function calendarHTML(){
-  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
+  const n = dObj(TODAY), y = n.getFullYear(), m = n.getMonth();
   const first = new Date(y,m,1).getDay(), total = new Date(y,m+1,0).getDate();
   const set = new Set(L().prayerDays);
   let cells = '';
@@ -802,13 +828,13 @@ function reviewItems(){
 }
 function reviewDue(){
   const r = reviewItems();
-  return (new Date().getDay() === 0) || r.cold.length >= 3;
+  return dowToday() === 'Sun' || r.cold.length >= 3;
 }
 
 /* ── today ──────────────────────────────────────────────────── */
 function todaySet(){
   const plan = PL(), act = L().prayers.filter(p => p.status === 'active');
-  const dow = DOW[new Date().getDay()];
+  const dow = dowToday();
   let picked;
 
   if(plan.mode === 'focus'){
@@ -877,7 +903,7 @@ function renderToday(){
     b.setAttribute('aria-pressed', b.dataset.list === D.activeList));
   const plan = PL();
   el('todayDate').textContent =
-    new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})
+    dObj(TODAY).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})
     + ' · ' + plan.name;
 
   const set = todaySet();
@@ -1182,7 +1208,7 @@ function renderPlans(){
   const cur = PL();
   el('f-plan').innerHTML = L().plans.map(p =>
     '<option value="' + p.id + '"' + (p.id === cur.id ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('');
-  const dow = DOW[new Date().getDay()];
+  const dow = dowToday();
   let h = '<label>What Today shows</label><div class="chips" id="p-mode">'
     + [['everything','Daily plus rotation'],['byDay','A set of categories each day'],['focus','One category only']]
         .map(m => '<button class="chip" data-mode="' + m[0] + '" aria-pressed="'
@@ -1227,6 +1253,11 @@ function renderPlans(){
 }
 
 /* ── events ─────────────────────────────────────────────────── */
+// Until load() has built D every handler below would throw on it (and a Mine/Family or Record tap was lost), so while
+// loading a tap or change stops here, before any element's own listener; the controls also show disabled (P3-PRAYER-10).
+for(const type of ['click','change','input']) document.addEventListener(type, e => {
+  if(!D){ e.stopPropagation(); if(type === 'click') e.preventDefault(); }
+}, true);
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-pray],[data-open],[data-go],[data-shut],[data-update],[data-answer],[data-reopen],[data-recat],[data-share],[data-tell],[data-cad],[data-list],[data-rencat],[data-delcat],[data-mode],[data-rot],[data-day],[data-show],[data-incd],[data-renplan],[data-delplan],[data-edit],[data-delete],[data-esave],[data-ecad],[data-eday],[data-more],[data-fday],[data-copycat],[data-kpray]');
   if(!t) return;                            // a tap on plain text or an input is not an action
@@ -1409,7 +1440,7 @@ el('f-plan').addEventListener('change', e => {
 el('planEditor').addEventListener('change', e => {
   if(e.target.id === 'p-focus'){ PL().focusCategory = e.target.value; save(); renderToday(); }
   if(e.target.id === 'p-cats'){
-    const day = renderPlans._day || DOW[new Date().getDay()];
+    const day = renderPlans._day || dowToday();
     PL().dayMap[day] = [...e.target.selectedOptions].map(o => o.value);
     save(); renderToday();
   }
@@ -1646,7 +1677,7 @@ function openKitchen(){
   const act = L().prayers.filter(p => p.status === 'active');
   const cats = L().categories.filter(c => act.some(p => p.category === c));
   el('kitchenBody').innerHTML = '<h1>' + esc(L().label) + '</h1>'
-    + '<div class="date">' + new Date().toLocaleDateString(undefined,
+    + '<div class="date">' + dObj(TODAY).toLocaleDateString(undefined,
         {weekday:'long',month:'long',day:'numeric'}) + '</div>'
     + (act.length ? cats.map(c => '<div class="k-cat">' + esc(c) + '</div>'
         + act.filter(p => p.category === c).map(p => '<div class="k-item">' + esc(p.title)
@@ -1661,7 +1692,7 @@ function buildPrint(){
   const cats = L().categories.filter(c => act.some(p => p.category === c));
   const ans = L().prayers.filter(p => p.status === 'answered' && daysSince(p.answeredAt) <= 90);
   el('printArea').innerHTML = '<h1>' + esc(L().label) + '</h1>'
-    + '<div class="p-sub">' + new Date().toLocaleDateString(undefined,
+    + '<div class="p-sub">' + dObj(TODAY).toLocaleDateString(undefined,
         {weekday:'long',month:'long',day:'numeric',year:'numeric'})
     + ' &middot; ' + act.length + ' requests</div>'
     + cats.map(c => '<div class="p-cat">' + esc(c) + '</div>'
@@ -1739,7 +1770,7 @@ function moreAction(kind, trigger){
   if(kind === 'copy'){
     const items = todaySet();
     if(!items.length){ shutSheet(); toast('Nothing on the list today.'); return; }
-    const heading = L().label + ' \u2014 ' + new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+    const heading = L().label + ' \u2014 ' + dObj(TODAY).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
     // The sheet stays up if the clipboard refuses, so the "copy it yourself" panel has somewhere to sit.
     copyText(asText(heading, items), trigger, 'Copied ' + items.length + ' request' + (items.length===1?'':'s') + '.')
       .then(done => { if(done) shutSheet(); });
@@ -1749,15 +1780,47 @@ el('moreBtn').addEventListener('click', openMoreSheet);
 
 
 
+/* ── loading: hub.ready can resolve (6 s cap, or at once on a failed pull) before this device has ever pulled the
+   prayer rows. Until both scopes have, D stays unset, the controls are disabled and Today shows placeholder bars — on
+   the kid page too — instead of an empty list and 0-day stats that look real (UX-PRAYER-8). ── */
+const BUSY = '#listSwitch button, #todayActions button, nav button, #fab';
+function setBusy(on){
+  el('s-today').setAttribute('aria-busy', on ? 'true' : 'false');
+  document.querySelectorAll(BUSY).forEach(b => { b.disabled = on; if(on) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled'); });
+}
+function renderLoading(){
+  setBusy(true);
+  el('todayDate').textContent = dObj(TODAY).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+  el('todayLine').textContent = KID() ? 'Getting the family list…' : 'Loading your prayer list…';
+  el('todayStrip').innerHTML = '<span class="sk"></span><span class="sk"></span><span class="sk"></span>';
+  const bar = w => '<span class="sk" style="width:' + w + '%"></span>';
+  el('todayList').innerHTML = KID()
+    ? '<ul class="kids" aria-hidden="true">' + [70,55].map(w => '<li class="kid">' + bar(w) + bar(35) + '</li>').join('') + '</ul>'
+    : '<ul class="list" aria-hidden="true">' + [72,58,66,48].map(w => '<li class="row"><span class="mark"></span><div class="body">'
+        + bar(w) + bar(30) + '</div></li>').join('') + '</ul>';
+}
+
 async function boot(){
-if(USE_LOCAL_STORAGE) await hub.ready();
-load();
+if(USE_LOCAL_STORAGE){
+  if(!hub.isLoaded()) renderLoading();      // painted at once, not after hub.ready's up-to-6 s wait
+  await hub.ready();
+  if(!hub.isLoaded()){ renderLoading(); await hub.loaded(); }
+  // A pre-profiles blob on this device: let it land before the first save() can stamp defaults over the keys it
+  // fills (hub.migrate writes only keys the server lacks). No blob, nothing to move and no extra pull.
+  let legacy = null; try{ legacy = localStorage.getItem(LEGACY_KEY); }catch(e){}
+  // Capped at 8 s: offline or in an outage the migration waits for a pull that will not come, and the list must still open
+  // from the cache (the migration then finishes in the background and the change event repaints).
+  if(legacy){ renderLoading(); await Promise.race([migrateLegacy().catch(() => {}), new Promise(r => setTimeout(r, 8000))]); }
+}
+load(); setBusy(false);
 catOptions(el('f-cat'), 'Personal');
 catOptions(el('f-pastecat'), 'Personal');
 el('f-daysWrap').innerHTML = '<label>Which days</label>' + dayChips('fday', []) + '<p class="err" id="f-daysErr"></p>';
 applyTheme(); renderCatAdmin(); renderPlans(); go('today');
 if(USE_LOCAL_STORAGE){
   hub.onChange(() => { remoteDirty = true; absorbRemote(); });
+  // Midnight in New York: a new household day, so a new Today (rotation, prayed marks, streak, calendar).
+  hub.onDay(d => { TODAY = d; if(!el('pray').classList.contains('on')) renderAllScreens(); });
   // Faces come from the profiles cache the shell fills; opened standalone it can be empty, so pull once.
   if(hub.profiles && !people().length) hub.profiles().then(() => renderAllScreens()).catch(() => {});
   // Voice: say the request instead of typing it.

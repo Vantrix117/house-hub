@@ -110,6 +110,8 @@ const MV = [
 const versesFor = week => { const w = Math.min(52, Math.max(1, +week || 1)); const m = MV[w - 1]; return [{ ref: m[0], gist: m[1] }, { ref: m[2], gist: m[3] }]; };
 
 const today = () => nyParts().date;
+// F260's streak rule (apps/f260.html streakInfo): walk back from today; up to 2 rest days in a row keep a streak alive.
+const logStreak = log => { let d = today(), n = 0, gap = 0; for (let i = 0; i < 400; i++) { if (log && log[d]) { n++; gap = 0; } else if (++gap > 2) break; d = new Date(Date.parse(d + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10); } return n; };
 async function usedToday(env, profileId) {
   const { results } = await env.DB.prepare("SELECT created_at FROM chat_log WHERE profile_id = ? AND role = 'user' AND created_at > ?").bind(profileId, Date.now() - 36 * 3600000).all();
   const d = today();
@@ -208,14 +210,16 @@ async function runTool(env, ctx, name, input) {
       const now = Date.now();
       if (done[k]) delete done[k]; else done[k] = true;
       await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.done', value: done, updated_at: now });
+      const logRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.log' });
+      let log = { ...(logRow && logRow.value && typeof logRow.value === 'object' ? logRow.value : {}) };
       if (done[k]) {
-        const logRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.log' });
-        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.log', value: { ...(logRow && logRow.value ? logRow.value : {}), [today()]: true }, updated_at: now });
+        log = { ...log, [today()]: true };
+        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.log', value: log, updated_at: now });
       }
       const sumRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary' });
       if (sumRow && sumRow.value) {
         const s = sumRow.value; const weekDone = [0, 1, 2, 3, 4].filter(d => done[`${input.week}-${d}`]).length;
-        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary', value: { ...s, weekDone: s.week === input.week ? weekDone : s.weekDone, readToday: done[k] ? true : s.readToday, total: Object.keys(done).length }, updated_at: now });
+        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary', value: { ...s, weekDone: s.week === input.week ? weekDone : s.weekDone, readToday: !!log[today()], readOn: today(), streak: logStreak(log), total: Object.keys(done).length }, updated_at: now });   // readOn: the household date readToday and streak refer to
       }
       await activity(env, profile, 'f260', `${done[k] ? 'Read' : 'Unchecked'} week ${input.week} day ${input.day} (via chat)`);
       return { ok: true, result: { week: input.week, day: input.day, done: !!done[k] }, chip: `✓ Week ${input.week} day ${input.day} ${done[k] ? 'checked off' : 'unchecked'}` };
@@ -296,7 +300,11 @@ async function runTool(env, ctx, name, input) {
       const s = row && row.value && typeof row.value === 'object' ? row.value : null;
       if (!s) return { ok: true, result: 'No F260 progress yet — the plan starts at week 1 when they open the app.', chip: null };
       const week = Math.min(52, Math.max(1, +s.week || 1));
-      return { ok: true, result: { week, weekDone: +s.weekDone || 0, total: +s.total || 0, streak: +s.streak || 0, readToday: !!s.readToday, next: s.next || null, finished: !!s.finished, memoryVerses: versesFor(week).map(v => v.ref) }, chip: null };
+      // "read today" from the log for today's New York date, as the 8 pm job decides it: the summary's own flag is only true for
+      // the day it was written (readOn), and a summary from yesterday must not tell the model today's reading is done
+      const logRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.log' });
+      const readToday = !!(logRow && logRow.value && typeof logRow.value === 'object' && logRow.value[today()]);
+      return { ok: true, result: { week, weekDone: +s.weekDone || 0, total: +s.total || 0, streak: logStreak(logRow && logRow.value), readToday, next: s.next || null, finished: !!s.finished, memoryVerses: versesFor(week).map(v => v.ref) }, chip: null };
     }
 
     if (name === 'read_todays_verse') {
