@@ -659,7 +659,7 @@
 
   // ── pull to refresh ───────────────────────────────────────────
   const views = $('#views'), ptr = $('#ptr');
-  hub.sheenFrom(views);
+  if (typeof hub.sheenFrom === 'function') hub.sheenFrom(views);
   let ptrY = null, ptrArmed = false, refreshing = false;
   views.addEventListener('touchstart', e => { ptrY = views.scrollTop <= 0 && !current ? e.touches[0].clientY : null; ptrArmed = false; }, { passive: true });
   views.addEventListener('touchmove', e => {

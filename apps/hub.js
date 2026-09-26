@@ -439,6 +439,7 @@
   // ── liquid glass: the sheen drifts with scroll (and tilt where the browser hands it out without a prompt) ──
   // Sets --sheen-x on <html>; design.css moves the highlight in every glass surface. Off under reduced motion.
   (function sheen() {
+    hub.sheenFrom = () => {};   // defined before the reduced-motion return: callers never find it missing
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const root = document.documentElement; let scroller = null, tilt = 0, raf = 0, last = -1;
     const paint = () => { raf = 0; const el = scroller || root; const max = Math.max(1, el.scrollHeight - el.clientHeight); const p = Math.min(1, Math.max(0, el.scrollTop / max));
