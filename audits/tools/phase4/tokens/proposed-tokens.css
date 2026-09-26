@@ -13,7 +13,8 @@
                        not a palette: it resolves to hearth by day and midnight by night (CLAUDE.md) and is kept in
                        data-theme-choice="system". "light" / "dark" stay as aliases of hearth / midnight.
      data-scheme       light | dark      always agrees with the theme; the theme wins if they ever disagree (see §2)
-     data-accent       bubblegum | peach | butter | mint | aqua | sky | periwinkle | lavender | graphite
+     data-accent       bubblegum | peach | butter | mint | aqua | sky | periwinkle | lavender | graphite   (the people)
+                       coral | apricot | honey | pistachio | leaf | seafoam | lagoon | cornflower | orchid   (the apps, D5)
                        the signed-in person's family. ANY element may carry data-accent to re-derive every --accent-* and
                        role token for its subtree (avatars, feed rows, kids' cards, app tiles). Replaces the inline hex at
                        apps/hub.js:80, the inline --tint hexes in index.html and the 168 color-mix() recipes. A session stored
@@ -21,11 +22,15 @@
      data-kind         adult | kid | kiosk
      data-text-size    xs | s | m | l | xl | xxl     person preference like the theme; m (= no attribute) is the default
      data-contrast     more      (mirrors prefers-contrast: more; "standard" opts out of the OS setting)
+     data-glass        clear | current | frosted   the glass level (D8), a person preference; frosted (= no attribute) is the default.
+                                  The fourth level, Solid, IS data-transparency="reduce". Choosing a level in Me writes data-transparency="full"
+                                  too, so an explicit choice is not overridden by the OS; never choosing one follows the OS
      data-transparency reduce    (mirrors prefers-reduced-transparency; "full" opts out) — Safari has no such media
                                   feature, so the Me > Appearance switch is the working path on iPad and iPhone
      data-motion       reduce    (mirrors prefers-reduced-motion; "full" opts out)
-     data-tv-scale     10ft      OPT-IN, kiosk only: the 10-foot type/space scale at 1600 px+. Off by default, so the TV board
-                                  keeps today's sizes at every width; turned on only by the Phase 6 batch that re-lays out the .tv grid
+     data-tv-scale     10ft      kiosk only: the 10-foot type/space scale at 1600 px+. Inert until batch 2c, which re-lays out the .tv grid and
+                                  turns it on for the TV in the same commit (D16: "now, with a re-layout"), gated by scripts/test-tv.mjs and the
+                                  1920 x 1080 fit check; until then the TV board keeps today's sizes at every width
    PALETTE SCOPES are :root[data-theme=…] and the explicit preview hook [data-theme-preview=…] ONLY. A bare [data-theme] is data,
    never a palette scope: F260's theme buttons (apps/f260.html:2028) and the Me theme cards (index.html:1259) carry
    data-theme as a value and must keep the document's palette. A theme preview (the Me swatches, docs/design.html) carries
@@ -177,6 +182,8 @@
   --blur-photo: 24px;             /* the TV album backdrop (index.html:131 filter: blur(24px)); on the kiosk it is applied ONCE per photo
                                      to a static bitmap (canvas draw of the 256 px rendition), never as a live filter under the crossfade */
   --glass-saturate: 1.8;
+  --glass-halo-alpha: 0%; --glass-halo-edge-alpha: 0%;   /* the halo on see-through glass: 0 unless data-glass is clear or current (§8) */
+  --glass-text-shadow: none; --glass-icon-filter: none;  /* §8 points both at the outlines (§5) on Clear and Current */
   --glass-filter: blur(var(--blur)) saturate(var(--glass-saturate));
   --glass-filter-strong: blur(var(--blur-lg)) saturate(var(--glass-saturate));
   --sheen-x: 30%;                 /* an ELEMENT input, not a token input: hub.js writes it on the tab bar and the top bar (never on
@@ -250,6 +257,16 @@
   --warning-wash: #FFF4E8; --warning-fill: #FFDCB6; --warning-fill-strong: #F5A639; --warning-strong: #9F6400; --warning-graphic: #BC6D00; --warning-ink: #724600; --warning-ink-hi: #593600; --warning-on: #FFFFFF;
   --danger-wash: #FFF2F1; --danger-fill: #FFC8C3; --danger-fill-strong: #FF9B95; --danger-strong: #900017; --danger-graphic: #900017; --danger-ink: #9B1E25; --danger-ink-hi: #800616; --danger-on: #FFFFFF;
   --graphite-wash: #F4F4F7; --graphite-fill: #E3E3E8; --graphite-fill-strong: #B3B6BF; --graphite-strong: #61646B; --graphite-graphic: #43454C; --graphite-ink: #48484F; --graphite-ink-hi: #2C2C30; --graphite-on: #FFFFFF;
+  /* the nine APP families (decision D5, Phase 5: separate in-between pastels, none shared with a person; derived by audits/tools/phase5/app-hues.mjs) */
+  --coral-wash: #FFF8F8; --coral-fill: #FFCBD0; --coral-fill-strong: #FF9AA8; --coral-strong: #BC274F; --coral-graphic: #C9364B; --coral-ink: #A3223A; --coral-ink-hi: #83102A; --coral-on: #FFFFFF;
+  --apricot-wash: #FEF0EB; --apricot-fill: #FFD2BE; --apricot-fill-strong: #FF9D83; --apricot-strong: #B13C1D; --apricot-graphic: #A64619; --apricot-ink: #9E3719; --apricot-ink-hi: #7D260B; --apricot-on: #FFFFFF;
+  --honey-wash: #FFF8F1; --honey-fill: #FFE1AE; --honey-fill-strong: #FBA259; --honey-strong: #9A5100; --honey-graphic: #935E00; --honey-ink: #8A4D00; --honey-ink-hi: #6B3A00; --honey-on: #FFFFFF;
+  --pistachio-wash: #F4F8E6; --pistachio-fill: #E4F4B2; --pistachio-fill-strong: #C1BB33; --pistachio-strong: #6B6700; --pistachio-graphic: #747A13; --pistachio-ink: #5E6105; --pistachio-ink-hi: #474A01; --pistachio-on: #FFFFFF;
+  --leaf-wash: #F5FFF4; --leaf-fill: #CFF2BD; --leaf-fill-strong: #83C865; --leaf-strong: #3F702C; --leaf-graphic: #4E7226; --leaf-ink: #3A6827; --leaf-ink-hi: #2A4F19; --leaf-on: #FFFFFF;
+  --seafoam-wash: #E6FBF6; --seafoam-fill: #B3F1E1; --seafoam-fill-strong: #00CDB5; --seafoam-strong: #007159; --seafoam-graphic: #00705E; --seafoam-ink: #006856; --seafoam-ink-hi: #005042; --seafoam-on: #FFFFFF;
+  --lagoon-wash: #E7FAFE; --lagoon-fill: #B0EBF9; --lagoon-fill-strong: #36C6EA; --lagoon-strong: #006A95; --lagoon-graphic: #007B88; --lagoon-ink: #006073; --lagoon-ink-hi: #004D5C; --lagoon-on: #FFFFFF;
+  --cornflower-wash: #F7FAFF; --cornflower-fill: #B3DEFC; --cornflower-fill-strong: #95B9FF; --cornflower-strong: #2F5EC8; --cornflower-graphic: #2C74D5; --cornflower-ink: #17439A; --cornflower-ink-hi: #07338A; --cornflower-on: #FFFFFF;
+  --orchid-wash: #FCF2FB; --orchid-fill: #F6C8EC; --orchid-fill-strong: #EE9BDE; --orchid-strong: #AA2B99; --orchid-graphic: #AB229A; --orchid-ink: #91187B; --orchid-ink-hi: #7A0267; --orchid-on: #FFFFFF;
   --success-switch: var(--success-strong);
   --press-dim: brightness(0.94);
 }
@@ -267,6 +284,16 @@
   --warning-wash: #3A250B; --warning-fill: #5A390A; --warning-fill-strong: #754900; --warning-strong: #FFBB69; --warning-graphic: #FFBB69; --warning-ink: #FACD98; --warning-ink-hi: #FEE5CA; --warning-on: #2D1900;
   --danger-wash: #40201E; --danger-fill: #64312E; --danger-fill-strong: #843936; --danger-strong: #F07E79; --danger-graphic: #F07E79; --danger-ink: #FFC6C1; --danger-ink-hi: #FFE2DF; --danger-on: #341211;
   --graphite-wash: #26262A; --graphite-fill: #404045; --graphite-fill-strong: #4C4C52; --graphite-strong: #C4C4CC; --graphite-graphic: #E4E7F0; --graphite-ink: #DADADF; --graphite-ink-hi: #EDEDF0; --graphite-on: #1C1C1F;
+  /* the nine APP families (D5) */
+  --coral-wash: #3F1F23; --coral-fill: #653138; --coral-fill-strong: #843843; --coral-strong: #FF9FA9; --coral-graphic: #E2637D; --coral-ink: #FFC4C9; --coral-ink-hi: #FFE1E3; --coral-on: #331217;
+  --apricot-wash: #3F2115; --apricot-fill: #63341F; --apricot-fill-strong: #823D1E; --apricot-strong: #FFA37E; --apricot-graphic: #F57C51; --apricot-ink: #FFC8B1; --apricot-ink-hi: #FFE2D9; --apricot-on: #331407;
+  --honey-wash: #382709; --honey-fill: #563D05; --honey-fill-strong: #6D4E00; --honey-strong: #EDB24B; --honey-graphic: #FF9E5E; --honey-ink: #F2D199; --honey-ink-hi: #FFE9D4; --honey-on: #2A1B00;
+  --pistachio-wash: #282D0E; --pistachio-fill: #3E450F; --pistachio-fill-strong: #515A0E; --pistachio-strong: #B8C957; --pistachio-graphic: #BBC666; --pistachio-ink: #D1DE9D; --pistachio-ink-hi: #E7EECC; --pistachio-on: #1D2102;
+  --leaf-wash: #1C3017; --leaf-fill: #2C4920; --leaf-fill-strong: #366125; --leaf-strong: #90D378; --leaf-graphic: #63AC65; --leaf-ink: #BCE3AC; --leaf-ink-hi: #DBF1D4; --leaf-on: #122409;
+  --seafoam-wash: #05322A; --seafoam-fill: #004C40; --seafoam-fill-strong: #006353; --seafoam-strong: #32DABD; --seafoam-graphic: #00AA8E; --seafoam-ink: #97E8D5; --seafoam-ink-hi: #CBF4E9; --seafoam-on: #00251E;
+  --lagoon-wash: #023039; --lagoon-fill: #004955; --lagoon-fill-strong: #005E6E; --lagoon-strong: #3ED2F0; --lagoon-graphic: #3FC6D5; --lagoon-ink: #98E4F6; --lagoon-ink-hi: #CCF1FA; --lagoon-on: #00232A;
+  --cornflower-wash: #1C2A43; --cornflower-fill: #2B4068; --cornflower-fill-strong: #34528D; --cornflower-strong: #9EC0FF; --cornflower-graphic: #8AB7FF; --cornflower-ink: #C4D9FF; --cornflower-ink-hi: #E5EEFF; --cornflower-on: #0F1D38;
+  --orchid-wash: #392035; --orchid-fill: #5A3353; --orchid-fill-strong: #763B6C; --orchid-strong: #EF9FE0; --orchid-graphic: #CF6BBD; --orchid-ink: #F5C4EA; --orchid-ink-hi: #FAE1F4; --orchid-on: #2D1329;
   --success-switch: #269143;   /* a white knob stays >= 3:1 on it */
   --press-dim: brightness(1.14);
 }
@@ -275,7 +302,9 @@
    Hearth is the default and System's day palette (CLAUDE.md), re-tuned to the grouped structure: a warm-grey page with
    white cards. Frost is iOS grouped exactly (#F2F2F7 + white). Graphite is the new iOS near-black (a proposed named
    theme). Midnight (System's night palette) and Forest are warm and green near-blacks with cards lifted >= 1.2:1 and
-   wells LIGHTER than the card. --text-2-hi is the 7:1 secondary ink the kiosk and Increase Contrast swap in.
+   wells LIGHTER than the card. --text-2-hi is the 7:1 secondary ink the kiosk and Increase Contrast swap in. Revision 6b lifts the
+   three dark --text-3 by about 0.03 L (Midnight #A9A198 → #B2AAA1, Forest #9DA9A1 → #A4B1A8, Graphite #A1A1A6 → #A8A8AD) so a sheet's
+   caption holds 4.5 under the full sheen and pickup over busy content (verify-rev6 issue 6); text-2 stays a clear step above.
    Forest's gold is carried by its page wash (after §5). A root with data-scheme="dark" and NO data-theme resolves to Midnight,
    in every mode (the guard is (0,1,0), below). */
 :root, :root[data-theme="hearth"], :root[data-theme="light"], [data-theme-preview="hearth"] {
@@ -311,7 +340,7 @@
    only, so the kiosk, Increase Contrast (+ its mirror) and Reduce Transparency blocks (0,2,0) still win on this root. Gated in
    every mode in contrast.mjs and in both engines; at (0,3,0) the guard overrode all four (verification round 3). */
   --bg: #0B0A09; --surface: #211F1D; --surface-2: #2E2B28; --surface-raised: #2A2725; --fill-field: #2E2B28; --hover: #292624;
-  --text: #F5F2EE; --text-2: #D0C9C1; --text-3: #A9A198; --text-2-hi: #E4DFD9; --placeholder: var(--text-3);
+  --text: #F5F2EE; --text-2: #D0C9C1; --text-3: #B2AAA1; --text-2-hi: #E4DFD9; --placeholder: var(--text-3);
   --separator: rgba(255, 245, 235, 0.12); --line: #37332F; --field-border: #7D766F; --track: #3A3633; --track-info: #7D766F;
   --hairline: rgba(255, 255, 255, 0.08); --scrim: rgba(0, 0, 0, 0.56);
   --shadow-rgb: 0, 0, 0;
@@ -320,7 +349,7 @@
 }
 :root[data-theme="forest"], [data-theme-preview="forest"] {
   --bg: #070F0D; --surface: #182522; --surface-2: #213029; --surface-raised: #1F2D29; --fill-field: #213029; --hover: #1D2A26;
-  --text: #F1ECDF; --text-2: #C9D1CB; --text-3: #9DA9A1; --text-2-hi: #DDE4DF; --placeholder: var(--text-3);
+  --text: #F1ECDF; --text-2: #C9D1CB; --text-3: #A4B1A8; --text-2-hi: #DDE4DF; --placeholder: var(--text-3);
   --separator: rgba(235, 255, 245, 0.12); --line: #2A3833; --field-border: #75827B; --track: #2D3C36; --track-info: #75827B;
   --hairline: rgba(255, 255, 255, 0.08); --scrim: rgba(0, 0, 0, 0.56);
   --shadow-rgb: 0, 0, 0;
@@ -329,7 +358,7 @@
 }
 :root[data-theme="graphite"], [data-theme-preview="graphite"] {
   --bg: #000000; --surface: #1C1C1E; --surface-2: #2C2C2E; --surface-raised: #2C2C2E; --fill-field: #2C2C2E; --hover: #242426;
-  --text: #F5F5F7; --text-2: #D1D1D6; --text-3: #A1A1A6; --text-2-hi: #E5E5EA; --placeholder: var(--text-3);
+  --text: #F5F5F7; --text-2: #D1D1D6; --text-3: #A8A8AD; --text-2-hi: #E5E5EA; --placeholder: var(--text-3);
   --separator: rgba(255, 255, 255, 0.12); --line: #38383A; --field-border: #7C7C80; --track: #3A3A3C; --track-info: #7C7C80;
   --hairline: rgba(255, 255, 255, 0.08); --scrim: rgba(0, 0, 0, 0.6);
   --shadow-rgb: 0, 0, 0;
@@ -362,7 +391,7 @@
   --chevron-colour: var(--text-2);
   --art-plate: transparent;                         /* spot, empty-state and story art sits straight on the page */
   --star-fill: var(--butter-fill-strong); --star-stroke: var(--butter-ink);   /* the kids' star is read by its outline */
-  --hero-btn-mix: 0%;                              /* the hero button: a white capsule in light … */
+  --hero-btn-mix: 0%;                              /* the hero button: a white capsule with the ink label in light … */
 }
 [data-scheme="dark"], :root[data-theme="midnight"], :root[data-theme="dark"], :root[data-theme="forest"], :root[data-theme="graphite"] {
   --glass: color-mix(in srgb, var(--surface) var(--glass-alpha), transparent);
@@ -385,7 +414,8 @@
   --chevron-colour: var(--text-2);
   --art-plate: var(--surface-raised);               /* until scripts/make-art.mjs emits token fills: never a bright slab */
   --star-fill: var(--butter-strong); --star-stroke: var(--butter-graphic);
-  --hero-btn-mix: 100%;                            /* … the person's deep fill in dark */
+  --hero-btn-mix: 100%;                            /* … the glowing pastel solid with its dark label in dark (D15; round-6 item 19: the deep fill
+                                                      was the hero's own end stop, 1.00:1, so the capsule had no edge) */
 }
 
 /* ── 5. the person's family: data-accent on <html> or on any element (graphite FIRST: it also carries :root) ── */
@@ -416,6 +446,34 @@
 [data-accent="lavender"] {
   --accent-wash: var(--lavender-wash); --accent-fill: var(--lavender-fill); --accent-fill-strong: var(--lavender-fill-strong); --accent-strong: var(--lavender-strong); --accent-graphic: var(--lavender-graphic); --accent-ink: var(--lavender-ink); --accent-ink-hi: var(--lavender-ink-hi); --accent-on: var(--lavender-on);
 }
+/* the app families (D5): an app tile, glance card or app icon carries data-accent="<its hue>" (apps.json "hue", batch 2) */
+[data-accent="coral"] {
+  --accent-wash: var(--coral-wash); --accent-fill: var(--coral-fill); --accent-fill-strong: var(--coral-fill-strong); --accent-strong: var(--coral-strong); --accent-graphic: var(--coral-graphic); --accent-ink: var(--coral-ink); --accent-ink-hi: var(--coral-ink-hi); --accent-on: var(--coral-on);
+}
+[data-accent="apricot"] {
+  --accent-wash: var(--apricot-wash); --accent-fill: var(--apricot-fill); --accent-fill-strong: var(--apricot-fill-strong); --accent-strong: var(--apricot-strong); --accent-graphic: var(--apricot-graphic); --accent-ink: var(--apricot-ink); --accent-ink-hi: var(--apricot-ink-hi); --accent-on: var(--apricot-on);
+}
+[data-accent="honey"] {
+  --accent-wash: var(--honey-wash); --accent-fill: var(--honey-fill); --accent-fill-strong: var(--honey-fill-strong); --accent-strong: var(--honey-strong); --accent-graphic: var(--honey-graphic); --accent-ink: var(--honey-ink); --accent-ink-hi: var(--honey-ink-hi); --accent-on: var(--honey-on);
+}
+[data-accent="pistachio"] {
+  --accent-wash: var(--pistachio-wash); --accent-fill: var(--pistachio-fill); --accent-fill-strong: var(--pistachio-fill-strong); --accent-strong: var(--pistachio-strong); --accent-graphic: var(--pistachio-graphic); --accent-ink: var(--pistachio-ink); --accent-ink-hi: var(--pistachio-ink-hi); --accent-on: var(--pistachio-on);
+}
+[data-accent="leaf"] {
+  --accent-wash: var(--leaf-wash); --accent-fill: var(--leaf-fill); --accent-fill-strong: var(--leaf-fill-strong); --accent-strong: var(--leaf-strong); --accent-graphic: var(--leaf-graphic); --accent-ink: var(--leaf-ink); --accent-ink-hi: var(--leaf-ink-hi); --accent-on: var(--leaf-on);
+}
+[data-accent="seafoam"] {
+  --accent-wash: var(--seafoam-wash); --accent-fill: var(--seafoam-fill); --accent-fill-strong: var(--seafoam-fill-strong); --accent-strong: var(--seafoam-strong); --accent-graphic: var(--seafoam-graphic); --accent-ink: var(--seafoam-ink); --accent-ink-hi: var(--seafoam-ink-hi); --accent-on: var(--seafoam-on);
+}
+[data-accent="lagoon"] {
+  --accent-wash: var(--lagoon-wash); --accent-fill: var(--lagoon-fill); --accent-fill-strong: var(--lagoon-fill-strong); --accent-strong: var(--lagoon-strong); --accent-graphic: var(--lagoon-graphic); --accent-ink: var(--lagoon-ink); --accent-ink-hi: var(--lagoon-ink-hi); --accent-on: var(--lagoon-on);
+}
+[data-accent="cornflower"] {
+  --accent-wash: var(--cornflower-wash); --accent-fill: var(--cornflower-fill); --accent-fill-strong: var(--cornflower-fill-strong); --accent-strong: var(--cornflower-strong); --accent-graphic: var(--cornflower-graphic); --accent-ink: var(--cornflower-ink); --accent-ink-hi: var(--cornflower-ink-hi); --accent-on: var(--cornflower-on);
+}
+[data-accent="orchid"] {
+  --accent-wash: var(--orchid-wash); --accent-fill: var(--orchid-fill); --accent-fill-strong: var(--orchid-fill-strong); --accent-strong: var(--orchid-strong); --accent-graphic: var(--orchid-graphic); --accent-ink: var(--orchid-ink); --accent-ink-hi: var(--orchid-ink-hi); --accent-on: var(--orchid-on);
+}
 
 /* roles derived from the accent, re-declared on every scope so a local data-accent / theme preview re-derives them */
 :root, [data-accent], [data-scheme], [data-theme-preview] {
@@ -426,8 +484,10 @@
   --focus-ring-color: var(--accent-graphic);
   --focus-ring: 0 0 0 var(--focus-offset) var(--surface), 0 0 0 calc(var(--focus-offset) + var(--focus-ring-w)) var(--focus-ring-color);
   --today-ring: var(--accent-graphic);
+  --timer-done: var(--accent-strong);   /* time's up: the owner's colour + motion + sound, never danger; re-derived in a nested data-accent (the Timer tile) */
   --progress-fill: var(--accent-strong); --progress-track: var(--accent-fill);
-  --hero-btn-bg: color-mix(in srgb, var(--accent-fill) var(--hero-btn-mix), #FFFFFF); --hero-btn-ink: var(--accent-ink);
+  --hero-btn-bg: color-mix(in srgb, var(--accent-strong) var(--hero-btn-mix), #FFFFFF);
+  --hero-btn-ink: color-mix(in srgb, var(--accent-on) var(--hero-btn-mix), var(--accent-ink));
   --accent-glow: color-mix(in srgb, var(--accent-strong) 35%, transparent);
   --glow-accent: 0 8px 24px -8px color-mix(in srgb, var(--accent-strong) 45%, transparent);
   --glow-accent-lg: 0 20px 48px -20px color-mix(in srgb, var(--accent-strong) 55%, transparent);
@@ -443,6 +503,22 @@
        @media (min-width: 1024px) { .ds .tabbar.sidebar::after { content: none; } }    the sidebar's tabs start at its top
      Nothing sets position or overflow on a bar, a sheet or a pill: the bars are already positioned stacking contexts (fixed /
      sticky, z-index 20), and the layer is the bar's middle half drifting ±25 % of its own width, so it never leaves the bar. */
+  /* the halo on see-through glass (D8: Clear and Current). --glass-text-shadow and --glass-icon-filter are none by default (§1), so
+     Frosted and Solid paint nothing and cost nothing; the two see-through levels (§8) point them at the outlines below. Batch 1b applies
+     .ds :is(.glass, .glass-strong, .btn-glass, .pill, .topbar, .tabbar, .sheet) { text-shadow: var(--glass-text-shadow); }
+     .ds :is(.glass, .glass-strong, .btn-glass, .pill, .topbar, .tabbar, .sheet) svg { filter: var(--glass-icon-filter); }
+     (and the same on the Dollywood template's --lv-glass panes). Revision 6c (verify-rev6 round 2, issue 2): text-shadow does not
+     paint on SVG, so icons get their own outline, four chained 1 px drop-shadows (each one shadows the last, so the four close into a
+     ring). Revision 6b (the verifier's issue 1): a blurred glow alone lifts the pixels
+     beside a thin stroke far less than a flat layer would, so the halo is an OUTLINE: eight 1 px offsets at 0 blur in the card
+     colour (--glass-halo-edge), which paint the ring round every stroke solid, then one soft 8 px glow (--glass-halo). It is
+     measured as RENDERED, in both engines, by audits/tools/phase5/halo-check.mjs (the ring 0.5-1.5 CSS px round the glyphs). */
+  --glass-halo: color-mix(in srgb, var(--surface) var(--glass-halo-alpha), transparent);
+  --glass-halo-edge: color-mix(in srgb, var(--surface) var(--glass-halo-edge-alpha), transparent);
+  --glass-text-outline: 1px 0 0 var(--glass-halo-edge), -1px 0 0 var(--glass-halo-edge), 0 1px 0 var(--glass-halo-edge), 0 -1px 0 var(--glass-halo-edge),
+    1px 1px 0 var(--glass-halo-edge), -1px 1px 0 var(--glass-halo-edge), 1px -1px 0 var(--glass-halo-edge), -1px -1px 0 var(--glass-halo-edge),
+    0 0 8px var(--glass-halo);
+  --glass-icon-outline: drop-shadow(1px 0 0 var(--glass-halo-edge)) drop-shadow(-1px 0 0 var(--glass-halo-edge)) drop-shadow(0 1px 0 var(--glass-halo-edge)) drop-shadow(0 -1px 0 var(--glass-halo-edge));
   --glass-bg:
     linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
     var(--glass);
@@ -489,7 +565,6 @@
   --success-glyph: "✓"; --warning-glyph: "!"; --danger-glyph: "✕";   /* or the Lucide check / alert-triangle / x icons */
   --status-offline: var(--graphite-graphic); --status-pending: var(--warning-graphic); --status-synced: var(--success-graphic); --status-error: var(--danger-graphic);
   --cell-empty: var(--track-info);                                   /* an empty heat-map cell or week dot: a >= 3:1 ring */
-  --timer-done: var(--accent-strong);                                 /* time's up: the owner's colour + motion + sound, never danger */
   --attention: var(--warning-ink); --attention-fill: var(--warning-fill);
   --badge-bg: var(--danger-strong); --badge-ink: var(--danger-on);
   --cat-1: var(--bubblegum-graphic); --cat-2: var(--peach-graphic); --cat-3: var(--butter-graphic); --cat-4: var(--mint-graphic);
@@ -532,9 +607,10 @@
      panel (--tv-panel .74) holds both TV lines at 7:1 by itself. The semantic -strong solids are NOT swapped (warning vs danger
      would collapse to 1.00:1): their -on labels stay AA (>= 4.76). */
   --text-2: var(--text-2-hi); --text-3: var(--text-2-hi);
-  --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi);
+  --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi); --coral-ink: var(--coral-ink-hi); --apricot-ink: var(--apricot-ink-hi); --honey-ink: var(--honey-ink-hi); --pistachio-ink: var(--pistachio-ink-hi); --leaf-ink: var(--leaf-ink-hi); --seafoam-ink: var(--seafoam-ink-hi); --lagoon-ink: var(--lagoon-ink-hi); --cornflower-ink: var(--cornflower-ink-hi); --orchid-ink: var(--orchid-ink-hi);
   --badge-bg: var(--danger-ink-hi); --toast-ink-2: var(--toast-ink); --glass-inverse: var(--glass-inverse-hi);
   --glass-filter: none; --glass-filter-strong: none; --glass: var(--glass-look); --glass-strong: var(--glass-look);   /* chrome painted without a live blur */
+  --blur: 0px; --blur-sm: 0px; --blur-lg: 0px;                     /* round-5 item 12: the literal recipes that read --blur until batch 1b go flat too */
   --dur-crossfade: 2500ms;
 }
 /* the person solids → ink-hi on the kiosk, LIGHT palettes only (Hearth and its alias, Parchment, Frost, or a root with no theme and
@@ -544,7 +620,7 @@
 :root[data-kind="kiosk"][data-theme="parchment"],
 :root[data-kind="kiosk"][data-theme="frost"],
 :root[data-kind="kiosk"]:not([data-theme]):not([data-scheme="dark"]) {
-  --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi);
+  --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi); --coral-strong: var(--coral-ink-hi); --apricot-strong: var(--apricot-ink-hi); --honey-strong: var(--honey-ink-hi); --pistachio-strong: var(--pistachio-ink-hi); --leaf-strong: var(--leaf-ink-hi); --seafoam-strong: var(--seafoam-ink-hi); --lagoon-strong: var(--lagoon-ink-hi); --cornflower-strong: var(--cornflower-ink-hi); --orchid-strong: var(--orchid-ink-hi);
 }
 /* the 10-foot scale: OPT-IN (data-tv-scale="10ft"), and only on a 1600 px+ screen. The Phase 6 batch that re-lays out the .tv grid
    (index.html:134-166: the fixed 104 px .tv-face, the nowrap .when) turns it on, with scripts/test-tv.mjs passing at 1920 x 1080 and a
@@ -565,9 +641,23 @@
 :root[data-text-size="xl"]:not([data-kind="kiosk"]) { --ts-user: 1.25; }
 :root[data-text-size="xxl"]:not([data-kind="kiosk"]) { --ts-user: 1.5; }
 
+/* the glass level (decision D8, Phase 5): Clear · Current · Frosted (the default) · Solid, one person preference in Me > Appearance
+   (hub.prefs.glass). Frosted is the palettes' own --glass-alpha (78-80 % / 90 %). Solid is Reduce Transparency (below). Current is today's
+   look (apps/design.css:55-56 and the palette blocks: 62-66 % pills, 84-86 % bars, one level here at 64 / 84), Clear is under 50 %. Both
+   see-through levels paint the text halo (--glass-text-shadow), sized so every glass text pair the gate holds Frosted to still holds
+   over the page, a card, #767676 and the worst backdrop. Before Increase Contrast and Reduce Transparency, so either still wins. */
+:root[data-glass="current"] { --glass-alpha: 64%; --glass-alpha-strong: 84%; --glass-halo-alpha: 60%; --glass-halo-edge-alpha: 100%;
+  --glass-text-shadow: var(--glass-text-outline); --glass-icon-filter: var(--glass-icon-outline); }
+:root[data-glass="clear"] { --glass-alpha: 40%; --glass-alpha-strong: 48%; --glass-halo-alpha: 70%; --glass-halo-edge-alpha: 100%;
+  --glass-text-shadow: var(--glass-text-outline); --glass-icon-filter: var(--glass-icon-outline); }
+/* revision 6d (verify-rev6 round 3, issue 3): a custom property's var() is substituted where it is declared, so the two outlines above
+   carry the ROOT's --surface. A nested palette (a theme preview, a data-scheme island) re-points them to its own card colour. */
+:root:is([data-glass="current"], [data-glass="clear"]) :is([data-scheme], [data-theme-preview]) {
+  --glass-text-shadow: var(--glass-text-outline); --glass-icon-filter: var(--glass-icon-outline); }
+
 :root[data-contrast="more"] {
   --text-2: var(--text-2-hi); --text-3: var(--text-2-hi);
-  --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi);
+  --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi); --coral-ink: var(--coral-ink-hi); --apricot-ink: var(--apricot-ink-hi); --honey-ink: var(--honey-ink-hi); --pistachio-ink: var(--pistachio-ink-hi); --leaf-ink: var(--leaf-ink-hi); --seafoam-ink: var(--seafoam-ink-hi); --lagoon-ink: var(--lagoon-ink-hi); --cornflower-ink: var(--cornflower-ink-hi); --orchid-ink: var(--orchid-ink-hi);
   --glass-alpha: 96%; --glass-alpha-strong: 98%; --glass-pickup: 0%;
   --glass-edge: color-mix(in srgb, var(--text) 40%, transparent); --hairline: color-mix(in srgb, var(--text) 30%, transparent);
   --border-w: 1.5px; --separator: var(--field-border); --focus-ring-w: 4px;
@@ -578,12 +668,12 @@
 :root[data-contrast="more"][data-theme="parchment"],
 :root[data-contrast="more"][data-theme="frost"],
 :root[data-contrast="more"]:not([data-theme]):not([data-scheme="dark"]) {   /* person solids → ink-hi, light palettes only (as on the kiosk) */
-  --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi);
+  --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi); --coral-strong: var(--coral-ink-hi); --apricot-strong: var(--apricot-ink-hi); --honey-strong: var(--honey-ink-hi); --pistachio-strong: var(--pistachio-ink-hi); --leaf-strong: var(--leaf-ink-hi); --seafoam-strong: var(--seafoam-ink-hi); --lagoon-strong: var(--lagoon-ink-hi); --cornflower-strong: var(--cornflower-ink-hi); --orchid-strong: var(--orchid-ink-hi);
 }
 @media (prefers-contrast: more) {
   :root:not([data-contrast="standard"]) {
     --text-2: var(--text-2-hi); --text-3: var(--text-2-hi);
-    --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi);
+    --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi); --coral-ink: var(--coral-ink-hi); --apricot-ink: var(--apricot-ink-hi); --honey-ink: var(--honey-ink-hi); --pistachio-ink: var(--pistachio-ink-hi); --leaf-ink: var(--leaf-ink-hi); --seafoam-ink: var(--seafoam-ink-hi); --lagoon-ink: var(--lagoon-ink-hi); --cornflower-ink: var(--cornflower-ink-hi); --orchid-ink: var(--orchid-ink-hi);
     --glass-alpha: 96%; --glass-alpha-strong: 98%; --glass-pickup: 0%;
     --glass-edge: color-mix(in srgb, var(--text) 40%, transparent); --hairline: color-mix(in srgb, var(--text) 30%, transparent);
     --border-w: 1.5px; --separator: var(--field-border); --focus-ring-w: 4px;
@@ -594,18 +684,18 @@
   :root:not([data-contrast="standard"])[data-theme="parchment"],
   :root:not([data-contrast="standard"])[data-theme="frost"],
   :root:not([data-contrast="standard"]):not([data-theme]):not([data-scheme="dark"]) {
-    --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi);
+    --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi); --coral-strong: var(--coral-ink-hi); --apricot-strong: var(--apricot-ink-hi); --honey-strong: var(--honey-ink-hi); --pistachio-strong: var(--pistachio-ink-hi); --leaf-strong: var(--leaf-ink-hi); --seafoam-strong: var(--seafoam-ink-hi); --lagoon-strong: var(--lagoon-ink-hi); --cornflower-strong: var(--cornflower-ink-hi); --orchid-strong: var(--orchid-ink-hi);
   }
 }
 
 :root[data-transparency="reduce"] {
   --glass: var(--glass-solid); --glass-strong: var(--glass-strong-solid); --glass-look: var(--glass-solid);
-  --glass-filter: none; --glass-filter-strong: none; --glass-pickup: 0%; --scrim-blur: 0px;
+  --glass-filter: none; --glass-filter-strong: none; --glass-pickup: 0%; --scrim-blur: 0px; --blur: 0px; --blur-sm: 0px; --blur-lg: 0px;
 }
 @media (prefers-reduced-transparency: reduce) {
   :root:not([data-transparency="full"]) {
     --glass: var(--glass-solid); --glass-strong: var(--glass-strong-solid); --glass-look: var(--glass-solid);
-    --glass-filter: none; --glass-filter-strong: none; --glass-pickup: 0%; --scrim-blur: 0px;
+    --glass-filter: none; --glass-filter-strong: none; --glass-pickup: 0%; --scrim-blur: 0px; --blur: 0px; --blur-sm: 0px; --blur-lg: 0px;
   }
 }
 
@@ -623,6 +713,7 @@
 :root[data-motion="reduce"] {
   --spring-snappy: linear; --spring-gentle: linear; --spring-bouncy: linear;
   --dur-snappy: 150ms; --dur-gentle: 150ms; --dur-bouncy: 150ms;       /* crossfade substitute: opacity only */
+  --dur-crossfade: 150ms;                                              /* round-5 item 17: the TV crossfade, without relying on the kept kill */
   --press-scale: 1; --press-scale-sm: 1; --enter-distance: 0px;
   --ambient-iterations: 0; --dur-shimmer: 0ms; --dur-progress: 0ms; --pulse-scale: 1;   /* a pulse becomes an opacity-only blink or nothing */
 }
@@ -630,6 +721,7 @@
   :root:not([data-motion="full"]) {
     --spring-snappy: linear; --spring-gentle: linear; --spring-bouncy: linear;
     --dur-snappy: 150ms; --dur-gentle: 150ms; --dur-bouncy: 150ms;
+    --dur-crossfade: 150ms;
     --press-scale: 1; --press-scale-sm: 1; --enter-distance: 0px;
     --ambient-iterations: 0; --dur-shimmer: 0ms; --dur-progress: 0ms; --pulse-scale: 1;
   }

@@ -16,7 +16,7 @@
 // a record with no colour is graphite; the batch-2 app icon wears its app's family with a size x --r-icon-ratio corner; and Prayer's
 // own theme-color meta (apps/prayer.html:9) with the bootstrap placed right after it: one meta, id="themeColor" kept, the palette --bg.
 // Revision 5 adds: the hero button (.ds .hero .btn-primary, apps/design.css:423) with its batch-1a row (read from contrast.json ->
-// heroButton.row) over today's component half, in 6 palettes x 9 people x adult / Increase Contrast / kiosk: the engine paints the
+// heroButton.row) over today's component half, in 6 palettes x 18 families (Phase 5: the 9 people and the 9 app families) x adult / Increase Contrast / kiosk: the engine paints the
 // button in --hero-btn-bg / --hero-btn-ink, the label passes 4.5 (7 in the 7:1 modes) over both hero stops, hovering does not
 // replace the capsule, and today's rule under the new tokens is measured for the record (it fails in dark: why the row exists).
 // Always closes both browsers.
@@ -42,6 +42,13 @@ const IDENTITY = fs.readFileSync(path.join(HERE, 'identity-component.css'), 'utf
 const BOOT = fs.readFileSync(path.join(HERE, 'bootstrap.js'), 'utf8');
 const PRAYER_HEAD = fs.readFileSync(path.join(ROOT, 'apps', 'prayer.html'), 'utf8').split('\n').slice(0, 9).join('\n');   // lines 1-9: up to its theme-color meta                                     // the proposed GLASS-7 rule (TOKENS.md §7)
 const { engineSamples, heroButton: HERO } = JSON.parse(fs.readFileSync(resFile, 'utf8'));
+// round-6 item 21: the hero row is SUBSTITUTED at the shipped rule's own line (apps/design.css:423), not appended, so the hover
+// result below reflects the real cascade order
+const HERO_LINE = COMPONENTS.split('\n').findIndex(l => l.trim().startsWith('.ds .hero .btn-primary {'));
+if (HERO_LINE < 0) throw new Error('apps/design.css: the .ds .hero .btn-primary rule moved; re-point the hero probe');
+const COMPONENTS_WITH_ROW = COMPONENTS.split('\n').map((l, i) => (i === HERO_LINE ? HERO.row : l)).join('\n');
+// Phase 5: the people and the nine app families (D5)
+const ACCENTS = ['bubblegum', 'peach', 'butter', 'mint', 'aqua', 'sky', 'periwinkle', 'lavender', 'graphite', 'coral', 'apricot', 'honey', 'pistachio', 'leaf', 'seafoam', 'lagoon', 'cornflower', 'orchid'];
 
 const toRGBA = s => {
   let m = s.match(/^rgba?\(([^)]*)\)$/);
@@ -256,12 +263,12 @@ for (const [name, launcher, opts] of [['webkit', webkit, {}], ['chromium', chrom
       const p3 = await ctx3.newPage();
       const attrs = Object.entries(rootAttrs).map(([k, v]) => `${k}="${v}"`).join(' ');
       await p3.setContent(`<!doctype html><html ${attrs}><head><style>${css}\n${COMPONENTS}\n${IDENTITY}</style></head><body class="ds">
-        <span class="avatar" id="mae" data-accent="bubblegum">M</span>
-        <span class="avatar avatar-sm" id="mae-sm" data-accent="bubblegum">M</span>
+        <span class="avatar" id="mae" data-accent="peach">M</span>
+        <span class="avatar avatar-sm" id="mae-sm" data-accent="peach">M</span>
         <span class="avatar" id="nocolour" data-accent="graphite">·</span>
         <span class="avatar" id="today" style="--tint:#BC5A38">M</span>
-        <div class="card"><h2><span class="app-icon" id="card-icon" data-accent="mint"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>Guests</h2></div>
-        <button class="tile" data-accent="peach"><span class="app-icon ticon" id="tile-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span></button>
+        <div class="card"><h2><span class="app-icon" id="card-icon" data-accent="leaf"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span>Guests</h2></div>
+        <button class="tile" data-accent="honey"><span class="app-icon ticon" id="tile-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg></span></button>
         <i id="ref"></i></body></html>`);
       identity[label] = await p3.evaluate(() => {
         const ref = document.getElementById('ref');
@@ -276,15 +283,38 @@ for (const [name, launcher, opts] of [['webkit', webkit, {}], ['chromium', chrom
         const hasFam = (i, f) => i.bgImage.includes(tok(`--${f}-fill`)) && i.ink === tok(`--${f}-ink`);
         const rootAccent = document.documentElement.dataset.accent;
         return {
-          maeIsMae: eq(mae, fam('bubblegum')) && eq(maeSm, fam('bubblegum')), mae,
+          maeIsMae: eq(mae, fam('peach')) && eq(maeSm, fam('peach')), mae,
           noColourIsGraphite: eq(none, fam('graphite')),
           todayMarkupUnderTheRewrite: { wears: eq(today, fam(rootAccent)) ? `the page's family (${rootAccent}): why hub.avatarHtml must emit data-accent in the same batch` : 'other', value: today },
-          cardIcon: { ...ci, isMint: hasFam(ci, 'mint'), radiusIsRatio: Math.abs(ci.radius - ci.width * 0.225) < 0.05 },
-          tileIcon: { ...ti, isPeach: hasFam(ti, 'peach'), radiusIsRatio: Math.abs(ti.radius - ti.width * 0.225) < 0.05 },
+          cardIcon: { ...ci, isLeaf: hasFam(ci, 'leaf'), radiusIsRatio: Math.abs(ci.radius - ci.width * 0.225) < 0.05 },
+          tileIcon: { ...ti, isHoney: hasFam(ti, 'honey'), radiusIsRatio: Math.abs(ti.radius - ti.width * 0.225) < 0.05 },
         };
       });
-      const r = identity[label]; r.ok = r.maeIsMae && r.noColourIsGraphite && r.cardIcon.isMint && r.cardIcon.radiusIsRatio && r.tileIcon.isPeach && r.tileIcon.radiusIsRatio;
+      const r = identity[label]; r.ok = r.maeIsMae && r.noColourIsGraphite && r.cardIcon.isLeaf && r.cardIcon.radiusIsRatio && r.tileIcon.isHoney && r.tileIcon.radiusIsRatio;
       await ctx3.close();
+    }
+    // Phase 5, revision 6d (verify-rev6 round 3, issue 3): on a see-through glass level the text and icon outlines take the card colour
+    // of the NEAREST palette, so a theme preview or data-scheme island inside another palette outlines in its own --surface
+    const nestedOutline = [];
+    for (const [rootTheme, rootScheme, innerTheme, innerScheme] of [['hearth', 'light', 'midnight', 'dark'], ['midnight', 'dark', 'hearth', 'light']]) for (const level of ['clear', 'current']) {
+      const ctx6 = await browser.newContext({ viewport: { width: 400, height: 300 } });
+      await ctx6.route('**/*', r => r.request().url().startsWith('data:') || r.request().url() === 'about:blank' ? r.continue() : r.abort());
+      const p6 = await ctx6.newPage();
+      await p6.setContent(`<!doctype html><html data-theme="${rootTheme}" data-scheme="${rootScheme}" data-accent="sky" data-kind="adult" data-glass="${level}" data-transparency="full"><head><style>${css}
+        .t { text-shadow: var(--glass-text-shadow); } .i { filter: var(--glass-icon-filter); }</style></head><body>
+        <span class="t" id="outer">A</span><svg class="i" id="outerIcon" width="10" height="10"></svg>
+        <div data-theme-preview="${innerTheme}" data-scheme="${innerScheme}" data-accent="sky"><span class="t" id="inner">A</span><svg class="i" id="innerIcon" width="10" height="10"></svg><i id="innerRef" style="color:var(--surface)"></i></div>
+        <i id="outerRef" style="color:var(--surface)"></i></body></html>`);
+      const got = await p6.evaluate(() => { const g = id => getComputedStyle(document.getElementById(id));
+        // computed shadows may serialise the colour as rgb(), color(srgb …) or color-mix(…): normalise every colour through a canvas
+        const cv = document.createElement('canvas').getContext('2d');
+        const norm = c => { const m = c.match(/^color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)/); if (m) return '#' + [m[1], m[2], m[3]].map(x => Math.round(+x * 255).toString(16).padStart(2, '0')).join('');
+          cv.fillStyle = '#000'; cv.fillStyle = c; return cv.fillStyle; };
+        const first = v => { const m = v.match(/(rgba?|color|color-mix)\((?:[^()]|\([^()]*\))*\)/); return m ? norm(m[0]) : 'none'; };
+        return { outer: first(g('outer').textShadow), inner: first(g('inner').textShadow), outerIcon: first(g('outerIcon').filter), innerIcon: first(g('innerIcon').filter), outerSurface: norm(g('outerRef').color), innerSurface: norm(g('innerRef').color), raw: g('inner').textShadow.slice(0, 80) }; });
+      got.ok = got.outer === got.outerSurface && got.inner === got.innerSurface && got.outerIcon === got.outerSurface && got.innerIcon === got.innerSurface && got.inner !== got.outer;
+      nestedOutline.push({ rootTheme, innerTheme, level, ...got });
+      await ctx6.close();
     }
     // round 4: Prayer keeps its own <meta name="theme-color" id="themeColor"> (CLAUDE.md: its ids stay); the bootstrap goes right after it
     const prayerMeta = {};
@@ -304,9 +334,9 @@ for (const [name, launcher, opts] of [['webkit', webkit, {}], ['chromium', chrom
       const ctx5 = await browser.newContext({ viewport: { width: 1440, height: 900 } });
       await ctx5.route('**/*', r => r.request().url().startsWith('data:') || r.request().url() === 'about:blank' ? r.continue() : r.abort());
       const p5 = await ctx5.newPage();
-      await p5.setContent(`<!doctype html><html><head><style>${css}\n${COMPONENTS}\n${withRow ? HERO.row : ''}
+      await p5.setContent(`<!doctype html><html><head><style>${css}\n${withRow ? COMPONENTS_WITH_ROW : COMPONENTS}
 /* harness: read the settled state, not .ds .btn's background transition between contexts */ #hb, #plain { transition: none !important; }</style></head><body class="ds"><div class="hero me-hero"><button class="btn btn-primary" id="hb">Switch</button></div><button class="btn btn-primary" id="plain">Plain</button><i id="ref"></i></body></html>`);
-      for (const theme of Object.keys(WANT_SCHEME)) for (const accent of ['bubblegum', 'peach', 'butter', 'mint', 'aqua', 'sky', 'periwinkle', 'lavender', 'graphite']) for (const [mode, extra] of [['adult', {}], ['contrast-more', { 'data-contrast': 'more' }], ['kiosk', { 'data-kind': 'kiosk' }]]) {
+      for (const theme of Object.keys(WANT_SCHEME)) for (const accent of ACCENTS) for (const [mode, extra] of [['adult', {}], ['contrast-more', { 'data-contrast': 'more' }], ['kiosk', { 'data-kind': 'kiosk' }]]) {
         await p5.evaluate(a => { const h = document.documentElement; for (const x of [...h.attributes]) h.removeAttribute(x.name); for (const [k, v] of Object.entries(a)) h.setAttribute(k, v); }, { 'data-theme': theme, 'data-scheme': WANT_SCHEME[theme], 'data-accent': accent, 'data-kind': 'adult', ...extra });
         const g = await p5.evaluate(() => {
           const b = document.getElementById('hb'), ref = document.getElementById('ref'), cs = getComputedStyle(b);
@@ -335,15 +365,16 @@ for (const [name, launcher, opts] of [['webkit', webkit, {}], ['chromium', chrom
       }
       await ctx5.close();
     }
-    heroButton.ok = heroButton.contexts === 162 && heroButton.hoverChecked === 6 && heroButton.hoverMediaMatches === true && heroButton.hoverRuleSeenOnPlainButton === 6 && heroButton.engineEqualsTokens && heroButton.hoverKeepsCapsule && heroButton.bad.length === 0;
-    summary.engines[name] = { version: browser.version(), support, identity, prayerMeta, heroButton, valuesChecked: checked, mismatches, maxChannelDelta255: +maxDelta.toFixed(2), examples: bad, nested, nestedHalf, bareTheme, sheen, lengths, mirrors, colorSchemeUnderStaleScheme: schemes, darkRootWithoutTheme: noTheme, glass7 };
+    heroButton.substitutedAtLine = 290 + HERO_LINE;
+    heroButton.ok = heroButton.contexts === 6 * ACCENTS.length * 3 && heroButton.hoverChecked === 6 && heroButton.hoverMediaMatches === true && heroButton.hoverRuleSeenOnPlainButton === 6 && heroButton.engineEqualsTokens && heroButton.hoverKeepsCapsule && heroButton.bad.length === 0;
+    summary.engines[name] = { version: browser.version(), support, identity, prayerMeta, heroButton, nestedOutline, valuesChecked: checked, mismatches, maxChannelDelta255: +maxDelta.toFixed(2), examples: bad, nested, nestedHalf, bareTheme, sheen, lengths, mirrors, colorSchemeUnderStaleScheme: schemes, darkRootWithoutTheme: noTheme, glass7 };
   } finally { await browser.close(); }
 }
 const WANT = { hearth: 'light', parchment: 'light', frost: 'light', midnight: 'dark', forest: 'dark', graphite: 'dark' };
 const ok = Object.values(summary.engines).every(e => e.mismatches === 0 && e.nested.every(n => n.ok) && e.darkRootWithoutTheme.same && Object.entries(WANT).every(([t, sc]) => e.colorSchemeUnderStaleScheme[t] === sc) && e.bareTheme.every(b => b.same) && e.sheen.noSheenInTokens && e.sheen.elementWriteChangesNoToken && e.sheen.rootWriteChangesNoToken && e.sheen.elementSeesOwnValue
   && ['kiosk-1024', 'kiosk-1920', 'kiosk-1024-10ft'].every(k => e.lengths[k]['--margin'] <= 32 && e.lengths[k]['--fs-md'] === 22 && e.lengths[k]['--fs-3xl'] === 56 && e.lengths[k]['--fs-4xl'] === 84 && e.lengths[k]['--sp-4'] === 16 && e.lengths[k]['--fs-floor'] === 18)
   && e.lengths['kiosk-1920-10ft']['--margin'] === 96 && e.lengths['kiosk-1920-10ft']['--fs-floor'] === 28
-  && e.support.whereSel && Object.values(e.darkRootWithoutTheme.everyMode).every(m => m.identical !== false) && e.nestedHalf.withAccentEqualsReal && Object.values(e.glass7).every(g => g.ok) && Object.values(e.identity).every(i => i.ok) && Object.values(e.prayerMeta).every(m => m.ok) && e.heroButton.ok);
+  && e.support.whereSel && Object.values(e.darkRootWithoutTheme.everyMode).every(m => m.identical !== false) && e.nestedHalf.withAccentEqualsReal && Object.values(e.glass7).every(g => g.ok) && Object.values(e.identity).every(i => i.ok) && Object.values(e.prayerMeta).every(m => m.ok) && e.heroButton.ok && e.nestedOutline.length === 4 && e.nestedOutline.every(n => n.ok));
 summary.ok = ok;
 fs.writeFileSync(outFile, JSON.stringify(summary, null, 1));
 console.log(JSON.stringify(Object.fromEntries(Object.entries(summary.engines).map(([k, e]) => [k, { version: e.version, support: e.support, valuesChecked: e.valuesChecked, mismatches: e.mismatches, maxChannelDelta255: e.maxChannelDelta255, nestedOk: e.nested.map(n => n.ok), bareThemeOk: e.bareTheme.map(b => b.same), sheen: e.sheen, lengths: e.lengths, mirrors: Object.fromEntries(Object.entries(e.mirrors).map(([f, m]) => [f, { emulated: m.emulated, identical: m.identical, error: m.error }])) }])), null, 1));

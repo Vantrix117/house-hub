@@ -43,6 +43,7 @@
 // Exit code 1 if anything fails.
 import fs from 'node:fs';
 import vm from 'node:vm';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseColour, over, contrast, lum, oklch, de2000, simulate, hex } from './colour-lib.mjs';
@@ -201,8 +202,13 @@ function num(expr) {
 const THEMES = { hearth: 'light', parchment: 'light', frost: 'light', midnight: 'dark', forest: 'dark', graphite: 'dark' };
 const PEOPLE = ['bubblegum', 'peach', 'butter', 'mint', 'aqua', 'sky', 'periwinkle', 'lavender', 'graphite'];
 const HUES = PEOPLE.slice(0, 8);
+// Phase 5, decision D5: the nine APP families (in-between pastels, none shared with a person; audits/tools/phase5/app-hues.mjs).
+// An app tile / glance card / icon carries data-accent=<its hue>, so every accent-context check runs for them too.
+const APPS = ['coral', 'apricot', 'honey', 'pistachio', 'leaf', 'seafoam', 'lagoon', 'cornflower', 'orchid'];
+const APP_OF = { timer: 'coral', prayer: 'apricot', kidverse: 'honey', verses: 'pistachio', leftovers: 'leaf', tally: 'seafoam', 'dollywood-live': 'lagoon', f260: 'cornflower', dollywood: 'orchid' };   // apps.json id → hue (batch 2 writes it as "hue")
+const ACCENTS = [...PEOPLE, ...APPS];
 const SEMANTIC = ['success', 'warning', 'danger'];
-const FAMILIES = [...PEOPLE, ...SEMANTIC];
+const FAMILIES = [...PEOPLE, ...APPS, ...SEMANTIC];
 const ROLES = ['wash', 'fill', 'fill-strong', 'strong', 'graphic', 'ink', 'ink-hi', 'on'];
 const MODES = {
   adult: {}, kid: { kind: 'kid' }, kiosk: { kind: 'kiosk' },
@@ -271,7 +277,7 @@ function labelPass(E, record, extras) {
       const rw = rewriteFor(selector, bg, label);
       const measure = (bgExpr, lab) => {
         let min = Infinity, worst = '';
-        for (const [theme, scheme] of Object.entries(THEMES)) for (const accent of PEOPLE) {
+        for (const [theme, scheme] of Object.entries(THEMES)) for (const accent of ACCENTS) {
           const get = E.computed([rootEl(theme, { accent })]);
           const loc = { ...(LABEL_LOCALS[f]?.any || {}), ...(LABEL_LOCALS[f]?.[scheme] || {}) };
           const g = n => (n in loc ? subst(loc[n], g) : get(n));
@@ -324,7 +330,7 @@ function heroButtonPass(E, record, extras) {
   const orderOk = idx >= 0 && states.every(([, i]) => i < idx);
   record('labels:the hero button row stays after every same-specificity .btn / .btn-primary state rule that sets a background', { kind: 'structure' }, orderOk ? 1 : 0, 1, `${at} after ${states.map(([, i]) => ':' + (i + 1)).join(', ')}`);
   const out = { at, row: `${HERO_BTN_SELECTOR} { ${Object.entries(HERO_BTN_ROW).map(([k, v]) => `${k}: ${v}`).join('; ')}; }`, asWritten: {}, row_min: {} };
-  for (const [theme, scheme] of Object.entries(THEMES)) for (const accent of PEOPLE) for (const [mode, extra] of Object.entries(MODES)) {
+  for (const [theme, scheme] of Object.entries(THEMES)) for (const accent of ACCENTS) for (const [mode, extra] of Object.entries(MODES)) {
     const get = E.computed([rootEl(theme, { accent, ...extra })]);
     const colour = expr => { const v = subst(expr, get); if (v === undefined) throw new Error(`${at}: cannot resolve ${expr}`); return evalColour(v); };
     const stops = [colour('var(--accent-wash)'), colour('var(--accent-fill)')];     // the hero after batch 1a: --hero-bg, wash → fill
@@ -365,7 +371,7 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
 
   // A–G: every palette x person x mode
   for (const [theme, scheme] of Object.entries(THEMES)) {
-    for (const accent of PEOPLE) {
+    for (const accent of ACCENTS) {
       for (const [mode, extra] of Object.entries(MODES)) {
         const label = `${theme}/${accent}/${mode}`;
         const get = E.computed([rootEl(theme, { accent, ...extra })]);
@@ -432,6 +438,7 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
             const tinted = g => over(col('glass-spec'), over(pick0, over(col(g), b)));
             pair(`glass:text under the full sheen and pickup/glass-strong (sheets) over ${bn}`, solid('text'), tinted('glass-strong'), 7, 'text');
             pair(`glass:text-2 under the full sheen and pickup/glass-strong (sheets) over ${bn}`, solid('text-2'), tinted('glass-strong'), hi ? 7 : 4.5, 'text');
+            if (bn !== 'worst') pair(`glass:text-3 under the full sheen and pickup/glass-strong (sheets) over ${bn}`, solid('text-3'), tinted('glass-strong'), T, 'text');   // revision 6b (verify-rev6 issue 6); text-3 on --glass is a lint row, never used
             if (bn !== 'worst') {
               pair(`glass:text under the full sheen and pickup/glass (pills, buttons) over ${bn}`, solid('text'), tinted('glass'), 7, 'text');
               pair(`glass:text-2 under the full sheen and pickup/glass (pills, buttons) over ${bn}`, solid('text-2'), tinted('glass'), hi ? 7 : 4.5, 'text');
@@ -610,6 +617,123 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
     }
   }
 
+  // H2 (Phase 5, D5). The app families: each app's colour is its own, and none is a person's. Tiles stand side by side on the Apps
+  // grid, so app vs app on the tile end (-fill-strong) and the mark (-graphic) is gated at the people's own spacing; app vs person is
+  // gated at a clearly visible step (CIEDE2000 >= 4 on the tile end, >= 5 on the mark). Colour-vision simulations are REPORTED: a
+  // tile is identified by its glyph and name, never by colour alone (the people keep their gated CVD separation above).
+  extras.appHues = {};
+  for (const theme of Object.keys(THEMES)) {
+    const get = E.computed([rootEl(theme)]);
+    const c = n => evalColour(get('--' + n));
+    const t = extras.appHues[theme] = {};
+    for (const [role, aa, ap] of [['fill-strong', 8, 4], ['graphic', 10, 5], ['fill', null, null]]) for (const vis of ['normal', 'protan', 'deutan']) {
+      let mAA = [Infinity, ''], mAP = [Infinity, ''];
+      for (let i = 0; i < APPS.length; i++) {
+        for (let j = i + 1; j < APPS.length; j++) { const d = de2000(simulate(c(`${APPS[i]}-${role}`), vis), simulate(c(`${APPS[j]}-${role}`), vis)); if (d < mAA[0]) mAA = [d, `${APPS[i]}/${APPS[j]}`];
+          if (vis === 'normal' && aa) record(`apphue:app vs app ${role} dE00 (${THEMES[theme]})`, { kind: 'cvd' }, d, aa, `${theme}/${APPS[i]}/${APPS[j]}`); }
+        for (const p of PEOPLE) { const d = de2000(simulate(c(`${APPS[i]}-${role}`), vis), simulate(c(`${p}-${role}`), vis)); if (d < mAP[0]) mAP = [d, `${APPS[i]}/${p}`];
+          if (vis === 'normal' && ap) record(`apphue:app vs person ${role} dE00, never a person's colour (${THEMES[theme]})`, { kind: 'cvd' }, d, ap, `${theme}/${APPS[i]}/${p}`); }
+      }
+      t[`${role} ${vis}`] = { appVsApp: fl(mAA[0], 1), closestApps: mAA[1], appVsPerson: fl(mAP[0], 1), closestPerson: mAP[1], gated: vis === 'normal' && !!aa };
+    }
+    // revision 6b (verify-rev6 issue 2): an app tile must never read as a status chip. Per role, no app sits closer to success, warning
+    // or danger than the closest PERSON already does (the people's own minimum in this palette, rounded down); on the mark (-graphic)
+    // the people's gate itself, >= 10.
+    for (const role of ['wash', 'fill', 'fill-strong', 'graphic', 'strong', 'on', 'ink', 'ink-hi']) {   // revision 6c: every role (verify-rev6 round 2, issue 1)
+      let pMin = Infinity; for (const s of SEMANTIC) for (const p of PEOPLE) pMin = Math.min(pMin, de2000(c(`${s}-${role}`), c(`${p}-${role}`)));
+      const floor = role === 'graphic' ? 10 : Math.floor(pMin * 10) / 10;
+      if (floor < 0.05) { t[`${role} vs status colours`] = { note: 'identical for every family, people and status alike (light -on is white)' }; continue; }
+      let m = [Infinity, ''];
+      for (const s of SEMANTIC) for (const a of APPS) { const d = de2000(c(`${s}-${role}`), c(`${a}-${role}`)); if (d < m[0]) m = [d, `${a}/${s}`];
+        record(`apphue:an app ${role} is no closer to a status colour than the closest person (${THEMES[theme]})`, { kind: 'cvd' }, d, floor, `${theme}/${a}/${s}`); }
+      t[`${role} vs status colours`] = { appMin: fl(m[0], 1), closest: m[1], floor, peopleMin: fl(pMin, 1) };
+      // reported (verify-rev6 round 3, issue 2): the same rule taken status by status is weaker for some pairs (coral vs danger)
+      for (const s of SEMANTIC) { let pm = Infinity, am = [Infinity, '']; for (const p of PEOPLE) pm = Math.min(pm, de2000(c(`${s}-${role}`), c(`${p}-${role}`)));
+        for (const a of APPS) { const d = de2000(c(`${s}-${role}`), c(`${a}-${role}`)); if (d < am[0]) am = [d, a]; }
+        t[`${role} vs ${s} (reported)`] = { appMin: fl(am[0], 1), app: am[1], peopleMin: fl(pm, 1) }; }
+    }
+    // revision 6d (verify-rev6 round 3, issue 1): app vs person in EVERY role, at half the people's own closest spacing in that role
+    // (never under the tile end's 4 or the mark's 5). Round 3 found Kid Verse's dark honey fill, glyph and label on Mae's peach.
+    for (const role of ROLES) {
+      let pp = Infinity; for (let i = 0; i < PEOPLE.length; i++) for (let j = i + 1; j < PEOPLE.length; j++) pp = Math.min(pp, de2000(c(`${PEOPLE[i]}-${role}`), c(`${PEOPLE[j]}-${role}`)));
+      const floor = Math.max(Math.floor(pp / 2 * 10) / 10, role === 'fill-strong' ? 4 : role === 'graphic' ? 5 : 0);
+      if (floor < 0.05) continue;
+      let m = [Infinity, ''];
+      for (const a of APPS) for (const p of PEOPLE) { const d = de2000(c(`${a}-${role}`), c(`${p}-${role}`)); if (d < m[0]) m = [d, `${a}/${p}`];
+        record(`apphue:app vs person in every role, at half the people's own spacing: ${role} (${THEMES[theme]})`, { kind: 'cvd' }, d, floor, `${theme}/${a}/${p}`); }
+      t[`${role} vs person (every role)`] = { appMin: fl(m[0], 1), closest: m[1], floor, peopleSpacing: fl(pp, 1) };
+    }
+  }
+  {
+    const apps = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps.json'), 'utf8')).apps.map(a => a.id);
+    const hues = apps.map(id => APP_OF[id]);
+    record('apphue:every apps.json app has its own app family (APP_OF, batch 2 writes it as "hue"), nine different, none a person family', { kind: 'structure' },
+      hues.every(h => APPS.includes(h)) && new Set(hues).size === hues.length && !hues.some(h => PEOPLE.includes(h)) ? 1 : 0, 1, apps.map((id, i) => `${id}→${hues[i]}`).join(', '));
+  }
+
+  // B2 (Phase 5, D8; revision 6b). The glass level. Clear and Current are see-through, and their text carries an OUTLINE halo
+  // (--glass-text-shadow: eight 1 px offsets at 0 blur in --glass-halo-edge, the card colour at 100 %, then a soft glow). A blurred
+  // glow gated as one flat layer overstated what engines paint (the independent verifier, verify-rev6), so the halo is proved AS
+  // RENDERED by audits/tools/phase5/halo-check.mjs (both engines; the ring 0.5-1.5 CSS px round the glyphs; medians gated at text 7,
+  // text-2 4.5, text-3 4.5). This gate: (1) the see-through levels carry the solid outline and Frosted none; (2) halo-check.json
+  // exists, was made from THIS token file (sha-256) and passed; (3) REPORTED: every glass text pair WITHOUT the halo.
+  extras.glassLevels = {};
+  for (const level of ['current', 'clear']) for (const [theme, scheme] of Object.entries(THEMES)) for (const accent of ACCENTS) for (const kind of ['adult', 'kid']) {
+    const get = E.computed([rootEl(theme, { accent, kind, glass: level, transparency: 'full' })]);
+    const col = n => evalColour(get('--' + n)); const solid = n => { const c = col(n); if (c.a < 0.999) throw new Error(`glass level ${level}: --${n} not opaque`); return c; };
+    const edge = col('glass-halo-edge');
+    record('structure:the see-through glass levels paint a SOLID outline halo in the card colour (--glass-halo-edge = --surface at 100 %)', { kind: 'structure' }, edge.a >= 0.999 && hex(edge) === hex(solid('surface')) && (RULES.find(r => '--glass-text-outline' in r.decls)?.decls['--glass-text-outline'].split('var(--glass-halo-edge)').length - 1) === 8 && (RULES.find(r => '--glass-icon-outline' in r.decls)?.decls['--glass-icon-outline'].split('var(--glass-halo-edge)').length - 1) === 4 && /--glass-halo-edge/.test(get.declared['--glass-text-shadow'] ?? '') === false && get('--glass-text-shadow') !== 'none' && get('--glass-icon-filter') !== 'none' ? 1 : 0, 1, `${level}/${theme}/${accent}/${kind}`);
+    const vs = get('--glass-pickup-layer'); const i0 = vs.indexOf('color-mix('); let d = 0, k = i0; for (; k < vs.length; k++) { if (vs[k] === '(') d++; else if (vs[k] === ')' && --d === 0) break; }
+    const pick = evalColour(vs.slice(i0, k + 1));
+    const backs = { bg: solid('bg'), surface: solid('surface'), mid: P('#767676'), worst: P(scheme === 'light' ? '#000000' : '#FFFFFF') };
+    const L = extras.glassLevels[`${level}/${theme}`] ??= { alpha: get('--glass-alpha'), alphaStrong: get('--glass-alpha-strong'), glow: get('--glass-halo-alpha'), outline: get('--glass-halo-edge-alpha') };
+    if (withExtras && kind === 'adult' && ['sky', 'coral', 'graphite'].includes(accent)) {
+      const toks = {}; for (const n of ['glass', 'glass-strong', 'glass-halo', 'glass-halo-edge', 'accent-ink', 'text', 'text-2']) { const c = col(n); toks['--' + n] = hex(c) + (c.a < 0.999 ? Math.round(c.a * 255).toString(16).padStart(2, '0').toUpperCase() : ''); }
+      extras.samples.push({ attrs: { 'data-theme': theme, 'data-scheme': scheme, 'data-accent': accent, 'data-kind': 'adult', 'data-glass': level, 'data-transparency': 'full' }, toks });
+    }
+    for (const [bn, b] of Object.entries(backs)) for (const g of ['glass', 'glass-strong']) {
+      const gr = over(col('glass-spec'), over(pick, over(col(g), b)));
+      for (const fg of ['text', 'text-2', 'text-3']) { const key = `${fg} without the halo, ${g} over ${bn} (sheen + pickup)`; const v = fl(contrast(solid(fg), gr)); if (!(key in L) || v < L[key]) L[key] = v; }
+    }
+  }
+  {
+    const hc = path.join(ROOT, 'audits', 'evidence', 'p5', 'halo-check.json');
+    const r = fs.existsSync(hc) ? JSON.parse(fs.readFileSync(hc, 'utf8')) : null;
+    const sha = crypto.createHash('sha256').update(src).digest('hex');
+    record('glasslevel:the rendered halo check (audits/tools/phase5/halo-check.mjs) passed on THIS token file, in both engines', { kind: 'text' }, r && r.ok && r.tokensSha256 === sha && Object.keys(r.engines || {}).length === 2 ? 1 : 0, 1, r ? `ok=${r.ok} sha match=${r.tokensSha256 === sha}` : 'missing', { rerun: 'node audits/tools/phase5/halo-check.mjs' });
+    if (r) extras.haloRendered = r.summary;
+  }
+  for (const theme of Object.keys(THEMES)) {
+    const plain = E.computed([rootEl(theme, { accent: 'sky' })]);
+    const frosted = E.computed([rootEl(theme, { accent: 'sky', glass: 'frosted', transparency: 'full' })]);
+    record('structure:the default glass level is Frosted (no attribute = data-glass="frosted"), with no halo', { kind: 'structure' }, plain('--glass-alpha') === frosted('--glass-alpha') && plain('--glass-alpha-strong') === frosted('--glass-alpha-strong') && plain('--glass-halo-alpha') === '0%' && plain('--glass-halo-edge-alpha') === '0%' && plain('--glass-text-shadow') === 'none' && plain('--glass-icon-filter') === 'none' ? 1 : 0, 1, theme);
+    for (const level of ['current', 'clear']) {
+      const more = E.computed([rootEl(theme, { accent: 'sky', glass: level, contrast: 'more' })]);
+      record('structure:Increase Contrast beats a see-through glass level (96 % / 98 %)', { kind: 'structure' }, more('--glass-alpha') === '96%' && more('--glass-alpha-strong') === '98%' ? 1 : 0, 1, `${theme}/${level}`);
+      const rt = E.computed([rootEl(theme, { accent: 'sky', glass: level, transparency: 'reduce' })]);
+      record('structure:Solid (Reduce Transparency) beats a see-through glass level', { kind: 'structure' }, hex(evalColour(rt('--glass'))) === hex(evalColour(rt('--glass-solid'))) && evalColour(rt('--glass')).a >= 0.999 ? 1 : 0, 1, `${theme}/${level}`);
+    }
+  }
+  // round-5 item 12: no live blur left under Reduce Transparency (attribute and media) and on the kiosk: --blur* are 0 too
+  for (const [name, x, env] of [['reduce-transparency', { transparency: 'reduce' }, {}], ['reduce-transparency (media)', {}, { prefersReducedTransparency: 'reduce' }], ['kiosk', { kind: 'kiosk' }, {}]]) {
+    const g = E.computed([rootEl('hearth', { accent: 'sky', ...x })], env);
+    record('structure:no live blur under Reduce Transparency or on the kiosk (--glass-filter none, --blur / --blur-sm / --blur-lg 0)', { kind: 'structure' }, g('--glass-filter') === 'none' && ['blur', 'blur-sm', 'blur-lg'].every(b => num(g('--' + b)) === 0) ? 1 : 0, 1, name);
+  }
+  // round-5 item 17: the TV crossfade is 150 ms under Reduce Motion from the tokens themselves (attribute and media), kiosk included
+  for (const [name, x, env] of [['reduce-motion', { motion: 'reduce', kind: 'kiosk' }, {}], ['reduce-motion (media)', { kind: 'kiosk' }, { prefersReducedMotion: 'reduce' }]]) {
+    const g = E.computed([rootEl('midnight', { accent: 'graphite', ...x })], env);
+    record('motion:Reduce Motion sets the TV crossfade to 150 ms in the tokens (not only through the kept kill)', { kind: 'motion' }, num(g('--dur-crossfade')) === 150 ? 1 : 0, 1, name);
+  }
+  // round-6 item 19 (D15): in dark the hero's Switch capsule is the glowing pastel solid, so it has an edge of its own against both
+  // hero stops (>= 3, a UI component boundary); in light the white capsule is reported
+  extras.heroEdge = {};
+  for (const [theme, scheme] of Object.entries(THEMES)) for (const accent of ACCENTS) {
+    const g = E.computed([rootEl(theme, { accent })]); const c = n => evalColour(g('--' + n));
+    const e = Math.min(contrast(c('hero-btn-bg'), c('accent-wash')), contrast(c('hero-btn-bg'), c('accent-fill')));
+    if (scheme === 'dark') record('accent:the dark hero capsule has its own edge against both hero stops (D15; round-6 item 19)', { kind: 'non-text' }, e, 3, `${theme}/${accent}`);
+    extras.heroEdge[scheme] = Math.min(extras.heroEdge[scheme] ?? Infinity, fl(e));
+  }
+
   // I. type floors, glance roles, fields; J. targets; K. grid and concentric radii; motion
   const typeRoles = ['large-title', 'title1', 'title2', 'title3', 'headline', 'body', 'callout', 'subheadline', 'footnote', 'caption1', 'caption2', 'numeral-s', 'glance-3', 'glance-2', 'glance-1'];
   for (const kind of ['adult', 'kid', 'kiosk']) for (const [width, pointer] of [[390, 'coarse'], [820, 'coarse'], [1024, 'fine'], [1440, 'fine'], [1920, 'fine']]) for (const size of ['xs', 's', 'm', 'l', 'xl', 'xxl']) {
@@ -771,7 +895,7 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
     }
   }
   // a person-coloured element inside another person's page re-derives every role (and keeps kid radii)
-  for (const theme of ['hearth', 'midnight']) for (const inner of PEOPLE) for (const kind of ['adult', 'kid']) {
+  for (const theme of ['hearth', 'midnight']) for (const inner of ACCENTS) for (const kind of ['adult', 'kid']) {
     const get = E.computed([rootEl(theme, { accent: 'periwinkle', kind }), { isRoot: false, attrs: { accent: inner } }]);
     const ref = E.computed([rootEl(theme, { accent: inner, kind })]);
     const list = ['accent-fill', 'accent-ink', 'accent-graphic', 'accent-strong', 'sel-fill', 'sel-ink', 'focus-ring-color', 'today-ring', 'tint', 'accent', 'accent-soft', 'accent-deep', 'hero-btn-bg', 'tile-bg', 'glass-bg'];
@@ -784,7 +908,7 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
   // Eli's page (periwinkle), a kid's page and the TV's graphite kiosk root resolves Mae's fill, ink and ring (identity-component.css;
   // both engines in browser-check.json → identity). A record with no colour is graphite.
   for (const [theme, rootAccent, kind] of [['hearth', 'periwinkle', 'adult'], ['midnight', 'periwinkle', 'adult'], ['parchment', 'aqua', 'kid'], ['midnight', 'graphite', 'kiosk'], ['hearth', 'graphite', 'kiosk']]) {
-    for (const [who, hue] of [['Mae', 'bubblegum'], ['a record with no colour', 'graphite']]) {
+    for (const [who, hue] of [['Mae', 'peach'], ['a record with no colour', 'graphite'], ['the Kid Verse tile (an app family)', 'honey']]) {
       const g = E.computed([rootEl(theme, { accent: rootAccent, kind }), { isRoot: false, attrs: { accent: hue } }]);
       const r = E.computed([rootEl(theme, { accent: rootAccent, kind })]);
       const okF = ['fill', 'ink', 'graphic'].every(x => hex(evalColour(g('--accent-' + x))) === hex(evalColour(r('--' + hue + '-' + x))));
@@ -794,14 +918,14 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
   // round 4: the 7:1 modes swap the person solids to ink-hi in LIGHT palettes only; a dark root keeps the glowing pastel solid
   for (const [theme, scheme] of Object.entries(THEMES)) for (const [mode, x, env] of [['kiosk', { kind: 'kiosk' }, {}], ['contrast-more', { contrast: 'more' }, {}], ['contrast-more (media)', {}, { prefersContrast: 'more' }]]) {
     const g = E.computed([rootEl(theme, { accent: 'lavender', ...x })], env), a = E.computed([rootEl(theme, { accent: 'lavender' })]);
-    const ok = PEOPLE.every(f => scheme === 'light'
+    const ok = ACCENTS.every(f => scheme === 'light'
       ? g('--' + f + '-strong') !== a('--' + f + '-strong') && hex(evalColour(g('--' + f + '-strong'))) === hex(evalColour(g('--' + f + '-ink-hi')))
       : hex(evalColour(g('--' + f + '-strong'))) === hex(evalColour(a('--' + f + '-strong'))));
     record('structure:the 7:1 modes swap the person solids to ink-hi in light palettes and keep the dark pastel solid (never dulled)', { kind: 'structure' }, ok ? 1 : 0, 1, theme + '/' + mode);
   }
   for (const sc of ['light', 'dark']) {
     const g = E.computed([{ isRoot: true, attrs: { scheme: sc, kind: 'kiosk', accent: 'sky' } }]), m = E.computed([rootEl(sc === 'light' ? 'hearth' : 'midnight', { accent: 'sky', kind: 'kiosk' })]);
-    record('structure:the 7:1 modes swap the person solids to ink-hi in light palettes and keep the dark pastel solid (never dulled)', { kind: 'structure' }, PEOPLE.every(f => hex(evalColour(g('--' + f + '-strong'))) === hex(evalColour(m('--' + f + '-strong')))) ? 1 : 0, 1, 'no-theme ' + sc + ' kiosk root');
+    record('structure:the 7:1 modes swap the person solids to ink-hi in light palettes and keep the dark pastel solid (never dulled)', { kind: 'structure' }, ACCENTS.every(f => hex(evalColour(g('--' + f + '-strong'))) === hex(evalColour(m('--' + f + '-strong')))) ? 1 : 0, 1, 'no-theme ' + sc + ' kiosk root');
   }
 
   // L2. color-scheme follows the theme (and a stale scheme cannot change it); a root with data-scheme but NO data-theme
@@ -891,7 +1015,12 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
     const seedHex = [...fs.readFileSync(path.join(ROOT, 'worker', 'seed.sql'), 'utf8').matchAll(/'(#[0-9A-Fa-f]{6})'/g)].map(m => m[1]);
     const swatches = [...(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/const SWATCHES = \[([^\]]*)\]/)[1].matchAll(/'(#[0-9A-Fa-f]{6})'/g))].map(m => m[1]);
     const H = Object.fromEntries([...code.match(/H=\{([^}]*)\}/)[1].matchAll(/'(#[0-9a-f]{6})':'(\w+)'/g)].map(m => [m[1], m[2]]));
-    for (const hx of new Set([...seedHex, ...swatches])) record('bootstrap:every stored profile hex (seed.sql, the SWATCHES) has a hue fallback', { kind: 'structure' }, PEOPLE.includes(H[hx.toLowerCase()]) ? 1 : 0, 1, `${hx} → ${H[hx.toLowerCase()]}`);
+    for (const hx of new Set([...seedHex, ...swatches])) record('bootstrap:every stored profile hex (seed.sql, the SWATCHES) has a PERSON hue fallback', { kind: 'structure' }, PEOPLE.includes(H[hx.toLowerCase()]) ? 1 : 0, 1, `${hx} → ${H[hx.toLowerCase()]}`);
+    // D3 (household answer 2026-09-25): the seeded people map to their chosen families; D4: both guest swatches map to the free hue, sky
+    const WANT = { '#4f5d8c': 'periwinkle', '#bc5a38': 'peach', '#8a6a4b': 'bubblegum', '#3d5a3d': 'mint', '#5b8143': 'butter', '#137f77': 'aqua', '#b4861b': 'lavender', '#4c4c58': 'graphite', '#8c4f7a': 'sky', '#4c7b6a': 'sky' };
+    for (const [hx, hue] of Object.entries(WANT)) record('bootstrap:the fallback table carries the household’s colour decisions (D3 people, D4 guests)', { kind: 'structure' }, H[hx] === hue ? 1 : 0, 1, `${hx} → ${H[hx]} (want ${hue})`);
+    const household = Object.entries(WANT).filter(([hx]) => !['#8c4f7a', '#4c7b6a'].includes(hx)).map(([, h]) => h);
+    record('bootstrap:the eight household people hold eight different families, and the guests’ family is none of them (D4)', { kind: 'structure' }, new Set(household).size === household.length && !household.includes('sky') ? 1 : 0, 1, household.join(','));
     const cases = [
       ['System on a dark OS', { 'hub.session': { profile: { kind: 'adult', color: '#4F5D8C' } } }, { '(prefers-color-scheme: dark)': true }, { theme: 'midnight', scheme: 'dark', choice: 'system', accent: 'periwinkle' }],
       ['System on a light OS (no static theme-color meta: the snippet creates one)', {}, {}, { theme: 'hearth', scheme: 'light', choice: 'system' }, 'none'],
@@ -900,8 +1029,14 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
       ['Forest', { 'hub.theme': 'forest' }, {}, { theme: 'forest', scheme: 'dark' }],
       ['Graphite (D2)', { 'hub.theme': 'graphite' }, {}, { theme: 'graphite', scheme: 'dark' }],
       ['an unknown stored theme falls back to System', { 'hub.theme': 'neon' }, {}, { theme: 'hearth', scheme: 'light' }],
-      ['a session stored BEFORE the deploy (no hue: Mae #BC5A38) resolves by the fallback table', { 'hub.session': { profile: { kind: 'adult', color: '#BC5A38' } } }, {}, { accent: 'bubblegum', kind: 'adult' }],
-      ['a legacy kid session (Kiara #B4861B)', { 'hub.session': { profile: { kind: 'kid', color: '#B4861B' } } }, {}, { accent: 'butter', kind: 'kid' }],
+      ['a session stored BEFORE the deploy (no hue: Mae #BC5A38) resolves by the fallback table (D3: peach)', { 'hub.session': { profile: { kind: 'adult', color: '#BC5A38' } } }, {}, { accent: 'peach', kind: 'adult' }],
+      ['a legacy kid session (Kiara #B4861B, D3: lavender)', { 'hub.session': { profile: { kind: 'kid', color: '#B4861B' } } }, {}, { accent: 'lavender', kind: 'kid' }],
+      ['a legacy guest session (swatch #8C4F7A, D4: guests share the free hue, sky)', { 'hub.session': { profile: { kind: 'adult', color: '#8C4F7A' } } }, {}, { accent: 'sky' }],
+      ['a guest whose stored colour is a household one (the Add-a-guest default #137F77) is still sky (D4; verify-rev6 issue 3)', { 'hub.session': { profile: { kind: 'adult', color: '#137F77', is_guest: true } } }, {}, { accent: 'sky' }],
+      ['the TV ignores a stored glass level (the kiosk keeps its own panels; verify-rev6 issue 4)', { 'hub.session': { profile: { kind: 'kiosk', color: '#4C4C58' } }, 'hub.prefs': { glass: 'clear' } }, {}, { kind: 'kiosk', glass: undefined, transparency: undefined }],
+      ['the glass level Clear (D8): data-glass, and an explicit choice opts out of the OS', { 'hub.session': { profile: { kind: 'adult', color: '#4F5D8C' } }, 'hub.prefs': { glass: 'clear' } }, {}, { glass: 'clear', transparency: 'full' }],
+      ['no one signed in: a stored glass level is not applied (it belongs to a person)', { 'hub.prefs': { glass: 'clear' } }, {}, { glass: undefined, transparency: undefined }],
+      ['the glass level Solid (D8) is Reduce Transparency', { 'hub.session': { profile: { kind: 'adult', color: '#4F5D8C' } }, 'hub.prefs': { glass: 'solid' } }, {}, { transparency: 'reduce' }],
       ['a new session carries its hue', { 'hub.session': { profile: { kind: 'adult', color: '#123456', hue: 'sky' } } }, {}, { accent: 'sky' }],
       ['an unknown hex falls back to graphite, never to another person', { 'hub.session': { profile: { kind: 'adult', color: '#123456' } } }, {}, { accent: 'graphite' }],
       ['Prayer (its own meta id="themeColor", apps/prayer.html:9, the bootstrap right after it) on System, light OS', {}, {}, { theme: 'hearth', scheme: 'light' }, 'prayer'],
@@ -910,7 +1045,7 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
     ];
     for (const [name, ls, media, want, metas] of cases) {
       const { attrs, colorScheme, metas: tc } = run(ls, media, metas);
-      const got = { theme: attrs['data-theme'], scheme: attrs['data-scheme'], choice: attrs['data-theme-choice'], accent: attrs['data-accent'], kind: attrs['data-kind'], 'text-size': attrs['data-text-size'], contrast: attrs['data-contrast'], transparency: attrs['data-transparency'], motion: attrs['data-motion'] };
+      const got = { theme: attrs['data-theme'], scheme: attrs['data-scheme'], choice: attrs['data-theme-choice'], accent: attrs['data-accent'], kind: attrs['data-kind'], 'text-size': attrs['data-text-size'], contrast: attrs['data-contrast'], transparency: attrs['data-transparency'], motion: attrs['data-motion'], glass: attrs['data-glass'] };
       const okAttrs = Object.entries(want).every(([k, v]) => got[k] === v);
       // the attributes it wrote, through the cascade: the inline colorScheme equals the CSS color-scheme, and the accent is that family
       const el = { isRoot: true, attrs: Object.fromEntries(Object.entries(attrs).filter(([k]) => k !== 'data-theme-choice').map(([k, v]) => [k.slice(5), v])) };
@@ -1000,6 +1135,19 @@ const MUTATIONS = [
   { name: '--dur-progress back to 800ms', expect: 'motion:--dur-progress', mutate: s => s.replace('--dur-progress: var(--dur-slow);', '--dur-progress: 800ms;') },
   { name: 'the bootstrap theme-color for Midnight left at the old #1A1512', expect: 'structure:every hub.THEMES id', mutate: s => s, boot: b => b.replace("midnight:'#0B0A09'", "midnight:'#1A1512'") },
   { name: 'the dark hero button back to a white capsule (the glowing ink on white, 1.19-1.29 in dark)', expect: 'labels:the hero button (', mutate: s => s.replace('--hero-btn-mix: 100%;', '--hero-btn-mix: 0%;') },
+  { name: 'the kiosk forgets the app inks (seafoam stays at its AA ink on the TV)', expect: 'fam:seafoam-ink', mutate: s => s.replace(/(:root\[data-kind="kiosk"\] \{[\s\S]*?) --seafoam-ink: var\(--seafoam-ink-hi\);/, '$1') },
+  { name: 'an app family painted in a person colour (coral tile end = bubblegum #FF97BF)', expect: 'apphue:app vs person fill-strong', mutate: s => s.replace('--coral-fill-strong: #FF9AA8;', '--coral-fill-strong: #FF97BF;') },
+  { name: 'Clear glass without its outline halo', expect: 'structure:the see-through glass levels paint a SOLID outline', mutate: s => s.replace('--glass-halo-alpha: 70%; --glass-halo-edge-alpha: 100%;', '--glass-halo-alpha: 70%; --glass-halo-edge-alpha: 0%;') },
+  { name: 'Clear glass leaves its icons without an outline (verify-rev6 round 2, issue 2)', expect: 'structure:the see-through glass levels paint a SOLID outline', mutate: s => s.replace('--glass-alpha-strong: 48%; --glass-halo-alpha: 70%; --glass-halo-edge-alpha: 100%;\n  --glass-text-shadow: var(--glass-text-outline); --glass-icon-filter: var(--glass-icon-outline); }', '--glass-alpha-strong: 48%; --glass-halo-alpha: 70%; --glass-halo-edge-alpha: 100%;\n  --glass-text-shadow: var(--glass-text-outline); }') },
+  { name: 'Kid Verse dark honey fill back on Mae\'s peach (verify-rev6 round 3, issue 1)', expect: 'apphue:app vs person in every role', mutate: s => s.replace(/(--honey-wash: #3[0-9A-F]{5}; --honey-fill: )#[0-9A-F]{6}/, '$1#5F3712') },
+  { name: 'Kid Verse dark honey glyph back on the warning ink (verify-rev6 round 2, issue 1)', expect: 'apphue:an app ink is no closer', mutate: s => s.replace(/(--honey-wash: #3[0-9A-F]{5};[^\n]*?--honey-ink: )#[0-9A-F]{6}/, '$1#FACD98') },
+  { name: 'Kid Verse honey back on the warning colour in dark (verify-rev6 issue 2)', expect: 'apphue:an app fill is no closer', mutate: s => s.replace(/--honey-fill: #[0-9A-F]{6}; (--honey-fill-strong: #[0-9A-F]{6}; --honey-strong: #[0-9A-F]{6}; --honey-graphic: #[0-9A-F]{6}; --honey-ink: #[0-9A-F]{6}; --honey-ink-hi: #[0-9A-F]{6}; --honey-on: #2)/, '--honey-fill: #5A390A; $1') },
+  { name: 'the bootstrap gives a guest a household colour (verify-rev6 issue 3)', expect: 'bootstrap:the pre-paint snippet', mutate: s => s, boot: b => b.replace("p.is_guest?'sky':", '') },
+  { name: 'the glass levels moved after Increase Contrast (a see-through level beats it)', expect: 'structure:Increase Contrast beats', mutate: s => { const m = s.match(/:root\[data-glass="current"\][\s\S]*?:root\[data-glass="clear"\][\s\S]*?\}\n/)[0]; return s.replace(m, '') + '\n' + m; } },
+  { name: 'the dark hero capsule back to the deep fill (no edge: 1.00 against the end stop)', expect: 'accent:the dark hero capsule', mutate: s => s.replace('--hero-btn-bg: color-mix(in srgb, var(--accent-strong) var(--hero-btn-mix), #FFFFFF);', '--hero-btn-bg: color-mix(in srgb, var(--accent-fill) var(--hero-btn-mix), #FFFFFF);') },
+  { name: 'Reduce Transparency leaves --blur at 20 px', expect: 'structure:no live blur', mutate: s => s.replace('--scrim-blur: 0px; --blur: 0px; --blur-sm: 0px; --blur-lg: 0px;\n', '--scrim-blur: 0px;\n') },
+  { name: 'Reduce Motion leaves the TV crossfade at 2.5 s', expect: 'motion:Reduce Motion sets the TV crossfade', mutate: s => s.replace('  --dur-crossfade: 150ms;                                              /*', '  /*') },
+  { name: 'the bootstrap maps Kiara back to butter (before D3)', expect: 'bootstrap:the fallback table carries', mutate: s => s, boot: b => b.replace("'#b4861b':'lavender'", "'#b4861b':'butter'") },
   { name: 'the prefers-contrast media block drops the ink swaps', expect: 'mirror:@media (prefers-contrast', mutate: s => s.replace(/(@media \(prefers-contrast: more\) \{\s*:root:not\(\[data-contrast="standard"\]\) \{\s*--text-2: var\(--text-2-hi\); --text-3: var\(--text-2-hi\);)\s*--bubblegum-ink: [^\n]*\n/, '$1\n') },
 ];
 const mutationResults = [];
@@ -1026,12 +1174,12 @@ for (const p of pairs) { const k = p.kind; byKind[k] ??= { checks: 0, evaluation
 const summary = {
   generated: new Date().toISOString(), tokens: path.relative(ROOT, FILE).replace(/\\/g, '/'), script: path.relative(ROOT, fileURLToPath(import.meta.url)).replace(/\\/g, '/'),
   method: 'WCAG 2.x relative luminance; translucent layers composited in sRGB over the page, a card, #767676 and the worst backdrop (black under light glass, white under dark), unblurred; CVD = Machado, Oliveira & Fernandes 2009 at severity 1.0 in linear sRGB; distance = CIEDE2000 (D65); the cascade (specificity, order, @media, inheritance, var(), color-mix) is run by this script.',
-  contexts: { themes: THEMES, system: 'System resolves in hub.js to hearth (day) / midnight (night) — CLAUDE.md', people: PEOPLE, modes: Object.keys(MODES) },
+  contexts: { themes: THEMES, system: 'System resolves in hub.js to hearth (day) / midnight (night) — CLAUDE.md', people: PEOPLE, apps: APP_OF, modes: Object.keys(MODES), glassLevels: ['frosted (default)', 'current', 'clear', 'solid = reduce-transparency'] },
   checkKinds: pairs.length, evaluations: main.evaluated, failingCheckKinds: pairs.filter(p => p.fails).length, failingEvaluations: main.failures.length,
   mutationTest: mutationResults.map(m => ({ mutation: m.mutation, caught: m.caught, failingEvaluations: m.failingEvaluations })), runtimeMs: Date.now() - t0,
   byKind,
 };
-const out = { summary, failures: main.failures.slice(0, 300), glassLayersReported: main.extras.glassLayers, nestedPreviewWithoutAccent: main.extras.nestedPreviewWithoutAccent, legacyLabels: main.extras.labels, heroButton: main.extras.heroButton, bootstrap: main.extras.bootstrap, kioskTiers: main.extras.kioskTiers, familyTable: main.extras.familyTable, neutralTable: main.extras.neutralTable, accentMatrix: main.extras.accentMatrix, semanticCvdInfo: main.extras.semantic, cvd: main.extras.cvd, typeTable: main.extras.typeTable, legacy: main.extras.legacy, mutationTest: mutationResults, checks: pairs, engineSamples: main.extras.samples };
+const out = { summary, failures: main.failures.slice(0, 300), glassLayersReported: main.extras.glassLayers, nestedPreviewWithoutAccent: main.extras.nestedPreviewWithoutAccent, legacyLabels: main.extras.labels, heroButton: main.extras.heroButton, bootstrap: main.extras.bootstrap, kioskTiers: main.extras.kioskTiers, familyTable: main.extras.familyTable, neutralTable: main.extras.neutralTable, accentMatrix: main.extras.accentMatrix, semanticCvdInfo: main.extras.semantic, cvd: main.extras.cvd, appHues: main.extras.appHues, glassLevels: main.extras.glassLevels, heroEdge: main.extras.heroEdge, typeTable: main.extras.typeTable, legacy: main.extras.legacy, mutationTest: mutationResults, checks: pairs, engineSamples: main.extras.samples };
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(out));
 const { byKind: _bk, ...headline } = summary;

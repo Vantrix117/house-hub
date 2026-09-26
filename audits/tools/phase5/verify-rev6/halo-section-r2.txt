@@ -1,0 +1,102 @@
+    // ── 7 (round 2). the outline halo AS RENDERED, my ring method, both engines ─────────────────────────────────────
+    // Pane with the FULL recipe (--glass-bg(-strong)-tinted: sheen + pickup + fill) and the live --glass-filter over a backdrop;
+    // text at the top centre (the pickup's centre, under the sheen). Three renders with identical layout: the mask (black glyphs on
+    // white, no shadow), the halo field (transparent glyphs WITH the shadow) and the plain field (no shadow). Ring = device pixels
+    // 0.5-1.5 CSS px from the glyph core (coverage > 0.5) and outside the glyph (coverage < 0.02); ring2 = 1.5-3 CSS px (outside the
+    // 1 px outline, inside the glow). Contrast of the text colour against each ring pixel of the halo field.
+    R.haloRendered = [];
+    const BACKDROPS = { page: 'var(--bg)', card: 'var(--surface)', mid: '#767676', worst: null,
+      edge: 'linear-gradient(90deg, #000 0 50%, #FFF 50% 100%)', stripes: 'repeating-linear-gradient(90deg, #000 0 3px, #FFF 3px 6px)' };
+    const haloCtxs = {};
+    const haloPage = async dsf => {
+      if (haloCtxs[dsf]) return haloCtxs[dsf];
+      const hc = await browser.newContext({ viewport: { width: 700, height: 200 }, deviceScaleFactor: dsf });
+      await hc.route('**/*', r => { const u = r.request().url(); if (u.startsWith('data:') || u === 'about:blank') return r.continue(); blocked++; return r.abort(); });
+      return (haloCtxs[dsf] = { hc, hp: await hc.newPage() });
+    };
+    const q_ = (a, p) => { const s = [...a].sort((u, v) => u - v); return s.length ? floor(s[Math.floor(p * (s.length - 1))]) : null; };
+    const renderHalo = async ({ theme, scheme, level, g, tn, size = 15, weight = 400, bk, dsf = 2, kind = 'adult', accent = 'sky', icon = false, crop = null }) => {
+      const { hp } = await haloPage(dsf);
+      const back = bk === 'worst' ? (scheme === 'light' ? '#000000' : '#FFFFFF') : BACKDROPS[bk];
+      const glassAttr = level === 'frosted' ? '' : `data-glass="${level}" data-transparency="full"`;
+      const bg = g === 'glass-strong' ? 'var(--glass-bg-strong-tinted)' : 'var(--glass-bg-tinted)';
+      const html = variant => `<!doctype html><html data-theme="${theme}" data-scheme="${scheme}" data-accent="${accent}" data-kind="${kind}" ${glassAttr}><head><style>${css}
+        body{margin:0;background:var(--bg)} #b{position:absolute;left:0;top:0;width:700px;height:200px;background:${back}}
+        #g{position:absolute;left:30px;top:20px;width:640px;height:140px;border-radius:0;
+           ${variant === 'mask' ? 'background:#FFFFFF' : `background:${bg};-webkit-backdrop-filter:var(--glass-filter);backdrop-filter:var(--glass-filter)`}}
+        #t{position:absolute;left:0;right:0;top:10px;text-align:center;font-family:var(--font-ui);font-size:${size}px;font-weight:${weight};line-height:1.3;white-space:nowrap;
+           color:${variant === 'halo' ? 'transparent' : variant === 'mask' ? '#000000' : `var(--${tn})`};
+           text-shadow:${variant === 'mask' || variant === 'plain' ? 'none' : 'var(--glass-text-shadow)'}}
+        #t svg{width:${Math.round(size * 1.4)}px;height:${Math.round(size * 1.4)}px;vertical-align:middle;fill:none;stroke:${variant === 'mask' ? '#000' : variant === 'halo' ? 'transparent' : 'currentColor'};stroke-width:1.75}
+        </style></head><body><div id="b"></div><div id="g"><div id="t">${icon ? '<svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>' : 'Hamburgefonstiv 0123456789 wear sky'}</div></div></body></html>`;
+      const clip = { x: 30, y: 20, width: 640, height: 60 };
+      const shot = async v => { await hp.setContent(html(v)); return decodePng(await hp.screenshot({ clip })); };
+      const mask = await shot('mask'), halo = await shot('halo'), plain = await shot('plain');
+      await hp.setContent(html('real'));
+      const tcol = await hp.evaluate(n => { const p = document.createElement('div'); document.body.appendChild(p); p.style.color = `var(--${n})`; return getComputedStyle(p).color; }, tn);
+      if (crop) fs.writeFileSync(path.join(OUTDIR, `${crop}-${name}-r2.png`), await hp.screenshot({ clip: { x: 130, y: 22, width: 440, height: Math.round(size * 1.3) + 16 } }));
+      const W = mask.w, Hh = mask.h, cov = new Float32Array(W * Hh);
+      for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) { const p = mask.px(x, y); cov[y * W + x] = 1 - (p.r + p.g + p.b) / 3; }
+      const dist = new Int16Array(W * Hh).fill(99); const qq = [];
+      for (let i = 0; i < W * Hh; i++) if (cov[i] > 0.5) { dist[i] = 0; qq.push(i); }
+      for (let qi = 0; qi < qq.length; qi++) { const i = qq[qi], x = i % W, y = (i / W) | 0; if (dist[i] >= 20) continue;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= W || Y >= Hh) continue; const j = Y * W + X; if (dist[j] > dist[i] + 1) { dist[j] = dist[i] + 1; qq.push(j); } } }
+      const r1 = [Math.max(1, Math.round(0.5 * dsf)), Math.max(1, Math.floor(1.5 * dsf))], r2 = [Math.floor(1.5 * dsf) + 1, 3 * dsf];
+      const tc = parse(tcol); const ring = [], ringNo = [], ring2 = [];
+      for (let i = 0; i < W * Hh; i++) { if (cov[i] > 0.02) continue; const x = i % W, y = (i / W) | 0;
+        if (dist[i] >= r1[0] && dist[i] <= r1[1]) { ring.push(contrast(tc, halo.px(x, y))); ringNo.push(contrast(tc, plain.px(x, y))); }
+        else if (dist[i] >= r2[0] && dist[i] <= r2[1]) ring2.push(contrast(tc, halo.px(x, y))); }
+      const thr = tn === 'text' ? 7 : 4.5;
+      const row = { theme, level, glass: g, text: tn, size, weight, over: bk, dsf, kind, icon, ringPixels: ring.length,
+        ringMin: q_(ring, 0), ringP10: q_(ring, 0.1), ringMedian: q_(ring, 0.5), shareUnder: floor(ring.filter(v => v < (icon ? 3 : thr)).length / Math.max(1, ring.length), 3),
+        ringMedianNoHalo: q_(ringNo, 0.5), ringP10NoHalo: q_(ringNo, 0.1), ring2Median: q_(ring2, 0.5), ring2P10: q_(ring2, 0.1) };
+      R.haloRendered.push(row);
+      return row;
+    };
+    // A. the author's gated set, re-measured my way: 6 palettes x 3 levels x 2 materials x 4 backdrops x 3 roles
+    for (const [theme, scheme] of Object.entries(PALETTES)) for (const level of ['frosted', 'current', 'clear']) for (const g of ['glass-strong', 'glass']) for (const bk of ['page', 'card', 'mid', 'worst']) for (const tn of ['text', 'text-2', 'text-3']) {
+      if (bk === 'worst' && tn === 'text-3') continue;
+      const row = await renderHalo({ theme, scheme, level, g, tn, bk });
+      const thr = tn === 'text' ? 7 : 4.5, ctx = `${level}/${theme}/${g}/${tn}/${bk}`;
+      const gatedByAuthor = level !== 'frosted' && !(g === 'glass' && tn === 'text-3');
+      if (gatedByAuthor) { check(`halo rendered (my ring): ${tn} median, ${level}`, row.ringMedian, thr, ctx); check(`halo rendered (my ring): ${tn} p10, ${level} (stricter than the author's bar)`, row.ringP10, thr, ctx); }
+    }
+    // B. stress: sizes, weights, kid face, device scales, busy backdrops, icons
+    for (const [theme, scheme] of [['hearth', 'light'], ['frost', 'light'], ['midnight', 'dark'], ['graphite', 'dark']]) for (const level of ['clear', 'current']) for (const g of ['glass-strong', 'glass']) {
+      for (const [tn, size, weight] of [['text-2', 11, 400], ['text-2', 13, 400], ['text-2', 17, 600], ['text', 11, 500], ['text-3', 13, 400]]) for (const bk of ['worst', 'mid']) {
+        if (tn === 'text-3' && bk === 'worst') continue;
+        const row = await renderHalo({ theme, scheme, level, g, tn, size, weight, bk });
+        check(`halo stress: ${tn} ${size}px/${weight} median`, row.ringMedian, tn === 'text' ? 7 : 4.5, `${level}/${theme}/${g}/${bk}`);
+      }
+      for (const bk of ['worst', 'mid']) {
+        const row = await renderHalo({ theme, scheme, level, g, tn: 'text-2', size: 18, bk, kind: 'kid', accent: 'lavender' });   // kid body is 17 x 1.2 ~ 20; 18 px rounded face
+        check('halo stress: kid (rounded face) text-2 median', row.ringMedian, 4.5, `${level}/${theme}/${g}/${bk}`);
+      }
+      for (const dsf of [1, 3]) for (const bk of ['worst', 'mid']) {
+        const row = await renderHalo({ theme, scheme, level, g, tn: 'text-2', bk, dsf });
+        check(`halo stress: text-2 at device scale ${dsf} median`, row.ringMedian, 4.5, `${level}/${theme}/${g}/${bk}`);
+      }
+      for (const bk of ['edge', 'stripes']) for (const tn of ['text', 'text-2']) {
+        const row = await renderHalo({ theme, scheme, level, g, tn, bk });
+        check(`halo stress: ${tn} over a busy photo (${bk}, blurred by the live filter) median`, row.ringMedian, tn === 'text' ? 7 : 4.5, `${level}/${theme}/${g}`);
+      }
+      // icons: an SVG stroke icon (a tab or button glyph) gets no text-shadow; non-text 3:1
+      for (const bk of ['worst', 'mid']) for (const [tn, acc] of [['text-2', 'sky'], ['accent-ink', 'periwinkle']]) {
+        const row = await renderHalo({ theme, scheme, level, g, tn, bk, icon: true, accent: acc });
+        check(`halo stress: an SVG icon (${tn}) on see-through glass, non-text >= 3 (median of its ring)`, row.ringMedian, 3, `${level}/${theme}/${g}/${bk}`);
+      }
+    }
+    // C. crops for the legibility judgement
+    for (const [crop, o] of [
+      ['crop-hearth-clear-strong-black-text2-15', { theme: 'hearth', scheme: 'light', level: 'clear', g: 'glass-strong', tn: 'text-2', bk: 'worst' }],
+      ['crop-hearth-frosted-strong-black-text2-15', { theme: 'hearth', scheme: 'light', level: 'frosted', g: 'glass-strong', tn: 'text-2', bk: 'worst' }],
+      ['crop-hearth-clear-pill-edge-text-15', { theme: 'hearth', scheme: 'light', level: 'clear', g: 'glass', tn: 'text', bk: 'edge' }],
+      ['crop-midnight-clear-strong-white-text2-15', { theme: 'midnight', scheme: 'dark', level: 'clear', g: 'glass-strong', tn: 'text-2', bk: 'worst' }],
+      ['crop-midnight-clear-pill-stripes-text-15', { theme: 'midnight', scheme: 'dark', level: 'clear', g: 'glass', tn: 'text', bk: 'stripes' }],
+      ['crop-graphite-clear-strong-white-text2-11', { theme: 'graphite', scheme: 'dark', level: 'clear', g: 'glass-strong', tn: 'text-2', size: 11, bk: 'worst' }],
+      ['crop-hearth-clear-strong-black-text2-11-dsf1', { theme: 'hearth', scheme: 'light', level: 'clear', g: 'glass-strong', tn: 'text-2', size: 11, bk: 'worst', dsf: 1 }],
+      ['crop-hearth-clear-strong-mid-text2-15', { theme: 'hearth', scheme: 'light', level: 'clear', g: 'glass-strong', tn: 'text-2', bk: 'mid' }],
+      ['crop-hearth-clear-strong-card-text-15', { theme: 'hearth', scheme: 'light', level: 'clear', g: 'glass-strong', tn: 'text', bk: 'card' }],
+      ['crop-hearth-clear-strong-black-icons', { theme: 'hearth', scheme: 'light', level: 'clear', g: 'glass-strong', tn: 'accent-ink', bk: 'worst', icon: true, accent: 'periwinkle' }],
+    ]) await renderHalo({ ...o, crop });
+    for (const { hc } of Object.values(haloCtxs)) await hc.close();

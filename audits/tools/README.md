@@ -194,5 +194,7 @@ Experiment and verification scripts for each app live in `phase3/<app-id>/`: the
 | `node audits/tools/phase5/preview-sheets.mjs` | Contact sheets for those captures, without touching `audits/01-capture.md` |
 | `node audits/tools/phase5/preview-check.mjs` | The preview in WebKit and Chromium at three widths and both schemes: every computed ratio passes, no horizontal scroll |
 | `node audits/tools/phase5/preview-assets.mjs` | The preview's "before" JPEGs from the Phase 1 Prayer captures |
+| `node audits/tools/phase5/app-hues.mjs [--css] [--search]` | Decision D5: the nine app hue families, interpolated between the house pastels and nudged until every person-family gate rule holds → `audits/evidence/p5/app-hues.json` (`--css` prints the token lines, `--search` re-runs the slot search) |
+| `audits/tools/phase5/verify-rev6/` | The independent verifier's own scripts for token revision 6 → `audits/evidence/p5/verify-rev6/` |
 
 Two opt-in screen flags were added to `capture.mjs` for the preview: `fullPage` (capture the whole document) and `optIn` (run only when named with `--area`; `phase4/measure.mjs` skips such areas too). A default run still plans the 4,447 Phase 1 captures.

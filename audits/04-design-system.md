@@ -27,7 +27,7 @@
 3. **Row scorers and checkers.** One scorer per row applied the bases and rules with evidence. A separate checker per row re-checked every cell against the screenshots (378 opened in all). One-point differences take the checker's score; a gap of two points or more would go to a judge (none arose).
 4. **A consistency pass** read all ten rows for the same rule applied differently. It raised 11 flags, and a ruling settled each one (all 11 accepted).
 
-**The token proposal method.** Three independent proposals (Apple fidelity first; access and legibility first; migration first) were written and scored by a panel of three judges. The judges split (migration 142, fidelity 140, access 133). Because of an orchestration error, the synthesis was handed fidelity as the winner. It built on fidelity and grafted migration's compatibility and delivery layer, which is one judge's recommendation, plus ideas from access. See "How the set was assembled". Independent verifiers then checked contrast (their own cascade and WCAG code), completeness and coherence (a two-engine scope probe), and the house and CLAUDE.md constraints (a runtime check on the rig), in six rounds (round 6 had a contrast and a coherence verifier only). Rounds 1 to 4 found 23, 23, 20 and 17 issues (0, 0, 4 and 4 of them blocking), and every verifier in each of those rounds returned "not ok". Revisions 1 to 4 each answered the round before, and each later round re-checked the earlier fixes: round 3 found one of round 2's fixes (GLASS-7) half done, and round 5 found two of round 2's completeness issues open again. Round 5 checked revision 4 and found 17 issues, 1 of them blocking. Its constraints verifier returned "ok"; its contrast verifier (0 failing pairs in 431,954 evaluations, 3 minor wording errors) and its coherence verifier (the blocking issue plus 9 minor) did not. Revision 5 answered four of those 17: the blocking one (the Me hero's Switch button now has an exact batch-1a row) and the three wording errors; it left the other 13 open. Round 6 checked revision 5 with two verifiers, each with its own two-engine script. Both found all four fixes holding, the button painting exactly its tokens in WebKit and Chromium (≥ 6.58 in light, ≥ 6.86 in dark), and no blocking issue; the contrast verifier returned "ok", the coherence verifier "not ok" for minor issues only. Round 6 raised 4 new minor issues, plus one that both verifiers named (this report still held revision 4), which this assembly answers. **17 minor issues are open (13 from round 5, 4 from round 6), none blocking**; they are listed at the top of the Proposed token set section. Revision 5's own gate runs 102,583 evaluations with 0 failing and catches all 26 planted faults.
+**The token proposal method.** Three independent proposals (Apple fidelity first; access and legibility first; migration first) were written and scored by a panel of three judges. The judges split (migration 142, fidelity 140, access 133). Because of an orchestration error, the synthesis was handed fidelity as the winner. It built on fidelity and grafted migration's compatibility and delivery layer, which is one judge's recommendation, plus ideas from access. See "How the set was assembled". Independent verifiers then checked contrast (their own cascade and WCAG code), completeness and coherence (a two-engine scope probe), and the house and CLAUDE.md constraints (a runtime check on the rig), in six rounds (round 6 had a contrast and a coherence verifier only). Rounds 1 to 4 found 23, 23, 20 and 17 issues (0, 0, 4 and 4 of them blocking), and every verifier in each of those rounds returned "not ok". Revisions 1 to 4 each answered the round before, and each later round re-checked the earlier fixes: round 3 found one of round 2's fixes (GLASS-7) half done, and round 5 found two of round 2's completeness issues open again. Round 5 checked revision 4 and found 17 issues, 1 of them blocking. Its constraints verifier returned "ok"; its contrast verifier (0 failing pairs in 431,954 evaluations, 3 minor wording errors) and its coherence verifier (the blocking issue plus 9 minor) did not. Revision 5 answered four of those 17: the blocking one (the Me hero's Switch button now has an exact batch-1a row) and the three wording errors; it left the other 13 open. Round 6 checked revision 5 with two verifiers, each with its own two-engine script. Both found all four fixes holding, the button painting exactly its tokens in WebKit and Chromium (≥ 6.58 in light, ≥ 6.86 in dark), and no blocking issue; the contrast verifier returned "ok", the coherence verifier "not ok" for minor issues only. Round 6 raised 4 new minor issues, plus one that both verifiers named (this report still held revision 4), which this assembly answers. **17 minor issues are open (13 from round 5, 4 from round 6), none blocking**; they are listed at the top of the Proposed token set section. Revision 5's own gate runs 102,583 evaluations with 0 failing and catches all 26 planted faults. **Phase 5 update (2026-09-25):** revisions 6 and 6b apply the household's decisions and settle the 17 open issues; the figures in this paragraph are revision 5's. See "Revision 6" in the Proposed token set's assembler's note for the current file, gates and verification.
 
 **Severity** follows the Phase 2 rule (`audits/02-shell.md:25-37`) and its design-system clause: critical = household data lost or overwritten, an account or private content exposed, or an app unusable on the iPad, iPhone or TV; high = a core daily flow broken or wrong for a household member, or a privacy or safety issue for kids; medium = a secondary flow broken or misleading; low = cosmetic or an edge case. Text a household member needs that fails WCAG AA on a primary surface or control is at least medium (high when it is the main content or the primary action of a daily flow); decorative or secondary failures are low. A narrow trigger adds an Exposure line; it does not lower severity.
 
@@ -47,7 +47,7 @@
 - **Dark mode.** The dark blocks are complete and drift-free, and dark text is better than light in 8 of 11 areas. Dark's weaknesses are in the shared base: soft fills 1.01-1.22:1 from the card, a flat depth ladder, inverted toasts and an art set with no dark form. Hearth on a dark OS (P2-VIS-03) was measured app by app: the park map's pane tabs, the build guide's labels and F260's Reset fall to 2.6-3.9:1 (**P4-DARK-02**, medium).
 - **Type, shape and icons.** There is no iPad type tier (the shell renders 160 of 163 selectors at the same size on the iPad as on the iPhone) and no text-size preference. Ten areas set their large titles eight ways and none is a 34 bold tracked title. Concentric corners are impossible by construction (at least 58 of 99 pairs off). Kid mode keeps adult-sized controls wherever a control is sized in px (P4-SHAPE-01), and the shared toast is capped at half the viewport, so ordinary messages wrap to two or three lines on the iPhone (P4-SHAPE-04). There are eleven icon families, no app uses the shell's set, and the sprite duotone never renders (P4-ICON-02).
 - **Corrections to earlier phases.** P2's tab label "Apps" at 3.78 and VIS-PRAYER-1's dark nav "Record" at 3.40-3.56 are no-blur artefacts (4.91-5.60 with a real blur). The park map's family labels are 11.0 px, not 8.7. P2's "one icon language with 20 % duotone" holds only for inline SVGs. P2's scrollbar pass and P3's scrollbar rows came from Playwright's `--hide-scrollbars`. P3's claim that the park map keeps animating under Reduce Motion is withdrawn. Earlier reports are not edited; the sections record each correction.
-- **The proposed token set** (`audits/tools/phase4/tokens/proposed-tokens.css`, 672 lines, no build step, with two component rules: `glass7-component.css` for GLASS-7 and `identity-component.css` for faces and app tiles) keeps every name design.css defines today that anything reads (three unread names are retired), adds the eight house pastels as theme-aware fill/ink families, per-person hue families stored as a name, "on" colours for every fill, an iPad type tier, a text-size preference, kid and kiosk scales that also reach `--fs-xs` and every legacy size, concentric radii, elevation roles, composite glass tokens and springs. Its gate runs 102,583 evaluations with 0 failing, catches all 26 planted faults, and resolves 7,560 values identically in WebKit and Chromium, where both component rules are also checked against today's components and the Me hero's Switch button is rendered with its batch-1a row; the TV board still fits 1920×1080 exactly as today, and with the named batch rows big numerals are ui-rounded for everyone, kid mode is fully rounded, and no text falls under 11 px (16 px for a kid), the Dollywood pair included. Its gap table has 127 rows (49 closed by a token, 59 by a token plus a Phase 6 change, 14 by a rule, 3 partly, 2 open), and it leaves 18 decisions for the household (D1-D18). **Verification is not finished.** Six rounds of independent verifiers (three per round in rounds 1-5, two in round 6) found 23, 23, 20, 17, 17 and 7 issues (0, 0, 4, 4, 1 and 0 blocking; round 6's 7 are 5 distinct). Revisions 1-4 answered rounds 1-4. Round 5, against revision 4, passed the constraints check but not the contrast check (0 failing pairs, three minor wording errors) or the coherence check, and its one blocking issue was the Me hero's Switch button (`apps/design.css:423`), in no batch row and 1.19-1.29:1 in every dark palette after batch 1a. Revision 5 answered 4 of round 5's 17 issues: that rule now has an exact batch-1a row on `--hero-btn-bg` / `--hero-btn-ink`, so ACCENT-4 and COLOR-3 are closed as T+R, and the three wording errors are corrected. Round 6's two verifiers, with their own two-engine scripts, found all four fixes holding (the button paints exactly its tokens in both engines, ≥ 6.58 in light and ≥ 6.86 in dark) and no blocking issue; the contrast verifier returned "ok", the coherence verifier "not ok" for minor issues only. **17 minor issues are open**: 13 from round 5 (among them, GLASS-9 needs a Phase 6 row for the literal blur recipes, and the table holds 126 source gaps, not 127) and 4 from round 6 (among them, in dark the Switch capsule is the colour of the hero's end stop, so only its label and a hairline shadow mark its edge). All are listed at the top of the Proposed token set section.
+- **The proposed token set** (`audits/tools/phase4/tokens/proposed-tokens.css`, 672 lines, no build step, with two component rules: `glass7-component.css` for GLASS-7 and `identity-component.css` for faces and app tiles) keeps every name design.css defines today that anything reads (three unread names are retired), adds the eight house pastels as theme-aware fill/ink families, per-person hue families stored as a name, "on" colours for every fill, an iPad type tier, a text-size preference, kid and kiosk scales that also reach `--fs-xs` and every legacy size, concentric radii, elevation roles, composite glass tokens and springs. Its gate runs 102,583 evaluations with 0 failing, catches all 26 planted faults, and resolves 7,560 values identically in WebKit and Chromium, where both component rules are also checked against today's components and the Me hero's Switch button is rendered with its batch-1a row; the TV board still fits 1920×1080 exactly as today, and with the named batch rows big numerals are ui-rounded for everyone, kid mode is fully rounded, and no text falls under 11 px (16 px for a kid), the Dollywood pair included. Its gap table has 127 rows (49 closed by a token, 59 by a token plus a Phase 6 change, 14 by a rule, 3 partly, 2 open), and it leaves 18 decisions for the household (D1-D18). **Verification is not finished.** Six rounds of independent verifiers (three per round in rounds 1-5, two in round 6) found 23, 23, 20, 17, 17 and 7 issues (0, 0, 4, 4, 1 and 0 blocking; round 6's 7 are 5 distinct). Revisions 1-4 answered rounds 1-4. Round 5, against revision 4, passed the constraints check but not the contrast check (0 failing pairs, three minor wording errors) or the coherence check, and its one blocking issue was the Me hero's Switch button (`apps/design.css:423`), in no batch row and 1.19-1.29:1 in every dark palette after batch 1a. Revision 5 answered 4 of round 5's 17 issues: that rule now has an exact batch-1a row on `--hero-btn-bg` / `--hero-btn-ink`, so ACCENT-4 and COLOR-3 are closed as T+R, and the three wording errors are corrected. Round 6's two verifiers, with their own two-engine scripts, found all four fixes holding (the button paints exactly its tokens in both engines, ≥ 6.58 in light and ≥ 6.86 in dark) and no blocking issue; the contrast verifier returned "ok", the coherence verifier "not ok" for minor issues only. **17 minor issues are open**: 13 from round 5 (among them, GLASS-9 needs a Phase 6 row for the literal blur recipes, and the table holds 126 source gaps, not 127) and 4 from round 6 (among them, in dark the Switch capsule is the colour of the hero's end stop, so only its label and a hairline shadow mark its edge). All are listed at the top of the Proposed token set section. **Phase 5 update (2026-09-25):** revisions 6 and 6b apply the household's decisions and settle the 17 open issues; the figures in this paragraph are revision 5's. See "Revision 6" in the Proposed token set's assembler's note for the current file, gates and verification.
 - **After the completeness critic.** Two defects were added, each confirmed 2/2 with the skeptics' own scripts: **P4-TELL-07** (medium: focus invisible on the Apps-grid tiles, the picker cards and the chat field, which also corrects P4-TELL-01's statement that controls outside `.ds .btn` ring) and **P4-SHAPE-04** (low: the shared toast capped at half the viewport, settling SHAPE Unresolved 3). COL-1 no longer exempts a blink that lasts its whole state, so the Timer's Colour falls from 5 to 4 (row 4.4; apps mean 4.1). The consistency pass nets −1.5 points, not −2. A states sweep measured text in hover, press and focus states and all pseudo-element text in the seven theme keys: nothing new fails in the `.ds` areas, pseudo-element text passes, and five state-only failures (4.06-4.46:1: F260, the build guide, Prayer's Copy for Elizabeth, a shell soft button for Kiara) are recorded for Phase 5 to verify (COLOR Unresolved 8). Three screenshots saved at device scale were re-saved at 1x, and uncited PNGs are kept out of git (Scripts and evidence).
 
 ## Scorecard
@@ -7571,6 +7571,179 @@ Outputs: `remeasure-tokens.json`, `remeasure-raw.json`, `remeasure-live-webkit.j
 >
 > **Answered by this assembly:** both round-6 verifiers found that this report still held revision 4 and a note saying round 5 was unanswered. The section below is now revision 5, and this note, "How to read this report", the Summary and "Scripts and evidence" record round 6.
 
+> **Revision 6 (Phase 5, 2026-09-25): the household's decisions, and the 17 open issues settled.**
+>
+> The household answered D1-D18 and P5-D1 to P5-D9 (`audits/05-decisions.md`). The token file, the bootstrap, the gate and the engine cross-check now follow those answers. Where this section below still describes revision 5, this note wins.
+>
+> **What the decisions changed in the tokens**
+> - **D3, who gets which colour.** The fallback table in `bootstrap.js` and the gate now carry the alternative set:
+>   - Eli periwinkle, Mae peach, Elizabeth bubblegum, David mint;
+>   - Mea butter, Ezra aqua, Kiara lavender, the TV graphite.
+>
+>   Every place in this section that says "Mae (bubblegum)", "Kiara butter", "David sky" or "Mea mint" now reads the new map.
+> - **D4, guests.** Every guest is **sky**, the one hue no household member holds; two guests may share it. The bootstrap checks `is_guest` first, so a guest shows sky whatever colour is stored for them. That covers the Add-a-guest sheet's default #137F77, the Worker's no-colour default and both guest swatches (#8C4F7A, #4C7B6A). In batch 0d the Worker writes `hue = 'sky'` for every new guest (revision 6b, verify-rev6 issue 3).
+> - **D5, app colours: separate app hues.** The nine app families are coral, apricot, honey, pistachio, leaf, seafoam, lagoon, cornflower and orchid.
+>   - **How they were made.** `audits/tools/phase5/app-hues.mjs` places each app at a maximin slot between two house pastels. It interpolates each of the eight roles in OKLCH from those two neighbours, then nudges lightness until every rule a person family meets holds with a 0.03 margin.
+>   - **Status colours (revision 6b).** A role that sat too close to a status colour was moved by a grid search over hue, lightness and chroma, keeping every contrast rule and every distance below. The slots, neighbours, moves and every hex are in `audits/evidence/p5/app-hues.json`.
+>   - **The apps.** Timer coral, Prayer apricot, Kid Verse honey, Verses pistachio, the Larder leaf, Tally seafoam, the park map lagoon, F260 cornflower, the build guide orchid.
+>   - **What the gate holds them to.** Each family sits in both scheme blocks, carries a `[data-accent]` block, and joins the ink and 7:1 solid swaps. The gate runs every accent-context check for them too (18 families, not 9).
+>   - **How distinct they are** (CIEDE2000, all gated):
+>     - app vs app is ≥ 13.2 in light and ≥ 9.9 in dark on the tile end (floor 8), and ≥ 10.3 on the mark (floor 10);
+>     - **app vs person, in every role** (revision 6d, after round 3 found Kid Verse's dark honey fill, glyph and label on Mae's peach at 1.79 / 2.18 / 1.58):
+>       - the floor per role and scheme is half the people's own closest spacing, and never under 4 on the tile end or 5 on the mark;
+>       - lowest in light: wash 1.89 (floor 1.6), fill 4.38 (3.9), tile end 5.32 (5.0), strong 5.44 (4.6), mark 7.60 (7.3), ink 4.22 (3.9), ink-hi 4.34 (3.7);
+>       - lowest in dark: wash 3.91 (3.2), fill 4.03 (3.6), tile end 4.77 (4.3), strong 5.31 (5.0), mark 6.98 (6.6), ink 4.49 (4.1), ink-hi 3.42 (3.1), on 3.23 (2.9);
+>       - apricot's light wash is no longer the peach wash (round 3 issue 6);
+>     - **app vs status colour** (revisions 6b-6c): in **every** role (wash, fill, fill-strong, graphic, strong, on, ink, ink-hi), no app sits closer to success, warning or danger than the closest person already does, per scheme.
+>       - The mark is held to the people's own gate of 10 and measures ≥ 10.46 in light and ≥ 10.35 in dark (coral vs danger).
+>       - In dark, the glyph (ink) is ≥ 3.79 (people 3.44), the solid (strong) ≥ 5.59 (people 5.13) and its label (on) ≥ 2.93 (people 2.62).
+>       - The light `-on` is white for every family, so there is nothing to separate there.
+>       - Kid Verse's dark honey tile, glyph and solid no longer match the warning chip.
+>       - **Status by status (reported; round 3 issue 2).** The rule is "no closer than the closest person to *any* status colour". Taken status by status it is looser for four apps, because they sit in the status hues' own neighbourhoods: coral (Timer) and apricot (Prayer) by danger, in every role, honey (Kid Verse) by warning, and leaf (the Larder) by success. Pistachio and seafoam are looser than the people only on the mark vs success, trivially (16.07 and 19.61, where the people are at 21.24). The whole table is reported per app, status, role and palette in `contrast.json` → `appHues`.
+>         - In dark, coral's glyph is 3.7 from danger's text, where no person comes closer than 9.7.
+>         - A tile always carries its glyph and name, and a status always carries its ✓ / ! / ✕ glyph, so neither is read by colour alone. But a red-pink Timer tile beside a danger chip is the closest pair in the house, and the owner should see it in the preview.
+>     - **Rounding.** The generator measures the 8-bit hex it writes, not the unrounded colour. Round 2 found a distance that held unrounded and failed on the hex: 3.71 against 3.38.
+>   - **Colour vision.** Deficiency simulations of the apps are reported, not gated: a tile is its glyph and name.
+>   - **The retired mapping.** The "each app takes the house hue nearest its colour" list under D5 is replaced by this one.
+> - **D8, glass: four levels.** A person preference, `hub.prefs.glass`, written by the bootstrap as `data-glass`:
+>   - **Clear:** 40 % pills and buttons, 48 % bars and sheets.
+>   - **Current:** today's look, 64 % / 84 %.
+>   - **Frosted:** the default, 78-80 % / 90 %.
+>   - **Solid:** this is `data-transparency="reduce"`.
+>
+>   How the levels behave:
+>   - **Precedence.** The level chosen in Me is the source of truth once the person has chosen: the bootstrap writes `data-glass` and `data-transparency="full"`, so an OS Reduce Transparency setting no longer applies. That holds for an explicit Frosted too; Safari cannot report that setting anyway, and Solid is one tap away. A person who never chose follows the OS.
+>   - **Old rows.** `hub.prefs.glass` supersedes the older `transparency` key. Batch 1b migrates `transparency: 'reduce'` to `glass: 'solid'` and deletes the old key, and until then `glass` wins.
+>   - **The TV.** The TV ignores a stored glass level: its panels are the photo panel and the opaque look. OS Reduce Transparency still makes them solid unless the TV's own device-local switch was set to "full" (that is an explicit choice on the TV). The bootstrap applies a glass level only for a signed-in person, so nothing is applied before anyone is picked (verify-rev6 issues 4-5, round 2 issue 5).
+>   - **The halo, as first proposed and as fixed.** Clear and Current paint a text halo, `--glass-text-shadow`.
+>     - Revision 6 made it a blurred glow and gated it as one flat layer. The independent verifier rendered it and measured the pixels beside the strokes: text-2 on Clear over a black photo read 2.9-4.2, not the modelled 5.7 (verify-rev6 issue 1, blocking).
+>     - Revision 6b makes it an **outline**: eight 1 px offsets at 0 blur in the card colour (`--glass-halo-edge`, solid), then one soft 8 px glow.
+>     - Revision 6c:
+>       - **Icons.** `text-shadow` does not paint on SVG, so icons get their own outline, `--glass-icon-filter`: four chained 1 px drop-shadows, applied by batch 1b to every `svg` on glass. Before this, an icon on Clear over a photo read 1.60 (round 2 issue 2).
+>       - **Frosted pays nothing.** Both outlines are `none` by default, so Frosted and Solid paint and cost nothing.
+>     - Revision 6d (round 3 issue 3): a nested palette re-points both outlines to its own card colour. A theme preview or a `data-scheme` island inside another palette therefore outlines in its own `--surface`, not the root's. `browser-check.mjs` probes this both ways, in both engines (`nestedOutline`); `contrast.mjs` does not model descendant selectors.
+>   - **How the halo is proved.** It is measured **as rendered**, in WebKit and Chromium, by `audits/tools/phase5/halo-check.mjs` → `audits/evidence/p5/halo-check.json`.
+>     - **The method (revision 6c; round 2 issue 3).** Device scale 2, under the full sheen and pickup, over the page, a card, #767676 and a black or white photo, in all six palettes.
+>       - What is measured: regular text at 11, 13 and 15 px, and a 1.75 px stroke icon.
+>       - The **inner ring** is 0.5-1 CSS px round each glyph core: outside the anti-aliased fringe, inside the outline. Its **p10** is gated, not the median, because a median over a ring that is mostly outline passes by construction. The thresholds are text 7, text-2 4.5, text-3 4.5 and icons 3.
+>       - Text-3 is never gated over a photo or on pills; it is a lint row there.
+>       - The **outer ring** (1.5-3 CSS px) is what lies behind the outline, and is reported.
+>       - The ring is defined at device scale 2, and the check always renders at 2 (round 3 issue 4). At scale 1 a fixed 2-device-px ring would fall outside the 1 px outline. The verifier's scale-aware ring passes at 1, 2 and 3 (lowest at scale 1: text-2 6.70, icons 4.82).
+>     - **Lowest inner-ring p10.**
+>       - Clear: text 10.28, text-2 7.89, text-3 5.98, icons 7.05.
+>       - Current: text 11.44, text-2 8.72, text-3 6.09, icons 7.05.
+>       - The same text on an opaque card reads 13.42 / 9.08 / 6.14.
+>     - **Outer ring, reported.** On Clear over a photo the glass itself reads down to 1.59 for text-2 and 1.26 for an icon. That is what the outline is for.
+>     - **How it looks** (the verifier's crops). The outline reads as one continuous contour, with no doubling. Strokes look heavier, and in dark slightly embossed; at 11 px the counters narrow. A 1.5 px icon in dark reads as a dark icon with a light hairline inside, and a selected tab's accent reads mostly as outline; filled glyphs and 2 px strokes look fine. All of it is legible, but it departs from iOS's vibrancy, and **the owner should judge it in the preview**.
+>     - The gate refuses to pass unless `halo-check.json` was made from the current token file (sha-256) and passed.
+>     - **Reported: Frosted, the default, with no halo, on the same inner-ring p10.** Over a black or white photo text reads 6.62, text-2 4.91 and icons 4.22. The flat WCAG figures the gate holds Frosted to stay ≥ 7 and ≥ 4.5; this pixel measure is stricter than WCAG (it samples the thinnest 11 px strokes). Real screens remain a device check.
+>   - **Increase Contrast and Solid** both beat a see-through level (gated).
+> - **D15, dark primary buttons.** The Me hero's Switch capsule in dark is now the glowing pastel solid with its dark label (`--accent-strong` / `--accent-on`). This also closes round-6 item 19: the capsule's edge against both hero stops is ≥ 5.26 in dark (gated ≥ 3) and 1.02 in light (reported: a white capsule with a shadow; the regenerated light app washes are nearer white). The label reads ≥ 8.65 in dark in both engines.
+> - **D16, the TV scale.** The 10-foot scale is still an attribute. Batch 2c turns it on for the TV in the same commit as the re-layout, gated by `scripts/test-tv.mjs` and the 1920 × 1080 fit. Until then the gate still holds the TV to today's sizes.
+> - **D17, text size.** F260's `f260.big` migrates once to the hub-wide Large (round-5 item 16 is closed by the decision). The CLAUDE.md edit and `test-prefs.mjs` case 6 follow in batch 1a.
+> - **Unchanged.** The other answers (D1, D2, D6, D7, D9-D14, D18) take the recommendation this section already describes.
+>
+> **The 17 open issues**
+>
+> Settled in the token file and gated:
+> - **12.** Reduce Transparency (attribute and media) and the kiosk now also set `--blur`, `--blur-sm` and `--blur-lg` to 0. The recipes that read `var(--blur)` go flat at once: `apps/design.css:396`, `apps/leftovers.html:43`, `apps/prayer.html:294-295`, `apps/tally.html:51, 79, 104`. The literal ones wait for item 14's row: the toast's 10 px at `apps/design.css:591`, Prayer's 6 px veil at `apps/prayer.html:234-235`, and the template's 17.
+> - **17.** Both Reduce Motion blocks set `--dur-crossfade: 150ms`, so the TV crossfade no longer depends on the kept global kill.
+> - **19.** Settled by D15 (above).
+>
+> Settled in a harness:
+> - **21.** `browser-check.mjs` now substitutes the hero row at the shipped rule's own line (`apps/design.css:423`) instead of appending it. Hover keeps the capsule there in both engines (6 hover checks per engine; the label passes in 324 contexts).
+>
+> Settled as a definition, gated:
+> - **13.** The app colour is no longer derived from a hex. Batch 2 writes `"hue"` into every `apps.json` entry from the table above (`APP_OF` in `contrast.mjs`). The gate checks that every app in `apps.json` has its own family, all nine different, none a person's. An app without a hue renders graphite, never a person's family.
+>
+> Settled as batch rows:
+> - **5.** Batch 1a replaces the pickup term of all 24 hand-copied glass recipes (F260, Tally, the Larder, Prayer, and the template's `--lv-glass` family in batches 9-10) with `var(--glass-pickup-layer)`. Today that term is `color-mix(in srgb, var(--accent) var(--glass-pickup), transparent)`, often inside a `radial-gradient(… at var(--sheen-x) …)`. The new layer is the gated tile-end tone, not the pastel solid. The lint row finds them by that pattern. In F260 and Prayer only the value changes; layouts and ids stay.
+> - **6.** Batch 1a: the `storage` listener (`apps/hub.js:350-352`) re-applies every preference attribute from `hub.prefs`, not only the theme. That covers text size, contrast, transparency, motion and glass. `test-prefs.mjs` gains a two-frame case.
+> - **7.** Batch 1b owns Me → Appearance:
+>   - text size, six steps;
+>   - Glass (Clear · Current · Frosted · Solid);
+>   - Increase Contrast;
+>   - Reduce Motion.
+>
+>   Each is one person-scope row with server-wins adoption. They are device-local on the TV.
+> - **8.** The kid target rule, for apps that keep their own CSS: `:root[data-kind="kid"] :is(button, a[href], [role="button"], input:not([type="hidden"]), select, summary, label[for]) { min-width: var(--tap); min-height: var(--tap); }`. Each app adds it in its own batch: the Larder in 8, Prayer in 3, and the park map in 10 through the template.
+> - **9.** Batch 1a gives the style guide's three sample faces (`docs/design.html:267-269`) a `data-accent` from the D3 map.
+> - **14.** GLASS-9 moves from T to T+R. Batch 1b replaces every literal `backdrop-filter` recipe with `var(--glass-filter)` or `var(--glass-filter-strong)`: `apps/design.css:396` and its copies in the Larder, Prayer and Tally, the toast at `:591`, and Prayer's veil. The template's 17 follow in batches 9-10.
+> - **15.** The app content glass moves to `--material-solid-bg` in each app's own batch, so batch 1b's GLASS-7 rule never paints the person pickup on a content card. That covers the Verses, Kid Verse, Timer and Tally cards, the shell's PIN and pairing cards, and its chat bubbles. The house rule: glass on navigation and controls only.
+>
+> Settled as wording, in the report:
+> - **10.** The DARK dimension's source gap 5 has two rows, DARK-5 (the depth ladder) and DARK-6 (elevation). DARK-7 to DARK-12 are source gaps 6 to 11. The table has 127 rows for 126 source gaps.
+> - **11.** `--cw`, `--cc` and `--cd` are on the "Stays local (plumbing)" allowlist.
+> - **16.** Closed by D17.
+> - **18.** The success figure on white reads 4.76 everywhere, rounded down.
+> - **20.** The TOK-19 row says 26 faults (34 after this revision).
+>
+> **Verification of revision 6**
+> - **`contrast.mjs`** (after revision 6d): 2,368 check kinds, 202,147 evaluations, **0 failing**. The mutation test catches **39 of 39** planted faults. 6c added Clear icons without an outline and Kid Verse's dark glyph back on the warning ink; 6d adds Kid Verse's dark fill back on Mae's peach. There are fewer evaluations than revision 6's 227,299 because the flat halo model's pairs are gone: the rendered check replaces them. The 10 new faults are:
+>   - the kiosk forgetting an app ink;
+>   - an app family painted in a person's colour;
+>   - Clear without its outline halo;
+>   - Kid Verse's dark honey back on the warning colour;
+>   - the bootstrap giving a guest a household colour;
+>   - the glass levels placed after Increase Contrast;
+>   - the dark capsule back to the deep fill;
+>   - Reduce Transparency keeping `--blur`;
+>   - Reduce Motion keeping the 2.5 s crossfade;
+>   - the bootstrap mapping Kiara back to butter.
+> - **`browser-check.mjs`:** WebKit 26.6 and Chromium 154 each resolve **15,372** token values with **0 mismatches**, the glass-level contexts included. The largest channel difference is 0.5/255.
+>   - The identity probe passes in both engines: Mae's avatar is peach inside Eli's, a kid's and the TV's page, and the app tiles carry leaf and honey.
+>   - The hero probe passes: the label in 324 contexts per engine and the hover check in 6, with the row now in place at line 423.
+>   - The nested-outline probe (6d) passes in 4 of 4 cases per engine.
+> - **`rev2-runtime.mjs`** (the local rig, WebKit) prints "every verdict holds".
+>   - The TV board fits 1920 × 1080 exactly as today.
+>   - The 10-foot attribute still overflows without the re-layout, which is why batch 2c ships the two together (D16).
+>   - F260's theme buttons keep the document palette.
+>   - With the named rows, kid mode is fully rounded on Home and every kid-visible app, no adult text is under 11 px and no kid text under 16 px.
+> - **The independent verifier** (`audits/tools/phase5/verify-rev6/`, its own WCAG, CIEDE2000 and PNG code, both engines, 227,422 evaluations) confirmed every recomputed figure but returned **not ok**. It raised:
+>   - 2 blocking issues: the halo as rendered, and an app hue equal to a status colour;
+>   - 5 minor issues: the default guest colour, glass precedence on the TV and against the OS, conflicting stored preferences, Frosted text-3 under the sheen, and wording.
+>
+>   **Revision 6b answers all seven:**
+>   - the outline halo and its rendered check (above);
+>   - the app status-colour gate, with the colours regenerated;
+>   - `is_guest` → sky in the bootstrap;
+>   - the TV ignores glass, and the precedence is written down;
+>   - the dark `--text-3` lifted by about 0.03 L, with a new gate: text-3 in a sheet under the full sheen and pickup ≥ 4.5 (4.58 over #767676). Text-3 on pills and buttons is a lint row; it is not used there;
+>   - the wording, including Clear's bars at 48 %.
+>
+>   **Also changed:** `--timer-done` now re-derives inside a nested `data-accent`, so a Timer tile's "time's up" is the Timer's colour.
+>
+>   **Round 2** checked revision 6b and returned **not ok**. It confirmed every recomputed figure and raised 2 blocking issues and 4 minor ones:
+>   - blocking: the status rule covered four roles, not eight (dark honey's glyph, solid and label still matched warning);
+>   - blocking: icons on Clear had no halo;
+>   - minor: the median ring passes by construction, so gate the p10 of the outline-width ring instead;
+>   - minor: the outline's look (judged legible);
+>   - minor: two TV bootstrap edge cases;
+>   - minor: the light hero edge figure.
+>
+>   Revision 6c answered all six (above).
+>
+>   **Round 3** checked revision 6c. Every 6c fix held, but it returned **not ok** for 1 blocking issue and 5 minor ones:
+>   - blocking: moving honey off warning put it on Mae's peach, and the person rule floored only two roles;
+>   - minor: per-status weakness for coral, honey and leaf;
+>   - minor: the outline not following a nested palette;
+>   - minor: the ring defined only at device scale 2;
+>   - minor: thin dark icons;
+>   - minor: the apricot and peach light washes.
+>
+>   Revision 6d answers them: the all-role person gate and regenerated colours, the nested re-point with its probe, and the notes above.
+>
+>   `halo-check.mjs`, `contrast.mjs` (0 failing, 39 of 39), `browser-check.mjs` (15,372 values per engine, 0 mismatches, nested outline 4 of 4) and `rev2-runtime.mjs` all pass on it.
+>
+>   **Round 4** checked revision 6d and returned **ok**, with 0 blocking issues.
+>   - It recomputed every app-vs-person figure in every role exactly.
+>   - It found no new near-collision.
+>   - The nested outline holds in 12 of 12 cases per engine.
+>   - The halo and icon rings pass by its own mask-based measure (text-2 ≥ 6.77 at 11 px, icons ≥ 4.82 at device scale 1).
+>   - Its two wording notes are applied: apricot is added to the per-status disclosure, and the dark mark figure is corrected to 10.35.
+>
+>   The verifier's scripts and outputs are in `audits/tools/phase5/verify-rev6/` and `audits/evidence/p5/verify-rev6/`. The token proposal is **revision 6d**; verification ended on a passing round.
+
 This is the complete token set that closes the Phase 4 gaps. It is a proposal for Phase 5's design preview, not app code: nothing ships until Phase 6 is approved.
 
 **Files**
@@ -7839,7 +8012,7 @@ Each case must set the right attributes. The inline `colorScheme` must equal the
 | What | Token | Why |
 |---|---|---|
 | Text and icons on a hue | `--X-ink` | Never `-fill`, `-fill-strong`, `-graphic`, `--success-strong` or `--warning-strong` as small text (the lint's never-as-text list). |
-| A solid fill | `--X-strong`, with `--X-on` as its label | A **person** `-strong` is also ≥ 4.58 as text, so legacy `color: var(--accent)` stays AA. A **semantic** `-strong` is a fill only: as text, success is 3.70 and warning 3.79 on Parchment's page (4.77 and 4.88 on white), so semantic text is `--X-ink` (`--ok`, `--warn` and `--danger` alias it). Danger's strong happens to read 7.42, but the rule is the same. |
+| A solid fill | `--X-strong`, with `--X-on` as its label | A **person** `-strong` is also ≥ 4.58 as text, so legacy `color: var(--accent)` stays AA. A **semantic** `-strong` is a fill only: as text, success is 3.70 and warning 3.79 on Parchment's page (4.76 and 4.88 on white; round-6 item 18: rounded down, as every bound here), so semantic text is `--X-ink` (`--ok`, `--warn` and `--danger` alias it). Danger's strong happens to read 7.42, but the rule is the same. |
 | **The pairing rule** | A background on an element that sets a label (`--on-accent`, `--on-solid`, white/#fff) maps to the family's `-strong`, and the label to that family's `-on`, **in the same commit**. Only unlabelled tints go to `-fill` or `-wash`. | White on `--mint-fill` is 1.26:1 and white on `--butter-fill` is 1.14:1. The lint refuses `-on` or white on any `-fill`, `-wash` or `-fill-strong`. |
 | Identity marks (avatar ring, today ring, map marker) | `--X-graphic` | ≥ 3:1, and separated by lightness for colour-blind viewers |
 | The selected tab (icon and label) | `--accent-ink`, the icon in `currentColor` | As the shell paints it today (`.ds .tab.on`). The ink is text-grade: ≥ 5.97 under the full sheen (gated) and ≥ 4.52 under the full pickup over any backdrop (reported). Under the full sheen the graphic tone falls to 2.75 (Lavender, Reduce Transparency), and the desktop sidebar's tabs sit under the sheen (§7). |
@@ -7896,7 +8069,7 @@ The dark ink on its own chip is ≥ 6.86:1, and ink-hi is ≥ 8.35 (the true min
 | Warning | #FFDCB6 / #724600 (6.23) / #9F6400 / **#BC6D00** | #5A390A ↑ / #FACD98 (7.03) / #FFBB69 / #FFBB69 | ! (`alert-triangle`) | `--attention` and `--attention-fill` for "use it up" |
 | Danger (destructive) | #FFC8C3 / #9B1E25 (5.48) / #900017 / #900017 | #64312E ↑ / #FFC6C1 (6.97) / #F07E79 / #F07E79 | ✕ (`x`) | Badges: `--badge-bg` = danger-strong with `--badge-ink` (6.42). **Badge vs card ≥ 6.00 (true minimum 6.004, Forest); vs sheet ≥ 5.28 (Graphite's #2C2C2E sheet); vs page ≥ 7.35.** |
 
-**A semantic `-strong` is a fill, never text.** Success #008533 and warning #9F6400 are solids for a white label (≥ 4.76). As text they are 3.70 and 3.79 on Parchment's page (4.77 and 4.88 on white), under 4.5 on every light page, and they are not swapped in the 7:1 modes. So a "Saved" or "Use soon" label reads `--success-ink` / `--warning-ink`; `--success-strong` and `--warning-strong` are on the lint's never-as-text list. The gate holds a semantic `-strong` to 3:1 as a graphic (lowest 3.70, success on Parchment's page, the same pair as its text figure above) and reports its text figure (`contrast.json` → `semanticCvdInfo`). The lowest semantic graphic of any role is 3.06: the warning `-graphic` #BC6D00 on Parchment's page.
+**A semantic `-strong` is a fill, never text.** Success #008533 and warning #9F6400 are solids for a white label (≥ 4.76). As text they are 3.70 and 3.79 on Parchment's page (4.76 and 4.88 on white; round-6 item 18: rounded down, as every bound here), under 4.5 on every light page, and they are not swapped in the 7:1 modes. So a "Saved" or "Use soon" label reads `--success-ink` / `--warning-ink`; `--success-strong` and `--warning-strong` are on the lint's never-as-text list. The gate holds a semantic `-strong` to 3:1 as a graphic (lowest 3.70, success on Parchment's page, the same pair as its text figure above) and reports its text figure (`contrast.json` → `semanticCvdInfo`). The lowest semantic graphic of any role is 3.06: the warning `-graphic` #BC6D00 on Parchment's page.
 
 What the gate checks for the semantic colours:
 - **Luminance ratios.** Success vs danger and warning vs danger each have a strong-tone luminance ratio ≥ 1.3; the lowest is 1.57. So the states differ in lightness, not only in hue.
@@ -8448,7 +8621,7 @@ The gate reads the `hub.THEMES` ids from `apps/hub.js`, adds graphite, and check
   - Run with `npx wrangler d1 execute house-hub --remote --file migrations/006-profile-hue.sql`.
 - **`worker/schema.sql`** gains `hue TEXT` beside `color` (`:8`).
 - **`worker/seed.sql`** (`:4-11`) gains the `hue` column in its `INSERT OR IGNORE`, so a fresh local D1 matches.
-- **The Worker** accepts only the nine family names in `POST /api/profiles` and the admin edit, and returns `hue` in the profile. **A profile created without a hue gets `hue = null`, which means graphite**, and without a colour it gets graphite's #4C4C58, not Elizabeth's #8A6A4B (`worker/src/index.js:182` today). Otherwise `p.hue || H[p.color]` would map the default hex to Peach, Elizabeth's family (ACCENT-6).
+- **The Worker** accepts only the nine family names in `POST /api/profiles` and the admin edit, and returns `hue` in the profile. **A profile created without a hue gets `hue = null`, which means graphite** (revision 6b: except a guest, which always gets `hue = 'sky'`, D4; the bootstrap checks `is_guest` first), and without a colour it gets graphite's #4C4C58, not Elizabeth's #8A6A4B (`worker/src/index.js:182` today). Otherwise `p.hue || H[p.color]` would map the default hex to Peach, Elizabeth's family (ACCENT-6).
 - **`publicProfile()`** passes it through (§1). Until a session is refreshed, the bootstrap's `H` table maps the stored hex.
 
 ### Migration table: today's `apps/design.css` tokens → v3
@@ -8557,7 +8730,7 @@ A name that still resolves can still change value. **Every value change is in th
 | | the TV board's content panes `<section class="tv-pane glass-strong …">` (`:1121-1127`: hero, verse, prayed, stars, feed, reading, reminders) | **Shell batch (batch 2):** drop `.glass-strong` and paint `--material-solid-bg` (content is solid; GLASS-6, GLASS-9). `--tv-panel` with `--tv-text` / `--tv-text-2` is the alternative if the album should show through; both lines are ≥ 7 over any photo. Only the `.kiosk-switch` control (`.btn-glass`, `:1121`) keeps glass. Without this row, batch 1b would give the panes the glass recipe and the pickup. |
 | docs/design.html | the `.tp` swatch blocks (`:270`); the 15-kind contrast list (`:291-306`) | **Batch 1a:** swatches carry `data-theme-preview` + `data-scheme` + `data-accent`; `contrast.mjs` output replaces the list |
 | Shell, Timer, Tally, Kid Verse, Verses | **every numeral read** (§3 has the list): the `--font-display` numerals (`apps/tally.html:58`; `apps/kidverse.html:62, 78, 99`; `apps/verses.html:64`), the Timer digits (`apps/timer.html:32`, `--font-sans`), the Home and TV clocks (`index.html:100, 142`), the timer pill and in-app countdown (`:350, :360`), the star counts on Home and the TV (`:206, :156`), the park wait times (`:196`) and Verses `.boxes .n`, `.queue .when` (`apps/verses.html:83, 90`) | `font-family: var(--font-numeral)`, **batch 1a**, the house rule "ui-rounded for big numerals" for everyone. The rule: every read set in `tabular-nums` reads `--font-numeral` (`rev2-runtime.mjs` → `D` checks the list statically and on the rig) |
-| **Stays local (plumbing)** | per-element geometry that JS or a component sets, not design values: the template's `--pop-cat` (`:291, 479`, map-category badge colour, D12), `--peek` and `--barh` (`:312`), `--L` (`:463`), `--sheet-h` (read with a 74 px fallback, `:402, 415, 420`); the shell's `--size` (avatar size, `:86, 154, 175, 246, 272`), `--tabs` and `--i` (tab indicator, `:395, 641`), `--p` (progress, `:404, 683, 819, 1175`), `--chat-h` (`:639`), `--ox` / `--oy` (the viewer's zoom origin, `:719-720`); F260's `--p` and `--n` (`:1519, 1525`) and `--dx` / `--dy` (`:1321`); Kid Verse's confetti `--x`, `--d`, `--c` (`apps/kidverse.html:320`; `--c` takes `--cat-*`); design.css's component hooks `--g` (above) and `--size` (`apps/design.css:491-504`); the Larder's `--addbar-h`; Tally's `--disc` and `--digits` | Stay local. The lint allowlists these names; any colour they carry must be a token (`--pop-cat` and `--c` already are, or become `--cat-*`). |
+| **Stays local (plumbing)** | per-element geometry that JS or a component sets, not design values: the template's `--pop-cat` (`:291, 479`, map-category badge colour, D12), `--peek` and `--barh` (`:312`), `--L` (`:463`), `--sheet-h` (read with a 74 px fallback, `:402, 415, 420`); the shell's `--size` (avatar size, `:86, 154, 175, 246, 272`), `--tabs` and `--i` (tab indicator, `:395, 641`), `--p` (progress, `:404, 683, 819, 1175`), `--chat-h` (`:639`), `--ox` / `--oy` (the viewer's zoom origin, `:719-720`); F260's `--p` and `--n` (`:1519, 1525`) and `--dx` / `--dy` (`:1321`); Kid Verse's confetti `--x`, `--d`, `--c` (`apps/kidverse.html:320`; `--c` takes `--cat-*`); the template's JS-set coaster stroke `--cw`, `--cc` and `--cd` (revision 6, round-5 item 11; `--cc` must carry a token); design.css's component hooks `--g` (above) and `--size` (`apps/design.css:491-504`); the Larder's `--addbar-h`; Tally's `--disc` and `--digits` | Stay local. The lint allowlists these names; any colour they carry must be a token (`--pop-cat` and `--c` already are, or become `--cat-*`). |
 
 **F260 text size (decision D17).** CLAUDE.md and `scripts/test-prefs.mjs` say F260 keeps its text size in its own person scope (`app_data(person,'f260','f260.big')`, a boolean behind a 1.15 zoom). Retiring that reverses a standing project rule, so it is a household decision, not a migration detail.
 
@@ -8690,7 +8863,7 @@ So batch 1a runs in this order, **in one commit, deployed as one push together w
 | TOK-16 | z-index ladder; breakpoints | GAP-TOK-5 | `--z-*`; documented breakpoints | T+R (`@media` uses the documented values) |
 | TOK-17 | Targets through tokens; kiosk `--tap` | GAP-TOK-4 | `--tap/-lg/-row` with per-kind bases, growing with text size | T+R |
 | TOK-18 | One source per palette | GAP-TOK-8 | One block per palette; cards carry attributes | T (preview gated) |
-| TOK-19 | Verification gates | GAP-TOK-1/-7 | `contrast.mjs` (102,583 evaluations), `browser-check.mjs` (WebKit + Chromium, the GLASS-7 and identity component rules and Prayer's meta included), `rev2-runtime.mjs` (the TV fit, F260's buttons, kid fonts, big numerals and the text floor on the rig, the Dollywood pair included), the mutation test (25 faults) | T+R (the rgba/named/JS lint is Phase 6) |
+| TOK-19 | Verification gates | GAP-TOK-1/-7 | `contrast.mjs` (102,583 evaluations), `browser-check.mjs` (WebKit + Chromium, the GLASS-7 and identity component rules and Prayer's meta included), `rev2-runtime.mjs` (the TV fit, F260's buttons, kid fonts, big numerals and the text floor on the rig, the Dollywood pair included), the mutation test (26 faults; 34 after revision 6, which also runs 227,299 evaluations) | T+R (the rgba/named/JS lint is Phase 6) |
 | TOK-20 | One vocabulary; namespace colliding app classes; one segmented control | CONS-TOK-1/-2 | The migration tables above | Open: a component-naming change, not a token; done per app batch |
 | TOK-21 | Prune unused / exact-alias tokens | GAP-TOK-9 | `--dur`, `--shadow-sm` and `--info` **removed** (0 readers each, gated). Marked `/* deprecated */` in §9: `--info-soft` / `--info-ink` (1 reader), `--ease-out`, `--shadow` and `--shadow-lg` (exact aliases). `--accent-strong` is no longer an alias: it is the strong role. `--sp-12` / `--sp-16` / `--bg-2` stay (the guide reads them) | T (the deprecated aliases are deleted when the lint finds no reader) |
 | MOTION-1 | Real spring family | design.css:108 | `--spring-snappy/-gentle/-bouncy` + durations (bouncy 340 ms) | T (overshoot and range gated) |
@@ -8784,7 +8957,7 @@ So batch 1a runs in this order, **in one commit, deployed as one push together w
 | ACCENT-3 | Selected-state token or rule | P4-ACCENT-01 | `--sel-fill/-ink/-fill-strong/-ink-strong/-weight`. `--sel-fill` (the pastel) is under 3:1 against the card, so the non-colour cue is required. | T+R: the batch-1b tab, segmented and chip rule applies `--sel-weight` plus a ≥ 3:1 indicator (`--sel-fill-strong` or `--accent-graphic` underline/filled icon) |
 | ACCENT-4 | Hero button pair per scheme | P4-ACCENT-03 | `--hero-btn-bg/-ink` (≥ 6.58; ≥ 6.86 in dark). They apply through the batch-1a row `.ds .hero .btn-primary { background: var(--hero-btn-bg); color: var(--hero-btn-ink); box-shadow: var(--e2); }` (`apps/design.css:423`), gated in every palette × person × mode and rendered in both engines | T+R: the batch-1a hero-button row |
 | ACCENT-5 | Scoped accent | CONS-ACCENT-3 | `data-accent` on any element | T (gated, both engines) |
-| ACCENT-6 | Neutral default | CONS-ACCENT-1 | graphite on `:root` (the default is a token) | T+R. Three fallbacks give a record with no colour **Elizabeth's #8A6A4B** today, and `H` maps that hex to Peach, her family. Each becomes graphite: **`hub.avatarHtml`** (`apps/hub.js:461`) emits `data-accent="graphite"` when there is no hue and no colour (batch 1a); the shell's **`FALLBACK`** (`index.html:450`) becomes graphite's #4C4C58 in batch 1a and the hue name `'graphite'` in batch 2; the **Worker** (`worker/src/index.js:182`) gives a new profile `hue = null` (graphite) and graphite's #4C4C58 when no colour is sent (batch 1a, with `006-profile-hue.sql`). The template's family-marker fallbacks (`#8A6A4B`, exported at `apps/dollywood-live.html:1213, 1214, 1302, 1306, 1316`) move to `--graphite-graphic` in its batch. And the batch-2 shell rule paints the PIN pad from the chosen person's `data-accent` |
+| ACCENT-6 | Neutral default | CONS-ACCENT-1 | graphite on `:root` (the default is a token) | T+R. Three fallbacks give a record with no colour **Elizabeth's #8A6A4B** today, and `H` maps that hex to her family (Peach before D3, bubblegum after). Each becomes graphite: **`hub.avatarHtml`** (`apps/hub.js:461`) emits `data-accent="graphite"` when there is no hue and no colour (batch 1a); the shell's **`FALLBACK`** (`index.html:450`) becomes graphite's #4C4C58 in batch 1a and the hue name `'graphite'` in batch 2; the **Worker** (`worker/src/index.js:182`) gives a new profile `hue = null` (graphite) and graphite's #4C4C58 when no colour is sent (batch 1a, with `006-profile-hue.sql`). The template's family-marker fallbacks (`#8A6A4B`, exported at `apps/dollywood-live.html:1213, 1214, 1302, 1306, 1316`) move to `--graphite-graphic` in its batch. And the batch-2 shell rule paints the PIN pad from the chosen person's `data-accent` |
 | ACCENT-7 | App and semantic colours separate from people | CONS-ACCENT-2 | semantic ≥ 10.74 ΔE00 from every person (gated) | Partly: the semantic half is closed; apps sharing families is decision D5 |
 | ACCENT-8 | Profile palette registry (≥ 8, CVD ≥ 10) | VIS-ACCENT-1 | 8 hues + graphite; graphics ≥ 11.02 under CVD | T+R (picker, Worker, `006-profile-hue.sql`). Pastel fills cannot separate for dichromats (dichromat minima 0.48-1.30, reported; 7.24-7.85 even with normal vision), so identity rides on the ring and the face. |
 | ACCENT-9 | Refresh the session profile | P4-ACCENT-05 | — (the `H` fallback covers sessions until the refresh lands) | R (hub.js), **in batch 1a** |
@@ -8958,6 +9131,14 @@ The text minima:
 ### Decisions for the household
 
 Phase 5 should put these to the owner, with the preview's swatches beside each one.
+
+**Answered 2026-09-25** (`audits/05-decisions.md`). The owner took the recommendation everywhere except in four places:
+- **D3:** the alternative colour set.
+- **D5:** separate app hues, nine in-between pastels.
+- **D8:** four glass levels (Clear, Current, Frosted, Solid), with Frosted as the default.
+- **D16:** the TV is re-laid out and switched to the 10-foot scale in batch 2c.
+
+D4's free guest hue is therefore sky. Revision 6 of the token set (Proposed token set, assembler's note) applies every answer.
 
 | # | Decision | Recommendation | Alternative |
 |---|---|---|---|
