@@ -1,0 +1,53 @@
+{
+ "S1 two lines queued offline, session revoked, online, a third hub.activity() at once": {
+  "queuedBefore": [],
+  "logoutStatus": 200,
+  "revokedTokenNow": "401 profile_session_invalid",
+  "thirdCall": "resolved",
+  "queueAfter": [],
+  "onServer": [],
+  "gateShown": true,
+  "profileAfter": null
+ },
+ "S1b Mom signs in on the same phone and adds a reminder": {
+  "signedInAs": "mom",
+  "queueAfter": [],
+  "onServer": [
+   {
+    "who": "mom",
+    "text": "Added a reminder: V401 S1b mom reminder"
+   }
+  ]
+ },
+ "S2 same, but nothing calls hub.activity() after coming online": {
+  "queuedBefore": [],
+  "queueAfter": [],
+  "onServer": [],
+  "gateShown": true
+ },
+ "S3 admin reset Mom's PIN (sessions deleted); Mom adds a reminder on her open Home": {
+  "resetStatus": 200,
+  "activityQueueAfter": [],
+  "feedOnServer": [],
+  "reminderOnServer": [],
+  "reminderWriteQueue": {
+   "hub.queue.reminders.family.mom": [
+    "V401 S3 fix the gate"
+   ]
+  },
+  "gateShown": true
+ },
+ "S3 Mom creates a new PIN and reopens Home": {
+  "createPin": "signed in as mom",
+  "activityQueue": [],
+  "feedOnServer": [
+   {
+    "who": "mom",
+    "text": "Added a reminder: V401 S3 fix the gate"
+   }
+  ],
+  "reminderOnServer": [
+   "V401 S3 fix the gate"
+  ]
+ }
+}

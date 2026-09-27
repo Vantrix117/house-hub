@@ -179,3 +179,233 @@ Static checks on the batch: `node scripts/test-design.mjs` was run in 0a and not
 - **A tap in the moment before a legacy migration.** Migration now waits for one fresh pull after load; a write the person makes in that second or two (a tick in F260, a new passcode) makes the migration see the key as present and skip it. Only devices that still hold pre-profiles data and have never migrated are exposed.
 - **An offline Timer start from a stale cache** replaces a timer started meanwhile on another device when the queue flushes (UX-TIMER-8, batch 6).
 - **Found, not in this batch.** The park map flavour also runs the build guide's legacy migration, so it could copy old build progress into `dollywood-live` person scope (pre-existing; offered as a separate task). P3-PRAYER-05 (the shared `lastPrayedAt` toggle) shows in `verify-other-timezone-date-2`'s east arm and stays in batch 0g.
+
+## Batch 0c — SDK and shell: queued writes are never dropped, switching is clean
+
+| | |
+|---|---|
+| **Findings** | 24 entries (19 primaries + 5 pointers): 8 critical, 1 high, 2 medium, 8 low primaries. All 24 FIXED (status per entry in `audits/05-findings.md`). |
+| **Code commit** | `e9e5f59` (2026-09-26) |
+| **Files** | `apps/hub.js`, `index.html`, `apps/prayer.html` (the restore message only), `worker/src/data.js`, `worker/src/index.js`, `worker/README.md`, `CLAUDE.md`, `sw.js` (`hub-v29` → `hub-v30`) |
+| **Schema / data** | No schema change. The production D1 was exported first, as the plan asks: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-26-before-0c.sql` (35 KB, 11 tables, 43 app_data rows). No row is stamped in the future, so the new 30 s clamp meets no existing row. The file is kept outside the repo because it holds session tokens. Nothing was deployed, so production was not written. |
+| **How it was built** | By the orchestrator. An independent review of the whole diff found 1 high, 1 medium and 4 low issues; all were real and all were fixed (below). Every check was then rerun on the final code. |
+
+### The change
+
+**Queues (P2-PROF-02, P2-SYNC-07, P2-PROF-01, P3-TALLY-05, P2-SYNC-06).**
+- **Every write queue belongs to the person who wrote it**, family scope included: `hub.queue.<app>.<scope>.<profile>`.
+  - Only that person's own session ever sends it. So the display can neither send nor empty an adult's queue.
+  - A queue in the old unowned form (`hub.queue.<app>.family`) is taken over by the next household writer, never by the display.
+- **`flush()` sends every queue of the signed-in person found on the device**, not only the channels its own window syncs. So the shell sends Tally's taps after Tally closes.
+- **Every page also hands its queue to a `keepalive` request on `pagehide`.** The queue stays until an answer is seen, so the next flush confirms it.
+- **Requests carry at most 200 rows** and loop until the queue is empty.
+- **A request the Worker refuses because of a row** (`bad_key`, `value_too_large`, `bad_batch`) is retried row by row.
+  - Only the refused row is dropped, with a toast: "1 change could not be saved to the house …".
+  - Every other refusal keeps the queue and retries.
+- **Prayer's restore now reports what the house answered**, not "Backup restored.".
+
+**Switch (P2-PROF-02, P2-SEC-03, P2-PROF-15, P2-SYNC-09, P2-SYNC-11, P2-SYNC-04, UX-PROF-a6).**
+- **Sign-out.** `hub.signOut()` keeps the person's token in `hub.retiring` and sends their queues and feed lines with it:
+  - at once if online;
+  - otherwise on reconnect, on the next `ready()` or before the next flush.
+  - Only then does it `POST /api/logout`.
+  - If the token was already ended, what is left waits under the person's id for their next sign-in on this device.
+- **The person's person-scope caches leave the device at once.**
+- **`hub.reset()`:**
+  - bumps a generation and aborts every request in flight;
+  - clears the pull and flush promises;
+  - stops the poll, which the next `ready()` re-arms;
+  - resets the sync counters.
+- **A pull answer for a previous generation or token is discarded.**
+- **A 401 signs out only when the failing request carried the current device or profile token.**
+- **Themes.** The picker shows the device look (System). Each sign-in applies the person's own theme, taken from the first of:
+  - their device mirror `hub.theme.<profile>`;
+  - their cached `hub/theme` row;
+  - System.
+- **Me → Switch lands the next person on Home.**
+- **The display's own Switch button now signs the display out too.**
+
+**Clock (P2-PROF-14).**
+- **The Worker stores no `updated_at` more than 30 s ahead of its own clock** (`MAX_AHEAD_MS`, was 5 min). It answers with the stamp it stored.
+- **hub.js keeps the last server skew (`hub.skew`) across reloads.** A write made offline on a wrong clock is therefore still stamped in server time.
+- **After a flush, hub.js adopts the server's stamp.** The server's row also wins over a cached stamp that is ahead of the server's own clock.
+- **Me → Sync warns when the clock is more than 5 min out.**
+
+**Feed lines (P2-PWA-06, P2-PWA-13, P2-PWA-14, P2-PROF-07, P2-SYNC-08).**
+- **Lines wait in `hub.aqueue.<author>`**, stamped with the time they happened. Only the author's session posts them.
+- **The Worker accepts `at`** and files the line at that time. The time is clamped to the past week and never ahead.
+- **One drain runs at a time per window.** A claim on the author's queue is respected by both the shell and an app frame. Each line is removed by id once posted.
+- **A 401 keeps the line** for the author's next sign-in.
+- **A signed-out author's lines are posted before their logout**, which waits for them.
+
+**Forget this device (P2-PROF-19, P2-PROF-13).**
+- **Shown to household adults only.**
+- **It sends everything first.** While anything is still waiting, it refuses and names whose changes they are:
+  - "Not forgotten: 2 changes not yet saved (2 of yours). Try again when this device is online."
+  - For a signed-out person's changes the device cannot send: "… Sign in as them once while online, then try again."
+- **Otherwise the new `POST /api/device/forget`** (household adults) deletes the device, its sessions and its push subscriptions. The local push subscription is then dropped, and only then is local storage cleared.
+
+**Storage (P2-SYNC-16, GAP-SYNC-a1).**
+- **`lsSet` reports a full device.** Other people's caches and the feed copy are removed first.
+- **A queue that still cannot be stored stays in memory** and is sent, with a toast.
+- **While a queue is memory-only, the stored cache keeps each unsent key's previous value.** A reload therefore never shows an unsent change as if it were saved.
+- **The shell calls `navigator.storage.persist()`** after pairing, and once on devices that were paired before.
+- **Me → Sync tells an iPhone or iPad Safari tab** to add the hub to the Home Screen.
+
+**One old race, made visible.**
+- **The cause.** The shell's `renderGrid` builds its tiles after awaiting the icons, so an older render could finish last and paint the loading grid over the loaded one.
+- **Why it matters now.** The new timing made that frequent in the rig: 5 of 8 Apps captures.
+- **The fix.** A render now paints only if it is still the newest one (`index.html`). The loaded grid then showed in 4 of 4 debug runs.
+
+**What the independent review changed.**
+- **High.** After Switch cleared a person's cache, their unsent value could be missing from the store on their next sign-in. An app could then write its default over it.
+  - Queued values are now laid over the store (`loadScope`, `refreshScope`).
+  - A flush answer writes the value into a cache that lacks it.
+- **Medium.** `retire()` could log a person out while their feed lines were still posting.
+  - The logout now waits until the lines are gone.
+  - `hub.unsent()` counts feed lines.
+  - The drain claim is per window.
+- **Low:**
+  - `retire()` and `hub.flush()` now pick up work added while they run.
+  - Only the Worker's own row errors drop a row.
+  - A flush's answer is adopted through `refreshScope`, so the app hears about every change.
+  - Prayer's restore waits for a flush that is already running.
+
+**Rig (`audits/tools/capture.mjs`).**
+- **The problem.** hub.js now sends on `pagehide`, and the rig closes every capture's page.
+  - Some screens keep their writes on the device (F260 `noWrites`, Verses `keepOnDevice`). Those writes landed on the shared rig server when the page closed.
+  - The next capture of the group then started from changed data.
+  - The first full recapture failed 106 captures that way; 28 of them failed deterministically when rerun.
+- **The fix.** The rig now stops that one `pagehide` hand-off in its captures (an init script). Nothing on screen is affected, because a page only hides when the capture closes.
+- **The result.** The failing screens then passed (28/28), and the whole matrix was recaptured.
+
+### Each finding's reproduction, rerun
+
+**How they were run.**
+- The 24 scripts the entries name, plus 3 new checks in `audits/tools/phase6/0c/`, were run on both:
+  - the unchanged code (`git archive` of `2b0d6bd`);
+  - the final code.
+- Three at a time, 27 runs on each.
+- Outputs are in `audits/evidence/p6/0c/`. The scripts write into `audits/evidence/p2|p3/`; the changed files were moved into `p6/0c/p2|p3/` and the Phase 2/3 baseline was restored byte for byte.
+- Exit codes: `audits/evidence/p6/0c/tests/repro-exit-codes*.txt`.
+- Each entry's Status line in `05-findings.md` quotes the observation that flipped.
+
+**The new checks.**
+- **`switch-flush.mjs` (19/19):**
+  - Offline writes of four kinds plus a feed line, then Switch, then the TV signs in: all arrive under Eli's token, the old session is ended, and no private cache is left.
+  - 201 rows go in two requests.
+  - A refused row is dropped alone.
+  - The TV keeps polling.
+  - The next person lands on Home after Switch.
+  - Three overlapping feed lines each post once.
+- **`forget-device.mjs` (14/14):**
+  - Offline, Forget refuses and keeps the queue.
+  - Online, it sends both rows first; then the device, the session and the push subscription are gone.
+  - Kids and the display have no button.
+- **`prof-14-fastclock.mjs`:** the Phase 2 clock script with one instrumentation change. The original reads the family queue under its old key (`hub.queue.<app>.family`), so it saw an empty queue at once and read the server before the flush.
+
+**Script caveats.**
+- **Two Phase 2 scripts stop early now.** One of them already stopped early before this batch.
+  - `verify2-forget-device-drops-queue-2` writes the instant the shell shows, which batch 0b refuses until the data has loaded.
+  - `verify-forget-leaves-server-rows-2` runs Forget as Ezra, who no longer has the button.
+  - `forget-device.mjs` covers both.
+- **Two scripts read other old key names** (`hub.activityQueue`, `hub.queue.<app>.family`) in side fields, which now show `queuedAt` 1970 and `queued 0`. Their outcome fields (what reached the server, and under whom) do not depend on it.
+- **`verify4-p2-sec-03-2` now really forgets the rig's shared device in its S5b step**, so its later admin calls through that device get 401 (S4b). Those revocations are also measured in `sec-03-1` K, which runs as before.
+- **The clock script on the unchanged code** reproduced both halves: Dad's phone kept "David" only, and his update note set the server back to `["David"]`. In the first before-run it hit the lanes' 600 s cap, so it was run again with a longer cap.
+
+### Capture rig
+
+**The runs.**
+- Full matrix on the final `hub.js`: `node audits/tools/capture.mjs --out audits/screens-after/0c --parallel 2` → 4447 ok, 0 failed.
+- The shell area was recaptured into the same folder after the two last shell fixes (the grid race, the hint's wording): 979 ok, 0 failed.
+- The PNGs are git-ignored like the baseline's; the manifest is committed.
+
+**Against the Phase 1 baseline.**
+- 3846 of 4447 are byte-identical.
+- `lib/pxdiff.mjs` finds 452 changed beyond tolerance 48 (`audits/evidence/p6/0c/capture/pxdiff-baseline-vs-0c.txt`). Almost all of them are batch 0b's loading states and its known flaky screens.
+
+**Against batch 0b's after-capture** (the fair comparison for this batch):
+- 100 files changed (`pxdiff-0b-vs-0c*.txt`). This is with 0b's own late shell fixes (`0b-shell`) laid over it.
+- A control recapture on the pre-batch code sorts them: every screen-state involved, 412 captures, in `audits/screens-after/0c-control/`.
+- **Flaky, not this batch:** 50 of the files and 12 of the screen-states change under the pre-batch code too. These are batch 0a's flaky list (Prayer's long pages; F260 week-complete, reflections and journal; the park map's search sheet; the first-visit toast) plus antialiasing.
+- **Changed by design:**
+  - The kid's Me screen no longer has "Forget this device".
+  - The iPhone Safari Me screens (sync, admin, usage, rewards) show the Home Screen hint (`audits/evidence/p6/0c/me-sync-typical-iphone-safari-light.png`).
+  - Home's lower loading screen now shows the placeholders batch 0b fixed after its capture: a ring without "0/5", and no "Log leftovers…".
+- **Checked, and not caused by the batch:**
+  - The pairing screens: the input's focus ring, which is on 0a's flaky list.
+  - The add-guest sheet: a 1 px scroll offset.
+  - Prayer's category settings and the park map's search sheet: long-page and sheet scroll, both on 0a's flaky list.
+  - 1-2 px of antialiasing on the PIN and Me overflow screens.
+- The Apps grid differences from the first run are gone after the grid fix.
+
+### Rubric rescore
+
+- **What changed on screen is small:**
+  - the Sync card, and who sees Forget;
+  - the Home Screen hint;
+  - the person's own theme after Switch;
+  - Home as the landing tab.
+- **What changed underneath** is whether a change the person saw saved actually reaches the house. The rubric scores that under **Ease of use** (error prevention, Phase 3 §3).
+- The orchestrator's rescore:
+
+| Area | Ease of use | Why |
+|---|---|---|
+| Shell (with the TV) | 4 → 4.5 | Forget can no longer throw away unsent changes and is gone from kid and TV screens; Switch gives the next person their own look and Home; the TV and Kitchen iPad keep updating after a Switch |
+
+- Every other cell is unchanged, and the shell's average moves from 4.2 to 4.25.
+- These are the orchestrator's own judgements, not a rerun of Phase 4's two-reviewer scoring.
+
+### Repo tests
+
+Every suite that needs a local Worker was run twice:
+- on the pre-batch code (`git archive` of `2b0d6bd`);
+- on the batch.
+
+Each run had its own fresh copy of a seeded local D1 and its own `wrangler dev`. Results are in `audits/evidence/p6/0c/tests/`.
+
+| Suite | Before | After |
+|---|---|---|
+| test-hub | 36 / 1 | 36 / 1 (the same stale "signed in as Niece"; fixed in 2a) |
+| test-f260 | 52 / 0 | 52 / 0 |
+| test-prayer | 36 / 0 | 36 / 0 |
+| test-prayer-faces | 41 / 0 | 41 / 0 |
+| test-kidverse | 51 / 0 | 51 / 0 |
+| test-kidstory | 50 / 0 | 50 / 0 |
+| test-rewards | 73 / 0 | 73 / 0 |
+| test-verses | 80 / 0 | 80 / 0 |
+| test-leftovers | 42 / 0 | 42 / 0 |
+| test-timer | 45 / 0 | 45 / 0 |
+| test-home | 57 / 0 | 57 / 0 |
+| test-tv | 43 / 0 | 43 / 0 |
+| test-prefs | 17 / 0 | 17 / 0 |
+| test-guests | 50 / 0 | 50 / 0 |
+| test-dollywood-sync | 32 / 0 | 32 / 0 |
+| test-dollywood | 34 / 0 | 34 / 0 |
+| test-dollywood-themes | — (the harness passed the pairing code as its port) | all checks passed (run with its port) |
+| test-photos | 27 / 1 | 28 / 0 (the same flaky check as in 0b's baseline) |
+| test-apps | 48 / 0 | 48 / 0 |
+| smoke-api.sh | 120 / 0 | 120 / 0 |
+
+- **Rerun after the last shell fixes:** test-hub, test-home, test-apps, test-tv, test-prefs and test-guests gave the same results (`repo-final-shell.txt`).
+- **Static checks:**
+  - `node handoff/prayer/check.js apps/prayer.html`: 49 passed, 0 failed.
+  - `node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for.
+- The tests overwrite tracked screenshots in `docs/screens/`; those were restored.
+
+### Not verified, and known limits
+
+- **Real devices.** Everything ran in Playwright WebKit and Chromium, with the network, clock and storage emulated. Not seen on a real device:
+  - `keepalive` when an iPhone closes the PWA;
+  - `navigator.storage.persist()` (headless WebKit grants nothing visible);
+  - the Safari-tab hint on a real iPad;
+  - a real device clock set 10 minutes fast.
+- **The live site and the live Worker.** Nothing is pushed or deployed.
+  - The Worker's clamp, `at` and `/api/device/forget` reach the family only when the Worker is deployed.
+  - Until then, a new `hub.js` against the old Worker still works: it sends at most 200 rows, and the old Worker ignores `at`.
+  - But Forget would fail with a 404 and leave the device paired.
+- **A reload on a full device while offline** loses the change the device could not store. The toast says so at the time, and after the reload the device shows what the house has.
+- **A Switch whose logout request hangs** leaves the old token valid until the next reconnect, refocus or sign-in retries it (`sec-03-2` S5a).
+- **The plan's server rule was not added.** The rule was "the old token is refused once a new session exists for that device". `scripts/smoke-api.sh` and the capture rig hold several sessions on one device, so the rule would break them. The client-side logout on reconnect closes the offline-Switch case instead.
+- **Forget can be blocked** by a signed-out person's unsent changes until that person signs in once while online. The message names them.
+- **Whole-row races between two people** (P2-SYNC-01) belong to batches 0e-0g. The b2probe's lost tick is that race, not one of this batch's findings.

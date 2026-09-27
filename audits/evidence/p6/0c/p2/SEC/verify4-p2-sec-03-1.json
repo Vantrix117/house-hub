@@ -1,0 +1,180 @@
+{
+  "claim": "P2-SEC-03",
+  "engine": "webkit",
+  "device": "ipad-portrait",
+  "started": "2026-09-26T21:19:35.036Z",
+  "steps": [
+    {
+      "name": "A1 Mea created her PIN on first tap (UI)",
+      "picker_card": "🌻Mea Create your PIN",
+      "session_tag": "8098754022",
+      "me_before": "200 niece"
+    },
+    {
+      "name": "A2 Me → Switch ONLINE",
+      "requests": [
+        "GET /api/media/album/alb0019-256.jpg sent",
+        "GET /api/media/album/alb0018-256.jpg sent",
+        "GET /api/media/album/alb0017-256.jpg sent",
+        "GET /api/media/album/alb0016-256.jpg sent",
+        "GET /api/media/album/alb0015-256.jpg sent",
+        "GET /api/media/album/alb0014-256.jpg sent",
+        "GET /api/media/album/alb0019-256.jpg done 200",
+        "GET /api/media/album/alb0018-256.jpg done 200",
+        "GET /api/media/album/alb0017-256.jpg done 200",
+        "GET /api/media/album/alb0016-256.jpg done 200",
+        "GET /api/media/album/alb0015-256.jpg done 200",
+        "GET /api/media/album/alb0014-256.jpg done 200",
+        "POST /api/logout sent [old token]",
+        "POST /api/logout done 200 [old token]",
+        "GET /api/profiles sent",
+        "GET /api/profiles done 200"
+      ],
+      "picker_shown": true,
+      "local_session_after": null,
+      "me_after_online_switch": "401 profile_session_invalid"
+    },
+    {
+      "name": "B1 Mea signed in with her PIN (UI, real /api/login)",
+      "picker_card": "🌻Mea PIN",
+      "session_tag": "5368f1af5d",
+      "me_before": "200 niece"
+    },
+    {
+      "name": "B2 offline, Me → Switch",
+      "navigator_onLine": false,
+      "requests_while_offline": [
+        "GET /api/media/album/alb0019-256.jpg sent",
+        "GET /api/media/album/alb0018-256.jpg sent",
+        "GET /api/media/album/alb0017-256.jpg sent",
+        "GET /api/media/album/alb0016-256.jpg sent",
+        "GET /api/media/album/alb0015-256.jpg sent",
+        "GET /api/media/album/alb0014-256.jpg sent",
+        "GET /api/media/album/alb0019-256.jpg failed: Blocked by Web Inspector",
+        "GET /api/media/album/alb0018-256.jpg failed: Blocked by Web Inspector",
+        "GET /api/media/album/alb0017-256.jpg failed: Blocked by Web Inspector",
+        "GET /api/media/album/alb0016-256.jpg failed: Blocked by Web Inspector",
+        "GET /api/media/album/alb0015-256.jpg failed: Blocked by Web Inspector",
+        "GET /api/media/album/alb0014-256.jpg failed: Blocked by Web Inspector",
+        "GET /api/profiles sent",
+        "GET /api/profiles failed: Blocked by Web Inspector"
+      ],
+      "picker_shown": true,
+      "local_session_after": null,
+      "old_token_found_on_device": [
+        "localStorage:hub.retiring"
+      ],
+      "device_token_still_on_device": true,
+      "screenshot": "audits/evidence/p2/SEC/verify4-p2-sec-03-1-picker-after-offline-switch.png"
+    },
+    {
+      "name": "B3 back online, picker left open 40 s",
+      "requests_after_reconnect": [
+        "GET /api/data/hub sent",
+        "GET /api/data/reminders sent",
+        "GET /api/data/leftovers sent",
+        "GET /api/data/dollywood-live sent",
+        "GET /api/data/kidverse sent",
+        "POST /api/logout sent [old token]",
+        "GET /api/data/hub done 200",
+        "GET /api/data/reminders done 200",
+        "GET /api/data/leftovers done 200",
+        "GET /api/data/kidverse done 200",
+        "GET /api/data/dollywood-live done 200",
+        "POST /api/logout done 200 [old token]"
+      ],
+      "logout_requests": 2,
+      "old_token_sent": 2
+    },
+    {
+      "name": "B4 shell reloaded (app reopened)",
+      "requests_after_reload": [
+        "GET /api/profiles sent",
+        "GET /api/profiles done 200",
+        "GET /api/media/photos/eli/rigphotoeli-256.jpg sent",
+        "GET /api/media/photos/christian/rigphotochristian-256.jpg sent",
+        "GET /api/media/photos/eli/rigphotoeli-256.jpg done 200",
+        "GET /api/media/photos/christian/rigphotochristian-256.jpg done 200"
+      ],
+      "logout_requests": 0,
+      "picker_shown": true
+    },
+    {
+      "name": "B5 the old token after reconnecting",
+      "me": "401 profile_session_invalid",
+      "read_person_scope": 401,
+      "write_person_scope": 401,
+      "same_token_from_another_device": "401 profile_session_invalid"
+    },
+    {
+      "name": "R1 Mea signs in again + Switch online",
+      "new_session_tag": "3c83b1f605",
+      "new_token_after": "401 profile_session_invalid",
+      "old_token_after": "401 profile_session_invalid"
+    },
+    {
+      "name": "R2 Ezra signs in on tap + Switch online",
+      "old_token_after": "401 profile_session_invalid"
+    },
+    {
+      "name": "R3 admin rotates the pairing code",
+      "rotate": 200,
+      "old_token_after": "401 profile_session_invalid"
+    },
+    {
+      "name": "R4 server clock moved",
+      "at_364_9_days": "401 profile_session_invalid",
+      "at_365_1_days": "401 profile_session_invalid",
+      "auth_js_SESSION_MS_days": 365
+    },
+    {
+      "name": "K known revokers",
+      "before": {
+        "on_ipad": "200 niece",
+        "on_phone": "200 niece"
+      },
+      "unpair": 200,
+      "after_unpair": {
+        "on_ipad": "200 niece",
+        "on_phone": "401 device_not_paired"
+      },
+      "reset_pin": 200,
+      "after_reset_pin": {
+        "on_ipad": "401 profile_session_invalid"
+      }
+    }
+  ],
+  "summary": {
+    "online_switch_revokes": true,
+    "offline_switch_clears_device": true,
+    "old_token_left_on_device": [
+      "localStorage:hub.retiring"
+    ],
+    "logout_retried_after_reconnect_or_reload": 2,
+    "old_token_after_reconnect": "401 profile_session_invalid",
+    "old_token_after_R1_R2_R3": [
+      "401 profile_session_invalid",
+      "401 profile_session_invalid",
+      "401 profile_session_invalid"
+    ],
+    "natural_expiry": [
+      "401 profile_session_invalid",
+      "401 profile_session_invalid"
+    ],
+    "revoked_by_unpair": "401 device_not_paired",
+    "revoked_by_reset_pin": "401 profile_session_invalid"
+  },
+  "browser_logs": {
+    "A": [],
+    "B": [
+      "info: Web Inspector blocked http://localhost:56510/api/media/album/alb0019-256.jpg from loading",
+      "info: Web Inspector blocked http://localhost:56510/api/media/album/alb0018-256.jpg from loading",
+      "info: Web Inspector blocked http://localhost:56510/api/media/album/alb0017-256.jpg from loading",
+      "info: Web Inspector blocked http://localhost:56510/api/media/album/alb0016-256.jpg from loading",
+      "info: Web Inspector blocked http://localhost:56510/api/media/album/alb0015-256.jpg from loading",
+      "info: Web Inspector blocked http://localhost:56510/api/media/album/alb0014-256.jpg from loading",
+      "info: Web Inspector blocked http://localhost:56510/api/profiles from loading"
+    ]
+  },
+  "finished": "2026-09-26T21:20:40.120Z"
+}

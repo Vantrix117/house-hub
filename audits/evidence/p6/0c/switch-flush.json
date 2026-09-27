@@ -1,0 +1,148 @@
+{
+  "checks": [
+    {
+      "name": "A picker after Switch: the device look, not Eli's Forest",
+      "ok": true,
+      "got": "hearth"
+    },
+    {
+      "name": "A Switch: Eli's person-scope caches are off the device",
+      "ok": true,
+      "got": []
+    },
+    {
+      "name": "A Switch offline: Eli's queues stay, under his id",
+      "ok": true,
+      "got": [
+        "hub.queue.f260.person.eli",
+        "hub.queue.hub.person.eli",
+        "hub.queue.reminders.family.eli",
+        "hub.queue.tally.person.eli"
+      ]
+    },
+    {
+      "name": "A the family reminder reached the server (not dropped by the TV)",
+      "ok": true,
+      "got": {
+        "key": "item:sw0c",
+        "value": {
+          "id": "sw0c",
+          "text": "Switch-check reminder",
+          "by": "eli",
+          "createdAt": 1790478957103
+        },
+        "updated_at": 1790478956916
+      }
+    },
+    {
+      "name": "A Eli's person row reached the server",
+      "ok": true,
+      "got": {
+        "key": "sw0c.note",
+        "value": {
+          "note": "person row made offline"
+        },
+        "updated_at": 1790478956917
+      }
+    },
+    {
+      "name": "A the Tally tap made before Tally closed reached the server",
+      "ok": true,
+      "got": {
+        "before": 37,
+        "tallyAfter": 38,
+        "server": 38
+      }
+    },
+    {
+      "name": "A Eli's theme choice (made just before Switch) reached the server",
+      "ok": true,
+      "got": "forest"
+    },
+    {
+      "name": "A every batch after the Switch went with Eli's token, none with the TV's",
+      "ok": true,
+      "got": [
+        "/api/data/hub/batch eli",
+        "/api/data/f260/batch eli",
+        "/api/data/tally/batch eli",
+        "/api/data/reminders/batch eli"
+      ]
+    },
+    {
+      "name": "A the offline feed line posted once, under Eli",
+      "ok": true,
+      "got": {
+        "by": "eli"
+      }
+    },
+    {
+      "name": "A Eli's old session is ended on the server",
+      "ok": true,
+      "got": 401
+    },
+    {
+      "name": "A nothing of Eli's left queued on the device",
+      "ok": true,
+      "got": [
+        "hub.theme.eli"
+      ]
+    },
+    {
+      "name": "A the TV does not wear Eli's theme",
+      "ok": true,
+      "got": "hearth"
+    },
+    {
+      "name": "C the TV still polls after the switch (GETs in 35 s)",
+      "ok": true,
+      "got": 11
+    },
+    {
+      "name": "C Ezra lands on Home",
+      "ok": true,
+      "got": "home"
+    },
+    {
+      "name": "B 201 offline rows: all on the server",
+      "ok": true,
+      "got": 201
+    },
+    {
+      "name": "B 201 offline rows: sent in requests of at most 200 (two, both 200 OK)",
+      "ok": true,
+      "got": [
+        400,
+        200,
+        400
+      ]
+    },
+    {
+      "name": "B a refused row: the good row next to it is saved",
+      "ok": true,
+      "got": {
+        "id": "b0c-good",
+        "text": "fine"
+      }
+    },
+    {
+      "name": "B a refused row: it alone is dropped, with a message",
+      "ok": true,
+      "got": {
+        "queueLeft": null,
+        "toast": "1 change could not be saved to the house (it was refused as it is)."
+      }
+    },
+    {
+      "name": "D three overlapping activity calls post three lines, once each",
+      "ok": true,
+      "got": [
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "shotA": "audits/evidence/p6/0c/switch-flush-A-tv-after-switch.png",
+  "shotC": "audits/evidence/p6/0c/switch-flush-C-ezra-home.png"
+}

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26) done; 47 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26) done; 71 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -40,7 +40,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 |---|---|---|---|---|---|---|
 | 1 | **0a** | The hub boots with Reduce Motion on | 1 (1 / 0 / 0 / 0 / 0) | S | — | 1/1 fixed, `ae274a6` |
 | 2 | **0b** | SDK: no write before the first load, safe migration, one household day | 36 (10 / 1 / 7 / 18 / 0) | L | — | 36/36 fixed, `d968db8` |
-| 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — | open |
+| 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — | 19/19 fixed, `e9e5f59` |
 | 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — | open |
 | 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | open |
 | 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | open |
@@ -709,7 +709,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-02 — Offline person-scope writes are stuck on the shared iPad after Switch; an F260 tick was permanently lost
 
-- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0c
+- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Every queue belongs to its writer (hub.queue.<app>.<scope>.<pid>); Switch keeps the person's token in hub.retiring and sends their queues with it (at once if online, else on reconnect or before the next sign-in), then logs it out; a queue that still cannot go waits for their next sign-in here. stranded-after-switch-2: with Ezra signed in 35 s later the server has Eli's two F260 ticks and his Forest theme (was unset / false), the iPad holds no queue, and Eli's phone offers 38-4 (was 38-2); the flaky arm lands Frost. switch-flush A: a reminder, an F260 row, a Tally tap and a feed line made offline all reach the server under Eli's token after the TV signs in. After: `audits/evidence/p6/0c/p2/PROF/verify2-stranded.json`, `audits/evidence/p6/0c/p2/PROF/verify2-stranded-2-eli-phone-f260.png`, `audits/evidence/p6/0c/switch-flush.json`.
 - **Evidence.** `audits/02-shell.md:1181`; `index.html:729-733`, `index.html:1275`
 - **What happens now.** Writes wait in `hub.queue.<app>.person.<id>`. Flush walks only the signed-in person's channels (hub.js:183-187, 253-257). signOut does not flush (hub.js:175-178), and with no app open closeViewer does not either (index.html:729-733). The writes flush only when the same person signs in again on the same device.
 - **Why it matters.** this is the household's original complaint. F260 progress made on the shared iPad does not appear on the person's phone, and can be lost. Sync's F260 causes table lists it as "PROVEN in Profiles".
@@ -718,7 +719,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-14 — A fast-clocked device's write before its first pull: the next stale edit by someone else reverts, and a clock over 5 min fast stops that device seeing later edits, which its next edit overwrites
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** critical · **Effort** M · **Batch** 0c
+- **Area** shell / platform · **Type** bug (security) · **Severity** critical · **Effort** M · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** The Worker stores no updated_at more than 30 s ahead of its clock (worker/src/data.js MAX_AHEAD_MS); hub.js keeps the last server skew (hub.skew in localStorage) so an offline write on a wrong clock is stamped in server time, adopts the server's stamp after a flush, and lets the server row win over a cached stamp ahead of the server; Me warns when the clock is over 5 min out. prof-14-fastclock (the Phase 2 script, family-queue reads updated to the new keys; phone 10 min fast): Dad's offline tap lands 2.4 s behind server now (was +299.9 s), his phone then shows "Prayed today: Kiara" (was stuck on David), his update note keeps Kiara's tap (server ["Kiara"], was reverted to ["David"]), and in chain K his phone reads Week 41 with Mom (was stuck on 38). The same script on the unchanged code reproduced both halves again. After: `audits/evidence/p6/0c/verify4-p2-prof-14-2.json`, `audits/evidence/p6/0c/verify4-p2-prof-14-2-P-fast-dad-iphone-after-10min-1x.png`, `audits/evidence/p6/0c/verify4-p2-prof-14-2-P-fast-kid-ipad-after-dad-update-1x.png`.
 - **Evidence.** `audits/02-shell.md:1467`; `apps/hub.js:236`, `worker/src/data.js:41`, `apps/hub.js:244`, `apps/leftovers.html:281`
 - **What happens now.** (apps/hub.js:236, 276, 296, 300; worker/src/data.js:41, 60)
 - **Why it matters.** Writes the device already accepted and showed are thrown away when an app closes, when the TV signs in, on "Forget this device", above 200 queued rows, or after a Switch; a fast clock reverts other people's edits; a pull in flight during Switch shows one person's private prayers to the next.
@@ -727,7 +729,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-19 — "Forget this device" deletes unsent queued writes, and any profile, kids included, can tap it
 
-- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** "Forget this device" is shown to household adults only; it sends everything first and refuses while anything is still waiting ("Not forgotten: 2 changes not yet saved …"). forget-device A/C: offline with two queued writes it refuses and keeps both queues and the pairing; online it sends both rows first; Ezra and the display have no button, Mom has it. (The Phase 2 script stops earlier, at batch 0b's load guard, as it did before this batch.) After: `audits/evidence/p6/0c/forget-device.json`, `audits/evidence/p6/0c/forget-device-A-offline-refused.png`.
 - **Evidence.** `audits/02-shell.md:1590`; `apps/hub.js:267-269`, `index.html:1273-1279`, `index.html:1285-1289`, `apps/hub.js:30`
 - **What happens now.** The Sync card, with Forget, is rendered for every profile with no kind check (index.html:1273-1279; the button at :1278). By contrast, Notifications (:1262) and Admin (:1280) are gated.
 - **Why it matters.** the loss is permanent and hidden. It is reachable by any profile on the shared iPad, at exactly the moment sync is misbehaving.
@@ -736,7 +739,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-06 — More than 200 queued rows in one channel are all dropped (400 `bad_batch`); the device keeps showing them
 
-- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** flush() sends at most 200 rows a request and loops; only a row the Worker refuses as a row (bad_key, value_too_large) is dropped, alone, with a toast; Prayer's import reports the house's answer. batch-over-200-1/2: 201 rows offline, online, and the 250-prayer import all reach the server (201/201 rows, was 0; the import 19 → 250 prayers, was 19 → 19) in requests of 200 + 1 (the import 200 + 75); switch-flush B: a bad row next to a good one drops only itself, with "1 change could not be saved to the house". After: `audits/evidence/p6/0c/p2/SYNC/verify-batch-over-200-dropped-1.json`, `audits/evidence/p6/0c/p2/SYNC/verify-batch-over-200-dropped-2.json`, `audits/evidence/p6/0c/p2/SYNC/verify-batch-200-2-phone-prayer-after-import.png`, `audits/evidence/p6/0c/switch-flush.json`.
 - **Evidence.** `audits/02-shell.md:2523`; `apps/hub.js:257-264`, `worker/src/index.js:314`, `apps/hub.js:268`, `index.html:769`
 - **What happens now.** `flush` sends the whole channel queue in one POST (apps/hub.js:257-264). The Worker rejects more than 200 items (worker/src/index.js:314), and hub.js clears the whole queue (apps/hub.js:268: "bad request: drop rather than retry forever"). Measured, 201 offline reminders: server 0 of 201; the phone still lists 201 after a reload;
 - **Why it matters.** data the person saw saved never reaches the family, with no lasting sign. The Prayer import even confirms "Backup restored.".
@@ -745,7 +749,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-07 — A family-scope write queued by an adult is discarded if the next sign-in on that device is the kiosk profile
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c
+- **Area** shell / platform (TV) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Family queues carry the writer's id, so the display has no queue to send or empty; the adult's queue goes with the adult's token when the TV signs in. kiosk-drops-family-queue-2 A-tv: the reminder is on the server (was false; 0 batches with the TV's token, was a 403 that emptied the queue). After: `audits/evidence/p6/0c/p2/SYNC/verify-kiosk-drops-family-queue-2.json`, `audits/evidence/p6/0c/p2/SYNC/v2-kiosk-queue-tv-reminders-pane.png`.
 - **Evidence.** `audits/02-shell.md:2554`; `apps/hub.js:30`, `apps/hub.js:254`, `worker/src/auth.js:110`, `apps/hub.js:266`
 - **What happens now.** Family queue keys have no person (apps/hub.js:30), and the queue survives the picker because `flush` needs a session (apps/hub.js:254). The kiosk's first flush gets 403 `read_only` (worker/src/auth.js:110). hub.js clears the queue (apps/hub.js:266), then sets 'synced' (:280).
 - **Why it matters.** the Kitchen iPad can double as the display. A reminder or leftover logged just before switching to it vanishes, while the iPad itself still shows it, so its author has no reason to enter it again.
@@ -754,7 +759,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-09 — A pull in flight during Switch saves the previous person's rows into the next person's cache
 
-- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** hub.reset() bumps a generation, aborts every request in flight and clears the pull promise; a pull answer for a previous generation or token is discarded. cross-profile-cache-1: Ezra's timer cache holds only his own row (was Eli's timer.active, with Eli's timer pill on Ezra's Home); e6-switch-race: no foreign timer in either arm. After: `audits/evidence/p6/0c/p2/SYNC/verify-switch-race-cross-profile-cache-1.json`, `audits/evidence/p6/0c/p2/SYNC/verify-switch-race-cross-profile-cache-1-timer-ipad.png`, `audits/evidence/p6/0c/p2/SYNC/e6-switch-race.json`.
 - **Evidence.** `audits/02-shell.md:2595`; `apps/hub.js:305`
 - **What happens now.** `hub.reset()` does not cancel the in-flight pull (apps/hub.js:305, 370), and the next `hub.ready()` reuses it. When the old response arrives, `pullScope` re-reads under the new `pid()` (`refreshScope`, :190-195, 291). It then saves the old person's rows and advances `since` under the new person's key (:297-301). Timer.
 - **Why it matters.** on the shared iPad, one person's data, including private prayer requests, can appear in another person's cache and on their screen. The new person also misses their own updates on that channel.
@@ -763,7 +769,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-18 — `refreshScope` swaps in the other window's store without `onChange`, so an open app keeps painting, and later writes back, a stale map
 
-- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** refreshScope emits a change for every key whose value another window changed. verify2-refreshscope-2: race "ok" ×7 (was "STALE" ×7). The b2probe's lost tick is the whole-map race P2-SYNC-01 (batch 0e); here the phone's store and screen agree. After: `audits/evidence/p6/0c/p2/SYNC/verify2-refreshscope-race.json`.
 - **Evidence.** `audits/02-shell.md:2798`; `apps/hub.js:190-195`, `apps/f260.html:2073`, `apps/hub.js:276`
 - **What happens now.** `refreshScope` (apps/hub.js:190-195) reloads store and queue from localStorage after the await in `pullScope` (:291) and `flush` (:272), without emitting. The pull loop then skips the key (:295-296). When the storage event arrives, its diff (:355-359) compares against the already-replaced store, so it emits nothing either.
 - **Why it matters.** Writes the device already accepted and showed are thrown away when an app closes, when the TV signs in, on "Forget this device", above 200 queued rows, or after a Switch; a fast clock reverts other people's edits; a pull in flight during Switch shows one person's private prayers to the next.
@@ -772,7 +779,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-TALLY-05 — Taps still queued when Tally closes are never sent by the shell; it reads synced, and a later count on another device erases them
 
-- **Area** tally · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c
+- **Area** tally · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** The shell's flush sends every queue of the person found on the device, not only the channels it syncs, and every page hands its queue to a keepalive request on pagehide. critic-stranded S: 35 s after reconnecting with Tally closed the server has 41 (was 37), no queue left, and the other device's count ends at 43 as expected; critic-stranded-online and verify-critic-stranded-queue-on-close-1-1 A/B deliver every tap. After: `audits/evidence/p6/0c/p3/tally/critic-stranded.json`, `audits/evidence/p6/0c/p3/tally/critic-stranded-online.json`, `audits/evidence/p6/0c/p3/tally/verify-critic-stranded-queue-on-close-1-1.json`.
 - **Evidence.** `audits/03-apps/tally.md:314`; `index.html:457-458`, `apps/hub.js:183-187`, `index.html:634-635`, `apps/hub.js:339-342`; `audits/evidence/p3/tally/verify-critic-stranded-queue-on-close-1-2-A-me-sync.png`
 - **What happens now.** Only the Tally frame's own hub.js sends the tally queue. The shell's `hub.use` list has no tally channel (`index.html:457-458`), and `flush()` walks only the channels its own window declared (`apps/hub.js:183-187, 253-257`).
 - **Why it matters.** Counting offline (in the car, at the park) and then going back to Home is ordinary use. The count never reaches the person's other devices, and if they keep counting there, the phone's taps are overwritten.
@@ -781,7 +789,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-04 — After any in-page profile switch the shell stops polling; the Kitchen iPad and the TV board go stale
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** high · **Effort** S · **Batch** 0c
+- **Area** shell / platform (TV) · **Type** bug · **Severity** high · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** hub.ready() re-arms the 30 s poll every time (hub.reset() stops it). poll-dies-1: in the 65 s after the switch the iPad made 20 data GETs and the TV 22 (was 0 and 0), and both show the reminder Eli added from another device; switch-flush C: the TV made 11 data GETs in 35 s. After: `audits/evidence/p6/0c/p2/SYNC/verify1-poll-dies-after-profile-switch.json`, `audits/evidence/p6/0c/p2/SYNC/verify1-tv-board-65s-after-switch.png`.
 - **Evidence.** `audits/02-shell.md:2451`; `apps/hub.js:252`, `index.html:623`, `apps/hub.js:370`, `apps/hub.js:57`
 - **What happens now.** `enterShell()` runs `hub.reset(); hub.ready()` on every sign-in (index.html:623). `hub.reset()` clears the interval (apps/hub.js:370), but `hub.ready()` re-arms it only when `!wired`, and `wired` is never reset (apps/hub.js:57, 338-342). Measured: iPad 20 GETs per 61 s before → 0 in 75 s after; TV 22 → 0 (e1d).
 - **Why it matters.** the shared Kitchen iPad is switched between people all day, and the TV is the 24/7 glance screen. After one switch the data stops updating and nothing shows it.
@@ -790,7 +799,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-13 — "Forget this device" leaves the device, its sessions and its push subscriptions live on the server
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** medium · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug (security) · **Severity** medium · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** New POST /api/device/forget (household adults): deletes the device, its sessions and its push subscriptions; Forget calls it after everything has been sent, then clears local storage. forget-device B: the old device token gets 401 device_not_paired, the old session 401, the admin list no longer has the device, Eli has no push subscription left. (The Phase 2 script runs Forget as Ezra, who no longer has the button.) After: `audits/evidence/p6/0c/forget-device.json`, `audits/evidence/p6/0c/forget-device-B-online-forgotten.png`.
 - **Evidence.** `audits/02-shell.md:1445`; `worker/src/reminders.js:76`, `index.html:1285-1289`, `sw.js:53-60`
 - **What happens now.** Forget makes no API call, not even /api/logout (index.html:1285-1289). Afterwards:
 - **Why it matters.** ghost devices pile up in the admin list. A phone that was forgotten, for example before being given away, probably keeps getting that person's notifications.
@@ -799,7 +809,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-06 — Offline feed lines post late, under whoever acts next on the device
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Feed lines wait in hub.aqueue.<author>, stamped with the time they happened, and only the author's session posts them (a signed-out author's go before the logout); the Worker files them at that time (clamped to a week back, never ahead). offline-activity-misattributed-2: Eli's offline line posted as eli (was kiara), before Grandma Jo's later line. After: `audits/evidence/p6/0c/p2/PWA/verify-offline-activity-misattributed-2.json`, `audits/evidence/p6/0c/p2/PWA/verify-offline-activity-misattributed-2-feed-ipad-portrait-light.png`.
 - **Evidence.** `audits/02-shell.md:4963`; `apps/hub.js:28`, `apps/hub.js:375`, `apps/hub.js:376-386`, `apps/hub.js:339-340`
 - **What happens now.** One device-wide queue key is used (apps/hub.js:28), whereas the data queues are per profile. Queue entries store no profile (apps/hub.js:375). The queue is drained only inside `hub.activity()` (apps/hub.js:376-386). It is not drained on `online`, `visibilitychange`, pull or reload (apps/hub.js:339-340).
 - **Why it matters.** On the shared iPad the feed credits the wrong person, whether a guest or a kid, and shows the line as just now.
@@ -808,7 +819,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-SYNC-a1 — Unsent changes and the device pairing live only in localStorage, and no persistent-storage request is made
 
-- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** hub.persistStorage() (navigator.storage.persist) after pairing, and once on devices paired before; Me → Sync tells an iPhone or iPad Safari tab to add the hub to the Home Screen. Recaptured: shell me screens on iphone-safari. After: `audits/evidence/p6/0c/me-sync-typical-iphone-safari-light.png`, `audits/screens-after/0c/manifest.json`.
 - **Evidence.** `audits/02-shell.md:2924`; `apps/hub.js:26-31`
 - **What happens now.** The queue, cache, device token and session are localStorage only (apps/hub.js:26-31).
 - **Why it matters.** A Safari tab can lose queued writes and its pairing after 7 days without a visit.
@@ -817,7 +829,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-15 — Switch leaves the previous person's private data cached on the device
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** low · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug (security) · **Severity** low · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Switch removes the person's person-scope caches from the device at once (their queue stays, under their id, until sent). switch-leaves-private-caches-2: Eli's person keys after Switch [] (was 5 caches, 19 private prayer rows); switch-flush A: none left. After: `audits/evidence/p6/0c/p2/PROF/verify-switch-leaves-private-caches-2.json`, `audits/evidence/p6/0c/p2/PROF/verify2-switch-caches-ezra-prayer-ipad.png`.
 - **Evidence.** `audits/02-shell.md:1524`; `index.html:458`, `index.html:1287`
 - **What happens now.** After an online Me → Switch → Ezra, localStorage still holds `hub.cache.{kidverse,prayer,timer,f260,hub}.person.eli` (hub.js:29, 105-110, 175-178). These include 19 private prayer rows, for example "Wisdom about buying a minivan". Eli does not need to open Prayer: the shell itself syncs those channels (index.html:458).
 - **Why it matters.** Writes the device already accepted and showed are thrown away when an app closes, when the TV signs in, on "Forget this device", above 200 queued rows, or after a Switch; a fast clock reverts other people's edits; a pull in flight during Switch shows one person's private prayers to the next.
@@ -826,7 +839,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-13 — Overlapping `hub.activity()` calls post feed lines twice
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** One drain at a time per window, and a claim on the author's queue shared with the other window; each line is removed by id once posted. double-post-1: the Kid Verse star posts "read the verse ★" once (was twice); switch-flush D: three overlapping calls post three lines, once each. After: `audits/evidence/p6/0c/p2/PWA/verify-double-post-activity-1.json`, `audits/evidence/p6/0c/p2/PWA/verify-double-post-activity-1-kidverse-feed-ipad-portrait-light.png`.
 - **Evidence.** `audits/02-shell.md:5000`; `apps/hub.js:373-386`, `apps/kidverse.html:332`
 - **What happens now.** Each call pushes onto the stored queue and starts `drainActivity()`. That drain posts from its own copy and writes the queue back only at the end (apps/hub.js:373-386). There is no in-flight guard. A call made while an earlier drain is still posting re-posts the earlier lines, so N quick actions produce N(N+1)/2 lines.
 - **Why it matters.** It clutters the shared feed and the TV's five lines. In Kid Verse it happens on every star that earns a badge, with no network delay needed: `award()` posts the verse line (apps/kidverse.html:332), and `reconcile()` posts the badge line (:481) from the same click.
@@ -835,7 +849,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-14 — The head queued feed line is dropped on a 401
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** On a 401 the line stays queued under its author and posts at their next sign-in here. activity-dropped-on-401-1: after the admin's Reset PIN and Mom's new PIN the feed has "Added a reminder: V401 S3 fix the gate" by mom (was missing for good). After: `audits/evidence/p6/0c/p2/PWA/verify-activity-dropped-on-401-1.json`.
 - **Evidence.** `audits/02-shell.md:5023`; `apps/hub.js:382`, `apps/hub.js:268`, `worker/src/index.js:445-450`
 - **What happens now.** `drainActivity` drops the head line on any status below 500 other than 429, including 401 (apps/hub.js:382). The data queue deliberately keeps writes on 401 (apps/hub.js:268).
 - **Why it matters.** Sessions can be revoked while the device is online: an admin Reset PIN deletes sessions (worker/src/index.js:445-450), and so do an unpair and a guest's expiry. After that, the person's next action keeps its data but loses its feed line for good.
@@ -844,7 +859,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SEC-03 — Switch while offline leaves the session valid on the server
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** A Switch made offline keeps the token in hub.retiring and sends the logout on reconnect (after that person's queue). sec-03-1 B3/B5: "POST /api/logout [old token]" on reconnect and the old token then gets 401 (was 200 for read and write); sec-03-2 S3: 401 after the online event, 1 logout. The narrower server rule the plan offered ("refused once a new session exists for that device") was not added: smoke-api.sh and the capture rig use several sessions on one device (06-implementation). After: `audits/evidence/p6/0c/p2/SEC/verify4-p2-sec-03-1.json`, `audits/evidence/p6/0c/p2/SEC/verify4-p2-sec-03-2.json`, `audits/evidence/p6/0c/p2/SEC/session-verify3.json`.
 - **Evidence.** `audits/02-shell.md:1875`; `apps/hub.js:175-178`, `sw.js:31-35`, `index.html:1282`, `index.html:1285-1288`
 - **What happens now.** `hub.signOut()` wraps `POST /api/logout` in `try { … } catch {}` and then clears the local session regardless (apps/hub.js:175-178). Any failure of that request is swallowed the same way: being offline, a request that runs past hub.request's 12 s timeout, or a server error.
 - **Why it matters.** The person believes they signed out. The leftover token is no longer on the device. Only someone who had already copied `hub.device` and `hub.session` out of localStorage can use it, and the session is bound to that device.
@@ -853,7 +869,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-11 — A slow request from the previous session signs the next person straight back out after Switch
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** A 401 signs out only when the failing request carried the current token (device or profile). switch-race-bounces-1: with Eli's request held 4 s, Ezra stays signed in and no 401 reaches him (was bounced to the picker). After: `audits/evidence/p6/0c/p2/SYNC/verify-switch-race-bounces-next-person-1.json`, `audits/evidence/p6/0c/p2/SYNC/verify-switch-race-1-delay4000.png`.
 - **Evidence.** `audits/02-shell.md:2635`; `apps/hub.js:142`, `index.html:771`, `apps/hub.js:289`, `apps/hub.js:305`
 - **What happens now.** `handleAuthLoss` (apps/hub.js:142, 147-155) signs out whoever is current, without checking which token the failing request carried. index.html:771 then shows the picker.
 - **Why it matters.** a pre-reader who has just tapped his face is thrown back to the picker with a text message he cannot read.
@@ -862,7 +879,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-16 — When localStorage is full, the queue write fails silently
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** lsSet reports a full device; other people's caches and the feed copy go first; a queue that still cannot be stored stays in memory, is sent, and a toast says so; while it is memory-only the stored cache keeps the previous value, so a reload never shows an unsent change as saved. quota-errors-2: online-full and offline-stay reach the server (offline-stay was lost); after an offline reload device and server agree (the slack arm used to show a tick the server never got). After: `audits/evidence/p6/0c/p2/SYNC/verify-quota-errors-swallowed-2.json`.
 - **Evidence.** `audits/02-shell.md:2727`; `apps/hub.js:33`
 - **What happens now.** `lsSet` swallows every error (apps/hub.js:33), and `saveStore` and `saveQueue` use it (:196-197). With storage full, an offline tick leaves the writes pending in memory and `[]` in the persisted queue, with no error and no message.
 - **Why it matters.** it leaves an invisible divergence between the device and the house.
@@ -871,7 +889,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a6 — The next person inherits the previous person's theme and sync counters (hub.js:27, 90, 98, 105-110, 310; index.html:625-628, 642)
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** The theme follows the person: the picker is the device look (System), each sign-in applies that person's own theme (their device mirror or cached row), the sync counters start fresh, and Switch lands the next person on Home. switch-theme: picker, Ezra in flight and Kiara all hearth/system (were forest/forest/midnight); switch-flush C: Ezra lands on Home after a Switch from Me. After: `audits/evidence/p6/0c/p2/PROF/switch-theme-ezra-inherits-forest.png`, `audits/evidence/p6/0c/p2/PROF/switch-theme-ezra-after-pull.png`, `audits/evidence/p6/0c/switch-flush-C-ezra-home.png`.
 - **Evidence.** `audits/02-shell.md:1032`; `index.html:625-628`; `audits/screens/shell/me-loading-iphone-pwa-light.png`
 - **What happens now.** The theme is one key per device. The picker and Ezra's first paint used Eli's Forest (`switch-theme-ezra-inherits-forest.png`).
 - **Why it matters.** The next person gets the previous person's look and counters.
@@ -880,31 +899,36 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-01 — Signing the display profile in deletes the previous person's unsent family writes (pointer)
 
-- **Area** shell / platform · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-07: the display never holds or empties another person's family queue. After: `audits/evidence/p6/0c/p2/SYNC/verify-kiosk-drops-family-queue-2.json`.
 - **Evidence.** `audits/02-shell.md:1160`; `index.html:458`, `index.html:1042`, `apps/hub.js:370`
 - **Proposed fix.** Pointer to P2-SYNC-07: closed by flushing (never discarding) the previous person's family queue before the kiosk signs in.
 
 #### P2-PROF-03 — After an in-page switch the shell never polls again (pointer)
 
-- **Area** shell / platform · **Type** bug · **Severity** high (pointer) · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** high (pointer) · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-04: the poll is re-armed on every sign-in. After: `audits/evidence/p6/0c/p2/SYNC/verify1-poll-dies-after-profile-switch.json`.
 - **Evidence.** `audits/02-shell.md:1209`; `index.html:1133`, `index.html:733`, `index.html:1115`, `index.html:1711`
 - **Proposed fix.** Pointer to P2-SYNC-04: closed by re-arming the poll in hub.reset().
 
 #### P2-STAB-02 — After an in-page profile switch, the shell never polls again (pointer → P2-SYNC-04, high)
 
-- **Area** shell / platform · **Type** bug · **Severity** high (pointer) · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** high (pointer) · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-04. After: `audits/evidence/p6/0c/p2/SYNC/verify1-poll-dies-after-profile-switch.json`.
 - **Evidence.** `audits/02-shell.md:3124`; `apps/hub.js:338-342`, `apps/hub.js:370`, `index.html:623`, `index.html:1236-1243`
 - **Proposed fix.** Pointer to P2-SYNC-04.
 
 #### P2-PROF-07 — Queued activity lines post under whoever is signed in next (pointer)
 
-- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Pointer to P2-PWA-06: the per-author feed queue. After: `audits/evidence/p6/0c/p2/PWA/verify-offline-activity-misattributed-2.json`.
 - **Evidence.** `audits/02-shell.md:1318`
 - **Proposed fix.** Pointer to P2-PWA-06: closed by the per-profile activity queue.
 
 #### P2-SYNC-08 — Offline feed lines stay queued after reconnecting and are posted later under whoever logs activity next
 
-- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 0c
+- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 0c · **Status** FIXED (`e9e5f59`)
+- **Phase 6 (FIXED).** Pointer to P2-PWA-06: lines drain on reconnect, after a pull and on sign-in, under their author. After: `audits/evidence/p6/0c/p2/PWA/verify-offline-activity-misattributed-2.json`.
 - **Evidence.** `audits/02-shell.md:2584`; `index.html:1063`, `apps/hub.js:381`, `worker/src/index.js:398-400`
 - **Proposed fix.** Pointer to P2-PWA-06.
 

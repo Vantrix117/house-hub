@@ -1,0 +1,104 @@
+{
+  "checks": [
+    {
+      "name": "setup: push subscription for this device",
+      "ok": true,
+      "got": 200
+    },
+    {
+      "name": "A offline Forget: refused with a \"not yet saved\" message",
+      "ok": true,
+      "got": "Not forgotten: 2 changes not yet saved (2 of yours). Try again when this device is online."
+    },
+    {
+      "name": "A offline Forget: both queued writes still on the device",
+      "ok": true,
+      "got": [
+        [
+          "hub.queue.leftovers.family.eli",
+          [
+            "forget0c"
+          ]
+        ],
+        [
+          "hub.queue.hub.person.eli",
+          [
+            "forget0c"
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "A offline Forget: still paired and signed in",
+      "ok": true,
+      "got": true
+    },
+    {
+      "name": "B the family write reached the server before forgetting",
+      "ok": true,
+      "got": {
+        "key": "forget0c",
+        "value": {
+          "note": "family write made offline"
+        },
+        "updated_at": 1790479006908
+      }
+    },
+    {
+      "name": "B the person write reached the server before forgetting",
+      "ok": true,
+      "got": {
+        "key": "forget0c",
+        "value": {
+          "note": "person write made offline"
+        },
+        "updated_at": 1790479006908
+      }
+    },
+    {
+      "name": "B the forgotten device token is refused (device deleted)",
+      "ok": true,
+      "got": "401 device_not_paired"
+    },
+    {
+      "name": "B the forgotten session is refused",
+      "ok": true,
+      "got": 401
+    },
+    {
+      "name": "B the admin device list no longer has it",
+      "ok": true,
+      "got": 5
+    },
+    {
+      "name": "B Eli has no push subscription left (it was on this device only)",
+      "ok": true,
+      "got": null
+    },
+    {
+      "name": "B local hub.* storage cleared (no device, session, queue or cache)",
+      "ok": true,
+      "got": []
+    },
+    {
+      "name": "C Ezra (kid) has no Forget button",
+      "ok": true,
+      "got": false
+    },
+    {
+      "name": "C the display has no Forget button",
+      "ok": true,
+      "got": false
+    },
+    {
+      "name": "C Mom (adult) has the Forget button",
+      "ok": true,
+      "got": true
+    }
+  ],
+  "shots": [
+    "audits/evidence/p6/0c/forget-device-A-offline-refused.png",
+    "audits/evidence/p6/0c/forget-device-B-online-forgotten.png"
+  ],
+  "dialog": "Forget this device? You will need the pairing code to use the hub here again."
+}

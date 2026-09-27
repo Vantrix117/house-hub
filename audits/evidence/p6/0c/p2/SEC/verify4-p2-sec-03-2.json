@@ -1,0 +1,131 @@
+{
+ "run_at": "2026-09-26T21:20:23.335Z",
+ "engine": "webkit",
+ "device": "ipad-portrait",
+ "profile": "niece (Mea, adult)",
+ "setup_create_pin": 200,
+ "S0_control_online_switch": {
+  "token_before": "200 niece",
+  "logout_requests": [
+   "POST /api/logout"
+  ],
+  "logout_responses": [
+   200
+  ],
+  "picker_shown": true,
+  "token_after": "401 profile_session_invalid"
+ },
+ "S1_signed_in": {
+  "session_device_matches_rig_device": true,
+  "token_before_switch": "200 niece"
+ },
+ "S2_offline_switch": {
+  "navigator_onLine": false,
+  "ms_click_to_picker": 688,
+  "logout_requests_attempted": [],
+  "logout_request_failures": [],
+  "logout_responses_received": [],
+  "picker_shown": true,
+  "local_hub_session": null,
+  "token_copies_left_on_device": [
+   "localStorage:hub.retiring"
+  ],
+  "device_token_left_on_device": true,
+  "screenshot": "audits/evidence/p2/SEC/verify4-p2-sec-03-2-offline-switch.png"
+ },
+ "S3_reconnect": {
+  "after_online_event": {
+   "requests": [
+    "GET /api/data/hub",
+    "GET /api/data/reminders",
+    "GET /api/data/leftovers",
+    "GET /api/data/dollywood-live",
+    "GET /api/data/kidverse",
+    "POST /api/logout"
+   ],
+   "token": "401 profile_session_invalid"
+  },
+  "after_35s_on_picker": {
+   "requests": [],
+   "logout_requests": [],
+   "token": "401 profile_session_invalid"
+  },
+  "after_reload": {
+   "requests": [
+    "GET /api/profiles",
+    "GET /api/media/photos/eli/rigphotoeli-256.jpg",
+    "GET /api/media/photos/christian/rigphotochristian-256.jpg"
+   ],
+   "logout_requests": [],
+   "token": "401 profile_session_invalid"
+  },
+  "logout_requests_total_after_reconnect": [
+   "POST /api/logout"
+  ]
+ },
+ "S3b_leftover_token_power": {
+  "read_person_f260": "401 profile_session_invalid",
+  "write_person_row": "401 profile_session_invalid",
+  "other_device_same_token": "401 profile_session_invalid"
+ },
+ "S4_later_revocation": {
+  "next_person_ezra_signs_in": {
+   "logout_requests": [],
+   "token": "401 profile_session_invalid"
+  },
+  "ezra_switches_online": {
+   "token": "401 profile_session_invalid"
+  },
+  "mea_signs_in_again": {
+   "new_token_differs": true,
+   "old_token": "401 profile_session_invalid"
+  },
+  "mea_switches_online": {
+   "new_token": "401 profile_session_invalid",
+   "old_token": "401 profile_session_invalid"
+  },
+  "every_admin_cron_job": {
+   "status": {
+    "morning": 200,
+    "evening": 200,
+    "behind": 200,
+    "prayer": 200,
+    "park": 200
+   },
+   "old_token": "401 profile_session_invalid"
+  },
+  "pairing_code_rotated": {
+   "status": 200,
+   "old_token": "401 profile_session_invalid"
+  },
+  "worker_clock_moved": {
+   "day_30": "401 profile_session_invalid",
+   "day_180": "401 profile_session_invalid",
+   "day_364.9": "401 profile_session_invalid",
+   "day_365.1": "401 profile_session_invalid",
+   "back_to_day_0": "401 profile_session_invalid"
+  }
+ },
+ "S5a_hanging_connection_switch": {
+  "ms_click_to_picker": 5047,
+  "local_hub_session": null,
+  "token_after": "200 niece"
+ },
+ "S5b_forget_device_online": {
+  "requests": [
+   "POST /api/logout",
+   "POST /api/device/forget"
+  ],
+  "local_device_after": null,
+  "session_token_after": "401 device_not_paired",
+  "device_token_family_read_after": "401 device_not_paired"
+ },
+ "S4b_known_revocations": {
+  "admin_reset_pin_mea": 401,
+  "old_token_after_reset_pin": "401 device_not_paired",
+  "second_device_token_before_unpair": "200 kiara",
+  "admin_unpair": 401,
+  "second_device_token_after_unpair": "200 kiara"
+ },
+ "page_errors": []
+}

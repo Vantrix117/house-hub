@@ -1,0 +1,82 @@
+{
+ "A_lifetime": {
+  "create_pin": 200,
+  "day_0": "200",
+  "day_200": "200",
+  "day_364": "200",
+  "day_364.9": "200",
+  "day_365.1": "401 profile_session_invalid",
+  "day_366": "401 profile_session_invalid",
+  "back_to_day_0": "200"
+ },
+ "B_rotation": {
+  "me_body_keys": [
+   "profile"
+  ],
+  "token_like_headers": [],
+  "data_body_keys": [
+   "items",
+   "now"
+  ]
+ },
+ "C_logout_scope": {
+  "logout": 200,
+  "logged_out_token": "401 profile_session_invalid",
+  "older_token_same_device": "200",
+  "same_profile_other_device": "200",
+  "first_token_T0_same_device": "200"
+ },
+ "D_failure_scenario": {
+  "online": {
+   "copied_before": "200",
+   "logout_requests": [
+    "POST /api/logout"
+   ],
+   "copied_after_owner_switch": "401 profile_session_invalid",
+   "copied_device_token_family_read": 200,
+   "copied_device_token_adult_login_without_pin": "401 wrong_pin"
+  },
+  "offline": {
+   "logout_requests_attempted": [],
+   "ipad_local_session_after": null,
+   "copied_after_offline_switch": "401 profile_session_invalid",
+   "logout_requests_after_reconnect": [
+    "POST /api/logout"
+   ]
+  }
+ },
+ "E_tv_switch": {
+  "logout_requests": 1,
+  "tv_token_after": "401 profile_session_invalid",
+  "tv_local_session_after": null,
+  "kiosk_login_from_device_token_alone": "200",
+  "kiosk_write": "401 profile_session_invalid"
+ },
+ "F_self_service": {
+  "unpair_own_phone": "403 admin_only",
+  "reset_own_pin": "403 admin_only",
+  "change_own_pin": "409 pin_already_set",
+  "phone_session_still": "200"
+ },
+ "G_broad_revocation": {
+  "rotate_pairing_code": 200,
+  "after_rotation": {
+   "phone_session": "200",
+   "phone_device_family_read": 200
+  },
+  "reset_pin": 200,
+  "after_reset_pin": {
+   "phone": "401 profile_session_invalid",
+   "pad1": "401 profile_session_invalid",
+   "T0": "401 profile_session_invalid",
+   "offline_switch_leftover": "401 profile_session_invalid",
+   "self": "401 profile_session_invalid"
+  },
+  "unpair": 200,
+  "after_unpair": {
+   "kid_session_on_phone": "401 device_not_paired",
+   "phone_device_family_read": 401
+  }
+ },
+ "logs": []
+}

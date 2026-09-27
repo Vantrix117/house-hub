@@ -171,6 +171,10 @@ async function capture(browser, srv, S, job) {
   // Service workers are blocked except on screens that study them (s.sw): Playwright WebKit cannot serve an offline
   // navigation from a service worker, and a first install shows the shell's "Hub updated" toast on every capture.
   const ctx = await browser.newContext({ ...contextOptions(device, mode), serviceWorkers: s.sw ? 'allow' : 'block' });
+  // Since batch 0c hub.js hands its unsent queue to a keepalive request on pagehide. A page only hides here when the
+  // capture closes, and the screens that keep their writes on the device (f260 noWrites, verses keepOnDevice) must not
+  // see them land on the shared rig server then, or the next capture of the group starts from changed data.
+  await ctx.addInitScript(() => window.addEventListener('pagehide', e => e.stopImmediatePropagation(), true));
   const t0 = Date.now();
   const logs = [];
   // network-quiet tracking for settle(); requests held on purpose (loading state, t.hold) are not waited for
