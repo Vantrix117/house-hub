@@ -1553,7 +1553,10 @@ el('f-import').addEventListener('click', () => {
       catch(e){ return 'That did not read as a prayer backup. Check you pasted the whole file.'; } },
     onSave(txt){
       D = readBackup(txt); migrate(); save();
-      applyTheme(); renderCatAdmin(); renderPlans(); go('today'); toast('Backup restored.');
+      applyTheme(); renderCatAdmin(); renderPlans(); go('today'); toast('Restoring…');
+      // say what the house answered, not just what this device holds
+      (hub.flush ? hub.flush() : Promise.resolve({})).then(r => toast(r.rejected ? `Restored, but ${r.rejected} item${r.rejected === 1 ? '' : 's'} could not be saved to the house.`
+        : r.pending ? 'Restored on this device — it will reach the house when you are back online.' : 'Backup restored and saved to the house.'));
     }});
 });
 

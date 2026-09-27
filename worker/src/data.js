@@ -2,6 +2,7 @@
 import { HttpError } from './auth.js';
 
 export const MAX_VALUE_BYTES = 900 * 1024;   // D1 rows top out at 1 MB
+export const MAX_AHEAD_MS = 30000;          // how far ahead of the server a client's updated_at may be
 const KEY_RE = /^[A-Za-z0-9_.:\-\/]{1,200}$/;
 
 export function checkScope(scope) {
@@ -38,7 +39,9 @@ export async function getOne(env, { appId, scope, profile, key }) {
  */
 export async function putOne(env, { appId, scope, profile, key, value, updated_at }) {
   const pid = owner(scope, profile);
-  const ts = Number.isFinite(+updated_at) && +updated_at > 0 ? Math.min(+updated_at, Date.now() + 5 * 60000) : Date.now();
+  // A device's clock may run fast: never store a stamp more than 30 s ahead of this server's clock, or that row would beat
+  // every correctly stamped edit until real time caught up (P2-PROF-14). The answer carries the stamp actually stored.
+  const ts = Number.isFinite(+updated_at) && +updated_at > 0 ? Math.min(+updated_at, Date.now() + MAX_AHEAD_MS) : Date.now();
   const json = value === undefined || value === null ? null : JSON.stringify(value);
   if (json && json.length > MAX_VALUE_BYTES) throw new HttpError(413, 'value_too_large', 'That is too big to save.');
 

@@ -269,6 +269,20 @@ route('POST', '/api/profiles/:id/pin', async c => {
 
 route('GET', '/api/me', async c => ({ profile: publicProfile(requireProfile(await c.auth())) }));
 
+// Forget this device (Me → Sync, household adults): the device, every session on it and its push subscriptions go, so a
+// phone given away stops receiving the household's notifications and leaves no ghost in the admin's device list.
+route('POST', '/api/device/forget', async c => {
+  const auth = await c.auth();
+  const p = requireWriter(auth);
+  if (p.kind !== 'adult' || p.is_guest) throw new HttpError(403, 'adults_only', 'Only a household adult can forget this device.');
+  await c.env.DB.batch([
+    c.env.DB.prepare('DELETE FROM sessions WHERE device_id = ?').bind(auth.device.id),
+    c.env.DB.prepare('DELETE FROM push_subscriptions WHERE device_id = ?').bind(auth.device.id),
+    c.env.DB.prepare('DELETE FROM devices WHERE id = ?').bind(auth.device.id),
+  ]);
+  return { ok: true };
+});
+
 route('POST', '/api/logout', async c => {
   await c.auth();
   const pt = c.request.headers.get('X-Profile-Token');
@@ -392,10 +406,11 @@ async function serveMedia(c, key) {
 
 route('POST', '/api/activity', async c => {
   const p = requireWriter(await c.auth());
-  const { app_id, text } = await c.body();
+  const { app_id, text, at } = await c.body();
   const t = String(text || '').trim().slice(0, 200);
   if (!t) throw new HttpError(400, 'bad_text', 'text is required.');
-  const now = Date.now();
+  // a line queued offline keeps the time it happened (never in the future, never more than a week back)
+  const now = Number.isFinite(+at) && +at > 0 ? Math.round(Math.max(Date.now() - 7 * 86400000, Math.min(+at, Date.now()))) : Date.now();
   const app = checkKey(String(app_id || 'hub'));
   const r = await c.env.DB.prepare('INSERT INTO activity (profile_id, app_id, text, created_at) VALUES (?, ?, ?, ?)')
     .bind(p.id, app, t, now).run();

@@ -621,6 +621,7 @@
     gate.hidden = true; shell.hidden = false;
     chatLoaded = false; $('#chat-log').innerHTML = ''; $('#chat-in').disabled = false; $('#chat-in').placeholder = 'Ask or tell the house…';
     hub.reset(); hub.ready().then(() => { renderGrid(); if (tab === 'home') renderHome(); renderTimerPill(); });
+    try { if (!localStorage.getItem('hub.persistAsked')) { localStorage.setItem('hub.persistAsked', '1'); hub.persistStorage(); } } catch {}   // devices paired before the request existed
     renderBrand(); renderMe(); renderGrid(); syncThemeColor();
     const h = location.hash.slice(1);
     if (hub.isKiosk) { showTab('home'); return; }
@@ -690,7 +691,9 @@
     }
     return `<span class="tlabel">${esc(a.name)}</span>`;
   }
+  let gridRender = 0;
   async function renderGrid() {
+    const mine = ++gridRender;   // the icons load asynchronously: an older render that finishes late must not paint over a newer one
     const apps = visibleApps();
     const grid = $('#grid');
     if (!apps.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-art"><img src="art/empty/list.svg" alt=""></div>No apps for this profile yet.</div>'; return; }
@@ -703,6 +706,7 @@
         ${badge ? `<span class="badge" aria-label="${badge} to eat this week">${badge}</span>` : ''}
       </button>`;
     }));
+    if (mine !== gridRender) return;
     grid.innerHTML = parts.join('');
   }
   $('#grid').addEventListener('click', ev => { const b = ev.target.closest('.tile'); if (b) { buzz(); openApp(b.dataset.id, b); } });
@@ -1142,7 +1146,7 @@
         tv.el = { root: q('#tv'), img: [q('#tv-bg-0'), q('#tv-bg-1')], date: q('#tv-date'), clock: q('#clock'), greet: q('#tv-greet'), verseHd: q('#tv-verse-hd'), refs: q('#tv-refs'), kidline: q('#tv-kidline'),
           prayed: q('#tv-prayed'), read: q('#tv-read'), stars: q('#tv-stars'), feed: q('#tv-feed'), remCard: q('#tv-rem-card') };
         tv.front = 0; tv.url = ['', '']; tv.fading = null; tv.lastFade = 0; tv.lastPaint = 0;
-        q('#kiosk-switch').addEventListener('click', () => showPicker());
+        q('#kiosk-switch').addEventListener('click', async () => { await hub.signOut(); showPicker(); });   // the display's session ends too
         stats.listeners = 1;                                            // the Switch button; the <img> load hooks are on* properties, replaced each fade
         tv.lastFeed = Date.now(); refreshFeed();
         hub.pull();                                                     // fetch the family prayer list just declared; onSync repaints
@@ -1290,17 +1294,29 @@
           <div class="kv"><b>Waiting to send</b><span>${s.pending}</span></div>
           <div class="kv"><b>Last checked</b><span>${s.lastPull ? fmtTime(new Date(s.lastPull)) : 'not yet'}</span></div>
           <div class="kv"><b>This device</b><span>${esc(hub.device ? hub.device.name || DEVICE_NAME : '—')}</span></div>
-          <div class="hstack" style="margin-top:var(--sp-3)"><button class="btn grow" id="syncnow">Check now</button><button class="btn btn-ghost" id="forget">Forget this device</button></div>
+          ${Math.abs(hub.skew) > 5 * 60000 ? `<p class="help" id="clock-warn" role="note" style="margin:var(--sp-2) 0 0">This device's clock is ${Math.round(Math.abs(hub.skew) / 60000)} min ${hub.skew < 0 ? 'fast' : 'slow'}. Turn on “Set automatically” in its date and time settings so changes save in the right order.</p>` : ''}
+          ${s.lastError === 'storage_full' ? '<p class="help" role="note" style="margin:var(--sp-2) 0 0">This device is out of storage. Your latest changes are kept while the hub stays open; free some space so they can be saved here too.</p>' : ''}
+          ${hub.isSafariTab() ? '<p class="help" id="safari-tab" role="note" style="margin:var(--sp-2) 0 0">In a Safari tab, Safari may clear the hub’s saved data after a week away, unsent changes included. Add it to the Home Screen (Share → Add to Home Screen) to keep them.</p>' : ''}
+          <div class="hstack" style="margin-top:var(--sp-3)"><button class="btn grow" id="syncnow">Check now</button>${p.kind === 'adult' && !isGuest() ? '<button class="btn btn-ghost" id="forget">Forget this device</button>' : ''}</div>
         </div>
         ${p.isAdmin ? '<div class="card glass span2" id="admin"><h2>Admin</h2><div id="admin-body"><div class="skeleton" style="height:120px">loading</div></div></div>' : ''}
       </div>`;
-    $('#switch').addEventListener('click', async () => { closeViewer(); await hub.signOut(); showPicker(); });
+    // the next person starts on Home, in their own look, with none of this person's data on the device
+    $('#switch').addEventListener('click', async () => { closeViewer(); tab = 'home'; history.replaceState(null, '', '#home'); await hub.signOut(); showPicker(); });
     $('#theme').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; hub.setTheme(b.dataset.theme); syncThemeColor(); renderMe(); try { frame.contentWindow.postMessage({ source: 'hubshell', type: 'hub:theme' }, location.origin); } catch {} });
     $('#syncnow').addEventListener('click', async () => { await hub.pull(); await hub.flush(); renderMe(); hub.toast('Checked with the house.'); });
-    $('#forget').addEventListener('click', () => {
+    if ($('#forget')) $('#forget').addEventListener('click', async ev => {
       if (!confirm('Forget this device? You will need the pairing code to use the hub here again.')) return;
-      try { for (const k of Object.keys(localStorage)) if (k.startsWith('hub.')) localStorage.removeItem(k); } catch {}
-      location.reload();
+      const b = ev.currentTarget; b.disabled = true; hub.toast('Saving everything first…', 8000);
+      try { await hub.forgetDevice(); location.reload(); }
+      catch (e) {
+        b.disabled = false;
+        if (e.error === 'unsent') {
+          const names = e.unsent.map(w => w.pid === p.id ? `${w.n} of yours` : `${w.n} by ${(hub.people().find(x => x.id === w.pid) || {}).name || 'someone'}`);
+          const others = e.unsent.filter(w => w.pid !== p.id);
+          hub.toast(`Not forgotten: ${e.unsent.reduce((n, w) => n + w.n, 0)} changes not yet saved (${names.join(', ')}). ${others.length ? 'Sign in as them once while online, then try again.' : 'Try again when this device is online.'}`, 8000);
+        } else hub.toast(e.status ? e.message : 'Can’t reach the house — try again when this device is online.', 5000);
+      }
     });
     if (p.isAdmin) renderAdmin();
     if (p.kind !== 'kiosk') renderNotif();

@@ -64,13 +64,14 @@ POST /api/profiles                      {name, emoji?|icon?, color?, pin?, expir
 POST /api/login                         {profile_id, pin?}
 POST /api/profiles/:id/pin              {pin}  first-time PIN creation, household adults only (guests → 403 guest_pin_fixed)
 GET  /api/me            POST /api/logout
+POST /api/device/forget                 household adults: deletes this device, its sessions and its push subscriptions (Me → Forget)
 
 GET  /api/data/:appId?scope=person|family[&since=ms][&prefix=][&key=]
 PUT  /api/data/:appId/:key?scope=       {value, updated_at}   → {value, updated_at, applied}
 DELETE /api/data/:appId/:key?scope=     (writes a tombstone)
-POST /api/data/:appId/batch?scope=      {items:[{key,value,updated_at}]}
+POST /api/data/:appId/batch?scope=      {items:[{key,value,updated_at}]}  at most 200 items; a bad row (bad_key, value_too_large) fails the request
 
-GET  /api/activity?limit=30             POST /api/activity {app_id, text}
+GET  /api/activity?limit=30             POST /api/activity {app_id, text, at?}  (at: when it happened, ms; kept if within the past week, never ahead)
 
 GET  /api/push/config                   {public_key, enabled}
 POST /api/push/subscribe {subscription} DELETE /api/push/subscribe
@@ -174,8 +175,9 @@ asserts every chip and refusal against a local Worker.
 
 ### Data semantics
 
-- `updated_at` is milliseconds from the **writer's** clock. A `PUT` with an older `updated_at` than the stored row is
-  ignored and the server's row comes back with `applied: false`; clients adopt it.
+- `updated_at` is milliseconds from the **writer's** clock, which hub.js corrects by the last server skew it saw. The
+  Worker stores at most 30 s ahead of its own clock (`MAX_AHEAD_MS`) and answers with the stamp it stored. A `PUT` with an
+  older `updated_at` than the stored row is ignored and the server's row comes back with `applied: false`; clients adopt it.
 - Deleting writes `value: null` (a tombstone) so other devices learn about the delete on their next pull.
   `GET …?since=<last pull>` returns only rows changed after that, tombstones included.
 - Values up to 900 KB. Keys: `[A-Za-z0-9_.:-/]`, up to 200 chars. Lists are stored one row per item (`item:<id>`)
