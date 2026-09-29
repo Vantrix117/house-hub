@@ -1,0 +1,18 @@
+ezra /api/me kind                                    "kid"
+kid get_data dollywood-live meet                     {"ok":true,"result":"{\"x\":855,\"y\":921,\"name\":\"The Wildwood Tree\",\"note\":\"\",\"by\":\"christian\",\"byName\":\"Mae\",\"at\":1790643998283}"}
+kid system prompt: map/fridge hint present           {"neverChange":true,"grownUpMap":true}
+before (as eli)                                      {"meet":"The Wildwood Tree","kiaraBeacon":null,"eliLoc":[762,842],"ezraHeight":43}
+kid chat set_data dollywood-live meet                {"http":200,"ok":false,"chip":null,"result":"Only a household grown-up can change that."}
+kid chat set_data dollywood-live kidshare:kiara      {"http":200,"ok":false,"chip":null,"result":"Only a household grown-up can change that."}
+kid chat set_data dollywood-live loc:eli             {"http":200,"ok":false,"chip":null,"result":"That belongs to someone else."}
+kid chat set_data dollywood-live kid:ezra            {"http":200,"ok":false,"chip":null,"result":"Only a household grown-up can change that."}
+after (as eli)                                       {"meet":"The Wildwood Tree","kiaraBeacon":null,"eliLoc":[762,842],"ezraHeight":43}
+kid chat finish_leftover (control)                   {"ok":false,"result":"That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.","stillThere":true}
+kid chat set_data leftovers null                     {"ok":false,"chip":null,"tombstoned":false}
+kid POST /api/dollywood/rally (control)              {"status":403,"error":"adults_only"}
+kid raw PUT /api/data kidshare:kiara (control)       {"status":403}
+kid chat set_data prayer (visibleTo app, control)    {"ok":false,"result":"Kids cannot change that."}
+family feed (as eli)                                 {"newest":["Mae: Meeting point: The Wildwood Tree @2026-09-29T01:06:38.283Z","Kiara: Kiara read the verse ★ @2026-09-28T12:32:00.000Z","Ezra: Ezra heard this week's story @2026-09-28T12:30:00.000Z"],"ezraViaChat":[]}
+adult (Mae) park map mentions kid meet name          {"shown":false,"wildwood":true}
+
+saved audits\evidence\p2\CHAT\verify-kid-chat-writes-adult-only-rows-1.json

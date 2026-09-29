@@ -1,0 +1,137 @@
+{
+  "runAt": "2026-09-29T01:18:38.577Z",
+  "steps": [
+    {
+      "k": "ezra /api/me kind",
+      "v": "kid"
+    },
+    {
+      "k": "kid get_data dollywood-live meet",
+      "v": {
+        "ok": true,
+        "result": "{\"x\":855,\"y\":921,\"name\":\"The Wildwood Tree\",\"note\":\"\",\"by\":\"christian\",\"byName\":\"Mae\",\"at\":1790643998283}"
+      }
+    },
+    {
+      "k": "kid system prompt: map/fridge hint present",
+      "v": {
+        "neverChange": true,
+        "grownUpMap": true
+      }
+    },
+    {
+      "k": "before (as eli)",
+      "v": {
+        "meet": "The Wildwood Tree",
+        "kiaraBeacon": null,
+        "eliLoc": [
+          762,
+          842
+        ],
+        "ezraHeight": 43
+      }
+    },
+    {
+      "k": "kid chat set_data dollywood-live meet",
+      "v": {
+        "http": 200,
+        "ok": false,
+        "chip": null,
+        "result": "Only a household grown-up can change that."
+      }
+    },
+    {
+      "k": "kid chat set_data dollywood-live kidshare:kiara",
+      "v": {
+        "http": 200,
+        "ok": false,
+        "chip": null,
+        "result": "Only a household grown-up can change that."
+      }
+    },
+    {
+      "k": "kid chat set_data dollywood-live loc:eli",
+      "v": {
+        "http": 200,
+        "ok": false,
+        "chip": null,
+        "result": "That belongs to someone else."
+      }
+    },
+    {
+      "k": "kid chat set_data dollywood-live kid:ezra",
+      "v": {
+        "http": 200,
+        "ok": false,
+        "chip": null,
+        "result": "Only a household grown-up can change that."
+      }
+    },
+    {
+      "k": "after (as eli)",
+      "v": {
+        "meet": "The Wildwood Tree",
+        "kiaraBeacon": null,
+        "eliLoc": [
+          762,
+          842
+        ],
+        "ezraHeight": 43
+      }
+    },
+    {
+      "k": "kid chat finish_leftover (control)",
+      "v": {
+        "ok": false,
+        "result": "That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.",
+        "stillThere": true
+      }
+    },
+    {
+      "k": "kid chat set_data leftovers null",
+      "v": {
+        "ok": false,
+        "chip": null,
+        "tombstoned": false
+      }
+    },
+    {
+      "k": "kid POST /api/dollywood/rally (control)",
+      "v": {
+        "status": 403,
+        "error": "adults_only"
+      }
+    },
+    {
+      "k": "kid raw PUT /api/data kidshare:kiara (control)",
+      "v": {
+        "status": 403
+      }
+    },
+    {
+      "k": "kid chat set_data prayer (visibleTo app, control)",
+      "v": {
+        "ok": false,
+        "result": "Kids cannot change that."
+      }
+    },
+    {
+      "k": "family feed (as eli)",
+      "v": {
+        "newest": [
+          "Mae: Meeting point: The Wildwood Tree @2026-09-29T01:06:38.283Z",
+          "Kiara: Kiara read the verse ★ @2026-09-28T12:32:00.000Z",
+          "Ezra: Ezra heard this week's story @2026-09-28T12:30:00.000Z"
+        ],
+        "ezraViaChat": []
+      }
+    },
+    {
+      "k": "adult (Mae) park map mentions kid meet name",
+      "v": {
+        "shown": false,
+        "wildwood": true
+      }
+    }
+  ]
+}

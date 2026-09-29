@@ -195,7 +195,8 @@ export const screens = [
     async go(t) {
       const f = await open(t, '#grown:not([hidden])');
       await scrollTo(t, f, '#grown');
-      await t.tap(f.locator('#week-up'));
+      // batch 0d (UX-KIDVERSE-3): a guest has no stepper any more, only "The family is on week N.", so there is nothing to tap
+      if (await f.locator('#week-up').count()) await t.tap(f.locator('#week-up'));
       await f.waitForFunction(() => /Week 39/.test((document.getElementById('week-now') || {}).textContent || ''), null, { timeout: 3000 }).catch(() => {});
       await scrollTo(t, f, '#grown');
     },

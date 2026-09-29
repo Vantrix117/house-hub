@@ -1,0 +1,98 @@
+
+# 1. chat set_data as Ezra: real apps array vs crafted (visibleTo stripped)
+{
+ "starsReal": "✓ Saved stars:ezra in kidverse",
+ "starsCrafted": "✓ Saved stars:ezra in kidverse",
+ "prayerReal": "Kids cannot change that.",
+ "prayerCrafted": "Kids cannot change that.",
+ "starsAfter": {
+  "count": 50,
+  "total": 500
+ },
+ "famAAfter": "still there"
+}
+
+# 2. grown-up tools as Ezra WITH the crafted array
+{
+ "mark_prayed": {
+  "ok": false,
+  "result": "That is a grown-up tool; kids cannot use it. Tell the child a parent c…"
+ },
+ "answer_prayer": {
+  "ok": false,
+  "result": "That is a grown-up tool; kids cannot use it. Tell the child a parent c…"
+ },
+ "add_prayer": {
+  "ok": false,
+  "result": "That is a grown-up tool; kids cannot use it. Tell the child a parent c…"
+ },
+ "finish_leftover": {
+  "ok": false,
+  "result": "That is a grown-up tool; kids cannot use it. Tell the child a parent c…"
+ },
+ "toggle_f260_reading": {
+  "ok": false,
+  "result": "That is a grown-up tool; kids cannot use it. Tell the child a parent c…"
+ },
+ "where_is_family": {
+  "ok": false,
+  "result": "That is a grown-up tool; kids cannot use it. Tell the child a parent c…"
+ }
+}
+
+# 3. same writes through the raw data API with a freshly minted kid session (no PIN)
+{
+ "loginWithoutPin": {
+  "status": 200,
+  "gotToken": true,
+  "kind": "kid"
+ },
+ "putStarsEzra": {
+  "status": 200,
+  "applied": true
+ },
+ "deletePrayerFamB": {
+  "status": 403,
+  "after": "still there"
+ },
+ "putStarsKiara": {
+  "status": 403
+ },
+ "putF260Family": {
+  "status": 403
+ },
+ "starsEzraAfter": {
+  "count": 77,
+  "total": 777
+ }
+}
+
+# 4. client app names in the kid system prompt
+{"inEzraSystem":false,"kidRulesStillPresent":true,"inEliNextSystem":false,"userMessageCap":2000}
+
+# 5. 40 apps x 20,000-char names
+{
+ "mockAccepts_threeTurns": {
+  "httpStatus": 200,
+  "upstreamCalls": 3,
+  "systemCharsPerCall": [
+   2764,
+   2764,
+   2764
+  ],
+  "done": true
+ },
+ "upstreamRefuses": {
+  "httpStatus": 200,
+  "sseError": "The assistant is unavailable right now (prompt is too long).",
+  "systemChars": 2764,
+  "doneUsed": null
+ },
+ "eightMbBody": {
+  "httpStatus": 200,
+  "systemChars": 2764
+ },
+ "historyUsed": 17
+}
+
+evidence: audits/evidence/p2/CHAT/verify-chat-trusts-client-app-list-2.json

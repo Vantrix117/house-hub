@@ -1,0 +1,35 @@
+── A. Controls: the server does enforce the kiosk and the dedicated routes ──
+tv (kiosk)      PUT reminders/item:tv family                               → 403 read_only
+ezra (kid)      POST /api/dollywood/rally                                  → 403 adults_only
+ezra (kid)      POST /api/album                                            → 403 adults_only
+ezra (kid)      DELETE /api/album/alb0014 (not his)                        → 403 not_yours
+
+── B. The same things through the generic /api/data as the kid ──
+ezra (kid)      PUT dollywood-live/meet family                             → 403 not_allowed
+   meet now = 
+ezra (kid)      DELETE hub/album:alb0014 (someone else's photo row)        → 403 not_allowed
+   album:alb0014 now = {"id":"alb0014","sm":"/api/media/album/alb0014-256.jpg","lg":"/api/media/album/alb0014-1024.jpg","by":"eli","byName":"Eli","caption":"","at":1789056900000}
+ezra (kid)      PUT hub/album:forged family                                → 403 not_allowed
+ezra (kid)      PUT dollywood-live/kidshare:ezra = true                    → 403 not_allowed
+   kidshare:ezra now =  (apps/dollywood-live.html:693 treats === true as "beacon on")
+ezra (kid)      PUT dollywood-live/loc:mom                                 → 403 not_allowed
+ezra (kid)      PUT reminders/item:kid-rem (byName Elizabeth)              → 403 not_allowed
+ezra (kid)      DELETE reminders/item:rem0009                              → 403 not_allowed
+ezra (kid)      PUT kidverse/week family                                   → 403 not_allowed
+ezra (kid)      PUT f260/anything family (f260 not visible to kids)        → 403 not_allowed
+ezra (kid)      POST prayer/batch tombstone all 11 family prayers          → 200
+   family prayers left after the batch = 11 of 11
+
+── C. Stars: a forged parent cash-in for Kiara, applied by Kiara's own Kid Verse ──
+   kiara stars (person) before: total = 5 earned = 5 payouts = 0
+ezra (kid)      PUT kidverse/ledger:kiara:forged-mulzn0hu {kind:cashin, by:'eli'} → 403 not_allowed
+   kiara stars (person) after she opened Kid Verse: total = 5 | applied[forged] = false | last payout = 
+   mirror stars:kiara total = 5
+
+── D. Which limits are UI-only, and which the UI itself allows ──
+   Ezra in the Larder UI: {"kind":"kid","canWrite":true,"doneButtons":0,"addFormVisible":true} (apps/leftovers.html:180, 275-282 — kids get "Mark used up" buttons)
+   Grandma Jo (guest) in the shell: {"id":"guest-grandmajo","kind":"adult","canWrite":true} → park map Family pane shows Kids' beacons switches when kind==='adult'&&canWrite (apps/dollywood-live.html:1307)
+guest-grandmajo PUT dollywood-live/kidshare:kiara = true                   → 403 not_allowed
+guest-grandmajo PUT kidverse/ledger:ezra:g1 cashin                         → 403 not_allowed
+
+wrote audits/evidence/p2/PROF/verify-kid-family-writes-server-2.json

@@ -1,0 +1,22 @@
+0. admins in the seed / eli has_pin                          {"admins":["eli"],"eliHasPin":true}
+1a. signed in as                                             {"id":"eli","isAdmin":true,"device":"rig-kitchen-ipad"}
+1b. own row buttons (Eli)                                    ["Edit","Change PIN[data-resetpin=eli]"]
+1c. contrast: Unpair offered on this device row?             [{"text":"Paired Sep 22 · seen just now · this device","unpair":false}]
+2a. confirm() text                                           null
+2b. iPad after the reset                                     {"gateShown":false,"session":true,"pickmsg":null,"eliCard":null}
+2c. server: eli has_pin after reset                          true
+2d. server: Eli old session token → /api/me                  200 profile=eli is_admin=true
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#profiles .pcard[data-id="eli"]')[22m
+
+    at C:\Users\ex_bo\OneDrive\Claude Related\App Hub\audits\tools\phase2\PROF\verify-admin-self-reset-claimable-1.mjs:46:14 {
+  log: [ `  - waiting for locator('#profiles .pcard[data-id="eli"]')` ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

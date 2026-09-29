@@ -1,0 +1,114 @@
+{
+ "export": "house-hub-prod-2026-09-28-before-0d.sql",
+ "before": {
+  "activity": 19,
+  "app_data": 43,
+  "chat_log": 0,
+  "devices": 8,
+  "media": 0,
+  "profiles": 8,
+  "push_log": 13,
+  "push_subscriptions": 1,
+  "rate_limits": 1,
+  "sessions": 8,
+  "settings": 2
+ },
+ "after": {
+  "activity": 19,
+  "app_data": 43,
+  "chat_log": 0,
+  "devices": 8,
+  "media": 0,
+  "profiles": 9,
+  "push_log": 13,
+  "push_subscriptions": 1,
+  "rate_limits": 1,
+  "sessions": 8,
+  "settings": 2
+ },
+ "profileColumnsBefore": [
+  "id",
+  "name",
+  "emoji",
+  "color",
+  "kind",
+  "pin_hash",
+  "is_admin",
+  "sort_order",
+  "photo",
+  "is_guest",
+  "created_by",
+  "expires_at"
+ ],
+ "profileColumnsAfter": [
+  "id",
+  "name",
+  "emoji",
+  "color",
+  "kind",
+  "pin_hash",
+  "is_admin",
+  "sort_order",
+  "photo",
+  "is_guest",
+  "created_by",
+  "expires_at",
+  "hue",
+  "pin_reset_hash",
+  "pin_reset_expires"
+ ],
+ "deviceColumnsAfter": [
+  "id",
+  "name",
+  "token_hash",
+  "paired_at",
+  "last_seen",
+  "role"
+ ],
+ "checks": [
+  {
+   "ok": true,
+   "name": "profiles: 8 rows before, 9 after (the kitchen added)"
+  },
+  {
+   "ok": true,
+   "name": "every profile row is still there, by id"
+  },
+  {
+   "ok": true,
+   "name": "profiles: 96 of 96 values identical, column by column (12 columns × 8 rows)"
+  },
+  {
+   "ok": true,
+   "name": "the three new profile columns exist and start NULL on every existing row"
+  },
+  {
+   "ok": true,
+   "name": "the kitchen profile: kind kitchen, no PIN, not admin, not a guest"
+  },
+  {
+   "ok": true,
+   "name": "devices: role added, NULL on all 8 rows"
+  },
+  {
+   "ok": true,
+   "name": "devices: every other column identical"
+  },
+  {
+   "ok": true,
+   "name": "other tables untouched: activity 19, app_data 43, chat_log 0, devices 8, media 0, push_log 13, push_subscriptions 1, rate_limits 1, sessions 8, settings 2"
+  },
+  {
+   "ok": true,
+   "name": "the kind CHECK still refuses an unknown kind"
+  },
+  {
+   "ok": true,
+   "name": "a second run fails on its first statement (\"duplicate column name: role\") and changes nothing"
+  },
+  {
+   "ok": true,
+   "name": "indexes on profiles after the rebuild: sqlite_autoindex_profiles_1"
+  }
+ ]
+}

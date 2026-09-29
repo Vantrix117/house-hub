@@ -409,3 +409,152 @@ Each run had its own fresh copy of a seeded local D1 and its own `wrangler dev`.
 - **The plan's server rule was not added.** The rule was "the old token is refused once a new session exists for that device". `scripts/smoke-api.sh` and the capture rig hold several sessions on one device, so the rule would break them. The client-side logout on reconnect closes the offline-Switch case instead.
 - **Forget can be blocked** by a signed-out person's unsent changes until that person signs in once while online. The message names them.
 - **Whole-row races between two people** (P2-SYNC-01) belong to batches 0e-0g. The b2probe's lost tick is that race, not one of this batch's findings.
+
+## Batch 0d — Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules
+
+| | |
+|---|---|
+| **Findings** | 17 entries (15 primaries + 2 pointers): 3 critical, 4 high, 3 medium, 5 low primaries. All 17 FIXED (status per entry in `audits/05-findings.md`), plus the household work KITCHEN-1 (server half) done. |
+| **Code commit** | `d5e46b6` (2026-09-28); the park-map template change is committed in the sibling repo `../dollywood-build-project` as `1b23abf` |
+| **Files** | `worker/src/policy.js` (new), `worker/src/index.js`, `worker/src/auth.js`, `worker/src/chat.js`, `worker/src/data.js`, `worker/migrations/006-kitchen.sql` (new), `worker/schema.sql`, `worker/seed.sql`, `worker/README.md`, `apps/hub.js`, `index.html`, `apps/prayer.html` (data code, copy and two chip rules; layout and ids kept), `apps/kidverse.html`, `apps/leftovers.html`, `apps/dollywood.html` + `apps/dollywood-live.html` (exported), `scripts/test-kitchen.mjs` (new), `scripts/smoke-api.sh`, three suites' fixtures (`test-home`, `test-rewards`, `test-dollywood`), `CLAUDE.md`, `sw.js` (`hub-v30` → `hub-v31`) |
+| **Schema / data** | One migration, `006-kitchen.sql`: `devices.role` (added column), then the planned rebuild of `profiles` to widen its kind CHECK, with `hue`, `pin_reset_hash`, `pin_reset_expires` and the seeded kitchen profile. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-28-before-0d.sql` (35 KB, 8 profiles, 43 app_data rows; outside the repo, it holds hashes). `audits/tools/phase6/0d/migration-check.mjs` ran the migration on a copy of that export: profiles 8 → 9 (the kitchen), 96 of 96 values identical column by column, the new columns NULL, `devices.role` NULL on all 8, every other table untouched, the kind CHECK still refuses an unknown kind, and a second run fails on its first statement and changes nothing (`audits/evidence/p6/0d/migration-check.json`). The migration was also applied through D1 itself (`wrangler d1 execute --local`) to the seeded test database. **Nothing was deployed, and the migration has not been run on production.** It must run before the new Worker is deployed (the Worker reads `devices.role` and writes the new columns). |
+| **How it was built** | The Worker, SDK, shell, Kid Verse, Larder and tests by the orchestrator; the Prayer fixes and the park-map template by one agent each against written briefs; an independent review of the whole diff (1 high, 3 medium, 7 low), every finding fixed; the same reviewer verified the fixes (3 follow-ups, fixed) and then the follow-ups (all hold). Every check below was rerun on the final code. |
+
+### The change
+
+**Who may write what, on the server (`worker/src/policy.js`, new; P2-PROF-05, P2-SEC-02, P2-CHAT-02, P2-CHAT-06, P3-DOLLYWOOD-LIVE-02, UX-KIDVERSE-3).**
+- **One rule book for every write.** `PUT`, `DELETE` and `batch` on `/api/data`, and every chat tool that writes, go through `guardedPut()`: it reads the stored row, asks `writeError()`, and only then runs the usual last-write-wins `putOne()`.
+- **A refused row is answered, not dropped silently.** A single write gets `403 not_allowed {rejected, key, value, updated_at}`. In a batch the refused row comes back as `{key, rejected, value, updated_at}` with the house's copy and the other rows still save, so one refused row never blocks a queue.
+- **App visibility is the server's.** The Worker imports `apps.json` (`with { type: 'json' }`, so both wrangler and the audit rig's Node server load it). `canOpen()` mirrors the shell: `visibleTo`, a guest sees what any household adult sees, the kitchen its four apps, the TV none.
+  - Family rows of an app the profile cannot open are refused for reading (`403 app_hidden`) and writing.
+  - Person rows of such an app are refused for writing, with one cross-app row: Verses keeps `f260.recall` in the person's F260 scope, and kids use Verses though F260 is hidden from them.
+  - Person-scope reads stay open: they only ever return the caller's own rows, and the shell reads its own F260, prayer and timer rows for every profile.
+- **Kids** (P5-D2 and P2-PROF-05) write only:
+  - their own person rows;
+  - on the family prayer list, a tick under their own name. It is **merged**, not taken whole: the stored row, with only the kid's own name added on the household's yesterday, today or tomorrow (removed on today only), plus `lastPrayedAt` and `updatedAt`, stamped just after both the kid's write and the stored row. So an older copy on the kid's device can neither undo someone else's tick nor change the request, a tick cannot be backdated to mint Kid Verse stars, and an offline tick is not lost to a later write. `prayerDays` only gains the kid's dates among those three days;
+  - their own Kid Verse `stars:<id>` and `story:<id>`;
+  - their own park-map dot, only while an adult has their beacon on (`kidshare:<id> === true`), and a dot more than a day old (the map's clean-up).
+  - Everything else in family scope is `kid_readonly`: the meeting point, Larder rows, reminders, ledger rows, a sibling's stars, any tombstone of another app's row.
+- **Household-only rows.** Kid Verse `week` and `ledger:*`, and the park map's `kidshare:*` and `kid:*`, need a household adult (kind adult, not a guest).
+- **One person's rows.** Nobody writes someone else's `stars:`/`story:` or places someone else's `loc:` dot; clearing another person's fresh dot is for household adults (switching a kid's beacon off). Prefixes are matched in any letter case, and `listData`'s prefix reads are now exact (`substr`), so `LOC:ezra` is no way round.
+- **Chat** (`worker/src/chat.js`): the app list comes from `appsFor()`, never from the request (the guest hack in `index.js` is gone); every tool write goes through `guardedPut()`; `get_data` refuses a `.vault` key asked for by name (P2-CHAT-07); `mark_prayed` / `answer_prayer` on the private list post "Prayed for a private request" / "Answered a private request" (the chip, seen only by the person, keeps the title).
+
+**Accounts (P2-PROF-04, P2-PROF-06, P2-SEC-01, GAP-PROF-a1, UX-PROF-a7).**
+- **Reset PIN gives a one-time code** (P5-D4). For a household adult the admin's reset stores a hashed 6-digit code valid 24 h (`profiles.pin_reset_hash`, `pin_reset_expires`), ends the person's sessions and shows the code once. `POST /api/profiles/:id/pin` then needs that code (`403 needs_code`, `401 wrong_code`, `403 code_expired`). A guest's reset still clears the PIN (tap to open).
+- **The admin's own PIN** (P2-PROF-06): the admin's own row offers **Change PIN** (current PIN first), not a reset, because a self-reset would sign the only admin out everywhere with nothing but a code to get back in. The Worker still accepts a self-reset, only with the admin's current PIN (`403 wrong_admin_pin`).
+- **Set-up codes.** An adult who never had a PIN still creates it on first tap (the documented flow and every repo test depend on it), but the admin can close that too: the same button reads "Set-up code" on a profile with no PIN. A household profile the admin turns into an adult comes back with a set-up code.
+- **Wrong PINs and codes are counted per profile across every device** (`pinCheck` / `pinFail` / `pinClear` in `worker/src/auth.js`). Every attempt is counted before it is checked, with an atomic upsert, so parallel guesses cannot slip past the count. Limits: 5 per device per 15 min (as before), 20 per device per day, 10 per profile per hour. The 10th wrong one pauses the profile for 1 h, then 2 h, 4 h … up to 24 h within a week, and pushes the admin (kind `security`); only one request can start a pause. A device the person has signed in on before (`pintrust:<profile>:<device>`, a year) is held only by its own limits, so nobody can lock a person, the admin included, out of their own phone. A right answer takes its attempt back off the counts. The admin's reset lifts a pause.
+- **Change my PIN**: `POST /api/me/pin {current, pin}`, household adults; Me → PIN card in the shell. A wrong current PIN counts like a wrong sign-in and answers 403 so the shell stays signed in.
+- **Pairing**: hub.js sends a random install id (`hub.fp`); wrong codes are limited to 5 per install id and 20 per IP (backstop) per 15 min, so one device cannot block the house. A page without `fp` keeps the old 10 per IP. The install id is the client's to choose, so an attacker can rotate it: the per-IP 20 is the real ceiling for one address (was 10).
+- **Names**: the Worker refuses `<` and `>` in profile and guest names and emoji (`400 bad_name` / `bad_emoji`).
+- **Colour families**: `profiles.hue`, admin only, one of the 18 names (`05-decisions.md`, "Admin-assigned colours"); a new guest gets `sky`.
+
+**The Kitchen device, server half (KITCHEN-1; `worker/migrations/006-kitchen.sql`).**
+- **Schema.** `devices.role` (added column), then the `profiles` rebuild that widens `kind` to take `'kitchen'` and adds `hue`, `pin_reset_hash`, `pin_reset_expires`; the seeded `kitchen` profile. `schema.sql` and `seed.sql` follow. The migration fails on its first statement if run twice, before anything changes.
+- **Sign-in.** A kitchen device signs in only as the kitchen, with no PIN; the kitchen only on a kitchen device. `authenticate()` also refuses a session whose profile and device role no longer match, so a role change reaches a device on its next request.
+- **Role.** `PUT /api/admin/devices/:id/role {role, admin_pin}`: admin only, from another device, the admin PIN typed again. Setting it ends the device's personal sessions and push subscriptions; clearing it ends the kitchen session. `GET /api/device` tells the device its role.
+- **What it writes.** Family rows of the Larder, the family prayer list and reminders; person rows of its own Timer and Tally, and its own theme. No chat, push or admin; the Me tab hides the notifications card for it.
+- **Credit.** A `by` / `byName` it writes (checked only when it changes: a row someone else wrote keeps its author), and any name it adds to a prayer's `prayedBy`, must be a household member (never a guest, the TV or itself); a kid is never named on a Larder row. `POST /api/activity {…, as}` and `POST /api/album {…, as}` file the line or the photo under the household member whose face was tapped (adults only for the Larder and the album).
+- **Not a person.** It is listed with kind `kitchen`, which the pickers and `hub.people()` leave out; the admin's reset refuses it; the admin's edit takes only its colour.
+- **The shell.** At boot and after any 401 the picker first asks `GET /api/device`; on a kitchen device it signs in as the kitchen instead. Its Apps list is Larder, Prayer, Timer and Tally. The kitchen Home, the face sheet and the admin's switch are KITCHEN-2 (batch 2a).
+
+**Private prayers (P2-PWA-01, P3-PRAYER-18) and stored script (P3-PRAYER-06, P3-PRAYER-17, P3-DOLLYWOOD-LIVE-01).**
+- **Prayer** (`apps/prayer.html`, data code and copy only; layout and ids kept):
+  - praying for or answering a private request posts "Prayed for a private request" / "Answered a private request"; the Worker refuses a prayer line that names anything but a family-list title;
+  - "Send to family list" shows For and Category as chips, off by default, and a preview of what the family will see; the family copy carries only what was chosen, so the new-prayer push has no "(for …)" unless chosen;
+  - every row and plan id is escaped in markup; rows and plans whose id fails `/^[A-Za-z0-9_-]+$/` are dropped on load (a household adult also removes the row);
+  - a kid's save writes only their own ticks, rebuilt from the house's row, and new prayer days; the kitchen writes the family list only.
+- **Park map** (template in `../dollywood-build-project`, commit `1b23abf`, rebuilt, `verify.py` passed, exported): every stored name, emoji, id, colour, note and wait is escaped or validated; the Kids' beacons and the height stepper are for household adults only; a Content-Security-Policy with per-script hashes (`build_html.py add_csp()`) blocks inline handlers.
+- **Kid Verse**: the week stepper is for household adults; a guest sees "The family is on week N."
+- **Larder**: read-only for kids (the server refuses their writes; the picture view is batch 8).
+
+**hub.js.**
+- A refused row comes back with the house's value, which the flush puts back in the cache, unless a newer change to the row is waiting or a pull has meanwhile brought a newer copy; the toast says "That is not something <name> can change, so it was put back."
+- `hub.dropPersonCaches(keep)`: the kitchen sign-in drops everyone else's person-scope caches, so a session the role change ended leaves no private rows on the counter.
+- `hub.activity(text, app, { as })` (kitchen only), `hub.isKitchen`, `hub.isHouseholdAdult`, `hub.deviceRole()`, `hub.createPin(id, pin, code)`, `hub.changePin(current, pin)`; `hub.pair` sends the install id; `hub.people()` leaves the kitchen out.
+- `sw.js` `hub-v30` → `hub-v31`.
+
+**What the independent review changed.**
+- **High.** The first shell let the admin reset their own PIN, which signed the only admin out everywhere with nothing but a code on the picker. The admin's own row now offers Change PIN.
+- **Medium.** A kid's tick was refused whenever the kid's copy of the row was out of date (someone else ticked in the last 30 s); ticks are now merged onto the stored row. The kitchen's credit check tested authors it had not changed. PIN attempts were checked before they were counted, so a burst could race the limit, and anyone could pause the admin; attempts are now counted atomically first, and trusted devices are exempt from the pause.
+- **Low.** Upper-case keys (`LOC:ezra`) got round the prefix rules; the refused-row put-back could overwrite a newer copy; a kid could backdate a tick to mint stars; the per-IP pairing backstop was 30 (now 20); the kitchen saw a notifications card and could not keep its theme; a session ended by a role change left private caches on the counter.
+- **Follow-ups on the fixes.** The merged tick is stamped just after both the kid's write and the stored row (so an offline tick is not lost and the kid's next pull shows the merge); a kid's name is removed only on today; trusted devices keep a 20-a-day cap.
+- **Kept as known limits:** device-only family reads (below) and the deploy order.
+
+### Each finding's reproduction, rerun
+
+**How they were run.** The 29 scripts the entries name ran on both the unchanged code (`git archive` of `6cd989f`) and the final code, three at a time; outputs and exit codes are in `audits/evidence/p6/0d/tests/repro-before/` and `repro-after/`. The scripts write into `audits/evidence/p2|p3/`; the changed files were moved into `p6/0d/p2|p3/` and the Phase 2/3 baseline restored (git shows it clean). Each entry's Status line in `05-findings.md` quotes the observation that flipped.
+
+| Finding | Before | After |
+|---|---|---|
+| P2-PROF-04 (verify-pin-claim-2, step 3) | the TV device claims David after a reset: 200 and a session; reads his F260 (10 rows), writes his scope | 403 needs_code; reads and writes 401; David's own device is asked for the code |
+| P2-PROF-06 (verify-admin-self-reset-1/2) | "Reset PIN" on Eli's own row; after it Eli is claimable | the row reads "Change PIN", Eli keeps his PIN and session; the scripts then wait for a picker that never comes (exit 1, the fix holding) |
+| P2-PWA-01 (verify-private-prayer-titles-1) | "Prayed for Audit-secret 7Q biopsy result" on every token's feed, Mae's Home and the TV | the title appears nowhere |
+| P3-DOLLYWOOD-LIVE-01 (xss-family-name-1/2, xss-guest-name) | the guest name runs as script in Eli's map (pwnSet true) | the guest cannot be created (400 bad_name; xss-guest-name exits 1 at that step). The forced check `phase6/0d/park-xss-planted.mjs` plants the payload straight into a guest's own loc row, the meeting point and a kid's height: shown as text, 0 live `img[onerror]`, nothing runs |
+| P2-SEC-01 (verify-pin-brute-1/2, rate-limits) | 40 devices from one IP: 200 guesses reach PIN verification in 15 min; the admin route is reachable | 10 guesses; admin route not reachable; claims B/C and D no longer hold |
+| P3-DOLLYWOOD-LIVE-02 (guest-can-flip-kid-beacon-1/2, rally-guest-loading) | the guest sees 2 beacon switches and 4 height steppers | 0 and 0 |
+| P3-PRAYER-06 / -17 (xss-id, verify-xss-row-id-1/2, critic-sweep, plan-id-xss-1-1/1-2) | row-id and plan-id payloads run for Kiara and Eli | xss 0, px 0; the kid's plant is refused by the Worker; `phase6/0d/supp-0d-prayer.mjs` plants them as an adult: not rendered, xss 0, px 0 |
+| P2-CHAT-02 (verify-kid-chat-writes-1) | as Ezra, chat saves meet, kidshare:kiara, loc:eli, kid:ezra and tombstones a Larder row | every one refused ("Only a household grown-up can change that." / "That belongs to someone else."), the Larder row stays |
+| P2-PROF-05 (verify-kid-family-writes-2) | every one of Ezra's family writes 200 (meet, album rows, kidshare, loc:mom, reminders, week, f260 family); a forged cash-in against Kiara applied | every one 403; "tombstone all 11 family prayers" leaves 11 of 11; the forged ledger row refused |
+| P3-PRAYER-18 (critic-push-share, share-copies-2-1/2-2) | the family copy carries For "Uncle Ray" and the category; the push says "(for Uncle Ray)" | For "" and "Personal"; the push has no "(for …)" |
+| P2-CHAT-07 (verify-vault-readable-by-key-1) | get_data by key returns the whole 1384-2552-char vault | "The private journal is locked; it cannot be read from chat." |
+| P2-SEC-02 (verify-visibleto-1/2) | the kid reads and writes f260 and dollywood family rows (200) | 403 |
+| P2-CHAT-06 (verify-chat-trusts-client-app-list-1/2) | a 40 × 50 000-char app list grows the system prompt to 2 003 376 chars; Ezra's writes to stars:kiara and a family prayer 200 | 2764 chars; both 403 |
+| GAP-PROF-a1, UX-KIDVERSE-3, UX-PROF-a7 | (screens and API) | `scripts/smoke-api.sh` cases below, and the recapture |
+
+**New checks.**
+- **`scripts/test-kitchen.mjs` (27/27).** A kitchen iPad signed in as Mea becomes the kitchen on its next request once the admin sets the role (a wrong admin PIN is refused), with no picker; its Apps are the Larder, Prayer, Timer and Tally; it writes the Larder through hub.js and another device sees it; it reads no one's person rows and cannot write F260 or a private prayer; nobody signs in as a person there and no other device as the kitchen; it has no chat; a Prayed credited to Ezra is saved, its feed line filed under Ezra, and Ezra's prayer star for today appears once Kid Verse opens; a name outside the household is refused; a refused row is put back on the device; clearing the role returns the picker and the device can no longer act as the kitchen.
+- **`scripts/smoke-api.sh` (209/0, was 120).** One-time codes (no code 403, wrong 401, right 200), the admin's own reset, Change my PIN, names with markup, colour families, kid and guest limits on family rows (including key casing and a stale kid tick merged), a refused batch row next to a saved one, private prayer lines, the per-profile PIN pause across 4 devices with a trusted device still signing in, pairing per install id, and every kitchen rule.
+- **`audits/tools/phase6/0d/migration-check.mjs`**, **`park-xss-planted.mjs`** and **`supp-0d-prayer.mjs`** (above).
+
+### Capture rig
+
+- **The runs.** Full matrix on the final code: `node audits/tools/capture.mjs --out audits/screens-after/0d --parallel 2` → 4437 ok, 10 failed. The 10 were Kid Verse's `adult-guest` state, whose script taps the week stepper a guest no longer has (UX-KIDVERSE-3); `audits/tools/areas/kidverse.mjs` now taps only if the stepper is there, and the 10 were recaptured (10 ok). Prayer's share panel was recaptured after the chip fix below. The manifest is committed; the PNGs are git-ignored like the baseline's.
+- **Against batch 0c's after-capture**: 251 files changed beyond tolerance 48 (`audits/evidence/p6/0d/capture/pxdiff-0c-vs-0d.txt`). Against the Phase 1 baseline: 625 (`pxdiff-baseline-vs-0d.txt`).
+- **A control recapture** on the pre-batch code of every ambiguous screen (456 captures, `audits/screens-after/0d-control/`; `pxdiff-0c-vs-control.txt`, `pxdiff-control-vs-0d.txt`) sorts them:
+  - **Changed by design:** Me gains the PIN card (every adult Me screen: sync, admin, notifications, rewards, appearance, themes, album, overflow); the admin panel lists the Kitchen, says "Change PIN" on Eli's own row and "Set-up code" for Mea; the pairing-code and profile-edit sheets differ only in that admin page behind them; Prayer's share panel shows the For / Category chips and the preview; the kid's Larder has no add bar or ✓ buttons; the guest's Kid Verse has no stepper; the guest's park-map Family pane has no beacons or heights.
+  - **Flaky, not this batch:** every other screen-state also changed between 0c and the pre-batch control (batch 0a's list: Prayer's long pages, the kids' prayer faces overflow, F260's week-complete / reflections / journal, the park map's search sheet, the first-visit toast, the timer toast), or is the same content at a different moment: the park map's nearby panel scrolled 11 px further, the TV board's crossfading background photo, 1-4 px of antialiasing (PIN pad, kid Me, Verses trainer, build-guide map).
+- **One fix came out of the review of the screens.** The share panel's "For" chip was the panel's own colour, so it did not read as a button; the chips are now outlined (`--raised` on `--rule`, the pressed state kept) and the screen was recaptured (`prayer/ask-share-*`).
+
+### Rubric rescore
+
+- On screen the batch is small: the PIN card and Change PIN sheet, the admin's code sheet and set-up codes, the share panel's chips and preview, the kid Larder without edit controls, guest views without household controls.
+- The substance is server rules the rubric does not score directly. The orchestrator's rescore, under **Ease of use** (error prevention and trust, Phase 3 §3):
+
+| Area | Ease of use | Why |
+|---|---|---|
+| Shell | 4.5 → 4.5 | Change my PIN and the code flow add steps where they protect an account; no loss elsewhere |
+| Prayer | +0.5 | "Send to family list" now shows exactly what the family will see and shares only the title unless asked |
+| Park map, Kid Verse, Larder | unchanged | the controls that disappeared were never the viewer's to use |
+
+- These are the orchestrator's own judgements, not a rerun of Phase 4's two-reviewer scoring.
+
+### Repo tests
+
+Each suite ran on its own fresh copy of a seeded local D1 and its own `wrangler dev`, once on the pre-batch code and once on the batch (`audits/evidence/p6/0d/tests/repo-before.txt`, `repo-after.txt`, `repo-after-fixtures.txt`).
+
+| Suite | Before | After |
+|---|---|---|
+| test-hub | 36 / 1 | 36 / 1 (the same stale "signed in as Niece"; batch 2a) |
+| test-f260, test-prayer, test-prayer-faces, test-kidverse, test-kidstory, test-verses, test-leftovers, test-timer, test-tv, test-prefs, test-guests, test-dollywood-sync, test-apps | 52, 36, 41, 51, 50, 80, 42, 45, 43, 17, 50, 32, 48 / 0 | identical |
+| test-home | 57 / 0 | 57 / 0 after its fixture fix (first run 5 / 5) |
+| test-rewards | 73 / 0 | 73 / 0 after its fixture fix (first run crashed) |
+| test-dollywood | 34 / 0 | 34 / 0 after its fixture fix (first run 32 / 2) |
+| test-photos | 27 / 1 | 28 / 0 (the known flaky check) |
+| test-kitchen (new) | — | 27 / 0 |
+| test-dollywood-themes | all checks passed | all checks passed |
+| smoke-api.sh | 120 / 0 | 209 / 0 |
+
+- **The three fixture fixes are the batch's rule working.** test-home, test-rewards and test-dollywood seeded other people's rows as one adult (Ezra's and Kiara's park dots and stars written by David; Ezra's story row by Eli; Mom's and David's dots by Eli's map). The Worker now refuses exactly that, so the fixtures write each row as its owner (a kid's dot after David switches the beacon on). The assertions did not change.
+- **Static checks:** `node handoff/prayer/check.js apps/prayer.html` 49 / 0; `node scripts/test-design.mjs` 49 / 0; `node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for; the park-map export's `verify.py` passed.
+- The tests overwrite tracked screenshots in `docs/screens/`; those were restored.
+
+### Not verified, and known limits
+
+- **Nothing is deployed, and the migration has not run on production.** Order when the household deploys: export the D1, run `006-kitchen.sql` on `--remote`, then `wrangler deploy`, then push the site. The new `hub.js` works against the old Worker except Change my PIN, reset codes and the kitchen sign-in; the new Worker must not run before the migration.
+- **Production has an adult with no PIN: Mae.** A household adult who never set a PIN still creates it on first tap from any paired device, as documented; the verify-pin-claim script still claims Mea that way on the test data. Until Mae sets her PIN, Eli can close it with Me → Admin → "Set-up code" once this batch is deployed.
+- **Device-only family reads** (no profile token, as the TV uses) are not checked against app visibility; the apps hidden from anyone today (F260, the build guide) hold no family rows.
+- **The kitchen is only half-built** until batch 2a (KITCHEN-2): no Admin switch (the role is set through the API), no face sheet (Prayed on the kitchen names "Kitchen", which the Worker refuses and puts back), the ordinary Home, and the Chat tab shows but answers 403. A person whose session a role change ended keeps their unsent queue on that device; their private caches are dropped.
+- **Real devices.** Everything ran in Playwright WebKit and Chromium against local Workers. Not seen: the park map's CSP inside the hub's iframe on the real GitHub Pages origin and on iOS Safari (checked in Chromium on a local origin, and the rig's WebKit loads the exported page with the CSP and runs normally); the security push to the admin on a real phone; a real iPad as the kitchen.
+- **The admin's own reset** is still accepted by the Worker with the admin's PIN, although the shell no longer offers it.
+- **A merged kid tick is stamped just after the stored row;** if the stored row carries a stamp up to 30 s in the future (a fast device clock), the Worker's clamp can make the tick lose that one write. It self-heals on the next tick.

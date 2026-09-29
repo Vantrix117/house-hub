@@ -1,0 +1,22 @@
+0. Eli admin token before: GET /api/admin/usage              200
+0b. seed: admins / adults with has_pin                       ["eli:admin=true:pin=true","christian:admin=false:pin=true","mom:admin=false:pin=true","dad:admin=false:pin=true","niece:admin=false:pin=false"]
+1a. Me tab controls mentioning PIN (outside admin rows)      ["Change my PIN"]
+1b. admin rows → buttons                                     ["Eli · admin → Edit/Change PIN","Mae → Edit/Reset PIN","Ezra → Edit","Kiara → Edit","Elizabeth → Edit/Reset PIN","David → Edit/Reset PIN","Mea → Edit/Set-up code","Downstairs TV → Edit","Kitchen → Edit","Grandma Jo → Edit/Remove"]
+1c. own row has Reset PIN                                    true
+2a. dialogs                                                  []
+2b. iPad after own reset                                     {"gate":false,"session":true,"eliCard":null,"pickmsg":null}
+2c. Eli old admin token after reset: GET /api/admin/usage    200 
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#profiles .pcard[data-id="eli"]')[22m
+
+    at C:\Users\ex_bo\OneDrive\Claude Related\App Hub\audits\tools\phase2\PROF\verify-admin-self-reset-claimable-2.mjs:49:14 {
+  log: [ `  - waiting for locator('#profiles .pcard[data-id="eli"]')` ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

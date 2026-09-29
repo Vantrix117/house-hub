@@ -1,0 +1,153 @@
+{
+ "pin_limit": [
+  {
+   "attempt": 1,
+   "status": 401,
+   "error": "wrong_pin"
+  },
+  {
+   "attempt": 2,
+   "status": 401,
+   "error": "wrong_pin"
+  },
+  {
+   "attempt": 3,
+   "status": 401,
+   "error": "wrong_pin"
+  },
+  {
+   "attempt": 4,
+   "status": 401,
+   "error": "wrong_pin"
+  },
+  {
+   "attempt": 5,
+   "status": 401,
+   "error": "wrong_pin"
+  },
+  {
+   "attempt": 6,
+   "status": 429,
+   "error": "too_many_attempts"
+  },
+  {
+   "attempt": 7,
+   "status": 429,
+   "error": "too_many_attempts"
+  }
+ ],
+ "pin_limit_summary": {
+  "first_429_at_attempt": 6,
+  "wrong_pin_before_lock": 5
+ },
+ "correct_pin_during_lock": {
+  "status": 429,
+  "error": "too_many_attempts",
+  "note": "even the right PIN is refused until the 15-min window resets"
+ },
+ "pair_limit": [
+  {
+   "attempt": 1,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 2,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 3,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 4,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 5,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 6,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 7,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 8,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 9,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 10,
+   "status": 401,
+   "error": "bad_pairing_code"
+  },
+  {
+   "attempt": 11,
+   "status": 429,
+   "error": "too_many_attempts"
+  },
+  {
+   "attempt": 12,
+   "status": 429,
+   "error": "too_many_attempts"
+  }
+ ],
+ "pair_limit_summary": {
+  "first_429_at_attempt": 11,
+  "bad_code_before_lock": 10
+ },
+ "correct_pair_during_lock": {
+  "status": 429,
+  "error": "too_many_attempts",
+  "note": "the limit sits before verify, so a genuine device on that IP is also locked out for 15 min"
+ },
+ "pair_other_ip_ok": {
+  "status": 200,
+  "paired": true
+ },
+ "bypass": {
+  "devices_paired_one_ip": 30,
+  "guesses_reaching_verify": 10,
+  "guesses_blocked_429": 170,
+  "guesses_per_15min_per_extra_device": 5,
+  "note": "each newly paired device gets its own login:<profile>:<device> counter; pairing succeeds unlimited from one IP because /api/pair calls rateClear on a correct code"
+ },
+ "time_to_exhaust_4digit": {
+  "space": 10000,
+  "guesses_per_device_per_15min": 5,
+  "devices_to_cover_whole_space_in_15min": 2000,
+  "with_100_devices_expected_windows": 10,
+  "with_100_devices_expected_minutes": 150,
+  "with_1000_devices_worst_case_minutes": 30
+ },
+ "create_pin_claim": {
+  "status": 200,
+  "got_session_token": true,
+  "name": "Mea",
+  "note": "attacker device now holds a valid session as Mea; the real Mea is locked out and must ask the admin to reset"
+ },
+ "create_pin_no_rate_limit": {
+  "attempts": 12,
+  "any_429": false,
+  "statuses_seen": [
+   200,
+   409
+  ],
+  "note": "first sets the PIN (200); the rest are 409 pin_already_set — never 429, so there is no throttle on this route"
+ }
+}

@@ -1,0 +1,111 @@
+{
+ "kid": "ezra",
+ "appsHiddenFromKidByVisibleTo": [
+  "f260",
+  "dollywood"
+ ],
+ "existingRows": {
+  "f260": {
+   "family_as_eli": 0,
+   "person_as_eli": 11
+  },
+  "dollywood": {
+   "family_as_eli": 0,
+   "person_as_eli": 2
+  }
+ },
+ "kidRawApi": {
+  "f260": {
+   "get_family": {
+    "status": 200,
+    "items": 0
+   },
+   "get_person": {
+    "status": 200,
+    "items": 0
+   },
+   "put_person": {
+    "status": 200,
+    "applied": true
+   },
+   "put_family": {
+    "status": 200,
+    "applied": true
+   },
+   "batch_family": {
+    "status": 200
+   },
+   "eli_sees_kid_family_row": true,
+   "eli_person_scope_touched": false
+  },
+  "dollywood": {
+   "get_family": {
+    "status": 200,
+    "items": 0
+   },
+   "get_person": {
+    "status": 200,
+    "items": 0
+   },
+   "put_person": {
+    "status": 200,
+    "applied": true
+   },
+   "put_family": {
+    "status": 200,
+    "applied": true
+   },
+   "batch_family": {
+    "status": 200
+   },
+   "eli_sees_kid_family_row": true,
+   "eli_person_scope_touched": false
+  }
+ },
+ "personBoundary": {
+  "f260_person_rows_eli": 11,
+  "f260_person_rows_as_ezra": 1
+ },
+ "controls": {
+  "kiosk_put_family": {
+   "status": 403,
+   "error": "read_only"
+  },
+  "no_profile_put": {
+   "status": 401,
+   "error": "profile_required"
+  },
+  "no_profile_get_family": {
+   "status": 200,
+   "items": 7
+  }
+ },
+ "chat": {
+  "real_apps_list": {
+   "status": 200,
+   "toolEvent": {
+    "name": "get_data",
+    "input": {
+     "app_id": "f260",
+     "scope": "person"
+    },
+    "chip": null,
+    "ok": false
+   },
+   "toolResultSentUpstream": "This person cannot use that app."
+  },
+  "crafted_apps_list_no_visibleTo": {
+   "status": 200,
+   "toolEvent": {
+    "name": "get_data",
+    "input": {
+     "app_id": "f260",
+     "scope": "person"
+    },
+    "chip": null,
+    "ok": true
+   },
+   "toolResultSentUpstream": "[{\"key\":\"skeptic2-probe\",\"value\":{\"by\":\"ezra\"}}]"
+  }
+ }
+}

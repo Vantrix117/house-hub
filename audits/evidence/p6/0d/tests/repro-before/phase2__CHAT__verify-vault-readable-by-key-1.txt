@@ -1,0 +1,42 @@
+
+## before
+  serverVaultRow: absent
+
+## vault with 2 entries (made by the F260 app)
+  passTitle: Set a journal passcode
+  writes: ["ok 4","ok 4"]
+  serverVaultKeys: ["v","pass","iv","ct"]
+  serverVaultJsonChars: 1384
+  chatOk: true
+  toolResultIsError: false
+  toolResultChars: 1384
+  toolResultHead: {"v":2,"pass":{"salt":"RvU99bnFSPit7bCXmKxkjA==","iter":200000,"iv":"+23+wdU2DzbE5WD0","wk":"PG4XJg7uzPgb8jD6bokoviytrQV78eoMmBK+Ss8f8njHwhcZC9IweGjy0LzKsHu4"},"iv":"fza1AKZz/HSeCjsy","ct":"PvkaEpQC0WJAb3wU9r0t8xLj26Qc+g…
+  toolResultHas: {"v":2,"iv":true,"ct":true,"passSalt":true,"passIter":200000,"passIv":true,"passWk":true}
+
+## offline decryption from the tool_result alone
+  decryptOkWithPasscode: true
+  oneGuessMs: 48
+  recoveredEntryIds: ["1-0","1-1"]
+  recoveredFirstHighlight: Audit highlight 1: Genesis 1:27 — made in his image.
+  bruteForceRange: 1200-1299
+  found: 1234
+  tries: 35
+  msPerGuess: 67
+  extrapolatedAll4DigitPinsMinutes: 11.2
+
+## size threshold (BIG_VALUE = 4000, chat.js:19)
+  sizes: [{"entries":2,"vaultChars":1384,"returned":true},{"entries":3,"vaultChars":1968,"returned":true,"toolResult":"(full blob, 1968 chars)"},{"entries":4,"vaultChars":2552,"returned":true,"toolResult":"(full blob, 2552 chars)"},{"entries":5,"vaultChars":3136,"returned":true,"toolResult":"(full blob, 3136…
+  firstEntryCountWithheld: 7
+
+## listing and set_data
+  listingMentionsVault: false
+  listingKeys: ["f260.mem","f260.verses","f260.week","f260.done","f260.weekStart","f260.weekDone","f260.log","f260.best","f260.recall","f260.summary","f260.miles","f260.jstats"]
+  setDataResult: The journal vault cannot be edited from chat.
+  vaultStillOnServer: true
+
+## another adult asks for the same key
+  maeToolResult: null
+
+
+
+evidence: audits/evidence/p2/CHAT/verify-vault-readable-by-key-1.json

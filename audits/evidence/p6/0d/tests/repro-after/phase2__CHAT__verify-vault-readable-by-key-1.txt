@@ -1,0 +1,31 @@
+
+## before
+  serverVaultRow: absent
+
+## vault with 2 entries (made by the F260 app)
+  passTitle: Set a journal passcode
+  writes: ["ok 4","ok 4"]
+  serverVaultKeys: ["v","pass","iv","ct"]
+  serverVaultJsonChars: 1384
+  chatOk: false
+  toolResultIsError: true
+  toolResultChars: 59
+  toolResultHead: The private journal is locked; it cannot be read from chat.
+  toolResultHas: not JSON
+
+## size threshold (BIG_VALUE = 4000, chat.js:19)
+  sizes: [{"entries":2,"vaultChars":1384,"returned":false},{"entries":3,"vaultChars":1968,"returned":false,"toolResult":"The private journal is locked; it cannot be read from chat."}]
+  firstEntryCountWithheld: 3
+
+## listing and set_data
+  listingMentionsVault: false
+  listingKeys: ["f260.mem","f260.verses","f260.week","f260.done","f260.weekStart","f260.weekDone","f260.log","f260.best","f260.recall","f260.summary","f260.miles","f260.jstats"]
+  setDataResult: The journal vault cannot be edited from chat.
+  vaultStillOnServer: true
+
+## another adult asks for the same key
+  maeToolResult: The private journal is locked; it cannot be read from chat.
+
+
+
+evidence: audits/evidence/p2/CHAT/verify-vault-readable-by-key-1.json

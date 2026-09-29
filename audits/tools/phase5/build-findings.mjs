@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { BATCHES, APPS, APP_TESTS, APP_ORDER, WORK, CUT } from './plan-batches.mjs';
-import { STATUS, BATCHES as DONE } from '../phase6/status.mjs';   // Phase 6: what each batch closed, and its commit
+import { STATUS, WORK_STATUS, BATCHES as DONE } from '../phase6/status.mjs';   // Phase 6: what each batch closed, and its commit
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..', '..');
@@ -247,7 +247,9 @@ for (const n of ORDER) {
   for (const w of workIn(n)) {
     P(`#### ${w.id} — ${esc(w.title)}`);
     P('');
-    P(`- **Area** shell / platform (Kitchen device) · **Type** household work (P5-D5 as answered) · **Effort** ${w.effort} · **Batch** ${n}`);
+    const ws = WORK_STATUS[w.id];
+    P(`- **Area** shell / platform (Kitchen device) · **Type** household work (P5-D5 as answered) · **Effort** ${w.effort} · **Batch** ${n}${ws ? ` · **Status** ${stCell(ws)}` : ''}`);
+    if (ws) P(`- **Phase 6 (${ws.status}).** ${ws.note} After: ${ws.after.map(p => '`' + p + '`').join(', ')}.`);
     P(`- **Evidence.** \`${w.src}\`; ${w.code.map(c => '`' + c + '`').join(', ')}`);
     P(`- **What happens now.** ${w.now}`);
     P(`- **Why it matters.** ${w.why}`);

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26) done; 71 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28) done; 88 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -41,7 +41,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 1 | **0a** | The hub boots with Reduce Motion on | 1 (1 / 0 / 0 / 0 / 0) | S | — | 1/1 fixed, `ae274a6` |
 | 2 | **0b** | SDK: no write before the first load, safe migration, one household day | 36 (10 / 1 / 7 / 18 / 0) | L | — | 36/36 fixed, `d968db8` |
 | 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — | 19/19 fixed, `e9e5f59` |
-| 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — | open |
+| 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — | 15/15 fixed, `d5e46b6` |
 | 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | open |
 | 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | open |
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | open |
@@ -936,7 +936,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### KITCHEN-1 — Kitchen device, data and server half: a device role, a kitchen profile kind, and server rules for what a kitchen session may write
 
-- **Area** shell / platform (Kitchen device) · **Type** household work (P5-D5 as answered) · **Effort** M · **Batch** 0d
+- **Area** shell / platform (Kitchen device) · **Type** household work (P5-D5 as answered) · **Effort** M · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** migrations/006-kitchen.sql (devices.role; profiles rebuilt to take kind kitchen, with hue and the reset-code columns; the kitchen profile), checked on a copy of the production export: 8 profiles, 96 of 96 values identical, every other table untouched, a second run changes nothing. The Worker's kitchen rules (sign-in, role endpoint with the admin PIN, what it writes, credit checks, no chat/push/admin) and the shell's kitchen sign-in. scripts/test-kitchen.mjs 27/27 (role set on a device holding Mea's session moves it to the kitchen on its next request; family writes; no person scope; nobody signs in as a person there; a Prayed credited to Ezra earns his prayer star; outsiders refused; clearing the role returns the picker); smoke-api kitchen cases pass. The kitchen Home, face sheet and Admin switch are KITCHEN-2 (batch 2a). After: `audits/evidence/p6/0d/migration-check.json`, `audits/evidence/p6/0d/tests/repo-after.txt`, `audits/evidence/p6/0d/tests/smoke-api-after.txt`.
 - **Evidence.** `audits/05-decisions.md:42`; `worker/schema.sql:9`, `worker/src/auth.js:110`, `worker/src/index.js:231`, `worker/src/index.js:470`
 - **What happens now.** The only shared kinds are adult, kid and kiosk (`worker/schema.sql:9`); the kiosk cannot write at all (`worker/src/auth.js:110`), so the Kitchen iPad today is signed in as a person, and whoever picks it up inherits that person (P2-PROF-09). A paired device has no role (the `devices` table in `worker/schema.sql`), and `POST /api/login` lets any paired device sign in as any profile (`worker/src/index.js:231`).
 - **Why it matters.** The household chose a shared Kitchen mode for the counter iPad instead of an idle return (P5-D5 as answered): family apps with no personal sign-ins. Only the server can make that hold; a client-only mode is one crafted request away from a personal session.
@@ -953,7 +954,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-04 — After any Reset PIN, any paired device can create that adult's PIN and take over the account, admin included
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** critical · **Effort** M · **Batch** 0d
+- **Area** shell / platform · **Type** bug (security) · **Severity** critical · **Effort** M · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Reset PIN gives the admin a one-time 6-digit code (hashed, 24 h, shown once) that the person types before choosing a new PIN; wrong codes count like wrong PINs. verify-pin-claim-2 step 3: the TV device claiming David after a reset now gets 403 needs_code (was 200 and a session), the claimer reads and writes nothing (401, was 200 rows=10), David's own device is asked for the code. smoke-api: claim without the code 403, wrong code 401, right code 200. Known limit: an adult who NEVER had a PIN still creates it on first tap (the documented flow; the same script still claims Mea that way), so Me → Admin now offers "Set-up code" for such a profile, and production has one (Mae). After: `audits/evidence/p6/0d/p2/PROF/verify2-pin-claim.json`, `audits/evidence/p6/0d/tests/smoke-api-after.txt`, `audits/evidence/p6/0d/tests/repro-after/phase2__PROF__verify-pin-claim-any-device-2.txt`.
 - **Evidence.** `audits/02-shell.md:1231`
 - **What happens now.** POST /api/profiles/:id/pin resolves only the device (index.js:252). It sets the PIN of any non-guest adult whose `pin_hash` is NULL, whoever is signed in on that device, and returns that adult's session. It writes no feed line (index.js:250-268). The claimer can read and write that adult's person-scope data and chat history.
 - **Why it matters.** A forgotten-PIN reset, the documented recovery (CLAUDE.md:90), opens that adult's person-scope data and chat history to whoever taps first on any paired device. The skeptics read David's F260 and verses rows and his chat history. His private prayer list lives in the same scope.
@@ -962,7 +964,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-01 — Praying for or answering a private request posts its title to the family feed and the TV
 
-- **Area** shell / platform (TV) · **Type** bug (security) · **Severity** critical · **Effort** S · **Batch** 0d
+- **Area** shell / platform (TV) · **Type** bug (security) · **Severity** critical · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** A private request posts "Prayed for a private request" / "Answered a private request" (apps/prayer.html, and chat); the Worker refuses a prayer feed line that names anything but a family-list title (400 private_title). verify-private-prayer-titles-1: the secret title appears on no token's feed, Mae's Home or the TV board (was on all of them). After: `audits/evidence/p6/0d/p2/PWA/verify-private-prayer-1.json`, `audits/evidence/p6/0d/p2/PWA/verify-private-prayer-1-tv-board.png`, `audits/evidence/p6/0d/p2/PWA/verify-private-prayer-1-mae-home.png`.
 - **Evidence.** `audits/02-shell.md:4881`; `worker/src/index.js:214`, `apps/prayer.html:1606`, `apps/prayer.html:1329`, `apps/hub.js:387`
 - **What happens now.** On the Mine list, ticking a request posts "Prayed for <title>" (apps/prayer.html:1606). That line checks the list only to add " (family list)" to shared rows. "Mark answered" posts "Answered: <title>" with no list check at all (apps/prayer.html:1329).
 - **Why it matters.** The Prayer spec keeps these requests private on purpose. A request copied to the family list gets a new title, because "the private wording is often not the wording you want on a shared screen" (handoff/prayer/SPEC.md:35-38).
@@ -971,7 +974,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-DOLLYWOOD-LIVE-01 — A profile or guest name runs as script in everyone's park map; the admin's tokens can be read and replayed
 
-- **Area** dollywood-live · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0d
+- **Area** dollywood-live · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** The park map (template, rebuilt, verify.py passed, exported; sibling commit 1b23abf) escapes every stored name, emoji, id, note and wait and validates colours; a CSP with per-script hashes blocks inline handlers; the Worker refuses < and > in names and emoji. The Phase 3 scripts now stop at the name check (guest not created: 400). The forced check park-xss-planted writes the payload straight into a guest's own loc row, the meeting point and a kid's height: Eli's Family pane and card show it as text, 0 live img[onerror], top.XS never set. After: `audits/evidence/p6/0d/park-xss-planted/result.json`, `audits/evidence/p6/0d/park-xss-planted/eli-family-pane-ipad.png`, `audits/evidence/p6/0d/park-xss-planted/eli-guest-card-ipad.png`, `audits/evidence/p6/0d/p3/dollywood-live/verify-xss-family-name-unescaped-1.json`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:147`; `index.html:1396`, `index.html:413`, `apps/dollywood-live.html:1253`, `worker/src/index.js:178-179`; `audits/evidence/p3/dollywood-live/xss-guest-eli-family-ipad.png`, `audits/evidence/p3/dollywood-live/verify-xss-family-name-unescaped-1-eli-family-ipad.png`
 - **What happens now.** `publish()` writes the person's name into the family row `loc:<id>` (`apps/dollywood-live.html:1253`). The server stores any name, only trimmed and cut to 40 characters (`worker/src/index.js:178-179`).
 - **Why it matters.** A guest's name, typed in good faith or not, can hand whoever planted it the admin's account the next time Eli opens the map on a park day. The admin can reset PINs, rotate the pairing code and unpair devices. The kids' pages run the same script.
@@ -980,7 +984,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SEC-01 — An adult PIN, including the admin's, can be brute-forced by pairing many devices
 
-- **Area** shell / platform · **Type** bug · **Severity** high · **Effort** M · **Batch** 0d
+- **Area** shell / platform · **Type** bug · **Severity** high · **Effort** M · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Every PIN or code attempt is counted before it is checked (atomic upsert … RETURNING): 5 per device per 15 min, 20 per device per day, 10 per profile per hour across devices; the 10th pauses the profile 1 h, then 2 h … 24 h and pushes the admin; a device the person has signed in on before is held only by its own limits, so nobody can lock the admin out. verify-pin-brute-2: 40 devices from one IP now reach PIN verification 10 times, not 200; the admin route is no longer reachable. verify-pin-brute-1: B/C and D no longer hold. smoke-api: 12 wrong PINs on 4 devices → a 5th device 429, the trusted device still signs in. After: `audits/evidence/p6/0d/p2/SEC/verify-pin-brute-2.json`, `audits/evidence/p6/0d/p2/SEC/verify-pin-brute-via-multi-pairing-1.json`, `audits/evidence/p6/0d/p2/SEC/rate-limits.json`, `audits/evidence/p6/0d/tests/smoke-api-after.txt`.
 - **Evidence.** `audits/02-shell.md:1743`; `worker/src/index.js:240`, `worker/src/index.js:142-157`; `audits/evidence/p2/SEC/ui-route-multi-pair-window1-locked.png`, `audits/evidence/p2/SEC/ui-route-multi-pair-window3-admin.png`
 - **What happens now.** The wrong-PIN limit is keyed on `login:${p.id}:${device.id}` (worker/src/index.js:240), with 5 attempts per 15 minutes (index.js:241-243). Every newly paired device therefore gets its own 5 guesses against the same profile.
 - **Why it matters.** The PIN is all that separates a paired device from an adult's account and from the admin's. Admin rights cover rotating the pairing code, resetting PINs, unpairing devices and editing profiles.
@@ -989,7 +994,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-DOLLYWOOD-LIVE-02 — The shipped UI lets a guest switch a child's location beacon on or off and overwrite the kids' heights
 
-- **Area** dollywood-live · **Type** bug · **Severity** high · **Effort** S · **Batch** 0d
+- **Area** dollywood-live · **Type** bug · **Severity** high · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** The Kids' beacons and the height stepper are for household adults only (HOUSEHOLD() in the template), and the Worker refuses kidshare:* and kid:* from guests and kids (household_only). guest-can-flip-kid-beacon-1: 0 beacon switches and 0 height steppers for the guest (was 2 and 4), kidshare unchanged; rally-guest-loading: the same. After: `audits/evidence/p6/0d/p3/dollywood-live/verify-guest-can-flip-kid-beacon-1.json`, `audits/evidence/p6/0d/p3/dollywood-live/verify-guest-can-flip-kid-beacon-1-guest-after-iphone.png`, `audits/evidence/p6/0d/p3/dollywood-live/rally-guest-loading.json`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:181`; `apps/dollywood-live.html:1307`, `apps/dollywood-live.html:1546`, `apps/dollywood-live.html:1308`, `apps/dollywood-live.html:1548`; `audits/evidence/p3/dollywood-live/rally-guest-family-iphone.png`, `audits/evidence/p3/dollywood-live/verify-guest-can-flip-kid-beacon-1-guest-family-iphone.png`
 - **What happens now.** The Kids' beacons block is gated only on `hub.profile.kind==='adult'&&hub.canWrite` (`apps/dollywood-live.html:1307`), and the heights stepper hides only when `kind!=='adult'` (`apps/dollywood-live.html:1546`). Guests are kind `adult` with `is_guest` set, so they get both.
 - **Why it matters.** A visitor can start broadcasting a 4- or 5-year-old's live position that the parents left off, or switch off a beacon a parent turned on. Switching off removes `loc:<kid>`, so the parents lose the child's live marker;
@@ -998,7 +1004,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-06 — Stored XSS through a family prayer row's id
 
-- **Area** prayer · **Type** bug (security) · **Severity** high · **Effort** S · **Batch** 0d
+- **Area** prayer · **Type** bug (security) · **Severity** high · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Every row id in markup goes through esc(); rows whose id fails /^[A-Za-z0-9_-]+$/ are not rendered (a household adult also removes them). xss-id and verify-xss-row-id-1/2: xss 0 for Kiara and Eli (was 3 and 4); the kid's plant is now refused by the Worker; supp-0d-prayer plants the row as an adult: not rendered, xss 0. After: `audits/evidence/p6/0d/p3/prayer/xss-id.json`, `audits/evidence/p6/0d/p3/prayer/verify-xss-row-id-1.json`, `audits/evidence/p6/0d/p3/prayer/verify-xss-row-id-1-eli-after-tick.png`, `audits/evidence/p6/0d/p3/prayer/supp-0d-prayer.json`.
 - **Evidence.** `audits/03-apps/prayer.md:346`; `index.html:413`, `apps/prayer.html:1184`, `apps/prayer.html:717`, `apps/hub.js:235`; `audits/evidence/p3/prayer/verify-xss-row-id-1-eli-after-tick.png`
 - **What happens now.** Titles and notes go through `esc()` (`apps/prayer.html:717`), but the row id is concatenated raw into attributes: `data-pray` and `data-open` (`:845, 847`), the kid card's `data-kpray` (`:1587`), anniversaries (`:925`), the answered list (`:935`) and the sheet buttons (`:1007-1017`).
 - **Why it matters.** Script in the hub origin can read both tokens in localStorage, including the admin's, and could send them anywhere.
@@ -1007,7 +1014,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-17 — Stored XSS through a family plan id: the Settings plan list puts it into markup raw (from the critic)
 
-- **Area** prayer · **Type** bug (security) · **Severity** high · **Effort** S · **Batch** 0d
+- **Area** prayer · **Type** bug (security) · **Severity** high · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Plan ids are escaped in the Settings plan list and invalid plan ids dropped in migrate(). critic-sweep planxss and verify-critic-plan-id-xss-1-1/1-2: px 0 for Kiara and Eli; the adult-planted plan in supp-0d-prayer: px 0, clean options, the server holds a clean plan id after Eli's save. After: `audits/evidence/p6/0d/p3/prayer/critic-sweep-planxss.json`, `audits/evidence/p6/0d/p3/prayer/verify-critic-plan-id-xss-1-1.json`, `audits/evidence/p6/0d/p3/prayer/verify-critic-plan-id-xss-1-1-kiara.png`, `audits/evidence/p6/0d/p3/prayer/supp-0d-prayer.json`.
 - **Evidence.** `audits/03-apps/prayer.md:590`; `apps/prayer.html:599-600`, `worker/src/index.js:280-318`, `apps/prayer.html:638`, `apps/prayer.html:1181-1184`; `audits/evidence/p3/prayer/critic-planxss-kiara.png`, `audits/evidence/p3/prayer/verify-critic-plan-id-xss-1-1-kiara.png`
 - **What happens now.** `renderPlans()` builds the Settings "Active plan" list as `'<option value="' + p.id + '"' …` with no `esc()`, while plan names are escaped (`apps/prayer.html:1181-1184`).
 - **Why it matters.** Script in the hub origin can read `hub.session` and `hub.device`, the admin's included, on every kid device and every adult device that shows the family list, and it stays planted.
@@ -1016,7 +1024,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-02 — A kid can rewrite the park map's adult-only rows through chat
 
-- **Area** shell / platform (park map) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0d
+- **Area** shell / platform (park map) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Every chat write goes through the Worker's policy (guardedPut). verify-kid-chat-writes-1: as Ezra, set_data on meet, kidshare:kiara and kid:ezra → "Only a household grown-up can change that.", loc:eli → "That belongs to someone else.", the leftovers tombstone refused (all were "✓ Saved"). After: `audits/evidence/p6/0d/p2/CHAT/verify-kid-chat-writes-adult-only-rows-1.json`.
 - **Evidence.** `audits/02-shell.md:3802`; `apps/dollywood-live.html:693`, `worker/src/chat.js:52`, `worker/src/index.js:90-93`, `worker/src/auth.js:108-111`; `audits/evidence/p2/CHAT/verify-kid-meet-on-adult-map-iphone-light.png`
 - **What happens now.** The kid guard on `set_data` (chat.js:174) refuses only apps that have `visibleTo` (chat.js:119). `dollywood-live` has none (apps.json). As Ezra, with the real apps array, each of these came back "✓ Saved <key> in dollywood-live":
 - **Why it matters.** At the park, a child can move the family meeting point or a parent's marker just by talking. Adults' maps then show the pill "Meet at Candy shop (Ezra) · set by Ezra just now · kid set this" (audits/evidence/p2/CHAT/verify-kid-meet-on-adult-map-iphone-light.png).
@@ -1025,7 +1034,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-05 — Only the UI enforces kid limits on family data
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** medium · **Effort** M · **Batch** 0d
+- **Area** shell / platform · **Type** bug (security) · **Severity** medium · **Effort** M · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** The Worker enforces kid limits on family data (worker/src/policy.js): own person rows; a tick under their own name, merged onto the stored row; their own Kid Verse rows; their own park dot while their beacon is on. verify-kid-family-writes-2: every one of Ezra's writes (meet, album rows, kidshare, loc:mom, reminders, week, f260 family) now 403 (all were 200), "tombstone all 11 family prayers" leaves 11 of 11, and the forged cash-in ledger is refused. After: `audits/evidence/p6/0d/p2/PROF/verify-kid-family-writes-server-2.json`, `audits/evidence/p6/0d/tests/repro-after/phase2__PROF__verify-kid-family-writes-server-2.txt`.
 - **Evidence.** `audits/02-shell.md:1267`; `apps/kidverse.html:442-465`, `index.html:1272`
 - **What happens now.** /api/data PUT, DELETE and batch (index.js:280-318) check only "not the kiosk" (auth.js:108-112). There is no key, app or author check. Any paired device can open a kid session without a PIN (index.js:238). As Ezra, the server accepted all of these: a parent-style cash-in ledger row against Kiara.
 - **Why it matters.** a sibling can wipe another child's stars, switch on a location beacon, or clear shared lists. Kiosk limits are server-enforced; kid limits are not.
@@ -1034,7 +1044,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-18 — "Send to family list" publishes the private request's For and category although its panel offers only the title, and the push adds "(for …)" (from the critic)
 
-- **Area** prayer · **Type** bug (security) · **Severity** medium · **Effort** S · **Batch** 0d
+- **Area** prayer · **Type** bug (security) · **Severity** medium · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** The share panel shows For and Category as chips, off by default, and a preview of what the family will see; the family copy carries only what was chosen. critic-push-share and verify-critic-share-copies-2-1/2-2: the family row has for "" and category "Personal" (was the private For and category) and the pushes read "New on the family list: A hard season for a friend." with no "(for …)". After: `audits/evidence/p6/0d/p3/prayer/critic-push-share.json`, `audits/evidence/p6/0d/p3/prayer/verify-critic-share-copies-for-and-category-2-1.json`, `audits/evidence/p6/0d/p3/prayer/verify-critic-share-copies-for-and-category-2-1-panel.png`.
 - **Evidence.** `audits/03-apps/prayer.md:622`; `apps/prayer.html:1308-1309`, `worker/src/reminders.js:196-201`, `apps/prayer.html:996`, `apps/prayer.html:1580-1582`; `audits/evidence/p3/prayer/critic-share-panel.png`, `audits/evidence/p3/prayer/verify-critic-share-copies-for-and-category-2-1-panel.png`
 - **What happens now.** The share panel has one field, the title, with the help line "Everyone in the house can see it." (`apps/prayer.html:1308-1309`). The family copy blanks `phone` and `detail` but copies `for` and `category` (`:1314-1315`), and adds the category to the family list (`:1311`).
 - **Why it matters.** The adult rewrote the title precisely to hide who and what the request is about; the app publishes both anyway, to other adults, guests and lock screens.
@@ -1043,7 +1054,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-PROF-a1 — No self-service "change my PIN"
 
-- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 0d
+- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Me → PIN → Change my PIN (current PIN, new twice), POST /api/me/pin, household adults; a wrong current PIN is counted and answered 403 so the shell stays signed in. smoke-api: wrong current 403, change 200, old PIN 401, new PIN 200, kid 403. After: `audits/evidence/p6/0d/tests/smoke-api-after.txt`.
 - **Evidence.** `audits/02-shell.md:987`
 - **What happens now.** The only route to a new PIN is the admin's Reset PIN, which opens the claim window of P2-PROF-04.
 - **Why it matters.** The only way to change a PIN opens an account takeover window.
@@ -1052,7 +1064,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-07 — `get_data` by key sends the encrypted journal vault upstream
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0d
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** get_data refuses a .vault key asked for by name. verify-vault-readable-by-key-1: the tool result is "The private journal is locked; it cannot be read from chat." for every vault size (was the full 1384-2552 char ciphertext). After: `audits/evidence/p6/0d/p2/CHAT/verify-vault-readable-by-key-1.json`.
 - **Evidence.** `audits/02-shell.md:4014`; `apps/f260.html:1160`, `worker/src/chat.js:19`, `apps/f260.html:986-1033`
 - **What happens now.** The listing filters `.vault` keys (chat.js:169), and `set_data` refuses them (chat.js:176). But `get_data` with an explicit key (chat.js:168) returns the value as a `tool_result` with no `.vault` check.
 - **Why it matters.** The ciphertext and salt of a private journal leave the house for no purpose. Anyone holding the request log could brute-force a short passcode. The key reaches the model only if the person names it, the model guesses it, or a prompt injection in household data steers it there.
@@ -1061,7 +1074,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SEC-02 — `visibleTo` is a client-side filter; the server does not enforce it for data or, reliably, for chat
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0d
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** The Worker imports apps.json and enforces visibleTo (canOpen in policy.js): family rows of a hidden app are refused for reading and writing, person rows of one for writing (Verses' f260.recall excepted); chat takes the app list from the Worker. verify-visibleto-2: the kid's family read/put/batch and person put on f260 and dollywood now 403 (were 200). Known limit: a device-only request (no profile token) still reads family rows, as the TV does; the hidden apps hold no family rows. After: `audits/evidence/p6/0d/p2/SEC/verify-visibleto-not-server-enforced-2.json`, `audits/evidence/p6/0d/p2/SEC/verify-visibleto-not-server-enforced-1.json`.
 - **Evidence.** `audits/02-shell.md:1816`; `worker/src/data.js:15`, `index.html:1041-1042`
 - **What happens now.** The data API has no per-app gate. `/api/data` checks only three things (index.js:280-318 via `dataArgs`; auth.js:104-112): the scope; that a profile exists, for person-scope reads and for writes; that the kiosk cannot write. The Worker never loads `apps.json`. Person scope is always keyed to the caller (`owner()`, worker/src/data.js:15).
 - **Why it matters.** `visibleTo` looks like access control but is only presentation. Nothing leaks today. The only apps hidden from kids (f260, dollywood) are person-scoped and hold 0 family-scope rows.
@@ -1070,7 +1084,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-KIDVERSE-3 — Guests can step the household's memory-verse week
 
-- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 0d
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Only household adults step the family week: a guest sees "The family is on week N." and the Worker refuses week and ledger rows from guests (household_only). smoke-api: guest steps the week 403. After: `audits/evidence/p6/0d/tests/smoke-api-after.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:668`; `worker/src/index.js:196-198`, `apps/kidverse.html:337`; `audits/evidence/p3/kidverse/adult-week-B-guest-stepper.png`, `audits/screens/kidverse/adult-guest-typical-iphone-pwa-light.png`
 - **What happens now.** Guests are kind "adult" (`worker/src/index.js:196-198`), and the stepper checks only `kind === 'adult'` and `canWrite` (`apps/kidverse.html:337, 369`). When Grandma Jo tapped +, the row became `{week:39, by:'guest-grandmajo'}`.
 - **Why it matters.** Guests can change the household's week.
@@ -1079,7 +1094,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a7 — Ten wrong codes block pairing for the whole household for 15 minutes
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 0d
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Wrong pairing codes are limited per install id (5 per 15 min; hub.js sends a random hub.fp) with a per-IP backstop of 20, so one device no longer blocks the house. smoke-api: the 6th wrong code from one device 429, another device still pairs. After: `audits/evidence/p6/0d/tests/smoke-api-after.txt`.
 - **Evidence.** `audits/02-shell.md:1052`; `index.html:1278`
 - **What happens now.** The limit key is `pair:<CF-Connecting-IP>` (index.js:46, 142-150). The code allows 10 wrong codes, then answers 429. The rig's "401 ×9" came from one earlier wrong code from the same IP (see Measurements).
 - **Why it matters.** Ten wrong codes lock every home device out of pairing for 15 minutes.
@@ -1088,13 +1104,15 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-06 — The admin's own Reset PIN leaves the admin profile claimable (pointer)
 
-- **Area** shell / platform · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0d
+- **Area** shell / platform · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Pointer to P2-PROF-04: the admin's own row offers Change PIN (current PIN first) instead of a reset, and the Worker's self-reset needs the admin's PIN. verify-admin-self-reset-1/2: the own row reads "Change PIN", Eli keeps his PIN and session, nothing becomes claimable (the scripts then wait for a picker that never comes). After: `audits/evidence/p6/0d/tests/repro-after/phase2__PROF__verify-admin-self-reset-claimable-1.txt`, `audits/evidence/p6/0d/tests/repro-after/phase2__PROF__verify-admin-self-reset-claimable-2.txt`.
 - **Evidence.** `audits/02-shell.md:1299`; `index.html:1599`, `index.html:611`
 - **Proposed fix.** Pointer to P2-PROF-04: the admin's own reset requires the current PIN.
 
 #### P2-CHAT-06 — Chat takes app visibility and names from the request body
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** low (pointer) · **Effort** S · **Batch** 0d
+- **Area** shell / platform · **Type** bug (security) · **Severity** low (pointer) · **Effort** S · **Batch** 0d · **Status** FIXED (`d5e46b6`)
+- **Phase 6 (FIXED).** Pointer to P2-SEC-02: chat ignores the request's app list. verify-chat-trusts-client-app-list-1: a 40 × 50 000-char app list no longer grows the system prompt (2764 chars, was 2 003 376); Ezra's writes to stars:kiara and a family prayer 403. After: `audits/evidence/p6/0d/p2/CHAT/verify-chat-trusts-client-app-list-1.json`, `audits/evidence/p6/0d/p2/CHAT/verify-chat-trusts-client-app-list-2.json`.
 - **Evidence.** `audits/02-shell.md:3984`; `worker/src/chat.js:118-119`, `index.html:1494`, `worker/src/index.js:231-249`
 - **Proposed fix.** Pointer to P2-SEC-02: chat takes visibility and names from the server.
 

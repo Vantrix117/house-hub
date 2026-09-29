@@ -1,0 +1,46 @@
+{
+ "0. adults without a PIN in the seed": [
+  "niece"
+ ],
+ "1a. signed in as (before)": {
+  "id": "ezra",
+  "kind": "kid"
+ },
+ "1b. Mea card label on the picker": "Create your PIN",
+ "1c. pad title / hint": "Create your PIN / Choose 4 to 8 digits. You will type it once more to confirm.",
+ "shotPad": "audits/evidence/p2/PROF/verify2-kid-creates-mea-pin-ipad.png",
+ "1d. now signed in as": {
+  "id": "niece",
+  "kind": "adult",
+  "canWrite": true,
+  "tiles": [
+   "f260",
+   "leftovers",
+   "prayer",
+   "tally",
+   "timer",
+   "dollywood",
+   "dollywood-live",
+   "kidverse",
+   "verses"
+  ],
+  "chatTab": true
+ },
+ "shotShell": "audits/evidence/p2/PROF/verify2-mea-shell-after-kid-claim-ipad.png",
+ "2a. Mea (own phone) tries to create her PIN 2468": "409 pin_already_set",
+ "2b. Mea logs in with 2468 six times (statuses)": "401,401,401,401,401,429",
+ "3a. Eli resets David": "200 ok",
+ "3b. TV device, no profile token, POST /api/profiles/dad/pin": "403 needs_code",
+ "3c. claimer reads David person-scope f260": "401 rows=0 keys=[]",
+ "3d. claimer writes David person scope": "401",
+ "3e. David (own device) then tries to create his PIN": "403 needs_code",
+ "4. device with a live Ezra (kid) session claims Elizabeth": "403 needs_code",
+ "5a. admin list has_pin for niece/dad/mom": [
+  "mom:false",
+  "dad:false",
+  "niece:true"
+ ],
+ "5b. claimer token after admin re-resets David": "401 profile_required",
+ "6. 12 creates on Eli (PIN set) statuses": "409",
+ "7. kid device taps PIN-less guest Grandma Jo": "200 kind=adult guest=true"
+}
