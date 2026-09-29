@@ -645,6 +645,9 @@ const goodId = id => typeof id === 'string' && ID_OK.test(id);
 const householdAdult = () => !!(window.hub && hub.canWrite && hub.profile && hub.profile.kind === 'adult' && !hub.profile.isGuest);
 function listFromHub(scope, label){
   const L = emptyList(label);
+  // SNAP follows the house: a row deleted elsewhere is forgotten here, so writing the same copy back (Import) is sent.
+  // Only the keys rebuilt below (activeList and lastExport are not, and keep what was last sent).
+  for(const k of Object.keys(SNAP[scope])) if(k.startsWith('prayer:') || LIST_KEYS.includes(k)) delete SNAP[scope][k];
   for(const k of LIST_KEYS){ const v = hub.get(k, {scope}); if(v !== undefined){ L[k] = v; SNAP[scope][k] = JSON.stringify(v); } }
   L.prayers = [];
   for(const r of hub.list('prayer:', {scope})){
@@ -654,6 +657,7 @@ function listFromHub(scope, label){
       if(householdAdult()) hubWrite(() => hub.remove(r.key, {scope}));
       continue;
     }
+    if(v.unprayed !== undefined){ delete v.unprayed; }                  // an untick still in this device's cache is not sent again
     SNAP[scope][r.key] = JSON.stringify(v); L.prayers.push(v);
   }
   return L;
@@ -745,7 +749,7 @@ function save(){
   if(!KID()) put('person', 'activeList', D.activeList);
   put('person', 'lastExport', D.lastExport);
 }
-// Rows a kid ticked since the last save (setPrayed), written by saveKid().
+// Rows a kid ticked since the last save (setPrayed), written by saveKid() (the house merges only the kid's own id).
 const kidTicks = new Set();
 function saveKid(){
   const S = D.lists.shared;
@@ -753,15 +757,16 @@ function saveKid(){
   const got = hub.get('prayerDays', {scope:'family'}), had = Array.isArray(got) ? got : [];
   const added = S.prayerDays.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(String(d)) && !had.includes(d));
   if(added.length){ const days = [...new Set([...had, ...added])].sort(); if(put('family', 'prayerDays', days)) S.prayerDays = days; }
-  const me = myName();
+  const me = myId(), nm = myOldName();
   for(const id of [...kidTicks]){
     const p = S.prayers.find(x => x.id === id), key = 'prayer:' + id;
     const raw = hub.get(key, {scope:'family'});
     if(!p || !me || !raw || typeof raw !== 'object'){ kidTicks.delete(id); continue; }
-    // The house's own row, with only this kid's name on today's prayedBy, lastPrayedAt and updatedAt changed.
+    // The house's own row, with only this kid's id on today's prayedBy, lastPrayedAt and updatedAt changed.
     const v = JSON.parse(JSON.stringify(raw));
     const by = (v.prayedBy && typeof v.prayedBy === 'object' && !Array.isArray(v.prayedBy)) ? v.prayedBy : {};
-    const today = new Set(Array.isArray(by[TODAY]) ? by[TODAY] : []);
+    const today = new Set(Array.isArray(by[TODAY]) ? by[TODAY].map(String) : []);
+    if(nm) today.delete(nm);
     if(mePrayed(p)) today.add(me); else today.delete(me);
     if(today.size) by[TODAY] = [...today]; else delete by[TODAY];
     v.prayedBy = by; v.lastPrayedAt = p.lastPrayedAt; v.updatedAt = p.updatedAt;
@@ -796,9 +801,13 @@ const dowToday = () => DOW[dObj(TODAY).getDay()];     // the weekday of the hous
 const pretty = s => s ? dObj(s).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'}) : '';
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const byId = id => L().prayers.find(p => p.id === id);
-const nextId = () => { let n = L().prayers.length + 1;
-  while(L().prayers.some(p => p.id === 'p'+String(n).padStart(3,'0'))) n++;
-  return 'p'+String(n).padStart(3,'0'); };
+const byIdAny = id => D.lists.personal.prayers.find(p => p.id === id) || D.lists.shared.prayers.find(p => p.id === id);
+// A new request's id is random, never "the next number": two devices adding at once used to pick the same id, and one
+// request replaced the other for everyone (P3-PRAYER-01). Existing ids (p001, s004, …) keep theirs.
+const rnd = n => { let out = ''; try{ const a = new Uint8Array(n); crypto.getRandomValues(a); for(const b of a) out += (b % 36).toString(36); }
+  catch(e){ while(out.length < n) out += Math.random().toString(36).slice(2); } return out.slice(0, n); };
+const newId = (prefix, list) => { let id; do { id = prefix + Date.now().toString(36) + rnd(8); } while(list.some(p => p.id === id)); return id; };
+const nextId = () => newId('p', L().prayers);
 const el = id => document.getElementById(id);
 // Who added a row. Written as `by` on every new prayer so the Worker's "new family prayer" reminder can leave the
 // author out (it reads the row, not the activity feed). undefined on a standalone page with no profile → JSON drops it.
@@ -808,7 +817,22 @@ const KID = () => !!(window.hub && hub.isKid);
 // The kitchen device (kind 'kitchen'): family rows only; its person scope is for Timer and Tally, never Prayer.
 const KITCHEN = () => !!(window.hub && hub.profile && hub.profile.kind === 'kitchen');
 const myName = () => ((window.hub && hub.profile && hub.profile.name) || '').trim();
-const mePrayed = p => ((p.prayedBy && p.prayedBy[TODAY]) || []).includes(myName());
+const myId = () => ((typeof hub !== 'undefined' && hub && hub.profile && hub.profile.id) || '').trim();
+// prayedBy[date] lists profile ids (P3-PRAYER-24): a guest who shares a household name is no longer taken for that person.
+// Rows ticked by an older app version list names; those still count as mine (so a tick made before the update is not
+// shown undone) and are replaced by my id the next time I tap.
+const prayedToday = p => ((p.prayedBy && p.prayedBy[TODAY]) || []).map(String);
+// My display name stands for me only while no one else the hub knows (a guest included) has it: a guest called "Kiara"
+// must never make Kiara's card read done, or have her tick taken away by Kiara's tap.
+const myOldName = () => { const nm = myName(), id = myId(); if(!nm) return '';
+  return people().some(q => q && q.id !== id && String(q.name || '').trim() === nm) ? '' : nm; };
+const mePrayed = p => { const l = prayedToday(p), id = myId(), nm = myOldName(); return (!!id && l.includes(id)) || (!!nm && l.includes(nm)); };
+// Done today: on the family list, "I prayed this today" (someone else's tick is theirs, shown as their face, P3-PRAYER-05);
+// on my own list, the row's lastPrayedAt.
+const doneToday = p => onFamilyList(p) ? mePrayed(p) : p.lastPrayedAt === TODAY;
+// The house's date, read again at every tap: an iPad left open overnight may not have had its midnight timer fire yet,
+// and a tap must never file today's prayer under yesterday or take away yesterday's mark (P2-STAB-03).
+function refreshDay(){ const d = houseDay(); if(d !== TODAY){ TODAY = d; return true; } return false; }
 
 /* ── record ─────────────────────────────────────────────────── */
 function markDay(){ const d = L().prayerDays;
@@ -920,7 +944,7 @@ function todaySet(){
 }
 
 function rowHTML(p){
-  const done = p.lastPrayedAt === TODAY;
+  const done = doneToday(p);
   const last = p.updates.length ? p.updates[p.updates.length-1] : null;
   const cold = p.cadence === 'rotation' && p.lastPrayedAt && daysSince(p.lastPrayedAt) > 20;
   return '<li class="row ' + (done?'done':'') + '">'
@@ -963,7 +987,7 @@ function renderToday(){
     + ' · ' + plan.name;
 
   const set = todaySet();
-  const done = set.filter(p => p.lastPrayedAt === TODAY).length;
+  const done = set.filter(doneToday).length;
   const left = set.length - done;
   el('todayLine').textContent =
       set.length === 0 ? 'Nothing on the list today.'
@@ -1408,9 +1432,7 @@ document.addEventListener('click', e => {
     const S = D.lists.shared;
     const cat = pick.cat ? p.category : SHARE_CAT;
     if(!S.categories.includes(cat)) S.categories.push(cat);
-    let n = S.prayers.length + 1;
-    while(S.prayers.some(x => x.id === 's'+String(n).padStart(3,'0'))) n++;
-    S.prayers.push({id:'s'+String(n).padStart(3,'0'), title:title.trim(), for:pick.for ? p.for : '', phone:'',
+    S.prayers.push({id:newId('s', S.prayers), title:title.trim(), for:pick.for ? p.for : '', phone:'',
       detail:'', category:cat, cadence:p.cadence, days:[], status:'active',
       createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null,
       updates:[], sharedFrom:p.id, prayedBy:{}, by:author(), updatedAt:new Date().toISOString()});
@@ -1440,14 +1462,21 @@ document.addEventListener('click', e => {
         const prev = {status:p.status, answeredAt:p.answeredAt, answerNote:p.answerNote};
         hub.activity(onFamilyList(p) ? 'Answered: ' + p.title : 'Answered a private request'); p.status = 'answered'; p.answeredAt = TODAY; p.answerNote = note.trim();
         stamp(p); save(); shutSheet(); go('answered');
-        toast('Moved to the record.', 'Undo', () => { Object.assign(p, prev); stamp(p); save(); go('today'); });
+        toast('Moved to the record.', 'Undo', () => { const q = byIdAny(p.id) || p; Object.assign(q, prev); stamp(q); save(); go('today'); });
       }});
     return;
   }
   if(t.dataset.reopen){
-    const p = byId(t.dataset.reopen);
+    const p = byId(t.dataset.reopen); if(!p) return;
+    refreshDay();
+    // The answer is the part worth keeping: it stays on the request as a dated update, and Undo puts it back exactly.
+    const id = p.id, prev = {status:p.status, answeredAt:p.answeredAt, answerNote:p.answerNote, updates:p.updates.slice()};
+    if(p.answerNote || p.answeredAt) p.updates.push({date:TODAY, note:'Was answered' + (p.answeredAt ? ' on ' + pretty(p.answeredAt) : '') + (p.answerNote ? ': ' + p.answerNote : '.')});
     p.status = 'active'; p.answeredAt = null; p.answerNote = null;
-    stamp(p); save(); shutSheet(); go('today'); return;
+    stamp(p); save(); shutSheet(); go('today');
+    // by id: another device's change may have rebuilt the list while the toast was up
+    toast('Back on the list. The answer is kept as an update.', 'Undo', () => { const q = byIdAny(id) || p; Object.assign(q, prev); stamp(q); save(); go('answered'); });
+    return;
   }
 
   if(t.dataset.rencat){
@@ -1516,6 +1545,7 @@ document.addEventListener('click', e => {
   }
 });
 
+document.addEventListener('click', () => { if(USE_LOCAL_STORAGE) refreshDay(); }, true);   // the handlers below repaint
 el('f-plan').addEventListener('change', e => {
   L().activePlan = e.target.value; L().rotationFor = null; save(); renderPlans(); renderToday(); });
 el('planEditor').addEventListener('change', e => {
@@ -1597,7 +1627,7 @@ el('f-parse').addEventListener('click', () => {
     if(!L().categories.includes(it.category)) L().categories.push(it.category);
     L().prayers.push({id:nextId(), title:it.title, for:it.for, phone:'', detail:'',
       category:it.category, cadence:'daily', days:[], status:'active', createdAt:TODAY,
-      lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[], sharedFrom:null, by:author()});
+      lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[], sharedFrom:null, prayedBy:{}, by:author(), updatedAt:new Date().toISOString()});
   };
   box.querySelectorAll('[data-keep]').forEach(btn => btn.addEventListener('click', () => {
     add(items[+btn.dataset.keep]); save(); btn.textContent = 'Added'; btn.disabled = true;
@@ -1620,24 +1650,64 @@ function readBackup(txt){
   const d = JSON.parse(txt);
   if(d.lists) return d;
   if(Array.isArray(d.prayers)){                             // v2 single-list backup
-    const n = freshData(); n.lists.personal.prayers = d.prayers;
+    const n = freshData(); n.v2 = true; n.lists.personal.prayers = d.prayers;
     n.lists.personal.categories = d.categories || CATEGORIES.slice();
     n.lists.personal.prayerDays = d.prayerDays || [];
     return n;
   }
   throw new Error('shape');
 }
+// Restore a backup into the lists as they are now (P3-PRAYER-03). Nothing is deleted. A request missing here is added
+// back and one the backup holds a newer copy of is brought back; the rest stay. On the family list only requests this
+// person added are touched, and every request keeps the house's own prayed marks (today's above all). Categories, plans
+// and prayed days are added to, never replaced. Returns what changed, for the toast.
+const tsOf = p => Date.parse(p && p.updatedAt) || 0;
+function mergeBackup(B){
+  const out = { added:0, updated:0, skipped:0 };
+  const lists = KITCHEN() ? ['shared'] : B.v2 ? ['personal'] : ['personal','shared'];
+  for(const which of lists){
+    const src = B.lists && B.lists[which], dst = D.lists[which];
+    if(!src || !Array.isArray(src.prayers)) continue;
+    const fam = which === 'shared';
+    for(const c of (src.categories || [])) if(typeof c === 'string' && c.trim() && !dst.categories.includes(c)) dst.categories.push(c);
+    const days = new Set(dst.prayerDays); for(const d of (src.prayerDays || [])) if(/^\d{4}-\d{2}-\d{2}$/.test(String(d))) days.add(d);
+    dst.prayerDays = [...days].sort();
+    if(!fam && !B.v2) for(const pl of (src.plans || [])) if(pl && goodId(pl.id) && !dst.plans.some(x => x.id === pl.id)) dst.plans.push(pl);
+    for(const b of src.prayers){
+      if(!b || typeof b !== 'object' || !goodId(b.id)) continue;
+      if(fam && b.by !== myId()){ out.skipped++; continue; }        // someone else's family request stays as the house has it
+      let cur = dst.prayers.find(p => p.id === b.id);
+      // Old ids were "the next number", so an id was reused after a delete: the same id with another start date is
+      // another request, which comes back under a new id instead of replacing (or hiding behind) the one here now.
+      if(cur && b.createdAt && cur.createdAt && b.createdAt !== cur.createdAt){
+        if(dst.prayers.some(p => p.title === b.title && p.createdAt === b.createdAt)) continue;   // brought back before
+        dst.prayers.push(Object.assign(JSON.parse(JSON.stringify(b)), {id:newId(fam ? 's' : 'p', dst.prayers)})); out.added++; continue;
+      }
+      if(!cur){ const n = JSON.parse(JSON.stringify(b)); delete n.unprayed; dst.prayers.push(n); out.added++; continue; }
+      if(fam && cur.by !== myId()){ out.skipped++; continue; }
+      if(tsOf(b) <= tsOf(cur)) continue;                             // the house's copy is as new or newer
+      const keep = {prayedBy:cur.prayedBy, lastPrayedAt:cur.lastPrayedAt};
+      const pb = Object.assign({}, (b.prayedBy && typeof b.prayedBy === 'object' && !Array.isArray(b.prayedBy)) ? b.prayedBy : {}, keep.prayedBy || {});
+      Object.assign(cur, JSON.parse(JSON.stringify(b)), {prayedBy:pb, lastPrayedAt: [keep.lastPrayedAt, b.lastPrayedAt].filter(Boolean).sort().pop() || null});
+      out.updated++;
+    }
+  }
+  return out;
+}
 el('f-import').addEventListener('click', () => {
   ask(el('f-import'), {kind:'textarea', label:'Paste the contents of a backup file', required:true,
-    help:'This replaces both lists on this device.', save:'Import',
+    help:'Adds back what is missing and brings back your own older changes. Nothing is deleted, and requests other people added to the family list are left as they are.', save:'Import',
     validate:txt => { try{ readBackup(txt); return ''; }
       catch(e){ return 'That did not read as a prayer backup. Check you pasted the whole file.'; } },
     onSave(txt){
-      D = readBackup(txt); migrate(); save();
+      refreshDay();
+      const B = readBackup(txt), got = mergeBackup(B); migrate(); save();
       applyTheme(); renderCatAdmin(); renderPlans(); go('today'); toast('Restoring…');
+      const what = (got.added || got.updated ? [got.added ? got.added + ' added' : '', got.updated ? got.updated + ' brought back' : ''].filter(Boolean).join(', ') : 'Nothing was missing')
+        + (got.skipped ? '; ' + got.skipped + ' family request' + (got.skipped === 1 ? ' was' : 's were') + ' left as the house has ' + (got.skipped === 1 ? 'it' : 'them') + ' (only requests you added are restored)' : '') + '.';
       // say what the house answered, not just what this device holds
-      (hub.flush ? hub.flush() : Promise.resolve({})).then(r => toast(r.rejected ? `Restored, but ${r.rejected} item${r.rejected === 1 ? '' : 's'} could not be saved to the house.`
-        : r.pending ? 'Restored on this device — it will reach the house when you are back online.' : 'Backup restored and saved to the house.'));
+      (hub.flush ? hub.flush() : Promise.resolve({})).then(r => toast(r.rejected ? `${what} But ${r.rejected} item${r.rejected === 1 ? '' : 's'} could not be saved to the house.`
+        : r.pending ? what + ' It will reach the house when you are back online.' : what));
     }});
 });
 
@@ -1669,13 +1739,27 @@ function faceHTML(person, name){
   return '<span class="init" title="' + esc(name) + '">' + esc(initials(name) || '?') + '</span>';
 }
 // Who prayed today on a family row: faces, at most five, then "+N".
+// An entry of prayedBy: a profile id, or (from an older app version) a display name.
+// An unknown id (a guest added on another device a moment ago, or one who has left) reads "Someone" until the profiles
+// cache catches up; a name is shown as written.
+const looksLikeId = x => /^[a-z0-9][a-z0-9_-]*$/.test(x) || /^guest-[A-Za-z0-9_-]+$/.test(x);   // guest ids are mixed case
+let askedProfiles = false;
+function prayerOf(x, ppl){
+  const byId = ppl.find(q => q.id === x) || (x === myId() && hub.profile.name ? hub.profile : null);
+  if(byId) return byId;
+  const named = ppl.filter(q => q.name === x);
+  return named.length === 1 ? named[0] : null;
+}
 function whoHTML(p){
   if(D.activeList !== 'shared') return '';
-  const names = (p.prayedBy && p.prayedBy[TODAY]) || [];
-  if(!names.length) return '';
-  const ppl = people(), shown = names.slice(0, MAX_FACES), extra = names.length - shown.length;
+  const ppl = people(), seen = new Set(), who = [];
+  for(const x of prayedToday(p)){ const q = prayerOf(x, ppl), k = q ? q.id : 'n:' + x;
+    if(!q && looksLikeId(x) && !askedProfiles && window.hub && hub.profiles){ askedProfiles = true; hub.profiles().then(() => renderAllScreens()).catch(() => {}); }
+    if(!seen.has(k)){ seen.add(k); who.push({ person:q, name:q ? q.name : (looksLikeId(x) ? 'Someone' : x) }); } }
+  if(!who.length) return '';
+  const names = who.map(w => w.name), shown = who.slice(0, MAX_FACES), extra = who.length - shown.length;
   return '<span class="who" role="group" aria-label="Prayed today: ' + esc(names.join(', ')) + '">'
-    + shown.map(n => faceHTML(ppl.find(q => q.name === n), n)).join('')
+    + shown.map(w => faceHTML(w.person, w.name)).join('')
     + (extra > 0 ? '<span class="more" title="' + esc(names.slice(MAX_FACES).join(', ')) + '">+' + extra + '</span>' : '')
     + '</span>';
 }
@@ -1705,21 +1789,40 @@ function kidCardHTML(p){
     + '</li>';
 }
 function kidListHTML(set){ return '<ul class="kids">' + set.map(kidCardHTML).join('') + '</ul>'; }
+// The latest day before today anyone prayed a family row (lastPrayedAt when today's last tick is taken back).
+function lastBefore(p){
+  const days = Object.keys(p.prayedBy || {}).filter(d => d < TODAY && Array.isArray(p.prayedBy[d]) && p.prayedBy[d].length).sort();
+  const old = p.lastPrayedAt && p.lastPrayedAt < TODAY ? p.lastPrayedAt : null;
+  const d = days.length ? days[days.length - 1] : null;
+  return d && (!old || d > old) ? d : old;
+}
 function setPrayed(p, force){
   if(!p) return;
-  const on = force === undefined ? (p.lastPrayedAt !== TODAY) : !!force;
-  p.lastPrayedAt = on ? TODAY : null;
-  if(D.activeList === 'shared'){
-    p.prayedBy = p.prayedBy || {};
-    const who = (hub.profile && hub.profile.name || '').trim();
-    const list = new Set(p.prayedBy[TODAY] || []);
-    if(on && who) list.add(who); else if(!on && who) list.delete(who);
+  refreshDay();
+  const on = force === undefined ? !doneToday(p) : !!force;
+  if(onFamilyList(p)){
+    // Only my own tick for today changes: everyone else's, and every earlier day, stay as they are.
+    p.prayedBy = (p.prayedBy && typeof p.prayedBy === 'object' && !Array.isArray(p.prayedBy)) ? p.prayedBy : {};
+    const list = new Set((p.prayedBy[TODAY] || []).map(String)), id = myId(), nm = myOldName();
+    if(nm) list.delete(nm);                              // my tick from an older app version, by name: replaced by my id
+    if(id){ if(on) list.add(id); else list.delete(id); }
     if(list.size) p.prayedBy[TODAY] = [...list]; else delete p.prayedBy[TODAY];
+    p.lastPrayedAt = list.size ? TODAY : lastBefore(p);
+    // The house takes my tick away only when the write says so: a copy of the row that simply lacks it (my other device,
+    // not yet pulled) must not. The Worker reads this and never stores it.
+    if(on) delete p.unprayed; else p.unprayed = TODAY;
+  } else {
+    if(!on && p.lastPrayedAt !== TODAY) return;          // nothing of today's to take back (never an earlier day's mark)
+    p.lastPrayedAt = on ? TODAY : null;
   }
   if(on) markDay();
   stamp(p);
   if(KID()) kidTicks.add(p.id);
   save();
+  // the untick goes out once: when the write took (what was sent is what SNAP holds), the copy here drops the flag and
+  // SNAP follows; when it did not, both keep it, so the next save retries the untick
+  if(p.unprayed !== undefined){ const k = 'prayer:' + p.id, sent = SNAP.family[k] === JSON.stringify(p);
+    if(sent){ delete p.unprayed; SNAP.family[k] = JSON.stringify(p); } }
   // A private request is never named on the family feed or the TV (P2-PWA-01); the Worker refuses any other wording.
   if(on) hub.activity(onFamilyList(p) ? 'Prayed for ' + p.title + ' (family list)' : 'Prayed for a private request');
 }
@@ -1730,7 +1833,7 @@ const onFamilyList = p => D.lists.shared.prayers.includes(p);
 let prayList = [], prayIdx = 0;
 function startPrayMode(){
   const set = todaySet();
-  prayList = set.filter(p => p.lastPrayedAt !== TODAY);
+  prayList = set.filter(p => !doneToday(p));
   if(!prayList.length) prayList = set;
   if(!prayList.length){ toast('Nothing on the list today.'); return; }
   prayIdx = 0; renderPray(); el('pray').classList.add('on'); updateFab();

@@ -194,13 +194,13 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     console.log('\n## Kiara taps Prayed');
     await page.click('#todayList .kid .prayed'); await sleep(300);
     const after = await page.evaluate(() => { const p = D.lists.shared.prayers[0]; return { names: p.prayedBy[TODAY] || [], done: document.querySelector('#todayList .kid').classList.contains('done'), pressed: document.querySelector('#todayList .kid .prayed').getAttribute('aria-pressed'), line: document.getElementById('todayLine').textContent }; });
-    ok(after.names.includes('Kiara') && after.names.includes('Eli'), 'her name joins prayedBy[today] next to Eli\'s', JSON.stringify(after.names));
+    ok(after.names.includes('kiara') && (after.names.includes('Eli') || after.names.includes('eli')), 'her id joins prayedBy[today] next to Eli\'s (batch 0g: ids)', JSON.stringify(after.names));
     ok(after.done && after.pressed === 'true', 'the card turns done', JSON.stringify(after));
     ok(after.line === 'You prayed for everyone today!', 'the headline cheers', after.line);
     f = await faces(page);
     ok(f.some(x => x.title === 'Kiara' && /\bavatar\b/.test(x.cls)) && f.some(x => x.title === 'Eli'), 'the card\'s who-prayed row shows both faces', JSON.stringify(f));
     await page.click('#todayList .kid .prayed'); await sleep(200);
-    ok(await page.evaluate(() => (D.lists.shared.prayers[0].prayedBy[TODAY] || []).filter(n => n === 'Kiara').length === 1), 'a second tap does not un-pray or double her');
+    ok(await page.evaluate(() => (D.lists.shared.prayers[0].prayedBy[TODAY] || []).filter(n => n === 'kiara' || n === 'Kiara').length === 1), 'a second tap does not un-pray or double her');
     await flushed(page);
     await shot(page, 'rm18-prayer-kid-done-390.png');
     ok(!errors.some(e => e.startsWith('kiara:')), 'no page errors for the kid', errors.filter(e => e.startsWith('kiara:')).join(' | '));

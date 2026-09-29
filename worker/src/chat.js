@@ -254,7 +254,7 @@ async function runTool(env, ctx, name, input) {
       const scope = input.list === 'family' ? 'family' : 'person';
       const id = 'c' + rid();
       const p = { id, title: t, for: input.for || '', phone: '', detail: '', category: 'Personal', cadence: 'daily', days: [], status: 'active',
-        createdAt: today(), lastPrayedAt: null, answeredAt: null, answerNote: null, updates: [], sharedFrom: null, prayedBy: {}, updatedAt: new Date().toISOString() };
+        createdAt: today(), lastPrayedAt: null, answeredAt: null, answerNote: null, updates: [], sharedFrom: null, prayedBy: {}, by: profile.id, updatedAt: new Date().toISOString() };
       await putOne(env, { appId: 'prayer', scope, profile, key: 'prayer:' + id, value: p, updated_at: Date.now() });
       await activity(env, profile, 'prayer', scope === 'family' ? `Added a family prayer request: ${t} (via chat)` : 'Added a private prayer request (via chat)');
       return { ok: true, result: p, chip: `✓ Added to ${scope === 'family' ? 'the family' : 'your private'} prayer list: ${t}` };
@@ -268,9 +268,11 @@ async function runTool(env, ctx, name, input) {
       const p = { ...found.p }; const now = Date.now(); const d = today();
       if (name === 'mark_prayed') {
         if (p.status !== 'active') return { ok: false, result: `"${p.title}" is not active (status ${p.status}); reopen it in the prayer app first.`, chip: null };
-        // Same shape as apps/prayer.html setPrayed(): lastPrayedAt = today; on the family list, the person's name under prayedBy[today].
+        // Same shape as apps/prayer.html setPrayed(): lastPrayedAt = today; on the family list, the person's profile id under
+        // prayedBy[today] (batch 0g: ids, not names). The Worker merges who prayed (policy.js mergePrayedBy), so only this
+        // person's own entry changes whatever else this copy of the row holds.
         p.lastPrayedAt = d;
-        if (scope === 'family') { const pb = { ...(p.prayedBy && typeof p.prayedBy === 'object' ? p.prayedBy : {}) }; pb[d] = [...new Set([...(pb[d] || []), profile.name])]; p.prayedBy = pb; }
+        if (scope === 'family') { const pb = { ...(p.prayedBy && typeof p.prayedBy === 'object' && !Array.isArray(p.prayedBy) ? p.prayedBy : {}) }; pb[d] = [...new Set([...(Array.isArray(pb[d]) ? pb[d] : []), profile.id])]; p.prayedBy = pb; }
         p.updatedAt = new Date(now).toISOString();
         await putOne(env, { appId: 'prayer', scope, profile, key: found.key, value: p, updated_at: now });
         // markDay(): today joins the list's prayerDays so the prayer streak counts this.

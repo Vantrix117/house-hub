@@ -216,8 +216,8 @@ call "key casing is no way round: LOC:kiara by a kid -> 403" PUT "/api/data/doll
 TODAY=$(TZ=America/New_York date +%F); OLD=$(TZ=America/New_York date -d '-10 days' +%F)
 call "an adult adds a family prayer Kiara prayed" PUT "/api/data/prayer/prayer:smk1?scope=family" "{\"value\":{\"id\":\"smk1\",\"title\":\"Smoke\",\"status\":\"active\",\"prayedBy\":{\"$TODAY\":[\"Kiara\"]}},\"updated_at\":$NOW}" "$D" "$N"; expect 200
 call "kid's stale tick (no Kiara, new title, backdated day) is merged" PUT "/api/data/prayer/prayer:smk1?scope=family" "{\"value\":{\"id\":\"smk1\",\"title\":\"Hacked\",\"status\":\"active\",\"prayedBy\":{\"$TODAY\":[\"Ezra\"],\"$OLD\":[\"Ezra\"]}},\"updated_at\":$((NOW+1))}" "$D" "$K"; expect 200
-call "the house keeps Kiara and the title, Ezra today only" GET "/api/data/prayer?scope=family&key=prayer:smk1" '' "$D" "$N"; expect 200
-[ "$(echo "$BODY" | j item.value.title)" = Smoke ] && echo "$BODY" | grep -q "\"$TODAY\":\[\"Kiara\",\"Ezra\"\]" && ! echo "$BODY" | grep -q "\"$OLD\"" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected title Smoke, today [Kiara, Ezra], no backdated day"; }
+call "the house keeps Kiara and the title, Ezra (by id) today only" GET "/api/data/prayer?scope=family&key=prayer:smk1" '' "$D" "$N"; expect 200
+[ "$(echo "$BODY" | j item.value.title)" = Smoke ] && echo "$BODY" | grep -q "\"$TODAY\":\[\"Kiara\",\"ezra\"\]" && ! echo "$BODY" | grep -q "\"$OLD\"" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected title Smoke, today [Kiara, ezra], no backdated day"; }
 call "tidy the smoke prayer" DELETE "/api/data/prayer/prayer:smk1?scope=family" '' "$D" "$N"; expect 200
 call "kid keeps Verses recall in the F260 scope" PUT "/api/data/f260/f260.recall?scope=person" '{"value":{}}' "$D" "$K"; expect 200
 call "batch: a refused row comes back, the rest saves" POST "/api/data/kidverse/batch?scope=family" "{\"items\":[{\"key\":\"stars:ezra\",\"value\":{\"count\":2},\"updated_at\":$((NOW+1))},{\"key\":\"week\",\"value\":{\"week\":9},\"updated_at\":$((NOW+1))}]}" "$D" "$K"; expect 200

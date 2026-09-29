@@ -111,7 +111,7 @@ async function seed() {
   // every family prayer row that names Ezra in the last 14 days counts (other suites may have left some)
   for (const r of (await api('/api/data/prayer?scope=family', { profile: T.eli })).items) {
     const pb = r.value && r.value.prayedBy; if (!pb || typeof pb !== 'object') continue;
-    for (const d of Object.keys(pb)) if (RECENT.has(d) && Array.isArray(pb[d]) && pb[d].includes('Ezra')) PRAYED.add(d);
+    for (const d of Object.keys(pb)) if (RECENT.has(d) && Array.isArray(pb[d]) && (pb[d].includes('Ezra') || pb[d].includes('ezra'))) PRAYED.add(d);   // a name (older Prayer) or the id (batch 0g)
   }
 }
 // leave no story / prayed / stars rows behind: other suites (test-kidverse) expect Ezra's ★ to be his only star of the day

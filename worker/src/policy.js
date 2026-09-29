@@ -67,7 +67,7 @@ const obj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : null);
 const names = v => (Array.isArray(v) ? v.map(String) : []);
 const DAY_MS = 86400000;
 
-/** Names added to (or taken from) a prayer row's prayedBy, compared with what is stored. */
+/** Entries (profile ids; names from an older app) added to (or taken from) a prayer row's prayedBy, compared with what is stored. */
 function prayedByDiff(next, cur) {
   const a = obj(next && next.prayedBy) || {}, b = obj(cur && cur.prayedBy) || {};
   const added = new Set(), removed = new Set();
@@ -83,26 +83,55 @@ function prayedByDiff(next, cur) {
 const houseDays = (now = Date.now()) => new Set([nyParts(new Date(now - DAY_MS)).date, nyParts(new Date(now)).date, nyParts(new Date(now + DAY_MS)).date]);
 
 /**
- * A kid's tick on the family list is merged, never taken whole: the stored row, with only the kid's own name added to or
- * taken from prayedBy on the household's yesterday / today / tomorrow, and lastPrayedAt / updatedAt from the tick. Every
- * other field, and everyone else's names, stay as the house has them, so a kid's older copy of the row can neither
- * undo someone else's tick nor change the request, and a tick cannot be backdated to mint Kid Verse stars.
+ * Who prayed a family request, merged (batch 0g). prayedBy[date] lists profile ids; an older app wrote display names.
+ * A writer changes only their own entry: their id, and their name while no one else the house knows (a guest included)
+ * has that name, so a guest called "Kiara" can never tick, or untick, for Kiara. Everyone else's entries stay as the
+ * house has them, so an older copy of the row on one device can never undo someone else's tick. An entry is added on the
+ * household's yesterday / today / tomorrow (a device clock a little off). It is taken away only today, and only when the
+ * write says so (`unprayed` = today, which the Prayer app sends with an untick): a copy of the row from before the tick
+ * (the same person's other device, not yet pulled) lacks the entry too, and must not take it away. `unprayed` is never
+ * stored. The kitchen (a shared device) may also add household members; it never takes anyone's tick away.
  */
-function kidPrayerMerge(profile, value, cur) {
-  const out = JSON.parse(JSON.stringify(cur));
-  const days = houseDays(), me = profile.name;
-  const mine = obj(value.prayedBy) || {}, pb = obj(out.prayedBy) ? out.prayedBy : {};
-  const today = nyParts(new Date()).date;
+function ownEntries(profile, people) {
+  const nm = String(profile.name || '').trim();
+  const nameMine = !!nm && !people.some(q => q && q.id !== profile.id && String(q.name || '').trim() === nm);
+  return { id: profile.id, nm: nameMine ? nm : null };
+}
+function mergePrayedBy(profile, value, cur, people, unprayed) {
+  const pb = obj(cur && cur.prayedBy) ? JSON.parse(JSON.stringify(cur.prayedBy)) : {};
+  const mine = obj(value && value.prayedBy) || {};
+  const { id, nm } = ownEntries(profile, people);
+  const days = houseDays(), today = nyParts(new Date()).date;
+  const household = profile.kind === 'kitchen' ? new Set(people.filter(isHouseholdMember).flatMap(q => [q.id, q.name])) : null;
+  const untick = unprayed === today;
   for (const d of days) {
-    const set = new Set(names(pb[d]));
-    // a name is added on any of the three days (a device clock a little off), but only taken away today: the Prayer
-    // app untaps today's tick only, and an older copy on a second device must not wipe yesterday's
-    if (names(mine[d]).includes(me)) set.add(me); else if (d === today) set.delete(me);
+    const set = new Set(names(pb[d])), v = names(mine[d]);
+    if (v.includes(id) || (nm && v.includes(nm))) { set.add(id); if (nm) set.delete(nm); }
+    else if (d === today && untick) { set.delete(id); if (nm) set.delete(nm); }
+    if (household) for (const x of v) if (household.has(x)) set.add(x);
     if (set.size) pb[d] = [...set]; else delete pb[d];
   }
-  out.prayedBy = pb;
-  if (value.lastPrayedAt === null || days.has(value.lastPrayedAt)) out.lastPrayedAt = value.lastPrayedAt;
+  return pb;
+}
+/** lastPrayedAt of a merged family row: the latest day anyone prayed it (or the row's own earlier date). */
+function lastPrayed(pb, ...others) {
+  const today = nyParts(new Date()).date, tomorrow = [...houseDays()].sort().pop();
+  const days = Object.keys(pb).filter(d => names(pb[d]).length && d <= tomorrow);
+  for (const o of others) if (typeof o === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(o) && o < today) days.push(o);
+  return days.sort().pop() || null;
+}
+/**
+ * A kid's tick on the family list is merged, never taken whole: the stored row, with only the kid's own entry changed
+ * (mergePrayedBy) and lastPrayedAt / updatedAt from the tick. Every other field stays as the house has it, so a kid's
+ * older copy of the row can neither undo someone else's tick nor change the request, and a tick cannot be backdated to
+ * mint Kid Verse stars.
+ */
+function kidPrayerMerge(profile, value, cur, people, unprayed) {
+  const out = JSON.parse(JSON.stringify(cur));
+  out.prayedBy = mergePrayedBy(profile, value, cur, people, unprayed);
+  out.lastPrayedAt = lastPrayed(out.prayedBy, cur.lastPrayedAt);
   if (typeof value.updatedAt === 'string' && value.updatedAt.length <= 40) out.updatedAt = value.updatedAt;
+  delete out.unprayed;                                                  // an older row may still hold one
   return out;
 }
 /** A kid's prayerDays: the house's days plus the kid's own among yesterday / today / tomorrow; nothing is ever dropped. */
@@ -166,12 +195,12 @@ export async function writeError(profile, { appId, scope, key, value }, cur, loa
 }
 
 // A kid writes only what the kid screens write (P2-PROF-05): their own person rows; on the family prayer list a tick
-// under their own name and the day it adds to prayerDays; their Kid Verse mirror and story rows (checked above); their
+// under their own id and the day it adds to prayerDays; their Kid Verse mirror and story rows (checked above); their
 // own park-map dot while an adult has their beacon on.
 function kidWrite(profile, { appId, scope, key, value }, cur) {
   if (scope === 'person') return null;
   if (appId === 'prayer') {
-    if (/^prayer:/.test(key)) return obj(value) && obj(cur) ? null : 'kid_readonly';   // merged in guardedPut (kidPrayerMerge)
+    if (/^prayer:/.test(key)) return obj(value) && obj(cur) ? null : 'kid_readonly';   // merged in guardedPut (kidPrayerMerge: only the kid's own tick)
     if (key === 'prayerDays') return Array.isArray(value) ? null : 'kid_readonly';     // merged in guardedPut (kidPrayerDays)
     return 'kid_readonly';
   }
@@ -203,7 +232,7 @@ function kitchenWrite(profile, { appId, scope, key, value }, cur, people) {
     const q = member(String(v.by)); if (!q || q.name !== v.byName) return 'bad_credit';
   }
   if (appId === 'prayer' && /^prayer:/i.test(key)) {
-    const household = new Set(people.filter(isHouseholdMember).map(q => q.name));
+    const household = new Set(people.filter(isHouseholdMember).flatMap(q => [q.id, q.name]));   // ids; names from an older app
     if (prayedByDiff(v, obj(cur)).added.some(n => !household.has(n))) return 'bad_credit';
   }
   return null;
@@ -225,12 +254,30 @@ export async function guardedPut(env, profile, args, loadPeople) {
   const why = (await writeError(profile, args, cur ? cur.value : undefined, loadPeople))
     || (!(await kidLocAllowed(env, profile, args)) ? 'beacon_off' : null);
   if (why) return { key: args.key, rejected: why, value: cur ? cur.value : null, updated_at: cur ? cur.updated_at : 0, applied: false };
+  // `unprayed` (an untick, batch 0g) is an instruction for the merge below, never stored, whichever way the row is written
+  let unprayed = null;
+  if (args.appId === 'prayer' && obj(args.value) && 'unprayed' in args.value) {
+    unprayed = args.value.unprayed; const v = { ...args.value }; delete v.unprayed; args = { ...args, value: v };
+  }
   if (profile.kind === 'kid' && args.appId === 'prayer' && args.scope === 'family') {
     // the merge is built on the row as stored now, so it may beat it: a kid's tick made offline is not lost to a later
     // write by someone else, and the kid's next pull brings the merged row back to their device
     const updated_at = Math.max((+args.updated_at || Date.now()) + 1, cur ? +cur.updated_at + 1 : 0);   // +1: newer than the copy on the kid's device, so its next pull shows the merged row
-    if (/^prayer:/.test(args.key)) return putOne(env, { ...args, updated_at, value: kidPrayerMerge(profile, args.value, cur.value) });
+    if (/^prayer:/.test(args.key)) return putOne(env, { ...args, updated_at, value: kidPrayerMerge(profile, args.value, cur.value, await loadPeople(), unprayed) });
     if (args.key === 'prayerDays') return putOne(env, { ...args, updated_at, value: kidPrayerDays(args.value, cur ? cur.value : null) });
+  }
+  // Everyone else's family prayer rows (batch 0g, P3-PRAYER-05): the request itself is last-write-wins as before, but who
+  // prayed it is merged, so a tap sent from an older copy of the row (a device that had not pulled, or was offline) never
+  // takes away someone else's tick, and a tap that loses to a newer edit still counts.
+  if (args.appId === 'prayer' && args.scope === 'family' && /^prayer:/.test(args.key) && obj(args.value) && cur && obj(cur.value)) {
+    const people = await loadPeople(), pb = mergePrayedBy(profile, args.value, cur.value, people, unprayed);
+    const wins = (+args.updated_at || 0) > +cur.updated_at;
+    const base = wins ? args.value : cur.value;
+    const value = { ...base, prayedBy: pb, lastPrayedAt: lastPrayed(pb, cur.value.lastPrayedAt, args.value.lastPrayedAt) };
+    delete value.unprayed;                                                // an older row may still hold one
+    if (JSON.stringify(value) === JSON.stringify(wins ? args.value : cur.value)) return putOne(env, args);   // nothing merged: the plain write
+    // +1: newer than both copies, so the writer's next pull brings the merged row back to their device
+    return putOne(env, { ...args, value, updated_at: Math.max((+args.updated_at || 0) + 1, +cur.updated_at + 1) });
   }
   return putOne(env, args);
 }

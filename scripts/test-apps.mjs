@@ -138,7 +138,7 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     ok(await f.evaluate(() => hub.list('prayer:', { scope: 'family' }).length === 1), 'family request stored in family scope');
     await f.click('nav [data-go="today"]');
     await f.click('[data-pray]');
-    ok(await f.evaluate(() => { const p = D.lists.shared.prayers[0]; return (p.prayedBy[TODAY] || []).includes('Eli'); }), 'who-prayed uses the signed-in profile name');
+    ok(await f.evaluate(() => { const p = D.lists.shared.prayers[0]; return (p.prayedBy[TODAY] || []).includes('eli'); }), 'who-prayed records the signed-in profile id (batch 0g)');
     await waitFor(() => settled(f), { label: 'prayer flushed' });
     ok(await f.evaluate(() => hub.voiceSupported ? !document.getElementById('f-mic').hidden : document.getElementById('f-mic').hidden), 'voice button shown only when speech recognition exists');
 
@@ -149,7 +149,7 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     let fb = await openApp(B.page, 'prayer');
     ok(await fb.evaluate(() => D.lists.personal.prayers.length === 0), 'private list is empty for Mae');
     ok(await fb.evaluate(() => D.lists.shared.prayers.length === 1 && D.lists.shared.prayers[0].title === "Grandma's knee"), 'family list shows the shared request');
-    ok(await fb.evaluate(() => D.lists.shared.prayers[0].prayedBy[TODAY].includes('Eli')), "Eli's initials came through on the family list");
+    ok(await fb.evaluate(() => D.lists.shared.prayers[0].prayedBy[TODAY].includes('eli')), "Eli's tick came through on the family list");
     fb = await openApp(B.page, 'leftovers');
     ok((await fb.textContent('#list')).includes('Chili'), 'Mae sees Chili in the shared ledger');
 

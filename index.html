@@ -1088,11 +1088,11 @@
         t.verseHd.textContent = weekIn ? 'Verse of the week · Week ' + n : 'Verse of the week';
         t.refs.innerHTML = weekIn ? (MEMORY[n - 1] || []).map(r => `<span>${esc(r)}</span>`).join('') : '<span class="tv-quiet">Loading…</span>';
         t.kidline.textContent = wk && typeof wk === 'object' ? String(wk.line || wk.kid || wk.text || '').trim() : '';
-        // who prayed today: the names each family prayer row records under prayedBy[today] → faces (hub.people by name)
-        const names = new Set();
-        for (const r of hub.list('prayer:', FAM_PRAYER)) { const l = r.value && r.value.prayedBy && r.value.prayedBy[today]; if (Array.isArray(l)) for (const x of l) names.add(String(x)); }
-        const ppl = people();
-        t.prayed.innerHTML = names.size ? [...names].map(nm => faceHtml(ppl.find(x => x.name === nm) || { name: nm, emoji: nm.charAt(0) || '·', color: FALLBACK })).join('') : `<div class="tv-quiet">${hub.isLoaded('prayer', 'family') ? 'No one yet today.' : 'Loading…'}</div>`;   // never a false "no one" before the list has arrived
+        // who prayed today: each family prayer row's prayedBy[today] → faces. Entries are profile ids (batch 0g); an older
+        // Prayer wrote names, which are matched by name. One face per person.
+        const ppl = people(), who = new Map();
+        for (const r of hub.list('prayer:', FAM_PRAYER)) { const l = r.value && r.value.prayedBy && r.value.prayedBy[today]; if (Array.isArray(l)) for (const x0 of l) { const x = String(x0); const named = ppl.filter(y => y.name === x); const q = ppl.find(y => y.id === x) || (named.length === 1 ? named[0] : null); const nm = q ? q.name : /^[a-z0-9][a-z0-9_-]*$|^guest-[A-Za-z0-9_-]+$/.test(x) ? 'Someone' : x; who.set(q ? q.id : 'n:' + x, q || { name: nm, emoji: nm.charAt(0) || '·', color: FALLBACK }); } }
+        t.prayed.innerHTML = who.size ? [...who.values()].map(q => faceHtml(q)).join('') : `<div class="tv-quiet">${hub.isLoaded('prayer', 'family') ? 'No one yet today.' : 'Loading…'}</div>`;   // never a false "no one" before the list has arrived
         // reading today: an adult whose "Read week…" feed line is dated today (F260 streaks are person scope, unreadable here)
         const readers = new Set((feed || []).filter(a => a && a.profile_id && /^Read week/.test(a.text || '') && dayKey(new Date(a.created_at)) === today).map(a => a.profile_id));
         const adults = ppl.filter(q => q.kind === 'adult');
