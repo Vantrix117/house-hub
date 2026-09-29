@@ -14,6 +14,7 @@ export const BATCHES = {
   '0c': { commit: 'e9e5f59', date: '2026-09-26' },
   '0d': { commit: 'd5e46b6', date: '2026-09-28' },
   '0e': { commit: 'e72f6d0', date: '2026-09-29' },
+  '0f': { commit: '48e7b60', date: '2026-09-29' },
 };
 
 // Batch 0b after-evidence lives under audits/evidence/p6/0b/ (the Phase 2/3 scripts' outputs, moved there from p2/p3 so the
@@ -139,6 +140,14 @@ const S0e = [
   E0('P3-VERSES-01', 'Pointer to P3-F260-01: the practice rating keeps the Verses schedule.', ['p3/f260/recall.json']),
 ];
 
+const E0f = 'audits/evidence/p6/0f/';
+const F0 = (id, note, after, status = 'FIXED') => [id, { status, batch: '0f', note, after: after.map(p => p.startsWith('audits/') ? p : E0f + p) }];
+const S0f = [
+  F0('P3-KIDVERSE-02', 'Kid Verse keeps one row per star (star:<kind>:<date> {at}), per reset day, per parent action taken in and per badge in the kid\'s person scope, over the pre-0f stars row as a read-only base; deriveStars() replays them and the kid\'s device writes the sorted result to the family mirror stars:<kid> only when it differs. A second device with an older copy can no longer erase a star. verify-stale-device-erases-star-1 A/B: the iPad after pull shows Done today ★, ★5, rwTotal 5, 20 ever (was Done ★ not pressed, ★4, 19 ever; the control 5/20 before and after); -2 race/offline likewise 5 (was 4); stale-device offline/online: doneToday true, 5 (was false, 4). New check kid-two-devices: A an offline Done ★ and an online heard both land (+2, both devices 5), B the mirrors are not rewritten in 75 s with both devices open, C a star earned before a parent\'s reset is taken by it when it arrives late (total stays 0, today stays spent).', ['p3/kidverse/verify-stale-device-erases-star-1.json', 'p3/kidverse/verify-stale-device-erases-star-2.json', 'p3/kidverse/stale-device.json', 'p3/kidverse/verify-stale-device-erases-star-1-A-ipad-after-pull.png', 'kid-two-devices.json']),
+  F0('P3-KIDVERSE-10', 'Heard story days are one row each, heard:<isoWeek>:<date>, in the kid\'s person scope over the pre-0f story row; the family mirror story:<kid> is rebuilt from them (sorted, written only when it differs). critic-heard-races stale: iPad after pull "Heard 2 days this week", storyDays 2026-09-25 and 09-26 (was 1 day, 09-25 dropped; the control showed 2 before and after); verify-critic-heard-2-1 stale: person and family both list both days (was 09-26 only).', ['p3/kidverse/critic-heard-races.json', 'p3/kidverse/verify-critic-heard-stale-device-drops-heard-day-2-1.json', 'p3/kidverse/verify-critic-heard-stale-device-drops-heard-day-2-2.json', 'p3/kidverse/critic-heard-stale-ipad-after-pull.png']),
+  F0('P3-TALLY-01', 'Tally keeps a row per device, count:<device> = {n, epoch}, and a reset row {epoch, at}; the count shown is the sum on the current epoch (the pre-0f absolute count is the base until the first reset). Chat reads that sum and "set my tally to N" starts a new epoch at N. two-devices A 45 of 45 (was 40, 5 lost), B 51 of 51 (was 38), C 43 of 43 (was 39); lww-1 A 45 (was 40), C 43 (was 39); lww-2 A 45, C 43 (was 40, 39). Known limit: a sum below zero shows 0, and a tap made on an old epoch after another device reset is dropped.', ['p3/tally/two-devices.json', 'p3/tally/verify-lww-absolute-count-loses-increments-1.json', 'p3/tally/verify-lww-absolute-count-loses-increments-2.json', 'p3/tally/verify-lww-absolute-count-loses-increments-2-A-phone.png']),
+];
+
 // Household work (plan-batches.mjs WORK): not findings, so not in STATUS; build-findings renders this line under the item.
 export const WORK_STATUS = {
   'KITCHEN-1': { status: 'FIXED', batch: '0d', note: 'migrations/006-kitchen.sql (devices.role; profiles rebuilt to take kind kitchen, with hue and the reset-code columns; the kitchen profile), checked on a copy of the production export: 8 profiles, 96 of 96 values identical, every other table untouched, a second run changes nothing. The Worker\'s kitchen rules (sign-in, role endpoint with the admin PIN, what it writes, credit checks, no chat/push/admin) and the shell\'s kitchen sign-in. scripts/test-kitchen.mjs 27/27 (role set on a device holding Mea\'s session moves it to the kitchen on its next request; family writes; no person scope; nobody signs in as a person there; a Prayed credited to Ezra earns his prayer star; outsiders refused; clearing the role returns the picker); smoke-api kitchen cases pass. The kitchen Home, face sheet and Admin switch are KITCHEN-2 (batch 2a).', after: ['audits/evidence/p6/0d/migration-check.json', 'audits/evidence/p6/0d/tests/repo-after.txt', 'audits/evidence/p6/0d/tests/smoke-api-after.txt'] },
@@ -161,6 +170,7 @@ for (const [id, s] of S0b) STATUS[id] = s;
 for (const [id, s] of S0c) STATUS[id] = s;
 for (const [id, s] of S0d) STATUS[id] = s;
 for (const [id, s] of S0e) STATUS[id] = s;
+for (const [id, s] of S0f) STATUS[id] = s;
 
 for (const [id, s] of Object.entries(STATUS)) {
   if (!STATUSES.includes(s.status)) throw new Error(`${id}: unknown status ${s.status}`);

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29) done; 96 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29) done; 99 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -43,7 +43,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — | 19/19 fixed, `e9e5f59` |
 | 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — | 15/15 fixed, `d5e46b6` |
 | 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | 7/7 fixed, `e72f6d0` |
-| 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | open |
+| 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | 3/3 fixed, `48e7b60` |
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | open |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | open |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | open |
@@ -1199,7 +1199,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-KIDVERSE-02 — A kid's second device with an older copy of the stars row erases a verse star earned on the first device
 
-- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** L · **Batch** 0f
+- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** L · **Batch** 0f · **Status** FIXED (`48e7b60`)
+- **Phase 6 (FIXED).** Kid Verse keeps one row per star (star:<kind>:<date> {at}), per reset day, per parent action taken in and per badge in the kid's person scope, over the pre-0f stars row as a read-only base; deriveStars() replays them and the kid's device writes the sorted result to the family mirror stars:<kid> only when it differs. A second device with an older copy can no longer erase a star. verify-stale-device-erases-star-1 A/B: the iPad after pull shows Done today ★, ★5, rwTotal 5, 20 ever (was Done ★ not pressed, ★4, 19 ever; the control 5/20 before and after); -2 race/offline likewise 5 (was 4); stale-device offline/online: doneToday true, 5 (was false, 4). New check kid-two-devices: A an offline Done ★ and an online heard both land (+2, both devices 5), B the mirrors are not rewritten in 75 s with both devices open, C a star earned before a parent's reset is taken by it when it arrives late (total stays 0, today stays spent). After: `audits/evidence/p6/0f/p3/kidverse/verify-stale-device-erases-star-1.json`, `audits/evidence/p6/0f/p3/kidverse/verify-stale-device-erases-star-2.json`, `audits/evidence/p6/0f/p3/kidverse/stale-device.json`, `audits/evidence/p6/0f/p3/kidverse/verify-stale-device-erases-star-1-A-ipad-after-pull.png`, `audits/evidence/p6/0f/kid-two-devices.json`.
 - **Evidence.** `audits/03-apps/kidverse.md:208`; `apps/hub.js:342`, `apps/kidverse.html:330-331`, `apps/hub.js:236-239`, `worker/src/data.js:60-62`; `audits/evidence/p3/kidverse/stale-device-offline-ipad-after-pull.png`, `audits/evidence/p3/kidverse/verify-stale-device-erases-star-1-A-ipad-after-pull.png`
 - **What happens now.** `award()` and `reconcile()` write the whole stars object, as person row and family mirror (`apps/kidverse.html:330-331, 478`). Each row is last-write-wins on the writer's stamp (`apps/hub.js:236-239`; `worker/src/data.js:60-62`). `pulled()` checks only that the cache has been pulled once (`:467`), so any warm cache passes.
 - **Why it matters.** A pre-reader loses a star silently: the pressed button they remember turns back into "Done ★", and the balance parents cash in is short. A star lost from an earlier day cannot be earned again.
@@ -1208,7 +1209,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-KIDVERSE-10 — "I heard it" on a kid's second device with an older copy erases the other device's heard day from the week's story row
 
-- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0f
+- **Area** kidverse · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0f · **Status** FIXED (`48e7b60`)
+- **Phase 6 (FIXED).** Heard story days are one row each, heard:<isoWeek>:<date>, in the kid's person scope over the pre-0f story row; the family mirror story:<kid> is rebuilt from them (sorted, written only when it differs). critic-heard-races stale: iPad after pull "Heard 2 days this week", storyDays 2026-09-25 and 09-26 (was 1 day, 09-25 dropped; the control showed 2 before and after); verify-critic-heard-2-1 stale: person and family both list both days (was 09-26 only). After: `audits/evidence/p6/0f/p3/kidverse/critic-heard-races.json`, `audits/evidence/p6/0f/p3/kidverse/verify-critic-heard-stale-device-drops-heard-day-2-1.json`, `audits/evidence/p6/0f/p3/kidverse/verify-critic-heard-stale-device-drops-heard-day-2-2.json`, `audits/evidence/p6/0f/p3/kidverse/critic-heard-stale-ipad-after-pull.png`.
 - **Evidence.** `audits/03-apps/kidverse.md:459`; `apps/f260.html:1611-1613`, `apps/kidverse.html:599-604`, `apps/hub.js:236-239`, `worker/src/data.js:60-62`; `audits/evidence/p3/kidverse/critic-heard-stale-ipad-after-pull.png`, `audits/evidence/p3/kidverse/critic-heard-control-ipad-after-pull.png`
 - **What happens now.** `heard()` rebuilds the story row from the local copy (`normStory` / `myStory`, `apps/kidverse.html:599-604`) and writes it whole to person `story` and family `story:<kid>` (`:631-646`; the writes at `:638-639`). Each row is last-write-wins on the writer's stamp (`apps/hub.js:236-239`; `worker/src/data.js:60-62`).
 - **Why it matters.** The week's heard days that the kid and the parents see silently lose a day, and the story star can go with it.
@@ -1217,7 +1219,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-TALLY-01 — Two devices of the same person lose each other's taps: every tap writes the absolute count
 
-- **Area** tally · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0f
+- **Area** tally · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0f · **Status** FIXED (`48e7b60`)
+- **Phase 6 (FIXED).** Tally keeps a row per device, count:<device> = {n, epoch}, and a reset row {epoch, at}; the count shown is the sum on the current epoch (the pre-0f absolute count is the base until the first reset). Chat reads that sum and "set my tally to N" starts a new epoch at N. two-devices A 45 of 45 (was 40, 5 lost), B 51 of 51 (was 38), C 43 of 43 (was 39); lww-1 A 45 (was 40), C 43 (was 39); lww-2 A 45, C 43 (was 40, 39). Known limit: a sum below zero shows 0, and a tap made on an old epoch after another device reset is dropped. After: `audits/evidence/p6/0f/p3/tally/two-devices.json`, `audits/evidence/p6/0f/p3/tally/verify-lww-absolute-count-loses-increments-1.json`, `audits/evidence/p6/0f/p3/tally/verify-lww-absolute-count-loses-increments-2.json`, `audits/evidence/p6/0f/p3/tally/verify-lww-absolute-count-loses-increments-2-A-phone.png`.
 - **Evidence.** `audits/03-apps/tally.md:146`; `apps/hub.js:342`, `apps/tally.html:150-154`, `apps/hub.js:231-243`, `worker/src/data.js:39-64`; `audits/evidence/p3/tally/verify-lww-absolute-count-loses-increments-2-A-phone.png`
 - **What happens now.** Each tap writes `n() + 1`, computed from this device's own copy (`apps/tally.html:150-154`). `hub.set` stamps it with the current time (`apps/hub.js:231-243`), and the Worker keeps the newest stamp and no history (`worker/src/data.js:39-64`). Any taps the other device made since this one last pulled are overwritten, and nothing is shown.
 - **Why it matters.** The count is the app's only data. It silently goes down after it was counted up, and neither device says so; the phone's sync state still reads "synced".

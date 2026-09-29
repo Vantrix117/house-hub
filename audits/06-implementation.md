@@ -670,3 +670,112 @@ The pre-batch results are batch 0d's after-run of the same suites (`audits/evide
 - **An erased journal can come back** if an offline device still holding its key saves after the erase and before anyone sets a new passcode. Writes over a deleted vault are allowed so that a first setup is never blocked.
 - **Real devices.** Face ID / PRF, iCloud-synced passkeys and a real iPhone's storage limits were not exercised. The Face ID checks ran with the rig's WebAuthn stand-in.
 - `weekStart`, `weekDone`, `best`, `miles`, `jstats` and `verses` (pasted verse text) are still whole-map rows. They are derived or rarely edited, and not ticks, so they are out of this batch's findings.
+
+## Batch 0f — Tally and Kid Verse: counts and stars that add up across devices
+
+| | |
+|---|---|
+| **Findings** | 3 entries, all critical primaries. All 3 FIXED (status per entry in `audits/05-findings.md`). |
+| **Code commit** | `48e7b60` (2026-09-29) |
+| **Files** | `apps/kidverse.html`, `apps/tally.html`, `index.html` (the kid's Home stars card), `worker/src/chat.js` (tally read and set), `scripts/test-kidverse.mjs`, `scripts/test-rewards.mjs`, `scripts/test-kidstory.mjs`, `scripts/test-apps.mjs`, `scripts/smoke-chat.sh`, `scripts/mock-anthropic.mjs`, `CLAUDE.md`, `worker/README.md`, `sw.js` (`hub-v32` → `hub-v33`) |
+| **Schema / data** | No schema change and no data migration: new writes go to new keys, and the old whole rows (`stars`, `story`, `count`) stay as a read-only base. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-29-before-0f.sql` (37 KB, 43 app_data rows). It holds no Kid Verse or Tally rows yet, so in production nothing old has to be carried over. Nothing was deployed. |
+| **How it was built** | By the orchestrator. An independent review found 7 items (3 high, 3 medium, 1 test gap); all were fixed except one kept as a limit below. A second pass on the fixes found 2 new low items, and both were fixed. A third pass on the last fix, and a fourth that confirmed it, closed the loop. Every check was rerun on the final code. |
+
+### The change
+
+**Kid Verse: one row per fact (P3-KIDVERSE-02, P3-KIDVERSE-10).**
+- **The cause.** A kid's stars, credited days, parents' actions, badges and heard story days all lived in two whole rows (`stars` and `story`). Every star rewrote the whole row from the device's own copy, and the newer stamp won. So a second device that had not pulled erased a star or a heard day made on the first.
+- **Now** each fact is its own row in the kid's person scope:
+  - `star:<verse|story|prayed>:<date>` holds `{at}`, the server-clock time it was earned.
+  - `reset:<kind>:<date>` marks a star a parent's reset took.
+  - `applied:<ledger key>` marks a parent's cash-in or reset as taken in.
+  - `badge:<id>`.
+  - `heard:<iso week>:<date>`.
+  Two devices doing the same work write the same rows, so a star, a badge or a parent's action counts once.
+- **`deriveStars()`** rebuilds the old stars object from those rows over the pre-0f `stars` row, replaying stars, cash-ins and resets in time order. The kid's device writes the result to the family mirror `stars:<kid>` (and the heard days to `story:<kid>`) only when it differs, with every map in sorted key order. Two devices with the same rows build the same mirror, so they never take turns rewriting it.
+- **Readers.** Adults' Home, Me, the TV and the parents' F260 hero read the mirrors, as before. The kid's own Home now reads the mirror too, falling back to the old person row.
+- **Parents' resets.** A reset takes every star earned before it, including one that arrives later from a device that was offline. A reset the pre-0f app already applied leaves that app's own stars as it left them, because their times are gone after 30 days, but still takes a new star earned before it. A star earned after a reset is never taken.
+
+**Tally: a row per device (P3-TALLY-01).**
+- **The cause.** Tally stored one absolute number (`count`). Each tap wrote "my copy + 1", so a device that had not pulled wrote over another device's taps.
+- **Now** each device keeps `count:<device id>` = `{n, epoch}`, its own net taps since the reset named by `epoch`. Reset writes a `reset` row `{epoch, at}` with a new epoch, which starts every device at 0. The number shown is the sum over the current epoch. Before the first reset, the old `count` is the base.
+- **Chat.** "What's my tally" reads that sum. "Set my tally to N" starts a new epoch at N (`reset` + `count:chat`).
+
+**What the independent review changed.**
+- **High.**
+  - Two devices flapped the mirror (different key order, so each rewrote it).
+  - `earned` counted pre-0f stars twice.
+  - A reset missed a star that arrived after it was applied.
+- **Medium.**
+  - A star a reset had taken could still add to the total.
+  - Chat's "set my tally" wrote the old absolute row, which the app no longer reads.
+  - The tests compared the mirror with itself. This one became the new two-device check.
+- **Kept as a limit.** A tally sum below zero shows 0 (see below).
+- **Second pass (low).**
+  - Re-walking old resets relabelled pre-0f story and prayed days. Fixed by the rule above.
+  - Chat read the old tally row. Fixed with the summed read, plus a new smoke-chat check.
+  - The third pass refined the first of these so that a new star earned before an old-applied reset is still taken; the fourth confirmed it.
+
+### Each finding's reproduction, rerun
+
+**How they were run.**
+- The 9 scripts the entries name ran three at a time on the unchanged code (`git archive` of `cdf1cac`) and on the final code. Outputs and exit codes are in `audits/evidence/p6/0f/tests/repro-before/` and `repro-after/`. The changed evidence files were moved into `p6/0f/p3/`, and the Phase 3 baseline was restored (git shows it clean).
+- **The scripts read the old rows.** They read the server's person `stars`, `story` and `count` rows, which after this batch are only the base. The after-run therefore used `audits/tools/phase6/0f/merged-view.mjs`, a Node preload that answers the scripts' own GETs of those keys with what the apps now show: Kid Verse's family mirrors, and Tally's summed count. The rig's server and the browsers are not touched.
+- All 9 exit 0 before and after.
+
+| Finding | Before | After |
+|---|---|---|
+| P3-KIDVERSE-02 (erases-star-1/2, stale-device) | a stale device's tap erases the other device's Done ★: the iPad after pull shows "Done ★", ★4, 19 ever (the control 5 / 20) | "Done today ★", ★5, 20 ever, like the control, online, offline and in the race |
+| P3-KIDVERSE-10 (critic-heard-races, heard-2-1, heard-2-2) | the stale device drops a heard day: "Heard 1 day this week", 09-25 lost from person and family rows | both days kept, "Heard 2 days this week", like the control (2-2 did not reproduce before either; it matches the control before and after) |
+| P3-TALLY-01 (two-devices, lww-1, lww-2) | taps lost: A 40 of 45, B 38 of 51, C 39 of 43 | A 45, B 51, C 43, with nothing lost; the controls unchanged |
+
+**New check: `audits/tools/phase6/0f/kid-two-devices.mjs`** (`audits/evidence/p6/0f/kid-two-devices.json`).
+- **A.** Ezra's phone goes offline and taps Done ★, and the iPad taps "I heard it". Both stars land: 3 → 5 on both devices and in the mirror.
+- **B.** Both devices stay open for 75 s with pulls, and neither mirror is rewritten.
+- **C.** The offline phone earns today's ★ (its total goes 3 → 4) before Eli resets the week. The iPad applies the reset first (total 0), and then the phone reconnects. The star is taken by the reset: the total stays 0, today's ★ stays spent, and both devices show 0.
+- A, B and C all pass on the final code.
+
+### Capture rig
+
+- **The runs.** The areas whose code changed were recaptured: Kid Verse 240, Tally 60 and the shell 979 (the kid's Home stars card): 1279 captures, 0 failed (`audits/screens-after/0f/manifest.json`).
+- **Against the last capture of each area** (`audits/evidence/p6/0f/capture/pxdiff-*.txt`; Kid Verse and Tally against batch 0d's, the shell against 0e's): Kid Verse 0 and Tally 0 changed beyond tolerance 48. The shell 9: the known flaky first-visit toast (4), and 2-pixel specks on PIN-create (4) and one Home overflow screen (1). A control recapture of those screens on the same code (`audits/screens-after/0f-control`, `pxdiff-0f-vs-0f-control-shell.txt`) differs from this run's in a first-visit toast, and the same 2-pixel boxes also flipped between batches 0d and 0e (`p6/0e/capture/pxdiff-0d-vs-0e-shell.txt`), so all 9 are run-to-run noise, not this batch.
+- Nothing on screen was meant to change in this batch.
+
+### Rubric rescore
+
+- On screen: none.
+- Underneath: whether a star, a heard day or a tap the person saw actually counted. The rubric scores this under **Ease of use** (error prevention).
+- The orchestrator's rescore:
+
+| Area | Ease of use | Why |
+|---|---|---|
+| Kid Verse | +0.5 | a kid's second device can no longer erase a star or a heard day |
+| Tally | +0.5 | taps from two devices both count |
+
+- These are the orchestrator's judgements, not a rerun of Phase 4's scoring.
+
+### Repo tests
+
+The pre-batch results are batch 0e's after-run of the same suites (`audits/evidence/p6/0f/tests/repo-before-is-0e-after.txt`); this batch's run is `repo-after.txt`.
+
+| Suite | Before | After |
+|---|---|---|
+| test-hub | 36 / 1 | 36 / 1 (the stale "signed in as Niece"; batch 2a) |
+| test-kidverse, test-rewards, test-kidstory | 51 / 0, 73 / 0, 50 / 0 | identical, after the three tests read the family mirrors `stars:ezra` / `story:ezra` instead of the old person rows, and clear the kid's new rows where they cleared the old row |
+| test-apps | 48 / 0 | 48 / 0, after its Tally check sums the `count:` rows |
+| every other suite, and test-kitchen | as before | identical |
+| smoke-api.sh | 209 / 0 | 209 / 0 |
+| smoke-chat.sh (mock model) | 38 / 1 on the unchanged code | 39 / 1 (one new check: chat reads the summed tally) |
+
+- **smoke-chat's one miss is old.** It fails the same way on the unchanged code: "kid blocked from adult-only app" asks a kid to change the prayer app. Kids have used Prayer (the family list) since the prayer-with-faces work, so the check is stale, and the Worker's rules (batch 0d) decide what a kid may write there. It is left for the batch that owns chat.
+- `node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for. The tests' screenshots in `docs/screens/` were restored.
+
+### Not verified, and known limits
+
+- **Nothing is deployed.** The pages and the Worker's chat change go together. Batch 0d's migration still has to run first.
+- **Devices still on the old cached pages** (until their service worker updates) write the old whole rows, which now act only as the base. A star or tap made there shows up under the new rows. It is lost only if the same device later loses its copy before updating. This is a short overlap after a deploy.
+- **Tally below zero.** The minus button is refused at a shown 0, and a sum below zero shows 0. Two devices each subtracting from 1 while offline can leave the sum at −1, which reads 0 until someone adds.
+- **A tap on an old epoch is dropped.** A device that taps before it has pulled another device's reset writes on the old epoch, and that tap does not count.
+- **Chat can still write a kid's star rows** through the general `set_data` (as before this batch, within the Worker's rules for kids).
+- **Two kids' devices during a parent's cash-in** were not exercised separately. The ledger path is unchanged from before this batch and is covered by test-rewards.
+- **Real devices** were not used: every two-device check ran in the rig's WebKit (iPhone and iPad profiles).
