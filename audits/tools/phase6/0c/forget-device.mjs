@@ -38,8 +38,10 @@ try {
   await d.setOffline(true);
   await page.evaluate(() => { hub.set('forget0c', { note: 'family write made offline' }, { app: 'leftovers', scope: 'family' }); hub.set('forget0c', { note: 'person write made offline' }, { app: 'hub', scope: 'person' }); });
   await page.click('.tab[data-tab="me"]'); await page.waitForSelector('#forget');
-  let dialog = null; page.once('dialog', dl => { dialog = dl.message(); dl.accept(); });
+  // since batch 1 the question is the hub's own sheet (hub.confirm), answered by its confirm button (the last one)
+  const answerSheet = async () => { const b = page.locator('.hub-ask .sheet-actions .btn:last-child'); await b.waitFor({ timeout: 10000 }); const m = await page.locator('.hub-ask .sheet').innerText(); await b.click(); return m; };
   await page.locator('#forget').scrollIntoViewIfNeeded(); await page.click('#forget');
+  const dialog = await answerSheet();
   await page.waitForFunction(() => { const t = document.getElementById('hub-toast'); return t && !t.hidden && /Not forgotten/.test(t.textContent); }, null, { timeout: 15000 });
   const refusal = await toastText(page);
   R.shots = [await shot(d, 'A-offline-refused')];
@@ -50,8 +52,7 @@ try {
 
   // ── B: online, Forget again ──
   await d.setOffline(false); await sleep(500);
-  page.once('dialog', dl => dl.accept());
-  await page.click('#forget');
+  await page.click('#forget'); await answerSheet();
   await page.waitForSelector('#pairform', { timeout: 20000 });
   R.shots.push(await shot(d, 'B-online-forgotten'));
   const fam = await L.apiAs('mom', '/api/data/leftovers?scope=family&key=forget0c');

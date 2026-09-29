@@ -1198,3 +1198,127 @@ The pre-batch results are batch 0h's after-run of the same suites (`audits/evide
 - **An Undo after New York midnight** of a family prayer tick counts as changed, so it is not undone.
 - **The Larder rows already stored with an unreadable date** are not rewritten; they show as "Check date" until someone edits or finishes them.
 - **Real devices** were not used.
+
+## Batch 1 — The v3 design tokens: one colour, type, glass and motion system in every app
+
+| | |
+|---|---|
+| **Findings** | 150 entries: 1 high, 18 medium, 124 low, 7 info. **106 FIXED, 37 PARTIAL, 3 DEFERRED, 4 NEEDS DEVICE CHECK** (status and evidence per entry in `audits/05-findings.md`). Every PARTIAL and DEFERRED entry names the batch that owns the rest; most are app-local rows the migration table gives to the app's own batch, or shell rows it gives to batch 2. |
+| **Code commit** | `80af987` (2026-09-29); the map template in the sibling repo `../dollywood-build-project`: `83d6fcd` (template, build script, verify.py) and `6192e96` (rebuilt outputs) |
+| **Files** | `apps/design.css` (the token half replaced by `audits/tools/phase4/tokens/proposed-tokens.css`, byte for byte; the component half on the v3 roles), `apps/hub.js`, `index.html`, `docs/design.html`, every app (`f260`, `prayer`, `leftovers`, `tally`, `timer`, `kidverse`, `verses`, and the two Dollywood exports), `manifest.json`, `sw.js` (`hub-v36` → `hub-v38`), `icons/LICENSE-lucide.txt` (new), `worker/migrations/007-profile-hue.sql` (new), `worker/seed.sql`, `worker/src/index.js`, `worker/src/policy.js`, `worker/README.md`, `CLAUDE.md`, 19 test scripts under `scripts/` |
+| **Schema / data** | No schema change (the `hue` column exists since 006). **Migration 007** fills `profiles.hue` where it is empty with the starting colours of decision D3 (Eli periwinkle, Mae peach, Elizabeth bubblegum, David mint, Mea butter, Ezra aqua, Kiara lavender, the TV and the kitchen graphite, guests sky); it is idempotent and needs 006 first. Neither 006 nor 007 has run on production. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-29-before-1.sql` (37 KB). Nothing was deployed. |
+| **How it was built** | A core worker landed the tokens, hub.js, the pre-paint bootstrap, the shell and the Worker's `hue`; six app workers (F260; Prayer; Larder; Tally and Timer; Kid Verse and Verses; the Dollywood template) then did each app's batch-1 rows and findings; a seventh did the shell's follow-ups from review. Three independent reviewers (core logic; screens and runtime; findings and the token file) ran four rounds; the loop ended on a verification with no new findings, before the final run. |
+
+### The change
+
+- **The tokens.** `apps/design.css` now opens with the v3 token set the owner approved (revision 6e): Dynamic Type roles scaled by the person's text size, the iPad tier and the kid scale; six palettes (Graphite is new, decision D2) plus System; nine person families and nine app families, each with its `-ink`, `-strong` + `-on`, `-graphic`, `-fill` and `-wash` roles; semantic families (success, warning, danger); elevation, radii, spacing and motion tokens; the four glass levels (D8). Legacy names still resolve, as AA inks. The component half now reads those roles: every content card is solid, glass is only the bars, sheets, pills and floating controls, one focus ring, `.pressable`, and Reduce Motion keeps only opacity and colour changes of 150 ms or less.
+- **The person's colour is a family, not a hex.** Profiles carry `hue`; hub.js writes `data-accent` on `<html>` and on every face (`hub.avatarHtml`), and any element with `data-accent` re-derives every accent role for its subtree. A stored session without a hue maps its hex through the bootstrap's table; a guest defaults to sky. The admin's Edit sheet and Add a guest pick a family (the full 18-family picker is batch 2a); the feed's faces carry their author's family.
+- **The pre-paint bootstrap** (`audits/tools/phase4/tokens/bootstrap.js`, one copy byte for byte in every page's `<head>`; hashed into the Dollywood CSP) paints the palette, scheme, accent, kind, preferences and the `theme-color` meta before the first paint. `data-theme` is always the resolved palette (Hearth stays Hearth on a dark phone, P2-VIS-03).
+- **Preferences** (D11). Me → Appearance adds Text size (XS to XXL), Glass (Clear · Current · Frosted · Solid, where Solid is Reduce Transparency), Increase Contrast and Reduce Motion: one person-scope `hub` row each, so they follow the person to every device; the TV and the kitchen keep theirs on the device. F260's old Large moves once to the hub size (D17).
+- **One confirm sheet** (`hub.confirm` / `hub.alert`) replaces every native `confirm()`/`alert()` in the shell, F260 and the map pages: a titled sheet, the destructive button in the danger colours, focus on Cancel, Enter presses the focused button, Escape and the backdrop cancel.
+- **Per app** (each worker's full list is in the status entries):
+  - **F260**: category colours on `--cat-*`, the New Testament paper on `--aqua-wash`, every labelled solid paired with its `-on`, no opacity on text, text size through `--ts`, fields ≥ 16 px, smooth scrolls respect Reduce Motion, the toast is the shared one. Contrast failures (its own script) 150/91/91/41/41/41/42 → 0 in all seven palettes.
+  - **Prayer**: inks for text, the current tab and chips on the selection solid, the family list in aqua, faces from their family, no web fonts (D13), the FAB solid, the toast on the toast tokens, text size scaled with floors (fields ≥ 16 px, nothing under 11 px).
+  - **Larder**: the freshness ramp and chips on the semantic families with a glyph each, fields on `--field-border`, kid targets ≥ 64 px, no layout jump while loading, names wrap at large text sizes, the Lucide licence notice.
+  - **Tally and Timer**: solid discs and dial in the person's colour, the numeral face, the selection solid on the presets, the arc and track readable in dark, time's up without red.
+  - **Kid Verse and Verses**: the ★ buttons in butter for both kids, readable day letters, rings and empty dots, badges and captions, 16 px kid floor, no glass on content cards, Got it on the success pair (no lightening on hover).
+  - **The map pages**: one glass recipe, solid chrome, the ask() sheet, kid targets and type floors, thin themed scrollbars; cartography keeps its colours (D12).
+- **The Worker**: `hue` on every profile it returns (the feed too), accepted on Add a guest (default sky) and the admin's edit.
+
+**What the independent review changed** (four rounds; details in the reviewers' reports in the session record).
+- **Round 1.** A duplicate function name from a review fix stopped the shell booting (caught before any run; every inline script is now parse-checked); feed faces ignored the family; the colour pickers changed nothing visible; the D17 fallback could not be undone and showed the wrong size; a setting changed in an app wrote a stray `theme` row; a renamed person's name did not redraw; one test compared a function with itself; Me overflowed at text size L on a 390 px phone; the Larder cut names to a few letters at XL; the kid Timer scrolled sideways at XXL; F260's week ring label spilled; Prayer ignored the text size; Prayer's toast was still a light slab in dark; ten native dialogs remained in the shell (CONS-TELL-2); the chat field had no boundary or label; the shell kept phone margins on the iPad.
+- **Round 2.** Enter on the new confirm sheet confirmed with focus on Cancel (now Enter presses the focused button); a second device kept the old Large after Normal was chosen; stacked sheets both closed on one Escape; two earlier-batch checks still waited for native dialogs; Prayer's fields shrank under 16 px at XS; the TV faded names with opacity; the Glass control ran past the card at XXL; usage dates wrapped; Me → Appearance did not follow a change made elsewhere.
+- **Round 3.** An app already open on the other device kept the old Large (the shell now tells the open app to re-apply). **Round 4** confirmed with no new findings.
+- **From the final run and the rescore** (fixed after them, then re-run: the Kid Verse, Verses, rewards, kid story, guests, apps, F260 and prefs suites all pass): the kid's seven day dots wrapped at 390 px, the kid Verses card grew on Show, Got it's hover sheen lowered it to 4.34:1, F260's paper stopped short of the bottom of a short page, and two Me rows wrapped their switch or face under the text.
+
+### Each finding's reproduction, rerun
+
+- **How they were run.** The 113 scripts the entries name ran three at a time on the unchanged code (`git archive` of `d186850`) and on the final code. Outputs and exit codes are in `audits/evidence/p6/1/tests/repro-before/` and `repro-after/`; the files the scripts wrote on the final code are in `audits/evidence/p6/1/p2|p3|p4/`, and the Phase 2-4 baseline was restored (git shows it clean).
+- **Before.** 105 exit 0, 6 exit 1, 2 hit the 10-minute cap. Re-run with the measurement rig's git-ignored raw data restored, the COLOR script's two parts run separately and a longer cap: all but `phase3/verses/visual.mjs` ran (it fails on the old code too: its save block no longer catches hub.js's saves).
+- **After.** 114 runs (the COLOR script in two parts): 108 exit 0, 6 exit 1. Five crash because they parse the old design.css format (hex values, `rgba()` only): `phase3/leftovers/critic-err-contrast`, `phase4/COLOR/remeasure` (its token part; its `raw` and `live webkit` parts run and are filed: lowest rendered text 5.77:1), `COLOR/verify-mid-tone-semantic-as-ink-2`, `COLOR/verify-muted-on-wells-and-derived-surfaces-2`, `DARK/palette-dark`; the sixth is `verses/visual` as before. The entries that rest on them take their verdict from the token gate, the rendered measurements and the probes, and say so.
+- **Other stale scripts.** Several Phase 4 scripts re-read committed Phase 4 data or samples and print the same before and after (listed in the status entries); `ACCENT/runtime` skips all 728 cases on the final code; `TOK/literals` counts the bootstrap's colour table. None of them is used as after-evidence.
+
+### The token gates and the checks
+
+| Check | Result |
+|---|---|
+| `audits/tools/phase4/tokens/contrast.mjs` | 2,369 check kinds, 202,134 evaluations, **0 failing**; 40 of 40 mutations caught |
+| `browser-check.mjs` | OK in WebKit and Chromium: 15,372 values each, 0 mismatches |
+| `apps/design.css` token half vs `proposed-tokens.css` | byte-identical (`cmp`) |
+| `audits/tools/phase6/1/verify-1a.mjs` (new: preferences follow the person, the display keeps its own, a profile refresh, faces carry their own family, the theme-color meta, the sheen on the bars only, Prayer's one meta) | WebKit 26/0, Chromium 26/0 |
+| Earlier batches' checks: `0c/forget-device` (answers the new sheet), `0f/kid-two-devices`, `0g/prayer-merge-check`, `0g/check-ids.js`, `0h/larder-check`, `0h/guide-import-check` (answers the new sheet), `0i/chat-check` | 14/0; A-C; A-H; 49/0; A-H; W, X, E; A-H — all pass |
+| `handoff/prayer/check.js` (not edited: do-not-touch) | 47/2, the two name-format checks as since batch 0g |
+| Every inline script parses (`node` `vm.Script` over every page) | 29 of 29 |
+
+### The measurement rig (Phase 4), re-run on the final code
+
+`node audits/tools/phase4/measure.mjs --run themes|devices|states` then `aggregate.mjs` (3,662 jobs, 0 failed); the summaries are in `audits/evidence/p6/1/measure/`, beside the committed pre-batch ones in `audits/evidence/p4/measure/`.
+
+| Area | Text below AA: selectors, before → after | Occurrences, before → after |
+|---|---|---|
+| Shell (with the TV) | 132 → 33, TV 65 → 48 | 2,445 → 737, TV 467 → 104 |
+| F260 | 688 → 115 | 25,250 → 142 |
+| Prayer | 109 → 28 | 1,517 → 164 |
+| Larder | 3 → 0 | 19 → 0 |
+| Timer | 35 → 13 | 92 → 41 |
+| Kid Verse | 39 → 6 | 1,774 → 12 |
+| Verses | 1 → 5 | 14 → 10 |
+| Build guide | 95 → 23 | 22,766 → 451 |
+| Park map | 180 → 31 | 6,566 → 551 |
+| **All** | **1,347 → 302** | **60,910 → 2,212 (−96 %)** |
+
+What is left, checked group by group: controls disabled while an app loads or before a PIN is complete (exempt: WCAG 1.4.3 does not cover disabled controls; this is what Verses' and the Timer's new rows are), captions over the album's photos and the TV's hidden Me screen (batches 2a and 2c, fewer than before), feed names coloured inline (batch 2a: `data-accent` on every row), F260's done toast passing over two buttons for its 2.2 s, and rig artefacts where the sample missed the element (F260's Set passcode reads the page's own colour under a solid green button). Verses' desktop Got it at 4.34:1 was the hover sheen, since removed.
+
+### Repo tests
+
+The pre-batch results are batch 0i's after-run of the same suites.
+
+| Suite | Before | After |
+|---|---|---|
+| test-design (not in batch 0i's run; 49 / 0 at batch 0a) | 49 / 0 | 60 / 0 (the new palette, the nine families in six palettes, `color-scheme`, Reduce Motion by `data-motion`) |
+| test-hub | 36 / 1 | 36 / 1 (the stale "signed in as Niece"; batch 2a). The kid tap-target check now measures the resolved `--tap` |
+| test-prefs | 17 / 0 | 35 / 0 (theme, text size, contrast, glass and motion follow the person; a stale mirror loses to the row; the display keeps its own; F260's Large moves once) |
+| test-f260 | 52 / 0 | 58 / 0 |
+| test-rewards, test-guests | 73 / 0, 50 / 0 | 73 / 0, 56 / 0 (they answer the new confirm sheet, and any native dialog now fails them; test-guests picks a colour family) |
+| test-kidverse, test-kidstory, test-verses, test-prayer-faces | 51 / 0, 50 / 0, 80 / 0, 41 / 0 | 51 / 0, 50 / 0, 80 / 0, 41 / 0 (they read the app's `<style>` only for OS-scheme rules, the bootstrap reads it in JS; faces are checked against the seeded families) |
+| every other suite and test-kitchen | as before | pass, identical counts |
+| smoke-api.sh | 215 / 0 | 215 / 0 |
+| smoke-chat.sh (mock model) | 53 / 0 | 53 / 0 |
+
+`node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for. The tests' screenshots in `docs/screens/` were restored.
+
+### Capture rig
+
+- **The run.** Every area was recaptured on the final code: 4,447 captures, 0 failed (`audits/screens-after/1/manifest.json`; the PNGs are git-ignored like every capture set).
+- **Against the Phase 1 baseline** (`audits/evidence/p6/1/capture/pxdiff-all.txt`): all 4,447 differ beyond the tolerance, as they must when every colour, type size and radius moves; the pixel diff therefore says nothing about any one screen. What the batch did to each screen was judged by eye instead: each per-app worker looked at 7-13 of its own screens, the screens reviewer at about 70 in its first round (before/after pairs across every area) and at new ones in each later round, across every theme, both schemes, iPhone and iPad and the new preferences (its findings and the fixes are above), and the rubric rescore below compares the scorecard's own screens.
+- **The "before" set itself.** A mistyped command started a capture into `audits/screens/` and overwrote 144 park-map PNGs before it was stopped; each was restored from a byte-identical copy in an earlier batch's capture set, and all 4,447 now match the committed manifest's SHA-256 again.
+
+### Rubric rescore
+
+An independent judge rescored the Phase 4 scorecard (`audits/04-design-system.md`: the same eleven dimensions, anchors, shared bases and written calibration rules) from the final capture, the scorecard's own screens before and after (88 composites), the re-run measurement rig and the status entries. The judge's full record, with the rules behind every cell and the screenshots, is `audits/evidence/p6/1/rescore.md`.
+
+| Area | Typ. | Colour | Layout | Shape | Icons | Motion | Dark | Native | Glance | Ease | Delight | **Average** |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Shell (with the TV board) | 4.5 → 6 | 2.5 → 5 | 5 → 6 | 4 → 5.5 | 4 → 4.5 | 2.5 → 3 | 4 → 5.5 | 4 → 6 | 4 → 4.5 | 4 → 5 | 6.5 → 7 | 4.1 → **5.3** |
+| F260 | 3 → 5 | 2 → 5 | 5 → 5.5 | 4.5 → 6 | 3 → 3.5 | 3.5 → 4.5 | 4.5 → 6.5 | 4 → 5 | 3 → 5.5 | 5.5 → 6.5 | 6 → 6.5 | 4.0 → **5.4** |
+| Larder Ledger | 4 → 6 | 4.5 → 6.5 | 4 → 4.5 | 5.5 → 6.5 | 4.5 → 5 | 3 → 5 | 4.5 → 6.5 | 4 → 5.5 | 3 → 3.5 | 3 → 6 | 4 → 5.5 | 4.0 → **5.5** |
+| Prayer | 4 → 5.5 | 2.5 → 5 | 4 → 5 | 4.5 → 6 | 4.5 → 5 | 4 → 5 | 4.5 → 6.5 | 5 → 6 | 3 → 3.5 | 4 → 5.5 | 6 → 6.5 | 4.2 → **5.4** |
+| Tally counter | 4.5 → 7 | 5 → 6 | 5 → 5.5 | 4 → 5.5 | 4 → 5.5 | 4 → 4.5 | 5 → 6.5 | 5.5 → 6.5 | 6 → 6.5 | 4 → 5 | 4 → 4.5 | 4.6 → **5.7** |
+| Kitchen timer | 6 → 7 | 4 → 6 | 5.5 → 6 | 3.5 → 5.5 | 3 → 3.5 | 4 → 4.5 | 5 → 6.5 | 5 → 6 | 5 → 5.5 | 3.5 → 5 | 4 → 4.5 | 4.4 → **5.5** |
+| Dollywood build guide | 3 → 4 | 2 → 4.5 | 3 | 4 → 5 | 3 | 2.5 → 3.5 | 4.5 → 5 | 3 → 5 | 3 → 3.5 | 3 → 3.5 | 5 → 5.5 | 3.3 → **4.1** |
+| Dollywood park map | 3 → 5 | 2 → 4 | 3.5 | 5 → 6 | 3.5 | 3.5 → 4.5 | 4.5 → 5 | 4 → 5 | 5 → 5.5 | 3 → 4.5 | 7 → 7.5 | 4.0 → **4.9** |
+| Kid Verse | 3 → 6 | 2.5 → 6 | 4.5 → 5 | 4 → 5.5 | 4 → 4.5 | 4 → 5 | 4 → 6 | 5 → 6.5 | 5 → 5.5 | 5 → 6 | 5.5 → 6 | 4.2 → **5.6** |
+| Verses | 5 → 6 | 3.5 → 4.5 | 5.5 → 6 | 4 → 5.5 | 6 → 6.5 | 4 → 4.5 | 4.5 → 6.5 | 5 → 6 | 4 → 5.5 | 4 → 5 | 5 → 5.5 | 4.6 → **5.6** |
+| **Apps mean (9)** | 3.9 → 5.7 | 3.1 → 5.3 | 4.4 → 4.9 | 4.3 → 5.7 | 3.9 → 4.4 | 3.6 → 4.6 | 4.6 → 6.1 | 4.5 → 5.7 | 4.1 → 4.9 | 3.9 → 5.2 | 5.2 → 5.8 | 4.1 → **5.3** |
+
+- **Reading it.** 106 of 110 cells rose, 4 held (the two map pages' Layout and Icons), none fell. Dark mode is now the strongest dimension (6.1) and Iconography the weakest (4.4): the shared icon set is each app's own batch.
+- **How much is judgement.** About 0.75 of each Hearth row's gain comes from re-pricing the shared bases, raised only where a Phase 4 "against" item is FIXED and visible in the after-screens. Held at their Phase 4 values, with only the rules moving, the apps' mean is about **4.6** (shell 4.5). The honest range is **4.6-5.3**. The judge's four policy calls are stated in the record so they can be overruled: the 4 px spacing-grid rule is not charged for the kid ×1.25 scale (Kid Verse's grid share 98 → 51 %, Tally 100 → 74 %; applied literally Kid Verse's Layout would be 4 and Tally's 5); the type-count rule reads the code, not the iPad tier's multiplied sizes; glass on content is charged half where only a secondary glass button remains; F260's and Verses' glance gain rests on the key fact's size (64-72 px on the iPad), not a re-run.
+- **What the judge found worse, and what happened to it.** F260's New Testament wash stopped part way down a short page in dark, leaving a black band: fixed after the rescore (the page fills the screen). Me → Notifications' switch and the kids' faces in Kids' rewards wrapped under their text on an iPhone: fixed (the text shrinks first; Me re-measured at 375/390/430 px and M/L/XXL with nothing past the screen). Verses' Got it at 4.34:1 on desktop was the hover sheen, removed before the rescore but after the rig ran. Left: the build guide's hero stat wraps to its own row on the iPad portrait (58 px taller; its batch 9), "Downstairs TV" wraps in the profile picker (batch 2a), the kid scale and the kiosk's ×1.5 radii are off the 4 px grid and the concentric radii by design, and the Larder's chips gained ✓ ! ✕ glyphs (GAP-ICON-2 wants them as icons, in its batch). The rig's heuristic non-text counts rose in Prayer and the shell (information graphics, control boundaries); not confirmed by eye.
+
+### Not verified
+
+- **A real iPhone and iPad.** The rig's WebKit paints no backdrop blur, so the four glass levels, Clear and Current's halo, and Solid are verified as computed styles and in the preview, not as rendered glass. The four NEEDS DEVICE CHECK entries: press feedback on a tap (GAP-MOTION-3, VIS-TALLY-7), rows under F260's practice sheet on an iPad (VIS-F260-16), and no callout when a kid long-presses the story art (VIS-KIDVERSE-10).
+- **Production.** Migrations 006 and 007 have not run there; the Worker must not be deployed before them (006 first, then 007). Real push, the kitchen device with a real admin PIN, and the live Pages site were not exercised.
+- **Stale scripts** (above): their findings rest on the gate, the rig and the probes.
+- **Accepted deviations**, each judged by the findings reviewer: Prayer's family list takes aqua on the body except for kids (a kid is always on the family list); Prayer's extra category dots use `-fill-strong` (they sit beside the category name); F260's New Testament paper reads `--aqua-wash` directly so Done keeps the person's colour; the Timer's track is `--tint-fill-strong` because the spec's `--progress-track` measures only 1.07-1.47:1 on a light dial (a token note for the owner); the Larder's ✓ uses the success family; Tally's page lays the hero tokens over `--bg`.
+- **Reduce Motion** now gives every element a 150 ms colour transition (the spec's rule), so a theme change fades rather than snaps, including the map's SVG; nothing moves.

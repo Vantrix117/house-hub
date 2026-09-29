@@ -36,7 +36,10 @@ process.env.PLAYWRIGHT_BROWSERS_PATH = path.join(H, 'browsers');
 const { webkit, chromium } = createRequire(path.join(H, 'noop.js'))('playwright-core');
 const CHROME = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(p => fs.existsSync(p));
 const css = fs.readFileSync(cssFile, 'utf8');
-const COMPONENTS = fs.readFileSync(path.join(ROOT, 'apps', 'design.css'), 'utf8').split('\n').slice(289).join('\n');   // today's .ds component half
+// apps/design.css is one file in two halves. Since audit batch 1a the v3 token half comes first and the components start at
+// the "COMPONENTS (audit batch 1b" banner; before that batch the token half was lines 1-289 (so the gate still runs on either).
+const designSplit = t => { const L = t.split('\n'); let i = L.findIndex(l => l.includes('COMPONENTS (audit batch 1b')); i = i > 0 ? i - 1 : 289; return { tokens: L.slice(0, i).join('\n'), components: L.slice(i).join('\n'), offset: i }; };
+const COMPONENTS = designSplit(fs.readFileSync(path.join(ROOT, 'apps', 'design.css'), 'utf8')).components;   // the shipped .ds component half
 const GLASS7 = fs.readFileSync(path.join(HERE, 'glass7-component.css'), 'utf8');
 const IDENTITY = fs.readFileSync(path.join(HERE, 'identity-component.css'), 'utf8');                                 // the avatar (1a) and app-icon (batch 2) rules
 const BOOT = fs.readFileSync(path.join(HERE, 'bootstrap.js'), 'utf8');

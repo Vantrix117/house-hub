@@ -1,0 +1,2631 @@
+{
+ "area": "shell",
+ "file": "index.html",
+ "rules": {
+  "notLiteral": "0, 0px, auto, inherit, initial, unset, none, normal, currentColor, transparent, 100%, 1 (opacity), 0/1 z-index 0 are not literals",
+  "varOnly": "values built only from var(--token), calc() of tokens and color-mix() of tokens are not literals; the percentages inside a token color-mix are counted separately as \"mixRatio\" (ad-hoc derived colours)",
+  "fallback": "a literal inside var(--x, <literal>) is a fallback, counted as status \"fallback\", not a violation",
+  "print": "@media print declarations are exempt",
+  "keyframes": "declarations inside @keyframes are motion frames: counted only for colour",
+  "hairline": "1px and 2px in spacing/borders are sub-grid hairlines: status \"subgrid\", not counted as violations",
+  "circle": "border-radius 50% is a circle: status \"acceptable\"",
+  "relative": "em/%/vw/ch/dvh/cqw values are relative: status \"relative\" (they scale with their parent, unlike px), not violations",
+  "dollywood": "Dollywood template: selectors are split by flavour ([data-flavor=hub] = build guide only, [data-flavor=live] = park map only, html:not([data-flavor=live]) = build guide/standalone); lines 259-308 and 525-565 and SVG-shape selectors are cartography (colour exempt, as scripts/screens-apps.mjs allows); the :where(:root) / :where([data-theme=light]) palette blocks (lines 7-12) are standalone-only (overridden by the hub flavour block at line 212) except the map category colours",
+  "designCss": "apps/design.css: only declarations outside the token/theme/kind blocks are scanned (the component layer, resets, print)",
+  "meta": "<meta name=\"theme-color\"> hex is counted in category colour with status \"meta\" (a token cannot reach a meta tag; hub.js/index.html set it from JS)"
+ },
+ "summary": {
+  "file": "index.html",
+  "byCategoryStatus": {
+   "opacity": {
+    "violation": 8
+   },
+   "zIndex": {
+    "violation": 13
+   },
+   "fontWeight": {
+    "violation": 24
+   },
+   "shadow": {
+    "violation": 6
+   },
+   "spacing": {
+    "violation": 20,
+    "relative": 4,
+    "subgrid": 8
+   },
+   "radius": {
+    "acceptable": 7,
+    "violation": 11
+   },
+   "targetSize": {
+    "violation": 19
+   },
+   "duration": {
+    "violation": 6
+   },
+   "easing": {
+    "violation": 1
+   },
+   "localLiteral": {
+    "violation": 5
+   },
+   "mixRatio": {
+    "info": 4
+   },
+   "fontSize": {
+    "violation": 6
+   },
+   "lineHeight": {
+    "violation": 6
+   },
+   "blur": {
+    "violation": 1
+   },
+   "letterSpacing": {
+    "violation": 3
+   },
+   "colour": {
+    "violation": 17,
+    "palette-data": 11
+   },
+   "breakpoint": {
+    "info": 22
+   }
+  },
+  "violations": {
+   "opacity": {
+    "total": 8,
+    "exactToken": 0,
+    "noToken": 8
+   },
+   "zIndex": {
+    "total": 13,
+    "exactToken": 0,
+    "noToken": 13
+   },
+   "fontWeight": {
+    "total": 24,
+    "exactToken": 0,
+    "noToken": 24
+   },
+   "shadow": {
+    "total": 6,
+    "exactToken": 0,
+    "noToken": 6
+   },
+   "spacing": {
+    "total": 20,
+    "exactToken": 7,
+    "noToken": 13
+   },
+   "targetSize": {
+    "total": 19,
+    "exactToken": 14,
+    "noToken": 5
+   },
+   "duration": {
+    "total": 6,
+    "exactToken": 0,
+    "noToken": 6
+   },
+   "easing": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "localLiteral": {
+    "total": 5,
+    "exactToken": 0,
+    "noToken": 5
+   },
+   "fontSize": {
+    "total": 6,
+    "exactToken": 0,
+    "noToken": 6
+   },
+   "lineHeight": {
+    "total": 6,
+    "exactToken": 0,
+    "noToken": 6
+   },
+   "radius": {
+    "total": 11,
+    "exactToken": 1,
+    "noToken": 10
+   },
+   "blur": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "letterSpacing": {
+    "total": 3,
+    "exactToken": 1,
+    "noToken": 2
+   },
+   "colour": {
+    "total": 17,
+    "exactToken": 0,
+    "noToken": 17
+   }
+  },
+  "distinctViolationValues": {
+   "opacity": 8,
+   "zIndex": 9,
+   "fontWeight": 4,
+   "shadow": 5,
+   "spacing": 10,
+   "targetSize": 6,
+   "duration": 5,
+   "easing": 1,
+   "localLiteral": 5,
+   "fontSize": 6,
+   "lineHeight": 3,
+   "radius": 9,
+   "blur": 1,
+   "letterSpacing": 3,
+   "colour": 17
+  },
+  "mixRatios": {
+   "count": 4,
+   "distinct": 3
+  },
+  "breakpoints": [
+   "min-width 560",
+   "min-width 900",
+   "min-width 1024",
+   "min-width 720",
+   "max-width 719",
+   "min-width 1200",
+   "max-height 1100",
+   "max-height 1050",
+   "min-width 700",
+   "max-width 743"
+  ]
+ },
+ "hits": [
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".55",
+   "literal": ".55",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 34,
+   "selector": ".spot",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".8",
+   "literal": ".8",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 37,
+   "selector": ".hero-soft .hero-art",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".75",
+   "literal": ".75",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 42,
+   "selector": ".welcome-art",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 44,
+   "selector": ".gate-panel",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 54,
+   "selector": ".pcard",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 57,
+   "selector": ".pcard .psub",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--tint), var(--e3)",
+   "literal": "0 0 0 2px TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 58,
+   "selector": ".pcard.last",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--tint), var(--e3)",
+   "literal": "0 0 0 2px TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 60,
+   "selector": ".pcard.last:hover",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "14px",
+   "literal": "14",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 14px (nearest --sp-3)",
+   "line": 67,
+   "selector": ".pin-dots",
+   "src": "css",
+   "offGrid": [
+    14
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 68,
+   "selector": ".pin-dots i",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 71,
+   "selector": ".pin-pad .btn",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 72,
+   "selector": ".pin-msg",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 73,
+   "selector": ".pin-msg.ok",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "calc(var(--sp-4) + var(--safe-top)) var(--margin-right) calc(var(--sp-4) + 80px + var(--safe-bottom)) var(--margin-left)",
+   "literal": "80",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 80px (nearest --sp-16)",
+   "line": 78,
+   "selector": "#views",
+   "src": "css",
+   "offGrid": [
+    80
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 81,
+   "selector": ".view-title",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "5",
+   "literal": "5",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 83,
+   "selector": "#ptr",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 84,
+   "selector": "#ptr span",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation",
+   "value": "spin 1s linear infinite",
+   "literal": "1s",
+   "status": "violation",
+   "token": null,
+   "why": "no 1000ms token (tokens 120/220/360)",
+   "line": 87,
+   "selector": "#ptr.busy span",
+   "src": "css",
+   "ms": 1000
+  },
+  {
+   "cat": "easing",
+   "prop": "animation",
+   "value": "spin 1s linear infinite",
+   "literal": "linear",
+   "status": "violation",
+   "token": null,
+   "why": "literal easing (tokens --ease/--ease-out/--ease-in-out/--spring)",
+   "line": 87,
+   "selector": "#ptr.busy span",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding-left",
+   "value": "calc(220px + var(--sp-8))",
+   "literal": "220",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 220px (nearest --sp-16)",
+   "line": 94,
+   "selector": "#views",
+   "src": "css",
+   "offGrid": [
+    220
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "36px",
+   "literal": "36px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 97,
+   "selector": "#tabbar .brand .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding-right",
+   "value": "40%",
+   "literal": "40%",
+   "status": "relative",
+   "token": null,
+   "why": "relative spacing",
+   "line": 102,
+   "selector": ".home-hero",
+   "src": "css"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "40%",
+   "status": "info",
+   "line": 105,
+   "mix": "color-mix(in srgb, var(--butter-graphic) 40%, transparent)"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(30px, 7vw, 44px)",
+   "literal": "clamp(30px, 7vw, 44px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 108,
+   "selector": ".home-hero .hero-title",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(48px, 11vw, 120px)",
+   "literal": "clamp(48px, 11vw, 120px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 114,
+   "selector": ".home-hero .clock",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 114,
+   "selector": ".home-hero .clock",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 114,
+   "selector": ".home-hero .clock",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding-right",
+   "value": "30%",
+   "literal": "30%",
+   "status": "relative",
+   "token": null,
+   "why": "relative spacing",
+   "line": 115,
+   "selector": ":root[data-kind=\"kiosk\"] .home-hero",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(64px, 8.5vw, 150px)",
+   "literal": "clamp(64px, 8.5vw, 150px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 116,
+   "selector": ":root[data-kind=\"kiosk\"] .home-hero .clock",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "2",
+   "literal": "2",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 118,
+   "selector": ".kiosk-switch",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".7",
+   "literal": ".7",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 118,
+   "selector": ".kiosk-switch",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 122,
+   "selector": ".card h2",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "13px",
+   "literal": "13",
+   "status": "violation",
+   "token": null,
+   "why": "no 13px step (tokens 12/16/22/28/36/999)",
+   "line": 123,
+   "selector": ".card h2 .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 125,
+   "selector": ".gcard .gbody",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 126,
+   "selector": ".gbig",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.2",
+   "literal": "1.2",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.2 step (tokens 1.1/1.25/1.45)",
+   "line": 126,
+   "selector": ".gbig",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-top",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 127,
+   "selector": ".gsub",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 130,
+   "selector": ".gcard .btn",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-bottom",
+   "value": "3px",
+   "literal": "3",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 3px (nearest --sp-1)",
+   "line": 134,
+   "selector": ".fresh .fl",
+   "src": "css",
+   "offGrid": [
+    3
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 137,
+   "selector": ":root[data-kind=\"kiosk\"] .rem-text",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "84px",
+   "literal": "84px",
+   "status": "violation",
+   "token": "--tap-lg (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 138,
+   "selector": ":root[data-kind=\"kiosk\"] .rem-row",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "inset",
+   "value": "-6%",
+   "literal": "-6%",
+   "status": "relative",
+   "token": null,
+   "why": "relative spacing",
+   "line": 145,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-bg-img",
+   "src": "css"
+  },
+  {
+   "cat": "blur",
+   "prop": "filter",
+   "value": "blur(24px)",
+   "literal": "blur(24px)",
+   "status": "violation",
+   "token": null,
+   "why": "no 24px blur token (only --blur 18/28)",
+   "line": 145,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-bg-img",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "transition",
+   "value": "opacity 2.5s var(--ease)",
+   "literal": "2.5s",
+   "status": "violation",
+   "token": null,
+   "why": "no 2500ms token (tokens 120/220/360)",
+   "line": 145,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-bg-img",
+   "src": "css",
+   "ms": 2500
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "3",
+   "literal": "3",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 147,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-scrim",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 148,
+   "selector": ":root[data-kind=\"kiosk\"] .tv",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "width",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 153,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-pane h2 .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "height",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 153,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-pane h2 .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "14px",
+   "literal": "14",
+   "status": "violation",
+   "token": null,
+   "why": "no 14px step (tokens 12/16/22/28/36/999)",
+   "line": 153,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-pane h2 .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(72px, 9vw, 190px)",
+   "literal": "clamp(72px, 9vw, 190px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 156,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-hero .clock",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 156,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-hero .clock",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 156,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-hero .clock",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(34px, 3.2vw, var(--fs-3xl))",
+   "literal": "clamp(34px, 3.2vw,  TOKEN )",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 159,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-refs",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 167,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-face",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "72px",
+   "literal": "72px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 168,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-face .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 3px var(--surface), 0 0 0 5px var(--tint)",
+   "literal": "0 0 0 3px TOKEN , 0 0 0 5px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 168,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-face .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".38",
+   "literal": ".38",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 170,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-face.off > :first-child",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 177,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-lines .who",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "11px",
+   "literal": "11",
+   "status": "violation",
+   "token": null,
+   "why": "no 11px step (tokens 12/16/22/28/36/999)",
+   "line": 183,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-rem h2 .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 187,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-rem .rem-text",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 191,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-face .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "clamp(64px, 7.5vw, 150px)",
+   "literal": "clamp(64px, 7.5vw, 150px)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 191,
+   "selector": ":root[data-kind=\"kiosk\"] .tv-hero .clock",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-top",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 192,
+   "selector": ".rem-by",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 199,
+   "selector": ".feed .fwho",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 202,
+   "selector": ".kid-cta",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "width",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 204,
+   "selector": ".kid-cta .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "height",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 204,
+   "selector": ".kid-cta .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "20px",
+   "literal": "20",
+   "status": "violation",
+   "token": null,
+   "why": "no 20px step (tokens 12/16/22/28/36/999)",
+   "line": 204,
+   "selector": ".kid-cta .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "32px",
+   "literal": "32px",
+   "status": "violation",
+   "token": null,
+   "why": "min target 32px < 44 (below --tap)",
+   "line": 210,
+   "selector": ".park-list li",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 211,
+   "selector": ".park-list .pn",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 213,
+   "selector": ".star-big",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 213,
+   "selector": ".star-big",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 213,
+   "selector": ".star-big",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".9",
+   "literal": ".9",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 218,
+   "selector": ".stars-card .spot, .kids-card .spot",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".12",
+   "literal": ".12",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 219,
+   "selector": ":root[data-scheme=\"dark\"] .stars-card .spot, :root[data-scheme=\"dark\"] .kids-card .spot",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 221,
+   "selector": ".kid-chip",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-bottom",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 224,
+   "selector": ".feed .fwho",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "3px 0",
+   "literal": "3",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 3px (nearest --sp-1)",
+   "line": 225,
+   "selector": ".feed .fline",
+   "src": "css",
+   "offGrid": [
+    3
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "7px",
+   "literal": "7",
+   "status": "violation",
+   "token": null,
+   "why": "no 7px step (tokens 12/16/22/28/36/999)",
+   "line": 226,
+   "selector": ".feed .ficon",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-top",
+   "value": "1px",
+   "literal": "1",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 226,
+   "selector": ".feed .ficon",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    1
+   ]
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "background",
+   "literal": "14%",
+   "status": "info",
+   "line": 226,
+   "mix": "color-mix(in srgb, var(--tint) 14%, var(--surface))"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding-top",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 229,
+   "selector": ".feed .fline .fwhen",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 239,
+   "selector": ".tile",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "15px",
+   "literal": "15",
+   "status": "violation",
+   "token": null,
+   "why": "no 15px step (tokens 12/16/22/28/36/999)",
+   "line": 242,
+   "selector": ".tile .ticon",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.15",
+   "literal": "1.15",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.15 step (tokens 1.1/1.25/1.45)",
+   "line": 243,
+   "selector": ".tile .tlabel",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 249,
+   "selector": ".tile.wide .tlabel",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 250,
+   "selector": ".tile.wide .tsub",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-top",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 250,
+   "selector": ".tile.wide .tsub",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "28px",
+   "literal": "28",
+   "status": "violation",
+   "token": "--r-xl",
+   "why": "exact",
+   "line": 256,
+   "selector": ":root[data-kind=\"kid\"] .tile .ticon",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding-bottom",
+   "value": "92px",
+   "literal": "92",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 92px (nearest --sp-16)",
+   "line": 259,
+   "selector": ".chat",
+   "src": "css",
+   "offGrid": [
+    92
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "30px",
+   "literal": "30px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 262,
+   "selector": ".mrow .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-bottom",
+   "value": "4px",
+   "literal": "4",
+   "status": "violation",
+   "token": "--sp-1",
+   "why": "on-scale px: use the token",
+   "line": 262,
+   "selector": ".mrow .avatar",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4
+   ],
+   "sub": []
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "10px",
+   "literal": "10",
+   "status": "violation",
+   "token": null,
+   "why": "no 10px step (tokens 12/16/22/28/36/999)",
+   "line": 263,
+   "selector": ".mrow .app-icon",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-bottom",
+   "value": "4px",
+   "literal": "4",
+   "status": "violation",
+   "token": "--sp-1",
+   "why": "on-scale px: use the token",
+   "line": 263,
+   "selector": ".mrow .app-icon",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4
+   ],
+   "sub": []
+  },
+  {
+   "cat": "radius",
+   "prop": "border-bottom-right-radius",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "no 6px step (tokens 12/16/22/28/36/999)",
+   "line": 265,
+   "selector": ".msg.user",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-bottom-left-radius",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "no 6px step (tokens 12/16/22/28/36/999)",
+   "line": 266,
+   "selector": ".msg.bot",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "4px",
+   "literal": "4",
+   "status": "violation",
+   "token": "--sp-1",
+   "why": "on-scale px: use the token",
+   "line": 268,
+   "selector": ".msg .chips",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4
+   ],
+   "sub": []
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "28px",
+   "literal": "28px",
+   "status": "violation",
+   "token": null,
+   "why": "min target 28px < 44 (below --tap)",
+   "line": 270,
+   "selector": ".msg .chips .chip",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 271,
+   "selector": ".msg .chips .chip .chip-undo",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-width",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 271,
+   "selector": ".msg .chips .chip .chip-undo",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "800",
+   "literal": "800",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 272,
+   "selector": ".msg .chips .chip .chip-undo",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".5",
+   "literal": ".5",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 273,
+   "selector": ".msg .chips .chip .chip-undo:disabled",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "4px",
+   "literal": "4",
+   "status": "violation",
+   "token": "--sp-1",
+   "why": "on-scale px: use the token",
+   "line": 274,
+   "selector": ".typing",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4
+   ],
+   "sub": []
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "6px 2px",
+   "literal": "6 2",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 274,
+   "selector": ".typing",
+   "src": "css",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 275,
+   "selector": ".typing i",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation",
+   "value": "blink 1.2s infinite",
+   "literal": "1.2s",
+   "status": "violation",
+   "token": null,
+   "why": "no 1200ms token (tokens 120/220/360)",
+   "line": 275,
+   "selector": ".typing i",
+   "src": "css",
+   "ms": 1200
+  },
+  {
+   "cat": "duration",
+   "prop": "animation-delay",
+   "value": ".2s",
+   "literal": ".2s",
+   "status": "violation",
+   "token": null,
+   "why": "no 200ms token (tokens 120/220/360)",
+   "line": 276,
+   "selector": ".typing i:nth-child(2)",
+   "src": "css",
+   "ms": 200
+  },
+  {
+   "cat": "duration",
+   "prop": "animation-delay",
+   "value": ".4s",
+   "literal": ".4s",
+   "status": "violation",
+   "token": null,
+   "why": "no 400ms token (tokens 120/220/360)",
+   "line": 276,
+   "selector": ".typing i:nth-child(3)",
+   "src": "css",
+   "ms": 400
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "19",
+   "literal": "19",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 278,
+   "selector": ".chat-form",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e3)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , inset 0 -12px 2",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 280,
+   "selector": ".chat-form",
+   "src": "css"
+  },
+  {
+   "cat": "duration",
+   "prop": "animation",
+   "value": "pulse 1s infinite",
+   "literal": "1s",
+   "status": "violation",
+   "token": null,
+   "why": "no 1000ms token (tokens 120/220/360)",
+   "line": 288,
+   "selector": "#chat-mic.on",
+   "src": "css",
+   "ms": 1000
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "84px",
+   "literal": "84px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 295,
+   "selector": ".me-hero .avatar-xl",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 4px var(--hi-4), var(--e2)",
+   "literal": "0 0 0 4px TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 295,
+   "selector": ".me-hero .avatar-xl",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 296,
+   "selector": ".photo-btn",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 298,
+   "selector": ".photo-btn .photo-badge",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "4px 8px",
+   "literal": "4 8",
+   "status": "violation",
+   "token": "--sp-1 --sp-2",
+   "why": "on-scale px: use the token",
+   "line": 304,
+   "selector": ".album-item figcaption",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4,
+    8
+   ],
+   "sub": []
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "32px",
+   "literal": "32px",
+   "status": "violation",
+   "token": null,
+   "why": "min target 32px < 44 (below --tap)",
+   "line": 305,
+   "selector": ".album-item .album-del",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 324,
+   "selector": ".theme-card",
+   "src": "css",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 324,
+   "selector": ".theme-card",
+   "src": "css",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 0 0 1px var(--line-soft)",
+   "literal": "inset 0 0 0 1px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 327,
+   "selector": ".theme-swatch",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "no 6px step (tokens 12/16/22/28/36/999)",
+   "line": 328,
+   "selector": ".theme-swatch i",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 332,
+   "selector": ".theme-swatch .tp-dot",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 333,
+   "selector": ".theme-name",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "0 4px",
+   "literal": "4",
+   "status": "violation",
+   "token": "--sp-1",
+   "why": "on-scale px: use the token",
+   "line": 333,
+   "selector": ".theme-name",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4
+   ],
+   "sub": []
+  },
+  {
+   "cat": "spacing",
+   "prop": "padding",
+   "value": "0 4px 4px",
+   "literal": "4 4",
+   "status": "violation",
+   "token": "--sp-1 --sp-1",
+   "why": "on-scale px: use the token",
+   "line": 334,
+   "selector": ".theme-blurb",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [
+    4,
+    4
+   ],
+   "sub": []
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-top",
+   "value": "2px",
+   "literal": "2",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 340,
+   "selector": ".appearance-switch .help",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    2
+   ]
+  },
+  {
+   "cat": "spacing",
+   "prop": "inset",
+   "value": "0 0 0 50%",
+   "literal": "0 0 0 50%",
+   "status": "relative",
+   "token": null,
+   "why": "relative spacing",
+   "line": 343,
+   "selector": ".theme-swatch .tp-half",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "width",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 348,
+   "selector": ".swatch",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "height",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 348,
+   "selector": ".swatch",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 348,
+   "selector": ".swatch",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "48px",
+   "literal": "48px",
+   "status": "violation",
+   "token": "--tap / --tap-lg",
+   "why": "a target size between the two tokens",
+   "line": 352,
+   "selector": ".emoji-grid button",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 352,
+   "selector": ".emoji-grid button",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 359,
+   "selector": "table.usage th",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "30",
+   "literal": "30",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 368,
+   "selector": "#viewer",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "48px",
+   "literal": "48px",
+   "status": "violation",
+   "token": "--tap / --tap-lg",
+   "why": "a target size between the two tokens",
+   "line": 376,
+   "selector": "#pill",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-width",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 377,
+   "selector": "#pill button",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 377,
+   "selector": "#pill button",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 377,
+   "selector": "#pill button",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 377,
+   "selector": "#pill button",
+   "src": "css",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "25",
+   "literal": "25",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 386,
+   "selector": "#timer-pill",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "44px",
+   "literal": "44px",
+   "status": "violation",
+   "token": "--tap",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 387,
+   "selector": "#timer-pill",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 387,
+   "selector": "#timer-pill",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": ".01em",
+   "literal": ".01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 392,
+   "selector": "#timer-pill .tp-time",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "gap",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 402,
+   "selector": "#pill #pill-timer",
+   "src": "css",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-top",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 1036,
+   "selector": "[style in JS]",
+   "src": "js-inline",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--tint-ink",
+   "literal": "70%",
+   "status": "info",
+   "line": 1043,
+   "mix": "color-mix(in srgb, ${esc(g.p.color || FALLBACK)} 70%, var(--text))"
+  },
+  {
+   "cat": "mixRatio",
+   "prop": "--tint-ink",
+   "literal": "70%",
+   "status": "info",
+   "line": 1160,
+   "mix": "color-mix(in srgb, ${esc(a.color || FALLBACK)} 70%, var(--text))"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin-right",
+   "value": "6px",
+   "literal": "6",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 6px (nearest --sp-1)",
+   "line": 1420,
+   "selector": "[style in JS]",
+   "src": "js-inline",
+   "offGrid": [
+    6
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": ".2em",
+   "literal": ".2em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 1758,
+   "selector": "[style in JS]",
+   "src": "js-inline"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": ".08em",
+   "literal": ".08em",
+   "status": "violation",
+   "token": "--ls-caps",
+   "why": "exact",
+   "line": 1859,
+   "selector": "[style in JS]",
+   "src": "js-inline"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "'2'",
+   "literal": "'2'",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 1183,
+   "selector": "[style write in JS]",
+   "src": "js-write"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "'1'",
+   "literal": "'1'",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 1183,
+   "selector": "[style write in JS]",
+   "src": "js-write"
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F4F1EC",
+   "value": ":'dark',forest:'dark',graphite:'dark'}, B={hearth:'#F4F1EC',pa",
+   "status": "violation",
+   "token": "--tv-text",
+   "why": "nearest Hearth token --tv-text (ΔE 4.2)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#ECE2CD",
+   "value": "',graphite:'dark'}, B={hearth:'#F4F1EC',parchment:'#ECE2CD',fr",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@parchment",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F2F2F7",
+   "value": "'}, B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',mi",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@frost, --surface-2@frost",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#0B0A09",
+   "value": "1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',fo",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@midnight",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#070F0D",
+   "value": "ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',gr",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 72.4)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#000000",
+   "value": "2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'}, ",
+   "status": "violation",
+   "token": null,
+   "why": "pure black: no --black / shade token (gap)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4f5d8c",
+   "value": "#0B0A09',forest:'#070F0D',graphite:'#000000'}, H={'#4f5d8c':'p",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 40.3)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#bc5a38",
+   "value": "D',graphite:'#000000'}, H={'#4f5d8c':'periwinkle','#bc5a38':'p",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#137f77",
+   "value": "00'}, H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'a",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 35.6)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#b4861b",
+   "value": "':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'l",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 26.9)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8a6a4b",
+   "value": "38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'b",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.1)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#3d5a3d",
+   "value": "'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'m",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 45.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5b8143",
+   "value": "'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'b",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4c4c58",
+   "value": "':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 46.3)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8c4f7a",
+   "value": "d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'s",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 38.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4c7b6a",
+   "value": "43':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'s",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.5)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5e7a6e",
+   "value": "c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4F5D8C",
+   "value": "s PC'; return 'Device'; })(); const SWATCHES = ['#4F5D8C', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 40.3)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#BC5A38",
+   "value": "rn 'Device'; })(); const SWATCHES = ['#4F5D8C', '#BC5A38', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#137F77",
+   "value": "; })(); const SWATCHES = ['#4F5D8C', '#BC5A38', '#137F77', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 35.6)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#B4861B",
+   "value": "onst SWATCHES = ['#4F5D8C', '#BC5A38', '#137F77', '#B4861B', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 26.9)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8A6A4B",
+   "value": "ES = ['#4F5D8C', '#BC5A38', '#137F77', '#B4861B', '#8A6A4B', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.1)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#3D5A3D",
+   "value": "D8C', '#BC5A38', '#137F77', '#B4861B', '#8A6A4B', '#3D5A3D', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 45.2)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5B8143",
+   "value": "A38', '#137F77', '#B4861B', '#8A6A4B', '#3D5A3D', '#5B8143', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4C4C58",
+   "value": "F77', '#B4861B', '#8A6A4B', '#3D5A3D', '#5B8143', '#4C4C58', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 46.3)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8C4F7A",
+   "value": "61B', '#8A6A4B', '#3D5A3D', '#5B8143', '#4C4C58', '#8C4F7A', '",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 38.2)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4C7B6A",
+   "value": "A4B', '#3D5A3D', '#5B8143', '#4C4C58', '#8C4F7A', '#4C7B6A']; ",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.5)",
+   "line": 491
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4C4C58",
+   "value": "ice(1)}\"></button>`).join(''); const FALLBACK = '#4C4C58'; ",
+   "status": "palette-data",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 46.3)",
+   "line": 498
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 560",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 50
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 900",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 51
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 93
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 720",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 120
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 121
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-width 719",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 129
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1200",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 150
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-height 1100",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 190
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-height 1050",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 191
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 206
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 700",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 235
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 236
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 700",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 246
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 700",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 253
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 254
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 285
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-width 743",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 316
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 321
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 361
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 383
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 396
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 400
+  }
+ ]
+}

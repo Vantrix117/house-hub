@@ -51,6 +51,10 @@ import { parseColour, over, contrast, lum, oklch, de2000, simulate, hex } from '
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..', '..', '..');
 const FILE = process.argv[2] || path.join(HERE, 'proposed-tokens.css');
+// apps/design.css is one file in two halves. Since audit batch 1a the v3 token half comes first and the components start at
+// the "COMPONENTS (audit batch 1b" banner; before that batch the token half was lines 1-289 (so the gate still runs on either).
+const designSplit = t => { const L = t.split('\n'); let i = L.findIndex(l => l.includes('COMPONENTS (audit batch 1b')); i = i > 0 ? i - 1 : 289; return { tokens: L.slice(0, i).join('\n'), components: L.slice(i).join('\n'), offset: i }; };
+
 const OUT = process.argv[3] || path.join(ROOT, 'audits', 'evidence', 'p4', 'tokens', 'contrast.json');
 
 // ── parsing ──────────────────────────────────────────────────────────────────────────────────────────────
@@ -260,7 +264,7 @@ function labelPass(E, record, extras) {
   for (const f of files) {
     let t = fs.readFileSync(f === 'template.html' ? TEMPLATE : path.join(ROOT, f), 'utf8');
     let offset = 0;
-    if (f === 'apps/design.css') { const lines = t.split('\n'); offset = 289; t = lines.slice(289).join('\n'); }   // the component half
+    if (f === 'apps/design.css') { const d = designSplit(t); offset = d.offset; t = d.components; }   // the component half
     const re = /([^{}]*)\{([^{}]*)\}/g; let m;
     while ((m = re.exec(t))) {
       const body = m[2];
@@ -323,7 +327,8 @@ function heroButtonPass(E, record, extras) {
   const body = idx >= 0 ? lines[idx].slice(lines[idx].indexOf('{') + 1, lines[idx].lastIndexOf('}')) : '';
   const decl = n => { const m = body.match(new RegExp('(?:^|;)\\s*' + n + '\\s*:\\s*([^;]+)')); return m ? m[1].trim().replace(/\s+/g, '') : null; };
   const shippedOk = idx >= 0 && decl('background') === HERO_BTN_SHIPPED.background.replace(/\s+/g, '') && decl('color') === HERO_BTN_SHIPPED.color;
-  record('labels:the hero button row is written against the shipped rule (.ds .hero .btn-primary: white 92 % capsule, --accent-deep label)', { kind: 'structure' }, shippedOk ? 1 : 0, 1, at, { background: decl('background'), color: decl('color') });
+  const landed = idx >= 0 && decl('background') === HERO_BTN_ROW.background && decl('color') === HERO_BTN_ROW.color;   // batch 1a applied
+  record('labels:the hero button row is written against the shipped rule (.ds .hero .btn-primary: white 92 % capsule, --accent-deep label), or has landed', { kind: 'structure' }, shippedOk || landed ? 1 : 0, 1, at, { background: decl('background'), color: decl('color'), landed });
   // the cascade guard: .ds .btn:hover (:373) and .ds .btn-primary:hover (:374) have the same specificity (0,3,0) and set a background;
   // the hero rule wins only because it comes later, and the row keeps it there.
   const states = lines.map((l, i) => [l.trim(), i]).filter(([l]) => /^\.ds \.btn(-primary)?:(hover|active|focus-visible)\s*\{/.test(l) && /background/.test(l));
@@ -1102,14 +1107,14 @@ function verify(src, { withExtras = true, boot = BOOT_SRC } = {}) {
   if (withExtras !== 'skip-legacy') {
     const defined = new Set(RULES.flatMap(r => Object.keys(r.decls)));
     const design = fs.readFileSync(path.join(ROOT, 'apps', 'design.css'), 'utf8');
-    const tokenHalf = design.split('\n').slice(0, 289).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+    const tokenHalf = designSplit(design).tokens.replace(/\/\*[\s\S]*?\*\//g, '');
     const designNames = [...new Set([...tokenHalf.matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]))].sort();
     const files = ['index.html', 'apps/design.css', ...fs.readdirSync(path.join(ROOT, 'apps')).filter(f => /\.(html|js)$/.test(f)).map(f => 'apps/' + f)];
     const REMOVED = { '--dur': 'retired: 0 readers (GAP-TOK-9); --dur-fast replaces it', '--shadow-sm': 'retired: 0 readers (GAP-TOK-9); --e1 / --elev-card', '--info': 'retired: 0 readers (GAP-TOK-9); --sky-ink' };
     const readers = {}; const perFile = {}; let missingUse = [];
     for (const f of files) {
       let t = fs.readFileSync(path.join(ROOT, f), 'utf8');
-      if (f === 'apps/design.css') t = t.split('\n').slice(289).join('\n');           // the component half keeps its own locals
+      if (f === 'apps/design.css') t = designSplit(t).components;                     // the component half keeps its own locals
       const local = new Set([...t.matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]).concat([...t.matchAll(/setProperty\(\s*['"`](--[\w-]+)/g)].map(m => m[1])));
       const used = [...t.matchAll(/var\(\s*(--[\w-]+)\s*(,)?/g)].filter(m => !m[2]).map(m => m[1]);   // a var() with a fallback always resolves
       for (const u of used) readers[u] = (readers[u] || 0) + 1;

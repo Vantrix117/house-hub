@@ -1,0 +1,63 @@
+
+## start a timer, leave the app, the pill follows you
+  ✓ A: Start writes timer.active {endAt, total:60, startedAt} in the timer person scope
+  ✓ A: the app is counting (button says Pause)
+  ✓ A: no pill or chip while the timer app itself is open
+  ✓ A: shell pill shows with the app closed (1:00)
+  ✓ A: the pill counts down each second (60 → 58)
+  ✓ A: still there on Home
+  ✓ A: still there on Me
+  ✓ A: still there on Chat
+  ✓ A: on Chat the pill sits clear above the composer, input/mic/send all tappable ({"overlap":false,"gap":12,"pillTop":645,"underInput":"chat-in","underInputLeft":"chat-in","underSend":"use","underMic":"svg"})
+  ✓ A: a tap in the middle of the chat input focuses it, not the timer
+  ✓ A: pill is a 44 px target above the tab bar (h 44, bottom 760)
+  ✓ A: over another app the countdown sits in the app bar (0:57)
+  ✓ A: tapping the chip reopens the app and it resumes from endAt (0:56), not from 1:00
+
+## a second device sees it
+  ✓ B: pill shows after a pull (0:54)
+  ✓ A and B agree on the time left (54 vs 54)
+
+## it reaches 0 with the app closed
+  ✓ A: pill gone and timer.active cleared 1589 ms after the shortened end
+  ✓ A: toast "Timer done — 1:00 is up."
+  ✓ A: the shell beeped (WebAudio) with the app closed
+  ✓ B: pill gone and timer.active gone on the second device too
+  ✓ A: nothing left in the write queue
+
+## the shell stays quiet while the app is open
+  ✓ A: opening an app dismisses the shell toast
+  ✓ A: nothing from the shell sits over the app's Start button
+  ✓ A: timer.active cleared, no pill or chip
+  ✓ A: no shell toast while the timer app is open
+  ✓ A: the app beeped once, the shell stayed quiet
+  ✓ A: Start and Reset are tappable right after the finish (under: frame, frame)
+  ✓ A: a tap on Start right after the finish is not swallowed
+
+## pause and reset clear the record
+  ✓ A: 3 min started → record total 180
+  ✓ A: Pause clears timer.active
+  ✓ A: Reset clears it and shows 3:00
+  ✓ A: no pill after reset
+
+## Me → Switch takes the pill off the profile picker
+  ✓ A: pill hidden on the picker after Switch
+  ✓ A: nothing over the profile cards
+  ✓ A: the tick stopped with the gate up
+  ✓ A: the pill is back once Eli signs in again
+
+## desktop: the pill sits beside the sidebar
+  ✓ D: pill beside the sidebar at 1440 (left 252)
+  ✓ D: on Chat at 1440 the pill sits clear above the composer, mic and send uncovered ({"overlap":false,"gap":12,"pillTop":753,"underInput":"chat-in","underInputLeft":"chat-in","underSend":"use","underMic":"svg"})
+  ✓ D: back on Home the pill drops back to the bottom
+  ✓ E: on Chat at 820 the pill sits clear above the composer ({"overlap":false,"gap":12,"pillTop":978,"underInput":"chat-in","underInputLeft":"chat-in","underSend":"use","underMic":"svg"})
+
+## the display profile only looks
+  ✓ kiosk session
+  ✓ kiosk: pill visible (read-only)
+  ✓ kiosk: pill goes away at 0
+  ✓ kiosk: no beep
+  ✓ kiosk: nothing written, no error
+  ✓ no console/page errors
+
+45 passed, 0 failed

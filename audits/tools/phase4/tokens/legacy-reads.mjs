@@ -28,7 +28,7 @@ const out = { method: 'declarations parsed per file; local aliases followed tran
 const add = (o, k, n = 1) => { o[k] = (o[k] || 0) + n; };
 for (const f of files) {
   let t = fs.readFileSync(f === 'template.html' ? TEMPLATE : path.join(ROOT, f), 'utf8');
-  if (f === 'apps/design.css') t = t.split('\n').slice(289).join('\n');        // the token half is what the proposal replaces
+  if (f === 'apps/design.css') { const L = t.split('\n'); let i = L.findIndex(l => l.includes('COMPONENTS (audit batch 1b')); t = L.slice(i > 0 ? i - 1 : 289).join('\n'); }   // the component half (batch 1a: from its banner)
   // local definitions: CSS declarations, inline style strings, JS strings that write a custom property
   const defs = {};
   for (const m of t.matchAll(/(--[\w-]+)\s*:\s*([^;{}"]*)/g)) (defs[m[1]] ??= new Set()), varsIn(m[2]).forEach(v => defs[m[1]].add(v));

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29) done; 119 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29) done; 225 entries FIXED, 37 PARTIAL, 3 DEFERRED, 4 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -47,7 +47,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | 7/7 fixed, `7d9c593` |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | 6/6 fixed, `16926a2` |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | 7/7 fixed, `97c39a0` |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | open |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 99/143 fixed, `80af987` |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | open |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | open |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | open |
@@ -1440,7 +1440,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-VIS-06 — In every dark palette the Home hero's text fails contrast (kicker and summary about 1.5–3:1)
 
-- **Area** shell / platform · **Type** bug · **Severity** high · **Effort** S · **Batch** 1
+- **Area** shell / platform · **Type** bug · **Severity** high · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The dark hero is a deep tint with the glowing ink (--hero-bg + --accent-ink). verify3-dark-hero-contrast-2: FAIL lines 25 → 3, and the three left are the script's own counterfactual (the old ink on the new tint); adult heroes p10 5.0-7.3 in dark, 5.6 or more in light; Ezra's soft kid hero reads p10 4.58-4.61 (6-7 % of samples over its art under 4.5, the script passes it). verify3-dark-hero-contrast-1: Midnight/Forest on a light OS kicker/sub worst 1.59-1.72 → 5.03-5.16; its dark-OS arms now stop at "state mismatch" because they expect no data-theme (stale since P2-VIS-03). After: `audits/evidence/p6/1/p2/VIS/verify3-dark-hero-2.json`, `audits/evidence/p6/1/p2/VIS/verify3-dark-hero-2-webkit-dark-system-eli-ipad-morning.png`, `audits/evidence/p6/1/p2/VIS/verify3-dark-hero-contrast-1.json`.
 - **Evidence.** `audits/02-shell.md:5599`; `apps/design.css:409-414`, `apps/design.css:170`, `apps/design.css:428`, `apps/design.css:417`; `audits/screens/shell/home-typical-ipad-portrait-dark.png`
 - **What happens now.** `.ds .hero` paints `radial-gradient(color-mix(accent 70%, white) 0%, var(--accent) 45%, var(--accent-deep) 100%)` from the top right (`apps/design.css:409-414`, gradient at `:412`).
 - **Why it matters.** Most visual findings share causes in the token layer: mid-tone hues used as text, one light-theme hex per person, no iPad type tier, glass without Reduce Transparency, focus rings that vanish. Phase 4 measured them across 3,662 screen x theme x device jobs and proposed one verified token set.
@@ -1449,7 +1450,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-2 — Only `--accent-deep` has an "on" colour; every other filled surface picks white or `--on-accent` by hand
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Every fill has its "on" token (--X-on for each family, --accent-on, --badge-bg/-ink, --switch-knob); components read them instead of white or --on-accent. TOK/pairs.mjs is stale (it recomputes the old recipes, e.g. the --focus 38 % ring), so the verdict rests on contrast.mjs: 2,369 check kinds, 202,134 evaluations, 0 failing, 40/40 mutations caught, the -on pairs included; browser-check agrees in WebKit and Chromium (0 mismatches). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/checks/browser-check.txt`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__pairs.txt`.
 - **Verified (step 3).** was medium; skeptics medium (partly) and medium. Correction: 'A household member cannot read it' is overstated. At 2.61 the 12 px bold digit is hard to read but not invisible, and the badge disc itself stays highly visible, so the 'food to eat' cue survives.
 - **Evidence.** `audits/04-design-system.md:699`; `apps/design.css:92`, `index.html:703`, `apps/f260.html:26`, `apps/verses.html:59`
 - **What happens now.** `--on-accent` is the only "on" token (apps/design.css:92), and it is tuned for `--accent-deep`. Everything else is hand-picked:
@@ -1459,7 +1461,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TYPE-1 — No iPad type tier: body, secondary, button and tab text is the same size on the 820 px iPad as on the 430 px iPhone, in every area
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The iPad type tier: --ts-width 1.12 on touch devices at 744 px and up (desktop keeps 1). TYPE/report.mjs is stale (it reads the committed Phase 4 rig data and prints the same table before and after), so the verdict rests on rendered sizes: on the iPad the hero kicker is 13.44 px and the sub-line 16.8 px (was 12 / 14 or 15), and the shared toast 16.8 px on the iPad against 15 px on the iPhone and desktop (toast scripts). After: `audits/evidence/p6/1/p2/VIS/verify3-dark-hero-2.json`, `audits/evidence/p6/1/p4/CRIT/verify-critic-shared-toast-half-viewport-wrap-2-1.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__report.txt`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: Minor: I count F260 as 172/181 same-size selectors, not 173/181. Otherwise the numbers and the design.css claim check out.
 - **Evidence.** `audits/04-design-system.md:1379`; `apps/design.css:573`, `apps/design.css:22-24`; `audits/screens/shell/home-typical-ipad-portrait-light.png`, `audits/screens/shell/home-typical-iphone-pwa-light.png`
 - **What happens now.** Of the selectors seen on both devices, the same size on both: shell 160/163, F260 173/181, Prayer 131/132, Larder 31/31, park map 146/146, Verses 51/53, Kid Verse 55/57, Tally 8/10, Timer 10/12, build guide 107/113. Table TYPE-4 lists what grows.
@@ -1469,7 +1472,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TYPE-2 — No text-size preference and no Dynamic Type hook; F260's page zoom is the only control, and it leaves its 9.5 px label at 10.92 px
 
-- **Area** design system (F260) · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 1
+- **Area** design system (F260) · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** A person text-size preference (XS-XXL, data-text-size → --ts-user) in Me → Appearance, one person-scope hub row, mirrored in hub.prefs for the bootstrap; F260's Large is the hub's L (D17, f260.big moved once). verify-1a (26/26, WebKit and Chromium): the switches apply at once, follow on a second device, a stale mirror loses to the row; test-prefs 35/0, test-f260 58/0. TYPE/hidden-text finds no sub-11 text left in F260 (its 9.5 px label is gone); the build guide's SVG labels it still lists are GAP-TYPE-3's. After: `audits/evidence/p6/1/checks/verify-1a-webkit.txt`, `audits/evidence/p6/1/tests/suites/test-prefs.txt`, `audits/evidence/p6/1/appearance-webkit-light-set.png`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__hidden-text.txt`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: The item says F260's page zoom is 'the only control'. Pinch zoom (no user-scalable=no in any viewport meta), iOS Display Zoom or Accessibility Zoom, and desktop browser zoom also enlarge the hub. They are clumsy, which supports medium, but they are workarounds the item should name.
 - **Evidence.** `audits/04-design-system.md:1393`; `apps/design.css:293`, `apps/f260.html:44`, `apps/prayer.html:50`, `apps/f260.html:50`
 - **What happens now.** Every size is a px literal or a px token, and `html` sets `text-size-adjust: 100%` (`apps/design.css:293`). NOT FOUND IN CODE, in `index.html`, `apps/*.html`, `apps/design.css` and the template: `font: -apple-system-body` or any `-apple-system-*` text style, `rem`-based font sizes (F260 and Prayer use `rem` only for max-widths, …
@@ -1479,7 +1483,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-VIS-03 — Choosing Hearth on a dark-mode device still paints Midnight
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Hearth always writes data-theme="hearth" (the bootstrap and applyTheme write the resolved palette), so only System follows the OS. verify-hearth-ignored-on-dark-os-2, both engines: Hearth on a dark OS was data-theme none with Midnight's #1A1512 page; now data-theme hearth, page #F4F1EC, text #221C17, theme-color #F4F1EC; System on a dark OS resolves to Midnight. verify-hearth-turns-dark-in-os-dark-1: the same (bg #1A1512 → #F4F1EC, one meta). After: `audits/evidence/p6/1/p2/VIS/verify-hearth-2.json`, `audits/evidence/p6/1/p2/VIS/verify-hearth-2-f260-darkos-hearth-ipad.png`, `audits/evidence/p6/1/p2/PWA/verify-hearth-turns-dark-in-os-dark-1.json`.
 - **Evidence.** `audits/02-shell.md:5501`; `apps/hub.js:77`, `apps/design.css:176-195`, `apps/hub.js:79`, `index.html:202-203`; `audits/evidence/p2/PWA/verify-hearth-os-dark-1-hearth-dark-me.png`, `audits/evidence/p2/PWA/verify-hearth-os-dark-1-hearth-dark-f260.png`
 - **What happens now.** `apps/hub.js:77` deletes `data-theme` for both `system` and `hearth`. So `@media (prefers-color-scheme: dark) :root:not([data-theme])` (`apps/design.css:176-195`) applies the Midnight tokens. There is no `:root[data-theme="hearth"]` rule. Meanwhile `apps/hub.js:79` sets `data-scheme="light"`, taken from `hub.THEMES`.
 - **Why it matters.** a household member who picks the warm paper look cannot get it on any dark-mode device, including iOS Automatic appearance after sunset. F260's primary button also drops below AA.
@@ -1488,7 +1493,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-ACCENT-01 — The selected tab, Prayer nav item and Timer preset are marked only by a 1.0-1.35:1 fill and a shift in hue: for David in the dark palettes and Kiara in the light ones, the selected tab's label differs from its neighbours by 1.02-1.08:1
 
-- **Area** design system (Prayer, Timer) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system (Prayer, Timer) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Selection reads --sel-fill-strong / --sel-ink-strong (3:1 or more) plus --sel-weight in the tab bar, Prayer's nav and the Timer presets. verify-selection-by-hue-only-2: a non-colour cue on 0/42 → 42/42 selected tabs; its fill and ink figures (1.07-1.65) sample the tab's own edge, not the .tab-ind indicator, so they are stale; -1 prints nothing before or after and ACCENT/tokens.mjs is hard-coded (identical output). The fill numbers are the worker's probe, not filed: Prayer's current tab 1.13-1.69 → 5.44-9.54 (label 1.01 → 6.14), Timer presets 1.09-1.24 → 5.52-9.33. After: `audits/evidence/p6/1/p4/ACCENT/verify-selection-by-hue-only-2-shell.json`, `audits/evidence/p6/1/home-webkit-forest.png`, `audits/evidence/p6/1/p4/TELL/keyboard-prayer-_listSwitch_button.png`.
 - **Evidence.** `audits/04-design-system.md:5306`; `index.html:640`, `index.html:78`, `apps/design.css:559-560`, `index.html:396-399`
 - **What happens now.** In each component, selection changes only the ink hue and adds an `--accent-soft` fill:
 - **Why it matters.** The tab bar is the navigation on every screen for every person. A colour-blind adult, someone reading the kitchen iPad across the room, or a pre-reader relying on shape cannot tell which tab is current.
@@ -1497,7 +1503,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-COLOR-01 — In the light palettes, apps ink text and icons with the mid-tone hues and the semantic aliases, not the `-ink` tokens: gold text at 2.03-3.47:1, olive, terra and teal text at 3.6-4.45:1, and today rings, the F260 chapter bar and the earned star at 2.48-2.96:1
 
-- **Area** design system (F260) · **Type** bug · **Severity** medium · **Effort** M · **Batch** 1
+- **Area** design system (F260) · **Type** bug · **Severity** medium · **Effort** M · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The pre-pass: text and icons read -ink, fills -fill/-strong, marks -graphic; the legacy hue names alias the inks. verify-mid-tone-semantic-as-ink-2 crashes on the new design.css (it parses hex tokens) and COLOR/palette.mjs reads the committed Phase 4 tokens (identical output): both stale. The verdict rests on the rig re-aggregated on the final code (remeasure-raw): F260's failing texts in System light 15,241 of 25,130 → 24, Parchment 1,865 → 7, Frost 1,849 → 8; the build guide 13,197 → 146; the park map 3,687 → 184; and COLOR/spot's F260 gold text #B4861B → #735A00 (butter ink). After: `audits/evidence/p6/1/p4/COLOR/remeasure-raw.json`, `audits/evidence/p6/1/measure/failing-pairs.json`, `audits/evidence/p6/1/p4/COLOR/spot.json`.
 - **Evidence.** `audits/04-design-system.md:6891`; `apps/design.css:80-83`, `apps/f260.html:11-12`, `apps/prayer.html:106`, `apps/leftovers.html:63`; `audits/screens/dollywood/aerial-mix-typical-desktop-light.png`, `audits/screens/f260/behind-typical-desktop-light.png`
 - **What happens now.** The system's rule. Each hue family has a mid tone, a `-soft` fill and an `-ink`. The `-ink` pairs pass everywhere, at 5.37-10.35:1 on their fill. The style guide states the rule: "Text always uses the `-ink` variant on a soft background" (`docs/design.html:95`). The aliases point the wrong way.
 - **Why it matters.** This one token confusion is behind most of the light-theme failures in F260, Prayer, the build guide and the park map (Table COLOR-2: 57.9 %, 6.7 %, 28.4 % and 40.5 % in Hearth).
@@ -1506,7 +1513,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-COLOR-02 — Six rules ink with the raw profile colour where the AA-safe `--accent-deep` already exists: Prayer's kitchen headings are 2.83:1 in every dark palette, the park map's walk times and distances 1.79-2.57:1 in dark, and in light the same text fails for Mae, Mea, Elizabeth and Kiara
 
-- **Area** design system (Prayer, park map) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system (Prayer, park map) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The six rules that inked with the raw profile colour read --accent-ink. verify-raw-accent-ink-no-dark-lift-1: Prayer's Kitchen heading (Eli) 2.83 → 13.44 in Midnight, 2.83 → 13.18 in Forest, 5.75 → 7.62 in light; its park part: walk times 2.57 (Eli) / 2.14 (David) → 11.16 / 11.59 in Midnight, the selected tab icon 1.49-1.7 → 7.0, Kiara's in light 2.25-2.45 → 5.86 (the before run was the re-run; Mae's Midnight Prayer case times out in both runs). COLOR/remeasure.mjs now crashes on the hex parser (stale). After: `audits/evidence/p6/1/p4/COLOR/verify-raw-accent-ink-no-dark-lift-1-tokens-prayer.json`, `audits/evidence/p6/1/p4/COLOR/verify-raw-accent-ink-no-dark-lift-1-park.json`, `audits/evidence/p6/1/p4/COLOR/verify-raw-accent-ink-no-dark-lift-1-prayer-kitchen-midnight.png`.
 - **Evidence.** `audits/04-design-system.md:6969`; `apps/prayer.html:39`, `apps/hub.js:80`, `apps/design.css:89`, `apps/prayer.html:334`
 - **What happens now.** The raw hex. `apps/hub.js:80` sets `--accent` to the raw profile hex in every scheme. The safe ink already exists. `design.css` derives `--accent-deep` per scheme: 72 % + black in light, commented "filled buttons, text on soft — AA on paper for every family colour" (`apps/design.css:89`), and 58 % + white in dark (`:170, 191, 212`).
 - **Why it matters.** The Kitchen view is the counter display, often read in dark mode. On the park map, the walk times and the selected tab are how a parent navigates a crowded park on a phone at dusk.
@@ -1515,7 +1523,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-COLOR-03 — Me → Switch is pale ink on a white pill in every dark scheme: 1.76-2.48:1 for every household profile and the guest, the kids included
 
-- **Area** design system, all areas · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Me → Switch reads --hero-btn-bg / --hero-btn-ink (the batch-1a .ds .hero .btn-primary row). verify-hero-primary-button-inverts-dark-2, 12 cases: p10 1.76-8.68 → 6.91-9.27; Kiara in Midnight was pale gold #D4B97B on white (1.76), now dark ink #231733 on her lavender fill; the light cases keep a white capsule with the person's ink. COLOR/spot agrees (Switch ink #231733 / #002425 on the pastel). After: `audits/evidence/p6/1/p4/COLOR/verify-hero-primary-button-inverts-dark-2.json`, `audits/evidence/p6/1/p4/COLOR/verify-hero-primary-button-inverts-dark-2-kiara-midnight.png`, `audits/evidence/p6/1/p4/COLOR/spot-me-switch-kiara-midnight.png`.
 - **Evidence.** `audits/04-design-system.md:7037`; `index.html:1282`, `apps/design.css:176-177`, `apps/design.css:423`, `index.html:1252-1253`; `audits/screens/shell/me-empty-ipad-portrait-dark.png`
 - **What happens now.** The rule. `.ds .hero .btn-primary { background: rgba(255,255,255,.92); color: var(--accent-deep) }` (`apps/design.css:423`). In light, `--accent-deep` is 72 % + black and passes. In dark it becomes 58 % + white (`:170, 191, 212`), a pale tint, while the fill stays near-white. Where it renders.
 - **Why it matters.** Switch is how the shared iPad changes hands. The worst case is a kid's own colour: Kiara's label is 1.76:1.
@@ -1524,7 +1533,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-DARK-02 — Hearth on a dark OS, app by app (a cross-area facet of P2-VIS-03): the park map's inactive pane tabs fall to 2.6-3.3:1 when the sheet is open, the build guide's labels to 3.4-3.9:1, and F260's Reset and "Replace and restore" to 2.61:1
 
-- **Area** design system (F260, build guide, park map) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system (F260, build guide, park map) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Hearth always writes its data-theme (the P2-VIS-03 fix), so a dark OS no longer paints Midnight under Hearth. verify-hearth-dark-os-per-app-1: FAIL lines 26 → 0 (lowest p10 5.86): F260's Reset and "Replace and restore" 2.61 → 9.13 / 9.55, Done 2.02 → 5.95, the park map's pane labels over 4.5. DARK/hearth-dark-os (rig): Hearth-on-dark-OS failing texts build guide 420 → 27, park map 381 → 37, F260 774 → 6, Kid Verse 71 → 0; its remaining "worse" rows are the TV's hidden Me (batch 2c) and loading-state buttons. After: `audits/evidence/p6/1/p4/DARK/verify-hearth-dark-os-per-app-1.json`, `audits/evidence/p6/1/p4/DARK/verify-hearth-dark-os-per-app-1-hearth-f260-reset.png`, `audits/evidence/p6/1/p4/DARK/hearth-dark-os.json`.
 - **Evidence.** `audits/04-design-system.md:4644`; `apps/hub.js:77`, `apps/design.css:176-177`, `apps/hub.js:66`, `apps/f260.html:28`; `audits/evidence/p4/SCORE/shots/hearth/f260/reset-confirm-typical-ipad-portrait-dark.png`, `audits/screens/dollywood-live/family-typical-ipad-portrait-dark.png`
 - **What happens now.** hub.js deletes `data-theme` for Hearth (`apps/hub.js:77`). On a dark OS, `@media (prefers-color-scheme: dark) :root:not([data-theme])` then applies the Midnight tokens (`apps/design.css:176-177`), while hub.js sets `data-scheme="light"` from `hub.THEMES` (`apps/hub.js:66, 79`).
 - **Why it matters.** Someone who picks Hearth and opens the park map on a dark-mode phone cannot read the tabs that switch between Nearby, Search, Family and Style. F260's two irreversible confirmations drop below AA exactly where the words matter.
@@ -1533,7 +1543,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-ICON-01 — Icon inks taken from `apps.json` or profile hex are never lifted for dark: kid tiles, Home card heads and accent icons fall under 3:1
 
-- **Area** design system, all areas · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Accent icons are lifted: verify-icon-ink-hex-not-lifted-dark-1 in Midnight/Forest, the kid Home "Let's play" glyph 2.88-2.95 → 6.43-6.79, Home's Reminders and Around the house heads 4.91-6.08 → 7.34-7.69, the TV pane heads 4.86-6.08 → 8.4-9.0, the park tab 2.11 → 7.02. The app tiles and the per-app card heads still ink with the raw apps.json hex: 1.87-3.22 in both dark palettes (Larder 1.87-1.94, F260 2.19-2.29), as before. Those move to batch 2 (2a) with the .app-icon rewrite, apps.json "hue" and a data-accent on every tile (migration table ICON-3/ICON-4). After: `audits/evidence/p6/1/p4/ICON/verify-icon-ink-hex-not-lifted-dark-1-midnight.json`, `audits/evidence/p6/1/p4/ICON/verify-icon-ink-hex-not-lifted-dark-1-forest.json`, `audits/evidence/p6/1/p4/ICON/verify-icon-ink-hex-not-lifted-dark-1-kid-apps-midnight.png`.
 - **Evidence.** `audits/04-design-system.md:2724`; `index.html:700`, `index.html:1165`, `apps/design.css:606-608`, `apps/design.css:93`; `audits/screens/shell/apps-typical-ipad-portrait-dark.png`
 - **What happens now.** The inks are raw hex values set inline, and no palette can change them:
 - **Why it matters.** At night the pre-readers find their apps by the tile picture, and four of their seven pictures are below the non-text minimum. Adults lose the card-head cue on Home, though they keep the text.
@@ -1542,7 +1553,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-TELL-01 — Keyboard focus is invisible on every `.ds .btn`: 26 of 26 Tab stops change 0 pixels in the shell, TV, Tally, Timer, Kid Verse and Verses
 
-- **Area** design system (Tally, Timer, Kid Verse, Verses, TV) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system (Tally, Timer, Kid Verse, Verses, TV) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** .ds .btn focus is an outline in --focus-ring, so component shadows cannot hide it. verify-ds-btn-keyboard-focus-invisible-cross-area-1: .ds buttons with a visible ring 1/26 → 26/26 (shell 10/10, TV 1/1, Tally 1/1, Timer 8/8, Kid Verse 4/4, Verses 2/2); verify-keyboard-ring: changed pixels 0 → 1,058 (TV switch), 1,228 (Tally Reset), 2,078 (Timer Start), 3,298 (Kid Verse Done), 2,266 (Verses Show). After: `audits/evidence/p6/1/p4/TELL/verify-ds-btn-keyboard-focus-invisible-cross-area-1-chromium.json`, `audits/evidence/p6/1/p4/TELL/keyboard-ring.json`, `audits/evidence/p6/1/p4/TELL/keyboard-timer-_go.png`.
 - **Evidence.** `audits/04-design-system.md:6034`; `apps/design.css:313-314`, `apps/tally.html:83`, `apps/design.css:102`
 - **What happens now.** Tabbing onto any `.ds .btn` makes it `:focus-visible`, and nothing changes on screen: the computed outline and box-shadow are the same focused and blurred. Every such stop, per area: shell: 10 (Open F260, Open the ledger, Open prayer, 4 round Done, Add, Refresh, Show more); TV: `#kiosk-switch`; Tally: Reset;
 - **Why it matters.** On a desktop, or an iPad with a keyboard, you cannot see where focus is in Timer, Kid Verse and Verses at all, and not on any of the shell's card buttons. One shared rule in `design.css` fixes every area.
@@ -1551,7 +1563,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-TELL-07 — Keyboard focus is invisible on every Apps-grid tile and every profile-picker card, and the chat composer removes its own ring (added after the completeness critic)
 
-- **Area** design system, all areas · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Apps-grid tiles, picker cards and the chat composer keep a visible outline ring. verify-critic-focus-invisible-tiles-picker-cards-chat-1-2: Tab stops that change nothing picker 9/9 → 0, Apps 9/9 → 0, chat 1/1 → 0; -1-1: the chat input changes 0 → 6,600 px on focus and now has a label ("Message to the house"); CRITIC/focus-other-components: every picker card's focused style now differs from its blurred one (false → true). After: `audits/evidence/p6/1/p4/CRIT/verify-critic-focus-invisible-tiles-picker-cards-chat-1-2-chromium-light.json`, `audits/evidence/p6/1/p4/CRIT/verify-critic-focus-invisible-tiles-picker-cards-chat-1-1.json`, `audits/evidence/p6/1/p4/CRIT/verify-critic-focus-invisible-tiles-picker-cards-chat-1-1-picker-focused.png`.
 - **Evidence.** `audits/04-design-system.md:6305`; `index.html:541`, `index.html:47`, `apps/design.css:314`, `index.html:221-224`
 - **What happens now.** A real Tab walk on the desktop (1440×900) reaches all 9 `.tile` buttons on the Apps grid and all 9 `.pcard` cards on the picker. Every one matches `:focus-visible`, but its computed box-shadow and outline are the same focused and blurred, and its box plus 8 px changes 0 pixels.
 - **Why it matters.** On a desktop, or an iPad with a keyboard, you cannot see which profile you are about to open or which app, at the two places every session starts.
@@ -1560,7 +1573,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-F260-1 — Much of F260's secondary text fails AA in every palette
 
-- **Area** f260 · **Type** visual · **Severity** medium · **Effort** M · **Batch** 1
+- **Area** f260 · **Type** visual · **Severity** medium · **Effort** M · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** F260's secondary text reads --text-2/--text-3 and hue text the -ink tokens, with no opacity dimming; the New Testament paper is --aqua-wash. F260 contrast.mjs (203 items on the Plan page at 430 px): failing Hearth 150, Parchment 91, Frost 91, Midnight 41, Forest 41, System dark 41, Hearth on a dark OS 42 → 0 in all seven; Done 4.5 / 2.02 (Hearth on dark) → 5.95 on the light paper and 8.84 in dark. After: `audits/evidence/p6/1/p3/f260/contrast.json`, `audits/evidence/p6/1/p3/f260/contrast-hearth-light-iphone.png`, `audits/evidence/p6/1/p3/f260/contrast-midnight-light-iphone.png`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: Minor points. (1) Hearth's 4.49 muted captions, and so most of its 150 failures, only occur in New Testament weeks 31-52: body.nt (apps/f260.html:26-30, toggled at 1499) tints the paper with teal. In weeks 1-30 the same text is 4.90 and passes, and gold is 2.96 rather than 2.71.
 - **Evidence.** `audits/03-apps/f260.md:703`; `apps/f260.html:235`, `apps/f260.html:71`, `apps/f260.html:193`; `audits/evidence/p3/f260/contrast-hearth-light-iphone.png`, `audits/evidence/p3/f260/contrast-midnight-light-iphone.png`
 - **What happens now.** Rendered 10th-percentile contrast of 203 text items on the Plan page at 430 px. Failing: Hearth 150, Parchment 91, Frost 91, Midnight 41, Forest 41, System-dark 41, Hearth on a dark OS 42.
@@ -1570,7 +1584,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-1 — Gold labels, the "shared" pill, done titles and dark nav labels fail contrast
 
-- **Area** prayer · **Type** visual · **Severity** medium · **Effort** S · **Batch** 1
+- **Area** prayer · **Type** visual · **Severity** medium · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Gold, teal and terra text read their -ink tokens and done titles --text-2 without opacity. Prayer contrast.mjs over 30 views (five palettes plus System, Today, Family, Record, Settings and the kid view): 38 failing items → 0; the lowest p10 2.78 ("Answered recently" in Hearth) → 4.94. After: `audits/evidence/p6/1/p3/prayer/contrast.json`, `audits/evidence/p6/1/tests/repro-after/phase3__prayer__contrast.txt`.
 - **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: The Midnight/Forest/System-dark failures are wrong. Done row titles measure about 6.0-6.2:1, not 3.24-3.27, and the 'Record' nav label measures about 5.5-5.7:1, not 3.40-3.56. They pass AA, and the p3 p10 values were sampling artifacts (the p3 medians were 6.21/6.08).
 - **Evidence.** `audits/03-apps/prayer.md:886`; `apps/prayer.html:107-108`; `audits/screens/prayer/today-typical-iphone-pwa-light.png`, `audits/screens/prayer/record-typical-ipad-portrait-dark.png`
 - **What happens now.** "Answered recently" (13 px gold on gold-soft): 2.78 Hearth, 3.11 Parchment, 3.30 Frost.
@@ -1580,7 +1595,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ACCENT-1 — Signed out, the accent falls back to Elizabeth's colour, so every PIN pad fills its dots and Continue in #8A6A4B (Midnight #CBA77E), whoever is signing in
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Signed out, the accent is graphite, nobody's colour: :root defaults to graphite, hub.avatarHtml and the bootstrap fall back to graphite, the shell's FALLBACK is #4C4C58 (index.html:498), the Worker gives a new profile no hue. ACCENT/runtime.mjs skipped all 728 cases after (0 ok) and ACCENT/remeasure.mjs reads committed data (identical output), so both are stale; the verdict rests on the code and verify-1a (every avatar carries data-accent, the TV is graphite). After: `audits/evidence/p6/1/checks/verify-1a-webkit.txt`, `audits/evidence/p6/1/checks/verify-1a-chromium.txt`, `audits/evidence/p6/1/tests/repro-after/phase4__ACCENT__runtime.txt`.
 - **Evidence.** `audits/04-design-system.md:5637`; `index.html:58`, `apps/hub.js:81`, `apps/design.css:86`, `index.html:553`
 - **What happens now.** The rule. `.pin-dots i.on` is painted with `--accent` (`index.html:58`). hub.js removes `--accent` while nobody is signed in (`apps/hub.js:81`), so `--accent: var(--mocha)` applies (`apps/design.css:86`). That is Elizabeth's exact hex.
 - **Why it matters.** Every PIN pad looks like Elizabeth's.
@@ -1589,7 +1605,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ACCENT-2 — One hue means a person, an app and a status at once: 5 of 9 app colours are a household member's exact colour, and Mae's running Timer ring is `--danger`
 
-- **Area** design system (Timer) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Timer) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The Timer's running ring is the owner's colour and time's up is --timer-done, never --danger (apps/timer.html:26, 58-63); semantic families are 10.74 ΔE00 or more from every person (contrast.mjs, gated). The app half is not in: tiles still carry the apps.json hex, 5 of 9 of them a person's colour. apps.json "hue" (D5) and data-accent tiles are batch 2 (2a), per the migration table. ACCENT/app-vs-person.mjs reads the committed JSON and apps.json (identical output), so it cannot show either half. After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/tests/suites/test-timer.txt`, `audits/evidence/p6/1/tests/repro-after/phase4__ACCENT__app-vs-person.txt`.
 - **Evidence.** `audits/04-design-system.md:5646`; `index.html:700`, `apps/design.css:77`, `apps/timer.html:22`, `worker/seed.sql:4-11`
 - **What happens now.** App colours. They are painted through the same `--tint` as people (`index.html:700, 1165-1188`); see Table ACCENT-8.
 - **Why it matters.** One hue means a person, an app and a status.
@@ -1598,7 +1615,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ACCENT-3 — A local accent override does not re-derive the tokens that paint: Kid Verse and Prayer's Family list get it wrong, Verses gets it right
 
-- **Area** design system (Prayer, Kid Verse, Verses) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Prayer, Kid Verse, Verses) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** A local accent override is a data-accent scope that re-derives every role: Kid Verse's Done ★ and "I heard it" carry data-accent="butter", each kid's row its own hue, Prayer's Family list data-accent="aqua" on the page. TOK/verify-accent-repoint: on the Family list the current nav item, the list and the FAB are all aqua (deep #0B6468; the FAB kept Eli's deep before); verify-critic-star-buttons-not-gold-5-2: both kids' Done ★ paint butter-strong (#735A00 light, #E7D695 dark). After: `audits/evidence/p6/1/p4/TOK/accent-repoint.json`, `audits/evidence/p6/1/p4/TOK/accent-repoint-prayer-eli-family.png`, `audits/evidence/p6/1/p3/kidverse/verify-critic-star-buttons-not-gold-5-2.json`.
 - **Evidence.** `audits/04-design-system.md:5660`; `apps/design.css:87-89`, `apps/kidverse.html:55`, `apps/prayer.html:39`, `apps/verses.html:56-58`
 - **What happens now.** Kid Verse sets only `--accent: var(--gold)` (`apps/kidverse.html:55, 137`), so Done ★ keeps the kid's deep (P3-KIDVERSE-14).
 - **Why it matters.** Overrides do not re-derive.
@@ -1607,7 +1625,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ACCENT-4 — Three apps never put the person's colour on their content and Tally uses it only as a wash, while Prayer, Timer, Verses and the park map carry it on primaries and selection
 
-- **Area** design system (Prayer, Tally, Timer, Verses, park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Prayer, Tally, Timer, Verses, park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The person's colour now reaches F260 (Done, ring and progress: Done #5B8143 → Eli's #4F52D8, SHAPE/crops), Tally (the + disc is the person's strong tone) and the Dollywood pair. The Larder still carries none: its Log button and ✓ read the success family (apps/leftovers.html:68; the ✓ on --success-fill was an accepted deviation), so it moves to the Larder's batch 8. ACCENT/recount.mjs reads committed data (identical output), stale. After: `audits/evidence/p6/1/p4/SHAPE/crops.json`, `audits/evidence/p6/1/p3/tally/theme-hearth-darkos-eli.png`, `audits/evidence/p6/1/tests/repro-after/phase4__ACCENT__recount.txt`.
 - **Evidence.** `audits/04-design-system.md:5669`; `apps/f260.html:208`, `apps/leftovers.html:39`
 - **What happens now.** The runtime pass covered every profile.
 - **Why it matters.** Some apps never show the person's colour.
@@ -1616,7 +1635,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-COLOR-1 — "Past", "done" and "not yet" are shown by dimming text with opacity, differently in every app: 1.46-3.5:1
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Past, done and not-yet states read --text-2/--text-3 plus a glyph, never opacity on text (F260's past weeks, the Larder's finishing/finished text, the Timer's digits pulse instead of dimming, the template). COLOR/components.mjs reads the committed rig (identical output), stale; the rig re-aggregated on the final code: failing text occurrences 60,910 → 2,212 (selectors 1,347 → 302), F260 25,250 → 142, the build guide 22,766 → 451; what remains is mostly loading-state controls and rig artefacts. After: `audits/evidence/p6/1/measure/failing-pairs.json`, `audits/evidence/p6/1/measure/failing-pairs/f260.json`, `audits/evidence/p6/1/tests/repro-after/phase4__COLOR__components.txt`.
 - **Evidence.** `audits/04-design-system.md:7240`; `apps/f260.html:235`, `apps/f260.html:193`, `apps/dollywood.html:101`, `apps/timer.html:38-39`; `audits/screens/dollywood-live/waits-kid-typical-desktop-light.png`, `audits/screens/f260/behind-typical-desktop-light.png`
 - **What happens now.** There is no AA-safe tertiary or "done" ink, so each app dims text with its own opacity:
 - **Why it matters.** Dimmed states are most of the hub's failing text occurrences (F260's past weeks alone are 16,277), and each app picked its own value.
@@ -1625,7 +1645,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-COLOR-2 — "Today" is a ring in three apps, drawn three ways; it is below 3:1 in Hearth in all three, and in every theme in Kid Verse
 
-- **Area** design system (Kid Verse) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Kid Verse) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** One today token, --today-ring (the person's -graphic, 3:1 or more): F260's heatmap and year grid, Prayer's calendar (apps/prayer.html:184) and Kid Verse's day strip. COLOR/nontext-summary.mjs reads the committed rig (identical output), stale; the re-aggregated rig: F260's today ring in light 2.71 → 3.75-5.89 (remeasure-raw rings), Kid Verse's ring failures 242 → 0 (measure nontext). F260 and Prayer draw it as a box-shadow, Kid Verse as an outline. After: `audits/evidence/p6/1/p4/COLOR/remeasure-raw.json`, `audits/evidence/p6/1/measure/nontext.json`, `audits/evidence/p6/1/tests/repro-after/phase4__COLOR__nontext-summary.txt`.
 - **Evidence.** `audits/04-design-system.md:7260`; `apps/prayer.html:165`, `apps/kidverse.html:69`
 - **What happens now.** | App | Recipe | Hearth | Parchment | Frost | Dark | |---|---|---|---|---|---| | F260 heatmap | gold ring | 2.62-2.71 | 2.83 | 3.09 | 8.45-9.55 | | Prayer calendar | gold 2 px box-shadow (`apps/prayer.html:165`) | 2.96 | 3.24 | 3.47 | 9.0-9.2 | | Kid Verse | `--focus` ring (`apps/kidverse.html:69`) | 1.29-1.86 in every theme | | | |
 - **Why it matters.** "Today" anchors every progress strip, and for pre-readers it is the only cue.
@@ -1634,7 +1655,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-COLOR-3 — The person's colour becomes ink through four recipes, and only `--accent-deep` is guaranteed
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Only --accent-ink (and --accent-on on a solid) become ink; hub.js no longer writes the raw hex into --accent (verify-1a: no inline --accent on :root). COLOR/palette.mjs reads committed tokens (identical output), stale; the verdict rests on contrast.mjs (every person × palette × mode ink pair gated, 0 failing) and the raw-accent checks (Prayer's Kitchen heading 2.83 → 13.44, the park walk times 2.14-2.57 → 11.16-11.59). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/checks/verify-1a-webkit.txt`, `audits/evidence/p6/1/p4/COLOR/verify-raw-accent-ink-no-dark-lift-1-tokens-prayer.json`.
 - **Evidence.** `audits/04-design-system.md:7277`; `index.html:955`
 - **What happens now.** (Table COLOR-6): Raw `--accent` / `--tint` fails in both schemes: 1.49-2.93 in dark, and 2.25-4.41 in light for four colours (P4-COLOR-02; P2 for the shell). `--accent-deep` passes on every surface, and fails only on the hero's fixed white fill (P4-COLOR-03).
 - **Why it matters.** Profile colours are editable in the admin panel, and guests pick from swatches. Only an ink derived with a contrast floor can guarantee that a new colour passes. Today, whether a colour passes depends on which recipe an area happened to use.
@@ -1643,7 +1665,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-COLOR-4 — Semantic colours are neither consistent between areas nor unmistakable
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Semantic families (success, warning, danger) with glyphs, each 10.74 ΔE00 or more from every person colour, gated in contrast.mjs (0 failing); the Timer no longer uses --danger for a person, the Larder's ramp has a glyph per state. COLOR/semantic.mjs reads committed tokens (identical output), stale, so the verdict rests on the gate. After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/tests/repro-after/phase4__COLOR__semantic.txt`.
 - **Evidence.** `audits/04-design-system.md:7289`; `apps/design.css:80-83`, `apps/f260.html:11-12`, `apps/prayer.html:106`, `apps/timer.html:36-38`
 - **What happens now.** (Table COLOR-7): The aliases reach four files only: the shell, the Larder, the Timer (`--danger` only) and the Dollywood template (`--ok`, `--danger`). The draft's "only the Larder and the shell" was corrected by a grep. F260 and Prayer map meaning to hue families their own way.
 - **Why it matters.** The house style requires semantic colours that stay unmistakable. Today their meaning changes from app to app, and red against green is carried by hue alone.
@@ -1652,7 +1675,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-DARK-1 — The illustration set has no dark form, and each area improvises
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The stopgap landed: the story scenes and the Larder's empty-state art sit on --art-plate (dimmed in dark). The art itself has no dark form: DARK/art-dark.mjs prints the same result (none of the SVGs uses var() or currentColor), because scripts/make-art.mjs still emits fixed fills. Gap row DARK-10 is "Partly" and names no later batch for the art pipeline, so it is open. After: `audits/evidence/p6/1/p3/kidverse/visual-C-kid-midnight-top.png`, `audits/evidence/p6/1/tests/repro-after/phase4__DARK__art-dark.txt`.
 - **Evidence.** `audits/04-design-system.md:4913`; `index.html:203`
 - **What happens now.** None of the 38 SVGs in `art/` uses `currentColor`, CSS variables or `prefers-color-scheme`. The re-measure's static scan agrees. Story scenes: 10 of 12 are opaque light panels (mean luminance 0.53-0.77, 55-94% pale pixels), 7.8-12.6:1 against the Midnight card. `03-promise` and `09-nativity` are dark slabs in light mode.
 - **Why it matters.** In the evening the kids' story panel is the brightest thing on the iPad, and empty states look pasted in from the light theme.
@@ -1661,7 +1685,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-GLASS-1 — The glass recipe is re-typed 17 times in 5 source files, in three filter variants
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** One glass recipe through --glass-filter / --glass-bg(-strong) / --material-*: TOK/literals' glass-filter literals 42 → 5 (F260 15 → 3, Tally 13 → 1, Prayer 4 → 0, Larder 4 → 1, design.css 4 → 0, template 2 → 0), and the five left are var() reads of the tokens (checked in the code). The recipe is blur(20px) saturate(1.8) everywhere the rig looked (Kid Verse, Tally, Verses, park map). After: `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__literals.txt`, `audits/evidence/p6/1/p4/GLASS/layers.json`.
 - **Evidence.** `audits/04-design-system.md:3509`; `apps/f260.html:58`, `apps/tally.html:46`, `apps/prayer.html:285-297`, `apps/leftovers.html:38`
 - **What happens now.** Only the shell, Kid Verse, Verses and Timer use the shared classes. The gradient is copied by F260 3 times (`apps/f260.html:58, 385, 422`), Tally 3 (`apps/tally.html:46, 74, 99`), Prayer 1 block (`apps/prayer.html:285-297`), the Larder 1 (`apps/leftovers.html:38`) and the Dollywood template 9 per export (`template.html:215, 287, 290, …
 - **Why it matters.** The next recipe change (reduced transparency, contrast, the sheen fix) has to be made in about 17 places, and the variants already disagree.
@@ -1670,7 +1695,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-GLASS-2 — Five areas put live glass on content in most screens, four keep it on the control layer, and Phase 3 scored both groups the same
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Glass left the content in the five areas named: the Tally dial, the Timer dial (content-live screens 87 % → 15 %), Kid Verse's scene, Verses' trainer and done cards; the rig still counts non-floating glass buttons (Read aloud, Reset) and the build guide's map controls as content. The shell still has live glass on content: the chat's reply bubbles (div.msg.bot.glass-strong, 319 captures), which is batch 2a, and the TV panes move to --material-solid-bg in batch 2 (2c) per the migration table. After: `audits/evidence/p6/1/p4/GLASS/layers.json`, `audits/evidence/p6/1/tests/repro-after/phase4__GLASS__layers.txt`.
 - **Evidence.** `audits/04-design-system.md:3520`
 - **What happens now.** (Table GLASS-1, share of each area's screens with a visible live blur on content): Tally 100 % (dial, +, −, Reset), Kid Verse 100 % (scene card, Read buttons), Verses 89 % (trainer and done cards), Timer 87 % (the dial), the build guide 48 % (exaggeration control, north button). F260, the Larder, Prayer and the park map: 0 %.
 - **Why it matters.** In four apps glass means "this floats and controls"; in five it means "anything", so it stops telling the family what can be tapped.
@@ -1679,7 +1705,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ICON-1 — Eleven icon families; no app uses the shell's own set
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Only the groundwork landed: --icon-xs…xl sizes with the kid multiplier, one weight (--icon-stroke 1.75, non-scaling) and the Lucide ISC notice; Tally's text glyphs became 1.75 SVG. There is no shared Lucide sprite yet and no app adopted one: ICON/static shows F260, Prayer, Kid Verse, the Larder and the template with their own paths as before. Each app adopts the set in its own batch (F260 4, Prayer 3, Kid Verse 7, Larder 8, build guide 9, park map 10; shell 2a). After: `audits/evidence/p6/1/p4/ICON/static.json`, `audits/evidence/p6/1/tests/repro-after/phase4__ICON__static.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The count 'eleven icon families' does not match the report's own Table ICON-1: it lists 12 families (F1-F8 plus glyphs, emoji, CSS chevrons and art-as-icon), or 10 distinct recipes if F1-F3 count as the one shell recipe as the item states.
 - **Evidence.** `audits/04-design-system.md:2979`; `index.html:913-916`, `apps/f260.html:617-620`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** The shell (F1-F3) is one custom 1.75 recipe. Each app brings its own: F260: Feather/Lucide-derived paths at 2 on 18 px, a 20-grid tick at 2.6, colour emoji, text glyphs and CSS chevrons.
@@ -1689,7 +1716,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ICON-2 — One drawing, several meanings
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** DEFERRED (`80af987`)
+- **Phase 6 (DEFERRED).** Nothing of the one-drawing-per-meaning map landed in batch 1 (the flame is still the feed in the shell and a streak in F260). F260's batch (4) takes CONS-ICON-1/2 by the batch-1 F260 worker's deferral list, the shell's half goes with batch 2a. After: `audits/evidence/p6/1/tests/repro-after/phase4__ICON__static.txt`.
 - **Evidence.** `audits/04-design-system.md:3012`; `audits/screens/dollywood-live/amenity-tap-typical-iphone-pwa-light.png`
 - **What happens now.** Several drawings carry more than one meaning (Table ICON-5): Flame = the activity feed in the shell, but a streak in F260.
 - **Why it matters.** grandparents and pre-readers read icons literally.
@@ -1698,7 +1726,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-1 — Press feedback is complete in the `.ds` areas, partial or absent elsewhere, with nine scales and no brightness shift anywhere
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The global .pressable (scale 0.97 plus --press-dim) is in the .ds areas, the Larder and the Dollywood pair: MOTION/press, build guide 0/16 → 14/16 controls, park map 2/9 → 9/9, Larder 8/12 → 9/12, Tally, Timer, Kid Verse, Verses all at 0.97 with a brightness shift (none had one before). F260 (56/102) and Prayer (12/19, scales 0.86/0.94) are unchanged: they adopt it in their own batches (4 and 3), as gap row MOTION-3 says. After: `audits/evidence/p6/1/p4/MOTION/press.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__press.txt`.
 - **Evidence.** `audits/04-design-system.md:4090`; `apps/prayer.html:196`, `apps/dollywood-live.html:409-411`, `apps/design.css:359`, `index.html:45`
 - **What happens now.** Complete in the `.ds` areas: Tally 3/3, Timer 8/8, Kid Verse 2/2, Verses 2/2, the kid Home 6/6, and the shell 65/68 (86-100 % per surface).
 - **Why it matters.** Taps with no visible response invite double taps, as with Prayer's main button and every build-guide control. Several apps punish double taps (P3-LEFTOVERS-01, P3-VERSES-12).
@@ -1707,7 +1736,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-3 — Four sheet implementations and three toast systems; none follows the finger, and only one animates out
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** One confirm sheet now serves the shell and the Dollywood pair (hub.confirm/hub.alert on design.css's .ds .sheet; the template's ask() on the same sheet) and one bottom toast (hub.toast) serves the shell, F260, the Larder, Timer, Kid Verse and Verses. Not landed: no sheet or toast follows the finger, and both still leave in one frame (hub.js removes them), and Prayer keeps its own sheet and toast (batch 3). The exit and drag half (gap rows MOTION-4/5, SDK) names no batch. After: `audits/evidence/p6/1/p4/GLASS/opaque-blur.json`, `audits/evidence/p6/1/p4/TELL/dialogs.json`.
 - **Evidence.** `audits/04-design-system.md:4122`; `apps/design.css:587`, `apps/hub.js:431-435`, `apps/f260.html:416-418`, `apps/prayer.html:254-259`; `audits/screens/prayer/mark-answered-typical-iphone-pwa-light.png`, `audits/screens/f260/done-toast-typical-ipad-portrait-light.png`
 - **What happens now.** The shell's `.ds .sheet` rises 24 px over 360 ms and is removed in one frame.
 - **Why it matters.** Grabbers that do nothing and dialogs that blink away are web tells. Every other app would have to build its own toast to offer undo.
@@ -1716,7 +1746,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-4 — No shared loading state: skeletons only in the shell; a slow first pull shows blanks, false zeros or finished-looking pages
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The loading tokens exist (--sk-line, --min-h-*; hub.loaded since 0b) and two apps hold still: at 150 ms latency Kid Verse's CLS 0.073/0.163 → 0/0, and the Larder's one landmark move (363/472 px) → 0 with the pull held (MOTION/cls). The others still show blanks or move as data lands: F260's week stepper 317 px (iPad) / 514 px (iPhone), shell Home 313/418 px, Prayer's Pray now 53-97 px, the TV board CLS 0.073. Those go to their batches (F260 4, shell 2a, Prayer 3, TV 2c). After: `audits/evidence/p6/1/p4/MOTION/cls-lat150.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__cls.txt`.
 - **Evidence.** `audits/04-design-system.md:4144`; `index.html:888-889`, `apps/design.css:539-544`; `audits/screens/prayer/kid-loading-iphone-pwa-light.png`, `audits/screens/verses/trainer-loading-iphone-pwa-light.png`
 - **What happens now.** What shows (Table MOTION-5), 1.2 s into a cold load with the first pull held: Skeletons appear only in the shell: 1 on Home, 1 on Me. There are none in any app or on the TV.
 - **Why it matters.** The false values are the visible face of the data-loss defects on a slow first load (P3-TALLY-02, P3-KIDVERSE-01 and -03, P3-VERSES-03, P2-SYNC-17). The screen invites a tap on wrong data.
@@ -1725,7 +1756,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-1 — The content card is built six ways: radii from 12 to 36, five paddings, three border widths, three elevations
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** One content card (--r-card, --pad-card, --material-solid-bg, --elev-card) in the shell, Kid Verse, Verses and the build guide: SHAPE/crops, shell card R22 pad 20 → R28 pad 16 on solid white, Kid Verse story and Verses stats R28 pad 20 → 16. F260's cards (R22 / R16, pad 18) and Prayer's ledger (R16) are unchanged, and the Larder's row radius stays 12: their batches (4, 3, 8) take the rest. After: `audits/evidence/p6/1/p4/SHAPE/crops.json`, `audits/evidence/p6/1/p4/SHAPE/sheet-cards.png`.
 - **Evidence.** `audits/04-design-system.md:2189`; `apps/design.css:381-383`, `apps/kidverse.html:41`, `apps/verses.html:72`, `apps/leftovers.html:71`; `audits/evidence/p4/SHAPE/sheet-cards.png`
 - **What happens now.** The same role, a solid content card, is drawn as follows (Table SHAPE-4):
 - **Why it matters.** Moving between apps, the same kind of surface changes its corner, weight and depth. The hub reads as separate web pages rather than one system.
@@ -1734,7 +1766,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-2 — Nine content column widths, and only two apps use a layout token
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Three column tokens exist and four apps use them: the Larder and Timer --col-narrow (Timer 608 → 560), Kid Verse and Verses --col-read (688 → 664/656 on the iPad), the shell and the build guide --margin. Prayer's 33rem column (491 px) and F260's 44rem/78rem are unchanged (SHAPE/remeasure margins); they move in batches 3 and 4. After: `audits/evidence/p6/1/p4/SHAPE/verify.json`, `audits/evidence/p6/1/p4/SHAPE/remeasure.json`.
 - **Evidence.** `audits/04-design-system.md:2234`; `apps/design.css:341-342`, `index.html:68`, `apps/f260.html:44`, `apps/leftovers.html:19`; `audits/screens/kidverse/kid-typical-ipad-landscape-light.png`
 - **What happens now.** Content columns are 360 (Tally's dial), 484-528 (Prayer, 33rem), 560 (Larder), 608 (Timer), 660 or 704 and then 1204 (F260, 44rem / 78rem), 688 (Kid Verse and Verses, the only users of `--max-read`), 788-880 and then 1200 (the shell), 1400 (the build guide) and full bleed (the park map) (Table SHAPE-3).
 - **Why it matters.** On the always-on iPad the family flips between apps constantly. A jumping content edge and phone-width columns on a landscape iPad look unplanned.
@@ -1743,7 +1776,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-3 — The spacing rhythm splits the system in two: `.ds` areas are 98-100 % on the 4 px grid, own-CSS areas 34-84 %
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** DEFERRED (`80af987`)
+- **Phase 6 (DEFERRED).** No own-CSS area moved to the 4 pt spacing tokens in batch 1: SHAPE/analyze's macro grid share F260 36.4 → 36.8 %, Prayer 44.3 → 44.2 %, the Larder 46.9 → 45.8 %, the park map 65.5 → 65.6 %. The finding assigns it to each app's batch (lint row): F260 4, Prayer 3, Larder 8, build guide 9, park map 10. (The .ds areas' share fell, e.g. Kid Verse 98.4 → 50.7 %, because the analyser's 4 px grid does not know the kid ×1.25 spacing scale.) After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/tests/repro-after/phase4__SHAPE__analyze.txt`.
 - **Evidence.** `audits/04-design-system.md:2259`; `apps/prayer.html:50`
 - **What happens now.** Macro spacing on the 4 px grid (rig / re-measure): shell 99.7 / 99.7 %, TV 100 / 100, Tally 100 / 100, Timer 100 / 100, Kid Verse 98.4 / 97.2, Verses 98.6 / 96.9. Against those: build guide 83.6 / 74.9, park map 65.5 / 54.5, Larder 46.9 / 45.5, Prayer 44.3 / 40.9, F260 36.4 / 34.1.
 - **Why it matters.** Uneven gaps make the large apps feel hand-assembled next to the small ones, and literal spacing is out of reach of any future iPad or kid spacing tier.
@@ -1752,7 +1786,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-4 — The main action of a screen has six corner shapes and heights from 44 to 60
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The primary action is a capsule at --btn-h-lg in the shell, Timer, Verses and Kid Verse: SHAPE/crops, shell .btn r16 → 999, Timer Start r22 → 999, Verses Show r28 → 999, Kid Verse Done r36 → 999 (F260 Done already was). The Larder's Log (r12, 52 px) and Prayer's Pray now (r12) are unchanged, and the build guide's tabs keep r0: batches 8, 3 and 9. After: `audits/evidence/p6/1/p4/SHAPE/crops.json`, `audits/evidence/p6/1/p4/SHAPE/sheet-buttons.png`.
 - **Evidence.** `audits/04-design-system.md:2274`; `apps/design.css:352`, `apps/verses.html:50`, `apps/kidverse.html:50`, `apps/prayer.html:192-194`; `audits/evidence/p4/SHAPE/sheet-buttons.png`
 - **What happens now.** The main actions are (Table SHAPE-6):
 - **Why it matters.** The one control each screen wants tapped looks different in every app, so pre-readers and grandparents get no learned "this is the button" shape.
@@ -1761,7 +1796,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-5 — Sheets and modals use four corner radii (five with the Dollywood popover) and three elevations
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** One sheet (--r-sheet, --elev-overlay) for the shell, hub.confirm, the template's ask() and F260's modal card (apps/f260.html:413 now reads --r-sheet). Prayer's #sheet keeps its literal 26 px top radius (apps/prayer.html:268): Prayer's batch 3. After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/p4/TELL/dialogs.json`.
 - **Evidence.** `audits/04-design-system.md:2292`; `apps/design.css:582`, `apps/prayer.html:239`, `apps/f260.html:385`
 - **What happens now.** (Table SHAPE-7.) The shell's `.sheet` is 36 at the top (44 for kids), at `--e4`. Prayer's `#sheet` is 26 at the top. The park map's sheet and the build guide's phone sheet are 24 at the top, with the literal upward shadow `0 -10px 40px -8px`. F260's modal card is 16 (`--r`), at `--e4`.
 - **Why it matters.** Sheets are the Liquid Glass surface the house style names, and four shapes make the same gesture feel different in each app.
@@ -1770,7 +1806,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-6 — The own-CSS areas use literal radii off the scale, and the kid radius scale misses the park map
 
-- **Area** design system (park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The template's radii read the --r-* roles and the kid radius scale reaches the park map (SHAPE/analyze: the park map's kid radii were literals 10/14/16/24 px, now 18/38/43, the ×1.5 kid scale of the --r-* roles). F260 (deferred by the F260 worker) and Prayer (literal 7, 18 and 26, still 48 % on scale) keep their literals: batches 4 and 3. After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/tests/repro-after/phase4__SHAPE__analyze.txt`.
 - **Evidence.** `audits/04-design-system.md:2321`; `apps/design.css:606`, `apps/design.css:283`, `apps/design.css:31`, `apps/prayer.html:239`
 - **What happens now.** Share of large non-pill radii on the `--r-*` scale: Kid Verse, Verses, Timer and the Larder 100 %; F260 94.8 %; shell 87.5 %; TV kiosk 63.6 %; build guide 55.0 %; Prayer 50.1 %; park map 42.4 %. The park map in kid mode is 10.8 %. The literals in use: Prayer: 7 (calendar), 18 (nav buttons), 26 (sheet);
 - **Why it matters.** Kids get rounder shapes in every app except the park map, and a later radius change would miss half the surfaces.
@@ -1779,7 +1816,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TELL-1 — Selectable chrome and callout suppression follow the `.ds` boundary exactly
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Base chrome rules now apply outside .ds (design.css:804: buttons, role=button/tab/switch, summary, decorative images and svg get user-select and touch-callout none). TELL/tells-webkit, selectable controls: F260 190 → 9, the Larder 9 → 0, Prayer 29 → 10, the build guide 54 → 2, the park map 13 → 1, the shell 4 → 0. Left: F260's links and a label, Prayer's row bodies (div.body ×9), two guide labels, one park link, which go to batches 4, 3, 9 and 10; the loupe and callout themselves also need a long-press on a real iPad. After: `audits/evidence/p6/1/p4/TELL/tells-webkit.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TELL__tells-webkit.txt`.
 - **Evidence.** `audits/04-design-system.md:6349`; `apps/design.css:355`, `apps/tally.html:22`, `apps/timer.html:10`
 - **What happens now.** Controls computing `-webkit-user-select: text` on the main screen (WebKit, iPad portrait): F260 all 190 (re-measure 192), Larder all 9 (15), Prayer all 29 (19), build guide all 54 (57), park map all 13 (15). The shell's 4 of 14 are the tab bar.
 - **Why it matters.** On an iPad or iPhone, a long press on a Done, week or chip button can raise the selection loupe or an image callout (needs a device). It happens exactly in the apps that keep their own CSS.
@@ -1788,7 +1826,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TELL-2 — Three confirmation idioms; 14 of 20 native dialog call sites are reachable in the shell and the Dollywood pair
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** One confirm sheet and undo toasts replace every native dialog: the shell's 11 confirm() calls are hub.confirm, the template's 1 + 2 are its ask() sheet, F260's one alert() is hub.alert; a search of index.html and apps/*.html finds no native confirm/alert/prompt left. TELL/dialogs: shell-adult-me 2 → 0, shell-mom-me 1 → 0, build guide Reset 1 → 0, park map 2 → 0. The 0c and 0h checks that waited on native dialogs were updated and pass (forget-device, guide-import-check). After: `audits/evidence/p6/1/p4/TELL/dialogs.json`, `audits/evidence/p6/1/checks/forget-device.txt`, `audits/evidence/p6/1/checks/guide-import-check.txt`.
 - **Evidence.** `audits/04-design-system.md:6365`; `apps/f260.html:1756`, `apps/prayer.html:1089`
 - **What happens now.** 20 native call sites (Table TELL-6). 14 are reachable in the shipped UI: shell 9, build guide 2, park map 3. A run in WebKit raised and dismissed 9 of them. F260 confirms in an in-app modal (`confirmModal`, `apps/f260.html:1756`), and Prayer in an inline `ask()` panel (`apps/prayer.html:1089`).
 - **Why it matters.** `alert()` and `confirm()` are a named web tell. The alternatives already exist in two apps but are not shared, so each area improvises.
@@ -1797,7 +1836,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-1 — Four local token vocabularies, in which "ink" means four different things
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The Dollywood template's local vocabulary moved to the role tokens in batch 1 (template rebuilt, verify.py passed, exported). F260's and Prayer's alias sets and the Larder's stay: the migration table puts each app-local vocabulary in that app's batch (F260 4, Prayer 3, Larder 8), and the F260 and Prayer workers left them for there. After: `audits/evidence/p6/1/p4/TOK/local-tokens.json`, `audits/evidence/p6/1/p4/TOK/usage-matrix.json`.
 - **Evidence.** `audits/04-design-system.md:841`; `apps/f260.html:16-20`, `apps/prayer.html:24-34`, `apps/dollywood.html:212`, `apps/leftovers.html:14`
 - **What happens now.** The duplicated alias sets. F260 and Prayer each define the same nine aliases for design tokens (apps/f260.html:16-20; apps/prayer.html:24-34).
 - **Why it matters.** The same word points to opposite roles, so a change made by name lands on the wrong surface.
@@ -1806,7 +1846,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-2 — The non-`.ds` apps reuse design.css class names for different components, and the segmented control exists four ways
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** DEFERRED (`80af987`)
+- **Phase 6 (DEFERRED).** Nothing landed: the non-.ds apps still reuse design.css class names and the segmented control exists four ways. Gap row TOK-20 is "Open: done per app batch" (F260 4, Prayer 3, build guide 9, park map 10); the template and F260 workers left it for those batches. After: `audits/evidence/p6/1/p4/TOK/usage-matrix.json`.
 - **Evidence.** `audits/04-design-system.md:853`; `apps/design.css:465-468`, `apps/f260.html:60`, `apps/prayer.html:66`, `apps/dollywood.html:25`
 - **What happens now.** The names collide. F260 (`.btn` ×35, `.row` ×10, `.seg` ×8, `.switch`, `.sheet`, `.toast`), Prayer (`.chip` ×10, `.small` ×25, `.pill`, `.sheet`, `.toast`, `.switch`) and the Dollywood template (`.btn`, `.badge`, `.pill`, `.stat`) have no `body.ds`.
 - **Why it matters.** It blocks a gradual move to `.ds`, and the same control looks different from app to app.
@@ -1815,7 +1856,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-3 — 168 `color-mix()` recipes, with the person colour mixed at 27 different ratios
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** color-mix() recipes 158 → 76 by TOK/literals' count: the Larder 6 → 0, Tally 8 → 0, Timer 5 → 0, F260 8 → 1, Prayer 10 → 1, Kid Verse and Verses 2 → 1, the shell 6 → 4, each Dollywood export 48 → 25 (design.css 15 → 18 within the token definitions). The template's remaining recipes go with batches 9/10 and the shell's with 2a. After: `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__literals.txt`.
 - **Evidence.** `audits/04-design-system.md:871`; `apps/tally.html:47`
 - **What happens now.** Counts. 168 occurrences and 99 distinct recipes (re-measure): design.css 55;
 - **Why it matters.** Tints drift from app to app and cannot be re-tuned per theme in one place.
@@ -1824,7 +1866,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-1 — Ten areas, eight large-title treatments, none 34 bold with tight tracking; three apps repeat the viewer bar's title
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Display titles moved to the bold text face (D6): the rig finds no serif title left (serif texts: shell 1,012 → 0, build guide 3,730 → 0, Kid Verse 682 → 0; what serif remains is reading text, e.g. Verses' verse and Prayer's answer notes). Not landed: the apps inside the viewer still repeat its title ("F260 Reading Plan", "The Larder Ledger", "Kitchen timer"), which D6 drops in each app's batch. TYPE/report.mjs and montage.mjs read the committed rig (stale). After: `audits/evidence/p6/1/measure/type.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__report.txt`.
 - **Evidence.** `audits/04-design-system.md:1422`; `apps/design.css:331-332`, `apps/dollywood.html:223`, `index.html:335`; `audits/evidence/p4/TYPE/titles-ipad-portrait.png`
 - **What happens now.** Titles by area (iPad portrait, re-measured live): shell: view h1 36/400 ui-serif, tracking normal; Home hero 44/400 serif;
 - **Why it matters.** The one element that should identify a screen changes face, weight and size in every app, so moving between apps feels like moving between websites.
@@ -1833,7 +1876,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-2 — The same role is set differently in every area: section headers seven ways, buttons 13-18 px at weights 400-700, body 14.5-22 px
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Roles come from the Dynamic Type tokens in the .ds areas, the Larder (every size a role: code-scan 28 px literals → 26 role tokens) and the template. F260's headers and buttons (F260 worker: CONS-TYPE-2 deferred) and Prayer's sizes (still px × text size, not roles) move in batches 4 and 3. After: `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__code-scan.txt`.
 - **Evidence.** `audits/04-design-system.md:1440`; `apps/design.css:306-309`, `apps/f260.html:55-125`
 - **What happens now.** Section headers: shell 18/700; F260 15/700; Larder 13/700 caps; Prayer 19/600; Verses and Kid Verse 18/700; build guide 16/400 serif; park map 15/600 generic serif.
 - **Why it matters.** Hierarchy has to be relearned in each app, and a heading of the same kind means something different in each.
@@ -1842,7 +1886,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-3 — Big numerals in four faces; tabular figures missing in F260, Prayer and Kid Verse
 
-- **Area** design system (F260, Prayer, Kid Verse) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260, Prayer, Kid Verse) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Numerals read --font-numeral with tabular figures in F260, Prayer and Kid Verse (apps/prayer.html:94, 155; apps/kidverse.html:93; F260's done stats) as well as the .ds apps. Kid Verse visual.mjs: the star count 44/700 ui-serif → 40.8/900 ui-rounded and the bank number serif → rounded; the rig finds no serif numerals left (Tally serif texts 36 → 0). After: `audits/evidence/p6/1/p3/kidverse/visual.json`, `audits/evidence/p6/1/measure/type.json`.
 - **Evidence.** `audits/04-design-system.md:1451`; `index.html:197`, `apps/dollywood.html:14-15`, `apps/tally.html:58`, `apps/kidverse.html:62`
 - **What happens now.** ui-rounded 700-900: the TV clock, the Verses stats and the shell's star counts;
 - **Why it matters.** Counts are the most glanced-at text in the hub, and one numeral face would tie the apps together.
@@ -1851,7 +1896,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-4 — The kid type scale reaches five of the eight kid-visible areas, and `--fs-xs` never scales, so kickers, tab labels and captions stay 12 px for kids
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The kid block scales every role, captions included (--fs-floor 16 for kids, --fs-xs now scales). Kid Verse visual.mjs (kid, iPhone): kicker, captions, badge names 12 → 16, badge hints 10 → 16, no kid text under 16; the Larder sizes every text with roles (code-scan 0 px literals); the template's kid floor is 16 (compass 9 → 16). TYPE/report.mjs reads the committed rig (identical output), stale. After: `audits/evidence/p6/1/p3/kidverse/visual.json`, `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__report.txt`.
 - **Evidence.** `audits/04-design-system.md:1464`; `apps/design.css:280-284`; `audits/screens/kidverse/kid-rewards-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/kid-typical-ipad-portrait-dark.png`
 - **What happens now.** Shared selectors that grow in kid mode (the re-measure's full sets): shell 36/42, Tally 4/5, Timer 4/5 (not the digits), Verses 12/13, Kid Verse 10/16. None grow in the Larder (0/15) or the park map (0/43), because both set sizes in literal px. Prayer builds its own kid layout (2/4 shared selectors grow; its kid minimum is 14 px).
 - **Why it matters.** Kid mode is meant to be one consistent, larger world. In two apps it is simply the adult page.
@@ -1860,7 +1906,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-5 — Kid display type is serif in every kid-visible area except Prayer
 
-- **Area** design system (Prayer) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Prayer) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Kid mode is rounded everywhere (D6): Kid Verse's kid h1 and body ui-rounded (visual.mjs fonts; the reference was ui-serif 400), and the rig finds no serif text in Kid Verse, Tally, Timer or the shell (682, 36, 111, 1,012 → 0). Prayer's Google Fonts are gone (D13), so its kid view uses the same stack. After: `audits/evidence/p6/1/p3/kidverse/visual.json`, `audits/evidence/p6/1/measure/type.json`.
 - **Evidence.** `audits/04-design-system.md:1477`; `apps/design.css:18`, `apps/design.css:19-20`, `apps/kidverse.html:36`, `apps/tally.html:58`
 - **What happens now.** The largest kid text is ui-serif, which is New York on Apple devices:
 - **Why it matters.** The pre-reader's big type (their stars, their verse) is exactly where the friendly rounded face matters most.
@@ -1869,7 +1916,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-7 — Five of nine apps size text in literal px and bypass the tokens: F260 122, the Dollywood template 149, Prayer 64, the Larder 16, against a fully tokenised shell
 
-- **Area** design system (F260, Prayer, Larder) · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system (F260, Prayer, Larder) · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Literal px sizes moved to roles in F260 (code-scan: 123 px → 0; 56 role tokens, 68 px × text-size clamps), the Larder (28 → 0) and the template (149 → 8); Kid Verse 4 → 2. Prayer's 64 px literals became 63 px × --ts clamps, so text size reaches Prayer, but the move to roles was left to Prayer's batch (3) by the Prayer worker. After: `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__code-scan.txt`.
 - **Evidence.** `audits/04-design-system.md:1514`
 - **What happens now.** Declared sizes, token against literal: design.css 29/0 and `index.html` 51/0 (bare px; six `clamp()` declarations carry px bounds). Verses 15/1, Kid Verse 27/4; Tally and Timer use tokens plus a clamp.
 - **Why it matters.** Every hub-wide type change (kid mode, an iPad tier, larger text) silently skips F260, Prayer, the Larder and both Dollywood exports. Table TYPE-4 shows it already happens for kids in the Larder and the park map.
@@ -1878,7 +1926,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-DARK-1 — Dark soft fills sit 1.01-1.22:1 from the card, so every soft-filled state goes muddy or vanishes; one token choice explains six per-app Phase 3 findings
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Dark fills sit 1.52-1.58:1 or more off every card (up to 1.708 on Graphite), gated at 1.5 in contrast.mjs (0 failing). DARK/palette-dark.mjs now crashes on the new design.css (it parses hex tokens; exit 0 → 1), so it is stale. Rendered: the Larder's dark chips 1.01-1.08 → 1.52-1.70 off the card (worker probe), Verses' dark fill and box-bar failures in the rig 199 → 0 (measure nontext). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/measure/nontext.json`, `audits/evidence/p6/1/tests/repro-after/phase4__DARK__palette-dark.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The measured token contrasts are right, but the causal claim is wrong. The -soft tokens do not explain VIS-TALLY-1 (glass discs), VIS-KIDVERSE-3 (the 1.14/1.15 figures are surface-2 against surface), the Prayer kid fills (accent-deep against olive) or VIS-F260-2 (--sunk).
 - **Evidence.** `audits/04-design-system.md:4848`; `apps/design.css:163-168`, `apps/design.css:169`; `audits/evidence/p4/SCORE/shots/forest/tally/main-typical-ipad-portrait-light.png`, `audits/evidence/p4/SCORE/shots/midnight/leftovers/main-typical-ipad-portrait-light.png`
 - **What happens now.** In Midnight the semantic `-soft` tokens (`apps/design.css:163-168`) against `--surface` #241E19 measure: mocha 1.10, gold 1.08, olive 1.07, teal 1.02, terra 1.01, slate 1.11; Forest 1.02-1.10. `--accent-soft` (`color-mix(accent 14%, surface)`, `apps/design.css:169`) measures 1.08-1.22 (Forest 1.08-1.21).
@@ -1888,7 +1937,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-DARK-2 — The dark depth ladder is flat and "sunken" goes darker, so wells, tracks and skeletons read as holes
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** A lifted dark ladder: wells and sheets are lighter than cards (Midnight surface #211F1D, surface-2 #2E2B28; was #241E19 over a darker #15110E). contrast.mjs gates the depth checks (26 kinds, 0 failing). DARK/palette-dark.mjs crashes on the hex parser (stale). Rendered: F260's empty cells against the dark page 1.04 → 1.41 with the --cell-empty ring on top (vischeck-empty-cells). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/p3/f260/vischeck-empty-cells.json`, `audits/evidence/p6/1/p4/COLOR/verify-raw-accent-ink-no-dark-lift-1-tokens-prayer.json`.
 - **Evidence.** `audits/04-design-system.md:4870`; `apps/design.css:157`, `apps/f260.html:16`, `apps/prayer.html:24`, `apps/timer.html:28`
 - **What happens now.** Card against page is 1.10:1 in Midnight and 1.12:1 in Forest. `--surface-2` is darker than the card (1.14:1 in Midnight, 1.16:1 in Forest; `apps/design.css:157`), and it backs every well, track and skeleton: F260 and Prayer map `--sunk` to it (`apps/f260.html:16`, `apps/prayer.html:24`); the Larder's ✓ wells;
 - **Why it matters.** Progress tracks, empty cells and input wells lose their shape in dark in every app that uses them.
@@ -1897,7 +1947,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-GLASS-1 — No glass surface responds to Reduce Transparency or Increase Contrast, in any area, and there is no in-app toggle
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Reduce Transparency and Increase Contrast blocks (attribute + media mirror) and the Me → Appearance switches (D11: glass Clear/Current/Frosted/Solid, Increase contrast). GLASS/prefs: glass elements that change under reduced transparency 0 → all (F260 3, Larder 4, Prayer 4, Tally 5, Timer 3, build guide 8, park map 10, Kid Verse 6, Verses 5), and under contrast-more too; verify-1a: Solid makes the tab bar opaque with no blur on a second device. After: `audits/evidence/p6/1/p4/GLASS/prefs.json`, `audits/evidence/p6/1/checks/verify-1a-webkit.txt`, `audits/evidence/p6/1/appearance-webkit-light-set.png`.
 - **Evidence.** `audits/04-design-system.md:3555`; `index.html:1258`
 - **What happens now.** `prefers-reduced-transparency`, `prefers-contrast` and `forced-colors` occur 0 times in `index.html`, `apps/design.css`, `apps/hub.js` and the nine apps. Me → Appearance offers only theme cards (`index.html:1258`).
 - **Why it matters.** The house style requires it, and a household member who turns on Reduce Transparency still gets the translucent composer, sheets and tab bar.
@@ -1906,7 +1957,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-ICON-1 — The design system has no icon tokens, size scale, weight rule, ink rule or shared sprite, and the style guide shows one glyph
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Icon tokens landed: --icon-xs…xl (× --icon-k for kid and TV), --icon-stroke 1.75 non-scaling, --icon-duo / --icon-duo-opacity, and the ink rule (glyphs on tints read -ink). ICON/report: icons under 3:1 436 → 388, small targets 6 → 0. The style guide still shows the one plus glyph (docs/design.html #icons): the sprite inventory, gap row ICON-11, is "Open: style-guide work" with no batch named. After: `audits/evidence/p6/1/p4/ICON/rollup.json`, `audits/evidence/p6/1/tests/repro-after/phase4__ICON__report.txt`.
 - **Verified (step 3).** was medium; skeptics low and low (partly). Correction: Minor points only. The style guide has three #i-plus copies on hex --tint tiles plus one bare icon-lg, not four each on a hex tint. F260 carries its own 11-symbol sprite, so index.html is not the only inline sprite; what is true is that no shared, loadable sprite exists.
 - **Evidence.** `audits/04-design-system.md:3052`; `apps/design.css:602-603`
 - **What happens now.** `.icon` at 24 / 32 px with a 1.75 stroke (`apps/design.css:602-603`);
@@ -1916,7 +1968,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-ICON-2 — A custom shell set rather than one open-source set; Lucide and Feather paths ship without their licence notice
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The Lucide ISC notice now ships (icons/LICENSE-lucide.txt, the licence text as published, naming the Larder's icons and F260's sprite; a comment in apps/leftovers.html). Not landed: the notice does not name the template's Lucide/Feather paths (dollywood.html:1744-1746 in the finding), and no shared Lucide set replaces the custom look-alikes; that goes with each app's batch (F260 worker: "GAP-ICON-2 (set)" to batch 4; shell 2a; template 9/10). After: `audits/evidence/p6/1/p4/ICON/static.json`.
 - **Evidence.** `audits/04-design-system.md:3074`; `apps/leftovers.html:148`, `apps/f260.html:531-541`, `apps/dollywood.html:1744-1746`
 - **What happens now.** The shell set is custom. The shell and tile icons are hand drawn, not Lucide or Phosphor.
 - **Why it matters.** Lucide and Feather paths ship without their licence.
@@ -1925,7 +1978,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-MOTION-1 — Cold-load layout shift: CLS reads near zero where views are rebuilt with `innerHTML` while blocks move hundreds of pixels, and F260, the Larder and Kid Verse fail CLS outright
 
-- **Area** design system (F260, Larder, Kid Verse) · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260, Larder, Kid Verse) · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Kid Verse and the Larder hold still: at 150 ms latency Kid Verse's CLS 0.073 (iPad) / 0.163 (iPhone) → 0 / 0; with the pull held the Larder's landmark moves 1 (363/472 px) → 0. F260 still moves 9 landmarks as data lands, the week stepper 317 px on the iPad and 514 px on the iPhone (was 333/578 held, 405/598 at 150 ms): F260's batch 4; shell Home 313/418 px: batch 2a. (The worker's F260 CLS 0.26 → 0.16 / 0.32 → 0.13 is not in the filed evidence; MOTION/cls reads CLS 0 for F260 in both runs.) After: `audits/evidence/p6/1/p4/MOTION/cls-lat150.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__cls.txt`.
 - **Evidence.** `audits/04-design-system.md:4179`; `audits/screens/kidverse/kid-loading-ipad-portrait-dark.png`, `audits/screens/f260/today-loading-iphone-pwa-light.png`
 - **What happens now.** Undercounted by CLS (first pull held 2.5 s, Table MOTION-6): Shell Home: CLS 0.025 / 0 while "Around the house" moves 218 / 348 px (iPad / iPhone; 260 / 435 px at 150 ms latency, at CLS 0).
 - **Why it matters.** The primary buttons (Pray now, Kid Verse's action row with Say, the F260 stepper) move under the finger as data lands.
@@ -1934,7 +1988,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-MOTION-3 — Press states may never show on iPhone or iPad in most areas: few documents register the touch listener iOS needs for `:active`
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`80af987`)
+- **Phase 6 (NEEDS DEVICE CHECK).** hub.js registers a passive document touchstart listener in every document that loads it (apps/hub.js:1130), so iOS can show :active. The rig cannot prove it (Chromium and desktop WebKit show :active without the listener): check on a real iPhone and iPad that a tap on a Tally button, a Home card button and an F260 week button visibly presses in (scale 0.97 and a dim). After: `audits/evidence/p6/1/p4/MOTION/press.json`.
 - **Evidence.** `audits/04-design-system.md:4215`; `index.html:664`, `apps/f260.html:2040`, `apps/prayer.html:1716`, `index.html:366`
 - **What happens now.** The quirk. iOS Safari applies `:active` on touch only when a touch event listener exists on the element or an ancestor. Each app runs in its own iframe document, so each needs its own listener.
 - **Why it matters.** If the quirk holds, every press scale measured in this audit is invisible on the family's primary devices.
@@ -1943,7 +1998,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-SHAPE-1 — Elevation has no role tokens and no upward level, so each role gets a different depth and the bars use literals
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Elevation role tokens (--elev-card, -control, -float, -overlay, -toast, -bar-up, with --e-up) exist, and design.css's components read them (the tab bar's upward shadow is --elev-bar-up, cards --elev-card, sheets --elev-overlay). SHAPE/analyze shows the shared cards on --elev-card; the apps' own literal shadows are the per-app rows (e.g. the park map's literal upward shadow). After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/p4/SHAPE/crops.json`.
 - **Evidence.** `audits/04-design-system.md:2307`; `apps/design.css:558`, `apps/design.css:413`, `apps/tally.html:50`
 - **What happens now.** (Table SHAPE-10.) Content cards use none, `--e1` or `--e2`; buttons none, `--e1` or `--e2`; floating glass controls `--e2` or `--e3`. The bottom-anchored bars use two literal upward shadows: `0 -1px 0` + `0 -12px 40px -24px`, on the shell's tab bar (`apps/design.css:558`), copied into Prayer's nav;
 - **Why it matters.** Without roles each app picks its own depth. The token proposal needs the roles to make depth consistent.
@@ -1952,7 +2008,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-1 — The contrast gate checks 15 pair kinds; design.css's components paint 27 more, and 18 of those fail somewhere
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** contrast.mjs is now the design gate over every component pair design.css paints: 2,369 check kinds, 202,134 evaluations, 0 failing, 40/40 mutations caught; TOK/guide-contrast: the style guide's table 15 → 22 pair kinds, 62 rows, 0 fails in every palette on both OS modes. Not landed: scripts/test-design.mjs does not run contrast.mjs (the proposal says it should), so the repo suite does not gate it; no batch is named for that wiring. TOK/pairs.mjs is stale (old recipes). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/p4/TOK/guide-contrast.json`, `audits/evidence/p6/1/tests/suites/test-design.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The claim that the gate never running Hearth on a dark OS makes P2-VIS-03 'invisible to the test' is misleading. Hearth on a dark OS paints the same token values as Midnight, and the System-dark run already checks those.
 - **Evidence.** `audits/04-design-system.md:661`; `scripts/test-design.mjs:47-53`, `apps/design.css:47`, `index.html:449`
 - **What happens now.** Areas: design.css, docs, the shell, Kid Verse, Dollywood, Verses.
@@ -1962,7 +2019,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-3 — Profile and app colours are single light-theme hex values that never re-tune; as foregrounds in Midnight and Forest, 17 of 19 fall under 3:1
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** People now carry a hue family: the profile hue column (migrations/007-profile-hue.sql, seed.sql), hue in the session and the API, data-accent re-tuned per scheme (verify-1a: every avatar data-accent, Mae peach, the TV graphite). Apps do not yet: tiles still paint the apps.json hex, and TOK/appcolours still finds 17 of 19 app and swatch colours under 3:1 as glyphs in Midnight and Forest (unchanged); apps.json "hue" is batch 2 (2a) by the migration table. TOK/tokens.mjs is hard-coded (stale). After: `audits/evidence/p6/1/checks/verify-1a-webkit.txt`, `audits/evidence/p6/1/p4/TOK/appcolours.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__appcolours.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'The TV and the dark palettes lose the per-person colour cue' is overstated. The hues remain distinguishable and the rings and glyphs remain visible, only dimmer (1.9-3.0). As rendered, 6 of 9 app glyphs (adult grid) and 3 of 7 (kid grid) fall under 3:1, not the 8 of 9 from the 22%-stop worst case.
 - **Evidence.** `audits/04-design-system.md:717`; `worker/seed.sql:4-11`, `index.html:449`, `apps/hub.js:461`, `index.html:450`; `audits/screens/shell/apps-typical-ipad-portrait-dark.png`
 - **What happens now.** design.css re-tunes every hue family per palette (for example `--olive` #5B8143 → #9DC183 in Midnight). The person and app colours, though, are each one hex, stored in:
@@ -1972,7 +2030,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-4 — Kid and kiosk scale only the tokenised subset; every literal size escapes them
 
-- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Kid and kiosk now scale every role (--ts = width × user × kind, --fs-floor, legacy --fs-* scale), and literal type sizes moved to roles: code-scan px sizes F260 123 → 0, Larder 28 → 0, template 149 → 8 (Prayer's are px × --ts). Spacing literals stay (TOK/literals: F260 211, Prayer 142, template 75/91; the F260 worker deferred GAP-TOK-4), and the TV's 10-foot scale is the opt-in batch 2c turns on. The rest: batches 4, 3, 9/10 and 2c. After: `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__literals.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The shell citations are wrong: index.html:60 is the adult PIN pad, :124 is a kiosk rule, and :188 is an icon size. None of them is a [data-kind=kid] rule restating 64/84px, and the kid CTA already uses var(--tap-lg).
 - **Evidence.** `audits/04-design-system.md:741`; `apps/design.css:280-289`, `index.html:60`
 - **What happens now.** Areas: design.css, the shell, F260, the Larder, Prayer, the park map.
@@ -1982,7 +2041,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-5 — There are no weight, z-index, opacity, breakpoint, press-scale, fluid-type or composite-glass tokens, so each area invents its own
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Weight, z-index, opacity, breakpoint, press-scale, fluid-type and composite-glass tokens exist (--fw-*, --z-*, --press-scale/-dim, --fs-display/--fs-numeral-*, --glass-bg/-filter/-shadow; breakpoints documented at 390/744/1024/1180/1600). TOK/literals: literal font weights design.css 21 → 0, Kid Verse 16 → 0, Verses 10 → 0, Larder 10 → 0, Tally 4 → 0; glass-filter literals 42 → 5. F260's 88 weights and Prayer's 51 are their batches' lint rows (4, 3). After: `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__literals.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The counts hold (25 saturate copies, 16/18 breakpoints). The 'why it matters' overstates the risk. Overlays from different areas cannot collide, because apps live in separate iframe documents with their own stacking contexts. The hand-copied glass has not diverged.
 - **Evidence.** `audits/04-design-system.md:765`; `index.html:261`, `apps/dollywood.html:215`
 - **What happens now.** What each area invents (Table TOK-F): Weights: literal weights in all 11 areas: design.css 20 (600 ×10, 700 ×7, 400 ×3), shell 26, F260 87 (800 ×16), Prayer 52, park map 40, Kid Verse 16.
@@ -1992,7 +2052,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-6 — design.css cannot scope the accent to one component, because the derived accent tokens resolve once on `:root`
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** data-accent on any element re-derives every accent role for its subtree (the :root,[data-accent],[data-scheme],[data-theme-preview] role block). TOK/verify-accent-repoint: Prayer's Family list, current nav item and FAB all take aqua's deep (#0B6468; the FAB and Pray now kept Eli's deep before); Kid Verse's Done ★ takes butter for both kids (verify-critic-star-buttons-not-gold-5-2); browser-check confirms the nested scope in both engines. After: `audits/evidence/p6/1/p4/TOK/accent-repoint.json`, `audits/evidence/p6/1/p4/TOK/accent-repoint-kidverse-ezra.png`, `audits/evidence/p6/1/checks/browser-check.txt`.
 - **Evidence.** `audits/04-design-system.md:783`; `apps/design.css:86-102`, `apps/verses.html:56-58`, `apps/kidverse.html:55`, `apps/prayer.html:39`
 - **What happens now.** `--accent-soft/-tint/-deep/-glow`, `--glow-accent` and `--focus` are declared on `:root` (apps/design.css:86-102) and inherit as computed values. A component that sets `--accent` therefore has to restate each derived token by hand. Three areas tried:
 - **Why it matters.** Two of the three attempts in the codebase got it wrong, and every future per-component colour will hit the same trap.
@@ -2001,7 +2062,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-7 — The "every colour is a token" rule fails only on `#hex` in the first `<style>`
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The rule-level colour literals are gone from the shell, F260, the Larder, Tally, Timer, Kid Verse and Verses: what TOK/literals now counts there (17 per file) is the pre-paint bootstrap's palette map, and in design.css the v3 token definitions the script does not know (18 → 437). Not landed: the lint was not extended; scripts/screens-apps.mjs still checks only #hex in <style>, not rgb(), named colours or inline styles. No later batch is named for it. After: `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__literals.txt`.
 - **Evidence.** `audits/04-design-system.md:801`; `scripts/screens-apps.mjs:41-49`, `scripts/screens-shell.mjs:114-115`, `apps/dollywood-live.html:496-508`, `apps/prayer.html:1537`
 - **What happens now.** Areas: the shell, design.css, F260, the Larder, Prayer, both Dollywood files.
 - **Why it matters.** CLAUDE.md's "every colour in every app is a token" is enforced for one syntax only.
@@ -2010,7 +2072,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-8 — Each dark palette is stored two or three times in design.css
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** One block per palette: the @media dark copy and the .tp[data-preview] copies are gone; Me's theme cards and the style guide's previews carry data-theme-preview + data-scheme + data-accent. test-design (60/0): the six previews each paint their own palette whatever the page theme, and every data-scheme / data-theme-preview element also carries data-accent; verify-1a: the Midnight swatch and System's night half paint Midnight (#0B0A09) with the dark accent. After: `audits/evidence/p6/1/tests/suites/test-design.txt`, `audits/evidence/p6/1/checks/verify-1a-webkit.txt`, `audits/evidence/p6/1/appearance-webkit-light.png`.
 - **Evidence.** `audits/04-design-system.md:815`; `apps/design.css:156-175`
 - **What happens now.** Midnight's 47 values are byte-identical in three places: `:root[data-theme=midnight]` (apps/design.css:156-175), the `@media` dark `:root:not([data-theme])` block (:176-197) and `.tp-half` (:257-276).
 - **Why it matters.** A palette fix has to be made in two or three places, or the System-dark and swatch copies drift.
@@ -2019,7 +2082,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TYPE-3 — The system has no 11 px floor and nothing checks for one: 10 components in 4 areas go below
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** An 11 px floor sits in every role (--fs-floor, 16 for kids): the rig finds no measured text under 11 px in any area (under-11 groups: build guide 1, park map 3, F260 3, Kid Verse 4 → 0), and code-scan's sub-11 literals 15 → 4 (F260 1 → 0, Kid Verse 2 → 0, each Dollywood export 6 → 2). Left: the template's SVG labels (.clab/.onum, 6.8 px at the far zoom, TYPE/hidden-text), a design choice for the build guide's batch 9, and the lint for sub-floor literals, which did not land. After: `audits/evidence/p6/1/measure/type.json`, `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/p4/TYPE/hidden-text.json`.
 - **Evidence.** `audits/04-design-system.md:1490`
 - **What happens now.** Table TYPE-5 lists the components: the compass N in both exports, the park map's MIN, F260's WEEK, Kid Verse's day letters and badge dates, the build guide's toolbar captions, and its four groups of SVG labels.
 - **Why it matters.** Sub-floor text keeps reappearing, app by app, because nothing in the system forbids it.
@@ -2028,7 +2092,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-KIDVERSE-14 — Done ★ and "I heard it" set `--accent` to gold but paint in the kid's own colour (teal for Ezra)
 
-- **Area** kidverse · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Done ★ and "I heard it" carry data-accent="butter" and paint butter-strong for every kid. verify-critic-star-buttons-not-gold-5-2: the painted fill was each kid's own deep (Ezra teal, Kiara gold mix) → #735A00 in Hearth and #E7D695 in Midnight for both Ezra and Kiara; -5-1 shows the same --accent-deep on the elements; Kid Verse visual.mjs has no failing pair (min p10 5.15). After: `audits/evidence/p6/1/p3/kidverse/verify-critic-star-buttons-not-gold-5-2.json`, `audits/evidence/p6/1/p3/kidverse/verify-critic-star-buttons-not-gold-5-1-ezra-midnight-done.png`, `audits/evidence/p6/1/p3/kidverse/verify-critic-star-buttons-not-gold-5-1.json`.
 - **Evidence.** `audits/03-apps/kidverse.md:615`; `apps/kidverse.html:55`, `apps/design.css:361`, `apps/design.css:89`, `apps/verses.html:56-58`; `audits/evidence/p3/kidverse/verify-critic-star-buttons-not-gold-5-1-ezra-hearth-done.png`, `audits/evidence/p3/kidverse/verify-critic-star-buttons-not-gold-5-1-ezra-midnight-done.png`
 - **What happens now.** The app sets `--accent: var(--gold)` on `.btn.done` and `.btn.story-heard` (`apps/kidverse.html:55, 137`). Both are `btn btn-primary` (`:160, 173`), and `.btn-primary` paints from `--accent-deep` (`apps/design.css:361`).
 - **Why it matters.** For pre-readers, colour carries meaning: the star button changes colour with whoever is signed in, and the code does not do what it says.
@@ -2037,7 +2102,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-15 — The add bar's 12 px error line is below AA in Hearth (from the critic)
 
-- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The add bar's error line is --danger-ink at footnote size (13 px). verify-critic-err-line-below-aa-hearth-4-1: 12 px terra 4.27 (Hearth) / 4.47 (Parchment) / 4.66 (Frost) → 7.95 / 7.49 / 7.95, dark 6.3 → 10.3-10.65; -4-2 at rest over the cards 4.3 → 7.95-7.98. critic-err-contrast.mjs now crashes (it parses rgba only and the ink is rgb), so it is stale. After: `audits/evidence/p6/1/p3/leftovers/verify-critic-err-line-below-aa-hearth-4-1.json`, `audits/evidence/p6/1/p3/leftovers/verify-critic-err-line-below-aa-hearth-4-2.json`, `audits/evidence/p6/1/p3/leftovers/verify-critic-err-line-below-aa-hearth-4-1-hearth-bar.png`.
 - **Evidence.** `audits/03-apps/leftovers.md:703`; `apps/leftovers.html:322`, `apps/leftovers.html:293`, `apps/leftovers.html:96`, `apps/leftovers.html:63`; `audits/evidence/p3/leftovers/critic-err-contrast-hearth-iphone.png`, `audits/evidence/p3/leftovers/verify-critic-err-line-below-aa-hearth-4-1-hearth-bar.png`
 - **What happens now.** `.err` is 12 px in `var(--danger)` (`apps/leftovers.html:63`), which is the terra tone, not `--danger-ink` (`apps/design.css:82`). It sits at the bottom of the glass add bar (`apps/leftovers.html:33-45, 130`).
 - **Why it matters.** The one line that says why a voice entry failed is the hardest text in the app to read, at the bottom of a translucent bar.
@@ -2046,7 +2112,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-ACCENT-04 — Person-coloured rings in the apps are never lifted for the scheme: the Timer dial is 2.09-2.64:1 for David and Eli in dark, and Kiara's gold rings fall to 2.32-2.69:1 in Parchment
 
-- **Area** design system (Timer) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Timer) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Person-coloured rings and arcs read --accent-graphic (3:1 or more per scheme). verify-raw-accent-graphics-light-and-apps-2: the park map's selected-tab icon in dark 1.52-2.29 → 6.95-7.03, Kiara's in Hearth and Parchment 2.26-2.45 → 5.86, Kid Verse's earned star 5.77. The Timer arc for David and Eli in dark 2.2 / 2.64 → 9.33 / 8.65 is the worker's probe (not filed). ACCENT/remeasure.mjs reads committed data (identical output), stale. After: `audits/evidence/p6/1/p4/ACCENT/verify-raw-accent-graphics-light-and-apps-2.json`, `audits/evidence/p6/1/p4/ACCENT/verify-raw-accent-graphics-light-and-apps-2-timer-dad-dark.png`, `audits/evidence/p6/1/p4/ACCENT/verify-raw-accent-graphics-light-and-apps-2-kidchip-parchment.png`.
 - **Evidence.** `audits/04-design-system.md:5482`; `apps/design.css:496-498`, `apps/timer.html:22`, `index.html:351`, `apps/prayer.html:416-419`
 - **What happens now.** The rules. `--accent` and `--tint` are painted as stroke and ring colours with no per-scheme value: the avatar rings (`apps/design.css:496-498`); the ring arc (`:528`); the Timer dial, `.dial { --tint: var(--accent) }` with `.ring .fg { stroke: var(--tint) }` (`apps/timer.html:22, 29`); the timer pill (`index.html:351`);
 - **Why it matters.** Rings carry the time remaining, and the avatar ring is how a person's colour is seen next to their face. A kid's own rings fade on a light theme her parents may pick.
@@ -2055,7 +2122,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-ACCENT-05 — An admin recolour never reaches a person who is already signed in: their chrome and every open app keep the old colour until they next sign in
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The session profile refreshes from /api/me on a pull, at most once a minute (ACCENT-9), so an admin recolour reaches people already signed in. verify-1a: the admin sets Mae to mint and her signed-in session turns mint on the next pull (by hue). verify-recolour-not-propagated-1/-2: the client now fetches /api/me (0 → 1 calls) but the scripts still read the old hex, because they set a colour hex, freeze the clock and give up at 35 s against the 60 s throttle (stale). After: `audits/evidence/p6/1/checks/verify-1a-webkit.txt`, `audits/evidence/p6/1/p4/ACCENT/verify-recolour-not-propagated-1.json`, `audits/evidence/p6/1/p4/ACCENT/verify-recolour-not-propagated-2.json`.
 - **Evidence.** `audits/04-design-system.md:5547`; `apps/hub.js:80`, `index.html:1684`, `worker/src/index.js:270`, `apps/hub.js:286-320`
 - **What happens now.** Where the colour comes from. `--accent` is `hub.profile.color` (`apps/hub.js:80`). `hub.profile` is read only from the stored session (`:105-111`). What refreshes the session: login and createPin (`:169, 173`); a photo change (`:482, 488`); an admin editing their own profile on the same device (`index.html:1684`). What does not.
 - **Why it matters.** The person's own chrome, hero and buttons show a colour the rest of the household no longer associates with them. After a reload, the feed on the same page already shows the new one.
@@ -2064,7 +2132,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-COLOR-04 — The chosen theme never sets `color-scheme`, so UA-painted controls follow the OS: F260's week-note Copy button reads 1.01-1.12:1 with a dark palette on a light-OS device, and 1.11-2.92:1 the other way round
 
-- **Area** design system (F260) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** color-scheme follows the chosen palette (every palette block, the bootstrap, and applyTheme on every call). verify-native-controls-ignore-theme-1: F260's week-note Copy button in Parchment/Frost on a dark OS 2.58 / 2.92 → 8.03 / 8.59, in Midnight 4.58 → 11.16; COLOR/native-controls: WebKit selects and buttons in Midnight/Forest on a light OS 1.06-1.23 → 10.84-12.34, in Parchment/Frost on a dark OS 1.0-1.25 → 14.34-16.83; the computed color-scheme is now the palette's alone. After: `audits/evidence/p6/1/p4/COLOR/verify-native-controls-ignore-theme-1.json`, `audits/evidence/p6/1/p4/COLOR/native-controls.json`, `audits/evidence/p6/1/p4/COLOR/verify-native-controls-ignore-theme-1-webkit-f260-midnight-lightos.png`.
 - **Evidence.** `audits/04-design-system.md:7087`; `apps/hub.js:96-104`, `index.html:1667`, `apps/design.css:448`, `apps/design.css:15`
 - **What happens now.** The cause. `apps/design.css:15` fixes `color-scheme: light dark` on `:root`, and it is the only `color-scheme` declaration. `applyTheme` sets `data-theme` and `data-scheme` but never `style.colorScheme` (`apps/hub.js:74-82`).
 - **Why it matters.** Someone who picks Midnight on the kitchen iPad left in light Appearance gets a blank Copy in F260, and, if the select facet holds on iOS, blank pickers in the Larder and the build guide.
@@ -2073,7 +2142,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-COLOR-05 — The Home reminder and Chat fields are identified only by a 2.5-2.8:1 placeholder and a 1.1-1.45:1 boundary in every theme, and each app draws placeholders in a different ink
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Fields get a --field-border (3:1 or more), placeholders --placeholder (4.5:1 or more) through one global ::placeholder rule, and #remtext, #chat-in and #rotcode have labels. verify-unlabelled-fields-unidentifiable-1: #remtext placeholder 2.49-2.79 → 6.14-7.48 and border 1.17-1.27 → 3.67-3.95 in every palette, #chat-in placeholder 2.47-2.83 → 6.08-7.59, both labelled; the chat's outline is on its composer (screenshot). -2's pixel edge reads 1.8-2.0 on the fractional 1 px line; the Larder's field border 3.16-3.65. After: `audits/evidence/p6/1/p4/COLOR/verify-unlabelled-fields-unidentifiable-1.json`, `audits/evidence/p6/1/p4/COLOR/verify-unlabelled-fields-unidentifiable-2-chatin-system-lightos.png`, `audits/evidence/p6/1/p4/COLOR/verify-unlabelled-fields-unidentifiable-2-remtext-system-lightos.png`.
 - **Evidence.** `audits/04-design-system.md:7137`; `index.html:1204`, `apps/design.css:445`, `index.html:263`, `apps/leftovers.html:50`; `audits/screens/shell/home-typical-ipad-portrait-light.png`
 - **What happens now.** Three shell fields have no label or aria-label: `#remtext` (`index.html:1204`), `#chat-in` (`:387`) and `#rotcode` (`:1649`). The `.ds` placeholder colour is `--muted-decor` (`apps/design.css:445`), which the token's comment reserves for "placeholders, dividers, decorative only" (`:48`).
 - **Why it matters.** The reminder and Chat fields are daily controls. For grandparents and in glare they read as blank bars. The same role is drawn in three different inks across the hub.
@@ -2082,7 +2152,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-COLOR-06 — `--muted` is validated only on paper and cards: 4.45:1 on Hearth wells, 4.37 on Parchment wells, 4.49 on F260's New Testament paper, and about 4.0-4.2 on its New Testament wells
 
-- **Area** design system (F260) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** --muted aliases --text-3, which is 5.07:1 or more on every opaque surface (wells included) and 5.48 or more on --accent-wash, gated in contrast.mjs. verify-muted-on-wells-and-derived-surfaces-2 now crashes on the hex parser (stale). Rendered: F260 contrast.mjs 0 failing on the New Testament paper (Hearth had 150, mostly muted captions), Kid Verse visual.mjs 0 failing (the muted badge hints were 4.37-4.45). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/p3/f260/contrast.json`, `audits/evidence/p6/1/tests/repro-after/phase4__COLOR__verify-muted-on-wells-and-derived-surfaces-2.txt`.
 - **Evidence.** `audits/04-design-system.md:7188`; `apps/design.css:47`, `scripts/test-design.mjs:109-110`, `apps/f260.html:30-33`, `apps/kidverse.html:13-18`; `audits/screens/f260/behind-pace-typical-desktop-light.png`, `audits/screens/kidverse/kid-reading-typical-desktop-light.png`
 - **What happens now.** The token and its validation. `--muted` is annotated "AA on paper and cards (4.9:1)" (`apps/design.css:47`). The system itself puts it on `--surface-2`, documented as "sunken wells, inputs" (`:43`). The style guide's check misses these pairs.
 - **Why it matters.** Each instance is small, but it is one token pair repeated across five areas. On F260 in Hearth it is the single largest cause of failing captions.
@@ -2091,7 +2162,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-DARK-04 — The `theme-color` meta goes stale whenever a pull, not a tap, changes the theme
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** applyTheme sets every theme-color meta on every call, after a pull too, and the shell keeps one meta with no media. DARK/theme-color: after another device picked Parchment and a pull, match false → true (#ECE2CD), and a new device with a server row now matches at once; verify-theme-color-stale-after-server-theme-1: B1 after a pull and B2 after a visibility pull false → true (metas #ECE2CD, #070F0D). After: `audits/evidence/p6/1/p4/DARK/theme-color.json`, `audits/evidence/p6/1/p4/DARK/verify-theme-color-stale-after-server-theme-1.json`, `audits/evidence/p6/1/p4/DARK/theme-color-B-iphone-remote-parchment.png`.
 - **Evidence.** `audits/04-design-system.md:4790`; `index.html:656-658`, `apps/hub.js:97-105`, `apps/hub.js:35`, `index.html:655`
 - **What happens now.** `syncThemeColor()` copies `--bg` into both theme-color metas (`index.html:656-658`). Its only callers are: enterShell (`:624`); a frame's `hub:theme` message (`:767`); a theme tap in Me (`:1283`); boot and an OS scheme change (`:1702-1703`).
 - **Why it matters.** In Safari the toolbar tint, and on the Home Screen app possibly the status-bar strip (Unresolved 3), shows paper over a dark page, or dark over paper. The seam stays at the top of every screen until a reload, an OS appearance change or a theme tap.
@@ -2100,7 +2172,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-GLASS-01 — The `--sheen-x` drift restyles the whole document on every scroll step; it costs more than the blur, and F260 drops frames for it
 
-- **Area** design system (F260) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** --sheen-x is written on the visible tab bar and top bar only and read by their ::after transform (GLASS-7), never on :root. verify-sheen-restyles-whole-document-1: :root sheen writes 35-295 per run → 0; F260 style work 100-126 → 0 ms/s, frames over 20 ms 8-11 % → 2-4.5 %, p95 23-27 → 18-19 ms; Home 45-54 → 3-7 ms/s. GLASS/perf F260 scroll: style 7 → 0 ms, p95 24-26 → 18 ms. verify-1a: the sheen is on the tab bar only. After: `audits/evidence/p6/1/p4/GLASS/verify-sheen-restyles-whole-document-1.json`, `audits/evidence/p6/1/p4/GLASS/perf.json`, `audits/evidence/p6/1/checks/verify-1a-webkit.txt`.
 - **Evidence.** `audits/04-design-system.md:3366`; `index.html:662`, `apps/hub.js:442`, `apps/hub.js:448`, `apps/design.css:392`
 - **What happens now.** The write. A scroll listener (`apps/hub.js:448`) and `hub.sheenFrom` (`:447`) schedule a rAF that computes `x` from the scroll fraction and, whenever the rounded value changes, calls `root.style.setProperty('--sheen-x', x + '%')` on `<html>` (`:445`).
 - **Why it matters.** Scrolling is the most common gesture on the 24/7 iPad. The drift that makes the glass shimmer is the largest glass cost the rig found, and F260, the daily reading app, drops frames for it even on a fast desktop. The iPad's budget is tighter.
@@ -2109,7 +2182,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-GLASS-02 — The perf guard keys on the class pair `.card.glass`, so `.card.glass-strong` keeps a live blur in a scrolling page, and `.glass-lite` is used nowhere
 
-- **Area** design system, all areas · **Type** bug (perf) · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug (perf) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Content cards paint --material-solid-bg and the guard keys on the material role, not the class pair. verify-guard-misses-glass-strong-3: the Verses cards (v-eli, v-ezr) blur(18px)… → none on every device, .card.glass-strong computes none in the shell and Verses; .glass-lite stays unused (deprecated). After: `audits/evidence/p6/1/p4/GLASS/verify-guard-misses-glass-strong-3.json`, `audits/evidence/p6/1/tests/repro-after/phase4__GLASS__verify-guard-misses-glass-strong-3.txt`.
 - **Evidence.** `audits/04-design-system.md:3397`; `apps/design.css:400`, `apps/verses.html:103`, `index.html:501`, `index.html:553`
 - **What happens now.** The guard. `.ds .card.glass { backdrop-filter: none }` (`apps/design.css:400`), commented "in-page cards paint the look without blurring what scrolls under them (blur in a scroller is what makes iPad glass stutter)" (`:399`).
 - **Why it matters.** The rule that should keep content cheap is one class name away from failing, and it fails on the Verses card. Every future card that picks `glass-strong` for its denser fill silently gets a live blur.
@@ -2118,7 +2192,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-GLASS-03 — Three live blurs sit under fills that hide them: Prayer's FAB, the park map's north button and the build guide's steps sheet
 
-- **Area** design system (Prayer, build guide, park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Prayer, build guide, park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** No live blur under an opaque fill: Prayer's FAB is a solid (rgb(172,184,255) in dark) with no backdrop-filter, the park map's north button is translucent glass (alpha .78 / .8), the build guide's steps sheet is solid. GLASS/opaque-blur: Prayer's #fab (alpha 1), both #lv-north (alpha 1) and #build (alpha .96) are gone from the list of blurs under near-opaque fills. The rig paints no backdrop blur, so this rests on the computed filters. After: `audits/evidence/p6/1/p4/GLASS/opaque-blur.json`, `audits/evidence/p6/1/p4/GLASS/verify-opaque-fill-under-blur-1-webkit.json`.
 - **Evidence.** `audits/04-design-system.md:3425`; `apps/prayer.html:285-297`
 - **What happens now.** Prayer's FAB. It shares the copied recipe selector `nav,.sheet,.fab,#kitchen .close` (`apps/prayer.html:285-297`), so it gets `blur(18px) saturate(1.4) brightness(1.02)`, but `.fab { --g: var(--accent-deep) }` (`:300`) makes the fill opaque (light `color(srgb .223 .263 .395)`, dark `.600 .632 .738`, alpha 1).
 - **Why it matters.** Pure cost with no look, and the steps sheet is the largest glass layer on the iPhone build guide. The north button also looks different from the glass buttons next to it for a reason nobody chose.
@@ -2127,7 +2202,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-ICON-02 — The 20 % duotone never renders on sprite icons (`<use>`), so the one icon recipe renders two ways
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The duotone is set on the <svg> and inherited through <use> (--icon-duo, --icon-duo-opacity). ICON/duo-sprite: duoRendersViaUse false → true (it rendered inline only before). After: `audits/evidence/p6/1/p4/ICON/duo-sprite-webkit.json`, `audits/evidence/p6/1/p4/ICON/duo-sprite-webkit.png`.
 - **Evidence.** `audits/04-design-system.md:2780`; `apps/design.css:605`, `index.html:416-438`, `index.html:886-887`
 - **What happens now.** Why the selector misses. `.ds .icon .duo { fill: var(--tint); fill-opacity: .2; stroke: none }` (`apps/design.css:605`; the comment at `:604` states the intent) needs the `.duo` path to be a descendant of `.icon`. In the sprite, the `.duo` paths sit inside `<symbol>` in an unclassed hidden `<svg>` (`index.html:416-438`;
 - **Why it matters.** It corrects two earlier statements:
@@ -2136,7 +2212,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-ICON-03 — `--gold` is used as icon ink on gold tints: six icons at 2.76-2.78:1 in Hearth, while the shell's `--gold-ink` override covers only two heads
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Icons on gold tints read --butter-ink. verify-icon-ink-hex-not-lifted-dark-1 in Parchment: Home's Kids and Reminders heads 3.11 → 4.94, the kid Home stars 4.95, the TV's "Stars this week" 3.11 → 6.87; Kid Verse's earned star 5.77 (raw-accent-graphics-2). ICON/report: icons under 3:1 436 → 388 over all areas (the rest are the batch-2 tiles). After: `audits/evidence/p6/1/p4/ICON/verify-icon-ink-hex-not-lifted-dark-1-parchment.json`, `audits/evidence/p6/1/p4/ICON/below3.json`, `audits/evidence/p6/1/tests/repro-after/phase4__ICON__report.txt`.
 - **Evidence.** `audits/04-design-system.md:2831`; `apps/design.css:606-608`, `index.html:1203`, `apps/kidverse.html:68`, `apps/f260.html:196`
 - **What happens now.** Two recipes paint the base hue `--gold` (`#B4861B` in Hearth) on a gold tint.
 - **Why it matters.** One ink repeats on the gold icons across the shell, the TV, Kid Verse and F260. The shell's own fix is applied in one place.
@@ -2145,7 +2222,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-ICON-05 — In the `.ds` apps every icon's own `stroke-width` and `fill` attribute is dead: all compute 1.75, and the "filled" Prayer-warrior heart renders as an outline
 
-- **Area** design system (Prayer) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Prayer) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The .ds icon rule no longer overrides an icon's own attributes (.ds .icon:not([fill]) and :not([stroke-width]), with --icon-stroke non-scaling). ICON/facets: the apps' icons now carry no per-icon stroke-width (one weight) and compute 1.75 px; its heart check found no badge row on its view. The filled Prayer-warrior heart shows filled in Kid Verse's rewards capture. After: `audits/evidence/p6/1/p4/ICON/facets.json`, `audits/evidence/p6/1/p3/kidverse/visual-C-kid-forest-rewards.png`.
 - **Evidence.** `audits/04-design-system.md:2931`; `apps/kidverse.html:144`, `apps/verses.html:99`, `apps/design.css:602`, `apps/verses.html:113-115`
 - **What happens now.** Why the attributes lose. Any author CSS rule beats an SVG presentation attribute, and `.ds .icon { fill: none; stroke-width: 1.75 }` (`apps/design.css:602`) is such a rule. Stroke weights.
 - **Why it matters.** It corrects P3 Verses' "strokes 1.75 / 2 / 2.25 … mixed" (`audits/03-apps/verses.md:583, 617`). The rendered weights are uniform, and only the markup differs. The badge row pairs a filled star with an outline heart, against the code's intent.
@@ -2154,7 +2232,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-MOTION-04 — JS smooth scrolls still animate under Reduce Motion: F260 ×8, the build guide ×2, the park map ×1
 
-- **Area** design system (F260, build guide, park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260, build guide, park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** JS smooth scrolls read the reduce-motion state (behavior auto under reduce) in F260 and the Dollywood pair (the template's SMOOTH()). MOTION/rm-smooth under reduce: frames animated in between 3 (WebKit) / 34 (Chromium) → 0 / 0; without reduce it still animates (35 frames). After: `audits/evidence/p6/1/p4/MOTION/rm-smooth.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__rm-smooth.txt`.
 - **Evidence.** `audits/04-design-system.md:4043`; `apps/design.css:611-613`, `apps/f260.html:476`, `apps/f260.html:1474`, `apps/dollywood.html:1127`
 - **What happens now.** The CSS Reduce Motion rules cover transitions and animations only (`apps/design.css:611-613`, `apps/f260.html:476`, `apps/dollywood*.html:139`).
 - **Why it matters.** Long animated scrolls are the motion most likely to trouble someone who turned Reduce Motion on, and F260 runs them on every week jump.
@@ -2163,7 +2242,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-SHAPE-01 — Kid mode keeps adult-sized controls wherever a control is sized in fixed px: the Larder (7 selectors at 44-52 px), the park map (every default-view control under 64, four under 44) and the shell's sidebar tab (195×48 on the iPad landscape and desktop)
 
-- **Area** design system (Larder, park map) · **Type** bug · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system (Larder, park map) · **Type** bug · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The park map's kid targets are 64 px or more (verify-kid-targets-own-css-1: under 64 px 7-11 → 0 in every pane; the handle 22 → 64 px, north 50 → 73 px) and the Larder's kid view has no controls since 0h (0 measured). The shell's sidebar tab stays 48 px high for kids (189×48 on iPad landscape and desktop, SHAPE/verify V4): "the sidebar tab on --tap" is batch 2 (2a) in the migration table. After: `audits/evidence/p6/1/p4/SHAPE/verify-kid-targets-own-css-1.json`, `audits/evidence/p6/1/p4/SHAPE/verify.json`, `audits/evidence/p6/1/p4/SHAPE/verify-kid-targets-own-css-1-shell-ipad-landscape.png`.
 - **Evidence.** `audits/04-design-system.md:2002`; `apps/design.css:281`, `apps/leftovers.html:47`, `apps/design.css:560`, `apps/prayer.html:421`; `audits/screens/leftovers/kid-typical-ipad-portrait-light.png`, `audits/screens/dollywood-live/kid-family-typical-ipad-portrait-light.png`
 - **What happens now.** The cause. For kids, design.css sets `--tap: 64px; --tap-lg: 84px` (`apps/design.css:281`, under the comment "Kids: bigger targets", `:279`). Only rules that read `var(--tap)`, or that carry their own kid rule, change. Anything sized in literal px keeps the adult size.
 - **Why it matters.** The kids are 4-5 years old. The kid scale was built for them, but it stops at the apps that size in px, and on the Larder the smallest kid target is also the one that changes family data.
@@ -2172,7 +2252,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-SHAPE-04 — The shared `hub.toast` is capped at half the viewport, so ordinary messages wrap to two or three lines on the iPhone in the shell, Kid Verse and Verses (added after the completeness critic)
 
-- **Area** design system (Kid Verse, Verses) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Kid Verse, Verses) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The shared toast sizes to its content up to --col-narrow with side margins (full width less 20 px on the iPhone). verify-critic-shared-toast-half-viewport-wrap-2-1 on the iPhone: three-line toasts 5 → 0 (lines 13/10/5 → 18/10/0); -2-2: Kid Verse's "already" toast 3 lines, 96 px → 2 lines, 84 px at 390 px wide, one line on the iPad; CRITIC/toast-wrap: 1/6/1 → 5/3/0. After: `audits/evidence/p6/1/p4/CRIT/verify-critic-shared-toast-half-viewport-wrap-2-1.json`, `audits/evidence/p6/1/p4/CRIT/verify-critic-shared-toast-half-viewport-wrap-2-2.json`, `audits/evidence/p6/1/p4/CRIT/verify-critic-shared-toast-half-viewport-wrap-2-2-kidverse-iphone.png`.
 - **Evidence.** `audits/04-design-system.md:2153`; `apps/hub.js:431-434`, `apps/design.css:588-591`, `index.html:715`, `index.html:340-341`; `audits/evidence/p4/CRITIC/toast-shell-iphone-pwa.png`
 - **What happens now.** `hub.toast` (`apps/hub.js:431-434`) builds a `.ds > .toast#hub-toast` in whichever document calls it. `.ds .toast` is `position: fixed; left: 50%; transform: translateX(-50%); … max-width: calc(100% - 32px)` (`apps/design.css:588-591`).
 - **Why it matters.** Toasts are the hub's only confirmation surface, and the iPhone is the device the family carries. A narrow two- or three-line pill near the tab bar is harder to read at a glance, and for a kid it covers the next button.
@@ -2181,7 +2262,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-TELL-02 — Twelve reachable form fields are under 16 px (build guide 6, park map 3, Larder 2, F260 1), so iOS zooms the page when they take focus
 
-- **Area** design system (F260, Larder, build guide, park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260, Larder, build guide, park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Every field is at --fs-field (16 px or more). verify-fields-under-16px-ios-zoom-1: fields under 16 px 15 (12 reachable: build guide 6, park map 3, Larder 2, F260 1) → 0. The build guide's view-menu step times out in the after run, so its menu selects were read without opening it. After: `audits/evidence/p6/1/p4/TELL/verify-fields-under-16px-ios-zoom-1.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TELL__verify-fields-under-16px-ios-zoom-1.txt`.
 - **Evidence.** `audits/04-design-system.md:6083`; `apps/f260.html:399`, `apps/leftovers.html:52-53`, `apps/design.css:293`
 - **What happens now.** iOS zooms the page when a text field or select under 16 px takes focus. The viewport correctly leaves zoom enabled: `width=device-width, initial-scale=1, viewport-fit=cover`, with no maximum-scale. The fields:
 - **Why it matters.** Searching the park map or setting a rider height on an iPhone at the park zooms the page, and the user has to pinch back before the sheet fits again.
@@ -2190,7 +2272,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-TELL-03 — With a named dark theme on a light-OS device, every Hearth-based document paints paper-white Hearth until `hub.js` runs; the flash lasts as long as `hub.js` is late
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The inline <head> bootstrap sets theme, scheme, color-scheme, accent, kind, preferences and theme-color before the first paint, in index.html and every app (the Dollywood pair through the template, with its CSP hash). TELL/flash: flashing arms 10 of 55 → 1 (the one left is the park map's light-OS arm C, a bright first frame while its map loads, as before); verify-named-theme-cold-load-flash-2: frames painted before the theme 3-26 → 0 at every delay; -1: with hub.js held, Midnight is already painted (bg #0B0A09). After: `audits/evidence/p6/1/p4/TELL/flash-chromium.json`, `audits/evidence/p6/1/p4/TELL/verify-named-theme-cold-load-flash-2-chromium.json`, `audits/evidence/p6/1/p4/TELL/verify-named-theme-cold-load-flash-1-chromium-shell-held.png`.
 - **Evidence.** `audits/04-design-system.md:6123`; `apps/hub.js:59`, `sw.js:10`, `index.html:440`, `apps/dollywood.html:2`
 - **What happens now.** Setup: light OS, and Midnight stored both in `localStorage` `hub.theme` and in the person row. While `hub.js` has not run, `<html>` has no `data-theme` and no `data-scheme`, so `design.css` resolves the Hearth `:root` tokens. The body is `rgb(247, 242, 235)` (`--bg` `#F7F2EB`). The shell and the TV show a full paper-white screen.
 - **Why it matters.** A family member who picked a dark palette for the evening gets a full-screen paper-white frame whenever `hub.js` is slow to arrive.
@@ -2199,7 +2282,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-TELL-04 — On a desktop with classic scrollbars, grey OS bars paint on the hub's scrollers (15 px on `#views` and each app document, 10 px on F260's side column and the build guide's chip strip), and under Midnight on a light OS the track is a white stripe
 
-- **Area** design system (F260, build guide) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260, build guide) · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Thin themed scrollbars (--scrollbar-thumb, scrollbar-width thin, color-scheme per palette). verify-classic-scrollbars-on-chrome-2: 15 px auto bars → 10 px thin on the page, F260 and the build guide; under Midnight on a light OS the track was a white stripe ([252,252,252]) → the page colour ([11,10,9]); the chip strip's bar is gone. TELL/scrollbars: the same for Prayer, the Larder, Kid Verse and Verses. After: `audits/evidence/p6/1/p4/TELL/verify-classic-scrollbars-on-chrome-2.json`, `audits/evidence/p6/1/p4/TELL/verify-classic-scrollbars-on-chrome-2-shell-midnight-light-os.png`, `audits/evidence/p6/1/p4/TELL/scrollbars.json`.
 - **Evidence.** `audits/04-design-system.md:6175`; `apps/f260.html:450`, `apps/dollywood.html:240-241`, `apps/design.css:15`, `index.html:66`
 - **What happens now.** With Chromium's classic scrollbars (Playwright's `--hide-scrollbars` removed):
 - **Why it matters.** On a Windows PC, or a Mac with a mouse, the hub shows grey OS scrollbars on its navigation layer, and a white stripe under the dark palettes. Earlier phases passed this tell because the rig hid every bar.
@@ -2208,7 +2292,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-TELL-06 — The design system's only overscroll reset is set on `body`, where it has no effect, in every document
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** overscroll-behavior is set on html, with the page background on html (design.css:779). TELL/verify-overscroll-body builds its own test page, so its output is the same before and after (stale); the verdict rests on the rig: measure/tells.json reads html overscroll auto → none in all 11 areas, page and frame. After: `audits/evidence/p6/1/measure/tells.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TELL__verify-overscroll-body.txt`.
 - **Evidence.** `audits/04-design-system.md:6266`; `index.html:66`, `apps/design.css:304`, `index.html:21`, `apps/design.css:293`
 - **What happens now.** `apps/design.css:304` sets `overscroll-behavior: none` on `body`. The `html` rule (`:293`) sets none. In the rig-v2 raw data, all 3,625 documents where the rig read the value show `html` auto and `body` none. `body` is never a scroll container. In the apps, `html` overflow is visible, so body's overflow propagates to the viewport.
 - **Why it matters.** P2 passed this tell "in code" on the strength of this declaration, and six P3 app reports cited it as working. The declaration guards nothing.
@@ -2217,7 +2302,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-TOK-01 — The `--focus` ring is under 3:1 in every palette for every profile colour
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Focus is an outline in --focus-ring-color (the person's -graphic) with a surface gap, 3.13:1 or more in every palette for every person (contrast.mjs, 0 failing). verify-tok-focus-ring-1/-2 look for the old 3 px box-shadow ring ("no focused element with the 3px ring found"; ring 1.0), so they are stale; -2's input borders under 3:1 9 → 0. The rings are visible: the keyboard-ring and ds-btn checks (0 → 1,058-3,298 px changed, 26/26 .ds buttons). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/p4/TOK/verify-tok-focus-ring-2-webkit.json`, `audits/evidence/p6/1/p4/TELL/keyboard-ring.json`.
 - **Evidence.** `audits/04-design-system.md:559`; `apps/design.css:102`, `apps/prayer.html:426`, `apps/dollywood.html:226`, `apps/dollywood-live.html:226`
 - **What happens now.** `--focus` is `0 0 0 3px color-mix(in srgb, var(--accent) 38%, transparent)` (apps/design.css:102). It is the only focus indicator: `:focus { outline: none }` (:313), then `:focus-visible { box-shadow: var(--focus) }` (:314).
 - **Why it matters.** Anyone on a keyboard cannot see where focus is: on the tab bar, the Prayer kid button, the park-map buttons, and (faintly) the inputs.
@@ -2226,7 +2312,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-TOK-02 — The on/off `.switch` nearly vanishes when off in the light palettes, and its knob is about 2:1 when on in the dark ones
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The switch reads --switch-off / --switch-off-ring / --switch-knob. verify-tok-switch-state-2: on in the dark palettes, knob against track 1.97-2.02 → 4.03 and track against card 3.93-4.08; on in light 4.46-4.77. Off, the scripts sample the track fill (1.28-1.37); the 3:1 off ring they do not sample is gated in contrast.mjs and visible in their screenshots. After: `audits/evidence/p6/1/p4/TOK/verify-tok-switch-state-2.json`, `audits/evidence/p6/1/p4/TOK/verify-tok-switch-state-2-hearth-enabled-off.png`, `audits/evidence/p6/1/p4/TOK/verify-tok-switch-state-2-midnight-enabled-on.png`.
 - **Evidence.** `audits/04-design-system.md:605`; `index.html:1262-1269`, `apps/design.css:462`, `apps/design.css:455-462`, `index.html:1262`
 - **What happens now.** The track is `var(--line)` when off and `var(--ok)` when on; the knob is a hardcoded `#fff` (apps/design.css:455-462). The switch sits on a `.card.glass` (index.html:1262), not on `--surface`. The two skeptics' pixel measurements against that card:
 - **Why it matters.** This is the control that turns push reminders on. In Hearth, the default, a switched-off switch is barely visible as a control. In the dark palettes the "on" knob fades, though the green track still shows the state.
@@ -2235,7 +2322,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-DOLLYWOOD-10 — Reset progress is a native `confirm()` that clears all 13 sections, with no undo
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 1
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Reset progress uses the shared confirm sheet, styled destructive ("Reset progress?", "This unticks all N ticked steps… You can undo it for 30 seconds."), followed by a 30 s Undo toast that restores the steps it unticked (ticks made since stay; dollywood.html:1212-1215). TELL/dialogs: the build guide's native confirm on Reset 1 → 0; template verify.py passed, test-dollywood 34/0. After: `audits/evidence/p6/1/p4/TELL/dialogs.json`, `audits/evidence/p6/1/tests/suites/test-dollywood.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:696`; `apps/dollywood.html:1098`; `audits/screens/dollywood/progress-menu-typical-desktop-light.png`
 - **What happens now.** The dialog reads "Clear all saved progress?". On OK the server's 24 ticks went to 0 and no undo was offered (`apps/dollywood.html:1098`). Reset is styled like Export and Import.
 - **Why it matters.** A native confirm and no undo.
@@ -2244,7 +2332,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-F260-12 — Nothing in F260 is legible across the kitchen
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** M · **Batch** 1
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** On the iPad (744 px and up, coarse pointer) the Today card's reading reads --fs-glance-2 (apps/f260.html:184), and the iPad tier and text size scale the rest. test-f260 58/0 and the recapture show the page; the glance distance itself (0.8 m before) was not re-measured, because the Phase 3 layout script was not in the batch's list. After: `audits/evidence/p6/1/tests/suites/test-f260.txt`, `audits/evidence/p6/1/p4/TYPE/code-scan.json`.
 - **Evidence.** `audits/03-apps/f260.md:697`; `audits/screens/f260/today-typical-ipad-portrait-light.png`
 - **What happens now.** Nothing in F260 is legible across the kitchen (low). On iPad portrait the largest text reads to about 0.8 m (numbers in §3). Evidence: `layout.json` `devices.ipad-portrait.glance`; `audits/screens/f260/today-typical-ipad-portrait-light.png`.
 - **Why it matters.** Nothing in F260 reads across the kitchen.
@@ -2253,7 +2342,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-KIDVERSE-8 — Text-only toasts about 96 px tall cover the story card and cannot be dismissed
 
-- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Kid Verse's toasts are the shared bottom toast, and a tap anywhere on it puts it away (hub.js). verify-critic-shared-toast-half-viewport-wrap-2-2: "You already have today's star…" 3 lines, 96 px tall → 2 lines, 84 px on the iPhone (390 px wide) and one line, 61 px on the iPad; "New badge" one line. After: `audits/evidence/p6/1/p4/CRIT/verify-critic-shared-toast-half-viewport-wrap-2-2.json`, `audits/evidence/p6/1/p4/CRIT/verify-critic-shared-toast-half-viewport-wrap-2-2-kidverse-iphone.png`.
 - **Evidence.** `audits/03-apps/kidverse.md:688`; `audits/evidence/p3/kidverse/webtells-toast-over-content.png`, `audits/evidence/p3/kidverse/star-rules-R5-kiara-prayer-warrior.png`
 - **What happens now.** The "already" toast sat at 764-859 px (viewport 884) over `#story-kick` and the story head. The "New badge" toast covers the Prayer warrior date and the footnote (from the visual check).
 - **Why it matters.** Toasts cover the story card.
@@ -2262,7 +2352,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-VERSES-6 — The rating toast sits over the stats card on phones
 
-- **Area** verses · **Type** usability · **Severity** low · **Effort** S · **Batch** 1
+- **Area** verses · **Type** usability · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The rating toast is one line and a tap puts it away (the shared toast). It still sits over the box labels for its 2.2 s on the iPhone (the worker's check), so "never over the stats card" did not land; the placement goes to the Verses batch (5). After: `audits/evidence/p6/1/p4/CRIT/verify-critic-shared-toast-half-viewport-wrap-2-1-verses-iphone.png`, `audits/evidence/p6/1/p4/CRIT/verify-critic-shared-toast-half-viewport-wrap-2-1.json`.
 - **Evidence.** `audits/03-apps/verses.md:537`; `audits/screens/verses/rated-typical-iphone-pwa-light.png`, `audits/evidence/p3/verses/toast-not-yet-box5-iphone.png`
 - **What happens now.** The rating toast sits over the stats card on phones (low). The 2.2 s toast covers the "4 days" and "Weekly" box labels and the Due today header, and cannot be dismissed. Evidence: `audits/screens/verses/rated-typical-iphone-pwa-light.png`; `audits/evidence/p3/verses/toast-not-yet-box5-iphone.png`.
 - **Why it matters.** The toast covers labels.
@@ -2271,7 +2362,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-VERSES-7 — On the Kitchen iPad only the reference is readable past about 1.5 m
 
-- **Area** verses · **Type** usability · **Severity** low · **Effort** S · **Batch** 1
+- **Area** verses · **Type** usability · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Glance roles for the reference and the counts on the Kitchen iPad: Verses reads --fs-glance-2 and --fs-glance-3 (code-scan), with the iPad tier on the rest. The reading distance was not re-measured (the Phase 3 glance script was not in the batch's list); the recapture shows the larger reference and stats. After: `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/tests/suites/test-verses.txt`.
 - **Evidence.** `audits/03-apps/verses.md:538`; `audits/screens/verses/trainer-typical-ipad-portrait-light.png`
 - **What happens now.** On the Kitchen iPad only the reference is readable past about 1.5 m (low). Reference cap 7.5 mm (about 1.5 m; kid 8.6 mm, about 1.7 m); stat numerals 3.8 mm (about 0.8 m); pill, kicker and labels under 0.5 m. Evidence: `audits/evidence/p3/verses/glance-accent.json`; `audits/screens/verses/trainer-typical-ipad-portrait-light.png`.
 - **Why it matters.** Only the reference reads past 1.5 m.
@@ -2280,7 +2372,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-ACCENT-1 — The profile colours are neither pastel nor distinct enough as fills: the soft fills are near-grey, and 6 of 21 household pairs sit under ΔE00 5 as fills
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Each person starts on a distinct house pastel family (D3: Eli periwinkle, Mae peach, Elizabeth bubblegum, David mint, Mea butter, Ezra aqua, Kiara lavender, TV and kitchen graphite, guests sky; migrations/007-profile-hue.sql, seed.sql); the families are CVD-separated and gated in contrast.mjs. ACCENT/tokens.mjs and cvd-strip.mjs are hard-coded to the old hexes (identical output, stale). The admin picker's CVD warning is GAP-ACCENT-1's (batch 2a). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/checks/verify-1a-webkit.txt`, `audits/evidence/p6/1/tests/repro-after/phase4__ACCENT__tokens.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'As fills, people run together' is true only of the 14% accent-soft, which is never shown side by side for different people.
 - **Evidence.** `audits/04-design-system.md:5682`; `index.html:449`, `worker/seed.sql:4-11`
 - **What happens now.** The colours are mid-tones. Every profile colour sits at OKLCH L 0.42-0.65: too dark to be a fill, too light and too grey to be an ink.
@@ -2290,7 +2383,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-COLOR-1 — The fills and tiles sit at about a third of the house chroma in all five palettes, two house hues are missing, and dark cards barely lift off the page
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The house pastels are at full chroma for fills (eight families, both missing hues added), dark chips sit 1.52 or more off every card and dark cards 1.20-1.23 off the page, all gated in contrast.mjs. Not landed: the tiles' pastel-to-saturated gradient (--tile-bg) waits for the batch-2 .app-icon rewrite (gap row COLOR-9). COLOR/palette.mjs and tiles.mjs read committed data (identical output), stale. After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/home-webkit-forest.png`, `audits/evidence/p6/1/tests/repro-after/phase4__COLOR__tiles.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The rating is inflated: the item shows no effect on use beyond cosmetic, so it is low, not medium. The bar figure '2.27-2.99' covers only the start stop in the light palettes. Recomputed from tokens it is 1.83-2.98, with gold (the warn fridge bar) lowest at 1.83-1.93.
 - **Evidence.** `audits/04-design-system.md:7309`; `apps/design.css:606-608`, `apps/design.css:412`; `audits/screens/shell/apps-typical-ipad-portrait-light.png`, `audits/screens/shell/home-typical-ipad-portrait-light.png`
 - **What happens now.** (Table COLOR-8): Soft fills. They sit at the pastels' lightness (L 0.87-0.94, against 0.876-0.953) but at about a third of their chroma (C 0.008-0.070, against 0.057-0.093). Parchment's gold-soft, at 0.070, is the only exception. `--accent-soft` for the ten swatches is 0.004-0.047. Tiles.
@@ -2300,7 +2394,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-DARK-1 — Toasts invert to a light slab in dark, the brightest object on a dark screen
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Dark toasts use --toast-bg, a raised dark slab. GLASS/opaque-blur in dark: the shared toast was a cream slab [243,237,229] at .9 in the shell, Timer, Kid Verse and Verses → [30,30,32] at .94-.96 (now also in F260 and the Larder); Prayer's own toast reads --toast-bg / --toast-ink. DARK/summary.mjs does not measure toasts, so the verdict rests on the rig's computed fill. After: `audits/evidence/p6/1/p4/GLASS/opaque-blur.json`, `audits/evidence/p6/1/p4/CRITIC/toast-shell-iphone-pwa.png`.
 - **Evidence.** `audits/04-design-system.md:4903`; `apps/design.css:588-589`, `apps/prayer.html:254-260`
 - **What happens now.** The shared toast is `color-mix(var(--text) 90%, transparent)` with `color: var(--bg)` (`apps/design.css:588-589`). In Midnight it renders as a cream #DFD9D1 pill (luminance 0.70) in the shell, Timer, Kid Verse and Verses. Prayer's own toast does the same with `background: var(--dim);
 - **Why it matters.** Every confirmation flashes a bright slab at night on the always-on iPad.
@@ -2309,7 +2404,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-DOLLYWOOD-3 — The type departs from the house style
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The template reads the role tokens (bold system large title, rounded numerals) through the migration aliases and its own rows; rebuilt, verify.py passed, exported. The rig finds no serif text left in the build guide (3,730 → 0) or the park map (280 → 0), and code-scan's px sizes 149 → 8 per export. After: `audits/evidence/p6/1/measure/type.json`, `audits/evidence/p6/1/p4/TYPE/code-scan.json`.
 - **Evidence.** `audits/03-apps/dollywood.md:722`; `apps/dollywood.html:223`, `apps/design.css:19-20`, `apps/design.css:18`; `audits/screens/dollywood/map-typical-ipad-portrait-light.png`, `audits/screens/dollywood/steps-typical-desktop-dark.png`
 - **What happens now.** The h1, stat numbers and card and step titles (28, 17 and 22 px) use `--font-display`, a serif (`apps/dollywood.html:223, 306`; `apps/design.css:19-20`).
 - **Why it matters.** Serif titles and rounded body text depart from the house style.
@@ -2318,7 +2414,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-DOLLYWOOD-5 — The "step N of M" pill is just under AA in the light palettes
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The step pill reads --text-2 on --surface. The rig's failing group for the build guide's step pill (span.pill 4.37-4.46, 268 occurrences in the light palettes) and its home pill → 0. After: `audits/evidence/p6/1/measure/failing-pairs/dollywood.json`, `audits/evidence/p6/1/measure/failing-pairs.json`.
 - **Evidence.** `audits/03-apps/dollywood.md:729`; `audits/evidence/p3/dollywood/phone-sheet-half-hearth.png`
 - **What happens now.** 11 px text at 4.45:1 in Hearth and 4.37:1 in Parchment; Frost, Midnight and Forest pass.
 - **Why it matters.** Just under AA in light palettes.
@@ -2327,7 +2424,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-DOLLYWOOD-7 — Inner radii are not concentric
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Concentric radii through --r-inset / --r-control: the toolbar is --r-control + 8 around its select, the build card's button reads --r-control. SHAPE/analyze: the build guide's off-concentric pairs 11 → 1; the one left, #exag R12 around #cam-reset r12 on the iPhone, is not one the finding named (build guide batch 9). After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/tests/repro-after/phase4__SHAPE__analyze.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:736`
 - **What happens now.** The basemap select (radius 12) sits in the toolbar (16) at an 11 px inset; the … button (12) sits in the build card (20) at a 15 px inset. Each should be about 5. The checker could not see this at 1× and relied on the JSON.
 - **Why it matters.** Inner radii are not concentric.
@@ -2336,7 +2434,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-DOLLYWOOD-12 — The card link buttons keep the 3 px web radius
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The card link buttons take --r-control in the hub flavour ([data-flavor=hub] .info a.btn, .pop a.btn; template rebuilt and exported), so the 3 px web corner is gone inside the hub; the standalone reference flavour keeps its own. Verified on the code and the recapture; no script measures it. After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`.
 - **Evidence.** `audits/03-apps/dollywood.md:751`; `apps/dollywood.html:77`, `apps/dollywood.html:79`; `audits/screens/dollywood/coaster-typical-desktop-light.png`, `audits/screens/dollywood/listing-typical-ipad-landscape-dark.png`
 - **What happens now.** Web ↗, Photos ↗, Videos ↗ and dollywood.com ↗ are square-cornered grey boxes, beside the 20 px card and the rounded "Zoom to it". The rules `.pop a.btn` and `.info a.btn` set 3 px (`apps/dollywood.html:77, 123-124`) and the coaster track picture too (`apps/dollywood.html:79`); no hub-flavour rule overrides them.
 - **Why it matters.** Square web corners beside rounded cards.
@@ -2345,7 +2444,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-DOLLYWOOD-LIVE-7 — The family-marker fallback colour is Elizabeth's colour
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The family-marker fallback is graphite (#4C4C58, the COL() default in the template, exported to apps/dollywood-live.html), not Elizabeth's #8A6A4B; the only #8A6A4B left is the hex→hue map for old records. Code only, as in the finding (no capture shows the fallback). After: `audits/evidence/p6/1/p4/TOK/literals-dollywood-live.json`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:664`; `apps/dollywood-live.html:1213-1214`, `worker/seed.sql:8`
 - **What happens now.** The fallback `#8A6A4B` (`apps/dollywood-live.html:1213-1214, 1302, 1306, 1316, 1547`) is exactly Elizabeth's seed colour (`worker/seed.sql:8`), so a marker with no colour looks like hers. Code only: no capture shows the fallback (checker: "not visible").
 - **Why it matters.** An unknown marker looks like Elizabeth.
@@ -2354,7 +2454,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-F260-2 — Empty progress cells are almost invisible: 1.04:1 in dark, 1.10:1 in light
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Empty cells draw an inset --cell-empty ring (3:1 or more; the worker computed 3.14-4.83) in the year grid, the heatmap, the book bar and the meter. vischeck-empty-cells samples only the cell background (1.10 → 1.0 light, 1.04 → 1.41 dark), so it cannot see the ring; its dark iPad capture shows the rings on every empty cell. The rig's nontext counts also sample fills (F260 dot/bar fails 18,840 → 18,121). After: `audits/evidence/p6/1/p3/f260/vischeck-empty-cells-ipad-landscape-dark.png`, `audits/evidence/p6/1/p3/f260/vischeck-empty-cells.json`, `audits/evidence/p6/1/measure/nontext/f260.json`.
 - **Verified (step 3).** was medium; skeptics low and low. Correction: The measurements and the dark-mode description are accurate. The medium rating is inflated: nothing is hidden that the adjacent text does not state, the done state stays well above 3:1, and in light palettes (1.09-1.14) the empty cells are still visible on screen.
 - **Evidence.** `audits/03-apps/f260.md:710`; `apps/f260.html:16`; `audits/evidence/p3/f260/vischeck-empty-cells-ipad-landscape-dark.png`, `audits/screens/f260/today-timeout-loading-ipad-landscape-dark.png`
 - **What happens now.** Empty progress cells are almost invisible: 1.04:1 in dark, 1.10:1 in light (medium; from the visual check). Unread year-grid weeks, empty heatmap days, unread book-bar segments and the meter track all fill with `--sunk` (`apps/f260.html:16, 65, 77, 83, 92`). Against the page they measure 1.04:1 in System/Midnight dark and 1.10:1 in Hearth light, far below 3:1 for meaningful graphics. On an empty or early plan in dark, the 52-week grid, the heatmap and the book bar read as a blank area. Evidence: `audits/evidence/p3/f260/vischeck-empty-cells.json`; `audits/evidence/p3/f260/vischeck-empty-cells-ipad-landscape-dark.png`; `audits/screens/f260/today-timeout-loading-ipad-landscape-dark.png`; `audits/screens/f260/finished-hero-overflow-ipad-portrait-dark.png`. Run: `node "audits/tools/phase3/f260/vischeck-empty-cells.mjs"`.
@@ -2364,7 +2465,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-F260-10 — Large text wraps the Today meta line on a 430 px iPhone
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** F260's Large is the hub text size L through --ts-user (D17), so lines reflow instead of the page zooming; f260.big moves once to the hub row. test-f260 58/0 and test-prefs 35/0 (case 6: F260's Normal/Large writes the hub text size and follows the person). The 430 px meta line itself was not re-measured. After: `audits/evidence/p6/1/tests/suites/test-f260.txt`, `audits/evidence/p6/1/tests/suites/test-prefs.txt`.
 - **Evidence.** `audits/03-apps/f260.md:718`; `apps/f260.html:50`; `audits/evidence/p3/f260/layout-large-text-iphone.png`
 - **What happens now.** Large text wraps the Today meta line on a 430 px iPhone (low). `body.big` (zoom 1.15; `apps/f260.html:50, 2034`) takes "Week 38 · Day 3 · 1 chapter · ~4 min" from 1 line to 2. Evidence: `layout.json` `devices.iphone-pwa.largeText`; `audits/evidence/p3/f260/layout-large-text-iphone.png`.
 - **Why it matters.** Large text wraps the meta line.
@@ -2373,7 +2475,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-F260-11 — The person's accent never reaches F260's content
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Done, the ring and progress read --accent-strong / --progress-fill, the person's colour. SHAPE/crops: F260 Done olive rgb(91,129,67) for everyone → Eli's rgb(79,82,216); vischeck-empty-cells: the meter track is Eli's fill (rgb(204,211,255) light, rgb(55,61,105) dark). After: `audits/evidence/p6/1/p4/SHAPE/crops.json`, `audits/evidence/p6/1/p3/f260/vischeck-empty-cells.json`.
 - **Evidence.** `audits/03-apps/f260.md:719`; `apps/f260.html:58`; `audits/screens/f260/today-typical-iphone-pwa-light.png`
 - **What happens now.** The person's accent never reaches F260's content (low). `--accent` differs (Eli #4F5D8C, Mae #BC5A38, Mom #8A6A4B), but Done, the ring and progress are olive rgb(91,129,67) for all three; the accent is only the glass tint on the switch, modal and reading bar (`apps/f260.html:58, 385, 422`). Evidence: `layout.json` `accent`; `audits/screens/f260/today-typical-iphone-pwa-light.png`.
 - **Why it matters.** The person's accent never reaches F260.
@@ -2382,7 +2485,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-F260-14 — The Done toast lands on the page title
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** F260's toast() is hub.toast, the shared bottom toast (apps/f260.html:1386), so Done's toast no longer lands on the title; its old top toast CSS is marked unused. GLASS/opaque-blur and CRITIC/toast-wrap find the shared #hub-toast in the F260 frame, at the bottom and centred. After: `audits/evidence/p6/1/p4/CRITIC/toast-wrap.json`, `audits/evidence/p6/1/p4/GLASS/opaque-blur.json`.
 - **Evidence.** `audits/03-apps/f260.md:727`; `apps/f260.html:416`; `audits/screens/f260/done-toast-typical-ipad-portrait-light.png`
 - **What happens now.** The Done toast lands on the page title (low; from the visual check). The dark toast "✓ Acts 6 · next: Acts 7" appears at the top (`apps/f260.html:416`) and covers "F260 Reading Plan" on the iPad. Evidence: `audits/screens/f260/done-toast-typical-ipad-portrait-light.png`.
 - **Why it matters.** The toast covers the title.
@@ -2391,7 +2495,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-GLASS-1 — Glass on glass: the park map's ride card nests three live blurs, and Prayer's sheet blurs over a blurred full-screen veil
 
-- **Area** design system (Prayer, park map) · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (Prayer, park map) · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** No glass over glass: panels inside a glass sheet are solid (the park map's .pop-head and .pop-act inside the ride card) and scrims do not blur (--scrim-blur 0; Prayer's veil). GLASS/layers: the park map's live layers stay 7 per screen with no content glass, Prayer 2-3; the rig paints no blur, so this rests on the computed backdrop-filter values. After: `audits/evidence/p6/1/p4/GLASS/layers.json`, `audits/evidence/p6/1/tests/repro-after/phase4__GLASS__layers.txt`.
 - **Evidence.** `audits/04-design-system.md:3538`; `apps/prayer.html:234-235`
 - **What happens now.** The park map's ride and coaster card `.pop` is live glass (`template.html:451`), and its sticky `.pop-head` and `.pop-act` are each live glass inside it (`:483`, `:486`): three nested layers (`perf.json` `scenes.dlive-ride-card.layers`: `#pop` 796×364, `pop-head` 794×70, `pop-act` 794×62).
 - **Why it matters.** Nested blurs muddy what is under them and multiply the cost on the screens families use at the park and in prayer.
@@ -2400,7 +2505,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-ICON-1 — Text glyphs and colour emoji stand in for icons in six areas
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Only Tally's text glyphs became icons (ICON/static: Tally's glyphs 3 → 0, two 1.75 SVGs). Kid Verse's ★ labels stay (they are matched word for word by four tests and the feed: 24 → 26 glyphs), and F260, the Larder (✓ 5 → 7), the shell and the template still use glyphs and emoji; those move in their batches (Kid Verse 7, F260 4, Larder 8, shell 2a, build guide 9, park map 10). After: `audits/evidence/p6/1/p4/ICON/static.json`, `audits/evidence/p6/1/tests/repro-after/phase4__ICON__static.txt`.
 - **Evidence.** `audits/04-design-system.md:3031`; `index.html:916`, `apps/f260.html:603-620`, `apps/tally.html:137-140`, `apps/kidverse.html:160`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** Glyphs render in the OS text font and emoji in the platform's colour set, so they take no token colour, weight or dark variant. Even the split between glyph and emoji depends on the platform: in the rig's WebKit, ⛰ and ✝ render as colour emoji, and repainting them changes 0 px (skeptic 1 of P4-ICON-03).
 - **Why it matters.** Glyphs stand in for icons.
@@ -2409,7 +2515,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-1 — Day-dot letters, 10 px badge hints and the unearned "50" glyph fail text contrast
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Day letters, badge hints and the unearned glyph read --text-3 on --surface-2 at caption2 or more. Kid Verse visual.mjs, 10 runs: failing items 7-12 per run (day letters 2.08-3.18, hints 4.37-4.45, the "50" 2.49-2.79) → 0, lowest p10 5.15; the rig's Kid Verse failing texts 1,774 → 12 (loading-state buttons). After: `audits/evidence/p6/1/p3/kidverse/visual.json`, `audits/evidence/p6/1/measure/failing-pairs/kidverse.json`.
 - **Verified (step 3).** was medium; skeptics low and low (partly). Correction: The note that 'the checker measured the dark day-letter glyph at 2.79:1 against the card' uses the wrong background. The letter sits on its own dot (--surface-2), so 3.18:1 in Midnight is the correct pair.
 - **Evidence.** `audits/03-apps/kidverse.md:700`; `audits/screens/kidverse/kid-stars-typical-iphone-pwa-light.png`, `audits/evidence/p3/kidverse/visual-C-kid-forest-rewards.png`
 - **What happens now.** Rendered contrast (lib-vis `contrastSweep`, 430 px, kid and adult): day letters (`--muted-decor` on `--surface-2`) 2.22:1 Hearth, 2.09:1 Parchment, 2.08:1 Frost, 3.18:1 Midnight, 3.11:1 Forest, at 12 px on the kid card and 10 px in the adult panel; badge hints 10 px at 4.37-4.45:1;
@@ -2419,7 +2526,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-2 — The today ring and the empty day dots are under 3:1 in both schemes
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The today ring reads --today-ring (an outline in the kid's -graphic) and empty dots --cell-empty. vischeck-dark-dots re-reads the committed Phase 3 PNGs (1.51/1.70/1.14/1.20 unchanged), so it is stale; the rig: Kid Verse's ring failures 242 → 0 (measure nontext; its dot count samples fills, not the ring). The worker's probe: today ring 1.70/1.51 → 4.93/7.21, empty-dot ring 1.20/1.14 → 3.67. After: `audits/evidence/p6/1/measure/nontext/kidverse.json`, `audits/evidence/p6/1/p3/kidverse/visual-P-kid-iphone-first-screen.png`, `audits/evidence/p6/1/tests/repro-after/phase3__kidverse__vischeck-dark-dots.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:704`; `apps/kidverse.html:69`; `audits/screens/kidverse/kid-stars-typical-ipad-landscape-dark.png`, `audits/screens/kidverse/kid-stars-typical-ipad-landscape-light.png`
 - **What happens now.** The only cue for today is the `var(--focus)` ring (`apps/kidverse.html:69`): 1.70:1 against the card in light, 1.51:1 in dark. Empty dot discs (`:66`) are 1.20:1 (light) and 1.14:1 (dark). Earned stars float in a mostly invisible strip.
 - **Why it matters.** The day strip is nearly invisible.
@@ -2428,7 +2536,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-3 — Unearned badges are near-black blanks in dark mode
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Unearned badges get a 3:1 outline and a visible glyph in dark (the worker: rings 1.15 → 3.14-3.27, glyphs 6.66-7.16). Kid Verse visual.mjs has no failing item in Forest or Midnight, and its Forest rewards capture shows the ringed discs with their heart and "50". After: `audits/evidence/p6/1/p3/kidverse/visual-C-kid-forest-rewards.png`, `audits/evidence/p6/1/p3/kidverse/visual.json`.
 - **Evidence.** `audits/03-apps/kidverse.md:707`; `audits/screens/kidverse/kid-rewards-empty-ipad-portrait-dark.png`, `audits/evidence/p3/kidverse/visual-C-kid-forest-rewards.png`
 - **What happens now.** An unearned badge disc is 1.15:1 against its tile and its glyph barely shows, so the rewards card reads as six dark tiles with no visible goal.
 - **Why it matters.** Black blanks in dark mode.
@@ -2437,7 +2546,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-6 — The story art's background is fixed: a pale panel on dark pages, and two dark slabs on light pages
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** M · **Batch** 1
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The stopgap landed: the story art sits on --art-plate and is dimmed in dark (brightness .82). The scenes still carry their own fixed backgrounds, because scripts/make-art.mjs does not emit token fills yet (DARK/art-dark unchanged); gap row DARK-10 is "Partly" and names no batch for the art pipeline. After: `audits/evidence/p6/1/p3/kidverse/visual-C-kid-midnight-top.png`, `audits/evidence/p6/1/tests/repro-after/phase4__DARK__art-dark.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:716`; `audits/screens/kidverse/kid-typical-desktop-dark.png`, `audits/evidence/p3/kidverse/visual-C-kid-midnight-top.png`
 - **What happens now.** The scene SVGs carry their own full-bleed background (for example `art/story/12-church.svg:2`, `#DCECEA`). Loaded as `<img>`, no theme token reaches them, and the pale block glares on Midnight and Forest (688 px wide on desktop and iPad).
 - **Why it matters.** A pale panel glares on dark pages.
@@ -2446,7 +2556,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-7 — 10 px text, adult-sized 12 px captions in kid mode, and serif big numerals
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Kid mode reaches every role (floor 16) and numerals are rounded. Kid Verse visual.mjs, kid on the iPhone: the 10 px badge hint → 16, captions and kickers 12 → 16, the star and bank numbers ui-serif → ui-rounded; adult panel dot letters 10 → 11 px. The rig finds no text under 11 px in Kid Verse (4 groups → 0). After: `audits/evidence/p6/1/p3/kidverse/visual.json`, `audits/evidence/p6/1/measure/type.json`.
 - **Evidence.** `audits/03-apps/kidverse.md:720`; `apps/kidverse.html:86`, `apps/design.css:280-284`, `apps/kidverse.html:62`, `apps/design.css:19-20`; `audits/screens/kidverse/kid-rewards-typical-iphone-pwa-light.png`, `audits/screens/kidverse/kid-stars-overflow-ipad-portrait-light.png`
 - **What happens now.** Badge hints (`apps/kidverse.html:86`) and adult panel dot letters (`:110`) are 10 px, below the 11 px floor.
 - **Why it matters.** 10 px text and serif numerals in kid mode.
@@ -2455,7 +2566,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-8 — Glass is used on content, and the story buttons are not concentric
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The scene and story cards are solid material and their radii concentric. Kid Verse visual.mjs: the scene is no longer in the glass list (the pill and Read buttons are controls and keep glass), off-concentric pairs 1 (story R28 around Say r28, 21 px inset) → 0. After: `audits/evidence/p6/1/p3/kidverse/visual.json`, `audits/evidence/p6/1/p3/kidverse/visual-K-kid-ipad-portrait-first-screen.png`.
 - **Evidence.** `audits/03-apps/kidverse.md:725`; `apps/kidverse.html:147`; `audits/screens/kidverse/kid-typical-ipad-portrait-light.png`, `audits/screens/kidverse/adult-typical-iphone-pwa-light.png`
 - **What happens now.** Backdrop blur(18px) on `.scene.glass-strong` (a 398×274 content card, `apps/kidverse.html:147`), the static `#who` pill (`:146`) and the non-floating `#say` / `#story-say` `.btn-glass` buttons (`:159, 172`).
 - **Why it matters.** Glass on content.
@@ -2464,7 +2576,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-10 — No touch-callout suppression on the story art, and card chrome text is selectable
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`80af987`)
+- **Phase 6 (NEEDS DEVICE CHECK).** The story art and the card chrome get -webkit-touch-callout none and user-select none, and the art is not draggable: TELL/tells-webkit, Kid Verse draggable images 2 → 0, selectable chrome none. The long-press itself needs a device: on an iPad, press and hold the story picture and the stars card and check that no image callout, loupe or selection appears. After: `audits/evidence/p6/1/p4/TELL/tells-webkit.json`.
 - **Evidence.** `audits/03-apps/kidverse.md:732`
 - **What happens now.** `#art` has no `-webkit-touch-callout` and is draggable; the pill, stars card and badges are `user-select: text`; only `.btn` is `none`.
 - **Why it matters.** Long-press menus on the art.
@@ -2473,7 +2586,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-LEFTOVERS-2 — The amber freshness bar is under 3:1 against its track in Hearth and Parchment; the state tints are close under colour-blindness
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The freshness ramp reads --fresh / --aging / --use-soon (graphic roles, 3.26:1 or more on the track), with a glyph per state. The rig's Larder bar failures 329 → 0 (measure nontext; 24 dot readings remain, not bars). After: `audits/evidence/p6/1/measure/nontext/leftovers.json`, `audits/evidence/p6/1/tests/suites/test-leftovers.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:809`; `apps/leftovers.html:80`, `apps/leftovers.html:78-80`; `audits/evidence/p3/leftovers/visual-hearth-ipad.png`, `audits/evidence/p3/leftovers/visual-parchment-ipad.png`
 - **What happens now.** Bar tint against track (non-text): warn 2.69 (Hearth), 2.83 (Parchment), 3.19 (Frost); urgent and fresh 3.56-3.99 in the light palettes.
 - **Why it matters.** The warn bar is under 3:1.
@@ -2482,7 +2596,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-LEFTOVERS-3 — In the dark palettes the status chips lose their pill: the fill stands 1.01-1.08:1 from the card
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Chips sit on --X-fill with -ink labels; in the dark palettes the fill stands 1.52-1.70:1 off the card with ink 5.49 or more (the worker's probe; the chip rule is gated at 1.5 in contrast.mjs). The rig's Larder control failures 390 → 2. After: `audits/evidence/p6/1/measure/nontext/leftovers.json`, `audits/evidence/p6/1/checks/contrast.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:817`; `apps/leftovers.html:82`; `audits/evidence/p3/leftovers/visual-midnight-ipad.png`, `audits/screens/leftovers/main-typical-ipad-portrait-dark.png`
 - **What happens now.** The chip fills are `*-soft` tokens that are near-black in Midnight and Forest, so "Use it up" reads as loose pink text rather than a glowing pastel pill. That breaks the house "never muddy" rule.
 - **Why it matters.** Chips lose their pill in dark.
@@ -2491,7 +2606,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-LEFTOVERS-7 — The empty-state fridge art is a pale hard-coded SVG that stands out in dark mode
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** The stopgap landed: the empty-state fridge art sits on --art-plate, so it no longer glares in dark. The SVG keeps its own pale fills, because scripts/make-art.mjs does not yet emit token-friendly fills (DARK/art-dark unchanged); gap row DARK-10 names no batch for it. After: `audits/evidence/p6/1/measure/nontext/leftovers.json`, `audits/evidence/p6/1/tests/repro-after/phase4__DARK__art-dark.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:838`; `apps/leftovers.html:224`; `audits/screens/leftovers/main-empty-ipad-portrait-dark.png`
 - **What happens now.** `art/empty/fridge.svg` is loaded as an `<img>` (`apps/leftovers.html:224`), so tokens cannot reach its pale fills (`art/empty/fridge.svg:2, 6`).
 - **Why it matters.** Pale art glares in dark.
@@ -2500,7 +2616,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-LEFTOVERS-10 — In dark mode the ✓ buttons are black recessed wells
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** In dark the ✓ is a lit control, not a well: --success-fill with the --success-ink glyph (a deviation from the proposed --accent-fill, accepted: ✓ means finished, the semantic ramp). The rig's Larder control failures 390 → 2; larder-check (0h) 8/8 kept. After: `audits/evidence/p6/1/measure/nontext/leftovers.json`, `audits/evidence/p6/1/checks/larder-check.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:852`; `apps/leftovers.html:83`; `audits/screens/leftovers/main-typical-ipad-portrait-dark.png`, `audits/evidence/p3/leftovers/visual-forest-ipad.png`
 - **What happens now.** The ✓ uses `--surface-2` (`apps/leftovers.html:83`), which is darker than the card in the dark palettes, so the main action looks like a hole rather than a glowing control.
 - **Why it matters.** Dark wells.
@@ -2509,7 +2626,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-4 — Family mode only half re-themes
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Family mode sets data-accent="aqua" on the page, which re-derives every accent role. Prayer contrast.mjs, Eli's family mode: --accent-deep was Eli's navy while --accent was teal → aqua throughout (#006B87 / deep #0B6468), Pray now and the FAB aqua; TOK/verify-accent-repoint: nav, lists and FAB all take aqua's deep. After: `audits/evidence/p6/1/p3/prayer/contrast.json`, `audits/evidence/p6/1/p4/TOK/accent-repoint.json`, `audits/evidence/p6/1/p4/TOK/accent-repoint-prayer-eli-family.png`.
 - **Evidence.** `audits/03-apps/prayer.md:903`; `apps/prayer.html:39`; `audits/screens/prayer/today-family-typical-iphone-pwa-light.png`
 - **What happens now.** Family mode only half re-themes (low). `body.shared` rebinds `--accent` and `--accent-soft` to teal but not `--accent-deep` (`apps/prayer.html:39`), so the switch and nav turn teal while Pray now, the + and the chips keep the person's colour. Evidence: `audits/evidence/p3/prayer/contrast.json` (`accents.eliFamilyMode`); `audits/screens/prayer/today-family-typical-iphone-pwa-light.png`.
 - **Why it matters.** Family mode half re-themes.
@@ -2518,7 +2636,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-7 — Offline, Prayer loses its typeface
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Prayer uses the system stack (D13): the Google Fonts links are gone (no googleapis or gstatic reference left in apps/prayer.html), so an offline Prayer keeps its face; the worker saw 0 font requests. The offline capture was not re-run for this entry. After: `audits/evidence/p6/1/measure/type.json`, `audits/evidence/p6/1/p3/prayer/contrast.json`.
 - **Evidence.** `audits/03-apps/prayer.md:906`; `apps/prayer.html:12-14`, `sw.js:36`; `audits/screens/prayer/kid-offline-ipad-portrait-light.png`, `audits/screens/prayer/today-offline-iphone-pwa-light.png`
 - **What happens now.** Offline, Prayer loses its typeface (low). Manrope and Instrument Serif load from Google Fonts (`apps/prayer.html:12-14`), and the service worker skips cross-origin requests (`sw.js:36`). The visual checker saw the fallback face in the offline captures. Evidence: `audits/screens/prayer/kid-offline-ipad-portrait-light.png`; `audits/screens/prayer/today-offline-iphone-pwa-light.png`.
 - **Why it matters.** Offline Prayer loses its fonts.
@@ -2527,7 +2646,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-10 — Delete in the detail sheet is not styled as destructive
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Delete in the detail sheet reads as destructive before the confirm: --danger-ink label with a --danger-graphic border (apps/prayer.html:220-221), and the confirm itself --danger-strong. Code and recapture; no script measures it. After: `audits/evidence/p6/1/p3/prayer/contrast.json`.
 - **Evidence.** `audits/03-apps/prayer.md:909`; `audits/screens/prayer/detail-typical-ipad-portrait-light.png`, `audits/screens/prayer/ask-delete-typical-iphone-pwa-light.png`
 - **What happens now.** Delete in the detail sheet is not styled as destructive (low; from the visual check). "Delete" is the same flat outlined button as "Edit"; terra appears only on the follow-up confirm. Evidence: `audits/screens/prayer/detail-typical-ipad-portrait-light.png`; `audits/screens/prayer/ask-delete-typical-iphone-pwa-light.png`.
 - **Why it matters.** Delete looks like Edit.
@@ -2536,7 +2656,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PROF-a1 — The PIN dots are mocha, not the person's colour
 
-- **Area** shell / platform · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** shell / platform · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The PIN pad carries the chosen person's data-accent (index.html:612) and its dots fill with --accent-strong (index.html:69), so Mea's dots are her butter, not the signed-out fallback. Code and recapture; no script measures the dots. After: `audits/evidence/p6/1/checks/verify-1a-webkit.txt`.
 - **Evidence.** `audits/02-shell.md:978`; `index.html:58`; `audits/evidence/p2/VIS/leads-pin-dots-mae.png`
 - **What happens now.** Filled dots render as rgb(138,106,75) for Mea, whose colour is #5B8143.
 - **Why it matters.** The pad does not say whose it is.
@@ -2545,7 +2666,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-SHAPE-1 — Concentric corners are impossible by construction; at least 58 of 99 container/child pairs are off
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Concentric by construction in design.css (--r-card = --r-control + --pad-card, --r-inset). SHAPE/analyze, distinct off-concentric pairs 55 → 23: shell 25 → 4, build guide 11 → 1, Verses 4 → 0, Kid Verse 2 → 1, park map 5 → 4; the Larder stays 4 and the TV board rises 3 → 8 (the kiosk's ×1.5 radii). The rest goes with the Larder (8), park map (10), TV (2c) and shell (2a) batches. measure/page-lib.mjs prints the same output before and after (stale). After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/p4/SHAPE/sheet-concentric.png`, `audits/evidence/p6/1/tests/repro-after/phase4__SHAPE__analyze.txt`.
 - **Evidence.** `audits/04-design-system.md:2208`; `apps/design.css:381-383`; `audits/evidence/p4/SHAPE/sheet-concentric.png`
 - **What happens now.** The root cause is in design.css. `.card` is R22 with 20 px padding and a 1 px border, an inset of 21 (`apps/design.css:381-383`), and `.btn` is r16 (`:352`). Concentric would need r1, so every button in a card is 15 px off.
 - **Why it matters.** Mismatched nested corners are one of the clearest tells between the hub and first-party iPadOS surfaces, and design.css produces them by default.
@@ -2554,7 +2676,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-SHAPE-2 — The shell and the build guide keep the phone's 16 px margins on the iPad; F260 drops to 22 px in landscape, and its week stripes paint 7 px from the iPhone edge
 
-- **Area** design system (F260, build guide) · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** design system (F260, build guide) · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Margins by size class (16/20/28/32 from --margin): SHAPE/remeasure, the shell on the iPad 16 → 28 px, the build guide 16 → 28 (portrait) / 32 (landscape), F260 in landscape 22 → 32. F260's week stripes on the iPhone moved 7 → 12 px from the edge, not to the 20 px size-class margin every other app now keeps: F260's batch 4. After: `audits/evidence/p6/1/p4/SHAPE/remeasure.json`, `audits/evidence/p6/1/p4/SHAPE/verify-margins-shell-ipad-portrait.png`.
 - **Evidence.** `audits/04-design-system.md:2245`; `index.html:66-67`, `apps/f260.html:466`; `audits/evidence/p4/SHAPE/verify-margins-shell-ipad-portrait.png`, `audits/screens/dollywood/map-typical-ipad-portrait-light.png`
 - **What happens now.** The shell. `#views` pads with `--sp-4` at every width below 1024 px (`index.html:66-67`), so Home, Apps and Me sit 16 px from the edge of an 820 px iPad. Inside the same shell, the apps sit 66-230 px in. The build guide also sits at 16 px on the iPad portrait and landscape.
 - **Why it matters.** On the primary device the shell looks like a stretched phone layout, while the apps inside it are inset. On the phone, F260's stripes nearly touch the screen edge.
@@ -2563,7 +2686,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TALLY-1 — In every dark palette the dial and the +/− buttons barely stand out from the page
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** In dark the discs are tinted from the accent family. Tally themes.mjs: the − and + discs against the wash in Midnight, Forest and System dark 1.13-1.45 → 6.41-6.99 for all seven profiles. After: `audits/evidence/p6/1/p3/tally/themes.json`, `audits/evidence/p6/1/p3/tally/theme-midnight-lightos-eli.png`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The item presents 3:1 as the target the disc fill fails. But the + and − glyphs identify the buttons at 11-14:1, so the fill-to-wash ratio is not the WCAG 1.4.11 measure, and the buttons do not 'barely stand out' in practice. They are plainly visible as discs, only low in luminance contrast.
 - **Evidence.** `audits/03-apps/tally.md:517`; `apps/tally.html:26-31`; `audits/evidence/p3/tally/theme-system-darkos-eli.png`, `audits/screens/tally/main-typical-ipad-portrait-dark.png`
 - **What happens now.** The glass discs are near-black brown on a dark accent wash. The button fill measures: − against the wash: 1.13-1.45:1 (Midnight, System-dark, Forest);
@@ -2573,7 +2697,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TALLY-3 — The count is in the serif display face, not ui-rounded, in adult and kid mode
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The count reads --font-numeral (rounded) with tabular figures. The rig finds no serif text left in Tally (36 → 0). TYPE/report.mjs still lists a ui-serif count because it reads the committed Phase 4 rig (stale). After: `audits/evidence/p6/1/measure/type.json`, `audits/evidence/p6/1/p3/tally/theme-parchment-lightos-eli.png`.
 - **Evidence.** `audits/03-apps/tally.md:532`; `apps/tally.html:58`, `apps/design.css:19-20`; `audits/screens/tally/main-typical-iphone-pwa-light.png`, `audits/screens/tally/kid-typical-iphone-pwa-light.png`
 - **What happens now.** `.count` uses `var(--font-display)` (`apps/tally.html:58`), which is `var(--font-serif)` (`apps/design.css:19-20`).
 - **Why it matters.** A serif count.
@@ -2582,7 +2707,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TALLY-5 — In light mode several control discs fall under 3:1 against the wash
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Light discs reach 3:1 against the wash. Tally themes.mjs: the − and + discs in the light palettes 2.12-3.48 → 4.87-5.38 for every profile (Kiara 2.24-2.33 → 4.87). After: `audits/evidence/p6/1/p3/tally/themes.json`, `audits/evidence/p6/1/p3/tally/theme-system-lightos-eli.png`.
 - **Evidence.** `audits/03-apps/tally.md:541`; `audits/screens/tally/kid-typical-ipad-portrait-light.png`
 - **What happens now.** The − disc is 2.24-2.85:1 for Mae, Mom, Mea, Ezra and Kiara in System light, and 2.24-2.33 for Kiara across Parchment, System and Frost.
 - **Why it matters.** Discs fade into the wash.
@@ -2591,7 +2717,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TALLY-7 — The press states may never show on iPhone or iPad
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`80af987`)
+- **Phase 6 (NEEDS DEVICE CHECK).** The global .pressable press (scale 0.97 plus a dim) and hub.js's document touchstart listener are in: MOTION/press, Tally 3/3 controls at 0.97 with a brightness shift (none before). Only a device can show whether iOS paints :active: on a real iPhone and iPad, tap +, − and Reset and check that each visibly presses in. After: `audits/evidence/p6/1/p4/MOTION/press.json`.
 - **Evidence.** `audits/03-apps/tally.md:550`; `apps/tally.html:82`, `apps/tally.html:80-82`
 - **What happens now.** The only tap feedback is the `:active` scale of .94 and .96 (`apps/tally.html:82, 108`). iOS Safari applies `:active` to a tap only when the page has a `touchstart` listener, and `grep -n "touchstart\|pointerdown" apps/tally.html apps/hub.js` finds none.
 - **Why it matters.** Press states may never show on iPhone or iPad.
@@ -2600,7 +2727,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TALLY-9 — Glass is on the content dial as well as the controls: five backdrop-filter layers
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The dial is solid material; glass stays on the controls. GLASS/layers, Tally: live blur layers per screen 6 → 3 (the viewer's bars and a control), content-glass layers 4 → 1 (the rig counts the Reset button, a control). After: `audits/evidence/p6/1/p4/GLASS/layers.json`, `audits/evidence/p6/1/tests/repro-after/phase4__GLASS__layers.txt`.
 - **Evidence.** `audits/03-apps/tally.md:561`; `apps/tally.html:51`, `apps/tally.html:45-51`, `apps/design.css:388-403`; `audits/screens/tally/main-typical-iphone-pwa-light.png`
 - **What happens now.** `.dial`, both `.tbtn` buttons, `.who` and `.btn.reset` each carry `backdrop-filter: blur(var(--blur)) saturate(1.4)` (`apps/tally.html:51, 79, 104`). There is nothing to blur behind the dial except the gradient wash.
 - **Why it matters.** Five glass layers on content.
@@ -2609,7 +2737,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TIMER-3 — The selected preset chip is drawn at half its neighbours' contrast, so it reads as disabled
 
-- **Area** timer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** timer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The selected preset uses --sel-fill-strong / --sel-ink-strong plus weight. The worker's probe (not filed): the selected fill 1.09-1.24 → 5.52-9.33 against the page, its label 1.15-2.7 → 14.2-16.85, a non-colour cue on 42/42; test-timer 45/0. The rig's failing preset rows are loading states only. After: `audits/evidence/p6/1/tests/suites/test-timer.txt`, `audits/evidence/p6/1/measure/failing-pairs/timer.json`.
 - **Evidence.** `audits/03-apps/timer.md:365`; `apps/timer.html:44`; `audits/evidence/p3/timer/visual-idle-midnight-ipad.png`, `audits/screens/timer/idle-typical-ipad-landscape-light.png`
 - **What happens now.** The selected preset chip is drawn at half its neighbours' contrast, so it reads as disabled (low). `.on` is `--accent-deep` on `--accent-soft` (`apps/timer.html:44`): 5.76-7.79:1 against 14.16-14.68:1 for the unselected chips in all five palettes. It passes AA, but in dark mode it reads as a grey pill. Evidence: `audits/evidence/p3/timer/visual.json` (V1), `audits/evidence/p3/timer/visual-idle-midnight-ipad.png`, `audits/screens/timer/idle-typical-ipad-landscape-light.png`, `audits/screens/timer/idle-empty-iphone-pwa-dark.png`.
 - **Why it matters.** The selected chip reads as disabled.
@@ -2618,7 +2747,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TIMER-6 — The dial is a Liquid Glass pane, although it is content
 
-- **Area** timer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** timer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The dial is solid material, not glass. GLASS/layers, Timer: screens with live glass on content 96 (87 %) → 17 (15 %); the rest are the viewer's chrome and chat composer. After: `audits/evidence/p6/1/p4/GLASS/layers.json`, `audits/evidence/p6/1/tests/repro-after/phase4__GLASS__layers.txt`.
 - **Evidence.** `audits/03-apps/timer.md:368`; `apps/timer.html:54`; `audits/screens/timer/running-typical-desktop-dark.png`
 - **What happens now.** The dial is a Liquid Glass pane, although it is content (low). `#dial` carries `glass` (`apps/timer.html:54`), computed `backdrop-filter: blur(18px) saturate(1.4) brightness(1.02)`; the house style keeps glass for navigation and controls. The rig paints no blur, but the top sheen is visible (`audits/screens/timer/running-typical-desktop-dark.png`). Evidence: `visual.json` V2.
 - **Why it matters.** Glass on content.
@@ -2627,7 +2757,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TIMER-7 — The ring track is nearly invisible: 1.4:1 in light and 1.2:1 in dark against the dial
 
-- **Area** timer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** timer · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The arc reads --progress-fill (the person's solid, 5.5-9.8:1 on the dial) and the track --tint-fill-strong, about 2:1 on the dial (worker 2.01-2.04; the finding asked 1.5 or more). --progress-track itself measures only 1.07-1.47 on a light dial, a token note for the owner. vischeck-track re-reads the committed Phase 3 PNGs (still 1.2 / 1.4; before it found none), so it is stale. After: `audits/evidence/p6/1/tests/suites/test-timer.txt`, `audits/evidence/p6/1/tests/repro-after/phase3__timer__vischeck-track.txt`.
 - **Evidence.** `audits/03-apps/timer.md:369`; `apps/timer.html:28`; `audits/screens/timer/running-typical-desktop-dark.png`, `audits/screens/timer/running-offline-ipad-landscape-dark.png`
 - **What happens now.** The ring track is nearly invisible: 1.4:1 in light and 1.2:1 in dark against the dial (low; from the visual check). The unfilled part of the ring is `color-mix(accent 16%, surface-2)` (`apps/timer.html:28`); measured at 1.39:1 in Hearth and 1.2:1 in the dark palette, under the 3:1 minimum for graphics. In dark the ring reads as a floating arc, so the proportion left is hard to judge at a glance. Evidence: `audits/tools/phase3/timer/vischeck-track.mjs` → `audits/evidence/p3/timer/vischeck-track.json`; `audits/screens/timer/running-typical-desktop-dark.png`, `audits/screens/timer/running-offline-ipad-landscape-dark.png`.
 - **Why it matters.** The track is nearly invisible.
@@ -2636,7 +2767,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-VERSES-2 — The trainer and done cards are live glass on content, outside the perf guard
 
-- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The trainer and done cards are solid material (--material-solid-bg). verify-guard-misses-glass-strong-3: Verses' #trainer / #done backdrop blur(18px)… → none on every device; GLASS/layers: Verses' content-live screens 159 → 120, and those are the Read aloud glass button, a control. After: `audits/evidence/p6/1/p4/GLASS/verify-guard-misses-glass-strong-3.json`, `audits/evidence/p6/1/p4/GLASS/layers.json`.
 - **Evidence.** `audits/03-apps/verses.md:545`; `apps/verses.html:103`, `apps/design.css:388`; `audits/evidence/p3/verses/visual-hearth-iphone.png`, `audits/screens/verses/kid-offline-ipad-portrait-dark.png`
 - **What happens now.** The trainer and done cards are live glass on content, outside the perf guard (low). `#trainer` and `#done` are `.card.glass-strong` (`apps/verses.html:103, 119`), computed `backdrop-filter: blur(18px) saturate(1.4) brightness(1.02)` in every theme; the scroll-page guard strips blur only from `.card.glass` (`apps/design.css:388, 400`). The checker saw the sheen gradient in the captures; the blur itself is from code (rig limit). Evidence: `audits/evidence/p3/verses/visual.json`; `audits/evidence/p3/verses/visual-hearth-iphone.png`; `audits/screens/verses/kid-offline-ipad-portrait-dark.png`.
 - **Why it matters.** Live glass on content in a scroller.
@@ -2645,7 +2777,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-VERSES-3 — "Got it" fails AA in Hearth (4.4:1)
 
-- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Got it is --success-strong with --success-on, 4.77:1 in light and 10.2 in dark (gated in contrast.mjs), and its hover no longer lightens (verses.html:93). visual.mjs fails before and after (its save block no longer catches hub.js's saves), so it is stale. The rig still reads 4.34 on two desktop light captures, which is the hover sheen the last fix removed; it was not re-captured after that fix. After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/measure/failing-pairs/verses.json`, `audits/evidence/p6/1/p3/verses/visual-hearth-iphone.png`.
 - **Evidence.** `audits/03-apps/verses.md:546`; `apps/verses.html:59`; `audits/evidence/p3/verses/visual-hearth-iphone.png`
 - **What happens now.** "Got it" fails AA in Hearth (4.4:1) (low). White 18 px / 600 text on `var(--olive)` (`apps/verses.html:59`); 18 px at 600 is not large text. The other four palettes pass (minimum 4.96). Evidence: `audits/evidence/p3/verses/visual.json` (`hearth.fails`); `audits/evidence/p3/verses/visual-hearth-iphone.png`. Run `node "audits/tools/phase3/verses/visual.mjs"`.
 - **Why it matters.** The most-tapped control fails AA in Hearth.
@@ -2654,7 +2787,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-VERSES-4 — Light-mode primaries invert the house fill/ink rule
 
-- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Light primaries follow the pairing rule (D15): Show is the core primary on --accent-strong with --accent-on, as in dark. SHAPE/crops: Verses Show was a transparent-glass button → the person's strong rgb(79,82,216) capsule. visual.mjs is stale (fails before and after). After: `audits/evidence/p6/1/p4/SHAPE/crops.json`, `audits/evidence/p6/1/p3/verses/visual-hearth-iphone.png`.
 - **Evidence.** `audits/03-apps/verses.md:547`; `apps/verses.html:59`; `audits/screens/verses/trainer-typical-iphone-pwa-light.png`, `audits/screens/verses/practise-anyway-typical-iphone-pwa-light.png`
 - **What happens now.** Light-mode primaries invert the house fill/ink rule (low; from the visual check). In light mode Show is a deep fill in the person's accent with white text (navy for Eli, brown for Elizabeth, dark teal for Ezra), and Got it is olive with white text (`apps/verses.html:59, 110`). Dark mode already does the house thing (pastel periwinkle or aqua with dark ink), so the two modes disagree. Evidence: `audits/screens/verses/trainer-typical-iphone-pwa-light.png`; `audits/screens/verses/practise-anyway-typical-iphone-pwa-light.png`; `audits/screens/verses/kid-typical-ipad-portrait-light.png`; `audits/screens/verses/trainer-typical-ipad-landscape-dark.png`.
 - **Why it matters.** Inverted fill/ink.
@@ -2663,7 +2797,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-VERSES-5 — Two weights of the display face on one card
 
-- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** One display weight per card: the reference is the bold system title (40/700), matching "All done for today". The only serif left in Verses is the verse text, the reading role (measure type: serif 219 → 43, all p#text). visual.mjs is stale. After: `audits/evidence/p6/1/measure/type.json`, `audits/evidence/p6/1/p3/verses/visual-hearth-iphone.png`.
 - **Evidence.** `audits/03-apps/verses.md:548`; `apps/verses.html:38`, `apps/verses.html:64`, `apps/design.css:306`; `audits/screens/verses/trainer-typical-iphone-pwa-light.png`, `audits/screens/verses/done-typical-iphone-pwa-light.png`
 - **What happens now.** Two weights of the display face on one card (low; from the visual check). The reference is serif at weight 400 (`apps/verses.html:38`); "All done for today" and "Nothing to train yet" use the same face at a similar size but inherit bold from the `h2` rule (`apps/verses.html:64`; `apps/design.css:306`). Evidence: `audits/screens/verses/trainer-typical-iphone-pwa-light.png`; `audits/screens/verses/done-typical-iphone-pwa-light.png`; `audits/screens/verses/trainer-empty-iphone-pwa-light.png`.
 - **Why it matters.** Two weights of the serif.
@@ -2672,7 +2807,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-VERSES-7 — In dark palettes the Not yet and Almost fills turn muddy and the low-box bars nearly vanish
 
-- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1
+- **Area** verses · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Dark fills come from the pastel families (Not yet peach, Almost butter, the box bars --mint-graphic with an empty stub). The rig's Verses graphic failures in dark (the box bars) 199 → 0 (measure nontext); the dark rating labels read 6.98 or more (worker). After: `audits/evidence/p6/1/measure/nontext/verses.json`, `audits/evidence/p6/1/checks/contrast.txt`.
 - **Evidence.** `audits/03-apps/verses.md:550`; `audits/evidence/p3/verses/visual-midnight-iphone.png`, `audits/evidence/p3/verses/visual-forest-iphone.png`
 - **What happens now.** In dark palettes the Not yet and Almost fills turn muddy and the low-box bars nearly vanish (low). The soft terra and gold fills become dark browns that almost merge with the card; the Daily and 2-day bars and the box chips are dark on dark. The checker supported this in Midnight and Forest. Evidence: `audits/evidence/p3/verses/visual-midnight-iphone.png`; `audits/evidence/p3/verses/visual-forest-iphone.png`; `audits/screens/verses/kid-revealed-typical-ipad-landscape-dark.png`; `audits/screens/verses/trainer-typical-ipad-landscape-dark.png`.
 - **Why it matters.** Muddy dark fills.
@@ -2681,7 +2817,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-GLASS-3 — The sheen's tilt drift never runs on iPad or iPhone
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** info · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** info · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The tilt drift is removed: hub.js no longer registers a deviceorientation listener (the sheen follows scroll on the two bars only; apps/hub.js sheen block). Code only; verify-1a confirms the sheen on the tab bar and none on :root. After: `audits/evidence/p6/1/checks/verify-1a-webkit.txt`.
 - **Evidence.** `audits/04-design-system.md:3531`; `apps/hub.js:449`, `apps/hub.js:449-451`
 - **What happens now.** hub.js registers the `deviceorientation` listener only when `DeviceOrientationEvent.requestPermission` is not a function (`apps/hub.js:449`). iOS and iPadOS Safari define that function, so on the target devices the sheen follows scroll only. CLAUDE.md says the sheen "drifts with scroll/tilt".
 - **Why it matters.** Minor, but the documented behaviour is not what the family's devices do. If the drift is kept, P4-GLASS-01 should be fixed first.
@@ -2690,7 +2827,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-2 — F260, Prayer, the Dollywood template, Kid Verse and the Larder use no duration tokens: 93 literal durations, two different overshoot "springs"
 
-- **Area** design system (F260, Prayer, Larder, Kid Verse) · **Type** visual (consistency) · **Severity** info · **Effort** M · **Batch** 1
+- **Area** design system (F260, Prayer, Larder, Kid Verse) · **Type** visual (consistency) · **Severity** info · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
+- **Phase 6 (PARTIAL).** Literal durations moved to the --dur-*/--spring-* tokens in F260 (TOK/literals durations 32 → 3), Kid Verse (3 → 0), the Larder (2 → 0), Timer (2 → 0) and the park-map export (13 → 6). Prayer's 35 stay: the Prayer worker left CONS-MOTION-2 for Prayer's batch (3). MOTION/static-motion.mjs reads the old duration names (it prints "null ms" now), so it is stale. After: `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__static-motion.txt`.
 - **Evidence.** `audits/04-design-system.md:4108`; `index.html:328`, `apps/design.css:105-109`
 - **What happens now.** Token share of durations (Table MOTION-1; exact in the re-measure): Token areas: design.css 21/24, shell 19/23, Tally 5/5, Timer 5/7, Verses 2/3.
 - **Why it matters.** The same gesture feels different app to app, and a retune of the tokens would reach only five areas.
@@ -2699,7 +2837,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-5 — Reduce Motion is handled five ways and converges only because design.css's rule is global
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** info · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** info · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Reduce Motion is handled once: data-motion with its media mirror, set by the bootstrap and live in hub.js, and design.css's global kill re-keyed to it as an opacity/colour substitute. MOTION/reduced-motion: every area boots under reduce with no infinite animation; park-live under reduce: 0 running; rm-smooth: 0 in-between frames. Note: the re-keyed rule now gives every element a 150 ms colour transition, so 73/73 buttons transition under reduce (0/73 before). After: `audits/evidence/p6/1/p4/MOTION/reduced-motion.json`, `audits/evidence/p6/1/p4/MOTION/park-live.json`, `audits/evidence/p6/1/p4/MOTION/rm-smooth.json`.
 - **Evidence.** `audits/04-design-system.md:4161`; `apps/design.css:611-613`, `apps/f260.html:476`, `apps/prayer.html:384`, `apps/hub.js:442`
 - **What happens now.** design.css has a global rule: `*, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }` (`apps/design.css:611-613`). Every file links design.css (`apps/*.html`, `<link rel="stylesheet" href="design.css">`; the Dollywood exports at `:683`).
 - **Why it matters.** Five copies drift. The next app that does not link design.css, or scopes its rule, loses Reduce Motion silently, and JS motion is already missed (P4-MOTION-04).
@@ -2708,7 +2847,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-MOTION-2 — There are no springs: every curve is a fixed-duration bezier, and keyframe entrances restart when interrupted
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** info · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** info · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Spring curves exist as linear() tokens (--spring-snappy/-gentle/-bouncy with their durations) and the shared press and tab indicator use them (MOTION/press: 240 ms linear(...)). MOTION/interrupt: the tab indicator's largest per-frame jump 237.5 → 117.9 px; the viewer's interrupted close still restarts (jump 0.66 → 0.68), which is the WAAPI close helper (gap row MOTION-4), not this row. MOTION/curves.mjs reads committed data (identical output), stale. After: `audits/evidence/p6/1/p4/MOTION/interrupt.json`, `audits/evidence/p6/1/p4/MOTION/press.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__curves.txt`.
 - **Evidence.** `audits/04-design-system.md:4200`; `index.html:327-330`, `apps/design.css:567`, `apps/design.css:105-109`
 - **What happens now.** The curves. All 11 bezier curves in use are fixed-duration (Table MOTION-2). `--spring` overshoots 5.3 % and reaches 90 % at 34.4 % of its time; F260 and Prayer's (.3,1.6,.5,1) overshoots 11 %.
 - **Why it matters.** It is the most visible "web page" tell in motion. Apple's sheets and zooms follow the finger and reverse mid-flight.
@@ -2717,7 +2857,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-9 — 3 tokens are unused, 3 are used only by the style guide, and 5 are exact aliases
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** info · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** info · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** --info, --shadow-sm and --dur are removed (0 readers, gated); --info-soft / --info-ink, --ease-out, --shadow and --shadow-lg are marked deprecated and go when the lint finds no reader, as the fix says. TOK/usage after: no reader of the three removed names; its new "unused" list is v3 role tokens not yet adopted. After: `audits/evidence/p6/1/p4/TOK/usage-matrix.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__usage.txt`.
 - **Evidence.** `audits/04-design-system.md:828`; `apps/dollywood.html:213`, `apps/design.css:41`
 - **What happens now.** Unused anywhere: `--info`, `--shadow-sm`, `--dur`.
 - **Why it matters.** Dead tokens.
@@ -2726,7 +2867,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-F260-16 — The glass modal is transparent enough that rows beneath collide with its buttons
 
-- **Area** f260 · **Type** visual · **Severity** info · **Effort** S · **Batch** 1
+- **Area** f260 · **Type** visual · **Severity** info · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`80af987`)
+- **Phase 6 (NEEDS DEVICE CHECK).** F260's modals use --material-chrome-bg at 90 % (apps/f260.html:413; GLASS/opaque-blur: #complete .card alpha .9). The rig paints no backdrop blur, so whether rows still show through only a device can tell: on an iPad, open the practice modal over the week list and check that no row text or check disc beneath collides with Close. After: `audits/evidence/p6/1/p4/GLASS/opaque-blur.json`.
 - **Evidence.** `audits/03-apps/f260.md:729`; `audits/screens/f260/practice-overflow-desktop-light.png`, `audits/screens/f260/reset-confirm-typical-iphone-pwa-dark.png`
 - **What happens now.** The glass modal is transparent enough that rows beneath collide with its buttons (info, provisional; from the visual check). In the practice modal, "DAY 2 Revelation 2-3" and a check disc show through beside "Close". The rig paints no backdrop blur, so a device may differ. Evidence: `audits/screens/f260/practice-overflow-desktop-light.png`; `audits/screens/f260/reset-confirm-typical-iphone-pwa-dark.png`.
 - **Why it matters.** Rows show through the modal.
@@ -2735,7 +2877,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TALLY-11 — The chosen theme barely reaches Tally
 
-- **Area** tally · **Type** visual · **Severity** info · **Effort** S · **Batch** 1
+- **Area** tally · **Type** visual · **Severity** info · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** The wash follows the palette as well as the person: the hero tokens over --bg, and Forest keeps its gold radial (--wash), so Forest no longer renders like Midnight (a deviation from the proposed recipe, accepted). Tally themes.mjs captures: Forest and Midnight now differ. After: `audits/evidence/p6/1/p3/tally/theme-forest-lightos-eli.png`, `audits/evidence/p6/1/p3/tally/theme-midnight-lightos-eli.png`.
 - **Evidence.** `audits/03-apps/tally.md:568`; `audits/evidence/p3/tally/theme-forest-lightos-eli.png`, `audits/evidence/p3/tally/theme-midnight-lightos-eli.png`
 - **What happens now.** The wash is always the person's colour, so Forest (deep green, gold ink) renders almost exactly like Midnight: a navy wash, cream ink and a slight green-grey tint on the discs.
 - **Why it matters.** The theme barely reaches Tally.
@@ -2744,43 +2887,50 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-07 — Hearth paints Midnight on a device in dark mode — pointer
 
-- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 1
+- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Pointer to P2-VIS-03 (FIXED): Hearth writes data-theme="hearth", so a dark-mode device paints Hearth. verify-hearth-turns-dark-in-os-dark-1: data-theme null, page #1A1512 → hearth, #F4F1EC, one theme-color meta. After: `audits/evidence/p6/1/p2/PWA/verify-hearth-turns-dark-in-os-dark-1.json`, `audits/evidence/p6/1/p2/PWA/verify-hearth-os-dark-1-hearth-dark-me.png`.
 - **Evidence.** `audits/02-shell.md:5065`; `index.html:203`, `apps/hub.js:74`
 - **Proposed fix.** Pointer to P2-VIS-03.
 
 #### P4-ACCENT-02 — The raw profile colour is used as small text in Prayer's Kitchen headings and the park map's walk times and distances; no single hex can pass in both schemes, so it fails for every adult in one scheme or the other
 
-- **Area** design system (Prayer, park map) · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 1
+- **Area** design system (Prayer, park map) · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Pointer to P4-COLOR-02 (FIXED): the raw profile colour no longer inks small text. Prayer's Kitchen headings 2.83 → 13.44 in Midnight and 5.75 → 7.62 in light; the park map's walk times 2.14-2.57 → 11.16-11.59 in dark. After: `audits/evidence/p6/1/p4/COLOR/verify-raw-accent-ink-no-dark-lift-1-tokens-prayer.json`, `audits/evidence/p6/1/p4/COLOR/verify-raw-accent-ink-no-dark-lift-1-park.json`.
 - **Evidence.** `audits/04-design-system.md:5369`; `apps/prayer.html:39`, `apps/hub.js:80`, `apps/prayer.html:359`, `apps/prayer.html:1551-1555`
 - **Proposed fix.** Pointer to P4-COLOR-02. (Phase 4 gap row ACCENT-2)
 
 #### P4-ACCENT-03 — Me → Switch is pale ink on a white pill in every dark scheme: 1.99-2.49:1 for every adult (1.76-2.56 over all household colours)
 
-- **Area** design system, all areas · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Pointer to P4-COLOR-03 (FIXED): Me → Switch reads --hero-btn-bg / --hero-btn-ink; 12 cases p10 1.76-8.68 → 6.91-9.27. After: `audits/evidence/p6/1/p4/COLOR/verify-hero-primary-button-inverts-dark-2.json`, `audits/evidence/p6/1/p4/COLOR/verify-hero-primary-button-inverts-dark-2-eli-systemdark.png`.
 - **Evidence.** `audits/04-design-system.md:5441`; `apps/design.css:176-177`, `apps/design.css:423`, `index.html:1252-1253`, `apps/design.css:170`
 - **Proposed fix.** Pointer to P4-COLOR-03. (Phase 4 gap row ACCENT-4)
 
 #### P4-DARK-01 — The raw profile colour is painted as text and as the Timer arc in dark: Prayer's Kitchen headings 2.83:1 and the park map's walk time 2.14-2.57:1 for Eli and David; the Timer arc 2.1-2.7:1
 
-- **Area** design system (Prayer, Timer, park map) · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 1
+- **Area** design system (Prayer, Timer, park map) · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Pointer to P4-COLOR-02 (text) and P4-ACCENT-04 (the Timer arc), both FIXED: Prayer's Kitchen headings 2.83 → 13.44 in dark, the park walk times 2.14-2.57 → 11.16-11.59; the Timer arc for David and Eli 2.2 / 2.64 → 9.33 / 8.65 (worker probe, not filed). After: `audits/evidence/p6/1/p4/COLOR/verify-raw-accent-ink-no-dark-lift-1-park.json`, `audits/evidence/p6/1/p4/ACCENT/verify-raw-accent-graphics-light-and-apps-2.json`.
 - **Evidence.** `audits/04-design-system.md:4571`; `apps/hub.js:80`, `apps/design.css:86`, `apps/design.css:170`, `apps/prayer.html:359`
 - **Proposed fix.** Pointer to P4-COLOR-02 (text) and P4-ACCENT-04 (the Timer arc). (Phase 4 gap row DARK-3)
 
 #### GAP-DARK-3 — The focus-ring token is below 3:1 in every theme
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low (pointer) · **Effort** S · **Batch** 1
+- **Area** design system, all areas · **Type** feature gap · **Severity** low (pointer) · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Pointer to P4-TOK-01 (FIXED): focus is an outline in --focus-ring-color, 3.13:1 or more in every theme (contrast.mjs), and visible at every .ds button (26/26). After: `audits/evidence/p6/1/checks/contrast.txt`, `audits/evidence/p6/1/p4/TELL/keyboard-ring.json`.
 - **Evidence.** `audits/04-design-system.md:4886`; `apps/design.css:102`, `apps/prayer.html:96`
 - **Proposed fix.** Pointer to P4-TOK-01. (Phase 4 gap row DARK-7)
 
 #### P4-DARK-03 — Native controls take their colours from the OS, not the chosen theme: F260's week-note Copy button reads 1.01-1.08:1 in Midnight or Forest on a light OS, and 2.58-2.92:1 in Parchment or Frost on a dark OS
 
-- **Area** design system (F260) · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 1
+- **Area** design system (F260) · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Pointer to P4-COLOR-04 (FIXED): color-scheme follows the palette, so F260's week-note Copy reads 8.03 / 8.59 in Parchment / Frost on a dark OS (was 2.58 / 2.92) and 11.16 in Midnight, and the native selects 10.84-16.83. After: `audits/evidence/p6/1/p4/COLOR/verify-native-controls-ignore-theme-1.json`, `audits/evidence/p6/1/p4/COLOR/native-controls.json`.
 - **Evidence.** `audits/04-design-system.md:4720`; `apps/design.css:15`, `apps/f260.html:1297`, `apps/f260.html:45`
 - **Proposed fix.** Pointer to P4-COLOR-04. (Phase 4 gap row DARK-1)
 
 #### VIS-KIDVERSE-4 — Moved to P3-KIDVERSE-14
 
-- **Area** kidverse · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 1
+- **Area** kidverse · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 1 · **Status** FIXED (`80af987`)
+- **Phase 6 (FIXED).** Pointer to P3-KIDVERSE-14 (FIXED): Done ★ and "I heard it" paint butter-strong for both kids (#735A00 light, #E7D695 dark). After: `audits/evidence/p6/1/p3/kidverse/verify-critic-star-buttons-not-gold-5-2.json`, `audits/evidence/p6/1/p3/kidverse/verify-critic-star-buttons-not-gold-5-1-kiara-hearth-done.png`.
 - **Evidence.** `audits/03-apps/kidverse.md:710`; `apps/kidverse.html:55`, `apps/design.css:89`; `audits/evidence/p3/kidverse/verify-critic-star-buttons-not-gold-5-1-ezra-hearth-done.png`, `audits/evidence/p3/kidverse/visual-C-kid-midnight-top.png`
 - **Proposed fix.** Pointer to P3-KIDVERSE-14. (Phase 3: IMP-KIDVERSE-P4)
 

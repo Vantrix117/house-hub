@@ -1,0 +1,68 @@
+
+## Mae adds Aunt Sue from Me
+  ✓ A: Me shows the Guests card with "Add a guest" for an adult
+  ✓ sheet: a grid of 24 faces
+  ✓ sheet: the colour swatches
+  ✓ sheet: every control is at least 44 px
+  ✓ sheet: picking a face marks it
+  ✓ A: the Guests card lists Aunt Sue · until <date> · taps to sign in
+  ✓ guest row: adult, not admin, chosen face + colour, created_by christian, expires in ~a week
+  ✓ A: "Added a guest: Aunt Sue" shows in the Home feed
+
+## Sue signs in on a second device without a PIN
+  ✓ B: the picker shows Aunt Sue after one fetch
+  ✓ B: her card says "Guest · until <date>"
+  ✓ B: her card shows the chosen face
+  ✓ B: no PIN pad — straight into the shell
+  ✓ B: signed in as an adult guest who can write
+  ✓ B: a guest sees every app open to any household adult (F260, Prayer, Larder, …)
+  ✓ B: the Chat tab is there for a guest
+  ✓ B: F260 runs as the guest (person scope is hers)
+  ✓ B: a guest write flushes to the house
+  ✓ B: a guest cannot add guests (no Guests card on Me)
+  ✓ B: a guest can set a photo like any adult
+
+## An expired guest is hidden from the picker but the admin still sees her
+  ✓ created "Old Guest" with expires_at in the past
+  ✓ C: the picker does not show the expired guest
+  ✓ C: the expired guest cannot sign in (guest_expired)
+  ✓ C: a kid still sees only the apps that list them
+
+## Eli's admin panel: Guest rows with Remove / Purge
+  ✓ admin: Aunt Sue row says "Guest · until …" with Remove, no Purge
+  ✓ admin: Old Guest row says "Guest · ended …" with Purge
+  ✓ admin: guest buttons are 44 px tall
+  ✓ desktop: no horizontal scroll with guest rows
+
+## A guest's PIN is fixed at creation; ending a stay stops push
+  ✓ another paired device cannot set a PIN on a tap-to-open guest (403 guest_pin_fixed)
+  ✓ Aunt Sue still signs in on tap afterwards
+  ✓ Eli adds "Push Guest" with a PIN
+  ✓ Push Guest signs in with her PIN on device N
+  ✓ Push Guest subscribes to push on device N
+  ✓ admin: a guest with a PIN gets a "Clear PIN" button
+  ✓ admin: a tap-to-open guest has no Clear PIN button
+  ✓ a confirm sheet asked first, not a native dialog
+  ✓ the sheet asks: Clear Push Guest's PIN?
+  ✓ admin: Clear PIN turns her into a tap-to-open guest
+  ✓ Push Guest now signs in on tap (no PIN pad)
+  ✓ her push subscription is (re)registered
+  ✓ admin usage lists her push subscription while the stay is on
+  ✓ Eli ends her stay (expires_at in the past)
+  ✓ her session on device N is gone (401)
+  ✓ her push subscription is deleted the moment the stay ends
+  ✓ forced morning + prayer jobs never reach the departed guest
+  ✓ cleanup: Push Guest removed
+  ✓ a confirm sheet asked first, not a native dialog
+  ✓ the sheet asks: Purge Old Guest's data now?
+  ✓ admin: Purge removes the expired guest
+  ✓ admin: the profiles cache no longer lists her
+  ✓ a confirm sheet asked first, not a native dialog
+  ✓ the sheet asks: Remove Aunt Sue?
+  ✓ admin: Remove deletes Aunt Sue
+  ✓ her profile is gone
+  ✓ B: Sue's device drops back to the picker and she is no longer on it
+  ✓ A: Eli (adult) also has the Guests card
+  ✓ no page errors
+
+PASS 56  FAIL 0

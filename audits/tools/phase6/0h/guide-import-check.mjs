@@ -22,14 +22,24 @@ const pass = {};
 try {
   const d = await L.device({ device: 'ipad-portrait', profile: 'eli', fixedTime: false });
   const dialogs = []; let answer = 'dismiss';
-  d.page.on('dialog', async dg => { dialogs.push(dg.type() + ': ' + dg.message()); if (answer === 'accept') await dg.accept(); else await dg.dismiss(); });
+  // since batch 1 the guide's questions and notices are its own sheet (ask(): #ask-t, #ask-b, #ask-ok, #ask-no), recorded
+  // as "confirm: …" (two buttons) or "alert: …" (one), and answered as the browser dialogs were
+  const answerSheets = async f => {
+    for (let i = 0; i < 20; i++) {
+      const s = await f.evaluate(() => { const t = document.getElementById('ask-t'); if (!t) return null; const no = document.getElementById('ask-no');
+        return { type: no && !no.hidden ? 'confirm' : 'alert', msg: [t.textContent, (document.getElementById('ask-b') || {}).textContent || ''].join(' ').trim() }; });
+      if (!s) { await sleep(150); continue; }
+      dialogs.push(s.type + ': ' + s.msg);
+      await f.click(s.type === 'confirm' && answer !== 'accept' ? '#ask-no' : '#ask-ok'); await sleep(300);
+    }
+  };
   const f = await d.openApp('dollywood', { wait: '#b-count' });
   await f.waitForFunction(() => /of \d+ done/.test(document.getElementById('b-count').textContent), null, { timeout: 20000 }); await sleep(1500);
   const importFile = async (name, obj) => {
     await f.click('#b-menu'); await sleep(300);
     const [fc] = await Promise.all([d.page.waitForEvent('filechooser', { timeout: 5000 }), f.click('#b-import')]);
     await fc.setFiles({ name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(obj)) });
-    await sleep(2500); await f.evaluate(() => hub.flush && hub.flush()); await sleep(800);
+    await answerSheets(f); await sleep(2500); await answerSheets(f); await f.evaluate(() => hub.flush && hub.flush()); await sleep(800);
   };
   const t0 = await ticks();
   // W

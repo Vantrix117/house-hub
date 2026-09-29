@@ -1,0 +1,16 @@
+PASS setup: push subscription for this device                               200
+PASS A offline Forget: refused with a "not yet saved" message               "Not forgotten: 2 changes not yet saved (2 of yours). Try again when this device is online."
+PASS A offline Forget: both queued writes still on the device               [["hub.queue.hub.person.eli",["forget0c"]],["hub.queue.leftovers.family.eli",["forget0c"]]]
+PASS A offline Forget: still paired and signed in                           true
+PASS B the family write reached the server before forgetting                {"key":"forget0c","value":{"note":"family write made offline"},"updated_at":1790700226103}
+PASS B the person write reached the server before forgetting                {"key":"forget0c","value":{"note":"person write made offline"},"updated_at":1790700226103}
+PASS B the forgotten device token is refused (device deleted)               "401 device_not_paired"
+PASS B the forgotten session is refused                                     401
+PASS B the admin device list no longer has it                               5
+PASS B Eli has no push subscription left (it was on this device only)       null
+PASS B local hub.* storage cleared (no device, session, queue or cache)     []
+PASS C Ezra (kid) has no Forget button                                      false
+PASS C the display has no Forget button                                     false
+PASS C Mom (adult) has the Forget button                                    true
+
+14 passed, 0 failed

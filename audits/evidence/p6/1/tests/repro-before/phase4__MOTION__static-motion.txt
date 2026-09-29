@@ -1,0 +1,56 @@
+area            decl tokDur litDur tokEase  <200 200-350 351-600 >600  infinite  press scales            brightness bgOnly  RM-css RM-js  int raf smooth vib dlg
+design.css        24     21      3      22     6       9       6    3         1      5 [0.94,0.96,0.97]           0      1       3     0    0   0      0   0   0
+shell             23     19      4      19     4      12       3    4         3      7 [0.93,0.94,0.95,0.96,0.97]         0      0       0     0    2   0      0   1  10
+f260              32      0     32       0     4      20       4    4         0     15 [0.9,0.97,0.98]            0     10       2     0    1   1      8   0   1
+leftovers          2      0      2       1     0       0       0    2         1      3 []                         0      3       2     0    0   0      0   0   0
+prayer            35      0     35       0    10      21       2    2         2      5 [0.86,0.94,0.96]           0      0       2     0    0   0      0   0   0
+tally              5      5      0       5     0       5       0    0         0      6 [0.94,0.96]                0      0       1     0    0   0      0   0   0
+timer              7      5      2       5     0       1       5    1         1      0 []                         0      0       0     0    1   0      0   0   0
+dollywood         22      0     22       0     1      12       1    8         8      1 [0.92]                     0      0       1     1    3   3      2   0   8
+dollywood-live    22      0     22       0     1      12       1    8         8      1 [0.92]                     0      0       1     1    3   1      2   0   8
+kidverse           3      0      3       1     0       0       0    3         2      0 []                         0      0       3     1    0   0      0   0   0
+verses             3      2      1       2     0       1       1    1         1      0 []                         0      0       2     0    0   0      0   0   0
+
+design.css: durations [120,220,360,800,1400]
+  easings {"--ease":10,"--spring":10,"(default ease)":2,"--ease-out":2}
+  infinite ["hub-shimmer 1400ms @543"]
+
+shell: durations [120,220,360,1000,1200,2500]
+  easings {"--spring":11,"--ease":7,"(default ease)":3,"linear":1,"--ease-in-out":1}
+  infinite ["spin 1000ms @76","blink 1200ms @259","pulse 1000ms @268"]
+
+f260: durations [0,150,180,200,220,250,300,350,500,600,700,900,1600,3400]
+  easings {"(default ease)":17,"cubic-bezier(.3,.9,.3,1)":2,"ease":7,"cubic-bezier(.3,1.6,.5,1)":4,"cubic-bezier(.2,.7,.3,1)":1,"ease-out":1}
+  infinite []
+
+leftovers: durations [800,1000]
+  easings {"--ease-out":1,"(default ease)":1}
+  infinite ["pulse 1000ms @61"]
+
+prayer: durations [160,180,200,220,250,280,300,320,400,500,1000,1600]
+  easings {"(default ease)":24,"cubic-bezier(.3,.9,.3,1)":2,"cubic-bezier(.3,1.6,.5,1)":1,"cubic-bezier(.22,.9,.3,1)":4,"ease":3,"ease-in-out":1}
+  infinite ["micpulse 1000ms @394","skpulse 1600ms @439"]
+
+tally: durations [220]
+  easings {"--ease":3,"--spring":2}
+  infinite []
+
+timer: durations [220,360,500,1000]
+  easings {"--ease":5,"linear":1,"steps(2)":1}
+  infinite ["blink 1000ms @38"]
+
+dollywood: durations [150,200,300,600,1000,1100,2000,2200,2400]
+  easings {"(default ease)":9,"cubic-bezier(.2,.8,.2,1)":5,"cubic-bezier(.2,.7,.2,1)":1,"ease-in-out":1,"linear":3,"ease-out":3}
+  infinite ["hlring 2200ms @286","lvlive 2000ms @404","lvspin 1000ms @410","fabring 2200ms @417","lvmarch 1100ms @481","mepulse 2400ms @550","lvspin 1000ms @559","mepulse 2400ms @565"]
+
+dollywood-live: durations [150,200,300,600,1000,1100,2000,2200,2400]
+  easings {"(default ease)":9,"cubic-bezier(.2,.8,.2,1)":5,"cubic-bezier(.2,.7,.2,1)":1,"ease-in-out":1,"linear":3,"ease-out":3}
+  infinite ["hlring 2200ms @286","lvlive 2000ms @404","lvspin 1000ms @410","fabring 2200ms @417","lvmarch 1100ms @481","mepulse 2400ms @550","lvspin 1000ms @559","mepulse 2400ms @565"]
+
+kidverse: durations [1100,1200]
+  easings {"ease-in-out":2,"--ease-out":1}
+  infinite ["pulse 1100ms @57","pulse 1100ms @139"]
+
+verses: durations [220,360,1100]
+  easings {"--ease":1,"--ease-out":1,"ease-in-out":1}
+  infinite ["pulse 1100ms @56"]

@@ -1,0 +1,98 @@
+
+## seed
+  ✓ paired, signed in Eli/Ezra/TV; Eli has 6 memorised verses (4 new, 1 overdue, 1 due tomorrow) and a review yesterday; family week → 5
+
+## (a) registration
+  ✓ apps.json: verses registered (person, small, icon)
+  ✓ visible to all seven people and not the TV
+  ✓ icon (duotone) + spot art exist
+  ✓ the spot art comes from scripts/make-art.mjs
+  ✗ no hex and no prefers-color-scheme in the app's CSS 
+  ✓ hub.js with app id verses, person scope; reads F260 through hub.use
+  ✓ the recall shape is documented in the file
+
+## (b) adult flow — Eli, 390
+  ✓ runs in adult mode
+  ✓ the due queue: the four never-reviewed first (plan order), then the overdue one; not the one due tomorrow
+  ✓ the pill says "5 to go"
+  ✓ the queue list names all five, "never reviewed" … "1 day overdue"
+  ✓ "Coming up" holds the one due tomorrow (Acts 17:11)
+  ✓ stats: 5 due, 6 memorised, streak 1 (yesterday, today still to come)
+  ✓ boxes histogram before: 4 in box 1 (three new + the pre-Leitner row), 1 in box 3, 1 in box 4
+  ✓ the first card: Genesis 1:27 in big type
+  ✓ the reference is ≥ 34 px
+  ✓ rating buttons hidden until Show
+  ✓ Show and Read aloud are ≥ 60 px tall
+  ✓ no horizontal scroll at 390
+  ✓ "Read aloud" speaks the reference
+  ✓ Show reveals the three ratings
+  ✓ the card does not grow on Show (no layout jump)
+  ✓ Got it is ≥ 60 px tall
+  ✓ Got it → the next card, Hebrews 11:17-19
+  ✓ the day streak is now 2 (yesterday + today)
+  ✓ Almost → Joshua 1:8-9 (the one with text on file)
+  ✓ the verse text is on the card, blurred until Show
+  ✓ Show unveils the text F260 has on file
+  ✓ Not yet → Proverbs 3:5-6 (the pre-Leitner F260 row)
+  ✓ a pre-Leitner row counts as box 1
+  ✓ Enter reveals the ratings
+  ✓ 3 rates Got it → Psalm 51:17 (the overdue one, box 3)
+  ✓ its chip says Box 3
+  ✓ the queue is empty: "All done for today"
+  ✓ the done card counts 5 reviews and names the next verse
+  ✓ dueIds() is empty
+  ✓ the queue list says nothing is due; all six are in "Coming up"
+  ✓ boxes after: [2,2,0,2,0]
+  ✓ stats: 0 due, streak 2
+  ✓ recall 1-0: Got it on a new verse → box 2, due +2, s got, streak 1
+  ✓ recall 3-1: Almost on a new verse → box 1, due +1, s not
+  ✓ recall 12-0: Not yet → box 1, due +1, s not
+  ✓ recall 20-1: pre-Leitner row → Got it → box 2, due +2
+  ✓ recall 30-0: box 3 overdue → Got it → box 4, due +7, streak 3
+  ✓ recall 40-0 untouched (not due)
+  ✓ no other rows in f260.recall
+  ✓ f260.mem untouched
+
+## (c) summary row + feed line
+  ✓ app_data(verses, person, log) = { yesterday: 2, today: 5 }
+  ✓ app_data(verses, person, summary) = { due: 0, streak: 2, boxes: [2,2,0,2,0], total: 6, reviewedToday: 5, week: null, at: today }
+  ✓ the feed has "Eli reviewed 5 memory verses"
+
+## (d) a second device as Eli, 1024
+  ✓ the other device: all done, the same boxes, streak 2
+  ✓ no horizontal scroll at 1024
+  ✓ "Practise one anyway" opens the next scheduled verse (due tomorrow)
+
+## (e) kid flow — Ezra, 390
+  ✓ the app carries the 52-week, two-per-week reference table
+  ✓ the app runs in kid mode (data-kind="kid")
+  ✓ family week 5 → Romans 8:28-30 (its first verse)
+  ✓ the pill says "2 to go"
+  ✓ no stats, no queue, no box chip for a kid
+  ✓ no paraphrase anywhere
+  ✓ no text input
+  ✓ the reference is ≥ 40 px for a kid
+  ✓ every visible control is a ≥ 64 px button
+  ✓ no horizontal scroll at 390
+  ✓ "Read aloud" speaks the reference ("Romans, chapter 8, verses 28 to 30") at rate 0.85
+  ✓ the button returns to "Read aloud" when the voice finishes
+  ✗ the kid card does not grow on Show 520 → 598
+  ✓ the three rating buttons are ≥ 64 px for a kid
+  ✓ Got it → the week's second verse, Ephesians 3:20-21
+  ✓ two ratings → "All done for today" with Practise again
+  ✓ still no stats
+  ✓ Ezra's own f260.recall: 5-0 box 2 (+2), 5-1 box 1 (+1), nothing else
+  ✓ Ezra's summary: { due: 0, streak: 1, reviewedToday: 2, week: 5, boxes: [1,1,0,0,0] }
+  ✓ the feed has "Ezra reviewed 2 memory verses"
+  ✓ Practise again reopens the week's verses
+  ✓ the kid's due list follows the family week (hub.onChange)
+
+## (f) the kiosk — Downstairs TV, standalone
+  ✓ standalone open works: nothing to train, no rating buttons
+  ✓ the kiosk wrote no summary
+  ✓ rate() on the kiosk does not throw
+
+## console
+  ✓ no console errors or page errors
+
+78 passed, 2 failed

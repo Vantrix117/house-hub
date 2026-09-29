@@ -1,0 +1,65 @@
+
+## seed
+  ✓ paired, signed in Eli/Ezra/Kiara/TV, cleared both kids' story + stars rows, family week → 26
+
+## (a) the 52 retellings, statically
+  ✓ 52 stories, keyed 1…52 in order
+  ✓ every retelling is exactly two sentences
+  ✓ every story has a title, the readings and 80–420 characters
+  ✓ week 1 → creation and the flood (Noah), Genesis 1–9 + Job
+  ✓ week 2 → Job hears God, Abram is called (Job 38–42, Genesis 11–17)
+  ✓ week 26 → Daniel and the lions, then home to rebuild the temple (Daniel 5–6, Ezra 1–6)
+  ✓ week 52 → John sees everything made new (Revelation)
+  ✓ the story card is labelled a retelling in our own words, not the Bible's
+  ✓ no hex and no prefers-color-scheme in the app's CSS
+  ✓ the story block never writes a stars row (rewards belong to item 20)
+  ✓ f260.html declares the family kidverse scope and has the Kids line
+
+## (c₀) parents first: Eli's F260 Today hero has no Kids line while no kid has a row
+  ✓ no "Kids:" line when there are no story rows
+
+## (b) kid flow — Ezra, 390
+  ✓ the app runs in kid mode
+  … the family week is 26 (as seeded)
+  ✓ the verse is week 26 (Daniel 6:26-27) — the family week row
+  ✓ the story below it is week 26: "Daniel and the lions"
+  ✓ the retelling is the week 26 text
+  ✓ week 26 names Daniel and the lions
+  ✓ the label says which readings the grown-ups have this week
+  ✓ labelled as a retelling on screen
+  ✓ the kicker is the kid's own
+  ✓ the story reuses the week's scene (08-exile), the same as the verse art, loaded
+  ✓ the story card sits below the verse and its buttons
+  ✓ "Read it to me" and "I heard it" are both ≥ 64 px
+  ✓ every visible control on the kid screen is still a ≥ 64 px button
+  ✓ no horizontal scroll at 390
+  ✓ "Read it to me" speaks the title and the retelling at rate 0.85
+  ✓ the button returns to "Read it to me" when the voice finishes
+  ✓ "I heard it" becomes "Heard it today ✓"
+  ✓ the sub-line says "Heard 1 day this week"
+  ✓ a toast says great listening (or item 20 announces a badge for the story star)
+  ✓ the verse ★ day dots are untouched (no verse star awarded by the story)
+  ✓ a second tap keeps one day and says so
+  ✓ app_data(kidverse, person, story) = { week: this ISO week, days: { today: true } }
+  ✓ app_data(kidverse, family, story:ezra) mirrors the same value
+  ✓ the feed has "Ezra heard this week's story"
+  ✓ no verse-★ day was written by hearing the story (stars stay item 20's)
+
+## (c) parents' F260: "Kids: Ezra 1/5" within a pull, then Kiara joins
+  ✓ Eli's Today hero: "Kids: Ezra 1/5" after one pull
+  ✓ Kiara is not listed until she has a row
+  ✓ "Kids: Ezra 1/5 · Kiara 1/5" after Kiara hears it on another device
+  ✓ one small muted line inside the Today hero
+  ✓ no horizontal scroll in F260 at 1024
+  ✓ the feed has "Kiara heard this week's story"
+
+## (d) adults and the kiosk see the story but cannot mark it
+  ✓ an adult sees the story, no "I heard it"
+  ✓ adult kicker: "This week’s story"
+  ✓ heard() refuses for an adult and says the story is for the kids
+  ✓ the TV sees the story, no button
+  ✓ heard() refuses for the kiosk and nudges
+  ✓ nothing changed on the server: no story:tv, Ezra still one day
+  ✓ no console errors in any context
+
+50 passed, 0 failed

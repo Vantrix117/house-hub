@@ -1,0 +1,96 @@
+
+## seed
+  ✓ seeded 9 story days and a prayed day for Ezra (prayed days in the window: 2026-09-29)
+  ✓ CLAUDE.md states the rules: the three sources, the six badges, cash-in / reset, the ledger rows
+  ✓ no hex and no prefers-color-scheme in the app's CSS
+
+## (a) Ezra opens Kid Verse: story + prayed days credited once, badges celebrated
+  ✓ credited.story has each seeded story day exactly once
+  ✓ credited.prayed has each prayed day exactly once
+  ✓ total = earned = 10 (story + prayed)
+  ✓ count = 3 for this week (2026-W40); no verse day yet
+  ✓ badges stored once, dated today: first, story, ten
+  ✓ the family mirror stars:ezra equals the person row
+  ✓ the rewards card shows the balance and this week
+  ✓ six badge tiles, the earned ones lit
+  ✓ badge tiles are ≥ 64 px tall
+  ✓ a "New badge" toast celebrated them
+  ✓ the feed has "Ezra earned the … badge"
+  ✓ a second reconcile (and another pull) credits nothing twice
+  ✓ no horizontal scroll at 390
+
+## (b) Done ★ adds one more; count spans every source
+  ✓ after ★: total 11, today lit
+  ✓ count = 4 = verse + story + prayed days this week
+  ✓ badges after ★: first, story, ten
+  ✓ mirror still equals the person row
+  ✓ rewards card and the star count updated in place
+  ✓ a second ★ tap adds nothing
+
+## (c) Eli: Home Kids card, then Me → Kids' rewards → Cash in
+  ✓ adult Home: "Ezra ★4 · 3 badges"
+  ✓ and the balance to cash in on the card (Kiara starts at 0)
+  ✓ Me: Ezra's balance, week and badge names
+  ✓ Kiara (no stars): Cash in is disabled
+  ✓ Cash in is a ≥ 44 px enabled button
+  ✓ the confirm sheet asked first (no native dialog)
+  ✓ a ledger row ledger:ezra:<id> = {cashin, 2026-09-29, amount 11, by eli}
+  ✓ Eli never wrote the stars mirror (it is the kid's last write, or the kid's own device has already applied the ledger row)
+  ✓ Me re-rendered at once: ★0, Cash in disabled (the mirror + the unapplied ledger row)
+  ✓ and says when it was last cashed in
+  ✓ Home Kids card no longer offers a balance to cash in
+  ✓ the feed says Eli cashed in
+
+## (d) Ezra reopens on another device: the app applies the ledger row once
+  ✓ person row: total 0, the payout recorded once, applied[ledger key] = true, no rev
+  ✓ the mirror equals the person row again
+  ✓ reconciling again applies nothing twice
+  ✓ badges, earned and credited days intact — nothing re-credited
+  ✓ this week's stars still stand after a cash-in
+  ✓ the card says when it was cashed in and keeps the badges lit
+  ✓ the first device's open copy follows on its next pull
+
+## (e) Reset week as Eli; Ezra follows without re-crediting
+  ✓ the confirm sheet asked first (no native dialog)
+  ✓ a second ledger row {reset, date today, days: this week's 2 dates up to today (never the days to come), by eli}
+  ✓ Me shows 0 this week at once, Reset week disabled
+  ✓ Ezra's row applied the reset: count 0, days marked reset (still spent), total 0, applied[key]
+  ✓ earnedAt stamps every credited star (source:date → ms) and the reset verse day's stamp is gone
+  ✓ this week's credited story days are marked reset; older ones keep their credit
+  ✓ badges and earned survive a reset; the mirror equals the person row
+  ✓ Done ★ stays spent after the reset (one ★ a day)
+  ✓ adult Home now says "Ezra ★0"
+
+## (f) the TV board reads the same row
+  ✓ TV stars pane: "Ezra ★0" from stars:ezra + the ledger
+
+## (g) the race: a parent cashes in while Kid Verse is open, the kid taps ★ before the next pull
+  ✓ Kid Verse open as Ezra with 5 stars banked
+  ✓ Eli cashed in 5 (a ledger row, not a mirror write)
+  ✓ the kid's star landed on the mirror (total 6, the ledger row not applied yet)
+  ✓ the parent's cash-in row is still there — nothing overwrote it
+  ✓ adult Home: Ezra ★1 · 1 this week · 1 to cash in (6 − 5, computed from the mirror + the ledger)
+  ✓ Ezra's row after the pull: total 1, earned 6, today's ★ kept, the payout recorded once
+  ✓ and the mirror equals it
+  ✓ the kid's card says it was cashed in
+
+## (g2) the race, for Reset week: the parent resets while Kid Verse is open, the kid taps ★ before the next pull
+  ✓ Kid Verse open as Ezra: 2 banked, 2 this week, no verse ★ today
+  ✓ Eli reset the week (a ledger row listing only the days up to today)
+  ✓ the kid's star landed on the mirror, stamped after the reset (total 3, the reset not applied yet)
+  ✓ the parent's reset row is still there — nothing overwrote it
+  ✓ adult Home: Ezra ★1 · 1 star this week · 1 to cash in (today's new ★ on top of the reset, from the mirror + the ledger)
+  ✓ Ezra's row after the pull: total 1, count 1, today's ★ kept, earned 3, the reset applied once
+  ✓ the story and prayed days credited before the reset are marked reset
+  ✓ today's ★ keeps its stamp; the reset story day's stamp is older than the reset
+  ✓ and the mirror equals it
+  ✓ Kid Verse still says Done today ★, 1 to cash in, 1 this week
+  ✓ reconciling again changes nothing
+
+## (h) a guest never sees the Kids' rewards card
+  ✓ the guest's Me tab has no Kids' rewards card (and no Guests card)
+  ✓ the rest of Me renders for the guest
+  ✓ no console errors in any context
+  (cleaned up the seeded story, prayer, stars and ledger rows)
+
+73 passed, 0 failed

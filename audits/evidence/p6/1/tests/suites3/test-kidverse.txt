@@ -1,0 +1,67 @@
+
+## seed
+  ✓ paired, signed in Eli/Ezra/Kiara/TV, cleared Ezra's stars, family week → 3
+  ✓ apps.json: kidverse registered (both, small, gold, kids first then the adults)
+  ✓ icon (duotone) + spot art exist
+  ✓ no hex and no prefers-color-scheme in the app's CSS
+  ✓ no text input anywhere in the app
+
+## (a) kid flow — Ezra, 390
+  ✓ kid Home starts with "No stars yet"
+  ✓ the app runs in kid mode (data-kind="kid")
+  ✓ week 3 from the family row → Romans 4:20-22 in big type
+  ✓ week 3 → art/story/03-promise.svg, loaded
+  ✓ the second memory verse is named too
+  ✓ a one-sentence paraphrase, labelled as a paraphrase
+  ✓ the reference is big type for a kid (≥ 40 px)
+  ✓ no text input in the running page
+  ✓ Read it to me and Done ★ are both ≥ 64 px tall
+  ✓ every visible control on the kid screen is a ≥ 64 px button
+  ✓ no horizontal scroll at 390
+  ✓ "Read it to me" speaks the reference and the paraphrase at rate 0.85
+  ✓ the button returns to "Read it to me" when the voice finishes
+  ✓ a dozen confetti dots fall on ★
+  ✓ confetti colours are design tokens
+  ✓ the star count reads 1
+  ✓ Done ★ becomes "Done today ★"
+  ✓ one day dot lit
+  ✓ confetti is gone after ~1.5 s
+  ✓ the seven day dots sit on one row at 390
+
+## (b) one star per day
+  ✓ a second tap keeps the count at 1
+  ✓ and says so in a toast
+  ✓ no second confetti
+
+## (c) storage: person row + family mirror + feed line
+  ✓ app_data(kidverse, person, stars) = { week: this ISO week, count: 1, days: { today: true } }
+  ✓ app_data(kidverse, family, stars:ezra) mirrors the same value
+  ✓ the feed has "Ezra read the verse ★"
+  ✓ kid Home Stars card: "1 star this week"
+
+## (d) a second device as Ezra
+  ✓ Home on the other device: "1 star this week"
+  ✓ the app on the other device: ★1 and "Done today ★"
+  ✓ still one star per day across devices
+
+## (e) adults — Eli, 1024
+  ✓ adult Home: "Ezra ★1" from the family mirror
+  ✓ no Done ★ for an adult (stars are the kids')
+  ✓ the stepper shows "Week 3"
+  ✓ Ezra ★1 with one lit day, read-only
+  ✓ Kiara is listed too (★0)
+  ✓ stepper buttons are ≥ 44 px
+  ✓ + steps to week 4: 1 John 3:18, still the promise scene
+  ✓ app_data(kidverse, family, week) = { week: 4, by: eli }
+  ✓ the kid's open copy follows the new week (hub.onChange)
+
+## (f) the kiosk cannot award — Downstairs TV, 1440
+  ✓ standalone open works and shows week 4
+  ✓ no Done ★ and no stepper for the kiosk
+  ✓ the TV still sees Ezra ★1
+  ✓ award() refuses for the kiosk
+  ✓ and nudges with the kiosk toast
+  ✓ nothing changed on the server: Ezra still ★1, no stars:tv, week still 4
+  ✓ no console errors in any context
+
+51 passed, 0 failed

@@ -1,0 +1,57 @@
+
+## Device A: pair, adult first-tap PIN creation, write
+  ✓ picker shows 8 profiles
+  ✓ adult without PIN gets "Create your PIN"
+  ✓ asks to confirm
+  ✗ signed in as Niece after creating PIN 
+  ✓ html[data-kind=adult]
+  ✓ accent set from the profile's colour family (data-accent, no inline hex)
+  ✓ tally counts to 3
+  ✓ A flushed to server (synced, 0 pending)
+
+## Device B: pair, PIN pad login, read what A wrote
+  ✓ adult with PIN gets the PIN pad
+  ✓ wrong PIN is rejected with a message
+  ✓ B reads count 3 written by A
+
+## Offline write on A -> reconnect -> flush -> B sees it
+  ✓ A counts to 4 while offline
+  ✓ A sync state offline/pending with 1 queued
+  ✓ A flushed after reconnect
+  ✓ B sees 4 after pull (onChange re-rendered)
+
+## Kiosk profile
+  ✓ html[data-kind=kiosk]
+  ✓ kiosk has no tab bar
+  ✓ kiosk Home shows clock + reminders
+  ✓ hub.set throws read_only for kiosk
+  ✓ server rejects kiosk write with 403
+
+## Reminders: adult adds on A, kiosk sees it
+  ✓ reminder shows on A at once
+  ✓ kiosk shows the reminder after pull
+
+## Kid profile
+  ✓ html[data-kind=kid]
+  ✓ kid grid hides adult-only apps (f260, dollywood) and shows prayer (visibleTo)
+  ✓ kid tap targets >= 64px (--tap resolved)
+  ✓ kid cannot add reminders
+
+## Legacy localStorage migration (tally.count -> person scope)
+  ✓ Mom's tally starts at the legacy 7
+  ✓ legacy key left untouched
+  ✓ second device does not overwrite server data with its own legacy value
+
+## Switch profile + session persistence
+  ✓ picker remembers last profile
+  ✓ reload after switch lands on picker (no session)
+  ✓ B stays signed in across reload
+  ✓ reload reopens the app that was open
+
+## Desktop width
+  ✓ apps grid is 8 across on desktop
+  ✓ tab bar becomes a sidebar at 1280
+  ✓ no horizontal scroll
+  ✓ no console errors
+
+PASS 36  FAIL 1

@@ -1,0 +1,39 @@
+
+## The kitchen iPad starts as an ordinary device with Mea signed in
+  ✓ the picker on an ordinary device has no Kitchen face
+  ✓ Mea is signed in on the iPad
+
+## The admin marks it as the kitchen (from another device, with the admin PIN)
+  ✓ a wrong admin PIN is refused
+  ✓ the role is set
+  ✓ on its next request the iPad is the kitchen, with no picker in between
+  ✓ no profile picker on screen
+  ✓ the kitchen's apps are the Larder, Prayer, Timer and Tally
+
+## What the kitchen may do
+  ✓ the kitchen adds to the Larder through hub.js
+  ✓ another device sees the kitchen's Larder row
+  ✓ the kitchen reads no one's person rows (its own F260 scope is empty; Eli's stays his)
+  ✓ the kitchen cannot write person rows of F260 or a private prayer list
+  ✓ the kitchen keeps its own timer row
+  ✓ nobody signs in as a person on the kitchen device
+  ✓ …and the kitchen stays signed in
+  ✓ no other device signs in as the kitchen
+  ✓ the profile list marks the kitchen (kind kitchen), which every picker leaves out
+  ✓ hub.people() leaves the kitchen out
+  ✓ the kitchen has no chat
+
+## A face tap on Prayed credits the tapped person
+  ✓ the kitchen's Prayed, credited to Ezra, is saved
+  ✓ the feed line is filed under Ezra, not the kitchen
+  ✓ a name outside the household is refused
+  ✓ a refused row is put back on the device (the kitchen cannot credit itself)
+  ✓ Ezra's picker has no Kitchen face
+  ✓ Ezra's prayer star for today appears once Kid Verse opens
+
+## The admin clears the role
+  ✓ the role is cleared
+  ✓ on its next request the iPad shows the picker, signed out
+  ✓ it can no longer act as the kitchen
+
+27 passed, 0 failed
