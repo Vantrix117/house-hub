@@ -1322,3 +1322,78 @@ An independent judge rescored the Phase 4 scorecard (`audits/04-design-system.md
 - **Stale scripts** (above): their findings rest on the gate, the rig and the probes.
 - **Accepted deviations**, each judged by the findings reviewer: Prayer's family list takes aqua on the body except for kids (a kid is always on the family list); Prayer's extra category dots use `-fill-strong` (they sit beside the category name); F260's New Testament paper reads `--aqua-wash` directly so Done keeps the person's colour; the Timer's track is `--tint-fill-strong` because the spec's `--progress-track` measures only 1.07-1.47:1 on a light dial (a token note for the owner); the Larder's ✓ uses the success family; Tally's page lays the hero tokens over `--bg`.
 - **Reduce Motion** now gives every element a 150 ms colour transition (the spec's rule), so a theme change fades rather than snaps, including the map's SVG; nothing moves.
+
+## Batch 2a — The hub shell: Home, Apps, Me, Chat, the picker; the Kitchen device; the household's admin
+
+| | |
+|---|---|
+| **Findings** | 56 entries (1 high, 7 medium, 36 low, 1 info, and 11 pointers to them) and one piece of household work (KITCHEN-2). **47 FIXED, 2 PARTIAL, 7 NEEDS DEVICE CHECK**; KITCHEN-2 done (status per entry in `audits/05-findings.md`). |
+| **Code commit** | `65009df` (2026-09-29) |
+| **Files** | `index.html` (most of the batch), `apps/hub.js` (`hub.whoDidThis`, `hub.lastSync`/`hub.lastSynced`, the error's `data`), `apps/prayer.html` and `apps/leftovers.html` (the kitchen's face sheet only), `apps/kidverse.html` (feed wording), `apps/design.css` (component half), `apps.json` (a `hue` per app, decision D5), `docs/design.html`, `sw.js` (`hub-v38` → `hub-v39`), `worker/src/index.js` (the household endpoints), `worker/src/policy.js` (the kitchen's Larder credit), `worker/src/chat.js` (feed wording, Graphite), `worker/README.md`, `CLAUDE.md`, the shell's tests and `scripts/smoke-api.sh` (215 → 275 checks), `scripts/test-kitchen.mjs` (both halves), `audits/tools/areas/shell.mjs` (the offline picker screens) |
+| **Schema / data** | No schema change and no migration. The Worker keeps the ids of removed people in `settings` (`removed_profile_ids`) so an id is never handed out twice. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-29-before-2a.sql` (37 KB). Nothing was deployed; migrations 006 and 007 are still not on production. |
+| **How it was built** | Two workers shared `index.html` by region: one did the Kitchen device, the admin's household and colour picker, the Worker and Kid Verse's feed lines; the other every other shell entry plus the batch-2 app-icon rewrite carried from batch 1. Three independent reviewers (security and logic; screens and runtime; the entries) ran three rounds, and a fixer did round 1's 19 client items while the orchestrator did the Worker half; the loop ended on a verification with no new findings, before the final run. |
+
+### The change
+
+- **The Kitchen device (KITCHEN-2).** A kitchen device never shows the picker: at start and after any 401 the shell asks the house and signs in as the kitchen; offline it waits ("Waiting for the house"). Its Home is the calm, glanceable layout: the clock, the kitchen's running timer, food to eat soon, today's family prayers with faces, the reminders and the family album, at glance sizes. No Me or Chat tab; the Larder, Prayer, Timer and Tally only. Whoever acts is chosen on a face sheet (`hub.whoDidThis`): Prayed offers the household, kids included; the Larder's finish and the album's Add the adults. The admin marks a device as the kitchen in Me → Admin → Devices with their PIN, never from the kitchen itself.
+- **The household's admin (GAP-PROF-a2, GAP-ACCENT-1).** Me → Admin → Household adds a person (adult or kid; an adult gets a one-time set-up code), removes one, adds an admin, hands the admin over or takes it away; each asks for the admin's PIN, and the house never ends with no admin. The colour picker offers all 18 families (the people's nine, then the nine app colours named after their app) and warns on a colour someone wears, an app's colour and a colour a colour-blind viewer would confuse with another person's; the admin decides.
+- **Home** is built once per person and each card patched in place, so a half-typed reminder is never wiped by the 30-second pull (P2-HOME-01, high) and nothing flickers (P2-HOME-05, P4-MOTION-01). The feed refreshes itself (P2-PWA-05). A ticked reminder can be undone for 6 s (UX-HOME-8). On a phone the glance cards are a sideways pager with dots, the park card first on a park day, and Reminders on the first screen (UX-HOME-3); on the iPad the key numbers are at glance size (UX-HOME-1, partly); kids get picture tiles (UX-HOME-7).
+- **The app colours** (decision D5, carried from batch 1): every app has a family in `apps.json`, and its tile, card head and icons wear it; the app icons are drawn with the v3 tile recipe (P4-ICON-01's rest, VIS-HOME-1, CONS-TOK-4). The shell's own cards (feed, reminders, album, guests) are graphite, never a person's colour.
+- **The viewer** shows "Saving…" / "Offline · N waiting" over every app (UX-SYNC-a1), keeps a closed app for 60 s (UX-HOME-5, partly), goes back to where the app was opened and closes on Escape (UX-HOME-4), cannot be left blank by a tap during its exit (P4-MOTION-02), and its bar is solid (VIS-GLASS-2). The Switch sheet is a grid of app icons (UX-HOME-6).
+- **Me**: the Sync card follows the dot and remembers "Last synced" per device (P2-SYNC-13, -14); a guest reads "Guest · until …" (P2-PROF-18); loading placeholders instead of false empties (P2-VIS-07).
+- **Chat**: kids hear every reply and a spoken question sends itself (UX-CHAT-01, PWA-UX-4); a failed send offers Retry and a message sent offline waits on the device (UX-CHAT-02); refused writes get a red chip (UX-CHAT-03); the cap state is clear (UX-CHAT-04); only what the model still remembers is shown (UX-CHAT-05); the feed says what happened in words (UX-CHAT-06); times and day separators (UX-CHAT-07); the composer clears the side insets (P2-PWA-17).
+- **Sign-in**: the picker's title is always in view (P2-PROF-12); expired guests are gone offline too (UX-PROF-a1); offline, the picker says it needs the house and waits (UX-PROF-a3, a deliberate change: signing in always needs the server); the PIN pad names the person (UX-PROF-a4) and counts down a lockout (UX-PROF-a5); kid controls are 64 px (UX-PROF-a9); the pairing-code sheet has labels and Cancel, and every sheet closes by dragging down (UX-PROF-a8). Kid Verse's feed lines no longer repeat the kid's name on the TV (P2-HOME-06).
+
+**What the independent review changed.**
+- **Round 1.** Security: the kitchen could credit a finished Larder item to a kid, a guest or the TV; a co-admin could reset another admin's PIN with no PIN; Add a person asked for no PIN; the last-admin rule could race; a removed person's id could be handed to a new person (inheriting their rows and app grants). The shell: Home crashed when the same person came back after the TV board; a failed chat message landed in the next person's composer after Switch; a reminder ✓ was committed as the next person after a session loss; the kitchen's reminder Undo lost a guest's reminder; half the colour picker (the app families) could not be saved; the feed repainted twice per pull; app cards wore people's colours; the viewer's sync note squeezed the app name away on a phone; the Me hero's name ran under Switch; the park card was the pager's fourth page; the kitchen kept an empty band; the new sheets let the page show through; the picker did not go offline live.
+- **Round 2.** The Reminders and Guests cards still wore people's colours; the phone's short sync note was not read by VoiceOver; a queued chat message could be sent twice if the stream broke after the house answered. **Round 3** confirmed with no new findings.
+
+### Each finding's reproduction, rerun
+
+- **How they were run.** The 23 scripts the entries name ran three at a time on the unchanged code (`git archive` of `1aeef87`) and on the final code. Outputs and exit codes are in `audits/evidence/p6/2a/tests/repro-before/` and `repro-after/`; the files they wrote on the final code are in `audits/evidence/p6/2a/p2|p4/`, and the Phase 2-4 baseline was restored.
+- **Exit codes.** Before: 22 exit 0, 1 exits 1. After: 20 exit 0, 3 exit 1, each explained: `verify-switch-lands-on-me-2` fails the same way before and after (its step waits for Me's Switch button on the Home the person already lands on); `verify-kids-chip-clipped-1` stops on the iPhone because the Kids card is now an off-screen page of the phone pager (the reviewer's copy that opens that page passes typical, long and 40-character names on all three devices, `review/kids-chip/`); `replay-shot` waits for a tile that dims, and none does any more.
+
+| Finding | Before | After |
+|---|---|---|
+| P2-HOME-01 (draft-wiped-1, -2, leads) | the half-typed reminder emptied at 28.8 s, Home rebuilt 1× | Home rebuilt 0×, no keystroke lost, in WebKit and Chromium |
+| P2-HOME-05 (rebuild-1, -2) | 2 rebuilds in 65 s; 0 of 465 nodes kept | 0 rebuilds; 471 of 471 nodes and 13 of 13 images kept; the feed replaced 0 times per pull |
+| P2-HOME-03 (switch-lands-1) | already on Home since batch 0c | on Home in every case, now also after a 401 or a sign-out |
+| P2-PWA-05 (feed-not-live-1) | Mom's line never showed | shows after the next pull |
+| P2-HOME-06 (tv-kid-name-doubled-1, -2) | three TV lines read "Ezra Ezra …" | none |
+| P2-PROF-12 (picker-title-hidden-2) | the title above the top (as high as −442 px) | the title in view, at 32 px |
+| P2-PROF-18 (guest-hero-adult-2) | a guest's kicker read "Adult" | "Guest · until Sep 29" |
+| P2-PWA-17 (composer-landscape-1) | 220 px of the composer under the side insets | 0 |
+| P2-SYNC-13, -14 (me-sync-card-stale-2, last-checked-2) | the card disagreed with the dot; "Last checked: not yet" after an offline reopen | the card matches the dot at every step; "Last synced 3:25 PM" |
+| UX-HOME-1 (glance) | iPad key numbers 2.7-3.5 mm, kid stars 5.2 mm | 6.0 mm, kid stars 10.4 mm (the rest partial) |
+| P4-MOTION-01 (replay) | 18 tile pops as the grid re-rendered | 0 |
+| P4-MOTION-02 (viewer) | a tap or a hash change during the exit left the viewer blank | both open the app |
+| UX-SYNC-a1 (e7-sync-ui) | no sign over an app of changes waiting | "Offline · 3 waiting" over F260 (its part 3 reads inside the app's frame and still prints null) |
+
+### Repo tests
+
+| Suite | Before (batch 1's final run) | After |
+|---|---|---|
+| test-hub | 36 / 1 (the stale "Niece") | 37 / 0 |
+| test-kitchen | 27 / 0 (server half only) | 55 / 0 (both halves: no picker, no Me or Chat, the four apps, the face sheets and their credits, the role with the admin PIN, a guest's reminder Undo) |
+| test-home, test-apps, test-guests, test-timer, test-tv, test-prefs | 57 / 0, 48 / 0, 56 / 0, 45 / 0, 43 / 0, 35 / 0 | the same counts, all pass (their checks follow the new pager, sheets and viewer) |
+| every other suite | pass | pass, identical counts |
+| smoke-api.sh | 215 / 0 | 275 / 0 (the household endpoints and their refusals, the kitchen's Larder credit, the co-admin reset, id reuse) |
+| smoke-chat.sh (mock model) | 53 / 0 | 53 / 0 |
+| Earlier batches' checks (0c, 0f, 0g, 0h, 0i, verify-1a in both engines), the token gate, browser-check | pass | pass |
+| `handoff/prayer/check.js` | 47 / 2 | 47 / 2 (the two name-format checks since batch 0g; not edited) |
+
+`node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for; every inline script parses (29 of 29). The saved smoke-test outputs of this and earlier batches had the throwaway local test tokens and one-time codes blanked.
+
+### Capture rig
+
+- **The run.** The areas whose code changed were recaptured on the final code: the shell, the TV, Prayer, the Larder and Kid Verse, 2,246 captures, 0 failed (`audits/screens-after/2a/manifest.json`).
+- **Against batch 1's final capture** (`audits/evidence/p6/2a/capture/pxdiff-*.txt`): shell 878 of 979 and the TV 33 of 34 changed, as the batch redesigned both (Home, the Apps grid, the viewer bar, the sheets, Chat, the picker). In the three apps, 1,224 of 1,233 captures changed, 963 of them only in the hub's viewer bar at the top (y ≤ 70: the solid bar, the back label, the sync note). The rest are the kid screens on the iPad in landscape and the desktop, where the kid's viewer bar is now 64 px tall and the app below slides down 24 px, the app itself unchanged (checked by eye: `leftovers/kid-typical-ipad-landscape-light.png` before and after); and 15 adult screens: 14 of Prayer's long pages whose content sits 1 px lower (the rig's known scroll wobble on Prayer's long pages; checked by eye on `prayer/today-family-faces-overflow-desktop-light.png` and `settings-categories-overflow-iphone-pwa-dark.png`) and one Larder screen in iPhone Safari.
+- **The screens the batch is about** were looked at by the reviewers across three rounds (their final composites are in `audits/evidence/p6/2a/review/`).
+
+### Not verified
+
+- **A real iPhone and iPad** (the seven NEEDS DEVICE CHECK entries): a kid hearing replies read aloud and a spoken question sending itself (UX-CHAT-01, PWA-UX-4, PWA-UX-3), dictating a reminder (PWA-GAP-3), the phone pager's flick and snap (UX-HOME-3), dragging a sheet down (UX-PROF-a8), and "Dollywood" breaking between words at text size XXL, which depends on the device's hyphenation (VIS-HOME-1).
+- **The Kitchen device in the capture rig**: the rig cannot set a device's role, so the kitchen is proven by `test-kitchen.mjs` (55/0) and the reviewers' probes (`audits/evidence/p6/2a/review/m-k390.png`, `m-k820.png`, `probes/`), not by rig captures.
+- **The partial entries**: UX-HOME-1 (on the iPad the ring label, sub-lines, reminder text, bylines and feed are still small; the kitchen's Home is the calm layout) and UX-HOME-5 (app-to-app switching still reloads; no `hub.draft`). No later batch is named for the rest.
+- **The colour-blind warnings** are measured on the families' graphic tone (people's colours never closer than ΔE 11 there); on the strong fill tones some people's and app colours come within ΔE 2 of each other for protan and deutan viewers (sky and cornflower, periwinkle and cornflower); the picker's warning list was not checked against those tones.
+- **Production**: nothing deployed. Deploy order is unchanged: migrations 006, then 007, then the Worker.

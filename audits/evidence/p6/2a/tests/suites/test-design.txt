@@ -1,0 +1,72 @@
+
+## light
+  ✓ body uses --bg (rgb(244, 241, 236))
+  ✓ contrast table computed (62 pairs)
+  ✓ every text pair passes WCAG AA across all nine families
+    lowest ratio 4.04:1
+  ✓ every section has content
+  ✓ no horizontal scroll at 390
+  ✓ glass uses backdrop-filter (blur(20px) saturate(1.8))
+  ✓ v3 glass layers a specular sheen and a colour pickup over the pane
+  ✓ v3 glass has inner rings + inner shadow and a saturated blur (3 inset layers)
+  ✓ in-page glass cards skip backdrop blur (perf guard)
+  ✓ the sheen moves with --sheen-x
+  ✓ every control is at least 36 px tall
+  ✓ kicker utility styled
+  ✓ kid variant scales controls and type (64px / 20.4px)
+  ✓ grid-3 is three columns on desktop (3)
+
+## dark
+  ✓ body uses --bg (rgb(11, 10, 9))
+  ✓ contrast table computed (62 pairs)
+  ✓ every text pair passes WCAG AA across all nine families
+    lowest ratio 3.90:1
+  ✓ every section has content
+  ✓ no horizontal scroll at 390
+  ✓ glass uses backdrop-filter (blur(20px) saturate(1.8))
+  ✓ v3 glass layers a specular sheen and a colour pickup over the pane
+  ✓ v3 glass has inner rings + inner shadow and a saturated blur (4 inset layers)
+  ✓ in-page glass cards skip backdrop blur (perf guard)
+  ✓ the sheen moves with --sheen-x
+  ✓ every control is at least 36 px tall
+  ✓ kicker utility styled
+  ✓ kid variant scales controls and type (64px / 20.4px)
+  ✓ grid-3 is three columns on desktop (3)
+
+## reduced motion + theme override
+  ✓ pop-in animation disabled under reduced motion (1e-05s)
+  ✓ transitions are opacity and colour only, <= 150 ms, under reduced motion (opacity color background-color border-color / 0.15 s)
+  ✓ data-motion="reduce" (the Me switch) stops animation and transform transitions (1e-05s / opacity, color, background-color, border-color)
+  ✓ data-theme=midnight overrides a light system scheme and resolves data-scheme=dark (rgb(11, 10, 9) / midnight / dark)
+  ✓ 'dark' is still accepted as an alias for Midnight
+
+## every named theme passes AA for every family colour
+  ✓ hearth: body uses its own --bg (rgb(244, 241, 236))
+  ✓ hearth: 62 text pairs pass AA (lowest 4.04:1)
+  ✓ hearth: data-scheme=light
+  ✓ hearth: color-scheme follows the palette, so native controls do too
+  ✓ parchment: body uses its own --bg (rgb(236, 226, 205))
+  ✓ parchment: 62 text pairs pass AA (lowest 3.78:1)
+  ✓ parchment: data-scheme=light
+  ✓ parchment: color-scheme follows the palette, so native controls do too
+  ✓ frost: body uses its own --bg (rgb(242, 242, 247))
+  ✓ frost: 62 text pairs pass AA (lowest 4.04:1)
+  ✓ frost: data-scheme=light
+  ✓ frost: color-scheme follows the palette, so native controls do too
+  ✓ midnight: body uses its own --bg (rgb(11, 10, 9))
+  ✓ midnight: 62 text pairs pass AA (lowest 3.90:1)
+  ✓ midnight: data-scheme=dark
+  ✓ midnight: color-scheme follows the palette, so native controls do too
+  ✓ forest: body uses its own --bg (rgb(7, 15, 13))
+  ✓ forest: 62 text pairs pass AA (lowest 3.76:1)
+  ✓ forest: data-scheme=dark
+  ✓ forest: color-scheme follows the palette, so native controls do too
+  ✓ graphite: body uses its own --bg (rgb(0, 0, 0))
+  ✓ graphite: 62 text pairs pass AA (lowest 4.04:1)
+  ✓ graphite: data-scheme=dark
+  ✓ graphite: color-scheme follows the palette, so native controls do too
+  ✓ the six theme previews each paint their own palette regardless of the page theme
+  ✓ every data-scheme / data-theme-preview element also carries data-accent
+  ✓ no console/page errors
+
+60 passed, 0 failed

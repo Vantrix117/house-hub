@@ -2,20 +2,20 @@
 health                                       200 {"ok":true,"time":1790700976241}
 profiles without device token                401 {"error":"device_not_paired","message":"This device is not paired with the house."}
 pair with wrong code                         401 {"error":"bad_pairing_code","message":"That pairing code is not right."}
-pair                                         200 {"device_id":"qpQnYItJGl7Z","device_token":"ait7t42pKXAADUhEUtVtkm2jaWONTh9z9lvX1MSslSE"}
-pair second device                           200 {"device_id":"Fizt9SaHRkrL","device_token":"l88Paf1kX18PcPSZkVCMwuAeksUOGkckmRw3Z4YCRTM"}
+pair                                         200 {"device_id":"qpQnYItJGl7Z","device_token":"[redacted]"}
+pair second device                           200 {"device_id":"Fizt9SaHRkrL","device_token":"[redacted]"}
 ### profiles + login
 profiles                                     200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":fals
    [{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":false,"pin_reset":false,"is_guest":false,"expires_at":null,"created_by":null,"photo":null},{"id":"christian","name":"Mae","emoji":"🌸","color":"#BC5A38","kind":"adult","hue":"peach","is_admin":false,"sort_order":2,"has_pin":false,"pin_reset":false,"is_guest":false
-login kid (no pin)                           200 {"profile_token":"Uf6-z8NeOr7XXeeOqla1GbKoycpVKaO7VzgAtU8Gp0E","profile":{"id":"ezra","name":"Ezra","emoji":"🦖","color":"#137F77","kind":"kid","hue
-login kiosk (no pin)                         200 {"profile_token":"2LcEd2C7ysmWLg1MKEtgvMeVjoeBis7RXys9PNmeNaA","profile":{"id":"tv","name":"Downstairs TV","emoji":"📺","color":"#4C4C58","kind":"ki
+login kid (no pin)                           200 {"profile_token":"[redacted]","profile":{"id":"ezra","name":"Ezra","emoji":"🦖","color":"#137F77","kind":"kid","hue
+login kiosk (no pin)                         200 {"profile_token":"[redacted]","profile":{"id":"tv","name":"Downstairs TV","emoji":"📺","color":"#4C4C58","kind":"ki
 login adult w/o pin -> needs_pin_setup       403 {"error":"needs_pin_setup","message":"Mea has not created a PIN yet.","pin_reset":false}
 set pin for kid -> 400                       400 {"error":"no_pin_for_kind","message":"Only adult profiles have a PIN."}
 set pin bad format                           400 {"error":"bad_pin","message":"PIN must be 4 to 8 digits."}
-set pin (first time)                         200 {"profile_token":"VBksYbyTvmUjv-AnlOEhGFMMdEdUXv1G5bPZsya0uZ4","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+set pin (first time)                         200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
 set pin again -> 409                         409 {"error":"pin_already_set","message":"A PIN is already set. Ask the admin to reset it."}
 login wrong pin                              401 {"error":"wrong_pin","message":"Wrong PIN."}
-login right pin                              200 {"profile_token":"TE9qeDtDEzq9GIWJgXGawXKHlXNZutYiUyh8b4CDfNY","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+login right pin                              200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
 me                                           200 {"profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","hue":"butter","is_admin":false,"sort_order":7,"has_pin":true,"p
 profile token on other device -> 401         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
 logout                                       200 {"ok":true}
@@ -64,11 +64,11 @@ unsubscribe                                  200 {"ok":true}
 admin usage as non-admin -> 403              403 {"error":"admin_only","message":"Only the admin can do that."}
 admin reset-pin as kid -> 403                403 {"error":"admin_only","message":"Only the admin can do that."}
 admin as device-only -> 401                  401 {"error":"profile_required","message":"Choose a profile first."}
-set eli pin (first time, local only)         200 {"profile_token":"hNgUMMOQFwG9KGjRvreupsaCGMye1JRi62OjO4GY3Zw","profile":{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue
+set eli pin (first time, local only)         200 {"profile_token":"[redacted]","profile":{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue
 admin usage                                  200 {"chat":[],"push":[],"devices":[{"id":"Fizt9SaHRkrL","name":"smoke B","paired_at":1790700976741,"last_seen":1790700976741,"role":null},{"id":"qpQnYItJ
 admin rename tv                              200 {"profile":{"id":"tv","name":"Downstairs TV","emoji":"📺","color":"#4C4C58","kind":"kiosk","hue":"graphite","is_admin":false,"sort_order":8,"has_pin
 admin bad color                              400 {"error":"bad_color","message":"Color must be #rrggbb."}
-admin reset niece pin                        200 {"ok":true,"id":"niece","code":"951244","expires_at":1790787383425}
+admin reset niece pin                        200 {"ok":true,"id":"niece","code":"[redacted]","expires_at":1790787383425}
 niece needs_pin_setup again                  403 {"error":"needs_pin_setup","message":"Mea has not created a PIN yet.","pin_reset":true}
 claim niece without the code -> 403          403 {"error":"needs_code","message":"Enter the code the admin gave you for Mea."}
 claim niece with a wrong code -> 401         401 {"error":"wrong_code","message":"That code is not right."}
@@ -78,18 +78,18 @@ admin rotate code (keep same)                200 {"ok":true}
 admin unpair self -> 400                     400 {"error":"cannot_unpair_self","message":"Unpair this device from another one."}
 admin unpair device A (cleanup, from B? no) skip 200 {"ok":true,"time":1790700984244}
 ### guests (roadmap 23)
-niece sets a pin again (with the code)       200 {"profile_token":"_qfxvSow9YGI4nEfsTdyNlBgyR1Yn9LY-9GaW7V7muI","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+niece sets a pin again (with the code)       200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
 add guest as kid -> 403                      403 {"error":"adults_only","message":"Ask a grown-up to add a guest."}
 add guest as kiosk -> 403                    403 {"error":"read_only","message":"This profile can only look, not change things."}
 add guest w/o name -> 400                    400 {"error":"bad_name","message":"Name is required."}
 add guest bad pin -> 400                     400 {"error":"bad_pin","message":"PIN must be 4 to 8 digits."}
 add guest as adult                           200 {"profile":{"id":"guest--fovQHA5FCw6","name":"Aunt Sue","emoji":"🌻","color":"#137F77","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,"
-guest logs in without a pin                  200 {"profile_token":"eZ4wU2Yniajesqf2Rg45qXh3U-bZfLaO4SG7wECO5uA","profile":{"id":"guest--fovQHA5FCw6","name":"Aunt Sue","emoji":"🌻","color":"#137F77"
+guest logs in without a pin                  200 {"profile_token":"[redacted]","profile":{"id":"guest--fovQHA5FCw6","name":"Aunt Sue","emoji":"🌻","color":"#137F77"
 guest writes person data                     200 {"key":"week","value":2,"updated_at":1790700985000,"applied":true}
 guest cannot add a guest -> 403              403 {"error":"guests_cannot_invite","message":"Guests cannot add other guests."}
 guest cannot rally the family -> 403         403 {"error":"adults_only","message":"Only a household grown-up can rally the family."}
 set a PIN on a guest from a paired device -> 403 403 {"error":"guest_pin_fixed","message":"Aunt Sue is a guest: their PIN was chosen when they were added. Ask the admin to clear it."}
-guest still signs in on tap                  200 {"profile_token":"aFTFhMidN8GmOcXRiDayrd8660nPnvwWIuHU_DlAaGY","profile":{"id":"guest--fovQHA5FCw6","name":"Aunt Sue","emoji":"🌻","color":"#137F77"
+guest still signs in on tap                  200 {"profile_token":"[redacted]","profile":{"id":"guest--fovQHA5FCw6","name":"Aunt Sue","emoji":"🌻","color":"#137F77"
 guest subscribes to push                     200 {"ok":true}
 admin ends the guest's stay                  200 {"profile":{"id":"guest--fovQHA5FCw6","name":"Aunt Sue","emoji":"🌻","color":"#137F77","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,"
 expired guest session -> 401                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
@@ -115,7 +115,7 @@ admin resets own pin without pin -> 403      403 {"error":"wrong_admin_pin","mes
 change my pin, wrong current -> 403          403 {"error":"wrong_pin","message":"That is not your current PIN."}
 change my pin                                200 {"ok":true}
 old pin no longer works                      401 {"error":"wrong_pin","message":"Wrong PIN."}
-new pin works                                200 {"profile_token":"_Tk2G1CyhUoNWOVOwa0qdhNAY65fgdE6pvd8FY-lOoE","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+new pin works                                200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
 change pin back                              200 {"ok":true}
 kid cannot change a pin -> 403               403 {"error":"adults_only","message":"Only a household adult has a PIN to change."}
 guest named with markup -> 400               400 {"error":"bad_name","message":"Names cannot contain < or >."}
@@ -152,14 +152,14 @@ remove the test guest                        200 {"ok":true,"id":"guest-103-bCyi
 feed line naming a private request -> 400    400 {"error":"private_title","message":"A private request is never named on the family feed."}
 feed line without the title                  200 {"id":7,"profile_id":"niece","app_id":"prayer","text":"Prayed for a private request","created_at":1790700992039,"name":"Mea","emoji":"🌻","color":"#
 a guest with a PIN to test with              200 {"profile":{"id":"guest-uHNUE7jYsxo7","name":"Lock Test","emoji":"🙂","color":"#8A6A4B","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,
-the guest signs in once here (this device is now trusted) 200 {"profile_token":"QnIoxhURs1pU4vwiV05-FdG28UVu9_vBkM7WWzAwXfg","profile":{"id":"guest-uHNUE7jYsxo7","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
+the guest signs in once here (this device is now trusted) 200 {"profile_token":"[redacted]","profile":{"id":"guest-uHNUE7jYsxo7","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
 12 wrong PINs on 4 devices: a 5th device -> 429 429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 60 min.","retry_after":3600}
-…while a device it used before still signs in 200 {"profile_token":"MhS2u5vPm0IlgsbwhU-6uTdIyV2D8By7S-Fh_VaV6eY","profile":{"id":"guest-uHNUE7jYsxo7","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
+…while a device it used before still signs in 200 {"profile_token":"[redacted]","profile":{"id":"guest-uHNUE7jYsxo7","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
 admin reset lifts the pause                  200 {"ok":true,"id":"guest-uHNUE7jYsxo7"}
-the guest signs in on tap again              200 {"profile_token":"0k1GBxJdCZlYIdscodcbbU-dqWh-0fxMGBk9QoQbm6Y","profile":{"id":"guest-uHNUE7jYsxo7","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
+the guest signs in on tap again              200 {"profile_token":"[redacted]","profile":{"id":"guest-uHNUE7jYsxo7","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
 remove the lock-test guest                   200 {"ok":true,"id":"guest-uHNUE7jYsxo7"}
 6th wrong code from one device -> 429        429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":900}
-another device can still pair                200 {"device_id":"7b-qeBhcynDo","device_token":"sq4bES-575f2LC2mjVPHR3JIgLXr2y97TBVnrwMyxoE"}
+another device can still pair                200 {"device_id":"7b-qeBhcynDo","device_token":"[redacted]"}
 kitchen sign-in on an ordinary device -> 403 403 {"error":"not_kitchen_device","message":"Only the kitchen device signs in as the kitchen."}
 kitchen is marked in the profile list        200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
 role change by a non-admin -> 403            403 {"error":"admin_only","message":"Only the admin can do that."}
@@ -168,7 +168,7 @@ role change of this device -> 400            400 {"error":"cannot_change_self","
 admin makes it the kitchen                   200 {"ok":true,"id":"hOM7eW_DnGzq","role":"kitchen"}
 the device learns its role                   200 {"id":"hOM7eW_DnGzq","name":"smoke kitchen","role":"kitchen","kitchen_profile":"kitchen"}
 a person on the kitchen device -> 403        403 {"error":"kitchen_device","message":"This device is the kitchen: nobody signs in here."}
-the kitchen signs in, no PIN                 200 {"profile_token":"xTN8Vko_jll5MQU-5zlKcjj5DsP_HONBlaOzGs8cT5o","profile":{"id":"kitchen","name":"Kitchen","emoji":"🍳","color":"#5E7A6E","kind":"kit
+the kitchen signs in, no PIN                 200 {"profile_token":"[redacted]","profile":{"id":"kitchen","name":"Kitchen","emoji":"🍳","color":"#5E7A6E","kind":"kit
 kitchen writes the Larder                    200 {"key":"item:kt1","value":{"id":"kt1","name":"Soup","dateLogged":"2026-09-29","by":"kitchen"},"updated_at":1790700995323,"applied":true}
 kitchen names a kid on a Larder row -> 403   403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_credit","key":"item:kt2","value":null,"updated_at":0}
 a Larder row dated 'yesterday' -> 403        403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_date","key":"item:bd1","value":null,"updated_at":0}
@@ -192,7 +192,7 @@ the old kitchen session -> 401               401 {"error":"profile_session_inval
 the device has no role now                   200 {"id":"hOM7eW_DnGzq","name":"smoke kitchen","role":null,"kitchen_profile":null}
 unpair the test kitchen device               200 {"ok":true}
 tidy the kitchen's row                       200 {"key":"item:kt1","value":null,"updated_at":1790700997337,"applied":true}
-admin reset niece pin (cleanup)              200 {"ok":true,"id":"niece","code":"285164","expires_at":1790787397417}
+admin reset niece pin (cleanup)              200 {"ok":true,"id":"niece","code":"[redacted]","expires_at":1790787397417}
 ### CORS
 preflight allows https://vantrix117.github.io
 preflight blocks evil.example

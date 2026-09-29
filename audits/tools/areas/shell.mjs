@@ -127,14 +127,14 @@ export const screens = [
     async after(t) { await t.scroll('#gate', 'bottom'); },
   })),
   {
-    // Offline, a profile that signs in on tap (a kid) cannot sign in: the message goes to the line above the cards.
+    // Offline, nobody can sign in (UX-PROF-a3, batch 2a): the cards are disabled under the offline note, so a tap does nothing.
     screen: 'picker-tap', profile: null, lastProfile: 'eli', states: ['offline'],
-    note: 'Offline, Ezra (a kid, no PIN) tapped on the cached picker: the sign-in fails and "No connection." shows in the message line above the cards (index.html:546). Nothing else changes: the picker still offers every card.',
+    note: 'Offline, the cached picker as a kid (Ezra, no PIN) meets it: every card disabled and reading "Waiting for the connection", under the note "Offline — signing in needs the house connection…" with Try again (UX-PROF-a3). Since batch 2a a card cannot be tapped offline, so this is the state a tap meets.',
     async go(t) {
       await picker(t);
       if (!t.reopened) return;                                                  // the warm pass only fills the cache
-      await t.tap('#profiles .pcard[data-id="ezra"]');
-      await waitFn(t, () => ((document.querySelector('#pickmsg') || {}).textContent || '').trim().length > 0, null, 5000);
+      await wait(t, '#pick-retry', 6000);
+      await wait(t, '#profiles .pcard[data-id="ezra"][disabled]', 4000);
     },
   },
   {
@@ -162,9 +162,11 @@ export const screens = [
   },
   {
     screen: 'pin-entry', profile: null, lastProfile: 'eli', states: ['typical', 'error', 'offline'],
-    note: 'Eli tapped on the picker: the PIN pad. Typical = two digits typed (dots fill in the person\'s colour; Continue stays disabled under 4). Error = a wrong PIN submitted: the dots clear and "Wrong PIN." shows under the pad. Offline = the cached picker, Eli tapped and four digits submitted with no connection: "No connection." (apps/hub.js:137).',
+    note: 'Eli tapped on the picker: the PIN pad. Typical = two digits typed (dots fill in the person\'s colour; Continue stays disabled under 4). Error = a wrong PIN submitted: the dots clear and "Wrong PIN." shows under the pad. Offline = what Eli meets instead of the pad: the cached picker with every card disabled under the offline note (UX-PROF-a3, batch 2a).',
     async go(t) {
       if (t.offline && !t.reopened) { await picker(t); return; }               // warm pass: nothing is submitted online
+      // offline (UX-PROF-a3, batch 2a): the pad is never offered; Eli meets the picker with every card disabled
+      if (t.offline) { await picker(t); await wait(t, '#pick-retry', 6000); await wait(t, '#profiles .pcard[data-id="eli"][disabled]', 4000); return; }
       await toPad(t, 'eli');
       if (t.state === 'typical') { await digits(t, '48'); return; }
       await digits(t, '2580'); await submitPin(t);
@@ -250,7 +252,7 @@ export const screens = [
   {
     // One column (phones, iPad portrait): the 15 long reminders push the add field far down; bring it to the lower third.
     screen: 'home-rem-add', profile: 'eli', states: ['overflow'], devices: ['ipad-portrait', 'iphone-pwa'],
-    note: 'Eli\'s Home in overflow, scrolled to the end of the 15 long reminders: the last rows and the "Add a reminder for the house" field (maxlength 140) with its + button, the feed starting below.',
+    note: 'Eli\'s Home in overflow, scrolled to the end of the 15 long reminders: the last rows and the "Add a reminder" field (maxlength 140) with its + button, the feed starting below.',
     async go(t) { await home(t); await remAdd(t); },
     async after(t) { await remAdd(t); },
   },

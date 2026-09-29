@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29) done; 225 entries FIXED, 37 PARTIAL, 3 DEFERRED, 4 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29) done; 272 entries FIXED, 39 PARTIAL, 3 DEFERRED, 11 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -48,7 +48,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | 6/6 fixed, `16926a2` |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | 7/7 fixed, `97c39a0` |
 | 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 99/143 fixed, `80af987` |
-| 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | open |
+| 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | 37/45 fixed, `65009df` |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | open |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | open |
 | 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a | open |
@@ -2938,7 +2938,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### KITCHEN-2 — Kitchen device, shell half: no picker, no Me tab, the family apps only, and a face-tap sheet for credit
 
-- **Area** shell / platform (Kitchen device) · **Type** household work (P5-D5 as answered) · **Effort** M · **Batch** 2a
+- **Area** shell / platform (Kitchen device) · **Type** household work (P5-D5 as answered) · **Effort** M · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** A kitchen device never shows the picker: at boot and after a 401 the shell asks GET /api/device and signs in as the kitchen. Its Home is the calm layout: clock, the kitchen's timer, Eat soon, today's family prayers with faces, reminders with Undo, the album with Add, at glance sizes; no Me or Chat tab; Larder, Prayer, Timer and Tally only. hub.whoDidThis(): Prayed offers the household, the Larder's finish and the album's Add the adults. Admin → Devices sets and clears the role with the admin PIN. test-kitchen 27 → 55/0 (both halves). Not done: a kitchen state in the capture rig; kitchen-probe (390/820/1280, light and dark) and the reviewer's composites stand in. After: `audits/evidence/p6/2a/tests/suites/test-kitchen.txt`, `audits/evidence/p6/2a/probes/kitchen-probe.json`, `audits/evidence/p6/2a/review/m-k390.png`, `audits/evidence/p6/2a/probes/kitchen-390-light-prayed-sheet.png`.
 - **Evidence.** `audits/05-decisions.md:42`; `index.html:478-481`, `index.html:1704-1706`, `apps/prayer.html:1599-1601`, `worker/src/index.js:549`
 - **What happens now.** A paired device with no stored session opens on the profile picker (`index.html:1704-1706`), and Switch returns any device to it; the Apps list is per person, with the kiosk seeing none (`index.html:478-481`). An action that credits someone credits the signed-in person: Prayed adds `hub.profile.name` (`apps/prayer.html:1599-1601`). Admin → Devices can only unpair (`worker/src/index.js:549`).
 - **Why it matters.** This is what the family sees on the counter iPad all day. It replaces the idle return that P2-PROF-09 proposed: with no personal sign-in on the Kitchen iPad, there is nothing to time out.
@@ -2952,7 +2953,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-HOME-01 — A half-typed family reminder is erased by the routine 30 s pull
 
-- **Area** shell / platform · **Type** bug · **Severity** high · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** high · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Home is built once per person and each part is patched in place, so the reminder field is never replaced. verify-reminder-draft-wiped-by-pull-2 (1 char/s over 43 s, WebKit and Chromium): #view-home rebuilt 1× and the field emptied at 28.8 s → rebuilt 0×, no keystroke lost, all 44 characters and focus kept. -1: the draft cut to "" with focus on BODY → the whole sentence kept, and a visibilitychange pull keeps it too (was emptied). leads retype: value "" → kept, rebuilt 1× → 0×. After: `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify-reminder-draft-wiped-by-pull-2.txt`, `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify-reminder-draft-wiped-by-pull-1.txt`, `audits/evidence/p6/2a/p2/HOME/verify2-reminder-draft.json`, `audits/evidence/p6/2a/p2/HOME/leads-retype-after.png`.
 - **Evidence.** `audits/02-shell.md:264`; `apps/hub.js:342`, `apps/hub.js:311`, `index.html:1243`, `index.html:1200-1207`
 - **What happens now.** Every successful pull sets `lastPull: Date.now()`, whether or not any row changed (`apps/hub.js:311`). The shell's `onSync` handler then calls `renderHome()` whenever `lastPull` is new (`index.html:1243`). `renderHome()` rebuilds `#view-home` with `innerHTML` (`index.html:1200-1207`), including the `#remtext` input (`index.html:1204`).
 - **Why it matters.** This is the only input on Home, and every adult and guest uses it on the shared kitchen iPad. The 30 s timer is fixed and typing does not delay it. So a reminder that takes T seconds to type is wiped with probability min(1, T/30): about 1 in 3 to 2 in 3 for 10–20 s of typing.
@@ -2961,7 +2963,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-HOME-03 — After Me → Switch, the next person lands on Me, not Home
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** showPicker() now sets the tab and hash to Home, so whoever signs in next starts on Home by every route (Switch, a 401, the TV's Switch, a guest's expiry). verify-switch-lands-on-me-1: all six cases land on #home after, but they already did on the pre-batch code: batch 0c's Switch handler resets the hash (e9e5f59); the Phase 2 run landed on #me. verify-switch-lands-on-me-2 crashes before and after: once Ezra lands on Home it waits for #switch, which lives on Me (the script, not the app). After: `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify-switch-lands-on-me-1.txt`, `audits/evidence/p6/2a/tests/repro-before/phase2__HOME__verify-switch-lands-on-me-1.txt`, `audits/evidence/p6/2a/p2/HOME/verify-switch-lands-on-me-1.json`, `audits/evidence/p6/2a/p2/HOME/leads-switch-kid-lands.png`.
 - **Evidence.** `audits/02-shell.md:343`; `index.html:1253`, `apps/hub.js:175-178`, `index.html:625-628`, `scripts/test-home.mjs:322`; `audits/evidence/p2/PROF/switch-3a-ezra-lands-on.png`
 - **What happens now.** Switch exists only on Me (`index.html:1253`). It runs `closeViewer(); await hub.signOut(); showPicker();` (`:1282`) and never resets `location.hash`. `hub.signOut` does not reset it either (`apps/hub.js:175-178`). After sign-in, `enterShell` routes by the leftover hash (`index.html:625-628`), so the next person opens on `#me`.
 - **Why it matters.** Every hand-over on the shared iPad starts on the previous person's settings page. A pre-reader lands on the Sync card's "Forget this device".
@@ -2970,7 +2973,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-09 — The shared iPad never returns to the picker when idle, even for the admin
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** medium · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** bug (security) · **Severity** medium · **Effort** M · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Closed by the Kitchen device (KITCHEN-1 in 0d, KITCHEN-2 here), as P5-D5 decided; no idle timer. test-kitchen 55/0: nobody signs in as a person on the kitchen device (Mea, Eli) and it stays the kitchen; it has no chat, no admin, reads no one's person rows and cannot write F260 or a private prayer list; no other device signs in as the kitchen. smoke-api 275/0 keeps the server half. verify-no-idle-signout-2 was not rerun (not the check, per the entry). After: `audits/evidence/p6/2a/tests/suites/test-kitchen.txt`, `audits/evidence/p6/2a/tests/smoke-api.txt`, `audits/evidence/p6/2a/probes/kitchen-probe.json`.
 - **Evidence.** `audits/02-shell.md:1361`; `index.html:1704-1706`, `index.html:1282`, `index.html:1711`, `apps/f260.html:2038-2049`
 - **What happens now.** At boot, a stored session goes straight to the shell (index.html:1704-1706). The only exits are the manual Switch (index.html:1282), a 401, the kiosk's Switch (1133) and a guest's expiry. The session survives a PWA relaunch.
 - **Why it matters.** whoever picks up the kitchen iPad inherits an adult's unrestricted chat and private prayer list and, for Eli, the admin panel.
@@ -2979,7 +2983,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-05 — "Around the house" loads once per page session
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The feed reloads on every pull and when the page becomes visible. verify-feed-not-live-1: Mom's new line never reached the iPad Home in 70 s (0 feed requests) → it shows from the 30 s pull on (2 requests); Eli's own reminder line after the next pull false → true; after Apps → Home false → true. The findings reviewer's check after review round 1: 0 feed replacements per pull in WebKit and Chromium (the Show-more flag no longer rides on feedFresh). After: `audits/evidence/p6/2a/tests/repro-after/phase2__PWA__verify-feed-not-live-1.txt`, `audits/evidence/p6/2a/p2/PWA/verify-feed-not-live-1.json`.
 - **Evidence.** `audits/02-shell.md:4934`; `index.html:925`, `index.html:1216`, `index.html:1243`, `index.html:672-675`
 - **What happens now.** `loadFeed()` returns early once `feedFresh` is true (index.html:925), and nothing resets it (declared at :921; set true at :927 and :1108). `renderHome` calls `loadFeed()` without force (index.html:1216). Home re-renders on every pull (index.html:1243), but the feed makes no request.
 - **Why it matters.** A Home left open on the iPad or desktop looks live, but it shows the feed as it was at first load.
@@ -2988,7 +2993,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-CHAT-01 — Kid chat has to be read; only the verse is spoken
 
-- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** S · **Batch** 2a · **Status** NEEDS DEVICE CHECK (`65009df`)
+- **Phase 6 (NEEDS DEVICE CHECK).** For a kid every chat reply is spoken and each bubble has a 64 px speaker that replays it; a kid's speech never carries over to the next person after Switch (security review). The worker's probe with a stand-in speechSynthesis (not filed): four 64 px speakers, a tap spoke "Your verse is Acts 2:42!". Real speech of a new, streamed reply was not heard (the rig has no voices, and iOS may hold speech a tap did not start). On the iPad as Ezra, ask Chat a question: the reply should be read aloud by itself, and the speaker beside it should read it again. After: `audits/evidence/p6/2a/tests/smoke-chat.txt`.
 - **Verified (step 3).** was medium; skeptics medium and medium.
 - **Evidence.** `audits/02-shell.md:4370`; `index.html:1456-1459`; `audits/evidence/p2/CHAT/04-kid-refused-tool-ipad-light.png`, `audits/screens/shell/chat-kid-typical-iphone-pwa-light.png`
 - **What happens now.** `speakForKid` runs only for tool events with `speak:true`, which means only `read_todays_verse` (index.html:1456-1459, 1497).
@@ -2998,7 +3004,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-HOME-1 — Key numbers on the 24/7 iPad Home are 2.3–3.1 mm tall
 
-- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** M · **Batch** 2a · **Status** PARTIAL (`65009df`)
+- **Phase 6 (PARTIAL).** Adult Home on the iPad reads its key numbers at the glance sizes (data-glance, --fs-glance-3/-2), and the Kitchen device's Home is the calm layout (KITCHEN-2). glance.mjs, iPad portrait: next reading, fridge count, prayer count, kids' stars and the timer pill 2.7-3.5 → 6.0 mm (H2 at 2 m), fridge item names 1.7 → 3.1 mm, kid star count 5.2 → 10.4 mm (H1 at 2 m). Still below: the ring label (3.1), the reading sub-line (2.3), reminder text (3.1), bylines (1.7) and the feed (2.7/1.7 mm). No batch is named for the rest. After: `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__glance.txt`, `audits/evidence/p6/2a/p2/HOME/glance.json`, `audits/evidence/p6/2a/p2/HOME/glance-adult-ipad-portrait.png`, `audits/evidence/p6/2a/review/m-k820.png`.
 - **Verified (step 3).** was high; skeptics medium and medium. Correction: The headline range '2.3-3.1 mm' leaves out the smallest key information the constitution names, leftovers expiring. The fridge item names and 'Nd' days are 12 px, 1.6-1.7 mm, so the key-information range is about 1.6-3.1 mm.
 - **Evidence.** `audits/02-shell.md:546`; `apps/design.css:22-24`
 - **What happens now.** Only the greeting reaches H2 at 2 m, and nothing reaches H1.
@@ -3008,7 +3015,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-HOME-8 — One tap on ✓ deletes a household reminder, with no undo
 
-- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Finishing a household reminder hides the row and shows the shared toast with Undo for 6 s; it is removed for everyone only after that (at once if the page hides or someone switches). leads done: the guest's ✓ deleted the row at once with no toast → toast "Done: … Undo", the row still stored after the flush; the worker's probe (not filed): Undo brings back 4 rows, gone after 6 s. Review fixes: a pending ✓ belongs to its person and is dropped on a session loss; the kitchen Home uses the same delayed removal (test-kitchen: a guest's reminder survives Undo, no refused write). After: `audits/evidence/p6/2a/p2/HOME/leads-done.json`, `audits/evidence/p6/2a/p2/HOME/leads-done-after-tap.png`, `audits/evidence/p6/2a/tests/suites/test-kitchen.txt`.
 - **Verified (step 3).** was medium; skeptics medium and low; tie-break medium. Correction: No stated fact is wrong. One detail is incomplete: the feed line, the 'only trace', does not reach the tapping device's own Home feed until someone refreshes by hand (loadFeed returns early once feedFresh is set, index.html:925).
 - **Evidence.** `audits/02-shell.md:673`; `index.html:1224-1226`, `index.html:1228-1235`
 - **What happens now.** The ✓ is 44×44 px and appears for every adult-kind profile, guests included (`index.html:1224-1226`).
@@ -3018,7 +3026,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-SYNC-a1 — Nobody is told when a change did not sync
 
-- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** medium · **Effort** M · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The viewer bar shows the shared sync state over every app: "Saving…", "Offline · N waiting" (on a phone "N waiting", the app name kept, beside a running timer). The screens reviewer's composite shows it over the park map, Tally, F260, the Larder and Prayer; e7-sync-ui's screenshot shows "3 waiting" over F260 offline. e7-sync-ui part 3 still prints null before and after because it looks inside F260's frame, not at the shell's bar; its Me-card parts now read "Up to date" / "Saving…" (were a stale "pending"). After: `audits/evidence/p6/2a/p2/SYNC/e7-phone-f260-offline-pending.png`, `audits/evidence/p6/2a/review/m-viewer.png`, `audits/evidence/p6/2a/tests/repro-after/phase2__SYNC__e7-sync-ui.txt`.
 - **Verified (step 3).** was medium; skeptics medium and medium (partly). Correction: Minor: 'nobody is told' is slightly broad. Larder, and the Dollywood pair, do tell an offline user that changes are waiting.
 - **Evidence.** `audits/02-shell.md:2910`; `index.html:769`, `index.html:326`, `apps/hub.js:311`
 - **What happens now.** The tab-bar dot (index.html:769) is covered by the full-screen viewer while any app is open (index.html:326). In e7 the element on top of `#syncdot` was the app `frame`, and F260 showed no sync wording with 3 writes waiting offline (e7-phone-f260-offline-pending.png).
@@ -3028,7 +3037,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-ACCENT-1 — The colour picker cannot keep people apart: swatches are named by hex, duplicates are allowed, and nothing checks lightness, contrast or colour-blind distance
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Me → Admin → Edit, Add a person and Add a guest offer the 18 named families: the nine people's colours first, then the nine app colours, each labelled with its app. A live note warns on a colour someone wears, an app's colour and a colour-blind look-alike (cvd-pairs, graphic tone: 16 pairs under ΔE2000 6 for protan/deutan; people's nine never closer than 11 there); the admin decides. The Worker accepts only the 18 names (smoke-api: an unknown family → 400). Review round 1 found colours did not save (the fallback sent a name) → fixed: Edit Mea coral, Add a person leaf, Add a guest orchid all save. test-guests: the sheet shows the 18 families. After: `audits/evidence/p6/2a/probes/admin-390-light-add.png`, `audits/evidence/p6/2a/probes/cvd-pairs.json`, `audits/evidence/p6/2a/tests/suites/test-guests.txt`, `audits/evidence/p6/2a/tests/smoke-api.txt`.
 - **Evidence.** `audits/04-design-system.md:5696`; `index.html:1398`, `index.html:308`, `index.html:1393`, `worker/src/index.js:183`
 - **What happens now.** The swatches are unnamed. Each carries `aria-label="#4F5D8C"` and so on (`index.html:1398, 1666`). The selected swatch is shown only by a `--text` border and a scale (`index.html:308`).
 - **Why it matters.** The picker cannot keep people apart.
@@ -3037,7 +3047,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-PROF-a2 — The admin panel cannot manage the household (index.html:1599, 1620, 1627, 1633, 1638, 1643, 1666-1667, 1681; index.js:453-480; `admin-panel.mjs`; `admin-edit-guest-kind.png`)
 
-- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Me → Admin → Household: add an adult or a kid (one of the 18 families; an adult gets a one-time set-up code), remove a person, add an admin, take admin away, hand over admin; every change asks for the admin PIN. smoke-api 215 → 275/0: add without or with a wrong PIN 403; a kid or a PIN-less adult cannot be admin; a co-admin's PIN reset needs the PIN; the last admin cannot drop it; hand over and back; self, an admin, the TV and the kitchen cannot be removed; a removed id is never reused. Limitation: a new person sees only the apps open to everyone until apps.json names them. After: `audits/evidence/p6/2a/tests/smoke-api.txt`, `audits/evidence/p6/2a/probes/admin-390-light-household.png`, `audits/evidence/p6/2a/probes/admin-390-light-pick.png`, `audits/evidence/p6/2a/review/m-admin.png`.
 - **Evidence.** `audits/02-shell.md:1129`; `index.html:1599`
 - **What happens now.** There is no control to add or remove a household person. Only guests can be removed (index.js:206-227, 490-500).
 - **Why it matters.** The household cannot be managed from the hub; a second admin is impossible.
@@ -3046,7 +3057,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-HOME-05 — Every successful pull rebuilds all of adult Home, even when nothing changed
 
-- **Area** shell / platform · **Type** bug (perf) · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug (perf) · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Home is built once per person and each part is patched only when its markup changes. verify-home-full-rebuild-every-pull-2, WebKit and Chromium: one pull kept 0/465 nodes and 0/13 images → 476/476 and 13/13; 65 s hands-off 2 → 0 rebuilds; behind an app opened from Home 1 → 0. -1: 2 → 0 rebuilds in 70 s, the per-pull Home share 3 → 1 ms (WebKit), 11 → 5.9 ms task (Chromium). The findings reviewer after round 1: 0 feed replacements per pull in both engines. After: `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify-home-full-rebuild-every-pull-2.txt`, `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify-home-full-rebuild-every-pull-1.txt`, `audits/evidence/p6/2a/p2/HOME/verify-home-full-rebuild-every-pull-2.json`, `audits/evidence/p6/2a/p2/HOME/leads-cost.json`.
 - **Evidence.** `audits/02-shell.md:404`; `index.html:1243`, `index.html:977-983`, `apps/hub.js:342`, `index.html:1711`
 - **What happens now.** `index.html:1243` calls `renderHome()`, which replaces the whole view (`:1200`). The 15 re-created images are 5 SVG art files and 10 avatar JPEGs, from 7 distinct URLs. The rebuild also runs behind an app opened from a Home card, because the shell's tab stays `'home'`.
 - **Why it matters.** it is the root cause of P2-HOME-01, and needless work on the always-on iPad. The cost of each pull is small.
@@ -3055,7 +3067,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-HOME-06 — Kid Verse writes the kid's name into its feed lines, so the TV reads "Ezra Ezra read the verse ★"
 
-- **Area** shell / platform (Kid Verse, TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform (Kid Verse, TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Kid Verse's feed lines no longer carry the kid's name ("Read the verse ★", "Earned the … badge", "Heard this week's story"); the TV and Home keep the name as the byline. verify2-tv-kid-name-doubled-1: TV lines repeating the name 3 → 0 ("🦖 Ezra Ezra read the verse ★" → "🦖 Ezra Read the verse ★"); -2: the same on the TV and the adult Home feed. rescale-1x only rescales the screenshot (same output). After: `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify2-tv-kid-name-doubled-1.txt`, `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify2-tv-kid-name-doubled-2.txt`, `audits/evidence/p6/2a/p2/HOME/verify2-tv-kid-name-doubled-1.json`, `audits/evidence/p6/2a/p2/HOME/verify2-tv-kid-name-doubled-1-home-feed.png`.
 - **Evidence.** `audits/02-shell.md:438`; `apps/kidverse.html:332`, `worker/src/index.js:321-328`, `index.html:1070`, `index.html:955-957`; `audits/screens/tv/board-overflow-tv-light.png`
 - **What happens now.** Kid Verse puts the person's name inside the activity text: `apps/kidverse.html:332`: `hub.activity(hub.profile.name + ' read the verse ★')` `:481`: `hub.activity(p.name + ' earned the ' + b.name + ' badge')` `:640`: `hub.activity(hub.profile.name + " heard this week's story")` The Worker stores the text as sent and returns the name …
 - **Why it matters.** The TV's feed pane is five lines on the family's shared screen, and the doubled name reads as a glitch. With long names it pushes the text into the ellipsis.
@@ -3064,7 +3077,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-12 — The picker opens with its title off the top on iPhone, with 9+ profiles or in a Safari tab
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The picker opens scrolled to the top with its title below the safe area. verify-picker-title-hidden-iphone-2 (empty, typical, overflow × four iPhone viewports × WebKit and Chromium): the title started above the top in 18 of 24 runs (h1 as far as −442 px) → 0 of 24, "title fully in view" with the h1 at 32 px (47 px where the panel fits). standalone: the picker title at −31 px → clear. After: `audits/evidence/p6/2a/tests/repro-after/phase2__PROF__verify-picker-title-hidden-iphone-2.txt`, `audits/evidence/p6/2a/p2/PROF/verify-picker-title-2.json`, `audits/evidence/p6/2a/p2/PROF/verify-picker-title-2-webkit-typical-iphone-pwa.png`.
 - **Evidence.** `audits/02-shell.md:1427`; `index.html:29`
 - **What happens now.** `#gate` is a centred flex column with `overflow:auto` (index.html:29). When the cards are taller than the screen, the overflow is split above and below the panel. With the typical seed (9 cards), the h1 opens at −31 px (iPhone PWA), −127 px (Safari) and −75 px (390×844 PWA).
 - **Why it matters.** once a guest is added, the first screen on the Home Screen iPhone app looks cut off.
@@ -3073,7 +3087,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-18 — A guest's Me hero reads "Adult"
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** A guest's Me kicker reads "Guest · until <date>". verify-guest-hero-adult-2: a fresh guest "Adult" → "Guest · until Sep 29", Grandma Jo "Adult" → "Guest · until Sep 28"; the controls are unchanged (David "Adult", Eli "Adult · Admin"). The screens reviewer's nit is fixed: the date no longer splits across lines (Me hero composite). After: `audits/evidence/p6/2a/tests/repro-after/phase2__PROF__verify-guest-hero-adult-2.txt`, `audits/evidence/p6/2a/p2/PROF/verify-guest-hero-adult-2-seeded-grandmajo-iphone-pwa.png`, `audits/evidence/p6/2a/review/m-mehero.png`.
 - **Evidence.** `audits/02-shell.md:1575`; `index.html:1249`, `index.html:535`, `worker/src/index.js:170`, `index.html:1252`; `audits/screens/shell/me-guest-typical-iphone-pwa-light.png`
 - **What happens now.** `kindLabel` ignores `is_guest` (index.html:1249). A fresh guest and Grandma Jo both show the kicker "Adult". Their picker cards say "Guest · until Sep 29" and "Guest · until Sep 28", and the guest list and admin panel say "Guest" too (index.html:535, 1389, 1595).
 - **Why it matters.** The shell is what every household member sees first, many times a day, on the always-on Kitchen iPad.
@@ -3082,7 +3097,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-17 — In iPhone landscape the chat composer ignores the side safe-area insets
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The chat composer keeps to the side safe-area insets. verify2-chat-composer-under-sensor-landscape-1 (932×430 landscape): the form 26-906 → 75-857 px, in the 59 px sensor bands 33 px each side → clear; the mic and Send 24 px in the band → clear; covered area 330 → 0 px². standalone: composer, mic and Send "clear" (were over both bands). After: `audits/evidence/p6/2a/tests/repro-after/phase2__PWA__verify2-chat-composer-under-sensor-landscape-1.txt`, `audits/evidence/p6/2a/p2/PWA/verify2-chat-composer-under-sensor-landscape-1.json`, `audits/evidence/p6/2a/p2/PWA/standalone-safe-chat-landscape-iphone-pwa-light.png`.
 - **Evidence.** `audits/02-shell.md:5193`; `index.html:259-261`, `index.html:67`, `apps/design.css:553`, `apps/design.css:557`
 - **What happens now.** `.chat-form` is `position:fixed; left:0; right:0; … width:min(100% - 2*var(--sp-4), 880px); margin:0 auto` (index.html:259-261). It uses `--safe-bottom` but never `--safe-left` or `--safe-right`.
 - **Why it matters.** It breaks the house rule for edge-anchored controls (CLAUDE.md, Adding an app §6), which the rest of the shell follows. On the 852×393 class of Dynamic Island iPhones (14 Pro, 15, 15 Pro, 16, 16 Pro), part of the mic or Send button sits under the island.
@@ -3091,7 +3107,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-13 — The Me → Sync card is painted once and goes stale, contradicting the tab-bar dot beside it
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Me's Sync card repaints on every sync change, like the tab-bar dot. verify-me-sync-card-stale-2: after the first pull and the 30 s pull the card said "pending · Last checked not yet" while the dot said synced → "Up to date · Last synced 5:30 PM"; 3 and 8 s after a theme pick it kept "pending · 1 waiting" → "Up to date · nothing"; after a Switch to Ezra likewise. The card now matches the dot at every step. After: `audits/evidence/p6/2a/tests/repro-after/phase2__SYNC__verify-me-sync-card-stale-2.txt`, `audits/evidence/p6/2a/p2/SYNC/verify-me-sync-card-stale-2.json`, `audits/evidence/p6/2a/p2/SYNC/e7-phone-me-sync-card-5s-after-theme.png`.
 - **Evidence.** `audits/02-shell.md:2669`; `index.html:1248`, `index.html:399`
 - **What happens now.** the card is a one-time snapshot of `hub.sync` inside `renderMe` (index.html:1248, 1273-1279). `renderMe` runs only on tab entry and a few actions (:624, 644, 675, 1283, 1284…). `hub.onSync` repaints only Home, Apps and the tab-bar dot (:770, 1243).
 - **Why it matters.** the only place that reports sync status in words contradicts the tab-bar dot until the person leaves Me.
@@ -3100,7 +3117,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-14 — After reopening offline, Sync says "Last checked: not yet" although the device synced minutes earlier
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The last successful sync is kept per device (hub.lastSync in localStorage, hub.lastSynced()) and shown as "Last synced <time>". verify-last-checked-not-persisted-2: reopened offline, "Last checked: not yet" → "Last synced 5:30 PM"; localStorage now holds hub.lastSync. e7-sync-ui part 2 agrees ("not yet" → "5:30 PM"). After: `audits/evidence/p6/2a/tests/repro-after/phase2__SYNC__verify-last-checked-not-persisted-2.txt`, `audits/evidence/p6/2a/p2/SYNC/verify-last-checked-not-persisted-2.json`, `audits/evidence/p6/2a/p2/SYNC/verify-lcnp-2-B-offline-reopen-sync-card.png`.
 - **Evidence.** `audits/02-shell.md:2685`; `apps/hub.js:51`, `index.html:1276`, `apps/hub.js:300`, `index.html:832`
 - **What happens now.** `lastPull` lives only in memory (apps/hub.js:51, 311). The card reads only that value (index.html:1276), while the per-channel `since` is persisted (apps/hub.js:300, 196).
 - **Why it matters.** offline, the family cannot tell how old what they see is.
@@ -3109,7 +3127,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-VIS-05 — Long kid names push the star and badge counts out of the Kids card
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Kid names truncate with an ellipsis and ★ and the badge count stay visible. verify-kids-chip-clipped-1 before: long names lost the badge count on all three devices and the ★ on the iPad. The filed after run crashes on the iPhone's short-name case (the Kids card is now an off-screen pager page, so its screenshot clip is 0 wide) before reaching the long names. The findings reviewer's copy patched to open that pager page passes typical, long and 40-character names on desktop, iPad and iPhone: ★ and badges visible in all 18 chips (filed under review/kids-chip/). After: `audits/evidence/p6/2a/review/kids-chip/verify-kids-chip-clipped-1-webkit.json`, `audits/evidence/p6/2a/review/kids-chip/verify-kids-chip-max40-iphone-pwa-webkit.png`, `audits/evidence/p6/2a/tests/repro-before/phase2__VIS__verify-kids-chip-clipped-1.txt`, `audits/evidence/p6/2a/tests/repro-after/phase2__VIS__verify-kids-chip-clipped-1.txt`.
 - **Evidence.** `audits/02-shell.md:5575`; `index.html:205`, `index.html:110`, `index.html:911-918`, `worker/src/index.js:458`
 - **What happens now.** `.kid-chip { white-space: nowrap }` (`index.html:205`) sits inside a `.gcard` with `overflow: hidden` (`index.html:110`), with no ellipsis and no `min-width: 0` on the name. The chip text is the name, then ★N, then the badges (`index.html:911-918`).
 - **Why it matters.** for the current household (short names) this is an edge case. Any long name an admin enters hides that kid's stars on the adults' Home, and the stars are what the card exists to show.
@@ -3118,7 +3137,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-MOTION-01 — The Apps grid blanks and pops back in every 30 s while it is on screen
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The Apps grid re-renders only when the app list changes and never replays its entrance on a pull. MOTION/replay: hub-pop on Apps tiles 18 (at 28 and 58 s) → 0; Home and TV 0 → 0. MOTION/replay-shot timed tiles dimming 1 → 0 → 1 before; after it times out waiting for a tile to dim, because none does. After: `audits/evidence/p6/2a/tests/repro-after/phase4__MOTION__replay.txt`, `audits/evidence/p6/2a/p4/MOTION/replay.json`, `audits/evidence/p6/2a/tests/repro-after/phase4__MOTION__replay-shot.txt`.
 - **Evidence.** `audits/04-design-system.md:3904`; `index.html:380`, `apps/design.css:595-599`, `apps/hub.js:311`, `apps/hub.js:342`
 - **What happens now.** The entrance. `#grid` is a `.stagger` container (`index.html:380`). `.ds .stagger > *` runs `hub-pop` from opacity 0 and scale .96 / translateY 8 px over 360 ms `--spring`, with delays of 40-200 ms (`apps/design.css:595-599`). The trigger.
 - **Why it matters.** The iPad sits open all day. A grid that empties and refills twice a minute reads as a glitch and draws the eye from across the room.
@@ -3127,7 +3147,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-MOTION-02 — Closing an app cannot be interrupted: a tap in the 220 ms exit opens nothing, and an app opened in that window is hidden again
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The viewer's exit can be interrupted. MOTION/viewer: a tap on the Timer tile 80 ms into the exit hit the fading iframe and left the viewer closed on about:blank → it hits the tile and Timer opens; a hash change to #timer during the exit left it blank → Timer open. A normal close still plays viewer-out; the closed app now stays loaded hidden (UX-HOME-5). After: `audits/evidence/p6/2a/tests/repro-after/phase4__MOTION__viewer.txt`, `audits/evidence/p6/2a/p4/MOTION/viewer.json`, `audits/evidence/p6/2a/p4/MOTION/viewer-open-during-exit-ipad.png`.
 - **Evidence.** `audits/04-design-system.md:3946`; `index.html:729-733`, `index.html:326-328`, `index.html:721`, `index.html:650-652`
 - **What happens now.** Taps are lost. `closeViewer()` adds `.closing` (`viewer-out`, 220 ms) and schedules a 220 ms `setTimeout` that removes `on` and sets the frame to `about:blank` (`index.html:729-733`). Until then the fading viewer is still `display: flex` at z-index 30 (`index.html:326-328`) and still takes pointer events.
 - **Why it matters.** A quick tap on the next app right after leaving one does nothing. A notification tapped just as an app closes shows the grid instead of the app it named.
@@ -3136,7 +3157,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### PWA-GAP-3 — No mic on Home "Add a reminder for the house" (gap, low). index.html:1204; voice-run.txt:4 (`micButtonsInHome: 0`)
 
-- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2a · **Status** NEEDS DEVICE CHECK (`65009df`)
+- **Phase 6 (NEEDS DEVICE CHECK).** Home's "Add a reminder for the house" has a mic (hub.voiceInput) between the field and +, and the placeholder is no longer cut by it (leads retype screenshot). The rig has no speech recognition, so dictation into the field was not tried. On the iPad, tap the mic beside Add a reminder, say "buy milk" and check that the words land in the field. The Kitchen device's reminder field has no mic (kitchen composites). After: `audits/evidence/p6/2a/p2/HOME/leads-retype-after.png`, `audits/evidence/p6/2a/p2/HOME/verify2-reminder-draft-end-webkit.png`.
 - **Evidence.** `audits/02-shell.md:4861`; `index.html:1204`
 - **What happens now.** No mic on Home "Add a reminder for the house" (gap, low). index.html:1204; voice-run.txt:4 (`micButtonsInHome: 0`).
 - **Why it matters.** Voice add is missing where hands are busy.
@@ -3145,7 +3167,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### PWA-UX-4 — A kid's spoken question waits for a Send tap
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** NEEDS DEVICE CHECK (`65009df`)
+- **Phase 6 (NEEDS DEVICE CHECK).** A kid's spoken question sends itself when speech ends (no Send tap). Nothing in the rig can speak into the mic, so this rests on the code and the reviewers' reading. On the iPad as Ezra, open Chat, tap the mic, say "what is my verse" and check that it sends by itself when you stop and that the answer is read aloud. After: `audits/evidence/p6/2a/tests/smoke-chat.txt`.
 - **Evidence.** `audits/02-shell.md:4862`; `index.html:388`
 - **What happens now.** Ezra's transcript "what is my verse" filled `#chat-in` and made no request (voice-run.txt:100, `sentToChat: 0`; voice-chat-kid-filled-ipad-portrait-light.png).
 - **Why it matters.** A pre-reader cannot check the text or find Send.
@@ -3154,7 +3177,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-CHAT-02 — Offline and error sends show raw text, clear what was typed, and vanish on reload
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** A failed send shows a plain-English error with Retry and puts the text back in the field; offline messages are queued (hub.chatq.<id>), survive a reload and send when the connection returns, on any tab, for the signed-in person only. The worker's probe (not filed): a 500 reads "The assistant is busy right now. Your message is kept — tap Retry in a moment." with the text kept; offline "Waiting for the connection — it sends by itself", still there after a reload. The security review's offline-queue and double-send findings are fixed and confirmed. No filed screenshot. After: `audits/evidence/p6/2a/tests/smoke-chat.txt`.
 - **Evidence.** `audits/02-shell.md:4376`; `index.html:1489`, `index.html:1516`
 - **What happens now.** The bubbles read "Load failed" (offline), "The assistant is unavailable right now (Internal server error)." and a bare "Overloaded" (chat.js:353, 380).
 - **Why it matters.** People lose what they typed and see raw errors.
@@ -3163,7 +3187,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-CHAT-03 — Failed or refused tools show nothing
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Failed or refused writes show a red chip; the client renders tool events with ok:false (the Worker still sends chip null for them, e.g. smoke-chat's refused set_data: ok false, chip null). Confirmed by the findings reviewer; smoke-chat 53/0. No filed screenshot. After: `audits/evidence/p6/2a/tests/smoke-chat.txt`.
 - **Evidence.** `audits/02-shell.md:4381`; `index.html:1497`, `index.html:1498`
 - **What happens now.** Every failure path returns `chip:null` (chat.js:161-311), and the client drops tool events that have no chip (index.html:1497).
 - **Why it matters.** Silent failures look like success.
@@ -3172,7 +3197,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-CHAT-04 — At the cap, Send looks active, the counter has scrolled away and the placeholder is clipped
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** At the cap Send is disabled, the placeholder says "Back tomorrow" and "60/60" sits in the composer. The worker's probe (not filed): sendDisabled true, the counter visible, placeholder "Back tomorrow". Confirmed by the findings reviewer. No filed screenshot. After: `audits/evidence/p6/2a/tests/smoke-chat.txt`.
 - **Evidence.** `audits/02-shell.md:4386`; `index.html:1460-1463`
 - **What happens now.** At the cap, Send looks active, the counter has scrolled away and the placeholder is clipped (low). `setCap` disables only the input (index.html:1460-1463). The rig recorded `sendDisabled:false`, `capCounterInViewport:false` and the placeholder "Back tomorrow — that is enough f…" (04-cap-reached-iphone-light.png).
 - **Why it matters.** The cap is invisible until a send fails.
@@ -3181,7 +3207,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-CHAT-05 — The tab shows messages the model no longer has
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The Chat tab shows only the last 36 h, the window the model still has, under a divider "Earlier messages are not remembered". The worker's probe (not filed): an older message hidden, the divider shown. Confirmed by the findings reviewer. No filed screenshot. After: `audits/evidence/p6/2a/tests/smoke-chat.txt`.
 - **Evidence.** `audits/02-shell.md:4388`
 - **What happens now.** History returns the newest 20 rows of any age (chat.js:455), but the model gets only rows from the last 36 h (chat.js:397).
 - **Why it matters.** The tab implies Claude remembers what it does not.
@@ -3190,7 +3217,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-CHAT-06 — `set_data` chips and feed lines print raw storage keys
 
-- **Area** shell / platform (TV) · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform (TV) · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Chips and feed lines use words, not storage keys: smoke-chat's set_data chip "✓ Tally set to 42"; set_data's feed line is worded in worker/src/chat.js; the client rewrites only a chip that still holds a key and keeps the Worker's worded chips (review nit 11). smoke-chat 53/0. After: `audits/evidence/p6/2a/tests/smoke-chat.txt`.
 - **Evidence.** `audits/02-shell.md:4393`
 - **What happens now.** `set_data` chips and feed lines print raw storage keys (low). Examples: "✓ Saved album:alb0014 in hub" and "Changed stars:kiara in kidverse (via chat)", which show on Home and the TV (chat.js:178-179; 01-tools-adult.json, step 10b).
 - **Why it matters.** Raw keys show on Home and the TV.
@@ -3199,7 +3227,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-CHAT-07 — No timestamps or day separators in the log
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The chat log has day separators and a time under each bubble (history's created_at). The standalone landscape screenshot shows "6:15 AM" under both bubbles; the worker's probe (not filed) found the day separators and 12 times. After: `audits/evidence/p6/2a/p2/PWA/standalone-safe-chat-landscape-iphone-pwa-light.png`.
 - **Evidence.** `audits/02-shell.md:4395`; `index.html:1439-1448`
 - **What happens now.** No timestamps or day separators in the log (low). `bubble()` renders no time (index.html:1439-1448), although history carries `created_at`.
 - **Why it matters.** Old answers read as current.
@@ -3208,7 +3237,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-HOME-3 — On iPhone, Home is 4.7 screens tall
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a · **Status** NEEDS DEVICE CHECK (`65009df`)
+- **Phase 6 (NEEDS DEVICE CHECK).** On a phone Home is a short glance: a compact hero, the cards in a horizontal pager with dots, Reminders on the first screen (screens composite); on a park day the park card comes first (screens reviewer, confirmed). A capture cannot show how the pager moves under a finger. On an iPhone, flick the Home cards sideways: each flick should settle on one card with the dots following, and scrolling up and down over the cards should still scroll the page. After: `audits/evidence/p6/2a/review/m-s.png`.
 - **Verified (step 3).** was medium; skeptics low and low. Correction: The facts are right. Still, '4.7 screens tall' mostly measures the 30-row activity feed, a naturally long log at the bottom (2513 of 4415 px). The dashboard content above it is about 2 phone screens. The medium rating is inflated.
 - **Evidence.** `audits/02-shell.md:593`; `index.html:105-107`; `audits/screens/shell/home-typical-iphone-pwa-light.png`
 - **What happens now.** Home is four full-width cards of 398×196–288 px, in one column below 720 px (`index.html:105-107`).
@@ -3218,7 +3248,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-HOME-4 — The viewer's "Hub" button always goes to Apps, and Escape does nothing
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The viewer's back button returns to where the app was opened and names it ("‹ Home" from a Home card, "‹ Apps" from the grid); Escape closes the viewer. The worker's probe (not filed): Escape from the Larder lands on Home with the viewer closed. After: `audits/evidence/p6/2a/review/m-viewer.png`, `audits/evidence/p6/2a/p4/MOTION/viewer-open-during-exit-ipad.png`.
 - **Evidence.** `audits/02-shell.md:615`; `index.html:736`, `index.html:326`, `index.html:743-749`
 - **What happens now.** The button calls `showTab('apps')` (`index.html:736`), even from an app opened on a Home card (`back.json`).
 - **Why it matters.** People lose their place when they close an app.
@@ -3227,7 +3258,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-HOME-5 — Every switch reloads the app, so unsaved input is lost
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a · **Status** PARTIAL (`65009df`)
+- **Phase 6 (PARTIAL).** A closed app stays loaded, hidden, for 60 s (Switch, sign-out and the timer drop it), so reopening the same app keeps what was typed: MOTION/viewer, the frame after a close apps/tally.html (was about:blank); the findings reviewer's probe (not filed): the Larder's "Half-typed soup" kept on reopening. App to app through the Switch sheet still reloads and loses it, and there is no hub.draft(). No batch is named for the rest. After: `audits/evidence/p6/2a/tests/repro-after/phase4__MOTION__viewer.txt`, `audits/evidence/p6/2a/p4/MOTION/viewer.json`.
 - **Evidence.** `audits/02-shell.md:620`; `index.html:724`
 - **What happens now.** On close, the iframe is set to `about:blank` (`index.html:724, 732`).
 - **Why it matters.** Half-typed input is lost on a switch.
@@ -3236,7 +3268,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-HOME-6 — The Switch sheet is text only. 0 of 8 entries have an icon or colour (`index.html:738-742`; `switching.json` switchSheet.items[].hasIcon; `audits/screens/shell/switch-app-typical-ipad-portrait-light.png`)
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The Switch-app sheet is a grid of the apps' tile icons in their own colours (80 px for kids). The worker's probe (not filed): 8 of 8 entries with an icon and an app colour, 94-109 px tall (was 0 of 8). The screens reviewer made the sheet solid enough over busy pages. No filed screenshot of the sheet; the Apps grid composite shows the same tile icons and colours. After: `audits/evidence/p6/2a/review/m-s.png`.
 - **Evidence.** `audits/02-shell.md:624`; `index.html:738-742`; `audits/screens/shell/switch-app-typical-ipad-portrait-light.png`
 - **What happens now.** (low; investigator only) — The Switch sheet is text only. 0 of 8 entries have an icon or colour (`index.html:738-742`; `switching.json` switchSheet.items[].hasIcon; `audits/screens/shell/switch-app-typical-ipad-portrait-light.png`).
 - **Why it matters.** Pre-readers cannot use a text-only list.
@@ -3245,7 +3278,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-HOME-7 — Kid Home is text-heavy
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Kid Home is picture-first: big art tiles for Kid Verse, Prayer, Timer and Tally plus All my apps, stars drawn as stars with the count at 10.4 mm, no Reminders block. leads cold kid: the reminders card gone (skeletons 3 → 1); switch-lands-1: Ezra's Home cards "Stars, Reminders" → "Stars"; test-home kid checks pass. After: `audits/evidence/p6/2a/p2/HOME/glance-kid-ipad-portrait.png`, `audits/evidence/p6/2a/p2/HOME/leads-cold.json`, `audits/evidence/p6/2a/tests/suites/test-home.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: 'The only one-tap entry is a text button' is true only for launching an app directly. The large CTA has a 64 px icon tile and leads in one tap to an all-icon Apps grid, so the kid flow is completable without reading.
 - **Evidence.** `audits/02-shell.md:665`; `index.html:1146-1156`
 - **What happens now.** The only one-tap entry is a text button (`index.html:1146-1156, 902-910`).
@@ -3255,7 +3289,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a1 — An offline picker still offers a guest whose stay has ended
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The picker drops guests whose stay has ended, from the cached list too. The worker's probe offline (not filed): the expired guest not shown; test-guests: the picker hides an expired guest and she cannot sign in. After: `audits/evidence/p6/2a/tests/suites/test-guests.txt`.
 - **Evidence.** `audits/02-shell.md:936`; `index.html:525-536`
 - **What happens now.** Pastor Tim was cached while still staying. Reopened offline after his stay ended, he still shows "Guest · until Sep 24" (index.html:525-536; `guests.mjs`).
 - **Why it matters.** A guest whose stay ended is still offered offline.
@@ -3264,7 +3299,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a3 — An offline or failed picker gives no sign until someone taps (index.html:516-530; `picker-pin.mjs` §1b; `picker-offline-after-tap-iphone.png`)
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Changed from the proposed fix, because signing in needs the server: offline, the picker says so before anyone taps ("Offline — signing in needs the house connection…"), disables the cards and offers Try again (automatic when back online), also when the connection drops while it is showing (review fix 17). The worker's probe (not filed): 8 of 8 cards disabled with the note. No filed screenshot; the capture rig's offline picker screens were changed to capture this state. After: `audits/evidence/p6/2a/tests/suites/test-hub.txt`.
 - **Evidence.** `audits/02-shell.md:950`; `index.html:516-530`, `index.html:535`
 - **What happens now.** The offline picker looks identical to the online one.
 - **Why it matters.** People type a PIN that cannot work.
@@ -3273,7 +3309,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a4 — The Create-PIN pad never names the person, and nothing has focus
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The Create-PIN pad names the person with their face ("Create Mea's PIN") and puts focus on the pad. test-hub: adult without a PIN gets "Create Mea's PIN"; the worker's probe (not filed): focus on the first digit. After: `audits/evidence/p6/2a/tests/suites/test-hub.txt`.
 - **Evidence.** `audits/02-shell.md:973`; `index.html:554`; `audits/screens/shell/pin-create-typical-iphone-pwa-dark.png`
 - **What happens now.** The title "Create your PIN" replaces the name; "Mea" appears nowhere on the gate (index.html:554, 606).
 - **Why it matters.** On a shared iPad, nobody can tell whose PIN is being created.
@@ -3282,7 +3319,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a5 — After the lockout the pad stays live, with no countdown
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** On a lockout (429) the pad disables itself and counts down ("Too many tries. Try again in 14 min."), using the retry time the SDK error now carries. The worker's probe (not filed): digits disabled with the countdown. smoke-api 275/0 keeps the server limits. No filed screenshot. After: `audits/evidence/p6/2a/tests/smoke-api.txt`.
 - **Evidence.** `audits/02-shell.md:1000`; `index.html:571-575`, `index.html:566-590`; `audits/evidence/p2/SEC/verify-lockout-dos-1-ui.png`, `audits/evidence/p2/SEC/verify-lockout-dos-2-ui.png`
 - **What happens now.** Five wrong PINs each give "Wrong PIN."
 - **Why it matters.** The pad looks usable while it refuses every PIN.
@@ -3291,7 +3329,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a8 — The "Choose a pairing code" sheet has no Cancel button and placeholder-only fields
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2a · **Status** NEEDS DEVICE CHECK (`65009df`)
+- **Phase 6 (NEEDS DEVICE CHECK).** The "Choose a pairing code" sheet has real labels and a Cancel button and closes on Escape; every shell sheet now closes by dragging it down. Cancel and the labels were confirmed by the findings reviewer; a drag cannot be proven in the rig. On an iPhone, open Me → Admin → Choose a new code, drag the sheet down by its handle and check it follows the finger and closes; then check Cancel. After: `audits/evidence/p6/2a/review/m-admin.png`.
 - **Evidence.** `audits/02-shell.md:1063`; `index.html:1649`; `audits/screens/shell/pairing-code-typical-iphone-pwa-light.png`
 - **What happens now.** The placeholders are "6 to 64 characters" and "Type it again" (index.html:1649; `audits/screens/shell/pairing-code-typical-iphone-pwa-light.png`).
 - **Why it matters.** The sheet can only be left by tapping the backdrop.
@@ -3300,7 +3339,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a9 — Kid-mode shell controls are below the 64 px kid size, and several kid controls are text-only (`kid-targets.mjs`; `kid-targets.json`; index.html:909, 1253, 1278)
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** M · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Kid-mode shell controls reach 64 px with icons: the tab bar 56 → 64 px (switch-lands-1: Ezra's Home tab h 56 → 64), the viewer bar's back, name and reload 64 px with icons (worker's probe, not filed), Me's Switch 64 px; Notifications and Forget this device are hidden for kids. test-hub: kid tap targets ≥ 64 px. After: `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify-switch-lands-on-me-1.txt`, `audits/evidence/p6/2a/tests/suites/test-hub.txt`, `audits/evidence/p6/2a/p2/HOME/glance-kid-ipad-portrait.png`.
 - **Evidence.** `audits/02-shell.md:1084`; `index.html:909`; `audits/screens/shell/app-blocked-typical-ipad-portrait-light.png`, `audits/screens/shell/apps-kid-typical-iphone-pwa-light.png`
 - **What happens now.** Below 64 px: tab bar buttons 104×56 (iPhone) and 140×56 (iPad); the viewer top bar (‹ Hub, app name, reload) at 44 px; the Notifications switch, shown to kids, at 52×32.
 - **Why it matters.** Pre-readers need big, picture-labelled controls.
@@ -3309,7 +3349,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-GLASS-2 — The app viewer's bar is live glass in every app, but nothing ever passes beneath it
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The app viewer's bar is solid material, since nothing passes beneath it: the worker's probe (not filed) reads background rgb(255,255,255) with no backdrop filter and no sheen layer. After screenshots: the viewer composite and the Timer opened during an exit. After: `audits/evidence/p6/2a/review/m-viewer.png`, `audits/evidence/p6/2a/p4/MOTION/viewer-open-during-exit-ipad.png`.
 - **Evidence.** `audits/04-design-system.md:3548`; `index.html:407`, `index.html:326`, `index.html:333`, `index.html:83`
 - **What happens now.** `#pill.topbar` (`index.html:407`) is the bar above every app: 1440×48 on desktop, live blur on every app screen (`layers.json`: page `div#pill.topbar` in every app area).
 - **Why it matters.** It is the one piece of glass seen in every app, and it reads as a flat strip, not floating glass, while paying for a blur.
@@ -3318,7 +3359,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-HOME-1 — The Apps grid uses one size everywhere: 48 px icon, 29 px glyph, 12 px label
 
-- **Area** shell / platform · **Type** visual · **Severity** low · **Effort** M · **Batch** 2a
+- **Area** shell / platform · **Type** visual · **Severity** low · **Effort** M · **Batch** 2a · **Status** NEEDS DEVICE CHECK (`65009df`)
+- **Phase 6 (NEEDS DEVICE CHECK).** The Apps grid is sized per class: 60 px icons on a phone and 76 px from the iPad, in each app's own colour family, caption labels, 4 columns on a phone (screens composite). One nit is left: at text size XXL, "Dollywood" breaks mid-word in headless WebKit and Chromium, and whether Safari hyphenates it depends on the device. On an iPhone at text size XXL, open Apps and check that the two Dollywood labels break between words or at a hyphen. After: `audits/evidence/p6/2a/review/m-s.png`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: Two details are off. First, 'a 29 px glyph, about half the size of an iOS icon' compares the glyph with a whole iOS icon. The comparable element is the 48 px icon plate, which is about 80% of a 60 pt iOS icon.
 - **Evidence.** `audits/02-shell.md:587`; `index.html:217`, `index.html:218-229`
 - **What happens now.** On the phone, 4 columns at a 103 px pitch matches iOS density, so "tiles too big on the phone" is refuted for this grid in pitch terms. What looks big is the card chrome around a 29 px glyph, about half the size of an iOS icon.
@@ -3328,7 +3370,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-HOME-2 — The timer pill sits on content
 
-- **Area** shell / platform (Timer) · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform (Timer) · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The timer pill keeps its own space: on phone and iPad the scroller ends above the pill's band, on landscape and desktop it sits at the sidebar's foot. leads pill, four devices: over reminder text, headings and cards at the top and at the end of the page → over nothing; clearance at the end −32 → +32/33 px on phone and iPad portrait. After: `audits/evidence/p6/2a/p2/HOME/leads-pill.json`, `audits/evidence/p6/2a/p2/HOME/leads-pill-ipad-portrait-bottom.png`, `audits/evidence/p6/2a/p2/HOME/leads-pill-ipad-landscape-top.png`, `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__leads.txt`.
 - **Evidence.** `audits/02-shell.md:683`; `index.html:344`, `index.html:67`
 - **What happens now.** At 1024 px and wider it sits at the left of the content column (`index.html:344, 354`).
 - **Why it matters.** It covers headings and reminders.
@@ -3337,7 +3380,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-HOME-3 — Grid gaps, an early hero wrap and clipped chips (`layout.json`)
 
-- **Area** shell / platform · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** At 1024 px and wider Home is a 6-column grid with spans: the Kids card spans the row instead of sitting alone beside empty cells, the hero summary has no 34ch cap and chips truncate with an ellipsis ("read today ✓ · 26…"). After screenshots at 1180 and 820. After: `audits/evidence/p6/2a/p2/HOME/glance-timer-ipad-landscape.png`, `audits/evidence/p6/2a/p2/HOME/glance-adult-ipad-portrait.png`.
 - **Evidence.** `audits/02-shell.md:690`; `apps/design.css:419`, `index.html:91`, `apps/design.css:410`; `audits/screens/shell/home-overflow-ipad-portrait-light.png`
 - **What happens now.** At 1024 px and wider, the Kids card sits alone with 2 empty cells. In the overflow variant it stretches to 521 px beside the park card.
 - **Why it matters.** Visible layout rough edges on the iPad and desktop.
@@ -3346,7 +3390,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TIMER-5 — On the Chat tab the pill overlaps the newest bubble by 9-21 px
 
-- **Area** timer · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a
+- **Area** timer · **Type** visual · **Severity** low · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The chat log keeps room for the timer pill above the composer: the landscape chat screenshot shows the pill between the newest bubble and the composer, touching neither. test-timer 45/0: on Chat at 390 and 820 the pill sits 12 px above the composer and at 1440 in the sidebar, the input, mic and Send uncovered. After: `audits/evidence/p6/2a/p2/PWA/standalone-safe-chat-landscape-iphone-pwa-light.png`, `audits/evidence/p6/2a/tests/suites/test-timer.txt`.
 - **Evidence.** `audits/03-apps/timer.md:367`; `index.html:357-358`; `audits/evidence/p3/timer/pillchat-iphone-pwa.png`, `audits/evidence/p3/timer/pillchat-desktop.png`
 - **What happens now.** On the Chat tab the pill overlaps the newest bubble by 9-21 px (low). With the overflow chat scrolled to the bottom, overlap was 9 px on iPhone, 0 on iPad portrait and 21 px on desktop; the text stays readable. The pill lifts above the composer (`index.html:357-358`), but the log keeps no room for it. Evidence: `audits/evidence/p3/timer/pillchat-offline.json` (P), `audits/evidence/p3/timer/pillchat-iphone-pwa.png`, `audits/evidence/p3/timer/pillchat-desktop.png`.
 - **Why it matters.** The pill overlaps chat bubbles.
@@ -3355,7 +3400,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-4 — The shell's eight off-scale radii are one ratio (size × 0.32) typed eight times
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** info · **Effort** S · **Batch** 2a
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** info · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** The shell's icon corners are calc(var(--icon-box) * var(--r-icon-ratio)) (0.225, D9): a size sets only --icon-box (index.html:200 and on; apps/design.css:1155), and the one literal radius left in index.html is the theme swatch (6 px). After screenshots: the Apps grid and kid Home icons. After: `audits/evidence/p6/2a/review/m-s.png`, `audits/evidence/p6/2a/p2/HOME/glance-kid-ipad-portrait.png`.
 - **Evidence.** `audits/04-design-system.md:886`; `index.html:109`, `apps/design.css:606`
 - **What happens now.** The app-icon radii are 13/14/11/20/15/28/10/18 px, for sizes 40/44/36/64/48/88/30/56 px (index.html:109, 139, 167, 188, 226, 240, 247; apps/design.css:606). Each is round(size × 0.32).
 - **Why it matters.** One ratio typed eight times.
@@ -3364,68 +3410,79 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-STAB-06 — The adult Home's "Around the house" feed loads once and never refreshes (pointer → P2-PWA-05, medium)
 
-- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to P2-PWA-05: the feed reloads on every pull and when the page becomes visible (verify-feed-not-live-1: Mom's line false → true from the 30 s pull). After: `audits/evidence/p6/2a/tests/repro-after/phase2__PWA__verify-feed-not-live-1.txt`.
 - **Evidence.** `audits/02-shell.md:3217`; `index.html:925`, `scripts/test-guests.mjs:120`, `scripts/test-photos.mjs:106`
 - **Proposed fix.** Pointer to P2-PWA-05.
 
 #### P2-SYNC-10 — Home's "Around the house" feed loads once and never refreshes on its own
 
-- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to P2-PWA-05: the feed refreshes on its own with each pull (verify-feed-not-live-1: 0 → 2 feed requests in 70 s, Mom's line shown). After: `audits/evidence/p6/2a/tests/repro-after/phase2__PWA__verify-feed-not-live-1.txt`.
 - **Evidence.** `audits/02-shell.md:2624`; `index.html:1216`
 - **Proposed fix.** Pointer to P2-PWA-05.
 
 #### P2-VIS-07 — On a cold load Me paints final empty states, and Kids' rewards stays at ★0 until Me is re-entered
 
-- **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to P2-SYNC-13: Me repaints on sync and change, and Kids' rewards and the album show loading placeholders until their data arrives, so no final empty state or ★0 paints on a cold load (verify-me-sync-card-stale-2: the card updates after the first pull without re-entering Me). After: `audits/evidence/p6/2a/tests/repro-after/phase2__SYNC__verify-me-sync-card-stale-2.txt`.
 - **Evidence.** `audits/02-shell.md:5657`; `index.html:1349-1356`, `index.html:1426-1433`, `index.html:1237`, `index.html:1236-1241`; `audits/screens/shell/me-loading-iphone-pwa-light.png`
 - **Proposed fix.** Pointer to P2-SYNC-13.
 
 #### PWA-UX-3 — , PWA-UX-4, P2-PWA-17 (Notifications, voice add, activity feed, PWA install; critic G3, G5):
 
-- **Area** shell / platform · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** NEEDS DEVICE CHECK (`65009df`)
+- **Phase 6 (NEEDS DEVICE CHECK).** Pointer to PWA-UX-4 and P2-PWA-17. The composer's safe-area half (P2-PWA-17) is FIXED; the kid's spoken question sending itself (PWA-UX-4) awaits the iPad check named there. After: `audits/evidence/p6/2a/tests/repro-after/phase2__PWA__verify2-chat-composer-under-sensor-landscape-1.txt`.
 - **Evidence.** `audits/02-shell.md:4430`; `index.html:1524`, `index.html:259-260`, `index.html:387`
 - **Proposed fix.** Pointer to PWA-UX-4 and P2-PWA-17 (the composer items).
 
 #### PWA-VIS-1 — Kids' names appear twice in feed lines → same defect as P2-HOME-06 (Home), which owns it at low (confirmed 2/2) and records the adult-Home facet too. The Phase 1 capture audits/screens/shell/home-bottom-typical-ipad-portrait-light.png shows the adult-Home facet
 
-- **Area** shell / platform · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to P2-HOME-06, adult-Home facet included: verify2-tv-kid-name-doubled-2's adult Home feed "Ezra | Ezra heard this week's story …" → "Ezra | Heard this week's story …". After: `audits/evidence/p6/2a/tests/repro-after/phase2__HOME__verify2-tv-kid-name-doubled-2.txt`, `audits/evidence/p6/2a/p2/HOME/verify2-tv-kid-name-doubled-1-home-feed.png`.
 - **Evidence.** `audits/02-shell.md:5043`; `audits/screens/shell/home-bottom-typical-ipad-portrait-light.png`
 - **Proposed fix.** Pointer to P2-HOME-06.
 
 #### PWA-VIS-2 — Chat composer under the side insets in landscape → now P2-PWA-17. Same defect, confirmed 2/2 as P2-PWA-17
 
-- **Area** shell / platform · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** shell / platform · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to P2-PWA-17: the composer keeps to the side insets in landscape (form 26-906 → 75-857 px at 932×430, mic and Send clear). After: `audits/evidence/p6/2a/tests/repro-after/phase2__PWA__verify2-chat-composer-under-sensor-landscape-1.txt`.
 - **Evidence.** `audits/02-shell.md:5232`
 - **Proposed fix.** Pointer to P2-PWA-17.
 
 #### PWA-VIS-3 — The picker can open mid-scroll → same defect as P2-PROF-12 (see Profiles, kid mode, kiosk and admin), which owns it at low
 
-- **Area** shell / platform (TV) · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** shell / platform (TV) · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to P2-PROF-12: the picker opens at the top with its title in view (18 of 24 runs off the top → 0). After: `audits/evidence/p6/2a/tests/repro-after/phase2__PROF__verify-picker-title-hidden-iphone-2.txt`.
 - **Evidence.** `audits/02-shell.md:5233`; `index.html:326`, `apps/f260.html:41`, `apps/prayer.html:47`, `apps/f260.html:603`
 - **Proposed fix.** Pointer to P2-PROF-12.
 
 #### UX-DOLLYWOOD-6 — A tick made offline looks exactly like a synced one
 
-- **Area** dollywood · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** dollywood · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to UX-SYNC-a1: the viewer bar shows "Offline · 1 waiting" over the park map while a change is unsent (viewer composite). After: `audits/evidence/p6/2a/review/m-viewer.png`.
 - **Verified (step 3).** was medium; skeptics medium and low; tie-break low. Correction: The facts are right. The rating is too high: it should be low, not medium. The report does not say that the offline tick reliably reaches the server on reconnect (its own evidence shows 25).
 - **Evidence.** `audits/03-apps/dollywood.md:683`; `audits/evidence/p3/dollywood/offline-before-tick-online.png`, `audits/evidence/p3/dollywood/offline-after-tick.png`
 - **Proposed fix.** Pointer to UX-SYNC-a1: the shared sync status in the viewer bar shows pending offline ticks. (Phase 3: IMP-DOLLYWOOD-F1)
 
 #### UX-KIDVERSE-7 — Offline, a star shows as earned with no sign that it has not been saved
 
-- **Area** kidverse · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** kidverse · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to UX-SYNC-a1: the shared pending state ("Saving…" / "Offline · N waiting") shows in the viewer bar over every app, Kid Verse included. After: `audits/evidence/p6/2a/review/m-viewer.png`.
 - **Evidence.** `audits/03-apps/kidverse.md:683`; `audits/evidence/p3/kidverse/offline-kid-after-done.png`, `audits/screens/kidverse/kid-offline-iphone-pwa-light.png`
 - **Proposed fix.** Pointer to UX-SYNC-a1 (the shared pending state in the viewer bar).
 
 #### UX-LEFTOVERS-7 — An item logged or finished offline looks exactly like a synced one; the only cue is a 12 px amber line
 
-- **Area** leftovers · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** leftovers · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to UX-SYNC-a1: the viewer bar shows "1 waiting" over the Larder while its change is unsent (viewer composite). After: `audits/evidence/p6/2a/review/m-viewer.png`.
 - **Evidence.** `audits/03-apps/leftovers.md:788`; `apps/leftovers.html:249-287`, `apps/leftovers.html:26-27`; `audits/evidence/p3/leftovers/sync-offline-queued-iphone.png`
 - **Proposed fix.** Pointer to UX-SYNC-a1 (shared pending state).
 
 #### UX-TIMER-8 — Offline, the timer starts normally with no sign that the person's other devices will not see it
 
-- **Area** timer · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a
+- **Area** timer · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2a · **Status** FIXED (`65009df`)
+- **Phase 6 (FIXED).** Pointer to UX-SYNC-a1: the viewer bar shows the pending state over the Timer too, so a timer started offline says it has not reached the other devices yet. After: `audits/evidence/p6/2a/review/m-viewer.png`.
 - **Evidence.** `audits/03-apps/timer.md:352`; `audits/evidence/p3/timer/offline-running-iphone.png`
 - **Proposed fix.** Pointer to UX-SYNC-a1 (the shared pending state).
 
