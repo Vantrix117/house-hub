@@ -1,0 +1,17 @@
+typical fridge: ["Chicken alfredo (Large, 2026-09-14)","Beef and bean chili (Family-size, 2026-09-17)","Roasted sweet potatoes (Medium, 2026-09-18)","Sunday pot roast (Large, 2026-09-20)","Spaghetti and meatballs (Medium, 2026-09-21)","Blueberry pancakes (Small, 2026-09-22)"]
+[not on list] "chicken noodle soup" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Chicken alfredo (Large, 
+[not on list] "sweet tea" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Roasted sweet potatoes (
+[not on list] "meatball sub" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Spaghetti and meatballs 
+[not on list (stopword "and")] "mac and cheese" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Beef and bean chili (Fam
+[not on list (stopword "the")] "the soup" -> chip=null removed=[] model_sees=Nothing in the fridge list matches that. Items: Chicken alfredo (id lo0002), Beef and bean chili (id lo0003), 
+[not on list] "pancake batter" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Blueberry pancakes (Smal
+[not on list (2 hits)] "pot pie" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Roasted sweet potatoes (
+[control: loose, intended] "alfredo" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Chicken alfredo (Large, 
+[control: loose, intended] "the chili" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Beef and bean chili (Fam
+[control: loose, intended] "meatballs" -> chip=null removed=[] model_sees=No item is called exactly that. Ask which one they mean, then call again with its id: Spaghetti and meatballs 
+[control: exact] "Chicken alfredo" -> chip="✓ Finished Chicken alfredo" removed=[] model_sees={"removed":"Chicken alfredo","id":"lo0002"}
+morning job due, before          : ["Chicken alfredo (8d)","Beef and bean chili (5d)"]
+morning job due, after wrong hit : ["Chicken alfredo (8d)","Beef and bean chili (5d)"]
+re-add via chat add_list_item    : ✓ Added Chicken alfredo to leftovers -> {"id":"lo0002","name":"Chicken alfredo","size":"Large","dateLogged":"2026-09-14","by":"mom","byName":"Elizabeth"}
+morning job due, after re-add    : ["Chicken alfredo (8d)","Chicken alfredo (8d)","Beef and bean chili (5d)"]
+evidence: audits/evidence/p2/CHAT/verify-finish-leftover-wrong-item-2.json

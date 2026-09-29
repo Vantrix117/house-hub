@@ -1,0 +1,17 @@
+typical fridge: ["Chicken alfredo (Large, 2026-09-14)","Beef and bean chili (Family-size, 2026-09-17)","Roasted sweet potatoes (Medium, 2026-09-18)","Sunday pot roast (Large, 2026-09-20)","Spaghetti and meatballs (Medium, 2026-09-21)","Blueberry pancakes (Small, 2026-09-22)"]
+[not on list] "chicken noodle soup" -> chip="✓ Finished Chicken alfredo" removed=[] model_sees={"removed":"Chicken alfredo","id":"lo0002"}
+[not on list] "sweet tea" -> chip="✓ Finished Roasted sweet potatoes" removed=[] model_sees={"removed":"Roasted sweet potatoes","id":"lo0004"}
+[not on list] "meatball sub" -> chip="✓ Finished Spaghetti and meatballs" removed=[] model_sees={"removed":"Spaghetti and meatballs","id":"lo0006"}
+[not on list (stopword "and")] "mac and cheese" -> chip=null removed=[] model_sees=More than one item matches; ask which one and call again with its id: Beef and bean chili (Family-size, logged
+[not on list (stopword "the")] "the soup" -> chip=null removed=[] model_sees=Nothing in the fridge list matches that. Items: Chicken alfredo (id lo0002), Beef and bean chili (id lo0003), 
+[not on list] "pancake batter" -> chip="✓ Finished Blueberry pancakes" removed=[] model_sees={"removed":"Blueberry pancakes","id":"lo0007"}
+[not on list (2 hits)] "pot pie" -> chip=null removed=[] model_sees=More than one item matches; ask which one and call again with its id: Roasted sweet potatoes (Medium, logged 2
+[control: loose, intended] "alfredo" -> chip="✓ Finished Chicken alfredo" removed=[] model_sees={"removed":"Chicken alfredo","id":"lo0002"}
+[control: loose, intended] "the chili" -> chip="✓ Finished Beef and bean chili" removed=[] model_sees={"removed":"Beef and bean chili","id":"lo0003"}
+[control: loose, intended] "meatballs" -> chip="✓ Finished Spaghetti and meatballs" removed=[] model_sees={"removed":"Spaghetti and meatballs","id":"lo0006"}
+[control: exact] "Chicken alfredo" -> chip="✓ Finished Chicken alfredo" removed=[] model_sees={"removed":"Chicken alfredo","id":"lo0002"}
+morning job due, before          : ["Chicken alfredo (8d)","Beef and bean chili (5d)"]
+morning job due, after wrong hit : ["Beef and bean chili (5d)"]
+re-add via chat add_list_item    : ✓ Added Chicken alfredo to leftovers -> {"id":"lo0002","name":"Chicken alfredo","size":"Large","dateLogged":"2026-09-14","loggedBy":"mom","loggedByName":"Elizabeth","finishedAt":"2026-09-22","finishedBy":"eli","finishedByName":"Eli"}
+morning job due, after re-add    : ["Chicken alfredo (8d)","Beef and bean chili (5d)"]
+evidence: audits/evidence/p2/CHAT/verify-finish-leftover-wrong-item-2.json

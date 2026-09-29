@@ -17,6 +17,7 @@ export const BATCHES = {
   '0f': { commit: '48e7b60', date: '2026-09-29' },
   '0g': { commit: '7d9c593', date: '2026-09-29' },
   '0h': { commit: '16926a2', date: '2026-09-29' },
+  '0i': { commit: '97c39a0', date: '2026-09-29' },
 };
 
 // Batch 0b after-evidence lives under audits/evidence/p6/0b/ (the Phase 2/3 scripts' outputs, moved there from p2/p3 so the
@@ -173,6 +174,18 @@ const S0h = [
   H0("UX-LEFTOVERS-2", "Kids get a picture view (decision P5-D2): each card has a food picture, the name in big type and \"N days in the fridge\" with its freshness colour, and there is no ✓, add bar, mic or Hearth block. larder-check E and its after-screenshot on the iPad; kid.mjs stops at \"no ✓ to tap\" (none since 0d).", ["larder-check.json","larder-kid-ipad.png"]),
 ];
 
+const E0i = 'audits/evidence/p6/0i/';
+const I0 = (id, note, after, status = 'FIXED') => [id, { status, batch: '0i', note, after: after.map(p => p.startsWith('audits/') ? p : E0i + p) }];
+const S0i = [
+  I0("P2-CHAT-03", "finish_leftover acts only on the item's id or its exact name; otherwise it lists the likely items and the model asks (numbers are not words, so a run number never matches); prayers are matched the same way. verify-finish-leftover-wrong-item-2: after the vague request the 8 am due list still holds Chicken alfredo (before: it was finished on a shared word and dropped from the push); smoke-chat: \"We ate the pasta …\" asks and finishes nothing.", ["p2/CHAT/verify-finish-leftover-wrong-item-2.json","tests/smoke-chat-after.txt"]),
+  I0("P2-CHAT-09", "A write another change beat under last-write-wins is \"Not saved\": no ✓, a red chip, the action's earlier writes put back (rows that only follow from the main one are best-effort, stamped as written). verify-lww-lost-write-shows-tick-1 D: \"✗ Not saved — someone changed it just now\", ok false, the item still in the fridge, no feed line (before: \"✓ Finished Chicken alfredo\" while the item stayed); chat-check A (the same) and B (a lost second write puts the tally's new epoch back).", ["p2/CHAT/verify-lww-lost-write-shows-tick-1.json","chat-check.json"]),
+  I0("GAP-CHAT-02", "Every chat action that wrote something carries an Undo token; the chip shows Undo for 30 s, and POST /api/chat/undo puts back what the action wrote — once, within 45 s, only for the person, all or nothing (nothing if a main row changed since), a prayed day never taken back — with a feed line in the action's own wording (never a private title) and \"↩ Undone\" in the chat history. chat-check C, D, G, H and E (the chip on screen: before and after screenshots); smoke-chat's undo checks.", ["chat-check.json","chat-undo-chip-iphone.png","chat-undone-chip-iphone.png"]),
+  I0("P2-CHAT-01", "set_data changes only the tally count, the running timer and the person's look (person scope, value-checked); anything else is refused, and every write carries Undo. verify-set-data-overwrites-any-row-2: no chip, nothing stored for the bad keys and the 260-char key, no feed lines for them (before: \"✓ Saved bad key & symbols! in tally\", the row stored and posted); smoke-chat: a kid's set_data on Prayer is refused.", ["p2/CHAT/verify-set-data-overwrites-any-row-2.json","tests/smoke-chat-after.txt"]),
+  I0("P2-CHAT-04", "toggle_f260_reading is now set_f260_reading {week, day, done}; asking for the state a reading is already in changes nothing and says so. verify-toggle-f260-unticks-on-tick-request-1 A and rev3-chat-04-restore: the old tool name is refused and nothing is unticked (before: the tick request unticked 38-0, weekDone 2 → 1); smoke-chat: asking twice to tick week 2 day 1 answers \"was already checked off\" and never unticks.", ["p2/CHAT/verify-toggle-f260-unticks-on-tick-request-1.json","p2/CHAT/rev3-chat-04-restore.json","tests/smoke-chat-after.txt"]),
+  I0("P3-LEFTOVERS-04", "Chat takes a real YYYY-MM-DD, today, yesterday or \"N days ago\" and refuses anything else; the house refuses a Larder row whose date is not a real day (bad_date); a stored row with an unreadable date shows \"Check date\" among the oldest, \"date?\" on Home, \"check the date\" in the 8 am push. verify-non-iso-date-nan-1/2: \"yesterday\" is stored as 2026-09-21, \"9/20/2026\" and \"2026-09-20T18:00\" are refused (before: stored as typed, \"NaNd ago\", Fresh, never warned); entry: the bar reads \"0.1 / 1 of 10 days\" (was NaN); chat-check F.", ["p3/leftovers/verify-non-iso-date-nan-1.json","p3/leftovers/verify-non-iso-date-nan-2.json","p3/leftovers/entry.json","chat-check.json","larder-check-date-iphone.png"]),
+  I0("P3-LEFTOVERS-09", "A future date is logged as today by the app, refused by the house beyond tomorrow, and a stored one reads as today. verify-no-js-date-guard-1: both typed future dates land as 2026-09-22 (today) and the API PUT is refused 403 (before: stored 2026-09-30, \"-3d ago\", Fresh); verify-no-js-date-guard-2 waits in vain for the future-dated row the house now refuses; chat-check F.", ["p3/leftovers/verify-no-js-date-guard-1.json","chat-check.json"]),
+];
+
 // Household work (plan-batches.mjs WORK): not findings, so not in STATUS; build-findings renders this line under the item.
 export const WORK_STATUS = {
   'KITCHEN-1': { status: 'FIXED', batch: '0d', note: 'migrations/006-kitchen.sql (devices.role; profiles rebuilt to take kind kitchen, with hue and the reset-code columns; the kitchen profile), checked on a copy of the production export: 8 profiles, 96 of 96 values identical, every other table untouched, a second run changes nothing. The Worker\'s kitchen rules (sign-in, role endpoint with the admin PIN, what it writes, credit checks, no chat/push/admin) and the shell\'s kitchen sign-in. scripts/test-kitchen.mjs 27/27 (role set on a device holding Mea\'s session moves it to the kitchen on its next request; family writes; no person scope; nobody signs in as a person there; a Prayed credited to Ezra earns his prayer star; outsiders refused; clearing the role returns the picker); smoke-api kitchen cases pass. The kitchen Home, face sheet and Admin switch are KITCHEN-2 (batch 2a).', after: ['audits/evidence/p6/0d/migration-check.json', 'audits/evidence/p6/0d/tests/repo-after.txt', 'audits/evidence/p6/0d/tests/smoke-api-after.txt'] },
@@ -198,6 +211,7 @@ for (const [id, s] of S0e) STATUS[id] = s;
 for (const [id, s] of S0f) STATUS[id] = s;
 for (const [id, s] of S0g) STATUS[id] = s;
 for (const [id, s] of S0h) STATUS[id] = s;
+for (const [id, s] of S0i) STATUS[id] = s;
 
 for (const [id, s] of Object.entries(STATUS)) {
   if (!STATUSES.includes(s.status)) throw new Error(`${id}: unknown status ${s.status}`);

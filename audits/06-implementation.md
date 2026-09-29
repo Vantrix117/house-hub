@@ -1071,3 +1071,130 @@ The pre-batch results are batch 0g's after-run of the same suites (`audits/evide
 - **The group counts and the "N at a week or older" line** update on the next layout, not in place.
 - **The food pictures** are chosen by keywords in the name. "Chili" gets a stew pot, but "Chicken alfredo" gets a drumstick and "Blueberry pancakes" a slice of cake. Names with no keyword get the default lunch box.
 - **Real devices** were not used. Every check ran in the rig's WebKit and Chromium.
+
+## Batch 0i — Chat: writes that do what was asked, and say when they did not
+
+| | |
+|---|---|
+| **Findings** | 7 entries, all primaries: 2 critical, 4 medium, 1 low. All 7 FIXED (status per entry in `audits/05-findings.md`). |
+| **Code commit** | `97c39a0` (2026-09-29) |
+| **Files** | `worker/src/chat.js`, `worker/src/index.js` (`POST /api/chat/undo`), `worker/src/policy.js` (`bad_date`; the Undo store refused; `wantBefore`), `worker/src/reminders.js` (the 8 am push and unknown dates), `apps/leftovers.html` (unknown and future dates), `index.html` (the chip's Undo; Home's fridge card), `scripts/smoke-chat.sh` (39 → 53 checks), `scripts/mock-anthropic.mjs`, `scripts/smoke-api.sh` (209 → 215), `CLAUDE.md`, `worker/README.md`, `sw.js` (`hub-v35` → `hub-v36`) |
+| **Schema / data** | No schema change and no migration. Chat's Undo records are `app_data(person, chatundo, <token>)` rows: the data API refuses them, and they are deleted after use or ten minutes. From now on the house refuses a Larder row whose date is not a real day or is later than tomorrow. Existing rows are untouched and are shown as "Check date". The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-29-before-0i.sql` (37 KB, 43 app_data rows). Nothing was deployed. |
+| **How it was built** | By the orchestrator. The review loop ended before the final run this time. An independent review found 16 items (1 high, 3 medium, 12 low or nit); 15 were fixed and 1 nit left. A second pass found 1 gap and 3 new low, all fixed. A third pass found 1 medium and 1 low, both fixed. A fourth pass confirmed with no new issue. |
+
+### The change
+
+- **Finish a leftover (P2-CHAT-03).** Only an exact name or the item's id acts. Otherwise chat lists the likely items and asks which one; a shared word never picks one. Numbers are not words, so a stray run number never matches.
+  - Prayers, which had the same loose matching (`mark_prayed`, `answer_prayer`), now follow the same rule.
+- **"Not saved" means not saved (P2-CHAT-09).**
+  - A write that another change beat under last-write-wins is no longer a ✓. The action's earlier writes are put back, and a red chip says "✗ Not saved — someone changed it just now".
+  - Rows that only follow from the main one (the F260 log and summary, prayerDays, the Larder's finished row) are written best-effort, stamped as they are written, and never fail the action.
+  - A family prayer tick the house already has is a success.
+- **Undo (GAP-CHAT-02).**
+  - Every chat action that wrote something carries an Undo token, and the Chat tab shows Undo on its chip for 30 seconds.
+  - `POST /api/chat/undo` puts back what the action wrote, once, within 45 s, and only for the person who did it. It is all or nothing: if any main row was changed since (someone else's tick, a new day, taps on a reset tally), nothing is undone and chat says so.
+  - A prayed day is never taken back out of prayerDays.
+  - The feed gets "Undid: …" in the action's own feed wording, so a private prayer is never named. The chat history gets "↩ Undone: …".
+- **The general "set" tool (P2-CHAT-01).** `set_data` now changes only three settings: the tally count, the running timer and the person's look. Anything else is refused ("That cannot be changed from chat") and is changed in its app or with its own tool.
+- **Tick means tick (P2-CHAT-04).** `toggle_f260_reading` is now `set_f260_reading {week, day, done}`. Asking to tick a ticked reading changes nothing and says "was already checked off".
+- **Larder dates (P3-LEFTOVERS-04, -09).**
+  - Chat takes a real date, or today, yesterday or "N days ago". It refuses anything else and any future date.
+  - The house refuses a Larder row whose date is not a real day or is later than tomorrow, from chat and the data API alike.
+  - Rows already stored:
+    - An unknown date shows as "Check date" among the oldest.
+    - A future date reads as today.
+    - Home's fridge card shows "date?".
+    - The 8 am push says "check the date".
+  - Put back and the one-time move of old items from the device's storage bring an unacceptable date back as the finish day or today.
+
+**What the independent review changed.**
+- **High.** The Undo's feed line repeated the chip, which can name a private prayer.
+- **Medium.**
+  - Undo could half-happen, or lose an item with an old-style date. It is now all or nothing.
+  - A partial Undo left follow-on rows out of step.
+  - Put back of an old-dated item was refused while the feed said it happened.
+  - (Third pass) The "already there" shortcut must not apply to an answer.
+- **Low.**
+  - The date rule had no tolerance for a slightly fast clock.
+  - Follow-on writes could fail the whole action.
+  - The Undo store was reachable through the data API.
+  - Rollback ran only on a lost write, not on any failure.
+  - A tally Undo could drop taps.
+  - The "before" read raced the write; an Undo after midnight.
+  - The chat history kept a ✓ after an Undo.
+  - Accessibility of the chip button; no chip for a lost write.
+  - The push ignored unknown dates.
+  - Prayer matching was still loose.
+  - (Second and third passes)
+    - Word dates were not normalised on Undo.
+    - F260 Undos failed while the app was open (follow-on rows now left out of the check).
+    - A false "Not saved" on a prayer tick.
+    - "99 days old" in the push.
+    - The chat wording when nothing was undone.
+    - Undo removing a prayed day someone else also had.
+
+### Each finding's reproduction, rerun
+
+**How they were run.**
+- The 11 scripts the entries name ran three at a time on the unchanged code (`git archive` of `c7ada90`) and on the final code. Outputs and exit codes are in `audits/evidence/p6/0i/tests/repro-before/` and `repro-after/`. The changed evidence files were moved into `p6/0i/p2|p3/`, and the Phase 2/3 baseline was restored (git shows it clean).
+- **The old tool name.** The three F260 scripts script the old tool `toggle_f260_reading`, which is now refused as unknown; they show that nothing is unticked. The new behaviour is checked by smoke-chat.
+- **Exit codes.** All 11 exit 0 before. After, 10 exit 0, and `verify-no-js-date-guard-2` times out waiting for a future-dated row that the house now refuses.
+
+| Finding | Before | After |
+|---|---|---|
+| P2-CHAT-03 (finish-leftover-wrong-item-2) | a vague request finishes Chicken alfredo on a shared word; the 8 am list drops it | Chicken alfredo stays on the 8 am list; smoke-chat: "We ate the pasta …" asks and finishes nothing |
+| P2-CHAT-09 (lww-lost-write-shows-tick-1) | "✓ Finished Chicken alfredo" while the item stays live, with a feed line | "✗ Not saved — someone changed it just now", ok false, item still there, no feed line; chat-check A, B |
+| GAP-CHAT-02 | no confirm, no undo | chip Undo for 30 s, all-or-nothing Undo route; chat-check C, D, G, H, E (screenshots `chat-undo-chip-iphone.png`, `chat-undone-chip-iphone.png`) |
+| P2-CHAT-01 (set-data-overwrites-any-row-2) | "✓ Saved bad key & symbols! in tally", "✓ Saved album:alb0016 in hub": any row written and posted | no chip, nothing stored, no feed line for them |
+| P2-CHAT-04 (toggle-f260-unticks-1, rev3-chat-04-restore) | a tick request unticks 38-0 (weekDone 2 → 1) | the old tool is refused and nothing changes; smoke-chat: asking twice to tick answers "was already checked off" and never unticks |
+| P3-LEFTOVERS-04 (non-iso-date-nan-1/2, entry) | "yesterday", "9/20/2026", "2026-09-20T18:00" stored as typed; "NaNd ago", Fresh, never warned | "yesterday" is stored as 2026-09-21, the others are refused; the bar reads "0.1 / 1 of 10 days"; a stored unreadable date shows "Check date" (chat-check F, `larder-check-date-iphone.png`) |
+| P3-LEFTOVERS-09 (no-js-date-guard-1/2, future-date) | a typed 2026-09-30 is stored; a card reads "-3d ago", Fresh | typed future dates land as today; the API PUT is refused 403; guard-2 waits in vain for the refused row |
+
+**New check.** `audits/tools/phase6/0i/chat-check.mjs` (A–H) passes 8 of 8 on the final code.
+
+### Capture rig
+
+- **The runs.** The areas whose code changed were recaptured on the final code: the Larder 184, the shell 979 (the chat chip, Home's fridge card) and the TV 34 — 1197 captures, 0 failed (`audits/screens-after/0i/manifest.json`).
+- **Against the last capture of each area** (`audits/evidence/p6/0i/capture/pxdiff-*.txt`; the Larder and the shell against 0h's, the TV against 0g's):
+  - **The Larder: 6**, all 2-pixel specks.
+  - **The shell: 9**, the known run-to-run noise: the first-visit toast, the guest and pairing error animations, 1-pixel specks, and the profile picker's 2-pixel scroll offset.
+  - **The TV: 2**, the crossfading background photo.
+- The Undo chip and "Check date" appear only in states the capture does not seed. Their after-screenshots come from the new check.
+
+### Rubric rescore
+
+- On screen:
+  - The chat chip carries Undo, and a lost write shows a red "Not saved".
+  - The Larder shows "Check date" for an unreadable date.
+- The rubric scores these under **Ease of use** (error prevention, undo, feedback).
+- The orchestrator's rescore:
+
+| Area | Ease of use | Why |
+|---|---|---|
+| Chat (shell) | +1 | an action does what was asked, says when it did not, and can be undone |
+| Larder | +0.5 | no item hides under Fresh with a date nobody can read |
+
+- These are the orchestrator's judgements, not a rerun of Phase 4's scoring.
+
+### Repo tests
+
+The pre-batch results are batch 0h's after-run of the same suites (`audits/evidence/p6/0i/tests/repo-before-is-0h-after.txt`); this batch's run is `repo-after.txt`.
+
+| Suite | Before | After |
+|---|---|---|
+| test-hub | 36 / 1 | 36 / 1 (the stale "signed in as Niece"; batch 2a) |
+| every other suite, and test-kitchen | as before | identical |
+| smoke-api.sh | 209 / 0 | 215 / 0 (the kitchen's Larder fixture now carries a date; 6 new checks for the date rule) |
+| smoke-chat.sh (mock model) | 39 / 1 | 53 / 0 (14 new checks: Undo, tick means tick, no guessing on a shared word, dates; the old stale kid check now asserts the set_data allowlist) |
+
+`node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for. The tests' screenshots in `docs/screens/` were restored.
+
+### Not verified, and known limits
+
+- **Nothing is deployed.** The Worker (chat, the Undo route, the date rule, the push wording) and the pages go together. Batch 0d's migration still has to run first.
+- **A real model was not used.** Every chat check ran against the mock (`scripts/mock-anthropic.mjs`) or the rig's scripted stand-in. Whether Claude itself asks "which one?" well is not measured.
+- **Switching away from the Chat tab** redraws the chat from history, so a live Undo button (30 s) is gone after a tab switch. The action stays undoable through the API for 45 s, but not from the screen.
+- **Undo is refused whenever a main row changed since**, even when the change was unrelated to the chat action (another field of the same request). That is the safe side.
+- **An Undo after New York midnight** of a family prayer tick counts as changed, so it is not undone.
+- **The Larder rows already stored with an unreadable date** are not rewritten; they show as "Check date" until someone edits or finishes them.
+- **Real devices** were not used.

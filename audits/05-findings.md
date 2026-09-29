@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29) done; 112 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29) done; 119 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -46,7 +46,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | 3/3 fixed, `48e7b60` |
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | 7/7 fixed, `7d9c593` |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | 6/6 fixed, `16926a2` |
-| 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | open |
+| 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | 7/7 fixed, `97c39a0` |
 | 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | open |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | open |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | open |
@@ -1367,7 +1367,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-03 — `finish_leftover` removes a different food on one shared word
 
-- **Area** shell / platform (Larder) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0i
+- **Area** shell / platform (Larder) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0i · **Status** FIXED (`97c39a0`)
+- **Phase 6 (FIXED).** finish_leftover acts only on the item's id or its exact name; otherwise it lists the likely items and the model asks (numbers are not words, so a run number never matches); prayers are matched the same way. verify-finish-leftover-wrong-item-2: after the vague request the 8 am due list still holds Chicken alfredo (before: it was finished on a shared word and dropped from the push); smoke-chat: "We ate the pasta …" asks and finishes nothing. After: `audits/evidence/p6/0i/p2/CHAT/verify-finish-leftover-wrong-item-2.json`, `audits/evidence/p6/0i/tests/smoke-chat-after.txt`.
 - **Evidence.** `audits/02-shell.md:3855`; `worker/src/reminders.js:66-79`, `worker/src/chat.js:41`, `apps/leftovers.html:306-311`, `apps/leftovers.html:294-295`; `audits/screens/shell/chat-overflow-iphone-pwa-light.png`
 - **What happens now.** When there is no exact or substring match, the tool accepts any query word of 3+ letters that appears as a substring of an item name (chat.js:274, `qw.some`). It then tombstones a single hit (chat.js:278-280). The prayer matcher's fallback requires every word to match (chat.js:139, `qw.every`).
 - **Why it matters.** The removed food is still in the fridge, so the 8 am "eat it or toss it" push stops warning about it. With the morning job forced, the due list went from `["Chicken alfredo (8d)","Beef and bean chili (5d)"]` to `["Beef and bean chili (5d)"]` (worker/src/reminders.js:66-79).
@@ -1376,7 +1377,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-09 — A chat write that lost last-write-wins still shows ✓
 
-- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0i
+- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0i · **Status** FIXED (`97c39a0`)
+- **Phase 6 (FIXED).** A write another change beat under last-write-wins is "Not saved": no ✓, a red chip, the action's earlier writes put back (rows that only follow from the main one are best-effort, stamped as written). verify-lww-lost-write-shows-tick-1 D: "✗ Not saved — someone changed it just now", ok false, the item still in the fridge, no feed line (before: "✓ Finished Chicken alfredo" while the item stayed); chat-check A (the same) and B (a lost second write puts the tally's new epoch back). After: `audits/evidence/p6/0i/p2/CHAT/verify-lww-lost-write-shows-tick-1.json`, `audits/evidence/p6/0i/chat-check.json`.
 - **Evidence.** `audits/02-shell.md:4094`; `worker/src/data.js:37-41`, `worker/src/chat.js:177-279`, `apps/hub.js:50`; `audits/evidence/p2/CHAT/verify-lww-lost-write-chat-iphone-light.png`
 - **What happens now.** `putOne` accepts client timestamps up to 5 min ahead of the server (data.js:41). It returns `applied:false` when a write loses (data.js:60-64), and its doc comment says the caller "should adopt that" (data.js:37-39).
 - **Why it matters.** The person is told a reading or a removal was saved when it was not. The window lasts until the server's clock passes the fast timestamp, which takes at most 5 min. SYNC's table of F260 causes lists it (see Sync).
@@ -1385,7 +1387,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-CHAT-02 — Chat actions are neither confirmed nor undoable
 
-- **Area** shell / platform · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 0i
+- **Area** shell / platform · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 0i · **Status** FIXED (`97c39a0`)
+- **Phase 6 (FIXED).** Every chat action that wrote something carries an Undo token; the chip shows Undo for 30 s, and POST /api/chat/undo puts back what the action wrote — once, within 45 s, only for the person, all or nothing (nothing if a main row changed since), a prayed day never taken back — with a feed line in the action's own wording (never a private title) and "↩ Undone" in the chat history. chat-check C, D, G, H and E (the chip on screen: before and after screenshots); smoke-chat's undo checks. After: `audits/evidence/p6/0i/chat-check.json`, `audits/evidence/p6/0i/chat-undo-chip-iphone.png`, `audits/evidence/p6/0i/chat-undone-chip-iphone.png`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: 'None of the 12 tools is an undo' is true only in the sense that no tool restores a previous state. The evidence for it (`undoLikeTools: []`) is a tool-name regex. toggle_f260_reading can reverse itself, and finish_leftover or add_list_item can counter each other, though lossily.
 - **Evidence.** `audits/02-shell.md:4399`; `apps/leftovers.html:306-311`
 - **What happens now.** The SSE protocol has no confirm step (chat.js:4-9).
@@ -1395,7 +1398,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-01 — `set_data` writes any row of any listed app, with no confirmation, undo or key check
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** medium · **Effort** M · **Batch** 0i
+- **Area** shell / platform · **Type** bug (security) · **Severity** medium · **Effort** M · **Batch** 0i · **Status** FIXED (`97c39a0`)
+- **Phase 6 (FIXED).** set_data changes only the tally count, the running timer and the person's look (person scope, value-checked); anything else is refused, and every write carries Undo. verify-set-data-overwrites-any-row-2: no chip, nothing stored for the bad keys and the 260-char key, no feed lines for them (before: "✓ Saved bad key & symbols! in tally", the row stored and posted); smoke-chat: a kid's set_data on Prayer is refused. After: `audits/evidence/p6/0i/p2/CHAT/verify-set-data-overwrites-any-row-2.json`, `audits/evidence/p6/0i/tests/smoke-chat-after.txt`.
 - **Evidence.** `audits/02-shell.md:3755`; `apps/f260.html:1763`, `worker/src/chat.js:173-179`, `worker/src/data.js:11-15`, `worker/src/index.js:90-110`
 - **What happens now.** `set_data` (chat.js:173-179) writes any key and any value into the signed-in person's own scope or into family scope. That covers any app in the client-supplied list, plus `hub` and `reminders` for everyone but kids. It never calls `checkKey` (data.js:11-14). In one call each:
 - **Why it matters.** One misheard sentence can wipe a year of reading or unlist someone else's photo, and nothing in chat or the apps undoes it.
@@ -1404,7 +1408,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-04 — `toggle_f260_reading` unticks when asked to tick
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0i
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0i · **Status** FIXED (`97c39a0`)
+- **Phase 6 (FIXED).** toggle_f260_reading is now set_f260_reading {week, day, done}; asking for the state a reading is already in changes nothing and says so. verify-toggle-f260-unticks-on-tick-request-1 A and rev3-chat-04-restore: the old tool name is refused and nothing is unticked (before: the tick request unticked 38-0, weekDone 2 → 1); smoke-chat: asking twice to tick week 2 day 1 answers "was already checked off" and never unticks. After: `audits/evidence/p6/0i/p2/CHAT/verify-toggle-f260-unticks-on-tick-request-1.json`, `audits/evidence/p6/0i/p2/CHAT/rev3-chat-04-restore.json`, `audits/evidence/p6/0i/tests/smoke-chat-after.txt`.
 - **Evidence.** `audits/02-shell.md:3900`; `apps/f260.html:1385`, `apps/f260.html:1670`, `worker/src/chat.js:33-34`, `apps/f260.html:1659-1662`; `audits/evidence/p2/CHAT/04-toggle-unchecked-iphone-light.png`
 - **What happens now.** The tool takes only `week` and `day`, and its description is "Mark (or unmark)" (chat.js:33-34). The handler flips the flag (chat.js:209), while the prompt says it "checks a reading off" (chat.js:333).
 - **Why it matters.** F260 progress not sticking was the hub's original bug, and chat can undo a reading that was just logged.
@@ -1413,7 +1418,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-04 — A dateLogged that is not YYYY-MM-DD shows "NaNd ago", stays Fresh forever and is never warned about
 
-- **Area** leftovers · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0i
+- **Area** leftovers · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0i · **Status** FIXED (`97c39a0`)
+- **Phase 6 (FIXED).** Chat takes a real YYYY-MM-DD, today, yesterday or "N days ago" and refuses anything else; the house refuses a Larder row whose date is not a real day (bad_date); a stored row with an unreadable date shows "Check date" among the oldest, "date?" on Home, "check the date" in the 8 am push. verify-non-iso-date-nan-1/2: "yesterday" is stored as 2026-09-21, "9/20/2026" and "2026-09-20T18:00" are refused (before: stored as typed, "NaNd ago", Fresh, never warned); entry: the bar reads "0.1 / 1 of 10 days" (was NaN); chat-check F. After: `audits/evidence/p6/0i/p3/leftovers/verify-non-iso-date-nan-1.json`, `audits/evidence/p6/0i/p3/leftovers/verify-non-iso-date-nan-2.json`, `audits/evidence/p6/0i/p3/leftovers/entry.json`, `audits/evidence/p6/0i/chat-check.json`, `audits/evidence/p6/0i/larder-check-date-iphone.png`.
 - **Evidence.** `audits/03-apps/leftovers.md:300`; `worker/src/chat.js:32`, `worker/src/chat.js:31-32`, `apps/leftovers.html:167-170`, `index.html:679-681`; `audits/evidence/p3/leftovers/entry-chat-bad-date-ipad.png`, `audits/evidence/p3/leftovers/verify-non-iso-date-nan-1-larder-ipad.png`
 - **What happens now.** `add_list_item` stores `input.item.dateLogged` without a format check (`worker/src/chat.js:31-32, 187`). The app never validates a row's date (`apps/leftovers.html:167-170, 250-268`): `new Date('yesterday' + 'T00:00:00')` is invalid, so the age is NaN.
 - **Why it matters.** A leftover that chat logged can sit in the fridge for weeks marked Fresh, with no banner and no 8 am warning.
@@ -1422,7 +1428,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-09 — A future dateLogged is never clamped: it reads "-3d ago", files as Fresh and delays every warning
 
-- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0i
+- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 0i · **Status** FIXED (`97c39a0`)
+- **Phase 6 (FIXED).** A future date is logged as today by the app, refused by the house beyond tomorrow, and a stored one reads as today. verify-no-js-date-guard-1: both typed future dates land as 2026-09-22 (today) and the API PUT is refused 403 (before: stored 2026-09-30, "-3d ago", Fresh); verify-no-js-date-guard-2 waits in vain for the future-dated row the house now refuses; chat-check F. After: `audits/evidence/p6/0i/p3/leftovers/verify-no-js-date-guard-1.json`, `audits/evidence/p6/0i/chat-check.json`.
 - **Evidence.** `audits/03-apps/leftovers.md:492`; `apps/leftovers.html:193`, `apps/leftovers.html:289-297`, `apps/leftovers.html:167`, `apps/leftovers.html:265`; `audits/evidence/p3/leftovers/verify-no-js-date-guard-1-chromium-future-card.png`, `audits/evidence/p3/leftovers/verify-no-js-date-guard-2-future-row-chromium.png`
 - **What happens now.** As filed, only the date box's `max` (`apps/leftovers.html:193`) stops a future date; the submit handler never checks it (`apps/leftovers.html:289-297`).
 - **Why it matters.** A future-dated dish shows "-3d ago", sits under Fresh, and its "use it up" warning in the app, on Home and in the push comes three days late.
