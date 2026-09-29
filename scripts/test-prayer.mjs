@@ -129,7 +129,7 @@ const token = (page, name) => page.evaluate(n => { const d = document.createElem
     ok(r.height >= 60, 'Pray now is at least 60 px tall', r.height);
     ok((await page.$eval('#startPray', b => b.textContent.trim())) === 'Pray now', 'the button says "Pray now"');
     const bg = await page.$eval('#startPray', b => getComputedStyle(b).backgroundColor);
-    ok(bg === await token(page, '--accent-deep'), 'Pray now uses the design-token primary colour (--accent-deep)', bg);
+    ok(bg === await token(page, '--accent-strong'), 'Pray now uses the design-token primary solid (--accent-strong, audit batch 1a)', bg);
     const prim = await primaries(page);
     ok(prim.length === 1 && prim[0] === 'Pray now', 'Pray now is the only primary button on Today', prim.join(' | '));
     const small = await page.$$eval('#s-today button, nav button, .fab', bs => bs.filter(b => b.offsetParent || b.getClientRects().length).map(b => { const q = b.getBoundingClientRect(); return [b.textContent.trim().slice(0, 14) || b.getAttribute('aria-label'), Math.round(q.width), Math.round(q.height)]; }).filter(([, w, h]) => w < 44 || h < 44));

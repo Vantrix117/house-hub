@@ -50,13 +50,22 @@ async function waitFor(fn, { timeout = 12000, every = 150, label = 'condition' }
   throw new Error('timeout waiting for ' + label);
 }
 const errors = [];
+const natives = [];
+// hub.confirm's sheet (CONS-TELL-2): check what it asks, then press its confirming button (the last one)
+async function answerSheet(page, re) {
+  const sh = await page.waitForSelector('.hub-ask .sheet', { timeout: 5000 }).catch(() => null);
+  ok(!!sh && !natives.length, 'a confirm sheet asked first, not a native dialog', JSON.stringify(natives)); if (!sh) return;
+  const q = (await sh.evaluate(e => (e.querySelector('h2') || e).textContent)).trim();
+  ok(re.test(q), 'the sheet asks: ' + q);
+  await page.click('.hub-ask .sheet-actions .btn:last-child'); await page.waitForSelector('.hub-ask', { state: 'detached', timeout: 5000 });
+}
 async function newContext(browser, name, viewport = { width: 390, height: 844 }) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, hasTouch: viewport.width < 800, isMobile: viewport.width < 800, colorScheme: 'light' });
   await ctx.addInitScript(api => { try { localStorage.setItem('hub.api', JSON.stringify(api)); } catch {} }, SITE);
   const page = await ctx.newPage();
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource.*(401|403|404|409|429)/.test(m.text())) errors.push(name + ': ' + m.text()); });
   page.on('pageerror', e => errors.push(name + ': ' + e.message));
-  page.on('dialog', d => d.accept());
+  page.on('dialog', d => { natives.push(d.message()); d.accept(); });   // none expected: hub.confirm's sheet asks instead (CONS-TELL-2)
   await page.goto(SITE + '/index.html'); await page.waitForSelector('#paircode');
   await page.fill('#paircode', CODE); await page.click('#pairform button[type=submit]'); await page.waitForSelector('.pcard[data-id]');
   return { ctx, page };
@@ -108,7 +117,7 @@ const expectedKidApps = registry.apps.filter(a => !a.visibleTo || a.visibleTo.in
     await A.page.fill('#gname', 'Aunt Sue');
     await A.page.click('#gemoji [data-e="🌻"]');
     ok(await A.page.$eval('#gemoji [data-e="🌻"]', b => b.classList.contains('on') && b.getAttribute('aria-pressed') === 'true'), 'sheet: picking a face marks it');
-    await A.page.click('#gswatches .swatch[data-c="#137F77"]');
+    await A.page.click('#gswatches .swatch[data-h="aqua"]');   // batch 1: the swatches are colour families (aqua = #137F77)
     await A.page.click('#gexp [data-x="week"]');
     await A.page.screenshot({ path: path.join(SHOTS, 'rm23-add-guest-sheet.png') });
     await A.page.click('#gform button[type=submit]');
@@ -203,7 +212,7 @@ const expectedKidApps = registry.apps.filter(a => !a.visibleTo || a.visibleTo.in
     const pgRow = await rowText(pg.id);
     ok(/PIN set/.test(pgRow) && /Clear PIN/.test(pgRow), 'admin: a guest with a PIN gets a "Clear PIN" button', pgRow.trim());
     ok(!(await A.page.$(`#admin-body [data-resetpin="${guest.id}"]`)), 'admin: a tap-to-open guest has no Clear PIN button');
-    await A.page.click(`#admin-body [data-resetpin="${pg.id}"]`);
+    await A.page.click(`#admin-body [data-resetpin="${pg.id}"]`); await answerSheet(A.page, /^Clear Push Guest's PIN\?/);
     await waitFor(() => A.page.evaluate(id => !document.querySelector(`#admin-body [data-resetpin="${id}"]`), pg.id), { label: 'PIN cleared' });
     ok(/no PIN/.test(await rowText(pg.id)), 'admin: Clear PIN turns her into a tap-to-open guest');
     const pgTap = await api('POST', '/api/login', { profile_id: pg.id }, N);
@@ -223,11 +232,11 @@ const expectedKidApps = registry.apps.filter(a => !a.visibleTo || a.visibleTo.in
     ok(!!(await admin({ method: 'DELETE', p: `/api/admin/profiles/${pg.id}` })).ok, 'cleanup: Push Guest removed');
     await A.page.click('.tab[data-tab=home]'); await A.page.click('.tab[data-tab=me]'); await A.page.waitForSelector(`#admin-body [data-purge="${old.id}"]`, { timeout: 15000 });
 
-    await A.page.click(`#admin-body [data-purge="${old.id}"]`);
+    await A.page.click(`#admin-body [data-purge="${old.id}"]`); await answerSheet(A.page, /^Purge Old Guest\'s data now\?/);
     await waitFor(() => A.page.evaluate(id => !document.querySelector(`#admin-body [data-edit="${id}"]`), old.id), { label: 'Old Guest purged' });
     ok(true, 'admin: Purge removes the expired guest');
     ok((await A.page.evaluate(() => hub.people().map(p => p.id))).includes(old.id) === false, 'admin: the profiles cache no longer lists her');
-    await A.page.click(`#admin-body [data-remove="${guest.id}"]`);
+    await A.page.click(`#admin-body [data-remove="${guest.id}"]`); await answerSheet(A.page, /^Remove .+\?$/);
     await waitFor(() => A.page.evaluate(id => !document.querySelector(`#admin-body [data-edit="${id}"]`), guest.id), { label: 'Aunt Sue removed' });
     ok(true, 'admin: Remove deletes Aunt Sue');
     const gone = await A.page.evaluate(id => hub.request('/api/login', { method: 'POST', body: { profile_id: id } }).then(() => 'signed_in').catch(e => e.error), guest.id);

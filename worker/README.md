@@ -70,9 +70,9 @@ POST /api/pair                          {code, name?, fp?}
 GET  /api/profiles                      (no hashes; has_pin, pin_reset, hue, is_guest, expires_at, created_by) — guests whose expires_at has
                                         passed are left out unless the caller is the admin; the kitchen is listed with kind 'kitchen', which
                                         every picker leaves out
-POST /api/profiles                      {name, emoji?|icon?, color?, pin?, expires_at?}  household adults only (kids, the display and
+POST /api/profiles                      {name, emoji?|icon?, color?, hue?, pin?, expires_at?}  household adults only (kids, the display and
                                         guests → 403): a guest profile, kind adult, is_guest 1, id 'guest-<random>', never admin;
-                                        expires_at ms since epoch or null = keep; hue 'sky'; logs "Added a guest: <name>" on Home.
+                                        expires_at ms since epoch or null = keep; hue one of the 18 families (default 'sky', else 400 bad_hue); logs "Added a guest: <name>" on Home.
                                         Names and emoji with < or > → 400 bad_name / bad_emoji (also on the admin's edit)
 POST /api/login                         {profile_id, pin?}
 POST /api/profiles/:id/pin              {pin, code?}  PIN creation while unset, household adults only (guests → 403 guest_pin_fixed);
@@ -89,7 +89,7 @@ DELETE /api/data/:appId/:key?scope=     (writes a tombstone)
 POST /api/data/:appId/batch?scope=      {items:[{key,value,updated_at}]}  at most 200 items; a bad row (bad_key, value_too_large) fails the request;
                                         a row the policy refuses comes back as {key, rejected, value, updated_at} and the others still save
 
-GET  /api/activity?limit=30             POST /api/activity {app_id, text, at?, as?}  (at: when it happened, ms; kept if within the past week,
+GET  /api/activity?limit=30 (each line carries its author's name, emoji, color, hue, is_guest, photo)   POST /api/activity {app_id, text, at?, as?}  (at: when it happened, ms; kept if within the past week,
                                         never ahead; as: the kitchen files the line under the household member whose face was tapped,
                                         403 bad_credit otherwise; ignored for everyone else). A prayer line "Prayed for …" / "Answered: …"
                                         must name a family-list request or say "a private request" (400 private_title)

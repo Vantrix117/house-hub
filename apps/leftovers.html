@@ -3,139 +3,169 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>(function(d){try{var g=function(k,f){try{var v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},
+m=function(q){return !!(window.matchMedia&&matchMedia(q).matches)},c=g('hub.theme','system'),t=c==='light'?'hearth':c==='dark'?'midnight':c,
+S={hearth:'light',parchment:'light',frost:'light',midnight:'dark',forest:'dark',graphite:'dark'},
+B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'},
+H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'graphite'};
+if(!S[t])t=m('(prefers-color-scheme: dark)')?'midnight':'hearth';
+var s=g('hub.session',null),p=s&&s.profile,r=g('hub.prefs',{})||{};d.setAttribute('data-theme',t);d.setAttribute('data-theme-choice',c);
+d.setAttribute('data-scheme',S[t]);d.style.colorScheme=S[t];
+var ms=document.querySelectorAll('meta[name="theme-color"]'),i;if(!ms.length){var mt=document.createElement('meta');mt.setAttribute('name','theme-color');document.head.appendChild(mt);ms=[mt]}
+for(i=0;i<ms.length;i++){ms[i].removeAttribute('media');ms[i].setAttribute('content',B[t])}
+var A=' bubblegum peach butter mint aqua sky periwinkle lavender graphite coral apricot honey pistachio leaf seafoam lagoon cornflower orchid ';
+if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:p.is_guest?'sky':H[String(p.color||'').toLowerCase()]||'graphite')}
+['textSize:data-text-size','contrast:data-contrast','transparency:data-transparency','motion:data-motion'].forEach(function(x){x=x.split(':');if(r[x[0]])d.setAttribute(x[1],r[x[0]])});if(r.glass&&p&&p.kind!=='kiosk'){if(r.glass==='solid')d.setAttribute('data-transparency','reduce');else{d.setAttribute('data-glass',r.glass);d.setAttribute('data-transparency','full')}}}catch(e){}})(document.documentElement)</script>
 <title>The Larder Ledger</title>
 <link rel="stylesheet" href="design.css">
 <style>
-  /* The ledger keeps its own look (serif, paper, olive) and takes every colour from design.css tokens.
-     The ledger green is the olive ink of whichever theme is on: deep green on paper, pale green in the dark
-     themes — the fill/text pair flips with it, so nothing here keys off a colour scheme.
+  /* The ledger keeps its own component CSS and takes every colour, size and duration from design.css role tokens (audit
+     batch 1, CONS-TOK-1: the old --ledger / --ledger-ink / --ledger-press vocabulary is gone, split by what reads it).
+     Meaning is semantic: the Log button is the success solid with its -on label, the mic and ✓ glyphs are success ink,
+     the freshness ramp is --fresh / --aging / --use-soon (graphics) and the chips are success / warning / danger fill
+     with their -ink label (VIS-LEFTOVERS-2, -3). Nothing here keys off a colour scheme.
      Layout is list-first: the grouped list reads top-down, oldest first, and the add bar is a glass pane
      fixed above the safe area so the list and the bar are both on screen at once. */
-  :root { --ledger: var(--olive-ink); --ledger-ink: var(--surface); --ledger-press: color-mix(in srgb, var(--olive-ink) 82%, var(--text));
-          --addbar-h: 150px; }
-  body { min-height: 100vh; font-family: var(--font-display);
+  :root { --addbar-h: 150px; }   /* layout plumbing: the add bar's measured height (set by the script below) */
+  body { min-height: 100vh; font-family: var(--font-ui);
          padding: 32px max(16px, var(--safe-right)) calc(var(--addbar-h) + 24px + var(--safe-bottom)) max(16px, var(--safe-left)); }
   :root[data-kind="kiosk"] body { padding-bottom: max(64px, var(--safe-bottom)); }
-  .wrap { max-width: 560px; margin: 0 auto; }
-  .sans { font-family: var(--font-sans); }
+  .wrap { max-width: var(--col-narrow); margin: 0 auto; }   /* CONS-SHAPE-2: the forms-and-lists column (560) */
+  .sans { font-family: var(--font-ui); }
 
+  /* type: every size is a role, so the iPad tier, the person's text size and the kid scale reach the Larder
+     (CONS-TYPE-4, CONS-TYPE-7, GAP-TOK-4, GAP-TYPE-1) */
   .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
-  h1 { font-size: 28px; font-weight: 700; letter-spacing: -.01em; margin: 0; }
-  .tally { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
-  .lede { color: var(--text-2); font-size: 14px; margin: 0 0 6px; }
-  .mode { font-size: 12px; color: var(--muted); margin: 0 0 16px; }
-  .mode.warn { color: var(--warn-ink); }
+  h1 { font-size: var(--fs-title1); font-weight: var(--fw-title1); letter-spacing: var(--ls-title1); margin: 0; }
+  .tally { font-family: var(--font-mono); font-size: var(--fs-caption1); color: var(--text-3); letter-spacing: var(--ls-caps); text-transform: uppercase; white-space: nowrap; }
+  .lede { color: var(--text-2); font-size: var(--fs-subheadline); margin: 0 0 6px; }
+  .mode { font-size: var(--fs-caption1); color: var(--text-3); margin: 0 0 16px; }
+  .mode.warn { color: var(--warning-ink); }
 
-  .alert { display: flex; align-items: center; gap: 8px; background: var(--danger-soft); color: var(--danger-ink);
-           padding: 12px 14px; border-radius: var(--r-sm); font-size: 13px; margin: 8px 0 16px; }
+  .alert { display: flex; align-items: center; gap: 8px; background: var(--danger-fill); color: var(--danger-ink);
+           padding: 12px 14px; border-radius: var(--r-control); font-size: var(--fs-footnote); margin: 0 0 16px; }
 
-  /* ── the add bar: one glass pane, fixed above the safe area (design.css liquid-glass recipe, strong variant) ── */
-  form { --g: var(--glass-strong);
-         position: fixed; z-index: 20;
+  /* ── the add bar: one glass pane over the list, the house recipe from the tokens (CONS-GLASS-1): the sheen, the person's
+        colour caught in the pane (painted in place, no drift), the edge/ring/inner shadow and the saturated blur ── */
+  form { position: fixed; z-index: var(--z-bar);
          left: max(12px, var(--safe-left)); right: max(12px, var(--safe-right)); bottom: max(12px, var(--safe-bottom));
-         max-width: 560px; margin: 0 auto;
-         background:
-           linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
-           radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
-           var(--g);
+         max-width: var(--col-narrow); margin: 0 auto;
+         background: var(--glass-bg-strong-tinted);
          border: 1px solid var(--glass-edge); border-radius: var(--r); padding: 12px;
-         box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2);
-         -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02);
+         box-shadow: var(--glass-shadow);
+         -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter);
          display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }   /* minmax(0,…): rows shrink instead of overflowing on a narrow phone */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { form { --g: color-mix(in srgb, var(--surface) 96%, transparent); } }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { form { background: var(--glass-strong-solid); } }
   .namerow { display: flex; align-items: stretch; gap: 8px; min-width: 0; }
-  #name { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 0 14px; font-size: 17px;
-          outline: none; background: var(--surface); color: var(--text); min-height: 52px; }
-  #name:focus { border-color: var(--ledger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ledger) 22%, transparent); }
-  #name::placeholder { color: var(--muted); }
+  /* fields: a >= 3:1 boundary and the house placeholder ink (P4-COLOR-05), never under 16 px so iOS does not zoom (P4-TELL-02) */
+  #name { flex: 1; min-width: 0; border: 1px solid var(--field-border); border-radius: var(--r-control); padding: 0 14px; font-size: var(--fs-field);
+          background: var(--surface); color: var(--text); min-height: var(--tap-row); }
+  #name:focus, #name:focus-visible { outline: none; border-color: var(--focus-ring-color); box-shadow: var(--focus-ring); }
   .pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; min-width: 0; }
-  select, #date { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 0 12px; font-size: 15px;
-                  background: var(--surface); color: var(--text); min-height: 44px; width: 100%; min-width: 0; }
-  .log { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--ledger); flex: none;
-         color: var(--ledger-ink); border: none; border-radius: var(--r-sm); min-height: 52px; min-width: 88px; padding: 0 16px; font-size: 16px; font-weight: 600; cursor: pointer;
-         box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ledger-ink) 22%, transparent), var(--e1); }
-  .log:active { background: var(--ledger-press); }
-  .mic { width: 52px; min-height: 52px; flex: none; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface);
-         color: var(--ledger); display: grid; place-items: center; cursor: pointer; }
+  select, #date { border: 1px solid var(--field-border); border-radius: var(--r-control); padding: 0 12px; font-size: var(--fs-field);
+                  background: var(--surface); color: var(--text); min-height: var(--tap); width: 100%; min-width: 0; }
+  /* Log: the success solid with its own label colour (the pairing rule, GAP-TOK-2); the press is the house .pressable */
+  .log { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--success-strong); flex: none;
+         color: var(--success-on); border: none; border-radius: var(--r-control); min-height: var(--tap-row); min-width: 88px; padding: 0 16px;
+         font-size: var(--fs-callout); font-weight: var(--fw-semibold); cursor: pointer;
+         box-shadow: inset 0 1px 0 var(--hi-3), var(--elev-control); }
+  .mic { width: var(--tap-row); min-height: var(--tap-row); flex: none; border: 1px solid var(--field-border); border-radius: var(--r-control); background: var(--surface);
+         color: var(--success-ink); display: grid; place-items: center; cursor: pointer; }
   .mic[hidden] { display: none; }
-  .mic.on { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); animation: pulse 1s infinite; }
-  @keyframes pulse { 50% { transform: scale(.94); } }
-  .err { color: var(--danger); font-size: 12px; }
-  .wait { color: var(--text-2); font-size: 13px; }
+  .mic.on { background: var(--danger-fill); color: var(--danger-ink); border-color: var(--danger-graphic); animation: pulse var(--dur-pulse) infinite; }
+  @keyframes pulse { 50% { transform: scale(var(--pulse-scale)); } }   /* --pulse-scale is 1 under Reduce Motion */
+  .err { color: var(--danger-ink); font-size: var(--fs-footnote); }   /* P3-LEFTOVERS-15: the danger ink at footnote size */
+  .wait { color: var(--text-2); font-size: var(--fs-footnote); }
 
-  /* ── loading: until this device has pulled the list once, grey cards stand in for it (never "0" or "Nothing logged") ── */
-  .loading { font-size: 13px; color: var(--muted); margin: 0 0 10px 2px; }
-  .skel { position: relative; height: 74px; border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--line-soft); }
-  .skel::before, .skel::after { content: ""; position: absolute; left: 19px; height: 12px; border-radius: var(--r-full); background: var(--surface-2); }
-  .skel::before { top: 20px; width: 42%; } .skel::after { top: 42px; width: 64%; height: 8px; }
+  /* ── loading: until this device has pulled the list once, placeholder cards with the real card's geometry stand in for
+        it (never "0" or "Nothing logged"), and what sits below the list waits, so nothing moves when it lands (GAP-MOTION-1) ── */
+  .loading { font-size: var(--fs-footnote); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; line-height: var(--lh-tight);
+             color: var(--text-3); margin: 0 0 8px 2px; }
+  .skel .nm i, .skel .meta i { display: inline-block; vertical-align: middle; height: .7em; border-radius: var(--r-full); background: var(--surface-2); }
+  .skel .nm i { width: 42%; } .skel .meta i { width: 64%; height: .55em; }
   .skel:nth-child(2) { opacity: .75; } .skel:nth-child(3) { opacity: .5; }
-  .copy:disabled { opacity: .55; cursor: default; }
+  #list[aria-busy="true"] ~ .donelist, #list[aria-busy="true"] ~ .hearth { display: none; }
+  .copy:disabled { opacity: var(--op-disabled); cursor: default; }
 
   /* ── the grouped list: Use it up · Aging · Fresh, oldest first ── */
   .group { margin-bottom: 18px; }
-  .group h2 { display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  .group h2 { display: flex; align-items: baseline; gap: 8px; font-size: var(--fs-footnote); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase;
               color: var(--group-ink); margin: 0 0 8px 2px; }
-  .group h2 small { font-family: var(--font-mono); font-weight: 500; font-size: 11px; color: var(--muted); letter-spacing: .08em; }
+  .group h2 small { font-family: var(--font-mono); font-weight: var(--fw-medium); font-size: var(--fs-caption2); color: var(--text-3); letter-spacing: var(--ls-caps); }
   .list { display: grid; gap: 10px; }
-  .item { display: flex; align-items: stretch; background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--r-sm); overflow: hidden; box-shadow: var(--e1); }
+  /* a content card is solid (CONS-SHAPE-1: --material-solid-bg, --elev-card) */
+  .item, .skel { display: flex; align-items: stretch; background: var(--material-solid-bg); border: 1px solid var(--separator); border-radius: var(--r-control);
+                 overflow: hidden; box-shadow: var(--elev-card); }
   .stripe { width: 5px; flex: none; background: var(--tint); }
+  .skel .stripe, :root[data-kind="kid"] .skel .pic { background: var(--surface-2); }
   .body { flex: 1; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
   .info { flex: 1; min-width: 0; }
-  .nm { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
-  /* freshness bar — the design.css .bar recipe (tokens only), --p = days/10, --tint by age; body has no .ds so it lives here */
+  .nm { font-size: var(--fs-callout); font-weight: var(--fw-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meta { font-size: var(--fs-footnote); color: var(--text-3); margin-top: 2px; }
+  /* freshness bar: --fresh / --aging / --use-soon, graphics >= 3:1 against the --surface-2 track in every palette
+     (VIS-LEFTOVERS-2; a solid fill, no lighter left end); --p = days/10 */
   .bar { height: 6px; border-radius: var(--r-full); background: var(--surface-2); overflow: hidden; margin-top: 8px; max-width: 220px; }
   .bar > i { display: block; height: 100%; width: calc(100% * var(--p, 0)); border-radius: inherit;
-             background: linear-gradient(90deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint)); transition: width .8s var(--ease-out); }
+             background: var(--tint); transition: width var(--dur-progress) var(--spring-gentle); }
   .right { display: flex; align-items: center; gap: 10px; flex: none; }
-  .status { font-size: 11.5px; font-weight: 600; padding: 6px 11px; border-radius: 999px; background: var(--chip); color: var(--chip-text); white-space: nowrap; }
-  .done { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--r-sm); width: 48px; height: 48px;
-          display: flex; align-items: center; justify-content: center; color: var(--ledger); flex: none; cursor: pointer; }
-  .done:active { background: var(--hover); }
+  /* the state chip: the state's fill with its -ink label (lifted >= 1.5:1 off the card in the dark palettes, VIS-LEFTOVERS-3)
+     and the state's glyph, so the three states differ without colour (VIS-LEFTOVERS-2) */
+  .status { font-size: var(--fs-caption1); font-weight: var(--fw-semibold); padding: 6px 11px; border-radius: var(--r-full); background: var(--chip); color: var(--chip-text); white-space: nowrap; }
+  .status::before { content: var(--chip-glyph); display: inline-block; margin-right: .35em; font-weight: var(--fw-heavy); }
+  .item.finishing .status::before, .item.gone .status::before { content: none; }
+  /* ✓: a lit control, the success ink glyph on the success fill, never a dark well (VIS-LEFTOVERS-10) */
+  .done { border: 1px solid transparent; background: var(--success-fill); border-radius: var(--r-control); width: max(48px, var(--tap)); height: max(48px, var(--tap));
+          display: flex; align-items: center; justify-content: center; color: var(--success-ink); flex: none; cursor: pointer; }
 
-  .empty { text-align: center; padding: 32px 0 40px; color: var(--muted); }
+  .empty { text-align: center; padding: 32px 0 40px; color: var(--text-3); }
   .empty p { margin: 0; }
-  .empty img { width: 176px; max-width: 70%; margin: 0 auto 14px; }
+  /* the empty-state art sits on the art plate (VIS-LEFTOVERS-7: transparent in light, a raised surface in dark) */
+  .empty img { width: 176px; max-width: 70%; margin: 0 auto 14px; padding: 12px; background: var(--art-plate); border-radius: var(--r-card); }
 
   .hearth { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
-  .hearth p { font-size: 13px; color: var(--text-2); margin: 0 0 12px; }
+  .hearth p { font-size: var(--fs-footnote); color: var(--text-2); margin: 0 0 12px; }
   .copy { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface-2);
-          border-radius: var(--r-sm); padding: 0 18px; min-height: 52px; font-size: 14px; color: var(--text); cursor: pointer; }
-  .copy:active { background: var(--hover); }
+          border-radius: var(--r-control); padding: 0 18px; min-height: var(--tap-row); font-size: var(--fs-subheadline); color: var(--text); cursor: pointer; }
   /* a ✓ keeps the card in place for six seconds, struck through, with its own Undo (batch 0h) */
-  .item.finishing .info, .item.finishing .pic, .item.gone .info, .item.gone .pic, .item.gone .status { opacity: .55; }
+  /* a finishing or finished card reads as past by its ink and its strike-through, never by fading the text (CONS-COLOR-1);
+     the picture and the chip lose their colour instead */
+  .item.finishing .info, .item.finishing .info *, .item.gone .info, .item.gone .info * { color: var(--text-3); }
+  .item.finishing .pic, .item.gone .pic, .item.gone .status { filter: saturate(0); }
   .item.finishing .nm, .item.gone .nm { text-decoration: line-through; }
-  .status { min-width: 84px; text-align: center; box-sizing: border-box; }
-  :root[data-kind="kid"] .status { min-width: 104px; }
-  .undo { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-sm); width: 48px; height: 48px; padding: 0;
-          font: inherit; font-size: 13px; font-weight: 700; color: var(--ledger); cursor: pointer; flex: none; }
-  .slot { width: 48px; height: 48px; flex: none; }
-  .newpill { position: fixed; z-index: 25; top: max(12px, var(--safe-top)); left: 50%; transform: translateX(-50%);
-             min-height: 44px; padding: 0 18px; border-radius: var(--r-full); border: 1px solid var(--glass-edge); background: var(--glass-strong);
-             -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); box-shadow: var(--e2);
-             font: inherit; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; }
+  .status { min-width: 7.5em; text-align: center; box-sizing: border-box; }   /* one width for every label, so no card changes width */
+  .undo { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-control); width: max(48px, var(--tap)); height: max(48px, var(--tap)); padding: 0;
+          font: inherit; font-size: var(--fs-footnote); font-weight: var(--fw-bold); color: var(--success-ink); cursor: pointer; flex: none; }
+  .slot { width: max(48px, var(--tap)); height: max(48px, var(--tap)); flex: none; }
+  .newpill { position: fixed; z-index: var(--z-pill); top: max(12px, var(--safe-top)); left: 50%; transform: translateX(-50%);
+             min-height: var(--tap); padding: 0 18px; border-radius: var(--r-full); border: 1px solid var(--glass-edge); background: var(--glass-bg-strong-tinted);
+             -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--glass-shadow);
+             font: inherit; font-size: var(--fs-subheadline); font-weight: var(--fw-semibold); color: var(--text); cursor: pointer; }
   .newpill[hidden] { display: none; }
+  .newpill.pressable:active { transform: translateX(-50%) scale(var(--press-scale)); }   /* keep the centring while pressed */
   .donelist { margin-top: 18px; }
-  .donelist summary { cursor: pointer; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
-                      min-height: 44px; display: flex; align-items: center; }
-  .donelist .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 2px; border-top: 1px solid var(--line-soft); }
-  .donelist .row.back .t { opacity: .55; }
-  .donelist .row .t { min-width: 0; font-size: 14px; } .donelist .row .t small { display: block; color: var(--muted); font-size: 12px; }
-  .putback { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--r-sm); min-height: 44px; width: 96px; padding: 0 8px;
-             font: inherit; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; flex: none; box-sizing: border-box; }
-  .putback.tag { display: inline-flex; align-items: center; justify-content: center; cursor: default; background: transparent; color: var(--muted); }
-  /* kids: a picture view, no controls (P5-D2) — a food picture, the name in big type, how old it is and the freshness colour */
+  .donelist summary { cursor: pointer; font-size: var(--fs-footnote); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-3);
+                      min-height: var(--tap); display: flex; align-items: center; }
+  .donelist .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 2px; border-top: 1px solid var(--separator); }
+  .donelist .row.back .t { color: var(--text-3); }
+  .donelist .row .t { min-width: 0; font-size: var(--fs-subheadline); } .donelist .row .t small { display: block; color: var(--text-3); font-size: var(--fs-caption1); }
+  .putback { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--r-control); min-height: var(--tap); width: 96px; padding: 0 8px;
+             font: inherit; font-size: var(--fs-footnote); font-weight: var(--fw-semibold); color: var(--text); cursor: pointer; flex: none; box-sizing: border-box; }
+  .putback.tag { display: inline-flex; align-items: center; justify-content: center; cursor: default; background: transparent; color: var(--text-3); }
+  /* kids: a picture view, no controls (P5-D2) — a food picture, the name in big type, how old it is and the freshness colour.
+     The roles already carry the kid scale (16 px floor); only the name steps up a role. */
   .pic { display: none; }
-  :root[data-kind="kid"] .pic { display: grid; place-items: center; flex: none; width: 60px; height: 60px; font-size: 36px; border-radius: var(--r-sm);
-                                background: color-mix(in srgb, var(--tint) 22%, var(--surface)); }
+  :root[data-kind="kid"] .pic { display: grid; place-items: center; flex: none; width: var(--tap); height: var(--tap); font-size: var(--fs-large-title); line-height: var(--lh-tight);
+                                border-radius: var(--r-control); background: var(--chip); }
   :root[data-kind="kid"] .body { gap: 14px; padding: 14px 16px; }
-  :root[data-kind="kid"] .nm { font-size: 21px; white-space: normal; }
-  :root[data-kind="kid"] .meta { font-size: 15px; }
-  :root[data-kind="kid"] .status { font-size: 14px; padding: 8px 13px; }
+  :root[data-kind="kid"] .nm { font-size: var(--fs-headline); white-space: normal; }
+  /* at a large text size the name wraps to two lines instead of shrinking to a few letters (review, batch 1) */
+  :root:is([data-text-size="l"], [data-text-size="xl"], [data-text-size="xxl"]) .nm { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+  :root[data-kind="kid"] .status { padding: 8px 13px; }
   :root[data-kind="kid"] body { padding-bottom: max(40px, var(--safe-bottom)); }
   :root[data-kind="kid"] .hearth, :root[data-kind="kid"] form[id="add"], :root[data-kind="kid"] .donelist { display: none; }
+  /* kid minimum targets outside .ds (P4-SHAPE-01, proposal SHAPE-9): anything a kid can tap is at least --tap (64 px) */
+  :root[data-kind="kid"] :is(button, a[href], [role="button"], input:not([type="hidden"]), select, summary, label[for]) { min-width: var(--tap); min-height: var(--tap); }
   :root[data-kind="kiosk"] .hearth, :root[data-kind="kiosk"] form[id="add"] { display: none; }   /* the form id is written as an attribute selector so hex-colour linting does not misread it */
-  @media (prefers-reduced-motion: reduce) { .mic.on { animation: none; } .bar > i { transition: none; } }
 </style>
 </head>
 <body>
@@ -147,11 +177,14 @@
   <p class="lede">Log it when you put it away. Cross it off when it's gone.</p>
   <p class="mode sans" id="mode" hidden></p>
 
-  <div id="alert"></div>
-
+  <!-- the "at a week or older" alert is drawn at the top of the list itself (GAP-MOTION-1), so the list never moves when it lands -->
   <div id="list" class="sans" aria-busy="true">
     <p class="loading">Loading the fridge…</p>
-    <div class="list" aria-hidden="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    <div class="list" aria-hidden="true">
+      <div class="skel"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div></div></div>
+      <div class="skel"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div></div></div>
+      <div class="skel"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div></div></div>
+    </div>
   </div>
 
   <div id="donelist" class="donelist sans"></div>
@@ -159,17 +192,17 @@
   <div class="hearth sans">
     <p>Want this week's warnings on the Hearth wall display? Copy the list below and tell Claude
        "push my leftovers to Hearth" — it'll add them straight to the Hearth Calendar.</p>
-    <button type="button" class="copy" id="copy" disabled aria-disabled="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Copy list for Hearth</button>
+    <button type="button" class="copy pressable" id="copy" disabled aria-disabled="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Copy list for Hearth</button>
   </div>
 </div>
 
-<button type="button" id="newpill" class="newpill sans" hidden></button>
+<button type="button" id="newpill" class="newpill sans pressable" hidden></button>
 
 <form id="add" class="sans" aria-label="Log a leftover">
   <div class="namerow">
     <input id="name" placeholder="What is it? e.g. Chicken alfredo" autocomplete="off" enterkeyhint="done" aria-label="Leftover name">
-    <button type="button" class="mic" id="mic" aria-label="Say the name" hidden></button>
-    <button type="submit" class="log"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Log</button>
+    <button type="button" class="mic pressable is-small" id="mic" aria-label="Say the name" hidden></button>
+    <button type="submit" class="log pressable"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Log</button>
   </div>
   <div class="pair">
     <select id="size" aria-label="Container size"><option>Small</option><option selected>Medium</option><option>Large</option><option>Family-size</option></select>
@@ -194,17 +227,21 @@
 (async () => {
   const SIZES = ['Small', 'Medium', 'Large', 'Family-size'];
   const WARN_DAYS = 7, AGING_DAYS = 4, FULL_BAR_DAYS = 10;   // the freshness bar fills over ten days, like the Home fridge card
+  // Each state's roles (audit batch 1, migration table; VIS-LEFTOVERS-2, -3): the stripe and freshness bar are graphics
+  // (--fresh / --aging / --use-soon, >= 3:1), the chip is the state's fill with its -ink label and its glyph, the group
+  // heading is the -ink.
   const TONES = {
-    fresh:  { tint: 'var(--ok)',     chip: 'var(--ok-soft)',     chipText: 'var(--ok-ink)',     ink: 'var(--ok-ink)' },
-    warn:   { tint: 'var(--warn)',   chip: 'var(--warn-soft)',   chipText: 'var(--warn-ink)',   ink: 'var(--warn-ink)' },
-    urgent: { tint: 'var(--danger)', chip: 'var(--danger-soft)', chipText: 'var(--danger-ink)', ink: 'var(--danger-ink)' },
+    fresh:  { tint: 'var(--fresh)',    chip: 'var(--success-fill)', chipText: 'var(--success-ink)', ink: 'var(--success-ink)', glyph: 'var(--success-glyph)' },
+    warn:   { tint: 'var(--aging)',    chip: 'var(--warning-fill)', chipText: 'var(--warning-ink)', ink: 'var(--warning-ink)', glyph: 'var(--warning-glyph)' },
+    urgent: { tint: 'var(--use-soon)', chip: 'var(--danger-fill)',  chipText: 'var(--danger-ink)',  ink: 'var(--danger-ink)',  glyph: 'var(--danger-glyph)' },
   };
   const GROUPS = [
     { tone: 'urgent', title: 'Use it up', sub: 'a week or older' },
     { tone: 'warn',   title: 'Aging',     sub: 'eat soon' },
     { tone: 'fresh',  title: 'Fresh',     sub: 'this week' },
   ];
-  // Lucide glyphs, inlined — no icon library on a static host.
+  // Lucide glyphs, inlined — no icon library on a static host. Lucide (https://lucide.dev), ISC licence,
+  // copyright (c) Lucide Contributors; derived from Feather, copyright (c) 2013-2023 Cole Bemis (GAP-ICON-2).
   const ICON = {
     plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
     check: '<path d="M20 6 9 17l-5-5"/>',
@@ -242,7 +279,7 @@
   hub.migrate([{ from: 'leftovers.items', scope: 'family', to: v => (Array.isArray(v) ? v : []).filter(i => i && i.id).map(i => ['item:' + i.id, isDay(i.dateLogged) && i.dateLogged <= dayKey ? i : { ...i, dateLogged: dayKey }]) }]).catch(console.error);   // a date the house refuses is logged as today
 
   const items = () => hub.list('item:').map(r => r.value);
-  const errEl = $('err'), waitEl = $('wait'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally'), modeEl = $('mode'), form = $('add');
+  const errEl = $('err'), waitEl = $('wait'), listEl = $('list'), tallyEl = $('tally'), modeEl = $('mode'), form = $('add');
   const setErr = m => { errEl.textContent = m; errEl.hidden = !m; };
   const setWait = m => { waitEl.textContent = m; waitEl.hidden = !m; };
   const canEdit = hub.canWrite && !hub.isKid;   // P5-D2: kids only look at the Larder (the Worker refuses their writes); their picture view comes in batch 8
@@ -327,16 +364,15 @@
     tallyEl.textContent = sorted.filter(i => !pending.has(i.id)).length + ' in the fridge';
 
     const warnCount = sorted.filter(i => daysBetween(i.dateLogged) >= WARN_DAYS).length;
-    alertEl.textContent = '';
-    if (warnCount) {
+    listEl.textContent = '';
+    if (warnCount) {   // at the top of the list, where the loading line was (GAP-MOTION-1)
       const d = document.createElement('div');
       d.className = 'alert sans';
       d.append(svg('alert', 16, 2.2),
         document.createTextNode(warnCount + ' item' + (warnCount > 1 ? 's' : '') + ' at a week or older'));
-      alertEl.append(d);
+      listEl.append(d);
     }
 
-    listEl.textContent = '';
     if (!sorted.length) {
       const e = document.createElement('div');
       e.className = 'empty';
@@ -379,6 +415,7 @@
     card.style.setProperty('--tint', t.tint);
     card.style.setProperty('--chip', t.chip);
     card.style.setProperty('--chip-text', t.chipText);
+    card.style.setProperty('--chip-glyph', t.glyph);
 
     const stripe = document.createElement('div'); stripe.className = 'stripe';
     const body = document.createElement('div'); body.className = 'body';
@@ -402,14 +439,14 @@
       right.append(slot);
     } else if (canEdit && finishing) {
       const undo = document.createElement('button');
-      undo.type = 'button'; undo.className = 'undo'; undo.textContent = 'Undo';
+      undo.type = 'button'; undo.className = 'undo pressable is-small'; undo.textContent = 'Undo';
       undo.setAttribute('aria-label', 'Undo: keep ' + it.name + ' in the fridge');
       // the second tap of a double tap lands here: it is not an Undo (the toast's Undo and a later tap are)
       undo.onclick = () => { const p = pending.get(it.id); if (p && Date.now() - p.at < 700) return; undoFinish(it.id); };
       right.append(undo);
     } else if (canEdit) {
       const done = document.createElement('button');
-      done.type = 'button'; done.className = 'done';
+      done.type = 'button'; done.className = 'done pressable is-small';
       done.title = 'Mark used up';
       done.setAttribute('aria-label', 'Mark ' + it.name + ' used up');
       done.append(svg('check', 18, 2.4));
@@ -496,7 +533,7 @@
       tag.setAttribute('aria-label', v.name + ' is back in the fridge');
       row.append(tag);
     } else if (canEdit) {
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'putback'; b.textContent = 'Put back';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'putback pressable'; b.textContent = 'Put back';
       b.setAttribute('aria-label', 'Put ' + v.name + ' back in the fridge');
       b.onclick = () => putBack(v);
       row.append(b);

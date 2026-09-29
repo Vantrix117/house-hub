@@ -3,142 +3,186 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>(function(d){try{var g=function(k,f){try{var v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},
+m=function(q){return !!(window.matchMedia&&matchMedia(q).matches)},c=g('hub.theme','system'),t=c==='light'?'hearth':c==='dark'?'midnight':c,
+S={hearth:'light',parchment:'light',frost:'light',midnight:'dark',forest:'dark',graphite:'dark'},
+B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'},
+H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'graphite'};
+if(!S[t])t=m('(prefers-color-scheme: dark)')?'midnight':'hearth';
+var s=g('hub.session',null),p=s&&s.profile,r=g('hub.prefs',{})||{};d.setAttribute('data-theme',t);d.setAttribute('data-theme-choice',c);
+d.setAttribute('data-scheme',S[t]);d.style.colorScheme=S[t];
+var ms=document.querySelectorAll('meta[name="theme-color"]'),i;if(!ms.length){var mt=document.createElement('meta');mt.setAttribute('name','theme-color');document.head.appendChild(mt);ms=[mt]}
+for(i=0;i<ms.length;i++){ms[i].removeAttribute('media');ms[i].setAttribute('content',B[t])}
+var A=' bubblegum peach butter mint aqua sky periwinkle lavender graphite coral apricot honey pistachio leaf seafoam lagoon cornflower orchid ';
+if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:p.is_guest?'sky':H[String(p.color||'').toLowerCase()]||'graphite')}
+['textSize:data-text-size','contrast:data-contrast','transparency:data-transparency','motion:data-motion'].forEach(function(x){x=x.split(':');if(r[x[0]])d.setAttribute(x[1],r[x[0]])});if(r.glass&&p&&p.kind!=='kiosk'){if(r.glass==='solid')d.setAttribute('data-transparency','reduce');else{d.setAttribute('data-glass',r.glass);d.setAttribute('data-transparency','full')}}}catch(e){}})(document.documentElement)</script>
 <title>Kid Verse</title>
 <link rel="stylesheet" href="design.css">
 <style>
   /* Kid Verse — the family's F260 memory verse for the week, made for a child who cannot read yet:
      story art, the reference in big type, a one-sentence paraphrase, "Read it to me" (speech) and "Done ★".
-     Every colour is a design.css token; the page is a gold wash with the person's colour caught in the glass. */
+     Every colour is a design.css token (audit batch 1: the v3 roles; legacy --gold/--muted names retired here): the page is a
+     butter wash with the person's own wash in the corner; content cards are solid, glass is kept for the controls (the pill
+     and the Read buttons). */
   html, body { min-height: 100%; }
   body.ds {
-    background-color: var(--bg);
-    background-image:
-      radial-gradient(120% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--gold) 22%, transparent), transparent 60%),
-      radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%);
+    /* the pre-pass: a bare hue read as a background moves to its -fill / -wash (P4-COLOR-01); no --sheen-x at the page level
+       (P4-GLASS-01: it is written on the two bars only) */
+    background:
+      radial-gradient(120% 70% at 30% -10%, color-mix(in srgb, var(--butter-fill) 60%, transparent), transparent 60%),
+      radial-gradient(90% 50% at 100% 100%, var(--accent-wash), transparent 55%),
+      var(--bg);
     background-attachment: fixed;
     padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
     overflow-x: hidden;
   }
-  .wrap { max-width: var(--max-read); margin: 0 auto; padding: var(--sp-4); padding-bottom: calc(var(--sp-10) + var(--safe-bottom)); display: grid; gap: var(--sp-4); }
+  .wrap { max-width: var(--col-read); margin: 0 auto; display: grid; gap: var(--sp-4); }
+  /* room under the last card for the shared toast, so a toast never has to sit on it (UX-KIDVERSE-8) */
+  .ds .wrap { padding-bottom: calc(var(--sp-16) + var(--sp-6) + var(--safe-bottom)); }
 
-  /* who + week, on a glass pill */
+  /* who + week, on a glass pill (a control-layer look; the cards below are solid). Chrome text is not selectable (VIS-KIDVERSE-10). */
   .top { display: flex; justify-content: center; }
   .ds .top .pill { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--tap); padding: var(--sp-2) var(--sp-5); border-radius: var(--r-full); color: var(--text); }
   .ds .top .pill .avatar { --size: 28px; font-size: 16px; }
+  .top, .ds .scene, .ds .stars, .rewards h2, .rewards .bank, .badges, .ds .grown h2, .stepper, .kids { -webkit-user-select: none; user-select: none; }
 
-  /* the scene: story art on a glass card, always 3:2 so nothing shifts when the picture loads */
-  .ds .scene { padding: var(--sp-3); border-radius: var(--r-xl); }
-  .ds .scene img { display: block; width: 100%; aspect-ratio: 240 / 160; height: auto; border-radius: var(--r-lg); background: var(--surface-2); object-fit: cover; }
+  /* the scene: story art on a SOLID card (VIS-KIDVERSE-8: content is not glass), always 3:2 so nothing shifts when the picture
+     loads; the picture's corner is concentric with the card's (card radius minus the padding). The art sits on --art-plate and
+     is dimmed a little in dark so a pale scene is never the brightest thing on the screen (VIS-KIDVERSE-6; the token-filled
+     art itself is scripts/make-art.mjs's job). No long-press callout, no drag (VIS-KIDVERSE-10). */
+  .ds .scene { padding: var(--sp-3); }
+  .ds .scene img { display: block; width: 100%; aspect-ratio: 240 / 160; height: auto; border-radius: calc(var(--r-card) - var(--sp-3)); background: var(--art-plate); object-fit: cover; }
+  .ds .scene img, .story-head img { -webkit-touch-callout: none; -webkit-user-drag: none; -webkit-user-select: none; user-select: none; }
+  [data-scheme="dark"] .ds .scene img, [data-scheme="dark"] .story-head img { filter: brightness(.82); }
 
-  /* the reference: big serif, the theme's ink */
+  /* the reference: the large display role, bold (D6; rounded for a kid through the kid block) */
   .ref { text-align: center; display: grid; gap: var(--sp-1); padding: 0 var(--sp-2); }
-  .ref .kicker { color: var(--gold-ink); }
-  .ref h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 9vw, 56px); line-height: var(--lh-tight); letter-spacing: 0; color: var(--text); text-wrap: balance; }
-  :root[data-kind="kid"] .ref h1 { font-size: clamp(40px, 11vw, 64px); }
-  .ref .also { color: var(--muted); font-size: var(--fs-sm); font-weight: 600; min-height: 1.5em; }
+  .ref .kicker { color: var(--butter-ink); }
+  .ref h1 { margin: 0; font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-display); line-height: var(--lh-tight); letter-spacing: var(--ls-large-title); color: var(--text); text-wrap: balance; }
+  .ref .also { color: var(--text-3); font-size: var(--fs-sm); font-weight: var(--fw-semibold); min-height: 1.5em; }
 
   /* the paraphrase: clearly not the Bible's own words */
-  .ds .words { border-radius: var(--r-xl); display: grid; gap: var(--sp-2); }
-  .ds .words .kicker { color: var(--gold-ink); }
+  .ds .words { display: grid; gap: var(--sp-2); }
+  .ds .words .kicker { color: var(--butter-ink); }
   .words p { margin: 0; font-size: var(--fs-xl); line-height: var(--lh-snug); color: var(--text); text-wrap: pretty; }
   :root[data-kind="kid"] .words p { font-size: var(--fs-2xl); }
-  .words small { color: var(--muted); font-size: var(--fs-xs); line-height: 1.35; }
+  .words small { color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
 
-  /* the two big buttons: never smaller than 64 px (the kid target), stacked at phone width */
+  /* the two big buttons: capsules at the large button height, never under 64 px (the kid target), stacked at phone width
+     (CONS-SHAPE-4: the primary action is a capsule everywhere) */
   .actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
   @media (min-width: 560px) { .actions { grid-template-columns: 1fr 1fr; } }
-  .ds .actions .btn { min-height: max(64px, var(--tap-lg)); font-size: var(--fs-lg); border-radius: var(--r-xl); gap: var(--sp-3); }
+  .ds .actions .btn { min-height: max(64px, var(--btn-h-lg)); font-size: var(--fs-lg); gap: var(--sp-3); }
   .ds .actions .btn .icon { width: 1.4em; height: 1.4em; }
-  .ds .icon.star { fill: currentColor; stroke: none; }
+  /* the kids' star: the butter star, read by its outline, for every kid in every palette (--star-fill / --star-stroke) */
+  .ds .icon.star { fill: var(--star-fill); stroke: var(--star-stroke); stroke-width: 1.5; }
+  /* on a filled button or an earned badge disc the star takes the label's own -on colour, so it never sinks into the fill */
+  .ds .btn .icon.star, .badges li.on .bicon .icon.star { fill: currentColor; stroke: none; }
   .actions.solo { grid-template-columns: 1fr; }
   .ds .actions .btn-glass { --g: var(--glass-strong); }
-  .ds .btn.done { --accent: var(--gold); }
-  .ds .btn.done.today { background: var(--gold-soft); color: var(--gold-ink); border-color: transparent; box-shadow: none; }
-  .ds .btn.say.on .icon { animation: pulse 1.1s ease-in-out infinite; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+  /* Done ★ carries data-accent="butter" in the markup (P3-KIDVERSE-14, CONS-ACCENT-3): the scope re-derives every accent role,
+     so .btn-primary paints the butter solid with its -on label for every kid, never the kid's own colour. Earned today: the
+     butter fill with the butter ink (the pairing rule). */
+  .ds .btn.done.today { background: var(--accent-fill); color: var(--accent-ink); border-color: transparent; box-shadow: none; }
+  /* the reading-aloud pulse reads the motion tokens, so Reduce Motion (the OS or Me > Appearance) stills it (CONS-MOTION-2/-5) */
+  .ds .btn.say.on .icon { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(var(--pulse-scale)); } }
 
   /* the week's stars: a count and seven day dots */
-  .ds .stars { border-radius: var(--r-xl); display: grid; gap: var(--sp-3); justify-items: center; text-align: center; }
-  .stars .count { display: inline-flex; align-items: center; gap: var(--sp-2); font-family: var(--font-display); font-size: var(--fs-3xl); line-height: 1; color: var(--text); }
-  .stars .count .icon { width: 1em; height: 1em; color: var(--gold); }
-  .stars .sub { color: var(--muted); font-size: var(--fs-sm); font-weight: 600; }
+  .ds .stars { display: grid; gap: var(--sp-3); justify-items: center; text-align: center; }
+  /* numerals: the rounded numeral face with tabular figures (CONS-TYPE-3, VIS-KIDVERSE-7) */
+  .stars .count { display: inline-flex; align-items: center; gap: var(--sp-2); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-bold); letter-spacing: var(--ls-numeral); font-size: var(--fs-3xl); line-height: 1; color: var(--text); }
+  .stars .count .icon { width: 1em; height: 1em; }
+  .stars .sub { color: var(--text-3); font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
+  /* the day dots (VIS-KIDVERSE-1, -2, CONS-COLOR-2): an empty dot is a >= 3:1 ring (--cell-empty) with its letter in --text-3
+     (>= 4.5:1 on the well) at caption2 or more; an earned dot is the butter fill with a butter edge and the star; today is ONE
+     ring in the kid's own colour (--today-ring, >= 3:1), drawn as an outline so it sits outside the dot's own edge */
   .days { display: flex; gap: var(--sp-2); justify-content: center; flex-wrap: wrap; }
-  .days span { width: 36px; height: 36px; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface-2); color: var(--muted-decor); font-size: var(--fs-xs); font-weight: 700; border: 1px solid var(--line-soft); }
-  .days span.on { background: var(--gold-soft); color: var(--gold-ink); border-color: transparent; }
-  .days span.on .icon { width: 20px; height: 20px; color: var(--gold); }
-  .days span.today { box-shadow: var(--focus); }
-  :root[data-kind="kid"] .days { gap: 6px; }
+  .days span { width: 36px; height: 36px; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface-2); color: var(--text-3); font-size: var(--fs-xs); font-weight: var(--fw-bold); border: var(--border-w-strong) solid var(--cell-empty); }
+  .days span.on { background: var(--butter-fill); color: var(--butter-ink); border-color: var(--butter-graphic); }
+  .days span.on .icon { width: 20px; height: 20px; }
+  .days span.today { outline: var(--ring-w) solid var(--today-ring); outline-offset: var(--ring-w-sm); }
+  :root[data-kind="kid"] .days { gap: var(--sp-2); }
+  /* the kid's own week stays one row on a phone: the dots shrink a little (to 30 px) before they would wrap (v3 kid spacing) */
+  :root[data-kind="kid"] #mine .days { flex-wrap: nowrap; width: 100%; }
   :root[data-kind="kid"] .days span { width: 38px; height: 38px; }
+  :root[data-kind="kid"] #mine .days span { flex: 0 1 38px; min-width: 30px; width: auto; height: auto; aspect-ratio: 1; }
 
   /* item 20 — rewards: the balance to cash in and the six badges (kids only); every colour a token, no layout shift */
-  .ds .rewards { border-radius: var(--r-xl); display: grid; gap: var(--sp-3); }
-  .rewards h2 { margin: 0; font-size: var(--fs-lg); font-weight: 700; display: flex; align-items: center; gap: var(--sp-2); }
-  .rewards h2 .icon { width: 1.2em; height: 1.2em; color: var(--gold); }
-  .rewards .bank { display: flex; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap; color: var(--muted); font-size: var(--fs-sm); font-weight: 600; min-height: 1.5em; }
-  .rewards .bank b { font-family: var(--font-display); font-size: var(--fs-3xl); line-height: 1; color: var(--text); font-weight: 400; }
-  .rewards .bank .icon { width: .9em; height: .9em; color: var(--gold); align-self: center; }
+  .ds .rewards { display: grid; gap: var(--sp-3); }
+  .rewards h2 { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
+  .rewards h2 .icon { width: 1.2em; height: 1.2em; }
+  .rewards .bank { display: flex; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap; color: var(--text-3); font-size: var(--fs-sm); font-weight: var(--fw-semibold); min-height: 1.5em; }
+  .rewards .bank b { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); font-size: var(--fs-3xl); line-height: 1; color: var(--text); font-weight: var(--fw-bold); }
+  .rewards .bank .icon { width: .9em; height: .9em; align-self: center; }
   .badges { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); }
   @media (min-width: 560px) { .badges { grid-template-columns: repeat(6, 1fr); } }
-  .badges li { min-height: 64px; display: grid; justify-items: center; align-content: start; gap: var(--sp-1); padding: var(--sp-2) var(--sp-1); border-radius: var(--r-lg); text-align: center; background: var(--surface-2); border: 1px solid var(--line-soft); color: var(--muted); }
-  .badges li .bicon { width: 44px; height: 44px; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface); color: var(--muted-decor); font-weight: 800; font-size: var(--fs-lg); border: 1px solid var(--line-soft); }
+  /* a badge tile is inset in the card: its corner is --r-inset (concentric). Unearned (VIS-KIDVERSE-1, -3): a >= 3:1 ringed
+     disc with its glyph in --text-3 (a visible goal in dark too), the hint in --text-3 at caption2 (11 px adult, 16 px kid,
+     never the old 10 px). Earned: the butter fill, and the disc is the butter solid with its -on glyph (the pairing rule). */
+  .badges li { min-height: 64px; display: grid; justify-items: center; align-content: start; gap: var(--sp-1); padding: var(--sp-2) var(--sp-1); border-radius: var(--r-inset); text-align: center; background: var(--surface-2); border: var(--border-w) solid var(--separator); color: var(--text-3); }
+  .badges li .bicon { width: 44px; height: 44px; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface); color: var(--text-3); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-heavy); font-size: var(--fs-lg); border: var(--border-w-strong) solid var(--cell-empty); }
   .badges li .bicon .icon { width: 24px; height: 24px; }
-  .badges li .bname { font-size: var(--fs-xs); font-weight: 700; line-height: 1.2; color: var(--text); }
-  .badges li small { font-size: 10px; line-height: 1.2; color: var(--muted); }
-  .badges li.on { background: var(--gold-soft); border-color: transparent; color: var(--gold-ink); }
-  .badges li.on .bicon { background: var(--gold); color: var(--on-accent); border-color: transparent; box-shadow: var(--e1); }
-  .badges li.on .bname { color: var(--gold-ink); }
-  .badges li.on small { color: var(--gold-ink); }
-  .rewards .paid, .rewards .how { margin: 0; color: var(--muted); font-size: var(--fs-xs); line-height: 1.35; }
+  .badges li .bname { font-size: var(--fs-xs); font-weight: var(--fw-bold); line-height: 1.2; color: var(--text); }
+  .badges li small { font-size: var(--fs-caption2); line-height: 1.2; color: var(--text-3); }
+  .badges li.on { background: var(--butter-fill); border-color: transparent; color: var(--butter-ink); }
+  .badges li.on .bicon { background: var(--butter-strong); color: var(--butter-on); border-color: transparent; box-shadow: var(--elev-control); }
+  .badges li.on .bname { color: var(--butter-ink); }
+  .badges li.on small { color: var(--butter-ink); }
+  .rewards .paid, .rewards .how { margin: 0; color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
   :root[data-kind="kid"] .badges li .bicon { width: 48px; height: 48px; }
 
   /* adults: the week stepper and every kid's stars, read-only */
-  .ds .grown { border-radius: var(--r-xl); display: grid; gap: var(--sp-4); }
-  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: 700; display: flex; align-items: center; gap: var(--sp-2); }
-  .grown h2 .icon { width: 1.2em; height: 1.2em; color: var(--gold); }
+  .ds .grown { display: grid; gap: var(--sp-4); }
+  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
+  .grown h2 .icon { width: 1.2em; height: 1.2em; }
   .stepper { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
-  .stepper .wk { font-family: var(--font-display); font-size: var(--fs-2xl); line-height: 1; color: var(--text); text-align: center; flex: 1; }
-  .stepper .wk small { display: block; font-family: var(--font-sans); font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--muted); margin-top: var(--sp-1); }
-  .ds .stepper .btn { width: var(--tap-lg); min-width: var(--tap-lg); min-height: var(--tap-lg); padding: 0; font-size: var(--fs-2xl); font-weight: 400; border-radius: var(--r-full); }
-  .grown .hint { color: var(--muted); font-size: var(--fs-sm); margin: 0; }
+  .stepper .wk { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-bold); font-size: var(--fs-2xl); line-height: 1; color: var(--text); text-align: center; flex: 1; }
+  .stepper .wk small { display: block; font-family: var(--font-ui); font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-3); margin-top: var(--sp-1); }
+  .ds .stepper .btn { width: var(--tap-lg); min-width: var(--tap-lg); min-height: var(--tap-lg); padding: 0; font-size: var(--fs-2xl); font-weight: var(--fw-regular); border-radius: var(--r-full); }
+  .grown .hint { color: var(--text-3); font-size: var(--fs-sm); margin: 0; }
   .ds .grown .hint .btn { margin-left: var(--sp-2); min-height: var(--tap); font-size: var(--fs-sm); }
   .kids { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
+  /* each kid's row carries that kid's data-accent, so the today ring on the row is theirs */
   .kids li { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
   .kids .avatar { --size: 40px; font-size: 22px; }
-  .kids .kn { font-weight: 700; flex: 1; min-width: 0; }
-  .kids .kn b { color: var(--gold-ink); margin-left: var(--sp-2); }
+  .kids .kn { font-weight: var(--fw-bold); flex: 1; min-width: 0; }
+  .kids .kn b { color: var(--butter-ink); margin-left: var(--sp-2); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); }
   .kids .days { flex: 0 0 auto; }
-  .kids .days span { width: 28px; height: 28px; font-size: 10px; }
+  .kids .days span { width: 28px; height: 28px; font-size: var(--fs-caption2); }   /* was 10 px, under the 11 px floor (VIS-KIDVERSE-7) */
   .kids .days span.on .icon { width: 16px; height: 16px; }
-  .kids .none { color: var(--muted); }
+  .kids .none { color: var(--text-3); }
 
-  /* a calm confetti: a dozen token-coloured dots drifting down for 1.2 s; nothing at all under reduced motion */
-  .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
+  /* a calm confetti: a dozen dots in the eight categorical graphics (--cat-*) drifting down; nothing at all under Reduce
+     Motion, from the OS or from Me > Appearance (data-motion) */
+  .confetti { position: fixed; inset: 0; pointer-events: none; z-index: var(--z-popover); overflow: hidden; }
   .confetti i { position: absolute; top: -14px; left: var(--x); width: 12px; height: 12px; border-radius: var(--r-full); background: var(--c); opacity: 0;
-    animation: fall 1.2s var(--ease-out) var(--d) forwards; }
+    animation: fall calc(var(--dur-ambient) / 2) var(--ease-standard) var(--d) forwards; }
   @keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 0; } 12% { opacity: .95; } 100% { transform: translateY(70vh) rotate(180deg); opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { .confetti { display: none; } .ds .btn.say.on .icon { animation: none; } }
+  :root[data-motion="reduce"] .confetti { display: none; }
+  @media (prefers-reduced-motion: reduce) { :root:not([data-motion="full"]) .confetti { display: none; } }
 
   /* ── item 17: this week's story — a two-sentence retelling of the grown-ups' F260 reading, on a card below the verse ── */
-  .ds .story { border-radius: var(--r-xl); display: grid; gap: var(--sp-3); }
+  .ds .story { display: grid; gap: var(--sp-3); }
   .story-head { display: flex; align-items: center; gap: var(--sp-3); }
-  .story-head img { flex: 0 0 auto; width: 84px; aspect-ratio: 240 / 160; height: auto; border-radius: var(--r-lg); background: var(--surface-2); object-fit: cover; }
-  .story-head > div { min-width: 0; display: grid; gap: 2px; }
-  .story-head .kicker { color: var(--gold-ink); }
-  .story-head h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-2xl); line-height: var(--lh-tight); letter-spacing: 0; color: var(--text); text-wrap: balance; }
-  .story-span { color: var(--muted); font-size: var(--fs-xs); font-weight: 600; }
+  .story-head img { flex: 0 0 auto; width: 84px; aspect-ratio: 240 / 160; height: auto; border-radius: var(--r-control); background: var(--art-plate); object-fit: cover; }
+  .story-head > div { min-width: 0; display: grid; gap: var(--sp-0-5); }
+  .story-head .kicker { color: var(--butter-ink); }
+  .story-head h2 { margin: 0; font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-2xl); line-height: var(--lh-tight); letter-spacing: var(--ls-title1); color: var(--text); text-wrap: balance; }
+  .story-span { color: var(--text-3); font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
   .story p { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-snug); color: var(--text); text-wrap: pretty; min-height: 2.6em; }
   :root[data-kind="kid"] .story p { font-size: var(--fs-xl); }
-  .story small { color: var(--muted); font-size: var(--fs-xs); line-height: 1.35; }
+  .story small { color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
   .story-actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
   @media (min-width: 560px) { .story-actions { grid-template-columns: 1fr 1fr; } .story-actions.solo { grid-template-columns: 1fr; } }
-  .ds .story-actions .btn { min-height: max(64px, var(--tap-lg)); font-size: var(--fs-lg); border-radius: var(--r-xl); gap: var(--sp-3); }
+  /* capsules, like the verse's buttons: a capsule needs no concentric corner inside the card (VIS-KIDVERSE-8) */
+  .ds .story-actions .btn { min-height: max(64px, var(--btn-h-lg)); font-size: var(--fs-lg); gap: var(--sp-3); }
   .ds .story-actions .btn .icon { width: 1.4em; height: 1.4em; }
   .ds .story-actions .btn-glass { --g: var(--glass-strong); }
-  .ds .btn.story-heard { --accent: var(--gold); }
-  .ds .btn.story-heard.today { background: var(--gold-soft); color: var(--gold-ink); border-color: transparent; box-shadow: none; }
-  .ds .btn.story-say.on .icon { animation: pulse 1.1s ease-in-out infinite; }
-  .story-sub { color: var(--muted); font-size: var(--fs-sm); font-weight: 600; text-align: center; min-height: 1.5em; }
-  @media (prefers-reduced-motion: reduce) { .ds .btn.story-say.on .icon { animation: none; } }
+  /* "I heard it" carries data-accent="butter" in the markup, as Done ★ does (P3-KIDVERSE-14) */
+  .ds .btn.story-heard.today { background: var(--accent-fill); color: var(--accent-ink); border-color: transparent; box-shadow: none; }
+  .ds .btn.story-say.on .icon { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
+  .story-sub { color: var(--text-3); font-size: var(--fs-sm); font-weight: var(--fw-semibold); text-align: center; min-height: 1.5em; }
 
   /* 0b — until the family week and the stars have pulled once on this device: skeletons of the loaded size (never a
      made-up "Week 1" or a zero, and nothing jumps when the data lands), and Done ★ / I heard it / the week stepper wait,
@@ -147,14 +191,14 @@
   .ds .sk { display: inline-block; vertical-align: middle; width: var(--w, 60%); height: .8em; min-height: 0; }
   .ds .sk.l { display: block; box-sizing: border-box; width: var(--w, 100%); height: calc(1em * var(--lh-snug)); border-block: .2em solid transparent; background-clip: padding-box; }   /* exactly one text line tall (margins would collapse) */
   .days span.skd { opacity: .6; }
-  .ds .btn.loading:disabled { opacity: 1; background: var(--surface-2); color: var(--muted); border-color: transparent; box-shadow: none; }
+  .ds .btn.loading:disabled { opacity: 1; background: var(--surface-2); color: var(--text-3); border-color: transparent; box-shadow: none; }
 </style>
 </head>
 <body class="ds">
 <div class="wrap">
   <div class="top"><span class="pill" id="who"></span></div>
   <!-- 0b: a blank 3:2 plate and skeletons until the family week has pulled (render() swaps in the week's art and text) -->
-  <div class="scene glass-strong"><img id="art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160"></div>
+  <div class="card scene"><img id="art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160" draggable="false"></div>
   <div class="ref">
     <span class="kicker" id="kick">This week's verse</span>
     <h1 id="ref"><span class="skeleton sk" style="--w:62%"></span></h1>
@@ -166,21 +210,21 @@
     <small>A simple paraphrase for little ears — not the Bible's own words. Open the Bible together to read the real verse.</small>
   </div>
   <div class="actions">
-    <button class="btn btn-glass say" id="say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
-    <button class="btn btn-primary done" id="done" hidden><svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Done ★</span></button>
+    <button class="btn btn-glass say" id="say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
+    <button class="btn btn-primary done" id="done" data-accent="butter" hidden><svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Done ★</span></button>
   </div>
   <div class="card stars" id="mine" hidden></div>
   <!-- item 17: this week's story — the grown-ups' F260 reading for the family week, retold in two sentences for a small child -->
   <section class="card story" id="story" aria-labelledby="story-title">
     <div class="story-head">
-      <img id="story-art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160">
+      <img id="story-art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160" draggable="false">
       <div><span class="kicker" id="story-kick">This week's story</span><h2 id="story-title"><span class="skeleton sk" style="--w:70%"></span></h2><div class="story-span" id="story-span"><span class="skeleton sk" style="--w:85%"></span></div></div>
     </div>
     <p id="story-text"><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l" style="--w:55%"></span></p>
     <small>A short retelling in our own words of what the grown-ups are reading this week — not the Bible's own words. Open the Bible together to read the real story.</small>
     <div class="story-actions" id="story-actions">
-      <button class="btn btn-glass story-say" id="story-say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
-      <button class="btn btn-primary story-heard" id="story-heard" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>I heard it</span></button>
+      <button class="btn btn-glass story-say" id="story-say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
+      <button class="btn btn-primary story-heard" id="story-heard" data-accent="butter" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>I heard it</span></button>
     </div>
     <div class="story-sub" id="story-sub" hidden></div>
   </section>
@@ -335,8 +379,10 @@
 
   // ── the star ───────────────────────────────────────────────────────────────────────────────────────────
   function confetti() {
-    try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch {}
-    const colours = ['--gold', '--terra', '--teal', '--olive', '--slate', '--mocha'];
+    // Reduce Motion from Me > Appearance (data-motion) or the OS, unless the person chose full motion (CONS-MOTION-5)
+    const m = document.documentElement.dataset.motion;
+    try { if (m === 'reduce' || (m !== 'full' && matchMedia('(prefers-reduced-motion: reduce)').matches)) return; } catch {}
+    const colours = ['--cat-3', '--cat-2', '--cat-5', '--cat-4', '--cat-7', '--cat-1'];   // the categorical graphics (audit batch 1), not the legacy inks
     const c = document.createElement('div'); c.className = 'confetti'; c.setAttribute('aria-hidden', 'true');
     c.innerHTML = Array.from({ length: 12 }, (_, i) => `<i style="--x:${(6 + (i * 7.7) % 88).toFixed(1)}%;--c:var(${colours[i % colours.length]});--d:${(i % 4) * 70}ms"></i>`).join('');
     document.body.appendChild(c); setTimeout(() => c.remove(), 1500);
@@ -406,7 +452,7 @@
       : `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week"${w <= 1 ? ' disabled' : ''}>−</button><div class="wk" id="week-now">Week ${w}<small>the family is on</small></div><button class="btn" id="week-up" aria-label="Next week"${w >= 52 ? ' disabled' : ''}>+</button></div>` +
       (f260 && f260 !== w ? `<p class="hint">Your F260 plan is on week ${f260}.<button class="btn btn-soft" id="week-f260">Use week ${f260}</button></p>` : '<p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>');
     g.hidden = false;
-    g.innerHTML = `<h2>${STAR}Kids’ stars</h2>${stepper}<ul class="kids" id="kids">${kids.length ? kids.map(k => `<li data-kid="${esc(k.id)}" style="--tint:${esc(k.color || 'var(--accent)')}">${hub.avatarHtml(k, 'avatar-sm')}<span class="kn">${esc(k.name)}${k.s ? `<b>★${k.s.count}</b>` : ' ' + SK('2em')}</span>${k.s ? daysHtml(k.s, true) : `<div class="days" aria-hidden="true">${'<span class="skd"></span>'.repeat(7)}</div>`}</li>`).join('') : '<li class="none">No kid profiles yet.</li>'}</ul>`;
+    g.innerHTML = `<h2>${STAR}Kids’ stars</h2>${stepper}<ul class="kids" id="kids">${kids.length ? kids.map(k => `<li data-kid="${esc(k.id)}" data-accent="${esc(hub.hueOf(k))}">${hub.avatarHtml(k, 'avatar-sm')}<span class="kn">${esc(k.name)}${k.s ? `<b>★${k.s.count}</b>` : ' ' + SK('2em')}</span>${k.s ? daysHtml(k.s, true) : `<div class="days" aria-hidden="true">${'<span class="skd"></span>'.repeat(7)}</div>`}</li>`).join('') : '<li class="none">No kid profiles yet.</li>'}</ul>`;
     const dn = $('#week-down'), up = $('#week-up'), uf = $('#week-f260');
     if (dn) dn.onclick = () => setWeek(w - 1);
     if (up) up.onclick = () => setWeek(w + 1);
@@ -442,7 +488,7 @@
     { id: 'prayer', name: 'Prayer warrior', hint: 'prayed on 5 days',      glyph: 'heart', test: s => creditedCount(s, 'prayed') >= 5 },
     { id: 'fifty',  name: 'Fifty stars',    hint: '50 stars earned',       glyph: '50',   test: s => s.earned >= 50 },
   ];
-  const GLYPH = { star: STAR, book: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5M8 7h8M8 10.5h6"/></svg>', heart: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 7.5 2.9c0 5.4-7.5 10-7.5 10z"/></svg>' };
+  const GLYPH = { star: STAR, book: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5M8 7h8M8 10.5h6"/></svg>', heart: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 7.5 2.9c0 5.4-7.5 10-7.5 10z"/></svg>' };
   const isDate = k => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k);
   function rewardsExtra(v) {
     const o = v && typeof v === 'object' ? v : {};

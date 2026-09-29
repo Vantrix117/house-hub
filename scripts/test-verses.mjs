@@ -198,7 +198,7 @@ async function rateCard(fr, kind) {
     ok(fs.existsSync(path.join(ROOT, 'icons/verses.svg')) && /class="duo"/.test(fs.readFileSync(path.join(ROOT, 'icons/verses.svg'), 'utf8')) && fs.existsSync(path.join(ROOT, 'art/app/verses.svg')), 'icon (duotone) + spot art exist');
     ok(/app\.verses = svg\(200, 160/.test(fs.readFileSync(path.join(ROOT, 'scripts/make-art.mjs'), 'utf8')), 'the spot art comes from scripts/make-art.mjs');
     const src = fs.readFileSync(path.join(ROOT, 'apps/verses.html'), 'utf8');
-    ok(!/#[0-9a-f]{3,8}\b/i.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))) && !/prefers-color-scheme/.test(src), 'no hex and no prefers-color-scheme in the app\'s CSS');
+    ok(!/#[0-9a-f]{3,8}\b/i.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))) && !/prefers-color-scheme/.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))), 'no hex and no prefers-color-scheme in the app\'s CSS');
     ok(/data-app="verses" data-scope="person"/.test(src) && /hub\.use\('f260', 'person'\)/.test(src), 'hub.js with app id verses, person scope; reads F260 through hub.use');
     ok(/recall:<id>\s+\{/.test(src) && /box: 1\.\.5/.test(src) && /due: 'YYYY-MM-DD'/.test(src), 'the recall shape is documented in the file');
 

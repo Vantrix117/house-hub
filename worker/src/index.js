@@ -210,7 +210,7 @@ route('GET', '/api/profiles', async c => {
 
 // ── guests (roadmap 23) ───────────────────────────────────────
 // A household adult adds a guest profile on demand: kind 'adult', is_guest 1, never admin, id 'guest-<random>'.
-// {name, emoji?|icon?, color?, pin?, expires_at?}: pin is optional (a guest without one signs in on tap),
+// {name, emoji?|icon?, color?, hue?, pin?, expires_at?} (hue: one of the 18 families, default sky): pin is optional (a guest without one signs in on tap),
 // expires_at is ms since epoch (null/omitted = keep). Kids, the display and guests themselves cannot add guests.
 const GUEST_RETENTION_MS = 30 * 86400000;   // an expired guest's data is kept this long, then the cron purge removes it
 route('POST', '/api/profiles', async c => {
@@ -224,6 +224,8 @@ route('POST', '/api/profiles', async c => {
   checkName(name, emoji);
   const color = b.color === undefined || b.color === null || b.color === '' ? '#8A6A4B' : String(b.color);
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) throw new HttpError(400, 'bad_color', 'Color must be #rrggbb.');
+  const hue = b.hue === undefined || b.hue === null || b.hue === '' ? 'sky' : String(b.hue);   // a new guest is sky unless given a family
+  if (!HUES.includes(hue)) throw new HttpError(400, 'bad_hue', 'hue must be one of: ' + HUES.join(', ') + '.');
   let pinHash = null;
   if (b.pin !== undefined && b.pin !== null && b.pin !== '') {
     if (!PIN_RE.test(String(b.pin))) throw new HttpError(400, 'bad_pin', 'PIN must be 4 to 8 digits.');
@@ -238,7 +240,7 @@ route('POST', '/api/profiles', async c => {
   const sort = ((await c.env.DB.prepare('SELECT MAX(sort_order) AS m FROM profiles').first('m')) || 0) + 1;
   await c.env.DB.prepare(
     `INSERT INTO profiles (id, name, emoji, color, kind, pin_hash, is_admin, sort_order, is_guest, created_by, expires_at, hue)
-       VALUES (?, ?, ?, ?, 'adult', ?, 0, ?, 1, ?, ?, 'sky')`).bind(id, name, emoji, color, pinHash, sort, me.id, expiresAt).run();
+       VALUES (?, ?, ?, ?, 'adult', ?, 0, ?, 1, ?, ?, ?)`).bind(id, name, emoji, color, pinHash, sort, me.id, expiresAt, hue).run();
   await c.env.DB.prepare('INSERT INTO activity (profile_id, app_id, text, created_at) VALUES (?, ?, ?, ?)')
     .bind(me.id, 'hub', `Added a guest: ${name}`, Date.now()).run();
   const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(id).first();
@@ -421,7 +423,7 @@ route('GET', '/api/activity', async c => {
   await c.auth();
   const limit = Math.min(100, Math.max(1, +(c.url.searchParams.get('limit') || 30) || 30));
   const { results } = await c.env.DB.prepare(
-    `SELECT a.id, a.profile_id, a.app_id, a.text, a.created_at, p.name, p.emoji, p.color, p.photo
+    `SELECT a.id, a.profile_id, a.app_id, a.text, a.created_at, p.name, p.emoji, p.color, p.hue, p.is_guest, p.photo
        FROM activity a LEFT JOIN profiles p ON p.id = a.profile_id
       ORDER BY a.created_at DESC, a.id DESC LIMIT ?`).bind(limit).all();
   return { activity: results.map(r => ({ ...r, photo: r.photo ? { sm: `/api/media/photos/${r.profile_id}/${r.photo}-256.jpg` } : null })) };
@@ -514,7 +516,7 @@ route('POST', '/api/activity', async c => {
   const app = checkKey(String(app_id || 'hub'));
   const r = await c.env.DB.prepare('INSERT INTO activity (profile_id, app_id, text, created_at) VALUES (?, ?, ?, ?)')
     .bind(p.id, app, t, now).run();
-  return { id: r.meta.last_row_id, profile_id: p.id, app_id: app, text: t, created_at: now, name: p.name, emoji: p.emoji, color: p.color };
+  return { id: r.meta.last_row_id, profile_id: p.id, app_id: app, text: t, created_at: now, name: p.name, emoji: p.emoji, color: p.color, hue: p.hue || null, is_guest: p.is_guest ? 1 : 0 };
 });
 
 // ── push ──────────────────────────────────────────────────────

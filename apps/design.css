@@ -1,299 +1,787 @@
-/* House Hub design system v2 — shared by index.html and every app in apps/.
-   Include:  <link rel="stylesheet" href="design.css">   (from apps/)  or  href="apps/design.css" (from the hub)
-   hub.js sets  --accent  from the signed-in profile's colour and  data-theme / data-scheme / data-kind  on <html>.
-   Themes: hearth (default), parchment, frost, midnight, forest — see the themes block and docs/design.html.
+/* ════════════════════════════════════════════════════════════════════════════════════════════════════════
+   House Hub design system v3 — shared by index.html and every app in apps/.
+   Include:  <link rel="stylesheet" href="design.css">   (from apps/)  or  href="apps/design.css" (from the hub),
+   AFTER the inline pre-paint bootstrap in <head> (audits/tools/phase4/tokens/bootstrap.js), which sets the attributes
+   below before the first paint; hub.js keeps them current.
+   Two halves in one file (no build step): the TOKENS (audit batch 1a: the verified set of audits/04-design-system.md,
+   "Proposed token set", revision 6e, identical to audits/tools/phase4/tokens/proposed-tokens.css and gated by
+   audits/tools/phase4/tokens/contrast.mjs) and, after them, the COMPONENTS (batch 1b). Style guide: docs/design.html
+   Plain CSS custom properties: no framework, no web font (system-ui renders SF Pro on Apple devices; SF Pro is never
+   embedded and SF Symbols are never shipped).
 
-   Direction: the warmth and fidelity of a Hearth display crossed with glassy modern iOS —
-   paper base, translucent glass layers with hairlines, tinted elevation, a display serif for headlines,
-   rounded UI type, person colour as the accent, and motion that is rich but calm.
+   ATTRIBUTES (all on <html>, written by hub.js and by the inline <head> bootstrap before first paint: bootstrap.js here)
+     data-theme        hearth | parchment | frost | midnight | forest | graphite   the RESOLVED palette, on <html> only. "System" is a choice,
+                       not a palette: it resolves to hearth by day and midnight by night (CLAUDE.md) and is kept in
+                       data-theme-choice="system". "light" / "dark" stay as aliases of hearth / midnight.
+     data-scheme       light | dark      always agrees with the theme; the theme wins if they ever disagree (see §2)
+     data-accent       bubblegum | peach | butter | mint | aqua | sky | periwinkle | lavender | graphite   (the people)
+                       coral | apricot | honey | pistachio | leaf | seafoam | lagoon | cornflower | orchid   (the apps, D5)
+                       the signed-in person's family. ANY element may carry data-accent to re-derive every --accent-* and
+                       role token for its subtree (avatars, feed rows, kids' cards, app tiles). Replaces the inline hex at
+                       apps/hub.js:80, the inline --tint hexes in index.html and the 168 color-mix() recipes. A session stored
+                       before the profile gained a hue maps its hex through the bootstrap's fallback table (unknown → graphite).
+     data-kind         adult | kid | kiosk
+     data-text-size    xs | s | m | l | xl | xxl     person preference like the theme; m (= no attribute) is the default
+     data-contrast     more      (mirrors prefers-contrast: more; "standard" opts out of the OS setting)
+     data-glass        clear | current | frosted   the glass level (D8), a person preference; frosted (= no attribute) is the default.
+                                  The fourth level, Solid, IS data-transparency="reduce". Choosing a level in Me writes data-transparency="full"
+                                  too, so an explicit choice is not overridden by the OS; never choosing one follows the OS
+     data-transparency reduce    (mirrors prefers-reduced-transparency; "full" opts out) — Safari has no such media
+                                  feature, so the Me > Appearance switch is the working path on iPad and iPhone
+     data-motion       reduce    (mirrors prefers-reduced-motion; "full" opts out)
+     data-tv-scale     10ft      kiosk only: the 10-foot type/space scale at 1600 px+. Inert until batch 2c, which re-lays out the .tv grid and
+                                  turns it on for the TV in the same commit (D16: "now, with a re-layout"), gated by scripts/test-tv.mjs and the
+                                  1920 x 1080 fit check; until then the TV board keeps today's sizes at every width
+   PALETTE SCOPES are :root[data-theme=…] and the explicit preview hook [data-theme-preview=…] ONLY. A bare [data-theme] is data,
+   never a palette scope: F260's theme buttons (apps/f260.html:2028) and the Me theme cards (index.html:1259) carry
+   data-theme as a value and must keep the document's palette. A theme preview (the Me swatches, docs/design.html) carries
+   data-theme-preview + data-scheme + data-accent. It shows its palette's ADULT values: the hue and neutral blocks are re-declared on
+   the swatch, so the kiosk and Increase Contrast swaps do not reach inside it. A swatch therefore carries no text; the theme name and
+   blurb sit outside it, in the document's palette.
 
-   Tokens (:root) are global and safe for any page. Components apply only inside an element with class "ds"
-   (usually <body class="ds">); F260 and Prayer keep their own component CSS and use the tokens only.
-   Style guide: docs/design.html */
+   ROLE RULES (lint-enforced in Phase 6; see TOKENS.md)
+     text and icons on a hue:  --X-ink (never --X-fill, --X-fill-strong, --X-graphic, --success-strong or --warning-strong as small text)
+     solid fills:              --X-strong with --X-on as the label. A PERSON -strong is also >= 4.58:1 as text, so legacy
+                               color:var(--accent) stays AA. A SEMANTIC -strong is a fill only: as text it is 3.70 (success) and
+                               3.79 (warning) on Parchment's page, so semantic text is always --X-ink (--ok, --warn, --danger alias it)
+     the pairing rule:         a background that carries a label maps to -strong + -on together; never -on or white on -fill/-wash
+     identity marks:           --X-graphic (rings, map markers, today ring, avatar ring), >= 3:1 and CVD-separated
+     tiles:                    var(--tile-bg) = linear-gradient(160deg, --X-fill, --X-fill-strong) with an --X-ink glyph
+     semantic states:          colour + glyph (check / exclamation / cross), never a person's family
+     materials:                glass on the navigation and control layer only; every content card is --material-solid-bg
+     press:                    .pressable is a GLOBAL opt-in class (not scoped to .ds, so F260, Prayer, the Larder and the Dollywood
+                               template can adopt it): :active { transform: scale(var(--press-scale)); filter: var(--press-dim) } with
+                               no transition in, and the release on var(--dur-snappy) var(--spring-snappy)
+   ════════════════════════════════════════════════════════════════════════════════════════════════════════ */
 
+/* ── 1. scheme-independent tokens ─────────────────────────────────────────────────────────────────────── */
 :root {
-  color-scheme: light dark;
-
-  /* ── type ─────────────────────────────────────────────────── */
-  --font-sans: ui-rounded, -apple-system, system-ui, "Segoe UI Variable", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --font-serif: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
-  --font-display: var(--font-serif);
+  /* type faces */
+  --font-text: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-rounded: ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif;   /* reading and scripture only */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --fs-xs: 12px;  --fs-sm: 14px;  --fs-md: 16px;  --fs-lg: 18px;
-  --fs-xl: 22px;  --fs-2xl: 28px; --fs-3xl: 36px; --fs-4xl: 48px;
-  --fs-hero: clamp(34px, 7.5vw, 46px);
-  --lh-tight: 1.1; --lh-snug: 1.25; --lh: 1.45;
-  --ls-tight: -0.02em; --ls-caps: .08em;
+  --font-ui: var(--font-text);          /* kid: rounded */
+  --font-numeral: var(--font-rounded);  /* timers, tallies, counts, stars */
+  --numeral-features: tabular-nums;
 
-  /* ── spacing (4 px grid), radii, targets ──────────────────── */
-  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px; --sp-5: 20px;
-  --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px; --sp-16: 64px;
-  --r-sm: 12px; --r: 16px; --r-lg: 22px; --r-xl: 28px; --r-2xl: 36px; --r-full: 999px;
-  --tap: 44px; --tap-lg: 60px;
-  --max: 1200px; --max-read: 720px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
+  /* type multiplier: width tier x person text size x kind; nothing below the floor */
+  --ts-width: 1; --ts-user: 1; --ts-kind: 1;
+  --ts: calc(var(--ts-width) * var(--ts-user) * var(--ts-kind));
+  --fs-floor: 11px;
 
-  /* ── light palette ────────────────────────────────────────── */
-  --bg: #F7F2EB;          /* paper */
-  --bg-2: #EFE7DC;        /* deeper paper (wells, page edges) */
-  --surface: #FFFCF8;     /* solid raised cards */
-  --surface-2: #EFE7DC;   /* sunken wells, inputs */
-  --hover: #F2EADF;
-  --text: #2E251D;
-  --text-2: #6A5B4E;
-  --muted: #75675B;       /* AA on paper and cards (4.9:1) */
-  --muted-decor: #A79B8E; /* placeholders, dividers, decorative only */
-  --line: #E6DCCE;
-  --line-soft: #F0E8DC;
-  --hairline: rgba(255, 255, 255, .6);
-  --scrim: rgba(42, 35, 28, .45);
+  /* iOS Dynamic Type roles (size / line height / weight / tracking) */
+  --fs-large-title: max(var(--fs-floor), calc(34px * var(--ts)));  --lh-large-title: 1.206; --fw-large-title: 700; --ls-large-title: -0.022em;
+  --fs-title1:      max(var(--fs-floor), calc(28px * var(--ts)));  --lh-title1: 1.214;      --fw-title1: 700;      --ls-title1: -0.018em;
+  --fs-title2:      max(var(--fs-floor), calc(22px * var(--ts)));  --lh-title2: 1.273;      --fw-title2: 700;      --ls-title2: -0.012em;
+  --fs-title3:      max(var(--fs-floor), calc(20px * var(--ts)));  --lh-title3: 1.25;       --fw-title3: 600;      --ls-title3: -0.008em;
+  --fs-headline:    max(var(--fs-floor), calc(17px * var(--ts)));  --lh-headline: 1.294;    --fw-headline: 600;    --ls-headline: 0em;
+  --fs-body:        max(var(--fs-floor), calc(17px * var(--ts)));  --lh-body: 1.294;        --fw-body: 400;        --ls-body: 0em;
+  --fs-callout:     max(var(--fs-floor), calc(16px * var(--ts)));  --lh-callout: 1.3125;    --fw-callout: 400;     --ls-callout: 0em;
+  --fs-subheadline: max(var(--fs-floor), calc(15px * var(--ts)));  --lh-subheadline: 1.333; --fw-subheadline: 400; --ls-subheadline: 0em;
+  --fs-footnote:    max(var(--fs-floor), calc(13px * var(--ts)));  --lh-footnote: 1.385;    --fw-footnote: 400;    --ls-footnote: 0.005em;
+  --fs-caption1:    max(var(--fs-floor), calc(12px * var(--ts)));  --lh-caption1: 1.333;    --fw-caption1: 400;    --ls-caption1: 0.01em;
+  --fs-caption2:    max(var(--fs-floor), calc(11px * var(--ts)));  --lh-caption2: 1.182;    --fw-caption2: 500;    --ls-caption2: 0.015em;
+  --lh-read: 1.5;                 /* long-form reading: F260 passages, prayer text, scripture */
+  --ls-caps: 0.06em;              /* uppercase kickers only */
+  --text-large-title: var(--fw-large-title) var(--fs-large-title)/var(--lh-large-title) var(--font-ui);
+  --text-title1: var(--fw-title1) var(--fs-title1)/var(--lh-title1) var(--font-ui);
+  --text-title2: var(--fw-title2) var(--fs-title2)/var(--lh-title2) var(--font-ui);
+  --text-title3: var(--fw-title3) var(--fs-title3)/var(--lh-title3) var(--font-ui);
+  --text-headline: var(--fw-headline) var(--fs-headline)/var(--lh-headline) var(--font-ui);
+  --text-body: var(--fw-body) var(--fs-body)/var(--lh-body) var(--font-ui);
+  --text-callout: var(--fw-callout) var(--fs-callout)/var(--lh-callout) var(--font-ui);
+  --text-subheadline: var(--fw-subheadline) var(--fs-subheadline)/var(--lh-subheadline) var(--font-ui);
+  --text-footnote: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-ui);
+  --text-caption1: var(--fw-caption1) var(--fs-caption1)/var(--lh-caption1) var(--font-ui);
+  --text-caption2: var(--fw-caption2) var(--fs-caption2)/var(--lh-caption2) var(--font-ui);
+  /* key / value pair (park map, build guide, admin): the key is footnote + --text-3, the value subheadline semibold + --text */
+  --text-label: var(--text-footnote);   --text-value: var(--fw-semibold) var(--fs-subheadline)/var(--lh-subheadline) var(--font-ui);
+  --fs-field: max(16px, var(--fs-body));   /* iOS zooms any focused field under 16 px */
 
-  /* glass: translucent surfaces that show the page through them */
-  --glass: rgba(255, 252, 248, .66);
-  --glass-strong: rgba(255, 252, 248, .84);
-  --glass-line: rgba(255, 255, 255, .55);
-  --blur: 18px;
-  /* liquid glass v3: a specular sheen along the top, a darker refracted edge inside, a lighter ring outside,
-     an inner shadow at the bottom, and a little of the person's colour caught in the glass. --sheen-x drifts
-     with scroll/tilt (hub.js). Every value here is overridden per theme below. */
-  --glass-spec: rgba(255, 255, 255, .62);
-  --glass-edge: rgba(58, 46, 36, .10);
-  --glass-ring: rgba(255, 255, 255, .55);
-  --glass-inner: rgba(58, 46, 36, .10);
-  --glass-pickup: 12%;
-  --sheen-x: 30%;
+  /* weights: four for text; heavy and light for numerals only */
+  --fw-light: 300; --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600; --fw-bold: 700; --fw-heavy: 800;
 
-  /* the wash behind everything: warm light from the top, a hint of the person's colour */
-  --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
-          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 6%, transparent), transparent 55%);
+  /* display, numerals and glance roles */
+  --fs-display: clamp(40px, 9vw, 56px);                                   /* Home greeting, kid hero words */
+  --fs-numeral-s: max(var(--fs-floor), calc(28px * var(--ts)));           /* stats, star counts */
+  --fs-numeral-m: clamp(44px, 12vw, 64px);                                /* Kid Verse balance, Verses counts */
+  --fs-numeral-l: clamp(72px, 22vw, 168px);                               /* Timer digits, Tally count */
+  --fs-numeral-xl: clamp(96px, 9vw, 190px);                               /* TV clock */
+  --ls-numeral: -0.02em;
+  /* glance roles: read from 2-3 m on the kitchen iPad. 44 px subtends ~20 arcmin of cap height at 2.5 m, the comfortable
+     across-the-room minimum; they scale with kind and the person's text size, not with the iPad width tier. */
+  --fs-glance-3: max(var(--fs-floor), calc(44px * var(--ts-kind) * var(--ts-user)));   /* a glance card's value line */
+  --fs-glance-2: max(var(--fs-floor), calc(64px * var(--ts-kind) * var(--ts-user)));   /* running timer, today's reading */
+  --fs-glance-1: max(var(--fs-floor), calc(96px * var(--ts-kind) * var(--ts-user)));   /* the one number that matters */
 
-  --mocha: #8A6A4B; --mocha-soft: #F0E6D9; --mocha-ink: #5E4630;
-  --gold:  #B4861B; --gold-soft:  #F6EBD0; --gold-ink:  #7A5A0F;
-  --olive: #5B8143; --olive-soft: #E6EEDD; --olive-ink: #3E5C2C;
-  --teal:  #137F77; --teal-soft:  #DCECEA; --teal-ink:  #0E5F59;
-  --terra: #BC5A38; --terra-soft: #F7E3DA; --terra-ink: #8E3E22;
-  --slate: #4F5D8C; --slate-soft: #E4E7F1; --slate-ink: #3A4569;
+  /* spacing: 4-pt grid; kid and kiosk scale it */
+  --space-k: 1;
+  --sp-0-5: calc(2px * var(--space-k));
+  --sp-1: calc(4px * var(--space-k));
+  --sp-1-5: calc(6px * var(--space-k));   /* icon-to-label gaps only */
+  --sp-2: calc(8px * var(--space-k));
+  --sp-3: calc(12px * var(--space-k));
+  --sp-4: calc(16px * var(--space-k));
+  --sp-5: calc(20px * var(--space-k));
+  --sp-6: calc(24px * var(--space-k));
+  --sp-8: calc(32px * var(--space-k));
+  --sp-10: calc(40px * var(--space-k));
+  --sp-12: calc(48px * var(--space-k));
+  --sp-16: calc(64px * var(--space-k));
+  --pad-card: var(--sp-4);   --pad-sheet: var(--sp-5);   --pad-row-y: var(--sp-3);   --pad-row-x: var(--sp-4);
+  --pad-control-x: var(--sp-4);   --pad-chip-x: var(--sp-3);   --gap-list: var(--sp-2);   --gap-grid: var(--sp-3);   --gap-stack: var(--sp-3);
+  --margin: 16px;                                   /* size class: 16 / 20 / 28 / 32 (width tiers below); TV 96 only with data-tv-scale="10ft" */
+  --margin-tv-x: 96px; --margin-tv-y: 54px;         /* the 5 % title-safe area at 1920 x 1080 */
+  --safe-top: env(safe-area-inset-top, 0px);   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px); --safe-right: env(safe-area-inset-right, 0px);
+  --margin-left: max(var(--margin), var(--safe-left));   --margin-right: max(var(--margin), var(--safe-right));
+  --col-narrow: 560px;   /* forms and lists: Larder, Timer, Prayer */
+  --col-read: 720px;     /* reading: F260, Kid Verse, Verses */
+  --col-wide: 1200px;    /* dashboards: Home, the build guide */
+  /* breakpoints (documentation only: custom properties cannot drive @media). min-width queries at
+     390 large phone · 744 regular width (iPad) · 1024 sidebar · 1180 iPad landscape · 1440 desktop
+     · 1600 the opt-in 10-foot kiosk tier (data-tv-scale="10ft") · 1920 TV */
 
-  --ok: var(--olive);     --ok-soft: var(--olive-soft);     --ok-ink: var(--olive-ink);
-  --warn: var(--gold);    --warn-soft: var(--gold-soft);    --warn-ink: var(--gold-ink);
-  --danger: var(--terra); --danger-soft: var(--terra-soft); --danger-ink: var(--terra-ink);
-  --info: var(--teal);    --info-soft: var(--teal-soft);    --info-ink: var(--teal-ink);
+  /* shape: continuous large radii, concentric by construction (outer = inner + padding) */
+  --shape-k: 1;
+  --r-xs: 6px;
+  --r-control: calc(12px * var(--shape-k));                     /* fields, inset buttons, segmented items, chips */
+  --r-card: calc(var(--r-control) + var(--pad-card));           /* 28 adult, 38 kid, 42 TV */
+  --r-sheet: calc(var(--r-control) + var(--pad-sheet));         /* 32 adult */
+  --r-inset: calc(var(--r-card) - var(--pad-card));             /* anything inset in a card */
+  --r-button: 999px;                                            /* free-standing buttons and primary actions: capsule */
+  --r-full: 999px;
+  --r-icon-ratio: 0.225;                                        /* app-icon corner = size x ratio */
+  --border-w: 1px; --border-w-strong: 1.5px; --hairline-w: 0.5px;
 
-  /* ── per-profile accent (hub.js overrides --accent) ───────── */
-  --accent: var(--mocha);
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-  --accent-tint: color-mix(in srgb, var(--accent) 26%, var(--surface));
-  --accent-deep: color-mix(in srgb, var(--accent) 72%, black);   /* filled buttons, text on soft — AA on paper for every family colour */
-  --accent-strong: var(--accent-deep);
-  --accent-glow: color-mix(in srgb, var(--accent) 35%, transparent);
-  --on-accent: #FFFCF8;
-  --tint: var(--accent);   /* per-element person colour (avatars, chips, rings); defaults to the signed-in accent */
+  /* targets: grow with the person's text size, never below the kind's base */
+  --tap-base: 44px; --tap-lg-base: 60px; --tap-row-base: 52px;
+  --tap: max(var(--tap-base), calc(var(--tap-base) * var(--ts-user)));
+  --tap-lg: max(var(--tap-lg-base), calc(var(--tap-lg-base) * var(--ts-user)));     /* the primary action of a daily flow */
+  --tap-row: max(var(--tap-row-base), calc(var(--tap-row-base) * var(--ts-user)));  /* list rows: grandparent-friendly */
+  --btn-h: var(--tap); --btn-h-lg: var(--tap-lg); --btn-pad-x: var(--pad-control-x);
 
-  /* ── elevation (tinted with the ink colour) ───────────────── */
-  --e1: 0 1px 2px rgba(58,46,36,.06), 0 1px 1px rgba(58,46,36,.04);
-  --e2: 0 1px 2px rgba(58,46,36,.05), 0 6px 18px -8px rgba(58,46,36,.16);
-  --e3: 0 2px 6px rgba(58,46,36,.06), 0 18px 40px -16px rgba(58,46,36,.26);
-  --e4: 0 4px 12px rgba(58,46,36,.08), 0 32px 72px -24px rgba(58,46,36,.36);
-  --shadow-sm: var(--e1); --shadow: var(--e2); --shadow-lg: var(--e3);
-  --glow-accent: 0 8px 24px -8px var(--accent-glow);
-  --focus: 0 0 0 3px color-mix(in srgb, var(--accent) 38%, transparent);
+  /* icons: Lucide (ISC) sprite, one weight */
+  --icon-k: 1;
+  --icon-xs: calc(16px * var(--icon-k)); --icon-sm: calc(20px * var(--icon-k)); --icon-md: calc(24px * var(--icon-k));
+  --icon-lg: calc(28px * var(--icon-k)); --icon-xl: calc(32px * var(--icon-k));
+  --icon-stroke: 1.75;            /* with vector-effect: non-scaling-stroke, so 1.75 px at every size */
+  --icon-duo: currentColor; --icon-duo-opacity: 0.2;   /* duotone fill set on the <svg>, inherited through <use> */
+  --chevron-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --select-chevron: var(--chevron-mask);   /* a MASK painted with background-color: var(--chevron-colour) */
 
-  /* ── motion ───────────────────────────────────────────────── */
-  --ease: cubic-bezier(.2, .7, .2, 1);
-  --ease-out: cubic-bezier(.2, .7, .2, 1);
-  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
-  --spring: cubic-bezier(.34, 1.4, .64, 1);
-  --dur: 220ms; --dur-1: 120ms; --dur-2: 220ms; --dur-3: 360ms;
+  /* rings, focus */
+  --ring-w-sm: calc(2px * var(--icon-k)); --ring-w: calc(3px * var(--icon-k)); --ring-w-lg: calc(4px * var(--icon-k));
+  --focus-ring-w: 3px; --focus-offset: 2px;   /* drawn as an OUTLINE so component box-shadows cannot hide it */
+
+  /* layers */
+  --z-base: 0; --z-raised: 1; --z-sticky: 10; --z-bar: 20; --z-fab: 30; --z-scrim: 40; --z-sheet: 50; --z-popover: 60; --z-toast: 70; --z-pill: 80; --z-top: 100;
+
+  /* glass geometry (colours per theme and scheme below) */
+  --blur-sm: 8px; --blur: 20px; --blur-lg: 32px; --scrim-blur: 0px;
+  --blur-photo: 24px;             /* the TV album backdrop (index.html:131 filter: blur(24px)); on the kiosk it is applied ONCE per photo
+                                     to a static bitmap (canvas draw of the 256 px rendition), never as a live filter under the crossfade */
+  --glass-saturate: 1.8;
+  --glass-halo-alpha: 0%; --glass-halo-edge-alpha: 0%;   /* the halo on see-through glass: 0 unless data-glass is clear or current (§8) */
+  --glass-text-shadow: none; --glass-icon-filter: none;  /* §8 points both at the outlines (§5) on Clear and Current */
+  --glass-filter: blur(var(--blur)) saturate(var(--glass-saturate));
+  --glass-filter-strong: blur(var(--blur-lg)) saturate(var(--glass-saturate));
+  --sheen-x: 30%;                 /* an ELEMENT input, not a token input: hub.js writes it on the tab bar and the top bar (never on
+                                     :root), and only their ::after layer's transform reads it (glass7-component.css). No token may contain
+                                     var(--sheen-x): a custom property's var() is substituted where it is declared, so a :root token
+                                     would freeze the sheen at the :root value (gated). */
+
+  /* motion: damped springs sampled into linear(), each paired with its settle duration */
+  --spring-snappy: linear(0, 0.0321, 0.1102, 0.2126, 0.3243, 0.4351, 0.5388, 0.6318, 0.7125, 0.7806, 0.8367, 0.8819, 0.9175, 0.9448, 0.9654, 0.9805, 0.9912, 0.9984, 1.0031, 1.0059, 1.0073, 1.0077, 1.0075, 1.007, 1.0062, 1.0053, 1.0045, 1.0037, 1);
+  --spring-gentle: linear(0, 0.0242, 0.0837, 0.1631, 0.2517, 0.3421, 0.4298, 0.5116, 0.586, 0.6524, 0.7105, 0.7608, 0.8038, 0.8402, 0.8707, 0.8961, 0.9171, 0.9342, 0.9482, 0.9594, 0.9685, 0.9757, 0.9814, 0.9859, 0.9894, 0.9922, 0.9943, 0.9959, 1);
+  /* bouncy: zeta 0.608, omega 26.7 rad/s — 9 % overshoot, inside 0.5 % of rest at 340 ms (re-sampled to the house 200-350 ms) */
+  --spring-bouncy: linear(0, 0.046, 0.1593, 0.3082, 0.4682, 0.6219, 0.7581, 0.8707, 0.9577, 1.02, 1.0602, 1.0821, 1.0898, 1.0872, 1.078, 1.065, 1.0506, 1.0366, 1.024, 1.0134, 1.0051, 0.9991, 0.9951, 0.9929, 0.992, 0.992, 0.9928, 0.9939, 1);
+  --dur-snappy: 240ms;     /* presses, toggles, the tab indicator: 0.8 % overshoot */
+  --dur-gentle: 290ms;     /* sheets, pages, layout: no overshoot */
+  --dur-bouncy: 340ms;     /* celebrations only (stars, badges): 9 % overshoot */
+  --ease-standard: cubic-bezier(.2, .7, .2, 1);   /* colour and opacity */
+  --ease-exit: cubic-bezier(.4, 0, .8, .2);       /* things leaving */
+  --dur-press: 0ms;        /* the press-IN is an instant :active state (no transition); the release animates on --spring-snappy / --dur-snappy */
+  --dur-fast: 200ms; --dur-base: 280ms; --dur-slow: 350ms; --dur-exit: 200ms;
+  --dur-progress: var(--dur-slow);   /* a progress fill or ring moving to its new value: 350 ms on --spring-gentle (was 800 ms) */
+  --dur-shimmer: 1400ms; --dur-pulse: 1200ms; --dur-ambient: 2400ms;   /* keyframe loops, not transitions */
+  --dur-crossfade: 2500ms;   /* THE ONE AMBIENT TRANSITION outside 200-350 ms: the TV album crossfade (index.html:131, an opacity transition,
+                                kiosk only), an owner-approved exception (decision D18); 150 ms opacity under Reduce Motion (the kept global kill) */
+  --pulse-scale: 0.94;            /* the chat mic's listening pulse (index.html:265-266); keyframes read it, 1 under Reduce Motion */
+  --ambient-iterations: 3;        /* ambient loops stop after three cycles (transform/opacity only) */
+  --enter-distance: 16px;         /* sheet/toast entry offset; 0 under Reduce Motion */
+  --press-scale: 0.97; --press-scale-sm: 0.94;
+
+  /* loading and stable heights: the loading box is the loaded box */
+  --sk-line: calc(var(--fs-body) * var(--lh-body));
+  --min-h-row: var(--tap-row);
+  --min-h-glance: calc(152px * var(--space-k));
+  --min-h-hero: calc(208px * var(--space-k));
+  --min-h-chips: calc(var(--tap) + var(--sp-2));
+  --op-disabled: 0.4;             /* non-text only; disabled text uses --text-3 */
+
+  /* highlight and shade overlays: the only rgba() literals a component may use (replaces 13 in design.css, 5 in the shell, 13+ in the park map) */
+  --hi-1: rgba(255, 255, 255, 0.06); --hi-2: rgba(255, 255, 255, 0.14); --hi-3: rgba(255, 255, 255, 0.22); --hi-4: rgba(255, 255, 255, 0.6);
+  --shade-1: rgba(0, 0, 0, 0.04); --shade-2: rgba(0, 0, 0, 0.08); --shade-3: rgba(0, 0, 0, 0.12); --shade-4: rgba(0, 0, 0, 0.25); --shade-5: rgba(0, 0, 0, 0.45);
+
+  /* the TV board over album photos: a scrim panel sized so BOTH lines hold 7:1 over a white photo (the kiosk is a 7:1 mode):
+     .74 gives --tv-text-2 7.03 over white (at .66 it was 5.10, verification round 3) */
+  --tv-panel: rgba(0, 0, 0, 0.74); --tv-text: #FFFFFF; --tv-text-2: #D8D8DC;
 }
 
-/* ── themes ───────────────────────────────────────────────────
-   :root above is Hearth (warm paper). hub.js sets data-theme to a palette name and data-scheme to the
-   resolved light|dark so apps with their own CSS can follow. "System" (no data-theme) is Hearth by day
-   and Midnight at night. data-theme="light"/"dark" still work as aliases for Hearth/Midnight. */
-:root[data-theme="parchment"], .tp[data-preview="parchment"] {   /* soft tan reading paper, sepia ink */
-  --bg: #E7D9BE; --bg-2: #DDCBA9; --surface: #F1E7D2; --surface-2: #DDCBA9; --hover: #E9DCC4;
-  --text: #3A2A1A; --text-2: #5E4A36; --muted: #6A5641; --muted-decor: #9E8A70;
-  --line: #D3C09E; --line-soft: #DFD0B3; --hairline: rgba(255,250,240,.55); --scrim: rgba(58,42,26,.45);
-  --glass: rgba(241,231,210,.66); --glass-strong: rgba(241,231,210,.86); --glass-line: rgba(255,250,240,.6);
-  --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
-          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 55%);
-  --mocha: #7A5A3A; --mocha-soft: #E4D3B4; --mocha-ink: #4E3620;
-  --gold: #9A6F0E; --gold-soft: #E8D5A2; --gold-ink: #5E4408;
-  --olive: #4E7038; --olive-soft: #D8DDB8; --olive-ink: #324A22;
-  --teal: #0F6E67; --teal-soft: #CFDCCF; --teal-ink: #0A4F49;
-  --terra: #A84B2C; --terra-soft: #E9CFBD; --terra-ink: #7A3419;
-  --slate: #46527E; --slate-soft: #D6D6DC; --slate-ink: #303A5C;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-  --accent-deep: color-mix(in srgb, var(--accent) 66%, black);
-  --on-accent: #FFF8EC;
-  --glass-spec: rgba(255,250,240,.6); --glass-edge: rgba(58,42,26,.12); --glass-ring: rgba(255,250,240,.55); --glass-inner: rgba(58,42,26,.12); --glass-pickup: 12%;
-  --e1: 0 1px 2px rgba(58,42,26,.08), 0 1px 1px rgba(58,42,26,.05); --e2: 0 1px 2px rgba(58,42,26,.07), 0 6px 18px -8px rgba(58,42,26,.2);
-  --e3: 0 2px 6px rgba(58,42,26,.08), 0 18px 40px -16px rgba(58,42,26,.3); --e4: 0 4px 12px rgba(58,42,26,.1), 0 32px 72px -24px rgba(58,42,26,.4);
+/* width tiers: margins, and the iPad type tier on touch devices only (a desktop window stays at 1) */
+@media (min-width: 390px) { :root { --margin: 20px; } }
+@media (min-width: 744px) { :root { --margin: 28px; --gap-grid: var(--sp-4); } }
+@media (min-width: 744px) and (pointer: coarse) { :root { --ts-width: 1.12; } }
+@media (min-width: 1180px) { :root { --margin: 32px; } }
+
+/* ── 2. hue families per scheme ─────────────────────────────────────────────────────────────────────────
+   Each family has the same eight roles: -wash · -fill (the house pastel, exact) · -fill-strong (the saturated tile end)
+   · -strong (solid fills; a person -strong is also >= 4.58 as text, a semantic -strong is a fill only (success 3.70, warning 3.79 as
+   text on Parchment's page: its text is -ink); in the LIGHT scheme the kiosk and Increase Contrast swap the person -strong to -ink-hi so
+   labels reach 7:1, while the dark pastel solid already gives its -on label >= 8.67 and stays) · -graphic (identity marks, lightness-tiered for colour-blind viewers)
+   · -ink (the house ink: text and icons) · -ink-hi (7:1, swapped in by the kiosk and Increase Contrast) · -on (label on strong).
+   Keyed on the scheme AND on :root's theme, so a stale data-scheme can never paint a light theme with dark hues:
+   :root[data-theme=…] (0,2,0) outranks [data-scheme=…] (0,1,0). */
+:root, [data-scheme="light"], :root[data-theme="hearth"], :root[data-theme="light"], :root[data-theme="parchment"], :root[data-theme="frost"] {
+  color-scheme: light;
+  --bubblegum-wash: #FFF2F6; --bubblegum-fill: #FFC8DD; --bubblegum-fill-strong: #FF97BF; --bubblegum-strong: #BC1D6F; --bubblegum-graphic: #D72D77; --bubblegum-ink: #A3134F; --bubblegum-ink-hi: #85003D; --bubblegum-on: #FFFFFF;
+  --peach-wash: #FFF3EB; --peach-fill: #FFD6B8; --peach-fill-strong: #FF9E72; --peach-strong: #AA4400; --peach-graphic: #954C00; --peach-ink: #9A3F0A; --peach-ink-hi: #7A2E01; --peach-on: #FFFFFF;
+  --butter-wash: #FAF6E4; --butter-fill: #FFF1A8; --butter-fill-strong: #EAAC2C; --butter-strong: #845D00; --butter-graphic: #9C7A00; --butter-ink: #735A00; --butter-ink-hi: #574400; --butter-on: #FFFFFF;
+  --mint-wash: #E9FBF0; --mint-fill: #B9F2D0; --mint-fill-strong: #48CD8C; --mint-strong: #007346; --mint-graphic: #006F46; --mint-ink: #0E6B3B; --mint-ink-hi: #00522A; --mint-on: #FFFFFF;
+  --aqua-wash: #E4FBFC; --aqua-fill: #B5EEF0; --aqua-fill-strong: #00C9DA; --aqua-strong: #006B87; --aqua-graphic: #007E79; --aqua-ink: #0B6468; --aqua-ink-hi: #004F52; --aqua-on: #FFFFFF;
+  --sky-wash: #EFF7FF; --sky-fill: #BFDDFF; --sky-fill-strong: #7DBBFF; --sky-strong: #0065B6; --sky-graphic: #0071AB; --sky-ink: #1A4F9C; --sky-ink-hi: #08408C; --sky-on: #FFFFFF;
+  --periwinkle-wash: #F3F5FF; --periwinkle-fill: #CCD3FF; --periwinkle-fill-strong: #A5B2FF; --periwinkle-strong: #4F52D8; --periwinkle-graphic: #606FFE; --periwinkle-ink: #3440A8; --periwinkle-ink-hi: #2A339A; --periwinkle-on: #FFFFFF;
+  --lavender-wash: #F8F3FF; --lavender-fill: #E0CCFF; --lavender-fill-strong: #C7A7FF; --lavender-strong: #7F43CA; --lavender-graphic: #581DB2; --lavender-ink: #5E2BAE; --lavender-ink-hi: #531AA0; --lavender-on: #FFFFFF;
+  --success-wash: #ECFBED; --success-fill: #C4F7CA; --success-fill-strong: #67CB79; --success-strong: #008533; --success-graphic: #008533; --success-ink: #005D22; --success-ink-hi: #004918; --success-on: #FFFFFF;
+  --warning-wash: #FFF4E8; --warning-fill: #FFDCB6; --warning-fill-strong: #F5A639; --warning-strong: #9F6400; --warning-graphic: #BC6D00; --warning-ink: #724600; --warning-ink-hi: #593600; --warning-on: #FFFFFF;
+  --danger-wash: #FFF2F1; --danger-fill: #FFC8C3; --danger-fill-strong: #FF9B95; --danger-strong: #900017; --danger-graphic: #900017; --danger-ink: #9B1E25; --danger-ink-hi: #800616; --danger-on: #FFFFFF;
+  --graphite-wash: #F4F4F7; --graphite-fill: #E3E3E8; --graphite-fill-strong: #B3B6BF; --graphite-strong: #61646B; --graphite-graphic: #43454C; --graphite-ink: #48484F; --graphite-ink-hi: #2C2C30; --graphite-on: #FFFFFF;
+  /* the nine APP families (decision D5, Phase 5: separate in-between pastels, none shared with a person; derived by audits/tools/phase5/app-hues.mjs) */
+  --coral-wash: #FFF8F8; --coral-fill: #FFCBD0; --coral-fill-strong: #FF9AA8; --coral-strong: #BC274F; --coral-graphic: #C9364B; --coral-ink: #A3223A; --coral-ink-hi: #83102A; --coral-on: #FFFFFF;
+  --apricot-wash: #FEF0EB; --apricot-fill: #FFD2BE; --apricot-fill-strong: #FF9D83; --apricot-strong: #B13C1D; --apricot-graphic: #A64619; --apricot-ink: #9E3719; --apricot-ink-hi: #7D260B; --apricot-on: #FFFFFF;
+  --honey-wash: #FFF8F1; --honey-fill: #FFE1AE; --honey-fill-strong: #FBA259; --honey-strong: #9A5100; --honey-graphic: #935E00; --honey-ink: #8A4D00; --honey-ink-hi: #6B3A00; --honey-on: #FFFFFF;
+  --pistachio-wash: #F4F8E6; --pistachio-fill: #E4F4B2; --pistachio-fill-strong: #C1BB33; --pistachio-strong: #6B6700; --pistachio-graphic: #747A13; --pistachio-ink: #5E6105; --pistachio-ink-hi: #474A01; --pistachio-on: #FFFFFF;
+  --leaf-wash: #F5FFF4; --leaf-fill: #CFF2BD; --leaf-fill-strong: #83C865; --leaf-strong: #3F702C; --leaf-graphic: #4E7226; --leaf-ink: #3A6827; --leaf-ink-hi: #2A4F19; --leaf-on: #FFFFFF;
+  --seafoam-wash: #E6FBF6; --seafoam-fill: #B3F1E1; --seafoam-fill-strong: #00CDB5; --seafoam-strong: #007159; --seafoam-graphic: #00705E; --seafoam-ink: #006856; --seafoam-ink-hi: #005042; --seafoam-on: #FFFFFF;
+  --lagoon-wash: #E7FAFE; --lagoon-fill: #B0EBF9; --lagoon-fill-strong: #36C6EA; --lagoon-strong: #006A95; --lagoon-graphic: #007B88; --lagoon-ink: #006073; --lagoon-ink-hi: #004D5C; --lagoon-on: #FFFFFF;
+  --cornflower-wash: #F7FAFF; --cornflower-fill: #B3DEFC; --cornflower-fill-strong: #95B9FF; --cornflower-strong: #2F5EC8; --cornflower-graphic: #2C74D5; --cornflower-ink: #17439A; --cornflower-ink-hi: #07338A; --cornflower-on: #FFFFFF;
+  --orchid-wash: #FCF2FB; --orchid-fill: #F6C8EC; --orchid-fill-strong: #EE9BDE; --orchid-strong: #AA2B99; --orchid-graphic: #AB229A; --orchid-ink: #91187B; --orchid-ink-hi: #7A0267; --orchid-on: #FFFFFF;
+  --success-switch: var(--success-strong);
+  --press-dim: brightness(0.94);
 }
-:root[data-theme="frost"], .tp[data-preview="frost"] {       /* cool pale glass, graphite ink */
-  --bg: #EDF0F5; --bg-2: #E2E7EE; --surface: #FAFBFD; --surface-2: #E2E7EE; --hover: #E8ECF2;
-  --text: #1E2430; --text-2: #4A5566; --muted: #5C6879; --muted-decor: #98A2B0;
-  --line: #D5DBE4; --line-soft: #E4E8EE; --hairline: rgba(255,255,255,.7); --scrim: rgba(30,36,48,.42);
-  --glass: rgba(250,251,253,.62); --glass-strong: rgba(250,251,253,.84); --glass-line: rgba(255,255,255,.7);
-  --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
-          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 0%, transparent), transparent 55%);
-  --mocha: #7E6A55; --mocha-soft: #EDE7E0; --mocha-ink: #55432F;
-  --gold: #A07A1F; --gold-soft: #F2EAD3; --gold-ink: #6B5010;
-  --olive: #547A40; --olive-soft: #E4EEDD; --olive-ink: #3A5A2A;
-  --teal: #137F77; --teal-soft: #DAEDEA; --teal-ink: #0D5C56;
-  --terra: #B25538; --terra-soft: #F5E2DA; --terra-ink: #833A22;
-  --slate: #4A5A94; --slate-soft: #E2E6F4; --slate-ink: #33406E;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-  --accent-deep: color-mix(in srgb, var(--accent) 72%, black);
-  --on-accent: #FFFFFF;
-  --glass-spec: rgba(255,255,255,.75); --glass-edge: rgba(30,36,48,.10); --glass-ring: rgba(255,255,255,.7); --glass-inner: rgba(30,36,48,.10); --glass-pickup: 10%;
-  --e1: 0 1px 2px rgba(30,36,48,.06), 0 1px 1px rgba(30,36,48,.04); --e2: 0 1px 2px rgba(30,36,48,.05), 0 6px 18px -8px rgba(30,36,48,.16);
-  --e3: 0 2px 6px rgba(30,36,48,.06), 0 18px 40px -16px rgba(30,36,48,.26); --e4: 0 4px 12px rgba(30,36,48,.08), 0 32px 72px -24px rgba(30,36,48,.36);
+[data-scheme="dark"], :root[data-theme="midnight"], :root[data-theme="dark"], :root[data-theme="forest"], :root[data-theme="graphite"] {
+  color-scheme: dark;
+  --bubblegum-wash: #3D1F2C; --bubblegum-fill: #613146; --bubblegum-fill-strong: #7F3858; --bubblegum-strong: #FF9BC4; --bubblegum-graphic: #F2749E; --bubblegum-ink: #FFC2D9; --bubblegum-ink-hi: #FFE0EB; --bubblegum-on: #311220;
+  --peach-wash: #3D2310; --peach-fill: #603616; --peach-fill-strong: #7F410A; --peach-strong: #FFA566; --peach-graphic: #EE842C; --peach-ink: #FFC9A5; --peach-ink-hi: #FFE3D2; --peach-on: #311602;
+  --butter-wash: #322A08; --butter-fill: #4D3F02; --butter-fill-strong: #645300; --butter-strong: #DABC43; --butter-graphic: #FFDB7E; --butter-ink: #E7D695; --butter-ink-hi: #F3EAC8; --butter-on: #251D00;
+  --mint-wash: #113120; --mint-fill: #144C31; --mint-fill-strong: #00653D; --mint-strong: #63D99B; --mint-graphic: #00976B; --mint-ink: #A6E7C1; --mint-ink-hi: #D2F3DE; --mint-on: #002614;
+  --aqua-wash: #003134; --aqua-fill: #004A4D; --aqua-fill-strong: #006064; --aqua-strong: #00D7E0; --aqua-graphic: #00C0B7; --aqua-ink: #8FE7EC; --aqua-ink-hi: #C8F3F5; --aqua-on: #002425;
+  --sky-wash: #152C42; --sky-fill: #1E4266; --sky-fill-strong: #1D568B; --sky-strong: #89C3FF; --sky-graphic: #9CD0FF; --sky-ink: #B7DAFF; --sky-ink-hi: #DAECFF; --sky-on: #061F37;
+  --periwinkle-wash: #232843; --periwinkle-fill: #373D69; --periwinkle-fill-strong: #454D8D; --periwinkle-strong: #ACB8FF; --periwinkle-graphic: #859FFF; --periwinkle-ink: #CAD3FF; --periwinkle-ink-hi: #E3E8FF; --periwinkle-on: #171B38;
+  --lavender-wash: #2F243F; --lavender-fill: #4A3863; --lavender-fill-strong: #5F4484; --lavender-strong: #CCABFF; --lavender-graphic: #8569D6; --lavender-ink: #DFCBFF; --lavender-ink-hi: #EEE4FF; --lavender-on: #231733;
+  --success-wash: #17311C; --success-fill: #214B29; --success-fill-strong: #216330; --success-strong: #84E093; --success-graphic: #84E093; --success-ink: #B0E6B7; --success-ink-hi: #D6F2D9; --success-on: #08250E;
+  --warning-wash: #3A250B; --warning-fill: #5A390A; --warning-fill-strong: #754900; --warning-strong: #FFBB69; --warning-graphic: #FFBB69; --warning-ink: #FACD98; --warning-ink-hi: #FEE5CA; --warning-on: #2D1900;
+  --danger-wash: #40201E; --danger-fill: #64312E; --danger-fill-strong: #843936; --danger-strong: #F07E79; --danger-graphic: #F07E79; --danger-ink: #FFC6C1; --danger-ink-hi: #FFE2DF; --danger-on: #341211;
+  --graphite-wash: #26262A; --graphite-fill: #404045; --graphite-fill-strong: #4C4C52; --graphite-strong: #C4C4CC; --graphite-graphic: #E4E7F0; --graphite-ink: #DADADF; --graphite-ink-hi: #EDEDF0; --graphite-on: #1C1C1F;
+  /* the nine APP families (D5) */
+  --coral-wash: #3F1F23; --coral-fill: #653138; --coral-fill-strong: #843843; --coral-strong: #FF9FA9; --coral-graphic: #E2637D; --coral-ink: #FFC4C9; --coral-ink-hi: #FFE1E3; --coral-on: #331217;
+  --apricot-wash: #3F2115; --apricot-fill: #63341F; --apricot-fill-strong: #823D1E; --apricot-strong: #FFA37E; --apricot-graphic: #F57C51; --apricot-ink: #FFC8B1; --apricot-ink-hi: #FFE2D9; --apricot-on: #331407;
+  --honey-wash: #382709; --honey-fill: #563D05; --honey-fill-strong: #6D4E00; --honey-strong: #EDB24B; --honey-graphic: #FF9E5E; --honey-ink: #F2D199; --honey-ink-hi: #FFE9D4; --honey-on: #2A1B00;
+  --pistachio-wash: #282D0E; --pistachio-fill: #3E450F; --pistachio-fill-strong: #515A0E; --pistachio-strong: #B8C957; --pistachio-graphic: #BBC666; --pistachio-ink: #D1DE9D; --pistachio-ink-hi: #E7EECC; --pistachio-on: #1D2102;
+  --leaf-wash: #1C3017; --leaf-fill: #2C4920; --leaf-fill-strong: #366125; --leaf-strong: #90D378; --leaf-graphic: #63AC65; --leaf-ink: #BCE3AC; --leaf-ink-hi: #DBF1D4; --leaf-on: #122409;
+  --seafoam-wash: #05322A; --seafoam-fill: #004C40; --seafoam-fill-strong: #006353; --seafoam-strong: #32DABD; --seafoam-graphic: #00AA8E; --seafoam-ink: #97E8D5; --seafoam-ink-hi: #CBF4E9; --seafoam-on: #00251E;
+  --lagoon-wash: #023039; --lagoon-fill: #004955; --lagoon-fill-strong: #005E6E; --lagoon-strong: #3ED2F0; --lagoon-graphic: #3FC6D5; --lagoon-ink: #98E4F6; --lagoon-ink-hi: #CCF1FA; --lagoon-on: #00232A;
+  --cornflower-wash: #1C2A43; --cornflower-fill: #2B4068; --cornflower-fill-strong: #34528D; --cornflower-strong: #9EC0FF; --cornflower-graphic: #8AB7FF; --cornflower-ink: #C4D9FF; --cornflower-ink-hi: #E5EEFF; --cornflower-on: #0F1D38;
+  --orchid-wash: #392035; --orchid-fill: #5A3353; --orchid-fill-strong: #763B6C; --orchid-strong: #EF9FE0; --orchid-graphic: #CF6BBD; --orchid-ink: #F5C4EA; --orchid-ink-hi: #FAE1F4; --orchid-on: #2D1329;
+  --success-switch: #269143;   /* a white knob stays >= 3:1 on it */
+  --press-dim: brightness(1.14);
 }
-:root[data-theme="midnight"], :root[data-theme="dark"], .tp[data-preview="midnight"] {   /* warm dark with real depth */
-  --bg: #1A1512; --bg-2: #120E0B; --surface: #241E19; --surface-2: #15110E; --hover: #2D2620;
-  --text: #F3EDE5; --text-2: #C9BBAB; --muted: #A2948A; --muted-decor: #6E6258;
-  --line: #342C25; --line-soft: #2A231E; --hairline: rgba(255,255,255,.08); --scrim: rgba(0,0,0,.62);
-  --glass: rgba(36, 30, 25, .62); --glass-strong: rgba(36, 30, 25, .84); --glass-line: rgba(255,255,255,.09);
-  --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
-          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 7%, transparent), transparent 55%);
-  --mocha: #CBA77E; --mocha-soft: #2E251C; --mocha-ink: #E3CBAA;
-  --gold: #E0B25A; --gold-soft: #2C2416; --gold-ink: #F0CE86;
-  --olive: #9DC183; --olive-soft: #1E2718; --olive-ink: #BFDBAA;
-  --teal: #5EC2B8; --teal-soft: #12241F; --teal-ink: #93DCD4;
-  --terra: #E28A66; --terra-soft: #2B1D17; --terra-ink: #F1B198;
-  --slate: #A5B0DC; --slate-soft: #232738; --slate-ink: #C6CDEB;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-  --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
-  --on-accent: #17120E;
-  --glass-spec: rgba(255,255,255,.14); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
-  --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
-  --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
+
+/* ── 3. neutral grounds, one block per palette (a theme preview reuses the same rule through [data-theme-preview]) ─────
+   Hearth is the default and System's day palette (CLAUDE.md), re-tuned to the grouped structure: a warm-grey page with
+   white cards. Frost is iOS grouped exactly (#F2F2F7 + white). Graphite is the new iOS near-black (a proposed named
+   theme). Midnight (System's night palette) and Forest are warm and green near-blacks with cards lifted >= 1.2:1 and
+   wells LIGHTER than the card. --text-2-hi is the 7:1 secondary ink the kiosk and Increase Contrast swap in. Revision 6b lifts the
+   three dark --text-3 by about 0.03 L (Midnight #A9A198 → #B2AAA1, Forest #9DA9A1 → #A4B1A8, Graphite #A1A1A6 → #A8A8AD) so a sheet's
+   caption holds 4.5 under the full sheen and pickup over busy content (verify-rev6 issue 6); text-2 stays a clear step above.
+   Forest's gold is carried by its page wash (after §5). A root with data-scheme="dark" and NO data-theme resolves to Midnight,
+   in every mode (the guard is (0,1,0), below). */
+:root, :root[data-theme="hearth"], :root[data-theme="light"], [data-theme-preview="hearth"] {
+  --bg: #F4F1EC; --surface: #FFFFFF; --surface-2: #F4F1EC; --surface-raised: #FFFFFF; --fill-field: #EFEBE5; --hover: #EEEAE3;
+  --text: #221C17; --text-2: #4A423A; --text-3: #635B53; --text-2-hi: #37302A; --placeholder: var(--text-3);
+  --separator: rgba(80, 60, 40, 0.16); --line: #E6E0D7; --field-border: #8C847B; --track: #E6E0D7; --track-info: #8C847B;
+  --hairline: rgba(255, 255, 255, 0.65); --scrim: rgba(34, 28, 23, 0.34);
+  --shadow-rgb: 58, 46, 36;
+  --glass-alpha: 78%; --glass-alpha-strong: 90%;
+  --glass-spec: rgba(255, 255, 255, 0.62); --glass-edge: rgba(58, 46, 36, 0.10); --glass-ring: rgba(255, 255, 255, 0.55); --glass-inner: rgba(58, 46, 36, 0.10); --glass-pickup: 18%;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --bg: #1A1512; --bg-2: #120E0B; --surface: #241E19; --surface-2: #15110E; --hover: #2D2620;
-    --text: #F3EDE5; --text-2: #C9BBAB; --muted: #A2948A; --muted-decor: #6E6258;
-    --line: #342C25; --line-soft: #2A231E; --hairline: rgba(255,255,255,.08); --scrim: rgba(0,0,0,.62);
-    --glass: rgba(36, 30, 25, .62); --glass-strong: rgba(36, 30, 25, .84); --glass-line: rgba(255,255,255,.09);
-    --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
-            radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 7%, transparent), transparent 55%);
-    --mocha: #CBA77E; --mocha-soft: #2E251C; --mocha-ink: #E3CBAA;
-    --gold: #E0B25A; --gold-soft: #2C2416; --gold-ink: #F0CE86;
-    --olive: #9DC183; --olive-soft: #1E2718; --olive-ink: #BFDBAA;
-    --teal: #5EC2B8; --teal-soft: #12241F; --teal-ink: #93DCD4;
-    --terra: #E28A66; --terra-soft: #2B1D17; --terra-ink: #F1B198;
-    --slate: #A5B0DC; --slate-soft: #232738; --slate-ink: #C6CDEB;
-    --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-    --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
-    --on-accent: #17120E;
-  --glass-spec: rgba(255,255,255,.14); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
-    --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
-    --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
+:root[data-theme="frost"], [data-theme-preview="frost"] {
+  --bg: #F2F2F7; --surface: #FFFFFF; --surface-2: #F2F2F7; --surface-raised: #FFFFFF; --fill-field: #EEEEF0; --hover: #E9E9EE;
+  --text: #1D1D1F; --text-2: #48484E; --text-3: #616168; --text-2-hi: #333338; --placeholder: var(--text-3);
+  --separator: rgba(60, 60, 67, 0.18); --line: #E3E3E8; --field-border: #85858B; --track: #E3E3E8; --track-info: #85858B;
+  --hairline: rgba(255, 255, 255, 0.7); --scrim: rgba(0, 0, 0, 0.32);
+  --shadow-rgb: 20, 22, 40;
+  --glass-alpha: 78%; --glass-alpha-strong: 90%;
+  --glass-spec: rgba(255, 255, 255, 0.75); --glass-edge: rgba(30, 36, 48, 0.10); --glass-ring: rgba(255, 255, 255, 0.7); --glass-inner: rgba(30, 36, 48, 0.10); --glass-pickup: 16%;
+}
+:root[data-theme="parchment"], [data-theme-preview="parchment"] {
+  --bg: #ECE2CD; --surface: #FBF7EE; --surface-2: #F1E9D8; --surface-raised: #FFFBF3; --fill-field: #EFE6D3; --hover: #F3EBDC;
+  --text: #2B2116; --text-2: #4A3B2B; --text-3: #5E4E3A; --text-2-hi: #35291B; --placeholder: var(--text-3);
+  --separator: rgba(90, 70, 40, 0.18); --line: #DDD0B6; --field-border: #8B7A60; --track: #E3D7BF; --track-info: #8B7A60;
+  --hairline: rgba(255, 250, 240, 0.6); --scrim: rgba(43, 33, 22, 0.36);
+  --shadow-rgb: 58, 42, 26;
+  --glass-alpha: 78%; --glass-alpha-strong: 90%;
+  --glass-spec: rgba(255, 250, 240, 0.6); --glass-edge: rgba(58, 42, 26, 0.12); --glass-ring: rgba(255, 250, 240, 0.55); --glass-inner: rgba(58, 42, 26, 0.12); --glass-pickup: 18%;
+}
+:root[data-theme="midnight"], :root[data-theme="dark"], [data-theme-preview="midnight"],
+:root:where([data-scheme="dark"]:not([data-theme])) {   /* a document running without the bootstrap (today's hub.js deletes data-theme for System)
+   gets Midnight's grounds, never Hearth's under dark hues. Specificity (0,1,0) ON PURPOSE: it beats Hearth's :root block by order
+   only, so the kiosk, Increase Contrast (+ its mirror) and Reduce Transparency blocks (0,2,0) still win on this root. Gated in
+   every mode in contrast.mjs and in both engines; at (0,3,0) the guard overrode all four (verification round 3). */
+  --bg: #0B0A09; --surface: #211F1D; --surface-2: #2E2B28; --surface-raised: #2A2725; --fill-field: #2E2B28; --hover: #292624;
+  --text: #F5F2EE; --text-2: #D0C9C1; --text-3: #B2AAA1; --text-2-hi: #E4DFD9; --placeholder: var(--text-3);
+  --separator: rgba(255, 245, 235, 0.12); --line: #37332F; --field-border: #7D766F; --track: #3A3633; --track-info: #7D766F;
+  --hairline: rgba(255, 255, 255, 0.08); --scrim: rgba(0, 0, 0, 0.56);
+  --shadow-rgb: 0, 0, 0;
+  --glass-alpha: 80%; --glass-alpha-strong: 90%;
+  --glass-spec: rgba(255, 255, 255, 0.06); --glass-edge: rgba(0, 0, 0, 0.45); --glass-ring: rgba(255, 255, 255, 0.08); --glass-inner: rgba(0, 0, 0, 0.4); --glass-pickup: 24%;
+}
+:root[data-theme="forest"], [data-theme-preview="forest"] {
+  --bg: #070F0D; --surface: #182522; --surface-2: #213029; --surface-raised: #1F2D29; --fill-field: #213029; --hover: #1D2A26;
+  --text: #FBEFC8; --text-2: #D8BE7A; --text-3: #C8AF70; --text-2-hi: #E6CD8C; --placeholder: var(--text-3);   /* gold ink (owner, 2026-09-26) */
+  --separator: rgba(235, 255, 245, 0.12); --line: #2A3833; --field-border: #75827B; --track: #2D3C36; --track-info: #75827B;
+  --hairline: rgba(255, 255, 255, 0.08); --scrim: rgba(0, 0, 0, 0.56);
+  --shadow-rgb: 0, 0, 0;
+  --glass-alpha: 80%; --glass-alpha-strong: 90%;
+  --glass-spec: rgba(255, 255, 255, 0.06); --glass-edge: rgba(0, 0, 0, 0.45); --glass-ring: rgba(255, 255, 255, 0.08); --glass-inner: rgba(0, 0, 0, 0.4); --glass-pickup: 24%;
+}
+:root[data-theme="graphite"], [data-theme-preview="graphite"] {
+  --bg: #000000; --surface: #1C1C1E; --surface-2: #2C2C2E; --surface-raised: #2C2C2E; --fill-field: #2C2C2E; --hover: #242426;
+  --text: #F5F5F7; --text-2: #D1D1D6; --text-3: #A8A8AD; --text-2-hi: #E5E5EA; --placeholder: var(--text-3);
+  --separator: rgba(255, 255, 255, 0.12); --line: #38383A; --field-border: #7C7C80; --track: #3A3A3C; --track-info: #7C7C80;
+  --hairline: rgba(255, 255, 255, 0.08); --scrim: rgba(0, 0, 0, 0.6);
+  --shadow-rgb: 0, 0, 0;
+  --glass-alpha: 80%; --glass-alpha-strong: 90%;
+  --glass-spec: rgba(255, 255, 255, 0.06); --glass-edge: rgba(0, 0, 0, 0.5); --glass-ring: rgba(255, 255, 255, 0.09); --glass-inner: rgba(0, 0, 0, 0.4); --glass-pickup: 22%;
+}
+:root[data-theme="hearth"], :root[data-theme="light"], :root[data-theme="parchment"], :root[data-theme="frost"],
+[data-theme-preview="hearth"], [data-theme-preview="parchment"], [data-theme-preview="frost"] { color-scheme: light; }
+:root[data-theme="midnight"], :root[data-theme="dark"], :root[data-theme="forest"], :root[data-theme="graphite"], :root:where([data-scheme="dark"]:not([data-theme])),
+[data-theme-preview="midnight"], [data-theme-preview="forest"], [data-theme-preview="graphite"] { color-scheme: dark; }
+
+/* ── 4. scheme-level roles that read the theme's grounds ─────────────────────────────────────────────────── */
+:root, [data-scheme="light"], :root[data-theme="hearth"], :root[data-theme="light"], :root[data-theme="parchment"], :root[data-theme="frost"] {
+  --glass: color-mix(in srgb, var(--surface) var(--glass-alpha), transparent);
+  --glass-strong: color-mix(in srgb, var(--surface) var(--glass-alpha-strong), transparent);
+  --glass-solid: var(--surface); --glass-strong-solid: var(--surface-raised);
+  --glass-look: color-mix(in srgb, var(--surface) 90%, var(--bg));        /* content glass: the look, no blur */
+  --glass-inverse: rgba(28, 28, 30, 0.72); --glass-inverse-line: rgba(255, 255, 255, 0.14); --glass-inverse-ink: #FFFFFF;
+  --glass-inverse-hi: rgba(28, 28, 30, 0.76);   /* the 7:1 modes: white ink >= 7 over a white card */
+  --toast-bg: rgba(30, 30, 32, 0.94); --toast-ink: #FFFFFF; --toast-ink-2: #D1D1D6;
+  --e1: 0 1px 2px rgba(var(--shadow-rgb), 0.06), 0 0 0 0.5px rgba(var(--shadow-rgb), 0.04);
+  --e2: 0 1px 2px rgba(var(--shadow-rgb), 0.05), 0 6px 18px -8px rgba(var(--shadow-rgb), 0.16);
+  --e3: 0 2px 6px rgba(var(--shadow-rgb), 0.06), 0 18px 40px -16px rgba(var(--shadow-rgb), 0.24);
+  --e4: 0 4px 12px rgba(var(--shadow-rgb), 0.08), 0 32px 72px -24px rgba(var(--shadow-rgb), 0.34);
+  --e-up: 0 -0.5px 0 var(--separator), 0 -12px 40px -24px rgba(var(--shadow-rgb), 0.14);
+  --shadow-pressed: inset 0 1px 2px rgba(var(--shadow-rgb), 0.12);
+  --switch-on: var(--success-strong); --switch-knob: #FFFFFF; --switch-off: var(--track); --switch-off-ring: var(--field-border);
+  --scrollbar-thumb: color-mix(in srgb, var(--text) 30%, transparent); --scrollbar-track: transparent;
+  --viewer-loading-bg: var(--bg);
+  --chevron-colour: var(--text-2);
+  --art-plate: transparent;                         /* spot, empty-state and story art sits straight on the page */
+  --star-fill: var(--butter-fill-strong); --star-stroke: var(--butter-ink);   /* the kids' star is read by its outline */
+  --hero-btn-mix: 0%;                              /* the hero button: a white capsule with the ink label in light … */
+}
+[data-scheme="dark"], :root[data-theme="midnight"], :root[data-theme="dark"], :root[data-theme="forest"], :root[data-theme="graphite"] {
+  --glass: color-mix(in srgb, var(--surface) var(--glass-alpha), transparent);
+  --glass-strong: color-mix(in srgb, var(--surface) var(--glass-alpha-strong), transparent);
+  --glass-solid: var(--surface); --glass-strong-solid: var(--surface-raised);
+  --glass-look: color-mix(in srgb, var(--surface) 90%, var(--bg));
+  --glass-inverse: rgba(58, 58, 60, 0.82); --glass-inverse-line: rgba(255, 255, 255, 0.12); --glass-inverse-ink: #FFFFFF;
+  --glass-inverse-hi: rgba(58, 58, 60, 0.86);   /* the 7:1 modes: white ink >= 7 over a white photo */
+  --toast-bg: rgba(58, 58, 62, 0.96); --toast-ink: #FFFFFF; --toast-ink-2: #D1D1D6;
+  /* dark elevation = a lighter surface step (surface-raised) + a top hairline; the drop shadow is only a hint */
+  --e1: inset 0 0.5px 0 rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --e2: inset 0 0.5px 0 rgba(255, 255, 255, 0.08), 0 8px 22px -8px rgba(0, 0, 0, 0.6);
+  --e3: inset 0 0.5px 0 rgba(255, 255, 255, 0.10), 0 24px 56px -20px rgba(0, 0, 0, 0.75);
+  --e4: inset 0 0.5px 0 rgba(255, 255, 255, 0.12), 0 36px 80px -24px rgba(0, 0, 0, 0.85);
+  --e-up: 0 -0.5px 0 var(--separator), 0 -12px 40px -24px rgba(0, 0, 0, 0.6);
+  --shadow-pressed: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  --switch-on: var(--success-switch); --switch-knob: #FFFFFF; --switch-off: var(--track); --switch-off-ring: var(--field-border);
+  --scrollbar-thumb: color-mix(in srgb, var(--text) 32%, transparent); --scrollbar-track: transparent;
+  --viewer-loading-bg: var(--bg);
+  --chevron-colour: var(--text-2);
+  --art-plate: var(--surface-raised);               /* until scripts/make-art.mjs emits token fills: never a bright slab */
+  --star-fill: var(--butter-strong); --star-stroke: var(--butter-graphic);
+  --hero-btn-mix: 100%;                            /* … the glowing pastel solid with its dark label in dark (D15; round-6 item 19: the deep fill
+                                                      was the hero's own end stop, 1.00:1, so the capsule had no edge) */
+}
+
+/* ── 5. the person's family: data-accent on <html> or on any element (graphite FIRST: it also carries :root) ── */
+:root, [data-accent="graphite"] {
+  --accent-wash: var(--graphite-wash); --accent-fill: var(--graphite-fill); --accent-fill-strong: var(--graphite-fill-strong); --accent-strong: var(--graphite-strong); --accent-graphic: var(--graphite-graphic); --accent-ink: var(--graphite-ink); --accent-ink-hi: var(--graphite-ink-hi); --accent-on: var(--graphite-on);
+}
+[data-accent="bubblegum"] {
+  --accent-wash: var(--bubblegum-wash); --accent-fill: var(--bubblegum-fill); --accent-fill-strong: var(--bubblegum-fill-strong); --accent-strong: var(--bubblegum-strong); --accent-graphic: var(--bubblegum-graphic); --accent-ink: var(--bubblegum-ink); --accent-ink-hi: var(--bubblegum-ink-hi); --accent-on: var(--bubblegum-on);
+}
+[data-accent="peach"] {
+  --accent-wash: var(--peach-wash); --accent-fill: var(--peach-fill); --accent-fill-strong: var(--peach-fill-strong); --accent-strong: var(--peach-strong); --accent-graphic: var(--peach-graphic); --accent-ink: var(--peach-ink); --accent-ink-hi: var(--peach-ink-hi); --accent-on: var(--peach-on);
+}
+[data-accent="butter"] {
+  --accent-wash: var(--butter-wash); --accent-fill: var(--butter-fill); --accent-fill-strong: var(--butter-fill-strong); --accent-strong: var(--butter-strong); --accent-graphic: var(--butter-graphic); --accent-ink: var(--butter-ink); --accent-ink-hi: var(--butter-ink-hi); --accent-on: var(--butter-on);
+}
+[data-accent="mint"] {
+  --accent-wash: var(--mint-wash); --accent-fill: var(--mint-fill); --accent-fill-strong: var(--mint-fill-strong); --accent-strong: var(--mint-strong); --accent-graphic: var(--mint-graphic); --accent-ink: var(--mint-ink); --accent-ink-hi: var(--mint-ink-hi); --accent-on: var(--mint-on);
+}
+[data-accent="aqua"] {
+  --accent-wash: var(--aqua-wash); --accent-fill: var(--aqua-fill); --accent-fill-strong: var(--aqua-fill-strong); --accent-strong: var(--aqua-strong); --accent-graphic: var(--aqua-graphic); --accent-ink: var(--aqua-ink); --accent-ink-hi: var(--aqua-ink-hi); --accent-on: var(--aqua-on);
+}
+[data-accent="sky"] {
+  --accent-wash: var(--sky-wash); --accent-fill: var(--sky-fill); --accent-fill-strong: var(--sky-fill-strong); --accent-strong: var(--sky-strong); --accent-graphic: var(--sky-graphic); --accent-ink: var(--sky-ink); --accent-ink-hi: var(--sky-ink-hi); --accent-on: var(--sky-on);
+}
+[data-accent="periwinkle"] {
+  --accent-wash: var(--periwinkle-wash); --accent-fill: var(--periwinkle-fill); --accent-fill-strong: var(--periwinkle-fill-strong); --accent-strong: var(--periwinkle-strong); --accent-graphic: var(--periwinkle-graphic); --accent-ink: var(--periwinkle-ink); --accent-ink-hi: var(--periwinkle-ink-hi); --accent-on: var(--periwinkle-on);
+}
+[data-accent="lavender"] {
+  --accent-wash: var(--lavender-wash); --accent-fill: var(--lavender-fill); --accent-fill-strong: var(--lavender-fill-strong); --accent-strong: var(--lavender-strong); --accent-graphic: var(--lavender-graphic); --accent-ink: var(--lavender-ink); --accent-ink-hi: var(--lavender-ink-hi); --accent-on: var(--lavender-on);
+}
+/* the app families (D5): an app tile, glance card or app icon carries data-accent="<its hue>" (apps.json "hue", batch 2) */
+[data-accent="coral"] {
+  --accent-wash: var(--coral-wash); --accent-fill: var(--coral-fill); --accent-fill-strong: var(--coral-fill-strong); --accent-strong: var(--coral-strong); --accent-graphic: var(--coral-graphic); --accent-ink: var(--coral-ink); --accent-ink-hi: var(--coral-ink-hi); --accent-on: var(--coral-on);
+}
+[data-accent="apricot"] {
+  --accent-wash: var(--apricot-wash); --accent-fill: var(--apricot-fill); --accent-fill-strong: var(--apricot-fill-strong); --accent-strong: var(--apricot-strong); --accent-graphic: var(--apricot-graphic); --accent-ink: var(--apricot-ink); --accent-ink-hi: var(--apricot-ink-hi); --accent-on: var(--apricot-on);
+}
+[data-accent="honey"] {
+  --accent-wash: var(--honey-wash); --accent-fill: var(--honey-fill); --accent-fill-strong: var(--honey-fill-strong); --accent-strong: var(--honey-strong); --accent-graphic: var(--honey-graphic); --accent-ink: var(--honey-ink); --accent-ink-hi: var(--honey-ink-hi); --accent-on: var(--honey-on);
+}
+[data-accent="pistachio"] {
+  --accent-wash: var(--pistachio-wash); --accent-fill: var(--pistachio-fill); --accent-fill-strong: var(--pistachio-fill-strong); --accent-strong: var(--pistachio-strong); --accent-graphic: var(--pistachio-graphic); --accent-ink: var(--pistachio-ink); --accent-ink-hi: var(--pistachio-ink-hi); --accent-on: var(--pistachio-on);
+}
+[data-accent="leaf"] {
+  --accent-wash: var(--leaf-wash); --accent-fill: var(--leaf-fill); --accent-fill-strong: var(--leaf-fill-strong); --accent-strong: var(--leaf-strong); --accent-graphic: var(--leaf-graphic); --accent-ink: var(--leaf-ink); --accent-ink-hi: var(--leaf-ink-hi); --accent-on: var(--leaf-on);
+}
+[data-accent="seafoam"] {
+  --accent-wash: var(--seafoam-wash); --accent-fill: var(--seafoam-fill); --accent-fill-strong: var(--seafoam-fill-strong); --accent-strong: var(--seafoam-strong); --accent-graphic: var(--seafoam-graphic); --accent-ink: var(--seafoam-ink); --accent-ink-hi: var(--seafoam-ink-hi); --accent-on: var(--seafoam-on);
+}
+[data-accent="lagoon"] {
+  --accent-wash: var(--lagoon-wash); --accent-fill: var(--lagoon-fill); --accent-fill-strong: var(--lagoon-fill-strong); --accent-strong: var(--lagoon-strong); --accent-graphic: var(--lagoon-graphic); --accent-ink: var(--lagoon-ink); --accent-ink-hi: var(--lagoon-ink-hi); --accent-on: var(--lagoon-on);
+}
+[data-accent="cornflower"] {
+  --accent-wash: var(--cornflower-wash); --accent-fill: var(--cornflower-fill); --accent-fill-strong: var(--cornflower-fill-strong); --accent-strong: var(--cornflower-strong); --accent-graphic: var(--cornflower-graphic); --accent-ink: var(--cornflower-ink); --accent-ink-hi: var(--cornflower-ink-hi); --accent-on: var(--cornflower-on);
+}
+[data-accent="orchid"] {
+  --accent-wash: var(--orchid-wash); --accent-fill: var(--orchid-fill); --accent-fill-strong: var(--orchid-fill-strong); --accent-strong: var(--orchid-strong); --accent-graphic: var(--orchid-graphic); --accent-ink: var(--orchid-ink); --accent-ink-hi: var(--orchid-ink-hi); --accent-on: var(--orchid-on);
+}
+
+/* roles derived from the accent, re-declared on every scope so a local data-accent / theme preview re-derives them */
+:root, [data-accent], [data-scheme], [data-theme-preview] {
+  --tint-fill: var(--accent-fill); --tint-fill-strong: var(--accent-fill-strong); --tint-ink: var(--accent-ink); --tint-graphic: var(--accent-graphic);
+  --sel-fill: var(--accent-fill); --sel-ink: var(--accent-ink);                  /* selected pill + label (+ weight, a non-colour cue) */
+  --sel-fill-strong: var(--accent-strong); --sel-ink-strong: var(--accent-on);   /* segmented / preset selection, >= 3:1 */
+  --sel-weight: var(--fw-semibold);
+  --focus-ring-color: var(--accent-graphic);
+  --focus-ring: 0 0 0 var(--focus-offset) var(--surface), 0 0 0 calc(var(--focus-offset) + var(--focus-ring-w)) var(--focus-ring-color);
+  --today-ring: var(--accent-graphic);
+  --timer-done: var(--accent-strong);   /* time's up: the owner's colour + motion + sound, never danger; re-derived in a nested data-accent (the Timer tile) */
+  --progress-fill: var(--accent-strong); --progress-track: var(--accent-fill);
+  --hero-btn-bg: color-mix(in srgb, var(--accent-strong) var(--hero-btn-mix), #FFFFFF);
+  --hero-btn-ink: color-mix(in srgb, var(--accent-on) var(--hero-btn-mix), var(--accent-ink));
+  --accent-glow: color-mix(in srgb, var(--accent-strong) 35%, transparent);
+  --glow-accent: 0 8px 24px -8px color-mix(in srgb, var(--accent-strong) 45%, transparent);
+  --glow-accent-lg: 0 20px 48px -20px color-mix(in srgb, var(--accent-strong) 55%, transparent);
+  /* the glass fill. NO token holds var(--sheen-x) (GLASS-7). The component half (batch 1b) is glass7-component.css beside this
+     file, gated in both engines by browser-check.mjs against today's .ds components (grabber, scroller, fixed bar, sidebar):
+       .ds :is(.glass, .btn-glass, .pill) { background: var(--glass-bg-tinted); }        the pickup painted in place, no drift
+       .ds :is(.glass-strong, .sheet)    { background: var(--glass-bg-strong-tinted); } (the sheet's ::before stays its grabber)
+       .ds :is(.tabbar, .topbar)         { background: var(--glass-bg-strong); }         + the DRIFTING pickup on ::after:
+       .ds :is(.tabbar, .topbar)::after { content: ""; position: absolute; top: 0; bottom: 0; left: 25%; right: 25%; z-index: -1;
+         pointer-events: none; background: var(--glass-pickup-layer);
+         transform: translateX(calc((var(--sheen-x) - 50%) / 2)); will-change: transform; }
+       .ds .tabbar::after { bottom: 67%; }                                              the bottom bar: its top third
+       @media (min-width: 1024px) { .ds .tabbar.sidebar::after { content: none; } }    the sidebar's tabs start at its top
+     Nothing sets position or overflow on a bar, a sheet or a pill: the bars are already positioned stacking contexts (fixed /
+     sticky, z-index 20), and the layer is the bar's middle half drifting ±25 % of its own width, so it never leaves the bar. */
+  /* the halo on see-through glass (D8: Clear and Current). --glass-text-shadow and --glass-icon-filter are none by default (§1), so
+     Frosted and Solid paint nothing and cost nothing; the two see-through levels (§8) point them at the outlines below. Batch 1b applies
+     .ds :is(.glass, .glass-strong, .btn-glass, .pill, .topbar, .tabbar, .sheet) { text-shadow: var(--glass-text-shadow); }
+     .ds :is(.glass, .glass-strong, .btn-glass, .pill, .topbar, .tabbar, .sheet) svg { filter: var(--glass-icon-filter); }
+     (and the same on the Dollywood template's --lv-glass panes). Revision 6c (verify-rev6 round 2, issue 2): text-shadow does not
+     paint on SVG, so icons get their own outline, four chained 1 px drop-shadows (each one shadows the last, so the four close into a
+     ring). Revision 6b (the verifier's issue 1): a blurred glow alone lifts the pixels
+     beside a thin stroke far less than a flat layer would, so the halo is an OUTLINE: eight 1 px offsets at 0 blur in the card
+     colour (--glass-halo-edge), which paint the ring round every stroke solid, then one soft 8 px glow (--glass-halo). It is
+     measured as RENDERED, in both engines, by audits/tools/phase5/halo-check.mjs (the ring 0.5-1.5 CSS px round the glyphs). */
+  --glass-halo: color-mix(in srgb, var(--surface) var(--glass-halo-alpha), transparent);
+  --glass-halo-edge: color-mix(in srgb, var(--surface) var(--glass-halo-edge-alpha), transparent);
+  --glass-text-outline: 1px 0 0 var(--glass-halo-edge), -1px 0 0 var(--glass-halo-edge), 0 1px 0 var(--glass-halo-edge), 0 -1px 0 var(--glass-halo-edge),
+    1px 1px 0 var(--glass-halo-edge), -1px 1px 0 var(--glass-halo-edge), 1px -1px 0 var(--glass-halo-edge), -1px -1px 0 var(--glass-halo-edge),
+    0 0 8px var(--glass-halo);
+  --glass-icon-outline: drop-shadow(1px 0 0 var(--glass-halo-edge)) drop-shadow(-1px 0 0 var(--glass-halo-edge)) drop-shadow(0 1px 0 var(--glass-halo-edge)) drop-shadow(0 -1px 0 var(--glass-halo-edge));
+  --glass-bg:
+    linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+    var(--glass);
+  --glass-bg-strong:
+    linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+    var(--glass-strong);
+  /* the pickup is the person's TILE-END tone (--accent-fill-strong: a saturated pastel in light, a deep tint in dark), so it never
+     lightens dark glass under light text (round 3: the strong tone, a light pastel in dark, took sheet titles to 5.91 over a white
+     photo); its strength per palette is --glass-pickup (18/16/18 % light, 24/24/22 % dark) */
+  --glass-pickup-layer: radial-gradient(90% 70% at 50% -10%, color-mix(in srgb, var(--accent-fill-strong) var(--glass-pickup), transparent), transparent 62%);
+  --glass-bg-tinted:
+    linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+    var(--glass-pickup-layer),
+    var(--glass);
+  --glass-bg-strong-tinted:
+    linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
+    var(--glass-pickup-layer),
+    var(--glass-strong);
+  --glass-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2);
+  /* material roles (the house style: glass on the navigation and control layer ONLY; content cards stay solid)
+     chrome = live glass: tab bar, top bar, sheets, floating buttons, the profile switcher, toolbars over content;
+     solid  = every content card and list (--material-solid-bg), in scrollers and on the TV (the board's .tv-pane sections leave
+              .glass-strong for --material-solid-bg in the shell batch; --tv-panel with --tv-text / --tv-text-2 only if the photo
+              should show through; the .kiosk-switch control keeps glass);
+     look   = DEPRECATED, a migration target for today's .ds .card.glass (apps/design.css:400) and for a panel floating
+              over a photo where --tv-panel does not apply. The Phase 6 lint flags .glass and --material-look on a content card. */
+  --material-chrome-bg: var(--glass-bg-strong-tinted); --material-chrome-filter: var(--glass-filter);   /* the two bars: --glass-bg-strong + the drift layer */
+  --material-solid-bg: var(--surface);
+  --material-look-bg: var(--glass-look); --material-look-filter: none;
+  --wash: radial-gradient(120% 70% at 50% -10%, var(--accent-wash), transparent 60%);
+  --hero-bg: linear-gradient(160deg, var(--accent-wash), var(--accent-fill));          /* text on it: --accent-ink */
+  --tile-bg: linear-gradient(160deg, var(--accent-fill), var(--accent-fill-strong));   /* glyph: --accent-ink */
+  --elev-card: var(--e1); --elev-control: var(--e1); --elev-float: var(--e3); --elev-overlay: var(--e4); --elev-toast: var(--e3); --elev-bar-up: var(--e-up);
+}
+/* Forest keeps its "deep green, gold ink" identity (hub.THEMES blurb, apps/hub.js:70; today apps/design.css:198, 203-204): the page
+   wash carries a second, gold radial from the butter graphic, as today's --gold 10 % radial did. After the role block, so it wins. */
+:root[data-theme="forest"], [data-theme-preview="forest"] {
+  --wash: radial-gradient(120% 70% at 50% -10%, var(--accent-wash), transparent 60%),
+          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--butter-graphic) 10%, transparent), transparent 55%);
+}
+
+/* ── 6. semantic, categorical and map roles ──────────────────────────────────────────────────────────────── */
+:root, [data-scheme], [data-theme-preview] {
+  --success-glyph: "✓"; --warning-glyph: "!"; --danger-glyph: "✕";   /* or the Lucide check / alert-triangle / x icons */
+  --status-offline: var(--graphite-graphic); --status-pending: var(--warning-graphic); --status-synced: var(--success-graphic); --status-error: var(--danger-graphic);
+  --cell-empty: var(--track-info);                                   /* an empty heat-map cell or week dot: a >= 3:1 ring */
+  --attention: var(--warning-ink); --attention-fill: var(--warning-fill);
+  --badge-bg: var(--danger-strong); --badge-ink: var(--danger-on);
+  --cat-1: var(--bubblegum-graphic); --cat-2: var(--peach-graphic); --cat-3: var(--butter-graphic); --cat-4: var(--mint-graphic);
+  --cat-5: var(--aqua-graphic); --cat-6: var(--sky-graphic); --cat-7: var(--periwinkle-graphic); --cat-8: var(--lavender-graphic);
+  --fresh: var(--success-graphic); --aging: var(--warning-graphic); --use-soon: var(--danger-graphic);   /* the Larder ramp */
+  --wait-short: var(--success-fill); --wait-short-ink: var(--success-ink);
+  --wait-medium: var(--warning-fill); --wait-medium-ink: var(--warning-ink);
+  --wait-long: var(--danger-fill); --wait-long-ink: var(--danger-ink);
+  --wait-closed: var(--graphite-fill); --wait-closed-ink: var(--graphite-ink);
+  --map-attr: var(--peach-graphic); --map-shop: var(--sky-graphic); --map-dine: var(--butter-graphic); --map-water: var(--aqua-graphic);
+  --map-north: var(--danger-graphic); --map-ink: var(--text); --map-halo: var(--surface);
+}
+
+/* ── 7. kinds ────────────────────────────────────────────────────────────────────────────────────────────── */
+:root[data-kind="kid"] {              /* pre-readers: rounded EVERYWHERE (text, display, serif, mono, numerals), 16 px floor, bigger targets, concentric radii */
+  --font-text: var(--font-rounded); --font-ui: var(--font-rounded); --font-display: var(--font-rounded); --font-serif: var(--font-rounded);
+  --font-mono: var(--font-rounded);   /* the Larder's counts (apps/leftovers.html:24, :69) read --font-mono */
+  --ts-kind: 1.2; --fs-floor: 16px;
+  --space-k: 1.25; --shape-k: 1.5; --icon-k: 1.25;
+  --tap-base: 64px; --tap-lg-base: 84px; --tap-row-base: 72px;
+  --focus-ring-w: 4px;
+  --fs-display: clamp(44px, 11vw, 64px); --fs-numeral-m: clamp(52px, 14vw, 76px); --fs-numeral-l: clamp(84px, 26vw, 184px);
+  --r-sm: 16px; --r: 22px; --r-lg: 28px; --r-xl: 36px; --r-2xl: 44px;     /* legacy radii keep today's kid values */
+}
+:root[data-kind="kiosk"] {            /* the display profile: medium body, 7:1 text, no live blur, and TODAY'S TV SIZES AT EVERY WIDTH.
+                                        The TV board (index.html:103-176) reads the legacy --fs-* and --sp-* inside a fixed grid that fits
+                                        1080 px only at today's sizes (measured: the 10-foot scale pushes the Reminders pane to y=1470,
+                                        audits/evidence/p4/tokens/verify-constraints-1.json). The 10-foot scale is the opt-in block below. */
+  --ts-kind: 1.3; --ts-width: 1; --ts-user: 1; --fs-floor: 18px;   /* the role tokens: 18 px information floor (TYPE-7, first step) */
+  --fw-body: var(--fw-medium);
+  --space-k: 1; --shape-k: 1.5; --icon-k: 1.25;                    /* spacing as today (the board's paddings and gaps); radii only grow */
+  --fs-sm: 18px; --fs-md: 22px; --fs-lg: 26px; --fs-xl: 32px; --fs-2xl: 40px; --fs-3xl: 56px; --fs-4xl: 84px;   /* today's kiosk values */
+  --fs-hero: clamp(56px, 8vw, 96px);                               /* (apps/design.css:287), pinned: the board layout depends on them */
+  --tap-base: 64px; --tap-lg-base: 88px; --tap-row-base: 72px;
+  --fs-display: clamp(56px, 8vw, 96px); --fs-numeral-l: clamp(96px, 10vw, 200px);
+  --r-sm: 18px; --r: 24px; --r-lg: 33px; --r-xl: 42px; --r-2xl: 54px;     /* legacy radii the TV board reads today, x 1.5 like the role radii */
+  /* 7:1 text: neutral and hue inks → ink-hi (both schemes), the badge, the toast and the inverse glass (a denser --glass-inverse-hi).
+     The person solids a label sits on → ink-hi in the LIGHT scheme only (the rule after this block): in dark the glowing pastel
+     solid already gives its dark -on label >= 8.67 and reads >= 7 as text, so swapping it would only dull the fill. The TV photo
+     panel (--tv-panel .74) holds both TV lines at 7:1 by itself. The semantic -strong solids are NOT swapped (warning vs danger
+     would collapse to 1.00:1): their -on labels stay AA (>= 4.76). */
+  --text-2: var(--text-2-hi); --text-3: var(--text-2-hi);
+  --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi); --coral-ink: var(--coral-ink-hi); --apricot-ink: var(--apricot-ink-hi); --honey-ink: var(--honey-ink-hi); --pistachio-ink: var(--pistachio-ink-hi); --leaf-ink: var(--leaf-ink-hi); --seafoam-ink: var(--seafoam-ink-hi); --lagoon-ink: var(--lagoon-ink-hi); --cornflower-ink: var(--cornflower-ink-hi); --orchid-ink: var(--orchid-ink-hi);
+  --badge-bg: var(--danger-ink-hi); --toast-ink-2: var(--toast-ink); --glass-inverse: var(--glass-inverse-hi);
+  --glass-filter: none; --glass-filter-strong: none; --glass: var(--glass-look); --glass-strong: var(--glass-look);   /* chrome painted without a live blur */
+  --blur: 0px; --blur-sm: 0px; --blur-lg: 0px;                     /* round-5 item 12: the literal recipes that read --blur until batch 1b go flat too */
+  --dur-crossfade: 2500ms;
+}
+/* the person solids → ink-hi on the kiosk, LIGHT palettes only (Hearth and its alias, Parchment, Frost, or a root with no theme and
+   no dark scheme). A dark kiosk root (Midnight, Forest, Graphite, or a no-theme dark root) keeps the pastel solid. */
+:root[data-kind="kiosk"][data-theme="hearth"],
+:root[data-kind="kiosk"][data-theme="light"],
+:root[data-kind="kiosk"][data-theme="parchment"],
+:root[data-kind="kiosk"][data-theme="frost"],
+:root[data-kind="kiosk"]:not([data-theme]):not([data-scheme="dark"]) {
+  --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi); --coral-strong: var(--coral-ink-hi); --apricot-strong: var(--apricot-ink-hi); --honey-strong: var(--honey-ink-hi); --pistachio-strong: var(--pistachio-ink-hi); --leaf-strong: var(--leaf-ink-hi); --seafoam-strong: var(--seafoam-ink-hi); --lagoon-strong: var(--lagoon-ink-hi); --cornflower-strong: var(--cornflower-ink-hi); --orchid-strong: var(--orchid-ink-hi);
+}
+/* the 10-foot scale: OPT-IN (data-tv-scale="10ft"), and only on a 1600 px+ screen. The Phase 6 batch that re-lays out the .tv grid
+   (index.html:134-166: the fixed 104 px .tv-face, the nowrap .when) turns it on, with scripts/test-tv.mjs passing at 1920 x 1080 and a
+   fit check (grid bottom <= 1080, no clipped text). Until then it is inert. */
+@media (min-width: 1600px) {           /* the 1920 x 1080 TV at 3 m: 28 px floor (body 32.3 px), x 1.5 spacing and the title-safe margin */
+  :root[data-kind="kiosk"][data-tv-scale="10ft"] {
+    --fs-xs: var(--fs-caption1); --fs-sm: var(--fs-subheadline); --fs-md: var(--fs-body); --fs-lg: var(--fs-title3); --fs-xl: var(--fs-title2);
+    --fs-2xl: var(--fs-title1); --fs-3xl: var(--fs-large-title); --fs-4xl: calc(64px * var(--ts)); --fs-hero: var(--fs-display);
+    --ts-kind: 1.9; --fs-floor: 28px; --space-k: 1.5; --icon-k: 1.5; --margin: var(--margin-tv-x); --fs-display: clamp(64px, 5vw, 96px); --fs-numeral-l: clamp(120px, 10vw, 200px);
   }
 }
-:root[data-theme="forest"] {      /* deep green-black, cream and gold ink */
-  --bg: #10171A; --bg-2: #0B1114; --surface: #182225; --surface-2: #0C1214; --hover: #1F2B2E;
-  --text: #EFE7D6; --text-2: #C2B9A4; --muted: #9C9484; --muted-decor: #66625A;
-  --line: #27343A; --line-soft: #1F2A2E; --hairline: rgba(255,255,255,.08); --scrim: rgba(0,0,0,.62);
-  --glass: rgba(24, 34, 37, .62); --glass-strong: rgba(24, 34, 37, .84); --glass-line: rgba(255,255,255,.09);
-  --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
-          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 55%);
-  --mocha: #C9A57C; --mocha-soft: #2A2520; --mocha-ink: #E2CBA8;
-  --gold: #D9B25E; --gold-soft: #2A2618; --gold-ink: #EFD28A;
-  --olive: #9CC486; --olive-soft: #1B2A1E; --olive-ink: #C0DDAC;
-  --teal: #62C3B8; --teal-soft: #132925; --teal-ink: #98DDD3;
-  --terra: #E08E6B; --terra-soft: #2C1F1A; --terra-ink: #F0B49A;
-  --slate: #A6B3DE; --slate-soft: #212838; --slate-ink: #C8D0EC;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-  --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
-  --on-accent: #0E1412;
-  --glass-spec: rgba(255,255,255,.13); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
-  --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
-  --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
+
+/* ── 8. preferences (each attribute block is mirrored by its media query; Reduce Transparency comes AFTER the kiosk
+      block so a TV with Reduce Transparency on gets solid panels, not the look) ─────────────────────────────── */
+:root[data-text-size="xs"]:not([data-kind="kiosk"]) { --ts-user: 0.88; }
+:root[data-text-size="s"]:not([data-kind="kiosk"]) { --ts-user: 0.94; }
+:root[data-text-size="l"]:not([data-kind="kiosk"]) { --ts-user: 1.12; }
+:root[data-text-size="xl"]:not([data-kind="kiosk"]) { --ts-user: 1.25; }
+:root[data-text-size="xxl"]:not([data-kind="kiosk"]) { --ts-user: 1.5; }
+
+/* the glass level (decision D8, Phase 5): Clear · Current · Frosted (the default) · Solid, one person preference in Me > Appearance
+   (hub.prefs.glass). Frosted is the palettes' own --glass-alpha (78-80 % / 90 %). Solid is Reduce Transparency (below). Current is today's
+   look (apps/design.css:55-56 and the palette blocks: 62-66 % pills, 84-86 % bars, one level here at 64 / 84), Clear is under 50 %. Both
+   see-through levels paint the text halo (--glass-text-shadow), sized so every glass text pair the gate holds Frosted to still holds
+   over the page, a card, #767676 and the worst backdrop. Before Increase Contrast and Reduce Transparency, so either still wins. */
+:root[data-glass="current"] { --glass-alpha: 64%; --glass-alpha-strong: 84%; --glass-halo-alpha: 60%; --glass-halo-edge-alpha: 100%;
+  --glass-text-shadow: var(--glass-text-outline); --glass-icon-filter: var(--glass-icon-outline); }
+:root[data-glass="clear"] { --glass-alpha: 40%; --glass-alpha-strong: 48%; --glass-halo-alpha: 70%; --glass-halo-edge-alpha: 100%;
+  --glass-text-shadow: var(--glass-text-outline); --glass-icon-filter: var(--glass-icon-outline); }
+/* revision 6d (verify-rev6 round 3, issue 3): a custom property's var() is substituted where it is declared, so the two outlines above
+   carry the ROOT's --surface. A nested palette (a theme preview, a data-scheme island) re-points them to its own card colour. */
+:root:is([data-glass="current"], [data-glass="clear"]) :is([data-scheme], [data-theme-preview]) {
+  --glass-text-shadow: var(--glass-text-outline); --glass-icon-filter: var(--glass-icon-outline); }
+
+:root[data-contrast="more"] {
+  --text-2: var(--text-2-hi); --text-3: var(--text-2-hi);
+  --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi); --coral-ink: var(--coral-ink-hi); --apricot-ink: var(--apricot-ink-hi); --honey-ink: var(--honey-ink-hi); --pistachio-ink: var(--pistachio-ink-hi); --leaf-ink: var(--leaf-ink-hi); --seafoam-ink: var(--seafoam-ink-hi); --lagoon-ink: var(--lagoon-ink-hi); --cornflower-ink: var(--cornflower-ink-hi); --orchid-ink: var(--orchid-ink-hi);
+  --glass-alpha: 96%; --glass-alpha-strong: 98%; --glass-pickup: 0%;
+  --glass-edge: color-mix(in srgb, var(--text) 40%, transparent); --hairline: color-mix(in srgb, var(--text) 30%, transparent);
+  --border-w: 1.5px; --separator: var(--field-border); --focus-ring-w: 4px;
+  --badge-bg: var(--danger-ink-hi); --toast-ink-2: var(--toast-ink); --glass-inverse: var(--glass-inverse-hi);
 }
-.tp[data-preview="forest"] {
-  --bg: #10171A; --bg-2: #0B1114; --surface: #182225; --surface-2: #0C1214; --hover: #1F2B2E;
-  --text: #EFE7D6; --text-2: #C2B9A4; --muted: #9C9484; --muted-decor: #66625A;
-  --line: #27343A; --line-soft: #1F2A2E; --hairline: rgba(255,255,255,.08); --scrim: rgba(0,0,0,.62);
-  --glass: rgba(24, 34, 37, .62); --glass-strong: rgba(24, 34, 37, .84); --glass-line: rgba(255,255,255,.09);
-  --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
-          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 55%);
-  --mocha: #C9A57C; --mocha-soft: #2A2520; --mocha-ink: #E2CBA8;
-  --gold: #D9B25E; --gold-soft: #2A2618; --gold-ink: #EFD28A;
-  --olive: #9CC486; --olive-soft: #1B2A1E; --olive-ink: #C0DDAC;
-  --teal: #62C3B8; --teal-soft: #132925; --teal-ink: #98DDD3;
-  --terra: #E08E6B; --terra-soft: #2C1F1A; --terra-ink: #F0B49A;
-  --slate: #A6B3DE; --slate-soft: #212838; --slate-ink: #C8D0EC;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-  --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
-  --on-accent: #0E1412;
-  --glass-spec: rgba(255,255,255,.13); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
-  --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
-  --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
+:root[data-contrast="more"][data-theme="hearth"],
+:root[data-contrast="more"][data-theme="light"],
+:root[data-contrast="more"][data-theme="parchment"],
+:root[data-contrast="more"][data-theme="frost"],
+:root[data-contrast="more"]:not([data-theme]):not([data-scheme="dark"]) {   /* person solids → ink-hi, light palettes only (as on the kiosk) */
+  --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi); --coral-strong: var(--coral-ink-hi); --apricot-strong: var(--apricot-ink-hi); --honey-strong: var(--honey-ink-hi); --pistachio-strong: var(--pistachio-ink-hi); --leaf-strong: var(--leaf-ink-hi); --seafoam-strong: var(--seafoam-ink-hi); --lagoon-strong: var(--lagoon-ink-hi); --cornflower-strong: var(--cornflower-ink-hi); --orchid-strong: var(--orchid-ink-hi);
 }
-.tp[data-preview="hearth"], .tp[data-preview="system"] {   /* previews of the default palette under any theme */
-  --bg: #F7F2EB; --bg-2: #EFE7DC; --surface: #FFFCF8; --surface-2: #EFE7DC; --hover: #F2EADF;
-  --text: #2E251D; --text-2: #6A5B4E; --muted: #75675B; --muted-decor: #A79B8E;
-  --line: #E6DCCE; --line-soft: #F0E8DC; --hairline: rgba(255, 255, 255, .6); --scrim: rgba(42, 35, 28, .45);
-  --glass: rgba(255, 252, 248, .66); --glass-strong: rgba(255, 252, 248, .84); --glass-line: rgba(255, 255, 255, .55);
-  --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
-          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 6%, transparent), transparent 55%);
-  --mocha: #8A6A4B; --mocha-soft: #F0E6D9; --mocha-ink: #5E4630;
-  --gold: #B4861B; --gold-soft: #F6EBD0; --gold-ink: #7A5A0F;
-  --olive: #5B8143; --olive-soft: #E6EEDD; --olive-ink: #3E5C2C;
-  --teal: #137F77; --teal-soft: #DCECEA; --teal-ink: #0E5F59;
-  --terra: #BC5A38; --terra-soft: #F7E3DA; --terra-ink: #8E3E22;
-  --slate: #4F5D8C; --slate-soft: #E4E7F1; --slate-ink: #3A4569;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-  --accent-deep: color-mix(in srgb, var(--accent) 72%, black);
-  --on-accent: #FFFCF8;
-  --e1: 0 1px 2px rgba(58,46,36,.06), 0 1px 1px rgba(58,46,36,.04); --e2: 0 1px 2px rgba(58,46,36,.05), 0 6px 18px -8px rgba(58,46,36,.16);
-  --e3: 0 2px 6px rgba(58,46,36,.06), 0 18px 40px -16px rgba(58,46,36,.26); --e4: 0 4px 12px rgba(58,46,36,.08), 0 32px 72px -24px rgba(58,46,36,.36);
-}
-.tp[data-preview="system"] .tp-half {   /* the night half of the System preview */
-  --bg: #1A1512; --bg-2: #120E0B; --surface: #241E19; --surface-2: #15110E; --hover: #2D2620;
-  --text: #F3EDE5; --text-2: #C9BBAB; --muted: #A2948A; --muted-decor: #6E6258;
-  --line: #342C25; --line-soft: #2A231E; --hairline: rgba(255,255,255,.08); --scrim: rgba(0,0,0,.62);
-  --glass: rgba(36, 30, 25, .62); --glass-strong: rgba(36, 30, 25, .84); --glass-line: rgba(255,255,255,.09);
-  --wash: radial-gradient(120% 70% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
-          radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--gold) 7%, transparent), transparent 55%);
-  --mocha: #CBA77E; --mocha-soft: #2E251C; --mocha-ink: #E3CBAA;
-  --gold: #E0B25A; --gold-soft: #2C2416; --gold-ink: #F0CE86;
-  --olive: #9DC183; --olive-soft: #1E2718; --olive-ink: #BFDBAA;
-  --teal: #5EC2B8; --teal-soft: #12241F; --teal-ink: #93DCD4;
-  --terra: #E28A66; --terra-soft: #2B1D17; --terra-ink: #F1B198;
-  --slate: #A5B0DC; --slate-soft: #232738; --slate-ink: #C6CDEB;
-  --accent-soft: color-mix(in srgb, var(--accent) 14%, var(--surface));
-  --accent-deep: color-mix(in srgb, var(--accent) 58%, white);
-  --on-accent: #17120E;
-  --glass-spec: rgba(255,255,255,.14); --glass-edge: rgba(0,0,0,.45); --glass-ring: rgba(255,255,255,.08); --glass-inner: rgba(0,0,0,.4); --glass-pickup: 16%;
-  --e1: 0 1px 2px rgba(0,0,0,.35); --e2: 0 1px 2px rgba(0,0,0,.35), 0 8px 22px -8px rgba(0,0,0,.6);
-  --e3: 0 2px 8px rgba(0,0,0,.45), 0 24px 56px -20px rgba(0,0,0,.75); --e4: 0 4px 12px rgba(0,0,0,.5), 0 36px 80px -24px rgba(0,0,0,.85);
+@media (prefers-contrast: more) {
+  :root:not([data-contrast="standard"]) {
+    --text-2: var(--text-2-hi); --text-3: var(--text-2-hi);
+    --bubblegum-ink: var(--bubblegum-ink-hi); --peach-ink: var(--peach-ink-hi); --butter-ink: var(--butter-ink-hi); --mint-ink: var(--mint-ink-hi); --aqua-ink: var(--aqua-ink-hi); --sky-ink: var(--sky-ink-hi); --periwinkle-ink: var(--periwinkle-ink-hi); --lavender-ink: var(--lavender-ink-hi); --success-ink: var(--success-ink-hi); --warning-ink: var(--warning-ink-hi); --danger-ink: var(--danger-ink-hi); --graphite-ink: var(--graphite-ink-hi); --coral-ink: var(--coral-ink-hi); --apricot-ink: var(--apricot-ink-hi); --honey-ink: var(--honey-ink-hi); --pistachio-ink: var(--pistachio-ink-hi); --leaf-ink: var(--leaf-ink-hi); --seafoam-ink: var(--seafoam-ink-hi); --lagoon-ink: var(--lagoon-ink-hi); --cornflower-ink: var(--cornflower-ink-hi); --orchid-ink: var(--orchid-ink-hi);
+    --glass-alpha: 96%; --glass-alpha-strong: 98%; --glass-pickup: 0%;
+    --glass-edge: color-mix(in srgb, var(--text) 40%, transparent); --hairline: color-mix(in srgb, var(--text) 30%, transparent);
+    --border-w: 1.5px; --separator: var(--field-border); --focus-ring-w: 4px;
+    --badge-bg: var(--danger-ink-hi); --toast-ink-2: var(--toast-ink); --glass-inverse: var(--glass-inverse-hi);
+  }
+  :root:not([data-contrast="standard"])[data-theme="hearth"],
+  :root:not([data-contrast="standard"])[data-theme="light"],
+  :root:not([data-contrast="standard"])[data-theme="parchment"],
+  :root:not([data-contrast="standard"])[data-theme="frost"],
+  :root:not([data-contrast="standard"]):not([data-theme]):not([data-scheme="dark"]) {
+    --bubblegum-strong: var(--bubblegum-ink-hi); --peach-strong: var(--peach-ink-hi); --butter-strong: var(--butter-ink-hi); --mint-strong: var(--mint-ink-hi); --aqua-strong: var(--aqua-ink-hi); --sky-strong: var(--sky-ink-hi); --periwinkle-strong: var(--periwinkle-ink-hi); --lavender-strong: var(--lavender-ink-hi); --graphite-strong: var(--graphite-ink-hi); --coral-strong: var(--coral-ink-hi); --apricot-strong: var(--apricot-ink-hi); --honey-strong: var(--honey-ink-hi); --pistachio-strong: var(--pistachio-ink-hi); --leaf-strong: var(--leaf-ink-hi); --seafoam-strong: var(--seafoam-ink-hi); --lagoon-strong: var(--lagoon-ink-hi); --cornflower-strong: var(--cornflower-ink-hi); --orchid-strong: var(--orchid-ink-hi);
+  }
 }
 
-/* ── expressions by profile kind ─────────────────────────────── */
-/* Kids: bigger targets and type, rounder shapes, fewer words. */
-:root[data-kind="kid"] {
-  --tap: 64px; --tap-lg: 84px;
-  --fs-sm: 16px; --fs-md: 19px; --fs-lg: 22px; --fs-xl: 26px; --fs-2xl: 34px; --fs-3xl: 44px; --fs-4xl: 60px; --fs-hero: clamp(38px, 9vw, 54px);
-  --r-sm: 16px; --r: 22px; --r-lg: 28px; --r-xl: 36px; --r-2xl: 44px;
+:root[data-transparency="reduce"] {
+  --glass: var(--glass-solid); --glass-strong: var(--glass-strong-solid); --glass-look: var(--glass-solid);
+  --glass-filter: none; --glass-filter-strong: none; --glass-pickup: 0%; --scrim-blur: 0px; --blur: 0px; --blur-sm: 0px; --blur-lg: 0px;
 }
-/* Kiosk: large type for across-the-room reading, deeper glass. */
-:root[data-kind="kiosk"] {
-  --fs-sm: 18px; --fs-md: 22px; --fs-lg: 26px; --fs-xl: 32px; --fs-2xl: 40px; --fs-3xl: 56px; --fs-4xl: 84px; --fs-hero: clamp(56px, 8vw, 96px);
-  --blur: 28px;
+@media (prefers-reduced-transparency: reduce) {
+  :root:not([data-transparency="full"]) {
+    --glass: var(--glass-solid); --glass-strong: var(--glass-strong-solid); --glass-look: var(--glass-solid);
+    --glass-filter: none; --glass-filter-strong: none; --glass-pickup: 0%; --scrim-blur: 0px; --blur: 0px; --blur-sm: 0px; --blur-lg: 0px;
+  }
 }
 
-/* ── base ─────────────────────────────────────────────────────── */
+/* Reduce Motion. The tokens below neutralise every duration and distance that READS a token. Until every app's literal
+   durations and curves read them (the Phase 6 lint row; e.g. apps/f260.html:137, :258, apps/prayer.html:98, the shell and the
+   Dollywood template), batch 1b KEEPS a global kill, re-keyed from today's OS-only rule (apps/design.css:611-613) to the switch
+   and its mirror, and made an opacity-only substitute rather than a hard stop:
+     :root[data-motion="reduce"] *, :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *::after,
+     @media (prefers-reduced-motion: reduce) { :root:not([data-motion="full"]) *, …::before, …::after }
+       { animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+         transition-property: opacity, color, background-color, border-color !important; transition-duration: 150ms !important;
+         scroll-behavior: auto !important; }
+   so data-motion="reduce" also stops literal animations, and data-motion="full" opts out of the OS kill. It is retired only
+   when the lint finds no literal duration left. */
+:root[data-motion="reduce"] {
+  --spring-snappy: linear; --spring-gentle: linear; --spring-bouncy: linear;
+  --dur-snappy: 150ms; --dur-gentle: 150ms; --dur-bouncy: 150ms;       /* crossfade substitute: opacity only */
+  --dur-crossfade: 150ms;                                              /* round-5 item 17: the TV crossfade, without relying on the kept kill */
+  --press-scale: 1; --press-scale-sm: 1; --enter-distance: 0px;
+  --ambient-iterations: 0; --dur-shimmer: 0ms; --dur-progress: 0ms; --pulse-scale: 1;   /* a pulse becomes an opacity-only blink or nothing */
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) {
+    --spring-snappy: linear; --spring-gentle: linear; --spring-bouncy: linear;
+    --dur-snappy: 150ms; --dur-gentle: 150ms; --dur-bouncy: 150ms;
+    --dur-crossfade: 150ms;
+    --press-scale: 1; --press-scale-sm: 1; --enter-distance: 0px;
+    --ambient-iterations: 0; --dur-shimmer: 0ms; --dur-progress: 0ms; --pulse-scale: 1;
+  }
+}
+
+/* ── 9. migration aliases: EVERY name apps/design.css defines today still resolves (checked by contrast.mjs), except
+      the three with 0 readers, removed: --dur, --shadow-sm and --info (GAP-TOK-9, gated). Legacy radii, line heights and tracking keep today's values; legacy hue names point at
+      AA inks. Delete each alias once the Phase 6 lint finds no reader. ─────────────────────────────────────────── */
+/* non-colour aliases live on :root only, so a nested data-accent scope never resets them (e.g. the kid radii) */
+:root {
+  --font-sans: var(--font-ui); --font-display: var(--font-text);
+  --fs-xs: var(--fs-caption1); --fs-sm: var(--fs-subheadline); --fs-md: var(--fs-body); --fs-lg: var(--fs-title3);
+  --fs-xl: var(--fs-title2); --fs-2xl: var(--fs-title1); --fs-3xl: var(--fs-large-title); --fs-4xl: var(--fs-numeral-m); --fs-hero: var(--fs-display);
+  --lh-tight: 1.1; --lh-snug: 1.25; --lh: 1.45; --ls-tight: var(--ls-large-title);
+  --max: var(--col-wide); --max-read: var(--col-read);
+  --r-sm: 12px; --r: 16px; --r-lg: 22px; --r-xl: 28px; --r-2xl: 36px;                          /* today's values (kid: §7) */
+  --ease: var(--ease-standard); --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --ease-out: var(--ease-standard);   /* deprecated: an exact alias of --ease (5 reads) */
+  --spring: var(--spring-snappy); --dur-1: var(--dur-fast); --dur-2: var(--dur-fast); --dur-3: var(--dur-slow);   /* --dur-1 (colour transitions, 8 reads) 120 → 200 ms */
+}
+/* colour aliases re-derive in every scope that can change a palette or a person */
+:root, [data-accent], [data-scheme], [data-theme-preview] {
+  --muted: var(--text-3); --muted-decor: var(--track-info);   /* >= 3:1: PIN rings, sync dot, badge icons (text reads move to --text-3) */
+  --line-soft: var(--separator); --bg-2: var(--surface-2);
+  --glass-line: var(--glass-ring);
+  --accent: var(--accent-strong); --accent-soft: var(--accent-fill); --accent-tint: var(--accent-fill-strong); --accent-deep: var(--accent-ink); --on-accent: var(--accent-on);
+  --tint: var(--accent-strong);
+  --gold: var(--butter-ink); --gold-soft: var(--butter-fill); --gold-ink: var(--butter-ink);
+  --olive: var(--mint-ink); --olive-soft: var(--mint-fill); --olive-ink: var(--mint-ink);
+  --teal: var(--aqua-ink); --teal-soft: var(--aqua-fill); --teal-ink: var(--aqua-ink);
+  --terra: var(--peach-ink); --terra-soft: var(--peach-fill); --terra-ink: var(--peach-ink);
+  --slate: var(--periwinkle-ink); --slate-soft: var(--periwinkle-fill); --slate-ink: var(--periwinkle-ink);
+  --mocha: var(--graphite-ink); --mocha-soft: var(--graphite-fill); --mocha-ink: var(--graphite-ink);
+  --ok: var(--success-ink); --ok-soft: var(--success-fill); --ok-ink: var(--success-ink);
+  --warn: var(--warning-ink); --warn-soft: var(--warning-fill); --warn-ink: var(--warning-ink);
+  --danger: var(--danger-ink); --danger-soft: var(--danger-fill);
+  --info-soft: var(--sky-fill); --info-ink: var(--sky-ink);   /* deprecated: one reader (.ds .chip-info, apps/design.css:514); bare --info had 0 and is removed */
+  --focus: var(--focus-ring);
+  --shadow: var(--e2); --shadow-lg: var(--e3);   /* deprecated: exact aliases of --e2 / --e3 (new work reads --elev-*) */
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════════════════════════════
+   COMPONENTS (audit batch 1b: the .ds half moved onto the v3 roles above).
+   Everything below reads role tokens; a hex or rgba() literal here is a bug (the --hi-* / --shade-* overlays are the
+   only literal overlays). The base rules and .pressable are global; every component applies only inside an element with
+   class "ds" (usually <body class="ds">). F260, Prayer, the Larder and the Dollywood pair keep their own component CSS
+   and read the tokens only. Style guide: docs/design.html
+   ════════════════════════════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── base (global) ──────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* the page colour and the overscroll reset live on html, where they take effect (P4-TELL-06); themed thin scrollbars
+   (P4-TELL-04): scrollbar-color inherits, so every scroller in every document follows the palette */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; background: var(--bg); overscroll-behavior: none;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
+html, .ds * { scrollbar-width: thin; }
 body {
   margin: 0;
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
   font-size: var(--fs-md);
   line-height: var(--lh);
   color: var(--text);
@@ -303,41 +791,56 @@ body {
   touch-action: manipulation;
   overscroll-behavior: none;
 }
-h1, h2, h3, h4 { margin: 0; line-height: var(--lh-tight); font-weight: 700; letter-spacing: -.01em; text-wrap: balance; }
+h1, h2, h3, h4 { margin: 0; line-height: var(--lh-tight); font-weight: var(--fw-bold); letter-spacing: -.01em; text-wrap: balance; }
 h1 { font-size: var(--fs-2xl); }
 h2 { font-size: var(--fs-xl); }
 h3 { font-size: var(--fs-lg); }
 p { margin: 0; }
 button, input, select, textarea { font: inherit; color: inherit; }
+/* a field under 16 px makes iOS zoom the page when it takes focus (P4-TELL-02); an app's own class still sets its size */
+input, select, textarea { font-size: max(16px, 1em); }
 button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+/* base chrome (CONS-TELL-1): controls and decorative art never select or pop the iOS callout, in every document */
+button, [role="button"], [role="tab"], [role="switch"], summary, img[alt=""], svg { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+/* focus is an OUTLINE in the person's graphic tone, so no component box-shadow can hide it (P4-TOK-01, P4-TELL-01/07) */
 :focus { outline: none; }
-:focus-visible { box-shadow: var(--focus); border-radius: var(--r-sm); }
-::selection { background: var(--accent-tint); }
+:focus-visible { outline: var(--focus-ring-w) solid var(--focus-ring-color); outline-offset: var(--focus-offset); }
+::placeholder { color: var(--placeholder); opacity: 1; }   /* one placeholder ink, >= 4.5:1 (P4-COLOR-05) */
+::selection { background: var(--accent-fill); color: var(--text); }
 [hidden] { display: none !important; }
 img, svg { display: block; max-width: 100%; }
+/* the duotone layer of a sprite icon: matched on the <symbol>'s own path, so it reaches through <use>; the colour and
+   opacity are inherited from the <svg class="icon"> that draws it (P4-ICON-02) */
+svg .duo { fill: var(--icon-duo, currentColor); fill-opacity: var(--icon-duo-opacity, .2); stroke: none; }
+
+/* press feedback, a GLOBAL opt-in (MOTION-3): the press-in is instant, the release springs back. hub.js registers the
+   passive touchstart listener iOS needs before :active shows (GAP-MOTION-3). */
+.pressable { transition: transform var(--dur-snappy) var(--spring-snappy), filter var(--dur-snappy) var(--ease-standard); }
+.pressable:active { transform: scale(var(--press-scale)); filter: var(--press-dim); transition-duration: var(--dur-press); }
+.pressable.is-small:active { transform: scale(var(--press-scale-sm)); }
 
 /* ── components ─────────────────────────────────────────────────
-   Everything below applies only inside an element with class "ds" (usually <body class="ds">).
-   Apps with their own component vocabulary (F260, Prayer) take the tokens above and keep their styles. ─────── */
+   Everything below applies only inside an element with class "ds" (usually <body class="ds">). ─────────────── */
 
-/* the page wash */
+/* the page wash: the person's wash (Forest adds its gold radial) */
 body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 
 /* text + layout utilities */
-.ds .muted { color: var(--muted); }
+.ds .muted { color: var(--text-3); }
 .ds .text-2 { color: var(--text-2); }
 .ds .small { font-size: var(--fs-sm); }
 .ds .xs { font-size: var(--fs-xs); }
-.ds .serif { font-family: var(--font-serif); font-weight: 400; letter-spacing: 0; }
-.ds .display { font-family: var(--font-display); font-weight: 400; letter-spacing: 0; line-height: var(--lh-tight); }
-.ds .kicker { font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--muted); }
-.ds .accent { color: var(--accent-deep); }
+.ds .serif { font-family: var(--font-serif); font-weight: var(--fw-regular); letter-spacing: 0; }   /* reading text only (D6) */
+.ds .display { font-family: var(--font-display); font-weight: var(--fw-bold); letter-spacing: var(--ls-title1); line-height: var(--lh-tight); }
+.ds .numeral { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); }
+.ds .kicker { font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-3); }
+.ds .accent { color: var(--accent-ink); }
 .ds .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.ds .stack { display: flex; flex-direction: column; gap: var(--sp-3); }
+.ds .stack { display: flex; flex-direction: column; gap: var(--gap-stack); }
 .ds .stack-lg { display: flex; flex-direction: column; gap: var(--sp-5); }
 .ds .hstack { display: flex; align-items: center; gap: var(--sp-3); }
 .ds .grow { flex: 1 1 auto; min-width: 0; }
-.ds .wrap { padding: var(--sp-4); padding-left: max(var(--sp-4), var(--safe-left)); padding-right: max(var(--sp-4), var(--safe-right)); }
+.ds .wrap { padding: var(--sp-4) var(--margin-right) var(--sp-4) var(--margin-left); }
 .ds .container { max-width: var(--max-read); margin: 0 auto; }
 .ds .container-wide { max-width: var(--max); margin: 0 auto; }
 .ds .grid-2 { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
@@ -345,275 +848,325 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 @media (min-width: 700px) { .ds .grid-2, .ds .grid-3 { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1024px) { .ds .grid-3 { grid-template-columns: 1fr 1fr 1fr; } }
 
-/* ── buttons: three weights, pressed spring ───────────────────── */
+/* ── buttons: capsules, three weights, the shared press ───────── */
 .ds .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
-  min-height: var(--tap); min-width: var(--tap); padding: 0 var(--sp-5);
-  border: 1px solid var(--line); border-radius: var(--r);
+  min-height: var(--btn-h); min-width: var(--tap); padding: 0 var(--btn-pad-x);
+  border: var(--border-w) solid var(--line); border-radius: var(--r-button);
   background: var(--surface); color: var(--text);
-  font-weight: 600; font-size: var(--fs-md); line-height: 1.2; text-decoration: none;
+  font-weight: var(--fw-semibold); font-size: var(--fs-md); line-height: 1.2; text-decoration: none;
   cursor: pointer; user-select: none; -webkit-user-select: none;
-  box-shadow: var(--e1);
-  transition: background var(--dur-1) var(--ease), transform var(--dur-2) var(--spring), box-shadow var(--dur-2) var(--ease), border-color var(--dur-1) var(--ease);
+  box-shadow: var(--elev-control);
+  transition: background var(--dur-fast) var(--ease-standard), transform var(--dur-snappy) var(--spring-snappy), filter var(--dur-snappy) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
 }
-.ds .btn:active { transform: scale(.96); box-shadow: none; }
-.ds .btn:disabled { opacity: .45; cursor: default; transform: none; }
-.ds .btn-primary { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white) 0%, var(--accent-deep) 100%); border-color: transparent; color: var(--on-accent); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), var(--glow-accent); }
-.ds .btn-soft { background: var(--accent-soft); border-color: transparent; color: var(--accent-deep); box-shadow: none; }
+/* the .pressable press, built in (batch 1b) */
+.ds .btn:active { transform: scale(var(--press-scale)); filter: var(--press-dim); box-shadow: none; transition-duration: var(--dur-press); }
+.ds .btn:disabled { opacity: .45; cursor: default; transform: none; filter: none; }
+/* the pairing rule: a solid carries its own -on label (D15: the glowing pastel capsule with a dark label in dark) */
+.ds .btn-primary { background: var(--accent-strong); border-color: transparent; color: var(--accent-on); box-shadow: inset 0 1px 0 var(--hi-3), var(--glow-accent); }
+.ds .btn-soft { background: var(--accent-fill); border-color: transparent; color: var(--accent-ink); box-shadow: none; }
 .ds .btn-ghost { background: transparent; border-color: transparent; box-shadow: none; }
-.ds .btn-danger { background: var(--danger-soft); border-color: transparent; color: var(--danger-ink); box-shadow: none; }
+.ds .btn-danger { background: var(--danger-fill); border-color: transparent; color: var(--danger-ink); box-shadow: none; }
 .ds .btn-glass { color: var(--text); }
-.ds .btn-lg { min-height: var(--tap-lg); padding: 0 var(--sp-8); font-size: var(--fs-lg); border-radius: var(--r-lg); }
-.ds .btn-xl { min-height: 76px; padding: 0 var(--sp-10); font-size: var(--fs-xl); border-radius: var(--r-xl); }
+.ds .btn-lg { min-height: var(--btn-h-lg); padding: 0 var(--sp-8); font-size: var(--fs-lg); }
+.ds .btn-xl { min-height: calc(var(--btn-h-lg) + var(--sp-4)); padding: 0 var(--sp-10); font-size: var(--fs-xl); }
 .ds .btn-block { display: flex; width: 100%; }
 .ds .btn-round { border-radius: var(--r-full); padding: 0; width: var(--tap); }
 .ds .btn-round.btn-lg { width: var(--tap-lg); }
 .ds .btn .icon { width: 1.25em; height: 1.25em; }
 @media (hover: hover) and (pointer: fine) {
   .ds .btn:hover { background: var(--hover); box-shadow: var(--e2); }
-  .ds .btn-primary:hover { background: var(--accent-deep); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 12px 28px -10px var(--accent-glow); }
-  .ds .btn-soft:hover { background: var(--accent-tint); box-shadow: none; }
+  .ds .btn-primary:hover { background: linear-gradient(var(--hi-1), var(--hi-1)), var(--accent-strong); box-shadow: inset 0 1px 0 var(--hi-3), var(--glow-accent-lg); }   /* a faint lift; the label keeps its pair */
+  .ds .btn-soft:hover { background: var(--accent-fill); box-shadow: inset 0 0 0 var(--border-w-strong) var(--accent-graphic); }
   .ds .btn-ghost:hover { background: var(--hover); box-shadow: none; }
-  .ds .btn-danger:hover { background: color-mix(in srgb, var(--danger) 24%, var(--surface)); box-shadow: none; }
+  .ds .btn-danger:hover { background: var(--danger-fill); box-shadow: inset 0 0 0 var(--border-w-strong) var(--danger-graphic); }
 }
 
 /* ── surfaces: card, glass, hero, well ────────────────────────── */
+/* content is SOLID (--material-solid-bg); glass is the navigation and control layer only (§7) */
 .ds .card {
-  background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--r-lg);
-  padding: var(--sp-5); box-shadow: var(--e2);
+  background: var(--material-solid-bg); border: var(--border-w) solid var(--separator); border-radius: var(--r-card);
+  padding: var(--pad-card); box-shadow: var(--elev-card);
 }
 .ds .card-flat { box-shadow: none; }
-.ds .card-lift { box-shadow: var(--e3); }
-/* liquid glass v3 — the recipe every glass surface shares */
-.ds .glass, .ds .card.glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .ds .tabbar, .ds .sheet {
-  --g: var(--glass);
-  background:
-    linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
-    radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
-    var(--g);
-  border: 1px solid var(--glass-edge);
-  box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02);
+.ds .card-lift { box-shadow: var(--elev-float); }
+/* liquid glass: one recipe (CONS-GLASS-1). --g stays the component fill hook (index.html, Kid Verse, the Larder and Verses
+   re-point it), so the layers are written out here: the specular sheen, the person's pickup painted in place, the fill. This
+   is --glass-bg-tinted / --glass-bg-strong-tinted with the fill taken from --g (GLASS-7, glass7-component.css). */
+.ds :is(.glass, .glass-strong, .btn-glass, .pill, .topbar, .tabbar, .sheet) {
+  border: var(--border-w) solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter);
+  text-shadow: var(--glass-text-shadow);      /* the halo on see-through glass (D8: Clear and Current); none otherwise */
 }
-.ds .glass-strong, .ds .topbar, .ds .tabbar, .ds .sheet { --g: var(--glass-strong); }
-/* in-page cards paint the look without blurring what scrolls under them (blur in a scroller is what makes iPad glass stutter) */
-.ds .card.glass { -webkit-backdrop-filter: none; backdrop-filter: none; --g: color-mix(in srgb, var(--surface) 78%, var(--bg)); }
-.ds .glass-lite { -webkit-backdrop-filter: none; backdrop-filter: none; }
+.ds :is(.glass, .glass-strong, .btn-glass, .pill, .topbar, .tabbar, .sheet) svg { filter: var(--glass-icon-filter); }
+.ds :is(.glass, .btn-glass, .pill) { --g: var(--glass); background: linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%), var(--glass-pickup-layer), var(--g); }
+.ds :is(.glass-strong, .sheet) { --g: var(--glass-strong); background: linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%), var(--glass-pickup-layer), var(--g); }
+/* the two bars: the sheen and the fill, and the DRIFTING pickup on ::after, moved by transform only (hub.js writes
+   --sheen-x on these two elements, never on :root: P4-GLASS-01). Both bars are positioned stacking contexts (fixed /
+   sticky, z-index 20), so z-index: -1 paints the layer over the bar's background and under its content; the layer is
+   the bar's middle half and drifts at most a quarter of its own width, so it never leaves the bar. */
+.ds :is(.tabbar, .topbar) { --g: var(--glass-strong); background: linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%), var(--g); }
+.ds :is(.tabbar, .topbar)::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 25%; right: 25%; z-index: -1; pointer-events: none;
+  background: var(--glass-pickup-layer);
+  transform: translateX(calc((var(--sheen-x) - 50%) / 2)); will-change: transform;
+}
+.ds .tabbar::after { bottom: 67%; }   /* the bottom bar: its top third, clear of the tab icons */
+@media (min-width: 1024px) { .ds .tabbar.sidebar::after { content: none; } }   /* the sidebar's tabs start at its top */
+/* a content card that still carries a glass class is solid, with no live blur (P4-GLASS-02: the material, not the class pair) */
+.ds .card:is(.glass, .glass-strong) { background: var(--material-solid-bg); border-color: var(--separator); box-shadow: var(--elev-card);
+  -webkit-backdrop-filter: none; backdrop-filter: none; text-shadow: none; }
+.ds .card:is(.glass, .glass-strong) svg { filter: none; }
+.ds .glass-lite { -webkit-backdrop-filter: none; backdrop-filter: none; }   /* deprecated: the look without a blur */
+/* the three materials by name, for new work (the lint checks them) */
+.ds .mat-chrome { background: var(--material-chrome-bg); -webkit-backdrop-filter: var(--material-chrome-filter); backdrop-filter: var(--material-chrome-filter); }
+.ds .mat-solid { background: var(--material-solid-bg); }
+.ds .mat-look { background: var(--material-look-bg); }   /* deprecated */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .ds .glass, .ds .glass-strong, .ds .btn-glass, .ds .pill, .ds .topbar, .ds .tabbar, .ds .sheet { --g: color-mix(in srgb, var(--surface) 96%, transparent); }
+  .ds :is(.glass, .btn-glass, .pill, .sheet, .glass-strong, .topbar, .tabbar) { --g: var(--glass-strong-solid); }
 }
 .ds .well { background: var(--surface-2); border-radius: var(--r); padding: var(--sp-4); }
 .ds .divider { height: 1px; background: var(--line); border: 0; margin: var(--sp-4) 0; }
 
-/* hero: the person's colour as a soft gradient, a slot for art on the right */
+/* hero: the person's wash-to-fill with the person's ink (P2-VIS-06), a deep tint in dark; a slot for art on the right */
 .ds .hero {
   position: relative; overflow: hidden; border-radius: var(--r-xl); padding: var(--sp-6);
-  color: var(--on-accent);
-  background: radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--accent) 70%, white) 0%, var(--accent) 45%, var(--accent-deep) 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), var(--e3), 0 20px 48px -20px var(--accent-glow);
+  color: var(--accent-ink);
+  background: var(--hero-bg);
+  box-shadow: inset 0 1px 0 var(--hairline), var(--elev-card);
 }
-.ds .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.14), transparent 40%, rgba(0,0,0,.08)); pointer-events: none; }
 .ds .hero > * { position: relative; z-index: 1; }
-.ds .hero-kicker { font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--ls-caps); text-transform: uppercase; opacity: .85; }
-.ds .hero-title { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-hero); line-height: var(--lh-tight); letter-spacing: 0; margin-top: var(--sp-1); }
-.ds .hero-sub { margin-top: var(--sp-2); opacity: .9; max-width: 34ch; }
+.ds .hero-kicker { font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; }
+.ds .hero-title { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-hero); line-height: var(--lh-tight); letter-spacing: var(--ls-large-title); margin-top: var(--sp-1); }
+.ds .hero-sub { margin-top: var(--sp-2); max-width: 34ch; }
 .ds .hero-art { position: absolute; right: 0; bottom: 0; width: 42%; max-width: 260px; opacity: .95; pointer-events: none; z-index: 0; }
 .ds .hero-art svg, .ds .hero-art img { width: 100%; height: auto; }
 .ds .hero .btn { margin-top: var(--sp-4); }
-.ds .hero .btn-primary { background: rgba(255,255,255,.92); color: var(--accent-deep); box-shadow: var(--e2); }
-.ds .hero-soft { color: var(--text); background: linear-gradient(135deg, var(--accent-tint), var(--surface) 70%); box-shadow: var(--e2); }
-.ds .hero-soft::after { display: none; }
-.ds .hero-soft .hero-kicker { color: var(--accent-deep); opacity: 1; }
-.ds .hero-soft .hero-sub { color: var(--text-2); opacity: 1; }
-:root[data-scheme="dark"] .ds .hero, :root[data-scheme="dark"] .ds .hero-soft { color: var(--text); }
-.ds .hero .on-dark { color: #FFFCF8; }
+.ds .hero .btn-primary { background: var(--hero-btn-bg); color: var(--hero-btn-ink); box-shadow: var(--e2); }
+.ds .hero-soft { color: var(--text); background: linear-gradient(135deg, var(--accent-fill), var(--surface) 70%); box-shadow: var(--elev-card); }
+.ds .hero-soft .hero-kicker { color: var(--accent-ink); }
+.ds .hero-soft .hero-sub { color: var(--text-2); }
+.ds .hero .on-dark { color: var(--accent-ink); }
 
 /* card with an illustration band on top */
 .ds .card-art { padding: 0; overflow: hidden; }
-.ds .card-art .art { height: 120px; background: var(--accent-soft); display: grid; place-items: center; }
+.ds .card-art .art { height: 120px; background: var(--accent-fill); display: grid; place-items: center; }
 .ds .card-art .art svg, .ds .card-art .art img { height: 100%; width: auto; }
-.ds .card-art .body { padding: var(--sp-5); }
+.ds .card-art .body { padding: var(--pad-card); }
 
 /* ── inputs ───────────────────────────────────────────────────── */
 .ds .input, .ds .select, .ds .textarea {
   width: 100%; min-height: var(--tap); padding: var(--sp-3) var(--sp-4);
-  border: 1px solid var(--line); border-radius: var(--r); background: var(--surface);
-  color: var(--text); font-size: var(--fs-md);
-  box-shadow: inset 0 1px 2px rgba(58,46,36,.04);
-  transition: border-color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease);
+  border: var(--border-w) solid var(--field-border); border-radius: var(--r-control); background: var(--surface);
+  color: var(--text); font-size: var(--fs-field);
+  box-shadow: inset 0 1px 2px var(--shade-1);
+  transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
 }
-.ds .input::placeholder, .ds .textarea::placeholder { color: var(--muted-decor); }
-.ds .input:focus, .ds .select:focus, .ds .textarea:focus { border-color: var(--accent); box-shadow: var(--focus); }
+.ds .input:focus, .ds .select:focus, .ds .textarea:focus { border-color: var(--accent-graphic); }
 .ds .textarea { min-height: calc(var(--tap) * 2.2); resize: vertical; line-height: var(--lh); }
+/* the chevron is drawn in the theme's ink (was a fixed-colour image) */
 .ds .select { appearance: none; -webkit-appearance: none; padding-right: var(--sp-10);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%237D6F62' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right var(--sp-4) center; }
-.ds .label { display: block; font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); margin-bottom: var(--sp-2); }
+  background-image: linear-gradient(45deg, transparent 50%, var(--chevron-colour) 50%), linear-gradient(135deg, var(--chevron-colour) 50%, transparent 50%);
+  background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+  background-position: right calc(var(--sp-4) + 6px) center, right var(--sp-4) center; }
+.ds .label { display: block; font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-2); margin-bottom: var(--sp-2); }
 .ds .field { display: flex; flex-direction: column; }
 .ds .field + .field { margin-top: var(--sp-4); }
-.ds .help { font-size: var(--fs-sm); color: var(--muted); margin-top: var(--sp-2); }
+.ds .help { font-size: var(--fs-sm); color: var(--text-3); margin-top: var(--sp-2); }
+/* the switch: a >= 3:1 ringed track when off, the success solid when on, a white knob (P4-TOK-02) */
 .ds .switch { position: relative; width: 52px; height: 32px; flex: none; border-radius: var(--r-full); border: 0;
-  background: var(--line); transition: background var(--dur-2) var(--ease); cursor: pointer; box-shadow: inset 0 1px 2px rgba(0,0,0,.12); }
+  background: var(--switch-off); box-shadow: inset 0 0 0 var(--border-w-strong) var(--switch-off-ring);
+  transition: background var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard); cursor: pointer; }
 .ds .switch::before { content: ""; position: absolute; inset: -6px 0; }   /* 44 px hit area around the 32 px track */
 .ds .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform var(--dur-2) var(--spring); }
-.ds .switch[aria-checked="true"] { background: var(--ok); }
+  background: var(--switch-knob); box-shadow: 0 1px 3px var(--shade-4); transition: transform var(--dur-snappy) var(--spring-snappy); }
+.ds .switch[aria-checked="true"] { background: var(--switch-on); box-shadow: none; }
 .ds .switch[aria-checked="true"]::after { transform: translateX(20px); }
 .ds .switch:disabled { opacity: .4; cursor: default; }
 
-/* segmented control */
-.ds .seg { display: flex; background: var(--surface-2); border-radius: var(--r); padding: 4px; gap: 4px; }
-.ds .seg button { flex: 1; min-height: var(--tap); border: 0; border-radius: calc(var(--r) - 4px); background: transparent; color: var(--text-2); font: inherit; font-weight: 600; cursor: pointer; transition: background var(--dur-2) var(--ease), color var(--dur-1), transform var(--dur-2) var(--spring); }
-.ds .seg button.on, .ds .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--e1); }
-.ds .seg button:active { transform: scale(.97); }
+/* segmented control: the selection is a >= 3:1 solid plus weight, not a hue shift (P4-ACCENT-01) */
+.ds .seg { display: flex; background: var(--surface-2); border-radius: var(--r-control); padding: 4px; gap: 4px; }
+.ds .seg button { flex: 1; min-height: var(--tap); border: 0; border-radius: calc(var(--r-control) - 4px); background: transparent; color: var(--text-2); font: inherit; font-weight: var(--fw-medium); cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), transform var(--dur-snappy) var(--spring-snappy); }
+.ds .seg button.on, .ds .seg button[aria-pressed="true"] { background: var(--sel-fill-strong); color: var(--sel-ink-strong); font-weight: var(--sel-weight); box-shadow: var(--e1); }
+.ds .seg button:active { transform: scale(var(--press-scale)); transition-duration: var(--dur-press); }
 
 /* ── lists & rows ─────────────────────────────────────────────── */
-.ds .list { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--e1); }
+.ds .list { list-style: none; margin: 0; padding: 0; background: var(--material-solid-bg); border: var(--border-w) solid var(--separator); border-radius: var(--r-card); overflow: hidden; box-shadow: var(--elev-card); }
 .ds .row {
   display: flex; align-items: center; gap: var(--sp-3);
-  min-height: var(--tap-lg); padding: var(--sp-3) var(--sp-4);
-  border-bottom: 1px solid var(--line-soft); background: var(--surface);
+  min-height: var(--min-h-row); padding: var(--pad-row-y) var(--pad-row-x);
+  border-bottom: var(--border-w) solid var(--separator); background: var(--material-solid-bg);
 }
 .ds .row:last-child { border-bottom: 0; }
 .ds .row-main { flex: 1 1 auto; min-width: 0; }
-.ds .row-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.ds .row-title { font-weight: var(--fw-semibold); overflow: hidden; text-overflow: ellipsis; }
 .ds .row-sub { font-size: var(--fs-sm); color: var(--text-2); }
-.ds .row-lead, .ds .row-art { width: var(--tap); height: var(--tap); flex: none; display: grid; place-items: center; border-radius: var(--r-sm); background: var(--accent-soft); color: var(--accent-deep); font-size: var(--fs-xl); overflow: hidden; }
+.ds .row-lead, .ds .row-art { width: var(--tap); height: var(--tap); flex: none; display: grid; place-items: center; border-radius: var(--r-control); background: var(--accent-fill); color: var(--accent-ink); font-size: var(--fs-xl); overflow: hidden; }
 .ds .row-art svg, .ds .row-art img { width: 100%; height: 100%; object-fit: cover; }
-.ds button.row { width: 100%; text-align: left; border-left: 0; border-right: 0; border-top: 0; cursor: pointer; font: inherit; color: inherit; transition: background var(--dur-1) var(--ease); }
+.ds button.row { width: 100%; text-align: left; border-left: 0; border-right: 0; border-top: 0; cursor: pointer; font: inherit; color: inherit; transition: background var(--dur-fast) var(--ease-standard); }
 .ds button.row:active { background: var(--hover); }
 @media (hover: hover) and (pointer: fine) { .ds button.row:hover { background: var(--hover); } }
-.ds .kv { display: flex; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft); font-size: var(--fs-sm); }
+.ds .kv { display: flex; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-2) 0; border-bottom: var(--border-w) solid var(--separator); font-size: var(--fs-sm); }
 .ds .kv:last-child { border-bottom: 0; }
-.ds .kv b { color: var(--text-2); font-weight: 600; }
+.ds .kv b { color: var(--text-2); font-weight: var(--fw-semibold); }
 
 /* ── people: avatars, person chips ────────────────────────────── */
+/* every face wears its OWN person's family: hub.avatarHtml writes that person's data-accent on the avatar, so the fill, ink
+   and ring below are theirs inside any page, the TV's graphite included (identity-component.css) */
 .ds .avatar { --size: 44px; width: var(--size); height: var(--size); flex: none; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
-  font-size: calc(var(--size) * .52); line-height: 1; color: var(--text);
-  background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)));
-  box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 5px var(--tint), var(--e1); }
+  font-size: calc(var(--size) * .52); line-height: 1;
+  background: var(--accent-fill); color: var(--accent-ink);
+  box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 5px var(--accent-graphic), var(--e1); }
 .ds .avatar img { width: 100%; height: 100%; object-fit: cover; }
-.ds .avatar-sm { --size: 32px; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--tint); }
+.ds .avatar-sm { --size: 32px; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--accent-graphic); }
 .ds .avatar-lg { --size: 64px; }
-.ds .avatar-xl { --size: 96px; box-shadow: 0 0 0 4px var(--surface), 0 0 0 8px var(--tint), var(--e2); }
+.ds .avatar-xl { --size: 96px; box-shadow: 0 0 0 4px var(--surface), 0 0 0 8px var(--accent-graphic), var(--e2); }
 .ds .avatar-plain { box-shadow: none; }
 .ds .person-chip { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: 36px; padding: 2px var(--sp-3) 2px 2px; border-radius: var(--r-full);
-  background: color-mix(in srgb, var(--tint) 14%, var(--surface)); color: color-mix(in srgb, var(--tint) 70%, var(--text)); font-weight: 600; font-size: var(--fs-sm); }
+  background: color-mix(in srgb, var(--tint) 14%, var(--surface)); color: color-mix(in srgb, var(--tint) 70%, var(--text)); font-weight: var(--fw-semibold); font-size: var(--fs-sm); }
 .ds .person-chip .avatar { --size: 30px; box-shadow: none; }
 .ds .people { display: flex; }
 .ds .people .avatar { --size: 32px; margin-left: -8px; box-shadow: 0 0 0 2px var(--surface); }
 .ds .people .avatar:first-child { margin-left: 0; }
 
 /* ── chips, badges, pills, dots ───────────────────────────────── */
-.ds .chip { display: inline-flex; align-items: center; gap: var(--sp-1); min-height: 32px; padding: 0 var(--sp-3);
-  border-radius: var(--r-full); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-sm); font-weight: 600; }
-.ds .chip-accent { background: var(--accent-soft); color: var(--accent-deep); }
-.ds .chip-ok { background: var(--ok-soft); color: var(--ok-ink); }
-.ds .chip-warn { background: var(--warn-soft); color: var(--warn-ink); }
-.ds .chip-danger { background: var(--danger-soft); color: var(--danger-ink); }
-.ds .chip-info { background: var(--info-soft); color: var(--info-ink); }
+.ds .chip { display: inline-flex; align-items: center; gap: var(--sp-1); min-height: 32px; padding: 0 var(--pad-chip-x);
+  border-radius: var(--r-full); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
+.ds .chip-accent { background: var(--sel-fill); color: var(--sel-ink); }
+.ds .chip-ok { background: var(--success-fill); color: var(--success-ink); }
+.ds .chip-warn { background: var(--warning-fill); color: var(--warning-ink); }
+.ds .chip-danger { background: var(--danger-fill); color: var(--danger-ink); }
+.ds .chip-info { background: var(--info-soft); color: var(--info-ink); }   /* deprecated: the sky family */
 .ds .badge { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: var(--r-full);
-  background: var(--danger); color: #fff; font-size: var(--fs-xs); font-weight: 700; line-height: 1; box-shadow: 0 0 0 2px var(--surface); }
+  background: var(--badge-bg); color: var(--badge-ink); font-size: var(--fs-xs); font-weight: var(--fw-bold); line-height: 1; box-shadow: 0 0 0 2px var(--surface); }
 .ds .pill { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: 40px; padding: 0 var(--sp-4) 0 var(--sp-3); border-radius: var(--r-full);
-  font-weight: 600; font-size: var(--fs-sm); }
+  font-weight: var(--fw-semibold); font-size: var(--fs-sm); }
 .ds .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted-decor); flex: none; }
-.ds .dot-synced { background: var(--ok); } .ds .dot-pending { background: var(--warn); }
-.ds .dot-offline { background: var(--muted-decor); } .ds .dot-error { background: var(--danger); }
+.ds .dot-synced { background: var(--status-synced); } .ds .dot-pending { background: var(--status-pending); }
+.ds .dot-offline { background: var(--status-offline); } .ds .dot-error { background: var(--status-error); }
 
 /* ── stats: rings, bars, tickers ──────────────────────────────── */
+/* --tint is the per-element colour hook (inline until batch 2 gives every card a data-accent) */
 .ds .ringwrap { position: relative; display: grid; place-items: center; flex: none; }
 .ds .ring { width: 56px; height: 56px; flex: none; transform: rotate(-90deg); }
 .ds .ring circle { fill: none; stroke-width: 6; stroke-linecap: round; }
 .ds .ring .bg { stroke: color-mix(in srgb, var(--tint) 18%, var(--surface-2)); }
-.ds .ring .fg { stroke: var(--tint); stroke-dasharray: 138; stroke-dashoffset: calc(138 - 138 * var(--p, 0)); transition: stroke-dashoffset .8s var(--ease-out); }
+.ds .ring .fg { stroke: var(--tint); stroke-dasharray: 138; stroke-dashoffset: calc(138 - 138 * var(--p, 0)); transition: stroke-dashoffset var(--dur-progress) var(--spring-gentle); }
 .ds .ring-lg { width: 96px; height: 96px; }
 .ds .ring-lg circle { stroke-width: 7; }
-.ds .ring-lbl { position: absolute; font-size: var(--fs-xs); font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.ds .ring-lbl { position: absolute; font-size: var(--fs-xs); font-weight: var(--fw-bold); color: var(--text); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; }
 .ds .ringwrap.lg .ring-lbl { font-size: var(--fs-lg); }
 .ds .bar { height: 8px; border-radius: var(--r-full); background: var(--surface-2); overflow: hidden; }
-.ds .bar > i { display: block; height: 100%; width: calc(100% * var(--p, 0)); border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint)); transition: width .8s var(--ease-out); }
+.ds .bar > i { display: block; height: 100%; width: calc(100% * var(--p, 0)); border-radius: inherit; background: var(--tint); transition: width var(--dur-progress) var(--spring-gentle); }
 .ds .stat { display: flex; flex-direction: column; gap: 2px; }
-.ds .stat b { font-size: var(--fs-2xl); line-height: 1; font-weight: 700; letter-spacing: var(--ls-tight); font-variant-numeric: tabular-nums; }
+.ds .stat b { font-family: var(--font-numeral); font-size: var(--fs-2xl); line-height: 1; font-weight: var(--fw-bold); letter-spacing: var(--ls-numeral); font-variant-numeric: tabular-nums; }
 .ds .stat span { font-size: var(--fs-sm); color: var(--text-2); }
 
 /* ── skeletons & empty states ─────────────────────────────────── */
 .ds .skeleton { position: relative; overflow: hidden; background: var(--surface-2); border-radius: var(--r-sm); color: transparent !important; min-height: 1em; }
 .ds .skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%);
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--surface) 70%, transparent), transparent);
-  animation: hub-shimmer 1.4s infinite; }
+  animation: hub-shimmer var(--dur-shimmer) linear infinite; }
 @keyframes hub-shimmer { to { transform: translateX(100%); } }
-.ds .empty { text-align: center; color: var(--muted); padding: var(--sp-10) var(--sp-4); }
+.ds .empty { text-align: center; color: var(--text-3); padding: var(--sp-10) var(--sp-4); }
 .ds .empty .icon { width: 48px; height: 48px; margin: 0 auto var(--sp-3); opacity: .6; }
 .ds .empty-art { width: min(220px, 60%); margin: 0 auto var(--sp-4); }
 .ds .empty-art svg, .ds .empty-art img { width: 100%; height: auto; }
 .ds .empty h3 { color: var(--text); margin-bottom: var(--sp-1); }
 
 /* ── glass navigation: tab bar, top bar, sidebar ──────────────── */
-.ds .topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: var(--sp-1); min-height: 52px;
+.ds .topbar { position: sticky; top: 0; z-index: var(--z-bar); display: flex; align-items: center; gap: var(--sp-1); min-height: 52px;
   padding: var(--safe-top) max(var(--sp-2), var(--safe-right)) 0 max(var(--sp-2), var(--safe-left));
-  border-width: 0 0 1px; border-radius: 0; box-shadow: inset 0 -1px 0 var(--glass-edge), 0 1px 0 var(--glass-ring); }
-.ds .topbar .title { flex: 1; text-align: center; font-weight: 700; }
-.ds .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; justify-content: center;
+  border-width: 0 0 var(--border-w); border-radius: 0; box-shadow: inset 0 -1px 0 var(--glass-edge), 0 1px 0 var(--glass-ring); }
+.ds .topbar .title { flex: 1; text-align: center; font-weight: var(--fw-bold); }
+.ds .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-bar); display: flex; justify-content: center;
   padding: var(--sp-2) max(var(--sp-2), var(--safe-right)) calc(var(--sp-2) + var(--safe-bottom)) max(var(--sp-2), var(--safe-left));
-  border-width: 1px 0 0; border-radius: 0; box-shadow: inset 0 1px 0 var(--hairline), 0 -1px 0 var(--glass-ring), 0 -12px 40px -24px var(--glass-inner); }
+  border-width: var(--border-w) 0 0; border-radius: 0; box-shadow: inset 0 1px 0 var(--hairline), 0 -1px 0 var(--glass-ring), var(--elev-bar-up); }
 .ds .tabbar .tabs { display: flex; width: 100%; max-width: 560px; position: relative; }
+/* the selected tab: the person's ink + weight, over a pill with a >= 3:1 edge (ACCENT-3) */
 .ds .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; position: relative; z-index: 1;
-  border: 0; background: none; color: var(--muted); font: inherit; font-size: var(--fs-xs); font-weight: 600; border-radius: var(--r); cursor: pointer; transition: color var(--dur-2) var(--ease), transform var(--dur-2) var(--spring); }
-.ds .tab:active { transform: scale(.94); }
+  border: 0; background: none; color: var(--text-3); font: inherit; font-size: var(--fs-xs); font-weight: var(--fw-medium); border-radius: var(--r); cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard), transform var(--dur-snappy) var(--spring-snappy); }
+.ds .tab:active { transform: scale(var(--press-scale-sm)); transition-duration: var(--dur-press); }
 .ds .tab .icon { width: 26px; height: 26px; }
-.ds .tab.on { color: var(--accent-deep); }
+.ds .tab.on { color: var(--accent-ink); font-weight: var(--sel-weight); }
 .ds .tab .dot { position: absolute; top: 8px; right: calc(50% - 22px); width: 9px; height: 9px; border: 2px solid var(--surface); }
 .ds .tab-ind { position: absolute; top: 4px; bottom: 4px; width: calc(100% / var(--tabs, 4)); left: calc(100% / var(--tabs, 4) * var(--i, 0)); border-radius: var(--r);
-  background: var(--accent-soft); transition: left var(--dur-3) var(--spring); z-index: 0; }
+  background: var(--sel-fill); box-shadow: inset 0 0 0 var(--border-w-strong) var(--accent-graphic); transition: left var(--dur-snappy) var(--spring-snappy); z-index: 0; }
 /* desktop: the tab bar becomes a sidebar */
 @media (min-width: 1024px) {
   .ds .tabbar.sidebar { position: fixed; top: 0; bottom: 0; left: 0; right: auto; width: 220px; flex-direction: column; justify-content: flex-start; padding: var(--sp-6) var(--sp-3);
-    border-width: 0 1px 0 0; box-shadow: inset -1px 0 0 var(--hairline), 1px 0 0 var(--glass-ring); }
+    border-width: 0 var(--border-w) 0 0; box-shadow: inset -1px 0 0 var(--hairline), 1px 0 0 var(--glass-ring); }
   .ds .tabbar.sidebar .tabs { flex-direction: column; max-width: none; gap: var(--sp-1); }
   .ds .tabbar.sidebar .tab { flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: var(--sp-3); min-height: 48px; padding: 0 var(--sp-4); font-size: var(--fs-md); }
   .ds .tabbar.sidebar .tab .dot { top: auto; right: var(--sp-3); }
-  .ds .tabbar.sidebar .tab-ind { width: 100%; left: 0; height: 48px; top: calc((48px + var(--sp-1)) * var(--i, 0)); bottom: auto; transition: top var(--dur-3) var(--spring); }
+  .ds .tabbar.sidebar .tab-ind { width: 100%; left: 0; height: 48px; top: calc((48px + var(--sp-1)) * var(--i, 0)); bottom: auto; transition: top var(--dur-snappy) var(--spring-snappy); }
 }
 
 /* ── overlays: sheet, toast ───────────────────────────────────── */
-.ds .sheet-backdrop { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: end center; z-index: 50; animation: hub-fade var(--dur-2) var(--ease); }
-.ds .sheet { width: 100%; max-width: 560px; max-height: calc(100dvh - var(--safe-top) - 24px); overflow: auto;
+.ds .sheet-backdrop { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: end center; z-index: var(--z-sheet); animation: hub-fade var(--dur-fast) var(--ease-standard); }
+.ds .sheet { width: 100%; max-width: var(--col-narrow); max-height: calc(100dvh - var(--safe-top) - 24px); overflow: auto;
   border-bottom: 0;
-  border-radius: var(--r-2xl) var(--r-2xl) 0 0; padding: var(--sp-3) var(--sp-5) calc(var(--sp-5) + var(--safe-bottom));
-  box-shadow: var(--e4); animation: hub-rise var(--dur-3) var(--spring); }
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0; padding: var(--sp-3) var(--pad-sheet) calc(var(--pad-sheet) + var(--safe-bottom));
+  box-shadow: var(--elev-overlay); animation: hub-rise var(--dur-gentle) var(--spring-gentle); }
 .ds .sheet::before { content: ""; display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--muted-decor); opacity: .6; margin: 0 auto var(--sp-4); }
 .ds .sheet h2 { margin-bottom: var(--sp-3); }
 .ds .sheet[data-snap="peek"] { max-height: 30dvh; } .ds .sheet[data-snap="half"] { max-height: 55dvh; }
-@media (min-width: 720px) { .ds .sheet-backdrop { place-items: center; } .ds .sheet { border-radius: var(--r-2xl); border-bottom: 1px solid var(--glass-edge); padding-bottom: var(--sp-5); } .ds .sheet::before { display: none; } }
+@media (min-width: 720px) { .ds .sheet-backdrop { place-items: center; } .ds .sheet { border-radius: var(--r-sheet); border-bottom: var(--border-w) solid var(--glass-edge); padding-bottom: var(--pad-sheet); } .ds .sheet::before { display: none; } }
+/* the confirm sheet (hub.confirm / hub.alert, CONS-TELL-2): the question, then its buttons side by side, the safe one
+   first and the confirming one last; they stack when a large text size leaves no room */
+.ds .hub-ask > .sheet { display: block; position: relative; inset: auto; margin: 0; z-index: auto; }   /* an app's own .sheet (F260: display none until .on; Prayer: fixed) never reaches this one */
+.ds .hub-ask h2 { margin: 0 0 var(--sp-3); font-size: var(--fs-xl); font-weight: var(--fw-bold); color: var(--text); }
+.ds .sheet .hub-ask-lead { font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
+.ds .sheet-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-5); }
+.ds .sheet-actions .btn { flex: 1 1 8em; min-height: max(var(--btn-h), 44px); }
+/* the toast: a dark slab in both schemes, never an inverted light one in dark (VIS-DARK-1); it sizes to its message up to
+   the narrow column, not to half the viewport (P4-SHAPE-04) */
 .ds .toast { position: fixed; left: 50%; bottom: calc(var(--sp-6) + var(--safe-bottom)); transform: translateX(-50%);
-  background: linear-gradient(to bottom, rgba(255,255,255,.14), transparent 40%), color-mix(in srgb, var(--text) 90%, transparent); color: var(--bg); padding: var(--sp-3) var(--sp-5); border-radius: var(--r-full); border: 1px solid rgba(255,255,255,.12);
-  font-weight: 600; font-size: var(--fs-sm); box-shadow: var(--e3); z-index: 60; max-width: calc(100% - 32px);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); animation: hub-toast var(--dur-3) var(--spring); }
+  width: max-content; max-width: min(var(--col-narrow), calc(100vw - var(--margin-left) - var(--margin-right)));
+  background: var(--toast-bg); color: var(--toast-ink); padding: var(--sp-3) var(--sp-5); border-radius: var(--r-card); border: var(--border-w) solid var(--glass-inverse-line);
+  font-weight: var(--fw-semibold); font-size: var(--fs-sm); box-shadow: var(--elev-toast); z-index: var(--z-toast);
+  -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); animation: hub-toast var(--dur-gentle) var(--spring-gentle); }
 .ds .toast .toast-act { margin-left: var(--sp-3); min-height: 44px; padding: 0 var(--sp-3); border: 0; border-radius: var(--r-full); background: transparent;
-  color: inherit; font: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  color: inherit; font: inherit; font-weight: var(--fw-heavy); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 @keyframes hub-fade { from { opacity: 0; } }
-@keyframes hub-rise { from { opacity: 0; transform: translateY(24px); } }
-@keyframes hub-toast { from { opacity: 0; transform: translate(-50%, 16px); } }
-@keyframes hub-pop { from { opacity: 0; transform: scale(.96) translateY(8px); } }
-.ds .pop-in { animation: hub-pop var(--dur-3) var(--spring) both; }
-.ds .stagger > * { animation: hub-pop var(--dur-3) var(--spring) both; }
+@keyframes hub-rise { from { opacity: 0; transform: translateY(var(--enter-distance)); } }
+@keyframes hub-toast { from { opacity: 0; transform: translate(-50%, var(--enter-distance)); } }
+@keyframes hub-pop { from { opacity: 0; transform: scale(.96) translateY(calc(var(--enter-distance) / 2)); } }
+.ds .pop-in { animation: hub-pop var(--dur-gentle) var(--spring-gentle) both; }
+.ds .stagger > * { animation: hub-pop var(--dur-gentle) var(--spring-gentle) both; }
 .ds .stagger > :nth-child(2) { animation-delay: 40ms; } .ds .stagger > :nth-child(3) { animation-delay: 80ms; }
 .ds .stagger > :nth-child(4) { animation-delay: 120ms; } .ds .stagger > :nth-child(5) { animation-delay: 160ms; } .ds .stagger > :nth-child(n+6) { animation-delay: 200ms; }
 
 /* ── icons ────────────────────────────────────────────────────── */
-.ds .icon { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-.ds .icon-lg { width: 32px; height: 32px; }
-/* duotone: .duo paths are filled with the tint at low opacity, the stroke stays currentColor */
-.ds .icon .duo { fill: var(--tint); fill-opacity: .2; stroke: none; }
+/* the house stroke and no fill, unless the <svg> sets its own (P4-ICON-05: a filled glyph stays filled) */
+.ds .icon { width: var(--icon-md); height: var(--icon-md); flex: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+.ds .icon:not([fill]) { fill: none; }
+.ds .icon:not([stroke-width]) { stroke-width: var(--icon-stroke); }
+.ds .icon-lg { width: var(--icon-xl); height: var(--icon-xl); }
+/* duotone: the global svg .duo rule in the base above (inline paths and sprite paths alike) */
+/* the app icon keeps today's --tint recipe until batch 2 gives every tile and icon a data-accent (identity-component.css) */
 .ds .app-icon { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; flex: none;
   background: linear-gradient(160deg, color-mix(in srgb, var(--tint) 22%, var(--surface)), color-mix(in srgb, var(--tint) 8%, var(--surface)));
   color: var(--tint); box-shadow: inset 0 1px 0 var(--hairline), var(--e1); }
 .ds .app-icon svg { width: 60%; height: 60%; }
 
+/* ── Reduce Motion: the global kill, RE-KEYED to the switch and its mirror (§8, MOTION-6) and made an opacity-only
+   substitute. It stays until every app's literal durations read the tokens; data-motion="full" opts out of the OS. ── */
+:root[data-motion="reduce"] *, :root[data-motion="reduce"] *::before, :root[data-motion="reduce"] *::after {
+  animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+  transition-property: opacity, color, background-color, border-color !important; transition-duration: 150ms !important;
+  scroll-behavior: auto !important; }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+  :root:not([data-motion="full"]) *, :root:not([data-motion="full"]) *::before, :root:not([data-motion="full"]) *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-property: opacity, color, background-color, border-color !important; transition-duration: 150ms !important;
+    scroll-behavior: auto !important; }
 }
 @media print {
-  body { background: #fff; color: #000; }
+  html, body { background: white; color: black; }
   .ds .btn, .ds .sheet-backdrop, .ds .toast, .ds .tabbar, .ds .topbar { display: none !important; }
 }

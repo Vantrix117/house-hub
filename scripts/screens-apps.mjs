@@ -29,7 +29,8 @@ let pass = 0, fail = 0;
 const ok = (cond, name, extra = '') => { if (cond) { pass++; console.log('  ✓', name); } else { fail++; console.log('  ✗', name, extra); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const shots = path.join(ROOT, 'docs', 'screens'); fs.mkdirSync(shots, { recursive: true });
-const THEMES = { hearth: ['rgb(247, 242, 235)', 'light'], parchment: ['rgb(231, 217, 190)', 'light'], frost: ['rgb(237, 240, 245)', 'light'], midnight: ['rgb(26, 21, 18)', 'dark'], forest: ['rgb(16, 23, 26)', 'dark'] };
+// each palette's v3 --bg (apps/design.css; audit batch 1a) and its scheme; Graphite is D2
+const THEMES = { hearth: ['rgb(244, 241, 236)', 'light'], parchment: ['rgb(236, 226, 205)', 'light'], frost: ['rgb(242, 242, 247)', 'light'], midnight: ['rgb(11, 10, 9)', 'dark'], forest: ['rgb(7, 15, 13)', 'dark'], graphite: ['rgb(0, 0, 0)', 'dark'] };
 const APPS = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps.json'), 'utf8')).apps;
 const errors = [];
 
@@ -82,7 +83,7 @@ async function session(profileId, pin) {
         if (a.id !== 'dollywood') await page.waitForFunction(() => window.hub && hub.sync && (hub.sync.lastPull > 0 || hub.sync.state === 'offline'), null, { timeout: 20000 }).catch(() => {});
         await sleep(600);
         for (const [t, [bg, scheme]] of Object.entries(THEMES)) {
-          await page.evaluate(([t, scheme]) => { const r = document.documentElement; if (t === 'hearth') delete r.dataset.theme; else r.dataset.theme = t; r.dataset.scheme = scheme; if (window.hub && hub.setTheme && hub.profile) { try { localStorage.setItem('hub.theme', JSON.stringify(t)); } catch {} } }, [t, scheme]);
+          await page.evaluate(([t, scheme]) => { const r = document.documentElement; r.dataset.theme = t; r.dataset.scheme = scheme; if (window.hub && hub.setTheme && hub.profile) { try { localStorage.setItem('hub.theme', JSON.stringify(t)); } catch {} } }, [t, scheme]);
           await sleep(350);
           const got = await page.evaluate(() => ({ bg: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(), hs: document.documentElement.scrollWidth <= window.innerWidth + 1 }));
           if (width === 390) ok(got.hs, `${a.id}/${t}: no horizontal scroll at 390`);
@@ -90,7 +91,7 @@ async function session(profileId, pin) {
         }
         // the chrome really follows the theme: sample the page background under midnight vs hearth
         const dark = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-        await page.evaluate(() => { const r = document.documentElement; delete r.dataset.theme; r.dataset.scheme = 'light'; }); await sleep(250);
+        await page.evaluate(() => { const r = document.documentElement; r.dataset.theme = 'hearth'; r.dataset.scheme = 'light'; }); await sleep(250);
         const light = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
         if (width === 390) ok(dark !== light, `${a.id}: page background changes between forest and hearth (${light} → ${dark})`);
         await ctx.close();

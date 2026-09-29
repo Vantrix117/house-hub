@@ -308,7 +308,7 @@ async function artSample(page, sel) {
     ok(dArt.op <= .2 && dArt.diff != null && dArt.diff >= 10 && dArt.diff <= 90, '(c) Stars card on Midnight: art at ≤ .2 opacity, a faint ghost (pixel diff 10–90 of 765)', JSON.stringify(dArt));
     await K.page.evaluate(() => document.querySelector('.stars-card').scrollIntoView()); await sleep(150);
     await K.page.screenshot({ path: path.join(SHOTS, 'rm13-kid-390-midnight.png'), fullPage: false });
-    await K.page.evaluate(() => { delete document.documentElement.dataset.theme; document.documentElement.dataset.scheme = 'light'; document.getElementById('views').scrollTo(0, 0); }); await sleep(250);
+    await K.page.evaluate(() => { document.documentElement.dataset.theme = 'hearth'; document.documentElement.dataset.scheme = 'light'; document.getElementById('views').scrollTo(0, 0); }); await sleep(250);
     ok(!!(await K.page.$('.park-card')), '(b) kids see the park card too');
     const krows = await parkRows(K.page), kexp = await expectedPark(dadTok);
     ok(krows.map(r => r.name).join(',') === kexp.names && krows.map(r => r.when).join(',') === kexp.whens && krows.every(r => !r.clipped && r.inside), '(b) kid scale: every row with its time, nothing clipped', JSON.stringify([krows, kexp.names, kexp.whens]));

@@ -113,14 +113,14 @@ const inView = (r, H = 844, W = 390) => r && r.h > 0 && r.top >= 0 && r.bottom <
       const b = e.querySelector('.bar'), i = b && b.querySelector('i');
       const bw = b ? b.getBoundingClientRect().width : 0, iw = i ? i.getBoundingClientRect().width : 0;
       const tint = e.style.getPropertyValue('--tint').trim();
-      const fill = i ? getComputedStyle(i).backgroundImage : '';
-      return { p: b && b.style.getPropertyValue('--p'), ratio: bw ? +(iw / bw).toFixed(2) : -1, tint, hasGradient: /gradient/.test(fill) };
+      const fill = i ? getComputedStyle(i).backgroundColor : '';
+      return { p: b && b.style.getPropertyValue('--p'), ratio: bw ? +(iw / bw).toFixed(2) : -1, tint, painted: !!fill && !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(fill) };
     }));
-    ok(bars.length === 3 && bars.every(b => b.hasGradient && b.ratio >= 0), 'every item has a .bar with a filled <i>', JSON.stringify(bars));
+    ok(bars.length === 3 && bars.every(b => b.painted && b.ratio >= 0), 'every item has a .bar with a filled <i>', JSON.stringify(bars));
     ok(bars[0].p === '0.8' && bars[1].p === '0.5' && bars[2].p === '0.2', '--p is days/10 (0.8, 0.5, 0.2)', JSON.stringify(bars.map(b => b.p)));
     ok(Math.abs(bars[0].ratio - 0.8) < 0.06 && Math.abs(bars[1].ratio - 0.5) < 0.06 && Math.abs(bars[2].ratio - 0.2) < 0.06, 'fill widths follow --p', JSON.stringify(bars.map(b => b.ratio)));
-    ok(bars[0].tint === 'var(--danger)' && bars[1].tint === 'var(--warn)' && bars[2].tint === 'var(--ok)', '--tint is danger / warn / ok by age (tokens, no hex)', JSON.stringify(bars.map(b => b.tint)));
-    const fills = await A.page.$$eval('#list .item .bar > i', els => els.map(i => getComputedStyle(i).backgroundImage));
+    ok(bars[0].tint === 'var(--use-soon)' && bars[1].tint === 'var(--aging)' && bars[2].tint === 'var(--fresh)', '--tint is use-soon / aging / fresh by age (graphic tokens, no hex; audit batch 1, VIS-LEFTOVERS-2)', JSON.stringify(bars.map(b => b.tint)));
+    const fills = await A.page.$$eval('#list .item .bar > i', els => els.map(i => getComputedStyle(i).backgroundColor));
     ok(new Set(fills).size === 3, 'three distinct bar colours resolve from the tokens');
 
     console.log('\n## 390×844: oldest item + chip + add bar on screen together, no scrolling');

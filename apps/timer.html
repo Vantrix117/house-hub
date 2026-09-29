@@ -3,49 +3,78 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>(function(d){try{var g=function(k,f){try{var v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},
+m=function(q){return !!(window.matchMedia&&matchMedia(q).matches)},c=g('hub.theme','system'),t=c==='light'?'hearth':c==='dark'?'midnight':c,
+S={hearth:'light',parchment:'light',frost:'light',midnight:'dark',forest:'dark',graphite:'dark'},
+B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'},
+H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'graphite'};
+if(!S[t])t=m('(prefers-color-scheme: dark)')?'midnight':'hearth';
+var s=g('hub.session',null),p=s&&s.profile,r=g('hub.prefs',{})||{};d.setAttribute('data-theme',t);d.setAttribute('data-theme-choice',c);
+d.setAttribute('data-scheme',S[t]);d.style.colorScheme=S[t];
+var ms=document.querySelectorAll('meta[name="theme-color"]'),i;if(!ms.length){var mt=document.createElement('meta');mt.setAttribute('name','theme-color');document.head.appendChild(mt);ms=[mt]}
+for(i=0;i<ms.length;i++){ms[i].removeAttribute('media');ms[i].setAttribute('content',B[t])}
+var A=' bubblegum peach butter mint aqua sky periwinkle lavender graphite coral apricot honey pistachio leaf seafoam lagoon cornflower orchid ';
+if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:p.is_guest?'sky':H[String(p.color||'').toLowerCase()]||'graphite')}
+['textSize:data-text-size','contrast:data-contrast','transparency:data-transparency','motion:data-motion'].forEach(function(x){x=x.split(':');if(r[x[0]])d.setAttribute(x[1],r[x[0]])});if(r.glass&&p&&p.kind!=='kiosk'){if(r.glass==='solid')d.setAttribute('data-transparency','reduce');else{d.setAttribute('data-glass',r.glass);d.setAttribute('data-transparency','full')}}}catch(e){}})(document.documentElement)</script>
 <title>Kitchen timer</title>
 <link rel="stylesheet" href="design.css">
 <style>
+  /* Kitchen timer (audit batch 1). Every colour is a design.css role token; no hex, no color-mix recipe (CONS-TOK-3). */
   html, body { height: 100%; }
-  body { display: grid; place-items: center; user-select: none; -webkit-user-select: none; transition: background var(--dur-3) var(--ease);
+  body { display: grid; place-items: center; user-select: none; -webkit-user-select: none; transition: background var(--dur-slow) var(--ease-standard);
     padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left); }
-  body.done { background: var(--wash), color-mix(in srgb, var(--danger-soft) 70%, var(--bg)); }
-  main { text-align: center; width: min(100%, 560px); padding: var(--sp-4); display: grid; justify-items: center; }
+  /* time's up: the page takes the person's hero wash; never the danger family (CONS-ACCENT-2, CONS-COLOR-4) */
+  body.ds.done { background: var(--wash), var(--hero-bg); background-attachment: fixed; }
+  /* the narrow column (CONS-SHAPE-2): the content is --col-narrow wide, inside the page padding */
+  main { text-align: center; width: min(100%, calc(var(--col-narrow) + 2 * var(--sp-4))); min-width: 0; padding: var(--sp-4); display: grid; justify-items: center; }   /* min-width 0: a grid item never outgrows the screen at a large text size */
 
   /* title mark — standalone gets a name; hidden when the viewport is short (in-hub iframe on a phone) */
   .hd { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); color: var(--text-2); }
   .hd img { height: 44px; width: auto; display: block; }
-  .hd h1 { margin: 0; font: 600 var(--fs-lg) var(--font-display); color: var(--text); letter-spacing: .01em; }
+  .hd h1 { margin: 0; font: var(--fw-semibold) var(--fs-lg)/var(--lh-title3) var(--font-display); color: var(--text); letter-spacing: var(--ls-title3); }
   @media (max-height: 640px) { .hd { display: none; } }
 
-  /* the dial: one glass disc, the design.css ring inside it, the time in the middle */
-  .dial { --tint: var(--accent); width: min(82vw, 52vh, 400px); aspect-ratio: 1; border-radius: var(--r-full);
+  /* the dial: content, so a SOLID disc, not a glass pane (VIS-TIMER-6, CONS-GLASS-2); the design.css ring inside it, the
+     time in the middle. The ring reads the progress roles, never the raw person colour (P4-ACCENT-04, P4-DARK-01): the arc
+     is --progress-fill (the person's solid, 5.5-9.8:1 on the dial in every palette) and the track --tint-fill-strong,
+     1.86-2.37:1 on the dial (VIS-TIMER-7; --progress-track, the pastel fill, is only 1.07-1.47:1 on a light dial). */
+  .dial { width: min(82vw, 52vh, 400px); aspect-ratio: 1; border-radius: var(--r-full);
     padding: var(--sp-4); display: grid; place-items: center; container-type: inline-size;
-    transition: box-shadow var(--dur-3) var(--ease); }
+    background: var(--material-solid-bg); border: var(--border-w) solid var(--separator);
+    box-shadow: inset 0 1px 0 var(--hairline), var(--elev-card);
+    transition: box-shadow var(--dur-slow) var(--ease-standard); }
   .dial .ringwrap { width: 100%; height: 100%; }
-  .dial .ring { width: 100%; height: 100%; filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--tint) 30%, transparent)); }
+  .dial .ring { width: 100%; height: 100%; filter: drop-shadow(0 2px 6px var(--accent-glow)); }
   .dial .ring circle { stroke-width: 3; }
-  .dial .ring .bg { stroke: color-mix(in srgb, var(--tint) 16%, var(--surface-2)); }
-  .dial .ring .fg { stroke: var(--tint); transition: stroke-dashoffset .5s linear, stroke var(--dur-3) var(--ease), opacity var(--dur-2) var(--ease); }
+  .dial .ring .bg { stroke: var(--tint-fill-strong); transition: stroke var(--dur-slow) var(--ease-standard); }
+  .dial .ring .fg { stroke: var(--progress-fill);
+    transition: stroke-dashoffset var(--dur-progress) var(--ease-standard), stroke var(--dur-slow) var(--ease-standard), opacity var(--dur-fast) var(--ease-standard); }
   .dial.empty .ring .fg { opacity: 0; }   /* a round cap would still draw a dot at 0 */
-  .time { position: absolute; font-size: clamp(56px, 16vw, 92px); font-size: 24cqw; font-weight: 300; line-height: 1;
-    font-variant-numeric: tabular-nums; letter-spacing: -.02em; color: var(--accent-strong); font-family: var(--font-sans);
-    transition: color var(--dur-3) var(--ease); }
+  /* the digits: the rounded numeral face with tabular figures (CONS-TYPE-3, the batch-1a numeral move), in the person's ink */
+  .time { position: absolute; font-size: clamp(56px, 16vw, 92px); font-size: 24cqw; font-weight: var(--fw-light); line-height: 1;
+    font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); color: var(--accent-ink); font-family: var(--font-numeral);
+    transition: color var(--dur-slow) var(--ease-standard); }
 
-  /* done: ring and numbers go danger, numbers blink */
-  body.done .dial { --tint: var(--danger); box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e2), 0 0 0 6px var(--danger-soft); }
-  body.done .dial .ring .bg { stroke: color-mix(in srgb, var(--danger) 55%, var(--surface-2)); }
-  body.done .time { color: var(--danger); animation: blink 1s steps(2) infinite; }
-  @keyframes blink { to { opacity: .3; } }
+  /* done: the owner's colour + motion + sound (--timer-done, never --danger: CONS-ACCENT-2). The whole track fills in the
+     owner's solid, a ring lights round the dial and the dial pulses; the digits stay at full ink, never dimmed with opacity
+     (CONS-COLOR-1). Under Reduce Motion the pulse is still (--pulse-scale 1) and the colour and the beep remain. */
+  body.done .dial { box-shadow: inset 0 1px 0 var(--hairline), var(--elev-card), 0 0 0 var(--ring-w-lg) var(--timer-done);
+    animation: timer-done var(--dur-pulse) var(--ease-standard) infinite; }
+  body.done .dial .ring .bg { stroke: var(--timer-done); }
+  body.done .time { font-weight: var(--fw-regular); }
+  @keyframes timer-done { 50% { transform: scale(var(--pulse-scale)); } }
 
-  /* presets as chips */
-  .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); margin-top: var(--sp-6); width: 100%; }
-  .presets .btn { border-radius: var(--r-full); padding: 0 var(--sp-3); white-space: nowrap; }
-  .presets .btn.on { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent-deep); box-shadow: none; }
+  /* presets as chips; the selected one is the >= 3:1 selection solid plus weight, not a hue shift (VIS-TIMER-3, P4-ACCENT-01) */
+  .presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); margin-top: var(--sp-6); width: 100%; }
+  /* at the two largest text sizes a phone gets two columns, so no chip is cut off at the edge (review, batch 1) */
+  @media (max-width: 719px) { :root:is([data-text-size="xl"], [data-text-size="xxl"]) .presets { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .presets .btn { border-radius: var(--r-full); padding: 0 var(--sp-3); white-space: nowrap; font-weight: var(--fw-medium); }   /* as .ds .seg: medium, selected semibold */
+  .presets .btn.on { background: var(--sel-fill-strong); border-color: transparent; color: var(--sel-ink-strong); font-weight: var(--sel-weight); box-shadow: var(--elev-control); }
 
   .actions { display: flex; gap: var(--sp-3); justify-content: center; margin-top: var(--sp-4); width: 100%; }
   .actions .btn-lg { flex: 1; }
-  @media (min-width: 720px) { main { width: min(100%, 640px); } .presets { grid-template-columns: repeat(6, 1fr); } }
+  /* one row of six in the narrow column: the tighter gap keeps a kid's "10 min" clear of its capsule edge at 560 px */
+  @media (min-width: 720px) { .presets { grid-template-columns: repeat(6, 1fr); gap: var(--sp-2); } }
 
   /* loading: until this page has pulled the timer, the dial holds a skeleton bar (not an idle "5:00") and every control
      is off, so a slow pull never lets Start, Reset or a preset replace a timer running on another device.
@@ -57,7 +86,7 @@
 <body class="ds">
 <main>
   <header class="hd"><img src="../art/app/timer.svg" alt=""><h1>Kitchen timer</h1></header>
-  <div class="dial glass" id="dial" aria-busy="true">
+  <div class="dial" id="dial" aria-busy="true">
     <span class="ringwrap lg">
       <svg class="ring ring-lg" viewBox="0 0 52 52" style="--p:0" aria-hidden="true"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg>
       <div class="time" id="t"><span class="skeleton tsk" role="img" aria-label="Loading your timer"></span></div>

@@ -164,7 +164,7 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
     ok(reg && reg.scope === 'both' && reg.tile === 'small' && /^#/.test(reg.color) && reg.icon === 'icons/kidverse.svg' && reg.visibleTo && reg.visibleTo.slice(0, 2).join() === 'ezra,kiara' && ['eli', 'christian', 'mom', 'dad', 'niece'].every(id => reg.visibleTo.includes(id)), 'apps.json: kidverse registered (both, small, gold, kids first then the adults)', JSON.stringify(reg));
     ok(fs.existsSync(path.join(ROOT, 'icons/kidverse.svg')) && /class="duo"/.test(fs.readFileSync(path.join(ROOT, 'icons/kidverse.svg'), 'utf8')) && fs.existsSync(path.join(ROOT, 'art/app/kidverse.svg')), 'icon (duotone) + spot art exist');
     const src = fs.readFileSync(path.join(ROOT, 'apps/kidverse.html'), 'utf8');
-    ok(!/#[0-9a-f]{3,8}\b/i.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))) && !/prefers-color-scheme/.test(src), 'no hex and no prefers-color-scheme in the app\'s CSS');
+    ok(!/#[0-9a-f]{3,8}\b/i.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))) && !/prefers-color-scheme/.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))), 'no hex and no prefers-color-scheme in the app\'s CSS');
     ok(!/<input|<textarea|<select|contenteditable/.test(src), 'no text input anywhere in the app');
 
     console.log('\n## (a) kid flow — Ezra, 390');

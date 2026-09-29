@@ -182,7 +182,7 @@ const sameStory = (a, b) => !!a && !!b && a.week === b.week && JSON.stringify(a.
     ok(/Daniel/.test(by(26).s) && /lions/.test(by(26).s) && /temple/.test(by(26).s) && /Daniel 5–6/.test(by(26).r) && /Ezra 1–6/.test(by(26).r), 'week 26 → Daniel and the lions, then home to rebuild the temple (Daniel 5–6, Ezra 1–6)', by(26).s);
     ok(/John/.test(by(52).s) && /new/.test(by(52).s) && /tear/.test(by(52).s) && /Revelation/.test(by(52).r), 'week 52 → John sees everything made new (Revelation)', by(52).s);
     ok(/retelling in our own words/.test(src) && /not the Bible's own words/.test(src), 'the story card is labelled a retelling in our own words, not the Bible\'s');
-    ok(!/#[0-9a-f]{3,8}\b/i.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))) && !/prefers-color-scheme/.test(src), 'no hex and no prefers-color-scheme in the app\'s CSS');
+    ok(!/#[0-9a-f]{3,8}\b/i.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))) && !/prefers-color-scheme/.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))), 'no hex and no prefers-color-scheme in the app\'s CSS');
     ok(!/hub\.set\('stars/.test(block), 'the story block never writes a stars row (rewards belong to item 20)');
     const f260src = fs.readFileSync(path.join(ROOT, 'apps/f260.html'), 'utf8');
     ok(/hub\.use\('kidverse', 'family'\)/.test(f260src) && /id="todayKids"/.test(f260src), 'f260.html declares the family kidverse scope and has the Kids line');

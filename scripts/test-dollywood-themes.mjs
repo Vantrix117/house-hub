@@ -34,6 +34,7 @@ const THEMES = [
   { name: 'frost', attr: 'frost', scheme: 'light' },
   { name: 'midnight', attr: 'midnight', scheme: 'dark' },
   { name: 'forest', attr: 'forest', scheme: 'dark' },
+  { name: 'graphite', attr: 'graphite', scheme: 'dark' },   // D2 (audit batch 1a)
 ];
 const SIZES = [[390, 844], [1024, 1366]];
 const outDir = path.join(ROOT, 'docs', 'screens');

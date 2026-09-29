@@ -94,12 +94,16 @@ const flushed = page => page.evaluate(() => hub.flush()).then(() => waitFor(() =
 const shot = (page, name) => page.screenshot({ path: path.join(OUT, name), fullPage: false });
 const vis = (page, sel) => page.$eval(sel, e => !!(e.offsetParent || e.getClientRects().length) && getComputedStyle(e).visibility !== 'hidden').catch(() => false);
 const rgb = hex => { const n = parseInt(hex.slice(1), 16); return `rgb(${n >> 16}, ${(n >> 8) & 255}, ${n & 255})`; };
-// Every face in the who-prayed row(s) of the family Today list: title (name), size, and the --tint it carries.
+// Every face in the who-prayed row(s) of the family Today list: title (name), size, and the data-accent (hue) it carries.
+// hub.avatarHtml writes the person's hue family as data-accent, not an inline --tint hex (audit batch 1a).
+// the seeded family colours (decision D3, worker/seed.sql + migrations/007), not hub.hueOf: the face must match the seed
+const SEEDED_HUE = { eli: 'periwinkle', kiara: 'lavender' };
+const hueOf = async (page, p) => SEEDED_HUE[p.id];
 const faces = page => page.$$eval('#todayList .who .avatar, #todayList .who .init, #todayList .who .more', els => els.map(e => {
-  const r = e.getBoundingClientRect(); return { cls: e.className, title: e.getAttribute('title'), w: Math.round(r.width), h: Math.round(r.height), tint: e.style.getPropertyValue('--tint').trim(), img: !!e.querySelector('img'), text: e.textContent.trim() }; }));
+  const r = e.getBoundingClientRect(); return { cls: e.className, title: e.getAttribute('title'), w: Math.round(r.width), h: Math.round(r.height), tint: e.getAttribute('data-accent') || '', img: !!e.querySelector('img'), text: e.textContent.trim() }; }));
 // The requester on each family row (adults' list): face class, name, size, tint and the label text.
 const askers = page => page.$$eval('#todayList .row .asker', els => els.map(e => { const a = e.querySelector('.avatar, .init'); const r = a ? a.getBoundingClientRect() : { width: 0, height: 0 };
-  return { cls: a ? a.className : '', title: a && a.getAttribute('title'), w: Math.round(r.width), h: Math.round(r.height), tint: a ? a.style.getPropertyValue('--tint').trim() : '', text: (e.querySelector('.by') || e).textContent.trim() }; }));
+  return { cls: a ? a.className : '', title: a && a.getAttribute('title'), w: Math.round(r.width), h: Math.round(r.height), tint: a ? a.getAttribute('data-accent') || '' : '', text: (e.querySelector('.by') || e).textContent.trim() }; }));
 const visibleInputs = page => page.$$eval('input, textarea, select, [contenteditable]', els => els.filter(e => (e.offsetParent || e.getClientRects().length) && getComputedStyle(e).visibility !== 'hidden').map(e => e.id || e.tagName));
 
 (async () => {
@@ -132,7 +136,7 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     ok((await faces(page)).length === 0, 'no who-prayed faces before anyone prays');
     let asked = await askers(page);
     ok(asked.length === 1 && /\bavatar\b/.test(asked[0].cls) && asked[0].title === 'Eli' && asked[0].text === 'Eli asked', 'the adult family row shows the requester as a face: "Eli asked"', JSON.stringify(asked));
-    ok(asked[0] && asked[0].w === 28 && asked[0].h === 28 && asked[0].tint.toUpperCase() === P.eli.color.toUpperCase(), 'the requester face is 28 px in Eli\'s colour', JSON.stringify(asked[0]));
+    ok(asked[0] && asked[0].w === 28 && asked[0].h === 28 && asked[0].tint === await hueOf(page, P.eli), 'the requester face is 28 px in Eli\'s colour (his data-accent)', JSON.stringify(asked[0]));
     await page.click('.switch button[data-list="personal"]'); await sleep(200);
     ok((await askers(page)).length === 0, 'the private list shows no requester face');
     await page.click('.switch button[data-list="shared"]'); await sleep(200);
@@ -140,7 +144,7 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     let f = await faces(page);
     ok(f.length === 1 && f[0].title === 'Eli' && /\bavatar\b/.test(f[0].cls), 'after Eli prays, his face is on the row (hub.avatarHtml)', JSON.stringify(f));
     ok(f[0] && f[0].w === 28 && f[0].h === 28, 'the face is 28 px', JSON.stringify(f[0]));
-    ok(f[0] && f[0].tint.toUpperCase() === P.eli.color.toUpperCase(), 'and carries Eli\'s colour as --tint', f[0] && f[0].tint);
+    ok(f[0] && f[0].tint === await hueOf(page, P.eli), 'and carries Eli\'s colour as data-accent', f[0] && f[0].tint);
     // "+N": seven names on a row show five faces and "+2" (rendered locally, not saved)
     const plusN = await page.evaluate(() => { const p = D.lists.shared.prayers[0]; const keep = p.prayedBy[TODAY];
       p.prayedBy[TODAY] = ['Eli', 'Kiara', 'Ezra', 'Elizabeth', 'David', 'Mea', 'Mae']; renderToday();
@@ -163,15 +167,15 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     const card = await page.$eval('#todayList .kid', c => {
       const t = c.querySelector('.kt'), b = c.querySelector('.prayed'), a = c.querySelector('.kby .avatar'), root = getComputedStyle(document.documentElement);
       const br = b.getBoundingClientRect();
-      return { title: t.textContent.trim(), titleFs: getComputedStyle(t).fontSize, fs2xl: root.getPropertyValue('--fs-2xl').trim(), btn: b.textContent.trim(), btnW: Math.round(br.width), btnH: Math.round(br.height),
-        pressed: b.getAttribute('aria-pressed'), asker: (c.querySelector('.kby') || {}).textContent.trim(), askerTint: a && a.style.getPropertyValue('--tint').trim(), askerSize: a && Math.round(a.getBoundingClientRect().width),
+      return { title: t.textContent.trim(), titleFs: getComputedStyle(t).fontSize, fs2xl: (() => { const e = document.createElement('span'); e.style.fontSize = 'var(--fs-2xl)'; t.parentNode.appendChild(e); const v = getComputedStyle(e).fontSize; e.remove(); return v; })(), btn: b.textContent.trim(), btnW: Math.round(br.width), btnH: Math.round(br.height),
+        pressed: b.getAttribute('aria-pressed'), asker: (c.querySelector('.kby') || {}).textContent.trim(), askerTint: a && a.getAttribute('data-accent'), askerSize: a && Math.round(a.getBoundingClientRect().width),
         buttons: c.querySelectorAll('button').length, opens: c.querySelectorAll('[data-open]').length };
     });
     ok(card.title === 'Healing for Grandma', 'the card shows the request title', card.title);
-    ok(card.titleFs === card.fs2xl && parseInt(card.fs2xl) >= 34, 'the title is set in --fs-2xl (kid scale)', card.titleFs + ' vs ' + card.fs2xl);
+    ok(card.titleFs === card.fs2xl && parseFloat(card.fs2xl) >= 33, 'the title is set in --fs-2xl (kid scale, v3 28 px x 1.2)', card.titleFs + ' vs ' + card.fs2xl);
     ok(card.buttons === 1 && card.btn === 'Prayed' && card.pressed === 'false', 'one "Prayed" button per card, not yet pressed', JSON.stringify(card));
     ok(card.btnH >= 64 && card.btnW >= 64, 'the Prayed button is at least 64 px', card.btnW + '×' + card.btnH);
-    ok(/Eli asked/.test(card.asker) && card.askerTint.toUpperCase() === P.eli.color.toUpperCase() && card.askerSize === 44, 'the requester\'s face (Eli, his colour) is on the card', JSON.stringify([card.asker, card.askerTint, card.askerSize]));
+    ok(/Eli asked/.test(card.asker) && card.askerTint === await hueOf(page, P.eli) && card.askerSize === 44, 'the requester\'s face (Eli, his colour) is on the card', JSON.stringify([card.asker, card.askerTint, card.askerSize]));
     ok(card.opens === 0, 'the card does not open the detail sheet (no data-open)');
     ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'no horizontal scroll at 390');
     await shot(page, 'rm18-prayer-kid-390.png');
@@ -218,7 +222,7 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     ok(await page.evaluate(() => D.activeList === 'shared'), 'Eli comes back on the Family list (his choice was saved)');
     f = await waitFor(async () => { const x = await faces(page); return x.some(a => a.title === 'Kiara') ? x : null; }, { label: 'Kiara\'s face on Eli\'s row' });
     const k = f.find(a => a.title === 'Kiara');
-    ok(/\bavatar\b/.test(k.cls) && k.tint.toUpperCase() === P.kiara.color.toUpperCase() && k.w === 28, 'Kiara\'s avatar (her colour, 28 px) is in who-prayed', JSON.stringify(k));
+    ok(/\bavatar\b/.test(k.cls) && k.tint === await hueOf(page, P.kiara) && k.w === 28, 'Kiara\'s avatar (her colour, 28 px) is in who-prayed', JSON.stringify(k));
     ok(f.length === 2 && f.every(a => /\bavatar\b/.test(a.cls)), 'both faces are avatars, no initials fallback', JSON.stringify(f));
     asked = await askers(page);
     ok(asked.length === 1 && asked[0].title === 'Eli' && /\bavatar\b/.test(asked[0].cls) && asked[0].w === 28, 'the requester face (Eli, 28 px) is still on the row after reload', JSON.stringify(asked));

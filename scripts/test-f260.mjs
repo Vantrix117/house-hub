@@ -10,6 +10,9 @@
 //   - the display profile gets a nudge, not a tick
 //   - ticking weeks ahead of the current one never claims a finish: the hero and the summary keep offering the next gap
 //   - reading mode (a persisted preference) still shows the Today hero: a cold open in it has Done above the fold
+//   - audit batch 1: Done is the person's colour (--accent-strong + --accent-on), the ring caption is not under the 11 px
+//     floor, unread weeks are ringed in --cell-empty, nothing in a week heading or milestone is dimmed with opacity, the
+//     New Testament paper is the aqua wash, and the Done toast is the shared bottom toast, clear of the title
 //   cd worker && npx wrangler dev --port 8787     (seeded local D1; reset it first for stable expectations)
 //   node scripts/test-f260.mjs <pairing-code>
 import http from 'node:http';
@@ -124,6 +127,22 @@ async function doneBox(page, f) {                    // the Done button's box in
     ok(await A.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), 'no horizontal scroll at 390');
     ok(await A.page.evaluate(() => { const t = document.getElementById('today'), side = document.querySelector('.side'); return t.getBoundingClientRect().bottom <= side.getBoundingClientRect().top + 1; }), 'the dashboards sit below the hero');
     await A.page.screenshot({ path: path.join(SHOTS, 'rm10-today-390.png') });
+
+    console.log("\n## audit batch 1: tokens, the person's colour, the text floor");
+    const b1 = await A.page.evaluate(() => {
+      const tok = n => { const p = document.createElement('i'); p.style.background = 'var(' + n + ')'; document.body.appendChild(p); const v = getComputedStyle(p).backgroundColor; p.remove(); return v; };
+      const cs = sel => getComputedStyle(document.querySelector(sel));
+      const done = cs('#todayDone'), cell = document.querySelector('#ygrid button:not(.done):not(.part)');
+      const dimmed = [...document.querySelectorAll('.wk-head, .wk-head *, .mile, .mile *')].filter(e => parseFloat(getComputedStyle(e).opacity) < 1).length;
+      return { accent: document.documentElement.dataset.accent, doneBg: done.backgroundColor, strong: tok('--accent-strong'), doneInk: done.color, on: tok('--accent-on'),
+        caption: parseFloat(cs('.tring .rn small').fontSize), cellRing: cell ? getComputedStyle(cell).boxShadow : '', cellEmpty: tok('--cell-empty'), dimmed,
+        nt: document.body.classList.contains('nt'), paper: getComputedStyle(document.body).backgroundColor, wash: tok('--aqua-wash'), bg: tok('--bg') };
+    });
+    ok(!!b1.accent && b1.doneBg === b1.strong && b1.doneInk === b1.on, `Done is the person's colour: --accent-strong with its --accent-on label (VIS-F260-11; ${JSON.stringify([b1.accent, b1.doneBg, b1.doneInk])})`);
+    ok(b1.caption >= 11, `the ring caption is ${b1.caption} px, not under the 11 px floor (GAP-TYPE-3)`);
+    ok(b1.cellRing.includes(b1.cellEmpty), `an unread week is ringed in --cell-empty (VIS-F260-2; ${b1.cellRing})`);
+    ok(b1.dimmed === 0, `no week heading or milestone is dimmed with opacity (CONS-COLOR-1; ${b1.dimmed})`);
+    ok(b1.paper === (b1.nt ? b1.wash : b1.bg), `the paper is ${b1.nt ? 'the aqua wash (a New Testament week)' : "the theme's --bg"} (${b1.paper})`);
     // inside the hub's iframe, the way the family opens it
     await A.page.goto(SITE + '/index.html'); await A.page.waitForSelector('#shell:not([hidden])');
     await A.page.waitForFunction(() => window.hub && hub.sync && hub.sync.lastPull > 0, null, { timeout: 15000 });
@@ -145,6 +164,9 @@ async function doneBox(page, f) {                    // the Done button's box in
     ok(s.kind === 'Read today ✓' && s.ring === s.summary.weekDone + '/5', `kicker "${s.kind}", ring ${s.ring}`);
     ok(await fa.evaluate(id => document.querySelector('[data-day="' + id + '"]').classList.contains('done') && document.querySelector('[data-day="' + id + '"] .mark').getAttribute('aria-pressed') === 'true', w0 + '-' + (d0 - 1)), 'the plan row is ticked too (same path as its .mark)');
     ok(!(await fa.$eval('#todayUndo', b => b.hidden)), 'Undo is offered');
+    const tst = await fa.evaluate(() => { const t = document.getElementById('hub-toast'), h = document.querySelector('h1'); if (!t || t.hidden) return null; const r = t.getBoundingClientRect(), hr = h.getBoundingClientRect();
+      return { text: t.textContent, top: Math.round(r.top), vh: innerHeight, overTitle: !(r.bottom < hr.top || r.top > hr.bottom), own: document.querySelectorAll('#toasts .toast').length }; });
+    ok(tst && /^✓/.test(tst.text) && tst.top > tst.vh / 2 && !tst.overTitle && tst.own === 0, `the Done toast is the shared bottom toast, clear of the title (VIS-F260-14; ${JSON.stringify(tst)})`);
     const t0 = Date.now();
     await A.page.click('#pill-home'); await A.page.click('.tab[data-tab=home]');
     await waitFor(() => A.page.evaluate(ref => { const g = document.querySelector('#view-home .gcard .gbig'), sub = document.querySelector('#view-home .gcard .gsub'); return g && g.textContent === ref && sub && /read today/.test(sub.textContent); }, s.summary.next.ref), { timeout: 5000, label: 'home card' });

@@ -29,7 +29,8 @@ let pass = 0, fail = 0;
 const ok = (cond, name, extra = '') => { if (cond) { pass++; console.log('  ✓', name); } else { fail++; console.log('  ✗', name, extra); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const shots = path.join(ROOT, 'docs', 'screens'); fs.mkdirSync(shots, { recursive: true });
-const THEMES = { hearth: ['rgb(247, 242, 235)', 'light'], parchment: ['rgb(231, 217, 190)', 'light'], frost: ['rgb(237, 240, 245)', 'light'], midnight: ['rgb(26, 21, 18)', 'dark'], forest: ['rgb(16, 23, 26)', 'dark'] };
+// each palette's v3 --bg (apps/design.css; audit batch 1a) and its scheme; Graphite is D2
+const THEMES = { hearth: ['rgb(244, 241, 236)', 'light'], parchment: ['rgb(236, 226, 205)', 'light'], frost: ['rgb(242, 242, 247)', 'light'], midnight: ['rgb(11, 10, 9)', 'dark'], forest: ['rgb(7, 15, 13)', 'dark'], graphite: ['rgb(0, 0, 0)', 'dark'] };
 const errors = [];
 
 async function open(browser, width) {
@@ -62,7 +63,7 @@ async function open(browser, width) {
       const { ctx, page } = await open(browser, width);
       if (width === 390) await page.evaluate(() => { const id = hub.uid(); hub.set('item:' + id, { id, text: 'Take the bins out', by: 'eli', byName: 'Eli', createdAt: Date.now() }, { app: 'reminders', scope: 'family' }); hub.set('f260.summary', { week: 3, weekDone: 2, total: 12, streak: 4, readToday: false, next: { week: 3, day: 3, ref: 'Genesis 27–28' }, finished: false }, { app: 'f260', scope: 'person' }); });
       await page.click('.tab[data-tab=me]');
-      ok(await page.$$eval('#theme .theme-card', els => els.length) === 6, 'Me shows six theme cards (System + five palettes)');
+      ok(await page.$$eval('#theme .theme-card', els => els.length) === 7, 'Me shows seven theme cards (System + six palettes, Graphite included)');
       for (const [t, [bg, scheme]] of Object.entries(THEMES)) {
         await page.click(`#theme [data-theme=${t}]`); await sleep(350);
         const got = await page.evaluate(() => [getComputedStyle(document.body).backgroundColor, document.documentElement.dataset.scheme, document.querySelector('meta[name=theme-color]').content]);

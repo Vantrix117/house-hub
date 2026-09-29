@@ -218,7 +218,7 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     await waitFor(() => D.page.evaluate(() => hub.sync.lastPull > 0));
     await shot(D.page, 'home-eli-1024-dark');
     await D.page.click('.tab[data-tab=apps]'); await shot(D.page, 'apps-eli-1024-dark');
-    ok(await D.page.evaluate(() => getComputedStyle(document.body).backgroundColor === 'rgb(26, 21, 18)'), 'dark palette applies from prefers-color-scheme');
+    ok(await D.page.evaluate(() => getComputedStyle(document.body).backgroundColor === 'rgb(11, 10, 9)'), 'dark palette applies from prefers-color-scheme');
     ok(await D.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'no horizontal scroll at 1024');
     const D2 = await newContext(browser, 'D2', { dark: true });
     await pair(D2.page); await signIn(D2.page, 'ezra');

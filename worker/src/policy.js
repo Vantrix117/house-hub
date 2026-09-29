@@ -25,7 +25,7 @@ export const isHouseholdMember = p => !!(p && !p.is_guest && (p.kind === 'adult'
 /** Everyone, loaded once per request. */
 export function householdLoader(env) {
   let cache = null;
-  return () => (cache ||= env.DB.prepare('SELECT id, name, kind, is_guest, expires_at, emoji, color FROM profiles').all().then(r => r.results));
+  return () => (cache ||= env.DB.prepare('SELECT id, name, kind, is_guest, expires_at, emoji, color, hue FROM profiles').all().then(r => r.results));
 }
 
 /**

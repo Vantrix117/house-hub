@@ -3,6 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>(function(d){try{var g=function(k,f){try{var v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},
+m=function(q){return !!(window.matchMedia&&matchMedia(q).matches)},c=g('hub.theme','system'),t=c==='light'?'hearth':c==='dark'?'midnight':c,
+S={hearth:'light',parchment:'light',frost:'light',midnight:'dark',forest:'dark',graphite:'dark'},
+B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'},
+H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'graphite'};
+if(!S[t])t=m('(prefers-color-scheme: dark)')?'midnight':'hearth';
+var s=g('hub.session',null),p=s&&s.profile,r=g('hub.prefs',{})||{};d.setAttribute('data-theme',t);d.setAttribute('data-theme-choice',c);
+d.setAttribute('data-scheme',S[t]);d.style.colorScheme=S[t];
+var ms=document.querySelectorAll('meta[name="theme-color"]'),i;if(!ms.length){var mt=document.createElement('meta');mt.setAttribute('name','theme-color');document.head.appendChild(mt);ms=[mt]}
+for(i=0;i<ms.length;i++){ms[i].removeAttribute('media');ms[i].setAttribute('content',B[t])}
+var A=' bubblegum peach butter mint aqua sky periwinkle lavender graphite coral apricot honey pistachio leaf seafoam lagoon cornflower orchid ';
+if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:p.is_guest?'sky':H[String(p.color||'').toLowerCase()]||'graphite')}
+['textSize:data-text-size','contrast:data-contrast','transparency:data-transparency','motion:data-motion'].forEach(function(x){x=x.split(':');if(r[x[0]])d.setAttribute(x[1],r[x[0]])});if(r.glass&&p&&p.kind!=='kiosk'){if(r.glass==='solid')d.setAttribute('data-transparency','reduce');else{d.setAttribute('data-glass',r.glass);d.setAttribute('data-transparency','full')}}}catch(e){}})(document.documentElement)</script>
 <title>Hub design system</title>
 <meta name="description" content="Living style guide for the House Hub design system: tokens, components, light and dark, kid and kiosk expressions, contrast checks.">
 <link rel="icon" href="data:,">
@@ -12,11 +25,11 @@
   .controls { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; padding: var(--sp-3) var(--sp-4); margin: 0 calc(-1 * var(--sp-4)) var(--sp-6); }
   .controls .seg { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
   .controls .seg button { flex: 1 1 auto; padding: 0 10px; min-height: 40px; }
-  .swatches { display: flex; gap: var(--sp-2); }
+  .swatches { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
   .swatch { width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
   .swatch.on { border-color: var(--text); }
   section { margin-top: var(--sp-12); }
-  section > h2 { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-3xl); margin-bottom: var(--sp-2); }
+  section > h2 { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-3xl); letter-spacing: var(--ls-large-title); margin-bottom: var(--sp-2); }
   section > .lede { color: var(--text-2); margin-bottom: var(--sp-5); max-width: 60ch; }
   .demo { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; }
   .tok { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
@@ -38,46 +51,46 @@
   .tabdemo { position: relative; height: 84px; border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--line-soft); background: var(--wash), var(--bg); }
   .tabdemo .tabbar { position: absolute; }
   .motion-box { width: 64px; height: 64px; border-radius: var(--r); background: var(--accent); }
-  .motion-box.go { animation: hub-pop var(--dur-3) var(--spring) both; }
+  .motion-box.go { animation: hub-pop var(--dur-bouncy) var(--spring-bouncy) both; }
   .theme-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
   .theme-row .tp { position: relative; height: 96px; border-radius: var(--r); overflow: hidden; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line-soft); }
   .theme-row .tp i { position: absolute; display: block; border-radius: 6px; }
-  .theme-row .tp .h { left: 10px; top: 10px; right: 10px; height: 26px; background: linear-gradient(120deg, var(--accent), var(--accent-deep)); }
+  .theme-row .tp .h { left: 10px; top: 10px; right: 10px; height: 26px; background: var(--hero-bg); box-shadow: inset 0 0 0 1px var(--separator); }
   .theme-row .tp .c { left: 10px; top: 44px; width: calc(50% - 14px); height: 40px; background: var(--surface); box-shadow: var(--e1); }
   .theme-row .tp .c + .c { left: auto; right: 10px; }
   .theme-row .tp .t { left: 16px; top: 52px; width: 40%; height: 5px; border-radius: 3px; background: var(--text); }
   .theme-row .tp .t2 { left: 16px; top: 63px; width: 26%; height: 5px; border-radius: 3px; background: var(--muted); }
-  .theme-row .tp .d { right: 18px; top: 56px; width: 12px; height: 12px; border-radius: 50%; background: var(--olive); }
+  .theme-row .tp .d { right: 18px; top: 56px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-strong); }
   .theme-row figure { margin: 0; }
   .theme-row figcaption { font-size: var(--fs-sm); font-weight: 600; padding: 6px 4px 0; }
   .glass-stage { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--sp-4); padding: var(--sp-6); border-radius: var(--r-xl); overflow: hidden;
-    background: radial-gradient(60% 80% at 20% 30%, var(--terra), transparent 60%), radial-gradient(50% 70% at 80% 70%, var(--teal), transparent 60%), radial-gradient(40% 60% at 60% 10%, var(--gold), transparent 60%), var(--bg-2); }
-  .glass-stage::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,.18) 18px 20px); pointer-events: none; }
+    background: radial-gradient(60% 80% at 20% 30%, var(--peach-graphic), transparent 60%), radial-gradient(50% 70% at 80% 70%, var(--aqua-graphic), transparent 60%), radial-gradient(40% 60% at 60% 10%, var(--butter-graphic), transparent 60%), var(--surface-2); }
+  .glass-stage::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0 18px, var(--hi-2) 18px 20px); pointer-events: none; }
   .glass-demo { position: relative; display: flex; flex-direction: column; gap: var(--sp-2); align-items: stretch; }
   .glass-demo > :first-child { min-height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; text-align: center; }
   .glass-demo .old { border-radius: var(--r-lg); background: var(--glass-strong); border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); }
-  .glass-demo .glass { -webkit-backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); backdrop-filter: blur(var(--blur)) saturate(1.4) brightness(1.02); }
-  .glass-demo figcaption { font-family: var(--font-mono); font-size: 11px; color: var(--on-accent); text-shadow: 0 1px 2px rgba(0,0,0,.4); text-align: center; }
+  .glass-demo .glass { -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+  .glass-demo figcaption { font-family: var(--font-mono); font-size: var(--fs-caption2); color: var(--glass-inverse-ink); text-shadow: 0 1px 2px var(--shade-5); text-align: center; }
   .glass-demo span { font-size: var(--fs-xs); color: var(--text-2); }
   .art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--sp-3); }
   .art-grid.wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   .art-grid figure { margin: 0; border-radius: var(--r); overflow: hidden; background: var(--surface); border: 1px solid var(--line-soft); }
-  .art-grid figure.on-accent { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); }
+  .art-grid figure.on-accent { background: var(--hero-bg); }
   .art-grid img { display: block; width: 100%; height: auto; }
   .art-grid figcaption { font-family: var(--font-mono); font-size: 11px; color: var(--muted); padding: 6px 10px; }
-  .art-grid figure.on-accent figcaption { color: var(--on-accent); opacity: .85; }
+  .art-grid figure.on-accent figcaption { color: var(--accent-ink); }
 </style>
 </head>
 <body class="ds">
 <div class="guide">
   <div class="controls glass">
-    <div class="seg" id="theme"><button data-v="system" class="on">System</button><button data-v="hearth">Hearth</button><button data-v="parchment">Parchment</button><button data-v="frost">Frost</button><button data-v="midnight">Midnight</button><button data-v="forest">Forest</button></div>
+    <div class="seg" id="theme"><button data-v="system" class="on">System</button><button data-v="hearth">Hearth</button><button data-v="parchment">Parchment</button><button data-v="frost">Frost</button><button data-v="midnight">Midnight</button><button data-v="forest">Forest</button><button data-v="graphite">Graphite</button></div>
     <div class="seg" id="kind"><button data-v="adult" class="on">Adult</button><button data-v="kid">Kid</button><button data-v="kiosk">Kiosk</button></div>
     <div class="swatches" id="accents" aria-label="Accent (a person's colour)"></div>
   </div>
 
   <div class="hero pop-in">
-    <div class="hero-kicker">House Hub · design system v2</div>
+    <div class="hero-kicker">House Hub · design system v3</div>
     <div class="hero-title">Warm as a Hearth, clear as glass.</div>
     <p class="hero-sub">Paper, glass and the person's own colour. Every hub screen and every new app is built from what's on this page.</p>
     <button class="btn btn-primary">Primary action</button>
@@ -86,13 +99,13 @@
 
   <section id="themes">
     <h2>Themes</h2>
-    <p class="lede">Five named palettes, each a complete token set: <b>Hearth</b> (warm paper), <b>Parchment</b> (soft tan reading paper), <b>Frost</b> (cool pale glass), <b>Midnight</b> (warm dark) and <b>Forest</b> (deep green, gold ink). <b>System</b> is Hearth by day and Midnight at night. The theme follows the person; pick one at the top of this page to preview everything below in it.</p>
+    <p class="lede">Six named palettes, each one neutral block (the nine colour families are per scheme): <b>Hearth</b> (warm grouped neutrals), <b>Parchment</b> (soft tan reading paper), <b>Frost</b> (cool pale glass, iOS grouped), <b>Midnight</b> (warm dark), <b>Forest</b> (deep green, gold ink) and <b>Graphite</b> (true black). <b>System</b> is Hearth by day and Midnight at night. The theme follows the person; pick one at the top of this page to preview everything below in it. Each swatch carries <code>data-theme-preview</code>, <code>data-scheme</code> and <code>data-accent</code>.</p>
     <div class="theme-row" id="theme-row"></div>
   </section>
 
   <section id="colour">
     <h2>Colour</h2>
-    <p class="lede">Neutrals for paper and ink, five accents with one job each, and a per-person accent that tints the whole hub. Text always uses the <code>-ink</code> variant on a soft background.</p>
+    <p class="lede">Neutrals per palette, nine house pastel families for people and nine for apps, each with eight roles (wash, fill, fill-strong, strong, graphic, ink, ink-hi, on), and semantic success / warning / danger. Text and icons always use <code>-ink</code>; a solid carries its own <code>-on</code> label; marks use <code>-graphic</code>. A person is <code>data-accent</code> on any element.</p>
     <div class="tok" id="colours"></div>
     <h3 style="margin-top:var(--sp-6)">Contrast (WCAG AA)</h3>
     <p class="help">Computed live from the rendered colours in this theme; the accent pairs are checked for every family colour.</p>
@@ -101,7 +114,7 @@
 
   <section id="type">
     <h2>Type</h2>
-    <p class="lede">A display serif for headlines (New York on Apple devices), rounded system sans for everything else. Kid and kiosk scale the whole ramp.</p>
+    <p class="lede">Bold system titles (SF Pro on Apple devices), the serif only for adults' reading text, rounded numerals for everyone and rounded everything for kids. The Dynamic Type roles scale with the iPad, the person's text size and the kind.</p>
     <div class="type-row"><code>--fs-hero display</code><div class="display" style="font-size:var(--fs-hero)">Good morning, Mae.</div></div>
     <div class="type-row"><code>--fs-3xl display</code><div class="display" style="font-size:var(--fs-3xl)">Today's reading</div></div>
     <div class="type-row"><code>--fs-2xl 700</code><h1>Week 12 · Genesis 27–28</h1></div>
@@ -122,7 +135,7 @@
 
   <section id="motion">
     <h2>Motion</h2>
-    <p class="lede">Rich but calm: a spring for things that arrive and things you press, an ease-out for everything that moves, 120 / 220 / 360 ms. Reduced-motion turns it all off.</p>
+    <p class="lede">Rich but calm: damped springs (snappy 240 ms for presses, gentle 290 ms for sheets, bouncy 340 ms for celebrations), 200-350 ms for everything else. Reduce Motion (the switch in Me, or the OS) turns movement into a short fade.</p>
     <div class="demo"><button class="btn" id="replay">Replay</button><div class="motion-box" id="mbox"></div><div class="stagger" id="stag" style="display:flex;gap:8px"><span class="chip chip-accent">one</span><span class="chip chip-accent">two</span><span class="chip chip-accent">three</span><span class="chip chip-accent">four</span></div></div>
   </section>
 
@@ -179,7 +192,7 @@
       <ul class="list">
         <li class="row"><span class="row-art"><svg class="icon"><use href="#i-plus"/></svg></span><div class="row-main"><div class="row-title">Chili</div><div class="row-sub">Large · logged yesterday</div></div><span class="chip chip-warn">Aging</span></li>
         <li class="row"><span class="row-lead">🥡</span><div class="row-main"><div class="row-title">Rice</div><div class="row-sub">Small · today</div></div><span class="chip chip-ok">Fresh</span></li>
-        <li><button class="row"><span class="avatar avatar-sm" style="--tint:#137F77">🦖</span><div class="row-main"><div class="row-title">Ezra</div><div class="row-sub">Kid · tap to start</div></div></button></li>
+        <li><button class="row"><span class="avatar avatar-sm" data-accent="aqua">🦖</span><div class="row-main"><div class="row-title">Ezra</div><div class="row-sub">Kid · tap to start</div></div></button></li>
       </ul>
       <div class="card"><div class="kv"><b>Status</b><span>synced</span></div><div class="kv"><b>Waiting to send</b><span>0</span></div><div class="kv"><b>Last checked</b><span>4:58 PM</span></div></div>
     </div>
@@ -202,8 +215,8 @@
     <h2>Progress</h2>
     <div class="demo">
       <span class="ringwrap"><svg class="ring" viewBox="0 0 52 52" style="--p:.6"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg><span class="ring-lbl">3/5</span></span>
-      <span class="ringwrap lg"><svg class="ring ring-lg" viewBox="0 0 52 52" style="--p:.35;--tint:var(--olive)"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg><span class="ring-lbl">35%</span></span>
-      <div style="width:220px"><div class="bar" style="--p:.7;--tint:var(--gold)"><i></i></div></div>
+      <span class="ringwrap lg"><svg class="ring ring-lg" viewBox="0 0 52 52" style="--p:.35;--tint:var(--mint-graphic)"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg><span class="ring-lbl">35%</span></span>
+      <div style="width:220px"><div class="bar" style="--p:.7;--tint:var(--butter-graphic)"><i></i></div></div>
       <div class="stat"><b>12</b><span>day streak</span></div>
     </div>
   </section>
@@ -240,7 +253,7 @@
 
   <section id="icons">
     <h2>Icons</h2>
-    <div class="demo"><span class="app-icon" style="--tint:#4F5D8C"><svg class="icon"><use href="#i-plus"/></svg></span><span class="app-icon" style="--tint:#3D5A3D"><svg class="icon"><use href="#i-plus"/></svg></span><span class="app-icon" style="--tint:#B8623A"><svg class="icon"><use href="#i-plus"/></svg></span><svg class="icon icon-lg"><use href="#i-plus"/></svg></div>
+    <div class="demo"><span class="app-icon" style="--tint:var(--periwinkle-strong)"><svg class="icon"><use href="#i-plus"/></svg></span><span class="app-icon" style="--tint:var(--mint-strong)"><svg class="icon"><use href="#i-plus"/></svg></span><span class="app-icon" style="--tint:var(--peach-strong)"><svg class="icon"><use href="#i-plus"/></svg></span><svg class="icon icon-lg"><use href="#i-plus"/></svg></div>
   </section>
 </div>
 
@@ -250,24 +263,26 @@
 (() => {
   const $ = s => document.querySelector(s);
   const root = document.documentElement;
-  const PEOPLE = [['Eli','🧭','#4F5D8C'],['Mae','🌸','#BC5A38'],['Ezra','🦖','#137F77'],['Kiara','🦄','#B4861B'],['Elizabeth','🌷','#8A6A4B'],['David','🎣','#3D5A3D'],['Mea','🌻','#5B8143'],['TV','📺','#4C4C58']];
+  const PEOPLE = [['Eli','🧭','periwinkle'],['Mae','🌸','peach'],['Ezra','🦖','aqua'],['Kiara','🦄','lavender'],['Elizabeth','🌷','bubblegum'],['David','🎣','mint'],['Mea','🌻','butter'],['Guest','🙂','sky'],['TV','📺','graphite']];
   // controls
   $('#theme').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#theme').children].forEach(x => x.classList.toggle('on', x === b)); setTheme(b.dataset.v); });
   $('#kind').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#kind').children].forEach(x => x.classList.toggle('on', x === b)); if (b.dataset.v === 'adult') delete root.dataset.kind; else root.dataset.kind = b.dataset.v; });
-  $('#accents').innerHTML = PEOPLE.map(p => `<button class="swatch" data-c="${p[2]}" style="background:${p[2]}" title="${p[0]}" aria-label="${p[0]}"></button>`).join('');
-  $('#accents').addEventListener('click', e => { const b = e.target.closest('.swatch'); if (!b) return; [...$('#accents').children].forEach(x => x.classList.toggle('on', x === b)); root.style.setProperty('--accent', b.dataset.c); contrast(); });
+  $('#accents').innerHTML = PEOPLE.map(p => `<button class="swatch" data-accent="${p[2]}" data-c="${p[2]}" style="background:var(--accent-strong)" title="${p[0]} · ${p[2]}" aria-label="${p[0]}"></button>`).join('');
+  $('#accents').addEventListener('click', e => { const b = e.target.closest('.swatch'); if (!b) return; [...$('#accents').children].forEach(x => x.classList.toggle('on', x === b)); root.dataset.accent = b.dataset.c; setTheme(root.dataset.themeChoice || 'system'); });
   // tokens
-  const NEUTRALS = ['bg','bg-2','surface','surface-2','hover','text','text-2','muted','muted-decor','line','line-soft'];
-  const ACCENTS = ['mocha','gold','olive','teal','terra','slate'];
+  const NEUTRALS = ['bg','surface','surface-2','surface-raised','hover','text','text-2','text-3','field-border','line','separator'];
+  const ACCENTS = ['bubblegum','peach','butter','mint','aqua','sky','periwinkle','lavender','graphite','success','warning','danger'];
   $('#colours').innerHTML = NEUTRALS.map(n => `<div class="t"><i style="background:var(--${n})"></i><b>${n}</b><code>--${n}</code></div>`).join('') +
-    ACCENTS.map(n => `<div class="t"><i style="background:var(--${n})"></i><b>${n}</b><code>--${n} · -soft · -ink</code><div class="hstack" style="margin-top:6px"><span class="chip" style="background:var(--${n}-soft);color:var(--${n}-ink)">ink on soft</span></div></div>`).join('') +
-    `<div class="t"><i style="background:var(--accent)"></i><b>accent</b><code>--accent (person)</code></div><div class="t"><i style="background:var(--accent-deep)"></i><b>accent-deep</b><code>fills + text</code></div><div class="t"><i style="background:var(--accent-soft)"></i><b>accent-soft</b><code>tints</code></div><div class="t"><i class="glass"></i><b>glass</b><code>--glass + blur</code></div>`;
+    ACCENTS.map(n => `<div class="t"><i style="background:linear-gradient(160deg, var(--${n}-fill), var(--${n}-fill-strong))"></i><b>${n}</b><code>--${n}-fill · -strong · -ink</code><div class="hstack" style="margin-top:6px"><span class="chip" style="background:var(--${n}-fill);color:var(--${n}-ink)">ink on fill</span><span class="chip" style="background:var(--${n}-strong);color:var(--${n}-on)">on</span></div></div>`).join('') +
+    `<div class="t"><i style="background:var(--accent-strong)"></i><b>accent-strong</b><code>the person's solid</code></div><div class="t"><i style="background:var(--accent-fill)"></i><b>accent-fill</b><code>tints, chips</code></div><div class="t"><i style="background:var(--hero-bg)"></i><b>hero-bg</b><code>wash → fill, ink text</code></div><div class="t"><i class="glass"></i><b>glass</b><code>--glass + blur</code></div>`;
   $('#spacing').innerHTML = [1,2,3,4,5,6,8,10,12].map(n => `<div style="text-align:center"><i style="width:var(--sp-${n});height:var(--sp-${n})"></i><code style="font-size:10px">${n}</code></div>`).join('');
   $('#radii').innerHTML = ['sm','','lg','xl','2xl'].map(r => `<i style="border-radius:var(--r${r ? '-' + r : ''})">r${r ? '-' + r : ''}</i>`).join('');
-  $('#avatars').innerHTML = PEOPLE.slice(0, 4).map((p, i) => `<span class="avatar ${['avatar-sm','','avatar-lg','avatar-xl'][i]}" style="--tint:${p[2]}">${p[1]}</span>`).join('') + `<span class="avatar avatar-lg" style="--tint:#8A6A4B"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23D9C3A5'/%3E%3Ccircle cx='32' cy='26' r='12' fill='%238A6A4B'/%3E%3Cpath d='M10 60c2-14 12-20 22-20s20 6 22 20z' fill='%238A6A4B'/%3E%3C/svg%3E"></span>`;
-  $('#chips').innerHTML = PEOPLE.slice(0, 5).map(p => `<span class="person-chip" style="--tint:${p[2]}"><span class="avatar">${p[1]}</span>${p[0]}</span>`).join('');
-  $('#faces').innerHTML = PEOPLE.slice(0, 4).map(p => `<span class="avatar" style="--tint:${p[2]}">${p[1]}</span>`).join('');
-  $('#theme-row').innerHTML = ['hearth', 'parchment', 'frost', 'midnight', 'forest'].map(t => `<figure><div class="tp" data-preview="${t}"><i class="h"></i><i class="c"></i><i class="c"></i><i class="t"></i><i class="t2"></i><i class="d"></i></div><figcaption>${t[0].toUpperCase() + t.slice(1)}</figcaption></figure>`).join('');
+  $('#avatars').innerHTML = PEOPLE.slice(0, 4).map((p, i) => `<span class="avatar ${['avatar-sm','','avatar-lg','avatar-xl'][i]}" data-accent="${p[2]}">${p[1]}</span>`).join('') + `<span class="avatar avatar-lg" data-accent="bubblegum"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23D9C3A5'/%3E%3Ccircle cx='32' cy='26' r='12' fill='%238A6A4B'/%3E%3Cpath d='M10 60c2-14 12-20 22-20s20 6 22 20z' fill='%238A6A4B'/%3E%3C/svg%3E"></span>`;
+  $('#chips').innerHTML = PEOPLE.slice(0, 5).map(p => `<span class="person-chip" data-accent="${p[2]}"><span class="avatar" data-accent="${p[2]}">${p[1]}</span>${p[0]}</span>`).join('');
+  $('#faces').innerHTML = PEOPLE.slice(0, 4).map(p => `<span class="avatar" data-accent="${p[2]}">${p[1]}</span>`).join('');
+  const SCHEME = { hearth: 'light', parchment: 'light', frost: 'light', midnight: 'dark', forest: 'dark', graphite: 'dark' };
+  const paintSwatches = () => { const acc = root.dataset.accent || 'graphite'; $('#theme-row').innerHTML = Object.keys(SCHEME).map(t => `<figure><div class="tp" data-theme-preview="${t}" data-scheme="${SCHEME[t]}" data-accent="${acc}"><i class="h"></i><i class="c"></i><i class="c"></i><i class="t"></i><i class="t2"></i><i class="d"></i></div><figcaption>${t[0].toUpperCase() + t.slice(1)}</figcaption></figure>`).join(''); };
+  paintSwatches();
   // illustrations (the list mirrors art/README.md)
   const ART = { hero: ['morning', 'afternoon', 'evening', 'night', 'play'], app: ['f260', 'leftovers', 'prayer', 'tally', 'timer', 'dollywood', 'dollywood-live', 'chat', 'reminders', 'feed'], empty: ['fridge', 'list', 'chat', 'feed', 'prayers'],
     story: ['01-creation', '02-flood', '03-promise', '04-exodus', '05-law', '06-kings', '07-prophets', '08-exile', '09-nativity', '10-teaching', '11-cross', '12-church'], ambient: ['dawn', 'day', 'dusk', 'night'] };
@@ -289,34 +304,36 @@
     const rows = [];
     const add = (name, fg, bg, min) => { const r = ratio(fg, bg); rows.push({ name, ratio: r, min, pass: r >= min }); };
     const c = v => colorOf(`var(--${v})`);
-    add('text on bg', c('text'), c('bg'), 4.5); add('text-2 on bg', c('text-2'), c('bg'), 4.5); add('muted on bg', c('muted'), c('bg'), 4.5);
-    add('text on surface', c('text'), c('surface'), 4.5); add('text-2 on surface', c('text-2'), c('surface'), 4.5); add('muted on surface', c('muted'), c('surface'), 4.5);
-    add('text on surface-2', c('text'), c('surface-2'), 4.5);
-    for (const a of ['ok', 'warn', 'danger', 'info']) add(`${a}-ink on ${a}-soft (chip)`, c(a + '-ink'), c(a + '-soft'), 4.5);
-    add('bg on text (toast)', c('bg'), c('text'), 4.5);
-    // the derived accent tokens are computed on :root, so swap the root accent for each family colour and put it back
-    const accents = PEOPLE.map(p => p[2]); const before = root.style.getPropertyValue('--accent');
-    for (const acc of accents) {
-      root.style.setProperty('--accent', acc);
-      const deep = c('accent-deep'), soft = c('accent-soft'), on = c('on-accent');
-      add(`on-accent on accent-deep (button, ${acc})`, on, deep, 4.5);
-      add(`accent-deep on accent-soft (soft button/chip, ${acc})`, deep, soft, 4.5);
-      add(`accent-deep on surface (link, ${acc})`, deep, c('surface'), 4.5);
+    for (const bg of ['bg', 'surface', 'surface-2']) for (const t of ['text', 'text-2', 'text-3']) add(`${t} on ${bg}`, c(t), c(bg), 4.5);
+    for (const a of ['success', 'warning', 'danger']) { add(`${a}-ink on ${a}-fill (chip)`, c(a + '-ink'), c(a + '-fill'), 4.5); add(`${a}-on on ${a}-strong (solid)`, c(a + '-on'), c(a + '-strong'), 4.5); }
+    add('toast-ink on toast-bg', c('toast-ink'), colorOf('var(--toast-bg)'), 4.5);
+    add('badge-ink on badge-bg', c('badge-ink'), c('badge-bg'), 4.5);
+    // every person family, through data-accent on the root (the derived roles re-resolve in that scope), then put back
+    const before = root.dataset.accent;
+    for (const acc of PEOPLE.map(p => p[2])) {
+      root.dataset.accent = acc;
+      add(`accent-on on accent-strong (button, ${acc})`, c('accent-on'), c('accent-strong'), 4.5);
+      add(`accent-ink on accent-fill (soft button/chip, ${acc})`, c('accent-ink'), c('accent-fill'), 4.5);
+      add(`accent-ink on surface (link, ${acc})`, c('accent-ink'), c('surface'), 4.5);
+      add(`accent-strong on surface (legacy --accent text, ${acc})`, c('accent-strong'), c('surface'), 4.5);
+      add(`focus ring on surface (${acc})`, c('focus-ring-color'), c('surface'), 3);
     }
-    if (before) root.style.setProperty('--accent', before); else root.style.removeProperty('--accent');
+    if (before) root.dataset.accent = before; else delete root.dataset.accent;
     window.__contrast = rows;
     $('#contrast tbody').innerHTML = rows.map(r => `<tr><td>${r.name}</td><td>${r.ratio.toFixed(2)}:1</td><td>${r.min}:1</td><td class="${r.pass ? 'pass' : 'fail'}">${r.pass ? 'AA' : 'fail'}</td></tr>`).join('');
   }
   contrast();
-  // mirrors hub.js applyTheme: data-theme = palette (none for system/hearth), data-scheme = resolved light|dark
-  const DARK = { midnight: 1, forest: 1, dark: 1 };
+  // mirrors hub.js applyTheme: data-theme = the RESOLVED palette (System → Hearth by day, Midnight by night), never deleted;
+  // data-theme-choice = the choice; data-scheme and color-scheme follow the palette
   function setTheme(t) {
     if (t === 'light') t = 'hearth'; if (t === 'dark') t = 'midnight';
-    if (t === 'system' || t === 'hearth') delete root.dataset.theme; else root.dataset.theme = t;
-    root.dataset.scheme = t === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : (DARK[t] ? 'dark' : 'light');
+    if (t !== 'system' && !SCHEME[t]) t = 'system';
+    const pal = t === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'midnight' : 'hearth') : t;
+    root.dataset.theme = pal; root.dataset.themeChoice = t; root.dataset.scheme = SCHEME[pal]; root.style.colorScheme = SCHEME[pal];
     [...$('#theme').children].forEach(x => x.classList.toggle('on', x.dataset.v === t));
-    contrast();
+    paintSwatches(); contrast();
   }
+  if (!root.dataset.accent) root.dataset.accent = 'periwinkle';
   setTheme('system');
   window.__setTheme = setTheme;
 })();

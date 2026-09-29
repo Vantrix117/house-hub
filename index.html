@@ -3,10 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>(function(d){try{var g=function(k,f){try{var v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},
+m=function(q){return !!(window.matchMedia&&matchMedia(q).matches)},c=g('hub.theme','system'),t=c==='light'?'hearth':c==='dark'?'midnight':c,
+S={hearth:'light',parchment:'light',frost:'light',midnight:'dark',forest:'dark',graphite:'dark'},
+B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'},
+H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'graphite'};
+if(!S[t])t=m('(prefers-color-scheme: dark)')?'midnight':'hearth';
+var s=g('hub.session',null),p=s&&s.profile,r=g('hub.prefs',{})||{};d.setAttribute('data-theme',t);d.setAttribute('data-theme-choice',c);
+d.setAttribute('data-scheme',S[t]);d.style.colorScheme=S[t];
+var ms=document.querySelectorAll('meta[name="theme-color"]'),i;if(!ms.length){var mt=document.createElement('meta');mt.setAttribute('name','theme-color');document.head.appendChild(mt);ms=[mt]}
+for(i=0;i<ms.length;i++){ms[i].removeAttribute('media');ms[i].setAttribute('content',B[t])}
+var A=' bubblegum peach butter mint aqua sky periwinkle lavender graphite coral apricot honey pistachio leaf seafoam lagoon cornflower orchid ';
+if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:p.is_guest?'sky':H[String(p.color||'').toLowerCase()]||'graphite')}
+['textSize:data-text-size','contrast:data-contrast','transparency:data-transparency','motion:data-motion'].forEach(function(x){x=x.split(':');if(r[x[0]])d.setAttribute(x[1],r[x[0]])});if(r.glass&&p&&p.kind!=='kiosk'){if(r.glass==='solid')d.setAttribute('data-transparency','reduce');else{d.setAttribute('data-glass',r.glass);d.setAttribute('data-transparency','full')}}}catch(e){}})(document.documentElement)</script>
 <title>Anderson House</title>
 <meta name="description" content="The Anderson family hub: reading plan, fridge list, prayers and reminders, one tap from the Home Screen.">
-<meta name="theme-color" content="#F7F2EB" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1A1512" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -32,7 +43,7 @@
   .welcome-art svg { width: 100%; height: 100%; display: block; }
   .gate-panel { position: relative; z-index: 1; width: 100%; max-width: 680px; }
   .gate-title { text-align: center; margin-bottom: var(--sp-6); }
-  .gate-title h1 { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-hero); letter-spacing: 0; line-height: var(--lh-tight); }
+  .gate-title h1 { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-hero); letter-spacing: var(--ls-large-title); line-height: var(--lh-tight); }
   .gate-title p { color: var(--text-2); margin-top: var(--sp-2); font-size: var(--fs-lg); }
   .gate-card { padding: var(--sp-5); }
   .profiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); }
@@ -52,10 +63,10 @@
 
   .pin-wrap { max-width: 380px; margin: 0 auto; text-align: center; }
   .pin-who { display: flex; flex-direction: column; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); }
-  .pin-who h2 { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-2xl); letter-spacing: 0; }
+  .pin-who h2 { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-2xl); letter-spacing: var(--ls-title1); }
   .pin-dots { display: flex; justify-content: center; gap: 14px; min-height: 22px; margin: var(--sp-4) 0 var(--sp-5); }
   .pin-dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--muted-decor); transition: transform var(--dur-2) var(--spring), background var(--dur-1) var(--ease); }
-  .pin-dots i.on { background: var(--accent); border-color: var(--accent); transform: scale(1.15); }
+  .pin-dots i.on { background: var(--accent-strong); border-color: var(--accent-strong); transform: scale(1.15); }   /* the pad carries the chosen person's data-accent (VIS-PROF-a1) */
   .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
   .pin-pad .btn { min-height: 64px; font-size: var(--fs-xl); border-radius: var(--r-lg); }
   .pin-msg { min-height: 24px; margin-top: var(--sp-3); color: var(--danger-ink); font-weight: 600; }
@@ -64,11 +75,11 @@
   /* ── shell ───────────────────────────────────────────────────── */
   #shell { flex: 1; display: flex; flex-direction: column; min-height: 0; }
   #views { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; position: relative;
-    padding: calc(var(--sp-4) + var(--safe-top)) max(var(--sp-4), var(--safe-right)) calc(var(--sp-4) + 80px + var(--safe-bottom)) max(var(--sp-4), var(--safe-left)); }
+    padding: calc(var(--sp-4) + var(--safe-top)) var(--margin-right) calc(var(--sp-4) + 80px + var(--safe-bottom)) var(--margin-left); }   /* the size-class margin (16/20/28/32) with the safe areas (VIS-SHAPE-2) */
   .view { display: none; max-width: 880px; margin: 0 auto; }
   .view.on { display: block; animation: hub-fade var(--dur-2) var(--ease); }
   .view-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-5); min-height: 44px; }
-  .view-title h1 { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-3xl); letter-spacing: 0; }
+  .view-title h1 { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-3xl); letter-spacing: var(--ls-large-title); }   /* D6: bold system large title */
   #ptr { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: center; pointer-events: none; height: 0; overflow: visible; z-index: 5; }
   #ptr span { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
     color: var(--accent-deep); transform: translateY(-56px) rotate(0deg); transition: transform var(--dur-3) var(--spring); }
@@ -80,7 +91,7 @@
 
   /* desktop: sidebar navigation, wider canvas */
   @media (min-width: 1024px) {
-    #views { padding-left: calc(220px + var(--sp-8)); padding-right: var(--sp-8); padding-bottom: calc(var(--sp-8) + var(--safe-bottom)); }
+    #views { padding-left: calc(220px + var(--sp-8)); padding-right: var(--margin-right); padding-bottom: calc(var(--sp-8) + var(--safe-bottom)); }
     .view { max-width: var(--max); }
     #tabbar .brand { display: flex; align-items: center; gap: var(--sp-3); padding: 0 var(--sp-3) var(--sp-5); font-family: var(--font-display); font-size: var(--fs-xl); }
     #tabbar .brand .avatar { --size: 36px; }
@@ -91,13 +102,16 @@
   .home-hero { min-height: 190px; margin-bottom: var(--sp-5); padding-right: 40%; }
   /* time of day: a light that falls across the person's colour rather than a second colour mixed into it */
   .home-hero::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; mix-blend-mode: soft-light; }
-  .home-hero.morning::before { background: linear-gradient(115deg, var(--gold) 0%, color-mix(in srgb, var(--gold) 40%, transparent) 35%, transparent 65%); }
-  .home-hero.afternoon::before { background: linear-gradient(115deg, rgba(255,255,255,.7), transparent 55%); }
-  .home-hero.evening::before { background: linear-gradient(115deg, var(--slate), transparent 60%), linear-gradient(0deg, rgba(0,0,0,.5), transparent 60%); }
+  .home-hero.morning::before { background: linear-gradient(115deg, var(--butter-graphic) 0%, color-mix(in srgb, var(--butter-graphic) 40%, transparent) 35%, transparent 65%); }
+  .home-hero.afternoon::before { background: linear-gradient(115deg, var(--hi-4), transparent 55%); }
+  .home-hero.evening::before { background: linear-gradient(115deg, var(--periwinkle-graphic), transparent 60%), linear-gradient(0deg, var(--shade-5), transparent 60%); }
   .home-hero .hero-title { font-size: clamp(30px, 7vw, 44px); }
   .home-hero .hero-art { width: 46%; max-width: 300px; right: -4px; bottom: -6px; }
   .home-hero .hero-sub { font-size: var(--fs-sm); }
-  .home-hero .clock { font-size: clamp(48px, 11vw, 120px); font-weight: 700; letter-spacing: var(--ls-tight); line-height: 1; font-variant-numeric: tabular-nums; margin-top: var(--sp-2); white-space: nowrap; }
+  /* the sub-line keeps clear of the illustration (bottom right, 46 % wide): on a phone "N stars this week — ready to play?" wraps
+     beside the arch instead of running under it. (.ds .hero's padding outranks the padding-right above, so the line is capped here.) */
+  :root:not([data-kind="kiosk"]) .home-hero .hero-sub { max-width: min(34ch, 54%); }
+  .home-hero .clock { font-family: var(--font-numeral); font-size: clamp(48px, 11vw, 120px); font-weight: 700; letter-spacing: var(--ls-tight); line-height: 1; font-variant-numeric: tabular-nums; margin-top: var(--sp-2); white-space: nowrap; }
   :root[data-kind="kiosk"] .home-hero { min-height: 280px; padding-right: 30%; }
   :root[data-kind="kiosk"] .home-hero .clock { font-size: clamp(64px, 8.5vw, 150px); }
   :root[data-kind="kiosk"] .home-hero .hero-sub { font-size: var(--fs-xl); }
@@ -115,8 +129,8 @@
   @media (max-width: 719px) { .gsub, .gbig.one { display: block; white-space: nowrap; text-overflow: ellipsis; } }   /* full-width cards: one line */
   .gcard .btn { align-self: flex-start; margin-top: var(--sp-3); position: relative; z-index: 1; }
   .fresh { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
-  .fresh .bar { --tint: var(--warn); }
-  .fresh .stale .bar { --tint: var(--danger); }
+  .fresh .bar { --tint: var(--aging); }
+  .fresh .stale .bar { --tint: var(--use-soon); }   /* the Larder ramp: graphics, not inks */
   .fresh .fl { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--text-2); margin-bottom: 3px; }
   .rem-row { align-items: flex-start; }
   .rem-text { font-size: var(--fs-lg); }
@@ -139,7 +153,7 @@
   :root[data-kind="kiosk"] .tv-pane h2 .app-icon { width: 44px; height: 44px; border-radius: 14px; }
   :root[data-kind="kiosk"] .tv-hero { grid-area: hero; align-self: stretch; min-height: 240px; display: flex; flex-direction: column; justify-content: center; }
   :root[data-kind="kiosk"] .tv-hero .hero-kicker { color: var(--text-2); }
-  :root[data-kind="kiosk"] .tv-hero .clock { font-size: clamp(72px, 9vw, 190px); font-weight: 700; letter-spacing: var(--ls-tight); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: var(--sp-2); }
+  :root[data-kind="kiosk"] .tv-hero .clock { font-family: var(--font-numeral); font-size: clamp(72px, 9vw, 190px); font-weight: 700; letter-spacing: var(--ls-tight); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: var(--sp-2); }
   :root[data-kind="kiosk"] .tv-greet { font-family: var(--font-display); font-size: var(--fs-2xl); line-height: var(--lh-snug); color: var(--text-2); margin-top: var(--sp-3); }
   :root[data-kind="kiosk"] .tv-verse { grid-area: verse; }
   :root[data-kind="kiosk"] .tv-refs { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-8); font-family: var(--font-display); font-size: clamp(34px, 3.2vw, var(--fs-3xl)); line-height: var(--lh-tight); }
@@ -152,8 +166,10 @@
   :root[data-kind="kiosk"] .tv-faces { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
   :root[data-kind="kiosk"] .tv-face { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); width: 104px; text-align: center; font-weight: 600; font-size: var(--fs-sm); line-height: var(--lh-snug); }
   :root[data-kind="kiosk"] .tv-face .avatar { --size: 72px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--tint); }
-  :root[data-kind="kiosk"] .tv-face.off { opacity: .38; }
-  :root[data-kind="kiosk"] .tv-face b { color: var(--gold-ink); }
+  /* not yet today: the face fades, the name stays readable in the tertiary ink (CONS-COLOR-1; never opacity on text) */
+  :root[data-kind="kiosk"] .tv-face.off > :first-child { opacity: .38; }
+  :root[data-kind="kiosk"] .tv-face.off > span:last-child { color: var(--text-3); }
+  :root[data-kind="kiosk"] .tv-face b { color: var(--gold-ink); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; }
   :root[data-kind="kiosk"] .tv-quiet { color: var(--muted); font-size: var(--fs-lg); }
   :root[data-kind="kiosk"] .tv-lines { list-style: none; margin: 0; padding: 0; }
   :root[data-kind="kiosk"] .tv-lines li { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft); font-size: var(--fs-lg); }
@@ -193,9 +209,9 @@
   .park-list { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
   .park-list li { display: flex; align-items: center; gap: var(--sp-3); min-height: 32px; }
   .park-list .pn { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .park-list .pt { flex: none; color: var(--text-2); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .star-big { display: inline-flex; align-items: center; gap: 2px; flex: none; font-size: var(--fs-2xl); font-weight: 700; letter-spacing: var(--ls-tight); color: var(--gold-ink); line-height: 1; }
-  .star-big .icon { width: 1.1em; height: 1.1em; color: var(--gold); --tint: var(--gold); }
+  .park-list .pt { flex: none; font-family: var(--font-numeral); color: var(--text-2); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .star-big { font-family: var(--font-numeral); display: inline-flex; align-items: center; gap: 2px; flex: none; font-size: var(--fs-2xl); font-weight: 700; letter-spacing: var(--ls-tight); color: var(--gold-ink); line-height: 1; }
+  .star-big .icon { width: 1.1em; height: 1.1em; color: var(--star-stroke); --icon-duo: var(--star-fill); --icon-duo-opacity: 1; }
   .stars-card .app-icon, .kids-card .app-icon { color: var(--gold-ink); }
   /* play.svg is drawn in paper-white for the hero, so these cards fade to gold-soft under it (.ds .card sets the background at 0,2,0, so match that) */
   .ds .stars-card, .ds .kids-card { background: linear-gradient(120deg, var(--surface) 30%, var(--gold-soft) 72%); }
@@ -203,7 +219,7 @@
   :root[data-scheme="dark"] .stars-card .spot, :root[data-scheme="dark"] .kids-card .spot { opacity: .12; }   /* on a dark palette the white art is a faint ghost, never a glare under the words */
   .kids-line { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; min-height: 1.3em; }
   .kid-chip { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-lg); font-weight: 600; white-space: nowrap; }
-  .kid-chip b { color: var(--gold-ink); font-variant-numeric: tabular-nums; }
+  .kid-chip b { color: var(--gold-ink); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; }
   /* the feed: one row per person, one line per thing they did */
   .feed .fwho { display: block; margin-bottom: 2px; }
   .feed .fline { display: flex; align-items: flex-start; gap: var(--sp-2); padding: 3px 0; }
@@ -246,9 +262,9 @@
   .mrow .avatar { --size: 30px; box-shadow: none; margin-bottom: 4px; }
   .mrow .app-icon { width: 30px; height: 30px; border-radius: 10px; margin-bottom: 4px; }
   .msg { padding: var(--sp-3) var(--sp-4); border-radius: var(--r-lg); line-height: var(--lh); white-space: pre-wrap; overflow-wrap: anywhere; min-width: 0; }
-  .msg.user { background: linear-gradient(180deg, color-mix(in srgb, var(--accent-deep) 88%, white), var(--accent-deep)); color: var(--on-accent); border-bottom-right-radius: 6px; box-shadow: var(--e1); }
+  .msg.user { background: var(--accent-fill); color: var(--accent-ink); border-bottom-right-radius: 6px; box-shadow: var(--e1); }
   .msg.bot { border-bottom-left-radius: 6px; }
-  .msg.bot.err { border-color: var(--danger); color: var(--danger-ink); }
+  .msg.bot.err { border-color: var(--danger-graphic); color: var(--danger-ink); }
   .msg .chips { display: flex; flex-direction: column; gap: 4px; margin-top: var(--sp-2); padding-top: var(--sp-2); border-top: 1px dashed var(--line); }
   .msg .chips:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
   .msg .chips .chip { justify-content: flex-start; min-height: 28px; font-size: var(--fs-xs); border-radius: var(--r-sm); }
@@ -262,17 +278,21 @@
   .chat-form { position: fixed; left: 0; right: 0; bottom: calc(76px + var(--safe-bottom)); z-index: 19; display: flex; gap: var(--sp-2); align-items: center;
     width: min(100% - 2 * var(--sp-4), 880px); margin: 0 auto; padding: var(--sp-2); border-radius: var(--r-full);
     box-shadow: inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner), 0 0 0 1px var(--glass-ring), var(--e3); }
+  /* the pill's edge is the message field's boundary, >= 3:1 (P4-COLOR-05): an outline, so the glass recipe's shadows stay; it
+     takes the person's graphic tone while the field has focus */
+  .ds .chat-form { outline: var(--border-w-strong) solid var(--field-border); outline-offset: calc(var(--border-w-strong) * -1); }
+  .ds .chat-form:focus-within { outline-color: var(--accent-graphic); }
   @media (min-width: 1024px) { .chat-form { left: 220px; width: min(100% - 220px - 2 * var(--sp-8), var(--max)); bottom: var(--sp-6); } }
   .chat-form .input { flex: 1; border: 0; background: transparent; min-height: var(--tap); box-shadow: none; }
   .chat-form .input:focus { box-shadow: none; }
   #chat-mic.on { background: var(--danger-soft); color: var(--danger-ink); animation: pulse 1s infinite; }
-  @keyframes pulse { 50% { transform: scale(.94); } }
+  @keyframes pulse { 50% { transform: scale(var(--pulse-scale)); } }   /* 1 under Reduce Motion */
   .chat-note { text-align: center; color: var(--muted); font-size: var(--fs-sm); padding: var(--sp-4); max-width: 46ch; margin: 0 auto; }
   :root[data-kind="kid"] .msg { font-size: var(--fs-lg); }
 
   /* ── me + admin ───────────────────────────────────────────────── */
   .me-hero { display: flex; align-items: center; gap: var(--sp-4); min-height: 0; padding: var(--sp-5); }
-  .me-hero .avatar-xl { --size: 84px; box-shadow: 0 0 0 4px rgba(255,255,255,.55), var(--e2); }
+  .me-hero .avatar-xl { --size: 84px; box-shadow: 0 0 0 4px var(--hi-4), var(--e2); }
   .photo-btn { position: relative; border: 0; background: none; padding: 0; margin: 0; cursor: pointer; border-radius: 50%; flex: none; }
   .photo-btn:disabled { cursor: default; }
   .photo-btn .photo-badge { position: absolute; right: -2px; bottom: -2px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--accent-deep); box-shadow: var(--e2); }
@@ -281,14 +301,26 @@
   .album { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--sp-2); }
   .album-item { position: relative; margin: 0; border-radius: var(--r); overflow: hidden; aspect-ratio: 1; background: var(--surface-2); }
   .album-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .album-item figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 8px; font-size: var(--fs-xs); color: var(--on-accent); background: linear-gradient(transparent, rgba(0,0,0,.45)); }
+  .album-item figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 8px; font-size: var(--fs-xs); color: var(--glass-inverse-ink); background: linear-gradient(transparent, var(--shade-5)); }
   .album-item .album-del { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; min-height: 32px; }
   .album-item .album-del .icon { width: 16px; height: 16px; }
   .me-hero .hero-title { font-size: var(--fs-2xl); margin: 0; }
   .me-hero .btn { margin: 0; }
-  .me-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
-  @media (min-width: 1024px) { .me-grid { grid-template-columns: 1fr 1fr; align-items: start; } .me-grid .span2 { grid-column: 1 / -1; } }
-  /* theme cards: a tiny painting of each palette (the swatch's own tokens come from the same data-theme rules) */
+  /* minmax(0, 1fr): at a large text size on a 375-390 px phone the column never grows past the screen to fit a card's widest row */
+  .me-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); }
+  .me-grid > * { min-width: 0; }
+  .me-grid .row { flex-wrap: wrap; }
+  .me-grid .row-main { flex: 1 1 5em; }   /* the name keeps its line beside the face; the buttons move under it when they do not fit */
+  .me-grid .row-main + * { margin-left: auto; }   /* the buttons keep to the row's end, on its line or on the next */
+  /* a phone: every admin profile row puts its buttons on a second line, so the rows read alike at any text size */
+  @media (max-width: 743px) { .admin-people .row-main { flex-basis: calc(100% - 80px); } }
+  .me-grid .row-title { overflow-wrap: anywhere; }
+  .me-grid .hstack { flex-wrap: wrap; }
+  .me-grid .hstack > .grow { flex: 1 1 0; }   /* the text shrinks first, so a switch or a face stays on its line (review of batch 1) */
+  .me-grid .grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 18em), 1fr)); }
+  table.usage { table-layout: fixed; overflow-wrap: anywhere; }
+  @media (min-width: 1024px) { .me-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } .me-grid .span2 { grid-column: 1 / -1; } }
+  /* theme cards: a tiny painting of each palette (the swatch's own tokens come from its data-theme-preview scope) */
   .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--sp-3); }
   .theme-card { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 6px; border-radius: var(--r-lg); border: 2px solid transparent; background: var(--surface-2); color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: transform var(--dur-2) var(--spring), border-color var(--dur-1) var(--ease); }
   .theme-card:active { transform: scale(.97); }
@@ -298,16 +330,23 @@
   .theme-swatch .tp-hero { left: 8px; top: 8px; right: 8px; height: 22px; background: linear-gradient(120deg, var(--accent), var(--accent-deep)); }
   .theme-swatch .tp-card { left: 8px; top: 38px; width: calc(50% - 11px); height: 30px; background: var(--surface); box-shadow: var(--e1); }
   .theme-swatch .tp-card + .tp-card { left: auto; right: 8px; }
-  .theme-swatch .tp-dot { right: 14px; top: 44px; width: 10px; height: 10px; border-radius: 50%; background: var(--olive); }
+  .theme-swatch .tp-dot { right: 14px; top: 44px; width: 10px; height: 10px; border-radius: 50%; background: var(--success-graphic); }
   .theme-name { font-weight: 700; font-size: var(--fs-sm); padding: 0 4px; }
   .theme-blurb { font-size: var(--fs-xs); color: var(--muted); padding: 0 4px 4px; }
-  /* each swatch paints itself with its own palette (design.css scopes every theme's tokens to .tp[data-preview]); System is half day, half night */
+  .appearance { display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-5); }
+  .appearance .seg { flex-wrap: wrap; }   /* at a large text size the four glass levels wrap instead of running past the card */
+  .appearance .seg button { flex: 1 1 auto; min-width: 0; padding: 0 var(--sp-2); }
+  .appearance-switch { align-items: center; font-size: var(--fs-md); }
+  .appearance-switch b { display: block; color: var(--text); }
+  .appearance-switch .help { display: block; margin-top: 2px; }
+  /* each swatch paints itself in its own palette: design.css scopes each palette to [data-theme-preview], and the swatch and
+     the System card's night half each carry data-theme-preview + data-scheme + data-accent (swatchHtml); System is half day, half night */
   .theme-swatch .tp-half { position: absolute; inset: 0 0 0 50%; background: var(--bg); }
   .theme-swatch .tp-half .tp-card { left: auto; right: 8px; background: var(--surface); }
   .theme-swatch[data-preview="system"] > .tp-card + .tp-card { display: none; }
   .prow .btn { padding: 0 var(--sp-3); white-space: nowrap; }
   .swatches { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-  .swatch { width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: transform var(--dur-2) var(--spring); }
+  .swatch { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-strong); border: 3px solid transparent; cursor: pointer; transition: transform var(--dur-2) var(--spring); }
   .swatch.on { border-color: var(--text); transform: scale(1.1); }
   /* ── item 23: guests — the Add-a-guest sheet's face grid, guest rows in Me and the admin list ── */
   .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--sp-2); }
@@ -319,6 +358,7 @@
   table.usage { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
   table.usage th, table.usage td { text-align: left; padding: var(--sp-2) var(--sp-1); border-bottom: 1px solid var(--line-soft); }
   table.usage th { color: var(--text-2); font-weight: 600; }
+  table.usage th:first-child { width: 7em; } table.usage td:first-child { white-space: nowrap; }   /* a date on one line */
   @media (min-width: 1024px) {
     .admin-people .row { display: grid; grid-template-columns: 56px 1fr auto auto; align-items: center; }
     .admin-people .row .guest-btns { grid-column: 3 / -1; }   /* item 23: a guest row's Edit / Remove / Purge share the two button columns */
@@ -331,7 +371,7 @@
   #viewer.closing { animation: viewer-out var(--dur-2) var(--ease-in-out) forwards; }
   @keyframes viewer-in { from { opacity: 0; transform: scale(.9); border-radius: var(--r-xl); } }
   @keyframes viewer-out { to { opacity: 0; transform: scale(.94); } }
-  #viewer.dark { background: color-mix(in srgb, var(--slate) 12%, black); }
+  #viewer.dark { background: var(--viewer-loading-bg); }
   #frame { flex: 1; width: 100%; border: 0; background: transparent; }
   /* a slim glass bar above the app, never over it — apps keep their own bottom navigation free */
   #pill { flex: none; min-height: 48px; color: var(--text-2); }
@@ -350,7 +390,7 @@
   @keyframes tp-in { from { opacity: 0; } }
   #timer-pill[hidden] { display: none; }
   #timer-pill .icon { width: 20px; height: 20px; color: var(--accent-deep); }
-  #timer-pill .tp-time { font-variant-numeric: tabular-nums; letter-spacing: .01em; min-width: 3.2em; text-align: left; color: var(--accent-strong); }
+  #timer-pill .tp-time { font-family: var(--font-numeral); font-variant-numeric: tabular-nums; letter-spacing: .01em; min-width: 3.2em; text-align: left; color: var(--accent-strong); }
   #timer-pill .tp-ring .ring { --tint: var(--accent); width: 22px; height: 22px; } #timer-pill .tp-ring .ring circle { stroke-width: 7; }
   #timer-pill:active { transform: translateX(-50%) scale(.96); }
   @media (hover: hover) and (pointer: fine) { #timer-pill:hover { --g: var(--glass-strong); } }
@@ -360,7 +400,7 @@
   :root[data-tab="chat"] #timer-pill { bottom: calc(76px + var(--safe-bottom) + var(--chat-h, 60px) + var(--sp-3)); }
   @media (min-width: 1024px) { :root[data-tab="chat"] #timer-pill { bottom: calc(var(--sp-6) + var(--chat-h, 60px) + var(--sp-3)); } }
   /* inside an app the countdown sits in the slim bar above it, never over the app */
-  #pill #pill-timer { color: var(--accent-strong); font-variant-numeric: tabular-nums; gap: 6px; }
+  #pill #pill-timer { color: var(--accent-strong); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; gap: 6px; }
   #pill #pill-timer .icon { color: var(--accent-deep); }
 </style>
 </head>
@@ -387,7 +427,7 @@
       <div class="chat" id="chat-log" aria-live="polite"></div>
       <form class="chat-form glass-strong" id="chat-form" autocomplete="off" hidden>
         <button type="button" class="btn btn-round btn-ghost" id="chat-mic" aria-label="Say it instead" hidden><svg class="icon"><use href="#i-mic"/></svg></button>
-        <input class="input" id="chat-in" placeholder="Ask or tell the house…" maxlength="2000" enterkeyhint="send">
+        <input class="input" id="chat-in" aria-label="Message to the house" placeholder="Ask or tell the house…" maxlength="2000" enterkeyhint="send">
         <button class="btn btn-primary btn-round" type="submit" id="chat-send" aria-label="Send"><svg class="icon"><use href="#i-send"/></svg></button>
       </form>
     </section>
@@ -450,7 +490,13 @@
     if (/iPhone/.test(u)) return 'iPhone'; if (/Android/.test(u)) return 'Android'; if (/Mac/.test(u)) return 'Mac';
     if (/Windows/.test(u)) return 'Windows PC'; return 'Device'; })();
   const SWATCHES = ['#4F5D8C', '#BC5A38', '#137F77', '#B4861B', '#8A6A4B', '#3D5A3D', '#5B8143', '#4C4C58', '#8C4F7A', '#4C7B6A'];
-  const FALLBACK = '#8A6A4B';   // profile/app colour when a record has none (the mocha token)
+  // Batch 1: a person's colour is their hue family (data-accent), so a swatch picks a family and shows it as it will paint;
+  // the old hex travels with it for older copies of the hub (the first swatch hex that maps to that family). The full
+  // 18-family picker is batch 2a.
+  const SWATCH_HUES = [...new Set(SWATCHES.map(c => hub.hueOf({ color: c })))];
+  const hueHex = h => SWATCHES.find(c => hub.hueOf({ color: c }) === h) || SWATCHES[0];
+  const hueSwatchHtml = on => SWATCH_HUES.map(h => `<button type="button" class="swatch${h === on ? ' on' : ''}" data-h="${h}" data-accent="${h}" aria-pressed="${h === on}" aria-label="${h[0].toUpperCase() + h.slice(1)}"></button>`).join('');
+  const FALLBACK = '#4C4C58';   // profile/app colour when a record has none: graphite, nobody's family (ACCENT-6; batch 2 makes it the hue name)
   let registry = { title: 'Anderson House', apps: [] };
   let current = null;
   const svgCache = {};
@@ -564,7 +610,7 @@
   }
   function padHtml(p, title, hint) {
     return `
-      <div class="pin-wrap card glass-strong gate-card pop-in" style="--tint:${esc(p.color || FALLBACK)}">
+      <div class="pin-wrap card glass-strong gate-card pop-in" data-accent="${esc(hub.hueOf(p))}" style="--tint:${esc(p.color || FALLBACK)}">
         <div class="pin-who">${avatar(p, 'avatar-lg')}<h2>${esc(title)}</h2></div>
         <p class="text-2" id="pinhint">${esc(hint)}</p>
         <div class="pin-dots" id="dots" aria-live="polite"></div>
@@ -793,7 +839,11 @@
     if (m.type === 'hub:open') openApp(m.appId);
     if (m.type === 'hub:reauth') { closeViewer(); hub.device ? showPicker(m.reason === 'signed_out' ? '' : 'Please choose your profile again.') : showPairing('This device was unpaired.'); }
     if (m.type === 'hub:theme') { hub.setTheme(m.theme); syncThemeColor(); }
+    if (m.type === 'hub:pref') { try { hub.setPref(m.key, m.value); } catch {} if (tab === 'me') renderMe(); }   // an app changed a person preference: the shell writes the row
   });
+  // this person's profile changed under them (renamed, recoloured by the admin): redraw what shows it (ACCENT-9). hub.js
+  // fires hub:profile after its own refresh and when an app frame's refresh reaches this window's session.
+  window.addEventListener('hub:profile', () => { renderBrand(); if (tab === 'home') renderHome(); if (tab === 'me') renderMe(); if (tab === 'apps') renderGrid(); });
   function setDot(state) { const d = $('#syncdot'); d.className = 'dot dot-' + state; d.title = 'Sync: ' + state; }
   hub.onSync(s => setDot(s.state));
   hub.onAuthLoss(() => { closeViewer(); hub.device ? showPicker('Please choose your profile again.') : showPairing('This device was unpaired.'); });
@@ -1244,7 +1294,7 @@
       <div class="glance${cards.length === 2 ? ' two' : ''}">${cards.join('')}</div>
       <div class="two-col">
       <div class="card"><h2><span class="app-icon" style="--tint:var(--gold)"><svg class="icon"><use href="#i-bell"/></svg></span>Reminders</h2><ul class="list" id="remlist"></ul>
-        <form class="add-row" id="remform"><input class="input" id="remtext" placeholder="Add a reminder for the house" maxlength="140" autocomplete="off"><button class="btn btn-primary btn-round" type="submit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button></form>
+        <form class="add-row" id="remform"><input class="input" id="remtext" aria-label="New reminder for the house" placeholder="Add a reminder for the house" maxlength="140" autocomplete="off"><button class="btn btn-primary btn-round" type="submit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button></form>
       </div>
       <div class="card"><h2><span class="app-icon" style="--tint:var(--terra)"><svg class="icon"><use href="#i-flame"/></svg></span>Around the house <button class="btn btn-ghost btn-round" id="feed-refresh" style="margin-left:auto" aria-label="Refresh"><svg class="icon"><use href="#i-refresh"/></svg></button></h2><ul class="feed" id="feed"></ul></div>
       </div>`;
@@ -1289,9 +1339,59 @@
   hub.onSync(s => { if (s.lastPull && s.lastPull !== lastPullSeen) { lastPullSeen = s.lastPull; if (tab === 'home') renderHome(); if (tab === 'apps') renderGrid(); } });
 
   // ── me ────────────────────────────────────────────────────────
+  // A theme swatch paints itself in its own palette at its adult values: data-theme-preview + data-scheme + data-accent on
+  // the swatch AND on the System card's night half (without its own data-accent the half would keep the day accent).
+  // data-preview stays as data, for the rule that hides the System card's second half-card. The swatch carries no text.
+  const SCHEME = { hearth: 'light', parchment: 'light', frost: 'light', midnight: 'dark', forest: 'dark', graphite: 'dark' };
+  function swatchHtml(id, hue) {
+    const pal = id === 'system' ? 'hearth' : id;
+    const half = id === 'system' ? `<span class="tp-half" data-theme-preview="midnight" data-scheme="dark" data-accent="${esc(hue)}"><i class="tp-card"></i></span>` : '';
+    return `<span class="theme-swatch" data-preview="${esc(id)}" data-theme-preview="${esc(pal)}" data-scheme="${SCHEME[pal] || 'light'}" data-accent="${esc(hue)}">${half}<i class="tp-hero"></i><i class="tp-card"></i><i class="tp-card"></i><i class="tp-dot"></i></span>`;
+  }
+  // Me → Appearance (D11): text size, the four glass levels (D8; Solid is Reduce Transparency), Increase Contrast and
+  // Reduce Motion, each one person-scope row that follows the person (hub.setTextSize … hub.setMotion). A switch shows
+  // what is in effect, the OS setting included; turning it against the OS stores the opt-out. The display keeps its
+  // settings on the device and has no text size or glass control (the TV keeps its own type scale and has no live blur).
+  const TEXT_SIZES = [['xs', 'XS'], ['s', 'S'], ['m', 'M'], ['l', 'L'], ['xl', 'XL'], ['xxl', 'XXL']];
+  const GLASS_LEVELS = [['clear', 'Clear'], ['current', 'Current'], ['frosted', 'Frosted'], ['solid', 'Solid']];
+  const osIs = q => { try { return matchMedia(q).matches; } catch { return false; } };
+  function appearanceHtml(p) {
+    const pr = hub.prefs(), tv = p.kind === 'kiosk';
+    const contrastOn = pr.contrast === 'more' || (pr.contrast == null && osIs('(prefers-contrast: more)'));
+    const motionOn = pr.motion === 'reduce' || (pr.motion == null && osIs('(prefers-reduced-motion: reduce)'));
+    const glass = pr.glass || (pr.transparency === 'reduce' || (pr.transparency == null && osIs('(prefers-reduced-transparency: reduce)')) ? 'solid' : 'frosted');
+    const seg = (id, label, opts, cur) => `<div class="field appearance-row"><span class="label" id="${id}-l">${label}</span><div class="seg" id="${id}" role="group" aria-labelledby="${id}-l">${opts.map(([v, t]) => `<button type="button" data-v="${v}" aria-pressed="${cur === v}"${cur === v ? ' class="on"' : ''}>${t}</button>`).join('')}</div></div>`;
+    const sw = (id, label, help, on) => `<div class="kv appearance-switch"><span class="grow"><b>${label}</b><span class="help">${help}</span></span><button class="switch" id="${id}" role="switch" aria-checked="${on}" aria-label="${label}"></button></div>`;
+    return `<div class="appearance" id="appearance">
+            ${tv ? '' : seg('ap-size', 'Text size', TEXT_SIZES, pr.textSize)}
+            ${tv ? '' : seg('ap-glass', 'Glass', GLASS_LEVELS, glass)}
+            ${sw('ap-contrast', 'Increase contrast', 'Darker text, solid edged glass', contrastOn)}
+            ${sw('ap-motion', 'Reduce motion', 'No springs, slides or drifting colour', motionOn)}
+          </div>`;
+  }
+  function wireAppearance() {
+    const again = () => { renderMe(); try { frame.contentWindow.postMessage({ source: 'hubshell', type: 'hub:theme' }, location.origin); } catch {} };
+    const segOn = (id, fn) => { const el = $('#' + id); if (el) el.addEventListener('click', ev => { const b = ev.target.closest('button[data-v]'); if (!b) return; fn(b.dataset.v); again(); }); };
+    segOn('ap-size', v => hub.setTextSize(v));
+    segOn('ap-glass', v => hub.setGlass(v));
+    const flip = (id, fn) => { const el = $('#' + id); if (el) el.addEventListener('click', () => { fn(el.getAttribute('aria-checked') !== 'true'); again(); }); };
+    flip('ap-contrast', on => hub.setContrast(on ? 'more' : (osIs('(prefers-contrast: more)') ? 'standard' : null)));
+    flip('ap-motion', on => hub.setMotion(on ? 'reduce' : (osIs('(prefers-reduced-motion: reduce)') ? 'full' : null)));
+  }
+  // a preference changed elsewhere (an app, another device's row): redraw only the Appearance controls, never while a
+  // finger or the keyboard is on them, so Me never jumps under someone
+  function syncAppearance() {
+    const a = $('#appearance'); if (tab !== 'me' || !a || !hub.profile || a.contains(document.activeElement)) return;
+    const box = document.createElement('div'); box.innerHTML = appearanceHtml(hub.profile);
+    const next = box.firstElementChild; if (!next || next.outerHTML === a.outerHTML) return;
+    a.replaceWith(next); wireAppearance();
+  }
+  window.addEventListener('hub:theme', syncAppearance);
+  // an open app re-applies the look whenever the shell does (a pulled row the app's own copy does not show, D17)
+  window.addEventListener('hub:theme', () => { try { if (frame && frame.contentWindow) frame.contentWindow.postMessage({ source: 'hubshell', type: 'hub:theme' }, location.origin); } catch {} });
   function renderMe() {
     const v = $('#view-me'); const p = hub.profile; if (!p) return;
-    const s = hub.sync; const theme = hub.theme();
+    const s = hub.sync; const theme = hub.theme(); const hue = hub.hueOf(p);
     const kindLabel = p.kind === 'kid' ? 'Kid' : p.kind === 'kiosk' ? 'Display' : (p.isAdmin ? 'Adult · Admin' : 'Adult');
     v.innerHTML = `
       <div class="view-title"><h1>Me</h1></div>
@@ -1303,8 +1403,9 @@
         ${p.kind === 'adult' ? `<div class="card glass span2" id="album"><h2><span class="app-icon" style="--tint:var(--terra)"><svg class="icon"><use href="#i-camera"/></svg></span>Family album <button class="btn btn-soft" id="album-add" style="margin-left:auto">Add a photo</button></h2><div class="album" id="album-grid"></div></div>` : ''}
         <div class="card glass${p.kind === 'kiosk' ? '' : ' span2'}"><h2>Appearance</h2><div class="themes" id="theme">
           ${hub.THEMES.map(t => `<button class="theme-card${theme === t.id ? ' on' : ''}" data-theme="${t.id}" aria-pressed="${theme === t.id}">
-            <span class="theme-swatch tp" data-preview="${t.id}">${t.id === 'system' ? '<span class="tp-half"><i class="tp-card"></i></span>' : ''}<i class="tp-hero"></i><i class="tp-card"></i><i class="tp-card"></i><i class="tp-dot"></i></span>
-            <span class="theme-name">${esc(t.name)}</span><span class="theme-blurb">${esc(t.blurb)}</span></button>`).join('')}</div></div>
+            ${swatchHtml(t.id, hue)}
+            <span class="theme-name">${esc(t.name)}</span><span class="theme-blurb">${esc(t.blurb)}</span></button>`).join('')}</div>
+          ${appearanceHtml(p)}</div>
         ${p.kind !== 'kiosk' && p.kind !== 'kitchen' ? `<div class="card glass" id="notif"><h2>Notifications</h2>
           <div class="hstack"><div class="grow"><div>Reminders on this device</div><div class="help" id="notif-help">Checking…</div></div><button class="switch" id="notif-toggle" role="switch" aria-checked="false" aria-label="Notifications on this device" disabled></button></div>
           <div id="notif-prefs" hidden style="margin-top:var(--sp-3)">
@@ -1332,10 +1433,12 @@
     // the next person starts on Home, in their own look, with none of this person's data on the device
     $('#switch').addEventListener('click', async () => { closeViewer(); tab = 'home'; history.replaceState(null, '', '#home'); await hub.signOut(); showPicker(); });
     $('#theme').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; hub.setTheme(b.dataset.theme); syncThemeColor(); renderMe(); try { frame.contentWindow.postMessage({ source: 'hubshell', type: 'hub:theme' }, location.origin); } catch {} });
+    wireAppearance();
     $('#syncnow').addEventListener('click', async () => { await hub.pull(); await hub.flush(); renderMe(); hub.toast('Checked with the house.'); });
     if ($('#forget')) $('#forget').addEventListener('click', async ev => {
-      if (!confirm('Forget this device? You will need the pairing code to use the hub here again.')) return;
-      const b = ev.currentTarget; b.disabled = true; hub.toast('Saving everything first…', 8000);
+      const b = ev.currentTarget;   // read before the sheet: currentTarget is gone once the event has been handled
+      if (!await hub.confirm('You will need the pairing code to use the hub here again.', { title: 'Forget this device?', ok: 'Forget device', danger: true })) return;
+      b.disabled = true; hub.toast('Saving everything first…', 8000);
       try { await hub.forgetDevice(); location.reload(); }
       catch (e) {
         b.disabled = false;
@@ -1417,20 +1520,20 @@
       const last = r.payouts[r.payouts.length - 1];
       return `<div class="hstack reward-kid" data-kid="${esc(k.id)}" style="--tint:${esc(k.color || FALLBACK)};flex-wrap:wrap;padding:var(--sp-2) 0">${avatar(k, 'avatar-sm')}<div class="grow" style="min-width:160px"><div><b>${esc(k.name)}</b> <span class="reward-total">★${r.total}</span> to cash in · ${r.count} this week${r.earned > r.total ? ' · ' + r.earned + ' ever' : ''}</div><div class="help">${names.length ? names.length + (names.length === 1 ? ' badge: ' : ' badges: ') + esc(names.join(', ')) : 'No badges yet'}${last ? ' · last cash-in ' + last.amount + ' on ' + esc(last.date) : ''}</div></div><div class="hstack"><button class="btn btn-soft" data-cashin="${esc(k.id)}"${r.total ? '' : ' disabled'}>Cash in</button><button class="btn btn-ghost" data-resetweek="${esc(k.id)}"${r.count ? '' : ' disabled'}>Reset week</button></div></div>`;
     }).join('');
-    body.onclick = ev => {
+    body.onclick = async ev => {
       const b = ev.target.closest('[data-cashin],[data-resetweek]'); if (!b || !hub.canWrite || !hub.profile || hub.profile.kind !== 'adult' || isGuest()) return;
       const id = b.dataset.cashin || b.dataset.resetweek, kid = kids.find(k => k.id === id); if (!kid) return;
       const r = effectiveStars(id); const today = dayKey(new Date());
       const key = 'ledger:' + id + ':' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6), at = Date.now() + (Number(hub.skew) || 0);
       if (b.dataset.cashin) {
         if (!r.total) return;
-        if (!confirm(`Cash in ${kid.name}'s ${r.total} ${r.total === 1 ? 'star' : 'stars'}? The balance goes back to 0; badges stay.`)) return;
+        if (!await hub.confirm('The balance goes back to 0; badges stay.', { title: `Cash in ${kid.name}'s ${r.total} ${r.total === 1 ? 'star' : 'stars'}?`, ok: 'Cash in' })) return;
         const paid = r.total;
         hub.set(key, { kind: 'cashin', date: today, amount: paid, by: hub.profile.id, at }, KV);
         hub.activity(`Cashed in ${kid.name}'s ${paid} ${paid === 1 ? 'star' : 'stars'} ★`, 'kidverse'); hub.toast(`Cashed in ${paid} ${paid === 1 ? 'star' : 'stars'} for ${kid.name}.`);
       } else {
         if (!r.count) return;
-        if (!confirm(`Reset ${kid.name}'s stars for this week? This week's ${r.count} ${r.count === 1 ? 'star comes' : 'stars come'} off the balance; badges stay.`)) return;
+        if (!await hub.confirm(`This week's ${r.count} ${r.count === 1 ? 'star comes' : 'stars come'} off the balance; badges stay.`, { title: `Reset ${kid.name}'s stars for this week?`, ok: 'Reset week', danger: true })) return;
         hub.set(key, { kind: 'reset', date: today, days: weekDayKeys().filter(d => d <= today), by: hub.profile.id, at }, KV);   // never the week's days still to come
         hub.activity(`Reset ${kid.name}'s stars for the week`, 'kidverse'); hub.toast(`${kid.name}'s week starts over.`);
       }
@@ -1450,19 +1553,19 @@
   }
   function addGuestSheet() {
     if (!hub.canWrite) return hub.kioskNudge();
-    let emoji = GUEST_EMOJI[0], color = SWATCHES[2], expiry = 'week';
+    let emoji = GUEST_EMOJI[0], hue = 'sky', expiry = 'week';
     const sh = sheet(`<h2>Add a guest</h2>
       <form id="gform" class="stack" style="margin-top:var(--sp-3)">
         <label class="field"><span class="label">Name</span><input class="input" id="gname" maxlength="40" required autocomplete="off" placeholder="Aunt Sue"></label>
         <div class="field"><span class="label">Face</span><div class="emoji-grid" id="gemoji" role="group" aria-label="Face">${GUEST_EMOJI.map(e => `<button type="button" class="${e === emoji ? 'on' : ''}" data-e="${e}" aria-pressed="${e === emoji}" aria-label="${e}">${e}</button>`).join('')}</div></div>
-        <div class="field"><span class="label">Colour</span><div class="swatches" id="gswatches">${SWATCHES.map(c => `<button type="button" class="swatch${c === color ? ' on' : ''}" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div></div>
+        <div class="field"><span class="label">Colour</span><div class="swatches" id="gswatches" role="group" aria-label="Colour">${hueSwatchHtml(hue)}</div></div>
         <label class="field"><span class="label">PIN (optional)</span><input class="input" id="gpin" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="Leave empty and they sign in on tap"></label>
         <div class="field"><span class="label">Stays until</span><div class="seg" id="gexp">${[['tonight', 'Tonight'], ['week', 'A week'], ['keep', 'Keep']].map(([k, l]) => `<button type="button" data-x="${k}" aria-pressed="${k === expiry}">${l}</button>`).join('')}</div></div>
         <p class="pin-msg" id="gmsg"></p>
         <div class="hstack"><button class="btn btn-ghost grow" type="button" data-close>Cancel</button><button class="btn btn-primary grow" type="submit">Add guest</button></div>
       </form>`);
     sh.el.querySelector('#gemoji').addEventListener('click', ev => { const b = ev.target.closest('[data-e]'); if (!b) return; emoji = b.dataset.e; sh.el.querySelectorAll('#gemoji button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); });
-    sh.el.querySelector('#gswatches').addEventListener('click', ev => { const b = ev.target.closest('.swatch'); if (!b) return; color = b.dataset.c; sh.el.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x === b)); });
+    sh.el.querySelector('#gswatches').addEventListener('click', ev => { const b = ev.target.closest('.swatch'); if (!b) return; hue = b.dataset.h; sh.el.querySelectorAll('.swatch').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); });
     sh.el.querySelector('#gexp').addEventListener('click', ev => { const b = ev.target.closest('[data-x]'); if (!b) return; expiry = b.dataset.x; sh.el.querySelectorAll('#gexp button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
     sh.el.querySelector('#gname').focus();
     sh.el.querySelector('#gform').addEventListener('submit', async ev => {
@@ -1475,7 +1578,7 @@
       const expires_at = expiry === 'tonight' ? tonight.getTime() : expiry === 'week' ? Date.now() + 7 * 86400000 : null;
       const btn = sh.el.querySelector('button[type=submit]'); btn.disabled = true;
       try {
-        const r = await hub.request('/api/profiles', { method: 'POST', body: { name, emoji, color, pin: pin || undefined, expires_at } });
+        const r = await hub.request('/api/profiles', { method: 'POST', body: { name, emoji, color: hueHex(hue), hue, pin: pin || undefined, expires_at } });
         sh.close();
         hub.toast(`${r.profile.name} can now tap their name on any device.`, 4000);
         try { await hub.profiles(); } catch {}
@@ -1489,7 +1592,7 @@
     const me = hub.profile;
     if (!rows.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1;padding:var(--sp-4) 0"><div class="empty-art" style="width:120px"><img src="art/empty/feed.svg" alt=""></div>Photos of the family for the TV and the prayer list. Add the first one.</div>'; return; }
     g.innerHTML = rows.map(ph => `<figure class="album-item" style="--tint:${esc(FALLBACK)}"><img src="${esc(hub.photoUrl(ph, 'sm'))}" alt="${esc(ph.caption || '')}" loading="lazy"><figcaption>${esc(ph.byName || '')}</figcaption>${(ph.by === me.id || me.isAdmin) ? `<button class="btn btn-round btn-glass album-del" data-del="${esc(ph.id)}" aria-label="Remove"><svg class="icon"><use href="#i-x"/></svg></button>` : ''}</figure>`).join('');
-    g.onclick = async ev => { const b = ev.target.closest('[data-del]'); if (!b) return; if (!confirm('Remove this photo from the album?')) return; try { await hub.removeAlbumPhoto(b.dataset.del); renderAlbum(); } catch (e) { hub.toast(e.message); } };
+    g.onclick = async ev => { const b = ev.target.closest('[data-del]'); if (!b) return; if (!await hub.confirm('It goes from the album on every device and the TV.', { title: 'Remove this photo?', ok: 'Remove', danger: true })) return; try { await hub.removeAlbumPhoto(b.dataset.del); renderAlbum(); } catch (e) { hub.toast(e.message); } };
   }
 
   // ── chat ──────────────────────────────────────────────────────
@@ -1717,7 +1820,7 @@
         const q = list.find(x => x.id === r.dataset.resetpin);
         // item 23: a guest's PIN is fixed at creation (nobody can "create" one on a paired device), so clearing it means they sign in on tap
         if (q.is_guest) {
-          if (!confirm(`Clear ${q.name}'s PIN? As a guest they will sign in on tap from now on.`)) return;
+          if (!await hub.confirm('As a guest they will sign in on tap from now on.', { title: `Clear ${q.name}'s PIN?`, ok: 'Clear PIN', danger: true })) return;
           try { await hub.request(`/api/admin/profiles/${q.id}/reset-pin`, { method: 'POST', body: {} }); hub.toast('PIN cleared.'); renderAdmin(); renderGuests(); } catch (err) { hub.toast(err.message); }
           return;
         }
@@ -1726,7 +1829,7 @@
         // the admin's own PIN: Change my PIN (current PIN, then the new one). A self-reset would sign the only admin out
         // everywhere with nothing but a code on the picker to get back in (the Worker still takes it, with the admin's PIN).
         if (self) { changePinSheet(); return; }
-        if (!confirm(q.has_pin ? `Reset ${q.name}'s PIN? You get a one-time code to give them; they type it before choosing a new PIN.` : `Make a set-up code for ${q.name}? Until they use it, nobody can create ${q.name}'s PIN without it.`)) return;
+        if (!await hub.confirm(q.has_pin ? 'You get a one-time code to give them; they type it before choosing a new PIN.' : `Until they use it, nobody can create ${q.name}'s PIN without it.`, q.has_pin ? { title: `Reset ${q.name}'s PIN?`, ok: 'Reset PIN', danger: true } : { title: `Make a set-up code for ${q.name}?`, ok: 'Make code' })) return;
         try {
           const res = await hub.request(`/api/admin/profiles/${q.id}/reset-pin`, { method: 'POST', body: {} });
           showCodeSheet(q, res.code, res.expires_at); renderAdmin();
@@ -1736,29 +1839,29 @@
       // item 23: guests — Remove deletes the guest and everything they saved; Purge does the same for one whose stay has ended
       const rm = ev.target.closest('[data-remove]'); if (rm) {
         const q = list.find(x => x.id === rm.dataset.remove);
-        if (!confirm(`Remove ${q.name}? Their guest profile and everything they saved will be deleted.`)) return;
+        if (!await hub.confirm('Their guest profile and everything they saved will be deleted.', { title: `Remove ${q.name}?`, ok: 'Remove', danger: true })) return;
         try { await hub.request(`/api/admin/profiles/${q.id}`, { method: 'DELETE' }); hub.toast(`${q.name} removed.`); try { await hub.profiles(); } catch {} renderAdmin(); renderGuests(); } catch (err) { hub.toast(err.message); }
         return;
       }
       const pg = ev.target.closest('[data-purge]'); if (pg) {
         const q = list.find(x => x.id === pg.dataset.purge);
-        if (!confirm(`Purge ${q.name}'s data now? Their stay has ended; this deletes the profile and everything they saved.`)) return;
+        if (!await hub.confirm('Their stay has ended; this deletes the profile and everything they saved.', { title: `Purge ${q.name}'s data now?`, ok: 'Purge', danger: true })) return;
         try { await hub.request(`/api/admin/profiles/${q.id}/purge`, { method: 'POST', body: {} }); hub.toast(`${q.name} purged.`); try { await hub.profiles(); } catch {} renderAdmin(); renderGuests(); } catch (err) { hub.toast(err.message); }
         return;
       }
       const u = ev.target.closest('[data-unpair]'); if (u) {
-        if (!confirm('Unpair this device? It will need the pairing code again.')) return;
+        if (!await hub.confirm('It will need the pairing code again.', { title: 'Unpair this device?', ok: 'Unpair', danger: true })) return;
         try { await hub.request(`/api/admin/devices/${u.dataset.unpair}`, { method: 'DELETE' }); hub.toast('Device unpaired.'); renderAdmin(); } catch (err) { hub.toast(err.message); }
       }
     };
     body.querySelector('#rotate-gen').onclick = async () => {
-      if (!confirm('Generate a new pairing code? The old one stops working for new devices.')) return;
+      if (!await hub.confirm('The old one stops working for new devices.', { title: 'Generate a new pairing code?', ok: 'Generate' })) return;
       try { const r = await hub.request('/api/admin/pairing-code/rotate', { method: 'POST', body: {} });
         sheet(`<h2>New pairing code</h2><p class="text-2">Write it down — it is shown only once.</p><div class="well" style="font-family:var(--font-mono);font-size:var(--fs-2xl);text-align:center;letter-spacing:.08em;margin:var(--sp-4) 0">${esc(r.code)}</div><button class="btn btn-primary btn-block" data-close>Done</button>`);
       } catch (err) { hub.toast(err.message); }
     };
     body.querySelector('#rotate-choose').onclick = () => {
-      const sh = sheet(`<h2>Choose a pairing code</h2><form id="rotform" class="stack" style="margin-top:var(--sp-3)"><input class="input" id="rotcode" placeholder="6 to 64 characters" minlength="6" maxlength="64" required autocomplete="off"><input class="input" id="rotcode2" placeholder="Type it again" required autocomplete="off"><p class="pin-msg" id="rotmsg"></p><button class="btn btn-primary btn-block" type="submit">Set pairing code</button></form>`);
+      const sh = sheet(`<h2>Choose a pairing code</h2><form id="rotform" class="stack" style="margin-top:var(--sp-3)"><input class="input" id="rotcode" aria-label="New pairing code" placeholder="6 to 64 characters" minlength="6" maxlength="64" required autocomplete="off"><input class="input" id="rotcode2" aria-label="New pairing code again" placeholder="Type it again" required autocomplete="off"><p class="pin-msg" id="rotmsg"></p><button class="btn btn-primary btn-block" type="submit">Set pairing code</button></form>`);
       sh.el.querySelector('#rotform').addEventListener('submit', async ev => {
         ev.preventDefault();
         const a = sh.el.querySelector('#rotcode').value, b = sh.el.querySelector('#rotcode2').value;
@@ -1769,19 +1872,19 @@
     };
   }
   function editProfile(q) {
-    let color = q.color;
+    let hue = hub.hueOf(q);
     const kitchen = q.kind === 'kitchen';   // KITCHEN-1: not a person; only its colour can change
     const sh = sheet(`<h2>Edit ${esc(q.name)}</h2>
       <form id="pform" class="stack" style="margin-top:var(--sp-3)">
         <label class="field"><span class="label">Name</span><input class="input" id="pname" value="${esc(q.name)}" maxlength="40" required ${kitchen ? 'disabled' : ''}></label>
         <label class="field"><span class="label">Emoji</span><input class="input" id="pemoji" value="${esc(q.emoji)}" maxlength="8" style="font-size:var(--fs-xl)" ${kitchen ? 'disabled' : ''}></label>
         <div class="field"><span class="label">Photo</span><div class="hstack">${avatar(q)}<button class="btn" type="button" data-photo="pick">Choose a photo</button>${q.photo ? '<button class="btn btn-ghost" type="button" data-photo="remove">Remove</button>' : ''}</div></div>
-        <div class="field"><span class="label">Colour</span><div class="swatches" id="swatches">${SWATCHES.map(c => `<button type="button" class="swatch${c === q.color ? ' on' : ''}" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div></div>
+        <div class="field"><span class="label">Colour</span><div class="swatches" id="swatches" role="group" aria-label="Colour">${hueSwatchHtml(hue)}</div></div>
         <label class="field"><span class="label">Kind</span><select class="select" id="pkind" ${q.is_admin || kitchen ? 'disabled' : ''}>${kitchen ? '<option value="kitchen" selected>Kitchen (shared device)</option>' : ''}${(kitchen ? [] : ['adult', 'kid', 'kiosk']).map(k => `<option value="${k}" ${q.kind === k ? 'selected' : ''}>${({ adult: 'Adult (PIN)', kid: 'Kid (no PIN, fewer apps)', kiosk: 'Display (read-only)' })[k]}</option>`).join('')}</select></label>
         <p class="pin-msg" id="pmsg"></p>
         <div class="hstack"><button class="btn btn-ghost grow" type="button" data-close>Cancel</button><button class="btn btn-primary grow" type="submit">Save</button></div>
       </form>`);
-    sh.el.querySelector('#swatches').addEventListener('click', ev => { const b = ev.target.closest('.swatch'); if (!b) return; color = b.dataset.c; sh.el.querySelectorAll('.swatch').forEach(x => x.classList.toggle('on', x === b)); });
+    sh.el.querySelector('#swatches').addEventListener('click', ev => { const b = ev.target.closest('.swatch'); if (!b) return; hue = b.dataset.h; sh.el.querySelectorAll('.swatch').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); });
     sh.el.addEventListener('click', async ev => {
       const b = ev.target.closest('[data-photo]'); if (!b) return;
       if (b.dataset.photo === 'remove') { try { await hub.removePhoto(q.id); hub.toast('Photo removed.'); sh.close(); renderMe(); } catch (e) { hub.toast(e.message); } return; }
@@ -1791,7 +1894,9 @@
     });
     sh.el.querySelector('#pform').addEventListener('submit', async ev => {
       ev.preventDefault();
-      const body = kitchen ? { color } : { name: sh.el.querySelector('#pname').value.trim(), emoji: sh.el.querySelector('#pemoji').value.trim() || q.emoji, color, kind: sh.el.querySelector('#pkind').value };
+      // the hex changes only with the family, so a person whose hex no swatch has keeps it until their family is changed
+      const color = hue === hub.hueOf(q) ? q.color : hueHex(hue);
+      const body = kitchen ? { color, hue } : { name: sh.el.querySelector('#pname').value.trim(), emoji: sh.el.querySelector('#pemoji').value.trim() || q.emoji, color, hue, kind: sh.el.querySelector('#pkind').value };
       try {
         const r = await hub.request(`/api/admin/profiles/${q.id}`, { method: 'PUT', body });
         if (hub.profile && hub.profile.id === q.id) hub.setSession({ token: hub.session.token, profile: { ...hub.session.profile, ...r.profile } });
@@ -1814,7 +1919,7 @@
   // ── boot ──────────────────────────────────────────────────────
   await loadRegistry();
   syncThemeColor();
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeColor);
+  window.addEventListener('hub:theme', syncThemeColor);   // hub.js announces every theme, preference and OS change (P4-DARK-04)
   if (!hub.device) showPairing();
   else if (!hub.session) showPicker();
   else enterShell();

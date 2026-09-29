@@ -6,13 +6,28 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Prayer">
-<meta name="theme-color" id="themeColor" content="#F7F2EB">
+<meta name="theme-color" id="themeColor" content="#F4F1EC">
+<script data-boot>(function(d){try{var g=function(k,f){try{var v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},
+m=function(q){return !!(window.matchMedia&&matchMedia(q).matches)},c=g('hub.theme','system'),t=c==='light'?'hearth':c==='dark'?'midnight':c,
+S={hearth:'light',parchment:'light',frost:'light',midnight:'dark',forest:'dark',graphite:'dark'},
+B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'},
+H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'graphite'};
+if(!S[t])t=m('(prefers-color-scheme: dark)')?'midnight':'hearth';
+var s=g('hub.session',null),p=s&&s.profile,r=g('hub.prefs',{})||{};d.setAttribute('data-theme',t);d.setAttribute('data-theme-choice',c);
+d.setAttribute('data-scheme',S[t]);d.style.colorScheme=S[t];
+var ms=document.querySelectorAll('meta[name="theme-color"]'),i;if(!ms.length){var mt=document.createElement('meta');mt.setAttribute('name','theme-color');document.head.appendChild(mt);ms=[mt]}
+for(i=0;i<ms.length;i++){ms[i].removeAttribute('media');ms[i].setAttribute('content',B[t])}
+var A=' bubblegum peach butter mint aqua sky periwinkle lavender graphite coral apricot honey pistachio leaf seafoam lagoon cornflower orchid ';
+if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:p.is_guest?'sky':H[String(p.color||'').toLowerCase()]||'graphite')}
+['textSize:data-text-size','contrast:data-contrast','transparency:data-transparency','motion:data-motion'].forEach(function(x){x=x.split(':');if(r[x[0]])d.setAttribute(x[1],r[x[0]])});if(r.glass&&p&&p.kind!=='kiosk'){if(r.glass==='solid')d.setAttribute('data-transparency','reduce');else{d.setAttribute('data-glass',r.glass);d.setAttribute('data-transparency','full')}}}catch(e){}})(document.documentElement)</script>
 <link rel="stylesheet" href="design.css">
 <title>Prayer</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<!-- No web fonts (decision D13, VIS-PRAYER-7): Manrope and Instrument Serif came from Google Fonts, which the service worker
+     cannot cache, so offline Prayer lost its typeface. It now reads the house faces, --font-ui and --font-serif. -->
 <style>
+/* Text size (GAP-TYPE-1, GAP-TYPE-2, D17): Prayer keeps its own px sizes (the layout stays), each scaled by the person's
+   text size and the iPad tier; the kid scale is left out so the kid cards keep their size. At XS and S nothing drops under
+   11 px and no field under 16 px. Print keeps its pt sizes. */
 /* ══════════════════════════════════════════════════════════════
    Light brown, modern. Sand and mocha neutrals, four saturated
    accents with exactly one job each:
@@ -25,36 +40,36 @@
   --ink:var(--text); --ink2:var(--text-2);
   --rule:var(--line); --rule-soft:var(--line-soft);
   --dim:var(--text);
-  /* category dots: the four family accents and a softer tint of each; every theme flips them */
-  --d0:var(--mocha); --d1:var(--teal); --d2:var(--olive); --d3:var(--gold);
-  --d4:color-mix(in srgb, var(--mocha) 65%, var(--surface));
-  --d5:color-mix(in srgb, var(--teal) 65%, var(--surface));
-  --d6:color-mix(in srgb, var(--olive) 65%, var(--surface));
-  --d7:color-mix(in srgb, var(--gold) 65%, var(--surface));
+  /* category dots (audit batch 1a): marks, so they read the categorical GRAPHIC tones (>= 3:1), never the text inks the
+     bare hue names now point at. d0-d3 are the four graphics (peach for the old mocha, aqua, mint, butter); d4-d7 the
+     same four families' fills, the softer tint of each. Every theme flips them. */
+  --d0:var(--cat-2); --d1:var(--cat-5); --d2:var(--cat-4); --d3:var(--cat-3);
+  --d4:var(--peach-fill-strong); --d5:var(--aqua-fill-strong); --d6:var(--mint-fill-strong); --d7:var(--butter-fill-strong);
   --lift:var(--shadow); --lift-lg:var(--shadow-lg);
-  /* --accent is the signed-in person's colour (set by hub.js); --accent-soft follows it */
+  /* the person's colour: hub.js puts data-accent="<hue>" on <html>, and design.css derives every --accent-* role from it */
 }
 /* Dark themes need no block of their own: hub.js marks the resolved scheme on <html>
-   and design.css flips every token this page uses. */
-body.shared{ --accent:var(--teal); --accent-soft:var(--teal-soft); }
+   and design.css flips every token this page uses.
+   The Family list (body.shared) carries data-accent="aqua" (set with the class in render()), so every accent role
+   re-derives in teal, Pray now, the + and the chips included (VIS-PRAYER-4, CONS-ACCENT-3). */
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   background:var(--paper); color:var(--ink);
-  font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  font-size:17px; line-height:1.55; font-weight:400; letter-spacing:-.008em;
+  font-family:var(--font-ui);   /* the house text face; rounded for a kid (D13, CONS-TYPE-5) */
+  font-size:calc(17px * var(--ts-width, 1) * var(--ts-user, 1)); line-height:1.55; font-weight:400; letter-spacing:-.008em;
   padding-bottom:calc(96px + env(safe-area-inset-bottom));
   -webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:33rem;margin:0 auto;padding:0 22px}
 
 /* ── type ─────────────────────────────────────────────────── */
-h1{font-size:31px;font-weight:600;line-height:1.18;margin:10px 0 0;max-width:20ch;
+h1{font-size:calc(31px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;line-height:1.18;margin:10px 0 0;max-width:20ch;
    letter-spacing:-.032em}
-h2{font-size:19px;font-weight:600;margin:46px 0 0;letter-spacing:-.022em}
-h3{font-size:13px;font-weight:600;margin:30px 0 0;color:var(--muted);letter-spacing:-.005em}
-.date{font-size:14px;font-weight:500;color:var(--muted);letter-spacing:-.005em}
+h2{font-size:calc(19px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;margin:46px 0 0;letter-spacing:-.022em}
+h3{font-size:max(11px, calc(13px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;margin:30px 0 0;color:var(--muted);letter-spacing:-.005em}
+.date{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;color:var(--muted);letter-spacing:-.005em}
 .screen{display:none}
 .screen.on{display:block;animation:rise .3s cubic-bezier(.22,.9,.3,1)}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -63,20 +78,21 @@ header{padding:38px 0 14px}
 /* ── list switcher ────────────────────────────────────────── */
 .hdr{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:44px}
 .switch{display:inline-flex;margin:0;padding:3px;border-radius:999px;background:var(--sunk);flex:0 0 auto}
-.switch button{font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;min-height:44px;border:none;
+.switch button{font-family:inherit;font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;padding:9px 15px;min-height:44px;border:none;
   cursor:pointer;background:transparent;color:var(--muted);border-radius:999px;
   letter-spacing:-.01em;transition:background .2s,color .2s,box-shadow .2s}
 .switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
 
 /* ── progress + stats ─────────────────────────────────────── */
 .meter{height:6px;border-radius:999px;background:var(--sunk);margin:24px 0 14px;overflow:hidden}
-.meter i{display:block;height:100%;border-radius:999px;background:var(--olive);width:0;
+.meter i{display:block;height:100%;border-radius:999px;background:var(--mint-graphic);width:0;
   transition:width .5s cubic-bezier(.3,.9,.3,1)}
 .strip{display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;padding-bottom:4px;
-  font-size:13.5px;font-weight:500;color:var(--muted);letter-spacing:-.008em}
-.strip b{display:inline-block;font-weight:700;font-size:19px;color:var(--ink);
-  margin-right:5px;letter-spacing:-.03em}
-.cheer{font-size:15.5px;font-weight:500;color:var(--gold);margin-top:6px;min-height:1.4em}
+  font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:500;color:var(--muted);letter-spacing:-.008em}
+/* counts: the house numeral face with tabular figures (CONS-TYPE-3) */
+.strip b{display:inline-block;font-weight:700;font-size:calc(19px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--ink);
+  margin-right:5px;letter-spacing:-.03em;font-family:var(--font-numeral);font-variant-numeric:var(--numeral-features)}
+.cheer{font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;color:var(--butter-ink);margin-top:6px;min-height:1.4em}
 
 /* ── rows ─────────────────────────────────────────────────── */
 ul.list{list-style:none;margin:0;padding:0}
@@ -86,37 +102,39 @@ ul.list li.row:first-child{border-top:none}
 /* 44 px tap target; the 30 px circle it always drew sits on ::before so the row looks the same */
 .mark{flex:0 0 auto;width:44px;height:44px;margin:-5px -7px 0 -7px;border:none;border-radius:50%;
   background:transparent;cursor:pointer;position:relative;
-  display:grid;place-items:center;padding:0;color:var(--on-accent);
+  display:grid;place-items:center;padding:0;color:var(--mint-on);
   transition:transform .18s}
 .mark::before{content:"";position:absolute;inset:7px;border-radius:50%;
   border:1.75px solid var(--rule);transition:border-color .2s,background .2s}
-.mark:hover::before{border-color:var(--olive)}
+.mark:hover::before{border-color:var(--mint-graphic)}
 .mark:active{transform:scale(.86)}
 .mark:focus-visible{outline:none}
-.mark:focus-visible::before{outline:2px solid var(--accent);outline-offset:3px}
+.mark:focus-visible::before{outline:2px solid var(--focus-ring-color);outline-offset:3px}
 .mark svg{position:relative;width:15px;height:15px;opacity:0;transform:scale(.4);
   transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
-.mark[aria-pressed="true"]::before{background:var(--olive);border-color:var(--olive)}
+/* the prayed mark: a solid carrying the check, so the pair is mint strong + mint on (the pairing rule) */
+.mark[aria-pressed="true"]::before{background:var(--mint-strong);border-color:var(--mint-strong)}
 .mark[aria-pressed="true"] svg{opacity:1;transform:scale(1)}
 .body{flex:1 1 auto;min-width:0;cursor:pointer}
-.title{font-size:17.5px;font-weight:500;line-height:1.42;letter-spacing:-.012em}
-.row.done .title{color:var(--muted);font-weight:400}
-.meta{font-size:13.5px;font-weight:500;color:var(--muted);margin-top:4px;letter-spacing:-.005em}
-.upd{font-size:15.5px;color:var(--ink2);margin-top:7px}
-.cold{color:var(--terra)}
-.pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;
-  background:var(--teal-soft);color:var(--teal);margin-left:8px;vertical-align:2px;
+.title{font-size:calc(17.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;line-height:1.42;letter-spacing:-.012em}
+.row.done .title{color:var(--text-2);font-weight:400}   /* AA without opacity (VIS-PRAYER-1) */
+.meta{font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:500;color:var(--muted);margin-top:4px;letter-spacing:-.005em}
+.upd{font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--ink2);margin-top:7px}
+.cold{color:var(--peach-ink)}
+.pill{display:inline-block;font-size:max(11px, calc(11px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;padding:3px 9px;border-radius:999px;
+  background:var(--aqua-fill);color:var(--aqua-ink);margin-left:8px;vertical-align:2px;
   letter-spacing:.01em}
 /* who prayed today (family list): real faces from hub.avatarHtml at 28 px, overlapping, at most five then "+N" */
 .who{display:inline-flex;align-items:center;margin-left:8px;padding-left:6px;vertical-align:middle}
 .who .avatar,.who .init,.who .more,.asker .avatar,.asker .init{--size:28px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
-  display:grid;place-items:center;overflow:hidden;margin-left:-6px;font-size:14px;line-height:1;position:relative;
+  display:grid;place-items:center;overflow:hidden;margin-left:-6px;font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));line-height:1;position:relative;
   box-shadow:0 0 0 2px var(--surface)}
-.who .avatar,.asker .avatar{--tint:var(--accent);
-  background:radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)))}
+/* hub.avatarHtml puts the person's data-accent on each face, so these roles are that person's, not the viewer's */
+.who .avatar,.asker .avatar{
+  background:radial-gradient(120% 120% at 30% 20%, var(--accent-fill), var(--accent-fill-strong))}
 .who .avatar img,.asker .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.who .init,.asker .init{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent)}
-.who .more{font-size:11px;font-weight:700;background:var(--sunk);color:var(--ink2)}
+.who .init,.asker .init{font-size:max(11px, calc(11px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:700;background:var(--accent-fill);color:var(--accent-ink)}
+.who .more{font-size:max(11px, calc(11px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:700;background:var(--sunk);color:var(--ink2)}
 /* who asked (family list): the requester's face, same 28 px recipe, then "<name> asked" in the meta line */
 .asker{display:inline-flex;align-items:center;gap:7px;margin-left:10px;vertical-align:middle}
 .asker .avatar,.asker .init{margin-left:0}
@@ -126,52 +144,53 @@ details.cat{border-top:1px solid var(--rule-soft)}
 details.cat[open]{padding-bottom:10px}
 details.cat > summary{cursor:pointer;list-style:none;padding:16px 0;display:flex;
   justify-content:space-between;align-items:center;gap:12px;
-  font-size:14.5px;font-weight:600;color:var(--ink2);letter-spacing:-.012em}
+  font-size:calc(14.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;color:var(--ink2);letter-spacing:-.012em}
 details.cat > summary::-webkit-details-marker{display:none}
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:9px;vertical-align:2px;
   background:var(--d0);flex:0 0 auto}
 .dot.d1{background:var(--d1)}.dot.d2{background:var(--d2)}.dot.d3{background:var(--d3)}
 .dot.d4{background:var(--d4)}.dot.d5{background:var(--d5)}.dot.d6{background:var(--d6)}.dot.d7{background:var(--d7)}
-details.cat > summary .n{font-size:12.5px;font-weight:600;color:var(--muted);
-  background:var(--sunk);border-radius:999px;padding:3px 10px}
+details.cat > summary .n{font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--muted);
+  background:var(--sunk);border-radius:999px;padding:3px 10px;
+  font-family:var(--font-numeral);font-variant-numeric:var(--numeral-features)}   /* counts (CONS-TYPE-3) */
 details.cat > summary .end{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
-.copybtn{background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:600;
+.copybtn{background:none;border:none;font-family:inherit;font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;
   color:var(--muted);cursor:pointer;padding:11px 10px;min-height:44px;border-radius:999px}
-.copybtn:hover{color:var(--accent)}
-details.cat > summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.copybtn:hover{color:var(--accent-ink)}
+details.cat > summary:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:2px}
 
 /* ── answered ─────────────────────────────────────────────── */
 .ans{border-top:1px solid var(--rule-soft);padding:22px 0;cursor:pointer}
 #answeredList .ans:first-child{border-top:none}
-.ans .when{font-size:12.5px;font-weight:600;color:var(--gold);letter-spacing:-.002em}
-.ans .what{font-size:20px;font-weight:500;margin-top:5px;line-height:1.3;letter-spacing:-.02em}
-.ansnote{font-family:"Instrument Serif",Georgia,serif;font-size:20px;font-style:italic;
-  color:var(--ink2);margin-top:12px;padding-left:16px;border-left:2px solid var(--gold);
+.ans .when{font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--butter-ink);letter-spacing:-.002em}
+.ans .what{font-size:calc(20px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;margin-top:5px;line-height:1.3;letter-spacing:-.02em}
+.ansnote{font-family:var(--font-serif);font-size:calc(20px * var(--ts-width, 1) * var(--ts-user, 1));font-style:italic;
+  color:var(--ink2);margin-top:12px;padding-left:16px;border-left:2px solid var(--butter-graphic);
   letter-spacing:0;line-height:1.45}
-.ledger{background:var(--gold-soft);border-radius:var(--r);padding:16px 18px;margin:30px 0 4px;
-  font-size:15.5px;line-height:1.6}
-.ledger b{display:block;font-weight:600;color:var(--gold);margin-bottom:6px;font-size:13px}
-.recall{border-left:2px solid var(--gold);padding:4px 0 4px 16px;margin:28px 0 0;
-  font-size:15.5px;cursor:pointer}
-.recall b{display:block;font-weight:600;color:var(--gold);font-size:12.5px;margin-bottom:3px}
-.prompt{background:var(--accent-soft);border-radius:var(--r);padding:15px 18px;margin:26px 0 0;
-  font-size:15.5px;font-weight:500;display:flex;justify-content:space-between;gap:14px;
+.ledger{background:var(--butter-fill);border-radius:var(--r);padding:16px 18px;margin:30px 0 4px;
+  font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));line-height:1.6}
+.ledger b{display:block;font-weight:600;color:var(--butter-ink);margin-bottom:6px;font-size:max(11px, calc(13px * var(--ts-width, 1) * var(--ts-user, 1)))}
+.recall{border-left:2px solid var(--butter-graphic);padding:4px 0 4px 16px;margin:28px 0 0;
+  font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));cursor:pointer}
+.recall b{display:block;font-weight:600;color:var(--butter-ink);font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));margin-bottom:3px}
+.prompt{background:var(--accent-fill);border-radius:var(--r);padding:15px 18px;margin:26px 0 0;
+  font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;display:flex;justify-content:space-between;gap:14px;
   align-items:center;flex-wrap:wrap}
 
 /* ── calendar ─────────────────────────────────────────────── */
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;margin:18px 0 4px}
 .cal span{aspect-ratio:1;border-radius:7px;background:var(--sunk)}
-.cal span.on{background:var(--olive)}
-.cal span.today{box-shadow:0 0 0 2px var(--gold)}
+.cal span.on{background:var(--mint-graphic)}
+.cal span.today{box-shadow:0 0 0 2px var(--today-ring)}   /* the one today ring, >= 3:1 (CONS-COLOR-2) */
 .cal span.blank{background:transparent}
 .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;
-  font-size:11.5px;font-weight:600;color:var(--muted);text-align:center;margin-top:10px}
+  font-size:max(11px, calc(11.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--muted);text-align:center;margin-top:10px}
 
 /* ── forms ────────────────────────────────────────────────── */
-label{display:block;font-size:14px;font-weight:600;color:var(--ink2);margin:26px 0 8px;
+label{display:block;font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;color:var(--ink2);margin:26px 0 8px;
   letter-spacing:-.01em}
 input[type=text],input[type=tel],input[type=password],textarea,select{
-  width:100%;font-family:inherit;font-size:16.5px;color:var(--ink);background:var(--raised);
+  width:100%;font-family:inherit;font-size:max(16px, calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1)));color:var(--ink);background:var(--raised);
   border:1.5px solid var(--rule);border-radius:var(--r-sm);padding:13px 15px;line-height:1.5;
   -webkit-appearance:none;appearance:none;transition:border-color .18s,box-shadow .18s}
 select[multiple]{padding:8px;min-height:200px}
@@ -181,24 +200,28 @@ select:not([multiple]){padding-right:44px;
   background-position:calc(100% - 21px) 23px,calc(100% - 15px) 23px;
   background-size:6px 6px,6px 6px;background-repeat:no-repeat}
 textarea{min-height:120px;resize:vertical}
-input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);
-  box-shadow:0 0 0 4px var(--accent-soft)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent-graphic);
+  box-shadow:0 0 0 4px var(--accent-fill)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font-family:inherit;font-size:14.5px;font-weight:600;padding:10px 16px;border-radius:999px;min-height:44px;
+.chip{font-family:inherit;font-size:calc(14.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;padding:10px 16px;border-radius:999px;min-height:44px;
   cursor:pointer;background:var(--sunk);border:1.5px solid transparent;color:var(--ink2);
   letter-spacing:-.01em;transition:background .18s,color .18s,border-color .18s}
 .chip:hover{background:var(--hover)}
-.chip[aria-pressed="true"]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}
-button.act{font-family:inherit;font-size:16.5px;font-weight:600;padding:15px 22px;
-  border-radius:var(--r-sm);cursor:pointer;background:var(--accent-deep);color:var(--on-accent);
-  border:1.5px solid var(--accent-deep);width:100%;margin-top:28px;letter-spacing:-.012em;
+/* solids that carry a label: the person's strong tone with its own -on label (D15, the pairing rule) */
+.chip[aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on)}
+button.act{font-family:inherit;font-size:calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;padding:15px 22px;
+  border-radius:var(--r-sm);cursor:pointer;background:var(--accent-strong);color:var(--accent-on);
+  border:1.5px solid var(--accent-strong);width:100%;margin-top:28px;letter-spacing:-.012em;
   transition:transform .16s,opacity .2s,background .2s}
 button.act:active{transform:translateY(1px)}
 button.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
-button.ghost:hover{background:var(--hover);border-color:var(--accent)}
-button.small{width:auto;margin-top:0;font-size:14.5px;padding:11px 18px}
-button.act.danger{background:var(--terra);border-color:var(--terra)}
-button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+button.ghost:hover{background:var(--hover);border-color:var(--accent-graphic)}
+/* Delete in the detail sheet reads as destructive before the confirm (VIS-PRAYER-10); markup unchanged */
+button.ghost[data-delete]{color:var(--danger-ink);border-color:var(--danger-graphic)}
+@media (hover:hover) and (pointer:fine){button.ghost[data-delete]:hover{background:var(--danger-wash);border-color:var(--danger-graphic)}}
+button.small{width:auto;margin-top:0;font-size:calc(14.5px * var(--ts-width, 1) * var(--ts-user, 1));padding:11px 18px}
+button.act.danger{background:var(--danger-strong);border-color:var(--danger-strong);color:var(--danger-on)}
+button:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:3px}
 button:disabled{opacity:.35;cursor:default}
 .rowbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
 /* Today's one primary action, with the quieter actions behind "More" */
@@ -211,33 +234,34 @@ button:disabled{opacity:.35;cursor:default}
 .menu{display:flex;flex-direction:column;gap:10px;margin-top:22px}
 .menu .act{margin-top:0;min-height:60px;text-align:left;display:flex;justify-content:space-between;
   align-items:center;gap:14px}
-.menu .act span{font-size:13.5px;font-weight:500;color:var(--muted);letter-spacing:-.005em;text-align:right}
+.menu .act span{font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:500;color:var(--muted);letter-spacing:-.005em;text-align:right}
 .catrow{display:flex;justify-content:space-between;align-items:center;gap:12px;
-  border-top:1px solid var(--rule-soft);padding:13px 0;font-size:15.5px;font-weight:500}
-.catrow button{background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;
+  border-top:1px solid var(--rule-soft);padding:13px 0;font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500}
+.catrow button{background:none;border:none;font-family:inherit;font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;
   color:var(--muted);cursor:pointer;padding:5px 3px}
-.catrow button:hover{color:var(--accent)}
+.catrow button:hover{color:var(--accent-ink)}
 
 /* ── inline form: replaces every native dialog ────────────── */
 .ask{background:var(--sunk);border-radius:var(--r);padding:4px 18px 18px;margin-top:14px;
   flex:1 1 100%;width:100%;animation:rise .25s cubic-bezier(.22,.9,.3,1)}
-.ask.danger{background:var(--terra-soft)}
+.ask.danger{background:var(--danger-fill)}   /* the destructive confirm panel: a tint, its text stays --ink */
 .ask label{margin-top:14px}
-.ask .line{font-size:15.5px;font-weight:500;padding-top:14px;line-height:1.5}
+.ask .line{font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;padding-top:14px;line-height:1.5}
 .ask .rowbtns{margin-top:16px}
 .ask input,.ask textarea,.ask select{background:var(--raised)}
 .ask textarea{min-height:96px}
 /* Send to family list: For / Category go only when turned on (P3-PRAYER-18) */
 #shareAlso{margin-top:8px}
 #shareAlso .chip{text-align:left;max-width:100%;background:var(--raised);border-color:var(--rule)}   /* off: an outlined chip, so it reads as a button on the panel */
-#shareAlso .chip[aria-pressed="true"]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}
+#shareAlso .chip[aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on)}
 #sharePreview{margin-top:10px;color:var(--ink2)}
-.err{font-size:14px;font-weight:500;color:var(--terra);margin:8px 0 0}
+.err{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;color:var(--peach-ink);margin:8px 0 0}
 .err:empty{display:none}
 
 /* ── sheet ────────────────────────────────────────────────── */
-.veil{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);display:none;z-index:20}
+/* the veil is a plain scrim (--scrim-blur is 0): the glass sheet above it is the only blur, never glass over glass (VIS-GLASS-1) */
+.veil{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(var(--scrim-blur));
+  -webkit-backdrop-filter:blur(var(--scrim-blur));display:none;z-index:20}
 .veil.on{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;
@@ -248,27 +272,30 @@ button:disabled{opacity:.35;cursor:default}
 .sheet .inner{max-width:33rem;margin:0 auto}
 .sheet .inner::before{content:"";display:block;width:40px;height:4px;border-radius:999px;
   background:var(--rule);margin:0 auto 16px}
-.sheet h1{font-size:25px}
-.close{float:right;background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;
+.sheet h1{font-size:calc(25px * var(--ts-width, 1) * var(--ts-user, 1))}
+.close{float:right;background:none;border:none;font-family:inherit;font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;
   color:var(--muted);cursor:pointer;padding:6px 0 6px 14px;min-height:44px}
 .hist{list-style:none;padding:0;margin:24px 0 0}
-.hist li{border-top:1px solid var(--rule-soft);padding:13px 0;font-size:15.5px}
-.hist .d{font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:3px}
+.hist li{border-top:1px solid var(--rule-soft);padding:13px 0;font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1))}
+.hist .d{font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--muted);margin-bottom:3px}
 
 /* ── toast ────────────────────────────────────────────────── */
 .toast{position:fixed;left:50%;transform:translateX(-50%);
   bottom:calc(108px + env(safe-area-inset-bottom));z-index:30;
-  background:var(--dim);color:var(--bg);padding:13px 20px;border-radius:999px;
-  font-size:15px;font-weight:500;display:none;align-items:center;gap:18px;max-width:92vw;
+  background:var(--toast-bg);color:var(--toast-ink);padding:13px 20px;border-radius:999px;   /* the shared dark slab in both schemes (VIS-DARK-1) */
+  font-size:calc(15px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;display:none;align-items:center;gap:18px;max-width:92vw;
   box-shadow:var(--lift-lg)}
 .toast.on{display:flex;animation:slide .28s cubic-bezier(.22,.9,.3,1)}
-.toast button{background:none;border:none;color:color-mix(in srgb, var(--gold) 45%, var(--bg));font-family:inherit;
-  font-size:14px;font-weight:700;cursor:pointer;padding:0}
+.toast button{background:none;border:none;color:inherit;text-decoration:underline;text-underline-offset:3px;min-height:44px;font-family:inherit;
+  font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:700;cursor:pointer;padding:0}
 
 /* ── floating add ─────────────────────────────────────────── */
 .fab{position:fixed;right:calc(22px + env(safe-area-inset-right));
   bottom:calc(86px + env(safe-area-inset-bottom));z-index:12;width:56px;height:56px;
-  border-radius:50%;color:var(--on-accent);
+  border-radius:50%;color:var(--accent-on);
+  /* a solid, not glass: an opaque fill hid its live blur, cost with no look (P4-GLASS-03) */
+  background:var(--accent-strong);border:1px solid var(--accent-strong);
+  box-shadow:inset 0 1px 0 var(--hairline), var(--elev-float);
   cursor:pointer;display:none;place-items:center;padding:0;
   transition:transform .16s,background .2s}
 .fab.on{display:grid}
@@ -278,44 +305,44 @@ button:disabled{opacity:.35;cursor:default}
 /* ── nav ──────────────────────────────────────────────────── */
 nav{position:fixed;left:0;right:0;bottom:0;z-index:10;padding-bottom:env(safe-area-inset-bottom)}
 nav .inner{max-width:33rem;margin:0 auto;display:flex;padding:8px 8px}
-nav button{flex:1;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;
+nav button{flex:1;background:none;border:none;font-family:inherit;font-size:max(11px, calc(12px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:var(--fw-medium);
   color:var(--muted);padding:9px 2px 8px;cursor:pointer;border-radius:18px;letter-spacing:-.01em;
   display:flex;flex-direction:column;align-items:center;gap:4px;min-height:56px;
   transition:background .2s,color .2s}
 nav button svg{width:20px;height:20px;display:block}
-nav button[aria-current="true"]{color:var(--accent-deep);background:var(--accent-soft)}
+/* the current tab: a >= 3:1 selection fill with its own label, plus a heavier weight, so it is not told by hue alone (P4-ACCENT-01) */
+nav button[aria-current="true"]{color:var(--sel-ink-strong);background:var(--sel-fill-strong);font-weight:var(--sel-weight)}
 
 /* ── liquid glass: the design.css recipe on this page's own chrome ──
-   (copied rather than classed because this page keeps its own component CSS and no .ds) */
-nav,.sheet,.fab,#kitchen .close{
+   (copied rather than classed because this page keeps its own component CSS and no .ds). The pickup is the person's
+   tile-end tone (--accent-fill-strong), and the filter is the house --glass-filter, so Reduce Transparency and the
+   kiosk turn the blur off here too. */
+nav,.sheet,#kitchen .close{
   --g:var(--glass);
   background:
     linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
-    radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent) var(--glass-pickup), transparent), transparent 62%),
+    radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent-fill-strong) var(--glass-pickup), transparent), transparent 62%),
     var(--g);
   border:1px solid var(--glass-edge);
   box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner),
     0 0 0 1px var(--glass-ring), var(--e2);
-  -webkit-backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02);
-  backdrop-filter:blur(var(--blur)) saturate(1.4) brightness(1.02)}
+  -webkit-backdrop-filter:var(--glass-filter);
+  backdrop-filter:var(--glass-filter)}
 nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
   box-shadow:inset 0 1px 0 var(--hairline), 0 -1px 0 var(--glass-ring), 0 -12px 40px -24px var(--glass-inner)}
 .sheet{--g:var(--glass-strong);border-width:1px 1px 0;
   box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), 0 0 0 1px var(--glass-ring), var(--e4)}
-.fab{--g:var(--accent-deep);
-  box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner),
-    0 0 0 1px var(--glass-ring), var(--e3)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   nav,.sheet,#kitchen .close{--g:color-mix(in srgb, var(--surface) 96%, transparent)}
 }
 
-.empty{color:var(--muted);padding:38px 0;max-width:32ch;font-size:15.5px}
+.empty{color:var(--muted);padding:38px 0;max-width:32ch;font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1))}
 .empty img{display:block;width:min(220px,70%);height:auto;margin:0 0 14px -6px}
 .empty button{display:block;margin-top:16px}
-.note{font-size:14px;color:var(--muted);margin-top:12px;max-width:46ch;line-height:1.55}
-.warn{font-size:14px;font-weight:500;color:var(--gold);margin-top:16px;max-width:46ch}
-.sync{font-size:14px;color:var(--muted);margin-top:14px;max-width:46ch}
-.sync.bad{color:var(--terra)}
+.note{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--muted);margin-top:12px;max-width:46ch;line-height:1.55}
+.warn{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;color:var(--butter-ink);margin-top:16px;max-width:46ch}
+.sync{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--muted);margin-top:14px;max-width:46ch}
+.sync.bad{color:var(--peach-ink)}
 .pending{display:flex;gap:14px;align-items:center;border-top:1px solid var(--rule-soft);padding:14px 0}
 
 /* ── lock ─────────────────────────────────────────────────── */
@@ -331,40 +358,40 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
   padding:calc(26px + env(safe-area-inset-top)) 26px calc(26px + env(safe-area-inset-bottom))}
 #pray.on{display:flex;animation:fade .3s ease}
 #pray .top{display:flex;justify-content:space-between;align-items:center;
-  font-size:13.5px;font-weight:600;color:var(--muted)}
-#pray .top button{background:none;border:none;font-family:inherit;font-size:13.5px;
+  font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--muted)}
+#pray .top button{background:none;border:none;font-family:inherit;font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));
   font-weight:600;color:var(--muted);cursor:pointer;padding:6px}
 #pray .card{flex:1;display:flex;flex-direction:column;justify-content:center;
   max-width:31rem;margin:0 auto;width:100%}
-#pray .cat{font-size:13.5px;font-weight:600;color:var(--accent-deep)}
-#pray .big{font-size:clamp(30px,5.2vw,44px);line-height:1.16;font-weight:600;
+#pray .cat{font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--accent-ink)}
+#pray .big{font-size:calc(clamp(30px,5.2vw,44px) * var(--ts-width, 1) * var(--ts-user, 1));line-height:1.16;font-weight:600;
   margin:16px 0 0;letter-spacing:-.035em}
-#pray .for{font-size:17.5px;color:var(--muted);margin-top:16px;font-weight:500}
-#pray .last{font-family:"Instrument Serif",Georgia,serif;font-size:21px;font-style:italic;
+#pray .for{font-size:calc(17.5px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--muted);margin-top:16px;font-weight:500}
+#pray .last{font-family:var(--font-serif);font-size:calc(21px * var(--ts-width, 1) * var(--ts-user, 1));font-style:italic;
   color:var(--ink2);margin-top:26px;padding-left:18px;border-left:2px solid var(--rule);
   letter-spacing:0;line-height:1.45}
 #pray .bar{height:6px;border-radius:999px;background:var(--sunk);margin-top:20px;overflow:hidden}
-#pray .bar i{display:block;height:100%;border-radius:999px;background:var(--olive);width:0;
+#pray .bar i{display:block;height:100%;border-radius:999px;background:var(--mint-graphic);width:0;
   transition:width .4s cubic-bezier(.3,.9,.3,1)}
 #pray .ctrl{display:flex;gap:10px;max-width:31rem;margin:18px auto 0;width:100%}
-#pray .ctrl button{flex:1;font-family:inherit;font-size:15.5px;font-weight:600;padding:17px 10px;
+#pray .ctrl button{flex:1;font-family:inherit;font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;padding:17px 10px;
   border-radius:var(--r-sm);cursor:pointer;border:1.5px solid var(--rule);background:transparent;
   color:var(--ink);transition:transform .16s,background .2s}
 #pray .ctrl button:active{transform:translateY(1px)}
 #pray .ctrl button:disabled{opacity:.3}
-#pray .ctrl button.go{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent);
-  flex:2;font-size:16.5px}
+#pray .ctrl button.go{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on);
+  flex:2;font-size:calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1))}
 
 /* ── kitchen view ─────────────────────────────────────────── */
 #kitchen{position:fixed;inset:0;background:var(--paper);z-index:34;display:none;
   overflow:auto;padding:calc(30px + env(safe-area-inset-top)) 32px 48px}
 #kitchen.on{display:block;animation:fade .28s ease}
-#kitchen h1{font-size:36px;margin:0;letter-spacing:-.035em}
+#kitchen h1{font-size:calc(36px * var(--ts-width, 1) * var(--ts-user, 1));margin:0;letter-spacing:-.035em}
 #kitchen .date{margin-top:8px}
-#kitchen .k-cat{font-size:13.5px;font-weight:700;color:var(--accent);margin:34px 0 8px}
-#kitchen .k-item{font-size:24px;font-weight:500;line-height:1.34;padding:7px 0;
+#kitchen .k-cat{font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:700;color:var(--accent-ink);margin:34px 0 8px}   /* the AA ink, both schemes (P4-COLOR-02) */
+#kitchen .k-item{font-size:calc(24px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;line-height:1.34;padding:7px 0;
   letter-spacing:-.022em}
-#kitchen .k-for{font-size:16.5px;font-weight:400;color:var(--muted)}
+#kitchen .k-for{font-size:calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:400;color:var(--muted)}
 #kitchen .close{position:fixed;top:calc(20px + env(safe-area-inset-top));right:22px;
   padding:10px 16px;min-height:44px;border-radius:999px;color:var(--ink)}
 
@@ -389,9 +416,9 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .voicerow{display:flex;gap:8px;align-items:stretch}
 .voicerow input{flex:1;min-width:0}
-.micbtn{flex:none;width:52px;border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);color:var(--accent);display:grid;place-items:center;cursor:pointer}
+.micbtn{flex:none;width:52px;border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
 .micbtn svg{width:22px;height:22px}
-.micbtn.on{background:var(--terra-soft);color:var(--terra);border-color:var(--terra);animation:micpulse 1s infinite}
+.micbtn.on{background:var(--peach-fill);color:var(--peach-ink);border-color:var(--peach-graphic);animation:micpulse 1s infinite}
 @keyframes micpulse{50%{transform:scale(.94)}}
 :root[data-kind="kiosk"] .fab, :root[data-kind="kiosk"] nav [data-go="add"], :root[data-kind="kiosk"] .empty [data-go="add"]{display:none}
 
@@ -418,18 +445,18 @@ ul.kids{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:16px}
   .kid{grid-template-columns:minmax(0,1fr) auto;gap:14px 18px}
   .kid .prayed{width:auto}
 }
-.kid .avatar{--size:44px;--tint:var(--accent);width:var(--size);height:var(--size);border-radius:50%;flex:none;
+.kid .avatar{--size:44px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
   display:grid;place-items:center;overflow:hidden;font-size:22px;line-height:1;
-  background:radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tint) 30%, var(--surface)), color-mix(in srgb, var(--tint) 55%, var(--surface)));
-  box-shadow:0 0 0 2.5px var(--surface), 0 0 0 5px var(--tint)}
+  background:radial-gradient(120% 120% at 30% 20%, var(--accent-fill), var(--accent-fill-strong));
+  box-shadow:0 0 0 2.5px var(--surface), 0 0 0 5px var(--accent-graphic)}   /* the face's own data-accent (hub.avatarHtml) */
 .kid .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .kid .prayed{min-height:64px;min-width:64px;padding:0 26px;border:none;border-radius:999px;font-family:inherit;
-  font-size:var(--fs-lg);font-weight:700;background:var(--accent-deep);color:var(--on-accent);cursor:pointer;
+  font-size:var(--fs-lg);font-weight:700;background:var(--accent-strong);color:var(--accent-on);cursor:pointer;
   box-shadow:var(--lift);display:inline-flex;align-items:center;gap:10px;transition:transform .16s,background .2s}
 .kid .prayed svg{width:26px;height:26px;flex:none}
 .kid .prayed:active{transform:scale(.96)}
 .kid .prayed:focus-visible{outline:none;box-shadow:var(--focus)}
-.kid.done .prayed{background:var(--olive)}
+.kid.done .prayed{background:var(--mint-strong);color:var(--mint-on)}   /* the prayed solid and its own label (pairing rule) */
 .kid .kwho{grid-column:1 / -1;display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);font-weight:500;color:var(--muted);min-height:32px}
 .kid .kwho .who{margin-left:0}
 .kid .kwho .who .avatar,.kid .kwho .who .init,.kid .kwho .who .more{--size:32px;font-size:16px;box-shadow:0 0 0 2px var(--raised)}
@@ -979,6 +1006,10 @@ function groupedHTML(items, open){
 
 function renderToday(){
   document.body.classList.toggle('shared', D.activeList === 'shared');
+  // Family mode is a data-accent scope, so every accent role re-derives in teal (VIS-PRAYER-4). A kid is always on the
+  // family list and has no Mine/Family switch, so a kid's one Prayed button keeps the kid's own colour, as before.
+  if(D.activeList === 'shared' && !KID()) document.body.setAttribute('data-accent', 'aqua');
+  else if(document.body.removeAttribute) document.body.removeAttribute('data-accent');
   document.querySelectorAll('#listSwitch button').forEach(b =>
     b.setAttribute('aria-pressed', b.dataset.list === D.activeList));
   const plan = PL();
@@ -1105,7 +1136,7 @@ function sheetFor(id){
       + (p.lastPrayedAt ? 'Last prayed ' + pretty(p.lastPrayedAt) : 'Not prayed through yet')
       + ' &middot; on the list since ' + pretty(p.createdAt) + '</div>'
     + (p.status === 'answered'
-        ? '<div style="margin-top:20px"><div style="font-size:14px;font-weight:600;color:var(--gold)">Answered '
+        ? '<div style="margin-top:20px"><div style="font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;color:var(--butter-ink)">Answered '
           + pretty(p.answeredAt) + '</div><div class="ansnote">' + esc(p.answerNote) + '</div></div>' : '')
     + hist
     + '<div class="rowbtns">'
@@ -1278,7 +1309,7 @@ function catOptions(sel, current){
 function renderCatAdmin(){
   const act = L().prayers.filter(p => p.status === 'active');
   el('catAdmin').innerHTML = L().categories.map((c,i) =>
-    '<div class="catrow"><span>' + dot(c) + esc(c) + ' <span style="color:var(--muted);font-size:15px">'
+    '<div class="catrow"><span>' + dot(c) + esc(c) + ' <span style="color:var(--muted);font-size:calc(15px * var(--ts-width, 1) * var(--ts-user, 1))">'
     + act.filter(p => p.category === c).length + '</span></span>'
     + '<span><button data-rencat="' + i + '">Rename</button>'
     + '<button data-delcat="' + i + '">Remove</button></span></div>').join('');
@@ -1713,16 +1744,18 @@ el('f-import').addEventListener('click', () => {
 
 
 /* ── theme ──────────────────────────────────────────────────── */
+// Keeps this page's own <meta id="themeColor"> on the palette's v3 --bg (audit batch 1a). hub.js resolves the palette
+// (System included) onto <html data-theme>; the stylesheet's --bg is read first, and the bootstrap's map is the fallback.
+const THEME_BG = { hearth:'#F4F1EC', parchment:'#ECE2CD', frost:'#F2F2F7', midnight:'#0B0A09', forest:'#070F0D', graphite:'#000000' };
 function applyTheme(){
-  const t = hub.theme();
-  const dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const t = document.documentElement.dataset.theme;
   const m = el('themeColor');
   const paper = (typeof getComputedStyle === 'function' && document.documentElement)
     ? (getComputedStyle(document.documentElement).getPropertyValue('--bg') || '').trim() : '';
-  if(m) m.setAttribute('content', paper || (dark ? '#1C1714' : '#F7F2EB'));
+  if(m) m.setAttribute('content', /^(#|rgb)/.test(paper) ? paper : (THEME_BG[t] || THEME_BG.hearth));
 }
-const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
-if(darkMQ.addEventListener) darkMQ.addEventListener('change', applyTheme);
+// hub.js fires hub:theme on every theme, OS-scheme and preference change, after it has set data-theme
+if(window.addEventListener) window.addEventListener('hub:theme', applyTheme);
 
 /* ── identity, stamping, and marking ────────────────────────── */
 function stamp(p){ p.updatedAt = new Date().toISOString(); }

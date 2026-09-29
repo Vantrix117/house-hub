@@ -4,7 +4,7 @@
 //       Kid Verse → each story/prayed day is credited exactly once (credited.story / credited.prayed), total = the sum, badges
 //       appear once (badges[id] = today) with the calm confetti + a toast, and a second reconcile changes nothing
 //   (b) Done ★ adds one more star; count = every source this week; person row and family mirror agree
-//   (c) Eli: Home Kids card says "Ezra ★N · K badges · T to cash in"; Me → Kids' rewards → Cash in (confirm) → an append-only
+//   (c) Eli: Home Kids card says "Ezra ★N · K badges · T to cash in"; Me → Kids' rewards → Cash in (the confirm sheet) → an append-only
 //       family row ledger:ezra:<id> = {kind: cashin, date, amount: total, by: eli} — Eli never writes the stars rows — and Me shows ★0 at once
 //   (d) Ezra reopens on another device → the app applies the ledger row once: total 0, payouts [{date, amount, by}], applied[key],
 //       badges and credited intact, nothing re-credited
@@ -144,12 +144,18 @@ async function newContext(browser, name, width = 390) {
   const page = await ctx.newPage();
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(name + ': ' + m.text()); });
   page.on('pageerror', e => errors.push(name + ': ' + e.message));
-  page.on('dialog', d => { dialogs.push(d.message()); d.accept(); });
+  page.on('dialog', d => { dialogs.push('NATIVE ' + d.message()); d.accept(); });   // a native dialog is a regression (CONS-TELL-2): it fails the ^ checks below
   await page.goto(SITE + '/index.html'); await page.waitForSelector('#paircode');
   await page.fill('#paircode', CODE); await page.click('#pairform button[type=submit]'); await page.waitForSelector('.pcard[data-id]');
   return { ctx, page };
 }
 const dialogs = [];
+// hub.confirm's sheet (CONS-TELL-2): record what it asks, then press its confirming button (the last one)
+async function answerSheet(page) {
+  const bd = await page.waitForSelector('.hub-ask .sheet', { timeout: 5000 }).catch(() => null); if (!bd) return;
+  dialogs.push((await bd.evaluate(e => e.querySelector('h2') ? e.querySelector('h2').textContent : e.textContent)).trim());
+  await page.click('.hub-ask .sheet-actions .btn:last-child'); await page.waitForSelector('.hub-ask', { state: 'detached', timeout: 5000 });
+}
 async function signIn(page, id, pin, retry = true) {
   try {
     await page.click(`.pcard[data-id=${id}]`);
@@ -188,7 +194,8 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     const md = fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf8');
     ok(/\*\*Stars & badges\*\*/.test(md) && /First star/.test(md) && /Full week/.test(md) && /Ten stars/.test(md) && /Story lover/.test(md) && /Prayer warrior/.test(md) && /Fifty stars/.test(md) && /Cash in/.test(md) && /Reset week/.test(md) && /ledger:<kid>:<id>/.test(md) && /only writer/.test(md), 'CLAUDE.md states the rules: the three sources, the six badges, cash-in / reset, the ledger rows');
     const src = fs.readFileSync(path.join(ROOT, 'apps/kidverse.html'), 'utf8');
-    ok(!/#[0-9a-f]{3,8}\b/i.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))) && !/prefers-color-scheme/.test(src), 'no hex and no prefers-color-scheme in the app\'s CSS');
+    const css = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));   // the CSS only: the pre-paint bootstrap (batch 1) reads the OS scheme in JS for System
+    ok(!/#[0-9a-f]{3,8}\b/i.test(css) && !/prefers-color-scheme/.test(css),'no hex and no prefers-color-scheme in the app\'s CSS');
 
     console.log('\n## (a) Ezra opens Kid Verse: story + prayed days credited once, badges celebrated');
     const K = await newContext(browser, 'K');
@@ -251,8 +258,8 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     await A.page.screenshot({ path: path.join(SHOTS, 'rm20-me-1024.png') });
     await A.page.$eval('#rewards', e => e.scrollIntoView({ block: 'start' }));
     dialogs.length = 0;
-    await A.page.click('#rewards-body [data-cashin=ezra]');
-    ok(dialogs.length === 1 && /Cash in Ezra/.test(dialogs[0]), 'a confirm() asked first', JSON.stringify(dialogs));
+    await A.page.click('#rewards-body [data-cashin=ezra]'); await answerSheet(A.page);
+    ok(dialogs.length === 1 && /^Cash in Ezra/.test(dialogs[0]), 'the confirm sheet asked first (no native dialog)', JSON.stringify(dialogs));
     await A.page.waitForFunction(() => hub.sync.state === 'synced', null, { timeout: 15000 });
     const led1 = await ledger('ezra');
     ok(led1.length === 1 && led1[0].value.kind === 'cashin' && led1[0].value.date === TODAY && led1[0].value.amount === e1.earned && led1[0].value.by === 'eli' && led1[0].value.at > 0, `a ledger row ledger:ezra:<id> = {cashin, ${TODAY}, amount ${e1.earned}, by eli}`, JSON.stringify(led1.map(r => [r.key, r.value])));
@@ -290,8 +297,8 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     await A.page.click('.tab[data-tab=home]'); await A.page.click('.tab[data-tab=me]');
     await A.page.waitForSelector('#rewards-body [data-resetweek=ezra]:not([disabled])');
     dialogs.length = 0;
-    await A.page.click('#rewards-body [data-resetweek=ezra]');
-    ok(dialogs.length === 1 && /Reset Ezra/.test(dialogs[0]), 'a confirm() asked first');
+    await A.page.click('#rewards-body [data-resetweek=ezra]'); await answerSheet(A.page);
+    ok(dialogs.length === 1 && /^Reset Ezra/.test(dialogs[0]), 'the confirm sheet asked first (no native dialog)', JSON.stringify(dialogs));
     await A.page.waitForFunction(() => hub.sync.state === 'synced', null, { timeout: 15000 });
     const led2 = await ledger('ezra');
     const wkStory = STORY_DAYS.filter(d => WK.has(d));
@@ -340,7 +347,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     await A.page.click('.tab[data-tab=home]'); await A.page.click('.tab[data-tab=me]');
     await waitFor(() => A.page.$eval('#rewards-body .reward-kid[data-kid=ezra] .reward-total', (e, t) => e.textContent === '★' + t, baseTotal), { label: 'Me sees the banked stars' });
     dialogs.length = 0;
-    await A.page.click('#rewards-body [data-cashin=ezra]');
+    await A.page.click('#rewards-body [data-cashin=ezra]'); await answerSheet(A.page);
     await A.page.waitForFunction(() => hub.sync.state === 'synced', null, { timeout: 15000 });
     const led3 = await ledger('ezra');
     ok(dialogs.length === 1 && led3.length === 1 && led3[0].value.kind === 'cashin' && led3[0].value.amount === baseTotal, `Eli cashed in ${baseTotal} (a ledger row, not a mirror write)`, JSON.stringify(led3.map(r => r.value)));
@@ -385,7 +392,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     await A.page.click('.tab[data-tab=home]'); await A.page.click('.tab[data-tab=me]');
     await waitFor(() => A.page.$eval('#rewards-body .reward-kid[data-kid=ezra] .reward-total', (e, t) => e.textContent === '★' + t, base4.total), { label: 'Me sees the banked stars' });
     dialogs.length = 0;
-    await A.page.click('#rewards-body [data-resetweek=ezra]');
+    await A.page.click('#rewards-body [data-resetweek=ezra]'); await answerSheet(A.page);
     await A.page.waitForFunction(() => hub.sync.state === 'synced', null, { timeout: 15000 });
     const led4 = await ledger('ezra');
     ok(dialogs.length === 1 && led4.length === 1 && led4[0].value.kind === 'reset' && led4[0].value.date === TODAY && same(led4[0].value.days, weekDays().filter(d => d <= TODAY)) && led4[0].value.at > 0, 'Eli reset the week (a ledger row listing only the days up to today)', JSON.stringify(led4.map(r => r.value)));

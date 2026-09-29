@@ -3,122 +3,164 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>(function(d){try{var g=function(k,f){try{var v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},
+m=function(q){return !!(window.matchMedia&&matchMedia(q).matches)},c=g('hub.theme','system'),t=c==='light'?'hearth':c==='dark'?'midnight':c,
+S={hearth:'light',parchment:'light',frost:'light',midnight:'dark',forest:'dark',graphite:'dark'},
+B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'},
+H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'graphite'};
+if(!S[t])t=m('(prefers-color-scheme: dark)')?'midnight':'hearth';
+var s=g('hub.session',null),p=s&&s.profile,r=g('hub.prefs',{})||{};d.setAttribute('data-theme',t);d.setAttribute('data-theme-choice',c);
+d.setAttribute('data-scheme',S[t]);d.style.colorScheme=S[t];
+var ms=document.querySelectorAll('meta[name="theme-color"]'),i;if(!ms.length){var mt=document.createElement('meta');mt.setAttribute('name','theme-color');document.head.appendChild(mt);ms=[mt]}
+for(i=0;i<ms.length;i++){ms[i].removeAttribute('media');ms[i].setAttribute('content',B[t])}
+var A=' bubblegum peach butter mint aqua sky periwinkle lavender graphite coral apricot honey pistachio leaf seafoam lagoon cornflower orchid ';
+if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.split(' ').indexOf(p.hue)>0?p.hue:p.is_guest?'sky':H[String(p.color||'').toLowerCase()]||'graphite')}
+['textSize:data-text-size','contrast:data-contrast','transparency:data-transparency','motion:data-motion'].forEach(function(x){x=x.split(':');if(r[x[0]])d.setAttribute(x[1],r[x[0]])});if(r.glass&&p&&p.kind!=='kiosk'){if(r.glass==='solid')d.setAttribute('data-transparency','reduce');else{d.setAttribute('data-glass',r.glass);d.setAttribute('data-transparency','full')}}}catch(e){}})(document.documentElement)</script>
 <title>Verses</title>
 <link rel="stylesheet" href="design.css">
 <style>
   /* Verses — a memory-verse trainer over the F260 memory verses (a Leitner box system).
      One card at a time: the reference in big type, the person recites from memory, taps Show, then rates
      Got it / Almost / Not yet. Adults also see the queue and their boxes; kids get this week's two verses and huge buttons.
-     Every colour is a design.css token; the page is an olive wash with the person's colour caught in the glass. */
+     Every colour is a design.css token (audit batch 1: the v3 roles; legacy --olive/--muted names retired here): the page is a
+     mint wash with the person's own wash in the corner; the trainer and done cards are solid content, glass is kept for the
+     controls (the pill and Read aloud). */
   html, body { min-height: 100%; }
   body.ds {
-    background-color: var(--bg);
-    background-image:
-      radial-gradient(120% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--olive) 20%, transparent), transparent 60%),
-      radial-gradient(90% 50% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%);
+    /* the pre-pass: a bare hue read as a background moves to its -fill / -wash (P4-COLOR-01); no --sheen-x at the page level
+       (P4-GLASS-01: it is written on the two bars only) */
+    background:
+      radial-gradient(120% 70% at 30% -10%, color-mix(in srgb, var(--mint-fill) 60%, transparent), transparent 60%),
+      radial-gradient(90% 50% at 100% 100%, var(--accent-wash), transparent 55%),
+      var(--bg);
     background-attachment: fixed;
     padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
     overflow-x: hidden;
   }
-  .wrap { max-width: var(--max-read); margin: 0 auto; padding: var(--sp-4); padding-bottom: calc(var(--sp-10) + var(--safe-bottom)); display: grid; gap: var(--sp-4); }
+  .wrap { max-width: var(--col-read); margin: 0 auto; display: grid; gap: var(--sp-4); }
+  /* room under the last card for the shared toast, so the rating toast never has to sit on the stats or the queue (UX-VERSES-6) */
+  .ds .wrap { padding-bottom: calc(var(--sp-16) + var(--sp-6) + var(--safe-bottom)); }
 
   /* who + how many to go, on a glass pill */
   .top { display: flex; justify-content: center; }
   .ds .top .pill { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--tap); padding: var(--sp-2) var(--sp-5); border-radius: var(--r-full); color: var(--text); }
   .ds .top .pill .avatar { --size: 28px; font-size: 16px; }
-  .top .pill b { color: var(--olive-ink); }
+  .top .pill b { color: var(--mint-ink); }
 
-  /* the card: the reference big, then the hidden part (verse text if F260 has it), then the buttons.
+  /* the card: the reference big, then the hidden part (verse text if F260 has it), then the buttons. A SOLID content card on
+     the house card radius (VIS-VERSES-2, P4-GLASS-02, CONS-SHAPE-1: no live blur in the scroller).
      min-height fits the tallest state (three stacked ratings at phone width) so the card never grows on Show. */
-  .ds .trainer { border-radius: var(--r-2xl); display: grid; gap: var(--sp-4); text-align: center; padding: var(--sp-6) var(--sp-4); min-height: 448px; align-content: start; }
-  :root[data-kind="kid"] .ds .trainer { min-height: 520px; }
+  .ds .trainer { display: grid; gap: var(--sp-4); text-align: center; padding: var(--sp-6) var(--sp-4); min-height: 448px; align-content: start; }
+  :root[data-kind="kid"] .ds .trainer { min-height: 610px; }   /* holds the revealed card (three stacked kid buttons on the v3 kid scale) so Show never makes it jump */
   @media (min-width: 560px) { .ds .trainer, :root[data-kind="kid"] .ds .trainer { min-height: 380px; } }
-  .trainer .kick { display: flex; justify-content: center; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
-  .trainer .kick .kicker { color: var(--olive-ink); }
-  .trainer h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(34px, 9vw, 56px); line-height: var(--lh-tight); letter-spacing: 0; color: var(--text); text-wrap: balance; }
-  :root[data-kind="kid"] .trainer h1 { font-size: clamp(40px, 11vw, 64px); }
-  .trainer .hint { color: var(--muted); font-size: var(--fs-md); font-weight: 600; min-height: 1.5em; margin: 0; }
+  /* the kicker row is as tall as the box chip before the chip arrives, so the reference does not step down when the first
+     pull lands (GAP-MOTION-1 / CONS-MOTION-4: no block moves after first paint) */
+  .trainer .kick { display: flex; justify-content: center; gap: var(--sp-2); flex-wrap: wrap; align-items: center; min-height: 28px; }
+  .trainer .kick .kicker { color: var(--mint-ink); }
+  /* the reference: the display role, bold (VIS-VERSES-5: one display weight per card, the same as "All done for today";
+     D6: rounded for a kid through the kid block). The verse text below stays the reading serif. */
+  .trainer h1 { margin: 0; font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-display); line-height: var(--lh-tight); letter-spacing: var(--ls-large-title); color: var(--text); text-wrap: balance; }
+  .trainer .hint { color: var(--text-3); font-size: var(--fs-md); font-weight: var(--fw-semibold); min-height: 1.5em; margin: 0; }
   :root[data-kind="kid"] .trainer .hint { font-size: var(--fs-lg); }
   /* the verse text F260 has on file (pasted there once), blurred until Show */
-  .trainer .text { font-family: var(--font-serif); font-size: var(--fs-lg); line-height: var(--lh); color: var(--text); text-wrap: pretty; margin: 0; padding: var(--sp-3) var(--sp-2); border-radius: var(--r-lg); background: var(--surface-2); transition: filter var(--dur-2) var(--ease); }
+  .trainer .text { font-family: var(--font-serif); font-size: var(--fs-lg); line-height: var(--lh-read); color: var(--text); text-wrap: pretty; margin: 0; padding: var(--sp-3) var(--sp-2); border-radius: var(--r-control); background: var(--surface-2); transition: filter var(--dur-fast) var(--ease-standard); }
   .trainer .text.veiled { filter: blur(9px); user-select: none; -webkit-user-select: none; }
   .trainer .text[hidden] { display: none; }
   /* loading: the reference is a skeleton bar about as wide as a reference (design.css .ds .skeleton) */
   .ds .trainer h1.skeleton { width: min(72%, 340px); margin: 0 auto; border-radius: var(--r-lg); }
 
-  /* the buttons: never smaller than 60 px (kids: 64), stacked at phone width */
+  /* the buttons: capsules at the large button height (kids: 64 px or more), stacked at phone width (CONS-SHAPE-4) */
   .actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
   @media (min-width: 560px) { .actions { grid-template-columns: 1fr 1fr; } .actions.three { grid-template-columns: 1fr 1fr 1fr; } }
-  .ds .actions .btn { min-height: var(--tap-lg); font-size: var(--fs-lg); border-radius: var(--r-xl); gap: var(--sp-3); padding: var(--sp-2) var(--sp-4); }
-  :root[data-kind="kid"] .ds .actions .btn { min-height: max(64px, var(--tap-lg)); }
+  .ds .actions .btn { min-height: var(--btn-h-lg); font-size: var(--fs-lg); gap: var(--sp-3); padding: var(--sp-2) var(--sp-4); }
+  :root[data-kind="kid"] .ds .actions .btn { min-height: max(64px, var(--btn-h-lg)); }
   .ds .actions .btn .icon { width: 1.3em; height: 1.3em; flex: none; }
   .ds .actions .btn-glass { --g: var(--glass-strong); }
-  .ds .btn.say.on .icon { animation: pulse 1.1s ease-in-out infinite; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
-  .ds .btn.not { --accent: var(--terra); --accent-soft: var(--terra-soft); --accent-deep: var(--terra-ink); }
-  .ds .btn.almost { --accent: var(--gold); --accent-soft: var(--gold-soft); --accent-deep: var(--gold-ink); }
-  .ds .btn.got { --accent: var(--olive); --accent-soft: var(--olive-soft); --accent-deep: var(--olive-ink); }
-  .ds .btn.got.btn-primary { background: var(--olive); border-color: var(--olive); color: var(--on-accent); }
+  /* the reading-aloud pulse reads the motion tokens, so Reduce Motion (the OS or Me > Appearance) stills it (CONS-MOTION-5) */
+  .ds .btn.say.on .icon { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(var(--pulse-scale)); } }
+  /* Show is .btn-primary as it stands: the person's solid with its -on label in both schemes (VIS-VERSES-4, D15).
+     The three ratings are the semantic families, each with its own pair (the migration row; GAP-TOK-2, VIS-VERSES-3, -7):
+     Not yet = the danger fill + ink, Almost = the warning fill + ink, Got it = the success solid + its -on label (>= 4.76:1
+     in every palette; it was white on olive, 4.4:1 in Hearth). Dark fills are the lifted deep tints, never muddy browns.
+     The pairs are set on the buttons themselves (a semantic family is not a data-accent person family), hover included. */
+  .ds .btn.not { background: var(--danger-fill); color: var(--danger-ink); border-color: transparent; }
+  .ds .btn.almost { background: var(--warning-fill); color: var(--warning-ink); border-color: transparent; }
+  .ds .btn.got.btn-primary { background: var(--success-strong); color: var(--success-on); border-color: transparent; box-shadow: inset 0 1px 0 var(--hi-3), var(--elev-control); }
+  @media (hover: hover) and (pointer: fine) {
+    .ds .btn.not:hover { background: var(--danger-fill); box-shadow: inset 0 0 0 var(--border-w-strong) var(--danger-graphic); }
+    .ds .btn.almost:hover { background: var(--warning-fill); box-shadow: inset 0 0 0 var(--border-w-strong) var(--warning-graphic); }
+    .ds .btn.got.btn-primary:hover { background: var(--success-strong); box-shadow: inset 0 1px 0 var(--hi-3), var(--elev-float); }   /* no lightening: white on success-strong has little room above 4.5:1 (measured 4.34 with the old sheen) */
+  }
   .actions[hidden] { display: none; }
 
-  /* all done / nothing to train */
-  .ds .done { border-radius: var(--r-2xl); text-align: center; display: grid; gap: var(--sp-3); justify-items: center; padding: var(--sp-8) var(--sp-4); }
-  .done .big { font-family: var(--font-display); font-size: var(--fs-3xl); line-height: 1.1; color: var(--text); margin: 0; text-wrap: balance; }
-  .done p { margin: 0; color: var(--muted); font-size: var(--fs-md); }
-  .ds .done .btn { min-height: var(--tap-lg); border-radius: var(--r-xl); font-size: var(--fs-md); }
-  :root[data-kind="kid"] .ds .done .btn { min-height: max(64px, var(--tap-lg)); font-size: var(--fs-lg); }
-  .done .icon.star { width: 64px; height: 64px; color: var(--gold); fill: currentColor; stroke: none; }
+  /* all done / nothing to train: a solid content card, the bold display title (VIS-VERSES-5) */
+  .ds .done { text-align: center; display: grid; gap: var(--sp-3); justify-items: center; padding: var(--sp-8) var(--sp-4); }
+  .done .big { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-3xl); line-height: 1.1; letter-spacing: var(--ls-large-title); color: var(--text); margin: 0; text-wrap: balance; }
+  .done p { margin: 0; color: var(--text-3); font-size: var(--fs-md); }
+  .ds .done .btn { min-height: var(--btn-h-lg); font-size: var(--fs-md); }
+  :root[data-kind="kid"] .ds .done .btn { min-height: max(64px, var(--btn-h-lg)); font-size: var(--fs-lg); }
+  /* the celebration star: the butter star, read by its outline (--star-fill / --star-stroke) */
+  .done .icon.star { width: 64px; height: 64px; fill: var(--star-fill); stroke: var(--star-stroke); stroke-width: 1.25; }
   .ds .empty-art { width: min(200px, 60%); margin: 0 auto var(--sp-2); }
 
   /* adults: stats and the queue */
-  .ds .grown { border-radius: var(--r-xl); display: grid; gap: var(--sp-4); }
-  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: 700; display: flex; align-items: center; gap: var(--sp-2); }
-  .grown h2 .icon { width: 1.2em; height: 1.2em; color: var(--olive); }
-  .grown h2 small { font-weight: 600; color: var(--muted); font-size: var(--fs-sm); margin-left: auto; }
+  .ds .grown { display: grid; gap: var(--sp-4); }
+  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
+  .grown h2 .icon { width: 1.2em; height: 1.2em; color: var(--mint-ink); }
+  .grown h2 small { font-weight: var(--fw-semibold); color: var(--text-3); font-size: var(--fs-sm); margin-left: auto; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
   .stats .stat b { color: var(--text); }
-  /* five Leitner boxes as a tiny histogram: daily … fortnightly */
+  /* five Leitner boxes as a tiny histogram: daily … fortnightly. The bars are marks, so they read the mint -graphic
+     (>= 3:1 in every palette); an empty box is a >= 3:1 --cell-empty stub (VIS-VERSES-7: no dark-on-dark bars) */
   .boxes { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-2); align-items: end; }
   .boxes .bx { display: grid; gap: var(--sp-1); justify-items: center; text-align: center; }
   .boxes .col { width: 100%; height: 72px; display: flex; align-items: flex-end; }
-  .boxes .col i { display: block; width: 100%; min-height: 4px; height: calc(4px + 68px * var(--p, 0)); border-radius: var(--r-sm) var(--r-sm) 0 0; background: color-mix(in srgb, var(--olive) calc(35% + 65% * var(--p, 0)), var(--surface-2)); transition: height var(--dur-3) var(--ease-out); }
-  .boxes .n { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
-  .boxes .lbl { font-size: var(--fs-xs); color: var(--muted); font-weight: 600; line-height: 1.2; }
+  .boxes .col i { display: block; width: 100%; min-height: 4px; height: calc(4px + 68px * var(--p, 0)); border-radius: var(--r-xs) var(--r-xs) 0 0; background: var(--mint-graphic); transition: height var(--dur-progress) var(--spring-gentle); }
+  .boxes .bx.zero .col i { background: var(--cell-empty); }
+  /* numerals: the rounded numeral face with tabular figures (CONS-TYPE-3) */
+  .boxes .n { font-family: var(--font-numeral); font-weight: var(--fw-bold); font-variant-numeric: var(--numeral-features); color: var(--text); }
+  .boxes .lbl { font-size: var(--fs-xs); color: var(--text-3); font-weight: var(--fw-semibold); line-height: 1.2; }
   .queue { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
-  .queue li { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); padding: var(--sp-2) 0; border-top: 1px solid var(--line-soft); flex-wrap: wrap; }
+  .queue li { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); padding: var(--sp-2) 0; border-top: var(--border-w) solid var(--separator); flex-wrap: wrap; }
   .queue li:first-child { border-top: 0; }
-  .queue .rf { font-weight: 700; flex: 1; min-width: 0; color: var(--text); }
-  .queue .rf small { display: block; font-weight: 600; color: var(--muted); font-size: var(--fs-xs); }
-  .queue .when { font-size: var(--fs-sm); color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .queue li.now .when { color: var(--olive-ink); }
-  .queue li.late .when { color: var(--terra-ink); }
-  .queue .none { color: var(--muted); font-size: var(--fs-sm); }
-  .ds .chip.box { background: var(--olive-soft); color: var(--olive-ink); min-height: 28px; font-size: var(--fs-xs); font-weight: 700; }
+  .queue .rf { font-weight: var(--fw-bold); flex: 1; min-width: 0; color: var(--text); }
+  .queue .rf small { display: block; font-weight: var(--fw-semibold); color: var(--text-3); font-size: var(--fs-xs); }
+  .queue .when { font-size: var(--fs-sm); color: var(--text-3); font-weight: var(--fw-semibold); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); }
+  .queue li.now .when { color: var(--mint-ink); }
+  .queue li.late .when { color: var(--warning-ink); }   /* overdue is a status: the warning ink (CONS-COLOR-4) */
+  .queue .none { color: var(--text-3); font-size: var(--fs-sm); }
+  .ds .chip.box { background: var(--mint-fill); color: var(--mint-ink); min-height: 28px; font-size: var(--fs-xs); font-weight: var(--fw-bold); }
 
-  @media (prefers-reduced-motion: reduce) { .ds .btn.say.on .icon { animation: none; } .trainer .text, .boxes .col i { transition: none; } }
+  /* the Kitchen iPad (UX-VERSES-7): on a touch screen 744 px or wider the reference and the three counts take the glance
+     roles, so they read from across the kitchen */
+  @media (min-width: 744px) and (pointer: coarse) {
+    .trainer h1 { font-size: var(--fs-glance-2); }
+    .ds .stats .stat b { font-size: var(--fs-glance-3); }
+  }
 </style>
 </head>
 <body class="ds">
 <div class="wrap">
   <div class="top"><span class="pill" id="who"><span>Loading…</span></span></div>
 
-  <section class="card trainer glass-strong" id="trainer" aria-busy="true">
+  <section class="card trainer" id="trainer" aria-busy="true">
     <div class="kick"><span class="kicker" id="kick">Memory verse</span><span class="chip box" id="boxchip" hidden></span></div>
     <h1 id="ref" class="skeleton" aria-hidden="true">&nbsp;</h1>
     <p class="hint" id="hint">Loading your verses…</p>
     <p class="text veiled" id="text" hidden></p>
     <div class="actions" id="act-show">
-      <button class="btn btn-glass say" id="say" type="button" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read aloud</span></button>
-      <button class="btn btn-primary" id="show" type="button" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show</span></button>
+      <button class="btn btn-glass say" id="say" type="button" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read aloud</span></button>
+      <button class="btn btn-primary" id="show" type="button" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show</span></button>
     </div>
     <div class="actions three" id="act-rate" hidden>
-      <button class="btn btn-soft not" type="button" disabled aria-disabled="true" data-rate="not"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg><span>Not yet</span></button>
-      <button class="btn btn-soft almost" type="button" disabled aria-disabled="true" data-rate="almost"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg><span>Almost</span></button>
-      <button class="btn btn-primary got" type="button" disabled aria-disabled="true" data-rate="got"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span>Got it</span></button>
+      <button class="btn btn-soft not" type="button" disabled aria-disabled="true" data-rate="not"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg><span>Not yet</span></button>
+      <button class="btn btn-soft almost" type="button" disabled aria-disabled="true" data-rate="almost"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg><span>Almost</span></button>
+      <button class="btn btn-primary got" type="button" disabled aria-disabled="true" data-rate="got"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span>Got it</span></button>
     </div>
   </section>
 
-  <section class="card done glass-strong" id="done" hidden>
+  <section class="card done" id="done" hidden>
     <svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>
     <h2 class="big" id="done-big">All done for today</h2>
     <p id="done-sub"></p>
@@ -132,7 +174,7 @@
   </section>
 
   <section class="card grown" id="stats" hidden>
-    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Your boxes<small id="stats-sub"></small></h2>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Your boxes<small id="stats-sub"></small></h2>
     <div class="stats">
       <div class="stat"><b id="st-due">0</b><span>due today</span></div>
       <div class="stat"><b id="st-streak">0</b><span id="st-streak-lbl">day streak</span></div>
@@ -142,9 +184,9 @@
   </section>
 
   <section class="card grown" id="queue" hidden>
-    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Due today<small id="queue-sub"></small></h2>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Due today<small id="queue-sub"></small></h2>
     <ul class="queue" id="queue-list"></ul>
-    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Coming up<small id="later-sub"></small></h2>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Coming up<small id="later-sub"></small></h2>
     <ul class="queue" id="later-list"></ul>
   </section>
 </div>
@@ -381,7 +423,7 @@
       $('#st-due').textContent = queue.length; $('#st-streak').textContent = streak; $('#st-total').textContent = total;
       $('#stats-sub').textContent = lg[today] ? 'reviewed today' : streak ? 'keep it going today' : '';
       const mx = Math.max(1, ...boxes);
-      $('#boxes').innerHTML = boxes.map((n, i) => '<div class="bx" title="Box ' + (i + 1) + ': every ' + INTERVALS[i] + (INTERVALS[i] === 1 ? ' day' : ' days') + '"><span class="n">' + n + '</span><div class="col"><i style="--p:' + (n / mx).toFixed(3) + '"></i></div><span class="lbl">' + BOX_LABELS[i] + '</span></div>').join('');
+      $('#boxes').innerHTML = boxes.map((n, i) => '<div class="bx' + (n ? '' : ' zero') + '" title="Box ' + (i + 1) + ': every ' + INTERVALS[i] + (INTERVALS[i] === 1 ? ' day' : ' days') + '"><span class="n">' + n + '</span><div class="col"><i style="--p:' + (n / mx).toFixed(3) + '"></i></div><span class="lbl">' + BOX_LABELS[i] + '</span></div>').join('');
       const rc = recall();
       $('#queue-sub').textContent = queue.length ? queue.length + (queue.length === 1 ? ' verse' : ' verses') : 'none';
       $('#queue-list').innerHTML = queue.length ? queue.map(id => { const r = rc[id] ? norm(rc[id]) : null; const q = parseId(id); const late = r && r.due && r.due < today;

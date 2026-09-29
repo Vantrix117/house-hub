@@ -90,7 +90,7 @@ const tallyCount = f => f.evaluate(() => Number(document.getElementById('n').tex
     await A.page.waitForSelector('#shell:not([hidden])');
     ok((await A.page.textContent('#view-home')).includes('Niece'), 'signed in as Niece after creating PIN');
     ok(await A.page.evaluate(() => document.documentElement.dataset.kind === 'adult'), 'html[data-kind=adult]');
-    ok(await A.page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() === '#5B8143'), 'accent set from profile colour');
+    ok(await A.page.evaluate(() => document.documentElement.dataset.accent === 'butter' && !document.documentElement.style.getPropertyValue('--accent')), 'accent set from the profile\'s colour family (data-accent, no inline hex)');
     await A.page.screenshot({ path: path.join(shots, 'p2-home-adult.png') });
     const fa = await openApp(A.page, 'tally');
     for (let i = 0; i < 3; i++) await fa.click('#plus');
@@ -167,7 +167,7 @@ const tallyCount = f => f.evaluate(() => Number(document.getElementById('n').tex
     await D.page.click('.tab[data-tab=apps]');
     const tiles = await D.page.$$eval('.tile', els => els.map(e => e.dataset.id));
     ok(!tiles.includes('f260') && !tiles.includes('dollywood') && tiles.includes('prayer') && tiles.includes('tally'), 'kid grid hides adult-only apps (f260, dollywood) and shows prayer (visibleTo)', tiles.join(','));
-    ok(await D.page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tap')) >= 64), 'kid tap targets >= 64px');
+    ok(await D.page.evaluate(() => { const e = document.createElement('div'); e.style.width = 'var(--tap)'; document.body.appendChild(e); const w = e.getBoundingClientRect().width; e.remove(); return w >= 64; }), 'kid tap targets >= 64px (--tap resolved)');
     ok(await D.page.$('#remform') === null, 'kid cannot add reminders');
     await D.page.screenshot({ path: path.join(shots, 'p2-kid-apps.png') });
 

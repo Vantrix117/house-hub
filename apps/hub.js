@@ -8,7 +8,10 @@
  *                                           // device. Until then hub.set refuses (HubError 'not_loaded'): a value
  *                                           // computed from an empty cache must never overwrite the real row.
  *   hub.today() / hub.onDay(fn)             // the household's date (America/New_York, 'YYYY-MM-DD'); fn at midnight
- *   hub.profile                             // { id, name, kind, isAdmin, isGuest, color, emoji }
+ *   hub.profile                             // { id, name, kind, isAdmin, isGuest, color, hue, emoji }; hub.hueOf(p) = the
+ *                                           // colour family for data-accent (design.css)
+ *   hub.setTheme(t) / hub.setTextSize(s) / hub.setContrast(v) / hub.setGlass(v) / hub.setMotion(v) / hub.prefs()
+ *                                           // the person's look, one person-scope hub row each; hub:theme fires on window
  *   hub.get(key, {scope}) / hub.set(key, value, {scope}) / hub.remove(key, {scope})
  *   hub.list(prefix, {scope})               // live items [{key, value, updated_at}]
  *   hub.onChange(({scope, key, value}) => …) // fires when another device changed something
@@ -33,6 +36,9 @@
     legacyActivity: 'hub.activityQueue',       // before batch 0c: one device-wide feed queue with no author
     retiring: 'hub.retiring',                  // [{token, pid}] sessions signed out here whose queue or logout has not reached the server
     personTheme: pid => `hub.theme.${pid}`,    // each person's look on this device, restored when they sign in again
+    prefs: 'hub.prefs',                        // text size, contrast, glass, motion: the mirror the <head> bootstrap reads
+    personPrefs: pid => `hub.prefs.${pid}`,    // each person's preferences on this device, like personTheme
+    meAt: 'hub.meAt',                          // when this device last refreshed the session profile (ACCENT-9)
     activity: pid => `hub.aqueue.${pid}`,      // feed lines waiting to post, per author
     cache: (app, scope, pid) => `hub.cache.${app}.${scope}${scope === 'person' ? '.' + pid : ''}`,
     // Every queue belongs to the person who wrote it, family writes too: only their own session ever sends it.
@@ -87,59 +93,168 @@
   let gen = 0; const inflight = new Set();
   const setSkew = now => { if (!Number.isFinite(+now)) return; hub.skew = +now - Date.now(); lsSet(LS.skew, Math.round(hub.skew)); };
 
-  // ── profile / theme (applied synchronously so there is no flash) ──────────
+  // ── profile / theme / preferences (applied synchronously so there is no flash) ──────────
+  // The inline <head> bootstrap (audits/tools/phase4/tokens/bootstrap.js, copied into every page) sets the same attributes
+  // before the first paint; everything here must agree with it (HEX_HUE is its H, THEME_BG its B).
   function publicProfile(p) {
-    return p ? { id: p.id, name: p.name, kind: p.kind, isAdmin: !!p.is_admin, isGuest: !!p.is_guest, color: p.color, emoji: p.emoji, hasPin: !!p.has_pin, photo: p.photo || null } : null;
+    return p ? { id: p.id, name: p.name, kind: p.kind, isAdmin: !!p.is_admin, isGuest: !!p.is_guest, color: p.color, hue: p.hue || null, emoji: p.emoji, hasPin: !!p.has_pin, photo: p.photo || null } : null;
   }
+  // The 18 colour families design.css knows: the nine people's and the nine apps' (D5, "Admin-assigned colours").
+  hub.HUES = ['bubblegum', 'peach', 'butter', 'mint', 'aqua', 'sky', 'periwinkle', 'lavender', 'graphite', 'coral', 'apricot', 'honey', 'pistachio', 'leaf', 'seafoam', 'lagoon', 'cornflower', 'orchid'];
+  // A record stored before profiles carried a hue maps its hex here (D3's starting colours); an unknown hex is graphite,
+  // never another person's family (ACCENT-6).
+  const HEX_HUE = { '#4f5d8c': 'periwinkle', '#bc5a38': 'peach', '#137f77': 'aqua', '#b4861b': 'lavender', '#8a6a4b': 'bubblegum', '#3d5a3d': 'mint', '#5b8143': 'butter', '#4c4c58': 'graphite', '#8c4f7a': 'sky', '#4c7b6a': 'sky', '#5e7a6e': 'graphite' };
+  /** A person's colour family for data-accent: their stored hue, else a guest's sky, else their hex's family, else graphite. */
+  hub.hueOf = p => !p ? 'graphite' : hub.HUES.includes(p.hue) ? p.hue : (p.is_guest || p.isGuest) ? 'sky' : HEX_HUE[String(p.color || '').toLowerCase()] || 'graphite';
   // Named palettes in design.css. 'system' = Hearth by day, Midnight at night. 'light'/'dark' are kept as aliases.
   hub.THEMES = [
     { id: 'system', name: 'System', scheme: null, blurb: 'Hearth by day, Midnight at night' },
-    { id: 'hearth', name: 'Hearth', scheme: 'light', blurb: 'Warm paper' },
+    { id: 'hearth', name: 'Hearth', scheme: 'light', blurb: 'Warm grouped neutrals' },
     { id: 'parchment', name: 'Parchment', scheme: 'light', blurb: 'Soft tan reading paper' },
     { id: 'frost', name: 'Frost', scheme: 'light', blurb: 'Cool pale glass' },
     { id: 'midnight', name: 'Midnight', scheme: 'dark', blurb: 'Warm dark' },
     { id: 'forest', name: 'Forest', scheme: 'dark', blurb: 'Deep green, gold ink' },
+    { id: 'graphite', name: 'Graphite', scheme: 'dark', blurb: 'True black, as on iPhone' },   // D2
   ];
+  const SCHEME_OF = { hearth: 'light', parchment: 'light', frost: 'light', midnight: 'dark', forest: 'dark', graphite: 'dark' };
+  // each palette's --bg, for the theme-color meta when the stylesheet cannot be asked
+  const THEME_BG = { hearth: '#F4F1EC', parchment: '#ECE2CD', frost: '#F2F2F7', midnight: '#0B0A09', forest: '#070F0D', graphite: '#000000' };
   const themeId = t => t === 'light' ? 'hearth' : t === 'dark' ? 'midnight' : (hub.THEMES.some(x => x.id === t) ? t : 'system');
-  const prefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const mq = q => { try { return !!(window.matchMedia && window.matchMedia(q).matches); } catch { return false; } };
+  const prefersDark = () => mq('(prefers-color-scheme: dark)');
+  /** The palette a choice paints: System resolves to Hearth by day and Midnight by night, here and in the bootstrap. */
+  const paletteOf = c => c === 'system' ? (prefersDark() ? 'midnight' : 'hearth') : c;
+
+  // Person preferences (GLASS-1, TYPE-9, D8, D11): one person-scope hub row each, beside 'theme', so two devices changing
+  // different settings never overwrite each other; LS.prefs is the device mirror the bootstrap reads before the first
+  // paint. The glass level Solid IS Reduce Transparency.
+  const PREF_VALUES = { textSize: ['xs', 's', 'm', 'l', 'xl', 'xxl'], contrast: ['more', 'standard'], transparency: ['reduce', 'full'], motion: ['reduce', 'full'], glass: ['clear', 'current', 'frosted', 'solid'] };
+  const PREF_KEYS = Object.keys(PREF_VALUES);
+  const cleanPrefs = o => { const r = {}; if (o && typeof o === 'object') for (const k of PREF_KEYS) if (PREF_VALUES[k].includes(o[k]) && !(k === 'textSize' && o[k] === 'm')) r[k] = o[k]; return r; };
+  const prefsNow = () => cleanPrefs(lsGet(LS.prefs, {}));
+  // the display and the kitchen keep their look on the device, as they keep their theme: they are not a person
+  const localPrefs = () => !!hub.profile && (hub.profile.kind === 'kiosk' || hub.profile.kind === 'kitchen');
+  // D17: an adult who chose Large in F260 before batch 1 keeps it everywhere until F260 moves it to the hub row on its next
+  // open (f260.bigMoved); read from F260's cache on this device, and only while the person has never chosen a hub size
+  // (no textSize row at all: choosing Normal in Me writes an empty row, which ends the fallback on every device). F260
+  // itself keeps its old zoom until the move (apps/f260.html paintSize), so the fallback is not applied there as well.
+  const f260Big = () => {
+    const p = hub.profile; if (!p || appId === 'f260' || ['kid', 'kiosk', 'kitchen'].includes(p.kind)) return false;
+    const hc = lsGet(LS.cache('hub', 'person', p.id), null); if (hc && hc.items && hc.items.textSize) return false;
+    const c = lsGet(LS.cache('f260', 'person', p.id), null), it = c && c.items;
+    return !!(it && it['f260.big'] && it['f260.big'].v === true && !(it['f260.bigMoved'] && it['f260.bigMoved'].v));
+  };
+  function applyPrefs(root) {
+    const r = prefsNow(), kiosk = !!hub.profile && hub.profile.kind === 'kiosk';
+    const set = (a, v) => { if (v) root.setAttribute(a, v); else root.removeAttribute(a); };
+    set('data-text-size', r.textSize || (f260Big() ? 'l' : null));
+    set('data-contrast', r.contrast || null);
+    set('data-motion', r.motion || null);
+    // as the bootstrap does: a chosen glass level other than Solid also opts out of the OS setting, so the choice holds
+    let tr = r.transparency || null, gl = null;
+    if (r.glass && !kiosk) { if (r.glass === 'solid') tr = 'reduce'; else { gl = r.glass; tr = 'full'; } }
+    set('data-transparency', tr); set('data-glass', gl);
+  }
   function applyTheme() {
     const root = document.documentElement;
-    const t = themeId(lsGet(LS.theme, 'system'));
-    if (t === 'system' || t === 'hearth') delete root.dataset.theme; else root.dataset.theme = t;
-    const def = hub.THEMES.find(x => x.id === t);
-    root.dataset.scheme = (def && def.scheme) || (prefersDark() ? 'dark' : 'light');   // resolved, for apps with their own dark CSS
-    if (hub.profile) { root.dataset.kind = hub.profile.kind; root.style.setProperty('--accent', hub.profile.color); }
-    else { delete root.dataset.kind; root.style.removeProperty('--accent'); }
+    const c = themeId(lsGet(LS.theme, 'system')), t = paletteOf(c), scheme = SCHEME_OF[t];
+    // data-theme is ALWAYS the resolved palette, never deleted (P2-VIS-03); the choice is kept beside it
+    root.dataset.theme = t; root.dataset.themeChoice = c;
+    root.dataset.scheme = scheme;                                   // resolved, for apps with their own dark CSS
+    root.style.colorScheme = scheme;                                // UA controls follow the chosen palette (P4-COLOR-04)
+    root.style.removeProperty('--accent');                          // v3: the person is data-accent, never an inline hex
+    if (hub.profile) { root.dataset.kind = hub.profile.kind; root.dataset.accent = hub.hueOf(hub.profile); }
+    else { delete root.dataset.kind; delete root.dataset.accent; }   // signed out: graphite, nobody's colour (CONS-ACCENT-1)
+    applyPrefs(root);
+    // every theme-color meta follows the palette on every call, a pull included (P4-DARK-04)
+    let bg = ''; try { bg = getComputedStyle(root).getPropertyValue('--bg').trim(); } catch {}
+    if (!/^(#|rgb)/.test(bg)) bg = THEME_BG[t];
+    for (const m of document.querySelectorAll('meta[name="theme-color"]')) { m.removeAttribute('media'); m.setAttribute('content', bg); }
+    try { window.dispatchEvent(new CustomEvent('hub:theme', { detail: { theme: t, choice: c, scheme } })); } catch {}
   }
-  if (window.matchMedia) try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); } catch {}
+  // live: the OS scheme (System) and the OS motion / contrast / transparency settings the CSS mirrors, re-announced so
+  // apps that read them, and the theme-color meta, follow at once
+  for (const q of ['(prefers-color-scheme: dark)', '(prefers-reduced-motion: reduce)', '(prefers-contrast: more)', '(prefers-reduced-transparency: reduce)']) {
+    try { window.matchMedia(q).addEventListener('change', () => applyTheme()); } catch {}
+  }
   // The theme is a person preference (app_data person/hub/theme) so it follows the person to every device;
   // LS.theme is the device-local mirror that applies before the first pull. The kiosk keeps a device-local theme.
   const PREFS = { app: 'hub', scope: 'person' };
   const hasPrefs = () => CH.has(chKey('hub', 'person')) && !!hub.profile && store[chKey('hub', 'person')];
   const mirrorTheme = t => { lsSet(LS.theme, t === 'system' ? undefined : t); if (hub.profile) lsSet(LS.personTheme(hub.profile.id), t); };
+  const mirrorPrefs = r => { r = cleanPrefs(r); lsSet(LS.prefs, Object.keys(r).length ? r : undefined); if (hub.profile) lsSet(LS.personPrefs(hub.profile.id), r); };
   hub.setTheme = t => {
     t = themeId(t);
     mirrorTheme(t); applyTheme();
     // the chosen theme depends on nothing stored, so it may be written before the prefs have pulled (it is newer, so it wins)
-    if (hasPrefs() && hub.canWrite && hub.get('theme', PREFS) !== t) try { hub.set('theme', t, { ...PREFS, unloaded: true }); } catch (e) { console.error(e); }
+    if (hasPrefs() && hub.canWrite && !localPrefs() && hub.get('theme', PREFS) !== t) try { hub.set('theme', t, { ...PREFS, unloaded: true }); } catch (e) { console.error(e); }
     tell({ type: 'hub:theme', theme: t });
   };
   hub.theme = () => themeId(lsGet(LS.theme, 'system'));
   hub.scheme = () => document.documentElement.dataset.scheme || (prefersDark() ? 'dark' : 'light');
+  /** The person's preferences: { textSize, contrast, transparency, motion, glass }; null = the default, following the OS. */
+  hub.prefs = () => { const r = prefsNow(); return { textSize: r.textSize || (f260Big() ? 'l' : 'm'), contrast: r.contrast || null, transparency: r.transparency || null, motion: r.motion || null, glass: r.glass || null }; };
+  // Each setter validates, writes the device mirror, applies the attribute at once and, for a person, writes their row, as
+  // hub.setTheme does. The display and the kitchen keep the setting on the device: no row, no toast, nothing thrown.
+  function setPref(k, v) {
+    if (!PREF_VALUES[k]) throw new HubError(400, 'bad_pref', 'Unknown preference ' + k + '.');
+    v = v == null || v === '' ? undefined : String(v);
+    if (v !== undefined && !PREF_VALUES[k].includes(v)) throw new HubError(400, 'bad_pref', `${k} must be one of: ${PREF_VALUES[k].join(', ')}.`);
+    if (k === 'textSize' && v === 'm') v = undefined;
+    const legacy = k === 'textSize' && f260Big();   // D17: any choice here ends F260's old Large, so it is always written
+    const next = prefsNow(); if (v === undefined) delete next[k]; else next[k] = v;
+    mirrorPrefs(next); applyTheme();
+    if (!localPrefs()) {
+      if (hasPrefs() && hub.canWrite) {
+        const cur = hub.get(k, PREFS);
+        try { if (legacy || (v === undefined ? cur !== undefined : cur !== v)) hub.set(k, v === undefined ? null : v, { ...PREFS, unloaded: true }); } catch (e) { console.error(e); }
+        if (legacy) applyTheme();
+      } else tell({ type: 'hub:pref', key: k, value: v === undefined ? null : v });   // an app frame: the shell writes the row
+    }
+    // no hub:theme to the shell here: it would make the shell write a 'theme' row the person never touched; the shell
+    // re-applies the look from the hub.prefs storage event instead
+    return hub.prefs();
+  }
+  hub.setTextSize = size => setPref('textSize', size);     // 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl'
+  hub.setContrast = v => setPref('contrast', v);           // 'more' | 'standard' (opts out of the OS) | null (follows the OS)
+  hub.setTransparency = v => setPref('transparency', v);   // 'reduce' | 'full' | null
+  hub.setMotion = v => setPref('motion', v);               // 'reduce' | 'full' | null
+  hub.setGlass = v => setPref('glass', v);                 // 'clear' | 'current' | 'frosted' | 'solid' (= Reduce Transparency) | null
+  hub.setPref = setPref;
   // called after the person's prefs load or change: the server's copy wins over the device mirror
   function adoptTheme() {
-    if (!hasPrefs() || hub.isKiosk) return;
+    if (!hasPrefs() || localPrefs()) return;
     let t = hub.get('theme', PREFS);
     if (t === undefined) { if (!store[chKey('hub', 'person')].since) return; t = 'system'; }   // pulled before and nothing set: this person uses the system look
     t = themeId(t);
     if (t === hub.theme()) { lsSet(LS.personTheme(hub.profile.id), t); return; }
     mirrorTheme(t); applyTheme(); tell({ type: 'hub:theme', theme: t });
   }
-  // The look a person had on this device: their own mirror, else their cached theme row, else System.
+  // the same for the other preferences: a row wins; once the scope has been pulled, a key with no row is the default
+  function adoptPrefs() {
+    if (!hasPrefs() || localPrefs()) return;
+    const pulled = !!store[chKey('hub', 'person')].since, cur = prefsNow(), next = { ...cur };
+    for (const k of PREF_KEYS) {
+      const v = hub.get(k, PREFS);
+      if (v === undefined) { if (pulled) delete next[k]; }
+      else if (PREF_VALUES[k].includes(v)) next[k] = v;
+    }
+    const shown = document.documentElement.getAttribute('data-text-size') || 'm';
+    const same = JSON.stringify(cleanPrefs(next)) === JSON.stringify(cur) && shown === hub.prefs().textSize;   // D17: the fallback reads the row
+    mirrorPrefs(next);
+    if (!same) { applyTheme(); tell({ type: 'hub:theme', theme: hub.theme() }); }
+  }
+  // The look a person had on this device: their own mirror, else their cached rows, else System and the defaults.
   function themeFor(id) {
     const own = lsGet(LS.personTheme(id), null); if (own) return themeId(own);
     const c = lsGet(LS.cache('hub', 'person', id), null); const it = c && c.items && c.items.theme;
     return themeId(it && it.v);
+  }
+  function prefsFor(id) {
+    const own = lsGet(LS.personPrefs(id), null); if (own) return cleanPrefs(own);
+    const c = lsGet(LS.cache('hub', 'person', id), null), r = {};
+    if (c && c.items) for (const k of PREF_KEYS) if (c.items[k] && c.items[k].v != null) r[k] = c.items[k].v;
+    return cleanPrefs(r);
   }
   hub.setSession = s => {
     const was = hub.profile ? hub.profile.id : null;
@@ -148,9 +263,30 @@
     if (s && s.profile) lsSet(LS.last, s.profile.id);
     // A different person (or nobody, at the picker) never inherits the previous person's look.
     const now = hub.profile ? hub.profile.id : null;
-    if (now !== was) { const t = now ? themeFor(now) : 'system'; lsSet(LS.theme, t === 'system' ? undefined : t); tell({ type: 'hub:theme', theme: t }); }
+    if (now !== was) {
+      const t = now ? themeFor(now) : 'system'; lsSet(LS.theme, t === 'system' ? undefined : t);
+      const r = now ? prefsFor(now) : {}; lsSet(LS.prefs, Object.keys(r).length ? r : undefined);
+      tell({ type: 'hub:theme', theme: t });
+    }
     applyTheme();
   };
+  // ACCENT-9: an admin recolour (or a rename, a new photo) reaches a person who is already signed in. After a pull, at most
+  // once a minute across the shell and its app frame, the session's profile is refreshed from /api/me; the other window
+  // re-applies it through the storage listener.
+  async function refreshProfile() {
+    if (!hub.session || !hub.profile || !hub.device) return;
+    if (Date.now() - (+lsGet(LS.meAt, 0) || 0) < 60000) return;
+    lsSet(LS.meAt, Date.now());
+    const token = hub.session.token;
+    let r; try { r = await hub.request('/api/me', { timeout: 8000 }); } catch { return; }
+    if (!r || !r.profile || !hub.session || hub.session.token !== token || !hub.profile || r.profile.id !== hub.profile.id) return;
+    const old = hub.session.profile || {}, keys = ['name', 'emoji', 'color', 'hue', 'kind', 'photo', 'is_admin', 'is_guest', 'has_pin'];
+    if (keys.every(k => JSON.stringify(old[k] ?? null) === JSON.stringify(r.profile[k] ?? null))) return;
+    hub.setSession({ ...hub.session, profile: { ...old, ...r.profile } });
+    tell({ type: 'hub:profile' });
+    try { window.dispatchEvent(new CustomEvent('hub:profile')); } catch {}   // the page redraws the name, face and colour
+  }
+  hub.refreshProfile = refreshProfile;
   hub.profile = publicProfile(hub.session && hub.session.profile);
   applyTheme();
   Object.defineProperty(hub, 'isKid', { get: () => !!hub.profile && hub.profile.kind === 'kid' });
@@ -373,6 +509,7 @@
   function emit(ch, key, value, updated_at) {
     const { app, scope } = CH.get(ch);
     if (app === 'hub' && scope === 'person' && key === 'theme') adoptTheme();
+    if (app === 'hub' && scope === 'person' && PREF_VALUES[key]) adoptPrefs();
     for (const cb of listeners.change) { try { cb({ app, scope, key, value, updated_at, remote: true }); } catch (e) { console.error(e); } }
   }
   /** Sync another app's data too (used by the hub shell for the dashboard). scopes: 'person' | 'family' | 'both'. */
@@ -654,7 +791,8 @@
         }
         setSync({ state: pendingCount() ? 'pending' : 'synced', lastError: null, lastPull: Date.now() });
         if (hub.sync.pending || lsGet(LS.retiring, []).length) scheduleFlush(0);
-        adoptTheme();
+        adoptTheme(); adoptPrefs();
+        refreshProfile();
         if (lsGet(LS.activity(pid()), []).length) drainActivity();
         return changed;
       } catch (e) {
@@ -702,7 +840,7 @@
         if (inFrame) await new Promise(() => {});      // the hub shell will reload this frame after sign-in
       }
       for (const ch of CH.keys()) loadScope(ch);
-      adoptTheme();                                   // this person's theme from the cache, before the first paint settles
+      adoptTheme(); adoptPrefs();                     // this person's look from the cache, before the first paint settles
       const seen = hub.isLoaded();                   // this app's own channels, not whatever the shell happened to cache
       if (navigator.onLine === false) setSync({ state: 'offline' });
       const first = hub.pull();
@@ -724,7 +862,13 @@
       // When the other window writes a cache or queue we hold, reload it so neither side clobbers the other.
       window.addEventListener('storage', ev => {
         if (!ev.key || !ev.key.startsWith('hub.')) return;
-        if (ev.key === LS.theme) { applyTheme(); return; }
+        if (ev.key === LS.theme || ev.key === LS.prefs) { applyTheme(); return; }
+        // the other window refreshed this session's profile (ACCENT-9): the same person with the same token, new colours
+        if (ev.key === LS.session) {
+          const s2 = lsGet(LS.session, null);
+          if (s2 && s2.profile && hub.session && s2.token === hub.session.token && hub.profile && s2.profile.id === hub.profile.id) { hub.session = s2; hub.profile = publicProfile(s2.profile); applyTheme(); try { window.dispatchEvent(new CustomEvent('hub:profile')); } catch {} }
+          return;
+        }
         for (const ch of CH.keys()) {
           const { app, scope } = CH.get(ch);
           if (ev.key === LS.cache(app, scope, pid())) {
@@ -899,10 +1043,11 @@
   // ── misc ──────────────────────────────────────────────────────────────────
   hub.open = id => { tell({ type: 'hub:open', appId: id }); if (!inFrame) location.href = '../index.html#' + id; };
   // hub.toast(msg, ms, { action: 'Undo', onAction }) adds one button to the toast (batch 0h: the Larder's Undo); the
-  // toast then stays up for ms and the button closes it.
+  // toast then stays up for ms and the button closes it. A tap anywhere else on the toast puts it away (UX-KIDVERSE-8, UX-VERSES-6).
   hub.toast = (msg, ms = 2200, opts = {}) => {
     let el = document.getElementById('hub-toast');
-    if (!el) { const w = document.createElement('div'); w.className = 'ds'; el = document.createElement('div'); el.id = 'hub-toast'; el.className = 'toast'; el.setAttribute('role', 'status'); w.appendChild(el); document.body.appendChild(w); }
+    if (!el) { const w = document.createElement('div'); w.className = 'ds'; el = document.createElement('div'); el.id = 'hub-toast'; el.className = 'toast'; el.setAttribute('role', 'status'); w.appendChild(el); document.body.appendChild(w);
+      el.addEventListener('click', e => { if (!e.target.closest('.toast-act')) { el.hidden = true; clearTimeout(el._t); } }); }
     el.textContent = msg;
     if (opts && opts.action && typeof opts.onAction === 'function') {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'toast-act'; b.textContent = opts.action;
@@ -911,33 +1056,87 @@
     }
     el.hidden = false; clearTimeout(el._t); el._t = setTimeout(() => { el.hidden = true; }, ms);
   };
+  // hub.confirm(message, { title, ok: 'Delete', cancel: 'Cancel', danger: true }) → Promise<boolean>: the one confirm sheet
+  // in place of the browser's confirm() (CONS-TELL-2). design.css's .ds .sheet and .ds .btn in a div.ds of its own, so it
+  // works in any page, .ds or not. True only from the confirm button or Enter; Cancel, Escape and a tap on the backdrop give
+  // false. Focus starts on the safe button (Cancel; OK when there is none), stays in the sheet and goes back afterwards.
+  // Enter presses the button that has focus, so with focus on Cancel it cancels (a keyboard or VoiceOver user hears
+  // "Cancel" and gets Cancel). Only the topmost sheet answers a key. hub.alert(message, { title, ok })
+  // is the one-button notice (→ Promise<void>). Motion comes from the tokens, so Reduce Motion stills it.
+  hub.confirm = (message, opts = {}) => new Promise(resolve => {
+    const o = Object.assign({ title: '', ok: 'OK', cancel: 'Cancel', danger: false }, opts || {});
+    const prev = document.activeElement, id = 'hub-ask-' + hub.uid();
+    const w = document.createElement('div'); w.className = 'ds';
+    const bd = document.createElement('div'); bd.className = 'sheet-backdrop hub-ask';
+    const sh = document.createElement('div'); sh.className = 'sheet'; sh.setAttribute('role', 'alertdialog'); sh.setAttribute('aria-modal', 'true');
+    if (o.title) { const h = document.createElement('h2'); h.id = id + '-t'; h.textContent = o.title; sh.appendChild(h); sh.setAttribute('aria-labelledby', h.id); }
+    if (message) { const p = document.createElement('p'); p.id = id + '-m'; p.className = o.title ? 'text-2' : 'hub-ask-lead'; p.textContent = message; sh.appendChild(p); sh.setAttribute(o.title ? 'aria-describedby' : 'aria-labelledby', p.id); }
+    const row = document.createElement('div'); row.className = 'sheet-actions';
+    const btn = (label, cls) => { const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = label; row.appendChild(b); return b; };
+    const no = o.cancel ? btn(o.cancel, 'btn') : null;
+    const yes = btn(o.ok, 'btn ' + (o.danger ? 'btn-danger' : 'btn-primary'));
+    sh.appendChild(row); bd.appendChild(sh); w.appendChild(bd);
+    let over = false;
+    const done = v => {
+      if (over) return; over = true;
+      document.removeEventListener('keydown', key, true); w.remove();
+      try { if (prev && prev.isConnected && prev.focus) prev.focus({ preventScroll: true }); } catch {}
+      resolve(v);
+    };
+    const key = e => {
+      if (over || w !== [...document.querySelectorAll('body > .ds')].filter(x => x.querySelector('.hub-ask')).pop()) return;   // the topmost sheet only
+      if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); done(false); return; }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopImmediatePropagation(); done(document.activeElement === yes); return; }
+      if (e.key === 'Tab') {   // keep focus on the sheet's buttons
+        e.preventDefault();
+        const bs = [no, yes].filter(Boolean), i = bs.indexOf(document.activeElement);
+        bs[(i + (e.shiftKey ? bs.length - 1 : 1) + bs.length) % bs.length].focus();
+      }
+    };
+    yes.onclick = () => done(true);
+    if (no) no.onclick = () => done(false);
+    bd.addEventListener('click', e => { if (e.target === bd) done(false); });
+    document.addEventListener('keydown', key, true);
+    (document.body || document.documentElement).appendChild(w);
+    (no || yes).focus({ preventScroll: true });
+  });
+  hub.alert = (message, opts = {}) => hub.confirm(message, Object.assign({ ok: 'OK' }, opts || {}, { cancel: null, danger: false })).then(() => {});
   hub.escape = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   hub.uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-  // ── liquid glass: the sheen drifts with scroll (and tilt where the browser hands it out without a prompt) ──
-  // Sets --sheen-x on <html>; design.css moves the highlight in every glass surface. Off under reduced motion.
+  // ── liquid glass: the person's colour caught in the two bars drifts with scroll (GLASS-7) ──
+  // --sheen-x is written on the VISIBLE tab bar and top bar only, never on :root, and only their ::after layer's transform
+  // reads it (design.css), so a scroll frame re-resolves one layer and restyles nothing else (P4-GLASS-01). Skipped with no
+  // visible bar, under Reduce Motion (the switch or the OS, read live) and on the TV. The tilt drift is gone: iOS never
+  // hands out the orientation without a prompt (CONS-GLASS-3).
   (function sheen() {
-    hub.sheenFrom = () => {};   // defined before the reduced-motion return: callers never find it missing
-    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const root = document.documentElement; let scroller = null, tilt = 0, raf = 0, last = -1;
-    const paint = () => { raf = 0; const el = scroller || root; const max = Math.max(1, el.scrollHeight - el.clientHeight); const p = Math.min(1, Math.max(0, el.scrollTop / max));
-      const x = Math.round(20 + p * 50 + tilt); if (x !== last) { last = x; root.style.setProperty('--sheen-x', x + '%'); } };
+    const root = document.documentElement; let scroller = null, raf = 0, last = -1;
+    const still = () => root.dataset.motion === 'reduce' || (root.dataset.motion !== 'full' && mq('(prefers-reduced-motion: reduce)')) || (!!hub.profile && hub.profile.kind === 'kiosk');
+    const bars = () => [...document.querySelectorAll('.ds .tabbar, .ds .topbar')].filter(el => el.getClientRects().length);
+    const paint = () => {
+      raf = 0; if (still()) return;
+      const on = bars(); if (!on.length) return;
+      const el = scroller || document.scrollingElement || root; const max = Math.max(1, el.scrollHeight - el.clientHeight); const p = Math.min(1, Math.max(0, el.scrollTop / max));
+      const x = Math.round(20 + p * 50); if (x === last) return; last = x;
+      for (const b of on) b.style.setProperty('--sheen-x', x + '%');
+    };
     const kick = () => { if (!raf) raf = requestAnimationFrame(paint); };
-    hub.sheenFrom = el => { if (scroller) scroller.removeEventListener('scroll', kick); scroller = el; if (el) el.addEventListener('scroll', kick, { passive: true }); kick(); };
+    /** Drift the bars with this scroller's position instead of the page's (the shell's #views, an app's own scroller). */
+    hub.sheenFrom = el => { if (scroller) scroller.removeEventListener('scroll', kick); scroller = el; last = -1; if (el) el.addEventListener('scroll', kick, { passive: true }); kick(); };
     window.addEventListener('scroll', kick, { passive: true });
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
-      window.addEventListener('deviceorientation', e => { if (e.gamma == null) return; tilt = Math.max(-15, Math.min(15, e.gamma / 3)); kick(); }, { passive: true });
-    }
     kick();
   })();
+  // iOS shows :active (the .pressable press, every .ds button) only in a document with a touch listener (GAP-MOTION-3)
+  try { document.addEventListener('touchstart', () => {}, { passive: true }); } catch {}
 
   // ── faces: photos + avatars ───────────────────────────────────────────────
   /** Absolute URL of a person's (or album entry's) photo, or null. size: 'sm' (256) | 'lg' (1024). */
   hub.photoUrl = (p, size = 'sm') => { const ph = p && (p.photo || (p.sm ? p : null)); const rel = ph && (typeof ph === 'string' ? ph : ph[size] || ph.sm); return rel ? (rel.startsWith('http') ? rel : hub.api.replace(/\/$/, '') + rel) : null; };
-  /** An .avatar element (design.css): the photo if there is one, else the emoji on the person's colour. */
+  /** An .avatar element (design.css): the photo if there is one, else the emoji on the person's colour. The avatar carries
+   *  the person's own data-accent, so its fill, ink and ring are theirs inside any page (a record with no colour is graphite). */
   hub.avatarHtml = (p, cls = '', size = 'sm') => {
     const url = hub.photoUrl(p, size); const e = hub.escape;
-    return `<span class="avatar ${cls}" style="--tint:${e((p && p.color) || '#8A6A4B')}">${url ? `<img src="${e(url)}" alt="" loading="lazy">` : e((p && p.emoji) || '·')}</span>`;
+    return `<span class="avatar ${cls}" data-accent="${e(hub.hueOf(p))}">${url ? `<img src="${e(url)}" alt="" loading="lazy">` : e((p && p.emoji) || '·')}</span>`;
   };
   // Square-crop + resize on the device; the server only ever receives two small JPEGs.
   async function squareJpeg(file, size, quality) {
