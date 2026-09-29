@@ -292,7 +292,7 @@
     const days = v.days && typeof v.days === 'object' ? { ...v.days } : {};
     const s = { week: wk, count: 0, days, total, ...rewardsExtra(v) }; s.count = weekCount(s); return s;
   }
-  const myStars = () => normStars(hub.get('stars', { scope: 'person' }));
+  const myStars = () => deriveStars();                                // batch 0f: from the kid's own rows (see deriveStars below)
   const kidStars = id => { const s = normStars(hub.get('stars:' + id, { scope: 'family' })); applyLedger(s, ledgerRows(id)); return s; };   // item 20: + the parent ledger rows the kid has not taken in yet
   const familyWeek = () => { const v = hub.get('week', { scope: 'family' }); return clampWeek(v && typeof v === 'object' ? v.week : v); };
   const daysHtml = (s, small) => { const today = dayKey(); return `<div class="days" aria-label="${s.count} of 7 days">${weekDays().map((k, i) => `<span class="${s.days[k] === true ? 'on' : ''}${k === today ? ' today' : ''}" title="${k}">${s.days[k] === true ? STAR : DOW[i]}</span>`).join('')}</div>`; };
@@ -348,10 +348,10 @@
     if (!allReady()) { render(); return false; }                        // 0b: never from an unpulled row (the button is disabled meanwhile)
     const s = myStars(); const today = dayKey();
     if (s.days[today]) { hub.toast('You already have today’s star — come back tomorrow!'); return false; }   // one per day
-    s.days[today] = true; s.count = weekCount(s); s.total += 1; s.earned += 1; stamp(s, 'verse', today);   // item 20: count spans all sources; earned never resets; earnedAt dates the star for a parent's reset
+    // batch 0f (P3-KIDVERSE-02): the star is its own row, so a second device with an older copy can never erase it
     try {
-      hub.set('stars', s, { scope: 'person' });                          // mine
-      hub.set('stars:' + hub.profile.id, s, { scope: 'family' });        // the mirror adults and the TV read
+      hub.set('star:verse:' + today, { at: serverNow() }, { scope: 'person' });
+      writeMirror();                                                     // the family mirror adults and the TV read
     } catch (e) { render(); return false; }                              // not_loaded / read_only: the SDK has said so
     hub.activity(hub.profile.name + ' read the verse ★');
     confetti(); render();
@@ -414,7 +414,15 @@
   }
 
   // ══ item 20 — stars & badges ═══════════════════════════════════════════════════════════════════════════
-  // The stars row grows (every field optional, so an item-16 row still reads):
+  // Batch 0f (P3-KIDVERSE-02): what the kid earned lives in one row per fact, in the kid's own person scope, so two devices'
+  // stars add up instead of the newer whole row erasing the other's:
+  //   star:<verse|story|prayed>:<date>  { at }       a star, at = when it was earned (server clock)
+  //   reset:<verse|story|prayed>:<date> { by }       a parent's reset took this star (the day stays spent)
+  //   applied:<ledgerKey>               { kind, amount?, date, by, at }   a parent's cash-in or reset, taken in once
+  //   badge:<id>                        'YYYY-MM-DD'
+  // deriveStars() builds the stars object below from them (the total by replaying stars, cash-ins and resets in time order),
+  // over the pre-0f whole row `stars` (person) as a read-only base. The family mirror stars:<kid> is that derived object,
+  // rewritten whenever it differs. The stars object (every field optional, so an item-16 row still reads):
   //   { week, count, days, total, earned, credited: { story: { date: true|'reset' }, prayed: { … } }, badges: { id: date }, payouts: [{ date, amount, by }], applied: { ledgerKey: true }, earnedAt: { 'verse:date'|'story:date'|'prayed:date': ms } }
   //   count   this week's stars = verse days + credited story days + credited prayed days in the ISO week (the shell and TV read it)
   //   earnedAt when each star was earned (server time), so a parent's reset can tell a star earned before it from one earned after
@@ -454,6 +462,8 @@
   // the story companion (item 17) marks the days a kid heard the story in family story:<kid>; read every date-shaped mark it may carry
   function storyDays(id) {
     const v = hub.get('story:' + id, { scope: 'family' }); const out = new Set();
+    // batch 0f (P3-KIDVERSE-10): the kid's own heard:<week>:<date> rows are the truth; the family mirror may be a moment behind
+    if (hub.profile && hub.profile.id === id) for (const r of hub.list('heard:', { scope: 'person' })) { const d = r.key.split(':')[2]; if (r.value && isDate(d)) out.add(d); }
     const add = x => { const k = typeof x === 'string' ? x : x && typeof x === 'object' ? (x.date || x.day) : null; if (isDate(k)) out.add(k); };
     const walk = m => { if (Array.isArray(m)) m.forEach(add); else if (m && typeof m === 'object') for (const k of Object.keys(m)) { if (m[k]) add(k); } };
     if (Array.isArray(v)) walk(v);
@@ -499,19 +509,97 @@
     if (done.length) s.count = weekCount(s);
     return done;
   }
-  // Never reconcile from an empty cache: until both kidverse scopes have been pulled on this device (hub.isLoaded), a fresh
-  // zero row would out-date the kid's real stars (last write wins). hub.loaded() and hub.onSync run it once they land.
+  const P = { scope: 'person' }, FAM = { scope: 'family' };
+  const sortDeep = v => Array.isArray(v) ? v.map(sortDeep) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sortDeep(v[k])])) : v;
+  const healStoryMirror = () => { try { if (window.kidverse && typeof window.kidverse.healStory === 'function') window.kidverse.healStory(); } catch (e) { console.error(e); } };
+  const serverNow = () => Date.now() + (Number(hub.skew) || 0);
+  const K_STAR = /^star:(verse|story|prayed):(\d{4}-\d{2}-\d{2})$/, K_RESET = /^reset:(verse|story|prayed):(\d{4}-\d{2}-\d{2})$/;
+  // Every star this kid has, from the rows (and the pre-0f whole row): Map 'kind:date' → { at, reset, legacy }.
+  function starMap(old) {
+    const has = new Map(), ox = rewardsExtra(old);
+    const oDays = old && typeof old === 'object' && old.days && typeof old.days === 'object' ? old.days : {};
+    for (const d of Object.keys(oDays)) if (isDate(d) && oDays[d]) has.set('verse:' + d, { at: ox.earnedAt['verse:' + d] || 0, reset: oDays[d] === 'reset' ? 'legacy' : null, legacy: true });
+    for (const kind of ['story', 'prayed']) for (const d of Object.keys(ox.credited[kind])) has.set(kind + ':' + d, { at: ox.earnedAt[kind + ':' + d] || 0, reset: ox.credited[kind][d] === 'reset' ? 'legacy' : null, legacy: true });
+    for (const r of hub.list('star:', P)) { const m = K_STAR.exec(r.key); if (!m || !r.value || has.has(m[1] + ':' + m[2])) continue; has.set(m[1] + ':' + m[2], { at: Math.floor(Number(r.value.at)) || 0, reset: null, legacy: false }); }
+    for (const r of hub.list('reset:', P)) { const m = K_RESET.exec(r.key); const st = m && r.value && has.get(m[1] + ':' + m[2]); if (st && !st.reset) st.reset = String(r.value.by || 'reset'); }
+    return { has, ox };
+  }
+  function deriveStars() {
+    const wk = isoWeek(), old = hub.get('stars', P);
+    const { has, ox } = starMap(old);
+    const o = old && typeof old === 'object' ? old : null;
+    let total = o ? Math.max(0, Math.floor(Number(o.total) || 0)) : 0;   // the pre-0f balance already holds its own stars
+    const applied = { ...ox.applied }, payouts = [...ox.payouts], events = [];
+    // a new star a parent's reset took adds nothing (so the order of the star and the reset cannot matter)
+    for (const [k, st] of has) if (!st.legacy && !st.reset) events.push({ t: st.at, star: k });
+    for (const r of hub.list('applied:', P)) {
+      const key = r.key.slice(8), e = r.value; if (!e || typeof e !== 'object' || ox.applied[key]) continue;
+      applied[key] = true;
+      if (e.kind === 'cashin') { const amount = Math.max(0, Math.floor(Number(e.amount) || 0)); events.push({ t: Number(e.at) || 0, cashin: amount, e: { date: isDate(e.date) ? e.date : dayKey(), amount, by: e.by ? String(e.by) : undefined } }); }
+      else if (e.kind === 'reset') events.push({ t: Number(e.at) || 0, reset: key });
+    }
+    // in time order; at the same moment a star comes first (a star earned no later than a reset is taken by it)
+    events.sort((a, b) => a.t - b.t || (a.star ? -1 : b.star ? 1 : 0) || String(a.star || a.reset || '').localeCompare(String(b.star || b.reset || '')));
+    for (const ev of events) {
+      if (ev.star) total += 1;
+      else if (ev.cashin !== undefined) { total = Math.max(0, total - ev.cashin); payouts.push(ev.e); }
+      else if (ev.reset) { let n = 0; for (const st of has.values()) if (st.legacy && st.reset === ev.reset) n++; total = Math.max(0, total - n); }   // the pre-0f stars it took (already in the base total)
+    }
+    const days = {}, credited = { story: {}, prayed: {} }, earnedAt = {}, keep = lastDays(30)[29], week = new Set(weekDays());
+    for (const [k, st] of has) {
+      const [kind, d] = k.split(':'); const v = st.reset ? 'reset' : true;
+      if (kind === 'verse') { if (week.has(d)) days[d] = v; } else credited[kind][d] = v;
+      if (!(st.reset && kind === 'verse') && st.at > 0 && d >= keep) earnedAt[k] = st.at;   // as before 0f: a reset verse day loses its stamp, a reset story / prayed day keeps it
+    }
+    const badges = { ...ox.badges };
+    for (const r of hub.list('badge:', P)) { const id = r.key.slice(6); if (BADGES.some(b => b.id === id) && isDate(r.value) && !badges[id]) badges[id] = r.value; }
+    let earned = ox.earned;                                              // the pre-0f row's earned (never below its own total)
+    for (const st of has.values()) if (!st.legacy) earned++;
+    const s = { week: wk, count: 0, days, total, earned, credited, badges, payouts: payouts.slice(-50), applied, earnedAt };
+    s.count = weekCount(s);
+    return s;
+  }
+  // The family mirror adults, Home and the TV read: the derived object, written only when it changed. Every map is built in
+  // sorted key order: two devices with the same rows (received in a different order) build the same mirror, so they never
+  // take turns rewriting it.
+  function writeMirror() {
+    const p = hub.profile; if (!p || p.kind !== 'kid') return;
+    const s = sortDeep(deriveStars());
+    if (JSON.stringify(s) !== JSON.stringify(sortDeep(hub.get('stars:' + p.id, FAM)))) hub.set('stars:' + p.id, s, FAM);
+    return s;
+  }
+  // Never reconcile from an empty cache: until both kidverse scopes have been pulled on this device (hub.isLoaded), the rows
+  // it builds on may be missing. hub.loaded() and hub.onSync run it once they land. Each write is one fact's own row, so a
+  // second device doing the same work writes the same rows (a star, a badge and a parent's action count once).
   function reconcile(celebrate = true, withConfetti = true) {
     const p = hub.profile; if (!p || p.kind !== 'kid' || !hub.canWrite || !allReady()) return false;
-    const s = myStars(); let changed = false;
-    const led = applyLedger(s, ledgerRows(p.id)); if (led.length) changed = true;   // a parent cashed in or reset the week
+    const s0 = deriveStars(), { has, ox } = starMap(hub.get('stars', P)), writes = [], led = [];
+    for (const r of ledgerRows(p.id)) {                                  // a parent cashed in or reset the week
+      const e = r.value; if (e.kind !== 'cashin' && e.kind !== 'reset') continue;   // an unknown kind is left for a newer app version
+      const at = Number(e.at) || 0, fresh = !s0.applied[r.key];
+      if (!fresh && e.kind !== 'reset') continue;
+      // a reset already taken in is gone over again: a star earned before it on another device may have arrived since
+      if (fresh) writes.push(['applied:' + r.key, { kind: e.kind, amount: e.kind === 'cashin' ? Math.max(0, Math.floor(Number(e.amount) || 0)) : undefined, date: isDate(e.date) ? e.date : dayKey(), by: e.by ? String(e.by) : undefined, at }]);
+      if (e.kind === 'reset') {
+        const upto = isDate(e.date) ? e.date : null;
+        for (const d of (Array.isArray(e.days) ? e.days : []).filter(isDate)) {
+          if (upto && d > upto) continue;                                // a reset never reaches past its own day
+          for (const kind of ['verse', 'story', 'prayed']) { const st = has.get(kind + ':' + d); if (st && !st.reset && !(st.at > at) && !(st.legacy && ox.applied[r.key])) writes.push(['reset:' + kind + ':' + d, { by: r.key }]); }   // only stars earned before it (or unstamped); a reset the pre-0f app applied left its own stars as they are (their times are gone after 30 days), but still takes a new star earned before it
+        }
+      }
+      if (fresh) led.push(e);
+    }
     const recent = new Set(lastDays(14));
-    for (const d of storyDays(p.id)) if (recent.has(d) && !s.credited.story[d]) { s.credited.story[d] = true; stamp(s, 'story', d); s.total += 1; s.earned += 1; changed = true; }
-    for (const d of prayedDays(p.name)) if (recent.has(d) && !s.credited.prayed[d]) { s.credited.prayed[d] = true; stamp(s, 'prayed', d); s.total += 1; s.earned += 1; changed = true; }
-    const count = weekCount(s); if (count !== s.count) { s.count = count; changed = true; }
-    const fresh = BADGES.filter(b => !s.badges[b.id] && b.test(s));
-    for (const b of fresh) { s.badges[b.id] = dayKey(); changed = true; }
-    if (changed) { try { hub.set('stars', s, { scope: 'person' }); hub.set('stars:' + p.id, s, { scope: 'family' }); } catch { return false; } }
+    for (const d of storyDays(p.id)) if (recent.has(d) && !has.has('story:' + d)) writes.push(['star:story:' + d, { at: serverNow() }]);
+    for (const d of prayedDays(p.name)) if (recent.has(d) && !has.has('prayed:' + d)) writes.push(['star:prayed:' + d, { at: serverNow() }]);
+    let fresh = [];
+    try {
+      for (const [k, v] of writes) hub.set(k, v, P);
+      const s1 = deriveStars(); fresh = BADGES.filter(b => !s1.badges[b.id] && b.test(s1));
+      for (const b of fresh) hub.set('badge:' + b.id, dayKey(), P);
+      writeMirror(); healStoryMirror();
+    } catch { return false; }
+    const changed = writes.length > 0 || fresh.length > 0;
     if (fresh.length && celebrate) {
       if (withConfetti) confetti(); hub.toast('New badge: ' + fresh.map(b => b.name).join(' and ') + '!', 3200);
       for (const b of fresh) hub.activity(p.name + ' earned the ' + b.name + ' badge');
@@ -540,7 +628,7 @@
     let seenPull = 0; hub.onSync(st => { if (st.lastPull && st.lastPull !== seenPull) { seenPull = st.lastPull; reconcile(); } });   // and after every pull
     $('#done').addEventListener('click', () => reconcile(true, false));  // after award(): the new star may complete a badge (its confetti is already falling)
     renderRewards(); reconcile();
-    if (window.kidverse) window.kidverse.rewards = { reconcile, renderRewards, BADGES, weekCount, storyDays, prayedDays, ledgerRows, applyLedger };
+    if (window.kidverse) window.kidverse.rewards = { reconcile, renderRewards, BADGES, weekCount, storyDays, prayedDays, ledgerRows, applyLedger, deriveStars, writeMirror };
   }
   // ══ end item 20 ═══════════════════════════════════════════════════════════════════════════════════════════
 
@@ -651,7 +739,19 @@
     if (!ok || v.week !== wk) return { week: wk, days: {} };
     return { week: wk, days: v.days && typeof v.days === 'object' ? { ...v.days } : {} };
   }
-  const myStory = () => normStory(hub.get('story', { scope: 'person' }));
+  // batch 0f (P3-KIDVERSE-10): one row per heard day, heard:<week>:<date>, over the pre-0f whole row `story` (read-only base),
+  // so a second device with an older copy never erases a heard day. The family mirror story:<kid> is rebuilt from them.
+  const myStory = () => {
+    const s = normStory(hub.get('story', { scope: 'person' }));
+    for (const r of hub.list('heard:' + s.week + ':', { scope: 'person' })) { const d = r.key.split(':')[2]; if (r.value && /^\d{4}-\d{2}-\d{2}$/.test(d)) s.days[d] = true; }
+    return s;
+  };
+  function healStory() {
+    const p = hub.profile; if (!p || p.kind !== 'kid' || !hub.canWrite || !allReady()) return;
+    const s = myStory(), cur = hub.get('story:' + p.id, { scope: 'family' });
+    const sorted = v => v && typeof v === 'object' ? { week: v.week, days: Object.fromEntries(Object.keys(v.days || {}).sort().map(k => [k, v.days[k]])) } : v;
+    if (Object.keys(s.days).length && JSON.stringify(sorted(s)) !== JSON.stringify(sorted(cur))) hub.set('story:' + p.id, sorted(s), { scope: 'family' });
+  }
   const heardDays = s => Object.keys(s.days).length;
 
   // ── read it aloud: the same voice rules as the verse, cancel on Escape / page hide ──
@@ -687,8 +787,8 @@
     if (s.days[today]) { hub.toast('You already heard today’s story — come back tomorrow!'); return false; }
     s.days[today] = true;
     try {
-      hub.set('story', s, { scope: 'person' });
-      hub.set('story:' + hub.profile.id, s, { scope: 'family' });
+      hub.set('heard:' + s.week + ':' + today, true, { scope: 'person' });   // this day's own row (P3-KIDVERSE-10)
+      healStory();                                                        // the mirror parents' F260 hero reads (sorted, only if it changed)
     } catch (e) { renderStory(); return false; }                        // not_loaded / read_only: the SDK has said so
     hub.activity(hub.profile.name + " heard this week's story");
     hub.toast('Great listening!');
@@ -737,7 +837,7 @@
     hub.onChange(renderStory);
     hub.onDay(() => renderStory());                                      // past midnight: un-press "Heard it today", new week on Monday
     renderStory();
-    window.kidverse = Object.assign(window.kidverse || {}, { STORIES, heard, renderStory });   // for the test script
+    window.kidverse = Object.assign(window.kidverse || {}, { STORIES, heard, renderStory, healStory });   // for the test script
   })();
 })();
 </script>

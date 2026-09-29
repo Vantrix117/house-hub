@@ -187,7 +187,7 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     ok(await f.evaluate(() => hub.get('lastPreset') === 600), 'timer remembers the preset per profile');
     f = await openApp(A.page, 'tally');
     await f.click('#plus');
-    ok(await f.evaluate(() => hub.get('count') === 1), 'tally counts in person scope');
+    ok(await f.evaluate(() => hub.list('count:').reduce((n, r) => n + (r.value && r.value.n || 0), 0) === 1), 'tally counts in person scope (one row per device since batch 0f)');
 
     console.log('\n## Admin panel');
     await A.page.click('#pill-home'); await A.page.click('.tab[data-tab=me]');

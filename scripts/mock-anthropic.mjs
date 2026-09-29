@@ -22,6 +22,7 @@ function pick(text) {
   if (/(was|got|is) answered/.test(t)) { const m = t.match(/^(?:the )?(?:prayer (?:for |about )?)?(.+?) (?:was|got|is) answered(?: on the family list)?(?:[:,-]\s*(.+))?$/); return { name: 'answer_prayer', input: { list: /family/.test(t) ? 'family' : 'private', prayer_id: cap(m ? m[1] : t), ...(m && m[2] ? { note: cap(m[2]) } : {}) } }; }
   if (/^i prayed for (.+)/.test(t)) return { name: 'mark_prayed', input: { list: /family/.test(t) ? 'family' : 'private', prayer_id: cap(t.match(/^i prayed for (.+?)( on the family list| today)*$/)[1]) } };
   if (/pray/.test(t)) return { name: 'add_prayer', input: { list: /family/.test(t) ? 'family' : 'private', text: cap(t.replace(/^.*pray(er)? (for |that )?/, '').replace(/ on the family list/, '')) } };
+  if (/what'?s my tally/.test(t)) return { name: 'get_data', input: { app_id: 'tally', scope: 'person', key: 'count' } };
   if (/set my tally to (\d+)/.test(t)) return { name: 'set_data', input: { app_id: 'tally', scope: 'person', key: 'count', value: +t.match(/set my tally to (\d+)/)[1] } };
   return null;
 }

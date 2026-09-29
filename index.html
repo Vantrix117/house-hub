@@ -1179,8 +1179,10 @@
     }
     const park = atPark();
     if (p.kind === 'kid') {
-      const stars = starsOf(hub.get('stars', { app: 'kidverse', scope: 'person' }));
-      const kcards = [starsCardHtml(stars, hub.isLoaded('kidverse', 'person'))]; if (park.length) kcards.push(parkCardHtml(park));
+      // batch 0f: Kid Verse keeps one row per star and writes the derived total to the family mirror stars:<kid> (with the
+      // pre-0f person row as a fallback until the kid's device has rebuilt the mirror)
+      const stars = starsOf(hub.get('stars:' + p.id, { app: 'kidverse', scope: 'family' }) || hub.get('stars', { app: 'kidverse', scope: 'person' }));
+      const kcards = [starsCardHtml(stars, hub.isLoaded('kidverse', 'family'))]; if (park.length) kcards.push(parkCardHtml(park));
       v.innerHTML = heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: stars ? `${stars} ${stars === 1 ? 'star' : 'stars'} this week — ready to play?` : 'Ready to play?', art: 'play' }) + `
         <div class="stack-lg">
           <button class="kid-cta" id="kid-apps"><span class="app-icon"><svg class="icon"><use href="#i-sparkle"/></svg></span>Let's play — open your apps</button>

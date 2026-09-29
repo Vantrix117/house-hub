@@ -77,6 +77,15 @@ const dayKey = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.
 const isoWeek = d => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
 const TODAY = dayKey(new Date()), WEEK = isoWeek(new Date());
 const row = async (tok, scope, key) => (await api(`/api/data/kidverse?scope=${scope}`, { profile: tok })).items.find(r => r.key === key);
+// Since batch 0f Kid Verse keeps one row per star, reset, applied parent action, badge and heard day in the kid's person
+// scope, and writes the derived stars object (the shape these checks read) to the family mirror stars:<kid>; the story's
+// derived { week, days } goes to story:<kid>. clearKidRows gives a kid a clean slate of those rows.
+const KV_ROWS = ['star:', 'reset:', 'applied:', 'badge:', 'heard:'];
+async function clearKidRows(tok) {
+  const items = (await api('/api/data/kidverse?scope=person', { profile: tok })).items || [];
+  for (const r of items) if (r.value != null && KV_ROWS.some(p => r.key.startsWith(p))) await api('/api/data/kidverse/' + encodeURIComponent(r.key) + '?scope=person', { method: 'DELETE', profile: tok });
+}
+
 let T = {};
 async function seed() {
   DEVICE = (await api('/api/pair', { method: 'POST', body: { code: CODE, name: 'test-kidstory seeder' } })).device_token;
@@ -84,7 +93,7 @@ async function seed() {
   // a clean slate (the local DB is shared with other suites): tombstone both kids' story rows, both scopes, and their stars; family week → 26
   for (const [id, tok] of [['ezra', T.ezra], ['kiara', T.kiara]]) {
     await api('/api/data/kidverse/story?scope=person', { method: 'DELETE', profile: tok }).catch(() => {});
-    await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: tok }).catch(() => {});
+    await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: tok }).catch(() => {}); await clearKidRows(tok).catch(() => {});
     await api(`/api/data/kidverse/story:${id}?scope=family`, { method: 'DELETE', profile: T.eli }).catch(() => {});
     await api(`/api/data/kidverse/stars:${id}?scope=family`, { method: 'DELETE', profile: T.eli }).catch(() => {});
   }
@@ -232,12 +241,12 @@ const sameStory = (a, b) => !!a && !!b && a.week === b.week && JSON.stringify(a.
     ok(await text(F, '#story-sub') === 'Heard 1 day this week' && /already heard/.test(await text(F, '#hub-toast') || ''), 'a second tap keeps one day and says so', await text(F, '#hub-toast'));
     // storage + feed
     await synced(F).catch(() => {});
-    const mine = await rowSoon(T.ezra, 'person', 'story'), mirror = await rowSoon(T.eli, 'family', 'story:ezra');
+    const mine = await rowSoon(T.ezra, 'family', 'story:ezra'), mirror = await rowSoon(T.eli, 'family', 'story:ezra');
     ok(mine && mine.value && mine.value.week === WEEK && mine.value.days && mine.value.days[TODAY] === true && Object.keys(mine.value.days).length === 1, 'app_data(kidverse, person, story) = { week: this ISO week, days: { today: true } }', JSON.stringify(mine && mine.value));
     ok(mirror && sameStory(mirror.value, mine.value), 'app_data(kidverse, family, story:ezra) mirrors the same value', JSON.stringify(mirror && mirror.value));
     const feed = (await api('/api/activity?limit=40', { profile: T.eli })).activity || [];
     ok(feed.some(a => a.profile_id === 'ezra' && a.app_id === 'kidverse' && /Ezra heard this week's story/.test(a.text)), 'the feed has "Ezra heard this week\'s story"', JSON.stringify(feed.slice(0, 4).map(a => a.text)));
-    const starRow = await row(T.ezra, 'person', 'stars');
+    const starRow = await row(T.ezra, 'family', 'stars:ezra');
     ok(!starRow || !starRow.value || !(starRow.value.days && starRow.value.days[TODAY]), 'no verse-★ day was written by hearing the story (stars stay item 20\'s)', JSON.stringify(starRow && starRow.value && starRow.value.days));
 
     console.log('\n## (c) parents\' F260: "Kids: Ezra 1/5" within a pull, then Kiara joins');
@@ -277,7 +286,7 @@ const sameStory = (a, b) => !!a && !!b && a.week === b.week && JSON.stringify(a.
     ok(await text(TV.page, '#story-title') === exp.story.t && await TV.page.$eval('#story-heard', b => b.hidden), 'the TV sees the story, no button');
     ok(await TV.page.evaluate(() => window.kidverse.heard()) === false && /only looks/.test(await text(TV.page, '#hub-toast') || ''), 'heard() refuses for the kiosk and nudges');
     await sleep(500);
-    ok(!(await row(T.eli, 'family', 'story:tv')) && sameStory((await row(T.ezra, 'person', 'story')).value, mine.value), 'nothing changed on the server: no story:tv, Ezra still one day');
+    ok(!(await row(T.eli, 'family', 'story:tv')) && sameStory((await row(T.ezra, 'family', 'story:ezra')).value, mine.value), 'nothing changed on the server: no story:tv, Ezra still one day');
     await TV.page.screenshot({ path: path.join(SHOTS, 'rm17-kiosk-1440.png') });
 
     ok(errors.length === 0, 'no console errors in any context', errors.join(' | '));

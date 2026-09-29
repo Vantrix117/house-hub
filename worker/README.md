@@ -220,6 +220,7 @@ asserts every chip and refusal against a local Worker.
   whole-map row (`f260.done`, `f260.mem`, `f260.log`, `f260.recall`, `progress`), which stays as a read-only base;
   `false` means off. `rowMap()` in `src/data.js` (and `hub.rowMap` in hub.js) does the merge; chat's F260 tools and the 8 pm
   job read it. Prefix reads (`?prefix=`) are exact-case.
+- **Kid Verse and Tally** (batch 0f): a kid's stars, parents' actions taken in, badges and heard story days are one row each in the kid's person scope (`star:`, `reset:`, `applied:`, `badge:`, `heard:`), and the kid's device writes the derived totals to the family mirrors `stars:<kid>` / `story:<kid>`. Tally keeps `count:<device>` = `{n, epoch}` per device and a `reset` row `{epoch, at}`; the count is the sum on the current epoch (the old absolute `count` row is the base until the first reset). In chat, `get_data` on tally `count` returns that sum and `set_data` on it starts a new epoch at the number (`reset` + `count:chat`).
 - **The F260 journal vault** (`f260.journal.vault`) carries a version (`vid`, or `p:<passcode salt>` for one written before
   versions). A vault with a different version is refused (`vault_changed`) unless it names the stored one as `prev`, so a
   device still holding an erased, re-created or restored journal's key cannot write over the new one.

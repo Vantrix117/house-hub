@@ -78,13 +78,22 @@ const dayKey = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.
 const isoWeek = d => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
 const TODAY = dayKey(new Date()), WEEK = isoWeek(new Date());
 const row = async (tok, scope, key) => (await api(`/api/data/kidverse?scope=${scope}`, { profile: tok })).items.find(r => r.key === key);
+// Since batch 0f Kid Verse keeps one row per star, reset, applied parent action, badge and heard day in the kid's person
+// scope, and writes the derived stars object (the shape these checks read) to the family mirror stars:<kid>; the story's
+// derived { week, days } goes to story:<kid>. clearKidRows gives a kid a clean slate of those rows.
+const KV_ROWS = ['star:', 'reset:', 'applied:', 'badge:', 'heard:'];
+async function clearKidRows(tok) {
+  const items = (await api('/api/data/kidverse?scope=person', { profile: tok })).items || [];
+  for (const r of items) if (r.value != null && KV_ROWS.some(p => r.key.startsWith(p))) await api('/api/data/kidverse/' + encodeURIComponent(r.key) + '?scope=person', { method: 'DELETE', profile: tok });
+}
+
 let T = {};
 async function seed() {
   DEVICE = (await api('/api/pair', { method: 'POST', body: { code: CODE, name: 'test-kidverse seeder' } })).device_token;
   T = { eli: await login('eli', ELI_PIN), ezra: await login('ezra'), kiara: await login('kiara'), tv: await login('tv') };
   // a clean slate for Ezra (the local DB is shared with other suites): tombstone his stars, both scopes; the family week → 3
   const now = Date.now();
-  await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T.ezra }).catch(() => {});
+  await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T.ezra }).catch(() => {}); await clearKidRows(T.ezra).catch(() => {});
   await api('/api/data/kidverse/stars:ezra?scope=family', { method: 'DELETE', profile: T.eli }).catch(() => {});
   await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: T.eli, body: { value: { week: 3, by: 'test' }, updated_at: now } });
 }
@@ -204,7 +213,7 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
 
     console.log('\n## (c) storage: person row + family mirror + feed line');
     await synced(F);
-    const mine = await row(T.ezra, 'person', 'stars'), mirror = await row(T.eli, 'family', 'stars:ezra');
+    const mine = await row(T.ezra, 'family', 'stars:ezra'), mirror = await row(T.eli, 'family', 'stars:ezra');
     ok(mine && mine.value && mine.value.week === WEEK && mine.value.count === 1 && mine.value.days && mine.value.days[TODAY] === true && Object.keys(mine.value.days).length === 1, 'app_data(kidverse, person, stars) = { week: this ISO week, count: 1, days: { today: true } }', JSON.stringify(mine && mine.value));
     ok(mirror && sameStars(mirror.value, mine.value), 'app_data(kidverse, family, stars:ezra) mirrors the same value', JSON.stringify(mirror && mirror.value));
     const feed = (await api('/api/activity?limit=40', { profile: T.eli })).activity || [];
@@ -261,7 +270,7 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
     ok(tried[0] === false, 'award() refuses for the kiosk');
     ok(/only looks/.test(await text(TV.page, '#hub-toast') || ''), 'and nudges with the kiosk toast', await text(TV.page, '#hub-toast'));
     await sleep(600);
-    const mine2 = await row(T.ezra, 'person', 'stars'), wk2 = await row(T.eli, 'family', 'week');
+    const mine2 = await row(T.ezra, 'family', 'stars:ezra'), wk2 = await row(T.eli, 'family', 'week');
     ok(sameStars(mine2 && mine2.value, mine.value) && !(await row(T.eli, 'family', 'stars:tv')) && wk2.value.week === 4, 'nothing changed on the server: Ezra still ★1, no stars:tv, week still 4');
     await TV.page.screenshot({ path: path.join(SHOTS, 'rm16-kiosk-1440.png') });
 

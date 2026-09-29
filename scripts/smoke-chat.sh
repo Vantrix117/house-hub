@@ -50,7 +50,8 @@ chat "$P" "Add milk to the leftovers";                             expect "lefto
 chat "$P" "Remind everyone to take the bins out tonight";          expect "reminder chip" 'Added reminder: Take the bins out tonight'
 chat "$P" "I read week 2 day 1 of F260";                           expect "f260 chip" 'Week 2 day 1 (checked off|unchecked)'
 chat "$P" "Please pray for Grandma's knee on the family list";     expect "prayer chip" "prayer list: Grandma's knee"
-chat "$P" "Set my tally to 42";                                    expect "set_data chip" 'Saved count in tally'
+chat "$P" "Set my tally to 42";                                    expect "set_data chip" 'Tally set to 42'
+chat "$P" "What's my tally?";                                     expect "tally read is the summed count" 'Done — 42'
 
 echo; echo "### $P (adult): round-2 tools — prayers, fridge clean-up, map, F260 status"
 chat "$P" "Please pray for Uncle Bob's trip $RUN on the family list";                 expect "family prayer added" "prayer list: Uncle Bob's trip $RUN"
@@ -77,7 +78,7 @@ chat "$P" "Where am I in my reading?";                                          
 chat "$P" "What's today's verse?";                                                    expect "verse tool is kids-only for adults" "for the kids"
 
 echo; echo "### Ezra (kid): adult-only app blocked, reminders blocked, kid-safe prompt"
-chat ezra "Set my tally to 3";                      expect "kid may write own tally" 'Saved count in tally'
+chat ezra "Set my tally to 3";                      expect "kid may write own tally" 'Tally set to 3'
 chat ezra "Change the prayer app for me";           expect "kid blocked from adult-only app" 'Kids cannot change that app'
 chat ezra "Remind everyone to buy cake";            expect "kid blocked from reminders" 'Kids cannot add reminders'
 chat ezra "Hello!";                                 expect "kid prompt in play" 'KID|event: done'

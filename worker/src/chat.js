@@ -174,6 +174,15 @@ async function runTool(env, ctx, name, input) {
       const args = { appId: input.app_id, scope: input.scope, profile };
       // the journal vault never leaves the house, asked for by name or not (P2-CHAT-07)
       if (input.key && /\.vault$/.test(input.key)) return { ok: false, result: 'The private journal is locked; it cannot be read from chat.', chip: null };
+      // Tally since batch 0f: the count is the sum of every device's count:<device> row on the current reset epoch
+      if (input.app_id === 'tally' && input.scope === 'person' && (!input.key || input.key === 'count')) {
+        const all = (await listData(env, args)).filter(r => r.value != null);
+        const reset = all.find(r => r.key === 'reset'), ep = reset && reset.value && reset.value.epoch ? String(reset.value.epoch) : null;
+        const base = all.find(r => r.key === 'count');
+        let n = ep ? 0 : Math.max(0, Number(base && base.value) || 0);
+        for (const r of all) if (r.key.startsWith('count:') && r.value && typeof r.value === 'object' && (r.value.epoch || null) === ep) n += Math.floor(Number(r.value.n) || 0);
+        return { ok: true, result: input.key ? Math.max(0, n) : [{ key: 'count', value: Math.max(0, n) }], chip: null };
+      }
       if (input.key) { const r = await getOne(env, { ...args, key: input.key }); return { ok: true, result: r && r.value != null ? shrink(r.value) : null, chip: null }; }
       const rows = (await listData(env, args)).filter(r => r.value != null && !/\.vault$/.test(r.key)).slice(0, 60);
       return { ok: true, result: rows.map(r => ({ key: r.key, value: shrink(r.value) })), chip: null };
@@ -182,6 +191,14 @@ async function runTool(env, ctx, name, input) {
     if (name === 'set_data') {
       if (!canUse(input.app_id) && !['reminders', 'hub'].includes(input.app_id)) return { ok: false, result: 'This person cannot use that app.', chip: null };
       if (/\.vault$/.test(input.key)) return { ok: false, result: 'The journal vault cannot be edited from chat.', chip: null };
+      // Tally keeps one row per device on a reset epoch since batch 0f: "set my tally to N" starts a new epoch at N
+      if (input.app_id === 'tally' && input.key === 'count' && input.scope === 'person') {
+        const n = Math.max(0, Math.floor(Number(input.value) || 0)), epoch = rid(), now = Date.now();
+        await putOne(env, { appId: 'tally', scope: 'person', profile, key: 'reset', value: { epoch, at: now }, updated_at: now });
+        await putOne(env, { appId: 'tally', scope: 'person', profile, key: 'count:chat', value: { n, epoch }, updated_at: now });
+        await activity(env, profile, 'tally', `Set the tally to ${n} (via chat)`);
+        return { ok: true, result: 'saved', chip: `✓ Tally set to ${n}` };
+      }
       await putOne(env, { appId: input.app_id, scope: input.scope, profile, key: input.key, value: input.value, updated_at: Date.now() });
       await activity(env, profile, input.app_id, `Changed ${input.key} in ${input.app_id} (via chat)`);
       return { ok: true, result: 'saved', chip: `✓ Saved ${input.key} in ${input.app_id}` };
