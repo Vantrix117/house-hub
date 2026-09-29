@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28) done; 88 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29) done; 96 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -42,7 +42,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 2 | **0b** | SDK: no write before the first load, safe migration, one household day | 36 (10 / 1 / 7 / 18 / 0) | L | — | 36/36 fixed, `d968db8` |
 | 3 | **0c** | SDK and shell: queued writes are never dropped, switching is clean | 19 (8 / 1 / 2 / 8 / 0) | L | — | 19/19 fixed, `e9e5f59` |
 | 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — | 15/15 fixed, `d5e46b6` |
-| 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | open |
+| 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | 7/7 fixed, `e72f6d0` |
 | 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | open |
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | open |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | open |
@@ -1120,7 +1120,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-01 — F260 and the build guide keep all ticks in one row; a device with an older copy silently erases another device's tick
 
-- **Area** shell / platform (F260, build guide) · **Type** bug · **Severity** critical · **Effort** L · **Batch** 0e
+- **Area** shell / platform (F260, build guide) · **Type** bug · **Severity** critical · **Effort** L · **Batch** 0e · **Status** FIXED (`e72f6d0`)
+- **Phase 6 (FIXED).** F260 keeps one row per tick, memorised verse, log day and rating (done:, mem:, log:, recall:) and the build guide one per step (step:; template 0d3fb7a), each overriding the old whole-map row, which stays as a read-only base (hub.rowMap; worker rowMap for chat and the 8 pm job). verify-whole-map-lww-2 (merged view): A online and B offline both end with {"38-2 (phone)":true,"38-3 (iPad)":true} (before: the phone tick false); the build guide keeps 26 of 26 steps; e2a: 38-2 present after the iPad tick (was erased). After: `audits/evidence/p6/0e/p2/SYNC/v2-whole-map-lww.json`, `audits/evidence/p6/0e/p2/SYNC/e2a-stale-overwrite.json`, `audits/evidence/p6/0e/tests/repro-after/phase6__0e__verify-whole-map-lww-loses-ticks-2.txt`.
 - **Evidence.** `audits/02-shell.md:2350`; `apps/f260.html:2089`, `apps/f260.html:1659-1662`, `apps/hub.js:236`, `worker/src/data.js:39-64`
 - **What happens now.** F260 rewrites the whole `f260.done` and `f260.log` maps on every tap (apps/f260.html:1659-1662). hub.js and the Worker resolve per row, last write wins (apps/hub.js:236, 276, 293-299; worker/src/data.js:39-64). The phone ticked Acts 6, which was on the server in 526–745 ms. The iPad, not yet pulled, ticked Acts 7.
 - **Why it matters.** this matches the household's original report ("does not save on the phone"). It is silent on the primary devices and breaks `weekDone`, the Today card and build-guide progress.
@@ -1129,7 +1130,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-19 — Past a journal size limit, every F260 journal save fails silently while the panel says "Saved"
 
-- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0e
+- **Area** shell / platform (F260) · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0e · **Status** FIXED (`e72f6d0`)
+- **Phase 6 (FIXED).** The journal ciphertext is base64-encoded in 32 KB slices; the panel says "Saving…", then "Saved" only when the write took, else "Not saved — …"; a vault over 850 KB is refused before it is sent. verify2-journal-silently-stops-saving-2, above the old limit: server vault changed true, decrypts with the new day (was unchanged behind "Saved"); verify-413-1: 4 × 40 000 chars now reach the server (213 645 chars, was 216), and 4 × 184 320 says "Not saved — the journal is too large to sync". After: `audits/evidence/p6/0e/p2/SYNC/verify2-journal-silently-stops-saving-2.json`, `audits/evidence/p6/0e/p2/SYNC/verify-413-drops-whole-channel-1-real.json`.
 - **Evidence.** `audits/02-shell.md:2835`; `apps/f260.html:993`
 - **What happens now.** `b64 = a => btoa(String.fromCharCode.apply(null, new Uint8Array(a)))` (apps/f260.html:993) throws `RangeError: Maximum call stack size exceeded` past the limit. `persistJournal` (1015-1024) swallows that error with `.catch(() => {})` (1023).
 - **Why it matters.** the person's most private writing is lost behind a false "Saved" confirmation, with no sign anywhere.
@@ -1138,7 +1140,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-20 — A failed journal save stores a new `iv` with the old ciphertext; the right passcode then says "Wrong passcode." (on every device if it happened offline)
 
-- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0e
+- **Area** shell / platform · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0e · **Status** FIXED (`e72f6d0`)
+- **Phase 6 (FIXED).** vaultBlob() returns a copy and a vault is written whole (iv and ciphertext together), so a failed save leaves the stored vault as it was. verify2-journal-vault-iv-mismatch-2 A4: the stored vault decrypts (261 entries; was OperationError and "Wrong passcode." on both devices); verify-413-3: the ivmix case no longer occurs. After: `audits/evidence/p6/0e/p2/SYNC/verify2-journal-vault-iv-mismatch-2-webkit.json`, `audits/evidence/p6/0e/p2/SYNC/verify-413-drops-whole-channel-3-ivmix.json`.
 - **Evidence.** `audits/02-shell.md:2868`; `apps/f260.html:1020`, `apps/hub.js:220-222`, `apps/hub.js:238-239`, `apps/hub.js:296`
 - **What happens now.** `persistJournal` runs `const blob = vaultBlob() || {}; blob.v = 2; blob.iv = b64(iv); blob.ct = b64(ct);` (apps/f260.html:1020). `vaultBlob()` returns the live object the hub.js store holds (f260.html:998, 901; apps/hub.js:220-222). So the new `iv` is written into it before `b64(ct)` throws.
 - **Why it matters.** The whole encrypted HEAR journal becomes undecryptable, not just the newest entry. The only matching `iv` is gone, and `app_data` keeps no history. The app blames the passcode, and its dialog offers erasing the journal as the only remedy (f260.html:1136).
@@ -1147,7 +1150,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-F260-01 — Rating a verse in F260's practice dialog erases its schedule in the Verses trainer
 
-- **Area** f260 · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0e
+- **Area** f260 · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0e · **Status** FIXED (`e72f6d0`)
+- **Phase 6 (FIXED).** F260's practice rating merges s and t into the verse's own recall:<id> row, read at write time; Verses' box, due, last and streak stay. recall: after F260 "Got it" the row keeps box 4, due 2026-09-29, streak 3 and Verses is unchanged (was reset to box 1, due now); verify-recall-practice-1 A: box 5 / due / streak 4 kept. After: `audits/evidence/p6/0e/p3/f260/recall.json`, `audits/evidence/p6/0e/p3/f260/verify-recall-practice-wipes-verses-box-1.json`.
 - **Evidence.** `audits/03-apps/f260.md:150`; `apps/f260.html:1648-1650`, `apps/f260.html:1343-1346`, `apps.json:4`, `apps.json:12`; `audits/evidence/p3/f260/recall-practice-reveal-ipad.png`, `audits/evidence/p3/f260/recall-verses-after-ipad.png`
 - **What happens now.** F260's "Got it" and "Not yet" both write `recall[prId] = { s, t: Date.now() }` (`apps/f260.html:1915`), a new object that never reads the previous entry, and save the whole map through `hub.set` (`apps/f260.html:902`).
 - **Why it matters.** Spaced repetition is weeks of reviews. A well-learned verse silently drops back to daily review with its streak at 0, and the F260 "Got it" is not even counted as a review in Verses.
@@ -1156,7 +1160,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-F260-13 — A device with the journal still unlocked overwrites a vault that another device erased or re-created; the journal then opens nowhere (from the critic)
 
-- **Area** f260 · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0e
+- **Area** f260 · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0e · **Status** FIXED (`e72f6d0`)
+- **Phase 6 (FIXED).** The vault carries a version (vid; a pre-version vault is known by its passcode salt), a device writes only while the stored vault is the version it unlocked, and the Worker refuses another version unless the write names it as replaced. verify-critic-vault-stale-1-1: after an erase the stale phone is offered "Set a journal passcode" and after a re-create the new passcode P2 opens the journal (was a raw error, then "Wrong passcode." for both P1 and P2). After: `audits/evidence/p6/0e/p3/f260/verify-critic-vault-stale-device-overwrites-1-1.json`, `audits/evidence/p6/0e/p3/f260/critic-vault-stale-device.json`.
 - **Evidence.** `audits/03-apps/f260.md:462`; `apps/f260.html:920`, `apps/f260.html:1015-1022`, `apps/f260.html:2089`, `apps/hub.js:342`; `audits/evidence/p3/f260/critic-vault-stale-E1-phone-unlock.png`, `audits/evidence/p3/f260/critic-vault-stale-E2-phone-unlock.png`
 - **What happens now.** `persistJournal()` encrypts the journal with the data key it holds in memory and writes `iv` and `ct` into whatever vault row the hub cache holds at that moment (`const blob = vaultBlob() || {}`, `apps/f260.html:1015-1022`). It never checks that the row still carries the key wrap it unlocked.
 - **Why it matters.** The whole journal becomes unopenable on every device, and the entries written after starting over are gone. The only message is a raw JavaScript error, and the only way forward is another Erase.
@@ -1165,7 +1170,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-VERSES-02 — Two devices reviewing: one device's ratings and the day's review count are silently erased
 
-- **Area** verses · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0e
+- **Area** verses · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0e · **Status** FIXED (`e72f6d0`)
+- **Phase 6 (FIXED).** Verses writes one recall:<id> row per verse and a rev:<date>:<id>:<device> count per rating; the day total is their sum plus the old log map. verify-recall-log-lww-2: lostPhoneRatings [] (was ["36-1"]); lww-1 (merged view): the phone's 36-1 survives and the day counts 3 and 4 (were 1); its remaining "lost" 33-0 is the same verse the iPad rated later, whose newer rating correctly wins. After: `audits/evidence/p6/0e/p3/verses/verify-recall-log-whole-map-lww-2.json`, `audits/evidence/p6/0e/p3/verses/verify-recall-log-whole-map-lww-1.json`, `audits/evidence/p6/0e/p3/verses/two-devices-A.json`.
 - **Evidence.** `audits/03-apps/verses.md:170`; `apps/hub.js:342`, `apps/f260.html:2089`, `apps/f260.html:668`, `apps/f260.html:927`; `audits/evidence/p3/verses/two-devices-A-phone-after-poll.png`, `audits/evidence/p3/verses/two-devices-B-phone-after-poll.png`
 - **What happens now.** Every rating rewrites the whole `f260.recall` map and the whole `verses.log` map from the device's own cache (`{...recall()}`, `{...log()}`, `apps/verses.html:294-298`). `hub.set` stamps the whole row (`apps/hub.js:236`), and the newer stamp wins per row, on the device (`apps/hub.js:295-296`) and on the server (`worker/src/data.js:60`).
 - **Why it matters.** Verses already recited come back, the day's review count is wrong, and nobody is told. It is the "it didn't save on the phone" complaint in a new row.
@@ -1174,7 +1180,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-F260-14 — Face ID unlock is one synced slot: other devices show a Face ID button that fails, and enabling it on a second device breaks the first (from the critic)
 
-- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0e
+- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 0e · **Status** FIXED (`e72f6d0`)
+- **Phase 6 (FIXED).** Face ID wraps are per device (vault.prf[<device id>]); the old single slot is offered until a device unlocks with it, which files a copy under that device (the old slot stays). critic-faceid: the phone no longer shows a Face ID button for the iPad's wrap and its Settings say "Unlock the journal with your passcode first" (was "On." and a failing button). After: `audits/evidence/p6/0e/p3/f260/critic-faceid.json`, `audits/evidence/p6/0e/p3/f260/verify-critic-faceid-wrap-synced-single-slot-2-1.json`.
 - **Evidence.** `audits/03-apps/f260.md:499`; `apps/f260.html:1076`, `apps/f260.html:1083`, `apps/f260.html:902`, `apps/f260.html:1060`
 - **What happens now.** `enableBio()` creates a platform credential (`authenticatorAttachment: 'platform'`, `apps/f260.html:1076`) and stores its wrap of the data key as `blob.bio`, one slot inside the vault row (`apps/f260.html:1083`), which syncs through `hub.set` (`apps/f260.html:902`).
 - **Why it matters.** The Unlock dialog offers a button that fails on every device but one, Settings says "On." where it is not, and setting up the second device silently breaks the first.
@@ -1183,7 +1190,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-VERSES-01 — Rating a verse in F260's practice dialog wipes its Verses schedule (box, due date, last review, streak) (pointer to P3-F260-01)
 
-- **Area** verses · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0e
+- **Area** verses · **Type** bug · **Severity** critical (pointer) · **Effort** S · **Batch** 0e · **Status** FIXED (`e72f6d0`)
+- **Phase 6 (FIXED).** Pointer to P3-F260-01: the practice rating keeps the Verses schedule. After: `audits/evidence/p6/0e/p3/f260/recall.json`.
 - **Evidence.** `audits/03-apps/verses.md:138`; `apps/f260.html:1915`, `apps/f260.html:1651`, `apps/verses.html:296`, `apps/verses.html:219`; `audits/evidence/p3/verses/f260-practice-wipes-1-0-ipad.png`, `audits/evidence/p3/verses/f260-practice-wipes-1-0-queue-ipad.png`
 - **Proposed fix.** Pointer to P3-F260-01 (per-verse merged recall rows). (Phase 3: IMP-VERSES-P1)
 

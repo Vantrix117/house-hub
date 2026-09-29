@@ -558,3 +558,115 @@ Each suite ran on its own fresh copy of a seeded local D1 and its own `wrangler 
 - **Real devices.** Everything ran in Playwright WebKit and Chromium against local Workers. Not seen: the park map's CSP inside the hub's iframe on the real GitHub Pages origin and on iOS Safari (checked in Chromium on a local origin, and the rig's WebKit loads the exported page with the CSP and runs normally); the security push to the admin on a real phone; a real iPad as the kitchen.
 - **The admin's own reset** is still accepted by the Worker with the admin's PIN, although the shell no longer offers it.
 - **A merged kid tick is stamped just after the stored row;** if the stored row carries a stamp up to 30 s in the future (a fast device clock), the Worker's clamp can make the tick lose that one write. It self-heals on the next tick.
+
+## Batch 0e — F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt
+
+| | |
+|---|---|
+| **Findings** | 8 entries (7 primaries + 1 pointer): 6 critical, 1 medium primaries. All 8 FIXED (status per entry in `audits/05-findings.md`). |
+| **Code commit** | `e72f6d0` (2026-09-29); the build guide's part is committed in the sibling repo `../dollywood-build-project` as `0d3fb7a` |
+| **Files** | `apps/f260.html` (data code only; layout and ids kept), `apps/verses.html`, `apps/hub.js` (`hub.rowMap`), `index.html` (Home's F260 log), `worker/src/data.js` (`rowMap`), `worker/src/chat.js`, `worker/src/reminders.js`, `worker/src/policy.js`, `apps/dollywood.html` + `apps/dollywood-live.html` (exported), `scripts/test-f260.mjs`, `scripts/test-verses.mjs`, `scripts/test-apps.mjs`, `scripts/test-dollywood-sync.mjs`, `CLAUDE.md`, `worker/README.md`, `sw.js` (`hub-v31` → `hub-v32`) |
+| **Schema / data** | No schema change and no data migration: new writes go to new keys, and the old whole-map rows stay as a read-only base. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-28-before-0e.sql` (37 KB, 43 app_data rows; two people have F260 data, one an encrypted journal). Nothing was deployed. |
+| **How it was built** | F260, Verses, the SDK, Home, chat and the reminder job by the orchestrator; the build guide by an agent against the same data contract; an independent review (1 high, 4 medium, 6 low) with every finding fixed, a second pass on the fixes (1 new medium, fixed; 4 low kept as limits below). Every check was rerun on the final code. |
+
+### The change
+
+**One row per entry (P2-SYNC-01, P3-VERSES-02, P3-F260-01).**
+- **The cause.** F260 kept every tick in one row (`f260.done`), and likewise the log, the memorised verses and the practice ratings; the build guide kept every step in `progress`; Verses kept its day counts in `log`. Every tap rewrote the whole row from the device's own copy, and the newer stamp won, so a device that had not pulled erased another device's tick.
+- **Now** each entry is its own row: F260 `done:<week>-<i>`, `mem:<week>-<i>`, `log:<date>`, `recall:<week>-<i>`; the build guide `step:<id>`; Verses `rev:<date>:<id>:<device>` (a count per verse per day per device, so two devices reviewing the same day both count). A tick writes only its own row.
+- **Nothing migrates.** The old whole-map row stays as a read-only base; each row overrides its entry (`false` = off). `hub.rowMap(prefix, legacyKey, opts)` in hub.js and `rowMap()` in `worker/src/data.js` do the same merge. Every reader uses it: F260, Verses, Home's "read today" and streak, chat's `toggle_f260_reading` and `f260_status`, and the 8 pm job.
+- **Restore** writes a row only for each entry that differs from the map as stored now, keeping the base; **Reset** drops the base and turns off only the rows that are on.
+- **F260's practice rating** merges `s` and `t` into the verse's own row, read at write time, so Verses' box, due date, last review and streak stay (P3-F260-01).
+- The Worker lets kids write their own `recall:<id>` rows (they train through Verses, which keeps them in the F260 scope).
+
+**The journal vault (P2-SYNC-19, P2-SYNC-20, P3-F260-13, P3-F260-14).**
+- **Encoding.** The ciphertext is base64-encoded in 32 KB slices. `String.fromCharCode.apply` over the whole buffer overflowed the call stack at about 124 KB of journal, and the error was swallowed behind "Saved".
+- **Whole writes.** `vaultBlob()` returns a copy, and a new vault is written only whole: iv and ciphertext together, and on first setup the passcode wrap with them. A failed save can no longer leave a new iv with the old ciphertext.
+- **Honest status.** The panel says "Saving…", then "Saved" only when the write took, or "Not saved — …" with the reason. A vault over 850 KB is refused before it is sent (the Worker's row limit is 900 KB).
+- **Versions.** The vault carries a version (`vid`; a vault from before versions is known by its passcode salt, so every device derives the same one without writing). A device writes only while the stored vault is the version it unlocked. If not, it stops saving, keeps the journal on screen (nothing typed is lost; it can be copied) and says so once. The Worker also refuses a vault of another version unless the write names it as replaced (`prev`), so a queue sent much later cannot write over a re-created journal. Erase, restore (a new version) and first setup handle this explicitly. Setting a passcode first pulls, and refuses if another device has just set one; the plaintext journal leaves the device only once the house has the encrypted one.
+- **Face ID** wraps are per device (`vault.prf[<device id>]`). The old single slot is offered until a device unlocks with it, which files a copy under that device; the old slot stays, because a synced passkey may open it on another device too. Turning Face ID off works while locked.
+
+**What the independent review changed.**
+- **High.** Restore dropped the old base row after writing rows only for changed entries, which would have wiped every tick that lived only in the base (all production data today). Restore now keeps the base and diffs against the stored map.
+- **Medium.**
+  - Reset wrote hundreds of rows; it now writes only the rows that are on.
+  - Two devices unlocking an old vault each gave it a different random version, so one would wrongly lock mid-typing. The version is now derived, and a stale device no longer locks.
+  - The version check was client-only; the Worker now enforces it.
+  - First setup wrote the vault in two parts; it is now one write.
+- **Low.**
+  - Adopting the old Face ID slot now keeps it.
+  - The practice rating reads the stored row at write time.
+  - A restored vault gets a fresh version.
+  - Verses counts per device.
+  - `test-apps` read the old map.
+  - Second pass: Face ID could not be turned off while locked; and a passcode set while another device had just set one could drop the plaintext journal.
+
+### Each finding's reproduction, rerun
+
+**How they were run.**
+- The 19 scripts the entries name ran on the unchanged code (`git archive` of `97ed267`) and on the final code, three at a time. Outputs and exit codes are in `audits/evidence/p6/0e/tests/repro-before/` and `repro-after/`; the changed evidence files were moved into `p6/0e/p2|p3/` and the Phase 2/3 baseline restored (git shows it clean).
+- **The scripts read the old storage.** They check what the server's `f260.done`, `f260.recall`, `log` or `progress` rows hold, which after this batch is only the read-only base. So an unpatched script cannot see a tick made after the fix and calls it lost (the first after-run did exactly that). The after-run therefore used:
+  - `audits/tools/phase6/0e/merged-view.mjs`, a Node preload that answers the script's own GETs of those keys with the merged view (base plus rows) the apps show. The rig's server and the browsers are not touched.
+  - For the four scripts that also read inside the page, copies from `audits/tools/phase6/0e/make-merged-copies.mjs` with those in-page reads replaced by `hub.rowMap`. Nothing else in them changes.
+- All 19 exit 0 before and after.
+
+| Finding | Before | After |
+|---|---|---|
+| P2-SYNC-01 (verify-whole-map-lww-2, e2a) | the phone's 38-2 is erased by the iPad's 38-3, online and offline; the build guide likewise | both ticks survive, online and offline; the build guide keeps 26 of 26 steps; e2a: 38-2 present after the iPad's tick |
+| P2-SYNC-19 (journal-silently-stops-saving-2, 413-1) | above about 124 KB the save throws RangeError behind "Saved"; 4 × 40 000 chars leave the server at the 216-char empty vault | the save reaches the server and decrypts with the new day; 213 645 chars stored; 4 × 184 320 says "Not saved — the journal is too large to sync" |
+| P2-SYNC-20 (vault-iv-mismatch-2, 413-3) | a failed save stores a new iv with the old ciphertext: OperationError, "Wrong passcode." on both devices | the stored vault decrypts (261 entries); the ivmix state no longer occurs |
+| P3-F260-01 / P3-VERSES-01 (recall, recall-practice-1/2) | F260's "Got it" resets the Verses row to {s, t}: box 1, due now | box, due, last and streak kept; Verses unchanged |
+| P3-F260-13 (vault-stale-1-1/1-2, critic-vault-stale) | the stale phone overwrites an erased or re-created vault: a raw error, then "Wrong passcode." for the old and new passcodes | after an erase the phone is offered "Set a journal passcode"; after a re-create the new passcode opens the journal |
+| P3-VERSES-02 (lww-1/2, two-devices) | a device's ratings and the day's count are erased: lostPhoneRatings ["33-0","36-1"], day count 1 | the phone's 36-1 survives; day counts 3 and 4; the remaining "lost" 33-0 is the same verse the iPad rated later, whose newer rating correctly wins |
+| P3-F260-14 (critic-faceid, single-slot-2-1/2-2) | the phone shows a Face ID button for the iPad's wrap, which fails; Settings say "On." | no button on the phone; Settings say "Unlock the journal with your passcode first" |
+
+**Print check** (the plan's verification): `node audits/tools/phase3/f260/print.mjs` → a 3-page PDF with all 52 weeks and no UI text (`audits/evidence/p6/0e/p3/f260/print.json`).
+
+### Capture rig
+
+- **The runs.** The areas whose code changed were recaptured: F260 629, Verses 208, the build guide 432, the shell 979 (Home's F260 card) and the TV 34 — 2282 captures, 0 failed (`audits/screens-after/0e/manifest.json`). The other areas load only the new `hub.rowMap` function, which they never call.
+- **Against batch 0d's after-capture** (`audits/evidence/p6/0e/capture/pxdiff-0d-vs-0e-*.txt`): 38 files changed beyond tolerance 48.
+  - Verses: 0.
+  - Known flaky screens: F260's week-complete (6) and journal entries (3); the shell's first-visit toast (2) and pairing focus ring (2); the TV board's crossfading background photo (2).
+  - Antialiasing of 1-178 px: F260's HEAR panel on the italic prompt line (10; identical to the eye), the build guide (6), and a few shell and TV pixels.
+- Nothing on screen was meant to change in this batch except the journal's "Saving…" / "Not saved — …" line, which appears only while a save is in flight or has failed.
+
+### Rubric rescore
+
+- On screen: none.
+- Underneath: whether a tick, a rating or a journal entry the person saw actually saved. The rubric scores this under **Ease of use** (error prevention).
+- The orchestrator's rescore:
+
+| Area | Ease of use | Why |
+|---|---|---|
+| F260 | +1 | ticks, ratings and the journal no longer vanish silently, and the journal panel tells the truth about saving |
+| Verses | +0.5 | two devices' ratings both count |
+| Build guide | +0.5 | two devices' steps both count |
+
+- These are the orchestrator's judgements, not a rerun of Phase 4's scoring.
+
+### Repo tests
+
+The pre-batch results are batch 0d's after-run of the same suites (`audits/evidence/p6/0e/tests/repo-before-is-0d-after.txt`); this batch's run is `repo-after.txt`.
+
+| Suite | Before | After |
+|---|---|---|
+| test-hub | 36 / 1 | 36 / 1 (the stale "signed in as Niece"; batch 2a) |
+| test-f260, test-verses | 52 / 0, 80 / 0 | identical, after both tests were changed to read the merged rows instead of the old maps (on their first run test-f260 stopped at its own read of `f260.done` and test-verses failed 9 checks, every one a read of `f260.recall`, `f260.mem` or `log`) |
+| test-apps | 48 / 0 | 48 / 0, after its F260 check reads `done:1-0` |
+| test-dollywood-sync | 32 / 0 | 32 / 0, after it reads the merged steps (and clears step rows at the start) |
+| every other suite, and test-kitchen | as before | identical |
+| test-dollywood-themes | all checks passed | all checks passed |
+| smoke-api.sh | 209 / 0 | 209 / 0 |
+
+`node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for. The build guide's `verify.py` passed. The tests' screenshots in `docs/screens/` were restored.
+
+### Not verified, and known limits
+
+- **Nothing is deployed.** The new Worker (rowMap in chat and the 8 pm job, the vault rule, kids' recall rows) must go out with or before the new pages. Batch 0d's migration still has to run first.
+- **Devices still on the old cached pages** (until their service worker updates) write the old whole maps. A tick made there is merged under any rows; an untick there of an entry that has a row is lost to the row. This is a short overlap after a deploy.
+- **The whole vault row is still last-write-wins.** Two devices changing the passcode or Face ID at the same moment can undo one another's change: the old passcode keeps working, and nobody is locked out.
+- **"Saved" reflects this device's write.** A later refusal by the Worker (another device replaced the journal meanwhile) puts the house's copy back and the device then stops saving, but it has already said "Saved" once.
+- **An erased journal can come back** if an offline device still holding its key saves after the erase and before anyone sets a new passcode. Writes over a deleted vault are allowed so that a first setup is never blocked.
+- **Real devices.** Face ID / PRF, iCloud-synced passkeys and a real iPhone's storage limits were not exercised. The Face ID checks ran with the rig's WebAuthn stand-in.
+- `weekStart`, `weekDone`, `best`, `miles`, `jstats` and `verses` (pasted verse text) are still whole-map rows. They are derived or rarely edited, and not ticks, so they are out of this batch's findings.

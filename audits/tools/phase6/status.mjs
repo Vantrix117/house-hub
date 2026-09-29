@@ -13,6 +13,7 @@ export const BATCHES = {
   '0b': { commit: 'd968db8', date: '2026-09-26' },
   '0c': { commit: 'e9e5f59', date: '2026-09-26' },
   '0d': { commit: 'd5e46b6', date: '2026-09-28' },
+  '0e': { commit: 'e72f6d0', date: '2026-09-29' },
 };
 
 // Batch 0b after-evidence lives under audits/evidence/p6/0b/ (the Phase 2/3 scripts' outputs, moved there from p2/p3 so the
@@ -122,6 +123,22 @@ const S0d = [
   D0('P2-CHAT-06', 'Pointer to P2-SEC-02: chat ignores the request\'s app list. verify-chat-trusts-client-app-list-1: a 40 × 50 000-char app list no longer grows the system prompt (2764 chars, was 2 003 376); Ezra\'s writes to stars:kiara and a family prayer 403.', ['p2/CHAT/verify-chat-trusts-client-app-list-1.json', 'p2/CHAT/verify-chat-trusts-client-app-list-2.json']),
 ];
 
+// Batch 0e after-evidence lives under audits/evidence/p6/0e/. The Phase 2/3 scripts read the old whole-map rows, so they
+// were run with audits/tools/phase6/0e/merged-view.mjs (a Node preload that answers those keys with the merged view the
+// apps show) and, for the four that also read inside the page, the copies in audits/tools/phase6/0e/.
+const E0e = 'audits/evidence/p6/0e/';
+const E0 = (id, note, after, status = 'FIXED') => [id, { status, batch: '0e', note, after: after.map(p => p.startsWith('audits/') ? p : E0e + p) }];
+const S0e = [
+  E0('P2-SYNC-01', 'F260 keeps one row per tick, memorised verse, log day and rating (done:, mem:, log:, recall:) and the build guide one per step (step:; template 0d3fb7a), each overriding the old whole-map row, which stays as a read-only base (hub.rowMap; worker rowMap for chat and the 8 pm job). verify-whole-map-lww-2 (merged view): A online and B offline both end with {"38-2 (phone)":true,"38-3 (iPad)":true} (before: the phone tick false); the build guide keeps 26 of 26 steps; e2a: 38-2 present after the iPad tick (was erased).', ['p2/SYNC/v2-whole-map-lww.json', 'p2/SYNC/e2a-stale-overwrite.json', 'tests/repro-after/phase6__0e__verify-whole-map-lww-loses-ticks-2.txt']),
+  E0('P2-SYNC-19', 'The journal ciphertext is base64-encoded in 32 KB slices; the panel says "Saving…", then "Saved" only when the write took, else "Not saved — …"; a vault over 850 KB is refused before it is sent. verify2-journal-silently-stops-saving-2, above the old limit: server vault changed true, decrypts with the new day (was unchanged behind "Saved"); verify-413-1: 4 × 40 000 chars now reach the server (213 645 chars, was 216), and 4 × 184 320 says "Not saved — the journal is too large to sync".', ['p2/SYNC/verify2-journal-silently-stops-saving-2.json', 'p2/SYNC/verify-413-drops-whole-channel-1-real.json']),
+  E0('P2-SYNC-20', 'vaultBlob() returns a copy and a vault is written whole (iv and ciphertext together), so a failed save leaves the stored vault as it was. verify2-journal-vault-iv-mismatch-2 A4: the stored vault decrypts (261 entries; was OperationError and "Wrong passcode." on both devices); verify-413-3: the ivmix case no longer occurs.', ['p2/SYNC/verify2-journal-vault-iv-mismatch-2-webkit.json', 'p2/SYNC/verify-413-drops-whole-channel-3-ivmix.json']),
+  E0('P3-F260-01', 'F260\'s practice rating merges s and t into the verse\'s own recall:<id> row, read at write time; Verses\' box, due, last and streak stay. recall: after F260 "Got it" the row keeps box 4, due 2026-09-29, streak 3 and Verses is unchanged (was reset to box 1, due now); verify-recall-practice-1 A: box 5 / due / streak 4 kept.', ['p3/f260/recall.json', 'p3/f260/verify-recall-practice-wipes-verses-box-1.json']),
+  E0('P3-F260-13', 'The vault carries a version (vid; a pre-version vault is known by its passcode salt), a device writes only while the stored vault is the version it unlocked, and the Worker refuses another version unless the write names it as replaced. verify-critic-vault-stale-1-1: after an erase the stale phone is offered "Set a journal passcode" and after a re-create the new passcode P2 opens the journal (was a raw error, then "Wrong passcode." for both P1 and P2).', ['p3/f260/verify-critic-vault-stale-device-overwrites-1-1.json', 'p3/f260/critic-vault-stale-device.json']),
+  E0('P3-VERSES-02', 'Verses writes one recall:<id> row per verse and a rev:<date>:<id>:<device> count per rating; the day total is their sum plus the old log map. verify-recall-log-lww-2: lostPhoneRatings [] (was ["36-1"]); lww-1 (merged view): the phone\'s 36-1 survives and the day counts 3 and 4 (were 1); its remaining "lost" 33-0 is the same verse the iPad rated later, whose newer rating correctly wins.', ['p3/verses/verify-recall-log-whole-map-lww-2.json', 'p3/verses/verify-recall-log-whole-map-lww-1.json', 'p3/verses/two-devices-A.json']),
+  E0('P3-F260-14', 'Face ID wraps are per device (vault.prf[<device id>]); the old single slot is offered until a device unlocks with it, which files a copy under that device (the old slot stays). critic-faceid: the phone no longer shows a Face ID button for the iPad\'s wrap and its Settings say "Unlock the journal with your passcode first" (was "On." and a failing button).', ['p3/f260/critic-faceid.json', 'p3/f260/verify-critic-faceid-wrap-synced-single-slot-2-1.json']),
+  E0('P3-VERSES-01', 'Pointer to P3-F260-01: the practice rating keeps the Verses schedule.', ['p3/f260/recall.json']),
+];
+
 // Household work (plan-batches.mjs WORK): not findings, so not in STATUS; build-findings renders this line under the item.
 export const WORK_STATUS = {
   'KITCHEN-1': { status: 'FIXED', batch: '0d', note: 'migrations/006-kitchen.sql (devices.role; profiles rebuilt to take kind kitchen, with hue and the reset-code columns; the kitchen profile), checked on a copy of the production export: 8 profiles, 96 of 96 values identical, every other table untouched, a second run changes nothing. The Worker\'s kitchen rules (sign-in, role endpoint with the admin PIN, what it writes, credit checks, no chat/push/admin) and the shell\'s kitchen sign-in. scripts/test-kitchen.mjs 27/27 (role set on a device holding Mea\'s session moves it to the kitchen on its next request; family writes; no person scope; nobody signs in as a person there; a Prayed credited to Ezra earns his prayer star; outsiders refused; clearing the role returns the picker); smoke-api kitchen cases pass. The kitchen Home, face sheet and Admin switch are KITCHEN-2 (batch 2a).', after: ['audits/evidence/p6/0d/migration-check.json', 'audits/evidence/p6/0d/tests/repo-after.txt', 'audits/evidence/p6/0d/tests/smoke-api-after.txt'] },
@@ -143,6 +160,7 @@ export const STATUS = {
 for (const [id, s] of S0b) STATUS[id] = s;
 for (const [id, s] of S0c) STATUS[id] = s;
 for (const [id, s] of S0d) STATUS[id] = s;
+for (const [id, s] of S0e) STATUS[id] = s;
 
 for (const [id, s] of Object.entries(STATUS)) {
   if (!STATUSES.includes(s.status)) throw new Error(`${id}: unknown status ${s.status}`);
