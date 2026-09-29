@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" data-theme="dark" data-flavor="hub"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2YH1FkMBQeD3WKKyp6paqb44vmdrCrILzYiFNbLYmaA=' 'sha256-6gxtITQ7/hqldwPYuIOLIGh6hFMB5VwbGyzJaRNKGkA=' 'sha256-knS7zsjZYWhibHMrXTHHdaqM+36qBZm+wMF1kIosHOI=' 'sha256-ArtK3nEPPmBzKeN6IfCYvDrHDrbjPa+KZeefTbeF57I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; connect-src 'self' https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2YH1FkMBQeD3WKKyp6paqb44vmdrCrILzYiFNbLYmaA=' 'sha256-i8cFjhRrDQYa4+P9J1toKG7ltl2mjkepmrkr402N7As=' 'sha256-knS7zsjZYWhibHMrXTHHdaqM+36qBZm+wMF1kIosHOI=' 'sha256-ArtK3nEPPmBzKeN6IfCYvDrHDrbjPa+KZeefTbeF57I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; connect-src 'self' https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <title>Dollywood build guide</title>
@@ -1119,8 +1119,22 @@ function renderStepList(){const st=stepsOf(curSec),L=$('b-list');L.innerHTML='';
 $('b-reset').onclick=()=>{if(!hubGuard())return;if(confirm('Clear all saved progress?')){const was=Object.keys(doneMap).filter(k=>doneMap[k]);doneMap={};save(was);renderStep()}};
 $('b-export').onclick=()=>{const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify({version:1,exported:new Date().toISOString(),done:doneMap}));a.download='dollywood-progress.json';a.click()};
 $('b-import').onclick=()=>$('b-file').click();
-$('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!hubGuard()){e.target.value='';return}const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result),n=j&&(j.done||j);if(!n||typeof n!=='object'||Array.isArray(n))throw 0;const was=doneMap;doneMap=n;
-  save([...new Set([...Object.keys(was),...Object.keys(n)])].filter(k=>!!was[k]!==!!n[k]));renderStep()}catch(err){alert('Not a progress file')}};r.readAsText(f);e.target.value=''});
+/* Import (hub audit P3-DOLLYWOOD-02): only a file that names steps of this guide is read; it adds the steps it has ticked
+   and never unticks one (merge, not replace); it says what it will add and asks first, and Undo takes the added ticks back. */
+$('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!hubGuard()){e.target.value='';return}const r=new FileReader();r.onload=()=>{let n;
+  try{const j=JSON.parse(r.result);n=j&&(j.done||j);if(!n||typeof n!=='object'||Array.isArray(n))throw 0}catch(err){alert('That is not a progress file from this build guide. Nothing was changed.');return}
+  const known=Object.keys(n).filter(k=>STEPID.has(k));
+  if(!known.length){alert('That file has no steps from this build guide, so nothing was changed.');return}
+  const add=known.filter(k=>n[k]===true&&!doneMap[k]),had=Object.keys(doneMap).filter(k=>doneMap[k]).length;
+  if(!add.length){alert('Every step that file has ticked is already ticked here. Nothing was changed.');return}
+  if(!confirm('Add '+add.length+' ticked step'+(add.length===1?'':'s')+' from this file? The '+had+' step'+(had===1?'':'s')+' ticked here stay'+(had===1?'s':'')+' ticked; nothing is unticked.'))return;
+  for(const k of add)doneMap[k]=true;save(add);renderStep();
+  // Undo takes back only the ticks this import added and nobody has changed since (a Mark done here, a tick on another
+  // device): each step row's stamp is remembered now and compared then. Standalone (no hub) there is no Undo toast.
+  const stamp=k=>{try{const r=hub.list(SP).find(x=>x.key===SP+k);return r?r.updated_at:null}catch(e){return null}},at={};for(const k of add)at[k]=stamp(k);
+  const undo=()=>{const back=add.filter(k=>doneMap[k]===true&&stamp(k)===at[k]);for(const k of back)doneMap[k]=false;save(back);renderStep()};
+  if(hubOnline()&&typeof hub.toast==='function')try{hub.toast('Added '+add.length+' ticked step'+(add.length===1?'':'s')+'.',10000,{action:'Undo',onAction:undo})}catch(e){}
+};r.readAsText(f);e.target.value=''});
 /* House Hub: progress (one step:<id> row per step over the legacy 'progress' base) and plot are person-scope rows, so a
    tick on the PC shows on the iPad.
    Legacy localStorage moves over once per device (adults only — hub.migrate enforces that). Without a session the

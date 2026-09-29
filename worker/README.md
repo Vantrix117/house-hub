@@ -195,7 +195,7 @@ carries a human `chip` for anything that changed data (`null` for reads).
 | `add_prayer {list, text, for?}` | prayer users | new request on the private (person) or family list |
 | `mark_prayed {list, prayer_id}` | adults | prayed today: `lastPrayedAt` = today, the person's profile id under `prayedBy[today]` on the family list (ids since batch 0g; the person's old name entry is replaced), today added to that list's `prayerDays` (the same shape `apps/prayer.html` writes). `prayer_id` may be the id or the title; ambiguous titles come back as a question |
 | `answer_prayer {list, prayer_id, note?}` | adults | `status: answered`, `answeredAt` = today, `answerNote` |
-| `finish_leftover {item_id? \| name?}` | adults | tombstones the family `leftovers` row; loose name match, asks when several fit |
+| `finish_leftover {item_id? \| name?}` | adults | tombstones the family `leftovers` row and keeps it seven days as `finished:<id>` (the app's "Recently finished", where it can be put back); loose name match, asks when several fit |
 | `where_is_family {}` | adults, read-only | family `dollywood-live` `loc:*` markers fresher than 4 h: who, x/y, minutes ago |
 | `f260_status {}` | adults, read-only | this person's `f260.summary` (week, weekDone, next, streak, readToday) + the week's memory-verse references |
 | `read_todays_verse {}` | **kids only**, read-only | the family's memory verses for the week (max `f260.summary.week` across adults, else week 1) with a kid-sized gist of each; the `tool` event also carries `speak: true, text` and the shell reads it aloud (rate 0.9, kid profiles, visible tab only) |

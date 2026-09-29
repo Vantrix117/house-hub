@@ -750,6 +750,7 @@
   }
   function closeViewer() {
     if (!current) return; current = null;
+    try { const w = frame.contentWindow; if (w && w.hub && typeof w.hub.leaveNow === 'function') w.hub.leaveNow(); } catch {}   // the app's last writes (the Larder's finishing items) join the queue first
     viewer.classList.add('closing');
     setTimeout(() => { viewer.classList.remove('on', 'closing'); frame.src = 'about:blank'; delete frame.dataset.id; }, 220);
     hub.flush(); hub.pull();

@@ -668,7 +668,15 @@
 
   // pagehide: an app closing (Tally back to Home, the PWA swiped away) still hands its queue to the network. keepalive
   // lets the request outlive the page; the queue stays until an answer is seen, so the next flush confirms it.
+  // hub.onLeave(fn): runs just before that send, so a write an app makes on its way out (the Larder's finishing items,
+  // batch 0h) goes with it.
+  const leaveFns = [];
+  hub.onLeave = fn => { if (typeof fn === 'function') leaveFns.push(fn); };
+  // the shell calls this on the app in its frame before it closes it or signs the person out, so those writes are
+  // queued before the shell reads the queues (the frame's own pagehide comes later)
+  hub.leaveNow = () => { for (const fn of leaveFns) { try { fn(); } catch (e) { console.error(e); } } };
   window.addEventListener('pagehide', () => {
+    hub.leaveNow();
     if (!hub.session || !hub.device || navigator.onLine === false) return;
     let budget = 60000;                                   // browsers cap keepalive bodies at 64 KB in flight
     for (const { app, scope } of queuesOf(pid())) {
@@ -890,10 +898,18 @@
 
   // ── misc ──────────────────────────────────────────────────────────────────
   hub.open = id => { tell({ type: 'hub:open', appId: id }); if (!inFrame) location.href = '../index.html#' + id; };
-  hub.toast = (msg, ms = 2200) => {
+  // hub.toast(msg, ms, { action: 'Undo', onAction }) adds one button to the toast (batch 0h: the Larder's Undo); the
+  // toast then stays up for ms and the button closes it.
+  hub.toast = (msg, ms = 2200, opts = {}) => {
     let el = document.getElementById('hub-toast');
     if (!el) { const w = document.createElement('div'); w.className = 'ds'; el = document.createElement('div'); el.id = 'hub-toast'; el.className = 'toast'; el.setAttribute('role', 'status'); w.appendChild(el); document.body.appendChild(w); }
-    el.textContent = msg; el.hidden = false; clearTimeout(el._t); el._t = setTimeout(() => { el.hidden = true; }, ms);
+    el.textContent = msg;
+    if (opts && opts.action && typeof opts.onAction === 'function') {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'toast-act'; b.textContent = opts.action;
+      b.onclick = () => { el.hidden = true; clearTimeout(el._t); opts.onAction(); };
+      el.append(' ', b);
+    }
+    el.hidden = false; clearTimeout(el._t); el._t = setTimeout(() => { el.hidden = true; }, ms);
   };
   hub.escape = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   hub.uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);

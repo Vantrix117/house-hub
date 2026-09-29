@@ -184,7 +184,7 @@ async function runTool(env, ctx, name, input) {
         return { ok: true, result: input.key ? Math.max(0, n) : [{ key: 'count', value: Math.max(0, n) }], chip: null };
       }
       if (input.key) { const r = await getOne(env, { ...args, key: input.key }); return { ok: true, result: r && r.value != null ? shrink(r.value) : null, chip: null }; }
-      const rows = (await listData(env, args)).filter(r => r.value != null && !/\.vault$/.test(r.key)).slice(0, 60);
+      const rows = (await listData(env, args)).filter(r => r.value != null && !/\.vault$/.test(r.key) && !(input.app_id === 'leftovers' && /^finished:/.test(r.key))).slice(0, 60);   // finished food is not in the fridge
       return { ok: true, result: rows.map(r => ({ key: r.key, value: shrink(r.value) })), chip: null };
     }
 
@@ -307,6 +307,9 @@ async function runTool(env, ctx, name, input) {
       if (hit.length > 1) return { ok: false, result: `More than one item matches; ask which one and call again with its id: ${hit.map(x => `${x.it.name} (${x.it.size || ''}, logged ${x.it.dateLogged || '?'}, id ${x.it.id})`).join('; ')}`, chip: null };
       const { key, it } = hit[0];
       await putOne(env, { appId: 'leftovers', scope: 'family', profile, key, value: null, updated_at: Date.now() });   // tombstone, as the app's hub.remove does
+      // kept seven days under "Recently finished" in the app, where it can be put back (batch 0h, as the app's ✓ does)
+      if (it.id) await putOne(env, { appId: 'leftovers', scope: 'family', profile, key: 'finished:' + it.id, updated_at: Date.now(),
+        value: { id: it.id, name: it.name, size: it.size, dateLogged: it.dateLogged, loggedBy: it.by, loggedByName: it.byName, finishedAt: today(), finishedBy: profile.id, finishedByName: profile.name } }).catch(() => {});
       await activity(env, profile, 'leftovers', `Finished ${it.name} from the fridge (via chat)`);
       return { ok: true, result: { removed: it.name, id: it.id }, chip: `✓ Finished ${it.name}` };
     }

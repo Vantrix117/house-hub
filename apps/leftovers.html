@@ -102,6 +102,38 @@
   .copy { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface-2);
           border-radius: var(--r-sm); padding: 0 18px; min-height: 52px; font-size: 14px; color: var(--text); cursor: pointer; }
   .copy:active { background: var(--hover); }
+  /* a ✓ keeps the card in place for six seconds, struck through, with its own Undo (batch 0h) */
+  .item.finishing .info, .item.finishing .pic, .item.gone .info, .item.gone .pic, .item.gone .status { opacity: .55; }
+  .item.finishing .nm, .item.gone .nm { text-decoration: line-through; }
+  .status { min-width: 84px; text-align: center; box-sizing: border-box; }
+  :root[data-kind="kid"] .status { min-width: 104px; }
+  .undo { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-sm); width: 48px; height: 48px; padding: 0;
+          font: inherit; font-size: 13px; font-weight: 700; color: var(--ledger); cursor: pointer; flex: none; }
+  .slot { width: 48px; height: 48px; flex: none; }
+  .newpill { position: fixed; z-index: 25; top: max(12px, var(--safe-top)); left: 50%; transform: translateX(-50%);
+             min-height: 44px; padding: 0 18px; border-radius: var(--r-full); border: 1px solid var(--glass-edge); background: var(--glass-strong);
+             -webkit-backdrop-filter: blur(var(--blur)); backdrop-filter: blur(var(--blur)); box-shadow: var(--e2);
+             font: inherit; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; }
+  .newpill[hidden] { display: none; }
+  .donelist { margin-top: 18px; }
+  .donelist summary { cursor: pointer; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+                      min-height: 44px; display: flex; align-items: center; }
+  .donelist .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 2px; border-top: 1px solid var(--line-soft); }
+  .donelist .row.back .t { opacity: .55; }
+  .donelist .row .t { min-width: 0; font-size: 14px; } .donelist .row .t small { display: block; color: var(--muted); font-size: 12px; }
+  .putback { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--r-sm); min-height: 44px; width: 96px; padding: 0 8px;
+             font: inherit; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; flex: none; box-sizing: border-box; }
+  .putback.tag { display: inline-flex; align-items: center; justify-content: center; cursor: default; background: transparent; color: var(--muted); }
+  /* kids: a picture view, no controls (P5-D2) — a food picture, the name in big type, how old it is and the freshness colour */
+  .pic { display: none; }
+  :root[data-kind="kid"] .pic { display: grid; place-items: center; flex: none; width: 60px; height: 60px; font-size: 36px; border-radius: var(--r-sm);
+                                background: color-mix(in srgb, var(--tint) 22%, var(--surface)); }
+  :root[data-kind="kid"] .body { gap: 14px; padding: 14px 16px; }
+  :root[data-kind="kid"] .nm { font-size: 21px; white-space: normal; }
+  :root[data-kind="kid"] .meta { font-size: 15px; }
+  :root[data-kind="kid"] .status { font-size: 14px; padding: 8px 13px; }
+  :root[data-kind="kid"] body { padding-bottom: max(40px, var(--safe-bottom)); }
+  :root[data-kind="kid"] .hearth, :root[data-kind="kid"] form[id="add"], :root[data-kind="kid"] .donelist { display: none; }
   :root[data-kind="kiosk"] .hearth, :root[data-kind="kiosk"] form[id="add"] { display: none; }   /* the form id is written as an attribute selector so hex-colour linting does not misread it */
   @media (prefers-reduced-motion: reduce) { .mic.on { animation: none; } .bar > i { transition: none; } }
 </style>
@@ -122,12 +154,16 @@
     <div class="list" aria-hidden="true"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
   </div>
 
+  <div id="donelist" class="donelist sans"></div>
+
   <div class="hearth sans">
     <p>Want this week's warnings on the Hearth wall display? Copy the list below and tell Claude
        "push my leftovers to Hearth" — it'll add them straight to the Hearth Calendar.</p>
     <button type="button" class="copy" id="copy" disabled aria-disabled="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Copy list for Hearth</button>
   </div>
 </div>
+
+<button type="button" id="newpill" class="newpill sans" hidden></button>
 
 <form id="add" class="sans" aria-label="Log a leftover">
   <div class="namerow">
@@ -219,14 +255,72 @@
     new ResizeObserver(() => document.documentElement.style.setProperty('--addbar-h', Math.ceil(form.getBoundingClientRect().height) + 'px')).observe(form);
   }
 
+  // ── one tap, one item (batch 0h: P3-LEFTOVERS-01, -12, UX-LEFTOVERS-1) ──
+  // A ✓ marks its own item (by id) as finishing: the card stays where it is, struck through, with an Undo on it and on a
+  // toast. The item is taken off the house list only after six seconds (or when the page is left), so a second tap
+  // lands on the same card's Undo, never on the next item, and a mistaken tap costs nothing. Finished items are kept
+  // for seven days under "Recently finished" (finished:<id>, with their size and date), where they can be put back.
+  const FINISH_MS = 6000, KEEP_DAYS = 7, OPENED = Date.now();
+  const pending = new Map();   // id -> { it, t }
+  // A change never moves a card under a finger (P3-LEFTOVERS-12). The list is laid out (sorted and grouped) only when it
+  // opens, on this device's own Log or Put back, at midnight, when the app comes back into view, or on "Show" in the
+  // "N new" pill. Everything else updates cards where they stand: an item finished on another device (or this one's
+  // own ✓ after its six seconds) stays in its place, dimmed and marked Finished, with nothing to tap; an item added
+  // elsewhere waits behind the pill. Nothing in a card changes width, so no card changes height either.
+  let laidOut = false;
+  const seen = new Map();   // id -> the item as last shown, so a card finished elsewhere keeps its name
+  const pillEl = $('newpill');
+  pillEl.onclick = () => render();
+  // An item finishing here that someone else finished (or that went some other way) is no longer finishing here.
+  function dropStale() { for (const [id, p] of pending) if (!hub.get('item:' + id)) { clearTimeout(p.t); pending.delete(id); } }
+  function refresh() {
+    if (!hub.isLoaded()) return;
+    if (!laidOut || !listEl.querySelector('.item')) { render(); return; }   // nothing on screen to aim at
+    dropStale();
+    const live = new Map(items().map(i => [i.id, i]));
+    const act = document.activeElement, focusCard = act && act.closest && act.closest('.item'), focusSel = act && act.classList.contains('undo') ? '.undo' : '.done';
+    for (const card of [...listEl.querySelectorAll('.item')]) {
+      const id = card.dataset.id, it = live.get(id) || seen.get(id);
+      if (!it) continue;
+      if (live.has(id)) seen.set(id, it);
+      const next = itemCard(it, !live.has(id));
+      if (next.dataset.sig === card.dataset.sig) continue;               // unchanged: left alone (focus, a tap in progress)
+      card.replaceWith(next);
+      if (focusCard === card) {                                          // focus stays with its card, or moves on from a finished one
+        const b = next.querySelector(focusSel) || next.querySelector('button');
+        if (b) b.focus();
+        else {
+          const all = [...listEl.querySelectorAll('.item:not(.gone) .done')];
+          const after = all.find(x => next.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING);
+          const before = all.reverse().find(x => next.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_PRECEDING);
+          const to = after || before || document.querySelector('#hub-toast .toast-act'); if (to) to.focus();
+        }
+      }
+    }
+    const shown = new Set([...listEl.querySelectorAll('.item')].map(c => c.dataset.id));
+    const added = [...live.keys()].filter(id => !shown.has(id)).length;
+    pillEl.textContent = added + ' new in the fridge · Show'; pillEl.hidden = !added;
+    tallyEl.textContent = [...live.keys()].filter(id => !pending.has(id)).length + ' in the fridge';
+    renderDone(false);
+  }
+  const FOOD = [[/pizza/i, '\u{1F355}'], [/chicken|wing|nugget|turkey/i, '\u{1F357}'], [/soup|stew|chili|broth|gumbo/i, '\u{1F372}'],
+    [/pasta|spaghetti|alfredo|lasagn|mac|noodle/i, '\u{1F35D}'], [/rice|risotto/i, '\u{1F35A}'], [/salad/i, '\u{1F957}'], [/taco|burrito|enchilada|quesadilla/i, '\u{1F32E}'],
+    [/burger|sandwich|sub\b|wrap/i, '\u{1F96A}'], [/cake|pie|cookie|brownie|dessert|pudding/i, '\u{1F370}'], [/fish|salmon|shrimp|tuna/i, '\u{1F41F}'],
+    [/beef|steak|roast|pork|ham|meatloaf|ribs/i, '\u{1F356}'], [/egg/i, '\u{1F95A}'], [/bread|roll|biscuit|muffin/i, '\u{1F35E}'], [/potato|fries/i, '\u{1F954}'],
+    [/veg|broccoli|beans|carrot|corn/i, '\u{1F966}']];
+  const foodPic = name => { for (const [re, e] of FOOD) if (re.test(name || '')) return e; return '\u{1F371}'; };
+
   function render() {
     // Until this device has pulled the list once, the cache is empty, not the fridge: keep the markup's grey cards and
     // leave the tally, the alert and "Nothing logged yet" for real data (hub.loaded() below re-renders).
     if (!hub.isLoaded()) return;
     listEl.removeAttribute('aria-busy');
     copyBtn.disabled = false; copyBtn.removeAttribute('aria-disabled');
+    laidOut = true; pillEl.hidden = true; seen.clear();
+    dropStale();
     const sorted = items().sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged));
-    tallyEl.textContent = sorted.length + ' in the fridge';
+    renderDone();
+    tallyEl.textContent = sorted.filter(i => !pending.has(i.id)).length + ' in the fridge';
 
     const warnCount = sorted.filter(i => daysBetween(i.dateLogged) >= WARN_DAYS).length;
     alertEl.textContent = '';
@@ -264,29 +358,32 @@
       h.append(small);
       const grid = document.createElement('div');
       grid.className = 'list';
-      for (const it of rows) grid.append(itemCard(it));
+      for (const it of rows) { seen.set(it.id, it); grid.append(itemCard(it)); }
       group.append(h, grid);
       listEl.append(group);
     }
   }
 
-  function itemCard(it) {
+  function itemCard(it, gone = false) {
     const days = daysBetween(it.dateLogged);
     const { label, tone } = statusFor(days);
     const t = TONES[tone];
 
     const card = document.createElement('div');
-    card.className = 'item'; card.dataset.id = it.id; card.dataset.days = days; card.dataset.tone = tone;
+    const finishing = pending.has(it.id);
+    card.className = 'item' + (finishing ? ' finishing' : '') + (gone ? ' gone' : ''); card.dataset.id = it.id; card.dataset.days = days; card.dataset.tone = tone;
     card.style.setProperty('--tint', t.tint);
     card.style.setProperty('--chip', t.chip);
     card.style.setProperty('--chip-text', t.chipText);
 
     const stripe = document.createElement('div'); stripe.className = 'stripe';
     const body = document.createElement('div'); body.className = 'body';
+    const pic = document.createElement('span'); pic.className = 'pic'; pic.setAttribute('aria-hidden', 'true'); pic.textContent = foodPic(it.name);
     const info = document.createElement('div'); info.className = 'info';
     const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = it.name;
     const meta = document.createElement('div'); meta.className = 'meta';
-    meta.textContent = it.size + ' · logged ' + it.dateLogged + ' · ' + days + 'd ago' + (it.byName ? ' · ' + it.byName : '');
+    meta.textContent = hub.isKid ? (days <= 0 ? 'Put in today' : days + (days === 1 ? ' day' : ' days') + ' in the fridge')
+      : it.size + ' · logged ' + it.dateLogged + ' · ' + days + 'd ago' + (it.byName ? ' · ' + it.byName : '');
     const bar = document.createElement('div'); bar.className = 'bar';
     bar.style.setProperty('--p', Math.min(1, Math.max(0, days) / FULL_BAR_DAYS));
     bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', days + ' of ' + FULL_BAR_DAYS + ' days');
@@ -294,19 +391,30 @@
     info.append(nm, meta, bar);
 
     const right = document.createElement('div'); right.className = 'right';
-    const chip = document.createElement('span'); chip.className = 'status'; chip.textContent = label;
+    const chip = document.createElement('span'); chip.className = 'status'; chip.textContent = finishing || gone ? 'Finished' : label;
     right.append(chip);
-    if (canEdit) {
+    if (canEdit && gone) {
+      const slot = document.createElement('span'); slot.className = 'slot'; slot.setAttribute('aria-hidden', 'true');   // where the ✓ was
+      right.append(slot);
+    } else if (canEdit && finishing) {
+      const undo = document.createElement('button');
+      undo.type = 'button'; undo.className = 'undo'; undo.textContent = 'Undo';
+      undo.setAttribute('aria-label', 'Undo: keep ' + it.name + ' in the fridge');
+      // the second tap of a double tap lands here: it is not an Undo (the toast's Undo and a later tap are)
+      undo.onclick = () => { const p = pending.get(it.id); if (p && Date.now() - p.at < 700) return; undoFinish(it.id); };
+      right.append(undo);
+    } else if (canEdit) {
       const done = document.createElement('button');
       done.type = 'button'; done.className = 'done';
       done.title = 'Mark used up';
       done.setAttribute('aria-label', 'Mark ' + it.name + ' used up');
       done.append(svg('check', 18, 2.4));
-      done.onclick = () => removeItem(it.id);
+      done.onclick = () => { done.disabled = true; removeItem(it.id); };
       right.append(done);
     }
-    body.append(info, right);
+    body.append(pic, info, right);
     card.append(stripe, body);
+    card.dataset.sig = JSON.stringify([it.name, it.size, it.dateLogged, it.byName, days, finishing, gone]);   // what the card shows
     return card;
   }
 
@@ -336,10 +444,106 @@
   form.addEventListener('click', e => { if (e.target.closest && e.target.closest('.log')) rollover(); }, true);
   $('name').addEventListener('keydown', e => { if (e.key === 'Enter') rollover(); });
 
+  // keyboard / VoiceOver: a rebuilt card gets the focus back on its own button
+  const focusedIn = id => { const a = document.activeElement; return !!(a && a.closest && a.closest('.item') && a.closest('.item').dataset.id === id); };
+  const refocus = (id, sel) => { const c = [...listEl.querySelectorAll('.item')].find(x => x.dataset.id === id); const b = c && c.querySelector(sel); if (b) b.focus(); };
   function removeItem(id) {
+    if (pending.has(id) || !canEdit) return;                    // a second tap on the same card does nothing more
+    const it = hub.get('item:' + id); if (!it) { refresh(); return; }
+    const had = focusedIn(id);
+    pending.set(id, { it, at: Date.now(), t: setTimeout(() => commitFinish(id), FINISH_MS) });
+    refresh(); if (had) refocus(id, '.undo');
+    // the toast's Undo still works a moment after the six seconds: then it puts the item back
+    hub.toast('Finished the ' + it.name + '.', FINISH_MS, { action: 'Undo', onAction: () => { if (pending.has(id)) undoFinish(id); else { const f = hub.get('finished:' + id); if (f) putBack(f); } } });
+  }
+  function undoFinish(id) { const p = pending.get(id); if (!p) return; const had = focusedIn(id); clearTimeout(p.t); pending.delete(id); refresh(); if (had) refocus(id, '.done'); }
+  function commitFinish(id) {
+    const p = pending.get(id); if (!p) return;
+    clearTimeout(p.t); pending.delete(id);
     const it = hub.get('item:' + id);
-    try { hub.remove('item:' + id); } catch { return; }   // the SDK's toast has said why
-    if (it) hub.activity('Finished the ' + it.name);
+    if (!it) { refresh(); return; }                            // someone else finished it meanwhile
+    try { hub.remove('item:' + id); } catch { refresh(); return; }   // the SDK's toast has said why
+    if (it.id) try { hub.set('finished:' + id, { id: it.id, name: it.name, size: it.size, dateLogged: it.dateLogged, loggedBy: it.by, loggedByName: it.byName,
+      finishedAt: dayKey, finishedBy: hub.profile.id, finishedByName: hub.profile.name }); } catch {}
+    hub.activity('Finished the ' + it.name);
+    refresh();
+  }
+  // Leaving the page finishes what is finishing (the queue sends it as usual).
+  const commitAll = () => { for (const id of [...pending.keys()]) commitFinish(id); };
+  if (typeof hub.onLeave === 'function') hub.onLeave(commitAll); else addEventListener('pagehide', commitAll);
+  // hidden (the app put in the background, the phone locked): finish now and send while the page is still alive
+  document.addEventListener('visibilitychange', () => { if (document.hidden && pending.size) { commitAll(); if (hub.flush) hub.flush().catch(() => {}); } });
+  addEventListener('pageshow', e => { if (e.persisted) render(); });
+  // back in view: nothing is being aimed at yet, so the list is laid out afresh (finished cards go, new ones take their place)
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+
+  // Recently finished: the last seven days' finished items, each with Put back (adults); older ones are cleared.
+  // Recently finished follows the list's rule: laid out (newest first) with the list; between layouts a row never moves —
+  // a row whose item is back in the fridge is dimmed with its button hidden (its place kept), a newly finished item is
+  // added at the end, and only the count in the heading changes.
+  function doneRow(v, back) {
+    const row = document.createElement('div'); row.className = 'row' + (back ? ' back' : ''); row.dataset.id = v.id;
+    const t = document.createElement('div'); t.className = 't'; t.textContent = v.name;
+    const small = document.createElement('small');
+    small.textContent = (v.size ? v.size + ' · ' : '') + 'logged ' + v.dateLogged + ' · finished ' + (v.finishedAt === dayKey ? 'today' : v.finishedAt) + (v.finishedByName ? ' · ' + v.finishedByName : '');
+    t.append(small); row.append(t);
+    if (canEdit && back) {                                              // the same box as the button, so the row keeps its size
+      const tag = document.createElement('span'); tag.className = 'putback tag'; tag.textContent = 'Back ✓';
+      tag.setAttribute('aria-label', v.name + ' is back in the fridge');
+      row.append(tag);
+    } else if (canEdit) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'putback'; b.textContent = 'Put back';
+      b.setAttribute('aria-label', 'Put ' + v.name + ' back in the fridge');
+      b.onclick = () => putBack(v);
+      row.append(b);
+    }
+    row.dataset.sig = JSON.stringify([v.name, v.size, v.dateLogged, v.finishedAt, v.finishedByName, back]);
+    return row;
+  }
+  function renderDone(full = true) {
+    const el = $('donelist'); if (!el) return;
+    const rows = hub.list('finished:').map(r => r.value).filter(v => v && v.id && v.name);
+    const fresh = hub.sync && hub.sync.lastPull && hub.sync.lastPull >= OPENED;   // an old cache must not erase a newer row
+    if (canEdit && fresh && full) for (const v of rows) if (hub.daysBetween(String(v.finishedAt || dayKey), dayKey) > KEEP_DAYS) { try { hub.remove('finished:' + v.id); } catch {} }
+    const inWeek = v => hub.daysBetween(String(v.finishedAt || dayKey), dayKey) <= KEEP_DAYS;
+    const recent = rows.filter(v => inWeek(v) && !hub.get('item:' + v.id)).sort((a, b) => String(b.finishedAt).localeCompare(String(a.finishedAt)));
+    const det = el.querySelector('details');
+    if (!full && det) {                                                 // in place
+      const byId = new Map(rows.map(v => [v.id, v]));
+      for (const row of [...det.querySelectorAll('.row')]) {
+        const v = byId.get(row.dataset.id); if (!v) continue;
+        const next = doneRow(v, !!hub.get('item:' + v.id));
+        if (next.dataset.sig === row.dataset.sig) continue;
+        const hadFocus = row.contains(document.activeElement);
+        row.replaceWith(next);
+        if (hadFocus) { const b = next.querySelector('button.putback') || [...det.querySelectorAll('button.putback')].find(x => next.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING); if (b) b.focus(); }
+      }
+      const have = new Set([...det.querySelectorAll('.row')].map(r => r.dataset.id));
+      for (const v of recent) if (!have.has(v.id)) det.append(doneRow(v, false));
+      det.querySelector('summary').textContent = 'Recently finished · ' + recent.length;
+      return;
+    }
+    const open = det && det.open;
+    el.textContent = '';
+    if (!recent.length) return;
+    const d = document.createElement('details'); d.open = !!open;
+    const sm = document.createElement('summary'); sm.textContent = 'Recently finished · ' + recent.length;
+    d.append(sm);
+    for (const v of recent) d.append(doneRow(v, false));
+    el.append(d);
+  }
+  function putBack(v) {
+    const p = pending.get(v.id); if (p) { clearTimeout(p.t); pending.delete(v.id); }
+    // the kitchen may credit only a current household member under their current name (the house refuses anything else)
+    let by = v.loggedBy, byName = v.loggedByName;
+    if (hub.profile && hub.profile.kind === 'kitchen') {
+      const q = (hub.people ? hub.people() : []).find(x => x && x.id === by);
+      const ok = by === hub.profile.id || (q && !q.is_guest && !q.isGuest && q.kind === 'adult' && q.name === byName);
+      if (!ok) { by = undefined; byName = undefined; }
+    }
+    const item = { id: v.id, name: v.name, size: v.size, dateLogged: v.dateLogged }; if (by) { item.by = by; item.byName = byName; }
+    try { hub.set('item:' + v.id, item); } catch { return; }
+    hub.activity('Put the ' + v.name + ' back in the fridge');
     render();
   }
 
@@ -407,7 +611,7 @@
   hub.onDay(rollover);
   window.__larder = { render, rollover, today: () => dayKey };   // test hook (scripts/test-leftovers.mjs)
 
-  hub.onChange(render);   // someone else logged or finished something
+  hub.onChange(refresh);   // someone else logged or finished something: cards update where they stand
   render();
   // The first pull has answered on this device: paint the real list, and log an entry that was waiting for it.
   hub.loaded().then(() => { rollover(); render(); if (held) submit(); });
