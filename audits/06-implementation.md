@@ -779,3 +779,157 @@ The pre-batch results are batch 0e's after-run of the same suites (`audits/evide
 - **Chat can still write a kid's star rows** through the general `set_data` (as before this batch, within the Worker's rules for kids).
 - **Two kids' devices during a parent's cash-in** were not exercised separately. The ledger path is unchanged from before this batch and is covered by test-rewards.
 - **Real devices** were not used: every two-device check ran in the rig's WebKit (iPhone and iPad profiles).
+
+## Batch 0g — Prayer: no lost requests, notes or prayed days
+
+| | |
+|---|---|
+| **Findings** | 7 entries, all primaries: 4 critical, 1 high, 2 low. All 7 FIXED (status per entry in `audits/05-findings.md`). |
+| **Code commit** | `7d9c593` (2026-09-29) |
+| **Files** | `apps/prayer.html` (data code and two lines of copy; layout and ids kept), `apps/kidverse.html` (prayed days by id), `index.html` (the TV's "who prayed today"), `worker/src/policy.js` (who prayed is merged for every writer), `worker/src/chat.js` (`mark_prayed` by id, `add_prayer` records its author), `scripts/test-apps.mjs`, `scripts/test-prayer-faces.mjs`, `scripts/test-rewards.mjs`, `scripts/smoke-api.sh`, `CLAUDE.md`, `worker/README.md`, `sw.js` (`hub-v33` → `hub-v34`) |
+| **Schema / data** | No schema change and no data migration. New entries of `prayedBy` are profile ids; the names already stored stay and are still read (see below). New request ids are random; existing ids keep theirs. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-29-before-0g.sql` (37 KB, 43 app_data rows, 14 of them Prayer). Nothing was deployed. |
+| **How it was built** | By the orchestrator. An independent review found 11 items (3 medium, 1 low-medium, 7 low). All were fixed. Three more passes on the fixes followed: the second found 1 new medium (the kitchen) and 3 low, and the third 1 low (the untick signal could be stored). All were fixed. A fourth pass found 1 low in the last fix (an untick whose write was refused could be marked as sent); it was fixed and a fifth pass confirmed. Every check was rerun on the final code. |
+
+### The change
+
+**Who prayed is kept by profile id, and merged (P3-PRAYER-24, P3-KIDVERSE-07, P3-PRAYER-05).**
+- **The cause.**
+  - `prayedBy[date]` listed display names, so a guest who shares a household name was taken for that person: shown with their face, and credited with a Kid Verse star.
+  - On the family list, "done" was the row's shared `lastPrayedAt`, so one person's tick showed as everyone's, and the next person's tap took it away for the house.
+- **Now.**
+  - Prayer, chat and the Worker write profile ids.
+  - A family row is "done" for me when my id is in today's list. A tap adds or removes only me; everyone else shows as a face.
+  - Names already stored still show. A name counts as a particular person only while no one else the house knows, guests included, has it. So an old "Kiara" never becomes Kiara once a guest called Kiara exists. An unknown id reads "Someone".
+- **The house merges who prayed for every writer, not only kids (batch 0d).**
+  - The request itself stays last-write-wins. Who prayed is merged: a writer changes only their own entry, added on the household's yesterday / today / tomorrow.
+  - An entry is taken away only today, and only when the write says so. Prayer sends `unprayed` with an untick, and the Worker never stores it. So a copy of the row from before someone's tick cannot erase it: another adult's device that had not pulled, or the same person's other device.
+  - The kitchen may add household members and never takes anyone away.
+  - When the house changed the row, it is stored one millisecond newer than both copies, so the writer's next pull shows the merged row.
+- **Kid Verse** credits a prayed day when the kid's id is on it, or their name while no one else has it.
+
+**New ids (P3-PRAYER-01).** New requests get a random id (`p` / `s` + time + 8 random characters) instead of "the next number", which two devices picked at once.
+
+**The date at each tap (P2-STAB-03).**
+- Batch 0b's midnight event already moved Prayer to the new day, and this batch's before-run shows it: the 00:03 tap lands on the 28th.
+- Prayer now also reads the house's date again at every tap, for a page whose midnight timer never ran.
+- A tap never takes away an earlier day's mark: on my own list only today's mark can be undone; on the family list only today's own entry.
+
+**"Put back on the list" (P3-PRAYER-04).** The answer and its date are kept as a dated update ("Was answered on …: …"). A toast offers Undo, which restores the request exactly. Both Undos find the request again by id, in case another device's change rebuilt the list meanwhile.
+
+**Import (P3-PRAYER-03).**
+- **What it does now.**
+  - It merges and never deletes.
+  - A request missing here comes back, and a newer copy in the backup is brought back. On the family list, this applies only to requests the importer added and still owns.
+  - Everyone's prayed marks stay as the house has them.
+  - Categories, plans and prayed days are added to, never replaced.
+- **Reused ids.** A request whose id was reused after a delete (the same id with another start date) comes back under a new id instead of replacing the one there now.
+- **Old backups.** A single-list (v2) backup touches only the importer's own list.
+- **What it tells you.** The help text says what import does. The toast says what changed: "2 added; 9 family requests were left as the house has them (only requests you added are restored)".
+- **A bug this uncovered, older than the batch.** Prayer remembered a row it had sent and skipped sending an identical copy even after the house had deleted the row. That memory now follows each reload.
+
+**What the independent review changed.**
+- **Medium.**
+  - The Worker turned any stored "Kiara" into Kiara's id when she ticked, and the app deleted it. Both now touch a name only while no one else has it.
+  - Adults still wrote whole rows under last-write-wins. The Worker now merges who prayed for every writer.
+  - Import matched rows by id alone, and old ids were reused.
+  - Second pass: the kitchen could take away ticks missing from its copy. It now only adds.
+- **Low.**
+  - Rows with no author could not be restored, and the toast blamed "someone else". Chat's new requests now record their author, and the toast is accurate.
+  - A v2 backup added a plan and categories.
+  - An unknown id showed as a raw id (guest ids are mixed case).
+  - Undo held a stale object.
+  - A request answered with no note lost its date.
+  - Tests counted names only, and there was no id-path check (the new check below).
+  - Stale comments.
+  - Second pass:
+    - A person's own un-pulled device could untick them. Untick is now explicit (`unprayed`).
+    - The memory reset also forgot two settings.
+  - Third pass: `unprayed` could be stored by a plain write (a new row, a restored row, chat). The Worker now strips it from every Prayer write, and the app sends it once.
+
+### Each finding's reproduction, rerun
+
+**How they were run.**
+- The 19 scripts the entries name ran three at a time on the unchanged code (`git archive` of `1543b41`) and on the final code. Outputs and exit codes are in `audits/evidence/p6/0g/tests/repro-before/` and `repro-after/`. The changed evidence files were moved into `p6/0g/p2|p3/`, and the Phase 2/3 baseline was restored (git shows it clean).
+- All 19 exit 0 before and after.
+- **Scripts that look for names.** Several scripts look for a name ("Kiara") in `prayedBy`, and now find the id instead ("kiara"). Where that matters it is read as such below.
+
+| Finding | Before | After |
+|---|---|---|
+| P2-STAB-03 (midnight) | fixed by batch 0b already: the 00:03 tap lands on 2026-09-28 | the same (the script's `kiaraOn` looks for the name, so it now reads [] while `prayedByKeys` shows the 28th and the TV shows Kiara); the missed-timer case is check B below |
+| P3-PRAYER-01 (id-collision, verify-1/2) | both devices pick p012 (or p020, s012, p006): one request lost in every scenario | random ids, never equal; every request on the server and on both devices (A–D, V1–V2, S1–S3) |
+| P3-PRAYER-03 (import-family, verify-1/2) | Import tombstones Mae's newer request and erases Kiara's mark for today; help says "replaces both lists" | 0 tombstones; Mae's request and Kiara's mark stay on the server and both devices; the toast says what changed |
+| P3-PRAYER-04 (unanswer, verify-1/2) | one tap erases the answer note: nothing anywhere in the row, no toast | the note and its date become an update; "Back on the list. The answer is kept as an update." with Undo |
+| P3-PRAYER-05 (family-tick, verify-1/2) | Eli's tap unticks Elizabeth's tick for the house; a row someone else prayed shows ticked for Eli | Eli's tap adds "eli" next to Elizabeth; his rows show his own ticks only (verify-2 stops at "no row ticked by someone else", which is the fix: none is shown ticked); a second tap takes away only his |
+| P3-PRAYER-24 (critic-sweep, 8-1, 8-2) | a guest named David shows as David (his face); the guest's tap erases David's tick | the guest's own face and colour; both ticks kept (C: `["dad","guest-…"]`; D: `["dad","eli"]`); a guest named Ezra no longer makes Ezra's card read done |
+| P3-KIDVERSE-07 (name-match-1/2, star-rules R6) | a guest named Kiara earns Kiara a prayed star | the guest's id is recorded; Kiara gets no star (`prayedCredited` 0, was 1) |
+
+**New check: `audits/tools/phase6/0g/prayer-merge-check.mjs`** (`audits/evidence/p6/0g/prayer-merge-check.json`). It covers what the old scripts cannot see.
+- **A.** Mom ticks a request, and Dad's un-pulled device ticks it seconds later; then Dad is offline, Mom ticks, and Dad reconnects. Both rows end with `["mom","dad"]`.
+- **B.** Eli's page is held on yesterday (a missed midnight timer). His tap lands on today, and yesterday's mark stays.
+- **C.** A guest named Kiara exists, and a row's yesterday holds the old name "Kiara". The real Kiara's tap adds `kiara` today, and the name is left alone. Her card does not read done from the guest's name.
+- **D.** Kiara's tap earns `star:prayed:<today>` in Kid Verse.
+- **E.** The TV shows one Eli face for `["Eli","eli"]`, and "Someone" for an unknown mixed-case guest id.
+- **F.** "Put back" then Undo restores status, date, note and updates exactly.
+- **G.** Import brings back Eli's deleted request and leaves Mae's deleted one deleted. The reused `s901` comes back under a new id, and the current `s901` is untouched.
+- **H.** Eli's own un-pulled phone edits a request he just ticked on the iPad: the tick stays. His untick then removes it, and no `unprayed` is stored.
+- All eight pass on the final code.
+
+**The prayer check.**
+- `handoff/prayer/check.js` is on the do-not-touch list, so it was left as it is. It now fails the two checks that assert names in `prayedBy`, and passes the other 47.
+- `audits/tools/phase6/0g/check-ids.js` is an identical copy except that those two checks assert ids. It passes 49 of 49.
+- **For the owner:** `check.js` should get the same two-line change; that needs your okay to touch `handoff/`.
+
+### Capture rig
+
+- **The runs.** The areas whose code changed were recaptured on the final code: Prayer 809, Kid Verse 240, the shell 979 and the TV 34 — 2062 captures, 0 failed (`audits/screens-after/0g/manifest.json`).
+- **Against the last capture of each area** (`audits/evidence/p6/0g/capture/pxdiff-*.txt`; Prayer against batch 0d's, Kid Verse and the shell against 0f's, the TV against 0e's):
+  - **Prayer: 97 changed, all family-list screens.** They are the intended change. "Done" on the family list now means the signed-in person prayed it, so the headline counts and the ticks differ (for example "5 to pray" → "8 to pray" behind the delete sheet, because other people's ticks no longer count as Eli's). The Import help text changed too. Also in this group: the known scroll-offset flake on long Prayer pages (kid-faces-overflow: the same cards, 4 px lower).
+  - **Kid Verse: 0.**
+  - **The shell: 6**, all run-to-run noise seen in earlier batches (first-visit toast, error-message animations, 1-pixel specks).
+  - **The TV: 3** (the crossfading background photo, 1-pixel specks).
+
+### Rubric rescore
+
+- On screen: the family list now shows each person their own ticks, with everyone else's as faces; "Put back on the list" shows a toast with Undo; Import's help and toast say what happens.
+- Underneath: whether a request, an answer or a prayed mark survives another device. The rubric scores both under **Ease of use** (error prevention, feedback).
+- The orchestrator's rescore:
+
+| Area | Ease of use | Why |
+|---|---|---|
+| Prayer | +1 | no lost requests, answers or ticks; "done" means mine on the family list; Import is safe and says what it did |
+| Kid Verse | +0.5 | a prayed star can no longer be earned by someone else |
+
+- These are the orchestrator's judgements, not a rerun of Phase 4's scoring.
+
+### Repo tests
+
+The pre-batch results are batch 0f's after-run of the same suites (`audits/evidence/p6/0g/tests/repo-before-is-0f-after.txt`); this batch's run is `repo-after.txt`.
+
+| Suite | Before | After |
+|---|---|---|
+| test-hub | 36 / 1 | 36 / 1 (the stale "signed in as Niece"; batch 2a) |
+| test-prayer, test-prayer-faces | 36 / 0, 41 / 0 | identical; test-prayer-faces now asserts Kiara's id joins prayedBy (it asserted her name) |
+| test-apps | 48 / 0 | 48 / 0, after its two who-prayed checks assert the id |
+| test-rewards, test-kidverse, test-kidstory, test-tv, test-home, test-kitchen | as before | identical (test-rewards also counts the id when it works out the expected prayed days; test-tv and test-kitchen still seed names, which are still read) |
+| every other suite | as before | identical |
+| smoke-api.sh | 209 / 0 | 209 / 0, after the kid-merge check expects the id (`[Kiara, ezra]`: the old-app name Ezra sent is recorded as his id) |
+| smoke-chat.sh (mock model) | 39 / 1 | 39 / 1 (the same stale "kid blocked from adult-only app" miss as before this batch) |
+| handoff/prayer/check.js | 49 / 0 | 47 / 2 (the two checks that assert names; see "The prayer check" above); the id copy 49 / 0 |
+
+`node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for. The tests' screenshots in `docs/screens/` were restored.
+
+**After the last change.** The fourth review pass found that an untick whose write was refused could be marked as sent and never retried; the fix (a few lines in `setPrayed`, and the kid merge dropping an old flag) came after the full run above. Rerun on that final code: the three family-tick scripts, prayer-merge-check (8 / 8), test-prayer, test-prayer-faces, test-apps, test-kitchen, test-rewards, test-tv, smoke-api, both prayer checks, and the capture below.
+
+### Not verified, and known limits
+
+- **Nothing is deployed.** The Worker's merge and the pages go together. Batch 0d's migration still has to run first.
+- **Devices still on the old cached pages** (until their service worker updates, `hub-v34`):
+  - They write names. The Worker turns a person's own name into their id while no one else has that name.
+  - Their untick sends no `unprayed`, so the house keeps the tick until that person unticks from an updated device or the day ends. Kids never untick.
+  - Their "done" reads by name, so an id tick shows undone there until the page updates.
+- **An untick made offline and then an edit of the same request** on that device before it reconnects: the edit replaces the queued untick, which carries the untick signal, so the house keeps that person's tick for the day. Only the person's own tick is affected.
+- **A name written before this batch** is still read as that person while their name is unique. Once a guest with the same name exists, such old entries show under the name with no face, and earn no star.
+- **Other people's prayer history in a backup.** Import keeps the house's prayed marks. A backup's marks on days more than a day from today reach the house only for requests that are missing there and come back whole.
+- **Family requests with no author** (added before authors were recorded) are not restored by Import. The toast says how many were left.
+- **The kitchen's face-tap credit** (batch 2a) can add people but not take them away until that screen sends removals explicitly.
+- **Real devices** were not used. Every two-device check ran in the rig's WebKit.

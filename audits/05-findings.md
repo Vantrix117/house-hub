@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29) done; 99 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29) done; 106 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -44,7 +44,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 4 | **0d** | Security: accounts, private content, stored script, kid safety; the Kitchen device's server rules | 15 (3 / 4 / 3 / 5 / 0) + KITCHEN-1 | M | — | 15/15 fixed, `d5e46b6` |
 | 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | 7/7 fixed, `e72f6d0` |
 | 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | 3/3 fixed, `48e7b60` |
-| 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | open |
+| 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | 7/7 fixed, `7d9c593` |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | open |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | open |
 | 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | open |
@@ -1231,7 +1231,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-STAB-03 — Prayer left open past midnight records prayers on yesterday's date, and an adult's tap can delete yesterday's record
 
-- **Area** shell / platform (Prayer) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0g
+- **Area** shell / platform (Prayer) · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0g · **Status** FIXED (`7d9c593`)
+- **Phase 6 (FIXED).** Prayer reads the house's date again at every tap (refreshDay, on top of batch 0b's midnight event), and a tap never takes away an earlier day's mark: on my own list only today's mark can be undone, on the family list only my own entry today. midnight: the 00:03 tap lands on 2026-09-28 before and after (0b already fixed the event; the script's kiaraOn looks for the name and now reads [] while prayedByKeys holds the 28th); new check prayer-merge-check B: a page held on yesterday (a missed midnight timer) files the tap under today and yesterday's mark stays. After: `audits/evidence/p6/0g/p2/STAB/midnight.json`, `audits/evidence/p6/0g/prayer-merge-check.json`.
 - **Evidence.** `audits/02-shell.md:3143`; `apps/prayer.html:712`, `apps/prayer.html:1593-1604`, `index.html:724`, `apps/leftovers.html:361-375`
 - **What happens now.** The investigator's run. Kiara tapped Prayed at Mon 00:03:21. The tap was stored as `prayedBy['2026-09-27']` and `lastPrayedAt '2026-09-27'`. The TV still read "No one yet today." (`midnight.json` prayerTap). Skeptic 1 got the same at Mon 00:02:48, with no `2026-09-28` key. A fresh Kid Verse showed week 2026-W40 with count 0.
 - **Why it matters.** This happens on the 24/7 iPad, or on an iPhone PWA left in memory. The morning's prayers go to yesterday, and the TV shows that nobody prayed. A kid's prayer star lands on the wrong day. Across Sunday→Monday that day is in last week, so this week reads ★0.
@@ -1240,7 +1241,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-01 — Two devices adding a request pick the same id; one request is silently lost
 
-- **Area** prayer · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0g
+- **Area** prayer · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0g · **Status** FIXED (`7d9c593`)
+- **Phase 6 (FIXED).** New requests get a random id (p/s + time + 8 random characters), never "the next number"; existing ids keep theirs. id-collision A-D, verify-id-collision-1 V1/V2 and -2 S1-S3: every pair of ids differs and every request is on the server and on both devices (before: both devices picked p012 / p020 / s012 / p006 and one request was lost in every scenario). After: `audits/evidence/p6/0g/p3/prayer/id-collision.json`, `audits/evidence/p6/0g/p3/prayer/verify-id-collision-1.json`, `audits/evidence/p6/0g/p3/prayer/verify-id-collision-2.json`.
 - **Evidence.** `audits/03-apps/prayer.md:177`; `apps/hub.js:342`, `apps/prayer.html:719-721`, `apps/prayer.html:1312-1314`, `apps/prayer.html:685-695`; `audits/evidence/p3/prayer/id-collision-A-eli-phone-after.png`, `audits/evidence/p3/prayer/verify-id-collision-2-S1-mom-phone.png`
 - **What happens now.** New ids are counted per device:
 - **Why it matters.** A prayer request someone took the time to type vanishes for everyone, nobody is told, and nothing can bring it back.
@@ -1249,7 +1251,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-03 — Import a backup tombstones other people's newer family requests and erases today's prayed marks
 
-- **Area** prayer · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0g
+- **Area** prayer · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0g · **Status** FIXED (`7d9c593`)
+- **Phase 6 (FIXED).** Import merges and never deletes: a missing request comes back and a newer copy is brought back (on the family list only requests the importer added and still owns), everyone's prayed marks stay as the house has them, categories/plans/days are added to; a reused old id (another start date) comes back under a new id; a v2 backup touches only the importer's list; the help and the toast say what happens. import-family, verify-import-wipes-family-1/2: 0 tombstones, Mae's request and Kiara's mark for today stay on the server and both devices (before: Mae's request tombstoned, Kiara's mark erased, help "replaces both lists"); prayer-merge-check G: Eli's deleted request comes back, Mae's deleted one stays deleted, the reused s901 comes back under a new id. Also fixed: a row deleted elsewhere was never re-sent when restored (SNAP now follows each reload). After: `audits/evidence/p6/0g/p3/prayer/import-family.json`, `audits/evidence/p6/0g/p3/prayer/verify-import-wipes-family-1.json`, `audits/evidence/p6/0g/p3/prayer/verify-import-wipes-family-2.json`, `audits/evidence/p6/0g/prayer-merge-check.json`.
 - **Evidence.** `audits/03-apps/prayer.md:261`; `apps/prayer.html:1520`, `apps/prayer.html:1524`, `apps/prayer.html:692`, `apps/prayer.html:1518-1526`; `audits/evidence/p3/prayer/import-family-mae-phone-after.png`, `audits/evidence/p3/prayer/verify-import-wipes-family-2-mae-after.png`
 - **What happens now.** The import panel says "This replaces both lists on this device." (`apps/prayer.html:1520`). On Import it runs `D = readBackup(txt); migrate(); save()` (`apps/prayer.html:1524`).
 - **Why it matters.** Other people's prayer requests and today's prayed marks vanish. The kid's mark may feed her star. The copy tells the adult the opposite of what happens.
@@ -1258,7 +1261,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-04 — "Put back on the list" erases the answer note with one tap, no confirm and no undo
 
-- **Area** prayer · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0g
+- **Area** prayer · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0g · **Status** FIXED (`7d9c593`)
+- **Phase 6 (FIXED).** "Put back on the list" keeps the answer and its date as a dated update and shows "Back on the list. The answer is kept as an update." with Undo, which restores the request exactly (both Undos find the request again by id). verify-unanswer-erases-note-1/2: the note is in the row's updates on the server and both devices, toast with Undo (before: the note was gone from the row, the device and the feed, no toast); prayer-merge-check F: Undo restores status, date, note and updates exactly. After: `audits/evidence/p6/0g/p3/prayer/unanswer.json`, `audits/evidence/p6/0g/p3/prayer/verify-unanswer-erases-note-1.json`, `audits/evidence/p6/0g/p3/prayer/verify-unanswer-erases-note-2.json`, `audits/evidence/p6/0g/prayer-merge-check.json`.
 - **Evidence.** `audits/03-apps/prayer.md:296`; `apps/prayer.html:1327`, `apps/prayer.html:1013`, `apps/prayer.html:1335-1338`; `audits/evidence/p3/prayer/verify-unanswer-erases-note-2-sheet.png`, `audits/evidence/p3/prayer/verify-unanswer-erases-note-1-ipad-after.png`
 - **What happens now.** An answered request's sheet shows Done, Put back on the list, Edit and Delete (`apps/prayer.html:1013`). One tap sets `status` to active and `answeredAt` and `answerNote` to null, saves and jumps to Today (`apps/prayer.html:1335-1338`), with no `ask()` and no toast.
 - **Why it matters.** The answered-prayer journal is the app's most treasured record. One mis-tap destroys an entry for the whole family.
@@ -1267,7 +1271,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-05 — On the family list one person's tick shows as everyone's, and a second adult's tap unticks it for the house
 
-- **Area** prayer · **Type** bug · **Severity** high · **Effort** S · **Batch** 0g
+- **Area** prayer · **Type** bug · **Severity** high · **Effort** S · **Batch** 0g · **Status** FIXED (`7d9c593`)
+- **Phase 6 (FIXED).** On the family list "done" is my id in today's prayedBy; a tap adds or removes only me, and the Worker merges who prayed for every writer (policy.js mergePrayedBy: each writer changes only their own entry; an entry is taken away only today and only with an explicit untick), so a copy of the row from before someone's tick cannot erase it. family-tick: Eli's tap adds "eli" next to Elizabeth and a second tap takes away only his (before: his tap unticked Elizabeth for the house); verify-family-tick-shared-1: both rows keep Elizabeth; -2 stops at "no row ticked by someone else", i.e. no row shows ticked for Eli that he did not pray; prayer-merge-check A (two adults, one stale copy, online and offline: ["mom","dad"]) and H (the same person's un-pulled phone keeps his tick). After: `audits/evidence/p6/0g/p3/prayer/family-tick.json`, `audits/evidence/p6/0g/p3/prayer/verify-family-tick-shared-1.json`, `audits/evidence/p6/0g/p3/prayer/verify-family-tick-shared-2.json`, `audits/evidence/p6/0g/prayer-merge-check.json`.
 - **Evidence.** `audits/03-apps/prayer.md:320`; `apps/prayer.html:1595`, `apps/prayer.html:841`, `apps/prayer.html:729`, `apps/prayer.html:999`; `audits/evidence/p3/prayer/family-tick-1-eli-before.png`, `audits/evidence/p3/prayer/family-tick-3-elizabeth-phone.png`
 - **What happens now.** An adult family row's done state is the one shared `lastPrayedAt` (`apps/prayer.html:841, 884`), and Pray now skips rows anyone has prayed (`:1613`). `setPrayed` toggles: `on = lastPrayedAt !== TODAY` (`:1595`).
 - **Why it matters.** Adults cannot see what they themselves have prayed, and praying "undoes" someone else's mark on every device.
@@ -1276,7 +1281,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-KIDVERSE-07 — Prayed stars are matched by display name, so a guest with a kid's name earns that kid a star
 
-- **Area** kidverse · **Type** bug · **Severity** low · **Effort** S · **Batch** 0g
+- **Area** kidverse · **Type** bug · **Severity** low · **Effort** S · **Batch** 0g · **Status** FIXED (`7d9c593`)
+- **Phase 6 (FIXED).** Kid Verse credits a prayed day when the kid's id is on it, or their name while no one else the hub knows has it. verify-prayed-name-match-1: the guest named Kiara is recorded by id and Kiara gets no star (prayedCredited 0, was 1); -2 and star-rules R6 likewise; prayer-merge-check D: Kiara's own tap earns star:prayed:<today>. After: `audits/evidence/p6/0g/p3/kidverse/verify-prayed-name-match-1.json`, `audits/evidence/p6/0g/p3/kidverse/verify-prayed-name-match-2.json`, `audits/evidence/p6/0g/p3/kidverse/star-rules.json`, `audits/evidence/p6/0g/prayer-merge-check.json`.
 - **Evidence.** `audits/03-apps/kidverse.md:388`; `index.html:1408-1418`, `worker/src/index.js:174-203`, `apps/prayer.html:1599-1602`, `apps/kidverse.html:427-434`; `audits/evidence/p3/kidverse/verify-prayed-name-match-1-kiara-after.png`
 - **What happens now.** Prayer writes `hub.profile.name` into `prayedBy[date]` (`apps/prayer.html:1598-1602`). Kid Verse credits a prayed day when that list includes the kid's name (`apps/kidverse.html:427-434`, called with `p.name` at `:474`). Mom added a guest named "Kiara"; the guest tapped Prayed on the family list;
 - **Why it matters.** Stars and the Prayer warrior badge can be earned by someone else.
@@ -1285,7 +1291,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-24 — Family prayed marks are kept by display name: a guest who shares a household name is shown as that person (from the critic)
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 0g
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 0g · **Status** FIXED (`7d9c593`)
+- **Phase 6 (FIXED).** prayedBy records profile ids (Prayer, chat, the Worker); faces and names are drawn at render, and a stored name counts as a person only while no one else the house knows has it; an unknown id reads "Someone". critic-sweep: a guest named David shows with the guest's own face and colour (before: David's); verify-critic-prayedby-keyed-by-name-8-2 C/D: both ticks kept (["dad","guest-…"], ["dad","eli"]; before the second tap erased David's); 8-1: a guest named Ezra no longer makes Ezra's card read done; prayer-merge-check C and E (the TV: one face for "Eli" + "eli", "Someone" for an unknown guest id). After: `audits/evidence/p6/0g/p3/prayer/critic-sweep-guest.json`, `audits/evidence/p6/0g/p3/prayer/critic-guest-samename-mom.png`, `audits/evidence/p6/0g/p3/prayer/verify-critic-prayedby-keyed-by-name-8-1.json`, `audits/evidence/p6/0g/p3/prayer/verify-critic-prayedby-keyed-by-name-8-2.json`, `audits/evidence/p6/0g/prayer-merge-check.json`.
 - **Evidence.** `audits/03-apps/prayer.md:774`; `worker/src/index.js:174-201`, `apps/kidverse.html:426-434`, `apps/prayer.html:1599-1602`, `index.html:1057-1061`; `audits/evidence/p3/prayer/critic-guest-samename-mom.png`, `audits/evidence/p3/prayer/verify-critic-prayedby-keyed-by-name-8-1-mom.png`
 - **What happens now.** `setPrayed` stores `hub.profile.name` in `prayedBy[TODAY]` (`apps/prayer.html:1599-1602`). Every reader matches by name: the kid card's done state (`mePrayed`, `:728-729`), the faces on family rows (`:1557-1566`), the TV's "who prayed today" (`index.html:1057-1061`) and chat's `mark_prayed` (`worker/src/chat.js:244-246`).
 - **Why it matters.** The family list, the TV and a kid's own card credit the wrong person.
