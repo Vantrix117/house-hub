@@ -3,12 +3,13 @@
 //
 // SSE events sent to the client:
 //   text  {text}                      a chunk of the reply
-//   tool  {name, input, chip, ok, speak?, text?}   a tool ran (chip is the human-readable summary; speak:true + text asks the
-//                                                 client to read `text` aloud — read_todays_verse for kids)
+//   tool  {name, input, chip, ok, speak?, text?, undo?}   a tool ran (chip is the human-readable summary; speak:true + text asks
+//                                                 the client to read `text` aloud — read_todays_verse for kids; undo is a token
+//                                                 for POST /api/chat/undo, good for UNDO_MS, when the tool wrote something)
 //   done  {usage, stop_reason}        finished
 //   error {error, message}
 import { HttpError } from './auth.js';
-import { listData, getOne, liveItems, rowMap } from './data.js';
+import { listData, getOne, liveItems, rowMap, putOne as rawPut } from './data.js';
 import { nyParts } from './reminders.js';
 import { appsFor, householdLoader, guardedPut } from './policy.js';
 
@@ -18,6 +19,8 @@ export const DAILY_CAP = 60;
 export const HISTORY = 20;
 const MAX_TURNS = 6;                      // tool round-trips per message
 const BIG_VALUE = 4000;                   // chars; larger values are summarised, never sent to the model
+const UNDO_MS = 45000;                    // a chat write can be undone this long (the chip offers Undo for 30 s)
+const UNDO_APP = 'chatundo';              // app_data rows no app syncs or can read: one per undoable chat action
 
 const enc = new TextEncoder();
 const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -27,19 +30,19 @@ const TOOLS = [
   { name: 'list_apps', description: 'List the apps in the hub this person can use, with their data scope.', input_schema: { type: 'object', properties: {}, additionalProperties: false } },
   { name: 'get_data', description: "Read an app's stored data. scope 'person' is the signed-in person's own data; 'family' is shared by the whole house. Omit key to list everything.",
     input_schema: { type: 'object', properties: { app_id: { type: 'string' }, scope: { type: 'string', enum: ['person', 'family'] }, key: { type: 'string' } }, required: ['app_id', 'scope'], additionalProperties: false } },
-  { name: 'set_data', description: 'Write one value into an app. Use add_list_item for list apps (leftovers, reminders) and add_prayer for prayers instead of this.',
+  { name: 'set_data', description: "Change one of these settings, and nothing else: app 'tally' key 'count' (scope person, a whole number); app 'timer' key 'timer.active' (scope person, {endAt, total, startedAt} in ms, or null to stop); app 'hub' key 'theme' (scope person, one of system, hearth, parchment, frost, midnight, forest). Everything else is changed in its app, or with the list and prayer tools.",
     input_schema: { type: 'object', properties: { app_id: { type: 'string' }, scope: { type: 'string', enum: ['person', 'family'] }, key: { type: 'string' }, value: {} }, required: ['app_id', 'scope', 'key', 'value'], additionalProperties: false } },
   { name: 'add_list_item', description: "Add an item to a family list. app_id 'leftovers' (item: {name, size?, dateLogged?}) or 'reminders' (item: {text}).",
     input_schema: { type: 'object', properties: { app_id: { type: 'string', enum: ['leftovers', 'reminders'] }, item: { type: 'object', properties: { name: { type: 'string' }, size: { type: 'string', enum: ['Small', 'Medium', 'Large', 'Family-size'] }, dateLogged: { type: 'string', description: 'YYYY-MM-DD, defaults to today' }, text: { type: 'string' } }, additionalProperties: false } }, required: ['app_id', 'item'], additionalProperties: false } },
-  { name: 'toggle_f260_reading', description: "Mark (or unmark) one F260 reading as done for the signed-in person. week 1-52, day 1-5.",
-    input_schema: { type: 'object', properties: { week: { type: 'integer', minimum: 1, maximum: 52 }, day: { type: 'integer', minimum: 1, maximum: 5 } }, required: ['week', 'day'], additionalProperties: false } },
+  { name: 'set_f260_reading', description: "Tick (done true) or untick (done false) one F260 reading for the signed-in person. week 1-52, day 1-5. Ticking a reading that is already ticked changes nothing.",
+    input_schema: { type: 'object', properties: { week: { type: 'integer', minimum: 1, maximum: 52 }, day: { type: 'integer', minimum: 1, maximum: 5 }, done: { type: 'boolean' } }, required: ['week', 'day', 'done'], additionalProperties: false } },
   { name: 'add_prayer', description: "Add a prayer request. list 'private' is the person's own list, 'family' is the shared house list.",
     input_schema: { type: 'object', properties: { list: { type: 'string', enum: ['private', 'family'] }, text: { type: 'string' }, for: { type: 'string', description: 'who it is for, optional' } }, required: ['list', 'text'], additionalProperties: false } },
   { name: 'mark_prayed', description: "Mark a prayer request as prayed for today (the same thing as tapping it in the prayer app). prayer_id is the id from get_data on app prayer (rows prayer:<id>), or the request's title if you do not know the id — the tool matches it and asks when it is ambiguous.",
     input_schema: { type: 'object', properties: { list: { type: 'string', enum: ['private', 'family'] }, prayer_id: { type: 'string' } }, required: ['list', 'prayer_id'], additionalProperties: false } },
   { name: 'answer_prayer', description: 'Mark a prayer request as answered today, with an optional note about how. prayer_id as in mark_prayed.',
     input_schema: { type: 'object', properties: { list: { type: 'string', enum: ['private', 'family'] }, prayer_id: { type: 'string' }, note: { type: 'string' } }, required: ['list', 'prayer_id'], additionalProperties: false } },
-  { name: 'finish_leftover', description: 'Remove one item from the family fridge list (Larder Ledger) because it was eaten or thrown out. Give the item id or its name; the tool matches names loosely and asks when more than one fits.',
+  { name: 'finish_leftover', description: 'Remove one item from the family fridge list (Larder Ledger) because it was eaten or thrown out. Give the item id, or its exact name; if the name is not exact the tool lists the likely items and you ask which one.',
     input_schema: { type: 'object', properties: { item_id: { type: 'string' }, name: { type: 'string' } }, additionalProperties: false } },
   { name: 'where_is_family', description: 'Where family members were last seen on the Dollywood Live map in the last 4 hours (who, map position, how long ago). Read-only.',
     input_schema: { type: 'object', properties: {}, additionalProperties: false } },
@@ -120,13 +123,30 @@ async function usedToday(env, profileId) {
 }
 // ctx.apps is the list the Worker itself computed for this person (policy.js appsFor), never one from the request (P2-CHAT-06).
 const visibleApps = apps => apps || [];
-const REFUSED = { not_allowed: 'This person cannot change that.', kid_readonly: 'Kids cannot change that.', household_only: 'Only a household grown-up can change that.', app_hidden: 'This person cannot use that app.', not_yours: 'That belongs to someone else.', beacon_off: 'A parent has not switched this child\'s beacon on.' };
+const REFUSED = { bad_date: 'That date is not a real day, or it is in the future.', not_allowed: 'This person cannot change that.', kid_readonly: 'Kids cannot change that.', household_only: 'Only a household grown-up can change that.', app_hidden: 'This person cannot use that app.', not_yours: 'That belongs to someone else.', beacon_off: 'A parent has not switched this child\'s beacon on.' };
 const refusal = code => REFUSED[code] || 'This person cannot change that.';
 
 /** One line on Home's family feed. The feed prints the person's name itself, so `text` starts with the verb ("Added a guest: Sue"). Shared with index.js routes. */
 export async function activity(env, profile, appId, text) {
   await env.DB.prepare('INSERT INTO activity (profile_id, app_id, text, created_at) VALUES (?, ?, ?, ?)').bind(profile.id, appId, text.slice(0, 200), Date.now()).run();
 }
+const logActivity = activity;
+
+/** A leftover's dateLogged: YYYY-MM-DD (a real day), or today / yesterday / "N days ago"; never after today. false when not. */
+function dayOf(v) {
+  const t = today();
+  if (v === undefined || v === null || v === '') return t;
+  const s = String(v).trim().toLowerCase();
+  let d = s;
+  if (s === 'today') d = t;
+  else if (s === 'yesterday') d = addDay(t, -1);
+  else { const m = /^(\d{1,2}) days? ago$/.exec(s); if (m) d = addDay(t, -m[1]); }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+  const x = new Date(d + 'T12:00:00Z'); if (isNaN(x) || x.toISOString().slice(0, 10) !== d) return false;
+  return d > t ? false : d;
+}
+const isIsoDay = v => { const d = String(v || ''); if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false; const x = new Date(d + 'T12:00:00Z'); return !isNaN(x) && x.toISOString().slice(0, 10) === d && d <= today(); };
+const addDay = (d, n) => { const x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
 
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -140,8 +160,12 @@ async function findPrayer(env, profile, scope, idOrTitle) {
   const q = norm(raw);
   let hit = rows.filter(r => r.value.id === id);
   if (!hit.length && q) hit = rows.filter(r => norm(r.value.title) === q);
-  if (!hit.length && q) hit = rows.filter(r => { const t = norm(r.value.title + ' ' + (r.value.for || '')); return t.includes(q) || (norm(r.value.title) && q.includes(norm(r.value.title))); });
-  if (!hit.length && q) { const qw = q.split(' ').filter(w => w.length > 2); hit = rows.filter(r => { const t = norm(r.value.title + ' ' + (r.value.for || '')); return qw.length && qw.every(w => t.includes(w)); }); }
+  // not an id or the exact title: never act on a guess (as finish_leftover, batch 0i) — list what might be meant
+  if (!hit.length && q) {
+    const qw = q.split(' ').filter(w => w.length > 2 && /[a-z]/.test(w));
+    const maybe = rows.filter(r => { const t = norm(r.value.title + ' ' + (r.value.for || '')); return t.includes(q) || (norm(r.value.title) && q.includes(norm(r.value.title))) || (qw.length && qw.every(w => t.includes(w))); });
+    if (maybe.length) return { result: `No request is called exactly "${raw}". Ask which one they mean, then call again with its id: ${maybe.slice(0, 12).map(r => `${r.value.title}${r.value.for ? ' for ' + r.value.for : ''} (id ${r.value.id})`).join('; ')}` };
+  }
   const active = hit.filter(r => r.value.status === 'active'); if (active.length && active.length < hit.length) hit = active;
   const which = scope === 'family' ? 'the family list' : 'the private list';
   if (!hit.length) return { result: rows.length ? `No prayer on ${which} matches "${raw}". Requests there: ${rows.slice(0, 30).map(r => `${r.value.title} (id ${r.value.id}${r.value.status !== 'active' ? ', ' + r.value.status : ''})`).join('; ')}` : `${which[0].toUpperCase() + which.slice(1)} is empty.` };
@@ -157,12 +181,107 @@ async function familyWeek(env) {
   return Math.min(52, week);
 }
 
-/** Runs one tool. Returns { result (for the model), chip (for the UI), ok }. Never throws for user-level problems. */
+/**
+ * Runs one tool. Returns { result (for the model), chip (for the UI), ok, undo? }. Never throws for user-level problems.
+ * Every write is recorded with the row as it was, so the chip can offer Undo (GAP-CHAT-02, P2-CHAT-01): the record is kept
+ * under app_data(person, chatundo, <token>) — rows the data API refuses to read or write — for UNDO_MS. A main write that
+ * another change beat under last-write-wins is not a success (P2-CHAT-09): the action's earlier writes are put back, the
+ * person is told, and no ✓ is shown. Rows that only follow from the main one (the F260 log and summary, prayerDays, the
+ * Larder's finished row) are written best-effort, stamped as they are written.
+ */
 async function runTool(env, ctx, name, input) {
+  const writes = []; writes.feed = [];
+  const r = await runToolInner(env, ctx, name, input, writes);
+  if (!r.ok && writes.length) await restore(env, ctx, writes, { force: true });   // nothing half-done (P2-CHAT-09, review)
+  if (r.lost) return { ok: false, result: 'Not saved: someone changed that just now. Tell the person nothing was changed and to try again.', chip: '✗ Not saved — someone changed it just now' };
+  if (!r.ok || !writes.length || !r.chip) return r;
+  const token = rid() + rid();
+  try {
+    await env.DB.prepare('DELETE FROM app_data WHERE app_id = ? AND scope = ? AND profile_id = ? AND updated_at < ?').bind(UNDO_APP, 'person', ctx.profile.id, Date.now() - 10 * 60000).run();
+    await rawPut(env, { appId: UNDO_APP, scope: 'person', profile: ctx.profile, key: token, value: { tool: name, chip: r.chip, feed: writes.feed[0] || null, writes: writes.slice(0, 20), day: today(), at: Date.now() }, updated_at: Date.now() });
+    return { ...r, undo: token };
+  } catch { return r; }                                                 // no Undo offered, the write itself stands
+}
+class Lost extends Error {}
+/**
+ * Puts back the rows an action wrote, all or nothing: every row must still be as the action left it (and a tally reset
+ * must have had no taps on its new count since), else nothing is touched. Rows go back in the order they were written, and
+ * the first refusal stops it. { force } (a failed action's own rows, just written) skips the "changed since" check.
+ * Returns { ok, changed, restored }.
+ */
+async function restore(env, ctx, writes, { force = false, day = today() } = {}) {
+  const P = ctx.profile;
+  if (!force) {
+    for (const w of writes) {
+      if (w.soft) continue;                                               // a follow-on row (F260's summary, prayerDays) another device may rewrite
+      const cur = await getOne(env, { appId: w.appId, scope: w.scope, profile: P, key: w.key });
+      if (!cur || +cur.updated_at !== +w.at) return { ok: false, changed: true, restored: 0 };
+      if (w.appId === 'prayer' && w.scope === 'family' && day !== today()) return { ok: false, changed: true, restored: 0 };   // a new day: the tick is history
+      if (w.appId === 'tally' && w.key === 'reset') {
+        const taps = (await listData(env, { appId: 'tally', scope: 'person', profile: P })).filter(r => r.key.startsWith('count:') && r.key !== 'count:chat' && +r.updated_at > +w.at);
+        if (taps.length) return { ok: false, changed: true, restored: 0 };
+      }
+    }
+  }
+  let restored = 0;
+  for (const w of writes) {
+    if (w.appId === 'prayer' && w.key === 'prayerDays') continue;       // a prayed day stays: someone may have prayed today since, and the list only gains days
+    if (w.soft && !force) { const cur = await getOne(env, { appId: w.appId, scope: w.scope, profile: P, key: w.key }); if (!cur || +cur.updated_at !== +w.at) continue; }
+    let value = w.had ? w.prev : null;
+    // who prayed is merged by the house; an untick of this person's own entry has to say so (policy.js mergePrayedBy)
+    if (w.appId === 'prayer' && w.scope === 'family' && /^prayer:/.test(w.key) && value && typeof value === 'object') value = { ...value, unprayed: today() };
+    // a Larder row from before batch 0i may carry a date the house now refuses: it comes back dated today
+    if (w.appId === 'leftovers' && /^item:/.test(w.key) && value && typeof value === 'object' && !isIsoDay(value.dateLogged)) value = { ...value, dateLogged: dayOf(value.dateLogged) || today() };
+    const r = await guardedPut(env, P, { appId: w.appId, scope: w.scope, profile: P, key: w.key, value, updated_at: Math.max(Date.now(), +w.at + 1) }, ctx.people);   // after the write it undoes, even in the same millisecond
+    if (r.rejected || r.applied === false) return { ok: restored > 0, changed: false, restored, stopped: true };
+    restored++;
+  }
+  return { ok: true, changed: false, restored };
+}
+/** POST /api/chat/undo {token}: undoes one chat action (the chip's Undo), all or nothing, once, within UNDO_MS. */
+export async function chatUndo(c, auth) {
+  const profile = auth.profile, body = await c.body().catch(() => ({}));
+  const token = String(body && body.token || '');
+  if (!/^[a-z0-9]{8,40}$/.test(token)) throw new HttpError(400, 'bad_token', 'That cannot be undone.');
+  const rec = await getOne(c.env, { appId: UNDO_APP, scope: 'person', profile, key: token });
+  const v = rec && rec.value;
+  await c.env.DB.prepare('DELETE FROM app_data WHERE app_id = ? AND scope = ? AND profile_id = ? AND key = ?').bind(UNDO_APP, 'person', profile.id, token).run();
+  const age = Date.now() - +(v && v.at);
+  if (!v || !Array.isArray(v.writes) || !v.writes.length || v.writes.length > 20 || !(age >= 0 && age <= UNDO_MS)) throw new HttpError(410, 'gone', 'That can no longer be undone.');
+  const ctx = { profile, people: householdLoader(c.env) };
+  const r = await restore(c.env, ctx, v.writes, { day: v.day });
+  if (r.changed) return { ok: false, restored: 0, message: 'Nothing undone: it was changed since.' };
+  // the feed gets the action's own feed-safe line (a private prayer is never named there, P2-PWA-01), never the chip
+  const line = v.feed && v.feed.text ? String(v.feed.text).replace(/ \(via chat\)$/, '') : null;
+  if (r.restored && line) await logActivity(c.env, profile, v.feed.app || 'hub', ('Undid: ' + line).slice(0, 190) + ' (via chat)');
+  const chip = String(v.chip || '').replace(/^✓\s*/, '');
+  await c.env.DB.prepare('INSERT INTO chat_log (profile_id, role, content, created_at) VALUES (?, ?, ?, ?)').bind(profile.id, 'assistant', (r.ok && !r.stopped ? '↩ Undone: ' : r.restored ? '↩ Partly undone: ' : '↩ Not undone: ') + chip, Date.now()).run().catch(() => {});
+  return { ok: r.ok, restored: r.restored, message: r.stopped ? (r.restored ? 'Only partly undone: the house refused part of it.' : 'Not undone: the house refused it.') : 'Undone.' };
+}
+
+async function runToolInner(env, ctx, name, input, writes) {
   const { profile, apps } = ctx;
   const canUse = id => visibleApps(apps).some(a => a.id === id);
+  // the feed line each action posts, kept for its Undo (a private prayer is never named in it)
+  const activity = async (e, p, app, text) => { writes.feed.push({ app, text }); return logActivity(e, p, app, text); };
   // Every write goes through the same rules as the data API (policy.js): a kid, a guest or the kitchen is limited here too.
-  const putOne = async (_env, args) => { const r = await guardedPut(env, profile, args, ctx.people); if (r.rejected) throw new Refused(r.rejected); return r; };
+  // { soft: true }: a row that only follows from the main write, stamped now and never failing the action.
+  const putOne = async (_env, args, { soft = false } = {}) => {
+    const a = soft ? { ...args, updated_at: Date.now() } : args;
+    const r = await guardedPut(env, profile, { ...a, wantBefore: true }, ctx.people);
+    if (r.rejected) { if (soft) return r; throw new Refused(r.rejected); }
+    if (r.applied === false) {
+      if (JSON.stringify(r.value) === JSON.stringify(a.value)) return r;   // already so: nothing to save, nothing lost
+      // a family prayer tick the house already has: the stored row differs only in its stamps (never an answer or an edit)
+      const same = v => { const o = { ...(v || {}) }; delete o.updatedAt; delete o.lastPrayedAt; return JSON.stringify(o); };
+      if (a.appId === 'prayer' && a.scope === 'family' && /^prayer:/.test(a.key) && r.value && a.value && same(r.value) === same(a.value)) return r;
+      if (soft) return r;
+      throw new Lost();
+    }
+    const before = r.before;
+    writes.push({ appId: a.appId, scope: a.scope, key: a.key, prev: before ? before.value : null, had: !!(before && before.value != null), at: r.updated_at, ...(soft ? { soft: true } : {}) });
+    return r;
+  };
   const shrink = v => { const s = JSON.stringify(v); return s.length > BIG_VALUE ? `(large value, ${s.length} chars, not shown)` : v; };
   try {
     if (profile.kind === 'kid' && !KID_TOOLS.includes(name)) return { ok: false, result: 'That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.', chip: null };
@@ -189,8 +308,12 @@ async function runTool(env, ctx, name, input) {
     }
 
     if (name === 'set_data') {
-      if (!canUse(input.app_id) && !['reminders', 'hub'].includes(input.app_id)) return { ok: false, result: 'This person cannot use that app.', chip: null };
-      if (/\.vault$/.test(input.key)) return { ok: false, result: 'The journal vault cannot be edited from chat.', chip: null };
+      // Only these settings (P2-CHAT-01): anything else, a family row above all, is changed in its app or with its own tool.
+      const SET_OK = { 'tally|person|count': 1, 'timer|person|timer.active': 1, 'hub|person|theme': 1 };
+      if (!SET_OK[`${input.app_id}|${input.scope}|${input.key}`]) return { ok: false, result: 'That cannot be changed from chat. Tell the person to change it in the app itself.', chip: null };
+      if (input.app_id !== 'hub' && !canUse(input.app_id)) return { ok: false, result: 'This person cannot use that app.', chip: null };
+      if (input.key === 'theme' && !['system', 'hearth', 'parchment', 'frost', 'midnight', 'forest'].includes(input.value)) return { ok: false, result: 'theme must be one of system, hearth, parchment, frost, midnight, forest', chip: null };
+      if (input.key === 'timer.active' && input.value !== null && !(input.value && typeof input.value === 'object' && ['endAt', 'total', 'startedAt'].every(k => Number.isFinite(+input.value[k])))) return { ok: false, result: 'timer.active is {endAt, total, startedAt} in ms, or null', chip: null };
       // Tally keeps one row per device on a reset epoch since batch 0f: "set my tally to N" starts a new epoch at N
       if (input.app_id === 'tally' && input.key === 'count' && input.scope === 'person') {
         const n = Math.max(0, Math.floor(Number(input.value) || 0)), epoch = rid(), now = Date.now();
@@ -199,9 +322,10 @@ async function runTool(env, ctx, name, input) {
         await activity(env, profile, 'tally', `Set the tally to ${n} (via chat)`);
         return { ok: true, result: 'saved', chip: `✓ Tally set to ${n}` };
       }
-      await putOne(env, { appId: input.app_id, scope: input.scope, profile, key: input.key, value: input.value, updated_at: Date.now() });
+      const value = input.key === 'timer.active' && input.value ? { endAt: +input.value.endAt, total: +input.value.total, startedAt: +input.value.startedAt } : input.value;
+      await putOne(env, { appId: input.app_id, scope: input.scope, profile, key: input.key, value, updated_at: Date.now() });
       await activity(env, profile, input.app_id, `Changed ${input.key} in ${input.app_id} (via chat)`);
-      return { ok: true, result: 'saved', chip: `✓ Saved ${input.key} in ${input.app_id}` };
+      return { ok: true, result: 'saved', chip: input.key === 'theme' ? `✓ Look set to ${input.value}` : value === null ? '✓ Timer stopped' : '✓ Timer set' };
     }
 
     if (name === 'add_list_item') {
@@ -209,7 +333,9 @@ async function runTool(env, ctx, name, input) {
       if (input.app_id === 'leftovers') {
         if (!canUse('leftovers')) return { ok: false, result: 'This person cannot use the Larder Ledger.', chip: null };
         const nm = String(input.item.name || '').trim(); if (!nm) return { ok: false, result: 'name is required', chip: null };
-        const item = { id, name: nm, size: input.item.size || 'Medium', dateLogged: input.item.dateLogged || today(), by: profile.id, byName: profile.name };
+        const d = dayOf(input.item.dateLogged);
+        if (d === false) return { ok: false, result: 'dateLogged must be a real date as YYYY-MM-DD (or today / yesterday / N days ago), and not in the future.', chip: null };
+        const item = { id, name: nm, size: input.item.size || 'Medium', dateLogged: d, by: profile.id, byName: profile.name };
         await putOne(env, { appId: 'leftovers', scope: 'family', profile, key: 'item:' + id, value: item, updated_at: Date.now() });
         await activity(env, profile, 'leftovers', `Logged ${nm} (${item.size}) in the fridge (via chat)`);
         return { ok: true, result: item, chip: `✓ Added ${nm} to leftovers` };
@@ -225,24 +351,26 @@ async function runTool(env, ctx, name, input) {
       return { ok: false, result: 'unknown list', chip: null };
     }
 
-    if (name === 'toggle_f260_reading') {
+    if (name === 'set_f260_reading') {
       if (!canUse('f260')) return { ok: false, result: 'This person does not use F260.', chip: null };
-      const k = `${input.week}-${input.day - 1}`;
+      const k = `${input.week}-${input.day - 1}`, want = input.done !== false;
       // one row per tick and per logged day, as the F260 app writes them since batch 0e (P2-SYNC-01)
       const F = { appId: 'f260', scope: 'person', profile };
       const done = await rowMap(env, { ...F, prefix: 'done:', legacyKey: 'f260.done' });
       const now = Date.now();
-      if (done[k]) delete done[k]; else done[k] = true;
+      // tick means tick (P2-CHAT-04): a reading already in the asked state is left alone and the person is told
+      if (!!done[k] === want) return { ok: true, result: { week: input.week, day: input.day, done: want, unchanged: true }, chip: `Week ${input.week} day ${input.day} was already ${want ? 'checked off' : 'unchecked'}` };
+      if (want) done[k] = true; else delete done[k];
       await putOne(env, { ...F, key: 'done:' + k, value: !!done[k], updated_at: now });
       const log = await rowMap(env, { ...F, prefix: 'log:', legacyKey: 'f260.log' });
       if (done[k] && !log[today()]) {
         log[today()] = true;
-        await putOne(env, { ...F, key: 'log:' + today(), value: true, updated_at: now });
+        await putOne(env, { ...F, key: 'log:' + today(), value: true, updated_at: now }, { soft: true });
       }
       const sumRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary' });
       if (sumRow && sumRow.value) {
         const s = sumRow.value; const weekDone = [0, 1, 2, 3, 4].filter(d => done[`${input.week}-${d}`]).length;
-        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary', value: { ...s, weekDone: s.week === input.week ? weekDone : s.weekDone, readToday: !!log[today()], readOn: today(), streak: logStreak(log), total: Object.keys(done).length }, updated_at: now });   // readOn: the household date readToday and streak refer to
+        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary', value: { ...s, weekDone: s.week === input.week ? weekDone : s.weekDone, readToday: !!log[today()], readOn: today(), streak: logStreak(log), total: Object.keys(done).length }, updated_at: now }, { soft: true });   // readOn: the household date readToday and streak refer to
       }
       await activity(env, profile, 'f260', `${done[k] ? 'Read' : 'Unchecked'} week ${input.week} day ${input.day} (via chat)`);
       return { ok: true, result: { week: input.week, day: input.day, done: !!done[k] }, chip: `✓ Week ${input.week} day ${input.day} ${done[k] ? 'checked off' : 'unchecked'}` };
@@ -278,7 +406,7 @@ async function runTool(env, ctx, name, input) {
         // markDay(): today joins the list's prayerDays so the prayer streak counts this.
         const daysRow = await getOne(env, { appId: 'prayer', scope, profile, key: 'prayerDays' });
         const days = Array.isArray(daysRow && daysRow.value) ? daysRow.value : [];
-        if (!days.includes(d)) await putOne(env, { appId: 'prayer', scope, profile, key: 'prayerDays', value: [...days, d].sort(), updated_at: now });
+        if (!days.includes(d)) await putOne(env, { appId: 'prayer', scope, profile, key: 'prayerDays', value: [...days, d].sort(), updated_at: now }, { soft: true });
         // a private request is never named on the family feed (P2-PWA-01); the chip, which only this person sees, keeps the title
         await activity(env, profile, 'prayer', scope === 'family' ? `Prayed for ${p.title} (family list) (via chat)` : 'Prayed for a private request (via chat)');
         return { ok: true, result: { id: p.id, title: p.title, lastPrayedAt: d, prayedBy: scope === 'family' ? p.prayedBy[d] : undefined }, chip: `✓ Prayed for ${p.title}` };
@@ -300,8 +428,12 @@ async function runTool(env, ctx, name, input) {
         const q = norm(input.name || input.item_id || '');
         if (!q) return { ok: false, result: 'Give the item id or its name.', chip: null };
         hit = rows.filter(x => norm(x.it.name) === q);
-        if (!hit.length) hit = rows.filter(x => { const n = norm(x.it.name); return n.includes(q) || q.includes(n); });
-        if (!hit.length) { const qw = q.split(' ').filter(w => w.length > 2); hit = rows.filter(x => { const n = norm(x.it.name); return qw.some(w => n.includes(w)); }); }
+        // not exact: never guess (P2-CHAT-03) — list what might be meant and let the person choose
+        if (!hit.length) {
+          const qw = q.split(' ').filter(w => w.length > 2 && /[a-z]/.test(w));   // words, not numbers
+          const maybe = rows.filter(x => { const n = norm(x.it.name); return n.includes(q) || q.includes(n) || qw.some(w => n.includes(w)); });
+          if (maybe.length) return { ok: false, result: `No item is called exactly that. Ask which one they mean, then call again with its id: ${maybe.map(x => `${x.it.name} (${x.it.size || ''}, logged ${x.it.dateLogged || '?'}, id ${x.it.id})`).join('; ')}`, chip: null };
+        }
       }
       if (!hit.length) return { ok: false, result: rows.length ? `Nothing in the fridge list matches that. Items: ${rows.map(x => `${x.it.name} (id ${x.it.id})`).join(', ')}` : 'The fridge list is empty.', chip: null };
       if (hit.length > 1) return { ok: false, result: `More than one item matches; ask which one and call again with its id: ${hit.map(x => `${x.it.name} (${x.it.size || ''}, logged ${x.it.dateLogged || '?'}, id ${x.it.id})`).join('; ')}`, chip: null };
@@ -309,7 +441,7 @@ async function runTool(env, ctx, name, input) {
       await putOne(env, { appId: 'leftovers', scope: 'family', profile, key, value: null, updated_at: Date.now() });   // tombstone, as the app's hub.remove does
       // kept seven days under "Recently finished" in the app, where it can be put back (batch 0h, as the app's ✓ does)
       if (it.id) await putOne(env, { appId: 'leftovers', scope: 'family', profile, key: 'finished:' + it.id, updated_at: Date.now(),
-        value: { id: it.id, name: it.name, size: it.size, dateLogged: it.dateLogged, loggedBy: it.by, loggedByName: it.byName, finishedAt: today(), finishedBy: profile.id, finishedByName: profile.name } }).catch(() => {});
+        value: { id: it.id, name: it.name, size: it.size, dateLogged: it.dateLogged, loggedBy: it.by, loggedByName: it.byName, finishedAt: today(), finishedBy: profile.id, finishedByName: profile.name } }, { soft: true }).catch(() => {});
       await activity(env, profile, 'leftovers', `Finished ${it.name} from the fridge (via chat)`);
       return { ok: true, result: { removed: it.name, id: it.id }, chip: `✓ Finished ${it.name}` };
     }
@@ -346,6 +478,7 @@ async function runTool(env, ctx, name, input) {
     return { ok: false, result: 'unknown tool', chip: null };
   } catch (e) {
     if (e instanceof Refused) return { ok: false, result: refusal(e.code), chip: null };
+    if (e instanceof Lost) return { ok: false, lost: true, result: '', chip: null };
     return { ok: false, result: 'Tool failed: ' + (e.message || e), chip: null };
   }
 }
@@ -362,14 +495,14 @@ Today is ${today()} (America/New_York).
 
 Apps in the hub:
 ${appList}
-Data conventions: leftovers and reminders are lists stored as item:<id> rows in family scope; prayers are prayer:<id> rows; F260 progress is one row per reading, done:<week>-<dayIndex> (dayIndex 0-4), and f260.summary in person scope; use toggle_f260_reading and f260_status rather than writing them.
+Data conventions: leftovers and reminders are lists stored as item:<id> rows in family scope; prayers are prayer:<id> rows; F260 progress is one row per reading, done:<week>-<dayIndex> (dayIndex 0-4), and f260.summary in person scope; use set_f260_reading and f260_status rather than writing them.
 
 How to behave:
 - Keep replies short (a sentence or three); this is a phone-sized chat. Plain text, no markdown headings.
 - Use tools to look things up or make changes instead of guessing. After a tool runs, confirm in one short line.
 - To add food to the fridge list use add_list_item with app_id leftovers; when something was eaten or thrown out use finish_leftover; for house reminders use add_list_item with app_id reminders.
 - Prayers: add_prayer adds one; mark_prayed records that they prayed for a request today ("I prayed for Grandma"); answer_prayer moves it to the answered record ("Grandma's knee is better"). Both take the id from get_data on app prayer, or the request's title. If the tool says several match, ask which one.
-- F260: f260_status is the quick way to answer "where am I in my reading" (week, next reading, streak, this week's memory verses); toggle_f260_reading checks a reading off.
+- F260: f260_status is the quick way to answer "where am I in my reading" (week, next reading, streak, this week's memory verses); set_f260_reading with done true checks a reading off (done false unchecks it).
 - where_is_family says who was last seen on the Dollywood Live map and how long ago (only while the family is at the park).
 - If something isn't possible or the app isn't available to this person, say so simply.`;
   const kid = `
@@ -470,7 +603,7 @@ export async function chatHandler(c, auth) {
         for (const u of uses) {
           const r = u.input === null ? { ok: false, result: 'tool input was not valid JSON', chip: null } : await runTool(c.env, ctx, u.name, u.input);
           if (r.chip) { chips.push(r.chip); }
-          send('tool', { name: u.name, input: u.input, chip: r.chip, ok: r.ok, ...(r.speak ? { speak: true, text: r.speak } : {}) });
+          send('tool', { name: u.name, input: u.input, chip: r.chip, ok: r.ok, ...(r.speak ? { speak: true, text: r.speak } : {}), ...(r.undo ? { undo: r.undo } : {}) });
           results.push({ type: 'tool_result', tool_use_id: u.id, content: typeof r.result === 'string' ? r.result : JSON.stringify(r.result), is_error: !r.ok });
         }
         msgs.push({ role: 'user', content: results });

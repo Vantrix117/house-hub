@@ -252,6 +252,9 @@
   .msg .chips { display: flex; flex-direction: column; gap: 4px; margin-top: var(--sp-2); padding-top: var(--sp-2); border-top: 1px dashed var(--line); }
   .msg .chips:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
   .msg .chips .chip { justify-content: flex-start; min-height: 28px; font-size: var(--fs-xs); border-radius: var(--r-sm); }
+  .msg .chips .chip .chip-undo { margin-left: auto; min-height: 44px; min-width: 44px; padding: 0 var(--sp-3); border: 0; background: transparent; color: inherit;
+                                 font: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .msg .chips .chip .chip-undo:disabled { opacity: .5; cursor: default; }
   .typing { display: inline-flex; gap: 4px; padding: 6px 2px; }
   .typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite; }
   .typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
@@ -695,7 +698,9 @@
   }
 
   // ── apps grid + widgets ───────────────────────────────────────
-  const ageDays = s => hub.daysBetween(s, hub.today());   // calendar days in New York, as the Larder and the 8 am job count them: a DST change cannot shift it
+  // calendar days in New York, as the Larder and the 8 am job count them (a DST change cannot shift it); a future date is
+  // today, and a date that is not a real YYYY-MM-DD is unknown and listed with the oldest (batch 0i, P3-LEFTOVERS-04)
+  const ageDays = s => { const d = String(s || ''), x = new Date(d + 'T12:00:00Z'); return /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(x) && x.toISOString().slice(0, 10) === d ? Math.max(0, hub.daysBetween(d, hub.today())) : Infinity; };
   const fridgeDue = () => hub.list('item:', { app: 'leftovers', scope: 'family' }).map(r => r.value)
     .map(i => ({ ...i, days: ageDays(i.dateLogged) })).filter(i => i.days >= 4).sort((a, b) => b.days - a.days);
   function ringHtml(p, label, color, big) {
@@ -1210,7 +1215,7 @@
     {
       const due = fridgeDue(); const a = appById('leftovers'); const loaded = pulled || cached('leftovers', 'family');
       if (due.length) bits.push(due.length + ' to eat');
-      const bars = due.slice(0, 3).map(i => `<div class="${i.days >= 7 ? 'stale' : ''}"><div class="fl"><span>${esc(i.name)}</span><span>${i.days}d</span></div><div class="bar" style="--p:${Math.min(1, i.days / 10)}"><i></i></div></div>`).join('');
+      const bars = due.slice(0, 3).map(i => `<div class="${i.days >= 7 ? 'stale' : ''}"><div class="fl"><span>${esc(i.name)}</span><span>${i.days === Infinity ? 'date?' : i.days + 'd'}</span></div><div class="bar" style="--p:${Math.min(1, i.days / 10)}"><i></i></div></div>`).join('');
       cards.push(`<div class="card gcard" style="--tint:${esc((a && a.color) || FALLBACK)}"><img class="spot" src="art/app/leftovers.svg" alt="" width="200" height="160">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-bowl"/></svg></span>In the fridge</h2>
         <div class="gbody"><div class="grow">
@@ -1549,7 +1554,21 @@
     const apps = registry.apps.map(a => ({ id: a.id, name: a.name, scope: a.scope, visibleTo: a.visibleTo }));
     const handle = (event, data) => {
       if (event === 'text') { typing.remove(); if (!textNode) { textNode = document.createTextNode(''); bot.insertBefore(textNode, chipsEl); } textNode.data += data.text; scrollChat(); }
-      else if (event === 'tool') { if (data.speak && data.text) speakForKid(data.text); if (!data.chip) return; if (!chipsEl) { chipsEl = document.createElement('div'); chipsEl.className = 'chips'; bot.append(chipsEl); } const sp = document.createElement('span'); sp.className = 'chip ' + (data.ok ? 'chip-ok' : 'chip-danger'); sp.textContent = data.chip; chipsEl.append(sp); hub.pull(); scrollChat(); }
+      else if (event === 'tool') { if (data.speak && data.text) speakForKid(data.text); if (!data.chip) return; if (!chipsEl) { chipsEl = document.createElement('div'); chipsEl.className = 'chips'; chipsEl.setAttribute('aria-live', 'polite'); bot.append(chipsEl); } const sp = document.createElement('span'); sp.className = 'chip ' + (data.ok ? 'chip-ok' : 'chip-danger'); const label = document.createTextNode(data.chip); sp.append(label);
+        // Undo for 30 s (batch 0i, GAP-CHAT-02): puts back what this action wrote, where nobody has changed it since
+        if (data.undo) {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'chip-undo'; b.textContent = 'Undo';
+          b.setAttribute('aria-label', 'Undo: ' + String(data.chip).replace(/^✓\s*/, ''));
+          const t = setTimeout(() => { const had = document.activeElement === b; b.remove(); if (had) { sp.tabIndex = -1; sp.focus(); } }, 30000);
+          b.onclick = async () => {
+            b.disabled = true; clearTimeout(t);
+            try { const r = await hub.request('/api/chat/undo', { method: 'POST', body: { token: data.undo } }); label.data = (r && r.restored ? '↩ ' : '') + ((r && r.message) || 'Undone.') + ' (' + String(data.chip).replace(/^✓\s*/, '') + ')'; }
+            catch (e) { label.data = String(data.chip) + ' — ' + ((e && e.message) || 'could not undo'); }
+            sp.className = 'chip'; sp.tabIndex = -1; b.remove(); sp.focus(); hub.pull();   // the answer is read out, and the focus stays on the chip
+          };
+          sp.append(b);
+        }
+        chipsEl.append(sp); hub.pull(); scrollChat(); }
       else if (event === 'done') { typing.remove(); setCap(data.used, data.cap); if (!textNode && !chipsEl) bot.append(document.createTextNode('(no reply)')); }
       else if (event === 'error') { typing.remove(); bot.classList.add('err'); bot.append(document.createTextNode(data.message || 'Something went wrong.')); }
     };

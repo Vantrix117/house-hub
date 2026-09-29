@@ -227,15 +227,19 @@
   const $ = id => document.getElementById(id);
   let dayKey = hub.today();
   $('date').value = $('date').max = dayKey;   // before the first await, so the box is never blank while loading
-  const daysBetween = s => hub.daysBetween(s, dayKey);
-  const statusFor = d => d >= WARN_DAYS ? { label: 'Use it up', tone: 'urgent' }
+  // An item's age in days (batch 0i, P3-LEFTOVERS-04, -09): a future date reads as today, and a date that is not a real
+  // YYYY-MM-DD (an older row, "yesterday" from chat) is unknown — shown as "Check date" with the oldest, never as Fresh.
+  const isDay = v => { const d = String(v || ''); if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false; const x = new Date(d + 'T12:00:00Z'); return !isNaN(x) && x.toISOString().slice(0, 10) === d; };
+  const daysBetween = s => isDay(s) ? Math.max(0, hub.daysBetween(s, dayKey)) : Infinity;
+  const statusFor = d => d === Infinity ? { label: 'Check date', tone: 'urgent' }
+                       : d >= WARN_DAYS ? { label: 'Use it up', tone: 'urgent' }
                        : d >= AGING_DAYS ? { label: 'Aging', tone: 'warn' }
                        : { label: 'Fresh', tone: 'fresh' };
 
   await hub.ready();
   // Family data lives on the server already; this only rescues an item cached on a device that never synced. Async: it
   // waits for a fresh pull, and its change event re-renders.
-  hub.migrate([{ from: 'leftovers.items', scope: 'family', to: v => (Array.isArray(v) ? v : []).filter(i => i && i.id).map(i => ['item:' + i.id, i]) }]).catch(console.error);
+  hub.migrate([{ from: 'leftovers.items', scope: 'family', to: v => (Array.isArray(v) ? v : []).filter(i => i && i.id).map(i => ['item:' + i.id, isDay(i.dateLogged) && i.dateLogged <= dayKey ? i : { ...i, dateLogged: dayKey }]) }]).catch(console.error);   // a date the house refuses is logged as today
 
   const items = () => hub.list('item:').map(r => r.value);
   const errEl = $('err'), waitEl = $('wait'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally'), modeEl = $('mode'), form = $('add');
@@ -371,7 +375,7 @@
 
     const card = document.createElement('div');
     const finishing = pending.has(it.id);
-    card.className = 'item' + (finishing ? ' finishing' : '') + (gone ? ' gone' : ''); card.dataset.id = it.id; card.dataset.days = days; card.dataset.tone = tone;
+    card.className = 'item' + (finishing ? ' finishing' : '') + (gone ? ' gone' : ''); card.dataset.id = it.id; card.dataset.days = days === Infinity ? 'unknown' : days; card.dataset.tone = tone;
     card.style.setProperty('--tint', t.tint);
     card.style.setProperty('--chip', t.chip);
     card.style.setProperty('--chip-text', t.chipText);
@@ -382,11 +386,11 @@
     const info = document.createElement('div'); info.className = 'info';
     const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = it.name;
     const meta = document.createElement('div'); meta.className = 'meta';
-    meta.textContent = hub.isKid ? (days <= 0 ? 'Put in today' : days + (days === 1 ? ' day' : ' days') + ' in the fridge')
-      : it.size + ' · logged ' + it.dateLogged + ' · ' + days + 'd ago' + (it.byName ? ' · ' + it.byName : '');
+    meta.textContent = hub.isKid ? (days === Infinity ? 'Date unknown' : days <= 0 ? 'Put in today' : days + (days === 1 ? ' day' : ' days') + ' in the fridge')
+      : it.size + ' · ' + (days === Infinity ? 'date unknown' : 'logged ' + it.dateLogged + ' · ' + days + 'd ago') + (it.byName ? ' · ' + it.byName : '');
     const bar = document.createElement('div'); bar.className = 'bar';
     bar.style.setProperty('--p', Math.min(1, Math.max(0, days) / FULL_BAR_DAYS));
-    bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', days + ' of ' + FULL_BAR_DAYS + ' days');
+    bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', days === Infinity ? 'Date unknown' : days + ' of ' + FULL_BAR_DAYS + ' days');
     bar.append(document.createElement('i'));
     info.append(nm, meta, bar);
 
@@ -428,7 +432,7 @@
     held = false; setWait('');
     rollover();   // re-key the day first: in the minute after midnight the box can still hold yesterday
     const item = {
-      id: hub.uid(), name, size: $('size').value, dateLogged: $('date').value || dayKey,
+      id: hub.uid(), name, size: $('size').value, dateLogged: isDay($('date').value) && $('date').value <= dayKey ? $('date').value : dayKey,
       by: hub.profile.id, byName: hub.profile.name,
     };
     try { hub.set('item:' + item.id, item); }
@@ -541,7 +545,8 @@
       const ok = by === hub.profile.id || (q && !q.is_guest && !q.isGuest && q.kind === 'adult' && q.name === byName);
       if (!ok) { by = undefined; byName = undefined; }
     }
-    const item = { id: v.id, name: v.name, size: v.size, dateLogged: v.dateLogged }; if (by) { item.by = by; item.byName = byName; }
+    // a date the house refuses (from before batch 0i) comes back as the day it was finished, or today
+    const item = { id: v.id, name: v.name, size: v.size, dateLogged: isDay(v.dateLogged) && v.dateLogged <= dayKey ? v.dateLogged : (isDay(v.finishedAt) ? v.finishedAt : dayKey) }; if (by) { item.by = by; item.byName = byName; }
     try { hub.set('item:' + v.id, item); } catch { return; }
     hub.activity('Put the ' + v.name + ' back in the fridge');
     render();
@@ -568,7 +573,7 @@
     if (!due.length) return "Nothing aging right now — fridge's in good shape.";
     const lines = due.map(i => {
       const d = daysBetween(i.dateLogged);
-      return `• ${i.name} (${i.size}) — logged ${d}d ago, ${d >= WARN_DAYS ? 'use it up' : 'eat soon'}`;
+      return `• ${i.name} (${i.size}) — ${d === Infinity ? 'date unknown, check it' : 'logged ' + d + 'd ago, ' + (d >= WARN_DAYS ? 'use it up' : 'eat soon')}`;
     });
     return 'Push these to the Hearth Calendar:\n' + lines.join('\n');
   }

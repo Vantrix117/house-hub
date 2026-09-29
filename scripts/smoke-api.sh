@@ -270,8 +270,15 @@ call "the device learns its role" GET /api/device '' "$DKH"; expect 200
 call "a person on the kitchen device -> 403" POST /api/login '{"profile_id":"niece","pin":"2468"}' "$DKH"; expect 403
 call "the kitchen signs in, no PIN" POST /api/login '{"profile_id":"kitchen"}' "$DKH"; expect 200
 KT="X-Profile-Token: $(echo "$BODY" | j profile_token)"
-call "kitchen writes the Larder" PUT "/api/data/leftovers/item:kt1?scope=family" '{"value":{"id":"kt1","name":"Soup","by":"kitchen"}}' "$DKH" "$KT"; expect 200
-call "kitchen names a kid on a Larder row -> 403" PUT "/api/data/leftovers/item:kt2?scope=family" '{"value":{"id":"kt2","name":"Soup","by":"ezra","byName":"Ezra"}}' "$DKH" "$KT"; expect 403
+call "kitchen writes the Larder" PUT "/api/data/leftovers/item:kt1?scope=family" "{\"value\":{\"id\":\"kt1\",\"name\":\"Soup\",\"dateLogged\":\"$TODAY\",\"by\":\"kitchen\"}}" "$DKH" "$KT"; expect 200
+call "kitchen names a kid on a Larder row -> 403" PUT "/api/data/leftovers/item:kt2?scope=family" "{\"value\":{\"id\":\"kt2\",\"name\":\"Soup\",\"dateLogged\":\"$TODAY\",\"by\":\"ezra\",\"byName\":\"Ezra\"}}" "$DKH" "$KT"; expect 403
+echo "$BODY" | grep -q '"rejected":"bad_credit"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected rejected bad_credit"; }
+# a Larder row's date is a real day, not after today (batch 0i, P3-LEFTOVERS-04, -09)
+call "a Larder row dated 'yesterday' -> 403" PUT "/api/data/leftovers/item:bd1?scope=family" '{"value":{"id":"bd1","name":"Stew","dateLogged":"yesterday"}}' "$D" "$N"; expect 403
+echo "$BODY" | grep -q '"rejected":"bad_date"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected rejected bad_date"; }
+call "a Larder row dated 2099-01-01 -> 403" PUT "/api/data/leftovers/item:bd2?scope=family" '{"value":{"id":"bd2","name":"Stew","dateLogged":"2099-01-01"}}' "$D" "$N"; expect 403
+call "a Larder row dated today -> 200" PUT "/api/data/leftovers/item:bd3?scope=family" "{\"value\":{\"id\":\"bd3\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\"}}" "$D" "$N"; expect 200
+call "tidy the dated row" DELETE "/api/data/leftovers/item:bd3?scope=family" '' "$D" "$N"; expect 200
 call "kitchen feed line for a kid on the Larder -> 403" POST /api/activity '{"app_id":"leftovers","text":"Finished soup","as":"ezra"}' "$DKH" "$KT"; expect 403
 call "kitchen feed line for an adult" POST /api/activity '{"app_id":"leftovers","text":"Finished soup","as":"niece"}' "$DKH" "$KT"; expect 200
 [ "$(echo "$BODY" | j profile_id)" = niece ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the line filed under niece"; }

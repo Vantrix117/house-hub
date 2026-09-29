@@ -18,7 +18,7 @@ import {
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
 import { householdLoader, checkRead, guardedPut, creditFor, isHouseholdAdult } from './policy.js';
 import { runCron, pushTo, prefsFor, vapidFrom, JOBS } from './reminders.js';
-import { chatHandler, chatHistory, activity } from './chat.js';
+import { chatHandler, chatHistory, chatUndo, activity } from './chat.js';
 import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
 
 const PIN_RE = /^\d{4,8}$/;
@@ -549,6 +549,8 @@ route('POST', '/api/chat', async c => {
   return chatHandler(c, auth);   // the apps this person can open come from the Worker's copy of apps.json (policy.js), never the request
 });
 route('GET', '/api/chat/history', async c => { const auth = await c.auth(); requireProfile(auth); return chatHistory(c, auth); });
+// the chip's Undo (batch 0i): puts back what one chat action wrote, where nobody has changed it since
+route('POST', '/api/chat/undo', async c => { const auth = await c.auth(); requireProfile(auth); return chatUndo(c, auth); });
 
 // ── admin ─────────────────────────────────────────────────────
 // Reset PIN (P2-PROF-04, P5-D4). For a household adult it issues a one-time code, shown to the admin once and good for

@@ -47,8 +47,26 @@ echo "### $P (adult)"
 chat "$P" "Which apps can I use?";                                 expect "list_apps ran" '"name":"list_apps".*"ok":true'
 chat "$P" "What's in the fridge?";                                 expect "get_data ran" '"name":"get_data".*"ok":true'
 chat "$P" "Add milk to the leftovers";                             expect "leftover chip" 'Added Milk to leftovers'
+expect "the chip carries an undo token" '"undo":"[a-z0-9]+"'
+UNDO=$(grep -o '"undo":"[a-z0-9]*"' "$OUT" | head -1 | cut -d'"' -f4)
+chat "$P" "Add sour cream $RUN to the leftovers";                    expect "a second leftover" "Added Sour cream $RUN to leftovers"
+UNDO2=$(grep -o '"undo":"[a-z0-9]*"' "$OUT" | head -1 | cut -d'"' -f4)
+curl -s -X POST "$BASE/api/chat/undo" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A" -H 'Content-Type: application/json' --data "{\"token\":\"$UNDO2\"}" > "$OUT"; echo "    undo: $(cat "$OUT")"
+expect "undo puts the row back" '"ok":true.*"restored":1'
+curl -s "$BASE/api/data/leftovers?scope=family" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A" > "$OUT"
+reject "the undone item is gone from the fridge" "Sour cream $RUN\""
+curl -s -X POST "$BASE/api/chat/undo" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A" -H 'Content-Type: application/json' --data "{\"token\":\"$UNDO2\"}" > "$OUT"
+expect "an undo works once" '"error":"gone"'
+curl -s -X POST "$BASE/api/chat/undo" -H "X-Device-Token: $DT" -H "X-Profile-Token: $K" -H 'Content-Type: application/json' --data "{\"token\":\"$UNDO\"}" > "$OUT"
+expect "someone else's undo token does nothing" '"error":"gone"'
+chat "$P" "Log jam jar $RUN in the fridge on yesterday";                                  expect "a word date is normalised" "Added Jam jar $RUN to leftovers"
+expect "stored as a real day" '"dateLogged":"[0-9]{4}-[0-9]{2}-[0-9]{2}"'
+chat "$P" "Log jelly $RUN in the fridge on 2099-01-01";                                   expect "a future date is refused" 'not in the future'
+chat "$P" "Log jelly $RUN in the fridge on sometime";                                     expect "a date that is not a day is refused" 'must be a real date'
 chat "$P" "Remind everyone to take the bins out tonight";          expect "reminder chip" 'Added reminder: Take the bins out tonight'
-chat "$P" "I read week 2 day 1 of F260";                           expect "f260 chip" 'Week 2 day 1 (checked off|unchecked)'
+chat "$P" "I read week 2 day 1 of F260";                           expect "f260 chip" 'Week 2 day 1 (was already )?checked off'
+chat "$P" "I read week 2 day 1 of F260";                           expect "tick means tick: asked again, it stays ticked" 'Week 2 day 1 was already checked off'
+reject "a repeated tick never unticks" 'Week 2 day 1 unchecked'
 chat "$P" "Please pray for Grandma's knee on the family list";     expect "prayer chip" "prayer list: Grandma's knee"
 chat "$P" "Set my tally to 42";                                    expect "set_data chip" 'Tally set to 42'
 chat "$P" "What's my tally?";                                     expect "tally read is the summed count" 'Done — 42'
@@ -66,7 +84,8 @@ chat "$P" "We finished the tuna bake $RUN from the fridge";                     
 chat "$P" "We finished the tuna bake $RUN from the fridge";                           expect "finish twice: nothing matches" 'Nothing in the fridge list matches'
 chat "$P" "Add pasta $RUN red to the fridge";                                         expect "pasta a logged" "Added Pasta $RUN red"
 chat "$P" "Add pasta $RUN green to the fridge";                                       expect "pasta b logged" "Added Pasta $RUN green"
-chat "$P" "We ate the pasta $RUN";                                                    expect "ambiguous leftover asks" 'More than one item matches'
+chat "$P" "We ate the pasta $RUN";                                                    expect "a shared word never picks one: it asks" 'No item is called exactly that'
+reject "nothing was finished on a shared word" 'Finished Pasta'
 put "$P" dollywood-live family "loc:$P" "{\"x\":412,\"y\":198,\"acc\":9,\"hdg\":null,\"t\":$(date +%s)000,\"name\":\"Eli\",\"emoji\":\"🧭\",\"color\":\"#4F5D8C\"}"
 put "$P" dollywood-live family "loc:stale-$RUN" "{\"x\":1,\"y\":1,\"acc\":null,\"hdg\":null,\"t\":$(( $(date +%s) - 5*3600 ))000,\"name\":\"Stale\"}"
 chat "$P" "Where is everyone?";                                                       expect "where_is_family ran" '"name":"where_is_family".*"ok":true'
@@ -79,7 +98,7 @@ chat "$P" "What's today's verse?";                                              
 
 echo; echo "### Ezra (kid): adult-only app blocked, reminders blocked, kid-safe prompt"
 chat ezra "Set my tally to 3";                      expect "kid may write own tally" 'Tally set to 3'
-chat ezra "Change the prayer app for me";           expect "kid blocked from adult-only app" 'Kids cannot change that app'
+chat ezra "Change the prayer app for me";           expect "set_data refuses a row outside its short list" 'cannot be changed from chat'
 chat ezra "Remind everyone to buy cake";            expect "kid blocked from reminders" 'Kids cannot add reminders'
 chat ezra "Hello!";                                 expect "kid prompt in play" 'KID|event: done'
 echo; echo "### Ezra (kid): round-2 guards — grown-up tools refuse, the verse speaks"

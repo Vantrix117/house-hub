@@ -55,6 +55,7 @@ export async function appsFor(profile, loadPeople) {
  * f260 / prayer / timer rows for every profile. Family rows of an app the caller cannot open are refused.
  */
 export async function checkRead(profile, { appId, scope }, loadPeople) {
+  if (appId === 'chatundo') throw new HttpError(403, 'app_hidden', 'This profile cannot open that app.');   // chat's Undo records (batch 0i)
   if (scope !== 'family' || !profile) return;
   if (profile.kind === 'kiosk' || profile.kind === 'kitchen') return;   // the shared screens read every family board
   if (!canOpen(profile, appId, await loadPeople())) throw new HttpError(403, 'app_hidden', 'This profile cannot open that app.');
@@ -148,6 +149,7 @@ function kidPrayerDays(value, cur) {
 export async function writeError(profile, { appId, scope, key, value }, cur, loadPeople) {
   if (!profile) return 'profile_required';
   if (profile.kind === 'kiosk') return 'read_only';
+  if (appId === 'chatundo') return 'not_allowed';                       // chat's Undo records are the Worker's own (batch 0i)
   const people = await loadPeople();
   const self = profile.id;
 
@@ -166,6 +168,13 @@ export async function writeError(profile, { appId, scope, key, value }, cur, loa
     const vidOf = b => b.vid || (obj(b.pass) && b.pass.salt ? 'p:' + b.pass.salt : null);
     const was = vidOf(cur);
     if (was && vidOf(value) !== was && value.prev !== was) return 'vault_changed';
+  }
+
+  // A Larder item's date (batch 0i, P3-LEFTOVERS-04, -09): a real YYYY-MM-DD, never after the household's today. A row
+  // with "yesterday" or a future day would read NaN or "-3d ago", sit under Fresh and never be warned about.
+  if (appId === 'leftovers' && scope === 'family' && /^item:/i.test(key) && obj(value)) {
+    const d = String(value.dateLogged || ''), x = new Date(d + 'T12:00:00Z');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || isNaN(x) || x.toISOString().slice(0, 10) !== d || d > [...houseDays()].sort().pop()) return 'bad_date';   // up to the house's tomorrow: a device clock a little fast just before midnight
   }
 
   // Rows that belong to one person, whoever writes them.
@@ -251,6 +260,11 @@ async function kidLocAllowed(env, profile, { appId, scope, key, value }) {
  */
 export async function guardedPut(env, profile, args, loadPeople) {
   const cur = await getOne(env, args);
+  const r = await guardedPutAt(env, profile, args, loadPeople, cur);
+  // chat asks for the row as it was before this write, read in the same step (its Undo record, batch 0i)
+  return args.wantBefore ? { ...r, before: cur ? { value: cur.value, updated_at: cur.updated_at } : null } : r;
+}
+async function guardedPutAt(env, profile, args, loadPeople, cur) {
   const why = (await writeError(profile, args, cur ? cur.value : undefined, loadPeople))
     || (!(await kidLocAllowed(env, profile, args)) ? 'beacon_off' : null);
   if (why) return { key: args.key, rejected: why, value: cur ? cur.value : null, updated_at: cur ? cur.updated_at : 0, applied: false };

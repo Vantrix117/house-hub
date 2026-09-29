@@ -8,11 +8,12 @@ const port = +(process.argv[2] || 8791);
 
 function pick(text) {
   const t = text.toLowerCase();
+  if (/log (.+) in the fridge on (.+)/.test(t)) { const m = t.match(/log (.+) in the fridge on (.+)/); return { name: 'add_list_item', input: { app_id: 'leftovers', item: { name: cap(m[1]), dateLogged: m[2] } } }; }
   if (/which apps|list apps/.test(t)) return { name: 'list_apps', input: {} };
   if (/what.*fridge|in the fridge/.test(t)) return { name: 'get_data', input: { app_id: 'leftovers', scope: 'family' } };
   if (/add (.+) to (the )?(leftovers|fridge)/.test(t)) return { name: 'add_list_item', input: { app_id: 'leftovers', item: { name: cap(t.match(/add (.+?) to (the )?(leftovers|fridge)/)[1]), size: 'Small' } } };
   if (/remind/.test(t)) return { name: 'add_list_item', input: { app_id: 'reminders', item: { text: cap(t.replace(/^.*remind (everyone |us |me )?(to |about )?/, '')) } } };
-  if (/week (\d+) day (\d+)/.test(t)) { const m = t.match(/week (\d+) day (\d+)/); return { name: 'toggle_f260_reading', input: { week: +m[1], day: +m[2] } }; }
+  if (/week (\d+) day (\d+)/.test(t)) { const m = t.match(/week (\d+) day (\d+)/); return { name: 'set_f260_reading', input: { week: +m[1], day: +m[2], done: !/untick|uncheck|didn'?t read/.test(t) } }; }
   if (/change the prayer app|adult-only/.test(t)) return { name: 'set_data', input: { app_id: 'prayer', scope: 'person', key: 'label', value: 'hacked' } };
   // round 2 (roadmap 14)
   if (/finished (the )?(.+?) (from|in) the fridge|we ate (the )?(.+)/.test(t)) { const m = t.match(/finished (?:the )?(.+?) (?:from|in) the fridge/) || t.match(/we ate (?:the )?(.+)/); return { name: 'finish_leftover', input: { name: cap(m[1]) } }; }

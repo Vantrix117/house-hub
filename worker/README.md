@@ -109,6 +109,7 @@ GET  /api/media/photos/:id/<token>-256.jpg | -1024.jpg,  GET /api/media/album/<i
 POST /api/chat {message}                text/event-stream: text | tool | done | error events (see src/chat.js). The apps the person can use
                                         come from the Worker's copy of apps.json (policy.js), never the request; the kiosk and the kitchen → 403
 GET  /api/chat/history                  last 20 messages, used/cap for today
+POST /api/chat/undo {token}             undo one chat action (the chip's token, 45 s, once, the person's own): puts back the rows it wrote where nobody has changed them since; 410 gone after
 
 Admin (is_admin profile token):
 POST /api/admin/profiles/:id/reset-pin  {admin_pin?}  household adult → {code, expires_at}: a one-time 6-digit code, shown once, good for
@@ -183,19 +184,19 @@ Errors are `{error: 'snake_code', message: 'plain English'}` with a matching HTT
 `POST /api/chat` runs Claude with these tools. The client sends its `apps` list (id, scope, `visibleTo`) and every
 tool re-checks it server-side: a kid can only touch apps whose `visibleTo` includes them, and the kiosk never reaches
 chat at all. Writes go through `putOne()` (normal sync rules) and log an `activity` row; the `tool` SSE event
-carries a human `chip` for anything that changed data (`null` for reads).
+carries a human `chip` for anything that changed data (`null` for reads), and, when it wrote something, an `undo` token (batch 0i): the Chat tab shows Undo on the chip for 30 s, and `POST /api/chat/undo` puts back what the action wrote. The rows as they were are kept for the undo in `app_data(person, chatundo, <token>)`, an app no client syncs and the data API refuses to read or write, deleted after use or 10 minutes; an Undo is all or nothing (nothing is changed if any row was changed since). A write that another change beat under last-write-wins is "Not saved" (no ✓), and the action's earlier writes are put back. A Larder item's `dateLogged` must be a real `YYYY-MM-DD` and not after today, from chat and the data API alike (`bad_date`; chat also takes today / yesterday / "N days ago").
 
 | Tool | Who | Does |
 |---|---|---|
 | `list_apps` | all | the apps this person can use |
 | `get_data {app_id, scope, key?}` | all (own apps) | read an app's rows; `*.vault` rows (listed or asked for by key) and values over 4 KB are withheld |
-| `set_data {app_id, scope, key, value}` | all (own apps; every chat write meets the same rules as the data API, `src/policy.js`) | write one value |
+| `set_data {app_id, scope, key, value}` | all (every chat write meets the same rules as the data API, `src/policy.js`) | only `tally` `count`, `timer` `timer.active` and `hub` `theme`, all person scope, with value checks (batch 0i); anything else is refused |
 | `add_list_item {app_id: leftovers \| reminders, item}` | leftovers: all; reminders: adults | add a fridge item or a house reminder |
-| `toggle_f260_reading {week, day}` | F260 users | tick/untick one reading, keeps `f260.log`/`f260.summary` in step |
+| `set_f260_reading {week, day, done}` | F260 users | tick (done true) or untick one reading, keeps the log and `f260.summary` in step; already in that state is a no-op that says so (batch 0i) |
 | `add_prayer {list, text, for?}` | prayer users | new request on the private (person) or family list |
 | `mark_prayed {list, prayer_id}` | adults | prayed today: `lastPrayedAt` = today, the person's profile id under `prayedBy[today]` on the family list (ids since batch 0g; the person's old name entry is replaced), today added to that list's `prayerDays` (the same shape `apps/prayer.html` writes). `prayer_id` may be the id or the title; ambiguous titles come back as a question |
 | `answer_prayer {list, prayer_id, note?}` | adults | `status: answered`, `answeredAt` = today, `answerNote` |
-| `finish_leftover {item_id? \| name?}` | adults | tombstones the family `leftovers` row and keeps it seven days as `finished:<id>` (the app's "Recently finished", where it can be put back); loose name match, asks when several fit |
+| `finish_leftover {item_id? \| name?}` | adults | tombstones the family `leftovers` row and keeps it seven days as `finished:<id>` (the app's "Recently finished", where it can be put back); an exact name or the id only — otherwise it lists the likely items and the model asks (batch 0i) |
 | `where_is_family {}` | adults, read-only | family `dollywood-live` `loc:*` markers fresher than 4 h: who, x/y, minutes ago |
 | `f260_status {}` | adults, read-only | this person's `f260.summary` (week, weekDone, next, streak, readToday) + the week's memory-verse references |
 | `read_todays_verse {}` | **kids only**, read-only | the family's memory verses for the week (max `f260.summary.week` across adults, else week 1) with a kid-sized gist of each; the `tool` event also carries `speak: true, text` and the shell reads it aloud (rate 0.9, kid profiles, visible tab only) |
