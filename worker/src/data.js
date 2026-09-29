@@ -69,6 +69,21 @@ export async function putOne(env, { appId, scope, profile, key, value, updated_a
   throw new HttpError(500, 'write_conflict', 'Could not save — please try again.');
 }
 
+/**
+ * A map kept as one row per entry (batch 0e): the old whole-map row `legacyKey` as the base, each `<prefix><id>` row
+ * overriding its entry (false = off). The same merge as hub.js hub.rowMap, for chat and the reminder jobs.
+ */
+export async function rowMap(env, { appId, scope, profile, prefix, legacyKey }) {
+  const base = legacyKey ? await getOne(env, { appId, scope, profile, key: legacyKey }) : null;
+  const out = base && base.value && typeof base.value === 'object' && !Array.isArray(base.value) ? { ...base.value } : {};
+  for (const r of await listData(env, { appId, scope, profile, prefix })) {
+    if (r.value == null) continue;
+    const id = r.key.slice(prefix.length);
+    if (r.value === false) delete out[id]; else out[id] = r.value;
+  }
+  return out;
+}
+
 // Convenience for server-side code (chat tools, cron): live items under a prefix as plain values.
 export async function liveItems(env, args) {
   return (await listData(env, args)).filter(r => r.value != null);

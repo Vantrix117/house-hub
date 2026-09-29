@@ -123,10 +123,20 @@ export async function writeError(profile, { appId, scope, key, value }, cur, loa
   const self = profile.id;
 
   // Visibility (P2-SEC-02). Person rows of a hidden app are refused too, with one cross-app row: Verses keeps its
-  // recall boxes in the person's F260 scope (apps/verses.html), and kids use Verses though F260 is hidden from them.
+  // recall rows in the person's F260 scope (apps/verses.html), and kids use Verses though F260 is hidden from them.
   if (!canOpen(profile, appId, people)) {
-    const versesRecall = scope === 'person' && appId === 'f260' && key === 'f260.recall' && canOpen(profile, 'verses', people);
+    const versesRecall = scope === 'person' && appId === 'f260' && (key === 'f260.recall' || /^recall:/.test(key)) && canOpen(profile, 'verses', people);   // recall:<id> rows since batch 0e
     if (!versesRecall) return 'app_hidden';
+  }
+
+  // The F260 journal vault (batch 0e, P3-F260-13): a device still holding the key of a journal that was erased, re-created
+  // or restored elsewhere must not write over the new one, even from a queue it sends much later. A vault's version is its
+  // vid (or, for one written before versions, its passcode wrap's salt); a different version is refused unless the write
+  // names the stored one as the vault it replaces (prev). Erasing (null) is always allowed.
+  if (appId === 'f260' && scope === 'person' && key === 'f260.journal.vault' && obj(value) && obj(cur)) {
+    const vidOf = b => b.vid || (obj(b.pass) && b.pass.salt ? 'p:' + b.pass.salt : null);
+    const was = vidOf(cur);
+    if (was && vidOf(value) !== was && value.prev !== was) return 'vault_changed';
   }
 
   // Rows that belong to one person, whoever writes them.

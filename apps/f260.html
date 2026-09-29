@@ -919,8 +919,28 @@ const autoSave = (k, v) => { if (loaded && hub.canWrite) save(k, v); };   // der
 // successful pull and moves only keys the server does not have, then fires a change (key null, migrated) → mergeRemote.
 hub.migrate(Object.values(K).filter(k => !LOCAL.has(k)).map(k => ({ from: k, to: k }))).catch(e => console.error(e));
 const obj = v => (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+// Ticks, memorised verses, the reading log and practice ratings are one row per entry (batch 0e, P2-SYNC-01): done:<week>-<i>,
+// mem:<week>-<i>, log:<date>, recall:<week>-<i>. Each overrides the same entry of the old whole-map row (f260.done …), which
+// stays as a read-only base (false = off). A tick writes only its own row, so a device with an older copy can no longer
+// erase another device's tick.
+const ROW = { done: 'done:', mem: 'mem:', log: 'log:', recall: 'recall:' };
+const loadMap = name => hub.rowMap(ROW[name], K[name]);
+const putEntry = (name, id, v) => save(ROW[name] + id, v ? v : false);
+// Replace a whole map (restore): a row only for each entry that differs from the map as stored now (read at call time, so
+// ticks another device made meanwhile count); the old whole-map row stays as the base for everything unchanged.
+function putMap(name, next) {
+  if (!loaded || !hub.canWrite) return;
+  const cur = loadMap(name); next = next || {};
+  for (const id of new Set([...Object.keys(cur), ...Object.keys(next)])) if (JSON.stringify(cur[id]) !== JSON.stringify(next[id])) putEntry(name, id, next[id]);
+}
+// Clear a whole map (reset): the old whole-map row goes, and only the rows that say "on" are turned off.
+function clearMap(name) {
+  if (!loaded || !hub.canWrite) return;
+  if (hub.has(K[name])) drop(K[name]);
+  for (const r of hub.list(ROW[name])) if (r.value !== false) save(r.key, false);
+}
 
-let done = obj(load(K.done, {}));            // { "12-3": true }  week-day
+let done = loadMap('done');                   // { "12-3": true }  week-day
 let curWeek = load(K.week, 1);
 let source = load(K.src, 'gateway');
 let openWeeks = load(K.open, null);          // null = first run: only the current week open
@@ -928,8 +948,8 @@ let view = 'plan';                           // plan | journal — page state on
 curWeek = Math.min(52, Math.max(1, +curWeek || 1));
 if (!['gateway', 'youversion', 'esv'].includes(source)) source = 'gateway';
 if (!Array.isArray(openWeeks)) openWeeks = [curWeek];
-let mem = obj(load(K.mem, {}));              // { "12-1": true }  week-verse  memorized
-let log = obj(load(K.log, {}));              // { "2026-09-14": true }  days with at least one reading checked
+let mem = loadMap('mem');                     // { "12-1": true }  week-verse  memorized
+let log = loadMap('log');                     // { "2026-09-14": true }  days with at least one reading checked
 let weekStart = obj(load(K.weekStart, {}));  // { "3": "2026-09-14" }  date each week was started
 let weekDone = obj(load(K.weekDone, {}));    // { "3": "2026-09-20" }  date each week was completed
 let autolockMin = load(K.autolock, 15);
@@ -939,7 +959,7 @@ let best = obj(load(K.best, {}));            // { n, at }  best streak
 let miles = obj(load(K.miles, {}));          // { id: "2026-09-14" }  earned milestones
 let jstats = obj(load(K.jstats, {}));        // { entries, days:{date:true} }  journal activity, no content
 let verses = obj(load(K.verses, {}));        // { "12-1": "verse text" }  pasted once for practice (not secret)
-let recall = obj(load(K.recall, {}));        // { "12-1": { s:'got'|'not', t } }
+let recall = loadMap('recall');               // { "12-1": { s:'got'|'not', t, box, due, last, streak } }  (Verses adds the Leitner fields)
 let finished = load(K.finished, null);       // date the 260th reading was ticked
 let readMode = !!load(K.read, false), readWeek = curWeek;
 if (![0, 5, 15, 30].includes(autolockMin)) autolockMin = 15;
@@ -1009,12 +1029,40 @@ function refUrl(ref) {
 // v1 blobs (journal encrypted directly with the passcode key) are upgraded on the next passcode unlock.
 const subtle = (window.crypto && crypto.subtle) || null;
 const te = new TextEncoder(), td = new TextDecoder();
-const b64 = a => btoa(String.fromCharCode.apply(null, new Uint8Array(a)));
+// in 32 KB slices: String.fromCharCode.apply on the whole ciphertext overflows the call stack past a few hundred KB (P2-SYNC-19)
+const b64 = a => { const u = new Uint8Array(a); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
 const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 const rand = n => crypto.getRandomValues(new Uint8Array(n));
 const ITER = 200000;
 let dek = null;                                               // data key, in memory only while unlocked
-const vaultBlob = () => load(K.vault, null);
+let dekVid = null;                                            // the vault version the data key was unlocked from (P3-F260-13)
+const VAULT_MAX = 850 * 1024;                                 // the Worker stores at most 900 KB a row
+const newVid = () => b64(rand(9));
+// a vault written before versions existed is known by its passcode wrap's salt: every device derives the same one
+const vidOf = b => !b ? null : b.vid || (b.pass && b.pass.salt ? 'p:' + b.pass.salt : null);
+let vaultStale = false;                                       // this device's key belongs to a journal replaced elsewhere
+// A copy: the stored vault object is never changed in place, so a failed write can never leave a new iv with the old
+// ciphertext (P2-SYNC-20).
+const vaultBlob = () => { const b = load(K.vault, null); return b && typeof b === 'object' ? JSON.parse(JSON.stringify(b)) : b; };
+// Writes a new vault only if the stored one is still the version this device unlocked: a vault another device erased or
+// re-created is never overwritten (P3-F260-13). Returns { ok } or { ok: false, why }.
+function writeVault(blob, { fresh = false, replaces } = {}) {
+  // the Worker refuses a vault whose version differs from the stored one unless it names that one as replaced (P3-F260-13)
+  if (replaces) blob.prev = replaces; else delete blob.prev;
+  if (!fresh && !blob.vid && dekVid) blob.vid = dekVid;       // an old vault takes its derived version on its first write
+  const cur = load(K.vault, null);
+  if (!fresh && (vaultStale || !cur || vidOf(cur) !== dekVid)) return { ok: false, why: 'stale' };
+  const n = JSON.stringify(blob).length;
+  if (n > VAULT_MAX) return { ok: false, why: 'too_big' };
+  if (!loaded || !hub.canWrite) return { ok: false, why: 'not_loaded' };
+  try { hub.set(K.vault, blob); } catch (e) { return { ok: false, why: e && e.error === 'not_loaded' ? 'not_loaded' : 'error' }; }
+  return { ok: true };
+}
+const VAULT_WHY = { stale: 'the journal was changed on another device — unlock it again', too_big: 'the journal is too large to sync; copy older entries out and delete them', not_loaded: 'still loading your journal', error: 'this device could not store it', crypto: 'it could not be encrypted' };
+// A stale vault: this device's key belongs to an erased, re-created or restored journal. Nothing more is written with it,
+// but the journal stays on screen (what was just typed is not lost: it can still be copied); locking and unlocking again
+// picks up the journal as it is now.
+function staleVault() { if (!vaultStale) toast('The journal was changed on another device, so this device stopped saving it. Copy anything new, then lock and unlock again.', 6000); vaultStale = true; }
 const legacyBlob = () => load(K.legacy, null);
 // 'nocrypto' | 'loading' (rows not pulled yet) | 'none' (no passcode yet) | 'locked' | 'open'
 // 'loading' matters: an empty cache would read as 'none', and "Set passcode" would then write a new vault over the real one.
@@ -1031,53 +1079,79 @@ async function decryptJournal(key, blob) {
   const pt = await subtle.decrypt({ name: 'AES-GCM', iv: unb64(blob.iv) }, key, unb64(blob.ct));
   const j = JSON.parse(td.decode(pt)); return (typeof j === 'object' && j !== null) ? j : {};
 }
-let persistChain = Promise.resolve();
-function persistJournal() {                                   // serialised so writes never race
+let persistChain = Promise.resolve({ ok: true });
+// Serialised so writes never race. Resolves { ok } or { ok: false, why } — the panels say "Saved" only on ok.
+function persistJournal() {
   persistChain = persistChain.then(async () => {
-    if (!dek || !journal) return;
-    const iv = rand(12);
-    const ct = await subtle.encrypt({ name: 'AES-GCM', iv }, dek, te.encode(JSON.stringify(journal)));
-    const blob = vaultBlob() || {}; blob.v = 2; blob.iv = b64(iv); blob.ct = b64(ct);
+    if (!dek || !journal) return { ok: false, why: 'not_loaded' };
+    let iv, ct;
+    try { iv = rand(12); ct = b64(await subtle.encrypt({ name: 'AES-GCM', iv }, dek, te.encode(JSON.stringify(journal)))); }
+    catch (e) { return { ok: false, why: 'crypto' }; }
+    const blob = vaultBlob() || {}; blob.v = 2; blob.iv = b64(iv); blob.ct = ct; if (!blob.vid && dekVid) blob.vid = dekVid;
     delete blob.salt; delete blob.iter;                       // v1 leftovers
-    save(K.vault, blob);
-  }).catch(() => {});
+    const r = writeVault(blob);
+    if (!r.ok && r.why === 'stale') staleVault();
+    else if (!r.ok) toast('Journal not saved — ' + VAULT_WHY[r.why] + '.');
+    return r;
+  }).catch(() => ({ ok: false, why: 'error' }));   // the chain always resolves
   return persistChain;
 }
 async function setPasscode(pass) {                            // first-time setup (migrates plaintext)
+  try { await hub.pull(); } catch (e) {}                      // another device may have set a journal up a moment ago
+  if (load(K.vault, null)) throw new Error('This journal already has a passcode (set on another device). Unlock it with that one.');
   const salt = rand(16); const kek = await passKek(pass, salt, ITER);
-  dek = await newDek();
+  dek = await newDek(); dekVid = newVid();
   const legacy = legacyBlob();
   journal = (legacy && typeof legacy === 'object') ? legacy : {};
-  save(K.vault, { v: 2, pass: Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek)) });
-  await persistJournal();
-  drop(K.legacy);
+  // the wrap and the first ciphertext go in one write: a vault is never stored without its journal (a failed second write
+  // used to leave a wrap-only vault that no passcode could open)
+  const ivN = rand(12); let ctN;
+  try { ctN = b64(await subtle.encrypt({ name: 'AES-GCM', iv: ivN }, dek, te.encode(JSON.stringify(journal)))); }
+  catch (e) { dek = null; journal = null; dekVid = null; throw new Error('Journal not set up — ' + VAULT_WHY.crypto + '.'); }
+  const w = writeVault({ v: 2, vid: dekVid, iv: b64(ivN), ct: ctN, pass: Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek)) }, { fresh: true });
+  if (!w.ok) { dek = null; journal = null; dekVid = null; throw new Error('Journal not set up — ' + VAULT_WHY[w.why] + '.'); }
+  vaultStale = false;
+  // the plaintext journal leaves this device only once the house has the encrypted one: a vault another device set up
+  // first is refused by the Worker and put back, and then this journal must stay where it was
+  try { await hub.flush(); } catch (e) {}
+  if (vidOf(load(K.vault, null)) !== dekVid) { dek = null; journal = null; dekVid = null; throw new Error('Another device set up this journal first. Unlock it with that passcode; nothing here was changed.'); }
+  if (!hub.sync.pending) drop(K.legacy);
 }
 async function unlock(pass) {
   const blob = vaultBlob(); if (!blob) return false;
   if (blob.v === 2) {
     const kek = await passKek(pass, unb64(blob.pass.salt), blob.pass.iter || ITER);
     let d, j; try { d = await unwrapDek(kek, blob.pass); j = await decryptJournal(d, blob); } catch (e) { return false; }
-    dek = d; journal = j; return true;
+    dek = d; journal = j; dekVid = vidOf(blob); vaultStale = false;
+    return true;
   }
   // v1: journal encrypted straight with the passcode key → read it, then upgrade to v2
   const key = await passKek(pass, unb64(blob.salt), blob.iter || ITER);
   let j; try { j = await decryptJournal(key, blob); } catch (e) { return false; }
-  journal = j; dek = await newDek();
+  journal = j; dek = await newDek(); dekVid = newVid();
   const salt = rand(16); const kek = await passKek(pass, salt, ITER);
-  save(K.vault, { v: 2, pass: Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek)) });
-  await persistJournal();
+  // the v1 blob stays until the whole v2 vault (wrap and ciphertext together) is written
+  const ivN = rand(12); let ctN; try { ctN = b64(await subtle.encrypt({ name: 'AES-GCM', iv: ivN }, dek, te.encode(JSON.stringify(journal)))); } catch (e) { dek = null; journal = null; return false; }
+  const w = writeVault({ v: 2, vid: dekVid, iv: b64(ivN), ct: ctN, pass: Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek)) }, { fresh: true, replaces: vidOf(blob) });
+  if (!w.ok) { dek = null; journal = null; dekVid = null; return false; }
+  vaultStale = false;
   return true;
 }
 async function changePasscode(pass) {                         // re-wrap only; the journal itself stays as is
   const salt = rand(16); const kek = await passKek(pass, salt, ITER);
-  const blob = vaultBlob(); blob.pass = Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek)); save(K.vault, blob);
+  const blob = vaultBlob(); blob.pass = Object.assign({ salt: b64(salt), iter: ITER }, await wrapDek(kek));
+  const r = writeVault(blob); if (!r.ok) { if (r.why === 'stale') staleVault(); throw new Error('Passcode not changed — ' + VAULT_WHY[r.why] + '.'); }
 }
-function lock() { dek = null; journal = null; openJournals.clear(); openNotes.clear(); render(); }
-function eraseJournal() { drop(K.vault); drop(K.legacy); dek = null; journal = null; openJournals.clear(); openNotes.clear(); render(); }
+function lock() { dek = null; dekVid = null; vaultStale = false; journal = null; openJournals.clear(); openNotes.clear(); render(); }
+function eraseJournal() { drop(K.vault); drop(K.legacy); dek = null; dekVid = null; vaultStale = false; journal = null; openJournals.clear(); openNotes.clear(); render(); }
 
 // ── Face ID / Touch ID (WebAuthn PRF) — experimental; the passcode always works too ──
 const bioSupported = () => !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.create && window.isSecureContext && location.hostname);
-const bioEnabled = () => { const b = vaultBlob(); return !!(b && b.bio); };
+// One wrap per device (vault.prf[<device id>]); a pre-0e single slot (vault.bio) is offered until a device proves it is
+// its own by unlocking with it, which moves it under that device's id.
+const devId = () => (hub.device && hub.device.id) || 'this-device';
+const bioSlot = b => (b && b.prf && b.prf[devId()]) || (b && b.bio) || null;
+const bioEnabled = () => !!bioSlot(vaultBlob());
 async function prfEval(rawId, salt) {
   const a = await navigator.credentials.get({ publicKey: {
     challenge: rand(32), rpId: location.hostname, userVerification: 'required', timeout: 60000,
@@ -1100,21 +1174,33 @@ async function enableBio() {                                  // requires the va
   const salt = rand(32);
   const out = await prfEval(cred.rawId, salt);
   const kek = await subtle.importKey('raw', out, AES, false, ['wrapKey', 'unwrapKey']);
-  const blob = vaultBlob(); blob.bio = Object.assign({ id: b64(cred.rawId), salt: b64(salt) }, await wrapDek(kek)); save(K.vault, blob);
+  const blob = vaultBlob(); blob.prf = Object.assign({}, blob.prf, { [devId()]: Object.assign({ id: b64(cred.rawId), salt: b64(salt) }, await wrapDek(kek)) });
+  const r = writeVault(blob); if (!r.ok) { if (r.why === 'stale') staleVault(); throw new Error('Face ID not turned on — ' + VAULT_WHY[r.why] + '.'); }
 }
 async function unlockBio() {
-  const blob = vaultBlob(); if (!blob || !blob.bio) return false;
-  const out = await prfEval(unb64(blob.bio.id), unb64(blob.bio.salt));
+  const blob = vaultBlob(); const slot = bioSlot(blob); if (!slot) return false;
+  const out = await prfEval(unb64(slot.id), unb64(slot.salt));
   const kek = await subtle.importKey('raw', out, AES, false, ['wrapKey', 'unwrapKey']);
-  const d = await unwrapDek(kek, blob.bio); journal = await decryptJournal(d, blob); dek = d; return true;
+  const d = await unwrapDek(kek, slot); journal = await decryptJournal(d, blob); dek = d; dekVid = vidOf(blob); vaultStale = false;
+  // the old single slot works here: file a copy under this device (the old slot stays: a synced passkey may open it
+  // on another device too)
+  if (blob.bio && !(blob.prf && blob.prf[devId()])) { const b = vaultBlob(); b.prf = Object.assign({}, b.prf, { [devId()]: b.bio }); writeVault(b); }
+  return true;
 }
-function disableBio() { const blob = vaultBlob(); if (blob) { delete blob.bio; save(K.vault, blob); } }
+function disableBio() {
+  const blob = vaultBlob(); if (!blob) return;
+  if (blob.prf) { delete blob.prf[devId()]; if (!Object.keys(blob.prf).length) delete blob.prf; }
+  delete blob.bio;
+  // while locked there is no unlocked version to check against: removing a wrap from the vault as stored is safe (the
+  // copy keeps its version, so the Worker accepts it)
+  const r = writeVault(blob, { fresh: !dek }); if (!r.ok && r.why === 'stale') staleVault();
+}
 
 // ── backup / restore (clipboard text) ───────────────────────────
 const B_PREFIX = 'F260BACKUP1.';
 function backupText() {
   const blob = vaultBlob(); let vaultCopy = null;
-  if (blob) { vaultCopy = Object.assign({}, blob); delete vaultCopy.bio; }   // the biometric wrap is bound to this device
+  if (blob) { vaultCopy = Object.assign({}, blob); delete vaultCopy.bio; delete vaultCopy.prf; }   // the biometric wraps are bound to their devices
   const b = { f260: 2, made: Date.now(), vault: vaultCopy, progress: { done, mem, log, weekStart, week: curWeek, weekDone, best, miles, jstats, verses, recall, finished } };
   return B_PREFIX + btoa(unescape(encodeURIComponent(JSON.stringify(b))));
 }
@@ -1127,7 +1213,9 @@ function parseBackup(text) {
 }
 function restoreBackup(b) {
   dek = null; journal = null; openJournals.clear(); openNotes.clear();
-  if (b.vault) save(K.vault, b.vault); else drop(K.vault);
+  // a restored vault is a new version: devices still unlocked on the old one stop saving instead of writing over it
+  if (b.vault) { const nv = Object.assign({}, b.vault, { vid: newVid() }); delete nv.bio; delete nv.prf; const r = writeVault(nv, { fresh: true, replaces: vidOf(load(K.vault, null)) }); if (!r.ok) toast('The journal was not restored — ' + VAULT_WHY[r.why] + '.'); else { dek = null; dekVid = null; journal = null; } }
+  else drop(K.vault);
   drop(K.legacy);
   const p = b.progress || {};
   done = (p.done && typeof p.done === 'object') ? p.done : {};
@@ -1137,8 +1225,9 @@ function restoreBackup(b) {
   curWeek = Math.min(52, Math.max(1, +p.week || 1));
   weekDone = obj(p.weekDone); best = obj(p.best); miles = obj(p.miles); jstats = obj(p.jstats); jstats.days = obj(jstats.days); jstats.entries = +jstats.entries || 0;
   verses = obj(p.verses); recall = obj(p.recall); finished = p.finished || null;
-  save(K.done, done); save(K.mem, mem); save(K.log, log); save(K.weekStart, weekStart); save(K.week, curWeek);
-  save(K.weekDone, weekDone); save(K.best, best); save(K.miles, miles); save(K.jstats, jstats); save(K.verses, verses); save(K.recall, recall); if (finished) save(K.finished, finished); else drop(K.finished);
+  putMap('done', done); putMap('mem', mem); putMap('log', log); putMap('recall', recall);
+  save(K.weekStart, weekStart); save(K.week, curWeek);
+  save(K.weekDone, weekDone); save(K.best, best); save(K.miles, miles); save(K.jstats, jstats); save(K.verses, verses); if (finished) save(K.finished, finished); else drop(K.finished);
   openWeeks = [curWeek]; save(K.open, openWeeks);
   render();
 }
@@ -1680,7 +1769,7 @@ weeksEl.addEventListener('click', e => {
     const id = mv.dataset.mem;
     if (mem[id] && !e.target.closest('.mkm')) { openPractice(id); return; }           // memorized: tap the verse to practise
     mem[id] = !mem[id]; if (!mem[id]) delete mem[id];
-    save(K.mem, mem); mv.classList.toggle('memd', !!mem[id]); mv.querySelector('.mkm').setAttribute('aria-pressed', !!mem[id]);
+    putEntry('mem', id, mem[id]); mv.classList.toggle('memd', !!mem[id]); mv.querySelector('.mkm').setAttribute('aria-pressed', !!mem[id]);
     updateStats(); return;
   }
   const day = e.target.closest('[data-day]');
@@ -1688,11 +1777,11 @@ weeksEl.addEventListener('click', e => {
     if (!hub.canWrite) { hub.kioskNudge(); return; }   // the display profile looks but never checks anything off
     if (notYet()) return;
     const id = day.dataset.day; done[id] = !done[id]; if (!done[id]) delete done[id];
-    save(K.done, done);
+    putEntry('done', id, done[id]);
     { const tw = +id.split('-')[0];                        // the current week's first tick is the day it really started
       if (done[id] && tw === curWeek && !weekStart[tw]) { weekStart[tw] = dayKey(); save(K.weekStart, weekStart); } }
     if (done[id]) { const [rw, rd] = id.split('-').map(Number); const ref = (PLAN[rw - 1] && PLAN[rw - 1].r && PLAN[rw - 1].r[rd]) || ''; hub.activity('Read week ' + rw + ' day ' + (rd + 1) + (ref ? ' — ' + ref : '')); }
-    if (done[id]) { log[dayKey()] = true; const keys = Object.keys(log).sort(); keys.slice(0, Math.max(0, keys.length - 400)).forEach(k => delete log[k]); save(K.log, log); }
+    if (done[id] && !log[dayKey()]) { log[dayKey()] = true; putEntry('log', dayKey(), true); }
     // update in place so an open journal (and its focus) survives
     day.classList.toggle('done', !!done[id]);
     day.querySelector('.mark').setAttribute('aria-pressed', !!done[id]);
@@ -1797,8 +1886,10 @@ $('confirm').addEventListener('click', e => { if (e.target === $('confirm')) $('
 $('doConfirm').onclick = () => { $('confirm').classList.remove('on'); if (confirmAction) confirmAction(); confirmAction = null; };
 $('resetBtn').onclick = () => notYet() || confirmModal('Reset all progress?',
   'Every checkmark, memorized verse, milestone, week date and the reading streak will be cleared. Your HEAR journal entries stay. This can’t be undone.',
-  'Reset', () => { done = {}; mem = {}; log = {}; weekStart = {}; weekDone = {}; best = {}; miles = {}; recall = {}; finished = null; curWeek = 1;   // week 1's start is written by its first tick
-    [K.done, K.mem, K.log, K.weekStart, K.weekDone, K.best, K.miles, K.recall, K.finished].forEach(drop);
+  'Reset', () => {
+    done = {}; mem = {}; log = {}; weekStart = {}; weekDone = {}; best = {}; miles = {}; recall = {}; finished = null; curWeek = 1;   // week 1's start is written by its first tick
+    for (const n of Object.keys(ROW)) clearMap(n);
+    [K.weekStart, K.weekDone, K.best, K.miles, K.finished].forEach(drop);
     save(K.week, curWeek); render(); });
 $('eraseBtn').onclick = () => notYet() || confirmModal('Erase the whole journal?',
   'Every HEAR entry and the passcode will be deleted from this device. Reading progress stays. This can’t be undone — copy anything you want to keep first.',
@@ -1862,10 +1953,10 @@ function saveJournal(id, panel) {
   const j = journal[id] || (journal[id] = {});
   panel.querySelectorAll('textarea').forEach(t => { j[t.dataset.jf] = t.value; });
   if (HEAR.some(f => (j[f[0]] || '').trim())) j.t = Date.now(); else delete journal[id];
-  persistJournal();
-  const has = hasJournal(id);
+  const has = hasJournal(id), at = has ? journal[id].t : 0;
   const b = weeksEl.querySelector('[data-jr="' + id + '"]'); if (b) b.classList.toggle('has', has);
-  const s = panel.querySelector('.jsaved'); if (s) s.textContent = has ? 'Saved ' + fmtDate(journal[id].t) : '';
+  const s = panel.querySelector('.jsaved'); if (s) s.textContent = has ? 'Saving…' : '';
+  persistJournal().then(r => { if (s && s.isConnected) s.textContent = r.ok ? (has ? 'Saved ' + fmtDate(at) : '') : 'Not saved — ' + VAULT_WHY[r.why]; });
   paintBadge(+id.split('-')[0]); bumpJournalStats();
   const w = +id.split('-')[0]; if (w === curWeek || w === curWeek - 1) renderReflect();
   if (view === 'journal') renderJournalView();
@@ -1877,10 +1968,10 @@ function saveNote(w, panel) {
   journal._w = journal._w || {};
   if (t.value.trim()) journal._w[w] = { n: t.value, t: Date.now() }; else delete journal._w[w];
   if (!Object.keys(journal._w).length) delete journal._w;
-  persistJournal();
   const note = weekNote(w), b = weeksEl.querySelector('[data-wntoggle="' + w + '"]');
   if (b) { b.classList.toggle('has', !!note); b.innerHTML = ICO('i-pen') + ' Week note' + (note ? ' •' : ''); }
-  const s = panel.querySelector('.jsaved'); if (s) s.textContent = note ? 'Saved ' + fmtDate(note.t) : '';
+  const s = panel.querySelector('.jsaved'); if (s) s.textContent = note ? 'Saving…' : '';
+  persistJournal().then(r => { if (s && s.isConnected) s.textContent = r.ok ? (note ? 'Saved ' + fmtDate(note.t) : '') : 'Not saved — ' + VAULT_WHY[r.why]; });
   paintBadge(w); bumpJournalStats();
   if (view === 'journal') renderJournalView();
 }
@@ -1948,7 +2039,8 @@ $('practice').addEventListener('click', e => {
   if (e.target.closest('[data-predit]')) { const t = verses[prId]; delete verses[prId]; paintPractice(); const ta = $('prPaste'); if (ta) ta.value = t || ''; verses[prId] = t; return; }
   if (e.target.closest('[data-prsave]')) { const v = ($('prPaste').value || '').trim(); if (!v) return; verses[prId] = v; save(K.verses, verses); prRevealed = false; paintPractice(); return; }
   const mk = e.target.closest('[data-prmark]');
-  if (mk) { recall[prId] = { s: mk.dataset.prmark, t: Date.now() }; save(K.recall, recall); $('practice').classList.remove('on');
+  // only s and t change: the Verses trainer's box / due / last / streak on the same verse's row stay (P3-F260-01)
+  if (mk) { recall[prId] = Object.assign({}, obj(loadMap('recall')[prId]), { s: mk.dataset.prmark, t: Date.now() }); putEntry('recall', prId, recall[prId]); $('practice').classList.remove('on');
     const w = +prId.split('-')[0]; flushPending(); refreshWeek(w); if (w !== curWeek) refreshWeek(curWeek); toast(mk.dataset.prmark === 'got' ? '★ Got it — ' + PLAN[w - 1].m[+prId.split('-')[1]] : 'Added to practice again'); }
 });
 
@@ -2129,9 +2221,9 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) dayT
 let remoteDirty = false, mergeTimer = null;
 hub.onChange(() => { remoteDirty = true; clearTimeout(mergeTimer); mergeTimer = setTimeout(mergeRemote, 200); });
 function readState() {
-  done = obj(load(K.done, {})); mem = obj(load(K.mem, {})); log = obj(load(K.log, {}));
+  done = loadMap('done'); mem = loadMap('mem'); log = loadMap('log');
   weekStart = obj(load(K.weekStart, {})); weekDone = obj(load(K.weekDone, {}));
-  best = obj(load(K.best, {})); miles = obj(load(K.miles, {})); verses = obj(load(K.verses, {})); recall = obj(load(K.recall, {}));
+  best = obj(load(K.best, {})); miles = obj(load(K.miles, {})); verses = obj(load(K.verses, {})); recall = loadMap('recall');
   jstats = obj(load(K.jstats, {})); jstats.days = obj(jstats.days); jstats.entries = +jstats.entries || 0;
   finished = load(K.finished, null);
   curWeek = Math.min(52, Math.max(1, +load(K.week, curWeek) || 1));

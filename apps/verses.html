@@ -154,11 +154,14 @@
   'use strict';
   /* ── data contract ─────────────────────────────────────────────────────────────────────────────────────────
      Reads (app f260, person scope — the person's own F260 data, via hub.use):
-       f260.mem     { "<week>-<i>": true }      the verses the person has marked memorised; i = 0 | 1 is the verse's
-                                                place in that week's pair, exactly as F260 keys it (PLAN[w-1].m[i])
+       mem:<week>-<i>  true | false            the verses the person has marked memorised, one row each (batch 0e); i = 0 | 1
+                                                is the verse's place in that week's pair, exactly as F260 keys it (PLAN[w-1].m[i]).
+                                                The old whole map f260.mem is the read-only base the rows override.
        f260.verses  { "<week>-<i>": "text" }    verse text F260 has on file (pasted there once) — shown after Show when present
-     Writes (app f260, person scope) — the shape F260 already reads, extended with the Leitner fields:
-       f260.recall  { "<week>-<i>": {
+     Writes (app f260, person scope) — one row per verse, recall:<week>-<i> (batch 0e, P3-VERSES-02: two devices'
+     ratings of different verses both survive; the old whole map f260.recall is the read-only base), with F260's own
+     fields and the Leitner fields. F260's practice rating changes only s and t on the same row:
+       recall:<id>  {
                         s: 'got' | 'not',       F260's own field: 'not' lists the verse in its "Practice again" row
                                                 (Got it → 'got'; Almost and Not yet → 'not')
                         t: 1758000000000,       F260's own field: ms timestamp of the last rating
@@ -166,15 +169,19 @@
                         due: 'YYYY-MM-DD',      next review day = last + [1, 2, 4, 7, 14][box - 1] days
                         last: 'YYYY-MM-DD',     the last review day
                         streak: n               consecutive "Got it" ratings on this verse
-                      } }
+                      }
        Got it moves the box up (max 5), Almost holds it, Not yet moves it down (min 1). A verse with no recall row (or a
        pre-Leitner one from F260 with only s/t) counts as box 1 and due now.
      Own person scope (app verses):
-       log          { 'YYYY-MM-DD': n }         ratings per day — the day streak is consecutive days with ≥ 1
+       rev:<date>:<id>:<device>  n              ratings of that verse on that day on that device (batch 0e), so two devices
+                                                reviewing on the same day both count; a day's total is their sum plus the old
+                                                log map's count
+       log          { 'YYYY-MM-DD': n }         (before batch 0e; read-only) ratings per day — the day streak is consecutive
+                                                days with ≥ 1
        summary      { due, streak, boxes: [b1..b5], total, reviewedToday, week, at }   for the Home card (read by index.html,
                                                 never by this app); refreshed on open and after every rating
      Kids see the current family week's two verses (app kidverse, family scope, key 'week' — the week Kid Verse shows)
-     and never the stats; their ratings land in their own f260.recall the same way. ─────────────────────────────── */
+     and never the stats; their ratings land in their own recall rows the same way. ─────────────────────────────── */
 
   // the 52 weeks of F260 memory verses, two per week, copied from apps/f260.html PLAN[w-1].m (references only)
   const REFS = [
@@ -217,10 +224,16 @@
   const refOf = id => { const p = parseId(id); return p ? REFS[p.w - 1][p.i] : null; };
 
   // ── reads ────────────────────────────────────────────────────────────────────────────────────────────────
-  const mem = () => obj(hub.get('f260.mem', F260));
-  const recall = () => obj(hub.get('f260.recall', F260));
+  const mem = () => hub.rowMap('mem:', 'f260.mem', F260);
+  const recall = () => hub.rowMap('recall:', 'f260.recall', F260);
   const texts = () => obj(hub.get('f260.verses', F260));
-  const log = () => obj(hub.get('log'));
+  // ratings per day: the old whole map plus every rev:<date>:<id> row (batch 0e)
+  function log() {
+    const out = {}; const old = obj(hub.get('log'));
+    for (const [d, n] of Object.entries(old)) if (isDay(d)) out[d] = Math.max(0, Math.floor(Number(n) || 0));
+    for (const r of hub.list('rev:')) { const d = r.key.slice(4, 14); if (isDay(d)) out[d] = (out[d] || 0) + Math.max(0, Math.floor(Number(r.value) || 0)); }
+    return out;
+  }
   const familyWeek = () => { const v = hub.get('week', FAMILY_WEEK); return clampWeek(v && typeof v === 'object' ? v.week : v); };
   // a recall row as the trainer understands it: pre-Leitner rows (F260's own s/t) count as box 1, due now
   const norm = r => { r = obj(r); return { box: clampBox(r.box), due: isDay(r.due) ? r.due : null, last: isDay(r.last) ? r.last : null, streak: Math.max(0, Math.floor(Number(r.streak) || 0)), s: r.s, t: r.t }; };
@@ -298,11 +311,12 @@
     if (!cur || !loaded()) return;
     if (!hub.canWrite) { hub.kioskNudge(); return; }
     if (!['got', 'almost', 'not'].includes(kind)) return;
-    const today = dayKey(), rc = { ...recall() }, prev = norm(rc[cur]);
+    const today = dayKey(), prev = norm(recall()[cur]);
     const box = kind === 'got' ? Math.min(5, prev.box + 1) : kind === 'not' ? Math.max(1, prev.box - 1) : prev.box;
-    rc[cur] = { s: kind === 'got' ? 'got' : 'not', t: Date.now(), box, due: shiftDay(today, INTERVALS[box - 1]), last: today, streak: kind === 'got' ? prev.streak + 1 : kind === 'almost' ? prev.streak : 0 };
-    const lg = { ...log() }; lg[today] = (Math.floor(Number(lg[today]) || 0)) + 1;
-    try { hub.set('f260.recall', rc, F260); hub.set('log', lg); } catch (e) { console.error(e); hub.toast('Could not save that.'); return; }
+    const entry = { s: kind === 'got' ? 'got' : 'not', t: Date.now(), box, due: shiftDay(today, INTERVALS[box - 1]), last: today, streak: kind === 'got' ? prev.streak + 1 : kind === 'almost' ? prev.streak : 0 };
+    // only this verse's row and today's count for it: another device's ratings of other verses stay (P3-VERSES-02)
+    const revKey = 'rev:' + today + ':' + cur + ':' + ((hub.device && hub.device.id) || 'this'), n = Math.max(0, Math.floor(Number(hub.get(revKey)) || 0)) + 1;
+    try { hub.set('recall:' + cur, entry, F260); hub.set(revKey, n); } catch (e) { console.error(e); hub.toast('Could not save that.'); return; }
     rated++;
     if (againIds) againIds = againIds.filter(id => id !== cur);
     const ref = refOf(cur);

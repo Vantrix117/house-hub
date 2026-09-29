@@ -859,7 +859,8 @@
   // Best of all is the reading log itself (f260.log, { 'YYYY-MM-DD': true }, which the shell already syncs): read today and
   // the streak are then computed for today, with F260's own rule (streakInfo: up to 2 rest days in a row keep a streak).
   const f260On = f => { if (!f) return null; if (f.readOn) return f.readOn; const r = hub.list('f260.summary', { app: 'f260', scope: 'person' })[0]; return r && r.updated_at ? hub.today(r.updated_at) : null; };
-  const f260Log = () => { const l = hub.get('f260.log', { app: 'f260', scope: 'person' }); return l && typeof l === 'object' ? l : null; };
+  // one row per day since batch 0e (log:<date>) over the old whole-map row; null when neither is there yet
+  const f260Log = () => { const F = { app: 'f260', scope: 'person' }, l = hub.get('f260.log', F); return (l && typeof l === 'object') || hub.list('log:', F).length ? hub.rowMap('log:', 'f260.log', F) : null; };
   const logStreak = days => { let d = hub.today(), n = 0, gap = 0; for (let i = 0; i < 400; i++) { if (days[d]) { n++; gap = 0; } else if (++gap > 2) break; d = hub.addDays(d, -1); } return n; };
   const f260Today = f => { const l = f260Log(); return l ? !!l[hub.today()] : !!(f && f.readToday && f260On(f) === hub.today()); };
   const f260Streak = f => { const l = f260Log(); if (l) return logStreak(l); const on = f && f.streak && f260On(f); return on && on === hub.today() ? f.streak : 0; };   // no log: trust a summary's streak only on the day it was written

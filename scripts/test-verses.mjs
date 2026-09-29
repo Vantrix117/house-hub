@@ -82,6 +82,20 @@ const dayKey = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.
 const shift = (n, from = new Date()) => { const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + n); return dayKey(d); };
 const TODAY = dayKey(new Date()), YESTERDAY = shift(-1), TOMORROW = shift(1);
 const row = async (tok, app, scope, key) => (await api(`/api/data/${app}?scope=${scope}`, { profile: tok })).items.find(r => r.key === key);
+// Since batch 0e the apps keep one row per entry over the old whole-map row (hub.js hub.rowMap): recall:<id> and mem:<id> in
+// the F260 scope, rev:<date>:<id> counts in the verses scope. These read what the app would see.
+const merged = async (tok, app, prefix, legacy) => {
+  const items = (await api(`/api/data/${app}?scope=person`, { profile: tok })).items;
+  const base = items.find(r => r.key === legacy); const out = base && base.value && typeof base.value === 'object' ? { ...base.value } : {};
+  for (const r of items) if (r.key.startsWith(prefix) && r.value != null) { const id = r.key.slice(prefix.length); if (r.value === false) delete out[id]; else out[id] = r.value; }
+  return out;
+};
+const reviewLog = async tok => {
+  const items = (await api('/api/data/verses?scope=person', { profile: tok })).items;
+  const old = items.find(r => r.key === 'log'); const out = old && old.value ? { ...old.value } : {};
+  for (const r of items) if (r.key.startsWith('rev:') && r.value != null) { const d = r.key.slice(4, 14); out[d] = (out[d] || 0) + r.value; }
+  return out;
+};
 const put = (tok, app, key, value) => api(`/api/data/${app}/${encodeURIComponent(key)}?scope=person`, { method: 'PUT', profile: tok, body: { value, updated_at: Date.now() } });
 const del = (tok, app, key, scope = 'person') => api(`/api/data/${app}/${encodeURIComponent(key)}?scope=${scope}`, { method: 'DELETE', profile: tok }).catch(() => {});
 let T = {};
@@ -186,7 +200,7 @@ async function rateCard(fr, kind) {
     const src = fs.readFileSync(path.join(ROOT, 'apps/verses.html'), 'utf8');
     ok(!/#[0-9a-f]{3,8}\b/i.test(src.slice(src.indexOf('<style>'), src.indexOf('</style>'))) && !/prefers-color-scheme/.test(src), 'no hex and no prefers-color-scheme in the app\'s CSS');
     ok(/data-app="verses" data-scope="person"/.test(src) && /hub\.use\('f260', 'person'\)/.test(src), 'hub.js with app id verses, person scope; reads F260 through hub.use');
-    ok(/f260\.recall\s+\{ "<week>-<i>"/.test(src) && /box: 1\.\.5/.test(src) && /due: 'YYYY-MM-DD'/.test(src), 'the recall shape is documented in the file');
+    ok(/recall:<id>\s+\{/.test(src) && /box: 1\.\.5/.test(src) && /due: 'YYYY-MM-DD'/.test(src), 'the recall shape is documented in the file');
 
     console.log('\n## (b) adult flow — Eli, 390');
     const A = await newContext(browser, 'A');
@@ -244,7 +258,7 @@ async function rateCard(fr, kind) {
     ok(await F.$$eval('#boxes .bx .n', l => l.map(e => e.textContent).join()) === '2,2,0,2,0', 'boxes after: [2,2,0,2,0]', await F.$$eval('#boxes .bx .n', l => l.map(e => e.textContent).join()));
     ok(await text(F, '#st-due') === '0' && await text(F, '#st-streak') === '2', 'stats: 0 due, streak 2');
     await synced(F);
-    const rc = (await row(T.eli, 'f260', 'person', 'f260.recall')).value;
+    const rc = await merged(T.eli, 'f260', 'recall:', 'f260.recall');
     const chk = (id, box, due, s, streak) => rc[id] && rc[id].box === box && rc[id].due === due && rc[id].last === TODAY && rc[id].s === s && rc[id].streak === streak && typeof rc[id].t === 'number' && rc[id].t > Date.now() - 60000;
     ok(chk('1-0', 2, shift(2), 'got', 1), 'recall 1-0: Got it on a new verse → box 2, due +2, s got, streak 1', JSON.stringify(rc['1-0']));
     ok(chk('3-1', 1, shift(1), 'not', 0), 'recall 3-1: Almost on a new verse → box 1, due +1, s not', JSON.stringify(rc['3-1']));
@@ -253,11 +267,11 @@ async function rateCard(fr, kind) {
     ok(chk('30-0', 4, shift(7), 'got', 3), 'recall 30-0: box 3 overdue → Got it → box 4, due +7, streak 3', JSON.stringify(rc['30-0']));
     ok(rc['40-0'] && rc['40-0'].box === 4 && rc['40-0'].due === TOMORROW && rc['40-0'].last === shift(-6), 'recall 40-0 untouched (not due)', JSON.stringify(rc['40-0']));
     ok(Object.keys(rc).length === 6, 'no other rows in f260.recall');
-    const memAfter = (await row(T.eli, 'f260', 'person', 'f260.mem')).value;
+    const memAfter = await merged(T.eli, 'f260', 'mem:', 'f260.mem');
     ok(JSON.stringify(memAfter) === JSON.stringify(MEM), 'f260.mem untouched');
 
     console.log('\n## (c) summary row + feed line');
-    const lg = (await row(T.eli, 'verses', 'person', 'log')).value;
+    const lg = await reviewLog(T.eli);
     ok(lg && lg[YESTERDAY] === 2 && lg[TODAY] === 5, 'app_data(verses, person, log) = { yesterday: 2, today: 5 }', JSON.stringify(lg));
     const sm = (await row(T.eli, 'verses', 'person', 'summary') || {}).value;
     ok(sm && sm.due === 0 && sm.streak === 2 && JSON.stringify(sm.boxes) === '[2,2,0,2,0]' && sm.total === 6 && sm.reviewedToday === 5 && sm.week === null && sm.at === TODAY, 'app_data(verses, person, summary) = { due: 0, streak: 2, boxes: [2,2,0,2,0], total: 6, reviewedToday: 5, week: null, at: today }', JSON.stringify(sm));
@@ -313,7 +327,7 @@ async function rateCard(fr, kind) {
     ok(await FK.$eval('#stats', e => e.hidden), 'still no stats');
     await K.page.screenshot({ path: path.join(SHOTS, 'rm19-kid-done-390.png') });
     await synced(FK);
-    const rk = (await row(T.ezra, 'f260', 'person', 'f260.recall')).value;
+    const rk = await merged(T.ezra, 'f260', 'recall:', 'f260.recall');
     const k0 = W + '-0', k1 = W + '-1';
     ok(rk && rk[k0] && rk[k0].box === 2 && rk[k0].due === shift(2) && rk[k0].last === TODAY && rk[k0].s === 'got' && rk[k0].streak === 1 && rk[k1] && rk[k1].box === 1 && rk[k1].due === shift(1) && rk[k1].s === 'not' && Object.keys(rk).length === 2, 'Ezra\'s own f260.recall: ' + k0 + ' box 2 (+2), ' + k1 + ' box 1 (+1), nothing else', JSON.stringify(rk));
     const smk = (await row(T.ezra, 'verses', 'person', 'summary') || {}).value;

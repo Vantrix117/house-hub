@@ -68,6 +68,10 @@ async function signIn(page, id, pin, device) {
   }, { code: CODE, id, pin, device });
 }
 const readyAndPulled = page => page.waitForFunction(() => window.hub && hub.profile && hub.sync && hub.sync.lastPull > 0, null, { timeout: LOAD });
+// the person's merged progress on this device (batch 0e, P2-SYNC-01): the legacy 'progress' map overridden by every
+// step:<id> row (false = not done), read in the page from the pulled rows
+const progressOf = page => page.evaluate(() => { const b = hub.get('progress'), o = b && typeof b === 'object' ? { ...b } : {};
+  for (const r of hub.list('step:')) { const id = r.key.slice(5); if (r.value === false) delete o[id]; else o[id] = r.value; } return o; });
 const settled = page => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0));
 // the current step and whether it is painted as done, straight from the DOM the tick handler paints
 const tickState = (page, id) => page.evaluate(id => {
@@ -104,10 +108,14 @@ const tickState = (page, id) => page.evaluate(id => {
     await PC.page.evaluate(({ k, ids }) => { localStorage.setItem(k, JSON.stringify({ [ids[0]]: true })); localStorage.setItem('dw-plot', '1200'); localStorage.removeItem('hub.migrated'); }, { k: KEY, ids });
     await signIn(PC.page, 'eli', '1357', 'test-dollywood-pc');
     // start from a clean server copy so the migration assertion is about this run
-    await PC.page.evaluate(async () => { for (const k of ['progress', 'plot']) await hub.request(`/api/data/dollywood/${k}?scope=person`, { method: 'DELETE' }); });
+    await PC.page.evaluate(async () => {
+      for (const k of ['progress', 'plot']) await hub.request(`/api/data/dollywood/${k}?scope=person`, { method: 'DELETE' });
+      const { items } = await hub.request('/api/data/dollywood?scope=person&prefix=step:');   // step rows from earlier runs
+      for (const r of items) if (r.value != null) await hub.request(`/api/data/dollywood/${r.key}?scope=person`, { method: 'DELETE' });
+    });
     await openApp(PC.page); await readyAndPulled(PC.page);
-    await waitFor(() => PC.page.evaluate(() => hub.has('progress')), { label: 'migrated progress row' });
-    ok(await PC.page.evaluate(id => hub.get('progress')[id] === true, ids[0]), 'legacy doneMap migrated into hub key "progress"');
+    await waitFor(async () => (await progressOf(PC.page))[ids[0]] === true, { label: 'migrated step row' });
+    ok((await progressOf(PC.page))[ids[0]] === true, 'legacy doneMap migrated into hub progress (step rows)');
     ok(await PC.page.evaluate(() => hub.get('plot') === '1200'), 'legacy dw-plot migrated into hub key "plot"', String(await PC.page.evaluate(() => hub.get('plot'))));
     ok(await PC.page.$eval('#sc-plot', e => e.value) === '1200', 'plot input shows the migrated value');
     let t = await tickState(PC.page, ids[0]);
@@ -129,7 +137,7 @@ const tickState = (page, id) => page.evaluate(id => {
     await PC.page.click('#b-done');
     t = await tickState(PC.page, stepId);
     ok(t.inMap && t.listOk, 'PC paints the tick at once', JSON.stringify(t));
-    ok(await PC.page.evaluate(id => hub.get('progress')[id] === true, stepId), 'PC wrote hub key "progress"');
+    ok((await progressOf(PC.page))[stepId] === true, 'PC wrote the step into hub progress (step:<id> row)');
     ok(await PC.page.evaluate(({ k, id }) => !JSON.parse(localStorage.getItem(k) || '{}')[id], { k: KEY, id: stepId }), 'signed-in save goes through hub.set, not the legacy localStorage key');
     await settled(PC.page);
     await waitFor(() => PC.page.evaluate(() => hub.activityFeed(20).then(r => r.some(a => a.app_id === 'dollywood' && /^Ticked /.test(a.text)))), { label: 'activity line' });
@@ -146,7 +154,7 @@ const tickState = (page, id) => page.evaluate(id => {
     ok((await tickState(IPAD.page, stepId)).inMap === false, 'iPad unticks it');
     await settled(IPAD.page);
     await PC.page.evaluate(() => hub.pull());
-    await waitFor(() => PC.page.evaluate(id => doneMap[id] === false, stepId), { label: 'PC doneMap after pull' });
+    await waitFor(() => PC.page.evaluate(id => !doneMap[id], stepId), { label: 'PC doneMap after pull' });   // merged state drops an unticked step
     t = await tickState(PC.page, stepId);
     ok(!t.inMap && !t.listOk, 'PC: untick arrived and the list repainted', JSON.stringify(t));
     await PC.page.screenshot({ path: path.join(SHOTS, 'rm22-pc.png') });

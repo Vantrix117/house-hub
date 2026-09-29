@@ -214,6 +214,15 @@ asserts every chip and refusal against a local Worker.
   `GET …?since=<last pull>` returns only rows changed after that, tombstones included.
 - Values up to 900 KB. Keys: `[A-Za-z0-9_.:-/]`, up to 200 chars. Lists are stored one row per item (`item:<id>`)
   so two people editing at once never overwrite each other's items.
+- **Maps kept one row per entry** (batch 0e): F260's ticks, memorised verses, reading log and practice ratings
+  (`done:<week>-<i>`, `mem:<week>-<i>`, `log:<date>`, `recall:<week>-<i>` in the person's f260 scope), Verses' review counts
+  (`rev:<date>:<id>:<device>`) and the build guide's steps (`step:<id>`). Each row overrides the same entry of the old
+  whole-map row (`f260.done`, `f260.mem`, `f260.log`, `f260.recall`, `progress`), which stays as a read-only base;
+  `false` means off. `rowMap()` in `src/data.js` (and `hub.rowMap` in hub.js) does the merge; chat's F260 tools and the 8 pm
+  job read it. Prefix reads (`?prefix=`) are exact-case.
+- **The F260 journal vault** (`f260.journal.vault`) carries a version (`vid`, or `p:<passcode salt>` for one written before
+  versions). A vault with a different version is refused (`vault_changed`) unless it names the stored one as `prev`, so a
+  device still holding an erased, re-created or restored journal's key cannot write over the new one.
 
 ## Secrets
 

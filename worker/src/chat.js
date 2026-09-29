@@ -8,7 +8,7 @@
 //   done  {usage, stop_reason}        finished
 //   error {error, message}
 import { HttpError } from './auth.js';
-import { listData, getOne, liveItems } from './data.js';
+import { listData, getOne, liveItems, rowMap } from './data.js';
 import { nyParts } from './reminders.js';
 import { appsFor, householdLoader, guardedPut } from './policy.js';
 
@@ -211,16 +211,16 @@ async function runTool(env, ctx, name, input) {
     if (name === 'toggle_f260_reading') {
       if (!canUse('f260')) return { ok: false, result: 'This person does not use F260.', chip: null };
       const k = `${input.week}-${input.day - 1}`;
-      const doneRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.done' });
-      const done = { ...(doneRow && doneRow.value ? doneRow.value : {}) };
+      // one row per tick and per logged day, as the F260 app writes them since batch 0e (P2-SYNC-01)
+      const F = { appId: 'f260', scope: 'person', profile };
+      const done = await rowMap(env, { ...F, prefix: 'done:', legacyKey: 'f260.done' });
       const now = Date.now();
       if (done[k]) delete done[k]; else done[k] = true;
-      await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.done', value: done, updated_at: now });
-      const logRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.log' });
-      let log = { ...(logRow && logRow.value && typeof logRow.value === 'object' ? logRow.value : {}) };
-      if (done[k]) {
-        log = { ...log, [today()]: true };
-        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.log', value: log, updated_at: now });
+      await putOne(env, { ...F, key: 'done:' + k, value: !!done[k], updated_at: now });
+      const log = await rowMap(env, { ...F, prefix: 'log:', legacyKey: 'f260.log' });
+      if (done[k] && !log[today()]) {
+        log[today()] = true;
+        await putOne(env, { ...F, key: 'log:' + today(), value: true, updated_at: now });
       }
       const sumRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary' });
       if (sumRow && sumRow.value) {
@@ -309,9 +309,9 @@ async function runTool(env, ctx, name, input) {
       const week = Math.min(52, Math.max(1, +s.week || 1));
       // "read today" from the log for today's New York date, as the 8 pm job decides it: the summary's own flag is only true for
       // the day it was written (readOn), and a summary from yesterday must not tell the model today's reading is done
-      const logRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.log' });
-      const readToday = !!(logRow && logRow.value && typeof logRow.value === 'object' && logRow.value[today()]);
-      return { ok: true, result: { week, weekDone: +s.weekDone || 0, total: +s.total || 0, streak: logStreak(logRow && logRow.value), readToday, next: s.next || null, finished: !!s.finished, memoryVerses: versesFor(week).map(v => v.ref) }, chip: null };
+      const log = await rowMap(env, { appId: 'f260', scope: 'person', profile, prefix: 'log:', legacyKey: 'f260.log' });
+      const readToday = !!log[today()];
+      return { ok: true, result: { week, weekDone: +s.weekDone || 0, total: +s.total || 0, streak: logStreak(log), readToday, next: s.next || null, finished: !!s.finished, memoryVerses: versesFor(week).map(v => v.ref) }, chip: null };
     }
 
     if (name === 'read_todays_verse') {
@@ -340,7 +340,7 @@ Today is ${today()} (America/New_York).
 
 Apps in the hub:
 ${appList}
-Data conventions: leftovers and reminders are lists stored as item:<id> rows in family scope; prayers are prayer:<id> rows; F260 progress is f260.done ({"week-dayIndex": true}, dayIndex 0-4) and f260.summary in person scope.
+Data conventions: leftovers and reminders are lists stored as item:<id> rows in family scope; prayers are prayer:<id> rows; F260 progress is one row per reading, done:<week>-<dayIndex> (dayIndex 0-4), and f260.summary in person scope; use toggle_f260_reading and f260_status rather than writing them.
 
 How to behave:
 - Keep replies short (a sentence or three); this is a phone-sized chat. Plain text, no markdown headings.

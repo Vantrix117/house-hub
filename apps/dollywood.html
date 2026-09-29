@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" data-theme="dark" data-flavor="hub"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2YH1FkMBQeD3WKKyp6paqb44vmdrCrILzYiFNbLYmaA=' 'sha256-QlgqW1SagTJDQuJiTAfpw1pQ1OgPr0quF23Fc16mWSE=' 'sha256-knS7zsjZYWhibHMrXTHHdaqM+36qBZm+wMF1kIosHOI=' 'sha256-ArtK3nEPPmBzKeN6IfCYvDrHDrbjPa+KZeefTbeF57I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; connect-src 'self' https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2YH1FkMBQeD3WKKyp6paqb44vmdrCrILzYiFNbLYmaA=' 'sha256-6gxtITQ7/hqldwPYuIOLIGh6hFMB5VwbGyzJaRNKGkA=' 'sha256-knS7zsjZYWhibHMrXTHHdaqM+36qBZm+wMF1kIosHOI=' 'sha256-ArtK3nEPPmBzKeN6IfCYvDrHDrbjPa+KZeefTbeF57I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; connect-src 'self' https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <title>Dollywood build guide</title>
@@ -1061,7 +1061,7 @@ function updScale(){const v=parseFloat($('sc-plot').value);scale.plot=v>0?v:null
 }
 const hubOnline=()=>!!(window.hub&&hub.profile);   // signed in through the House Hub SDK (standalone with no session keeps localStorage)
 /* Signed in, the person's rows are not on this device until the first pull lands (hub.loaded): an empty cache reads as a
-   first-time user, and a tick then would replace the server's whole progress map. Until then: a loading line, no writes. */
+   first-time user, and a tick then would be painted over steps that are really done. Until then: a loading line, no writes. */
 let HUBWAIT=false;try{HUBWAIT=hubOnline()&&typeof hub.isLoaded==='function'&&!hub.isLoaded()}catch(e){}
 const hubGuard=()=>{if(hubOnline()&&!hub.canWrite){hub.kioskNudge();return false}if(HUBWAIT){try{hub.toast('Still loading your progress — try again in a moment.',2600)}catch(e){}return false}return true};
 const savePlot=()=>{const v=$('sc-plot').value;if(hubOnline()){if(hub.canWrite&&!HUBWAIT)try{hub.set('plot',v||null)}catch(e){}}else{try{localStorage.setItem('dw-plot',v)}catch(e){}}};
@@ -1070,8 +1070,16 @@ try{$('sc-plot').value=localStorage.getItem('dw-plot')||''}catch(e){}updScale();
 
 /* ============================ build steps ============================ */
 const PHN={terrain:'Terrain',paths:'Paths',structures:'Structures',rides:'Rides',detail:'Detail',finish:'Finish'};const KEY='dollywood-build-progress-v2';
-let doneMap={};try{doneMap=hubOnline()?(HUBWAIT?{}:Object.assign({},hub.get('progress',{default:{}}))):JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}   // signed in: the person's pulled copy (never the device's legacy key); standalone: localStorage
-const save=()=>{if(hubOnline()){if(!hub.canWrite){hub.kioskNudge();return}try{hub.set('progress',Object.assign({},doneMap))}catch(e){}}else{try{localStorage.setItem(KEY,JSON.stringify(doneMap))}catch(e){}}};let curSec='entrance',curIdx=0;
+/* Signed in, each step is its own person-scope row step:<id> = true | false (hub audit batch 0e, P2-SYNC-01): a tick writes
+   only that step's row, so a device with an older copy can no longer erase another device's tick under last-write-wins.
+   The old whole-map row 'progress' is never written again; it stays as a read-only base that the step rows override
+   (false = not done) — the same merge as hub.rowMap('step:','progress'), kept local so the page does not depend on it. */
+const SP='step:',STEPID=new Set(D.steps.map(s=>s.id));
+const hubDone=()=>{const out={},b=hub.get('progress');if(b&&typeof b==='object'&&!Array.isArray(b))for(const k in b)if(b[k])out[k]=true;
+  for(const r of hub.list(SP)){const id=r.key.slice(SP.length);if(r.value===false)delete out[id];else if(r.value)out[id]=true}return out};
+let doneMap={};try{doneMap=hubOnline()?(HUBWAIT?{}:hubDone()):JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}   // signed in: the person's pulled rows (never the device's legacy key); standalone: localStorage
+// save(ids): signed in, writes the step:<id> row of each changed step and nothing else; standalone, the whole map to localStorage
+const save=ids=>{if(hubOnline()){if(!hub.canWrite){hub.kioskNudge();return}for(const id of ids||[])if(STEPID.has(id))try{hub.set(SP+id,!!doneMap[id])}catch(e){}}else{try{localStorage.setItem(KEY,JSON.stringify(doneMap))}catch(e){}}};let curSec='entrance',curIdx=0;
 const stepsOf=id=>D.steps.filter(s=>s.section===id);
 /* the measurement line, in Planet Coaster 2 units: horizontal metres take the Scale tab's factor; feet ranges become metres
    of relief (kept true, as the Scale tab advises); a lone spot height is read against the section's low point */
@@ -1096,7 +1104,7 @@ function renderStep(){if(FLAVOR==='live'){highlight(null);return}const st=stepsO
    <div class="bctl"><button id="b-prev">Previous</button><button id="b-next">Next</button>${HUBWAIT?'<button id="b-done" disabled aria-disabled="true" title="Loading your progress…">Mark done</button>':`<button id="b-done" class="${doneMap[now.id]?'done':''}">${doneMap[now.id]?'Done ✓':'Mark done'}</button>`}<button id="b-show">Show on map</button></div>`;
   $('b-prev').onclick=()=>stepNav(-1);$('b-next').onclick=()=>stepNav(1);$('b-show').onclick=go;$('b-done').onclick=stepDone;highlight(stepTarget(now),now.section);renderStepList()}
 function stepNav(d){const st=stepsOf(curSec);if(!st.length)return;curIdx=Math.max(0,Math.min(st.length-1,curIdx+d));renderStep();go()}
-function stepDone(){if(!hubGuard())return;const st=stepsOf(curSec),now=st[curIdx];if(!now)return;doneMap[now.id]=!doneMap[now.id];save();if(doneMap[now.id]){if(hubOnline())try{hub.activity('Ticked '+now.title)}catch(e){}if(curIdx<st.length-1)curIdx++}renderStep();go()}
+function stepDone(){if(!hubGuard())return;const st=stepsOf(curSec),now=st[curIdx];if(!now)return;doneMap[now.id]=!doneMap[now.id];save([now.id]);if(doneMap[now.id]){if(hubOnline())try{hub.activity('Ticked '+now.title)}catch(e){}if(curIdx<st.length-1)curIdx++}renderStep();go()}
 function go(){const st=stepsOf(curSec),now=st[curIdx];if(now){if(mode==='3d')setMode('2d');fitTarget(bboxOf(stepTarget(now),now.section))}}
 const fitTarget=b=>{if(window.fitBoxPhone&&PHONE())fitBoxPhone(b);else fitBox(b,true)};   // on a phone: into the part of the map the sheet leaves visible
 /* the next step not yet ticked: after the current one in this section, else the first unticked here, else the first in a later section */
@@ -1108,11 +1116,13 @@ function renderStepList(){const st=stepsOf(curSec),L=$('b-list');L.innerHTML='';
   d.onclick=()=>{curIdx=i;renderStep();go()};d.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();d.onclick()}};
   const pv=()=>{if(i!==curIdx)preview(stepTarget(s),s.section)},off=()=>preview(null);   // hover / focus: a lighter outline of that step's target, no pan
   d.addEventListener('mouseenter',pv);d.addEventListener('focus',pv);d.addEventListener('mouseleave',off);d.addEventListener('blur',off);L.appendChild(d)});preview(null)}
-$('b-reset').onclick=()=>{if(!hubGuard())return;if(confirm('Clear all saved progress?')){doneMap={};save();renderStep()}};
+$('b-reset').onclick=()=>{if(!hubGuard())return;if(confirm('Clear all saved progress?')){const was=Object.keys(doneMap).filter(k=>doneMap[k]);doneMap={};save(was);renderStep()}};
 $('b-export').onclick=()=>{const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify({version:1,exported:new Date().toISOString(),done:doneMap}));a.download='dollywood-progress.json';a.click()};
 $('b-import').onclick=()=>$('b-file').click();
-$('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!hubGuard()){e.target.value='';return}const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);doneMap=j.done||j;save();renderStep()}catch(err){alert('Not a progress file')}};r.readAsText(f);e.target.value=''});
-/* House Hub: progress and plot are person-scope rows ('progress', 'plot') so a tick on the PC shows on the iPad.
+$('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(!hubGuard()){e.target.value='';return}const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result),n=j&&(j.done||j);if(!n||typeof n!=='object'||Array.isArray(n))throw 0;const was=doneMap;doneMap=n;
+  save([...new Set([...Object.keys(was),...Object.keys(n)])].filter(k=>!!was[k]!==!!n[k]));renderStep()}catch(err){alert('Not a progress file')}};r.readAsText(f);e.target.value=''});
+/* House Hub: progress (one step:<id> row per step over the legacy 'progress' base) and plot are person-scope rows, so a
+   tick on the PC shows on the iPad.
    Legacy localStorage moves over once per device (adults only — hub.migrate enforces that). Without a session the
    page keeps its localStorage-only behaviour. Remote changes re-read the map and repaint the ticks in place.
    hub.migrate is async: it moves a key only after a fresh successful pull shows it absent, then fires a change with
@@ -1120,7 +1130,7 @@ $('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return
 (async()=>{if(!window.hub||typeof hub.ready!=='function')return;try{await hub.ready({optional:true})}catch(e){return}
   if(!hub.profile)return;
   const adopt=ev=>{const all=!ev||ev.bulk||ev.key==null;
-    if(all||ev.key==='progress'){doneMap=Object.assign({},hub.get('progress',{default:{}}));
+    if(all||ev.key==='progress'||(typeof ev.key==='string'&&ev.key.startsWith(SP))){doneMap=hubDone();
       // a migration lands after the first paint: if it just ticked the step on screen, move on to the first undone one (as a
       // first open does), so Mark done is not left on a finished step where a tap would untick it
       if(ev&&ev.migrated){const st=stepsOf(curSec);if(st[curIdx]&&doneMap[st[curIdx].id]){const f=st.findIndex(x=>!doneMap[x.id]);curIdx=f<0?0:f}}
@@ -1128,9 +1138,13 @@ $('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return
     if(all||ev.key==='plot'){const v=hub.get('plot'),el=$('sc-plot');if(v!=null&&document.activeElement!==el&&el.value!==String(v)){el.value=v;updScale()}}};
   hub.onChange(adopt);
   if(HUBWAIT){try{await hub.loaded()}catch(e){}HUBWAIT=false}   // "Loading your progress…" and no Mark done until the first pull lands
-  doneMap=Object.assign({},hub.get('progress',{default:{}}));{const st=stepsOf(curSec),f=st.findIndex(x=>!doneMap[x.id]);curIdx=f<0?0:f}
+  doneMap=hubDone();{const st=stepsOf(curSec),f=st.findIndex(x=>!doneMap[x.id]);curIdx=f<0?0:f}
   adopt(null);
-  Promise.resolve().then(()=>hub.migrate([{from:KEY,to:'progress'},{from:'dw-plot',to:'plot',parse:r=>r||null}])).catch(()=>{})})();
+  // the pre-hub localStorage map moves over as step rows, and only to a person with no progress on the server at all (no
+  // legacy 'progress' row, no step rows) — as before, when it moved only if 'progress' was absent — so an untick made on
+  // another device is never undone by an old copy; hub.migrate also skips any step row that exists
+  const legacySteps=v=>v&&typeof v==='object'&&!Array.isArray(v)&&!hub.has('progress')&&!hub.list(SP).length?Object.keys(v).filter(id=>v[id]&&STEPID.has(id)).map(id=>[SP+id,true]):[];
+  Promise.resolve().then(()=>hub.migrate([{from:KEY,to:legacySteps},{from:'dw-plot',to:'plot',parse:r=>r||null}])).catch(()=>{})})();
 
 /* ============================ sections ============================ */
 const chips=$('chips');

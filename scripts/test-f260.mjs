@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Roadmap 10 checks: F260 opens on Today.
 //   - a cold open at 390×844 shows the Today hero with its Done button inside the viewport (standalone and in the hub's iframe)
-//   - Done ticks the next reading through the plan's own path: f260.done, f260.log, the summary (weekDone, readToday, next)
+//   - Done ticks the next reading through the plan's own path: the done:<id> and log:<date> rows (over the old f260.done /
+//     f260.log maps, batch 0e), the summary (weekDone, readToday, next)
 //     and the hub's Home card / Apps tile follow within 5 s
 //   - the plan/journal view is page state only: switch to Journal, reload, land on Plan + Today again, nothing persisted
 //   - a change from another device merges in place: hub.pull() updates the DOM with no reload (a window marker survives),
@@ -84,7 +85,7 @@ const todayState = f => f.evaluate(() => ({
   title: document.getElementById('todayTitle').textContent, kind: document.getElementById('todayKind').textContent,
   meta: document.getElementById('todayMeta').textContent, ring: document.getElementById('todayRingN').textContent,
   plan: document.getElementById('planView').style.display !== 'none', journal: document.getElementById('journalView').classList.contains('on'),
-  summary: hub.get('f260.summary'), done: hub.get('f260.done') || {}, log: hub.get('f260.log') || {}, view: hub.get('f260.view'),
+  summary: hub.get('f260.summary'), done: hub.rowMap('done:', 'f260.done'), log: hub.rowMap('log:', 'f260.log'), view: hub.get('f260.view'),
   today: hub.today ? hub.today() : (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })()
 }));
 async function openF260(page) {
@@ -191,14 +192,14 @@ async function doneBox(page, f) {                    // the Done button's box in
     ok(await fa.evaluate(() => window.__rm10 === 'still here'), 'no reload: the window marker survived the merge');
     ok(s.done[idB] === true && s.title === s.summary.next.ref && s.title !== nb.ref, `A's hero moved on to ${s.title} after the merge`);
     ok(s.ring === s.summary.weekDone + '/5' && s.summary.weekDone === sb.summary.weekDone + 1, `A's ring now ${s.ring}`);
-    ok(await fa.evaluate(() => document.getElementById('doneCount').textContent === String(Object.keys(hub.get('f260.done') || {}).length)), 'A: readings count re-rendered from the merged data');
+    ok(await fa.evaluate(() => document.getElementById('doneCount').textContent === String(Object.keys(hub.rowMap('done:', 'f260.done')).length)), 'A: readings count re-rendered from the merged data');
     // deferred while busy: with the settings sheet open the merge waits, then lands once it closes
     await fa.click('#settingsBtn'); await sleep(100);
     const n2 = s.summary.next; const idB2 = n2.week + '-' + (n2.day - 1);
     await B.page.evaluate(() => hub.pull()); await sleep(300);
     await B.page.click('[data-day="' + idB2 + '"] .mark'); await sleep(200); await flushed(B.page);
     await fa.evaluate(() => hub.pull()); await sleep(1500);
-    const sheetOpen = await fa.evaluate(id => document.getElementById('sheet').classList.contains('on') && !document.querySelector('[data-day="' + id + '"]').classList.contains('done') && hub.get('f260.done')[id] === true, idB2);
+    const sheetOpen = await fa.evaluate(id => document.getElementById('sheet').classList.contains('on') && !document.querySelector('[data-day="' + id + '"]').classList.contains('done') && hub.rowMap('done:', 'f260.done')[id] === true, idB2);
     ok(sheetOpen, 'with the settings sheet open the merge is deferred (data is in, DOM untouched)');
     await fa.click('#settingsBtn');
     await waitFor(() => fa.evaluate(id => document.querySelector('[data-day="' + id + '"]').classList.contains('done'), idB2), { timeout: 8000, label: 'deferred merge lands' });

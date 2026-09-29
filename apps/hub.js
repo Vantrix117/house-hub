@@ -395,6 +395,17 @@
       .filter(([k, it]) => k.startsWith(prefix) && it.v != null)
       .map(([k, it]) => ({ key: k, value: it.v, updated_at: it.t }));
   };
+  /**
+   * A map kept as one row per entry (batch 0e, P2-SYNC-01): `<prefix><id>` rows, each overriding the same entry of the
+   * old whole-map row `legacyKey` (kept read-only as the base; false = the entry is off). Two devices changing different
+   * entries never erase each other, because each writes only its own row. Returns a plain { id: value } object.
+   */
+  hub.rowMap = (prefix, legacyKey, opts) => {
+    const base = legacyKey ? hub.get(legacyKey, opts) : null;
+    const out = base && typeof base === 'object' && !Array.isArray(base) ? { ...base } : {};
+    for (const r of hub.list(prefix, opts)) { const id = r.key.slice(prefix.length); if (r.value === false) delete out[id]; else out[id] = r.value; }
+    return out;
+  };
   hub.set = (key, value, opts) => {
     const ch = scopeOf(opts);
     if (!hub.profile) throw new HubError(401, 'profile_required', 'Choose a profile first.');

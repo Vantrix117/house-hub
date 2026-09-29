@@ -98,7 +98,7 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     let f = await openApp(A.page, 'f260');
     ok(await f.evaluate(() => !!document.querySelector('[data-day]')), 'F260 renders the plan');
     await f.click('[data-day="1-0"] .mark');
-    ok(await f.evaluate(() => !!hub.get('f260.done')['1-0']), 'checking a reading writes f260.done to person scope');
+    ok(await f.evaluate(() => hub.get('done:1-0') === true), 'checking a reading writes its own done:<week>-<day> row to person scope (batch 0e)');
     ok(await f.evaluate(() => hub.get('f260.summary') && hub.get('f260.summary').weekDone === 1), 'F260 publishes a summary (1/5)');
     await f.evaluate(() => { const b = document.querySelector('[data-src="esv"]'); if (b) b.click(); });
     ok(await f.evaluate(() => hub.get('f260.source') === 'esv'), 'translation preference is stored per profile');

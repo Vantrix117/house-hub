@@ -78,11 +78,23 @@ export async function morningJob(env, now = Date.now()) {
   return out;
 }
 
-/** Everyone's F260 person rows, keyed by profile: { 'f260.log', 'f260.summary', 'f260.weekStart' }. */
+/**
+ * Everyone's F260 person rows, keyed by profile: { 'f260.log', 'f260.summary', 'f260.weekStart' }. Since batch 0e the
+ * log is one row per day (log:<date>, true | false) over the old whole-map row; they are folded into 'f260.log' here.
+ */
 async function f260ByProfile(env) {
-  const { results } = await env.DB.prepare("SELECT profile_id, key, value FROM app_data WHERE app_id = 'f260' AND scope = 'person' AND key IN ('f260.log', 'f260.summary', 'f260.weekStart') AND value IS NOT NULL").all();
-  const byProfile = {};
-  for (const r of results) { try { (byProfile[r.profile_id] ||= {})[r.key] = JSON.parse(r.value); } catch {} }
+  const { results } = await env.DB.prepare("SELECT profile_id, key, value FROM app_data WHERE app_id = 'f260' AND scope = 'person' AND (key IN ('f260.log', 'f260.summary', 'f260.weekStart') OR substr(key, 1, 4) = 'log:') AND value IS NOT NULL ORDER BY key").all();
+  const byProfile = {}, days = {};
+  for (const r of results) {
+    let v; try { v = JSON.parse(r.value); } catch { continue; }
+    if (r.key.startsWith('log:')) (days[r.profile_id] ||= []).push([r.key.slice(4), v]);
+    else (byProfile[r.profile_id] ||= {})[r.key] = v;
+  }
+  for (const [pid, list] of Object.entries(days)) {
+    const d = (byProfile[pid] ||= {}); const log = { ...(d['f260.log'] && typeof d['f260.log'] === 'object' ? d['f260.log'] : {}) };
+    for (const [day, v] of list) { if (v === false) delete log[day]; else log[day] = v; }
+    d['f260.log'] = log;
+  }
   return byProfile;
 }
 
