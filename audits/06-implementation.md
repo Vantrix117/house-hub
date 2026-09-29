@@ -933,3 +933,141 @@ The pre-batch results are batch 0f's after-run of the same suites (`audits/evide
 - **Family requests with no author** (added before authors were recorded) are not restored by Import. The toast says how many were left.
 - **The kitchen's face-tap credit** (batch 2a) can add people but not take them away until that screen sends removals explicitly.
 - **Real devices** were not used. Every two-device check ran in the rig's WebKit.
+
+## Batch 0h — Larder and build guide: no one-tap loss
+
+| | |
+|---|---|
+| **Findings** | 6 entries, all primaries: 4 critical, 2 medium. All 6 FIXED (status per entry in `audits/05-findings.md`). |
+| **Code commit** | `16926a2` (2026-09-29); the build guide's part is committed in the sibling repo `../dollywood-build-project` as ``fa62844` (template) and `aa91474` (rebuilt outputs)` |
+| **Files** | `apps/leftovers.html`, `apps/hub.js` (`hub.toast` takes an action; `hub.onLeave` / `hub.leaveNow`), `apps/design.css` (the toast's button), `index.html` (the app's leave hooks run before it is closed), `worker/src/chat.js` (`finish_leftover` keeps a finished row; `get_data` leaves them out), `apps/dollywood.html` + `apps/dollywood-live.html` (exported), `CLAUDE.md`, `worker/README.md`, `sw.js` (`hub-v34` → `hub-v35`) |
+| **Schema / data** | No schema change and no data migration. Finished Larder items are new family rows `finished:<id>` (kept seven days); nothing existing changes shape. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-29-before-0h.sql` (37 KB, 43 app_data rows, 1 of them Larder). Nothing was deployed. |
+| **How it was built** | By the orchestrator; the build guide through its template, rebuilt with `build_html.py`, checked with `verify.py` (passed) and exported with `export_hub.py`. An independent review found 10 items (3 medium, 1 medium/low, 6 low), all fixed; a second pass found 1 partly fixed and 3 new low, all fixed; a third pass found 1 more place a row could move (Recently finished), fixed; a fourth found a row that could shrink, fixed; a fifth confirmed with no new issue. Every check was rerun on the final code. |
+
+### The change
+
+**One tap, one item, and it can be taken back (P3-LEFTOVERS-01, UX-LEFTOVERS-1).**
+- **What a ✓ does now.**
+  - The ✓ marks its own item "finishing": the card stays where it is, struck through, with a "Finished" chip and an Undo in place of the ✓.
+  - A toast says "Finished the … · Undo".
+  - The item leaves the house list only after six seconds, or when the app is left: the hub's Back, a Switch, or the app going into the background.
+- **A double tap.** The second tap lands on that card's Undo, which ignores taps in its first 0.7 s. A double tap therefore finishes the one item, never the next.
+- **Recently finished.** Finished items are kept seven days under "Recently finished" (`finished:<id>`: size, date, who logged and who finished it), with Put back. Chat's `finish_leftover` writes the same row.
+- **Two hub additions.**
+  - `hub.toast` takes an optional action button.
+  - `hub.onLeave` / `hub.leaveNow` let an app queue its last writes before the SDK's send on pagehide. The shell runs them before it closes an app or signs a person out.
+
+**A change from another device never moves a card (P3-LEFTOVERS-12).**
+- **The cause.** The old list repainted from scratch on every change, so the card under a finger could become the next one. The Phase 3 scripts showed the change landing with no pointer activity at all, so no "wait while touching" rule could catch it.
+- **Now the list is sorted and grouped only on these occasions:** when it opens, on this device's own Log or Put back, at midnight, when the app comes back into view, or on "Show".
+- **Everything else updates cards where they stand, and only the cards that changed.**
+  - An item finished elsewhere, or this device's own after its six seconds, stays in its slot, dimmed and marked Finished, with nothing to tap.
+  - An item added elsewhere waits behind a floating "N new in the fridge · Show" pill.
+  - Nothing in a card changes width (a fixed-width chip, a 48 px Undo, a 48 px empty slot where the ✓ was), so no card changes height. The new check measures every card before, during and after.
+
+**Kids (P3-LEFTOVERS-13, UX-LEFTOVERS-2).**
+- Batch 0d already made the house refuse a kid's Larder write and removed the ✓ for kids.
+- Kids now get a picture view: a food picture, the name in big type and "N days in the fridge" with the freshness colour. There is no add bar, mic or Hearth block.
+
+**The build guide's Import (P3-DOLLYWOOD-02).**
+- It reads only a file that names steps of this guide; a wrong file or one with no known steps changes nothing and says so.
+- It adds the steps the file has ticked and never unticks one.
+- It asks first ("Add 1 ticked step from this file? The 24 steps ticked here stay ticked; nothing is unticked."), and a toast offers Undo. Undo takes back only ticks nobody has changed since.
+
+**What the independent review changed.**
+- **Medium.**
+  - Put back of an item still finishing here was finished again.
+  - Undo after the six seconds did nothing (it now puts the item back).
+  - The kitchen's Put back could lose the item: the house refuses a credit to a guest.
+  - Switch while an item was finishing left the finish and its feed line unsent (the leave hooks).
+- **Low.**
+  - The seven-day clean-up could act on an old cache.
+  - Focus was lost when a card was rebuilt; dimming reached the Undo.
+  - Chat's `get_data` listed finished rows as if still in the fridge.
+  - The guide's Undo could untick a step ticked meanwhile.
+  - A page back from the back/forward cache showed stale cards.
+- **Second pass.**
+  - The kitchen check read the wrong field name.
+  - Every card was rebuilt on every sync (now only changed ones).
+  - Focus fell to the page when a finishing card went grey.
+  - An empty list now lays itself out.
+
+### Each finding's reproduction, rerun
+
+**How they were run.**
+- The 12 scripts the entries name ran three at a time on the unchanged code (`git archive` of `f5099e2`) and on the final code. Outputs and exit codes are in `audits/evidence/p6/0h/tests/repro-before/` and `repro-after/`. The changed evidence files were moved into `p6/0h/p3/`, and the Phase 3 baseline was restored (git shows it clean).
+- The build-guide scripts read the old `progress` row. They ran with batch 0e's `merged-view.mjs` preload, as in 0e.
+- **`data-checks.mjs`** stops at its arm M2 before and after. There the first sync is made to fail, and since batch 0b the guide correctly shows "Loading" instead of a count, which the script waits for in vain. Its Import arms I1 and I2 were run on their own, before and after.
+- **Scripts that exit 1.**
+  - The three kid scripts stop at "no ✓ to tap", before and after: batch 0d removed the kid's ✓.
+  - `verify-double-tap-removes-next-item-2-probe` stops after the fix because the finishing card has an Undo where it expects every card to have a ✓.
+  - The new check covers both.
+
+| Finding | Before | After |
+|---|---|---|
+| P3-LEFTOVERS-01 (double-tap-1, -2) | the second tap lands on the next item's ✓: both removed on the server in every arm (T350, DBL; double-lastInGroup, double-ipad, double-chromium) | the second tap lands on the same card's Undo (ignored in its first 0.7 s); nothing else is touched; larder-check A: after six seconds exactly the tapped item is gone, the next stays, and every card kept its position and height |
+| P3-LEFTOVERS-12 (critic-remote-shift, rerender-1-1, 1-2) | after the other device's change the card under the aimed point is the next one ("Sunday pot roast", "Blueberry pancakes") and the tap finishes it | the aimed card stays under the point and receives the tap in every arm (A, B, SAME, SAMEMOUSE, C); larder-check F (finger down during the change) and G (the "1 new" pill) |
+| P3-LEFTOVERS-13 (kid scripts) | stop at "no ✓" (batch 0d) | the same; larder-check E: no ✓, add bar or Hearth block for a kid, and the house refuses a kid's tombstone (403 not_allowed) |
+| UX-LEFTOVERS-1 | no undo, no history | larder-check A–D and H: Undo on the card and the toast, Recently finished with Put back (size and date kept), leaving the app still finishes, the history never moves under a finger; after-screenshots `larder-finishing-iphone.png`, `larder-recently-finished-iphone.png` |
+| UX-LEFTOVERS-2 (kid.mjs) | the full adult page | the picture view; after-screenshot `larder-kid-ipad.png` |
+| P3-DOLLYWOOD-02 (import-any-json-1/2, data-checks I1/I2) | a prayer backup leaves "0 of 9 done"; an older export replaces 24 ticks with 2 | both leave "7 of 9 done" and the 24 ticks (the scripts dismiss the new confirm); guide-import-check W, X, E: a wrong file and a file with no steps change nothing and say so, an export adds its one new step and unticks nothing, and Undo takes it back |
+
+**New checks.**
+- `audits/tools/phase6/0h/larder-check.mjs` (A–H) passes 8 of 8 on the final code.
+- `guide-import-check.mjs` passes 3 of 3.
+
+### Capture rig
+
+- **The runs.** The areas whose code changed were recaptured on the final code: the Larder 184, the build guide 432, the park map 722 (a new export of the same template) and the shell 979 (the leave hook) — 2317 captures, 0 failed (`audits/screens-after/0h/manifest.json`).
+- **Against the last capture of each area** (`audits/evidence/p6/0h/capture/pxdiff-*.txt`: the Larder and the park map against batch 0d's, the build guide against 0e's, the shell against 0g's):
+  - **The Larder: 162 changed, all intended.** Every card's status chip now has a fixed width (so a card never changes width when it turns "Finished"). The kid screens show the picture view, and "finished" shows the new history. After-screenshots of the new states are in `p6/0h/`.
+  - **The build guide: 5**, 1–12-pixel specks.
+  - **The shell: 11**, the known run-to-run noise (the guest-form and pairing error animations, 1–2-pixel specks).
+  - **The park map: 7.**
+    - 4 are 1-pixel specks.
+    - "Nearby offline" and "search loading" changed by 2–9%. A control recapture on the final code matches this run exactly, and the same two screens captured on the unchanged code (`f5099e2`) match it too (`pxdiff-pre0h-vs-0h-dollywood-live.txt`, 0 changed). So they changed in an earlier batch (0e re-exported the park map without recapturing it), not in this one.
+
+### Rubric rescore
+
+- On screen:
+  - The ✓ now leaves a "Finished" card with Undo and a toast.
+  - "Recently finished" appears under the list.
+  - A "N new" pill appears when another device adds something.
+  - Kids get the picture view.
+  - The build guide's Import asks and says what it did.
+- The rubric scores these under **Ease of use** (error prevention, undo, feedback) and, for kids, **Kid fit**.
+- The orchestrator's rescore:
+
+| Area | Ease of use | Kid fit | Why |
+|---|---|---|---|
+| Larder | +1.5 | +1.5 | no one-tap loss, Undo and a history, a stable list; a picture view for kids |
+| Build guide | +0.5 | — | Import cannot erase progress |
+
+- These are the orchestrator's judgements, not a rerun of Phase 4's scoring.
+
+### Repo tests
+
+The pre-batch results are batch 0g's after-run of the same suites (`audits/evidence/p6/0h/tests/repo-before-is-0g-after.txt`); this batch's run is `repo-after.txt`.
+
+| Suite | Before | After |
+|---|---|---|
+| test-hub | 36 / 1 | 36 / 1 (the stale "signed in as Niece"; batch 2a) |
+| test-leftovers | 42 / 0 | 42 / 0 |
+| test-dollywood-sync, test-dollywood | 32 / 0, 34 / 0 | identical |
+| every other suite | as before | identical |
+| smoke-api.sh | 209 / 0 | 209 / 0 |
+| smoke-chat.sh (mock model) | 39 / 1 | 39 / 1 (the same stale miss) |
+
+- The build guide's `verify.py` passed on the rebuilt template (`tests/build-guide-verify.txt`).
+- `node scripts/bump-sw.mjs --check`: 74 precached files present, 67 shipped files accounted for.
+- The tests' screenshots in `docs/screens/` were restored.
+
+### Not verified, and known limits
+
+- **Nothing is deployed.** The pages, the SDK change and the Worker's chat change go together. Batch 0d's migration still has to run first.
+- **Leaving by closing the whole browser window within the six seconds** was not verified. In the rig the send from a page that is navigating away did not arrive (WebKit), while leaving through the hub (its Back, a Switch) did.
+- **On a phone**, an app put in the background finishes and sends at once (`visibilitychange`). A real iPhone swipe-away was not exercised.
+- **An item edited on another device** (its date changed) updates in its old slot under the old heading until the list is next laid out. No screen edits items; only chat's `set_data` could.
+- **The group counts and the "N at a week or older" line** update on the next layout, not in place.
+- **The food pictures** are chosen by keywords in the name. "Chili" gets a stew pot, but "Chicken alfredo" gets a drumstick and "Blueberry pancakes" a slice of cake. Names with no keyword get the default lunch box.
+- **Real devices** were not used. Every check ran in the rig's WebKit and Chromium.

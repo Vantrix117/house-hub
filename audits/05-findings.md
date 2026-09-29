@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29) done; 106 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29) done; 112 entries FIXED, 0 PARTIAL, 0 DEFERRED, 0 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -45,7 +45,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 5 | **0e** | F260 and Verses: rows that cannot erase each other, a journal that cannot corrupt | 7 (6 / 0 / 1 / 0 / 0) | L | 0b, 0c | 7/7 fixed, `e72f6d0` |
 | 6 | **0f** | Tally and Kid Verse: counts and stars that add up across devices | 3 (3 / 0 / 0 / 0 / 0) | L | 0b, 0c | 3/3 fixed, `48e7b60` |
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | 7/7 fixed, `7d9c593` |
-| 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | open |
+| 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | 6/6 fixed, `16926a2` |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | open |
 | 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | open |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | open |
@@ -1303,7 +1303,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-DOLLYWOOD-02 — Import progress replaces all progress with any JSON file, with no check, confirm or undo
 
-- **Area** dollywood · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0h
+- **Area** dollywood · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0h · **Status** FIXED (`16926a2`)
+- **Phase 6 (FIXED).** The build guide's Import (template, rebuilt and exported; verify.py passed) reads only a file that names steps of this guide, adds the steps it has ticked and never unticks one, says how many it will add and asks first, and offers Undo (which takes back only ticks nobody has changed since). verify-import-accepts-any-json-1/2 A (a prayer backup) and B (an older export): the 24 ticks stay (before: A left 0 of 9, B replaced 24 ticks with 2); data-checks I1/I2 likewise; new check guide-import-check W/X/E: a wrong file and a file with no known steps change nothing and say so, an export adds exactly its one new step, nothing is unticked, and Undo takes it back. After: `audits/evidence/p6/0h/p3/dollywood/verify-import-accepts-any-json-1.json`, `audits/evidence/p6/0h/p3/dollywood/verify-import-accepts-any-json-2.json`, `audits/evidence/p6/0h/guide-import-check.json`.
 - **Evidence.** `audits/03-apps/dollywood.md:197`; `apps/dollywood.html:648`, `apps/prayer.html:1500-1505`, `apps/dollywood.html:1101`, `apps/dollywood.html:1098`; `audits/evidence/p3/dollywood/import-wrong-file-after.png`, `audits/evidence/p3/dollywood/verify-import-accepts-any-json-1-A-after.png`
 - **What happens now.** The import handler runs `JSON.parse`, then `doneMap = j.done || j; save(); renderStep()` (`apps/dollywood.html:1101`). The only error path is `alert('Not a progress file')` for text that does not parse. Reset asks `confirm()` first (`apps/dollywood.html:1098`); Import asks nothing. The investigator's runs:
 - **Why it matters.** One wrong file in the picker erases the whole build history on every device, with no way back unless an export was made first.
@@ -1312,7 +1313,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-01 — A double-tap on one ✓ removes that item and the next one, for everyone, with no undo
 
-- **Area** leftovers · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0h
+- **Area** leftovers · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0h · **Status** FIXED (`16926a2`)
+- **Phase 6 (FIXED).** A ✓ marks its own item "finishing" in place (struck through, "Finished", an Undo on the card that ignores the second tap of a double tap, and an Undo toast); the item leaves the house list after six seconds, or when the app is left. verify-double-tap-removes-next-item-1/2: the second tap lands on the same card's Undo and nothing else is touched (before: the next item was removed too, on the server, in every arm); new check larder-check A: after the six seconds exactly the tapped item is gone and the next one stays. After: `audits/evidence/p6/0h/p3/leftovers/verify-double-tap-removes-next-item-1.json`, `audits/evidence/p6/0h/p3/leftovers/verify-double-tap-removes-next-item-2.json`, `audits/evidence/p6/0h/larder-check.json`, `audits/evidence/p6/0h/larder-finishing-iphone.png`.
 - **Evidence.** `audits/03-apps/leftovers.md:166`; `apps/leftovers.html:378`, `apps/leftovers.html:281`, `apps/leftovers.html:306-311`, `apps/leftovers.html:203-246`; `audits/evidence/p3/leftovers/doubletap-A-touch-fresh-iphone-pwa.png`, `audits/evidence/p3/leftovers/verify-double-tap-removes-next-item-1-DBL-desktop.png`
 - **What happens now.** The ✓ handler (`apps/leftovers.html:281`) calls `removeItem`. It tombstones the row, posts "Finished the …" and calls `render()` in the same call (`apps/leftovers.html:306-311`). `render()` empties and rebuilds the whole list (`apps/leftovers.html:203-246`).
 - **Why it matters.** A food that is still in the fridge silently leaves the family list, and its 8 am "use it up" push stops. Nobody chose it, and nothing on screen says a second item went.
@@ -1321,7 +1323,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-12 — A change from another device re-renders the open Larder under the finger, and a single tap removes a different item (from the critic)
 
-- **Area** leftovers · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0h
+- **Area** leftovers · **Type** bug · **Severity** critical · **Effort** M · **Batch** 0h · **Status** FIXED (`16926a2`)
+- **Phase 6 (FIXED).** A change from another device never moves a card: cards update where they stand (an item finished elsewhere stays in its slot, dimmed and marked Finished, with nothing to tap; an item added elsewhere waits behind a "N new in the fridge · Show" pill), and the list is re-sorted only on open, this device's own Log / Put back, midnight, coming back into view, or Show. critic-remote-shift A/B and verify-critic-remote-change-rerender-shifts-tap-1-1/1-2: the card under the aimed point stays the aimed card after the other device's change (before: it became the next card and the tap finished that one); larder-check F (finger down during the change) and G (the pill). After: `audits/evidence/p6/0h/p3/leftovers/critic-remote-shift.json`, `audits/evidence/p6/0h/p3/leftovers/verify-critic-remote-change-rerender-shifts-tap-1-1.json`, `audits/evidence/p6/0h/larder-check.json`.
 - **Evidence.** `audits/03-apps/leftovers.md:596`; `apps/leftovers.html:306-311`, `apps/leftovers.html:378`, `apps/leftovers.html:217`, `apps/leftovers.html:203-246`; `audits/evidence/p3/leftovers/critic-remote-shift-B-iphone.png`, `audits/evidence/p3/leftovers/verify-critic-remote-change-rerender-shifts-tap-1-1-SAME-iphone.png`
 - **What happens now.** `hub.onChange(render)` (`apps/leftovers.html:378`) runs `render()`, which empties the list (`apps/leftovers.html:217`) and rebuilds every group and card with no animation (`apps/leftovers.html:203-246`).
 - **Why it matters.** A dish that is still in the fridge silently leaves the family list, and its 8 am warning stops. Nobody chose it, and the item the person meant to finish is still listed.
@@ -1330,7 +1333,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-LEFTOVERS-13 — A kid's tap on a ✓ removes a family fridge item for everyone, with no undo (from the critic)
 
-- **Area** leftovers · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0h
+- **Area** leftovers · **Type** bug · **Severity** critical · **Effort** S · **Batch** 0h · **Status** FIXED (`16926a2`)
+- **Phase 6 (FIXED).** Kids see the Larder read-only: no ✓ and no add bar (client since batch 0d), and the house refuses a kid's write to the Larder (the Worker since batch 0d). The three kid scripts stop at "no ✓ to tap" before and after (there is none since 0d); larder-check E: no ✓, no add bar, no Hearth block, and a kid's tombstone is refused 403 not_allowed. After: `audits/evidence/p6/0h/larder-check.json`, `audits/evidence/p6/0h/larder-kid-ipad.png`.
 - **Evidence.** `audits/03-apps/leftovers.md:633`; `worker/src/chat.js:52`, `apps.json:5`, `apps/leftovers.html:180`, `apps/hub.js:115`; `audits/evidence/p3/leftovers/kid-ezra-larder-ipad.png`, `audits/evidence/p3/leftovers/verify-critic-kid-check-removes-family-item-3-2-kiara-iphone-pwa-before.png`
 - **What happens now.** The Larder has no `visibleTo` (`apps.json:5`), so it is on every kid's launcher, and CLAUDE.md lists it among the kids' apps with no read-only rule (`CLAUDE.md:18`).
 - **Why it matters.** A pre-reader cannot read which dish a ✓ belongs to. One tap drops food that is still in the fridge from the family list and from the 8 am warning, for everyone.
@@ -1339,7 +1343,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-LEFTOVERS-1 — One tap on ✓ deletes a family item for everyone, with no undo, no confirm and no completed history
 
-- **Area** leftovers · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0h
+- **Area** leftovers · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0h · **Status** FIXED (`16926a2`)
+- **Phase 6 (FIXED).** Every ✓ has an Undo (on the card for six seconds and on a toast) and finished items are kept seven days under "Recently finished" (finished:<id>, with their size, date and who finished them; chat's finish_leftover writes the same row) with Put back. larder-check A (the finishing card and toast), B (Undo keeps the item), C (Put back restores it with its size and date), D (leaving the app still finishes it); after-screenshots of the finishing card with its toast and of Recently finished. After: `audits/evidence/p6/0h/larder-check.json`, `audits/evidence/p6/0h/larder-finishing-iphone.png`, `audits/evidence/p6/0h/larder-recently-finished-iphone.png`.
 - **Verified (step 3).** was high; skeptics high and medium; tie-break medium. Correction: The facts are right. The rating should be medium, not high. One detail should be added: the tombstone and the feed line keep no size or date, so re-logging cannot restore those fields exactly.
 - **Evidence.** `audits/03-apps/leftovers.md:738`; `apps/leftovers.html:306-311`, `apps/leftovers.html:275-283`; `audits/screens/leftovers/finished-typical-iphone-pwa-light.png`
 - **What happens now.** `removeItem` writes a tombstone and posts "Finished the X" (`apps/leftovers.html:306-311`). There is no toast, no undo and no "Show completed".
@@ -1349,7 +1354,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-LEFTOVERS-2 — Kids get the full adult page: a ✓ on every family item, the add bar, the mic and the Hearth block, in small type with nothing to recognise
 
-- **Area** leftovers · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0h
+- **Area** leftovers · **Type** usability · **Severity** medium · **Effort** S · **Batch** 0h · **Status** FIXED (`16926a2`)
+- **Phase 6 (FIXED).** Kids get a picture view (decision P5-D2): each card has a food picture, the name in big type and "N days in the fridge" with its freshness colour, and there is no ✓, add bar, mic or Hearth block. larder-check E and its after-screenshot on the iPad; kid.mjs stops at "no ✓ to tap" (none since 0d). After: `audits/evidence/p6/0h/larder-check.json`, `audits/evidence/p6/0h/larder-kid-ipad.png`.
 - **Verified (step 3).** was high; skeptics high and medium; tie-break medium. Correction: "Only the card radius changes" is too narrow. Kid mode also rounds the alert, ✓, name box, Log and mic from 12 px to 16 px (--r-sm), and the add bar from 16 px to 22 px (--r). No text size changes.
 - **Evidence.** `audits/03-apps/leftovers.md:744`; `apps/leftovers.html:18`, `apps/leftovers.html:180`, `apps/design.css:283`, `worker/src/chat.js:52`; `audits/evidence/p3/leftovers/kid-ezra-larder-ipad.png`, `audits/screens/leftovers/kid-typical-ipad-portrait-light.png`
 - **What happens now.** The app has no `data-kind="kid"` rules (only kiosk ones, `apps/leftovers.html:18, 96`), and `canEdit = hub.canWrite` (`apps/leftovers.html:180`), which is true for kids.

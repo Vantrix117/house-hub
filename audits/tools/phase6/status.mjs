@@ -16,6 +16,7 @@ export const BATCHES = {
   '0e': { commit: 'e72f6d0', date: '2026-09-29' },
   '0f': { commit: '48e7b60', date: '2026-09-29' },
   '0g': { commit: '7d9c593', date: '2026-09-29' },
+  '0h': { commit: '16926a2', date: '2026-09-29' },
 };
 
 // Batch 0b after-evidence lives under audits/evidence/p6/0b/ (the Phase 2/3 scripts' outputs, moved there from p2/p3 so the
@@ -161,6 +162,17 @@ const S0g = [
   G0("P3-KIDVERSE-07", "Kid Verse credits a prayed day when the kid's id is on it, or their name while no one else the hub knows has it. verify-prayed-name-match-1: the guest named Kiara is recorded by id and Kiara gets no star (prayedCredited 0, was 1); -2 and star-rules R6 likewise; prayer-merge-check D: Kiara's own tap earns star:prayed:<today>.", ["p3/kidverse/verify-prayed-name-match-1.json","p3/kidverse/verify-prayed-name-match-2.json","p3/kidverse/star-rules.json","prayer-merge-check.json"]),
 ];
 
+const E0h = 'audits/evidence/p6/0h/';
+const H0 = (id, note, after, status = 'FIXED') => [id, { status, batch: '0h', note, after: after.map(p => p.startsWith('audits/') ? p : E0h + p) }];
+const S0h = [
+  H0("P3-DOLLYWOOD-02", "The build guide's Import (template, rebuilt and exported; verify.py passed) reads only a file that names steps of this guide, adds the steps it has ticked and never unticks one, says how many it will add and asks first, and offers Undo (which takes back only ticks nobody has changed since). verify-import-accepts-any-json-1/2 A (a prayer backup) and B (an older export): the 24 ticks stay (before: A left 0 of 9, B replaced 24 ticks with 2); data-checks I1/I2 likewise; new check guide-import-check W/X/E: a wrong file and a file with no known steps change nothing and say so, an export adds exactly its one new step, nothing is unticked, and Undo takes it back.", ["p3/dollywood/verify-import-accepts-any-json-1.json","p3/dollywood/verify-import-accepts-any-json-2.json","guide-import-check.json"]),
+  H0("P3-LEFTOVERS-01", "A ✓ marks its own item \"finishing\" in place (struck through, \"Finished\", an Undo on the card that ignores the second tap of a double tap, and an Undo toast); the item leaves the house list after six seconds, or when the app is left. verify-double-tap-removes-next-item-1/2: the second tap lands on the same card's Undo and nothing else is touched (before: the next item was removed too, on the server, in every arm); new check larder-check A: after the six seconds exactly the tapped item is gone and the next one stays.", ["p3/leftovers/verify-double-tap-removes-next-item-1.json","p3/leftovers/verify-double-tap-removes-next-item-2.json","larder-check.json","larder-finishing-iphone.png"]),
+  H0("P3-LEFTOVERS-12", "A change from another device never moves a card: cards update where they stand (an item finished elsewhere stays in its slot, dimmed and marked Finished, with nothing to tap; an item added elsewhere waits behind a \"N new in the fridge · Show\" pill), and the list is re-sorted only on open, this device's own Log / Put back, midnight, coming back into view, or Show. critic-remote-shift A/B and verify-critic-remote-change-rerender-shifts-tap-1-1/1-2: the card under the aimed point stays the aimed card after the other device's change (before: it became the next card and the tap finished that one); larder-check F (finger down during the change) and G (the pill).", ["p3/leftovers/critic-remote-shift.json","p3/leftovers/verify-critic-remote-change-rerender-shifts-tap-1-1.json","larder-check.json"]),
+  H0("P3-LEFTOVERS-13", "Kids see the Larder read-only: no ✓ and no add bar (client since batch 0d), and the house refuses a kid's write to the Larder (the Worker since batch 0d). The three kid scripts stop at \"no ✓ to tap\" before and after (there is none since 0d); larder-check E: no ✓, no add bar, no Hearth block, and a kid's tombstone is refused 403 not_allowed.", ["larder-check.json","larder-kid-ipad.png"]),
+  H0("UX-LEFTOVERS-1", "Every ✓ has an Undo (on the card for six seconds and on a toast) and finished items are kept seven days under \"Recently finished\" (finished:<id>, with their size, date and who finished them; chat's finish_leftover writes the same row) with Put back. larder-check A (the finishing card and toast), B (Undo keeps the item), C (Put back restores it with its size and date), D (leaving the app still finishes it); after-screenshots of the finishing card with its toast and of Recently finished.", ["larder-check.json","larder-finishing-iphone.png","larder-recently-finished-iphone.png"]),
+  H0("UX-LEFTOVERS-2", "Kids get a picture view (decision P5-D2): each card has a food picture, the name in big type and \"N days in the fridge\" with its freshness colour, and there is no ✓, add bar, mic or Hearth block. larder-check E and its after-screenshot on the iPad; kid.mjs stops at \"no ✓ to tap\" (none since 0d).", ["larder-check.json","larder-kid-ipad.png"]),
+];
+
 // Household work (plan-batches.mjs WORK): not findings, so not in STATUS; build-findings renders this line under the item.
 export const WORK_STATUS = {
   'KITCHEN-1': { status: 'FIXED', batch: '0d', note: 'migrations/006-kitchen.sql (devices.role; profiles rebuilt to take kind kitchen, with hue and the reset-code columns; the kitchen profile), checked on a copy of the production export: 8 profiles, 96 of 96 values identical, every other table untouched, a second run changes nothing. The Worker\'s kitchen rules (sign-in, role endpoint with the admin PIN, what it writes, credit checks, no chat/push/admin) and the shell\'s kitchen sign-in. scripts/test-kitchen.mjs 27/27 (role set on a device holding Mea\'s session moves it to the kitchen on its next request; family writes; no person scope; nobody signs in as a person there; a Prayed credited to Ezra earns his prayer star; outsiders refused; clearing the role returns the picker); smoke-api kitchen cases pass. The kitchen Home, face sheet and Admin switch are KITCHEN-2 (batch 2a).', after: ['audits/evidence/p6/0d/migration-check.json', 'audits/evidence/p6/0d/tests/repo-after.txt', 'audits/evidence/p6/0d/tests/smoke-api-after.txt'] },
@@ -185,6 +197,7 @@ for (const [id, s] of S0d) STATUS[id] = s;
 for (const [id, s] of S0e) STATUS[id] = s;
 for (const [id, s] of S0f) STATUS[id] = s;
 for (const [id, s] of S0g) STATUS[id] = s;
+for (const [id, s] of S0h) STATUS[id] = s;
 
 for (const [id, s] of Object.entries(STATUS)) {
   if (!STATUSES.includes(s.status)) throw new Error(`${id}: unknown status ${s.status}`);
