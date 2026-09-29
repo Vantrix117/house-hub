@@ -399,7 +399,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       hub.set('star:verse:' + today, { at: serverNow() }, { scope: 'person' });
       writeMirror();                                                     // the family mirror adults and the TV read
     } catch (e) { render(); return false; }                              // not_loaded / read_only: the SDK has said so
-    hub.activity(hub.profile.name + ' read the verse ★');
+    hub.activity('Read the verse ★');   // the feed and the TV print the name beside the line (P2-HOME-06)
     confetti(); render();
     return true;
   }
@@ -657,7 +657,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const changed = writes.length > 0 || fresh.length > 0;
     if (fresh.length && celebrate) {
       if (withConfetti) confetti(); hub.toast('New badge: ' + fresh.map(b => b.name).join(' and ') + '!', 3200);
-      for (const b of fresh) hub.activity(p.name + ' earned the ' + b.name + ' badge');
+      for (const b of fresh) hub.activity('Earned the ' + b.name + ' badge');
     } else if (led.length && celebrate) {
       const paid = led.filter(e => e.kind === 'cashin').reduce((n, e) => n + (Math.floor(Number(e.amount)) || 0), 0);
       hub.toast(paid ? 'Cashed in: ' + paid + (paid === 1 ? ' star!' : ' stars!') : 'Your week starts over.', 2600);
@@ -845,7 +845,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       hub.set('heard:' + s.week + ':' + today, true, { scope: 'person' });   // this day's own row (P3-KIDVERSE-10)
       healStory();                                                        // the mirror parents' F260 hero reads (sorted, only if it changed)
     } catch (e) { renderStory(); return false; }                        // not_loaded / read_only: the SDK has said so
-    hub.activity(hub.profile.name + " heard this week's story");
+    hub.activity("Heard this week's story");
     hub.toast('Great listening!');
     try { if (window.kidverse && typeof window.kidverse.onStoryDone === 'function') window.kidverse.onStoryDone(s); } catch (e) { console.error(e); }
     try { const rw = window.kidverse && window.kidverse.rewards; if (rw && typeof rw.reconcile === 'function') rw.reconcile(); } catch (e) { console.error(e); }   // item 20 credits the story day (its logic, only nudged here)

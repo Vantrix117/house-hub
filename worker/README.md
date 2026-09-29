@@ -113,8 +113,8 @@ POST /api/chat/undo {token}             undo one chat action (the chip's token, 
 
 Admin (is_admin profile token):
 POST /api/admin/profiles/:id/reset-pin  {admin_pin?}  household adult → {code, expires_at}: a one-time 6-digit code, shown once, good for
-                                        24 h, that they type before choosing a new PIN (the admin's own reset needs admin_pin, 403
-                                        wrong_admin_pin); on a guest: the PIN is cleared and they sign in on tap. Ends the profile's sessions
+                                        24 h, that they type before choosing a new PIN (resetting any admin — yourself or a co-admin —
+                                        needs admin_pin, 403 wrong_admin_pin); on a guest: the PIN is cleared and they sign in on tap. Ends the profile's sessions
                                         and lifts its wrong-PIN pause. Only adults (400 no_pin_for_kind)
 PUT  /api/admin/profiles/:id            {name?, emoji?, color?, hue?, kind?, sort_order?, expires_at?}  (expires_at: guests only — extend or end
                                         a stay; ending it deletes the guest's sessions and push subscriptions at once). hue: one of the 18
@@ -126,6 +126,18 @@ PUT  /api/admin/devices/:id/role        {role: 'kitchen'|null, admin_pin}  from 
 DELETE /api/admin/profiles/:id          guests only (400 not_a_guest otherwise): the profile, its person-scope app_data, sessions, push
                                         subscriptions, chat log, activity and photos are deleted
 POST /api/admin/profiles/:id/purge      the same for a guest whose stay has ended (400 not_expired otherwise)
+POST /api/admin/profiles                {name, kind: 'adult'|'kid', hue, admin_pin, emoji?, color?}  Admin → Household (GAP-PROF-a2): a
+                                        household person, with the admin's PIN typed again (403 wrong_admin_pin). hue must be one of the 18
+                                        families (400 bad_hue); color, when sent, a #rrggbb (400 bad_color). id = the name in lower case when
+                                        free (else plus a short tail); an id once used by a removed person, or named in apps.json
+                                        visibleTo, is never handed out again. An adult comes back with {setup_code, code_expires_at}: a one-time code (24 h) they
+                                        type before creating their PIN. apps.json visibleTo lists name people, so a new person sees the
+                                        apps open to everyone until apps.json names them
+POST /api/admin/profiles/:id/remove     {admin_pin}  a household adult or kid, never yourself (400 cannot_remove_self), an admin
+                                        (400 is_admin), a guest (400 is_guest) or the TV / kitchen (400 not_a_person); deleted as above
+PUT  /api/admin/profiles/:id/admin      {is_admin, transfer?, admin_pin}  make a household adult with a PIN of their own an admin (400
+                                        needs_pin / admin_must_be_household_adult), take it away (never from the last admin: 400
+                                        last_admin), or transfer: true hands the caller's admin over in the same step
 POST /api/admin/guests/purge            run the guest cleanup now: every expired guest loses sessions + push subscriptions ("silenced"),
                                         every guest expired more than 30 days ago is deleted as above
 POST /api/admin/pairing-code/rotate     {code?}  (omit code → one is generated and returned once)

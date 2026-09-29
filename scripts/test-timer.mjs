@@ -254,11 +254,11 @@ const chatOk = c => !c.overlap && c.gap >= 4 && c.pillTop > 0 && c.underInput ==
     await D.page.evaluate(() => hub.pull());
     await waitFor(() => pillState(D.page).then(s => s.shown), { label: 'D pill' });
     const dbox = await D.page.$eval('#timer-pill', e => e.getBoundingClientRect());
-    ok(dbox.left >= 220 && dbox.left < 400 && dbox.height >= 44, `D: pill beside the sidebar at 1440 (left ${Math.round(dbox.left)})`);
+    ok(dbox.left >= 0 && dbox.right <= 220 && dbox.height >= 44, `D: pill at the foot of the sidebar at 1440, never on content (VIS-HOME-2; left ${Math.round(dbox.left)}, right ${Math.round(dbox.right)})`);
     await D.page.screenshot({ path: path.join(SHOTS, 'rm9-pill-1440.png') });
     await D.page.click('.tab[data-tab=chat]'); await sleep(400);
     cc = await chatClear(D.page);
-    ok((await pillState(D.page)).shown && chatOk(cc), `D: on Chat at 1440 the pill sits clear above the composer, mic and send uncovered (${JSON.stringify(cc)})`);
+    ok((await pillState(D.page)).shown && !cc.overlap && cc.underInput === 'chat-in' && cc.underSend !== 'timer-pill' && cc.underMic !== 'timer-pill', `D: on Chat at 1440 the pill (in the sidebar) is clear of the composer, mic and send uncovered (${JSON.stringify(cc)})`);
     await D.page.screenshot({ path: path.join(SHOTS, 'rm9-chat-1440.png') });
     await D.page.click('.tab[data-tab=home]');
     ok(await D.page.$eval('#timer-pill', e => e.getBoundingClientRect().bottom > 900 - 60), 'D: back on Home the pill drops back to the bottom');

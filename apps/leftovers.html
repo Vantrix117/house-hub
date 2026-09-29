@@ -450,7 +450,12 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       done.title = 'Mark used up';
       done.setAttribute('aria-label', 'Mark ' + it.name + ' used up');
       done.append(svg('check', 18, 2.4));
-      done.onclick = () => { done.disabled = true; removeItem(it.id); };
+      done.onclick = async () => {
+        done.disabled = true;
+        // KITCHEN-2: on the kitchen device the face sheet first (household adults only, P5-D2); the finish is theirs
+        if (hub.isKitchen && hub.whoDidThis) { const q = await hub.whoDidThis({ who: 'adults', title: 'Who finished it?', message: it.name }); if (!q) { done.disabled = false; return; } removeItem(it.id, q); return; }
+        removeItem(it.id);
+      };
       right.append(done);
     }
     body.append(pic, info, right);
@@ -488,11 +493,11 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // keyboard / VoiceOver: a rebuilt card gets the focus back on its own button
   const focusedIn = id => { const a = document.activeElement; return !!(a && a.closest && a.closest('.item') && a.closest('.item').dataset.id === id); };
   const refocus = (id, sel) => { const c = [...listEl.querySelectorAll('.item')].find(x => x.dataset.id === id); const b = c && c.querySelector(sel); if (b) b.focus(); };
-  function removeItem(id) {
+  function removeItem(id, who) {                                  // who: the face tapped on the kitchen (else the person signed in)
     if (pending.has(id) || !canEdit) return;                    // a second tap on the same card does nothing more
     const it = hub.get('item:' + id); if (!it) { refresh(); return; }
     const had = focusedIn(id);
-    pending.set(id, { it, at: Date.now(), t: setTimeout(() => commitFinish(id), FINISH_MS) });
+    pending.set(id, { it, who, at: Date.now(), t: setTimeout(() => commitFinish(id), FINISH_MS) });
     refresh(); if (had) refocus(id, '.undo');
     // the toast's Undo still works a moment after the six seconds: then it puts the item back
     hub.toast('Finished the ' + it.name + '.', FINISH_MS, { action: 'Undo', onAction: () => { if (pending.has(id)) undoFinish(id); else { const f = hub.get('finished:' + id); if (f) putBack(f); } } });
@@ -504,9 +509,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const it = hub.get('item:' + id);
     if (!it) { refresh(); return; }                            // someone else finished it meanwhile
     try { hub.remove('item:' + id); } catch { refresh(); return; }   // the SDK's toast has said why
+    const by = p.who || hub.profile;
     if (it.id) try { hub.set('finished:' + id, { id: it.id, name: it.name, size: it.size, dateLogged: it.dateLogged, loggedBy: it.by, loggedByName: it.byName,
-      finishedAt: dayKey, finishedBy: hub.profile.id, finishedByName: hub.profile.name }); } catch {}
-    hub.activity('Finished the ' + it.name);
+      finishedAt: dayKey, finishedBy: by.id, finishedByName: by.name }); } catch {}
+    hub.activity('Finished the ' + it.name, p.who ? { as: p.who.id } : undefined);
     refresh();
   }
   // Leaving the page finishes what is finishing (the queue sends it as usual).

@@ -30,7 +30,7 @@ const TOOLS = [
   { name: 'list_apps', description: 'List the apps in the hub this person can use, with their data scope.', input_schema: { type: 'object', properties: {}, additionalProperties: false } },
   { name: 'get_data', description: "Read an app's stored data. scope 'person' is the signed-in person's own data; 'family' is shared by the whole house. Omit key to list everything.",
     input_schema: { type: 'object', properties: { app_id: { type: 'string' }, scope: { type: 'string', enum: ['person', 'family'] }, key: { type: 'string' } }, required: ['app_id', 'scope'], additionalProperties: false } },
-  { name: 'set_data', description: "Change one of these settings, and nothing else: app 'tally' key 'count' (scope person, a whole number); app 'timer' key 'timer.active' (scope person, {endAt, total, startedAt} in ms, or null to stop); app 'hub' key 'theme' (scope person, one of system, hearth, parchment, frost, midnight, forest). Everything else is changed in its app, or with the list and prayer tools.",
+  { name: 'set_data', description: "Change one of these settings, and nothing else: app 'tally' key 'count' (scope person, a whole number); app 'timer' key 'timer.active' (scope person, {endAt, total, startedAt} in ms, or null to stop); app 'hub' key 'theme' (scope person, one of system, hearth, parchment, frost, midnight, forest, graphite). Everything else is changed in its app, or with the list and prayer tools.",
     input_schema: { type: 'object', properties: { app_id: { type: 'string' }, scope: { type: 'string', enum: ['person', 'family'] }, key: { type: 'string' }, value: {} }, required: ['app_id', 'scope', 'key', 'value'], additionalProperties: false } },
   { name: 'add_list_item', description: "Add an item to a family list. app_id 'leftovers' (item: {name, size?, dateLogged?}) or 'reminders' (item: {text}).",
     input_schema: { type: 'object', properties: { app_id: { type: 'string', enum: ['leftovers', 'reminders'] }, item: { type: 'object', properties: { name: { type: 'string' }, size: { type: 'string', enum: ['Small', 'Medium', 'Large', 'Family-size'] }, dateLogged: { type: 'string', description: 'YYYY-MM-DD, defaults to today' }, text: { type: 'string' } }, additionalProperties: false } }, required: ['app_id', 'item'], additionalProperties: false } },
@@ -312,7 +312,7 @@ async function runToolInner(env, ctx, name, input, writes) {
       const SET_OK = { 'tally|person|count': 1, 'timer|person|timer.active': 1, 'hub|person|theme': 1 };
       if (!SET_OK[`${input.app_id}|${input.scope}|${input.key}`]) return { ok: false, result: 'That cannot be changed from chat. Tell the person to change it in the app itself.', chip: null };
       if (input.app_id !== 'hub' && !canUse(input.app_id)) return { ok: false, result: 'This person cannot use that app.', chip: null };
-      if (input.key === 'theme' && !['system', 'hearth', 'parchment', 'frost', 'midnight', 'forest'].includes(input.value)) return { ok: false, result: 'theme must be one of system, hearth, parchment, frost, midnight, forest', chip: null };
+      if (input.key === 'theme' && !['system', 'hearth', 'parchment', 'frost', 'midnight', 'forest', 'graphite'].includes(input.value)) return { ok: false, result: 'theme must be one of system, hearth, parchment, frost, midnight, forest, graphite', chip: null };
       if (input.key === 'timer.active' && input.value !== null && !(input.value && typeof input.value === 'object' && ['endAt', 'total', 'startedAt'].every(k => Number.isFinite(+input.value[k])))) return { ok: false, result: 'timer.active is {endAt, total, startedAt} in ms, or null', chip: null };
       // Tally keeps one row per device on a reset epoch since batch 0f: "set my tally to N" starts a new epoch at N
       if (input.app_id === 'tally' && input.key === 'count' && input.scope === 'person') {
@@ -324,8 +324,9 @@ async function runToolInner(env, ctx, name, input, writes) {
       }
       const value = input.key === 'timer.active' && input.value ? { endAt: +input.value.endAt, total: +input.value.total, startedAt: +input.value.startedAt } : input.value;
       await putOne(env, { appId: input.app_id, scope: input.scope, profile, key: input.key, value, updated_at: Date.now() });
-      await activity(env, profile, input.app_id, `Changed ${input.key} in ${input.app_id} (via chat)`);
-      return { ok: true, result: 'saved', chip: input.key === 'theme' ? `✓ Look set to ${input.value}` : value === null ? '✓ Timer stopped' : '✓ Timer set' };
+      const said = input.key === 'theme' ? `Changed their look to ${String(input.value)[0].toUpperCase() + String(input.value).slice(1)}` : value === null ? 'Stopped the timer' : 'Started a timer';   // UX-CHAT-06: words, not a storage key
+      await activity(env, profile, input.app_id, `${said} (via chat)`);
+      return { ok: true, result: 'saved', chip: input.key === 'theme' ? `✓ Look set to ${String(input.value)[0].toUpperCase() + String(input.value).slice(1)}` : value === null ? '✓ Timer stopped' : '✓ Timer set' };
     }
 
     if (name === 'add_list_item') {

@@ -218,7 +218,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     ok(await F.$$eval('#rw-badges li', l => l.every(e => e.getBoundingClientRect().height >= 64)), 'badge tiles are ≥ 64 px tall');
     ok(toasted, 'a "New badge" toast celebrated them');
     const feed = (await api('/api/activity?limit=40', { profile: T.eli })).activity || [];
-    ok(feed.some(a => a.profile_id === 'ezra' && /earned the (First star|Ten stars|Story lover) badge/.test(a.text)), 'the feed has "Ezra earned the … badge"', JSON.stringify(feed.slice(0, 4).map(a => a.text)));
+    ok(feed.some(a => a.profile_id === 'ezra' && /^Earned the (First star|Ten stars|Story lover) badge/.test(a.text)), 'the feed has "Earned the … badge" under Ezra', JSON.stringify(feed.slice(0, 4).map(a => a.text)));
     const again = await F.evaluate(() => window.kidverse.rewards.reconcile());
     await F.evaluate(() => hub.pull()); await sleep(600); await synced(F);
     const mine1 = await row(T.ezra, 'family', 'stars:ezra');

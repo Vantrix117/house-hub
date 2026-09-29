@@ -17,6 +17,7 @@ import {
 } from './auth.js';
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
 import { householdLoader, checkRead, guardedPut, creditFor, isHouseholdAdult } from './policy.js';
+import registry from '../../apps.json' with { type: 'json' };   // the apps' visibleTo ids are never handed to a new person
 import { runCron, pushTo, prefsFor, vapidFrom, JOBS } from './reminders.js';
 import { chatHandler, chatHistory, chatUndo, activity } from './chat.js';
 import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
@@ -247,8 +248,9 @@ route('POST', '/api/profiles', async c => {
   return { profile: publicProfile(p) };
 });
 
-/** Removes a guest profile and everything that was theirs: person-scope rows, sessions, push subscriptions, chat, photos. */
-async function deleteGuest(env, p) {
+/** Removes a profile and everything that was theirs: person-scope rows, sessions, push subscriptions, chat, feed lines,
+ *  photos. The callers decide who may be removed (a guest, or a household person with the admin's PIN). */
+async function deleteProfile(env, p) {
   await deletePrefix(env, `photos/${p.id}/`);
   await env.DB.batch([
     env.DB.prepare("DELETE FROM app_data WHERE scope = 'person' AND profile_id = ?").bind(p.id),
@@ -258,9 +260,10 @@ async function deleteGuest(env, p) {
     env.DB.prepare('DELETE FROM push_log WHERE profile_id = ?').bind(p.id),
     env.DB.prepare('DELETE FROM activity WHERE profile_id = ?').bind(p.id),
     env.DB.prepare('DELETE FROM rate_limits WHERE key LIKE ? OR key LIKE ? OR key = ? OR key = ?').bind(`login:${p.id}:%`, `pintrust:${p.id}:%`, `pinp:${p.id}`, `pinstrike:${p.id}`),
-    env.DB.prepare('DELETE FROM profiles WHERE id = ? AND is_guest = 1').bind(p.id),
+    env.DB.prepare('DELETE FROM profiles WHERE id = ?').bind(p.id),
   ]);
 }
+const deleteGuest = (env, p) => (p && p.is_guest ? deleteProfile(env, p) : Promise.reject(new HttpError(400, 'not_a_guest', 'Only guest profiles can be removed this way.')));
 /**
  * Cron: every guest whose stay has ended loses their sessions and push subscriptions at once (so the reminder jobs
  * never reach a departed visitor); guests expired more than 30 days ago lose their profile and data. Returns both.
@@ -565,7 +568,7 @@ route('POST', '/api/admin/profiles/:id/reset-pin', async c => {
   const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
   if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
   if (p.kind !== 'adult') throw new HttpError(400, 'no_pin_for_kind', 'Only adult profiles have a PIN.');
-  if (p.id === me.id) await checkAdminPin(c, me, b.admin_pin);
+  if (p.id === me.id || p.is_admin) await checkAdminPin(c, me, b.admin_pin);   // an admin's PIN, yours or a co-admin's (review of batch 2a)
   await pinUnlock(c.env, p.id);
   if (p.is_guest) {
     await c.env.DB.batch([
@@ -646,6 +649,100 @@ route('POST', '/api/admin/profiles/:id/purge', async c => {
 route('POST', '/api/admin/guests/purge', async c => {
   requireAdmin(await c.auth());
   return purgeExpiredGuests(c.env, Date.now());
+});
+
+// ── the household (GAP-PROF-a2): Me → Admin → Household ──────────
+// Add a household person: {name, emoji?, kind: 'adult'|'kid', hue (one of the 18), color?}. The id is the name in lower
+// case when it is free (so apps.json visibleTo can name them), else that plus a short random tail. A new adult gets a
+// one-time set-up code (24 h), shown to the admin once, so no other device can create their PIN first.
+const RESERVED_IDS = new Set(['kitchen', 'tv', 'hub', 'reminders', 'family', 'person', 'admin', 'me', 'someone']);
+const lowerTail = () => Array.from(crypto.getRandomValues(new Uint8Array(5)), b => (b % 36).toString(36)).join('');
+const REMOVED_KEY = 'removed_profile_ids';
+async function removedIds(env) {
+  try { const v = await env.DB.prepare('SELECT value FROM settings WHERE key = ?').bind(REMOVED_KEY).first('value'); const a = JSON.parse(v || '[]'); return Array.isArray(a) ? a : []; } catch { return []; }
+}
+function householdId(name, taken) {
+  const s = String(name).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
+  const base = /^[a-z0-9]/.test(s) && !s.startsWith('guest') ? s : 'person';
+  if (!RESERVED_IDS.has(base) && !taken.has(base)) return base;
+  let id; do id = base + '-' + lowerTail(); while (taken.has(id));
+  return id;
+}
+route('POST', '/api/admin/profiles', async c => {
+  const me = requireAdmin(await c.auth());
+  const b = await c.body();
+  const name = String(b.name || '').trim().slice(0, 40);
+  if (!name) throw new HttpError(400, 'bad_name', 'Name is required.');
+  const kind = String(b.kind || 'adult');
+  if (kind !== 'adult' && kind !== 'kid') throw new HttpError(400, 'bad_kind', 'A household person is an adult or a kid.');
+  const emoji = String(b.emoji || (kind === 'kid' ? '🧒' : '🙂')).trim().slice(0, 8) || '🙂';
+  checkName(name, emoji);
+  const hue = String(b.hue || '');
+  if (!HUES.includes(hue)) throw new HttpError(400, 'bad_hue', 'hue must be one of: ' + HUES.join(', ') + '.');
+  const color = b.color === undefined || b.color === null || b.color === '' ? '#4C4C58' : String(b.color);
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) throw new HttpError(400, 'bad_color', 'Color must be #rrggbb.');
+  await checkAdminPin(c, me, b.admin_pin);   // a new adult gets a set-up code: never from an unattended session (review of batch 2a)
+  const { results: all } = await c.env.DB.prepare('SELECT id, sort_order FROM profiles').all();
+  // an id once used (a removed person's family rows and prayer ticks still name it) or granted apps in apps.json is never reused
+  const granted = (registry.apps || registry).flatMap(a => a.visibleTo || []);
+  const id = householdId(name, new Set([...all.map(p => p.id), ...(await removedIds(c.env)), ...granted]));
+  const sort = Math.max(0, ...all.map(p => +p.sort_order || 0)) + 1;
+  let setupCode = null, resetHash = null, resetExpires = null;
+  if (kind === 'adult') { setupCode = oneTimeCode(); resetHash = await hashSecret(setupCode); resetExpires = Date.now() + RESET_CODE_MS; }
+  await c.env.DB.prepare(
+    `INSERT INTO profiles (id, name, emoji, color, kind, pin_hash, is_admin, sort_order, is_guest, hue, pin_reset_hash, pin_reset_expires)
+       VALUES (?, ?, ?, ?, ?, NULL, 0, ?, 0, ?, ?, ?)`).bind(id, name, emoji, color, kind, sort, hue, resetHash, resetExpires).run();
+  await activity(c.env, me, 'hub', `Added ${name} to the household`);
+  const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(id).first();
+  return { profile: publicProfile(p), ...(setupCode ? { setup_code: setupCode, code_expires_at: resetExpires } : {}) };
+});
+// Remove a household person (never a guest, the TV, the kitchen, yourself or an admin — take their admin away first), with
+// the admin's PIN typed again: their profile and everything that was theirs goes, on every device.
+route('POST', '/api/admin/profiles/:id/remove', async c => {
+  const me = requireAdmin(await c.auth());
+  const b = await c.body();
+  const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
+  if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
+  if (p.is_guest) throw new HttpError(400, 'is_guest', 'A guest is removed with Remove on their row.');
+  if (p.kind !== 'adult' && p.kind !== 'kid') throw new HttpError(400, 'not_a_person', `${p.name} is a shared screen, not a person.`);
+  if (p.id === me.id) throw new HttpError(400, 'cannot_remove_self', 'Hand over admin first; the new admin can then remove you.');
+  if (p.is_admin) throw new HttpError(400, 'is_admin', `Take away ${p.name}'s admin first.`);
+  await checkAdminPin(c, me, b.admin_pin);
+  await deleteProfile(c.env, p);
+  const gone = [...new Set([...(await removedIds(c.env)), p.id])];
+  await c.env.DB.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').bind(REMOVED_KEY, JSON.stringify(gone)).run();
+  await activity(c.env, me, 'hub', `Removed ${p.name} from the household`);
+  return { ok: true, id: p.id };
+});
+// Make a household adult an admin, take it away, or hand yours over ({is_admin, transfer?, admin_pin}). Checked here:
+// only a household adult who has a PIN of their own, never the last admin, and always with the admin's PIN.
+route('PUT', '/api/admin/profiles/:id/admin', async c => {
+  const me = requireAdmin(await c.auth());
+  const b = await c.body();
+  if (typeof b.is_admin !== 'boolean') throw new HttpError(400, 'bad_admin', 'is_admin must be true or false.');
+  const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
+  if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
+  const on = b.is_admin, transfer = b.transfer === true;
+  if (transfer && (!on || p.id === me.id)) throw new HttpError(400, 'bad_transfer', 'Hand admin over to someone else.');
+  if (on) {
+    if (!isHouseholdAdult(p)) throw new HttpError(400, 'admin_must_be_household_adult', 'Only a household adult can be an admin.');
+    if (p.pin_hash == null) throw new HttpError(400, 'needs_pin', `${p.name} needs a PIN of their own first.`);
+  } else {
+    const n = await c.env.DB.prepare('SELECT COUNT(*) AS n FROM profiles WHERE is_admin = 1 AND id != ?').bind(p.id).first('n');
+    if (!n) throw new HttpError(400, 'last_admin', 'The house needs at least one admin.');
+  }
+  await checkAdminPin(c, me, b.admin_pin);
+  if (on) {
+    await c.env.DB.batch([
+      c.env.DB.prepare('UPDATE profiles SET is_admin = 1 WHERE id = ?').bind(p.id),
+      ...(transfer ? [c.env.DB.prepare('UPDATE profiles SET is_admin = 0 WHERE id = ? AND (SELECT COUNT(*) FROM profiles WHERE is_admin = 1 AND id != ?) > 0').bind(me.id, me.id)] : []),
+    ]);
+  } else {
+    const r = await c.env.DB.prepare('UPDATE profiles SET is_admin = 0 WHERE id = ? AND (SELECT COUNT(*) FROM profiles WHERE is_admin = 1 AND id != ?) > 0').bind(p.id, p.id).run();
+    if (!r.meta || !r.meta.changes) throw new HttpError(400, 'last_admin', 'The house needs at least one admin.');
+  }
+  if (on && !p.is_admin) await activity(c.env, me, 'hub', transfer ? `Handed the admin over to ${p.name}` : `Made ${p.name} an admin`);
+  return { ok: true, id: p.id, is_admin: on, transferred: transfer };
 });
 
 // Rotate the pairing code. Pass {code} to choose it, or omit to have one generated and returned once.

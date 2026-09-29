@@ -150,7 +150,7 @@ const switchTo = async (page, id, pin) => { await page.click('.tab[data-tab=me]'
     // the shell); the old f260.big moves once to the hub's L for an adult with no hub size, and the move is not repeated
     // after they choose Normal in Me. Autolock stays in F260's own person scope.
     console.log('\n## F260 text size is the hub text size (D17); autolock follows the person');
-    const closeApp = async page => { if (await page.$('#viewer.on')) { await page.click('#pill-home'); await page.waitForSelector('#viewer:not(.on)', { state: 'attached' }); } };   // back to the hub first
+    const closeApp = async page => { if (await page.$('#viewer.on:not(.closing)')) { await page.click('#pill-home'); await page.waitForSelector('#viewer:not(.on)', { state: 'attached' }); } };   // back to the hub first
     const f260Frame = async (page, label) => {
       await closeApp(page);
       await page.click('.tab[data-tab=apps]'); await page.click('.tile[data-id=f260]');

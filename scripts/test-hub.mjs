@@ -83,12 +83,12 @@ const tallyCount = f => f.evaluate(() => Number(document.getElementById('n').tex
     await A.page.screenshot({ path: path.join(shots, 'p2-picker.png') });
     await A.page.click('.pcard[data-id=niece]');
     await A.page.waitForSelector('#pad');
-    ok((await A.page.textContent('h2')).includes('Create your PIN'), 'adult without PIN gets "Create your PIN"');
+    ok(/Create Mea.s PIN/.test(await A.page.textContent('h2')), 'adult without PIN gets "Create Mea\'s PIN" (the pad names the person, UX-PROF-a4)');
     await tapDigits(A.page, '2468');
     ok((await A.page.textContent('#pinhint')).includes('again'), 'asks to confirm');
     await tapDigits(A.page, '2468');
     await A.page.waitForSelector('#shell:not([hidden])');
-    ok((await A.page.textContent('#view-home')).includes('Niece'), 'signed in as Niece after creating PIN');
+    ok((await A.page.textContent('#view-home')).includes('Mea'), 'signed in as Mea (profile id niece) after creating PIN');
     ok(await A.page.evaluate(() => document.documentElement.dataset.kind === 'adult'), 'html[data-kind=adult]');
     ok(await A.page.evaluate(() => document.documentElement.dataset.accent === 'butter' && !document.documentElement.style.getPropertyValue('--accent')), 'accent set from the profile\'s colour family (data-accent, no inline hex)');
     await A.page.screenshot({ path: path.join(shots, 'p2-home-adult.png') });

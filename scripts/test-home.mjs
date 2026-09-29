@@ -177,6 +177,7 @@ const parkRows = page => page.$$eval('.park-card .park-list li', lis => lis.map(
 // art against the card's wash, the opacity checks cover the words) and compare a pixel at the centre of the art's big circle
 // (viewBox 230,60 r30) with one in a blank part of the art box (230,130).
 async function artSample(page, sel) {
+  await page.$eval(sel, card => card.scrollIntoView({ block: 'center' }));   // batch 2a: the kid Home's picture tiles push the Stars card to the fold, under the tab bar
   const geo = await page.$eval(sel, card => {
     const c = card.getBoundingClientRect(), s = card.querySelector('.spot').getBoundingClientRect();
     const pt = (vx, vy) => ({ x: s.left + s.width * vx / 300 - c.left, y: s.top + s.height * vy / 200 - c.top });

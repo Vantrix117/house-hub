@@ -61,7 +61,7 @@ async function signIn(page, id, pin, create) {
 }
 const frameOf = page => page.frame({ url: /apps\// }) || page.frames()[1];
 async function openApp(page, id) {
-  if (await page.$('#viewer.on')) await page.click('#pill-home');
+  if (await page.$('#viewer.on:not(.closing)')) await page.click('#pill-home');   // a viewer already fading out (P4-MOTION-02: taps pass through it) needs no second close
   await page.click('.tab[data-tab=apps]');
   await page.click(`.tile[data-id="${id}"]`);
   await waitFor(() => { const f = frameOf(page); return f && f.url().includes(`apps/${id}.html`); }, { label: id + ' frame' });

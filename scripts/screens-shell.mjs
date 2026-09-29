@@ -89,9 +89,9 @@ async function signIn(page, id, pin) {
       ok(cls < 0.1, `layout shift on Home load ${cls.toFixed(3)} < 0.1`);
       ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'no horizontal scroll');
       if (size === 390) {
-        const s0 = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--sheen-x').trim());
+        const s0 = await page.evaluate(() => getComputedStyle(document.getElementById('tabbar')).getPropertyValue('--sheen-x').trim());
         await page.evaluate(() => { document.getElementById('views').scrollTop = 400; }); await sleep(120);
-        const s1 = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--sheen-x').trim());
+        const s1 = await page.evaluate(() => getComputedStyle(document.getElementById('tabbar')).getPropertyValue('--sheen-x').trim());
         ok(s0 !== s1, `glass sheen drifts with scroll (${s0} → ${s1})`);
         await page.evaluate(() => { document.getElementById('views').scrollTop = 0; }); await sleep(120);
         const tb = await page.$eval('#tabbar', el => { const cs = getComputedStyle(el); return (cs.backdropFilter || cs.webkitBackdropFilter) + ' | ' + (cs.boxShadow.match(/inset/g) || []).length; });

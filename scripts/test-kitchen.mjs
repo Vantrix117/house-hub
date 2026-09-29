@@ -1,17 +1,22 @@
 #!/usr/bin/env node
-// The Kitchen device, data and server half (KITCHEN-1, audit batch 0d), against a LOCAL API.
+// The Kitchen device, both halves (KITCHEN-1, audit batch 0d: data and server; KITCHEN-2, batch 2a: the shell), against a
+// LOCAL API.
 //
 //   1. cd worker && npx wrangler dev --port 8787        (local D1 with schema+seed, migrations/006, a pairing code)
 //   2. node scripts/test-kitchen.mjs <pairing-code>      (ADMIN_PIN=<pin> if Eli already has one)
+//      HUB_API=http://127.0.0.1:<port> for another Worker; SITE_PORT=<port> to serve the repo elsewhere (the Worker's
+//      ALLOWED_ORIGINS must list http://localhost:<port>); KITCHEN_SHOTS=<dir> saves the kitchen Home at 390/820/1280.
 //
-// A personal session on the kitchen iPad moves to the kitchen on its next request once the admin marks the device; the
-// kitchen writes the family apps, cannot read or write anyone's person scope, cannot sign in as a person, and nobody else
-// can sign in as it; a face tap on Prayed credits the tapped person (Ezra's prayer star appears once Kid Verse opens); a
-// name outside the household is refused; clearing the role sends the device back to the picker, no longer the kitchen.
-// The face sheet and the kitchen Home are batch 2a (KITCHEN-2); here the kitchen's writes are made through hub.js.
+// Eli is signed in on the iPad when the admin, from his phone's Me → Admin → Devices, makes it the kitchen with his PIN (a
+// wrong PIN is refused there). On its next request the iPad is the kitchen: no picker, no Me or Chat tab at 390, 820 and
+// 1280, only the Larder, Prayer, Timer and Tally, and the calm kitchen Home. The kitchen writes the family apps, cannot
+// read or write anyone's person scope, has no chat or admin, cannot sign in as a person (Eli included) and nobody else can
+// sign in as it (P2-PROF-09). Prayed, the Larder's finish and the album's Add open the face sheet (Prayer: everyone in the
+// household; the Larder and the album: adults only) and credit the tapped person, which another device sees in the rows
+// and the feed; Ezra's prayer star follows once his Kid Verse opens. Clearing the role from Admin → Devices sends the iPad
+// back to the picker, no longer the kitchen.
 //
 // Needs playwright-core (any location on NODE_PATH) and Google Chrome or Edge installed.
-// Serves the repo root on http://localhost:8765 and points hub.js at http://127.0.0.1:8787.
 
 import http from 'node:http';
 import fs from 'node:fs';
@@ -25,7 +30,9 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CODE = process.argv[2] || 'local-test-code';
 const API = process.env.HUB_API || 'http://127.0.0.1:8787';
 const ADMIN_PIN = process.env.ADMIN_PIN || '1357';
-const SITE = 'http://localhost:8765';
+const PORT = +(process.env.SITE_PORT || 8765);
+const SITE = 'http://localhost:' + PORT;
+const SHOTS = process.env.KITCHEN_SHOTS || '';
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 
 const server = http.createServer((req, res) => {
@@ -35,7 +42,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': MIME[path.extname(p)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
     res.end(data);
   });
-}).listen(8765);
+}).listen(PORT);
 
 let pass = 0, fail = 0;
 const ok = (cond, name, extra = '') => { if (cond) { pass++; console.log('  ✓', name); } else { fail++; console.log('  ✗', name, extra); } };
@@ -69,22 +76,32 @@ async function newContext(browser, name, viewport = { width: 820, height: 1180 }
   // the role changes provoke 401s and the refused writes 403s on purpose; Chrome logs those as resource errors
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource.*(401|403|429)/.test(m.text())) consoleErrors.push(`[${name}] ${m.text()}`); });
   page.on('pageerror', e => consoleErrors.push(`[${name}] pageerror: ${e.message}`));
+  page.on('dialog', d => { consoleErrors.push(`[${name}] native dialog: ${d.message()}`); d.dismiss().catch(() => {}); });
   return { ctx, page, name };
 }
 async function tapDigits(page, digits) { for (const d of digits) await page.click(`#pad [data-d="${d}"]`); await page.click('#pingo'); }
 const who = page => page.evaluate(() => hub.profile && { id: hub.profile.id, kind: hub.profile.kind });
 const shellShown = page => page.evaluate(() => !document.getElementById('shell').hidden && document.getElementById('gate').hidden);
+const visibleTabs = page => page.evaluate(() => [...document.querySelectorAll('#tabbar .tab')].filter(b => b.getClientRects().length && getComputedStyle(b).display !== 'none').map(b => b.dataset.tab));
+// the app open in the shell's viewer
+const appFrame = async (page, id) => { await page.waitForFunction(i => { const f = document.getElementById('frame'); return f && f.dataset.id === i && f.contentWindow && f.contentWindow.hub; }, id, { timeout: 15000 }); return page.frames().find(f => /\/apps\//.test(f.url()) && f.url().includes(id + '.html')); };
+// the face sheet (hub.whoDidThis) in a page or frame: the faces offered, then a tap on one
+async function faceSheet(ctx) { await ctx.waitForSelector('.hub-who .hub-face', { timeout: 8000 }); return ctx.$$eval('.hub-who .hub-face', bs => bs.map(b => b.dataset.id)); }
+async function adminPin(page, pin) { await page.waitForSelector('#apform #apin'); await page.fill('#apin', pin); await page.click('#apform button[type=submit]'); }
 
 (async () => {
   const exe = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(p => fs.existsSync(p));
   const browser = await chromium.launch({ headless: true, executablePath: exe });
   try {
-    // the admin's own phone and Ezra's tablet, by API
+    // the admin's own phone (API calls) — Eli's PIN is created here when he has none yet
     const adminDev = (await api('/api/pair', { method: 'POST', body: { code: CODE, name: 'Eli phone', fp: 'kitchen-test-admin' } })).body;
     const eli = await signIn(adminDev.device_token, 'eli', ADMIN_PIN);
     const A = { dt: adminDev.device_token, pt: eli };
+    const household = (await api('/api/profiles', { dt: A.dt })).body.profiles;
+    const kids = household.filter(p => p.kind === 'kid' && !p.is_guest).map(p => p.id);
+    const adults = household.filter(p => p.kind === 'adult' && !p.is_guest).map(p => p.id);
 
-    console.log('\n## The kitchen iPad starts as an ordinary device with Mea signed in');
+    console.log('\n## The kitchen iPad starts as an ordinary device with Eli signed in');
     const K = await newContext(browser, 'kitchen');
     await K.page.goto(SITE + '/index.html');
     await K.page.waitForSelector('#paircode');
@@ -92,25 +109,55 @@ const shellShown = page => page.evaluate(() => !document.getElementById('shell')
     await K.page.click('#pairform button[type=submit]');
     await K.page.waitForSelector('.pcard[data-id]');
     ok(await K.page.$('.pcard[data-id="kitchen"]') === null, 'the picker on an ordinary device has no Kitchen face');
-    await K.page.click('.pcard[data-id="niece"]');
+    await K.page.click('.pcard[data-id="eli"]');
     await K.page.waitForSelector('#pad');
-    await tapDigits(K.page, '2468'); await sleep(200); await tapDigits(K.page, '2468');   // first tap: create and confirm
-    await waitFor(() => shellShown(K.page), { label: 'Mea in the shell' });
-    ok((await who(K.page)).id === 'niece', 'Mea is signed in on the iPad');
+    await tapDigits(K.page, ADMIN_PIN);
+    await waitFor(() => shellShown(K.page), { label: 'Eli in the shell' });
+    ok((await who(K.page)).id === 'eli', 'Eli is signed in on the iPad');
     const kDevice = await K.page.evaluate(() => hub.device.id);
 
-    console.log('\n## The admin marks it as the kitchen (from another device, with the admin PIN)');
-    ok((await api(`/api/admin/devices/${kDevice}/role`, { method: 'PUT', ...A, body: { role: 'kitchen', admin_pin: '0000' } })).status === 403, 'a wrong admin PIN is refused');
-    const set = await api(`/api/admin/devices/${kDevice}/role`, { method: 'PUT', ...A, body: { role: 'kitchen', admin_pin: ADMIN_PIN } });
-    ok(set.status === 200 && set.body.role === 'kitchen', 'the role is set', JSON.stringify(set.body));
+    console.log('\n## The admin makes it the kitchen from his phone: Me → Admin → Devices, with his PIN');
+    const AD = await newContext(browser, 'admin', { width: 1280, height: 900 });
+    await AD.ctx.addInitScript(d => { try { localStorage.setItem('hub.device', JSON.stringify(d)); } catch {} }, { id: adminDev.device_id, token: adminDev.device_token, name: 'Eli phone' });
+    await AD.page.goto(SITE + '/index.html');
+    await AD.page.click('.pcard[data-id="eli"]'); await AD.page.waitForSelector('#pad'); await tapDigits(AD.page, ADMIN_PIN);
+    await waitFor(() => shellShown(AD.page), { label: 'Eli on his phone' });
+    await AD.page.click('.tab[data-tab=me]');
+    const kBtn = `#admin-body [data-kitchen="${kDevice}"]`;
+    await AD.page.waitForSelector(kBtn, { timeout: 15000 });
+    ok(/Make it the kitchen/.test(await AD.page.textContent(kBtn)), 'Admin → Devices offers "Make it the kitchen" for the iPad');
+    ok(await AD.page.$(`#admin-body [data-kitchen="${adminDev.device_id}"]`) === null, '…but not for the device the admin is holding');
+    await AD.page.click(kBtn); await adminPin(AD.page, '0000');
+    await waitFor(() => AD.page.textContent('#apmsg').then(t => /not your PIN/.test(t)), { label: 'wrong PIN message' });
+    ok(true, 'a wrong admin PIN is refused in the sheet');
+    ok((await api('/api/device', { dt: await K.page.evaluate(() => hub.device.token) })).body.role === null, '…and the iPad is not the kitchen');
+    await AD.page.fill('#apin', ADMIN_PIN); await AD.page.click('#apform button[type=submit]');
+    await AD.page.waitForSelector('#apform', { state: 'detached', timeout: 8000 });
+    await waitFor(() => AD.page.textContent(kBtn).then(t => /Not the kitchen/.test(t)), { label: 'the row says Kitchen' });
+    ok(true, 'with the right PIN the iPad is the kitchen (its row now offers "Not the kitchen")');
     await K.page.evaluate(() => hub.pull().catch(() => {}));   // "its next request"
     await waitFor(async () => { const w = await who(K.page); return w && w.kind === 'kitchen' && await shellShown(K.page); }, { label: 'the kitchen shell' });
     ok(true, 'on its next request the iPad is the kitchen, with no picker in between');
     ok(await K.page.evaluate(() => !document.querySelector('.pcard')), 'no profile picker on screen');
+    await K.page.waitForSelector('#kitchen-home');
+    const cards = await K.page.$$eval('#kitchen-home section h2', hs => hs.map(h => h.textContent.trim()));
+    ok(['Timer', 'Eat soon', 'Family prayers', 'Reminders', 'Family album'].every(t => cards.some(c => c.startsWith(t))), 'the kitchen Home: timer, food to eat soon, family prayers, reminders, the album', JSON.stringify(cards));
+    for (const [w, h] of [[390, 844], [820, 1180], [1280, 900]]) {
+      await K.page.setViewportSize({ width: w, height: h }); await sleep(250);
+      const tabs = await visibleTabs(K.page);
+      const glance = await K.page.$eval('#k-clock', e => parseFloat(getComputedStyle(e).fontSize));
+      const hscroll = await K.page.evaluate(() => document.getElementById('views').scrollWidth > document.getElementById('views').clientWidth + 1);
+      ok(JSON.stringify(tabs) === '["home","apps"]' && !(await K.page.$('.pcard')) && !hscroll && glance >= 64, `at ${w}: only Home and Apps, no picker, no sideways scroll, a ${Math.round(glance)} px clock`, JSON.stringify({ tabs, hscroll, glance }));
+      if (SHOTS) { fs.mkdirSync(SHOTS, { recursive: true }); await K.page.screenshot({ path: path.join(SHOTS, `kitchen-home-${w}.png`), fullPage: false }); }
+    }
+    await K.page.setViewportSize({ width: 820, height: 1180 });
+    await K.page.evaluate(() => { location.hash = 'me'; }); await sleep(300);
+    ok(await K.page.evaluate(() => document.getElementById('view-home').classList.contains('on') && !document.getElementById('view-me').classList.contains('on')), '#me on the kitchen lands on Home');
     const tiles = await K.page.evaluate(async () => { document.querySelector('.tab[data-tab=apps]').click(); await new Promise(r => setTimeout(r, 400)); return [...document.querySelectorAll('.tile[data-id]')].map(t => t.dataset.id).sort(); });
     ok(JSON.stringify(tiles) === JSON.stringify(['leftovers', 'prayer', 'tally', 'timer']), 'the kitchen\'s apps are the Larder, Prayer, Timer and Tally', JSON.stringify(tiles));
+    await K.page.click('.tab[data-tab=home]');
 
-    console.log('\n## What the kitchen may do');
+    console.log('\n## What the kitchen may do (P2-PROF-09: nobody\'s chat, private prayers or admin)');
     await K.page.evaluate(() => hub.ready());
     const today = await K.page.evaluate(() => hub.today());
     const larder = await K.page.evaluate(async () => {
@@ -127,13 +174,20 @@ const shellShown = page => page.evaluate(() => !document.getElementById('shell')
       const put = await hub.request('/api/data/f260/f260.done?scope=person', { method: 'PUT', body: { value: { '1-0': true } } }).then(() => 200, e => e.status);
       const prayerMine = await hub.request('/api/data/prayer/prayer:k-private?scope=person', { method: 'PUT', body: { value: { id: 'k-private', title: 'x' } } }).then(() => 200, e => e.status);
       const timer = await hub.request('/api/data/timer/timer.active?scope=person', { method: 'PUT', body: { value: { endAt: Date.now() + 60000, total: 60 } } }).then(() => 200, e => e.status);
-      return { get, put, prayerMine, timer };
+      const admin = await hub.request('/api/admin/usage').then(() => 200, e => e.status);
+      return { get, put, prayerMine, timer, admin };
     });
     ok(kr.get === 0, 'the kitchen reads no one\'s person rows (its own F260 scope is empty; Eli\'s stays his)', JSON.stringify(kr));
     ok(kr.put === 403 && kr.prayerMine === 403, 'the kitchen cannot write person rows of F260 or a private prayer list', JSON.stringify(kr));
+    ok(kr.admin === 403, 'the kitchen has no admin', JSON.stringify(kr));
     ok(kr.timer === 200, 'the kitchen keeps its own timer row');
-    const noPerson = await K.page.evaluate(() => hub.login('niece', '2468').then(() => 'signed in', e => e.error));
-    ok(noPerson === 'kitchen_device', 'nobody signs in as a person on the kitchen device', noPerson);
+    await K.page.evaluate(() => hub.pull());
+    await waitFor(() => K.page.$eval('#k-timer', e => /\d+:\d\d/.test(e.textContent)), { label: 'the timer card counting' }).catch(() => {});
+    ok(await K.page.$eval('#k-timer', e => /\d+:\d\d/.test(e.textContent) && parseFloat(getComputedStyle(e.querySelector('.k-num')).fontSize) >= 48), 'the running timer shows on the kitchen Home in glance-size numbers', await K.page.$eval('#k-timer', e => e.textContent));
+    for (const [id, pin] of [['niece', '2468'], ['eli', ADMIN_PIN]]) {
+      const noPerson = await K.page.evaluate(([i, p]) => hub.login(i, p).then(() => 'signed in', e => e.error), [id, pin]);
+      ok(noPerson === 'kitchen_device', `nobody signs in as a person on the kitchen device (${id})`, noPerson);
+    }
     ok(await K.page.evaluate(() => hub.profile && hub.profile.kind) === 'kitchen', '…and the kitchen stays signed in');
     const noKitchen = await api('/api/login', { method: 'POST', dt: A.dt, body: { profile_id: 'kitchen' } });
     ok(noKitchen.status === 403 && noKitchen.body.error === 'not_kitchen_device', 'no other device signs in as the kitchen');
@@ -143,33 +197,104 @@ const shellShown = page => page.evaluate(() => !document.getElementById('shell')
     const chat = await K.page.evaluate(() => hub.request('/api/chat', { method: 'POST', body: { message: 'hi' } }).then(() => 200, e => e.status + ' ' + e.error));
     ok(chat === '403 no_chat', 'the kitchen has no chat', chat);
 
-    console.log('\n## A face tap on Prayed credits the tapped person');
+    console.log('\n## Prayed on the kitchen: the face sheet (everyone in the household), then the tapped person\'s tick');
     await api('/api/data/prayer/prayer:kit-p1?scope=family', { method: 'PUT', ...A, body: { value: { id: 'kit-p1', title: 'Grandpa\'s knee', for: '', category: 'Family', cadence: 'daily', days: [], status: 'active', createdAt: today, lastPrayedAt: null, answeredAt: null, answerNote: null, updates: [], sharedFrom: null, prayedBy: {}, by: 'eli', updatedAt: new Date().toISOString() } } });
-    const tap = await K.page.evaluate(async d => {
-      hub.use('prayer', 'family'); hub.pull().catch(() => {});      // the shell syncs the family list on the kitchen Home from batch 2a
-      await hub.loaded('prayer', 'family');
-      const p = hub.get('prayer:kit-p1', { app: 'prayer', scope: 'family' });
-      hub.set('prayer:kit-p1', { ...p, lastPrayedAt: d, prayedBy: { [d]: ['Ezra'] }, updatedAt: new Date().toISOString() }, { app: 'prayer', scope: 'family' });
-      const f = await hub.flush();
-      await hub.activity('Prayed for Grandpa\'s knee (family list)', 'prayer', { as: 'ezra' });
-      return f;
-    }, today);
-    ok(tap.sent >= 1 && !tap.rejected, 'the kitchen\'s Prayed, credited to Ezra, is saved', JSON.stringify(tap));
-    const feed = (await api('/api/activity?limit=5', { dt: A.dt })).body.activity;
-    ok(feed.some(l => l.profile_id === 'ezra' && /Grandpa's knee/.test(l.text)), 'the feed line is filed under Ezra, not the kitchen', JSON.stringify(feed.slice(0, 2).map(l => [l.profile_id, l.text])));
+    await K.page.evaluate(() => hub.pull());
+    await waitFor(() => K.page.$eval('#k-pray', e => /Grandpa/.test(e.textContent)), { label: 'the prayer on the kitchen Home' }).catch(() => {});
+    ok(/0 of \d+ prayed/.test(await K.page.textContent('#k-pray')), 'the kitchen Home lists today\'s family prayers', await K.page.textContent('#k-pray'));
+    await K.page.click('#k-pray ~ .btn[data-open="prayer"]');
+    const PF = await appFrame(K.page, 'prayer');
+    await PF.waitForSelector('[data-pray="kit-p1"]', { timeout: 15000 });
+    await PF.click('[data-pray="kit-p1"]');
+    const prayFaces = await faceSheet(PF);
+    ok(kids.every(k => prayFaces.includes(k)) && adults.every(a => prayFaces.includes(a)) && !prayFaces.includes('kitchen') && !prayFaces.includes('tv'), 'Prayed opens the face sheet with everyone in the household, kids included (never the kitchen or the TV)', JSON.stringify(prayFaces));
+    await PF.click('.hub-who .hub-face[data-id="ezra"]');
+    const row = await waitFor(async () => { const r = await api('/api/data/prayer?scope=family&key=prayer:kit-p1', { dt: A.dt }); const v = r.body.item && r.body.item.value; return v && v.prayedBy && Array.isArray(v.prayedBy[today]) && v.prayedBy[today].includes('ezra') ? v : null; }, { timeout: 15000, label: 'Ezra\'s tick on the house copy' }).catch(() => null);
+    ok(!!row && !row.prayedBy[today].includes('kitchen'), 'another device sees Ezra (not the kitchen) on today\'s list', JSON.stringify(row && row.prayedBy));
+    const feed = await waitFor(async () => { const f = (await api('/api/activity?limit=8', { dt: A.dt })).body.activity; return f.some(l => l.profile_id === 'ezra' && /Grandpa's knee/.test(l.text)) ? f : null; }, { timeout: 15000, label: 'the feed line' }).catch(() => null);
+    ok(!!feed, 'the feed line is filed under Ezra, not the kitchen');
+    await PF.click('[data-pray="kit-p1"]'); await faceSheet(PF); await PF.click('.hub-who .hub-face[data-id="ezra"]'); await sleep(600);
+    ok(await PF.evaluate(() => /Ezra already prayed/.test((document.getElementById('toastMsg') || {}).textContent || '')), 'a second tap for Ezra says he already prayed and changes nothing');
+    await PF.click('[data-pray="kit-p1"]'); await faceSheet(PF); await PF.click('.hub-who .sheet-actions .btn'); await sleep(300);
+    ok(!(await PF.$('.hub-who')), 'Cancel closes the face sheet with nothing credited');
     const outsider = await K.page.evaluate(async d => {
       const p = hub.get('prayer:kit-p1', { app: 'prayer', scope: 'family' });
-      return hub.request('/api/data/prayer/prayer:kit-p1?scope=family', { method: 'PUT', body: { value: { ...p, prayedBy: { [d]: ['Ezra', 'Grandma Jo'] } } } }).then(() => 200, e => e.status + ' ' + e.error);
+      return hub.request('/api/data/prayer/prayer:kit-p1?scope=family', { method: 'PUT', body: { value: { ...p, prayedBy: { [d]: ['ezra', 'Grandma Jo'] } } } }).then(() => 200, e => e.status + ' ' + e.error);
     }, today);
     ok(outsider === '403 not_allowed', 'a name outside the household is refused', outsider);
     const selfCredit = await K.page.evaluate(async d => {
+      await hub.pull();
       const p = hub.get('prayer:kit-p1', { app: 'prayer', scope: 'family' });
-      hub.set('prayer:kit-p1', { ...p, prayedBy: { [d]: ['Ezra', 'Kitchen'] } }, { app: 'prayer', scope: 'family' });
+      hub.set('prayer:kit-p1', { ...p, prayedBy: { [d]: ['ezra', 'Kitchen'] } }, { app: 'prayer', scope: 'family' });
       const f = await hub.flush();
       const back = hub.get('prayer:kit-p1', { app: 'prayer', scope: 'family' });
       return { f, names: back.prayedBy[d] };
     }, today);
-    ok(selfCredit.f.rejected === 1 && JSON.stringify(selfCredit.names) === '["Ezra"]', 'a refused row is put back on the device (the kitchen cannot credit itself)', JSON.stringify(selfCredit));
+    ok(selfCredit.f.rejected === 1 && JSON.stringify(selfCredit.names) === '["ezra"]', 'a refused row is put back on the device (the kitchen cannot credit itself)', JSON.stringify(selfCredit));
+
+    console.log('\n## The Larder\'s finish: the face sheet has the adults only');
+    await api('/api/data/leftovers/item:kit2?scope=family', { method: 'PUT', ...A, body: { value: { id: 'kit2', name: 'Chili', size: 'Medium', dateLogged: today, by: 'eli', byName: 'Eli' } } });
+    await K.page.click('#pill-home');
+    await K.page.click('.btn[data-open="leftovers"]');
+    const LF = await appFrame(K.page, 'leftovers');
+    await LF.evaluate(() => hub.pull());
+    const pill = await LF.waitForSelector('#newpill:not([hidden])', { timeout: 4000 }).catch(() => null);   // a row from another device waits behind "N new" (batch 0h)
+    if (pill) await pill.click();
+    const doneBtn = await LF.waitForSelector('.item[data-id="kit2"] .done', { timeout: 15000 });
+    await doneBtn.click();
+    const larderFaces = await faceSheet(LF);
+    ok(!larderFaces.some(f => kids.includes(f)) && adults.every(a => larderFaces.includes(a)), 'finishing opens the face sheet with the household adults and no kids', JSON.stringify(larderFaces));
+    await LF.click('.hub-who .hub-face[data-id="dad"]');
+    const fin = await waitFor(async () => { const r = await api('/api/data/leftovers?scope=family&key=finished:kit2', { dt: A.dt }); return r.body.item && r.body.item.value; }, { timeout: 20000, label: 'the finished row' }).catch(() => null);
+    ok(!!fin && fin.finishedBy === 'dad', 'another device sees the Chili finished by David', JSON.stringify(fin));
+    const feed2 = (await api('/api/activity?limit=8', { dt: A.dt })).body.activity;
+    ok(feed2.some(l => l.profile_id === 'dad' && /Finished the Chili/.test(l.text)), 'the feed line is filed under David', JSON.stringify(feed2.slice(0, 3).map(l => [l.profile_id, l.text])));
+    // the Worker checks finishedBy like by (review of batch 2a): a kid, a guest or the TV is refused, an adult is taken
+    const guest = (await api('/api/profiles', { method: 'POST', ...A, body: { name: 'Kitchen Credit', emoji: '🙂', color: '#4C4C58', hue: 'sky' } })).body.profile;
+    const pplNow = (await api('/api/profiles', { dt: A.dt })).body.profiles;
+    const nameOf = id => (pplNow.find(p => p.id === id) || {}).name;
+    const credit = await K.page.evaluate(async ([cases, d]) => {
+      const out = {};
+      for (const [id, name] of cases) out[id] = await hub.request('/api/data/leftovers/finished:kitc?scope=family', { method: 'PUT', body: { value: { id: 'kitc', name: 'Stew', finishedAt: d, finishedBy: id, finishedByName: name } } }).then(() => '200', e => e.status + ' ' + ((e.data && e.data.rejected) || e.error));
+      return out;
+    }, [[['ezra', nameOf('ezra')], [guest.id, guest.name], ['tv', nameOf('tv')], ['niece', nameOf('niece')]], today]);
+    ok(/^403 bad_credit/.test(credit.ezra) && /^403 bad_credit/.test(credit[guest.id]) && /^403 bad_credit/.test(credit.tv), 'the kitchen cannot credit a finish to a kid, a guest or the TV (403 bad_credit)', JSON.stringify(credit));
+    ok(credit.niece === '200', '…and can credit it to a household adult', JSON.stringify(credit));
+    await api('/api/data/leftovers/finished:kitc?scope=family', { method: 'DELETE', ...A });
+
+    console.log('\n## A guest\'s reminder on the kitchen Home: ✓, Undo, then ✓ for good (review of batch 2a)');
+    const gTok = await signIn(A.dt, guest.id);
+    await api('/api/data/reminders/item:kitrem?scope=family', { method: 'PUT', dt: A.dt, pt: gTok, body: { value: { id: 'kitrem', text: 'Guest note for the house', by: guest.id, byName: guest.name, createdAt: Date.now() } } });
+    await K.page.click('#pill-home'); await K.page.click('.tab[data-tab=home]');
+    await K.page.evaluate(() => hub.pull());
+    await K.page.waitForSelector('#k-rem [data-kdone="kitrem"]', { timeout: 15000 });
+    const remRow = async () => { const r = await api('/api/data/reminders?scope=family&key=item:kitrem', { dt: A.dt }); return r.body.item && r.body.item.value; };
+    await K.page.click('#k-rem [data-kdone="kitrem"]');
+    ok(!(await K.page.$('#k-rem [data-kdone="kitrem"]')), '✓ takes the reminder off the kitchen Home at once');
+    await K.page.click('#hub-toast .toast-act');
+    await sleep(7500); await K.page.evaluate(() => hub.flush());
+    ok(!!(await K.page.$('#k-rem [data-kdone="kitrem"]')) && !!(await remRow()), 'Undo within 6 s: the guest\'s reminder is back on the kitchen and was never removed from the house');
+    await K.page.click('#k-rem [data-kdone="kitrem"]');
+    await sleep(7500); await K.page.evaluate(() => hub.flush());
+    ok(!(await remRow()), 'without Undo it is removed for everyone after 6 s');
+    ok(!consoleErrors.some(e => /not something|bad_credit/.test(e)), 'no refused write on the way');
+    await api(`/api/admin/profiles/${guest.id}`, { method: 'DELETE', ...A });
+
+    console.log('\n## The album\'s Add on the kitchen Home: adults only, filed under the tapped face');
+    if (await K.page.$('#viewer.on')) await K.page.click('#pill-home');
+    await K.page.click('.tab[data-tab=home]');
+    await K.page.waitForSelector('#k-album-add');
+    await K.page.setInputFiles('#k-file', path.join(ROOT, 'icons', 'icon-192.png'));
+    const albumFaces = await faceSheet(K.page);
+    ok(!albumFaces.some(f => kids.includes(f)) && adults.every(a => albumFaces.includes(a)), 'Add a photo opens the face sheet with the household adults and no kids', JSON.stringify(albumFaces));
+    await K.page.click('.hub-who .hub-face[data-id="christian"]');
+    const photo = await waitFor(async () => { const r = await api('/api/data/hub?scope=family&prefix=album:', { dt: A.dt }); return (r.body.items || []).map(i => i.value).find(v => v && v.by === 'christian'); }, { timeout: 30000, label: 'the album row' }).catch(() => null);
+    ok(!!photo && photo.byName === 'Mae', 'another device sees the photo added by Mae', JSON.stringify(photo && { by: photo.by, byName: photo.byName }));
+    await K.page.evaluate(() => hub.pull());
+    await waitFor(() => K.page.$$eval('#k-album img', i => i.length >= 1), { label: 'the photo on the kitchen Home' }).catch(() => {});
+    ok(await K.page.$$eval('#k-album img', i => i.length >= 1), 'the photo shows in the kitchen Home\'s album card');
+
+    console.log('\n## Ezra\'s prayer star, on his own tablet');
     const kidDev = (await api('/api/pair', { method: 'POST', body: { code: CODE, name: 'Ezra tablet', fp: 'kitchen-test-ezra' } })).body;
     const E = await newContext(browser, 'ezra', { width: 390, height: 844 });
     await E.ctx.addInitScript(([d]) => { try { localStorage.setItem('hub.device', JSON.stringify(d)); } catch {} }, [{ id: kidDev.device_id, token: kidDev.device_token, name: 'Ezra tablet' }]);
@@ -185,18 +310,27 @@ const shellShown = page => page.evaluate(() => !document.getElementById('shell')
     }, { timeout: 20000, label: 'Ezra\'s prayer star' }).catch(() => null);
     ok(!!star, 'Ezra\'s prayer star for today appears once Kid Verse opens', star ? `count ${star.count}` : 'no star');
 
-    console.log('\n## The admin clears the role');
-    const clr = await api(`/api/admin/devices/${kDevice}/role`, { method: 'PUT', ...A, body: { role: null, admin_pin: ADMIN_PIN } });
-    ok(clr.status === 200 && clr.body.role === null, 'the role is cleared');
+    console.log('\n## The admin clears the role from Admin → Devices');
+    await AD.page.click('.tab[data-tab=home]'); await AD.page.click('.tab[data-tab=me]');
+    await AD.page.waitForSelector(kBtn, { timeout: 15000 });
+    await AD.page.click(kBtn); await adminPin(AD.page, '0000');
+    await waitFor(() => AD.page.textContent('#apmsg').then(t => /not your PIN/.test(t)), { label: 'wrong PIN message' });
+    ok((await api('/api/device', { dt: await K.page.evaluate(() => hub.device.token) })).body.role === 'kitchen', 'a wrong admin PIN leaves the kitchen as it is');
+    await AD.page.fill('#apin', ADMIN_PIN); await AD.page.click('#apform button[type=submit]');
+    await AD.page.waitForSelector('#apform', { state: 'detached', timeout: 8000 });
+    await waitFor(() => AD.page.textContent(kBtn).then(t => /Make it the kitchen/.test(t)), { label: 'the row is ordinary again' });
+    ok(true, 'the role is cleared');
     await K.page.evaluate(() => hub.pull().catch(() => {}));
     await K.page.waitForSelector('.pcard[data-id]', { timeout: 15000 });
     ok(!(await shellShown(K.page)) && !(await who(K.page)), 'on its next request the iPad shows the picker, signed out');
     const again = await api('/api/login', { method: 'POST', dt: await K.page.evaluate(() => hub.device.token), body: { profile_id: 'kitchen' } });
     ok(again.status === 403, 'it can no longer act as the kitchen');
-    await E.ctx.close(); await K.ctx.close();
+    await E.ctx.close(); await K.ctx.close(); await AD.ctx.close();
     // tidy what this test added to the shared local D1
     await api('/api/data/leftovers/item:kit1?scope=family', { method: 'DELETE', ...A });
+    await api('/api/data/leftovers/finished:kit2?scope=family', { method: 'DELETE', ...A });
     await api('/api/data/prayer/prayer:kit-p1?scope=family', { method: 'DELETE', ...A });
+    if (photo) await api(`/api/album/${photo.id}`, { method: 'DELETE', ...A });
   } catch (e) {
     fail++; console.log('  ✗ test crashed:', e.stack || e.message);
   } finally {

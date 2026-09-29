@@ -273,6 +273,17 @@ KT="X-Profile-Token: $(echo "$BODY" | j profile_token)"
 call "kitchen writes the Larder" PUT "/api/data/leftovers/item:kt1?scope=family" "{\"value\":{\"id\":\"kt1\",\"name\":\"Soup\",\"dateLogged\":\"$TODAY\",\"by\":\"kitchen\"}}" "$DKH" "$KT"; expect 200
 call "kitchen names a kid on a Larder row -> 403" PUT "/api/data/leftovers/item:kt2?scope=family" "{\"value\":{\"id\":\"kt2\",\"name\":\"Soup\",\"dateLogged\":\"$TODAY\",\"by\":\"ezra\",\"byName\":\"Ezra\"}}" "$DKH" "$KT"; expect 403
 echo "$BODY" | grep -q '"rejected":"bad_credit"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected rejected bad_credit"; }
+# the Larder's finished row credits an adult of the household only (review of batch 2a: finishedBy is checked like by)
+call "a guest for the credit checks" POST /api/profiles '{"name":"Smoke Credit","emoji":"🙂","color":"#4C4C58","hue":"sky"}' "$D" "$N"; expect 200
+KGID=$(echo "$BODY" | j profile.id)
+for W in "ezra:Ezra" "$KGID:Smoke Credit" "tv:Downstairs TV"; do
+  call "kitchen finishes it for ${W%%:*} -> 403" PUT "/api/data/leftovers/finished:ktf?scope=family" "{\"value\":{\"id\":\"ktf\",\"name\":\"Soup\",\"finishedAt\":\"$TODAY\",\"finishedBy\":\"${W%%:*}\",\"finishedByName\":\"${W#*:}\"}}" "$DKH" "$KT"; expect 403
+  echo "$BODY" | grep -q '"rejected":"bad_credit"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected rejected bad_credit"; }
+done
+call "kitchen finishes it for an adult (Mea)" PUT "/api/data/leftovers/finished:ktf?scope=family" "{\"value\":{\"id\":\"ktf\",\"name\":\"Soup\",\"finishedAt\":\"$TODAY\",\"finishedBy\":\"niece\",\"finishedByName\":\"Mea\"}}" "$DKH" "$KT"; expect 200
+call "…under the wrong name -> 403" PUT "/api/data/leftovers/finished:ktf?scope=family" "{\"value\":{\"id\":\"ktf\",\"name\":\"Soup\",\"finishedAt\":\"$TODAY\",\"finishedBy\":\"dad\",\"finishedByName\":\"Mea\"}}" "$DKH" "$KT"; expect 403
+call "tidy the finished row" DELETE "/api/data/leftovers/finished:ktf?scope=family" '' "$D" "$N"; expect 200
+call "remove the credit-check guest" DELETE "/api/admin/profiles/$KGID" '' "$D" "$A"; expect 200
 # a Larder row's date is a real day, not after today (batch 0i, P3-LEFTOVERS-04, -09)
 call "a Larder row dated 'yesterday' -> 403" PUT "/api/data/leftovers/item:bd1?scope=family" '{"value":{"id":"bd1","name":"Stew","dateLogged":"yesterday"}}' "$D" "$N"; expect 403
 echo "$BODY" | grep -q '"rejected":"bad_date"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected rejected bad_date"; }
@@ -298,6 +309,62 @@ call "the device has no role now" GET /api/device '' "$DKH"; expect 200
 [ "$(echo "$BODY" | j role)" = null ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected role=null"; }
 call "unpair the test kitchen device" DELETE "/api/admin/devices/$DKID" '' "$D" "$A"; expect 200
 call "tidy the kitchen's row" DELETE "/api/data/leftovers/item:kt1?scope=family" '' "$D" "$N"; expect 200
+
+echo "### batch 2a: Admin → Household (GAP-PROF-a2) and the 18 colour families (GAP-ACCENT-1)"
+call "a non-admin adds a person -> 403" POST /api/admin/profiles '{"name":"Nope","kind":"adult","hue":"mint"}' "$D" "$N"; expect 403
+call "add a person with an unknown family -> 400" POST /api/admin/profiles '{"name":"Nope","kind":"adult","hue":"neon"}' "$D" "$A"; expect 400
+call "add a person as a display -> 400" POST /api/admin/profiles '{"name":"Nope","kind":"kiosk","hue":"mint"}' "$D" "$A"; expect 400
+call "add a person with markup -> 400" POST /api/admin/profiles '{"name":"<b>x</b>","kind":"adult","hue":"mint"}' "$D" "$A"; expect 400
+call "add a person without the admin PIN -> 403" POST /api/admin/profiles '{"name":"Smoke Person","kind":"adult","hue":"coral"}' "$D" "$A"; expect 403
+[ "$(echo "$BODY" | j error)" = wrong_admin_pin ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=wrong_admin_pin"; }
+call "add a person with a wrong admin PIN -> 403" POST /api/admin/profiles '{"name":"Smoke Person","kind":"adult","hue":"coral","admin_pin":"0000"}' "$D" "$A"; expect 403
+call "admin adds an adult (an app colour)" POST /api/admin/profiles "{\"name\":\"Smoke Person\",\"kind\":\"adult\",\"hue\":\"coral\",\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+HP=$(echo "$BODY" | j profile.id)
+[ "$HP" = smoke-person ] && [ "$(echo "$BODY" | j profile.hue)" = coral ] && echo "$BODY" | j setup_code | grep -Eq '^[0-9]{6}$' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected id smoke-person, hue coral and a six-digit set-up code"; }
+call "the new adult cannot create a PIN without the code -> 403" POST "/api/profiles/$HP/pin" '{"pin":"1122"}' "$D"; expect 403
+call "admin adds a kid" POST /api/admin/profiles "{\"name\":\"Smoke Kid\",\"kind\":\"kid\",\"hue\":\"honey\",\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+HK=$(echo "$BODY" | j profile.id)
+[ "$(echo "$BODY" | j setup_code)" = undefined ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ a kid gets no set-up code"; }
+call "the new kid signs in on tap" POST /api/login "{\"profile_id\":\"$HK\"}" "$D"; expect 200
+HKT="X-Profile-Token: $(echo "$BODY" | j profile_token)"
+call "a kid cannot be an admin -> 400" PUT "/api/admin/profiles/$HK/admin" "{\"is_admin\":true,\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 400
+call "an adult with no PIN cannot be an admin -> 400" PUT "/api/admin/profiles/$HP/admin" "{\"is_admin\":true,\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 400
+[ "$(echo "$BODY" | j error)" = needs_pin ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=needs_pin"; }
+call "make Mea an admin, wrong PIN -> 403" PUT /api/admin/profiles/niece/admin '{"is_admin":true,"admin_pin":"0000"}' "$D" "$A"; expect 403
+call "make Mea an admin" PUT /api/admin/profiles/niece/admin "{\"is_admin\":true,\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "Mea now reaches the admin API" GET /api/admin/usage '' "$D" "$N"; expect 200
+call "reset a co-admin's PIN without the admin PIN -> 403" POST /api/admin/profiles/niece/reset-pin '{}' "$D" "$A"; expect 403
+[ "$(echo "$BODY" | j error)" = wrong_admin_pin ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=wrong_admin_pin"; }
+call "…with a wrong admin PIN -> 403" POST /api/admin/profiles/niece/reset-pin '{"admin_pin":"0000"}' "$D" "$A"; expect 403
+call "Mea still signs in (nothing was reset)" POST /api/login '{"profile_id":"niece","pin":"2468"}' "$D"; expect 200
+call "removing an admin -> 400" POST /api/admin/profiles/niece/remove "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 400
+call "take Mea's admin away" PUT /api/admin/profiles/niece/admin "{\"is_admin\":false,\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "Mea is refused the admin API again" GET /api/admin/usage '' "$D" "$N"; expect 403
+call "the last admin cannot drop it -> 400" PUT /api/admin/profiles/eli/admin "{\"is_admin\":false,\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 400
+[ "$(echo "$BODY" | j error)" = last_admin ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=last_admin"; }
+call "Eli hands his admin to Mea" PUT /api/admin/profiles/niece/admin "{\"is_admin\":true,\"transfer\":true,\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "Eli is refused the admin API now" GET /api/admin/usage '' "$D" "$A"; expect 403
+call "Mea hands it back (her own PIN)" PUT /api/admin/profiles/eli/admin '{"is_admin":true,"transfer":true,"admin_pin":"2468"}' "$D" "$N"; expect 200
+call "Eli is the admin again" GET /api/admin/usage '' "$D" "$A"; expect 200
+call "Mea is not" GET /api/admin/usage '' "$D" "$N"; expect 403
+call "a non-admin removes a person -> 403" POST "/api/admin/profiles/$HK/remove" '{"admin_pin":"2468"}' "$D" "$N"; expect 403
+call "the admin removes himself -> 400" POST /api/admin/profiles/eli/remove "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 400
+call "remove the TV -> 400" POST /api/admin/profiles/tv/remove "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 400
+call "remove the kitchen -> 400" POST /api/admin/profiles/kitchen/remove "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 400
+call "remove the new kid, wrong PIN -> 403" POST "/api/admin/profiles/$HK/remove" '{"admin_pin":"0000"}' "$D" "$A"; expect 403
+call "remove the new kid" POST "/api/admin/profiles/$HK/remove" "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "add the same name again" POST /api/admin/profiles "{\"name\":\"Smoke Kid\",\"kind\":\"kid\",\"hue\":\"honey\",\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+HK2=$(echo "$BODY" | j profile.id)
+[ -n "$HK2" ] && [ "$HK2" != "$HK" ] && [ "$HK2" != undefined ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected a new id, not $HK (a removed person's id is never reused)"; }
+call "remove the re-added kid" POST "/api/admin/profiles/$HK2/remove" "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "a taken name gets a new id (a second Ezra)" POST /api/admin/profiles "{\"name\":\"Ezra\",\"kind\":\"kid\",\"hue\":\"honey\",\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+HK3=$(echo "$BODY" | j profile.id)
+[ "$HK3" != ezra ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected an id other than ezra"; }
+call "remove the second Ezra" POST "/api/admin/profiles/$HK3/remove" "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "the removed kid's session -> 401" GET /api/me '' "$D" "$HKT"; expect 401
+call "remove the new adult" POST "/api/admin/profiles/$HP/remove" "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "both are gone from the list" GET /api/profiles '' "$D" "$A"; expect 200
+! echo "$BODY" | grep -q "\"$HK\"\|\"$HP\"" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected neither $HK nor $HP"; }
 
 call "admin reset niece pin (cleanup)" POST /api/admin/profiles/niece/reset-pin '{}' "$D" "$A"; expect 200
 

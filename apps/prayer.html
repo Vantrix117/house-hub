@@ -382,6 +382,8 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
 #pray .ctrl button.go{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on);
   flex:2;font-size:calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1))}
 
+/* the kitchen device (KITCHEN-2) keeps the family list only, so Mine / Family is not offered there */
+:root[data-kind="kitchen"] #listSwitch{display:none}
 /* ── kitchen view ─────────────────────────────────────────── */
 #kitchen{position:fixed;inset:0;background:var(--paper);z-index:34;display:none;
   overflow:auto;padding:calc(30px + env(safe-area-inset-top)) 32px 48px}
@@ -1405,6 +1407,7 @@ document.addEventListener('click', e => {
     return;
   }
 
+  if(t.dataset.pray && KITCHEN()){ kitchenPray(byId(t.dataset.pray)); return; }   // KITCHEN-2: whose tick is it?
   if(t.dataset.pray){ setPrayed(byId(t.dataset.pray)); renderToday(); renderAll(); renderReview(); return; }
   if(t.dataset.open){ sheetFor(t.dataset.open); return; }
   if(t.dataset.go){ shutSheet(); go(t.dataset.go); return; }
@@ -1829,14 +1832,17 @@ function lastBefore(p){
   const d = days.length ? days[days.length - 1] : null;
   return d && (!old || d > old) ? d : old;
 }
-function setPrayed(p, force){
+// KITCHEN-2: on the kitchen device a tick is always someone's. `as` is the household member whose face was tapped
+// (hub.whoDidThis); the tick, the day and the feed line go to them, never to the kitchen, and nothing is taken back.
+function setPrayed(p, force, as){
   if(!p) return;
   refreshDay();
-  const on = force === undefined ? !doneToday(p) : !!force;
+  if(KITCHEN() && (!as || !onFamilyList(p) || prayedToday(p).includes(as))) return;
+  const on = as ? true : force === undefined ? !doneToday(p) : !!force;
   if(onFamilyList(p)){
     // Only my own tick for today changes: everyone else's, and every earlier day, stay as they are.
     p.prayedBy = (p.prayedBy && typeof p.prayedBy === 'object' && !Array.isArray(p.prayedBy)) ? p.prayedBy : {};
-    const list = new Set((p.prayedBy[TODAY] || []).map(String)), id = myId(), nm = myOldName();
+    const list = new Set((p.prayedBy[TODAY] || []).map(String)), id = as || myId(), nm = as ? '' : myOldName();
     if(nm) list.delete(nm);                              // my tick from an older app version, by name: replaced by my id
     if(id){ if(on) list.add(id); else list.delete(id); }
     if(list.size) p.prayedBy[TODAY] = [...list]; else delete p.prayedBy[TODAY];
@@ -1857,16 +1863,27 @@ function setPrayed(p, force){
   if(p.unprayed !== undefined){ const k = 'prayer:' + p.id, sent = SNAP.family[k] === JSON.stringify(p);
     if(sent){ delete p.unprayed; SNAP.family[k] = JSON.stringify(p); } }
   // A private request is never named on the family feed or the TV (P2-PWA-01); the Worker refuses any other wording.
-  if(on) hub.activity(onFamilyList(p) ? 'Prayed for ' + p.title + ' (family list)' : 'Prayed for a private request');
+  if(on) hub.activity(onFamilyList(p) ? 'Prayed for ' + p.title + ' (family list)' : 'Prayed for a private request', as ? { as } : undefined);
+}
+// The kitchen's Prayed: the face sheet (everyone in the household, kids included, so a kid earns the day's prayer star),
+// then that person's tick. A face that already prayed it today changes nothing.
+async function kitchenPray(p){
+  if(!p || !window.hub || !hub.whoDidThis) return;
+  const q = await hub.whoDidThis({ who:'household', title:'Who prayed?', message:p.title });
+  if(!q) return;
+  if(prayedToday(p).includes(q.id)){ toast(q.name + ' already prayed for this today.'); return; }
+  setPrayed(p, true, q.id); renderToday(); renderAll(); renderReview();
 }
 // Which list a row is on, by the row itself (not the screen showing it).
 const onFamilyList = p => D.lists.shared.prayers.includes(p);
 
 /* ── prayer mode ────────────────────────────────────────────── */
-let prayList = [], prayIdx = 0;
-function startPrayMode(){
+let prayList = [], prayIdx = 0, prayAs = null;   // prayAs: on the kitchen, whose run this is (asked once, KITCHEN-2)
+async function startPrayMode(){
   const set = todaySet();
-  prayList = set.filter(p => !doneToday(p));
+  prayAs = null;
+  if(KITCHEN() && set.length){ const q = window.hub && hub.whoDidThis ? await hub.whoDidThis({ who:'household', title:'Who is praying?' }) : null; if(!q) return; prayAs = q.id; }
+  prayList = set.filter(p => prayAs ? !prayedToday(p).includes(prayAs) : !doneToday(p));
   if(!prayList.length) prayList = set;
   if(!prayList.length){ toast('Nothing on the list today.'); return; }
   prayIdx = 0; renderPray(); el('pray').classList.add('on'); updateFab();
@@ -1892,7 +1909,7 @@ function prayStep(n){
   renderPray();
 }
 function closePray(finished){
-  el('pray').classList.remove('on'); updateFab();
+  el('pray').classList.remove('on'); updateFab(); prayAs = null;
   renderAllScreens();
   if(finished){ const m = milestone(); toast(m || 'Prayed through the list.'); }
 }
@@ -1959,13 +1976,13 @@ function mergeShared(remote){
 /* ── new wiring ─────────────────────────────────────────────── */
 el('startPray').addEventListener('click', startPrayMode);
 el('prayShut').addEventListener('click', () => closePray(false));
-el('prayNext').addEventListener('click', () => { setPrayed(prayList[prayIdx], true); prayStep(1); });
+el('prayNext').addEventListener('click', () => { setPrayed(prayList[prayIdx], true, prayAs || undefined); prayStep(1); });
 el('praySkip').addEventListener('click', () => prayStep(1));
 el('prayBack').addEventListener('click', () => prayStep(-1));
 document.addEventListener('keydown', e => {
   if(!el('pray').classList.contains('on')) return;
   if(e.key === 'Escape') closePray(false);
-  if(e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); setPrayed(prayList[prayIdx], true); prayStep(1); }
+  if(e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); setPrayed(prayList[prayIdx], true, prayAs || undefined); prayStep(1); }
   if(e.key === 'ArrowLeft') prayStep(-1);
 });
 let tx = 0;

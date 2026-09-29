@@ -39,6 +39,7 @@
     prefs: 'hub.prefs',                        // text size, contrast, glass, motion: the mirror the <head> bootstrap reads
     personPrefs: pid => `hub.prefs.${pid}`,    // each person's preferences on this device, like personTheme
     meAt: 'hub.meAt',                          // when this device last refreshed the session profile (ACCENT-9)
+    lastSync: 'hub.lastSync',                  // when this device last finished a pull, kept across a reopen (P2-SYNC-14)
     activity: pid => `hub.aqueue.${pid}`,      // feed lines waiting to post, per author
     cache: (app, scope, pid) => `hub.cache.${app}.${scope}${scope === 'person' ? '.' + pid : ''}`,
     // Every queue belongs to the person who wrote it, family writes too: only their own session ever sends it.
@@ -300,12 +301,15 @@
   // ── transport ──────────────────────────────────────────────────────────────
   function setSync(patch) {
     Object.assign(hub.sync, patch);
+    if (patch && patch.lastPull) lsSet(LS.lastSync, patch.lastPull);
     hub.sync.pending = pendingCount();
     if (hub.sync.pending && hub.sync.state === 'synced') hub.sync.state = 'pending';
     for (const cb of listeners.sync) { try { cb({ ...hub.sync }); } catch (e) { console.error(e); } }
     tell({ type: 'hub:sync', sync: { ...hub.sync } });
   }
   hub.onSync = cb => { listeners.sync.add(cb); cb({ ...hub.sync }); return () => listeners.sync.delete(cb); };
+  /** When this device last finished a pull (ms), this session or an earlier one; 0 = never. hub.sync.lastPull is this session's. */
+  hub.lastSynced = () => hub.sync.lastPull || +lsGet(LS.lastSync, 0) || 0;
   hub.onAuthLoss = cb => { listeners.auth.add(cb); return () => listeners.auth.delete(cb); };
 
   // token: send this profile token instead of the current one (a signed-out person's queue); signal: abort from outside
@@ -327,7 +331,7 @@
     } finally { clearTimeout(timer); if (signal) signal.removeEventListener('abort', onCut); }
     let data = null; try { data = await r.json(); } catch {}
     if (!r.ok) {
-      const err = new HubError(r.status, (data && data.error) || 'http_' + r.status, (data && data.message) || 'Request failed');
+      const err = new HubError(r.status, (data && data.error) || 'http_' + r.status, (data && data.message) || 'Request failed'); err.data = data || {};   // the body's extra fields (retry_after on a 429: the PIN pad's countdown)
       if (r.status === 401) handleAuthLoss(err, dt, pt);
       throw err;
     }
@@ -1101,6 +1105,61 @@
     (no || yes).focus({ preventScroll: true });
   });
   hub.alert = (message, opts = {}) => hub.confirm(message, Object.assign({ ok: 'OK' }, opts || {}, { cancel: null, danger: false })).then(() => {});
+  // hub.whoDidThis({ who: 'household' | 'adults', title, message }) → Promise<person | null> (KITCHEN-2). On a shared device (the
+  // kitchen) an action that credits someone first shows a row of the household's faces to tap, no PIN: attribution, not a
+  // sign-in. 'household' is every household adult and kid (Prayed: a kid earns the prayer ★); 'adults' leaves the kids out
+  // (the Larder's finish and the album, P5-D2). Guests, the TV and the kitchen are never on the row, and the Worker checks
+  // the credit again. Null on Cancel, Escape or a tap on the backdrop. Same sheet, keys and focus rules as hub.confirm.
+  const faceRow = who => hub.people().filter(p => p && !p.is_guest && !p.isGuest && (p.kind === 'adult' || (who !== 'adults' && p.kind === 'kid')));
+  hub.whoDidThis = async (opts = {}) => {
+    const o = Object.assign({ who: 'household', title: 'Who is this?', message: '' }, opts || {});
+    let people = faceRow(o.who);
+    if (!people.length) { try { await hub.profiles(); } catch {} people = faceRow(o.who); }
+    if (!people.length) { hub.toast('No faces yet — this device has not loaded the household.', 3200); return null; }
+    return new Promise(resolve => {
+      const prev = document.activeElement, id = 'hub-who-' + hub.uid();
+      const w = document.createElement('div'); w.className = 'ds';
+      const bd = document.createElement('div'); bd.className = 'sheet-backdrop hub-ask hub-who';
+      const sh = document.createElement('div'); sh.className = 'sheet'; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true');
+      const h = document.createElement('h2'); h.id = id + '-t'; h.textContent = o.title; sh.appendChild(h); sh.setAttribute('aria-labelledby', h.id);
+      if (o.message) { const p = document.createElement('p'); p.id = id + '-m'; p.className = 'text-2'; p.textContent = o.message; sh.appendChild(p); sh.setAttribute('aria-describedby', p.id); }
+      const grid = document.createElement('div'); grid.className = 'hub-faces'; grid.setAttribute('role', 'group'); grid.setAttribute('aria-label', o.title);
+      grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:var(--sp-3);margin-top:var(--sp-4)';
+      const faces = people.map(p => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'btn hub-face'; b.dataset.id = p.id;
+        b.style.cssText = 'flex-direction:column;gap:var(--sp-2);min-height:128px;height:auto;padding:var(--sp-3) var(--sp-2);white-space:normal;text-align:center';
+        b.innerHTML = hub.avatarHtml(p, 'avatar-lg') + '<span class="hub-face-name">' + hub.escape(p.name) + '</span>';
+        b.setAttribute('aria-label', p.name); grid.appendChild(b); return b;
+      });
+      sh.appendChild(grid);
+      const row = document.createElement('div'); row.className = 'sheet-actions';
+      const no = document.createElement('button'); no.type = 'button'; no.className = 'btn'; no.textContent = 'Cancel'; row.appendChild(no);
+      sh.appendChild(row); bd.appendChild(sh); w.appendChild(bd);
+      let over = false;
+      const done = v => {
+        if (over) return; over = true;
+        document.removeEventListener('keydown', key, true); w.remove();
+        try { if (prev && prev.isConnected && prev.focus) prev.focus({ preventScroll: true }); } catch {}
+        resolve(v);
+      };
+      const all = [...faces, no];
+      const key = e => {
+        if (over || w !== [...document.querySelectorAll('body > .ds')].filter(x => x.querySelector('.hub-ask')).pop()) return;   // the topmost sheet only
+        if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); done(null); return; }
+        const i = all.indexOf(document.activeElement);
+        if (e.key === 'Tab' || ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && i >= 0)) {   // focus stays on the sheet's buttons
+          e.preventDefault();
+          all[(i + ((e.shiftKey && e.key === 'Tab') || e.key === 'ArrowLeft' ? all.length - 1 : 1) + all.length) % all.length].focus();
+        }
+      };
+      grid.addEventListener('click', e => { const b = e.target.closest('.hub-face'); if (b) done(people.find(p => p.id === b.dataset.id) || null); });
+      no.onclick = () => done(null);
+      bd.addEventListener('click', e => { if (e.target === bd) done(null); });
+      document.addEventListener('keydown', key, true);
+      (document.body || document.documentElement).appendChild(w);
+      faces[0].focus({ preventScroll: true });
+    });
+  };
   hub.escape = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   hub.uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
@@ -1168,8 +1227,10 @@
     return publicProfile(r.profile);
   };
   /** Family album: rows live in app_data (family, 'hub', 'album:<id>'); list them with hub.list('album:', { app: 'hub', scope: 'family' }). */
-  hub.addAlbumPhoto = async (file, caption = '') => {
-    const r = await hub.request('/api/album', { method: 'POST', body: { ...(await twoSizes(file)), caption }, timeout: 60000 });
+  // { as }: on the kitchen, the household adult whose face was tapped (hub.whoDidThis); the Worker files the photo under them
+  hub.addAlbumPhoto = async (file, caption = '', opts = {}) => {
+    const as = opts && opts.as && hub.isKitchen ? String(opts.as) : undefined;
+    const r = await hub.request('/api/album', { method: 'POST', body: { ...(await twoSizes(file)), caption, ...(as ? { as } : {}) }, timeout: 60000 });
     hub.pull(); return r.photo;
   };
   hub.removeAlbumPhoto = async id => { await hub.request(`/api/album/${encodeURIComponent(id)}`, { method: 'DELETE' }); hub.pull(); };

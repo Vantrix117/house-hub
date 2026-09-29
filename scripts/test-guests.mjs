@@ -111,13 +111,13 @@ const expectedKidApps = registry.apps.filter(a => !a.visibleTo || a.visibleTo.in
     await A.page.click('#guest-add');
     await A.page.waitForSelector('#gform');
     ok(await A.page.$$eval('#gemoji button', b => b.length) === 24, 'sheet: a grid of 24 faces');
-    ok(await A.page.$$eval('#gswatches .swatch', b => b.length) >= 8, 'sheet: the colour swatches');
+    ok(await A.page.$$eval('#gswatches .fam', b => b.length) === 18, 'sheet: the 18 named colour families (GAP-ACCENT-1)');
     const small = await A.page.$$eval('#gform button, #gform input', els => els.filter(e => { const r = e.getBoundingClientRect(); return r.height < 44 || r.width < 44; }).length);
     ok(small === 0, 'sheet: every control is at least 44 px', 'small=' + small);
     await A.page.fill('#gname', 'Aunt Sue');
     await A.page.click('#gemoji [data-e="🌻"]');
     ok(await A.page.$eval('#gemoji [data-e="🌻"]', b => b.classList.contains('on') && b.getAttribute('aria-pressed') === 'true'), 'sheet: picking a face marks it');
-    await A.page.click('#gswatches .swatch[data-h="aqua"]');   // batch 1: the swatches are colour families (aqua = #137F77)
+    await A.page.click('#gswatches .fam[data-h="aqua"]');   // batch 2a: the 18-family picker (aqua = #137F77)
     await A.page.click('#gexp [data-x="week"]');
     await A.page.screenshot({ path: path.join(SHOTS, 'rm23-add-guest-sheet.png') });
     await A.page.click('#gform button[type=submit]');

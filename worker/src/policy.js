@@ -240,6 +240,12 @@ function kitchenWrite(profile, { appId, scope, key, value }, cur, people) {
   if (creditChanged && 'by' in v && 'byName' in v && v.by !== profile.id && v.by != null) {
     const q = member(String(v.by)); if (!q || q.name !== v.byName) return 'bad_credit';
   }
+  // the Larder's finished row credits whoever finished it (KITCHEN-2's face sheet): an adult of the household only
+  const finChanged = v.finishedBy !== c.finishedBy || v.finishedByName !== c.finishedByName;
+  if (finChanged && 'finishedBy' in v && v.finishedBy != null && v.finishedBy !== profile.id) {
+    const q = member(String(v.finishedBy));
+    if (!creditOk(v.finishedBy) || ('finishedByName' in v && (!q || q.name !== v.finishedByName))) return 'bad_credit';
+  }
   if (appId === 'prayer' && /^prayer:/i.test(key)) {
     const household = new Set(people.filter(isHouseholdMember).flatMap(q => [q.id, q.name]));   // ids; names from an older app
     if (prayedByDiff(v, obj(cur)).added.some(n => !household.has(n))) return 'bad_credit';

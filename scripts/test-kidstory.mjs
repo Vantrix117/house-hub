@@ -5,7 +5,7 @@
 //       book/people (creation + Noah, Job + Abram, Daniel + lions, John + everything new); the art is the week's story scene
 //   (b) kid flow: Ezra opens Kid Verse on the family week, sees the story below the verse, "Read it to me" speaks it,
 //       "I heard it" (≥ 64 px) marks today: person 'story' = { week, days: { today: true } } mirrored to family story:ezra,
-//       no star is awarded by this item, the feed gets "Ezra heard this week's story"; a second tap keeps one day and says so
+//       no star is awarded by this item, the feed gets "Heard this week's story" under Ezra; a second tap keeps one day and says so
 //   (c) parents: Eli's F260 Today hero has no Kids line while no kid has a row, then "Kids: Ezra 1/5" after one pull,
 //       then "Kids: Ezra 1/5 · Kiara 1/5" after Kiara hears it on another device — within one pull
 //   (d) adults and the kiosk see the story but cannot mark it: no button; heard() refuses and nudges
@@ -245,7 +245,7 @@ const sameStory = (a, b) => !!a && !!b && a.week === b.week && JSON.stringify(a.
     ok(mine && mine.value && mine.value.week === WEEK && mine.value.days && mine.value.days[TODAY] === true && Object.keys(mine.value.days).length === 1, 'app_data(kidverse, person, story) = { week: this ISO week, days: { today: true } }', JSON.stringify(mine && mine.value));
     ok(mirror && sameStory(mirror.value, mine.value), 'app_data(kidverse, family, story:ezra) mirrors the same value', JSON.stringify(mirror && mirror.value));
     const feed = (await api('/api/activity?limit=40', { profile: T.eli })).activity || [];
-    ok(feed.some(a => a.profile_id === 'ezra' && a.app_id === 'kidverse' && /Ezra heard this week's story/.test(a.text)), 'the feed has "Ezra heard this week\'s story"', JSON.stringify(feed.slice(0, 4).map(a => a.text)));
+    ok(feed.some(a => a.profile_id === 'ezra' && a.app_id === 'kidverse' && /^Heard this week's story/.test(a.text)), 'the feed has "Heard this week\'s story" under Ezra (the name is the byline, never in the text: P2-HOME-06)', JSON.stringify(feed.slice(0, 4).map(a => a.text)));
     const starRow = await row(T.ezra, 'family', 'stars:ezra');
     ok(!starRow || !starRow.value || !(starRow.value.days && starRow.value.days[TODAY]), 'no verse-★ day was written by hearing the story (stars stay item 20\'s)', JSON.stringify(starRow && starRow.value && starRow.value.days));
 
@@ -270,7 +270,7 @@ const sameStory = (a, b) => !!a && !!b && a.week === b.week && JSON.stringify(a.
     ok(await FA.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), 'no horizontal scroll in F260 at 1024');
     await A.page.screenshot({ path: path.join(SHOTS, 'rm17-f260-1024.png') });
     const feed2 = (await api('/api/activity?limit=40', { profile: T.eli })).activity || [];
-    ok(feed2.some(a => a.profile_id === 'kiara' && /Kiara heard this week's story/.test(a.text)), 'the feed has "Kiara heard this week\'s story"');
+    ok(feed2.some(a => a.profile_id === 'kiara' && /^Heard this week's story/.test(a.text)), 'the feed has "Heard this week\'s story" under Kiara');
 
     console.log('\n## (d) adults and the kiosk see the story but cannot mark it');
     await A.page.evaluate(() => document.querySelector('#pill-home').click()); await A.page.waitForFunction(() => !document.getElementById('viewer').classList.contains('on'), null, { timeout: 15000 });

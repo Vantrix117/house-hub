@@ -5,7 +5,7 @@
 //       "Done ★" awards one star and a dozen calm confetti dots fall
 //   (b) one star per day: a second tap keeps the count at 1 and says so
 //   (c) the star is stored in person scope as { week: 'YYYY-Www', count, days: { 'YYYY-MM-DD': true } } and mirrored
-//       into family scope stars:<kidId> with the same value; the feed gets "Ezra read the verse ★"
+//       into family scope stars:<kidId> with the same value; the feed gets "Read the verse ★" under Ezra
 //   (d) stars survive a device switch: a second context signs in as Ezra and sees ★1 and "Done today"
 //   (e) adults: Home says "Ezra ★1"; in the app they get the week stepper (writes family 'week') and each kid's stars, read-only;
 //       the kid's open copy follows the new week
@@ -217,7 +217,7 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
     ok(mine && mine.value && mine.value.week === WEEK && mine.value.count === 1 && mine.value.days && mine.value.days[TODAY] === true && Object.keys(mine.value.days).length === 1, 'app_data(kidverse, person, stars) = { week: this ISO week, count: 1, days: { today: true } }', JSON.stringify(mine && mine.value));
     ok(mirror && sameStars(mirror.value, mine.value), 'app_data(kidverse, family, stars:ezra) mirrors the same value', JSON.stringify(mirror && mirror.value));
     const feed = (await api('/api/activity?limit=40', { profile: T.eli })).activity || [];
-    ok(feed.some(a => a.profile_id === 'ezra' && a.app_id === 'kidverse' && /Ezra read the verse ★/.test(a.text)), 'the feed has "Ezra read the verse ★"', JSON.stringify(feed.slice(0, 3).map(a => a.text)));
+    ok(feed.some(a => a.profile_id === 'ezra' && a.app_id === 'kidverse' && /^Read the verse ★/.test(a.text)), 'the feed has "Read the verse ★" under Ezra (the name is the byline, never in the text: P2-HOME-06)', JSON.stringify(feed.slice(0, 3).map(a => a.text)));
     await K.page.evaluate(() => document.querySelector('#pill-home').click()); await K.page.click('.tab[data-tab=home]');
     await waitFor(() => K.page.$eval('.stars-card .gbig', e => /1 star this week/.test(e.textContent)), { label: 'kid Home star' });
     ok(true, 'kid Home Stars card: "1 star this week"');
