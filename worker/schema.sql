@@ -6,14 +6,17 @@ CREATE TABLE IF NOT EXISTS profiles (
   name       TEXT NOT NULL,
   emoji      TEXT NOT NULL DEFAULT '🙂',
   color      TEXT NOT NULL DEFAULT '#5B6FA8',
-  kind       TEXT NOT NULL CHECK (kind IN ('adult','kid','kiosk')),
+  kind       TEXT NOT NULL CHECK (kind IN ('adult','kid','kiosk','kitchen')),   -- kitchen: migrations/006
   pin_hash   TEXT,                          -- NULL = adult has not created a PIN yet
   is_admin   INTEGER NOT NULL DEFAULT 0,
   sort_order INTEGER NOT NULL DEFAULT 0,
   photo      TEXT,                           -- random token; the bytes are media 'photos/<id>/<token>-256.jpg' + '-1024.jpg'
   is_guest   INTEGER NOT NULL DEFAULT 0,     -- guest profiles (migrations/005): added on demand by an adult, kind 'adult', never admin
   created_by TEXT,                            -- guest: the profile id that added them
-  expires_at INTEGER                          -- guest: ms since epoch after which the picker hides them; NULL = keep
+  expires_at INTEGER,                         -- guest: ms since epoch after which the picker hides them; NULL = keep
+  hue               TEXT,                     -- migrations/006: one of the 18 colour family names, set by the admin
+  pin_reset_hash    TEXT,                     -- migrations/006: an admin reset's one-time code (hashed); NULL = none pending
+  pin_reset_expires INTEGER                   -- ms since epoch the code stops working
 );
 
 -- Photo bytes (profile photos, the family album) when there is no R2 bucket bound as MEDIA. See src/media.js.
@@ -46,7 +49,8 @@ CREATE TABLE IF NOT EXISTS devices (
   name       TEXT NOT NULL DEFAULT '',
   token_hash TEXT NOT NULL UNIQUE,
   paired_at  INTEGER NOT NULL,
-  last_seen  INTEGER NOT NULL
+  last_seen  INTEGER NOT NULL,
+  role       TEXT                           -- migrations/006: NULL, or 'kitchen' (the shared kitchen device, set by the admin)
 );
 
 -- Profile sign-ins. A session is bound to the device that created it.

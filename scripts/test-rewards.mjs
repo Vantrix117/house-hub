@@ -93,11 +93,11 @@ async function seed() {
   T = { eli: await login('eli', ELI_PIN), ezra: await login('ezra'), kiara: await login('kiara'), tv: await login('tv') };
   const now = Date.now();
   // a clean slate for both kids (the local DB is shared with other suites)
-  for (const k of ['ezra', 'kiara']) { await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T[k] }).catch(() => {}); await api('/api/data/kidverse/stars:' + k + '?scope=family', { method: 'DELETE', profile: T.eli }).catch(() => {}); }
+  for (const k of ['ezra', 'kiara']) { await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T[k] }).catch(() => {}); await api('/api/data/kidverse/stars:' + k + '?scope=family', { method: 'DELETE', profile: T[k] }).catch(() => {}); }
   await clearLedger();
   await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: T.eli, body: { value: { week: 3, by: 'test' }, updated_at: now } });
   const days = {}; for (const d of STORY_DAYS) days[d] = true;
-  await api('/api/data/kidverse/story:ezra?scope=family', { method: 'PUT', profile: T.eli, body: { value: { days, week: 3 }, updated_at: now } });
+  await api('/api/data/kidverse/story:ezra?scope=family', { method: 'PUT', profile: T.ezra, body: { value: { days, week: 3 }, updated_at: now } });
   await api('/api/data/prayer/prayer:rm20-test?scope=family', { method: 'PUT', profile: T.eli, body: { value: { id: 'rm20-test', title: 'Grandma', text: 'Grandma', updates: [], prayedBy: { [TODAY]: ['Eli', 'Ezra'] }, by: 'eli', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, updated_at: now } });
   // every family prayer row that names Ezra in the last 14 days counts (other suites may have left some)
   for (const r of (await api('/api/data/prayer?scope=family', { profile: T.eli })).items) {
@@ -108,14 +108,15 @@ async function seed() {
 // leave no story / prayed / stars rows behind: other suites (test-kidverse) expect Ezra's ★ to be his only star of the day
 async function cleanup() {
   try {
-    await api('/api/data/kidverse/story:ezra?scope=family', { method: 'DELETE', profile: T.eli });
+    await api('/api/data/kidverse/story:ezra?scope=family', { method: 'DELETE', profile: T.ezra });
     await api('/api/data/prayer/prayer:rm20-test?scope=family', { method: 'DELETE', profile: T.eli });
-    for (const k of ['ezra', 'kiara']) { await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T[k] }); await api('/api/data/kidverse/stars:' + k + '?scope=family', { method: 'DELETE', profile: T.eli }); }
+    for (const k of ['ezra', 'kiara']) { await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T[k] }); await api('/api/data/kidverse/stars:' + k + '?scope=family', { method: 'DELETE', profile: T[k] }); }
     await clearLedger();
     console.log('  (cleaned up the seeded story, prayer, stars and ledger rows)');
   } catch (e) { console.log('  … cleanup skipped: ' + e.message); }
 }
 const ledger = async id => (await api('/api/data/kidverse?scope=family', { profile: T.eli })).items.filter(r => r.key.startsWith('ledger:' + id + ':') && r.value).sort((a, b) => (a.value.at || 0) - (b.value.at || 0));
+// Since batch 0d only the kid writes their own stars:/story: rows (worker/src/policy.js), so the fixtures use the kid's token.
 async function clearLedger() { for (const k of ['ezra', 'kiara']) for (const r of await ledger(k)) await api('/api/data/kidverse/' + encodeURIComponent(r.key) + '?scope=family', { method: 'DELETE', profile: T.eli }).catch(() => {}); }
 // the rules, as CLAUDE.md states them, computed independently of the app
 function expected({ verse = 0, story = STORY_DAYS, prayed = [...PRAYED] } = {}) {
@@ -311,9 +312,9 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
     console.log('\n## (g) the race: a parent cashes in while Kid Verse is open, the kid taps ★ before the next pull');
     // a clean slate: Ezra banked 5 stars on earlier days (no verse today, no ledger rows)
-    await api('/api/data/kidverse/story:ezra?scope=family', { method: 'DELETE', profile: T.eli });
+    await api('/api/data/kidverse/story:ezra?scope=family', { method: 'DELETE', profile: T.ezra });
     await api('/api/data/prayer/prayer:rm20-test?scope=family', { method: 'DELETE', profile: T.eli });
-    await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T.ezra }); await api('/api/data/kidverse/stars:ezra?scope=family', { method: 'DELETE', profile: T.eli });
+    await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T.ezra }); await api('/api/data/kidverse/stars:ezra?scope=family', { method: 'DELETE', profile: T.ezra });
     await clearLedger();
     const seedRow = { week: WEEK, count: 0, days: {}, total: 5, earned: 5, credited: { story: {}, prayed: {} }, badges: { first: daysAgo(10) }, payouts: [], applied: {} };
     await api('/api/data/kidverse/stars?scope=person', { method: 'PUT', profile: T.ezra, body: { value: seedRow, updated_at: Date.now() } });
@@ -357,7 +358,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
     console.log('\n## (g2) the race, for Reset week: the parent resets while Kid Verse is open, the kid taps ★ before the next pull');
     // a clean slate: Ezra has 2 banked, both earned this week (a story and a prayed day credited today, stamped an hour ago), no verse today
-    await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T.ezra }); await api('/api/data/kidverse/stars:ezra?scope=family', { method: 'DELETE', profile: T.eli });
+    await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T.ezra }); await api('/api/data/kidverse/stars:ezra?scope=family', { method: 'DELETE', profile: T.ezra });
     await clearLedger();
     const ago = Date.now() - 3600e3;
     const seedR = { week: WEEK, count: 2, days: {}, total: 2, earned: 2, credited: { story: { [TODAY]: true }, prayed: { [TODAY]: true } }, badges: { first: daysAgo(10) }, payouts: [], applied: {}, earnedAt: { ['story:' + TODAY]: ago, ['prayed:' + TODAY]: ago } };

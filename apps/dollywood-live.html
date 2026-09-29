@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" data-theme="dark" data-flavor="live"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2YH1FkMBQeD3WKKyp6paqb44vmdrCrILzYiFNbLYmaA=' 'sha256-GZi0Owq2UOtWZHhgOn8vsaUTd+GzEMct11TbrM3rlPM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; connect-src 'self' https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <title>Dollywood park map</title>
@@ -692,8 +693,13 @@ const FLAVOR='live';
 const PHONE=()=>FLAVOR==='hub'&&matchMedia('(max-width:699px)').matches;   // the hub build guide's phone layout (sticky bar, bottom sheet)
 /* Who is looking: kids and the kiosk get a view-only map (no GPS, no location broadcast, no web search);
    adults share their spot only after switching it on in the Family pane (kept per person on the hub). */
-const roleOf=()=>(window.hub&&hub.profile)?hub.profile.kind:'guest';
-const VIEW_ONLY=()=>{const k=roleOf();if(k==='kid'){try{if(hub.get('kidshare:'+hub.profile.id,{scope:'family'})===true)return false}catch(e){}}return k==='kid'||k==='kiosk'};   // a kid whose beacon an adult switched on may locate and publish
+const VIEW_ONLY=()=>{if(!(window.hub&&hub.profile))return false;const k=hub.profile.kind;if(k==='adult')return false;if(k==='kid'){try{if(hub.get('kidshare:'+hub.profile.id,{scope:'family'})===true)return false}catch(e){}}return true};   // adults (guests too) locate and share; a kid whose beacon an adult switched on may locate and publish; every other kind (kid, kiosk, kitchen) only looks
+/* Stored strings (profile and guest names, emoji, ids, meeting-point notes: anything from hub.get / hub.list / hub.people or a
+   family row) reach markup only through esc(); a stored colour reaches a style or fill only as #rrggbb (P3-DOLLYWOOD-LIVE-01).
+   The kids' beacons and heights are the household's controls: adults who are not guests (P3-DOLLYWOOD-LIVE-02). */
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const COL=(c,f='#8A6A4B')=>typeof c==='string'&&/^#[0-9a-fA-F]{6}$/.test(c)?c:f;
+const HOUSEHOLD=()=>!!(window.hub&&hub.profile&&hub.profile.kind==='adult'&&!hub.profile.isGuest);
 const shareOn=()=>{try{if(kidBeaconOn())return true;return !!(window.hub&&hub.profile&&hub.canWrite&&!VIEW_ONLY()&&hub.get('share',{scope:'person'})===true)}catch(e){return false}};
 /* Basemap layers live beside this file (apps/dollywood/ in the hub); every one but the default is fetched only when chosen. */
 const IMG='dollywood/relief.jpg', ILL='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', SLOPE='dollywood/slope.png', AER='dollywood/aerial.jpg';
@@ -1228,8 +1234,8 @@ function drawEdge(grp,x,y,k,name,emoji,col,pick){const in_=24*k,ex=Math.max(in_,
   const ar=el('path',{class:'arrow',d:`M${cx+22*k} ${cy-7*k}L${cx+34*k} ${cy}L${cx+22*k} ${cy+7*k}Z`,transform:`rotate(${a*180/Math.PI+ROT} ${cx} ${cy})`});g.appendChild(ar);
   const lab=el('text',{class:'lab',x:cx,y:cy+30*k,'text-anchor':'middle',style:`font-size:${11*k}px;stroke-width:${3*k}px`});lab.textContent=`${name} · ${ftOf(gap)} ${compassOf(x-ex,y-ey)} of the map`;g.appendChild(lab);grp.appendChild(g)}
 function drawFam(){if(!G.fam)return;G.fam.innerHTML='';const k=mpp();drawTrails(k);for(const id in FAM){const f=FAM[id];if(!f||Date.now()-(f.t||0)>4*3600e3)continue;
-  if(!inFrame([f.x,f.y])){if(onProperty([f.x,f.y]))drawEdge(G.fam,f.x,f.y,k,f.name||id,f.emoji||'•',f.color||'#8A6A4B','f:'+id);continue}
-  const cx=f.x,cy=Y(f.y),old=Date.now()-f.t>45*60e3,g=el('g',{class:'famk','data-pick':'f:'+id,opacity:old?.5:1,transform:unrot(cx,cy)}),col=f.color||'#8A6A4B';
+  if(!inFrame([f.x,f.y])){if(onProperty([f.x,f.y]))drawEdge(G.fam,f.x,f.y,k,f.name||id,f.emoji||'•',COL(f.color),'f:'+id);continue}
+  const cx=f.x,cy=Y(f.y),old=Date.now()-f.t>45*60e3,g=el('g',{class:'famk','data-pick':'f:'+id,opacity:old?.5:1,transform:unrot(cx,cy)}),col=COL(f.color);
   g.appendChild(el('circle',{cx,cy,r:16*k,fill:col,stroke:'#fff','stroke-width':2.6*k,filter:'url(#lv-shadow)'}));
   const ph=hubOn()&&hub.photoUrl?hub.photoUrl(personOf(id),'sm'):null;
   if(ph){const im=el('image',{x:cx-14*k,y:cy-14*k,width:28*k,height:28*k,preserveAspectRatio:'xMidYMid slice',class:'fam-photo',style:`clip-path:circle(${14*k}px at ${cx}px ${cy}px)`});im.setAttribute('href',ph);g.appendChild(im)}
@@ -1269,9 +1275,12 @@ function publish(){if(!shareOn()||!me||me.src!=='gps'||me.stale||(me.acc&&me.acc
   const now=Date.now(),moved=!lastPubXY||Math.hypot(me.x-lastPubXY[0],me.y-lastPubXY[1])>8;
   if(now-lastPub<2500||(now-lastPub<8000&&!moved))return;lastPub=now;lastPubXY=[me.x,me.y];
   try{hub.set('loc:'+hub.profile.id,{x:Math.round(me.x),y:Math.round(me.y),acc:me.acc?Math.round(me.acc):null,hdg:me.hdg,t:now,name:hub.profile.name,emoji:hub.profile.emoji,color:hub.profile.color},{scope:'family'})}catch(e){}}
-function loadFam(){if(!window.hub)return;try{for(const k in FAM)delete FAM[k];hub.list('loc:',{scope:'family'}).forEach(r=>{const id=r.key.slice(4);if(hubOn()&&id===hub.profile.id)return;if(!r.value||r.value.x==null)return;
-    if(Date.now()-(r.value.t||0)>24*3600e3){if(hub.canWrite&&!VIEW_ONLY())try{hub.remove(r.key,{scope:'family'})}catch(e){}return}   // a day old: nobody is there any more
-    FAM[id]=r.value;trailAdd(id,r.value)})}catch(e){}drawFam();renderFam();loadMeet()}
+/* a family row is someone else's writing: numbers are numbers, strings are short strings, the colour is #rrggbb */
+const famRow=(id,v)=>{if(!v||typeof v!=='object'||v.x==null||v.y==null)return null;const x=+v.x,y=+v.y,t=+v.t||0,acc=+v.acc;if(!isFinite(x)||!isFinite(y))return null;
+  return {x,y,t,acc:isFinite(acc)&&acc>0?acc:null,hdg:isFinite(+v.hdg)&&v.hdg!=null?+v.hdg:null,name:String(v.name==null||v.name===''?id:v.name).slice(0,60),emoji:v.emoji==null||v.emoji===''?'•':String(v.emoji).slice(0,16),color:COL(v.color)}};
+function loadFam(){if(!window.hub)return;try{for(const k in FAM)delete FAM[k];hub.list('loc:',{scope:'family'}).forEach(r=>{const id=r.key.slice(4);if(hubOn()&&id===hub.profile.id)return;const f=famRow(id,r.value);if(!f)return;
+    const age=Date.now()-f.t;if(age>24*3600e3){if(age>25*3600e3&&hub.canWrite&&!VIEW_ONLY())try{hub.remove(r.key,{scope:'family'})}catch(e){}return}   // a day old: nobody is there any more. Cleared only past 25 h, so a phone clock a little ahead never asks the house to drop a dot it still counts as fresh (only a household adult may clear a fresh one)
+    FAM[id]=f;trailAdd(id,f)})}catch(e){}drawFam();renderFam();loadMeet()}
 /* The pill is a state machine: one of idle · placing · searching · good · weak · stale · arriving · far · denied, each with
    a glyph (the profile emoji when there is one), a short title, a subtitle and, where it helps, one action chip. */
 function updLoc(){const sec=$('loc-sec'),acc=$('loc-acc'),live=$('lv-live'),pill=$('lv-pill'),act=$('lv-act'),em=$('lv-emoji');if(!sec)return;const who=hubOn()?hub.profile.name:null;
@@ -1318,13 +1327,13 @@ function renderFam(){const box=$('fam-list'),st=$('fam-sync');if(!box)return;
   const rows=Object.entries(FAM).filter(([,f])=>f&&f.t).sort((a,b)=>b[1].t-a[1].t);   // < 4 h are on the map; older rows show greyed with their last-seen time
   const canShare=hub.canWrite&&!VIEW_ONLY();
   const shareRow=canShare?`<label class="lv-item lv-share"><span class="t"><b>Share my spot</b><span>${!meOK?'Loading…':shareOn()?'The family can see where you are':'Off — only you see your dot'}</span></span><input type="checkbox" id="lv-share" ${meOK&&shareOn()?'checked':''}${meOK?'':' disabled aria-disabled="true"'} aria-label="Share my spot with the family"></label>`:'';
-  const meRow=canShare?`<div class="lv-item" style="cursor:default"><span class="n" style="background:${hub.profile.color||'#8A6A4B'}">${hub.profile.emoji||'•'}</span><span class="t"><b>${hub.profile.name} (you)</b><span>${me&&me.src==='gps'?placeOf([me.x,me.y])+(!meOK?'':shareOn()?' · sharing':' · not sharing'):'no fix yet'}</span></span></div>`:'';
+  const meRow=canShare?`<div class="lv-item" style="cursor:default"><span class="n" style="background:${COL(hub.profile.color)}">${esc(hub.profile.emoji||'•')}</span><span class="t"><b>${esc(hub.profile.name)} (you)</b><span>${me&&me.src==='gps'?placeOf([me.x,me.y])+(!meOK?'':shareOn()?' · sharing':' · not sharing'):'no fix yet'}</span></span></div>`:'';
   const wire=()=>{const c=$('lv-share');if(c)c.onchange=()=>{if(hubLoaded('person'))setShare(c.checked);else renderFam()}};
   if(!rows.length){box.innerHTML=shareRow+meRow+(famOK?'<div class="lv-empty">No one else is sharing right now. Anyone who switches on Share my spot will show up here.</div>':'<div class="lv-empty" aria-busy="true">Loading the family…</div>');wire();return}
   box.innerHTML=shareRow+meRow+rows.map(([id,f])=>{const s=inFrame([f.x,f.y])?sectionAt(f.x,f.y):null;const d=me&&inFrame([me.x,me.y])&&inFrame([f.x,f.y])?Math.hypot(f.x-me.x,f.y-me.y):null;
-    const stale=Date.now()-f.t>4*3600e3;return`<button class="lv-item" data-f="${id}"${stale?' style="opacity:.55"':''}><span class="n" style="background:${f.color||'#8A6A4B'}">${f.emoji||'•'}</span><span class="t"><b>${f.name||id}</b><span>${placeOf([f.x,f.y])} · ${agoOf(f.t)}</span></span><span class="d">${d!=null?ftOf(d):''}<small>${d!=null?walkOf(d):''}</small></span></button>`}).join('');
-  if(hub.profile.kind==='adult'&&hub.canWrite){const kids=KIDS();if(kids.length){box.insertAdjacentHTML('beforeend',`<div class="lv-grp"><span>Kids' beacons</span><em>show their spot to the family</em></div>`+kids.map(k=>{let on=false;try{on=hub.get('kidshare:'+k.id,{scope:'family'})===true}catch(e){}return `<label class="lv-item lv-share"><span class="n" style="background:${k.color||'#8A6A4B'}">${k.emoji||'•'}</span><span class="t"><b>${k.name}'s beacon</b><span>${!famOK?'Loading…':on?'On — their device shares its spot with the family':'Off — their device only looks'}</span></span><input type="checkbox" data-kid="${k.id}" ${famOK&&on?'checked':''}${famOK?'':' disabled aria-disabled="true"'} aria-label="${k.name}'s beacon"></label>`}).join(''));
-    box.querySelectorAll('input[data-kid]').forEach(c=>c.onchange=()=>{try{hub.set('kidshare:'+c.dataset.kid,c.checked,{scope:'family'});if(!c.checked)hub.remove('loc:'+c.dataset.kid,{scope:'family'})}catch(e){}renderFam()})}}
+    const stale=Date.now()-f.t>4*3600e3;return`<button class="lv-item" data-f="${esc(id)}"${stale?' style="opacity:.55"':''}><span class="n" style="background:${COL(f.color)}">${esc(f.emoji||'•')}</span><span class="t"><b>${esc(f.name||id)}</b><span>${placeOf([f.x,f.y])} · ${agoOf(f.t)}</span></span><span class="d">${d!=null?ftOf(d):''}<small>${d!=null?walkOf(d):''}</small></span></button>`}).join('');
+  if(HOUSEHOLD()&&hub.canWrite){const kids=KIDS();if(kids.length){box.insertAdjacentHTML('beforeend',`<div class="lv-grp"><span>Kids' beacons</span><em>show their spot to the family</em></div>`+kids.map(k=>{let on=false;try{on=hub.get('kidshare:'+k.id,{scope:'family'})===true}catch(e){}return `<label class="lv-item lv-share"><span class="n" style="background:${COL(k.color)}">${esc(k.emoji||'•')}</span><span class="t"><b>${esc(k.name)}'s beacon</b><span>${!famOK?'Loading…':on?'On — their device shares its spot with the family':'Off — their device only looks'}</span></span><input type="checkbox" data-kid="${esc(k.id)}" ${famOK&&on?'checked':''}${famOK?'':' disabled aria-disabled="true"'} aria-label="${esc(k.name)}'s beacon"></label>`}).join(''));
+    box.querySelectorAll('input[data-kid]').forEach(c=>c.onchange=()=>{if(!HOUSEHOLD()||!hubLoaded('family'))return renderFam();try{hub.set('kidshare:'+c.dataset.kid,c.checked,{scope:'family'});if(!c.checked)hub.remove('loc:'+c.dataset.kid,{scope:'family'})}catch(e){}renderFam()})}}   // household adults only: the Worker refuses kidshare: from a guest or a kid
   box.querySelectorAll('.lv-item[data-f]').forEach(b=>b.onclick=()=>showFamily(b.dataset.f));wire();renderKids()}
 function setShare(on){try{hub.set('share',!!on,{scope:'person'})}catch(e){}
   if(on){startGps();if(me&&me.src==='gps'&&!me.stale){lastPub=0;publish()}}   // a fix already in hand goes out at once
@@ -1332,8 +1341,8 @@ function setShare(on){try{hub.set('share',!!on,{scope:'person'})}catch(e){}
   updLoc();renderFam()}
 function showFamily(id){const f=FAM[id];if(!f)return;const s=inFrame([f.x,f.y])?sectionAt(f.x,f.y):null;const d=me&&inFrame([me.x,me.y])?Math.hypot(f.x-me.x,f.y-me.y):null;const fe=edgePt([f.x,f.y]);
   setSheet('peek');follow=false;liveBtn();fitBox([fe[0]-90,fe[0]+90,fe[1]-90,fe[1]+90],true);lastPt=[svg.clientWidth/2,svg.clientHeight/2];
-  openPop(`<h2><span class="badge" style="background:${f.color||'#8A6A4B'}">${f.emoji||'•'}</span>${f.name||id}</h2><div class="meta">${placeOf([f.x,f.y])} · seen ${agoOf(f.t)}${f.acc?` · ± ${Math.round(f.acc*3.28)} ft`:''}</div>
-    ${d!=null?`<div class="lv-from"><b>${ftOf(d)}</b> from you · ${walkOf(d)}</div>`:''}`);pop.dataset.cat='family';pop.style.setProperty('--pop-cat',f.color||'#8A6A4B')}
+  openPop(`<h2><span class="badge" style="background:${COL(f.color)}">${esc(f.emoji||'•')}</span>${esc(f.name||id)}</h2><div class="meta">${placeOf([f.x,f.y])} · seen ${agoOf(f.t)}${f.acc?` · ± ${Math.round(f.acc*3.28)} ft`:''}</div>
+    ${d!=null?`<div class="lv-from"><b>${ftOf(d)}</b> from you · ${walkOf(d)}</div>`:''}`);pop.dataset.cat='family';pop.style.setProperty('--pop-cat',COL(f.color))}
 window.showFamily=showFamily;
 /* ---- walking directions over the mapped guest paths ----
    The OSM footways are polylines that share nodes at junctions; dangling ends within 6 m are stitched so the
@@ -1388,7 +1397,7 @@ const turnSvg=(s,cls)=>{if(s.arrive)return `<svg viewBox="0 0 24 24"><path d="M5
   return `<svg viewBox="0 0 24 24" style="transform:rotate(${rot}deg)"><path d="M12 20V5M6 11l6-6 6 6"/></svg>`};
 function renderSteps(){const box=$('route-steps'),now=$('route-now'),then=$('route-then'),gl=$('route-glyph');if(!ROUTE||!box)return;const st=ROUTE.steps||[];const cur=ROUTE.cur||0;
   now.textContent=st.length?st[cur].text:ROUTE.o.name;if(then)then.textContent=st[cur+1]?`then ${st[cur+1].text}`:'';if(gl)gl.innerHTML=st.length?turnSvg(st[cur]):'';
-  box.innerHTML=st.map((s,i)=>`<div class="lv-step${i===cur?' now':''}${s.arrive?' arrive':''}"><span class="g">${turnSvg(s)}</span><span class="t">${s.text}</span><span class="d">${s.len?ftOf(s.len):''}</span></div>`).join('');routeEta()}
+  box.innerHTML=st.map((s,i)=>`<div class="lv-step${i===cur?' now':''}${s.arrive?' arrive':''}"><span class="g">${turnSvg(s)}</span><span class="t">${esc(s.text)}</span><span class="d">${s.len?ftOf(s.len):''}</span></div>`).join('');routeEta()}
 /* ETA counts down from each fix: distance left along the route from the nearest point on it */
 function routeEta(){const e=$('route-eta');if(!e||!ROUTE)return;let left=ROUTE.len;if(me&&inFrame([me.x,me.y])){const P=ROUTE.pts;let best=null;let acc=0;const cum=[0];for(let i=1;i<P.length;i++){acc+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);cum.push(acc)}
     for(let i=1;i<P.length;i++){const A=P[i-1],B=P[i],dx=B[0]-A[0],dy=B[1]-A[1],L2=dx*dx+dy*dy;let t=L2?((me.x-A[0])*dx+(me.y-A[1])*dy)/L2:0;t=Math.max(0,Math.min(1,t));const px=A[0]+dx*t,py=A[1]+dy*t,d=Math.hypot(me.x-px,me.y-py);if(best==null||d<best.d)best={d,at:cum[i-1]+Math.hypot(px-A[0],py-A[1])}}
@@ -1516,12 +1525,13 @@ const wband=w=>w==null?'closed':w<=15?'short':w<=35?'mid':'long';
 const wtext=w=>w==null?'Closed':w===0?'Walk on':w+' min';
 const wago=iso=>{const m=Math.round((Date.now()-Date.parse(iso))/60000);return !isFinite(m)?'':m<1?'just now':m<60?m+' min ago':Math.round(m/60)+' h ago'};
 const waitOf=o=>WAITS.by[o.num]||null;
+const wnum=v=>v==null||v===''||!isFinite(+v)?null:Math.max(0,Math.round(+v));   // a posted wait lands in markup: a whole number of minutes or nothing
 async function loadWaits(){if(FLAVOR!=='live')return;const base=(window.hub&&hub.api)||'https://house-hub-api.catalystfarm1.workers.dev';
   try{const r=await fetch(base.replace(/\/$/,'')+'/api/dollywood/waits',{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
     const idx={};OFF.forEach(o=>{if(o.cat==='attraction')idx[wnorm(o.name)]=o});const by={};
-    d.rides.forEach(r=>{const o=idx[wnorm(WALIAS[r.name]||r.name)];if(o)by[o.num]={wait:r.open?r.wait:null,open:r.open,updated:r.updated,land:r.land}});
+    d.rides.forEach(r=>{if(!r||typeof r.name!=='string')return;const o=idx[wnorm(WALIAS[r.name]||r.name)];if(o)by[o.num]={wait:r.open?wnum(r.wait):null,open:!!r.open,updated:String(r.updated||''),land:String(r.land||'')}});
     WAITS.by=by;WAITS.at=Date.now();WAITS.updated=d.updated;WAITS.err=false;try{localStorage.setItem('dollywood.live.waits',JSON.stringify({by,at:WAITS.at,updated:d.updated}))}catch(e){}}
-  catch(e){WAITS.err=true;if(!WAITS.at){try{const c=JSON.parse(localStorage.getItem('dollywood.live.waits')||'null');if(c&&Date.now()-c.at<6*3600e3){WAITS.by=c.by;WAITS.at=c.at;WAITS.updated=c.updated}}catch(e2){}}}
+  catch(e){WAITS.err=true;if(!WAITS.at){try{const c=JSON.parse(localStorage.getItem('dollywood.live.waits')||'null');if(c&&Date.now()-c.at<6*3600e3){const by={};for(const n in c.by||{}){const w=c.by[n];if(w&&typeof w==='object')by[n]={wait:wnum(w.wait),open:!!w.open,updated:String(w.updated||''),land:String(w.land||'')}}WAITS.by=by;WAITS.at=+c.at;WAITS.updated=String(c.updated||'')}}catch(e2){}}}
   drawWaits();renderNear();renderWaitCard();if(ROUTE)$('route-meta').textContent=routeMetaText(ROUTE.o);if($('q')&&$('q').value)renderList()}
 const parkClosed=()=>{const ws=Object.values(WAITS.by);return ws.length>0&&ws.every(w=>w.wait==null)};
 function drawWaits(){const closed=parkClosed();OFF.forEach(o=>{if(!o.el)return;let g=o.el.querySelector('.lv-wait');const w=closed?null:waitOf(o);if(!w){if(g)g.remove();return}
@@ -1556,19 +1566,19 @@ const routeMetaText=o=>{const w=waitOf(o);return `${o.name} · ${ftOf(ROUTE.len)
    Waits and Search, markers the chosen kid cannot ride go faint, and every ride card shows who can ride ---- */
 let WHO=null;   // profile id of the kid the lists are filtered for, or null for everyone
 const KIDS=()=>{try{return (window.hub&&hub.people?hub.people():[]).filter(p=>p.kind==='kid')}catch(e){return[]}};
-const kidHeight=id=>{try{const r=hub.get('kid:'+id,{scope:'family'});return r&&r.height_in||null}catch(e){return null}};
+const kidHeight=id=>{try{const r=hub.get('kid:'+id,{scope:'family'}),h=r&&typeof r==='object'?+r.height_in:NaN;return isFinite(h)&&h>0&&h<120?Math.round(h):null}catch(e){return null}};   // a number or nothing: it lands in markup and in comparisons
 const whoKid=()=>{if(!WHO)return null;const k=KIDS().find(p=>p.id===WHO);return k?{...k,height_in:kidHeight(WHO)}:null};
 const fits=(o,kid)=>{kid=kid===undefined?whoKid():kid;return !o.height_in||!kid||!kid.height_in||o.height_in<=kid.height_in};
-const whoChips=()=>{const kids=KIDS();if(!kids.length)return'';return `<div class="lv-chips lv-who-chips"><button data-who="" aria-pressed="${!WHO}">Everyone</button>${kids.map(k=>`<button data-who="${k.id}" aria-pressed="${WHO===k.id}">${k.emoji||'•'} ${k.name}${kidHeight(k.id)?` ${kidHeight(k.id)}"`:''}</button>`).join('')}</div>`};
+const whoChips=()=>{const kids=KIDS();if(!kids.length)return'';return `<div class="lv-chips lv-who-chips"><button data-who="" aria-pressed="${!WHO}">Everyone</button>${kids.map(k=>`<button data-who="${esc(k.id)}" aria-pressed="${WHO===k.id}">${esc(k.emoji||'•')} ${esc(k.name)}${kidHeight(k.id)?` ${kidHeight(k.id)}"`:''}</button>`).join('')}</div>`};
 const wireWho=box=>box.querySelectorAll('.lv-who-chips button').forEach(b=>b.onclick=()=>{WHO=b.dataset.who||null;try{localStorage.setItem('dollywood.live.who',WHO||'')}catch(e){}renderNear();renderList();markNoride()});
 function markNoride(){const kid=whoKid();document.querySelectorAll('.mk').forEach(m=>{const o=OFFNUM[+m.dataset.pick.slice(2)];m.classList.toggle('mk-noride',!!kid&&!fits(o,kid))})}
 const needChip=o=>{const kid=whoKid();if(!kid||fits(o,kid))return'';return `<span class="wt need">needs ${o.height_in}"</span>`};
-function renderKids(){const box=$('kid-list');if(!box||!hubOn())return;const kids=KIDS();if(!kids.length||hub.profile.kind!=='adult'){box.innerHTML='';return}
+function renderKids(){const box=$('kid-list');if(!box||!hubOn())return;const kids=KIDS();if(!kids.length||!HOUSEHOLD()){box.innerHTML='';return}   // household adults only (not guests, kids, the TV or the kitchen): the Worker refuses kid: from anyone else
   const ok=hubLoaded('family'),dis=ok?'':' disabled aria-disabled="true"';   // a step is stored height ± 1: never from an unpulled cache
-  box.innerHTML=`<div class="lv-grp"><span>Kids' heights</span><em>for who-can-ride</em></div>`+kids.map(k=>{const h=kidHeight(k.id);return `<div class="lv-kid" data-k="${k.id}"><span class="n" style="background:${k.color||'#8A6A4B'}">${k.emoji||'•'}</span><span class="t"><b>${k.name}</b><span>${!ok?'Loading…':h?`${h}" — rides up to ${h}" minimums`:'tap + to enter a measured height'}</span></span><span class="st"><button data-d="-1" aria-label="Shorter"${dis}>−</button><b>${h&&ok?h+'"':'—'}</b><button data-d="1" aria-label="Taller"${dis}>+</button></span></div>`}).join('');
-  box.querySelectorAll('.lv-kid button').forEach(b=>b.onclick=()=>{if(!hubLoaded('family'))return;const id=b.closest('.lv-kid').dataset.k,h=(kidHeight(id)||36)+(+b.dataset.d);if(!hub.canWrite)return hub.kioskNudge&&hub.kioskNudge();try{hub.set('kid:'+id,{height_in:Math.max(28,Math.min(72,h)),at:Date.now(),by:hub.profile.id},{scope:'family'})}catch(e){}renderKids();renderNear();markNoride()})}
+  box.innerHTML=`<div class="lv-grp"><span>Kids' heights</span><em>for who-can-ride</em></div>`+kids.map(k=>{const h=kidHeight(k.id);return `<div class="lv-kid" data-k="${esc(k.id)}"><span class="n" style="background:${COL(k.color)}">${esc(k.emoji||'•')}</span><span class="t"><b>${esc(k.name)}</b><span>${!ok?'Loading…':h?`${h}" — rides up to ${h}" minimums`:'tap + to enter a measured height'}</span></span><span class="st"><button data-d="-1" aria-label="Shorter"${dis}>−</button><b>${h&&ok?h+'"':'—'}</b><button data-d="1" aria-label="Taller"${dis}>+</button></span></div>`}).join('');
+  box.querySelectorAll('.lv-kid button').forEach(b=>b.onclick=()=>{if(!hubLoaded('family')||!HOUSEHOLD())return;const id=b.closest('.lv-kid').dataset.k,h=(kidHeight(id)||36)+(+b.dataset.d);if(!hub.canWrite)return hub.kioskNudge&&hub.kioskNudge();try{hub.set('kid:'+id,{height_in:Math.max(28,Math.min(72,h)),at:Date.now(),by:hub.profile.id},{scope:'family'})}catch(e){}renderKids();renderNear();markNoride()})}
 function whoRow(o){if(!hubOn()||!o.height_in)return'';const kids=KIDS();if(!kids.length)return'';
-  return `<div class="lv-who">${kids.map(k=>{const h=kidHeight(k.id);const ok=h?h>=o.height_in:null;return `<span class="${ok==null?'':ok?'ok':'no'}"><i>${k.emoji||'•'}</i>${k.name}${ok==null?' · height?':ok?' ✓':` · ${o.height_in-h}" short`}</span>`}).join('')}</div>`}
+  return `<div class="lv-who">${kids.map(k=>{const h=kidHeight(k.id);const ok=h?h>=o.height_in:null;return `<span class="${ok==null?'':ok?'ok':'no'}"><i>${esc(k.emoji||'•')}</i>${esc(k.name)}${ok==null?' · height?':ok?' ✓':` · ${o.height_in-h}" short`}</span>`}).join('')}</div>`}
 
 /* ---- next ride, door to seat: walking minutes over the mapped paths plus the posted wait, open rides only, honouring the
    height filter; a crowd-crossing penalty when it is in another area ---- */
@@ -1579,7 +1589,7 @@ function nextRides(){if(!me||!inFrame([me.x,me.y])||!Object.keys(WAITS.by).lengt
     const walk=len/1.25/60,sec=sectionAt(o.pos[0],o.pos[1]);const total=walk+w.wait+(sec&&here&&sec.id!==here.id?4:0);rows.push({o,w,len,walk,total})});
   rows.sort((a,b)=>a.total-b.total);NEXT={at:Date.now(),key,rows:rows.slice(0,3)};return NEXT.rows}
 function heroHtml(){const r=nextRides();if(!r.length)return'';const t=r[0];const kid=whoKid();
-  return `<button class="lv-hero-card" data-n="${t.o.num}"><small>Next ride · door to seat</small><b>${t.o.name}</b><span>${Math.round(t.walk)} min walk + ${t.w.wait===0?'no':t.w.wait+' min'} wait${kid?` · ${kid.name} can ride`:t.o.height_in?` · ${t.o.height_in}" to ride`:' · everyone can ride'}</span>${r.length>1?`<div class="alt">then ${r.slice(1).map(x=>`<i>${x.o.name} · ${Math.round(x.total)} min</i>`).join('')}</div>`:''}</button>`}
+  return `<button class="lv-hero-card" data-n="${t.o.num}"><small>Next ride · door to seat</small><b>${t.o.name}</b><span>${Math.round(t.walk)} min walk + ${t.w.wait===0?'no':t.w.wait+' min'} wait${kid?` · ${esc(kid.name)} can ride`:t.o.height_in?` · ${t.o.height_in}" to ride`:' · everyone can ride'}</span>${r.length>1?`<div class="alt">then ${r.slice(1).map(x=>`<i>${x.o.name} · ${Math.round(x.total)} min</i>`).join('')}</div>`:''}</button>`}
 
 /* ---- guest amenities: restrooms, first aid, AED, nursing, strollers, water — from D.amen when the data is built ---- */
 const AMEN={restroom:['🚻','#2B5FB3','Restroom'],first_aid:['✚','#1E8A4C','First aid'],aed:['♥','#C8391F','AED'],nursing:['🍼','#7A4FA3','Nursing'],stroller:['🛒','#C77A00','Strollers'],water:['💧','#1F8FB2','Water'],lost_found:['❓','#6A6259','Lost & found'],atm:['$','#1E6E3A','ATM']};
@@ -1597,7 +1607,8 @@ function showAmen(a){const [ic,col,label]=AMEN[a.kind];const d=me&&inFrame([me.x
 
 /* ---- meet here: a family-scope pin every phone sees, with a route from its own spot; Rally pushes the adults ---- */
 let MEET=null;
-function loadMeet(){if(!window.hub)return;try{const v=hub.get('meet',{scope:'family'});MEET=v&&v.x!=null&&Date.now()-(v.at||0)<2*3600e3?v:null}catch(e){MEET=null}drawMeet();renderMeet()}
+function loadMeet(){if(!window.hub)return;try{const v=hub.get('meet',{scope:'family'}),x=v&&+v.x,y=v&&+v.y,at=v&&+v.at||0;   // the pin is a family row: numbers are numbers, text stays text (drawn with textContent; the route list escapes)
+    MEET=v&&typeof v==='object'&&v.x!=null&&v.y!=null&&isFinite(x)&&isFinite(y)&&Date.now()-at<2*3600e3?{x,y,at,name:String(v.name==null?'here':v.name).slice(0,80),note:v.note==null?'':String(v.note).slice(0,200),by:v.by==null?null:String(v.by),byName:v.byName==null?'':String(v.byName).slice(0,60)}:null}catch(e){MEET=null}drawMeet();renderMeet()}
 function drawMeet(){if(!G.meet)return;G.meet.innerHTML='';if(!MEET)return;const k=mpp(),cx=MEET.x,cy=Y(MEET.y);const g=el('g',{class:'lv-meetpin',transform:unrot(cx,cy)});
   g.appendChild(el('path',{d:`M${cx} ${cy}L${cx} ${cy-34*k}L${cx+22*k} ${cy-27*k}L${cx} ${cy-20*k}Z`,filter:'url(#lv-shadow)'}));g.appendChild(el('circle',{cx,cy,r:4*k,fill:'#C8391F',stroke:'#fff','stroke-width':1.5*k}));
   const t=el('text',{x:cx,y:cy+14*k,style:`font-size:${11*k}px;stroke-width:${3*k}px`});t.textContent=`Meet · ${MEET.name}`;g.appendChild(t);G.meet.appendChild(g)}
@@ -1606,8 +1617,8 @@ function renderMeet(){const bar=$('lv-meet');if(!bar)return;if(!MEET){bar.hidden
   const adult=hubOn()&&hub.profile.kind==='adult'&&hub.canWrite;$('meet-done').hidden=!adult;$('meet-go').hidden=!(me&&inFrame([me.x,me.y]))}
 function setMeet(x,y,name,note){if(!hubOn()||hub.profile.kind!=='adult'||!hub.canWrite)return;const v={x:Math.round(x),y:Math.round(y),name:name||'here',note:note||'',by:hub.profile.id,byName:hub.profile.name,at:Date.now()};
   try{hub.set('meet',v,{scope:'family'});hub.activity&&hub.activity(`Meeting point: ${v.name}`)}catch(e){}MEET=v;drawMeet();renderMeet()}
-function clearMeet(){try{hub.remove('meet',{scope:'family'})}catch(e){}MEET=null;drawMeet();renderMeet();if(ROUTE&&ROUTE.o&&ROUTE.o.meet)endRoute()}
-async function rally(name,x,y){if(!hubOn()||hub.profile.kind!=='adult')return;setMeet(x,y,name);try{const r=await hub.request('/api/dollywood/rally',{method:'POST',body:{name,x:Math.round(x),y:Math.round(y)}});$('meet-meta').textContent=`Rallied ${r.pushed||0} — set by you just now`}catch(e){$('meet-meta').textContent='Set here (push failed — they will see it on their next sync)'}}
+function clearMeet(){if(!hubOn()||hub.profile.kind!=='adult'||!hub.canWrite)return;try{hub.remove('meet',{scope:'family'})}catch(e){}MEET=null;drawMeet();renderMeet();if(ROUTE&&ROUTE.o&&ROUTE.o.meet)endRoute()}
+async function rally(name,x,y){if(!HOUSEHOLD()||!hub.canWrite)return;/* POST /api/dollywood/rally is for household adults only */setMeet(x,y,name);try{const r=await hub.request('/api/dollywood/rally',{method:'POST',body:{name,x:Math.round(x),y:Math.round(y)}});$('meet-meta').textContent=`Rallied ${r.pushed||0} — set by you just now`}catch(e){$('meet-meta').textContent='Set here (push failed — they will see it on their next sync)'}}
 function meetHere(o){const nm=o.name.length>40?o.name.slice(0,38)+'…':o.name;if(!hubOn()||hub.profile.kind!=='adult'){return}
   if(confirm(`Meet at ${nm}?\n\nOK sets the pin for everyone. Tap Rally afterwards to buzz the other adults.`)){setMeet(o.pos[0],o.pos[1],nm);closePop();setSheet('peek')}}
 
@@ -1616,7 +1627,7 @@ const TRAILS={};   // id -> [[x,y,t],...] last 20 accepted points
 const TRAIL_KEY='dollywood.live.trails';
 function trailAdd(id,f){const a=TRAILS[id]=TRAILS[id]||[];const last=a[a.length-1];if(last&&Math.hypot(last[0]-f.x,last[1]-f.y)<6)return;a.push([f.x,f.y,f.t||Date.now()]);while(a.length>20)a.shift();try{localStorage.setItem(TRAIL_KEY,JSON.stringify(TRAILS))}catch(e){}}
 try{Object.assign(TRAILS,JSON.parse(localStorage.getItem(TRAIL_KEY)||'{}'))}catch(e){}
-function drawTrails(k){if(!G.fam)return;const now=Date.now();for(const id in TRAILS){const f=FAM[id];if(!f)continue;const pts=TRAILS[id].filter(p=>now-p[2]<10*60e3);if(pts.length<2)continue;const col=f.color||'#8A6A4B';
+function drawTrails(k){if(!G.fam)return;const now=Date.now();for(const id in TRAILS){const f=FAM[id];if(!f)continue;const pts=TRAILS[id].filter(p=>now-p[2]<10*60e3);if(pts.length<2)continue;const col=COL(f.color);
   for(let i=1;i<pts.length;i++){const age=(now-pts[i][2])/(10*60e3);G.fam.appendChild(el('path',{class:'fam-trail',d:`M${pts[i-1][0]} ${Y(pts[i-1][1])}L${pts[i][0]} ${Y(pts[i][1])}`,stroke:col,'stroke-width':3.5*k,'stroke-opacity':Math.max(.08,.6*(1-age))}))}}}
 const personOf=id=>{try{return (hub.people?hub.people():[]).find(p=>p.id===id)}catch(e){return null}};
 const kidBeaconOn=()=>{try{return !!(window.hub&&hub.profile&&hub.profile.kind==='kid'&&hub.get('kidshare:'+hub.profile.id,{scope:'family'})===true)}catch(e){return false}};

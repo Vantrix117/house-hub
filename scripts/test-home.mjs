@@ -23,6 +23,7 @@ const { chromium } = require('playwright-core');
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CODE = process.argv[2] || 'local-test-code';
 const DAD_PIN = '4680';
+const MAE_PIN = process.env.MAE_PIN || '2580';
 const API = process.env.HUB_API || 'http://127.0.0.1:8787';
 const PORT = 8913;
 const SITE = 'http://localhost:' + PORT;
@@ -72,6 +73,11 @@ async function login(id, pin) {
   try { return (await api('/api/login', { method: 'POST', body: pin ? { profile_id: id, pin } : { profile_id: id } })).profile_token; }
   catch (e) { if (e.error === 'needs_pin_setup') return (await api(`/api/profiles/${id}/pin`, { method: 'POST', body: { pin } })).profile_token; throw e; }
 }
+// Since batch 0d the Worker lets only the person write their own park dot and Kid Verse stars (worker/src/policy.js), and a
+// kid's dot only while a parent has their beacon on: so each seed row is written by its owner, on the seeder device.
+const tokens = {};
+const asOwner = async id => (tokens[id] ||= await login(id, id === 'dad' ? DAD_PIN : id === 'christian' ? MAE_PIN : undefined));
+const ownRow = async (app, key, id, value, updated_at) => api(`/api/data/${app}/${encodeURIComponent(key)}?scope=family`, { method: 'PUT', profile: await asOwner(id), body: { value, updated_at } });
 const pad = n => String(n).padStart(2, '0');
 const dayKey = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const isoWeek = d => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
@@ -80,7 +86,7 @@ const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay(
 const prayer = (id, title, extra) => ({ id, title, category: 'Family', detail: '', for: '', phone: '', cadence: 'daily', days: [], status: 'active', createdAt: YESTERDAY, lastPrayedAt: null, answeredAt: null, answerNote: null, updates: [], sharedFrom: null, prayedBy: {}, updatedAt: new Date().toISOString(), ...extra });
 async function seed() {
   DEVICE = (await api('/api/pair', { method: 'POST', body: { code: CODE, name: 'test-home seeder' } })).device_token;
-  const dad = await login('dad', DAD_PIN), ezra = await login('ezra'), kiara = await login('kiara');
+  const dad = await asOwner('dad'), ezra = await asOwner('ezra'), kiara = await asOwner('kiara');
   // a clean slate for David's own prayer list (the local DB is shared with other suites): tombstone whatever is there,
   // then stamp the seed rows later than those tombstones so last-write-wins keeps them
   for (const it of (await api('/api/data/prayer?scope=person&prefix=prayer:', { profile: dad })).items) if (it.value != null) await api('/api/data/prayer/' + encodeURIComponent(it.key) + '?scope=person', { method: 'DELETE', profile: dad });
@@ -98,15 +104,13 @@ async function seed() {
     ['prayer:p006', prayer('p006', 'A new job', { status: 'answered', answeredAt: YESTERDAY })],
   ]) } });
   // (b) both kids are at the park (Ezra 5 min ago, Kiara 3 min ago); Mae's pin is 5 h old, so she is not
-  await api('/api/data/dollywood-live/batch?scope=family', { method: 'POST', profile: dad, body: { items: rows([
-    ['loc:ezra', { x: 1200, y: 800, acc: 12, hdg: null, t: now - 5 * 60e3, name: 'Ezra', emoji: '🦖', color: '#137F77' }],
-    ['loc:kiara', { x: 900, y: 700, acc: 20, hdg: null, t: now - 3 * 60e3, name: 'Kiara', emoji: '🦄', color: '#B4861B' }],
-    ['loc:christian', { x: 600, y: 500, acc: 9, hdg: null, t: now - 5 * 3600e3, name: 'Mae' }],
-  ]) } });
+  await api('/api/data/dollywood-live/batch?scope=family', { method: 'POST', profile: dad, body: { items: rows([['kidshare:ezra', true], ['kidshare:kiara', true]]) } });   // David switches the kids' beacons on
+  await ownRow('dollywood-live', 'loc:ezra', 'ezra', { x: 1200, y: 800, acc: 12, hdg: null, t: now - 5 * 60e3, name: 'Ezra', emoji: '🦖', color: '#137F77' }, now);
+  await ownRow('dollywood-live', 'loc:kiara', 'kiara', { x: 900, y: 700, acc: 20, hdg: null, t: now - 3 * 60e3, name: 'Kiara', emoji: '🦄', color: '#B4861B' }, now + 1);
+  await ownRow('dollywood-live', 'loc:christian', 'christian', { x: 600, y: 500, acc: 9, hdg: null, t: now - 5 * 3600e3, name: 'Mae' }, now + 2);
   // (c) stars: Ezra 3 this week (person + family mirror), Kiara 7 last week (stale → 0)
-  await api('/api/data/kidverse/batch?scope=family', { method: 'POST', profile: dad, body: { items: rows([
-    ['stars:ezra', { week: WEEK, count: 3 }], ['stars:kiara', { week: LAST_WEEK, count: 7 }],
-  ]) } });
+  await ownRow('kidverse', 'stars:ezra', 'ezra', { week: WEEK, count: 3 }, now);
+  await ownRow('kidverse', 'stars:kiara', 'kiara', { week: LAST_WEEK, count: 7 }, now);
   await api('/api/data/kidverse/stars?scope=person', { method: 'PUT', profile: ezra, body: { value: { week: WEEK, count: 3 }, updated_at: now } });
   await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: kiara }).catch(() => {});
   // (d) 40 activity entries: runs of three by David then two by Ezra, across four apps
@@ -330,8 +334,8 @@ async function artSample(page, sel) {
     await K.ctx.close();
 
     console.log('\n## park card with four people, then the pins go stale');
-    const dad = await login('dad', DAD_PIN);
-    const put = (id, t, name) => api('/api/data/dollywood-live/loc:' + id + '?scope=family', { method: 'PUT', profile: dad, body: { value: { x: 1000, y: 700, t, name }, updated_at: Date.now() } });
+    const dad = await asOwner('dad');
+    const put = (id, t, name) => ownRow('dollywood-live', 'loc:' + id, id, { x: 1000, y: 700, t, name }, Date.now());   // each dot by its owner (batch 0d)
     await put('christian', Date.now() - 12 * 60e3, 'Mae'); await put('dad', Date.now() - 65 * 60e3, 'David');   // (the shell shows hub.people() names, whatever the local DB calls them)
     await A.page.evaluate(() => hub.pull());
     await waitFor(() => A.page.evaluate(() => document.querySelectorAll('.park-card .park-list li').length >= 4 && [...document.querySelectorAll('.park-card .pt')].some(e => e.textContent.trim() === '1h ago')), { label: 'four people on the park card' });

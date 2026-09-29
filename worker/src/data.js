@@ -20,9 +20,9 @@ export async function listData(env, { appId, scope, profile, since = 0, prefix =
   const pid = owner(scope, profile);
   const { results } = await env.DB.prepare(
     `SELECT key, value, updated_at FROM app_data
-      WHERE app_id = ? AND scope = ? AND profile_id IS ? AND synced_at > ? AND key LIKE ? ESCAPE '\\'
+      WHERE app_id = ? AND scope = ? AND profile_id IS ? AND synced_at > ? AND key LIKE ? ESCAPE '\\' AND substr(key, 1, ?) = ?
       ORDER BY synced_at ASC, id ASC`)
-    .bind(appId, scope, pid, since, prefix.replace(/[\\%_]/g, '\\$&') + '%').all();
+    .bind(appId, scope, pid, since, prefix.replace(/[\\%_]/g, '\\$&') + '%', prefix.length, prefix).all();   // LIKE ignores case; substr keeps the prefix exact (batch 0d)
   return results.map(r => ({ key: r.key, value: r.value == null ? null : JSON.parse(r.value), updated_at: r.updated_at }));
 }
 

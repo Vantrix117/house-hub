@@ -8,4 +8,5 @@ INSERT OR IGNORE INTO profiles (id, name, emoji, color, kind, pin_hash, is_admin
   ('mom',       'Elizabeth',     '🌷', '#8A6A4B', 'adult', NULL, 0, 5),
   ('dad',       'David',         '🎣', '#3D5A3D', 'adult', NULL, 0, 6),
   ('niece',     'Mea',           '🌻', '#5B8143', 'adult', NULL, 0, 7),
-  ('tv',        'Downstairs TV', '📺', '#4C4C58', 'kiosk', NULL, 0, 8);
+  ('tv',        'Downstairs TV', '📺', '#4C4C58', 'kiosk', NULL, 0, 8),
+  ('kitchen',   'Kitchen',       '🍳', '#5E7A6E', 'kitchen', NULL, 0, 9);   -- the shared kitchen device's profile (migrations/006)

@@ -358,7 +358,7 @@
     return true;
   }
   function setWeek(w) {
-    if (!hub.canWrite || hub.profile.kind !== 'adult') { hub.kioskNudge(); return; }
+    if (!hub.canWrite || hub.profile.kind !== 'adult' || hub.profile.isGuest) { hub.kioskNudge(); return; }   // household adults only (UX-KIDVERSE-3; the Worker refuses the rest)
     if (!weekReady()) { render(); return; }                              // 0b: the family's real week has not arrived yet
     try { hub.set('week', { week: clampWeek(w), by: hub.profile.id, at: Date.now() }, { scope: 'family' }); } catch {}
     render();
@@ -400,7 +400,8 @@
     const kids = hub.people().filter(q => q && q.kind === 'kid').map(q => ({ ...q, s: wkOk ? kidStars(q.id) : null }));
     let f260 = null; try { const fs = hub.get('f260.summary', { app: 'f260', scope: 'person' }); if (fs && fs.week) f260 = clampWeek(fs.week); } catch {}
     // the stepper stays disabled until the family week has pulled: "+" on a made-up Week 1 would write week 2 over the real one
-    const stepper = p.kind !== 'adult' ? '' : !wkOk
+    // a guest sees the family's week but only the household steps it (UX-KIDVERSE-3, P5-D8)
+    const stepper = p.kind !== 'adult' ? '' : p.isGuest ? (wkOk ? `<p class="hint" id="week-now">The family is on week ${w}.</p>` : '') : !wkOk
       ? `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week" disabled aria-disabled="true">−</button><div class="wk" id="week-now">${SK('3.4em')}<small>Loading the family week…</small></div><button class="btn" id="week-up" aria-label="Next week" disabled aria-disabled="true">+</button></div><p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>`
       : `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week"${w <= 1 ? ' disabled' : ''}>−</button><div class="wk" id="week-now">Week ${w}<small>the family is on</small></div><button class="btn" id="week-up" aria-label="Next week"${w >= 52 ? ' disabled' : ''}>+</button></div>` +
       (f260 && f260 !== w ? `<p class="hint">Your F260 plan is on week ${f260}.<button class="btn btn-soft" id="week-f260">Use week ${f260}</button></p>` : '<p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>');

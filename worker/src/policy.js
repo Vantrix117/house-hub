@@ -1,0 +1,238 @@
+// Who may read and write which rows. The data API, chat and the activity feed all ask here, so a limit the UI shows
+// is also a limit a crafted request meets (P2-PROF-05, P2-SEC-02, P2-CHAT-02, P3-DOLLYWOOD-LIVE-02, UX-KIDVERSE-3, KITCHEN-1).
+//
+// Kinds: a household adult (kind 'adult', not a guest) may write anything but another person's own rows; a guest is an
+// adult who uses the apps but not the household's controls; a kid writes only the rows the kid screens write; the TV
+// (kiosk) writes nothing (auth.js requireWriter); the kitchen writes the family apps and its own Timer and Tally rows.
+import registry from '../../apps.json' with { type: 'json' };
+import { HttpError } from './auth.js';
+import { getOne, putOne } from './data.js';
+import { nyParts } from './reminders.js';
+
+export const APPS = registry.apps.map(a => ({ id: a.id, name: a.name, scope: a.scope, visibleTo: a.visibleTo }));
+const byId = new Map(APPS.map(a => [a.id, a]));
+
+// The kitchen device's apps (KITCHEN-1): the family ones, plus Timer and Tally, whose rows are person scope today.
+export const KITCHEN_APPS = ['leftovers', 'prayer', 'timer', 'tally'];
+const KITCHEN_FAMILY_WRITES = ['leftovers', 'prayer', 'reminders'];
+const KITCHEN_PERSON_WRITES = ['timer', 'tally'];
+
+export const isGuest = p => !!(p && p.is_guest);
+export const isHouseholdAdult = p => !!(p && p.kind === 'adult' && !p.is_guest);
+/** A member of the household a write may credit: a household adult or a kid (never a guest, the TV or the kitchen). */
+export const isHouseholdMember = p => !!(p && !p.is_guest && (p.kind === 'adult' || p.kind === 'kid'));
+
+/** Everyone, loaded once per request. */
+export function householdLoader(env) {
+  let cache = null;
+  return () => (cache ||= env.DB.prepare('SELECT id, name, kind, is_guest, expires_at, emoji, color FROM profiles').all().then(r => r.results));
+}
+
+/**
+ * Can this profile open the app? Mirrors index.html visibleApps: an app without visibleTo is everyone's; a guest sees
+ * what any household adult sees; the kitchen sees its four apps; the TV opens none (it only reads family rows).
+ * Ids that are not apps.json entries (the shell's 'hub', 'reminders') are open to everyone.
+ */
+export function canOpen(profile, appId, people) {
+  if (!profile) return false;
+  if (profile.kind === 'kiosk') return false;
+  if (profile.kind === 'kitchen') return KITCHEN_APPS.includes(appId) || !byId.has(appId);
+  const a = byId.get(appId);
+  if (!a || !a.visibleTo) return true;
+  if (a.visibleTo.includes(profile.id)) return true;
+  if (isGuest(profile)) return people.some(q => isHouseholdAdult(q) && a.visibleTo.includes(q.id));
+  return false;
+}
+
+/** The apps a profile can open, for chat (P2-CHAT-06: never the list the request carries). */
+export async function appsFor(profile, loadPeople) {
+  const people = await loadPeople();
+  return APPS.filter(a => canOpen(profile, a.id, people));
+}
+
+/**
+ * Reads. Person scope is always the caller's own rows (data.js owner()), so it stays open: the shell reads its own
+ * f260 / prayer / timer rows for every profile. Family rows of an app the caller cannot open are refused.
+ */
+export async function checkRead(profile, { appId, scope }, loadPeople) {
+  if (scope !== 'family' || !profile) return;
+  if (profile.kind === 'kiosk' || profile.kind === 'kitchen') return;   // the shared screens read every family board
+  if (!canOpen(profile, appId, await loadPeople())) throw new HttpError(403, 'app_hidden', 'This profile cannot open that app.');
+}
+
+// ── writes ──────────────────────────────────────────────────────────────────────────────────────────────────
+const empty = v => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Array.isArray(v) && v && !Object.keys(v).length);
+const same = (a, b) => (empty(a) && empty(b)) || JSON.stringify(a) === JSON.stringify(b);
+const obj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : null);
+const names = v => (Array.isArray(v) ? v.map(String) : []);
+const DAY_MS = 86400000;
+
+/** Names added to (or taken from) a prayer row's prayedBy, compared with what is stored. */
+function prayedByDiff(next, cur) {
+  const a = obj(next && next.prayedBy) || {}, b = obj(cur && cur.prayedBy) || {};
+  const added = new Set(), removed = new Set();
+  for (const d of new Set([...Object.keys(a), ...Object.keys(b)])) {
+    const na = new Set(names(a[d])), nb = new Set(names(b[d]));
+    for (const n of na) if (!nb.has(n)) added.add(n);
+    for (const n of nb) if (!na.has(n)) removed.add(n);
+  }
+  return { added: [...added], removed: [...removed] };
+}
+
+/** The household's yesterday, today and tomorrow (New York): the only days a kid's tick may touch. */
+const houseDays = (now = Date.now()) => new Set([nyParts(new Date(now - DAY_MS)).date, nyParts(new Date(now)).date, nyParts(new Date(now + DAY_MS)).date]);
+
+/**
+ * A kid's tick on the family list is merged, never taken whole: the stored row, with only the kid's own name added to or
+ * taken from prayedBy on the household's yesterday / today / tomorrow, and lastPrayedAt / updatedAt from the tick. Every
+ * other field, and everyone else's names, stay as the house has them, so a kid's older copy of the row can neither
+ * undo someone else's tick nor change the request, and a tick cannot be backdated to mint Kid Verse stars.
+ */
+function kidPrayerMerge(profile, value, cur) {
+  const out = JSON.parse(JSON.stringify(cur));
+  const days = houseDays(), me = profile.name;
+  const mine = obj(value.prayedBy) || {}, pb = obj(out.prayedBy) ? out.prayedBy : {};
+  const today = nyParts(new Date()).date;
+  for (const d of days) {
+    const set = new Set(names(pb[d]));
+    // a name is added on any of the three days (a device clock a little off), but only taken away today: the Prayer
+    // app untaps today's tick only, and an older copy on a second device must not wipe yesterday's
+    if (names(mine[d]).includes(me)) set.add(me); else if (d === today) set.delete(me);
+    if (set.size) pb[d] = [...set]; else delete pb[d];
+  }
+  out.prayedBy = pb;
+  if (value.lastPrayedAt === null || days.has(value.lastPrayedAt)) out.lastPrayedAt = value.lastPrayedAt;
+  if (typeof value.updatedAt === 'string' && value.updatedAt.length <= 40) out.updatedAt = value.updatedAt;
+  return out;
+}
+/** A kid's prayerDays: the house's days plus the kid's own among yesterday / today / tomorrow; nothing is ever dropped. */
+function kidPrayerDays(value, cur) {
+  const had = Array.isArray(cur) ? cur : [], days = houseDays();
+  const add = (Array.isArray(value) ? value : []).map(String).filter(d => days.has(d) && !had.includes(d));
+  return [...new Set([...had, ...add])].sort();
+}
+
+/**
+ * Checks one write. Returns null when it may go ahead, or an error code. `cur` is the stored value (undefined when the
+ * row does not exist, null for a tombstone). `value` null = a delete.
+ */
+export async function writeError(profile, { appId, scope, key, value }, cur, loadPeople) {
+  if (!profile) return 'profile_required';
+  if (profile.kind === 'kiosk') return 'read_only';
+  const people = await loadPeople();
+  const self = profile.id;
+
+  // Visibility (P2-SEC-02). Person rows of a hidden app are refused too, with one cross-app row: Verses keeps its
+  // recall boxes in the person's F260 scope (apps/verses.html), and kids use Verses though F260 is hidden from them.
+  if (!canOpen(profile, appId, people)) {
+    const versesRecall = scope === 'person' && appId === 'f260' && key === 'f260.recall' && canOpen(profile, 'verses', people);
+    if (!versesRecall) return 'app_hidden';
+  }
+
+  // Rows that belong to one person, whoever writes them.
+  // Prefixes are matched in any letter case, so "LOC:ezra" is Ezra's dot here too (belt and braces: listData's prefix
+  // reads are exact since batch 0d, but a key's case must never be a way round a rule).
+  const lk = key.toLowerCase();
+  if (appId === 'kidverse' && scope === 'family') {
+    const m = /^(stars|story):(.+)$/i.exec(key);
+    if (m && m[2] !== self) return 'not_yours';                         // Kid Verse, signed in as that kid, is the only writer
+    if ((lk === 'week' || lk.startsWith('ledger:')) && !isHouseholdAdult(profile)) return 'household_only';
+  }
+  if (appId === 'dollywood-live' && scope === 'family') {
+    if ((lk.startsWith('kidshare:') || lk.startsWith('kid:') || lk === 'meet') && !(isHouseholdAdult(profile) || (lk === 'meet' && profile.kind === 'adult'))) return 'household_only';
+    const m = /^loc:(.+)$/i.exec(key);
+    if (m && m[1] !== self) {
+      if (value != null) return 'not_yours';                            // only the person's own device places their dot
+      // A household adult clears anyone's (switching a kid's beacon off). Others clear only a dot a day old.
+      const stale = !obj(cur) || !(+cur.t > Date.now() - DAY_MS);
+      if (!isHouseholdAdult(profile) && !stale) return 'not_yours';
+    }
+  }
+
+  if (profile.kind === 'kid') return kidWrite(profile, { appId, scope, key, value }, cur);
+  if (profile.kind === 'kitchen') return kitchenWrite(profile, { appId, scope, key, value }, cur, people);
+  if (profile.kind !== 'adult') return 'read_only';
+  return null;
+}
+
+// A kid writes only what the kid screens write (P2-PROF-05): their own person rows; on the family prayer list a tick
+// under their own name and the day it adds to prayerDays; their Kid Verse mirror and story rows (checked above); their
+// own park-map dot while an adult has their beacon on.
+function kidWrite(profile, { appId, scope, key, value }, cur) {
+  if (scope === 'person') return null;
+  if (appId === 'prayer') {
+    if (/^prayer:/.test(key)) return obj(value) && obj(cur) ? null : 'kid_readonly';   // merged in guardedPut (kidPrayerMerge)
+    if (key === 'prayerDays') return Array.isArray(value) ? null : 'kid_readonly';     // merged in guardedPut (kidPrayerDays)
+    return 'kid_readonly';
+  }
+  if (appId === 'kidverse' && /^(stars|story):/.test(key)) return null;   // own rows only (checked in writeError)
+  if (appId === 'dollywood-live' && key === 'loc:' + profile.id) return null;   // the beacon gate is kidLocAllowed()
+  if (appId === 'dollywood-live' && /^loc:/i.test(key) && value == null) return null;   // a day-old dot (checked in writeError)
+  return 'kid_readonly';
+}
+
+// The kitchen (KITCHEN-1): family rows of the family apps; person rows only its own Timer and Tally; anyone it credits
+// must be a household member (a kid never on the Larder, P5-D2).
+function kitchenWrite(profile, { appId, scope, key, value }, cur, people) {
+  if (scope === 'person') return KITCHEN_PERSON_WRITES.includes(appId) || (appId === 'hub' && key === 'theme') ? null : 'kitchen_person';   // its own look too
+  if (!KITCHEN_FAMILY_WRITES.includes(appId)) return 'kitchen_family';
+  const v = obj(value);
+  if (!v) return null;
+  const c = obj(cur) || {};
+  const member = id => people.find(q => q.id === id);
+  const creditOk = id => {
+    if (id === undefined || id === null || id === profile.id) return true;
+    const q = member(String(id));
+    if (!isHouseholdMember(q)) return false;
+    return !(appId === 'leftovers' && q.kind === 'kid');
+  };
+  // only the credit this write gives: a row someone else wrote keeps its author (a guest's request, an older Larder row)
+  const creditChanged = v.by !== c.by || v.byName !== c.byName;
+  if (creditChanged && 'by' in v && !creditOk(v.by)) return 'bad_credit';
+  if (creditChanged && 'by' in v && 'byName' in v && v.by !== profile.id && v.by != null) {
+    const q = member(String(v.by)); if (!q || q.name !== v.byName) return 'bad_credit';
+  }
+  if (appId === 'prayer' && /^prayer:/i.test(key)) {
+    const household = new Set(people.filter(isHouseholdMember).map(q => q.name));
+    if (prayedByDiff(v, obj(cur)).added.some(n => !household.has(n))) return 'bad_credit';
+  }
+  return null;
+}
+
+/** The kid beacon gate: a kid's own dot only while an adult has switched their beacon on (kidshare:<id> === true). */
+async function kidLocAllowed(env, profile, { appId, scope, key, value }) {
+  if (!(profile && profile.kind === 'kid' && appId === 'dollywood-live' && scope === 'family' && key === 'loc:' + profile.id && value != null)) return true;
+  const share = await getOne(env, { appId, scope: 'family', profile, key: 'kidshare:' + profile.id });
+  return !!(share && share.value === true);
+}
+
+/**
+ * One checked write: the policy above, then last-write-wins (data.js putOne). A refused row comes back as
+ * { key, rejected: <code>, value, updated_at } with what the house holds, so the device can put it back; nothing is stored.
+ */
+export async function guardedPut(env, profile, args, loadPeople) {
+  const cur = await getOne(env, args);
+  const why = (await writeError(profile, args, cur ? cur.value : undefined, loadPeople))
+    || (!(await kidLocAllowed(env, profile, args)) ? 'beacon_off' : null);
+  if (why) return { key: args.key, rejected: why, value: cur ? cur.value : null, updated_at: cur ? cur.updated_at : 0, applied: false };
+  if (profile.kind === 'kid' && args.appId === 'prayer' && args.scope === 'family') {
+    // the merge is built on the row as stored now, so it may beat it: a kid's tick made offline is not lost to a later
+    // write by someone else, and the kid's next pull brings the merged row back to their device
+    const updated_at = Math.max((+args.updated_at || Date.now()) + 1, cur ? +cur.updated_at + 1 : 0);   // +1: newer than the copy on the kid's device, so its next pull shows the merged row
+    if (/^prayer:/.test(args.key)) return putOne(env, { ...args, updated_at, value: kidPrayerMerge(profile, args.value, cur.value) });
+    if (args.key === 'prayerDays') return putOne(env, { ...args, updated_at, value: kidPrayerDays(args.value, cur ? cur.value : null) });
+  }
+  return putOne(env, args);
+}
+
+/**
+ * Who a kitchen write credits: a feed line or an album photo sent with `as`. Returns the household profile, or throws.
+ * Anyone else's `as` is ignored: a personal session is always filed under itself.
+ */
+export async function creditFor(profile, as, appId, loadPeople) {
+  if (!profile || profile.kind !== 'kitchen' || as === undefined || as === null || as === '' || as === profile.id) return profile;
+  const q = (await loadPeople()).find(x => x.id === String(as));
+  if (!isHouseholdMember(q)) throw new HttpError(403, 'bad_credit', 'Only someone in the household can be credited.');
+  if ((appId === 'leftovers' || appId === 'album') && q.kind === 'kid') throw new HttpError(403, 'bad_credit', 'Kids only look at the Larder and the album.');
+  return q;
+}

@@ -12,10 +12,11 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 |---|---|
 | `wrangler.toml` | Worker name, D1 binding (`DB`), `ALLOWED_ORIGINS` (CORS allow-list) |
 | `schema.sql` | Tables. Idempotent — `npx wrangler d1 execute house-hub --remote --file schema.sql` |
-| `seed.sql` | The eight household profiles (`INSERT OR IGNORE`, never overwrites admin edits) |
+| `seed.sql` | The household profiles, the TV and the kitchen (`INSERT OR IGNORE`, never overwrites admin edits) |
 | `src/index.js` | Routes |
 | `src/auth.js` | PBKDF2 hashing, tokens, sessions, rate limits |
 | `src/data.js` | `app_data` last-write-wins upsert, listing, tombstones |
+| `src/policy.js` | Who may read and write which rows (kids, guests, the kitchen, app visibility from `../apps.json`); every data and chat write goes through `guardedPut()` |
 | `src/push.js` | Web Push encryption (RFC 8291) + VAPID, WebCrypto only |
 | `src/reminders.js` | the reminder jobs (morning, evening, behind, prayer, park) and `pushTo()` |
 | `src/chat.js` | `/api/chat`: Claude tool loop, guards, streaming |
@@ -25,17 +26,27 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 
 ## Auth model
 
-1. **Pair the device** once: `POST /api/pair {code}` → `device_token`. Send it as `X-Device-Token` on every request.
-   The code is hashed in `settings.pairing_code_hash`; 10 wrong tries per IP per 15 min.
+1. **Pair the device** once: `POST /api/pair {code, name?, fp?}` → `device_token`. Send it as `X-Device-Token` on every request.
+   The code is hashed in `settings.pairing_code_hash`. Wrong codes: 5 per install id (`fp`, a random id hub.js keeps in
+   `hub.fp`) per 15 min and 20 per IP as a backstop, so one device cannot block the house; a page without `fp` gets 10 per IP.
 2. **Sign in as a profile**: `POST /api/login {profile_id, pin?}` → `profile_token`, sent as `X-Profile-Token`.
    - kids and the kiosk: no PIN
    - a guest without a PIN: no PIN either (signs in on tap); a guest whose stay has ended → `403 guest_expired`, and their existing sessions stop with `401 profile_session_invalid`
-   - adult with no PIN yet → `403 needs_pin_setup` → `POST /api/profiles/:id/pin {pin}` (4–8 digits, only while unset) signs them in.
+   - adult with no PIN yet → `403 needs_pin_setup` (with `pin_reset: true` after an admin reset) → `POST /api/profiles/:id/pin {pin, code?}`
+     (4–8 digits, only while unset) signs them in. After an admin reset it also needs the one-time `code` the admin was shown
+     (`403 needs_code`, `401 wrong_code`, `403 code_expired` after 24 h). A household adult who never had a PIN still creates it
+     on first tap; the admin's "Set-up code" closes that too.
      Never for a guest (`403 guest_pin_fixed`): a guest's PIN is chosen when they are added, and the admin's Reset PIN
      ("Clear PIN" on a guest row) turns them into a tap-to-open guest — so no paired device can lock a guest out or take the profile
-   - 5 wrong PINs per profile per device → `429` for 15 min
+   - the kitchen (kind `kitchen`, KITCHEN-1): only on a device whose `role` is `kitchen`, no PIN; a kitchen device signs in as nothing
+     else (`403 kitchen_device` / `403 not_kitchen_device`), and a session whose profile and device role no longer match gets `401`
+   - wrong PINs and codes (each attempt counted before it is checked): 5 per profile per device per 15 min, 20 per device a day,
+     and 10 per profile per hour across every device; the 10th pauses that profile's sign-ins for 1 h, then 2 h, 4 h … up to
+     24 h for each further pause within a week, and pushes the admin (kind `security`). A device the person has signed in on
+     before is held only by its own limits, never by the pause. The admin's reset-pin lifts the pause → `429 too_many_attempts`
    - sessions last a year and are bound to the device that created them
 3. Person-scope reads, every write, and `/api/admin/*` need the profile token. Family-scope reads need only the device token (the kiosk uses this). Kiosk profiles cannot write (`403 read_only`).
+4. **Who may write which rows** (`src/policy.js`, batch 0d). Family rows of an app the profile cannot open (apps.json `visibleTo`; a guest opens what any household adult opens) are refused for reading and writing (`403 app_hidden`); person rows of such an app too, except Verses' `f260.recall` in the F260 scope. A **kid** writes only their own person rows; on the family prayer list a tick under their own name (`prayedBy`, `lastPrayedAt`, `updatedAt`, nothing else) and new `prayerDays` dates; their own Kid Verse `stars:<id>` / `story:<id>`; their own park-map `loc:<id>` while `kidshare:<id>` is `true`, and a dot more than a day old. **Only a household adult** (not a guest) writes Kid Verse `week` and `ledger:*` and the park map's `kidshare:*` and `kid:*`. Nobody writes someone else's `stars:`/`story:` or places someone else's `loc:`; clearing another's fresh dot is for household adults. The **kitchen** writes family rows of leftovers, prayer and reminders and person rows of its own timer and tally only, and every `by` / new `prayedBy` name it writes must be a household member (never a kid on the Larder). A refused single write answers `403 not_allowed {rejected, key, value, updated_at}`; in a batch the refused row comes back as `{key, rejected, value, updated_at}` (the house's copy, which hub.js puts back) and the others still save.
 
 ## Endpoints
 
@@ -55,49 +66,69 @@ POST /api/dollywood/rally               {name, x, y, note?}  "Rally the family" 
                                            skipped:[{profile, why: pref_off | no_subscription | delivery_failed | push_error}]}
 DELETE /api/dollywood/rally             tombstones the meet row (household adults only, same 403s; no push, no rate limit) and logs
                                         "Cleared the meeting point: <name>" → {ok:true, cleared (there was one), updated_at}
-POST /api/pair                          {code, name?}
-GET  /api/profiles                      (no hashes; has_pin, is_guest, expires_at, created_by) — guests whose expires_at has passed are
-                                        left out unless the caller is the admin
+POST /api/pair                          {code, name?, fp?}
+GET  /api/profiles                      (no hashes; has_pin, pin_reset, hue, is_guest, expires_at, created_by) — guests whose expires_at has
+                                        passed are left out unless the caller is the admin; the kitchen is listed with kind 'kitchen', which
+                                        every picker leaves out
 POST /api/profiles                      {name, emoji?|icon?, color?, pin?, expires_at?}  household adults only (kids, the display and
                                         guests → 403): a guest profile, kind adult, is_guest 1, id 'guest-<random>', never admin;
-                                        expires_at ms since epoch or null = keep; logs "Added a guest: <name>" on Home
+                                        expires_at ms since epoch or null = keep; hue 'sky'; logs "Added a guest: <name>" on Home.
+                                        Names and emoji with < or > → 400 bad_name / bad_emoji (also on the admin's edit)
 POST /api/login                         {profile_id, pin?}
-POST /api/profiles/:id/pin              {pin}  first-time PIN creation, household adults only (guests → 403 guest_pin_fixed)
+POST /api/profiles/:id/pin              {pin, code?}  PIN creation while unset, household adults only (guests → 403 guest_pin_fixed);
+                                        after an admin reset the one-time code is required
 GET  /api/me            POST /api/logout
+POST /api/me/pin                        {current, pin}  Change my PIN (household adults; a wrong current PIN → 403 wrong_pin, counted)
+GET  /api/device                        (device token) → {id, name, role: null|'kitchen', kitchen_profile}: the shell asks at boot and
+                                        after a 401, and on a kitchen device signs in as the kitchen instead of showing the picker
 POST /api/device/forget                 household adults: deletes this device, its sessions and its push subscriptions (Me → Forget)
 
 GET  /api/data/:appId?scope=person|family[&since=ms][&prefix=][&key=]
 PUT  /api/data/:appId/:key?scope=       {value, updated_at}   → {value, updated_at, applied}
 DELETE /api/data/:appId/:key?scope=     (writes a tombstone)
-POST /api/data/:appId/batch?scope=      {items:[{key,value,updated_at}]}  at most 200 items; a bad row (bad_key, value_too_large) fails the request
+POST /api/data/:appId/batch?scope=      {items:[{key,value,updated_at}]}  at most 200 items; a bad row (bad_key, value_too_large) fails the request;
+                                        a row the policy refuses comes back as {key, rejected, value, updated_at} and the others still save
 
-GET  /api/activity?limit=30             POST /api/activity {app_id, text, at?}  (at: when it happened, ms; kept if within the past week, never ahead)
+GET  /api/activity?limit=30             POST /api/activity {app_id, text, at?, as?}  (at: when it happened, ms; kept if within the past week,
+                                        never ahead; as: the kitchen files the line under the household member whose face was tapped,
+                                        403 bad_credit otherwise; ignored for everyone else). A prayer line "Prayed for …" / "Answered: …"
+                                        must name a family-list request or say "a private request" (400 private_title)
 
 GET  /api/push/config                   {public_key, enabled}
-POST /api/push/subscribe {subscription} DELETE /api/push/subscribe
+POST /api/push/subscribe {subscription} DELETE /api/push/subscribe   (the kitchen → 403 no_push)
 POST /api/push/test                     sends a test notification to the caller's devices
 
 PUT  /api/profiles/:id/photo            {sm, lg} base64 JPEGs (256 px ≤ 80 KB, 1024 px ≤ 420 KB) — own profile (adults) or any (admin)
 DELETE /api/profiles/:id/photo
-POST /api/album {sm, lg, caption?}      adults; the row lands in app_data (family, 'hub', 'album:<id>') so it syncs like a list
+POST /api/album {sm, lg, caption?, as?} adults, or the kitchen for the household adult in as; the row lands in app_data (family, 'hub',
+                                        'album:<id>') so it syncs like a list
 DELETE /api/album/:id                   the person who added it, or the admin
 GET  /api/media/photos/:id/<token>-256.jpg | -1024.jpg,  GET /api/media/album/<id>-256.jpg | -1024.jpg
                                         public, immutable, unguessable keys; bytes in R2 when a MEDIA bucket is bound, else the D1 `media` table (src/media.js)
 
-POST /api/chat {message, apps}          text/event-stream: text | tool | done | error events (see src/chat.js)
+POST /api/chat {message}                text/event-stream: text | tool | done | error events (see src/chat.js). The apps the person can use
+                                        come from the Worker's copy of apps.json (policy.js), never the request; the kiosk and the kitchen → 403
 GET  /api/chat/history                  last 20 messages, used/cap for today
 
 Admin (is_admin profile token):
-POST /api/admin/profiles/:id/reset-pin  (on a guest: they sign in on tap from then on — nobody can "create" a guest PIN)
-PUT  /api/admin/profiles/:id            {name?, emoji?, color?, kind?, sort_order?, expires_at?}  (expires_at: guests only — extend or end a stay;
-                                        ending it deletes the guest's sessions and push subscriptions at once)
+POST /api/admin/profiles/:id/reset-pin  {admin_pin?}  household adult → {code, expires_at}: a one-time 6-digit code, shown once, good for
+                                        24 h, that they type before choosing a new PIN (the admin's own reset needs admin_pin, 403
+                                        wrong_admin_pin); on a guest: the PIN is cleared and they sign in on tap. Ends the profile's sessions
+                                        and lifts its wrong-PIN pause. Only adults (400 no_pin_for_kind)
+PUT  /api/admin/profiles/:id            {name?, emoji?, color?, hue?, kind?, sort_order?, expires_at?}  (expires_at: guests only — extend or end
+                                        a stay; ending it deletes the guest's sessions and push subscriptions at once). hue: one of the 18
+                                        colour families or null. A household profile made an adult comes back with {setup_code}. A new kind
+                                        ends the profile's sessions. The kitchen: colour only (400 kitchen_fixed); nobody becomes the kitchen
+PUT  /api/admin/devices/:id/role        {role: 'kitchen'|null, admin_pin}  from another device (400 cannot_change_self), the admin's PIN
+                                        typed again (403 wrong_admin_pin). Setting it ends that device's personal sessions and push
+                                        subscriptions; clearing it ends its kitchen session
 DELETE /api/admin/profiles/:id          guests only (400 not_a_guest otherwise): the profile, its person-scope app_data, sessions, push
                                         subscriptions, chat log, activity and photos are deleted
 POST /api/admin/profiles/:id/purge      the same for a guest whose stay has ended (400 not_expired otherwise)
 POST /api/admin/guests/purge            run the guest cleanup now: every expired guest loses sessions + push subscriptions ("silenced"),
                                         every guest expired more than 30 days ago is deleted as above
 POST /api/admin/pairing-code/rotate     {code?}  (omit code → one is generated and returned once)
-GET  /api/admin/usage                   chat messages / push sends per profile per day, devices
+GET  /api/admin/usage                   chat messages / push sends per profile per day, devices (with role)
 DELETE /api/admin/devices/:id
 POST /api/admin/cron/run                {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'park'}  run one reminder job now, ignoring the clock
                                         (expired guests are silenced first, so a forced job cannot reach them either)
@@ -114,8 +145,9 @@ A guest is an ordinary adult profile with `is_guest = 1`, `created_by` (who adde
 Any household adult creates one from the Me tab; the picker on every device shows it on its next `GET /api/profiles`
 ("Guest · until <date>"). Guests can never be the admin or become a kid/kiosk (`400 guest_must_be_adult`), and cannot
 add other guests. Because `apps.json`'s `visibleTo` lists household ids, a guest sees every app that is open to everyone
-or to at least one household adult — the shell applies that rule in `visibleApps()`, and `POST /api/chat` adds the guest's
-id to those apps' `visibleTo` before the tool loop so chat tools see the same set. Once `expires_at` passes the guest
+or to at least one household adult — the shell applies that rule in `visibleApps()`, and the Worker applies the same rule
+(`canOpen()` in `src/policy.js`) to data and chat. Guests use the apps but not the household's controls: no kids' beacons
+or heights, no family memory-verse week, no rewards ledger (P5-D8). Once `expires_at` passes the guest
 disappears from the picker (the admin still sees them, with Purge), cannot sign in, and their sessions and push
 subscriptions are deleted (on the admin's `PUT {expires_at}`, on the first request with a stale token, and before every
 cron run — so the household reminders never reach a departed visitor's phone); their person-scope rows stay 30 days so
@@ -156,8 +188,8 @@ carries a human `chip` for anything that changed data (`null` for reads).
 | Tool | Who | Does |
 |---|---|---|
 | `list_apps` | all | the apps this person can use |
-| `get_data {app_id, scope, key?}` | all (own apps) | read an app's rows; `*.vault` rows and values over 4 KB are withheld |
-| `set_data {app_id, scope, key, value}` | all (own apps; kids not on adult-only apps) | write one value |
+| `get_data {app_id, scope, key?}` | all (own apps) | read an app's rows; `*.vault` rows (listed or asked for by key) and values over 4 KB are withheld |
+| `set_data {app_id, scope, key, value}` | all (own apps; every chat write meets the same rules as the data API, `src/policy.js`) | write one value |
 | `add_list_item {app_id: leftovers \| reminders, item}` | leftovers: all; reminders: adults | add a fridge item or a house reminder |
 | `toggle_f260_reading {week, day}` | F260 users | tick/untick one reading, keeps `f260.log`/`f260.summary` in step |
 | `add_prayer {list, text, for?}` | prayer users | new request on the private (person) or family list |
@@ -216,5 +248,9 @@ Local state lives in `.wrangler/` (git-ignored). Local-only secrets go in `.dev.
 | `profile_session_invalid` | Session expired, PIN was reset, token from another device, or a guest's stay ended — pick the profile again |
 | `guest_expired` (403) | That guest's `expires_at` has passed; the admin can extend it (`PUT /api/admin/profiles/:id {expires_at}`) |
 | `guest_pin_fixed` (403) | `POST /api/profiles/:id/pin` on a guest — their PIN was set when they were added; the admin clears it with reset-pin |
+| `needs_code` / `wrong_code` / `code_expired` | PIN creation after an admin reset: type the one-time code the admin was shown (24 h); the admin can issue a new one |
+| `too_many_attempts` (429) on sign-in | 10 wrong PINs or codes for that profile within the hour (any devices) paused it; the admin was pushed; Reset PIN lifts it |
+| `not_allowed` (403) / `rejected` in a batch | The profile may not write that row (`src/policy.js`): a kid, a guest or the kitchen outside its rows, or an app it cannot open |
+| `kitchen_device` / `not_kitchen_device` (403) | Sign-in mixing the kitchen device and a person; the admin sets or clears the role (`PUT /api/admin/devices/:id/role`) |
 | `no such table` | Run `schema.sql` against `--remote` |
 | CORS error in the browser | Origin not in `ALLOWED_ORIGINS` in `wrangler.toml`; redeploy after editing |

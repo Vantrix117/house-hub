@@ -8,8 +8,9 @@
 //   done  {usage, stop_reason}        finished
 //   error {error, message}
 import { HttpError } from './auth.js';
-import { listData, getOne, putOne, liveItems } from './data.js';
+import { listData, getOne, liveItems } from './data.js';
 import { nyParts } from './reminders.js';
+import { appsFor, householdLoader, guardedPut } from './policy.js';
 
 export const MODEL = 'claude-sonnet-5';
 export const MAX_TOKENS = 800;
@@ -117,8 +118,10 @@ async function usedToday(env, profileId) {
   const d = today();
   return results.filter(r => nyParts(new Date(r.created_at)).date === d).length;
 }
-const visibleApps = (apps, profile) => (apps || []).filter(a => !a.visibleTo || a.visibleTo.includes(profile.id));
-const adultOnly = (apps, appId) => { const a = (apps || []).find(x => x.id === appId); return !!(a && a.visibleTo); };
+// ctx.apps is the list the Worker itself computed for this person (policy.js appsFor), never one from the request (P2-CHAT-06).
+const visibleApps = apps => apps || [];
+const REFUSED = { not_allowed: 'This person cannot change that.', kid_readonly: 'Kids cannot change that.', household_only: 'Only a household grown-up can change that.', app_hidden: 'This person cannot use that app.', not_yours: 'That belongs to someone else.', beacon_off: 'A parent has not switched this child\'s beacon on.' };
+const refusal = code => REFUSED[code] || 'This person cannot change that.';
 
 /** One line on Home's family feed. The feed prints the person's name itself, so `text` starts with the verb ("Added a guest: Sue"). Shared with index.js routes. */
 export async function activity(env, profile, appId, text) {
@@ -157,23 +160,26 @@ async function familyWeek(env) {
 /** Runs one tool. Returns { result (for the model), chip (for the UI), ok }. Never throws for user-level problems. */
 async function runTool(env, ctx, name, input) {
   const { profile, apps } = ctx;
-  const canUse = id => visibleApps(apps, profile).some(a => a.id === id);
+  const canUse = id => visibleApps(apps).some(a => a.id === id);
+  // Every write goes through the same rules as the data API (policy.js): a kid, a guest or the kitchen is limited here too.
+  const putOne = async (_env, args) => { const r = await guardedPut(env, profile, args, ctx.people); if (r.rejected) throw new Refused(r.rejected); return r; };
   const shrink = v => { const s = JSON.stringify(v); return s.length > BIG_VALUE ? `(large value, ${s.length} chars, not shown)` : v; };
   try {
     if (profile.kind === 'kid' && !KID_TOOLS.includes(name)) return { ok: false, result: 'That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.', chip: null };
 
-    if (name === 'list_apps') return { ok: true, result: visibleApps(apps, profile).map(a => ({ id: a.id, name: a.name, scope: a.scope })), chip: null };
+    if (name === 'list_apps') return { ok: true, result: visibleApps(apps).map(a => ({ id: a.id, name: a.name, scope: a.scope })), chip: null };
 
     if (name === 'get_data') {
       if (!canUse(input.app_id) && !['reminders', 'hub'].includes(input.app_id)) return { ok: false, result: 'This person cannot use that app.', chip: null };
       const args = { appId: input.app_id, scope: input.scope, profile };
+      // the journal vault never leaves the house, asked for by name or not (P2-CHAT-07)
+      if (input.key && /\.vault$/.test(input.key)) return { ok: false, result: 'The private journal is locked; it cannot be read from chat.', chip: null };
       if (input.key) { const r = await getOne(env, { ...args, key: input.key }); return { ok: true, result: r && r.value != null ? shrink(r.value) : null, chip: null }; }
       const rows = (await listData(env, args)).filter(r => r.value != null && !/\.vault$/.test(r.key)).slice(0, 60);
       return { ok: true, result: rows.map(r => ({ key: r.key, value: shrink(r.value) })), chip: null };
     }
 
     if (name === 'set_data') {
-      if (profile.kind === 'kid' && (adultOnly(apps, input.app_id) || !canUse(input.app_id))) return { ok: false, result: 'Kids cannot change that app.', chip: null };
       if (!canUse(input.app_id) && !['reminders', 'hub'].includes(input.app_id)) return { ok: false, result: 'This person cannot use that app.', chip: null };
       if (/\.vault$/.test(input.key)) return { ok: false, result: 'The journal vault cannot be edited from chat.', chip: null };
       await putOne(env, { appId: input.app_id, scope: input.scope, profile, key: input.key, value: input.value, updated_at: Date.now() });
@@ -254,13 +260,14 @@ async function runTool(env, ctx, name, input) {
         const daysRow = await getOne(env, { appId: 'prayer', scope, profile, key: 'prayerDays' });
         const days = Array.isArray(daysRow && daysRow.value) ? daysRow.value : [];
         if (!days.includes(d)) await putOne(env, { appId: 'prayer', scope, profile, key: 'prayerDays', value: [...days, d].sort(), updated_at: now });
-        await activity(env, profile, 'prayer', `Prayed for ${p.title}${scope === 'family' ? ' (family list)' : ''} (via chat)`);
+        // a private request is never named on the family feed (P2-PWA-01); the chip, which only this person sees, keeps the title
+        await activity(env, profile, 'prayer', scope === 'family' ? `Prayed for ${p.title} (family list) (via chat)` : 'Prayed for a private request (via chat)');
         return { ok: true, result: { id: p.id, title: p.title, lastPrayedAt: d, prayedBy: scope === 'family' ? p.prayedBy[d] : undefined }, chip: `✓ Prayed for ${p.title}` };
       }
       if (p.status === 'answered') return { ok: false, result: `"${p.title}" is already marked answered (${p.answeredAt}).`, chip: null };
       p.status = 'answered'; p.answeredAt = d; p.answerNote = String(input.note || '').trim().slice(0, 1000); p.updatedAt = new Date(now).toISOString();
       await putOne(env, { appId: 'prayer', scope, profile, key: found.key, value: p, updated_at: now });
-      await activity(env, profile, 'prayer', `Answered: ${p.title} (via chat)`);
+      await activity(env, profile, 'prayer', scope === 'family' ? `Answered: ${p.title} (via chat)` : 'Answered a private request (via chat)');
       return { ok: true, result: { id: p.id, title: p.title, status: 'answered', answeredAt: d, answerNote: p.answerNote }, chip: `✓ Answered: ${p.title}` };
     }
 
@@ -316,14 +323,16 @@ async function runTool(env, ctx, name, input) {
     }
     return { ok: false, result: 'unknown tool', chip: null };
   } catch (e) {
+    if (e instanceof Refused) return { ok: false, result: refusal(e.code), chip: null };
     return { ok: false, result: 'Tool failed: ' + (e.message || e), chip: null };
   }
 }
+class Refused extends Error { constructor(code) { super(code); this.code = code; } }
 
 // ── prompt ────────────────────────────────────────────────────
 function systemPrompt({ profile, household, apps }) {
   const people = household.map(p => `${p.name} (${p.kind}${p.is_admin ? ', admin' : ''})`).join(', ');
-  const appList = visibleApps(apps, profile).map(a => `- ${a.id}: ${a.name} [${a.scope} data]`).join('\n');
+  const appList = visibleApps(apps).map(a => `- ${a.id}: ${a.name} [${a.scope} data]`).join('\n');
   const base = `You are the Anderson House helper, a friendly assistant built into the family's hub app.
 Household: ${people}.
 Signed in now: ${profile.name} (${profile.kind}${profile.isAdmin ? ', admin' : ''}). Only their own person-scope data is reachable; family-scope data is shared by everyone.
@@ -400,14 +409,15 @@ export async function chatHandler(c, auth) {
   const body = await c.body();
   const text = String(body.message || '').trim().slice(0, 2000);
   if (!text) throw new HttpError(400, 'bad_message', 'Say something first.');
-  const apps = Array.isArray(body.apps) ? body.apps.slice(0, 40).map(a => ({ id: String(a.id), name: String(a.name || a.id), scope: String(a.scope || 'person'), visibleTo: Array.isArray(a.visibleTo) ? a.visibleTo.map(String) : undefined })) : [];
+  const people = householdLoader(c.env);
+  const apps = await appsFor(profile, people);   // body.apps is ignored: the Worker decides what this person can open
 
   // Daily cap: user messages sent today (New York day).
   const { results: recent } = await c.env.DB.prepare("SELECT role, content, created_at FROM chat_log WHERE profile_id = ? AND created_at > ? ORDER BY created_at DESC LIMIT 200").bind(profile.id, Date.now() - 36 * 3600000).all();
   const used = await usedToday(c.env, profile.id);
   if (used >= DAILY_CAP) throw new HttpError(429, 'daily_cap', `That's ${DAILY_CAP} messages for today — the assistant is resting until tomorrow.`, { used, cap: DAILY_CAP });
 
-  const { results: household } = await c.env.DB.prepare("SELECT name, kind, is_admin FROM profiles ORDER BY sort_order").all();
+  const { results: household } = await c.env.DB.prepare("SELECT name, kind, is_admin FROM profiles WHERE kind != 'kitchen' ORDER BY sort_order").all();
   const history = recent.slice(0, HISTORY).reverse().filter(r => r.role === 'user' || r.role === 'assistant').map(r => ({ role: r.role, content: r.content }));
   // The API wants alternating turns starting with user; drop a leading assistant and collapse repeats.
   const msgs = [];
@@ -421,7 +431,7 @@ export async function chatHandler(c, auth) {
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
   const send = (event, data) => writer.write(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)).catch(() => {});
-  const ctx = { profile, apps };
+  const ctx = { profile, apps, people };
 
   const run = async () => {
     let finalText = '', chips = [], usage = null, stop = null;

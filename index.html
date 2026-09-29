@@ -475,8 +475,10 @@
   const isGuest = () => !!(hub.session && hub.session.profile && hub.session.profile.is_guest);
   const householdAdultIds = () => hub.people().filter(x => x.kind === 'adult' && !x.is_guest).map(x => x.id);
   const guestUntil = p => !p.expires_at ? '' : (p.expires_at < Date.now() ? 'ended ' : 'until ') + new Date(p.expires_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const KITCHEN_APPS = ['leftovers', 'prayer', 'timer', 'tally'];   // KITCHEN-1: the family apps (the Worker holds the same list)
   const visibleApps = () => {
     const p = hub.profile; if (!p || p.kind === 'kiosk') return [];
+    if (p.kind === 'kitchen') return registry.apps.filter(a => KITCHEN_APPS.includes(a.id));
     if (isGuest()) { const adults = householdAdultIds(); return registry.apps.filter(a => !a.visibleTo || a.visibleTo.some(id => adults.includes(id))); }
     return registry.apps.filter(a => !a.visibleTo || a.visibleTo.includes(p.id));
   };
@@ -513,8 +515,17 @@
   }
 
   let profiles = [];
+  // KITCHEN-1: a device the admin marked as the kitchen never shows the picker. Asked at boot and after any 401 (both
+  // land here), so a device whose role changes moves to the kitchen, or back to the picker, on its next request.
+  async function kitchenSignIn() {
+    let r; try { r = await hub.deviceRole(); } catch { return false; }
+    if (r.role !== 'kitchen' || !r.kitchen_profile) return false;
+    hub.dropPersonCaches(r.kitchen_profile);   // a session the role change ended leaves no one's private rows on the counter
+    try { await hub.login(r.kitchen_profile); enterShell(); return true; } catch { return false; }
+  }
   async function showPicker(msg) {
     hub.setSession(null);
+    if (hub.device && await kitchenSignIn()) return;
     const last = hub.lastProfile();
     showGate(`
       <div class="gate-title pop-in"><h1>${esc(registry.title || 'Anderson House')}</h1><p>Who's this?</p></div>
@@ -529,10 +540,10 @@
       if (!profiles.length) { $('#pickmsg').textContent = e.message; return; }
     }
     $('#profiles').classList.add('stagger');
-    $('#profiles').innerHTML = profiles.map(p => `
+    $('#profiles').innerHTML = profiles.filter(p => p.kind !== 'kitchen').map(p => `
       <button class="pcard glass-strong${p.id === last ? ' last' : ''}" data-id="${esc(p.id)}" style="--tint:${esc(p.color || FALLBACK)}">
         ${avatar(p, 'avatar-lg')}<span>${esc(p.name)}</span>
-        <span class="psub">${p.is_guest ? 'Guest' + (p.has_pin ? ' · PIN' : '') + (p.expires_at ? ' · ' + guestUntil(p) : '') : p.id === last ? 'Welcome back' : p.kind === 'kid' ? 'Tap to start' : p.kind === 'kiosk' ? 'Display' : (p.has_pin ? 'PIN' : 'Create your PIN')}</span>
+        <span class="psub">${p.is_guest ? 'Guest' + (p.has_pin ? ' · PIN' : '') + (p.expires_at ? ' · ' + guestUntil(p) : '') : p.id === last ? 'Welcome back' : p.kind === 'kid' ? 'Tap to start' : p.kind === 'kiosk' ? 'Display' : (p.has_pin ? 'PIN' : p.pin_reset ? 'Enter your code' : 'Create your PIN')}</span>
       </button>`).join('');
     $('#profiles').addEventListener('click', ev => {
       const b = ev.target.closest('.pcard'); if (!b) return;
@@ -546,7 +557,7 @@
       catch (e) { $('#pickmsg').textContent = e.message; }
       return;
     }
-    if (p.has_pin) showPinPad(p); else showCreatePin(p);
+    if (p.has_pin) showPinPad(p); else if (p.pin_reset) showCodeEntry(p); else showCreatePin(p);
   }
   function padHtml(p, title, hint) {
     return `
@@ -601,14 +612,21 @@
       catch (e) { if (e.error === 'needs_pin_setup') { k.stop(); return showCreatePin(p); } throw e; }
     });
   }
-  function showCreatePin(p) {
+  // After an admin reset the person first types the one-time code the admin was shown (P2-PROF-04), then a new PIN.
+  const adminName = () => ((profiles.find(x => x.is_admin) || hub.people().find(x => x.is_admin)) || {}).name || 'the admin';
+  function showCodeEntry(p, msg) {
+    const k = keypad(p, 'Enter your code', `Type the 6-digit code ${adminName()} gave you. Then you choose a new PIN.`, async code => { k.stop(); showCreatePin(p, code); });
+    if (msg) k.setMessage(msg);
+  }
+  function showCreatePin(p, code) {
     let first = null;
     const k = keypad(p, 'Create your PIN', 'Choose 4 to 8 digits. You will type it once more to confirm.', async pin => {
       if (first === null) { first = pin; k.reset(); k.setHint('Type it again to confirm.'); k.setMessage('', true); return; }
       if (pin !== first) { first = null; k.setHint('Choose 4 to 8 digits.'); throw new Error("Those didn't match — start again."); }
-      try { await hub.createPin(p.id, pin); k.stop(); enterShell(); }
+      try { await hub.createPin(p.id, pin, code); k.stop(); enterShell(); }
       catch (e) {
         if (e.error === 'pin_already_set') { k.stop(); return showPinPad({ ...p, has_pin: true }); }
+        if (e.error === 'needs_code' || e.error === 'wrong_code' || e.error === 'code_expired') { k.stop(); return showCodeEntry(p, e.error === 'needs_code' ? '' : e.message); }
         first = null; k.setHint('Choose 4 to 8 digits.'); throw e;
       }
     });
@@ -1278,7 +1296,7 @@
           ${hub.THEMES.map(t => `<button class="theme-card${theme === t.id ? ' on' : ''}" data-theme="${t.id}" aria-pressed="${theme === t.id}">
             <span class="theme-swatch tp" data-preview="${t.id}">${t.id === 'system' ? '<span class="tp-half"><i class="tp-card"></i></span>' : ''}<i class="tp-hero"></i><i class="tp-card"></i><i class="tp-card"></i><i class="tp-dot"></i></span>
             <span class="theme-name">${esc(t.name)}</span><span class="theme-blurb">${esc(t.blurb)}</span></button>`).join('')}</div></div>
-        ${p.kind !== 'kiosk' ? `<div class="card glass" id="notif"><h2>Notifications</h2>
+        ${p.kind !== 'kiosk' && p.kind !== 'kitchen' ? `<div class="card glass" id="notif"><h2>Notifications</h2>
           <div class="hstack"><div class="grow"><div>Reminders on this device</div><div class="help" id="notif-help">Checking…</div></div><button class="switch" id="notif-toggle" role="switch" aria-checked="false" aria-label="Notifications on this device" disabled></button></div>
           <div id="notif-prefs" hidden style="margin-top:var(--sp-3)">
             ${p.kind === 'adult' ? '<div class="kv"><b>Fridge warnings, 8 am</b><button class="switch" data-pref="leftovers" role="switch" aria-checked="true" aria-label="Fridge warnings"></button></div>' : ''}
@@ -1299,6 +1317,7 @@
           ${hub.isSafariTab() ? '<p class="help" id="safari-tab" role="note" style="margin:var(--sp-2) 0 0">In a Safari tab, Safari may clear the hub’s saved data after a week away, unsent changes included. Add it to the Home Screen (Share → Add to Home Screen) to keep them.</p>' : ''}
           <div class="hstack" style="margin-top:var(--sp-3)"><button class="btn grow" id="syncnow">Check now</button>${p.kind === 'adult' && !isGuest() ? '<button class="btn btn-ghost" id="forget">Forget this device</button>' : ''}</div>
         </div>
+        ${p.kind === 'adult' && !isGuest() ? '<div class="card glass" id="pin-card"><h2>PIN</h2><p class="help" style="margin:0 0 var(--sp-3)">The PIN you type to sign in, on every device.</p><button class="btn" id="pin-change">Change my PIN</button></div>' : ''}
         ${p.isAdmin ? '<div class="card glass span2" id="admin"><h2>Admin</h2><div id="admin-body"><div class="skeleton" style="height:120px">loading</div></div></div>' : ''}
       </div>`;
     // the next person starts on Home, in their own look, with none of this person's data on the device
@@ -1318,8 +1337,9 @@
         } else hub.toast(e.status ? e.message : 'Can’t reach the house — try again when this device is online.', 5000);
       }
     });
+    if ($('#pin-change')) $('#pin-change').addEventListener('click', changePinSheet);
     if (p.isAdmin) renderAdmin();
-    if (p.kind !== 'kiosk') renderNotif();
+    if (p.kind !== 'kiosk' && p.kind !== 'kitchen') renderNotif();
     // photos: own photo from the hero, album photos from the card
     const fileIn = $('#photo-file'); let fileFor = null;
     const pickFile = for_ => { fileFor = for_; fileIn.value = ''; fileIn.click(); };
@@ -1607,6 +1627,30 @@
     if (ev.data.type === 'open') { const h = new URL(ev.data.url).hash; if (h && location.hash !== h) location.hash = h; else if (h) { const id = h.slice(1); appById(id) ? openApp(id) : showTab(TABS.includes(id) ? id : 'home'); } }
   });
 
+  // ── PINs: the one-time code, a PIN prompt, Change my PIN ───────
+  function showCodeSheet(q, code, expires) {
+    const until = expires ? new Date(expires).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' }) : 'tomorrow';
+    sheet(`<h2>Code for ${esc(q.name)}</h2><p class="text-2">Give ${esc(q.name)} this code. They tap their name, type it, then choose a new PIN. It works once, until ${esc(until)}, and it is shown only now.</p><div class="well" style="font-family:var(--font-mono);font-size:var(--fs-2xl);text-align:center;letter-spacing:.2em;margin:var(--sp-4) 0">${esc(String(code).replace(/(\d{3})(\d{3})/, '$1 $2'))}</div><button class="btn btn-primary btn-block" data-close>Done</button>`);
+  }
+  function changePinSheet() {
+    const sh = sheet(`<h2>Change my PIN</h2><form id="cpform" class="stack" style="margin-top:var(--sp-3)">
+      <label class="field"><span class="label">Current PIN</span><input class="input" id="cpcur" type="password" inputmode="numeric" pattern="\\d{4,8}" minlength="4" maxlength="8" autocomplete="off" required></label>
+      <label class="field"><span class="label">New PIN (4 to 8 digits)</span><input class="input" id="cpnew" type="password" inputmode="numeric" pattern="\\d{4,8}" minlength="4" maxlength="8" autocomplete="off" required></label>
+      <label class="field"><span class="label">New PIN again</span><input class="input" id="cpnew2" type="password" inputmode="numeric" pattern="\\d{4,8}" minlength="4" maxlength="8" autocomplete="off" required></label>
+      <p class="pin-msg" id="cpmsg" role="alert"></p>
+      <div class="hstack"><button class="btn btn-ghost grow" type="button" data-close>Cancel</button><button class="btn btn-primary grow" type="submit">Change PIN</button></div></form>`);
+    setTimeout(() => { try { sh.el.querySelector('#cpcur').focus(); } catch {} }, 50);
+    sh.el.querySelector('#cpform').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const cur = sh.el.querySelector('#cpcur').value.trim(), a = sh.el.querySelector('#cpnew').value.trim(), b = sh.el.querySelector('#cpnew2').value.trim(), msg = sh.el.querySelector('#cpmsg');
+      if (!/^\d{4,8}$/.test(a)) { msg.textContent = 'The new PIN is 4 to 8 digits.'; return; }
+      if (a !== b) { msg.textContent = "The new PINs don't match."; return; }
+      const btn = ev.submitter || sh.el.querySelector('button[type="submit"]'); btn.disabled = true; msg.textContent = '';
+      try { await hub.changePin(cur, a); sh.close(); hub.toast('PIN changed. Use the new one next time you sign in.'); }
+      catch (e) { btn.disabled = false; msg.textContent = e.status ? e.message : 'Can’t reach the house — try again when this device is online.'; }
+    });
+  }
+
   // ── admin panel ───────────────────────────────────────────────
   async function renderAdmin() {
     const body = $('#admin-body'); if (!body) return;
@@ -1615,7 +1659,7 @@
     try { [list, usage] = await Promise.all([hub.request('/api/profiles').then(r => r.profiles), hub.request('/api/admin/usage')]); }
     catch (e) { body.innerHTML = `<p class="text-2">Could not load admin data: ${esc(e.message)}</p>`; return; }
     if (!body.isConnected) return;   // the Me tab was re-rendered (profile switched) while the admin data loaded
-    const kindLbl = k => ({ adult: 'Adult', kid: 'Kid', kiosk: 'Display' })[k] || k;
+    const kindLbl = k => ({ adult: 'Adult', kid: 'Kid', kiosk: 'Display', kitchen: 'Kitchen (shared device)' })[k] || k;
     const day = t => new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     const nameOf = id => (list.find(x => x.id === id) || {}).name || id || '—';
     const chatRows = usage.chat.slice(0, 30), pushRows = usage.push.slice(0, 30);
@@ -1625,15 +1669,15 @@
       <ul class="list admin-people">${list.map(q => `<li class="row prow" style="--tint:${esc(q.color || FALLBACK)}">${avatar(q)}
         <div class="row-main"><div class="row-title">${esc(q.name)}${q.is_admin ? ' · admin' : ''}</div><div class="row-sub">${q.is_guest
           ? 'Guest · ' + (q.expires_at ? esc(guestUntil(q)) : 'no end date') + (q.has_pin ? ' · PIN set' : ' · no PIN') + (q.created_by ? ' · added by ' + esc(nameOf(q.created_by)) : '')
-          : kindLbl(q.kind) + (q.kind === 'adult' ? (q.has_pin ? ' · PIN set' : ' · no PIN yet') : '')}</div></div>
+          : kindLbl(q.kind) + (q.kind === 'adult' ? (q.has_pin ? ' · PIN set' : q.pin_reset ? ' · waiting for their code' : ' · no PIN yet') : '')}</div></div>
         ${q.is_guest
           ? `<div class="guest-btns"><button class="btn" data-edit="${esc(q.id)}">Edit</button>${q.has_pin ? `<button class="btn btn-ghost" data-resetpin="${esc(q.id)}">Clear PIN</button>` : ''}<button class="btn btn-ghost" data-remove="${esc(q.id)}">Remove</button>${q.expires_at && q.expires_at < Date.now() ? `<button class="btn btn-danger" data-purge="${esc(q.id)}">Purge</button>` : ''}</div>`
-          : `<button class="btn" data-edit="${esc(q.id)}">Edit</button>${q.kind === 'adult' && q.has_pin ? `<button class="btn btn-ghost" data-resetpin="${esc(q.id)}">Reset PIN</button>` : '<span></span>'}`}</li>`).join('')}</ul>
+          : `<button class="btn" data-edit="${esc(q.id)}">Edit</button>${q.kind === 'adult' ? `<button class="btn btn-ghost" data-resetpin="${esc(q.id)}">${hub.profile && q.id === hub.profile.id ? 'Change PIN' : q.has_pin ? 'Reset PIN' : 'Set-up code'}</button>` : '<span></span>'}`}</li>`).join('')}</ul>
       <h3 style="margin:var(--sp-5) 0 var(--sp-2)">Pairing code</h3>
       <p class="help" style="margin:0 0 var(--sp-3)">New devices need it once. Rotating it does not unpair anything.</p>
       <div class="hstack"><button class="btn" id="rotate-choose">Choose a new code</button><button class="btn btn-ghost" id="rotate-gen">Generate one</button></div>
       <h3 style="margin:var(--sp-5) 0 var(--sp-2)">Devices</h3>
-      <ul class="list">${usage.devices.length ? usage.devices.map(d => `<li class="row"><div class="row-main"><div class="row-title">${esc(d.name || 'Unnamed')}</div><div class="row-sub">Paired ${day(d.paired_at)} · seen ${ago(d.last_seen).replace(/^(d)/, '$1 ')}${/^d/.test(ago(d.last_seen)) ? ' ago' : ''}${d.id === me ? ' · this device' : ''}</div></div>
+      <ul class="list">${usage.devices.length ? usage.devices.map(d => `<li class="row"><div class="row-main"><div class="row-title">${esc(d.name || 'Unnamed')}</div><div class="row-sub">Paired ${day(d.paired_at)} · seen ${ago(d.last_seen).replace(/^(d)/, '$1 ')}${/^d/.test(ago(d.last_seen)) ? ' ago' : ''}${d.id === me ? ' · this device' : ''}${d.role === 'kitchen' ? ' · Kitchen' : ''}</div></div>
         ${d.id !== me ? `<button class="btn btn-ghost" data-unpair="${esc(d.id)}">Unpair</button>` : ''}</li>`).join('') : '<li class="row muted">No paired devices.</li>'}</ul>
       <h3 style="margin:var(--sp-5) 0 var(--sp-2)">Usage (30 days)</h3>
       <div class="grid-2">
@@ -1649,8 +1693,21 @@
       const r = ev.target.closest('[data-resetpin]'); if (r) {
         const q = list.find(x => x.id === r.dataset.resetpin);
         // item 23: a guest's PIN is fixed at creation (nobody can "create" one on a paired device), so clearing it means they sign in on tap
-        if (!confirm(q.is_guest ? `Clear ${q.name}'s PIN? As a guest they will sign in on tap from now on.` : `Reset ${q.name}'s PIN? They will create a new one next time they tap their name.`)) return;
-        try { await hub.request(`/api/admin/profiles/${q.id}/reset-pin`, { method: 'POST', body: {} }); hub.toast(q.is_guest ? 'PIN cleared.' : 'PIN reset.'); renderAdmin(); renderGuests(); } catch (err) { hub.toast(err.message); }
+        if (q.is_guest) {
+          if (!confirm(`Clear ${q.name}'s PIN? As a guest they will sign in on tap from now on.`)) return;
+          try { await hub.request(`/api/admin/profiles/${q.id}/reset-pin`, { method: 'POST', body: {} }); hub.toast('PIN cleared.'); renderAdmin(); renderGuests(); } catch (err) { hub.toast(err.message); }
+          return;
+        }
+        // P2-PROF-04: a household adult's reset gives the admin a one-time code for them; the admin's own reset needs their PIN
+        const self = !!hub.profile && q.id === hub.profile.id;
+        // the admin's own PIN: Change my PIN (current PIN, then the new one). A self-reset would sign the only admin out
+        // everywhere with nothing but a code on the picker to get back in (the Worker still takes it, with the admin's PIN).
+        if (self) { changePinSheet(); return; }
+        if (!confirm(q.has_pin ? `Reset ${q.name}'s PIN? You get a one-time code to give them; they type it before choosing a new PIN.` : `Make a set-up code for ${q.name}? Until they use it, nobody can create ${q.name}'s PIN without it.`)) return;
+        try {
+          const res = await hub.request(`/api/admin/profiles/${q.id}/reset-pin`, { method: 'POST', body: {} });
+          showCodeSheet(q, res.code, res.expires_at); renderAdmin();
+        } catch (err) { hub.toast(err.message); }
         return;
       }
       // item 23: guests — Remove deletes the guest and everything they saved; Purge does the same for one whose stay has ended
@@ -1690,13 +1747,14 @@
   }
   function editProfile(q) {
     let color = q.color;
+    const kitchen = q.kind === 'kitchen';   // KITCHEN-1: not a person; only its colour can change
     const sh = sheet(`<h2>Edit ${esc(q.name)}</h2>
       <form id="pform" class="stack" style="margin-top:var(--sp-3)">
-        <label class="field"><span class="label">Name</span><input class="input" id="pname" value="${esc(q.name)}" maxlength="40" required></label>
-        <label class="field"><span class="label">Emoji</span><input class="input" id="pemoji" value="${esc(q.emoji)}" maxlength="8" style="font-size:var(--fs-xl)"></label>
+        <label class="field"><span class="label">Name</span><input class="input" id="pname" value="${esc(q.name)}" maxlength="40" required ${kitchen ? 'disabled' : ''}></label>
+        <label class="field"><span class="label">Emoji</span><input class="input" id="pemoji" value="${esc(q.emoji)}" maxlength="8" style="font-size:var(--fs-xl)" ${kitchen ? 'disabled' : ''}></label>
         <div class="field"><span class="label">Photo</span><div class="hstack">${avatar(q)}<button class="btn" type="button" data-photo="pick">Choose a photo</button>${q.photo ? '<button class="btn btn-ghost" type="button" data-photo="remove">Remove</button>' : ''}</div></div>
         <div class="field"><span class="label">Colour</span><div class="swatches" id="swatches">${SWATCHES.map(c => `<button type="button" class="swatch${c === q.color ? ' on' : ''}" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div></div>
-        <label class="field"><span class="label">Kind</span><select class="select" id="pkind" ${q.is_admin ? 'disabled' : ''}>${['adult', 'kid', 'kiosk'].map(k => `<option value="${k}" ${q.kind === k ? 'selected' : ''}>${({ adult: 'Adult (PIN)', kid: 'Kid (no PIN, fewer apps)', kiosk: 'Display (read-only)' })[k]}</option>`).join('')}</select></label>
+        <label class="field"><span class="label">Kind</span><select class="select" id="pkind" ${q.is_admin || kitchen ? 'disabled' : ''}>${kitchen ? '<option value="kitchen" selected>Kitchen (shared device)</option>' : ''}${(kitchen ? [] : ['adult', 'kid', 'kiosk']).map(k => `<option value="${k}" ${q.kind === k ? 'selected' : ''}>${({ adult: 'Adult (PIN)', kid: 'Kid (no PIN, fewer apps)', kiosk: 'Display (read-only)' })[k]}</option>`).join('')}</select></label>
         <p class="pin-msg" id="pmsg"></p>
         <div class="hstack"><button class="btn btn-ghost grow" type="button" data-close>Cancel</button><button class="btn btn-primary grow" type="submit">Save</button></div>
       </form>`);
@@ -1710,11 +1768,12 @@
     });
     sh.el.querySelector('#pform').addEventListener('submit', async ev => {
       ev.preventDefault();
-      const body = { name: sh.el.querySelector('#pname').value.trim(), emoji: sh.el.querySelector('#pemoji').value.trim() || q.emoji, color, kind: sh.el.querySelector('#pkind').value };
+      const body = kitchen ? { color } : { name: sh.el.querySelector('#pname').value.trim(), emoji: sh.el.querySelector('#pemoji').value.trim() || q.emoji, color, kind: sh.el.querySelector('#pkind').value };
       try {
         const r = await hub.request(`/api/admin/profiles/${q.id}`, { method: 'PUT', body });
         if (hub.profile && hub.profile.id === q.id) hub.setSession({ token: hub.session.token, profile: { ...hub.session.profile, ...r.profile } });
         sh.close(); hub.toast('Saved.'); renderMe(); renderBrand();
+        if (r.setup_code) showCodeSheet(r.profile, r.setup_code, r.code_expires_at);
       } catch (err) { sh.el.querySelector('#pmsg').textContent = err.message; }
     });
   }

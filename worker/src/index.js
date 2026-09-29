@@ -13,15 +13,52 @@
 import {
   HttpError, authenticate, requireProfile, requireWriter, requireAdmin, createSession,
   hashSecret, verifySecret, sha256, randomToken, randomId, publicProfile, isExpiredGuest, silenceExpiredGuests,
-  rateCheck, rateHit, rateClear,
+  rateCheck, rateHit, rateClear, pinCheck, pinFail, pinClear, pinUnlock, oneTimeCode,
 } from './auth.js';
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
+import { householdLoader, checkRead, guardedPut, creditFor, isHouseholdAdult } from './policy.js';
 import { runCron, pushTo, prefsFor, vapidFrom, JOBS } from './reminders.js';
 import { chatHandler, chatHistory, activity } from './chat.js';
 import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
 
 const PIN_RE = /^\d{4,8}$/;
 const MIN = 60000;
+// Names and emoji are shown in many places, some of which build markup (P3-DOLLYWOOD-LIVE-01): no angle brackets.
+const NO_MARKUP = /[<>]/;
+function checkName(name, emoji) {
+  if (NO_MARKUP.test(name)) throw new HttpError(400, 'bad_name', 'Names cannot contain < or >.');
+  if (emoji !== undefined && NO_MARKUP.test(emoji)) throw new HttpError(400, 'bad_emoji', 'The icon cannot contain < or >.');
+}
+// The 18 colour families the admin may assign (audits/05-decisions.md, "Admin-assigned colours"): the people's nine and the apps' nine.
+const HUES = ['bubblegum', 'peach', 'butter', 'mint', 'aqua', 'sky', 'periwinkle', 'lavender', 'graphite',
+  'coral', 'apricot', 'honey', 'pistachio', 'leaf', 'seafoam', 'lagoon', 'cornflower', 'orchid'];
+const RESET_CODE_MS = 24 * 60 * MIN;
+/** Tells the admin when a profile's sign-ins are paused after repeated wrong PINs or codes (P2-SEC-01). */
+async function alertAdmin(c, p, paused) {
+  const admins = (await c.env.DB.prepare('SELECT id FROM profiles WHERE is_admin = 1').all()).results;
+  const hours = Math.round(paused / 3600000);
+  const payload = { title: 'Too many wrong PINs', body: `Someone typed ${p.name}'s PIN or code wrong 10 times. ${p.name} cannot sign in for ${hours} h. Reset PIN in Me → Admin unlocks it.`, url: '#me', tag: 'security-' + p.id };
+  for (const a of admins) c.exec.waitUntil(pushTo(c.env, a.id, 'security', payload, { ttl: 3600, urgency: 'high' }).catch(e => console.error('security push', (e && e.stack) || e)));
+}
+/** One wrong PIN or code: counted, the admin told if it paused the profile, then 401. */
+async function wrongSecret(c, p, deviceId, error, message) {
+  const { paused } = await pinFail(c.env, p.id, deviceId);
+  if (paused) await alertAdmin(c, p, paused);
+  throw new HttpError(401, error, message);
+}
+/** The admin types their PIN again for the actions that hand over a device or an account (role changes, their own reset). */
+async function checkAdminPin(c, me, pin) {
+  const { device } = await c.auth();
+  await pinCheck(c.env, me.id, device.id);
+  const row = await c.env.DB.prepare('SELECT pin_hash FROM profiles WHERE id = ?').bind(me.id).first();
+  if (!row || !row.pin_hash || !(await verifySecret(String(pin ?? ''), row.pin_hash))) {
+    // 403, not 401: the admin's session is fine, and a 401 would sign the shell out
+    const { paused } = await pinFail(c.env, me.id, device.id);
+    if (paused) await alertAdmin(c, me, paused);
+    throw new HttpError(403, 'wrong_admin_pin', 'That is not your PIN.');
+  }
+  await pinClear(c.env, me.id, device.id);
+}
 
 // ── response helpers ──────────────────────────────────────────
 function corsHeaders(request, env) {
@@ -139,17 +176,22 @@ route('DELETE', '/api/dollywood/rally', async c => {
 });
 
 // Pair this device with the house using the one-time pairing code.
+// Wrong codes are limited per device (the random install id the page sends as fp: 5 per 15 min) and, as a backstop, per
+// address (20 per 15 min), so one device typing wrong codes no longer blocks every device in the house (UX-PROF-a7).
+// A page too old to send fp keeps the old limit of 10 per address.
 route('POST', '/api/pair', async c => {
-  const key = 'pair:' + clientIp(c.request);
-  await rateCheck(c.env, key, 10);
-  const { code, name } = await c.body();
+  const { code, name, fp } = await c.body();
+  const ip = clientIp(c.request);
+  const fpOk = typeof fp === 'string' && /^[A-Za-z0-9_-]{8,64}$/.test(fp);
+  const limits = fpOk ? [['pairfp:' + fp, 5], ['pairip:' + ip, 20]] : [['pair:' + ip, 10]];
+  for (const [key, max] of limits) await rateCheck(c.env, key, max);
   const stored = await c.env.DB.prepare("SELECT value FROM settings WHERE key = 'pairing_code_hash'").first('value');
   if (!stored) throw new HttpError(503, 'pairing_not_configured', 'No pairing code has been set yet (scripts/set-pairing-code.mjs).');
   if (!(await verifySecret(String(code || ''), stored))) {
-    await rateHit(c.env, key, 15 * MIN);
+    for (const [key] of limits) await rateHit(c.env, key, 15 * MIN);
     throw new HttpError(401, 'bad_pairing_code', 'That pairing code is not right.');
   }
-  await rateClear(c.env, key);
+  await rateClear(c.env, limits[0][0]);
   const token = randomToken(), id = randomId(), now = Date.now();
   await c.env.DB.prepare('INSERT INTO devices (id, name, token_hash, paired_at, last_seen) VALUES (?, ?, ?, ?, ?)')
     .bind(id, String(name || '').slice(0, 80), await sha256(token), now, now).run();
@@ -179,6 +221,7 @@ route('POST', '/api/profiles', async c => {
   const name = String(b.name || '').trim().slice(0, 40);
   if (!name) throw new HttpError(400, 'bad_name', 'Name is required.');
   const emoji = String(b.emoji || b.icon || '🙂').trim().slice(0, 8) || '🙂';
+  checkName(name, emoji);
   const color = b.color === undefined || b.color === null || b.color === '' ? '#8A6A4B' : String(b.color);
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) throw new HttpError(400, 'bad_color', 'Color must be #rrggbb.');
   let pinHash = null;
@@ -194,8 +237,8 @@ route('POST', '/api/profiles', async c => {
   const id = 'guest-' + randomId();
   const sort = ((await c.env.DB.prepare('SELECT MAX(sort_order) AS m FROM profiles').first('m')) || 0) + 1;
   await c.env.DB.prepare(
-    `INSERT INTO profiles (id, name, emoji, color, kind, pin_hash, is_admin, sort_order, is_guest, created_by, expires_at)
-       VALUES (?, ?, ?, ?, 'adult', ?, 0, ?, 1, ?, ?)`).bind(id, name, emoji, color, pinHash, sort, me.id, expiresAt).run();
+    `INSERT INTO profiles (id, name, emoji, color, kind, pin_hash, is_admin, sort_order, is_guest, created_by, expires_at, hue)
+       VALUES (?, ?, ?, ?, 'adult', ?, 0, ?, 1, ?, ?, 'sky')`).bind(id, name, emoji, color, pinHash, sort, me.id, expiresAt).run();
   await c.env.DB.prepare('INSERT INTO activity (profile_id, app_id, text, created_at) VALUES (?, ?, ?, ?)')
     .bind(me.id, 'hub', `Added a guest: ${name}`, Date.now()).run();
   const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(id).first();
@@ -212,7 +255,7 @@ async function deleteGuest(env, p) {
     env.DB.prepare('DELETE FROM chat_log WHERE profile_id = ?').bind(p.id),
     env.DB.prepare('DELETE FROM push_log WHERE profile_id = ?').bind(p.id),
     env.DB.prepare('DELETE FROM activity WHERE profile_id = ?').bind(p.id),
-    env.DB.prepare('DELETE FROM rate_limits WHERE key LIKE ?').bind(`login:${p.id}:%`),
+    env.DB.prepare('DELETE FROM rate_limits WHERE key LIKE ? OR key LIKE ? OR key = ? OR key = ?').bind(`login:${p.id}:%`, `pintrust:${p.id}:%`, `pinp:${p.id}`, `pinstrike:${p.id}`),
     env.DB.prepare('DELETE FROM profiles WHERE id = ? AND is_guest = 1').bind(p.id),
   ]);
 }
@@ -234,24 +277,25 @@ route('POST', '/api/login', async c => {
   const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(String(profile_id || '')).first();
   if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
   if (isExpiredGuest(p)) throw new HttpError(403, 'guest_expired', `${p.name}'s guest pass has ended.`);
+  // KITCHEN-1: a kitchen device signs in only as the kitchen, and the kitchen only on a kitchen device. No PIN there.
+  if (device.role === 'kitchen' && p.kind !== 'kitchen') throw new HttpError(403, 'kitchen_device', 'This device is the kitchen: nobody signs in here.');
+  if (p.kind === 'kitchen' && device.role !== 'kitchen') throw new HttpError(403, 'not_kitchen_device', 'Only the kitchen device signs in as the kitchen.');
   // a guest without a PIN signs in on tap (the person who added them chose that); everyone else with kind adult needs one
   if (p.kind === 'adult' && !(p.is_guest && p.pin_hash == null)) {
-    if (p.pin_hash == null) throw new HttpError(403, 'needs_pin_setup', `${p.name} has not created a PIN yet.`);
-    const key = `login:${p.id}:${device.id}`;
-    await rateCheck(c.env, key, 5);
-    if (!(await verifySecret(String(pin ?? ''), p.pin_hash))) {
-      await rateHit(c.env, key, 15 * MIN);
-      throw new HttpError(401, 'wrong_pin', 'Wrong PIN.');
-    }
-    await rateClear(c.env, key);
+    if (p.pin_hash == null) throw new HttpError(403, 'needs_pin_setup', `${p.name} has not created a PIN yet.`, { pin_reset: p.pin_reset_hash != null });
+    await pinCheck(c.env, p.id, device.id);
+    if (!(await verifySecret(String(pin ?? ''), p.pin_hash))) await wrongSecret(c, p, device.id, 'wrong_pin', 'Wrong PIN.');
+    await pinClear(c.env, p.id, device.id);
   }
   return { profile_token: await createSession(c.env, p.id, device.id), profile: publicProfile(p) };
 });
 
-// First-time PIN creation: only while pin_hash is NULL, only from a paired device.
+// PIN creation: only while pin_hash is NULL, only from a paired device. After an admin reset (P2-PROF-04) it also needs
+// the one-time code the admin was shown, within 24 h; wrong codes count like wrong PINs. A profile that never had a PIN
+// (a new household adult) still creates it on first tap; the admin can close that too by issuing a code for it.
 route('POST', '/api/profiles/:id/pin', async c => {
   const { device } = await c.auth();
-  const { pin } = await c.body();
+  const { pin, code } = await c.body();
   const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
   if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
   if (p.kind !== 'adult') throw new HttpError(400, 'no_pin_for_kind', 'Only adult profiles have a PIN.');
@@ -260,14 +304,47 @@ route('POST', '/api/profiles/:id/pin', async c => {
   if (p.is_guest) throw new HttpError(403, 'guest_pin_fixed', `${p.name} is a guest: their PIN was chosen when they were added. Ask the admin to clear it.`);
   if (p.pin_hash != null) throw new HttpError(409, 'pin_already_set', 'A PIN is already set. Ask the admin to reset it.');
   if (!PIN_RE.test(String(pin ?? ''))) throw new HttpError(400, 'bad_pin', 'PIN must be 4 to 8 digits.');
-  const r = await c.env.DB.prepare('UPDATE profiles SET pin_hash = ? WHERE id = ? AND pin_hash IS NULL')
+  if (p.pin_reset_hash != null) {
+    await pinCheck(c.env, p.id, device.id);
+    if (code === undefined || code === null || code === '') throw new HttpError(403, 'needs_code', `Enter the code the admin gave you for ${p.name}.`);
+    if (!(+p.pin_reset_expires > Date.now())) throw new HttpError(403, 'code_expired', 'That code has expired. Ask the admin for a new one.');
+    if (!(await verifySecret(String(code), p.pin_reset_hash))) await wrongSecret(c, p, device.id, 'wrong_code', 'That code is not right.');
+  }
+  const r = await c.env.DB.prepare('UPDATE profiles SET pin_hash = ?, pin_reset_hash = NULL, pin_reset_expires = NULL WHERE id = ? AND pin_hash IS NULL')
     .bind(await hashSecret(String(pin)), p.id).run();
   if (!r.meta.changes) throw new HttpError(409, 'pin_already_set', 'A PIN was just set from another device.');
-  p.pin_hash = 'set';
+  p.pin_hash = 'set'; p.pin_reset_hash = null;
+  await pinClear(c.env, p.id, device.id);
   return { profile_token: await createSession(c.env, p.id, device.id), profile: publicProfile(p) };
 });
 
 route('GET', '/api/me', async c => ({ profile: publicProfile(requireProfile(await c.auth())) }));
+
+// Me → Change my PIN (GAP-PROF-a1): the current PIN, then the new one. Household adults only (a guest's PIN is fixed).
+// A wrong current PIN counts like a wrong sign-in, answered 403 so the shell stays signed in. Other devices stay signed in.
+route('POST', '/api/me/pin', async c => {
+  const auth = await c.auth(); const me = requireProfile(auth);
+  if (!isHouseholdAdult(me)) throw new HttpError(403, 'adults_only', 'Only a household adult has a PIN to change.');
+  const { current, pin } = await c.body();
+  if (!PIN_RE.test(String(pin ?? ''))) throw new HttpError(400, 'bad_pin', 'PIN must be 4 to 8 digits.');
+  await pinCheck(c.env, me.id, auth.device.id);
+  const row = await c.env.DB.prepare('SELECT pin_hash FROM profiles WHERE id = ?').bind(me.id).first();
+  if (!row || !row.pin_hash || !(await verifySecret(String(current ?? ''), row.pin_hash))) {
+    const { paused } = await pinFail(c.env, me.id, auth.device.id);
+    if (paused) await alertAdmin(c, me, paused);
+    throw new HttpError(403, 'wrong_pin', 'That is not your current PIN.');
+  }
+  await c.env.DB.prepare('UPDATE profiles SET pin_hash = ?, pin_reset_hash = NULL, pin_reset_expires = NULL WHERE id = ?').bind(await hashSecret(String(pin)), me.id).run();
+  await pinClear(c.env, me.id, auth.device.id);
+  return { ok: true };
+});
+
+// What this device is (KITCHEN-1): the shell asks at boot and after a 401; on a kitchen device it signs in as the kitchen.
+route('GET', '/api/device', async c => {
+  const { device } = await c.auth();
+  const kitchen = device.role === 'kitchen' ? await c.env.DB.prepare("SELECT id FROM profiles WHERE kind = 'kitchen' ORDER BY sort_order LIMIT 1").first('id') : null;
+  return { id: device.id, name: device.name, role: device.role || null, kitchen_profile: kitchen || null };
+});
 
 // Forget this device (Me → Sync, household adults): the device, every session on it and its push subscriptions go, so a
 // phone given away stops receiving the household's notifications and leaves no ghost in the admin's device list.
@@ -300,6 +377,7 @@ function dataArgs(c, auth, needWriter) {
 route('GET', '/api/data/:appId', async c => {
   const auth = await c.auth();
   const args = dataArgs(c, auth, false);
+  await checkRead(auth.profile, args, householdLoader(c.env));
   const since = +(c.url.searchParams.get('since') || 0) || 0;
   const prefix = c.url.searchParams.get('prefix') || '';
   const key = c.url.searchParams.get('key');
@@ -309,15 +387,22 @@ route('GET', '/api/data/:appId', async c => {
   return { items: await listData(c.env, { ...args, since, prefix }), now };
 });
 
+// Every write goes through policy.js (who may write which rows). A single refused row answers 403 not_allowed with what
+// the house holds; in a batch a refused row comes back as { key, rejected, value, updated_at } and the others still save.
+async function writeOne(c, args) {
+  const r = await guardedPut(c.env, args.profile, args, householdLoader(c.env));
+  if (r.rejected) throw new HttpError(403, 'not_allowed', 'This profile cannot change that.', { rejected: r.rejected, key: r.key, value: r.value, updated_at: r.updated_at });
+  return r;
+}
 route('PUT', '/api/data/:appId/:key', async c => {
   const auth = await c.auth();
   const { value, updated_at } = await c.body();
-  return putOne(c.env, { ...dataArgs(c, auth, true), key: checkKey(c.params.key), value, updated_at });
+  return writeOne(c, { ...dataArgs(c, auth, true), key: checkKey(c.params.key), value, updated_at });
 });
 
 route('DELETE', '/api/data/:appId/:key', async c => {
   const auth = await c.auth();
-  return putOne(c.env, { ...dataArgs(c, auth, true), key: checkKey(c.params.key), value: null, updated_at: Date.now() });
+  return writeOne(c, { ...dataArgs(c, auth, true), key: checkKey(c.params.key), value: null, updated_at: Date.now() });
 });
 
 // Flush a whole offline queue in one round trip.
@@ -326,8 +411,8 @@ route('POST', '/api/data/:appId/batch', async c => {
   const args = dataArgs(c, auth, true);
   const { items } = await c.body();
   if (!Array.isArray(items) || items.length > 200) throw new HttpError(400, 'bad_batch', 'items must be an array of at most 200.');
-  const results = [];
-  for (const it of items) results.push(await putOne(c.env, { ...args, key: checkKey(it.key), value: it.value, updated_at: it.updated_at }));
+  const results = [], people = householdLoader(c.env);
+  for (const it of items) results.push(await guardedPut(c.env, args.profile, { ...args, key: checkKey(it.key), value: it.value, updated_at: it.updated_at }, people));
   return { results, now: Date.now() };
 });
 
@@ -373,15 +458,18 @@ route('DELETE', '/api/profiles/:id/photo', async c => {
 });
 // Album photos are family-scope app_data rows (app 'hub', key 'album:<id>') so every device syncs them like any list.
 route('POST', '/api/album', async c => {
-  const p = requireWriter(await c.auth());
-  if (p.kind !== 'adult') throw new HttpError(403, 'adults_only', 'Ask a grown-up to add photos.');
+  const me = requireWriter(await c.auth());
   const b = await c.body();
+  // the kitchen adds a photo for the household adult whose face was tapped (b.as); it cannot add one as itself
+  if (me.kind === 'kitchen' && (b.as === undefined || b.as === null || b.as === me.id)) throw new HttpError(400, 'needs_who', 'Say who is adding the photo.');
+  const p = await creditFor(me, b.as, 'album', householdLoader(c.env));
+  if (p.kind !== 'adult') throw new HttpError(403, 'adults_only', 'Ask a grown-up to add photos.');
   const sm = decodeImage(b.sm, MAX_SM, 'The thumbnail'), lg = decodeImage(b.lg, MAX_LG, 'The photo');
   const id = randomId();
   await putMedia(c.env, `album/${id}-256.jpg`, sm);
   await putMedia(c.env, `album/${id}-1024.jpg`, lg);
   const value = { id, sm: `/api/media/album/${id}-256.jpg`, lg: `/api/media/album/${id}-1024.jpg`, by: p.id, byName: p.name, caption: String(b.caption || '').trim().slice(0, 140), at: Date.now() };
-  const row = await putOne(c.env, { appId: 'hub', scope: 'family', profile: p, key: 'album:' + id, value });
+  const row = await putOne(c.env, { appId: 'hub', scope: 'family', profile: me, key: 'album:' + id, value });
   return { photo: value, row };
 });
 route('DELETE', '/api/album/:id', async c => {
@@ -404,11 +492,23 @@ async function serveMedia(c, key) {
   return new Response(m.bytes, { headers: { 'Content-Type': m.mime, 'Cache-Control': 'public, max-age=31536000, immutable', 'Access-Control-Allow-Origin': '*' } });
 }
 
+// A prayer line names only a family-list request: "Prayed for …" / "Answered: …" must carry the title of a family
+// prayer row, or the generic "a private request" (P2-PWA-01). A private title never reaches the feed or the TV.
+async function prayerLineOk(env, me, t) {
+  const m = /^(?:Prayed for |Answered: )([\s\S]*)$/.exec(t);
+  if (!m) return true;
+  const title = m[1].replace(/ \(via chat\)$/, '').replace(/ \(family list\)$/, '').trim();
+  if (title === 'a private request') return true;
+  const rows = await listData(env, { appId: 'prayer', scope: 'family', profile: me, prefix: 'prayer:' });
+  return rows.some(r => r.value && typeof r.value === 'object' && String(r.value.title || '').trim() === title);
+}
 route('POST', '/api/activity', async c => {
-  const p = requireWriter(await c.auth());
-  const { app_id, text, at } = await c.body();
+  const me = requireWriter(await c.auth());
+  const { app_id, text, at, as } = await c.body();
   const t = String(text || '').trim().slice(0, 200);
   if (!t) throw new HttpError(400, 'bad_text', 'text is required.');
+  const p = await creditFor(me, as, String(app_id || 'hub'), householdLoader(c.env));   // the kitchen files a line under the tapped face
+  if (String(app_id) === 'prayer' && !(await prayerLineOk(c.env, me, t))) throw new HttpError(400, 'private_title', 'A private request is never named on the family feed.');
   // a line queued offline keeps the time it happened (never in the future, never more than a week back)
   const now = Number.isFinite(+at) && +at > 0 ? Math.round(Math.max(Date.now() - 7 * 86400000, Math.min(+at, Date.now()))) : Date.now();
   const app = checkKey(String(app_id || 'hub'));
@@ -425,6 +525,7 @@ route('GET', '/api/push/config', async c => {
 route('POST', '/api/push/subscribe', async c => {
   const auth = await c.auth();
   const p = requireProfile(auth);
+  if (p.kind === 'kitchen') throw new HttpError(403, 'no_push', 'The kitchen device gets no personal notifications.');
   const { subscription } = await c.body();
   if (!subscription || typeof subscription.endpoint !== 'string') throw new HttpError(400, 'bad_subscription', 'subscription.endpoint is required.');
   await c.env.DB.prepare(
@@ -444,25 +545,37 @@ route('DELETE', '/api/push/subscribe', async c => {
 route('POST', '/api/chat', async c => {
   const auth = await c.auth(); const p = requireProfile(auth);
   if (p.kind === 'kiosk') throw new HttpError(403, 'no_chat', 'The display profile has no chat.');
-  if (p.is_guest) {
-    // guests (roadmap 23): apps.json's visibleTo lists household ids, so add the guest to every app any household adult can see
-    const raw = await c.body();
-    const adults = (await c.env.DB.prepare("SELECT id FROM profiles WHERE kind = 'adult' AND is_guest = 0").all()).results.map(r => r.id);
-    const apps = Array.isArray(raw.apps) ? raw.apps.map(a => a && Array.isArray(a.visibleTo) && a.visibleTo.some(id => adults.includes(id)) ? { ...a, visibleTo: [...a.visibleTo, p.id] } : a) : raw.apps;
-    const body = { ...raw, apps };
-    c.body = async () => body;
-  }
-  return chatHandler(c, auth);
+  if (p.kind === 'kitchen') throw new HttpError(403, 'no_chat', 'The kitchen device has no chat.');
+  return chatHandler(c, auth);   // the apps this person can open come from the Worker's copy of apps.json (policy.js), never the request
 });
 route('GET', '/api/chat/history', async c => { const auth = await c.auth(); requireProfile(auth); return chatHistory(c, auth); });
 
 // ── admin ─────────────────────────────────────────────────────
+// Reset PIN (P2-PROF-04, P5-D4). For a household adult it issues a one-time code, shown to the admin once and good for
+// 24 h, which the person must enter before choosing a new PIN, so no other device can claim the account meanwhile. The
+// admin's own reset also needs the admin's current PIN (P2-PROF-06). For a guest it clears the PIN (they then sign in on
+// tap, as when they were added without one). Either way the profile's sessions end and its wrong-PIN pause is lifted.
 route('POST', '/api/admin/profiles/:id/reset-pin', async c => {
-  requireAdmin(await c.auth());
-  const r = await c.env.DB.prepare('UPDATE profiles SET pin_hash = NULL WHERE id = ?').bind(c.params.id).run();
-  if (!r.meta.changes) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
-  await c.env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(c.params.id).run();
-  return { ok: true, id: c.params.id };
+  const me = requireAdmin(await c.auth());
+  const b = await c.body().catch(() => ({}));
+  const p = await c.env.DB.prepare('SELECT * FROM profiles WHERE id = ?').bind(c.params.id).first();
+  if (!p) throw new HttpError(404, 'no_such_profile', 'No profile with that id.');
+  if (p.kind !== 'adult') throw new HttpError(400, 'no_pin_for_kind', 'Only adult profiles have a PIN.');
+  if (p.id === me.id) await checkAdminPin(c, me, b.admin_pin);
+  await pinUnlock(c.env, p.id);
+  if (p.is_guest) {
+    await c.env.DB.batch([
+      c.env.DB.prepare('UPDATE profiles SET pin_hash = NULL, pin_reset_hash = NULL, pin_reset_expires = NULL WHERE id = ?').bind(p.id),
+      c.env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id),
+    ]);
+    return { ok: true, id: p.id };
+  }
+  const code = oneTimeCode(), expires = Date.now() + RESET_CODE_MS;
+  await c.env.DB.batch([
+    c.env.DB.prepare('UPDATE profiles SET pin_hash = NULL, pin_reset_hash = ?, pin_reset_expires = ? WHERE id = ?').bind(await hashSecret(code), expires, p.id),
+    c.env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id),
+  ]);
+  return { ok: true, id: p.id, code, expires_at: expires };
 });
 
 route('PUT', '/api/admin/profiles/:id', async c => {
@@ -475,6 +588,14 @@ route('PUT', '/api/admin/profiles/:id', async c => {
   const color = b.color !== undefined ? String(b.color) : p.color;
   const kind = b.kind !== undefined ? String(b.kind) : p.kind;
   const sort = b.sort_order !== undefined ? (+b.sort_order || 0) : p.sort_order;
+  const hue = b.hue !== undefined ? (b.hue === null || b.hue === '' ? null : String(b.hue)) : (p.hue || null);
+  if (hue !== null && !HUES.includes(hue)) throw new HttpError(400, 'bad_hue', 'hue must be one of: ' + HUES.join(', ') + '.');
+  // KITCHEN-1: the kitchen is not a person. Only its colour changes; a profile becomes the kitchen only through the seed.
+  if (p.kind === 'kitchen' && (name !== p.name || emoji !== p.emoji || kind !== p.kind || sort !== p.sort_order)) {
+    throw new HttpError(400, 'kitchen_fixed', 'Only the kitchen\'s colour can be changed.');
+  }
+  if (p.kind !== 'kitchen' && kind === 'kitchen') throw new HttpError(400, 'bad_kind', 'kind must be adult, kid or kiosk.');
+  checkName(name, emoji);
   let expiresAt = p.expires_at;   // guests only: ms since epoch, null = keep (lets the admin extend or end a stay)
   if (p.is_guest && b.expires_at !== undefined) {
     expiresAt = b.expires_at === null || b.expires_at === '' ? null : Math.floor(+b.expires_at);
@@ -482,15 +603,19 @@ route('PUT', '/api/admin/profiles/:id', async c => {
   }
   if (!name) throw new HttpError(400, 'bad_name', 'Name is required.');
   if (!/^#[0-9a-fA-F]{6}$/.test(color)) throw new HttpError(400, 'bad_color', 'Color must be #rrggbb.');
-  if (!['adult', 'kid', 'kiosk'].includes(kind)) throw new HttpError(400, 'bad_kind', 'kind must be adult, kid or kiosk.');
+  if (!['adult', 'kid', 'kiosk', 'kitchen'].includes(kind)) throw new HttpError(400, 'bad_kind', 'kind must be adult, kid or kiosk.');
   if (p.is_admin && kind !== 'adult') throw new HttpError(400, 'admin_must_be_adult', 'The admin profile has to stay an adult.');
   if (p.is_guest && kind !== 'adult') throw new HttpError(400, 'guest_must_be_adult', 'A guest is always an adult profile; remove the guest instead.');
   const pinHash = kind === 'adult' ? p.pin_hash : null;
-  await c.env.DB.prepare('UPDATE profiles SET name = ?, emoji = ?, color = ?, kind = ?, sort_order = ?, pin_hash = ?, expires_at = ? WHERE id = ?')
-    .bind(name, emoji, color, kind, sort, pinHash, expiresAt, p.id).run();
+  // A household profile that becomes an adult has no PIN yet: a set-up code, so no other device can claim it first
+  let setupCode = null, resetHash = kind === 'adult' ? p.pin_reset_hash : null, resetExpires = kind === 'adult' ? p.pin_reset_expires : null;
+  if (kind === 'adult' && p.kind !== 'adult' && !p.is_guest) { setupCode = oneTimeCode(); resetHash = await hashSecret(setupCode); resetExpires = Date.now() + RESET_CODE_MS; }
+  await c.env.DB.prepare('UPDATE profiles SET name = ?, emoji = ?, color = ?, kind = ?, sort_order = ?, pin_hash = ?, expires_at = ?, hue = ?, pin_reset_hash = ?, pin_reset_expires = ? WHERE id = ?')
+    .bind(name, emoji, color, kind, sort, pinHash, expiresAt, hue, resetHash, resetExpires, p.id).run();
+  if (kind !== p.kind) await c.env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id).run();   // a new kind starts with a new sign-in
   // ending a guest's stay drops their sessions and push subscriptions now, not at the next cron
   if (p.is_guest && expiresAt !== null && expiresAt < Date.now()) await silenceExpiredGuests(c.env, Date.now(), p.id);
-  return { profile: publicProfile({ ...p, name, emoji, color, kind, sort_order: sort, pin_hash: pinHash, expires_at: expiresAt }) };
+  return { profile: publicProfile({ ...p, name, emoji, color, kind, hue, sort_order: sort, pin_hash: pinHash, pin_reset_hash: resetHash, expires_at: expiresAt }), ...(setupCode ? { setup_code: setupCode, code_expires_at: resetExpires } : {}) };
 });
 
 // Remove a guest now (any guest), or purge one whose stay has ended without waiting for the 30-day cleanup.
@@ -540,7 +665,7 @@ route('GET', '/api/admin/usage', async c => {
   const push = await c.env.DB.prepare(
     `SELECT profile_id, kind, date(created_at / 1000, 'unixepoch') AS day, COUNT(*) AS sends, SUM(ok) AS ok
        FROM push_log WHERE created_at > ? GROUP BY profile_id, kind, day ORDER BY day DESC`).bind(since).all();
-  const devices = await c.env.DB.prepare('SELECT id, name, paired_at, last_seen FROM devices ORDER BY last_seen DESC').all();
+  const devices = await c.env.DB.prepare('SELECT id, name, paired_at, last_seen, role FROM devices ORDER BY last_seen DESC').all();
   const subs = await c.env.DB.prepare('SELECT profile_id, COUNT(*) AS n FROM push_subscriptions GROUP BY profile_id').all();
   return { chat: chat.results, push: push.results, devices: devices.results, push_subscriptions: subs.results };
 });
@@ -559,6 +684,29 @@ route('POST', '/api/admin/cron/run', async c => {
   if (!Object.prototype.hasOwnProperty.call(JOBS, job)) throw new HttpError(400, 'bad_job', 'job must be one of ' + Object.keys(JOBS).map(j => `'${j}'`).join(', ') + '.');
   await silenceExpiredGuests(c.env, Date.now());   // guests (roadmap 23): a departed visitor is never on a job's list
   return runCron(c.env, Date.now(), job);
+});
+
+// Mark a device as the kitchen, or clear it (KITCHEN-1). Admin only, from another device, with the admin's PIN typed
+// again. Setting it ends every personal session and push subscription on that device; clearing it ends the kitchen's
+// session there, so the device's next request gets a 401 and its shell shows the picker.
+route('PUT', '/api/admin/devices/:id/role', async c => {
+  const auth = await c.auth(); const me = requireAdmin(auth);
+  const b = await c.body();
+  if (c.params.id === auth.device.id) throw new HttpError(400, 'cannot_change_self', 'Change this device from another one.');
+  const role = b.role === 'kitchen' ? 'kitchen' : (b.role === null || b.role === '' || b.role === undefined ? null : undefined);
+  if (role === undefined) throw new HttpError(400, 'bad_role', "role must be 'kitchen' or null.");
+  const dev = await c.env.DB.prepare('SELECT id, role FROM devices WHERE id = ?').bind(c.params.id).first();
+  if (!dev) throw new HttpError(404, 'no_such_device', 'No device with that id.');
+  await checkAdminPin(c, me, b.admin_pin);
+  const kitchens = "SELECT id FROM profiles WHERE kind = 'kitchen'";
+  await c.env.DB.batch([
+    c.env.DB.prepare('UPDATE devices SET role = ? WHERE id = ?').bind(role, dev.id),
+    role === 'kitchen'
+      ? c.env.DB.prepare(`DELETE FROM sessions WHERE device_id = ? AND profile_id NOT IN (${kitchens})`).bind(dev.id)
+      : c.env.DB.prepare(`DELETE FROM sessions WHERE device_id = ? AND profile_id IN (${kitchens})`).bind(dev.id),
+    ...(role === 'kitchen' ? [c.env.DB.prepare('DELETE FROM push_subscriptions WHERE device_id = ?').bind(dev.id)] : []),
+  ]);
+  return { ok: true, id: dev.id, role };
 });
 
 route('DELETE', '/api/admin/devices/:id', async c => {

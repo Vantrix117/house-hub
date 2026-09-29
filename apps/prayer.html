@@ -227,6 +227,11 @@ button:disabled{opacity:.35;cursor:default}
 .ask .rowbtns{margin-top:16px}
 .ask input,.ask textarea,.ask select{background:var(--raised)}
 .ask textarea{min-height:96px}
+/* Send to family list: For / Category go only when turned on (P3-PRAYER-18) */
+#shareAlso{margin-top:8px}
+#shareAlso .chip{text-align:left;max-width:100%;background:var(--raised);border-color:var(--rule)}   /* off: an outlined chip, so it reads as a button on the panel */
+#shareAlso .chip[aria-pressed="true"]{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--on-accent)}
+#sharePreview{margin-top:10px;color:var(--ink2)}
 .err{font-size:14px;font-weight:500;color:var(--terra);margin:8px 0 0}
 .err:empty{display:none}
 
@@ -592,6 +597,8 @@ li.row .sk + .sk{margin-top:9px;height:.7em}
 const USE_LOCAL_STORAGE = true;
 const LEGACY_KEY = 'prayer-data-v3';
 const LIST_KEYS = ['label', 'categories', 'prayerDays', 'plans', 'activePlan', 'rotationFor'];
+// Where a request sent to the family list is filed unless its own category is shared too (P3-PRAYER-18).
+const SHARE_CAT = 'Personal';
 const SCOPE = { personal: 'person', shared: 'family' };
 
 const CATEGORIES = [
@@ -630,10 +637,25 @@ function freshData(){
 
 // What was last written to (or read from) hub, per scope and key, so save() only sends real changes.
 const SNAP = { person:{}, family:{} };
+// Row and plan ids go into markup (data-*, <option value>), so only ids the app itself makes are kept: 'p001', 's001',
+// chat's 'c…', plans' 'pl…'. Anything else was hand-planted through the API (P3-PRAYER-06, -17).
+const ID_OK = /^[A-Za-z0-9_-]+$/;
+const goodId = id => typeof id === 'string' && ID_OK.test(id);
+// A household adult (not a guest, a kid, the kitchen or the TV) may clear a planted row; everyone else only skips it.
+const householdAdult = () => !!(window.hub && hub.canWrite && hub.profile && hub.profile.kind === 'adult' && !hub.profile.isGuest);
 function listFromHub(scope, label){
   const L = emptyList(label);
   for(const k of LIST_KEYS){ const v = hub.get(k, {scope}); if(v !== undefined){ L[k] = v; SNAP[scope][k] = JSON.stringify(v); } }
-  L.prayers = hub.list('prayer:', {scope}).map(r => { SNAP[scope][r.key] = JSON.stringify(r.value); return r.value; });
+  L.prayers = [];
+  for(const r of hub.list('prayer:', {scope})){
+    const v = r.value;
+    if(!v || typeof v !== 'object' || !goodId(v.id) || r.key !== 'prayer:' + v.id){
+      // Never rendered, and kept out of SNAP so save() neither rewrites it nor tombstones some other key for it.
+      if(householdAdult()) hubWrite(() => hub.remove(r.key, {scope}));
+      continue;
+    }
+    SNAP[scope][r.key] = JSON.stringify(v); L.prayers.push(v);
+  }
   return L;
 }
 // Only ever called once both prayer channels have pulled (boot waits on hub.loaded), so every key read here is the
@@ -646,6 +668,7 @@ function load(){
   } else { D = freshData(); }
   migrate();
   if(KID()) D.activeList = 'shared';       // a kid only ever sees the family list
+  if(KITCHEN()) D.activeList = 'shared';   // the kitchen has no private list: it writes family rows only
 }
 // One-time: the pre-profiles localStorage blob (both lists) into this adult's person scope + the family scope.
 // hub.migrate is async: it waits for a fresh pull and writes only keys the server does not have, then fires onChange
@@ -655,7 +678,7 @@ function migrateLegacy(){
     const L = v && v.lists && v.lists[which]; if(!L) return [];
     const out = [];
     for(const k of LIST_KEYS) if(L[k] !== undefined && L[k] !== null) out.push([k, L[k]]);
-    for(const p of (L.prayers || [])) if(p && p.id) out.push(['prayer:' + p.id, p]);
+    for(const p of (L.prayers || [])) if(p && goodId(p.id)) out.push(['prayer:' + p.id, p]);
     return out;
   };
   return hub.migrate([{ from: LEGACY_KEY, scope: 'person', to: split('personal') },
@@ -669,8 +692,9 @@ function hubWrite(fn){
 }
 function put(scope, key, v){
   const j = JSON.stringify(v);
-  if(SNAP[scope][key] === j) return;
-  if(hubWrite(() => hub.set(key, v, {scope}))) SNAP[scope][key] = j;
+  if(SNAP[scope][key] === j) return true;
+  if(hubWrite(() => hub.set(key, v, {scope}))){ SNAP[scope][key] = j; return true; }
+  return false;
 }
 function migrate(){
   if(!D.lists) D = freshData();
@@ -678,6 +702,7 @@ function migrate(){
     const L = D.lists[k] || (D.lists[k] = emptyList(k==='shared'?'Family list':'My list'));
     if(!Array.isArray(L.categories) || !L.categories.length) L.categories = CATEGORIES.slice();
     if(!Array.isArray(L.prayerDays)) L.prayerDays = [];
+    if(Array.isArray(L.plans)) L.plans = L.plans.filter(pl => pl && typeof pl === 'object' && goodId(pl.id));   // P3-PRAYER-17
     if(!Array.isArray(L.plans) || !L.plans.length) L.plans = [emptyPlan('Everything')];
     if(!L.activePlan || !L.plans.some(p => p.id === L.activePlan)) L.activePlan = L.plans[0].id;
     if(L.rotationFor === undefined) L.rotationFor = null;
@@ -690,6 +715,7 @@ function migrate(){
       if(!pl.rotationSize) pl.rotationSize = 3;
     });
     if(!Array.isArray(L.prayers)) L.prayers = [];
+    L.prayers = L.prayers.filter(p => p && typeof p === 'object' && goodId(p.id));   // a pasted backup too (P3-PRAYER-06)
     L.prayers.forEach(p => { if(!Array.isArray(p.updates)) p.updates = [];
       if(p.phone === undefined) p.phone = ''; if(p.sharedFrom === undefined) p.sharedFrom = null;
       if(typeof p.detail !== 'string') p.detail = '';
@@ -704,15 +730,43 @@ function save(){
   // Nothing is written before both lists have pulled: list settings and prayerDays built from an empty cache would
   // replace the family's (and this person's) real history for good under last-write-wins (P2-SYNC-02, P3-PRAYER-02).
   if(!USE_LOCAL_STORAGE || !hub.canWrite || !D || !hub.isLoaded()) return;
-  for(const which of ['personal','shared']){
+  // A kid may change only their own tick on a family row and add days to prayerDays; the house refuses anything else
+  // (and puts it back with a "could not be saved" toast), so nothing else is ever queued for a kid.
+  if(KID()){ saveKid(); return; }
+  // The kitchen writes family rows only: no private list, no activeList / lastExport in a person scope it cannot write.
+  for(const which of (KITCHEN() ? ['shared'] : ['personal','shared'])){
     const scope = SCOPE[which], L = D.lists[which];
     for(const k of LIST_KEYS) put(scope, k, L[k]);
     const seen = new Set();
     for(const p of L.prayers){ seen.add('prayer:' + p.id); put(scope, 'prayer:' + p.id, p); }
     for(const key of Object.keys(SNAP[scope])) if(key.startsWith('prayer:') && !seen.has(key)){ if(hubWrite(() => hub.remove(key, {scope}))) delete SNAP[scope][key]; }
   }
+  if(KITCHEN()) return;
   if(!KID()) put('person', 'activeList', D.activeList);
   put('person', 'lastExport', D.lastExport);
+}
+// Rows a kid ticked since the last save (setPrayed), written by saveKid().
+const kidTicks = new Set();
+function saveKid(){
+  const S = D.lists.shared;
+  // prayerDays only ever gains dates: the house's days plus this device's, so a stale copy never drops one.
+  const got = hub.get('prayerDays', {scope:'family'}), had = Array.isArray(got) ? got : [];
+  const added = S.prayerDays.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(String(d)) && !had.includes(d));
+  if(added.length){ const days = [...new Set([...had, ...added])].sort(); if(put('family', 'prayerDays', days)) S.prayerDays = days; }
+  const me = myName();
+  for(const id of [...kidTicks]){
+    const p = S.prayers.find(x => x.id === id), key = 'prayer:' + id;
+    const raw = hub.get(key, {scope:'family'});
+    if(!p || !me || !raw || typeof raw !== 'object'){ kidTicks.delete(id); continue; }
+    // The house's own row, with only this kid's name on today's prayedBy, lastPrayedAt and updatedAt changed.
+    const v = JSON.parse(JSON.stringify(raw));
+    const by = (v.prayedBy && typeof v.prayedBy === 'object' && !Array.isArray(v.prayedBy)) ? v.prayedBy : {};
+    const today = new Set(Array.isArray(by[TODAY]) ? by[TODAY] : []);
+    if(mePrayed(p)) today.add(me); else today.delete(me);
+    if(today.size) by[TODAY] = [...today]; else delete by[TODAY];
+    v.prayedBy = by; v.lastPrayedAt = p.lastPrayedAt; v.updatedAt = p.updatedAt;
+    if(put('family', key, v)){ p.prayedBy = JSON.parse(JSON.stringify(by)); kidTicks.delete(id); }
+  }
 }
 // Another device changed something: rebuild from hub and repaint, unless a form is mid-edit.
 let remoteDirty = false;
@@ -751,6 +805,8 @@ const el = id => document.getElementById(id);
 const author = () => (USE_LOCAL_STORAGE && hub.profile && hub.profile.id) || undefined;
 // Kids get the family list only: no private list, no Add / Record / More, no text input (roadmap 18).
 const KID = () => !!(window.hub && hub.isKid);
+// The kitchen device (kind 'kitchen'): family rows only; its person scope is for Timer and Tally, never Prayer.
+const KITCHEN = () => !!(window.hub && hub.profile && hub.profile.kind === 'kitchen');
 const myName = () => ((window.hub && hub.profile && hub.profile.name) || '').trim();
 const mePrayed = p => ((p.prayedBy && p.prayedBy[TODAY]) || []).includes(myName());
 
@@ -868,9 +924,9 @@ function rowHTML(p){
   const last = p.updates.length ? p.updates[p.updates.length-1] : null;
   const cold = p.cadence === 'rotation' && p.lastPrayedAt && daysSince(p.lastPrayedAt) > 20;
   return '<li class="row ' + (done?'done':'') + '">'
-    + '<button class="mark" aria-pressed="' + done + '" data-pray="' + p.id + '" aria-label="Mark prayed">'
+    + '<button class="mark" aria-pressed="' + done + '" data-pray="' + esc(p.id) + '" aria-label="Mark prayed">'
     + '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-    + '</button><div class="body" data-open="' + p.id + '">'
+    + '</button><div class="body" data-open="' + esc(p.id) + '">'
     + '<div class="title">' + esc(p.title)
       + (p.sharedFrom ? '<span class="pill">shared</span>' : '') + whoHTML(p) + '</div>'
     + '<div class="meta">' + esc(p.category)
@@ -948,7 +1004,7 @@ function renderToday(){
 
   const ann = plan.show.anniversaries ? anniversaries() : [];
   el('anniv').innerHTML = ann.length
-    ? ann.map(a => '<div class="recall" data-open="' + a.id + '"><b>' + esc(a.text)
+    ? ann.map(a => '<div class="recall" data-open="' + esc(a.id) + '"><b>' + esc(a.text)
         + '</b>' + esc(a.title) + '</div>').join('') : '';
 
   const recent = plan.show.answered
@@ -958,7 +1014,7 @@ function renderToday(){
 }
 
 function ansHTML(p){
-  return '<div class="ans" data-open="' + p.id + '">'
+  return '<div class="ans" data-open="' + esc(p.id) + '">'
     + '<div class="when">' + pretty(p.answeredAt) + '</div>'
     + '<div class="what">' + esc(p.title) + '</div>'
     + (p.answerNote ? '<div class="ansnote">' + esc(p.answerNote) + '</div>' : '')
@@ -1030,17 +1086,17 @@ function sheetFor(id){
     + hist
     + '<div class="rowbtns">'
     + (p.status === 'active'
-        ? '<button class="act ghost small" data-update="' + p.id + '">Add an update</button>'
-          + '<button class="act ghost small" data-tell="' + p.id + '">Tell them you prayed</button>'
-          + '<button class="act ghost small" data-recat="' + p.id + '">Change category</button>'
+        ? '<button class="act ghost small" data-update="' + esc(p.id) + '">Add an update</button>'
+          + '<button class="act ghost small" data-tell="' + esc(p.id) + '">Tell them you prayed</button>'
+          + '<button class="act ghost small" data-recat="' + esc(p.id) + '">Change category</button>'
           + (D.activeList === 'personal'
-              ? '<button class="act ghost small" data-share="' + p.id + '">Send to family list</button>' : '')
-          + '<button class="act small" data-answer="' + p.id + '">Mark answered</button>'
-        : '<button class="act ghost small" data-reopen="' + p.id + '">Put back on the list</button>')
+              ? '<button class="act ghost small" data-share="' + esc(p.id) + '">Send to family list</button>' : '')
+          + '<button class="act small" data-answer="' + esc(p.id) + '">Mark answered</button>'
+        : '<button class="act ghost small" data-reopen="' + esc(p.id) + '">Put back on the list</button>')
     + '</div>'
     + '<div class="rowbtns" style="margin-top:14px">'
-    + '<button class="act ghost small" data-edit="' + p.id + '">Edit</button>'
-    + '<button class="act ghost small" data-delete="' + p.id + '">Delete</button></div>';
+    + '<button class="act ghost small" data-edit="' + esc(p.id) + '">Edit</button>'
+    + '<button class="act ghost small" data-delete="' + esc(p.id) + '">Delete</button></div>';
   openSheet();
 }
 
@@ -1052,7 +1108,7 @@ function dayChips(id, days){
 function editSheet(id){
   const p = byId(id); if(!p) return;
   el('sheetInner').innerHTML =
-      '<button class="close" data-open="' + p.id + '">Cancel</button>'
+      '<button class="close" data-open="' + esc(p.id) + '">Cancel</button>'
     + '<h1 style="margin-top:4px">Edit</h1>'
     + '<label for="e-title" style="margin-top:18px">What are you praying for?</label>'
     + '<input type="text" id="e-title" value="' + esc(p.title) + '"><p class="err" id="e-titleErr"></p>'
@@ -1069,8 +1125,8 @@ function editSheet(id){
     + '</div>'
     + '<div id="e-daysWrap"' + (p.cadence === 'weekly' ? '' : ' hidden') + '><label>Which days</label>'
     + dayChips('eday', p.days) + '<p class="err" id="e-daysErr"></p></div>'
-    + '<div class="rowbtns"><button class="act small" data-esave="' + p.id + '">Save</button>'
-    + '<button class="act ghost small" data-open="' + p.id + '">Cancel</button></div>';
+    + '<div class="rowbtns"><button class="act small" data-esave="' + esc(p.id) + '">Save</button>'
+    + '<button class="act ghost small" data-open="' + esc(p.id) + '">Cancel</button></div>';
   openSheet(); el('sheet').scrollTop = 0;
 }
 function saveEdit(id){
@@ -1128,6 +1184,7 @@ function ask(trigger, o){
       (o.kind === 'confirm' ? '<div class="line">' + esc(o.label) + '</div>'
         : (o.label ? '<label for="askIn">' + esc(o.label) + '</label>' : ''))
     + field
+    + (o.extra || '')                       // caller-built markup, every value in it already through esc()
     + (o.help ? '<p class="note">' + esc(o.help) + '</p>' : '')
     + '<p class="err" id="askErr"></p>'
     + '<div class="rowbtns"><button class="act small' + (o.danger ? ' danger' : '') + '" id="askSave">'
@@ -1207,7 +1264,7 @@ function renderCatAdmin(){
 function renderPlans(){
   const cur = PL();
   el('f-plan').innerHTML = L().plans.map(p =>
-    '<option value="' + p.id + '"' + (p.id === cur.id ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('');
+    '<option value="' + esc(p.id) + '"' + (p.id === cur.id ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('');
   const dow = dowToday();
   let h = '<label>What Today shows</label><div class="chips" id="p-mode">'
     + [['everything','Daily plus rotation'],['byDay','A set of categories each day'],['focus','One category only']]
@@ -1300,7 +1357,7 @@ document.addEventListener('click', e => {
 
   if(t.dataset.kpray){ setPrayed(byId(t.dataset.kpray), true); renderToday(); return; }
   if(t.dataset.list){
-    if(KID()) return;
+    if(KID() || (KITCHEN() && t.dataset.list !== 'shared')) return;
     D.activeList = t.dataset.list; save();
     renderCatAdmin(); renderPlans(); go('today'); return;
   }
@@ -1336,20 +1393,44 @@ document.addEventListener('click', e => {
   }
   if(t.dataset.share){
     const p = byId(t.dataset.share);
+    // P3-PRAYER-18: the panel shows everything the family copy carries. The title always; For and the category only
+    // when turned on here (off by default), otherwise no For and the neutral 'Personal'. Detail and number never go.
+    const pick = { for:false, cat:false };
+    const hasFor = !!String(p.for || '').trim(), hasCat = !!p.category && p.category !== SHARE_CAT;
+    const chip = (id, text) => '<button type="button" class="chip" id="' + id + '" aria-pressed="false">' + esc(text) + '</button>';
     ask(t, {kind:'text', label:'How should this read on the family list?', value:p.title, required:true,
-      help:'Everyone in the house can see it.', save:'Send', onSave(title){
+      extra: (hasFor || hasCat ? '<label id="shareAlsoLbl">Also share (tap to include)</label>'
+          + '<div class="chips" id="shareAlso" role="group" aria-labelledby="shareAlsoLbl">'
+          + (hasFor ? chip('shareFor', 'For: ' + p.for) : '') + (hasCat ? chip('shareCat', 'Category: ' + p.category) : '')
+          + '</div>' : '')
+        + '<p class="note" id="sharePreview" aria-live="polite"></p>',
+      help:'Everyone in the house can see it. The detail and phone number stay on your list.', save:'Send', onSave(title){
     const S = D.lists.shared;
-    if(!S.categories.includes(p.category)) S.categories.push(p.category);
+    const cat = pick.cat ? p.category : SHARE_CAT;
+    if(!S.categories.includes(cat)) S.categories.push(cat);
     let n = S.prayers.length + 1;
     while(S.prayers.some(x => x.id === 's'+String(n).padStart(3,'0'))) n++;
-    S.prayers.push({id:'s'+String(n).padStart(3,'0'), title:title.trim(), for:p.for, phone:'',
-      detail:'', category:p.category, cadence:p.cadence, days:[], status:'active',
+    S.prayers.push({id:'s'+String(n).padStart(3,'0'), title:title.trim(), for:pick.for ? p.for : '', phone:'',
+      detail:'', category:cat, cadence:p.cadence, days:[], status:'active',
       createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null,
       updates:[], sharedFrom:p.id, prayedBy:{}, by:author(), updatedAt:new Date().toISOString()});
     save(); hub.activity('Sent a request to the family list: ' + title.trim());
     toast('Added to the family list.', 'Open it', () => {
       D.activeList = 'shared'; save(); renderCatAdmin(); renderPlans(); go('today'); });
       }});
+    const P = askOpen && askOpen.panel;
+    if(P){
+      const inp = P.querySelector('#askIn'), prev = P.querySelector('#sharePreview');
+      const show = () => { prev.textContent = 'The family will see: “' + ((inp && inp.value.trim()) || '…') + '”'
+        + (pick.for ? ' · For ' + p.for : '') + ' · ' + (pick.cat ? p.category : SHARE_CAT); };
+      P.querySelectorAll('#shareFor, #shareCat').forEach(b => b.addEventListener('click', e => {
+        e.preventDefault();
+        const on = b.getAttribute('aria-pressed') !== 'true';
+        b.setAttribute('aria-pressed', String(on)); pick[b.id === 'shareFor' ? 'for' : 'cat'] = on; show();
+      }));
+      if(inp) inp.addEventListener('input', show);
+      show();
+    }
     return;
   }
   if(t.dataset.answer){
@@ -1357,7 +1438,7 @@ document.addEventListener('click', e => {
     ask(t, {kind:'textarea', label:'How was it answered?', required:true,
       help:'This is the part worth keeping, so it cannot be left blank.', save:'Mark answered', onSave(note){
         const prev = {status:p.status, answeredAt:p.answeredAt, answerNote:p.answerNote};
-        hub.activity('Answered: ' + p.title); p.status = 'answered'; p.answeredAt = TODAY; p.answerNote = note.trim();
+        hub.activity(onFamilyList(p) ? 'Answered: ' + p.title : 'Answered a private request'); p.status = 'answered'; p.answeredAt = TODAY; p.answerNote = note.trim();
         stamp(p); save(); shutSheet(); go('answered');
         toast('Moved to the record.', 'Undo', () => { Object.assign(p, prev); stamp(p); save(); go('today'); });
       }});
@@ -1618,7 +1699,7 @@ function kidCardHTML(p){
   return '<li class="kid' + (done ? ' done' : '') + '">'
     + '<div class="kt">' + esc(p.title) + '</div>'
     + '<div class="kby">' + by + '</div>'
-    + '<button class="prayed" data-kpray="' + p.id + '" aria-pressed="' + done + '" aria-label="' + (done ? 'Prayed for ' : 'I prayed for ') + esc(p.title) + '">'
+    + '<button class="prayed" data-kpray="' + esc(p.id) + '" aria-pressed="' + done + '" aria-label="' + (done ? 'Prayed for ' : 'I prayed for ') + esc(p.title) + '">'
     + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Prayed</button>'
     + (who ? '<div class="kwho">' + who + '<span>prayed today</span></div>' : '')
     + '</li>';
@@ -1636,9 +1717,14 @@ function setPrayed(p, force){
     if(list.size) p.prayedBy[TODAY] = [...list]; else delete p.prayedBy[TODAY];
   }
   if(on) markDay();
-  stamp(p); save();
-  if(on) hub.activity('Prayed for ' + p.title + (D.activeList === 'shared' ? ' (family list)' : ''));
+  stamp(p);
+  if(KID()) kidTicks.add(p.id);
+  save();
+  // A private request is never named on the family feed or the TV (P2-PWA-01); the Worker refuses any other wording.
+  if(on) hub.activity(onFamilyList(p) ? 'Prayed for ' + p.title + ' (family list)' : 'Prayed for a private request');
 }
+// Which list a row is on, by the row itself (not the screen showing it).
+const onFamilyList = p => D.lists.shared.prayers.includes(p);
 
 /* ── prayer mode ────────────────────────────────────────────── */
 let prayList = [], prayIdx = 0;

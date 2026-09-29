@@ -108,7 +108,16 @@ async function openMap(page) {
     ok(await fa.evaluate(() => typeof setMode === 'function' && (setMode('3d'), mode === '2d')), 'setMode(3d) is a harmless no-op');
 
     console.log('\n## Item 2: where\'s everyone — stale rows greyed, day-old rows tombstoned');
-    await fa.evaluate(() => { const now = Date.now(); hub.set('loc:mom', { x: 800, y: 700, t: now - 6 * 3600e3, name: 'Elizabeth', emoji: '🌷', color: '#8A6A4B' }, { scope: 'family' }); hub.set('loc:dad', { x: 820, y: 720, t: now - 30 * 3600e3, name: 'David', emoji: '🎣', color: '#3D5A3D' }, { scope: 'family' }); return hub.flush(); });
+    // since batch 0d only a person's own sign-in places their dot (worker/src/policy.js): Mom and David sign in on this device
+    // just long enough to write theirs, then Eli's map (a household adult) greys the 6-hour one and clears the day-old one
+    await fa.evaluate(async () => {
+      const now = Date.now(), pin = '2580';
+      const tok = async id => { try { return (await hub.request('/api/login', { method: 'POST', profile: false, body: { profile_id: id, pin } })).profile_token; } catch (e) { if (e.error === 'needs_pin_setup') return (await hub.request('/api/profiles/' + id + '/pin', { method: 'POST', profile: false, body: { pin } })).profile_token; throw e; } };
+      const put = async (id, v) => hub.request('/api/data/dollywood-live/loc:' + id + '?scope=family', { method: 'PUT', token: await tok(id), body: { value: v, updated_at: now } });
+      await put('mom', { x: 800, y: 700, t: now - 6 * 3600e3, name: 'Elizabeth', emoji: '🌷', color: '#8A6A4B' });
+      await put('dad', { x: 820, y: 720, t: now - 30 * 3600e3, name: 'David', emoji: '🎣', color: '#3D5A3D' });
+      return hub.pull();
+    });
     await fa.evaluate(() => loadFam());
     await waitFor(() => fa.evaluate(() => hub.flush().then(() => hub.sync.pending === 0 && !hub.list('loc:', { scope: 'family' }).some(r => r.key === 'loc:dad'))), { label: 'dad tombstoned' });
     ok(true, "30-hour-old marker (David) tombstoned by an adult's map");

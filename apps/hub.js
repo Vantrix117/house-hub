@@ -155,6 +155,10 @@
   applyTheme();
   Object.defineProperty(hub, 'isKid', { get: () => !!hub.profile && hub.profile.kind === 'kid' });
   Object.defineProperty(hub, 'isKiosk', { get: () => !!hub.profile && hub.profile.kind === 'kiosk' });
+  // the shared kitchen device (KITCHEN-1): writes the family apps, credits people by a face tap, has no personal sign-in
+  Object.defineProperty(hub, 'isKitchen', { get: () => !!hub.profile && hub.profile.kind === 'kitchen' });
+  /** A household adult (not a guest, the kitchen or the TV): the people who hold the household's controls. */
+  Object.defineProperty(hub, 'isHouseholdAdult', { get: () => !!hub.profile && hub.profile.kind === 'adult' && !hub.profile.isGuest });
   Object.defineProperty(hub, 'canWrite', { get: () => !!hub.profile && hub.profile.kind !== 'kiosk' });
 
   // ── transport ──────────────────────────────────────────────────────────────
@@ -209,8 +213,10 @@
   }
 
   // ── auth helpers (used by index.html) ─────────────────────────────────────
+  // A random id for this install, sent while pairing so the Worker limits wrong codes per device, not per house (UX-PROF-a7).
+  const installId = () => { let f = lsGet('hub.fp', null); if (!f || !/^[A-Za-z0-9_-]{8,64}$/.test(f)) { f = hub.uid().replace(/[^A-Za-z0-9_-]/g, '') + Math.random().toString(36).slice(2, 10); lsSet('hub.fp', f); } return f; };
   hub.pair = async (code, name) => {
-    const d = await hub.request('/api/pair', { method: 'POST', body: { code, name }, device: false, profile: false });
+    const d = await hub.request('/api/pair', { method: 'POST', body: { code, name, fp: installId() }, device: false, profile: false });
     hub.device = { id: d.device_id, token: d.device_token, name: name || '' }; lsSet(LS.device, hub.device);
     hub.persistStorage();
     return hub.device;
@@ -238,16 +244,27 @@
     hub.device = null; hub.session = null; hub.profile = null;
   };
   hub.profiles = () => hub.request('/api/profiles', { profile: false }).then(r => { lsSet(LS.profiles, r.profiles); return r.profiles; });
-  /** Everyone in the house, from the last profiles pull (cached in localStorage) — for faces in apps. */
-  hub.people = () => lsGet(LS.profiles, null) || [];
+  /** Everyone in the house, from the last profiles pull (cached in localStorage) — for faces in apps. The kitchen is not a person. */
+  hub.people = () => (lsGet(LS.profiles, null) || []).filter(p => p && p.kind !== 'kitchen');
+  /** What this device is: { role: null | 'kitchen', kitchen_profile } (KITCHEN-1). Remembered for an offline boot. */
+  /** Drops every person-scope cache on this device except `keep`'s (the kitchen device keeps nobody's private rows). */
+  hub.dropPersonCaches = keep => { for (const k of lsKeys()) { const m = k.match(PERSON_CACHE_RE); if (m && m[1] !== keep) lsSet(k, undefined); } };
+  hub.deviceRole = async () => {
+    const r = await hub.request('/api/device', { profile: false, timeout: 5000 });
+    lsSet('hub.role', r.role || undefined);
+    return r;
+  };
   hub.login = async (profileId, pin) => {
     const r = await hub.request('/api/login', { method: 'POST', body: { profile_id: profileId, pin }, profile: false });
     hub.setSession({ token: r.profile_token, profile: r.profile }); return hub.profile;
   };
-  hub.createPin = async (profileId, pin) => {
-    const r = await hub.request(`/api/profiles/${encodeURIComponent(profileId)}/pin`, { method: 'POST', body: { pin }, profile: false });
+  // code: the one-time code the admin was shown when they reset this person's PIN (P2-PROF-04)
+  hub.createPin = async (profileId, pin, code) => {
+    const r = await hub.request(`/api/profiles/${encodeURIComponent(profileId)}/pin`, { method: 'POST', body: { pin, ...(code ? { code } : {}) }, profile: false });
     hub.setSession({ token: r.profile_token, profile: r.profile }); return hub.profile;
   };
+  /** Me → Change my PIN (household adults): the current PIN, then the new one. */
+  hub.changePin = (current, pin) => hub.request('/api/me/pin', { method: 'POST', body: { current, pin } });
   // Switch / sign out. The person's unsent writes and feed lines stay on the device under their id and are sent with
   // their own session before it is ended (now if online, else on reconnect or before the next sign-in here); a queue
   // that still cannot be sent waits for their next sign-in on this device. Nothing of theirs is dropped, and their
@@ -435,7 +452,7 @@
     const snapshot = () => { const q = { ...lsGet(qk, {}) }; if (mine() && queue[ch]) for (const [k, e] of Object.entries(queue[ch])) if (!q[k] || q[k].updated_at < e.updated_at) q[k] = e; return q; };
     const snap = snapshot();
     const rows = Object.entries(snap).map(([key, q]) => ({ key, value: q.value, updated_at: q.updated_at }));
-    let sent = 0, rejected = 0;
+    let sent = 0, rejected = 0, refused = 0;
     const post = async items => {
       const c = g === null ? null : tracked();
       try { return await hub.request(`/api/data/${encodeURIComponent(app)}/batch?scope=${scope}`, { method: 'POST', body: { items }, token, signal: c && c.signal }); }
@@ -460,7 +477,16 @@
         const s = snap[r.key]; if (!s) continue;
         if (q[r.key] && q[r.key].updated_at === s.updated_at) delete q[r.key];
         if (mine() && queue[ch] && queue[ch][r.key] && queue[ch][r.key].updated_at === s.updated_at) { delete queue[ch][r.key]; if (unsavedPrev[ch]) delete unsavedPrev[ch][r.key]; }
-        if (r.rejected) { rejected++; continue; }
+        if (r.rejected) {
+          rejected++;
+          // a row the house's rules refuse (batch 0d: a kid, a guest or the kitchen writing what it may not) comes back
+          // with what the house holds: put that back, unless a newer change to the same row is still waiting
+          const waiting = q[r.key] || (mine() && queue[ch] && queue[ch][r.key]);
+          // …and unless a pull has meanwhile brought a newer copy than the one refused
+          const had = c && c.items[r.key], stale = !had || had.t === s.updated_at || had.t <= (+r.updated_at || 0);
+          if ('value' in r) { refused++; if (c && !waiting && stale) c.items[r.key] = { v: r.value == null ? null : r.value, t: +r.updated_at || 0 }; }
+          continue;
+        }
         sent++;
         const local = c && c.items[r.key];
         if (!c) continue;
@@ -473,15 +499,16 @@
       if (c) lsSet(ck, c);
       if (mine()) { refreshScope(ch); if (unsaved.has(ch)) saveQueue(ch); }   // adopt what is stored now, telling the app about every value that changed
     }
-    return { sent, rejected };
+    return { sent, rejected, refused };
   }
   // A 4xx that belongs to the rows, not to the session or the network: retrying the same rows can never succeed.
   // Only the Worker's own row refusals count; any other refusal (read_only, an older Worker's 404) keeps the queue.
   const ROW_ERRORS = new Set(['bad_key', 'value_too_large', 'bad_batch']);
   const isRowError = e => e.status >= 400 && e.status < 500 && ROW_ERRORS.has(e.error);
   let rejectedNudgeAt = 0;
-  function rejectedNudge(n) {
+  function rejectedNudge(n, refused = 0) {
     if (!n || Date.now() - rejectedNudgeAt < 5000) return; rejectedNudgeAt = Date.now();
+    if (refused >= n) { hub.toast(`That is not something ${hub.profile ? hub.profile.name : 'this profile'} can change, so it was put back.`, 5000); return; }
     hub.toast(n === 1 ? '1 change could not be saved to the house (it was refused as it is).' : `${n} changes could not be saved to the house (they were refused as they are).`, 5000);
   }
   /** Sends everything this person has waiting on this device. Resolves { sent, rejected, pending }. */
@@ -490,7 +517,7 @@
     let p;
     p = (async () => {
       await null;
-      const total = { sent: 0, rejected: 0 };
+      const total = { sent: 0, rejected: 0, refused: 0 };
       try {
         if (navigator.onLine === false) { if (pendingCount()) setSync({ state: 'offline' }); return total; }
         if (lsGet(LS.retiring, []).length) await retire();
@@ -500,10 +527,10 @@
         for (const { app, scope } of queuesOf(who)) {
           if (g !== gen) return total;
           const r = await flushQueue(app, scope, who, token, g);
-          total.sent += r.sent; total.rejected += r.rejected;
+          total.sent += r.sent; total.rejected += r.rejected; total.refused += r.refused;
         }
         if (g !== gen) return total;
-        rejectedNudge(total.rejected);
+        rejectedNudge(total.rejected, total.refused);
         setSync({ state: hub.sync.lastPull ? 'synced' : 'pending', lastError: total.rejected ? 'refused' : null });
         if (pendingCount()) scheduleFlush();
       } catch (e) {
@@ -709,10 +736,15 @@
   // ── activity feed ─────────────────────────────────────────────────────────
   // Lines wait in their author's own queue, stamped with when they happened, and only the author's session posts them:
   // an offline line never lands under whoever acts next on a shared device, and it keeps its time in the feed.
-  hub.activity = async function (text, app = appId) {
+  // hub.activity(text, app?, { as }?): on the kitchen device `as` is the household member whose face was tapped, and the
+  // Worker files the line under them (KITCHEN-1); anywhere else a line is always filed under the person signed in.
+  hub.activity = async function (text, app = appId, opts) {
+    if (app && typeof app === 'object') { opts = app; app = appId; }
     if (!hub.canWrite || !text) return;
     const k = LS.activity(pid());
-    const q = lsGet(k, []); q.push({ id: hub.uid(), app_id: app, text: String(text).slice(0, 200), at: Math.round(Date.now() + hub.skew) }); lsSet(k, q.slice(-50));
+    const line = { id: hub.uid(), app_id: app || appId, text: String(text).slice(0, 200), at: Math.round(Date.now() + hub.skew) };
+    if (opts && opts.as && hub.isKitchen) line.as = String(opts.as);
+    const q = lsGet(k, []); q.push(line); lsSet(k, q.slice(-50));
     return drainActivity();
   };
   let draining = null;
@@ -744,7 +776,7 @@
       const q = lsGet(k, []).filter(x => x && x.at > Date.now() + hub.skew - ACTIVITY_MAX_AGE);
       const head = q[0];
       if (!head) { lsSet(k, undefined); break; }
-      try { await hub.request('/api/activity', { method: 'POST', body: { app_id: head.app_id, text: head.text, at: head.at }, token }); }
+      try { await hub.request('/api/activity', { method: 'POST', body: { app_id: head.app_id, text: head.text, at: head.at, ...(head.as ? { as: head.as } : {}) }, token }); }
       catch (e) { if (!e.status || e.status === 401 || e.status === 429 || e.status >= 500) { lsSet(lock, undefined); return false; } }   // any other 4xx: the line itself is refused, drop it
       const rest = lsGet(k, []).filter(x => x && x.id !== head.id);
       lsSet(k, rest.length ? rest : undefined);

@@ -205,7 +205,7 @@
   const errEl = $('err'), waitEl = $('wait'), listEl = $('list'), alertEl = $('alert'), tallyEl = $('tally'), modeEl = $('mode'), form = $('add');
   const setErr = m => { errEl.textContent = m; errEl.hidden = !m; };
   const setWait = m => { waitEl.textContent = m; waitEl.hidden = !m; };
-  const canEdit = hub.canWrite;
+  const canEdit = hub.canWrite && !hub.isKid;   // P5-D2: kids only look at the Larder (the Worker refuses their writes); their picture view comes in batch 8
 
   // Only speak up when sync ISN'T working — silence means the house list is fine.
   hub.onSync(s => {
