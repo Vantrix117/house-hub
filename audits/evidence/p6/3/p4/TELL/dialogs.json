@@ -1,0 +1,71 @@
+{
+ "note": "See the header of audits/tools/phase4/TELL/dialogs.mjs.",
+ "runs": {
+  "shell-adult-me": {
+   "profile": "eli",
+   "device": "ipad-portrait",
+   "variant": "typical",
+   "raised": [],
+   "steps": [
+    "clicked #forget",
+    "click fail #album-grid [data-del] elementHandle.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m",
+    "clicked #album-grid [data-del]",
+    "rewards buttons 4"
+   ]
+  },
+  "shell-admin": {
+   "profile": "eli",
+   "device": "ipad-portrait",
+   "variant": "typical",
+   "raised": [],
+   "steps": [
+    "clicked #admin-body [data-resetpin]",
+    "click fail #admin-body [data-remove] elementHandle.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m",
+    "clicked #admin-body [data-remove]",
+    "missing #admin-body [data-purge]",
+    "click fail #admin-body [data-unpair] elementHandle.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m",
+    "clicked #admin-body [data-unpair]"
+   ]
+  },
+  "shell-mom-me": {
+   "profile": "mom",
+   "device": "ipad-portrait",
+   "variant": "typical",
+   "raised": [],
+   "steps": [
+    "admin panel present: false",
+    "clicked #forget"
+   ]
+  },
+  "tv-me": {
+   "profile": "tv",
+   "device": "tv",
+   "variant": "typical",
+   "raised": [],
+   "steps": [
+    "missing #forget"
+   ]
+  },
+  "dollywood-reset": {
+   "profile": "eli",
+   "device": "ipad-portrait",
+   "variant": "typical",
+   "raised": [],
+   "steps": [
+    "clicked #b-menu",
+    "clicked #b-reset"
+   ]
+  },
+  "dollywood-live-park": {
+   "profile": "eli",
+   "device": "ipad-portrait",
+   "variant": "park",
+   "raised": [],
+   "steps": [
+    "map box [0,48,820,1132] frame [0,48]",
+    "meet-done visible: true",
+    "clicked #meet-done"
+   ]
+  }
+ }
+}

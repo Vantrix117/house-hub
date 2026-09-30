@@ -1587,3 +1587,87 @@ An independent judge rescored the Phase 4 scorecard (`audits/04-design-system.md
 - **A 4K screen at 1×.** It keeps the 1920 sizes, because design.css's width tiers stop at 1920.
 - **Glass.** This WebKit build paints no blur.
 - **Production.** Nothing deployed; until the Worker is deployed, the TV reads who read from feed lines. Deploy order: migrations 006, then 007, then `npx wrangler deploy`, then the site.
+
+## Batch 3 — Prayer
+
+| | |
+|---|---|
+| **Findings** | 37 Prayer entries (6 medium, 30 low, 1 info; 1 of the low is a pointer), 4 carry-overs from batch 1 (Prayer's half only) and the 3 kept improvements IMP-PRAYER-I1-I3. **42 FIXED, 1 NEEDS DEVICE CHECK** (UX-PRAYER-3: the Kitchen view read from across a room), **1 PARTIAL** (CONS-MOTION-3: Prayer now uses the shared toast and the sheet tokens; no sheet or toast follows the finger or animates out, which no batch owns). Status per entry in `audits/05-findings.md`; the improvements in its "Improvements with no finding (prayer)" table, which now has a Status column. |
+| **Code commit** | `da1dcbd` (2026-09-30) |
+| **Files** | `apps/prayer.html` (the batch; every existing id and the layout kept, additions only), `apps/hub.js` (`hub.immersive`, `hub.isImmersive`), `index.html` (the viewer's full-screen mode, the TV's anniversary line, Home's "prayed for your request" line, Home's prayer count and streak), `sw.js` (`hub-v42` → `hub-v43`), `CLAUDE.md`, and the tests `scripts/test-hub.mjs` (37 → 47 checks), `test-home.mjs` (57 → 65), `test-tv.mjs` (76 → 85), with `test-prayer.mjs`, `test-prayer-faces.mjs` and `test-kitchen.mjs` changed on purpose (the toast is the shared one; the kid button reads Pray before and Prayed after) |
+| **Schema / data** | No schema change, migration or new row kind. Prayer's rows keep their shape: a weekly request shared to the family keeps its days; an old family copy with none shows every day (a read-only rule, nothing rewritten); unticking takes today off the record only when nothing is left marked today, and on the family list only when no one's tick is left (the Worker's `prayedBy` merge and batch 0g's `unprayed` rule unchanged). The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-30-before-3.sql` (39 KB, 111 rows). Nothing was deployed. |
+| **How it was built** | Three workers in parallel: A (Prayer's logic, data and copy), B (its look: kid cards, the Kitchen view, Pray mode, the shared toast, type and motion tokens) and C (the shell half). Two independent reviewers (core logic, privacy and data; the entries and the screens) ran three rounds to a clean verification before the final run. After it, the independent rescore and the status writer each found work (below), which was fixed, reviewed once more and followed by a second full final run on the final code. |
+
+### The change
+
+- **Nothing lost or folded away (P3-PRAYER-07, -08, -09, -21, -23).** Category groups remember whether they are open, so a tick or another person's change no longer folds them. "Send to family list" copies a weekly request's days. Unticking takes today off the record when nothing else was prayed today, never someone else's day, and a device that finds a request prayed today but today missing from the record puts it back once its sync has landed. Removing the category a "One category only" plan uses moves the plan to Personal. (P3-PRAYER-09's Undo already found the row by id.)
+- **Honest words (P3-PRAYER-12, -13, -14, -15, -16, -20, -22; UX-PRAYER-4, -5, -6).** The Add screen says which list it adds to and switches between them; Settings names its list and asks before changing the family's; the "Needs attention" badge counts each request once; the cheer, the Sunday nudge and the headline ("this morning", "today", "this evening") say only what is true; a family delete says it reaches everyone; "More" is "Share & print"; a family request's sheet shows who asked and who prayed today.
+- **Easier to use (P3-PRAYER-19, -26; UX-PRAYER-1, -10, -11, -12, -13, -14; GAP-PRAYER-2).** An open Kitchen view repaints when something changes and at midnight; Escape closes what is open and Enter moves through the Add form (its last field, or Ctrl/Cmd+Enter, saves); the Add button stays in view; rows still to pray come first; pasted titles are capitalised; a backup can be chosen as a file; one Pray now run posts one feed line (never a private title); a finished Today says "All prayed" and hides Pray now; Record → Answered can be searched and is grouped by year.
+- **Kids and the Kitchen (UX-PRAYER-2, -3).** A kid's card reads "Pray" with drawn praying hands before the tap and shows their face, a drawn ✓ and "Prayed" after, in a clearly different colour (fills 1.0-1.1:1 apart → 4.7-5.6:1), and reads the request aloud. The Kitchen view is dark and calm, 44 px requests under a 64 px list name on the iPad, two columns on a landscape iPad with each category kept whole.
+- **The look (UX-PRAYER-7, -9; VIS-PRAYER-2, -3, -5, -6, -8, -9, -11; P4-SHAPE-02, VIS-SHAPE-4; the carry-overs).** Drawn chevrons on the groups; Pray now full screen in the hub (`hub.immersive`) with a 44 px Close and its chrome in the centred column; nothing under the + at the end of the list; 44 px Rename/Remove; a calendar with its month, weekday letters on top and visible empty days; the page and the detail sheet in a centred column on wide screens, with a one-line header from 700 px; a stats strip without zeros; the shared toast with a 44 px Undo. Every text size is a design.css role (63 → 0 literal sizes) and every duration a token (35 → 0) — CONS-TYPE-7, CONS-MOTION-2 and CONS-SHAPE-5 are now fully fixed.
+- **The kept improvements.** I1 "Around the table": on the Kitchen iPad, after "Who is praying?", everyone at the table taps their face once and every Prayed credits them all (a kid's star follows; no guest, TV or kitchen; nobody twice); a personal device credits only its person. I2: the TV shows "A year ago today · Answered: …" for a family request (never a private one). I3: the person who asked a family request sees, on their own Home, who prayed for it today.
+
+**What the independent review changed.**
+- **Round 1** (core): unticking on one device could erase a day really prayed on the person's other device (fixed: the record also counts each request's last prayed day, and repairs itself); one Pray now run could post several lines after leaving to Home and back; Home's prayer count lacked the every-day rule; a Settings panel left open skipped the family confirm; Escape discarded an edit without asking; "One category only" started with no category. (Screens): the pinned Add button hid the focused field (fixed with scroll padding: 54/54 px covered → 0); the two-column Kitchen view split a heading from its requests (fixed: category blocks in a row-by-row grid); the phone keyboard's return saved a half-filled request (fixed: Enter moves to the next field); the streak repeated under the strip.
+- **Round 2** (core): the self-repair ran while a sync was only half applied and put back a day the person had just unticked (fixed: it waits for the whole sync, then re-checks). A shell Escape now also closes the Kitchen view and Pray mode; the Kitchen view opens at the top. (Screens): no new findings.
+- **Round 3:** no new findings from either reviewer.
+- **After the first final run:** the independent rescore found the batch had mixed icon families (an emoji, a text ✓, a CSS chevron; Icons 5 → 4), so all three became drawn icons in Prayer's own style; the status writer found six claims no filed output proved, so a new check `audits/tools/phase6/3/prayer-claims-3.mjs` proves them — and its claim 5 caught VIS-PRAYER-6 still failing (1 request above the nav on a landscape iPad with a long plan name), fixed with the one-line header (3 above the nav). A fourth screens review found nothing new; its nit about the drawn hands for a pre-reader gave them a soft fill. Then the whole final run was repeated on the final code; the rescore on it found the drawn chevron at 2.9:1 in the light palettes, so the chevron took the tertiary text ink, and Prayer's checks, suites and a full Prayer recapture were run once more on that (`audits/evidence/p6/3/followup/`).
+
+### Each finding's reproduction, rerun
+
+- **How they were run.** The 46 scripts the entries name ran three at a time on the unchanged code (`git archive` of `eb2384f`) and on the final code, with the 13 copies filed in `audits/tools/phase6/3/`. Outputs and exit codes are in `audits/evidence/p6/3/tests/repro-before/` and `repro-after/` (the copies are the `p6-3__*` lines); the files the scripts wrote are in `audits/evidence/p6/3/p3|p4/`, and the Phase 2-4 baseline was restored.
+- **Exit codes.** Every one of the 59 exits 0 before and after — so the verdicts rest on what the outputs say, not on the exit codes. Seven originals no longer reach what they test, each because the screen changed on purpose: the three undo scripts wait for Prayer's own toast (now the shared one), critic-keys and the two no-enter-escape scripts tap a control that Escape already closed, and focus-7-2 meets the new family confirm. Their copies (`-3`) test the same things on the new screens and pass.
+
+| Finding | Before | After |
+|---|---|---|
+| P3-PRAYER-07 (list-group-collapses-1, -2) | a tick or a pull folds every open group | groups stay open |
+| P3-PRAYER-08 (share-drops-days-1, -2) | the family copy's days [] (shown on no day) | Sun, Tue, Thu; on Eli's, Mom's and Ezra's Today |
+| P3-PRAYER-12 (review-double-count) | badge 8 for 6 requests | 6 for 6 |
+| P3-PRAYER-13, -22 (cheer-at-zero, sunday-nudge) | a cheer and "gone quiet" on an empty day and every Sunday | none; the Sunday line only when something is quiet |
+| P3-PRAYER-16 (morning-copy-evening) | "this morning" at 21:10 | "this evening"; "today" at 14:10 |
+| P3-PRAYER-19 (kitchen-view-stale) | an open Kitchen view never shows a new request | shows it, drops the answered one, rolls at midnight |
+| P3-PRAYER-20 (add-screen-no-list-name) | no list named on Add | "Add to the Family list" with a switch |
+| P3-PRAYER-21 (untick-keeps-day) | an untick kept the day (streak 4) | the day goes on device and house (streak 3) |
+| P3-PRAYER-26 (the -3 key copies) | Escape closed nothing; Enter added nothing | sheet, Share & print, Kitchen view and panels close; Enter adds (19 → 20) |
+| P4-SHAPE-02 (undo-target-2; its copy -3) | Undo 35.8 × 44 px on the iPhone (no padding) | 63.6 × 44, one line, clear of the nav and the + |
+| UX-PRAYER-1, VIS-PRAYER-2, -3, UX-PRAYER-9 (layout) | the Add button under the nav on 3 devices; Close 45 × 33; Rename 55 × 31; Pray now 48 px below the hub bar | visible on all 4; 71 × 44; 71 × 44; full screen (0) |
+| UX-PRAYER-3 (layout) | Kitchen items 24-27 px, heading 36-40 px (read from 0.73 m) | 44 px and 64 px (1.19 m) |
+| VIS-PRAYER-6 (prayer-claims-3) | 1 request above the nav, iPad landscape, long plan | 3 |
+| CONS-TYPE-7, CONS-MOTION-2 (code-scan, literals) | 63 calc sizes; 35 literal durations | 0 and 0 |
+
+### Repo tests
+
+| Suite | Before (batch 2c's final run) | After |
+|---|---|---|
+| test-hub | 37 / 0 | 47 / 0 (`hub.immersive`: only the viewer's frame is obeyed; the bar comes back on close, reload, Escape and another app) |
+| test-home | 57 / 0 | 65 / 0 (the "prayed for your request" line: only the asker's own Home, never a private title, patched in place) |
+| test-tv | 76 / 0 | 85 / 0 (the anniversary line on every size, every batch 2c fit gate still holds) |
+| test-prayer / test-prayer-faces / test-kitchen | 36 / 41 / 55 | 36 / 42 / 55 (the toast and the kid button read on purpose) |
+| every other suite (17) | pass | pass, identical counts |
+| smoke-api / smoke-chat (mock) | 322 / 64 | 322 / 64 |
+| Earlier batches' checks, verify-1a, the token gate, browser-check | pass | pass; `handoff/prayer/check.js` 47/2 as since batch 0g, its copy `0g/check-ids.js` 49/49 |
+
+`node scripts/bump-sw.mjs --check`: 74 precached files present, 69 shipped files accounted for; every inline script parses (29 of 29). The saved smoke outputs had the throwaway local test tokens and codes blanked.
+
+### Measurement and the rescore
+
+- **Contrast.** The measurement rig re-measured Prayer on the final code (themes 299, devices 255, states 95 jobs): text below AA is 707 (Phase 4) → 162 (batch 1) → 162, and every one of the 162 is a disabled control (Mark answered before anything is typed, Back on the first card, the controls while the list loads), which WCAG exempts (`audits/evidence/p6/3/measure/`).
+- **Rescore** (`audits/evidence/p6/3/rescore.md`, an independent judge, the Phase 4 method, bases held): Prayer 5.4 → **5.6** (Typography 5.5 → 6.5: every size a role, 51 → 34 rendered sizes; Glanceability 3.5 → 4.5: the Kitchen view read from 1.19 m, its list name from 1.73 m; Ease 5.5 → 6: Undo, Rename/Remove and Close at 44 px; the other eight held, with reasons). The first judgement was 5.5 with Icons 5 → 4 for the mixed icon families; with the drawn icons Icons holds at 5. It also noted the Today headline on the iPad is smaller than before (34.7 → 31.4 px, the title role) and that the drawn chevron rendered at 2.9:1 in the light palettes; the chevron now uses the tertiary text ink (5.5-9.1:1 on a card in every palette). Two policy calls are named in the file (COL-1 held, GLA-3 lifted).
+
+### Capture rig
+
+- **The run.** Prayer, the shell and the TV were recaptured on the final code: 809, 979 and 34 captures, 0 failed (`audits/screens-after/3/manifest.json`).
+- **Prayer against the pre-batch control** (`capture/pxdiff-prayer-vs-prebatch.txt`): 800 of 809 changed — the type roles, the centred column and the new controls touch nearly every screen; the 9 unchanged are the print pages. Against Phase 1: 809 of 809.
+- **The shell against batch 2b's capture** (`capture/pxdiff-shell-vs-2b.txt`): 90 of 979 changed: 74 Home and 4 first-visit screens (the new "prayed for your request" lines, checked by eye), 6 Apps grids by 60 px and 5 chat screens by 1-24 px (the rig's known sub-pixel noise) and the pairing error's animation.
+- **The TV against batch 2c's** (`capture/pxdiff-tv-vs-2c.txt`): 0 of 34 — the demo seed has no request answered a year ago; the line is proven by test-tv at every size.
+- The reviewers looked at every changed screen family, light and dark, on iPhone, iPad and desktop, across four rounds.
+
+### Not verified
+
+- **A real iPhone and iPad.** Speech; the Files picker for a backup; the phone keyboard's next/done keys in the Add form and scroll padding with the keyboard up; `hub.immersive` in the installed app and its notch strip; the drawn icons and the blur on iOS; a hardware keyboard.
+- **The Kitchen iPad** (UX-PRAYER-3, the one NEEDS DEVICE CHECK): the view from across the kitchen (1.19 m by the rig's estimate); Around the table passed round for real.
+- **A real TV:** its font metrics (the anniversary line has about 4 px to spare in the verse pane, and falls back to the feed) and a remote's Escape.
+- **At the largest text size (XXL)** a landscape iPad with a long plan name shows no request above the nav; the header fix holds at the standard sizes.
+- **Found, not fixed (outside this batch):** a device that was offline, taps Prayed on a family request someone else has since deleted, brings it back when it syncs (last write wins; `verify-delete-copy-wrong-2`, `staleOfflineWriteResurrects: true`). It needs its own finding (a tombstone must win over an older edit).
+- **Accepted small points:** a feed line posted when another app is opened mid-run arrives about 20 s late (never lost or doubled); a cut-off plan name cannot be read by tap on Today (it is in Settings); the "shared" pill sits under the + at the resting scroll (colours pass; nothing is covered at the list's end).
+- **Production.** Nothing deployed. Deploy order: migrations 006, then 007, then `npx wrangler deploy`, then the site.

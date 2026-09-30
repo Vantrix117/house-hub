@@ -134,7 +134,7 @@ const bmeta = n => BATCHES[n] || (() => { const r = appRows.find(r => appNo[r.id
 const count = (arr, key) => arr.reduce((m, f) => (m[f[key]] = (m[f[key]] || 0) + 1, m), {});
 const prim = F.filter(f => !f.pointer);
 // Phase 6 status: every STATUS id must be a listed finding in the batch it names
-const statusBad = Object.entries(STATUS).filter(([id, s]) => { const f = F.find(x => x.id === id); return !f || f.bn !== s.batch; }).map(([id]) => id);
+const statusBad = Object.entries(STATUS).filter(([id, s]) => { const f = F.find(x => x.id === id); return !f || f.bn !== (s.home || s.batch); }).map(([id]) => id);
 if (statusBad.length) { console.error('status ids not in their batch:', statusBad.join(' ')); process.exit(1); }
 const stCell = s => `${s.status} (\`${DONE[s.batch].commit}\`)`;
 const doneIn = n => { const mine = prim.filter(f => f.bn === n); const fixed = mine.filter(f => STATUS[f.id] && STATUS[f.id].status === 'FIXED').length; return DONE[n] ? `${fixed}/${mine.length} fixed, \`${DONE[n].commit}\`` : 'open'; };
@@ -279,12 +279,14 @@ for (const n of ORDER) {
     if (lone.length) {
       P(`#### Improvements with no finding (${appId})`);
       P('');
-      P('These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.');
+      P('These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.');
       P('');
-      P('| ID | Improvement | Kind | Delight | Effort | Source |');
-      P('|---|---|---|---|---|---|');
-      for (const x of lone) P(`| ${x.id} | ${esc(clean(x.text))} | ${x.kind} | ${x.delight} | ${x.effort} | \`${x.src}\` |`);
+      P('| ID | Improvement | Kind | Delight | Effort | Source | Status |');
+      P('|---|---|---|---|---|---|---|');
+      for (const x of lone) P(`| ${x.id} | ${esc(clean(x.text))} | ${x.kind} | ${x.delight} | ${x.effort} | \`${x.src}\` | ${WORK_STATUS[x.id] ? stCell(WORK_STATUS[x.id]) : 'open'} |`);
       P('');
+      for (const x of lone) { const ws = WORK_STATUS[x.id]; if (ws) P(`- **${x.id} — Phase 6 (${ws.status}).** ${ws.note} After: ${ws.after.map(p => '`' + p + '`').join(', ')}.`); }
+      if (lone.some(x => WORK_STATUS[x.id])) P('');
     }
   }
 }

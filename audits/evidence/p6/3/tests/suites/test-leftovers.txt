@@ -1,0 +1,64 @@
+
+## list-first: three items through the add bar, oldest first
+  ✓ no #unlock (passphrase screen) anywhere
+  ✓ #list comes before #add in the document
+  ✓ add bar is fixed/sticky
+  ✓ add bar carries the glass recipe (backdrop-filter)
+  ✓ bar has #name, #date and .log inside #add
+  ✓ Log and name field are 44 px+ targets
+  ✓ empty state renders when nothing is logged
+  ✓ oldest first: Rice (8d) · Soup (5d) · Pasta bake (2d)
+  ✓ ages are 8, 5, 2 days
+  ✓ grouped Use it up / Aging / Fresh, one each
+  ✓ bar resets to an empty name and today after logging
+
+## freshness bars
+  ✓ every item has a .bar with a filled <i>
+  ✓ --p is days/10 (0.8, 0.5, 0.2)
+  ✓ fill widths follow --p
+  ✓ --tint is use-soon / aging / fresh by age (graphic tokens, no hex; audit batch 1, VIS-LEFTOVERS-2)
+  ✓ three distinct bar colours resolve from the tokens
+
+## 390×844: oldest item + chip + add bar on screen together, no scrolling
+    oldest item {"top":198.828125,"bottom":301.703125,"left":16,"right":374,"w":358,"h":102.875} 
+    chip {"top":235.5625,"bottom":264.953125,"left":211,"right":301,"w":90,"h":29.390625} 
+    add bar {"top":702,"bottom":832,"left":12,"right":378,"w":366,"h":130}
+  ✓ oldest item card within the 844 px viewport
+  ✓ its "Use it up" chip within the viewport
+  ✓ add bar within the viewport, above the safe-area margin
+  ✓ oldest item sits above the add bar (they do not overlap)
+  ✓ Log button on screen at the same time
+  ✓ no horizontal scroll at 390
+  ✓ scrolled to the end, the Hearth block clears the bar (bottom padding follows the bar height)
+  ✓ at 1440 the bar stays 560 px and centred under the list
+
+## Copy for Hearth
+    Push these to the Hearth Calendar:
+    • Rice (Small) — logged 8d ago, use it up
+    • Soup (Medium) — logged 5d ago, eat soon
+  ✓ copied text starts with the Hearth line
+  ✓ lists Rice (use it up) and Soup (eat soon)
+  ✓ fresh Pasta bake is not in the Hearth list
+  ✓ button says Copied!
+
+## midnight rollover while the page is open
+  ✓ the minute check notices the new day key
+  ✓ "Nd ago" ages all advance by one (9, 6, 3)
+  ✓ meta lines show the new ages
+  ✓ date box default and max move to the new today
+  ✓ a second check on the same day is a no-op
+  ✓ window.__larder exposes render + rollover for tests
+
+## inside the hub viewer (iframe under the 48 px pill)
+  ✓ framed at 390×796: oldest item above the bar, bar inside the frame
+  ✓ framed: the three items are there (session shared through the origin)
+
+## the display profile only looks
+  ✓ signed in as the Downstairs TV (kiosk, cannot write)
+  ✓ kiosk: add bar hidden
+  ✓ kiosk: Hearth block hidden
+  ✓ kiosk: sees the list with freshness bars
+  ✓ kiosk: no "mark used up" buttons
+  ✓ kiosk: no bottom padding reserved for a bar it does not show
+
+42 passed, 0 failed

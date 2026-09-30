@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 312 entries FIXED, 39 PARTIAL, 3 DEFERRED, 12 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 351 entries FIXED, 36 PARTIAL, 3 DEFERRED, 13 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -47,11 +47,11 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | 7/7 fixed, `7d9c593` |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | 6/6 fixed, `16926a2` |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | 7/7 fixed, `97c39a0` |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 99/143 fixed, `80af987` |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 102/143 fixed, `80af987` |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | 37/45 fixed, `65009df` |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | 22/23 fixed, `3944d37` |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | 12/12 fixed, `4d46316` |
-| 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a | open |
+| 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a | 35/36 fixed, `da1dcbd` |
 | 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a | open |
 | 16 | **5** | Verses | 19 (0 / 0 / 5 / 13 / 1) | M | 1, 2a | open |
 | 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a | open |
@@ -1736,8 +1736,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-3 — Four sheet implementations and three toast systems; none follows the finger, and only one animates out
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** One confirm sheet now serves the shell and the Dollywood pair (hub.confirm/hub.alert on design.css's .ds .sheet; the template's ask() on the same sheet) and one bottom toast (hub.toast) serves the shell, F260, the Larder, Timer, Kid Verse and Verses. Not landed: no sheet or toast follows the finger, and both still leave in one frame (hub.js removes them), and Prayer keeps its own sheet and toast (batch 3). The exit and drag half (gap rows MOTION-4/5, SDK) names no batch. After: `audits/evidence/p6/1/p4/GLASS/opaque-blur.json`, `audits/evidence/p6/1/p4/TELL/dialogs.json`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`da1dcbd`)
+- **Phase 6 (PARTIAL).** Prayer's half landed: its toast() now calls the shared hub.toast (Undo 63.6×44, one line), and its #sheet is on the shared tokens (--r-sheet, --elev-overlay, rising on --dur-gentle / --spring-gentle). verify-prayer-undo-target-3 passes in WebKit (iPhone, iPad) and Chromium; prayer-look-3 passes its sheet checks. What remains, owned by no batch (gap rows MOTION-4/5, SDK): no sheet or toast follows the finger, and both still leave in one frame. After: `audits/evidence/p6/3/workers/verify-prayer-undo-target-3.json`, `audits/evidence/p6/3/workers/prayer-look-3.json`.
 - **Evidence.** `audits/04-design-system.md:4122`; `apps/design.css:587`, `apps/hub.js:431-435`, `apps/f260.html:416-418`, `apps/prayer.html:254-259`; `audits/screens/prayer/mark-answered-typical-iphone-pwa-light.png`, `audits/screens/f260/done-toast-typical-ipad-portrait-light.png`
 - **What happens now.** The shell's `.ds .sheet` rises 24 px over 360 ms and is removed in one frame.
 - **Why it matters.** Grabbers that do nothing and dialogs that blink away are web tells. Every other app would have to build its own toast to offer undo.
@@ -1796,8 +1796,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-5 — Sheets and modals use four corner radii (five with the Dollywood popover) and three elevations
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** One sheet (--r-sheet, --elev-overlay) for the shell, hub.confirm, the template's ask() and F260's modal card (apps/f260.html:413 now reads --r-sheet). Prayer's #sheet keeps its literal 26 px top radius (apps/prayer.html:268): Prayer's batch 3. After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/p4/TELL/dialogs.json`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Prayer's #sheet now reads --r-sheet and --elev-overlay (it had a literal 26 px top radius), the last sheet batch 1 left. The final re-measure: div#sheet at 32/32/0/0 on all 155 captures (measure/radii.json). prayer-look-3: 32 px corners and the overlay shadow on iPhone and iPad. SHAPE/analyze's after run read a half-refreshed capture set (26 px on 78, 32 px on 77); the raw captures now hold no 26 px sheet. After: `audits/evidence/p6/3/measure/radii.json`, `audits/evidence/p6/3/workers/prayer-look-3.json`, `audits/evidence/p6/3/tests/repro-after/phase4__SHAPE__analyze.txt`.
 - **Evidence.** `audits/04-design-system.md:2292`; `apps/design.css:582`, `apps/prayer.html:239`, `apps/f260.html:385`
 - **What happens now.** (Table SHAPE-7.) The shell's `.sheet` is 36 at the top (44 for kids), at `--e4`. Prayer's `#sheet` is 26 at the top. The park map's sheet and the build guide's phone sheet are 24 at the top, with the literal upward shadow `0 -10px 40px -8px`. F260's modal card is 16 (`--r`), at `--e4`.
 - **Why it matters.** Sheets are the Liquid Glass surface the house style names, and four shapes make the same gesture feel different in each app.
@@ -1916,8 +1916,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-7 — Five of nine apps size text in literal px and bypass the tokens: F260 122, the Dollywood template 149, Prayer 64, the Larder 16, against a fully tokenised shell
 
-- **Area** design system (F260, Prayer, Larder) · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Literal px sizes moved to roles in F260 (code-scan: 123 px → 0; 56 role tokens, 68 px × text-size clamps), the Larder (28 → 0) and the template (149 → 8); Kid Verse 4 → 2. Prayer's 64 px literals became 63 px × --ts clamps, so text size reaches Prayer, but the move to roles was left to Prayer's batch (3) by the Prayer worker. After: `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__code-scan.txt`.
+- **Area** design system (F260, Prayer, Larder) · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Prayer's 63 calc sizes and 2 inline ones moved to the type roles (kid roles for kids). TYPE/code-scan for apps/prayer.html: 63 clamp/calc, 5 token, 2 px → 88 token, 0 calc, 0 px; TYPE/report: distinct literal sizes 2 → 0; TOK/literals font sizes 65 → 0. Left from batch 1 and unchanged: the Dollywood exports' 8 px literals and Kid Verse's 2. After: `audits/evidence/p6/3/tests/repro-after/phase4__TYPE__code-scan.txt`, `audits/evidence/p6/3/tests/repro-before/phase4__TYPE__code-scan.txt`, `audits/evidence/p6/3/p4/TYPE/code-scan.json`.
 - **Evidence.** `audits/04-design-system.md:1514`
 - **What happens now.** Declared sizes, token against literal: design.css 29/0 and `index.html` 51/0 (bare px; six `clamp()` declarations carry px bounds). Verses 15/1, Kid Verse 27/4; Tally and Timer use tokens plus a clamp.
 - **Why it matters.** Every hub-wide type change (kid mode, an iPad tier, larger text) silently skips F260, Prayer, the Larder and both Dollywood exports. Table TYPE-4 shows it already happens for kids in the Larder and the park map.
@@ -2827,8 +2827,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-2 — F260, Prayer, the Dollywood template, Kid Verse and the Larder use no duration tokens: 93 literal durations, two different overshoot "springs"
 
-- **Area** design system (F260, Prayer, Larder, Kid Verse) · **Type** visual (consistency) · **Severity** info · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Literal durations moved to the --dur-*/--spring-* tokens in F260 (TOK/literals durations 32 → 3), Kid Verse (3 → 0), the Larder (2 → 0), Timer (2 → 0) and the park-map export (13 → 6). Prayer's 35 stay: the Prayer worker left CONS-MOTION-2 for Prayer's batch (3). MOTION/static-motion.mjs reads the old duration names (it prints "null ms" now), so it is stale. After: `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__static-motion.txt`.
+- **Area** design system (F260, Prayer, Larder, Kid Verse) · **Type** visual (consistency) · **Severity** info · **Effort** M · **Batch** 1 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Prayer's 35 literal durations moved to the --dur-*, --spring-* and --ease-* tokens, with a [data-motion="reduce"] kill. TOK/literals for Prayer: durations 35 → 0, easings 11 → 0. MOTION/static-motion: Prayer's literal durations 35 → 0 (it prints "null ms" for the tokenised animations: the script is stale). Left from batch 1: the park-map export's 6. After: `audits/evidence/p6/3/tests/repro-after/phase4__TOK__literals.txt`, `audits/evidence/p6/3/tests/repro-before/phase4__TOK__literals.txt`, `audits/evidence/p6/3/tests/repro-after/phase4__MOTION__static-motion.txt`, `audits/evidence/p6/3/p4/TOK/literals-prayer.json`.
 - **Evidence.** `audits/04-design-system.md:4108`; `index.html:328`, `apps/design.css:105-109`
 - **What happens now.** Token share of durations (Table MOTION-1; exact in the re-measure): Token areas: design.css 21/24, shell 19/23, Tally 5/5, Timer 5/7, Verses 2/3.
 - **Why it matters.** The same gesture feels different app to app, and a retune of the tokens would reach only five areas.
@@ -3888,7 +3888,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-07 — On List, a tick or any remote change folds every open category shut
 
-- **Area** prayer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Category groups remember which are open, per screen and list (catOpen); a search still opens them all. verify-list-group-collapses-1: open after a tick [] → ["Personal"]; after a family write from Mae and a pull [] → both groups still open. verify-list-group-collapses-2, WebKit and Chromium: after a tick [] → open; after Mae's edit and a pull [] → open. list-collapse: after a tick [] → open. Its remote step and the -2 idle step now start with the group already shut (the script's click toggles a group the app now keeps open), so those two test nothing; the remote case is covered by the two verify scripts. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-list-group-collapses-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-list-group-collapses-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-list-group-collapses-2.txt`, `audits/evidence/p6/3/p3/prayer/verify-list-group-collapses-2-webkit-2-after-tick.png`.
 - **Evidence.** `audits/03-apps/prayer.md:371`; `apps/prayer.html:1265`, `apps/prayer.html:699-705`; `audits/evidence/p3/prayer/list-collapse-1-open.png`, `audits/evidence/p3/prayer/list-collapse-2-after-tick.png`
 - **What happens now.** A tick on List calls `renderAll()` (`apps/prayer.html:1265`), and `groupedHTML` opens groups only while there is a search term (`:950`). Every remote change runs `absorbRemote` → `renderAllScreens` (`:699-705`), which does the same; `absorbRemote` waits only while a sheet, Pray now or a focused input is open (`:701-703`).
 - **Why it matters.** Praying down a category means reopening it after every tick, and on the 24/7 Kitchen iPad it folds whenever anyone else prays or edits.
@@ -3897,7 +3898,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-08 — "Send to family list" drops a weekly request's days
 
-- **Area** prayer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** "Send to family list" copies a weekly request's days, and the preview says "on Sun, Tue, Thu". verify-share-drops-days-1: the family copy's days [] → [Sun, Tue, Thu] on the device and on the house; it now shows on Eli's and Mom's family Today on a Tuesday (false → true). verify-share-drops-days-2: Ezra's Today shows it (false → true) and Mom's edit form has the three days pressed. leads L5 agrees. prayer-claims-3 claim 2: an old family weekly row with days [] is on the family Today 7/7 days, and Home's "N to pray" counts a My-list one 7/7 days. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-share-drops-days-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-share-drops-days-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-share-drops-days-2.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-claims-3.txt`.
 - **Evidence.** `audits/03-apps/prayer.md:394`; `apps/prayer.html:1314-1315`, `apps/prayer.html:809-835`, `apps/prayer.html:813-818`; `audits/evidence/p3/prayer/verify-share-drops-days-2-eli-family-today.png`, `audits/evidence/p3/prayer/verify-share-drops-days-2-mom-copy-edit.png`
 - **What happens now.** The family copy keeps `cadence` but is written with `days:[]` (`apps/prayer.html:1314-1315`), and the weekly filter needs a day (`:822`). The add and edit forms both refuse a weekly request with no days ("Pick at least one day.", `:1435, 1056`); the share path is the only writer that creates one.
 - **Why it matters.** A request someone deliberately shared with the family never comes up for anyone, kids included, and the sender is not told.
@@ -3906,7 +3908,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-19 — An open Kitchen view never refreshes: other people's adds and answers do not appear (from the critic)
 
-- **Area** prayer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** refreshKitchen() repaints an open Kitchen view on every remote change and keeps its scroll; opening it by hand starts at the top. verify-critic-kitchen-view-stale-3-1, after the iPad's pull: shows the new request false → true, still asks for the answered one true → false (also after a second poll). -3-2 the same for Mae's add and answer. critic-sweep's kitchen step: false → true. prayer-review2-3 4/0: a remote repaint keeps its place and the view reopens at its top. prayer-claims-3 claim 1: at the house's midnight the open view rolls "Tuesday, September 22" → "Wednesday, September 23", rebuilt, 14 of 14 active shown. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-critic-kitchen-view-stale-3-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-critic-kitchen-view-stale-3-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-critic-kitchen-view-stale-3-2.txt`, `audits/evidence/p6/3/claims/1-kitchen-after-midnight.png`.
 - **Evidence.** `audits/03-apps/prayer.md:651`; `apps/prayer.html:555`, `apps/prayer.html:712`; `audits/evidence/p3/prayer/critic-kitchen-stale-ipad.png`, `audits/evidence/p3/prayer/verify-critic-kitchen-view-stale-3-1-ipad.png`
 - **What happens now.** `openKitchen()` is the only code that writes `#kitchenBody` (`apps/prayer.html:555, 1645-1656`). A remote change runs `absorbRemote` → `load()` and `renderAllScreens()` (`:699-705, 1152`), which never rebuild it, and the Kitchen overlay is not in the busy test (`:701-702`), so the repaint runs underneath.
 - **Why it matters.** The counter display drifts from the real list with no sign: a new request is missing and an answered one is still asked for.
@@ -3915,7 +3918,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-20 — The Add form never says which list it adds to, so a private request can land on the family list (from the critic)
 
-- **Area** prayer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** medium · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The Add screen says "Adding to" with a My list / Family list switch (the kitchen gets Family only), a line on who will see it, and a button that names the list. verify-critic-add-screen-no-list-name-4-1 and -4-2: no list named outside the Category select → "My list | Family list | Everyone in the house will see it, the kids and guests too." and "Add to the list" → "Add to the Family list". The scripts still save to the family list because they never touch the new switch; their switch flag reads Today's #listSwitch (false before and after). prayer-logic-look-3: My list gives "Add to My list" and "Only you will see it." After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-critic-add-screen-no-list-name-4-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-critic-add-screen-no-list-name-4-1.txt`, `audits/evidence/p6/3/workers/prayer-logic-look-3.json`, `audits/evidence/p6/3/workers/look-add-mine-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:676`; `apps/prayer.html:633`, `apps/prayer.html:707`, `apps/prayer.html:479-501`, `worker/src/reminders.js:174-204`; `audits/evidence/p3/prayer/critic-add-on-family.png`, `audits/evidence/p3/prayer/verify-critic-add-screen-no-list-name-4-1-add-screen.png`
 - **What happens now.** Add pushes to `L()`, the list last chosen on Today (`apps/prayer.html:707, 1436`). The screen reads "Add a request / What are you praying for? / Who is it for? / Detail / Their number… / Category / How often / Add to the list" (`:479-501`), with no list name and no switch; Category defaults to "Personal".
 - **Why it matters.** A request an adult meant to keep private goes to the kids' cards, guests and other adults' lock screens with no warning.
@@ -3924,7 +3928,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-2 — Kid cards: prayed and not-prayed look almost the same, the untapped button already says "Prayed", and nothing tells a pre-reader what a request is
 
-- **Area** prayer · **Type** usability · **Severity** medium · **Effort** M · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** medium · **Effort** M · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Kid cards: before a tap, "Pray" with drawn praying hands (a duotone palm fill) on the kid's colour; after, a pale mint pill with a 3 px ring, the kid's face, a drawn ✓ and "Prayed", the card ringed too; 64 px targets. The title and a speaker button read the request aloud. vischeck-fab-list: contrast between the two fills 1.03/1.01/1.00/1.10 → 4.83/5.60/4.69/5.14 (Ezra and Kiara, light and dark), so they differ in lightness, shape and word, not hue alone; the untapped label "Prayed" with a ✓ → "Pray". prayer-look-3 61/0. Not checked: speech on iOS. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__vischeck-fab-list.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__vischeck-fab-list.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-look-3.txt`, `audits/screens-after/3/prayer/kid-typical-iphone-pwa-dark.png`.
 - **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: 'A 4-5-year-old or a colour-blind viewer cannot tell done from not done' is overstated. For colour-typical vision the two fills differ clearly in hue (dE 26-36); only the luminance ratio is low (1.06-1.75). The near-invisible case is simulated protanopia on Kiara's dark palette (dE 4.2).
 - **Evidence.** `audits/03-apps/prayer.md:859`; `apps/prayer.html:1587-1588`, `apps/prayer.html:427`; `audits/evidence/p3/prayer/vischeck-kid-states-ezra-dark.png`, `audits/screens/prayer/kid-typical-ipad-portrait-light.png`
 - **What happens now.** Every kid button reads "✓ Prayed", with the same check and label before and after the tap (`apps/prayer.html:1587-1588`). Only the fill changes, from the profile colour to olive (`:427`), plus a faded title.
@@ -3934,7 +3939,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-4 — Settings never says which list it edits, and silently edits the family plan
 
-- **Area** prayer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** medium · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Settings is titled "My list settings" or "Family list settings" with a note on who it changes, and the first family change in a visit asks "Change the Family list?" (hub.confirm). leads L16: headings "Settings, …" → "My list settings, …", names My list false → true. prayer-logic-look-3, iPhone and iPad: the family title and note; Cancel leaves the setting unchanged, "Change it" applies it, and a second change that visit does not ask again. prayer-claims-3 claim 4: Paste → Keep on the Family list asks too; Cancel 12 → 12 requests, Change it → 13. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-claims-3.txt`, `audits/evidence/p6/3/workers/look-settings-family-confirm-iphone-pwa-light.png`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: The report understates one point: the list choice carries across devices, because activeList is a person-scope row, not just 'the list last chosen on Today' on that device. It also leaves out that Paste writes to the family list in the same way.
 - **Evidence.** `audits/03-apps/prayer.md:868`; `apps/prayer.html:707-708`, `apps/prayer.html:503-532`; `audits/screens/prayer/settings-typical-iphone-pwa-light.png`
 - **What happens now.** Plans, categories and paste all act on the list last chosen on Today (`apps/prayer.html:707-708, 1171-1227`). The headings are "Settings, Prayer plan, Paste a list, Categories, Backup" and never name "My list" or "Family". On Family, a plan change rewrites the house's plan row.
@@ -3944,7 +3950,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-09 — Undo after Mark answered does nothing if a remote change lands within its 6 s
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Already fixed by an earlier batch: Undo finds the row again by id (byIdAny). Before this batch, undo-stale and verify-undo-stale-object-1/-2 already put the request back with a remote change inside the 6 s. After, the originals time out on #toastAct, Prayer's old toast, which stays hidden now that Prayer uses hub.toast. Their -3 copies click the new toast: undo-stale-3 (with and without a remote change), -1-3 (a remote change before the Undo: memory and house active) and -2-3 (Mom edits a family request inside the window) all end active on Today. After: `audits/evidence/p6/3/tests/repro-after/p6-3__undo-stale-3.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__undo-stale.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__verify-undo-stale-object-1-3.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__verify-undo-stale-object-2-3.txt`.
 - **Evidence.** `audits/03-apps/prayer.md:417`; `apps/prayer.html:1331`, `apps/prayer.html:630-639`, `apps/hub.js:286-302`, `apps/prayer.html:1760`; `audits/evidence/p3/prayer/verify-undo-stale-object-2-remote-after-undo.png`
 - **What happens now.** The Undo closure holds the old row object (`apps/prayer.html:1331`). A remote change runs `absorbRemote` → `load()` (`:699-705`), which rebuilds every row as a new object; its busy test ignores the toast.
 - **Why it matters.** Undo is the one safety net after "Mark answered", and it silently fails.
@@ -3953,7 +3960,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-12 — The "Needs attention" badge counts a request twice
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** reviewItems lists each request once, under its first heading. verify-review-double-count-1 and -2: badge 8 → 6 and rows 8 → 6 for 6 distinct requests; "Believers facing persecution" and "Wisdom for the city council" stay under Gone quiet and leave No news in a while (5 → 3); listed twice 2 → 0. leads L12: badge 8 → 6. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-review-double-count-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-review-double-count-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-review-double-count-2.txt`, `audits/evidence/p6/3/p3/prayer/verify-review-double-count-2-iphone.png`.
 - **Evidence.** `audits/03-apps/prayer.md:490`; `apps/prayer.html:803-806`, `apps/prayer.html:797-799`, `apps/prayer.html:981`; `audits/evidence/p3/prayer/verify-review-double-count-2-iphone.png`, `audits/screens/prayer/record-review-typical-iphone-pwa-light.png`
 - **What happens now.** The "Gone quiet" and "No news in a while" filters overlap (`apps/prayer.html:797-799`), and the badge adds all three lists (`:981`). It shows 8 for 6 distinct requests; "Believers facing persecution" and "Wisdom for the city council" each appear under both headings.
 - **Why it matters.** The number overstates what needs attention, and the repeated rows look like a glitch.
@@ -3962,7 +3970,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-13 — The gold streak cheer shows under "Nothing on the list today."
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The cheer shows only when something was scheduled today and it is finished. verify-cheer-at-zero-1 and -2, Mae's by-day plan with nothing on Tuesday: the cheer "3 days in a row." shown → none, and the strip's "0/0 today" is gone. Eli's unfinished control is unchanged (no cheer). leads L11 the same. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-cheer-at-zero-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-cheer-at-zero-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-cheer-at-zero-2.txt`, `audits/evidence/p6/3/p3/prayer/verify-cheer-at-zero-2-mae-iphone.png`.
 - **Evidence.** `audits/03-apps/prayer.md:510`; `apps/prayer.html:885`, `apps/prayer.html:734-739`; `audits/evidence/p3/prayer/verify-cheer-at-zero-2-mae-iphone.png`, `audits/screens/prayer/today-unscheduled-typical-iphone-pwa-light.png`
 - **What happens now.** `left = set.length - done` is 0 when nothing is scheduled (`apps/prayer.html:885`), and the cheer is gated only on `left === 0` (`:909`). Mae's page (by-day plan, nothing scheduled on Tuesday) reads "Nothing on the list today." with the gold cheer "3 days in a row." and the strip "0/0 today", although she has not prayed today.
 - **Why it matters.** It congratulates a finished list that never existed, and repeats the strip's text.
@@ -3971,7 +3980,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-14 — A category row's count disagrees with its Remove confirm
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** A category row and its Remove confirm both count every request in it, answered ones included, and the confirm names the answered ones. verify-category-count-mismatch-1: mismatched rows 5 → 0; Health Needs reads 2 with "2 requests are in "Health Needs" (1 answered)…" (was 1 against 2). -2 still lists the five rows because it compares each row with the active count only; the rows now read the total (Health Needs 1 → 2, Wisdom and Decisions 0 → 1). leads L17 agrees. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-category-count-mismatch-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-category-count-mismatch-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-category-count-mismatch-2.txt`, `audits/evidence/p6/3/p3/prayer/verify-category-count-mismatch-1-confirm.png`.
 - **Evidence.** `audits/03-apps/prayer.md:530`; `apps/prayer.html:1171-1175`, `apps/prayer.html:1171-1180`; `audits/evidence/p3/prayer/verify-category-count-mismatch-1-confirm.png`, `audits/screens/prayer/settings-delcat-typical-iphone-pwa-light.png`
 - **What happens now.** The row counts active requests (`apps/prayer.html:1171-1175`), while the Remove confirm counts active and answered (`:1357`), and Remove moves both to Personal (`:1362`). "Health Needs 1" sits above "2 requests are in "Health Needs"…".
 - **Why it matters.** A row showing 0 invites a Remove that then says a request will be moved.
@@ -3980,7 +3990,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-15 — The family delete confirm says deletions do not sync, but they do
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The family delete confirm now reads "It comes off the family list for everyone in the house." verify-delete-copy-wrong-1 and -2: the claim that deletions do not sync true → false; the delete still reaches the other devices (true before and after). Still true in -2 and outside this batch: a device that was offline with a stale copy and taps Prayed brings the deleted request back under last-write-wins. That needs its own finding. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-delete-copy-wrong-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-delete-copy-wrong-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-delete-copy-wrong-2.txt`, `audits/evidence/p6/3/p3/prayer/verify-delete-copy-wrong-1-confirm.png`.
 - **Evidence.** `audits/03-apps/prayer.md:550`; `apps/prayer.html:1258-1259`, `apps/hub.js:244`, `apps/prayer.html:692`; `audits/evidence/p3/prayer/verify-delete-copy-wrong-1-confirm.png`, `audits/screens/prayer/ask-delete-typical-iphone-pwa-light.png`
 - **What happens now.** On the family list the confirm reads "Sync does not carry deletions, so it can come back from another device." (`apps/prayer.html:1258-1259`), but `save()` sends a tombstone through `hub.remove` (`:692`; `apps/hub.js:244`), and other devices drop the row on their next pull.
 - **Why it matters.** It may make an adult hesitate or delete twice; the result is correct.
@@ -3989,7 +4000,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-16 — The headline says "to pray through this morning" at any hour
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The adult headline follows the device clock: "this morning" before noon, "today" until 5 pm, "this evening" after. verify-morning-copy-evening-1: 14:10 "this morning" → "today", 21:10 → "this evening"; 06:10 and 08:40 unchanged; the kids' "Pray with the family" unchanged. -2: 15:00 → "today", 21:10 → "this evening". leads' evening check the same. The date line's "Morning" is the plan's name. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-morning-copy-evening-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-morning-copy-evening-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-morning-copy-evening-2.txt`, `audits/evidence/p6/3/p3/prayer/verify-morning-copy-evening-2-eli-2110.png`.
 - **Evidence.** `audits/03-apps/prayer.md:570`; `apps/prayer.html:890`, `apps/prayer.html:884-897`, `apps/prayer.html:600`, `apps/prayer.html:1287`; `audits/evidence/p3/prayer/verify-morning-copy-evening-2-eli-2110.png`
 - **What happens now.** The adult headline hard-codes "this morning." (`apps/prayer.html:890`). At 21:10 the page reads "6 to pray through this morning." Kids get "Pray with the family" instead (`:891-897`).
 - **Why it matters.** The family also prays in the evening (the hub's 8 pm nudge is for F260); the wording reads as a mistake.
@@ -3998,7 +4010,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-21 — An undone tick still counts the day in the streak, month count and calendar (from the critic)
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** An untick that leaves nothing prayed today takes today off the record; on the family list only when nobody's tick is left. The streak and calendar also count a My-list request's last prayed day, and a repair 2 s after a pull puts back a today another device prayed. verify-critic-untick-keeps-day-5-1, after the untick: streak 4 → 3 (it stayed 4), today on the house true → false, calendar cell off. -5-2: streak 1 → 0, the house [today] → []. critic-sweep agrees. The reviewer's cross-device probes pass (5/0; 7/0 twice). Side effect: the seed's month count reads 10, not 9. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-critic-untick-keeps-day-5-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-critic-untick-keeps-day-5-1.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-critic-untick-keeps-day-5-2.txt`, `audits/evidence/p6/3/p3/prayer/verify-critic-untick-keeps-day-5-1-record.png`.
 - **Evidence.** `audits/03-apps/prayer.md:701`; `apps/prayer.html:1604`, `apps/prayer.html:732-739`; `audits/evidence/p3/prayer/critic-untick-record.png`, `audits/evidence/p3/prayer/verify-critic-untick-keeps-day-5-1-record.png`
 - **What happens now.** `setPrayed` calls `markDay()` when a request is marked (`apps/prayer.html:1604`), and `markDay()` only adds (`:732-733`). Nothing removes `TODAY` from `prayerDays` on an un-tick; the only other writers are import (`:1513`) and the unused `mergeShared` (`:1700`).
 - **Why it matters.** The streak and the Record calendar credit a day on which the person did not pray, and the Today strip contradicts itself ("0/1 today" beside "1 day in a row").
@@ -4007,7 +4020,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-22 — Every Sunday Today says "Some of the list has gone quiet" even when nothing has (from the critic)
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The Sunday nudge shows only when something has gone quiet or had no news; with only no-news items it says "Some requests have had no news in a while." verify-critic-sunday-nudge-says-gone-quiet-6-1 and -2: Mae and Mea on Sun 27 Sep, nothing cold, silent or fresh: "Some of the list has gone quiet. See what" → no prompt; Saturday unchanged. critic-sweep: Eli, with 2 gone quiet and 4 with no news, still gets it. prayer-claims-3 claim 3: a Sunday with only no-news items reads "Some requests have had no news in a while."; nothing quiet → no prompt. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-critic-sunday-nudge-says-gone-quiet-6-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-critic-sunday-nudge-says-gone-quiet-6-1.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-claims-3.txt`, `audits/evidence/p6/3/claims/3-sunday-no-news-only.png`.
 - **Evidence.** `audits/03-apps/prayer.md:726`; `apps/prayer.html:604`, `apps/prayer.html:803-806`, `apps/prayer.html:396`, `apps/prayer.html:912`; `audits/evidence/p3/prayer/critic-sunday-christian-today.png`, `audits/evidence/p3/prayer/critic-sunday-niece-today.png`
 - **What happens now.** `reviewDue()` is true on any Sunday without reading the review lists (`apps/prayer.html:803-806`), and Today then shows "Some of the list has gone quiet." with "See what" (`:911-913`). On Sun 27 Sep, Mae and Mea both had cold 0, silent 0 and fresh 0 and still saw the prompt. See what opened Record, which said "Nothing needs attention.
 - **Why it matters.** The app contradicts itself one tap later and adds guilt copy on the day the family sets aside.
@@ -4016,7 +4030,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-23 — Removing the category a "One category only" plan uses leaves the plan pointing at a deleted category (from the critic)
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Removing a category repoints a "One category only" plan to Personal, loading repairs a plan already pointing at a missing or empty category, and a new focus plan starts on Personal. verify-critic-focus-plan-deleted-category-7-1: focus after the remove "Health Needs" → "Personal"; Today "Nothing on the list today." → "2 to pray through this morning." -7-2: the My-list half the same; its family half now stops at the new "Change the Family list?" confirm. The -3 copy passes it: the family plan Spiritual Needs → Personal, and Mom sees Personal. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__verify-critic-focus-plan-deleted-category-7-1.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__verify-critic-focus-plan-deleted-category-7-1.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__verify-critic-focus-plan-deleted-category-7-2-3.txt`, `audits/evidence/p6/3/workers/verify-critic-focus-plan-deleted-category-7-2-family-settings.png`.
 - **Evidence.** `audits/03-apps/prayer.md:750`; `apps/prayer.html:1348-1350`, `apps/prayer.html:813-815`, `apps/prayer.html:1410`; `audits/evidence/p3/prayer/critic-focus-settings-after-remove.png`, `audits/evidence/p3/prayer/critic-focus-today-after-remove.png`
 - **What happens now.** Rename fixes each plan's `dayMap` and its `focusCategory` (`apps/prayer.html:1348-1350`); Remove fixes only `dayMap` (`:1363-1364`). In focus mode `todaySet` keeps only requests in `focusCategory` (`:813-815`), and the Settings select marks an option selected only when it equals `focusCategory` (`:1196-1199`).
 - **Why it matters.** Settings shows one category while Today filters by one that no longer exists. The list empties with no reason given, and on the family list it empties for everyone.
@@ -4025,7 +4040,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-26 — Escape closes only Pray mode; the sheet, More, Kitchen view and ask panels ignore it, and Enter submits nothing (from the critic)
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Escape closes an inline panel, then the sheet, then the Kitchen view (the edit form asks before discarding a change). Enter moves title → for → detail and saves from Their number; Enter saves one-line panels; Ctrl/Cmd+Enter saves a textarea. Before, Escape left the detail sheet, More, the Kitchen view and the ask panel open, and Enter saved nothing (19 → 19). The -3 copies, WebKit and Chromium: all four close, Enter adds 19 → 20 and a plan 2 → 3. The originals now fail only on follow-up taps at things Escape already closed. Not checked: a hardware keyboard on the iPad. After: `audits/evidence/p6/3/tests/repro-after/p6-3__critic-keys-3.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__critic-keys.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__verify-critic-no-enter-escape-10-2-3.txt`, `audits/evidence/p6/3/workers/verify-critic-no-enter-escape-10-1-sheet-after-escape.png`.
 - **Evidence.** `audits/03-apps/prayer.md:824`; `apps/prayer.html:1079-1083`, `apps/prayer.html:1709-1714`, `apps/prayer.html:481-482`; `audits/evidence/p3/prayer/verify-critic-no-enter-escape-10-1-sheet-after-escape.png`
 - **What happens now.** The only keydown listener is Pray mode's, and it returns unless Pray mode is open (`apps/prayer.html:1709-1714`). `ask()` wires Save and Cancel to clicks only (`:1089-1126`). `#f-title` is not inside a `<form>`, and `#f-save` is a plain button wired to click (`:481-482, 499, 1429`).
 - **Why it matters.** On the desktop, keyboard users must reach for the mouse, or Tab to a button, to dismiss every overlay and submit every form.
@@ -4034,7 +4050,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-SHAPE-02 — Prayer's toast action is a 36×22 target: Undo after "Mark answered" and "Open it" after an add, offered for 6 seconds
 
-- **Area** design system (Prayer) · **Type** bug · **Severity** low · **Effort** S · **Batch** 3
+- **Area** design system (Prayer) · **Type** bug · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Prayer's toast() now calls the shared hub.toast (6 s with an action), which sits above the nav and the +. Undo 35.8×44 (iPhone) and 40.1×44 (iPad) → 63.6×44 and 68.4×44 in WebKit and Chromium, on one line, and Undo still puts the request back. The original verify-prayer-undo-target-2 now errors (it measures Prayer's old #toast, kept hidden as a fallback) and SHAPE/verify's V3 reads 0×0 for the same reason; the -3 copy passes on all three. After: `audits/evidence/p6/3/tests/repro-after/p6-3__verify-prayer-undo-target-3.txt`, `audits/evidence/p6/3/tests/repro-before/phase4__SHAPE__verify-prayer-undo-target-2.txt`, `audits/evidence/p6/3/workers/verify-prayer-undo-target-3.json`, `audits/evidence/p6/3/workers/verify-prayer-undo-target-3.png`.
 - **Evidence.** `audits/04-design-system.md:2060`; `apps/prayer.html:563`, `apps/prayer.html:46`, `apps/hub.js:431`; `audits/screens/prayer/mark-answered-typical-iphone-pwa-light.png`
 - **What happens now.** The toast is one element for every message (`apps/prayer.html:563`). Its button is styled `.toast button{background:none;border:none;…font-size:14px;font-weight:700;cursor:pointer;padding:0}` (`:260-261`), with no minimum size.
 - **Why it matters.** A grandparent who marks the wrong request answered has 6 seconds to hit a 22 px word.
@@ -4043,7 +4060,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-1 — The Add form's main button starts hidden under the tab bar
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The Add button is pinned above the tab bar, and scroll padding keeps a focused field clear of it. layout, save bottom against the nav top: 904/807 → 800/807 (iPhone), 944/693 → 688/693 (iPad landscape), 900/775 → 768/775 (desktop); hidden under the nav true → false on all four devices. taps: "Add button under the nav at open" true → false. Round 1 found the pinned button covering Category (54 of 54 px); after the fix 0 px on four devices. Not checked: iOS Safari honouring scroll padding, and the iOS keyboard up. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__layout.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__layout.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__taps.txt`, `audits/screens-after/3/prayer/add-typical-iphone-pwa-light.png`.
 - **Verified (step 3).** was medium; skeptics low and low (partly). Correction: The facts are correct. The item also applies to iPhone Safari (save at 846 against a nav at 615) and to the + button path. The rating is inflated: medium should be low, because a single scroll reveals the button and the flow is occasional.
 - **Evidence.** `audits/03-apps/prayer.md:855`; `apps/prayer.html:479-501`; `audits/evidence/p3/prayer/layout-add-iphone.png`, `audits/screens/prayer/add-typical-iphone-pwa-light.png`
 - **What happens now.** When Add opens, "Add to the list" sits at y 846-904 while the nav starts at y 807 on the iPhone PWA and at 695 on iPad landscape; on desktop it is at y 843 with the nav at 775. It is visible on iPad portrait.
@@ -4053,7 +4071,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-3 — Nothing in Prayer is legible from across the room, including "Kitchen view — Big type for the counter"
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** M · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** M · **Batch** 3 · **Status** NEEDS DEVICE CHECK (`da1dcbd`)
+- **Phase 6 (NEEDS DEVICE CHECK).** The Kitchen view is a calm dark panel (--tv-panel, --tv-text inks) in the glance roles, grouped by category (two columns reading row by row on a landscape iPad), with a 60 px Close. layout, iPad: requests 26.9 → 44 px, the list name 40.3 → 64 px; the rig's readable distance for items 0.73 → 1.19 m and for the heading 1.08 → 1.73 m; iPhone items 24 → 28 px. prayer-look-3 passes its 44 / 64 px checks. Whether that reads from across the kitchen can only be judged on the iPad itself. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__layout.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__layout.txt`, `audits/evidence/p6/3/workers/prayer-look-3.json`, `audits/screens-after/3/prayer/kitchen-typical-ipad-landscape-dark.png`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The '2-3 m needs roughly 90-130 px type' figure is wrong under the report's own heuristic: about 69-104 px (comfortable) or 40-61 px (minimum).
 - **Evidence.** `audits/03-apps/prayer.md:865`; `apps/prayer.html:357-362`; `audits/screens/prayer/kitchen-typical-ipad-landscape-light.png`
 - **What happens now.** Measured readable distances on the iPad: h1 0.88 m, row titles 0.50 m, meta 0.38 m, nav 0.35 m, kid titles 0.96 m, Kitchen items (24 px) 0.69 m and its heading 1.0 m. 2-3 m needs roughly 90-130 px type.
@@ -4063,7 +4082,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-5 — Two different controls are both called "More"
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Today's "More" is now "Share & print", on the button and the sheet's title; the tab bar keeps More for Settings. leads twoMores: Today's button "More" → "Share & print"; the tab's More now opens "My list settings". After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__leads.txt`, `audits/screens-after/3/prayer/today-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:871`; `apps/prayer.html:453`; `audits/screens/prayer/today-typical-iphone-pwa-light.png`
 - **What happens now.** Two different controls are both called "More" (low). Today's "··· More" opens Kitchen view, Copy and Print (`apps/prayer.html:453, 1725-1735`); the tab bar's "More" opens Settings (`:570`). Evidence: `audits/evidence/p3/prayer/leads.json` (twoMores); `audits/screens/prayer/today-typical-iphone-pwa-light.png`.
 - **Why it matters.** Two controls called More.
@@ -4072,7 +4092,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-6 — A family request's detail sheet hides who asked and who prayed today
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** A family request's detail sheet shows who asked, with their face, and who prayed today (or "No one has prayed for it yet today."). leads L21: asker in the sheet false → true, who prayed today false → true. verify-share-drops-days-2: Mom's sheet for the new copy now reads "Eli asked" and "No one has prayed for it yet today." prayer-logic-look-3 shows the faces on iPhone and iPad. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__leads.txt`, `audits/evidence/p6/3/workers/look-detail-family-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:872`; `apps/prayer.html:985-1019`; `audits/screens/prayer/detail-family-typical-iphone-pwa-light.png`
 - **What happens now.** A family request's detail sheet hides who asked and who prayed today (low). The row shows "X asked" and the faces; the sheet shows neither (`apps/prayer.html:985-1019`). Evidence: `audits/evidence/p3/prayer/leads.json` (L21-familyDetail); `audits/screens/prayer/detail-family-typical-iphone-pwa-light.png`.
 - **Why it matters.** The sheet hides context the row shows.
@@ -4081,7 +4102,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-7 — List category groups give no sign that they open
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Each category group (List, the Answered group and Record's review) has a drawn chevron (an inline SVG in Prayer's stroke family, aria-hidden, in the tertiary text ink: 5.5-9.1:1 on a card in every palette) pointing right when shut and down when open. prayer-look-3 on iPhone, iPad portrait and iPad landscape: an svg.chev in every group and its rotation changes on open. leads L23 still reports no icon: it looks for another kind of icon element. After: `audits/evidence/p6/3/followup/repro/prayer-look-3.txt`, `audits/evidence/p6/3/followup/chevron-ink-contrast.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__leads.txt`, `audits/screens-after/3/prayer/list-open-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:873`; `apps/prayer.html:127-130`; `audits/screens/prayer/list-typical-iphone-pwa-light.png`
 - **What happens now.** List category groups give no sign that they open (low). The `<summary>` marker is hidden and there is no chevron (`apps/prayer.html:127-130`). Evidence: `audits/evidence/p3/prayer/leads.json` (L23-detailsChevron); `audits/screens/prayer/list-typical-iphone-pwa-light.png`.
 - **Why it matters.** Groups give no sign they open.
@@ -4090,7 +4112,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-9 — Pray now is not full-screen inside the hub, and its Close is a small text link
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Pray now calls the new hub.immersive(true), so the shell hides its bar; Close is a 44 px pill; Escape, closing Pray now, the shell's Escape, a reload or another app bring the bar back. layout: frame offset 48 → 0 on all four devices; Close 45×33 → 71×44 (iPhone), 49×35 → 76×44 (iPad). test-hub 37 → 47/0 with 10 immersive checks. Not checked: the installed app on a device and the notch strip. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__layout.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__layout.txt`, `audits/evidence/p6/3/tests/suites/test-hub.txt`, `audits/screens-after/3/prayer/pray-mode-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:877`; `apps/prayer.html:324-331`; `audits/evidence/p3/prayer/layout-pray-iphone.png`, `audits/screens/prayer/pray-mode-typical-iphone-pwa-light.png`
 - **What happens now.** Pray now is not full-screen inside the hub, and its Close is a small text link (low). The overlay fills the frame, but the shell's 48 px top bar stays above it; Close is 13.5 px text in a 49×33 box (`apps/prayer.html:324-331`). Evidence: `audits/evidence/p3/prayer/layout.json` (`pray.frameOffsetTop` 48); `audits/evidence/p3/prayer/layout-pray-iphone.png`; `audits/screens/prayer/pray-mode-typical-iphone-pwa-light.png`.
 - **Why it matters.** Pray now is not full-screen.
@@ -4099,7 +4122,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-10 — Rows are not sorted, so prayed rows sit mid-list
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Today puts undone rows first, then prayed ones, each part in a fixed order (daily, weekly, rotation, then oldest), the same on every device. leads L15: p003, p004, p001✓, p002✓, p005✓, p006, … → p004, p003, p006, p009, p014, p011, then p005✓, p001✓, p002✓. prayer-logic-look-3: a finished Today is in that order on iPhone and iPad. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__leads.txt`, `audits/evidence/p6/3/workers/prayer-logic-look-3.json`.
 - **Evidence.** `audits/03-apps/prayer.md:878`; `apps/prayer.html:835`, `apps/hub.js:225-229`
 - **What happens now.** Rows are not sorted, so prayed rows sit mid-list (low). Today is built daily, then weekly, then rotation (`apps/prayer.html:835`), each group in `hub.list` cache order (`apps/hub.js:225-229`): `p003, p004, p001✓, p002✓, p005✓, p006, …`. Order can differ by device. Evidence: `audits/evidence/p3/prayer/leads.json` (L15-rowOrder).
 - **Why it matters.** Prayed rows sit mid-list.
@@ -4108,7 +4132,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-11 — The paste parser keeps "Name - request" titles lower-case
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Pasted titles are capitalised in the preview and on save. prayer-logic-look-3: "Recovery after surgery" and "Settling in Kenya" on iPhone and iPad. leads L24 still shows lower case because it calls parsePaste directly, and parsePaste stays unchanged: handoff/prayer/check.js expects its raw output. After: `audits/evidence/p6/3/workers/prayer-logic-look-3.json`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__leads.txt`, `audits/screens-after/3/prayer/settings-paste-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:879`; `apps/prayer.html:1466-1469`; `audits/screens/prayer/settings-paste-typical-iphone-pwa-light.png`
 - **What happens now.** The paste parser keeps "Name - request" titles lower-case (low). Titles come out as "recovery after surgery" and "settling in Kenya" (`apps/prayer.html:1466-1469`). Evidence: `audits/evidence/p3/prayer/leads.json` (L24-paste); `audits/screens/prayer/settings-paste-typical-iphone-pwa-light.png`.
 - **Why it matters.** Lower-case titles.
@@ -4117,7 +4142,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-12 — Backup import needs the whole JSON file pasted into a textarea
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Import offers "Choose the backup file, or paste what is in it": a file picker (.json) fills the text box, and the person still taps Import. prayer-logic-look-3: the picker is there, accepting .json and application/json, on iPhone and iPad in the rig. Not checked: the iPad Files picker on a device. After: `audits/evidence/p6/3/workers/prayer-logic-look-3.json`, `audits/evidence/p6/3/workers/look-import-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:880`; `apps/prayer.html:1500-1506`; `audits/screens/prayer/settings-import-typical-iphone-pwa-light.png`
 - **What happens now.** Backup import needs the whole JSON file pasted into a textarea (low). Export downloads `prayers-<date>.json` (26 KB in the rig; `apps/prayer.html:1500-1506`); import is paste-only with no file picker (`:1518-1522`), which is impractical on an iPad. Evidence: `audits/evidence/p3/prayer/import-family.json` (export via download event, 26361 bytes); `audits/screens/prayer/settings-import-typical-iphone-pwa-light.png`.
 - **Why it matters.** Pasting a 26 KB JSON is impractical on a phone.
@@ -4126,7 +4152,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-13 — Every Prayed tap, including each Pray now step, posts its own feed line
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** A Pray now run posts one feed line ("Prayed through N family requests", or the usual line when only one was prayed) and never names a private title. It goes on hub.onLeave if the app closes mid-run, and a new run starts if Pray now is still open. Round 1: leaving mid-run and coming back posted 3 lines → 2. Round 3 probe7: going Home, the shell's Escape and another app each give exactly one "Prayed through 2 family requests" line. A line sent as another app opens can arrive about 20 s late. Not checked: pagehide on a device. After: `audits/evidence/p6/3/review/rev3-core/probe7.json`, `audits/evidence/p6/3/review/rev3-core/probe8.json`, `audits/evidence/p6/3/review/workers-and-reviews.md`.
 - **Evidence.** `audits/03-apps/prayer.md:881`; `apps/prayer.html:1606`
 - **What happens now.** Every Prayed tap, including each Pray now step, posts its own feed line (low; related P2-PWA-01, P2-PWA-13). `setPrayed` calls `hub.activity('Prayed for …')` on every mark (`apps/prayer.html:1606`), and each Pray now step goes through it (`:1706`), so one run of 6 posts 6 lines to "Around the house". For private requests those lines include the titles (P2-PWA-01 owns the leak).
 - **Why it matters.** A feed line per tap.
@@ -4135,7 +4162,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PRAYER-14 — A finished Today still leads with Pray now and shows the cheer twice
 
-- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** usability · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** A finished Today leads with "All prayed" with a drawn check and hides Pray now (the kitchen keeps it); one cheer, and no toast repeats it. prayer-logic-look-3, iPhone and iPad: the line "All prayed", Pray now hidden, no bare cheer. prayer-review1-3 check 8: no streak cheer under the strip. After: `audits/evidence/p6/3/workers/prayer-logic-look-3.json`, `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-review1-3.txt`, `audits/evidence/p6/3/workers/look-today-done-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:882`; `audits/screens/prayer/today-done-typical-iphone-safari-light.png`
 - **What happens now.** A finished Today still leads with Pray now and shows the cheer twice (low; from the visual check). With 9/9 done, the full-width "Pray now" remains the main action, and the streak cheer appears both as gold inline text and as a toast with the same words ("9 days in a row."). Evidence: `audits/screens/prayer/today-done-typical-iphone-safari-light.png`.
 - **Why it matters.** A finished list still leads with Pray now.
@@ -4144,7 +4172,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-2 — The + button covers the last content on iPhone, on Today and List
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The page's bottom padding is 158 px, clearing the nav and the +. vischeck-fab-list, iPhone PWA and Safari: the last category's count under the + → clear (its centre hit the +, now itself); layout: content under the + 1 → 0. contrast.mjs now flags an 11 px "shared" pill at 1.57-1.63:1 on Today and Family: at the resting scroll the + covers it; colours unchanged, nothing covered at the list end (accepted by the reviewer). The re-measure: Prayer's below-AA text stays 162, all disabled controls, which WCAG exempts. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__vischeck-fab-list.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__vischeck-fab-list.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__contrast.txt`, `audits/evidence/p6/3/measure/failing-pairs.json`.
 - **Evidence.** `audits/03-apps/prayer.md:897`; `apps/prayer.html:47`; `audits/evidence/p3/prayer/layout-today-bottom-iphone.png`, `audits/evidence/p3/prayer/vischeck-fab-list-iphone-pwa.png`
 - **What happens now.** The body's bottom padding (96 px) clears the nav but not the + (`apps/prayer.html:47, 264-266`).
 - **Why it matters.** The + covers content.
@@ -4153,7 +4182,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-3 — Category Rename/Remove and the Pray-mode Close are under 44 pt
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Rename, Remove and the Pray-mode Close are at var(--tap). layout: Rename and Remove 55×31 → 71×44 (iPhone and desktop), 61×33 → 77×44 (iPad); Pray Close 45×33 → 71×44 (iPhone), 49×35 → 76×44 (iPad). prayer-look-3: Close at least 44×44 on three devices. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__layout.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__layout.txt`, `audits/screens-after/3/prayer/settings-categories-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:902`; `apps/prayer.html:217-218`; `audits/screens/prayer/settings-categories-typical-iphone-pwa-light.png`
 - **What happens now.** Category Rename/Remove and the Pray-mode Close are under 44 pt (low). Rename 59×31, Remove 57×31 (padding 5px 3px, `apps/prayer.html:217-218`), Pray-mode Close 49×33 (`:330-331`); long names stack the two buttons into a column. Evidence: `audits/evidence/p3/prayer/layout.json` (`smallTargets`, `pray.close`); `audits/screens/prayer/settings-categories-typical-iphone-pwa-light.png`.
 - **Why it matters.** Targets under 44 pt.
@@ -4162,7 +4192,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-5 — The Record calendar has no month name, its weekday letters sit under the grid, and empty days vanish in dark mode
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The Record calendar names its month, puts the weekday letters above the grid, outlines empty days in --muted-decor and fades future days. leads L22: weekday row after the grid true → false, month name false → true, empty cell filled → outlined. prayer-look-3: "September 2026"; an empty day against the page 3.27:1 (light) and 4.42:1 (dark); the worker measured 3.23-5.05:1 across the six themes. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-look-3.txt`, `audits/screens-after/3/prayer/record-typical-ipad-portrait-dark.png`.
 - **Evidence.** `audits/03-apps/prayer.md:904`; `apps/prayer.html:762-763`, `apps/prayer.html:752-764`; `audits/screens/prayer/record-typical-ipad-portrait-dark.png`, `audits/screens/prayer/record-empty-ipad-portrait-dark.png`
 - **What happens now.** The Record calendar has no month name, its weekday letters sit under the grid, and empty days vanish in dark mode (low). The weekday row is emitted after the grid (`apps/prayer.html:762-763`); empty cells use `--sunk`. Evidence: `apps/prayer.html:752-764`; `audits/evidence/p3/prayer/leads.json` (L22-calendar); `audits/screens/prayer/record-typical-ipad-portrait-dark.png`; `audits/screens/prayer/record-empty-ipad-portrait-dark.png`.
 - **Why it matters.** An unlabelled calendar.
@@ -4171,7 +4202,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-6 — On desktop and iPad landscape the page is a 33rem column with the + pinned far right
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Page and nav use --col-narrow, centred, and from 760 px the + sits at the column's edge. SHAPE/verify: the content span 484 → 516 px; layout: the + at x 1362 → 1016 (desktop) and 1102 → 886 (iPad landscape). From 700 px the Today header is one line each (date and plan with an ellipsis and the full name in its title, headline, stats). prayer-claims-3 claim 5, iPad landscape 1180×772 with the overflow seed's long plan: 1 → 3 requests fully above the nav, no sideways scroll (iPad portrait 6, desktop 4, iPhone 3). At text size XXL still 0–1 above the nav. After: `audits/evidence/p6/3/tests/repro-after/phase4__SHAPE__verify.txt`, `audits/evidence/p6/3/tests/repro-before/phase4__SHAPE__verify.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-claims-3.txt`, `audits/evidence/p6/3/claims/5-today-overflow-ipad-landscape-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:905`; `apps/prayer.html:50`; `audits/screens/prayer/today-typical-ipad-landscape-light.png`, `audits/screens/prayer/today-typical-desktop-light.png`
 - **What happens now.** On desktop and iPad landscape the page is a 33rem column with the + pinned far right (low). `.wrap{max-width:33rem}` (`apps/prayer.html:50`) centres the page at 528 px, while the + sits at x 1362 of 1440 (desktop) and 1102 of 1180 (iPad landscape). On iPad landscape with a long plan name (overflow seed), the header, the meter, the wrapped stats strip, the actions and the review nudge fill y 0-580 of 820, so one request shows above the nav (added after the critic). Evidence: `audits/evidence/p3/prayer/layout.json` (`targets.fab`); `audits/screens/prayer/today-typical-ipad-landscape-light.png`; `audits/screens/prayer/today-typical-desktop-light.png`; `audits/screens/prayer/today-overflow-ipad-landscape-light.png`.
 - **Why it matters.** The + is pinned far from the content.
@@ -4180,7 +4212,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-8 — The stats strip wraps on phones and shows a row of zeros when nothing is scheduled
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** The stats strip is two rows of two on a phone and one row from 700 px, and shows no zeros when nothing is scheduled ("1 days" fixed too). leads L25, iPhone: y 229/229/229/279 → 222/222/261/261. L11, nothing scheduled: "0/0 today …" → "3 days in a row · 10 days this month · 1 answered". verify-critic-untick-keeps-day-5-2, an empty list: a strip of zeros → none. prayer-look-3: 2×2 on the iPhone, one row on the iPad. After: `audits/evidence/p6/3/tests/repro-after/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__leads.txt`, `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-look-3.txt`, `audits/screens-after/3/prayer/today-empty-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:907`; `apps/prayer.html:75-78`; `audits/screens/prayer/today-empty-iphone-pwa-light.png`
 - **What happens now.** The stats strip wraps on phones and shows a row of zeros when nothing is scheduled (low). On the iPhone "5 answered" drops to y 279 while the others sit at y 229 (`apps/prayer.html:75-78, 904-908`); empty and unscheduled states show "0/0 today …". Evidence: `audits/evidence/p3/prayer/leads.json` (L25-stripWrap); `audits/screens/prayer/today-empty-iphone-pwa-light.png`.
 - **Why it matters.** A ragged strip of zeros.
@@ -4189,7 +4222,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-9 — The detail sheet runs edge to edge across the iPad and over the app's own nav
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** #sheet is --col-narrow wide and centred on the iPad, full width on the iPhone. prayer-look-3: 560 px wide with 130 px each side at 820, 310 px each side at 1180; 430 of 430 on the iPhone. Not checked: the dark sheet's legibility with real blur on a device (the rig paints no blur). After: `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-look-3.txt`, `audits/screens-after/3/prayer/detail-typical-ipad-portrait-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:908`; `audits/screens/prayer/detail-typical-ipad-portrait-light.png`, `audits/screens/prayer/detail-typical-iphone-pwa-dark.png`
 - **What happens now.** The detail sheet runs edge to edge across the iPad and over the app's own nav (low; from the visual check). On iPad portrait (820 px) the sheet spans the full width with its content in a 33rem column; iPadOS would show a centred, inset sheet. In the dark iPhone capture the translucent sheet lets the rows behind compete with its text (the rig paints no blur, so judge legibility on a device). Evidence: `audits/screens/prayer/detail-typical-ipad-portrait-light.png`; `audits/screens/prayer/detail-typical-iphone-pwa-dark.png`.
 - **Why it matters.** Edge-to-edge sheet on the iPad.
@@ -4198,7 +4232,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-PRAYER-11 — Pray mode on iPad landscape spreads its chrome to the corners
 
-- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** visual · **Severity** low · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Pray mode's count, Close, progress bar and buttons share the card's centred column. prayer-look-3, iPad landscape: all span 310-870 px (the bar ran 26-1154 px); Close's right edge x 1154 → 870. layout: Close at x 1105 → 794. After: `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-look-3.txt`, `audits/evidence/p6/3/tests/repro-after/phase3__prayer__layout.txt`, `audits/evidence/p6/3/tests/repro-before/phase3__prayer__layout.txt`, `audits/screens-after/3/prayer/pray-mode-last-typical-ipad-landscape-dark.png`.
 - **Evidence.** `audits/03-apps/prayer.md:910`; `audits/screens/prayer/pray-mode-last-typical-ipad-landscape-dark.png`
 - **What happens now.** Pray mode on iPad landscape spreads its chrome to the corners (low; from the visual check). The progress bar spans 26-1154 px over a centred column of about 500 px, and "6 of 6" and the text "Close" are pinned to the far corners, away from Back / Prayed / Skip. Evidence: `audits/screens/prayer/pray-mode-last-typical-ipad-landscape-dark.png`.
 - **Why it matters.** Chrome spread to the corners.
@@ -4207,7 +4242,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-PRAYER-2 — The answered record cannot be searched, filtered or grouped inside Record
 
-- **Area** prayer · **Type** feature gap · **Severity** info · **Effort** S · **Batch** 3
+- **Area** prayer · **Type** feature gap · **Severity** info · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Record → Answered has a search box (from 2 answered) and year headings. prayer-logic-look-3, iPhone and iPad: 5 answered rows under "2026", the search shown, and a search finds "Healing for my shoulder". The seed has one year only, so more than one year heading was not seen. After: `audits/evidence/p6/3/workers/prayer-logic-look-3.json`, `audits/evidence/p6/3/workers/look-record-search-iphone-pwa-light.png`, `audits/evidence/p6/3/workers/look-record-answered-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/prayer.md:915`; `apps/prayer.html:967-969`; `audits/screens/prayer/record-answered-typical-iphone-pwa-light.png`
 - **What happens now.** The answered record cannot be searched, filtered or grouped inside Record (info). Record → Answered is one newest-first list with no year grouping (`apps/prayer.html:967-969`); search lives only in List, which shows answered prayers only while searching (`:946-952`); Print covers the last 90 days (`:1662`). Answered rows are kept forever. Evidence: `audits/screens/prayer/record-answered-typical-iphone-pwa-light.png`.
 - **Why it matters.** The answered history cannot be searched.
@@ -4216,19 +4252,24 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-SHAPE-4 — Prayer's toast wraps a short message onto two lines on the iPhone, because its centring caps it at half the viewport
 
-- **Area** design system (Prayer) · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 3
+- **Area** design system (Prayer) · **Type** visual · **Severity** low (pointer) · **Effort** S · **Batch** 3 · **Status** FIXED (`da1dcbd`)
+- **Phase 6 (FIXED).** Prayer adopts the shared toast (P4-SHAPE-04's pointer). verify-prayer-undo-target-3: "Moved to the record." with Undo is on one line on the iPhone, 263 px wide (was 215, half the 430 px viewport, and 73 px tall), above the nav and the +, in WebKit and Chromium. After: `audits/evidence/p6/3/workers/verify-prayer-undo-target-3.json`, `audits/evidence/p6/3/tests/repro-before/phase4__SHAPE__verify-prayer-undo-target-2.txt`, `audits/evidence/p6/3/workers/verify-prayer-undo-target-3.png`.
 - **Evidence.** `audits/04-design-system.md:2343`; `apps/prayer.html:254-257`, `apps/design.css:588`
 - **Proposed fix.** Pointer to P4-SHAPE-04 (Prayer adopts the shared toast). (Phase 4 gap row SHAPE-14)
 
 #### Improvements with no finding (prayer)
 
-These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.
+These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.
 
-| ID | Improvement | Kind | Delight | Effort | Source |
-|---|---|---|---|---|---|
-| IMP-PRAYER-I1 | "Around the table" pass-the-iPad Pray now: a family Pray now that shows each asker's face large and records everyone at the table with one tap each | idea | 4 | M | `audits/03-apps/prayer.md:1095` |
-| IMP-PRAYER-I2 | Answered-prayer anniversaries on the TV: "A year ago today: <family answered prayer>", family list only, never private titles | idea | 4 | M | `audits/03-apps/prayer.md:1096` |
-| IMP-PRAYER-I3 | Tell the asker, gently: a quiet line on the asker's Home ("Ezra and Mom prayed for Grandma Jo's visit"); not a push and not a reward | idea | 3 | M | `audits/03-apps/prayer.md:1097` |
+| ID | Improvement | Kind | Delight | Effort | Source | Status |
+|---|---|---|---|---|---|---|
+| IMP-PRAYER-I1 | "Around the table" pass-the-iPad Pray now: a family Pray now that shows each asker's face large and records everyone at the table with one tap each | idea | 4 | M | `audits/03-apps/prayer.md:1095` | FIXED (`da1dcbd`) |
+| IMP-PRAYER-I2 | Answered-prayer anniversaries on the TV: "A year ago today: <family answered prayer>", family list only, never private titles | idea | 4 | M | `audits/03-apps/prayer.md:1096` | FIXED (`da1dcbd`) |
+| IMP-PRAYER-I3 | Tell the asker, gently: a quiet line on the asker's Home ("Ezra and Mom prayed for Grandma Jo's visit"); not a push and not a reward | idea | 3 | M | `audits/03-apps/prayer.md:1097` | FIXED (`da1dcbd`) |
+
+- **IMP-PRAYER-I1 — Phase 6 (FIXED).** "Around the table": the family Pray now shows the asker's face at 88 px. On the Kitchen device, after "Who is praying?", a row of household faces (adults and kids; never guests, the kitchen or the TV; 60 px and up) sits under the card; each person taps once to join, and every Prayed credits the whole table. prayer-claims-3 claim 6: face row 7 = household 7 (no guest, TV or kitchen); both requests credit [eli, ezra], one run line each; the same table again credits nobody twice; Ezra's star follows; Mae's phone shows no table and credits only her. No server rule changed. Not checked: the real kitchen iPad. After: `audits/evidence/p6/3/tests/repro-after/p6-3__prayer-claims-3.txt`, `audits/evidence/p6/3/claims/6-kitchen-table.png`, `audits/evidence/p6/3/claims/6-personal-phone.png`, `audits/evidence/p6/3/review/workers-and-reviews.md`.
+- **IMP-PRAYER-I2 — Phase 6 (FIXED).** The TV shows "A year ago today · Answered: <title>" from family rows only (New York month and day in an earlier year, latest year first; a 29 Feb answer shows on the 28th). At 1920 it goes in the verse pane only if row 1 keeps its height, otherwise first in the feed, or it is left out. test-tv 76 → 85/0: at 1920×1080 once, whole, in the verse pane (28.5 px); in the feed at 1280×720, 1024×768, 820×1180 and 960×540; never a private title. TV capture vs 2c: 0 of 34 changed (the seed has no year-ago answer). A wrapping title goes to the feed, leaving fewer than five feed lines that day. Not seen: real TV font metrics. After: `audits/evidence/p6/3/tests/suites/test-tv.txt`, `audits/evidence/p6/3/capture/pxdiff-tv-vs-2c.txt`.
+- **IMP-PRAYER-I3 — Phase 6 (FIXED).** An adult's or guest's own Home gets a quiet line when someone else prayed today for their family request ("Ezra and Elizabeth prayed today for Grandma Jo's visit"): up to 3 lines with faces, then "And N more…", patched in place, opening Prayer; never their own ticks, the TV's or the kitchen's; no push. test-home 57 → 65/0: David's line with two faces, a 44 px target, whole at 390; Mae sees only her own request; the kid Home never has it. Shell capture vs 2b: 90 of 979 changed, which the worker puts down to the new line, noise and the pairing animation. After: `audits/evidence/p6/3/tests/suites/test-home.txt`, `audits/evidence/p6/3/capture/pxdiff-shell-vs-2b.txt`.
 
 ### Batch 4 — F260 Reading Plan (38)
 
@@ -4577,11 +4618,11 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### Improvements with no finding (f260)
 
-These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.
+These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.
 
-| ID | Improvement | Kind | Delight | Effort | Source |
-|---|---|---|---|---|---|
-| IMP-F260-F4 | Choose the reading-reminder time per person (as Books and Journal do); the toggle already lives in Me, the hour goes in `push_prefs` | feature | 3 | M | `audits/03-apps/f260.md:903` |
+| ID | Improvement | Kind | Delight | Effort | Source | Status |
+|---|---|---|---|---|---|---|
+| IMP-F260-F4 | Choose the reading-reminder time per person (as Books and Journal do); the toggle already lives in Me, the hour goes in `push_prefs` | feature | 3 | M | `audits/03-apps/f260.md:903` | open |
 
 ### Batch 5 — Verses (20)
 
@@ -4769,14 +4810,14 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### Improvements with no finding (verses)
 
-These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.
+These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.
 
-| ID | Improvement | Kind | Delight | Effort | Source |
-|---|---|---|---|---|---|
-| IMP-VERSES-F6 | Choose a verse to practise by tapping any row in Due today or Coming up | feature | 3 | M | `audits/03-apps/verses.md:704` |
-| IMP-VERSES-I1 | Record yourself reciting and play it back, as Remember Me does | idea | 3 | M | `audits/03-apps/verses.md:710` |
-| IMP-VERSES-I2 | An evening "3 verses to review" push, a per-person toggle using the existing push jobs and the summary row | idea | 3 | M | `audits/03-apps/verses.md:711` |
-| IMP-VERSES-I3 | Practice modes on verses that have text: word scramble, fill-in-the-gaps, type the first letters | idea | 4 | L | `audits/03-apps/verses.md:712` |
+| ID | Improvement | Kind | Delight | Effort | Source | Status |
+|---|---|---|---|---|---|---|
+| IMP-VERSES-F6 | Choose a verse to practise by tapping any row in Due today or Coming up | feature | 3 | M | `audits/03-apps/verses.md:704` | open |
+| IMP-VERSES-I1 | Record yourself reciting and play it back, as Remember Me does | idea | 3 | M | `audits/03-apps/verses.md:710` | open |
+| IMP-VERSES-I2 | An evening "3 verses to review" push, a per-person toggle using the existing push jobs and the summary row | idea | 3 | M | `audits/03-apps/verses.md:711` | open |
+| IMP-VERSES-I3 | Practice modes on verses that have text: word scramble, fill-in-the-gaps, type the first letters | idea | 4 | L | `audits/03-apps/verses.md:712` | open |
 
 ### Batch 6 — Kitchen timer (24)
 
@@ -5008,11 +5049,11 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### Improvements with no finding (timer)
 
-These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.
+These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.
 
-| ID | Improvement | Kind | Delight | Effort | Source |
-|---|---|---|---|---|---|
-| IMP-TIMER-I2 | Say it: a `start_timer` chat tool, or `hub.voiceInput` on the Timer, so hands-busy cooks can start or add time by voice | idea | 4 | M | `audits/03-apps/timer.md:577` |
+| ID | Improvement | Kind | Delight | Effort | Source | Status |
+|---|---|---|---|---|---|---|
+| IMP-TIMER-I2 | Say it: a `start_timer` chat tool, or `hub.voiceInput` on the Timer, so hands-busy cooks can start or add time by voice | idea | 4 | M | `audits/03-apps/timer.md:577` | open |
 
 ### Batch 7 — Kid Verse (16)
 
@@ -5164,13 +5205,13 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### Improvements with no finding (kidverse)
 
-These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.
+These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.
 
-| ID | Improvement | Kind | Delight | Effort | Source |
-|---|---|---|---|---|---|
-| IMP-KIDVERSE-F3 | Highlight each word of the paraphrase and story as it is read, from `SpeechSynthesisUtterance` boundary events | feature | 5 | M | `audits/03-apps/kidverse.md:903` |
-| IMP-KIDVERSE-I1 | Past weeks shelf: earlier weeks' scene cards a kid can tap to hear an old verse or story again (read-only, no new stars) | idea | 4 | M | `audits/03-apps/kidverse.md:911` |
-| IMP-KIDVERSE-I2 | Record a parent's voice: an adult records the verse once a week (the media store), and "Read it to me" plays Mom's or Dad's voice instead of the synthetic one | idea | 5 | L | `audits/03-apps/kidverse.md:912` |
+| ID | Improvement | Kind | Delight | Effort | Source | Status |
+|---|---|---|---|---|---|---|
+| IMP-KIDVERSE-F3 | Highlight each word of the paraphrase and story as it is read, from `SpeechSynthesisUtterance` boundary events | feature | 5 | M | `audits/03-apps/kidverse.md:903` | open |
+| IMP-KIDVERSE-I1 | Past weeks shelf: earlier weeks' scene cards a kid can tap to hear an old verse or story again (read-only, no new stars) | idea | 4 | M | `audits/03-apps/kidverse.md:911` | open |
+| IMP-KIDVERSE-I2 | Record a parent's voice: an adult records the verse once a week (the media store), and "Read it to me" plays Mom's or Dad's voice instead of the synthetic one | idea | 5 | L | `audits/03-apps/kidverse.md:912` | open |
 
 ### Batch 8 — Larder Ledger (16)
 
@@ -5323,11 +5364,11 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### Improvements with no finding (leftovers)
 
-These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.
+These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.
 
-| ID | Improvement | Kind | Delight | Effort | Source |
-|---|---|---|---|---|---|
-| IMP-LEFTOVERS-I1 | Swipe to finish, plus "someone ate some": an iOS-style trailing swipe (keeping the ✓ for grandparents) and a "half left" state instead of all-or-nothing | idea | 3 | M | `audits/03-apps/leftovers.md:1046` |
+| ID | Improvement | Kind | Delight | Effort | Source | Status |
+|---|---|---|---|---|---|---|
+| IMP-LEFTOVERS-I1 | Swipe to finish, plus "someone ate some": an iOS-style trailing swipe (keeping the ✓ for grandparents) and a "half left" state instead of all-or-nothing | idea | 3 | M | `audits/03-apps/leftovers.md:1046` | open |
 
 ### Batch 9 — Dollywood build guide (48)
 
@@ -5769,11 +5810,11 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### Improvements with no finding (dollywood)
 
-These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.
+These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.
 
-| ID | Improvement | Kind | Delight | Effort | Source |
-|---|---|---|---|---|---|
-| IMP-DOLLYWOOD-I1 | A section-complete moment: a calm check and "Showstreet done — 21 steps" when a section fills (a completion cue for the builder, not a reward system) | idea | 3 | S | `audits/03-apps/dollywood.md:964` |
+| ID | Improvement | Kind | Delight | Effort | Source | Status |
+|---|---|---|---|---|---|---|
+| IMP-DOLLYWOOD-I1 | A section-complete moment: a calm check and "Showstreet done — 21 steps" when a section fills (a completion cue for the builder, not a reward system) | idea | 3 | S | `audits/03-apps/dollywood.md:964` | open |
 
 ### Batch 10 — Dollywood park map (42)
 
@@ -6298,11 +6339,11 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### Improvements with no finding (tally)
 
-These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). They are optional; Phase 6 carries them only if the household wants them.
+These are Phase 3 improvements that fix no filed finding (type *improvement*; delight 1-5, effort S/M/L as that report rated them). The household kept all of them (`audits/05-decisions.md`, "Features kept or cut"), so each app batch carries its own.
 
-| ID | Improvement | Kind | Delight | Effort | Source |
-|---|---|---|---|---|---|
-| IMP-TALLY-I1 | Across-the-room mode on the iPad: when idle, hide Reset and enlarge the count (for example a kids' game score on the Kitchen iPad) | idea | 3 | M | `audits/03-apps/tally.md:762` |
+| ID | Improvement | Kind | Delight | Effort | Source | Status |
+|---|---|---|---|---|---|---|
+| IMP-TALLY-I1 | Across-the-room mode on the iPad: when idle, hide Reset and enlarge the count (for example a kids' game score on the Kitchen iPad) | idea | 3 | M | `audits/03-apps/tally.md:762` | open |
 
 ## The design preview
 

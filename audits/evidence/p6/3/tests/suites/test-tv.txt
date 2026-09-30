@@ -1,0 +1,98 @@
+
+## seed
+  ✓ seeded the week, a family prayer prayed by Eli + Mae, stars, a reminder and feed lines
+  ✓ two album photos in the family album
+
+## the board (Downstairs TV, 1024×1366)
+  ✓ signed in as the display: kiosk, cannot write
+  ✓ (a) the backdrop is two <img> elements
+  ✓ (a) the showing image is a full-size album photo, loaded
+  ✓ (a) blurred 24px
+  ✓ (a) full-bleed behind the board
+  ✓ (a) a scrim from the theme token sits over it
+  ✓ (a) after the fade only the new picture stays on and the board is ready for the next one
+  ✓ (a) a crossfade moves to the next photo on the other <img> (no new elements)
+  ✓ (b) clock + date
+  ✓ (b) verse of the week: the family week row (week 3, as seeded) → its two F260 memory-verse refs
+  ✓ (b) the kid line from the week row, labelled a paraphrase
+  ✓ (b) the TV's kid-line table is an exact copy of Kid Verse's 52 weeks
+  ✓ (b) who prayed today: the family rows' prayedBy[today] names as faces — Eli + Mae, never David (yesterday)
+  ✓ (b) reading today: every household adult, ticked when their F260 log has today (GET /api/f260/readers), dimmed otherwise
+  ✓ (b) Eli is ticked from his F260 log row for today
+  ✓ (b) reading today lists household adults only (no kids, no display, no guests)
+  ✓ (b) the readers come from the Worker and are kept on the device for an offline reopen (P2-SYNC-12)
+  ✓ (b) kids' stars from the family stars:<kid> rows (a stale week counts as 0)
+  ✓ (b) the latest five feed lines, each with a face, a name and a time
+  ✓ (f) no family request answered on this day in an earlier year → no anniversary line
+  ✓ (b) reminders card shows (there is one) and comes last
+  ✓ (b) reminders run newest first (P2-VIS-02)
+  ✓ (b) reminders are smaller than the pane titles, whole on at most two lines each, nothing to tap
+  ✓ (c) no input, textarea or contenteditable is rendered
+  ✓ (c) the Switch button is the only control on the board
+  ✓ (c) clicking every one of 127 board elements changes nothing (no writes, no toast, no picker)
+  ✓ (c) a hash change to #me leaves the display on its board, with no Me controls anywhere (P2-PROF-10, P2-CHAT-14)
+  ✓ (c) a hash change to #chat leaves the display on its board, with no Me controls anywhere (P2-PROF-10, P2-CHAT-14)
+  ✓ (c) a hash change to #apps leaves the display on its board, with no Me controls anywhere (P2-PROF-10, P2-CHAT-14)
+  ✓ (c) a hash change to #leftovers leaves the display on its board, with no Me controls anywhere (P2-PROF-10, P2-CHAT-14)
+  ✓ (c) hub.set still throws read_only on the display
+  ✓ (d) no horizontal scroll at 1024×1366
+  ✓ (d) the board fits 1024×1366 without scrolling
+  ✓ (d) Midnight applies on the display (device-local theme)
+  ✓ (d) the scrim follows the theme token (Hearth ≠ Midnight)
+
+## 24 h unattended (fake time, /api blocked)
+  ✓ (AC) counted from the page's own calls: 6 live intervals and 1 window resize listeners, the same after 4 resizes, 200 fades and 200 ticks
+  ✓ (AC) 200 crossfade cycles round-robin the album on the same two <img>s (200 fades over 2 photos, one showing)
+  ✓ (AC) document node count unchanged after 200 fades + 200 ticks (363)
+  ✓ (AC) __tvStats unchanged: one interval, two listeners (Switch, resize), same node count
+  ✓ (AC) the clock kept ticking on fake time
+  ✓ (AC) no timer storm: consecutive timeout ids are adjacent after the run
+
+## 1920×1080 + the empty album + Switch
+  ✓ (a) a fresh device swaps the stand-in art for an album photo as soon as the album has synced
+  ✓ (d) no horizontal scroll at 1920×1080
+  ✓ (d) the TV grid: 12 columns, three rows (clock + verse · today · feed + reminders)
+  ✓ (c) the board asked for the screen wake lock by itself, with no tap (P2-STAB-12)
+  ✓ (e) the display runs on the 10-foot scale (data-tv-scale="10ft", decision D16)
+  ✓ (e) 1920×1080: no scroll, every pane inside the title-safe area (54 / 96 px)
+  ✓ (e) 15 reminders: 3 shown whole, the other 12 counted in the heading ("Reminders · +N more"), none cut off (P2-VIS-02)
+  ✓ (e) faces stay in one row, the rest counted: prayed 5+2 of 7, read 5 of 5, stars 2 of 2
+  ✓ (e) every household reader and every kid has a face at 1920×1080
+  ✓ (e) every faces pane shows at least one face at 1920×1080
+  ✓ (e) every reminder shown is whole, on at most two lines (3 shown)
+  ✓ (e) 10-foot type: nothing under 28 px (smallest 28), feed 32.3 and reminders 32.3 px, names 28.5 px, all five feed lines (VIS-TYPE-1, UX-HOME-2)
+  ✓ (f) 1920×1080: "A year ago today · Answered: Grandpa came home from the hospital" shows once, whole, in the verse pane (28.5 px)
+  ✓ (f) never a private (person-scope) title, one answered today, or one answered a year ago on another day
+  ✓ (f) 1280×720: the anniversary shows once, whole, in the feed
+  ✓ (d) 1280×720: fits with no scroll, 1 feed lines, 2 reminders shown, "· +13 more" in the heading, every faces pane with a face 4/5/2, nothing under 18 px (the kiosk's own sizes below 1600 px)
+  ✓ (f) 1024×768: the anniversary shows once, whole, in the feed
+  ✓ (d) 1024×768: fits with no scroll, 1 feed lines, 1 reminders shown, "· +14 more" in the heading, every faces pane with a face 1/5/2, nothing under 18 px (the kiosk's own sizes below 1600 px)
+  ✓ (f) 820×1180: the anniversary shows once, whole, in the feed
+  ✓ (d) 820×1180: fits with no scroll, 2 feed lines, 3 reminders shown, "· +12 more" in the heading, every faces pane with a face 4/5/2, nothing under 18 px (the kiosk's own sizes below 1600 px), the feed full width (PWA-VIS-4)
+  ✓ (f) 960×540: the anniversary shows once, whole, in the feed
+  ✓ (d) 960×540: fits with no scroll, 2 feed lines, 2 reminders shown, "· +13 more" in the heading, every faces pane with a face 4/5/2, nothing under 18 px (the kiosk's own sizes below 1600 px)
+  ✓ (d) 820×1180 → 1180×820: every kid has a face, every "+N" inside its pane (read 5+0)
+  ✓ (e) back at 1920×1080 after a resize the board fits again
+    anniversary placed: 1920×1080: verse · 1280×720: feed · 1024×768: feed · 820×1180: feed · 960×540: feed
+  ✓ (f) two anniversaries on one day: one line (the first title in order, a long one), whole even when it wraps (feed), and the 1920 gate still holds
+  ✓ (f) the answered rows gone → the anniversary line goes at the next paint
+  ✓ (b) after an offline reopen Eli keeps his ✓ (P2-SYNC-12)
+  ✓ (b) a Worker without GET /api/f260/readers: the ✓ come from today's "Read week…" feed lines
+  ✓ (b) a stale kept day and a failing route (503): the ✓ come from today's feed lines
+  ✓ (d) iPad landscape (1366×1024): no horizontal scroll, board fits
+  ✓ (a) empty album → art/ambient/dawn.svg by the hour, same two <img>s
+  ✓ (b) no reminders → the reminders card hides
+  ✓ (c) no look controls anywhere while the Switch sheet is closed
+  ✓ (c) by remote: the menu takes focus on Cancel (a double OK never signs the TV out), the Switch waits while it is open, the arrows move, Screen look takes focus, a choice keeps focus on its card
+  ✓ (c) Screen look fits a 1920×1080 TV without scrolling (Done on screen)
+  ✓ (c) Switch opens a two-choice sheet: Switch profile, Screen look
+  ✓ (c) Screen look: the theme cards, contrast, motion and solid glass (no text size); a choice applies at once and stays on the device (no row, no toast)
+  ✓ (c) closing the sheet removes its controls
+  ✓ (c) Switch → Switch profile opens the profile picker
+  ✓ (c) Switch forgets who read today and lets the screen sleep (the wake lock released)
+  ✓ (c) behind the picker the board is stopped: no tick, paint or fade
+
+## console
+  ✓ no console errors
+
+85 passed, 0 failed
