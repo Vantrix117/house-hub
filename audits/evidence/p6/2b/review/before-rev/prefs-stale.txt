@@ -1,0 +1,74 @@
+== A: phone writes push_prefs
+200
+== B: after 6 s
+{
+ "ui": {
+  "who": "eli",
+  "notif": true,
+  "help": "On for you on this device: fridge warnings at 8 am, the reading nudge at 8 pm, the Sunday catch-up, new family prayers, who prayed for your requests and park-day alerts.",
+  "on": "true",
+  "prefs": [
+   "leftovers=true",
+   "f260=true",
+   "behind=true",
+   "prayer=true",
+   "prayedfor=true",
+   "park=true"
+  ],
+  "pray": "",
+  "hist": "Chat history What you and the assistant said, kept on the house server. Clearing it does not give back today’s messages. Clear my chat history",
+  "scrollX": false
+ },
+ "cache": {
+  "leftovers": true,
+  "f260": true,
+  "behind": true,
+  "prayer": false,
+  "park": true,
+  "prayedfor": true,
+  "prayAt": "08:30"
+ }
+}
+== B: taps Fridge warnings off; server row now
+{
+ "key": "push_prefs",
+ "value": {
+  "leftovers": false,
+  "f260": true,
+  "behind": true,
+  "prayer": true,
+  "park": true,
+  "prayedfor": true,
+  "prayAt": null
+ },
+ "updated_at": 1790080809294
+}
+== C: open device, the other device changed the time 35 s ago
+{
+ "ui": {
+  "who": "eli",
+  "notif": true,
+  "help": "Off for you on this device.",
+  "on": "false",
+  "prefs": [
+   "leftovers=true",
+   "f260=true",
+   "behind=true",
+   "prayer=true",
+   "prayedfor=true",
+   "park=true"
+  ],
+  "pray": "",
+  "hist": "Chat history What you and the assistant said, kept on the house server. Clearing it does not give back today’s messages. Clear my chat history",
+  "scrollX": false
+ },
+ "cache": {
+  "leftovers": false,
+  "f260": true,
+  "behind": true,
+  "prayer": true,
+  "park": true,
+  "prayedfor": true,
+  "prayAt": null
+ }
+}

@@ -1397,3 +1397,79 @@ An independent judge rescored the Phase 4 scorecard (`audits/04-design-system.md
 - **The partial entries**: UX-HOME-1 (on the iPad the ring label, sub-lines, reminder text, bylines and feed are still small; the kitchen's Home is the calm layout) and UX-HOME-5 (app-to-app switching still reloads; no `hub.draft`). No later batch is named for the rest.
 - **The colour-blind warnings** are measured on the families' graphic tone (people's colours never closer than ΔE 11 there); on the strong fill tones some people's and app colours come within ΔE 2 of each other for protan and deutan viewers (sky and cornflower, periwinkle and cornflower); the picker's warning list was not checked against those tones.
 - **Production**: nothing deployed. Deploy order is unchanged: migrations 006, then 007, then the Worker.
+
+## Batch 2b — The Worker: push, reminders, chat and the PWA
+
+| | |
+|---|---|
+| **Findings** | 27 entries (1 high, 5 medium, 16 low, 1 info, and 4 pointers). **26 FIXED, 1 NEEDS DEVICE CHECK** (PWA-GAP-2: a real browser renewing a push subscription) (status per entry in `audits/05-findings.md`). |
+| **Code commit** | `3944d37` (2026-09-29) |
+| **Files** | `worker/src/reminders.js` (the cron, the park alert, prayer pushes, retries, the new praytime and prayedfor), `worker/src/index.js` (push subscribe / resubscribe / logout, chat history, stop), `worker/src/chat.js` (the atomic cap, the timeout and refunds, Stop, thinking replay, the prompt), `worker/src/push.js`, `worker/src/auth.js` (a sign-in takes over the device's push), `worker/wrangler.toml` (one `*/15 * * * *` cron), `sw.js` (`hub-v39` → `hub-v41`: fresh precache, the update flow, offline page, `pushsubscriptionchange`, the notification tap), `index.html` (Me → Notifications, Chat history, Stop, the update guards), `manifest.json`, `offline.html` (new), `icons/` (an opaque apple-touch-icon, a monochrome icon and a badge), `scripts/make-art.mjs`, `scripts/smoke-api.sh` (275 → 315 checks), `scripts/smoke-chat.sh` (53 → 64), `scripts/mock-anthropic.mjs`, `scripts/test-push2.mjs`, `scripts/test-park.mjs` (new), `scripts/test-guests.mjs`, `CLAUDE.md`, `worker/README.md` |
+| **Schema / data** | No schema change and no migration. The chat counter uses `rate_limits`; the prayer and park memories use `settings`; push switches become one person row per switch (`push_pref:<kind>`) over the old `push_prefs` row, which stays a read-only base. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-29-before-2b.sql` (39 KB). Nothing was deployed. **At deploy**: the Worker must be deployed for the new cron to run. |
+| **How it was built** | One worker did the batch. Two independent reviewers (security and logic; the entries and the screens) ran three rounds: round 1 found 14 issues to fix (2 of them security), round 2 four in the round-1 fixes, round 3 confirmed with no new findings, before the final run. |
+
+### The change
+
+- **The park alert (P2-PWA-02, high).** The Worker's cron fires every 15 minutes and reads the New York time of each firing. A kid whose shared spot has not updated for 20 minutes, while an adult is at the park, is told once per quiet spell to each household adult; freshness is judged by the Worker's own clock, never the phone's. Before, the alert could fire in 5 of 15 scenarios; now in 15 of 15, within 25-35 minutes.
+- **Push follows the person (P2-PWA-03, -12, P2-PROF-16, PWA-UX-1, PWA-UX-2).** A push subscription belongs to the person on that device: signing out, a sign-in by someone else, a PIN reset or a change of kind removes it. The test notification goes to this device only; the TV, kids and the kitchen cannot subscribe; household pushes skip guests. A tap on a notification meant for someone else says so instead of opening their app.
+- **Pushes that are not lost (P2-PWA-04, -10, -11, P3-PRAYER-25).** A new family prayer is owed to each adult until a push to them is delivered, and an edit of its wording is never announced as new. A broken subscription no longer stops the day's jobs, and a failed push is retried within the hour.
+- **Chat (P2-CHAT-05, -08, -10, -11, -12, -13, GAP-CHAT-01).** The Worker gives up on a silent upstream after 45 s and refunds the message; Stop really stops (no tool runs after it; a Stop before the model was asked costs nothing, after it counts one message); the daily cap is taken atomically; thinking is replayed whole; the prompt marks the admin and guests; usage counts New York days; Me → Chat history → Clear, and kids' chats go after 90 days.
+- **The app itself (P2-PWA-08, -09, -15, -16, PWA-GAP-2, PWA-GAP-4, and the pointers P2-STAB-05, -10).** A new build is precached fresh and an always-open hub takes it at a quiet moment (never while something is typed, an app has unsaved input, a sheet is open or a reply is on its way); a first install shows no "updated" toast; offline, an uncached page shows a styled "Not saved on this device yet"; a changed push subscription is moved (with the device's token); the manifest and icons are complete.
+- **GAP-PRAYER-1 (info)**: an optional daily "time to pray" (counts only, never a title) and "X prayed for your request" to the asker, each a switch in Me, off or on per person.
+
+**What the independent review changed.**
+- **Round 1.** Security: `POST /api/push/resubscribe` needed no sign-in, so anyone holding a subscription's address could move a person's pushes (including "Meet at …" park locations) to their own receiver — now it needs the device's token and moves only that device's rows; and a subscription outlived every way a session ends except Switch, so the next person on a shared iPad got the previous person's pushes — now any sign-in on the device, a PIN reset or a change of kind removes it. Also: the park alert trusted the kid phone's clock (false alarms every 15 min for a slow clock); Stop did not stop and Retry could repeat a write; a switch changed on one device could wipe the pray-at time set on another (now one row per switch); failed pushes were never retried by the cron; the update reload ignored typing when the page was hidden; a notification tap was lost when the hub was left inside an app; guests saw a catch-up they never got; the manifest's id changed existing installs; smaller push rules and wording.
+- **Round 2.** Stop could buy model calls outside the daily cap; an untouched Larder, F260 or park map blocked the update forever (a prefilled date and hidden dialogs read as "busy"); after Stop the question came back even when the house had already acted; the Stopped note's style reached the chip. **Round 3** confirmed with no new findings.
+
+### Each finding's reproduction, rerun
+
+- **How they were run.** The 22 scripts the entries name ran three at a time on the unchanged code (`git archive` of `878868c`) and on the final code, and the worker's patched copies (filed in `audits/tools/phase6/2b/`) ran on the final code. Outputs and exit codes are in `audits/evidence/p6/2b/tests/repro-before/` and `repro-after/` (the patched copies are the `p6-2b__*` lines); the files they wrote on the final code are in `audits/evidence/p6/2b/p2|p3/`, and the Phase 2-4 baseline was restored.
+- **Exit codes.** Before: 21 exit 0, 1 exits 1 (the park script: since batch 0d a kid's dot is refused unless an adult has switched the kid's beacon on, which it never does). After: 18 exit 0 and 4 exit 1, each explained: the park script fails the same way; `verify-deploy-invisible-within-max-age-2` stops because its own fix patch is already in the code; the shared-device and test-button scripts cannot reach the step they tap any more (the next person's switch now reads Off and the test button is hidden). Their patched copies all exit 0, as do the worker's shell check and cron check.
+
+| Finding | Before | After |
+|---|---|---|
+| P2-PWA-02 (park, the patched copy with the beacon on) | 7 of 15 quiet spells told (5 of 15 at the old cron times, and a guest was pushed) | 15 of 15, each within 25-35 min; test-park 20/0 |
+| P2-CHAT-05 (no-timeout-on-hang-2) | the tab released at 67 s with "Load failed", the message spent | the Worker ends it at 45.9 s and refunds (used 5 → 4) |
+| P2-CHAT-08 (cap-check-not-atomic-1) | up to 7 over the cap (159 at worst) | 0 over (a burst of 100: 1 answered, 99 refused) |
+| P2-CHAT-10 (failed-upstream-spends-cap-1) | 59 failures used up the day | 80 failures, the count stays 1 |
+| P2-CHAT-11 (thinking-blocks-dropped-1) | 0 thinking blocks replayed | 1-2, each starting the turn |
+| P2-CHAT-12 (prompt-admin-and-expired-guests-1) | an expired guest and the TV named, the admin unmarked | left out; the admin and guests marked |
+| P2-CHAT-13 (usage-utc-vs-cap-1) | Dad's usage grouped by UTC day | by New York day, as the cap |
+| P2-PWA-03 (push.mjs; the shared-device copy) | after Switch the device kept 2 subscriptions and the next person saw "On" | the row gone; "Off for you on this device" |
+| P2-PWA-04 (prayer-push-lost-after-morning-1) | a prayer added after the 8 am push reached only Mom | reaches every adult at 8 pm |
+| P3-PRAYER-25 (title-edit-announced-as-new-9-1, -2) | a wording edit announced as "New on the family list" | not announced |
+| P2-PWA-08 (open-page-never-takes-new-build-2) | the iPad and the TV kept running the old build | take the new build |
+| P2-PWA-09 (the deploy copy) | a new version precached the old files (A: old ×3) | the new files, cold opens run the new build |
+| P2-PWA-10 (keyless-subscription-aborts-job-1) | one bad row made the morning job fail (500) | 200; the bad row removed |
+| P2-PWA-11 (failed-send-blocks-day-1) | a push that failed at 8:00 blocked the day | retried and delivered at 8:30 |
+| P2-PWA-12 (the test-button copy) | "Sent" reached Eli's phone too | this device only |
+| P2-PWA-15 (first-visit-hub-updated-2) | "Hub updated" on 5 of 24 first installs | 0 of 24 |
+| P2-PWA-16 (build-guide-offline-blank-1) | a bare "Offline" | a styled "Not saved on this device yet" |
+| P2-PROF-16 (kiosk-push-allowed-2) | the TV could subscribe and send tests (200/200) | 403/403 |
+
+### Repo tests
+
+| Suite | Before (batch 2a's final run) | After |
+|---|---|---|
+| smoke-api.sh | 275 / 0 | 315 / 0 (push rules, resubscribe needs the device token, a sign-in takes over the device's push, chat stop and history, keyed subscriptions) |
+| smoke-chat.sh (mock model) | 53 / 0 | 64 / 0 (timeout and refund, the cap, thinking replay, Stop) |
+| test-push2 | not in batch 2a's run (broken since batch 0d) | 61 / 0 (repaired; the park rules moved to the new test-park) |
+| test-park (new) | — | 20 / 0 (the park alert: quiet after 20 min, once per spell, the house's clock, guests) |
+| test-push | pass | pass |
+| every other suite (20) | pass | pass, identical counts |
+| Earlier batches' checks, verify-1a, the token gate, browser-check | pass | pass (0c's Forget check re-run 14/0 after its setup was given valid-shaped keys, which the Worker now requires) |
+
+`node scripts/bump-sw.mjs --check`: 74 precached files present, 69 shipped files accounted for; every inline script parses (29 of 29). The saved smoke outputs had the throwaway local test tokens and codes blanked.
+
+### Capture rig
+
+- **The run.** The shell, where this batch's screens live (Me → Notifications and Chat history, the chat's Stop, the first visit), was recaptured on the final code: 979 captures, 0 failed (`audits/screens-after/2b/manifest.json`).
+- **Against batch 2a's final capture** (`audits/evidence/p6/2b/capture/pxdiff-shell.txt`): 190 of 979 changed. The Me screens (admin, rewards, usage, sync, notifications, album, appearance and the theme cards: 128) change below the new Notifications and Chat history cards, and the sheets opened over Me (pairing code, profile edit: 38) show that page faintly behind them; the chat (14: the sending state's Stop square and the composer); the iPad's first visit no longer shows the "Hub updated" toast (1); the eight iPhone Apps grids differ by 60 pixels, a sub-pixel shift of the "Kitchen timer" label (checked by eye); and one pairing screen (its error message's animation, the rig's known run-to-run noise). 128 + 38 + 14 + 1 + 8 + 1 = 190.
+- The Notifications card's "on" states, the pray-at time, the Stop states and the offline page were looked at by the reviewers across three rounds (`audits/evidence/p6/2b/review/`).
+
+### Not verified
+
+- **A real iPhone, iPad and browser.** Push delivery to a Home Screen app; a browser renewing a subscription (`pushsubscriptionchange`, PWA-GAP-2, the one NEEDS DEVICE CHECK: after deploy, an iPhone's 8 am and 8 pm pushes should keep arriving for weeks, and Admin → Usage should show no failed sends for it); a real notification tap routed through iOS; the monochrome and maskable icons as Android draws them.
+- **The deploy itself.** The 15-minute cron and `event.scheduledTime` on Cloudflare (in-process runs of the scheduled handler cover the logic: cron-check 18/18, test-park 20/0); the update-and-reload flow under GitHub Pages' real `max-age=600` (the hourly timer itself was not waited out: the check forced the update); the 45 s timeout against the real Anthropic API; whether Cloudflare drops the stream when a phone disconnects (Stop covers it either way).
+- **A known gap in a patched copy.** The park copy's part B no longer tests anything (every dot reads 0 min old by the house's clock since the fix that stopped trusting the phone's clock); part A and test-park carry the entry.
+- **Production.** Nothing deployed. Deploy order: migrations 006, then 007, then `npx wrangler deploy` (it brings the new cron), then the site.

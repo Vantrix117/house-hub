@@ -1,0 +1,23 @@
+A. /api/me is_admin = true
+A. Household: Eli (adult, admin), Mae (adult), Ezra (kid), Kiara (kid), Elizabeth (adult), David (adult), Mea (adult), Downstairs TV (kiosk), Grandma Jo (adult).
+A. Signed in now: Eli (adult). Only their own person-scope data is reachable; family-scope data is shared by everyone.
+C. {
+ "addStatus": 200,
+ "vicId": "guest-8felfs8KAL5D",
+ "inPromptBeforeExpiry": true,
+ "afterExpiry_inMaePicker": false,
+ "afterExpiry_loginStatus": 403,
+ "afterExpiry_loginError": "guest_expired",
+ "afterExpiry_inMaePrompt": true,
+ "afterExpiry_inEzraPrompt": true,
+ "afterExpiry_householdLine_Mae": "Household: Eli (adult, admin), Mae (adult), Ezra (kid), Kiara (kid), Elizabeth (adult), David (adult), Mea (adult), Downstairs TV (kiosk), Grandma Jo (adult), Visitor Vic (adult)."
+}
+B. {
+ "theoInMaePicker": false,
+ "theoLoginStatus": 403,
+ "theoLoginError": "guest_expired",
+ "theoInMaeSystemPrompt": true,
+ "kioskInMaeSystemPrompt": true,
+ "householdLine": "Household: Elijah Montgomery-Anderson (adult, admin), Mae-Christiane Delacroix (adult), Ezra Bartholomew Anderson (kid), Kiara Seraphina Josephine (kid), Elizabeth Anne Marguerite (adult), David Alexander Fitzgerald (adult), Mea Rosalind Winterbottom (adult), Downstairs Family Room Television (kiosk), Grandma Josephine Whitaker (adult), Great-Aunt Wilhelmina Fairweather-Pennington (adult), Cousin Theodore (adult), Pastor Tim & Rebecca (adult)."
+}
+evidence: audits/evidence/p2/CHAT/verify-prompt-admin-and-expired-guests-1.json

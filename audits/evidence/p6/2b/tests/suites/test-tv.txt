@@ -1,0 +1,55 @@
+
+## seed
+  ✓ seeded the week, a family prayer prayed by Eli + Mae, stars, a reminder and feed lines
+  ✓ two album photos in the family album
+
+## the board (Downstairs TV, 1024×1366)
+  ✓ signed in as the display: kiosk, cannot write
+  ✓ (a) the backdrop is two <img> elements
+  ✓ (a) the showing image is a full-size album photo, loaded
+  ✓ (a) blurred 24px
+  ✓ (a) full-bleed behind the board
+  ✓ (a) a scrim from the theme token sits over it
+  ✓ (a) after the fade only the new picture stays on and the board is ready for the next one
+  ✓ (a) a crossfade moves to the next photo on the other <img> (no new elements)
+  ✓ (b) clock + date
+  ✓ (b) verse of the week: the family week row (week 3, as seeded) → its two F260 memory-verse refs
+  ✓ (b) the kid line from the week row
+  ✓ (b) who prayed today: the family rows' prayedBy[today] names as faces — Eli + Mae, never David (yesterday)
+  ✓ (b) reading today: every adult, ticked when a "Read week…" feed line of theirs is dated today, dimmed otherwise
+  ✓ (b) Eli is ticked from his seeded "Read week 3 day 1" line
+  ✓ (b) reading today lists adults only
+  ✓ (b) kids' stars from the family stars:<kid> rows (a stale week counts as 0)
+  ✓ (b) the latest five feed lines, each with a face, a name and a time
+  ✓ (b) reminders card shows (there is one) and comes last
+  ✓ (b) reminders are small, one line each, nothing to tap
+  ✓ (c) no input, textarea or contenteditable is rendered
+  ✓ (c) the Switch button is the only control on the board
+  ✓ (c) clicking every one of 107 board elements changes nothing (no writes, no toast, no picker)
+  ✓ (c) hub.set still throws read_only on the display
+  ✓ (d) no horizontal scroll at 1024×1366
+  ✓ (d) the board fits 1024×1366 without scrolling
+  ✓ (d) Midnight applies on the display (device-local theme)
+  ✓ (d) the scrim follows the theme token (Hearth ≠ Midnight)
+
+## 24 h unattended (fake time, /api blocked)
+  ✓ (AC) 200 crossfade cycles round-robin the album on the same two <img>s (200 fades over 2 photos, one showing)
+  ✓ (AC) document node count unchanged after 200 fades + 200 ticks (435)
+  ✓ (AC) __tvStats unchanged: one interval, one listener, same node count
+  ✓ (AC) the clock kept ticking on fake time
+  ✓ (AC) no timer storm: consecutive timeout ids are adjacent after the run
+
+## 1920×1080 + the empty album + Switch
+  ✓ (a) a fresh device swaps the stand-in art for an album photo as soon as the album has synced
+  ✓ (d) no horizontal scroll at 1920×1080
+  ✓ (d) three columns on a TV
+  ✓ (d) the board fits a 1080p screen without scrolling
+  ✓ (d) iPad landscape (1366×1024): no horizontal scroll, board fits
+  ✓ (a) empty album → art/ambient/night.svg by the hour, same two <img>s
+  ✓ (b) no reminders → the reminders card hides
+  ✓ (c) Switch opens the profile picker
+
+## console
+  ✓ no console errors
+
+43 passed, 0 failed

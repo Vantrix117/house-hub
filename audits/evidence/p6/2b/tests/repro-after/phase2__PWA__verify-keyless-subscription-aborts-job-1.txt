@@ -1,0 +1,225 @@
+
+== adults (sort order as the job walks them)
+[
+ "eli",
+ "christian",
+ "mom",
+ "dad",
+ "niece",
+ "guest-grandmajo"
+]
+
+== A1 baseline Wed 23 Sep 8:00 morning, every adult subscribed with keys
+{
+ "at": "2026-09-23T08:00:00-04:00",
+ "job": "morning",
+ "status": 200,
+ "notified": [
+  "eli(ok 1)",
+  "christian(ok 1)",
+  "mom(ok 1)",
+  "dad(ok 1)",
+  "niece(ok 1)"
+ ],
+ "skipped": [],
+ "received": [
+  "eli:Larder Ledger",
+  "christian:Larder Ledger",
+  "mom:Larder Ledger",
+  "dad:Larder Ledger",
+  "niece:Larder Ledger"
+ ]
+}
+
+== A2 Mae (christian) POST /api/push/subscribe {endpoint} only
+400 {"error":"bad_subscription","message":"subscription needs an endpoint and keys.p256dh / keys.auth."}
+
+== A3 Thu 24 Sep 8:00 morning with the keyless row
+{
+ "at": "2026-09-24T08:00:00-04:00",
+ "job": "morning",
+ "status": 200,
+ "notified": [
+  "eli(ok 1)",
+  "christian(ok 1)",
+  "mom(ok 1)",
+  "dad(ok 1)",
+  "niece(ok 1)"
+ ],
+ "skipped": [],
+ "received": [
+  "eli:Larder Ledger",
+  "christian:Larder Ledger",
+  "mom:Larder Ledger",
+  "dad:Larder Ledger",
+  "niece:Larder Ledger"
+ ]
+}
+
+== A3 server stderr (TypeError lines)
+[]
+
+== A4 Fri 25 Sep 8:00 morning, next day, row untouched
+{
+ "at": "2026-09-25T08:00:00-04:00",
+ "job": "morning",
+ "status": 200,
+ "notified": [
+  "eli(ok 1)",
+  "christian(ok 1)",
+  "mom(ok 1)",
+  "dad(ok 1)",
+  "niece(ok 1)"
+ ],
+ "skipped": [],
+ "received": [
+  "eli:Larder Ledger",
+  "christian:Larder Ledger",
+  "mom:Larder Ledger",
+  "dad:Larder Ledger",
+  "niece:Larder Ledger"
+ ]
+}
+
+== A5 Eli adds a family prayer
+200
+
+== A5 Fri 8:00 pm prayer job with the keyless row
+{
+ "at": "2026-09-25T20:00:00-04:00",
+ "job": "prayer",
+ "status": 200,
+ "notified": [
+  "christian(ok 1)",
+  "mom(ok 1)",
+  "dad(ok 1)",
+  "niece(ok 1)"
+ ],
+ "skipped": [
+  "eli:author"
+ ],
+ "received": [
+  "christian:Prayer",
+  "mom:Prayer",
+  "dad:Prayer",
+  "niece:Prayer"
+ ]
+}
+
+== A6 Mae re-subscribes with keys
+200
+
+== A6 Fri 25 Sep 8:05 morning after the fix
+{
+ "at": "2026-09-25T08:05:00-04:00",
+ "job": "morning",
+ "status": 200,
+ "notified": [],
+ "skipped": [
+  "eli:already_today",
+  "christian:already_today",
+  "mom:already_today",
+  "dad:already_today",
+  "niece:already_today"
+ ],
+ "received": []
+}
+
+== A6 Fri 8:05 pm prayer job after the fix (is the Eli prayer still announced?)
+{
+ "at": "2026-09-25T20:05:00-04:00",
+ "job": "prayer",
+ "status": 200,
+ "notified": [],
+ "skipped": [],
+ "received": []
+}
+
+== A7 Ezra (kid) POST keyless
+403
+
+== A7 Sat 26 Sep 8:00 morning with only a kid keyless row
+{
+ "at": "2026-09-26T08:00:00-04:00",
+ "job": "morning",
+ "status": 200,
+ "notified": [
+  "eli(ok 1)",
+  "christian(ok 1)",
+  "mom(ok 1)",
+  "dad(ok 1)",
+  "niece(ok 1)"
+ ],
+ "skipped": [],
+ "received": [
+  "eli:Larder Ledger",
+  "christian:Larder Ledger",
+  "mom:Larder Ledger",
+  "dad:Larder Ledger",
+  "niece:Larder Ledger"
+ ]
+}
+
+== B scheduled() Thu 24 Sep 8:00 NY, Mae keyless (real cron path)
+{
+ "threw": null,
+ "ran": [
+  {
+   "job": "morning",
+   "notified": [
+    "eli",
+    "christian",
+    "mom",
+    "dad",
+    "niece"
+   ],
+   "skipped": []
+  },
+  {
+   "job": "prayer",
+   "notified": [],
+   "skipped": []
+  },
+  {
+   "job": "park",
+   "notified": [],
+   "skipped": []
+  },
+  {
+   "job": "praytime",
+   "notified": [],
+   "skipped": []
+  }
+ ],
+ "received": [
+  "eli:Larder Ledger",
+  "mom:Larder Ledger",
+  "dad:Larder Ledger",
+  "niece:Larder Ledger"
+ ],
+ "maeRowStillThere": false,
+ "pushLogToday": [
+  {
+   "profile_id": "eli",
+   "kind": "leftovers"
+  },
+  {
+   "profile_id": "christian",
+   "kind": "leftovers"
+  },
+  {
+   "profile_id": "mom",
+   "kind": "leftovers"
+  },
+  {
+   "profile_id": "dad",
+   "kind": "leftovers"
+  },
+  {
+   "profile_id": "niece",
+   "kind": "leftovers"
+  }
+ ]
+}
+
+wrote audits/evidence/p2/PWA/verify-keyless-subscription-aborts-job-1.json

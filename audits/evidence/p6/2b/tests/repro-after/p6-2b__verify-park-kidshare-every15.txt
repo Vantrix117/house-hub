@@ -1,0 +1,43 @@
+Part A — the real scheduled() handler at every wrangler.toml cron instant, Sat 26 Sep 2026 park day (Eli publishing 09:30–20:30 every 10 min)
+crons: every 15 min, Sat 8:00 am to Sun 9:00 am
+cron runs per scenario: 101 runs (park ran in 101)
+
+Ezra goes quiet at | park alert? | when        | Ezra quiet (min) | push_log kind=park rows (each delivered to the local receiver)
+Sat 10:00 AM       | true        | Sat 10:30 AM | 30               | eli@Sat 10:30 AM, christian@Sat 10:30 AM, mom@Sat 10:30 AM, dad@Sat 10:30 AM, niece@Sat 10:30 AM
+Sat 11:00 AM       | true        | Sat 11:30 AM | 30               | eli@Sat 11:30 AM, christian@Sat 11:30 AM, mom@Sat 11:30 AM, dad@Sat 11:30 AM, niece@Sat 11:30 AM
+Sat 12:00 PM       | true        | Sat 12:30 PM | 30               | eli@Sat 12:30 PM, christian@Sat 12:30 PM, mom@Sat 12:30 PM, dad@Sat 12:30 PM, niece@Sat 12:30 PM
+Sat 1:00 PM        | true        | Sat 1:30 PM | 30               | eli@Sat 1:30 PM, christian@Sat 1:30 PM, mom@Sat 1:30 PM, dad@Sat 1:30 PM, niece@Sat 1:30 PM
+Sat 2:00 PM        | true        | Sat 2:30 PM | 30               | eli@Sat 2:30 PM, christian@Sat 2:30 PM, mom@Sat 2:30 PM, dad@Sat 2:30 PM, niece@Sat 2:30 PM
+Sat 3:00 PM        | true        | Sat 3:30 PM | 30               | eli@Sat 3:30 PM, christian@Sat 3:30 PM, mom@Sat 3:30 PM, dad@Sat 3:30 PM, niece@Sat 3:30 PM
+Sat 3:50 PM        | true        | Sat 4:15 PM | 25               | eli@Sat 4:15 PM, christian@Sat 4:15 PM, mom@Sat 4:15 PM, dad@Sat 4:15 PM, niece@Sat 4:15 PM
+Sat 4:10 PM        | true        | Sat 4:45 PM | 35               | eli@Sat 4:45 PM, christian@Sat 4:45 PM, mom@Sat 4:45 PM, dad@Sat 4:45 PM, niece@Sat 4:45 PM
+Sat 5:00 PM        | true        | Sat 5:30 PM | 30               | eli@Sat 5:30 PM, christian@Sat 5:30 PM, mom@Sat 5:30 PM, dad@Sat 5:30 PM, niece@Sat 5:30 PM
+Sat 6:00 PM        | true        | Sat 6:30 PM | 30               | eli@Sat 6:30 PM, christian@Sat 6:30 PM, mom@Sat 6:30 PM, dad@Sat 6:30 PM, niece@Sat 6:30 PM
+Sat 7:00 PM        | true        | Sat 7:30 PM | 30               | eli@Sat 7:30 PM, christian@Sat 7:30 PM, mom@Sat 7:30 PM, dad@Sat 7:30 PM, niece@Sat 7:30 PM
+Sat 7:20 PM        | true        | Sat 7:45 PM | 25               | eli@Sat 7:45 PM, christian@Sat 7:45 PM, mom@Sat 7:45 PM, dad@Sat 7:45 PM, niece@Sat 7:45 PM
+Sat 7:40 PM        | true        | Sat 8:15 PM | 35               | eli@Sat 8:15 PM, christian@Sat 8:15 PM, mom@Sat 8:15 PM, dad@Sat 8:15 PM, niece@Sat 8:15 PM
+Sat 8:00 PM        | true        | Sat 8:30 PM | 30               | eli@Sat 8:30 PM, christian@Sat 8:30 PM, mom@Sat 8:30 PM, dad@Sat 8:30 PM, niece@Sat 8:30 PM
+Sat 8:30 PM        | true        | Sat 9:00 PM | 30               | eli@Sat 9:00 PM, christian@Sat 9:00 PM, mom@Sat 9:00 PM, dad@Sat 9:00 PM, niece@Sat 9:00 PM
+
+Sat 8:00 pm park result per scenario (stale list):
+  quiet Sat 10:00 AM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":600},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":600}]
+  quiet Sat 11:00 AM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":540},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":540}]
+  quiet Sat 12:00 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":480},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":480}]
+  quiet Sat 1:00 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":420},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":420}]
+  quiet Sat 2:00 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":360},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":360}]
+  quiet Sat 3:00 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":300},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":300}]
+  quiet Sat 3:50 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":250},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":250}]
+  quiet Sat 4:10 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":230},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":230}]
+  quiet Sat 5:00 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":180},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":180}]
+  quiet Sat 6:00 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":120},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":120}]
+  quiet Sat 7:00 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":60},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":60}]
+  quiet Sat 7:20 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":40},{"id":"eli","kind":"adult","ageMin":0}], stale [{"id":"ezra","ageMin":40}]
+  quiet Sat 7:40 PM: parkDay true, markers [{"id":"ezra","kind":"kid","ageMin":20},{"id":"eli","kind":"adult","ageMin":0}], stale []
+  quiet Sat 8:00 PM: parkDay true, markers [{"id":"eli","kind":"adult","ageMin":0},{"id":"ezra","kind":"kid","ageMin":0}], stale []
+  quiet Sat 8:30 PM: parkDay true, markers [{"id":"eli","kind":"adult","ageMin":0},{"id":"ezra","kind":"kid","ageMin":0}], stale []
+
+Part B — fresh local() instance, forced park job at Sun 27 Sep 8:00 pm, Eli 5 min old:
+  Ezra quiet since 11:00 → {"status":200,"parkDay":true,"markers":[{"id":"eli","kind":"adult","ageMin":0},{"id":"ezra","kind":"kid","ageMin":0}],"stale":[]}
+  Ezra quiet since 17:00 (control) → {"status":200,"parkDay":true,"markers":[{"id":"eli","kind":"adult","ageMin":0},{"id":"ezra","kind":"kid","ageMin":0}],"stale":[]}
+
+wrote audits/evidence/p2/PWA/verify-park-alert-misses-park-day-2-kidshare-every15.json

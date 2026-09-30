@@ -1,0 +1,151 @@
+[
+ {
+  "step": "0. seed: push rows / paired devices",
+  "v": {
+   "rows": [],
+   "devices": [
+    "Kitchen iPad",
+    "Eli's phone (skeptic 2)",
+    "Mom's phone (skeptic 2)",
+    "Downstairs TV",
+    "Eli's iPhone",
+    "Mae's iPhone",
+    "Study PC"
+   ],
+   "kitchenIpadDeviceId": "rig-kitchen-ipad"
+  }
+ },
+ {
+  "step": "0b. Mom turns notifications on on her own phone (POST /api/push/subscribe from that device)",
+  "v": {
+   "status": 200,
+   "rows": [
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ]
+  }
+ },
+ {
+  "step": "C. control — Mom on the Kitchen iPad, this browser has no PushSubscription",
+  "v": {
+   "signedInAs": "mom",
+   "switchOn": "false",
+   "help": "Off for you on this device.",
+   "testButtonVisible": false,
+   "browserSub": null
+  }
+ },
+ {
+  "step": "A1. Eli taps Notifications on, on the Kitchen iPad",
+  "v": {
+   "toast": null,
+   "signedInAs": "eli",
+   "switchOn": "true",
+   "help": "On for you on this device. Choose what you get below.",
+   "testButtonVisible": true,
+   "browserSub": "kitchen-ipad",
+   "rows": [
+    {
+     "profile_id": "eli",
+     "n": 1
+    },
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ]
+  }
+ },
+ {
+  "step": "A2. Mom signs in on the Kitchen iPad → Me → Notifications",
+  "v": {
+   "signedInAs": "mom",
+   "switchOn": "false",
+   "help": "Off for you on this device.",
+   "testButtonVisible": false,
+   "browserSub": "kitchen-ipad",
+   "rows": [
+    {
+     "profile_id": "eli",
+     "n": 1
+    },
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ]
+  }
+ },
+ {
+  "step": "A3. Mom taps \"Send a test notification\" on the Kitchen iPad",
+  "v": "UNREACHABLE: her switch is Off here and the test button is hidden (batch 2b)"
+ },
+ {
+  "step": "A4. the same route called raw with Mom's Kitchen-iPad token (her only row is on her phone)",
+  "v": {
+   "status": 200,
+   "body": {
+    "sent": 0,
+    "ok": 0,
+    "details": [],
+    "device": true
+   },
+   "deliveredTo": []
+  }
+ },
+ {
+  "step": "B1. Eli on the iPad: server rows (iPad row → unreachable endpoint, phone row ok)",
+  "v": {
+   "signedInAs": "eli",
+   "switchOn": "true",
+   "help": "On for you on this device. Choose what you get below.",
+   "testButtonVisible": true,
+   "browserSub": "kitchen-ipad",
+   "rows": [
+    {
+     "profile_id": "eli",
+     "n": 2
+    },
+    {
+     "profile_id": "mom",
+     "n": 1
+    }
+   ]
+  }
+ },
+ {
+  "step": "B2. what the route returns for the same call (raw, Kitchen iPad token)",
+  "v": {
+   "sent": 1,
+   "ok": 1,
+   "details": [
+    {
+     "endpoint": "http://127.0.0.1:52168/push/kitchen-ipad…",
+     "status": 201,
+     "ok": true,
+     "error": null
+    }
+   ],
+   "device": true
+  }
+ },
+ {
+  "step": "B3. Eli taps \"Send a test notification\" on the Kitchen iPad",
+  "v": {
+   "toast": "Sent to this device — it should appear in a moment.",
+   "deliveredTo": [
+    {
+     "to": "kitchen-ipad",
+     "title": "Anderson House",
+     "body": "Notifications are working on this device."
+    }
+   ]
+  }
+ },
+ {
+  "step": "console (errors only)",
+  "v": []
+ }
+]

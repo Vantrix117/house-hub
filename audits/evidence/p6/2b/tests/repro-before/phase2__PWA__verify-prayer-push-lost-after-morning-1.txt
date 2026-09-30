@@ -1,0 +1,24 @@
+Scenario A: a prayer was announced at 8 am; Dad adds another at 12:30
+  [A] Tue 8:00 pm run (seeds watermark): {"label":"Tue 8:00 pm run (seeds watermark)","status":200,"new":[],"seeded":{"live":11},"notified":[],"skipped":[]}
+  [A] mom adds "Safe travel for Aunt Ruth" → 200
+  [A] Wed 8:00 am run: {"label":"Wed 8:00 am run","status":200,"new":["Safe travel for Aunt Ruth [by mom]"],"seeded":null,"notified":["eli","christian","dad","niece","guest-grandmajo"],"skipped":["mom:author"]}
+  [A] dad adds "Job interview for Sam" → 200
+  [A] Wed 8:00 pm run: {"label":"Wed 8:00 pm run","status":200,"new":["Job interview for Sam [by dad]"],"seeded":null,"notified":["mom"],"skipped":["eli:already_today","christian:already_today","dad:author","niece:already_today","guest-grandmajo:already_today"]}
+  [A] Thu 8:00 am run: {"label":"Thu 8:00 am run","status":200,"new":[],"seeded":null,"notified":[],"skipped":[]}
+  [A] Thu 8:00 pm run: {"label":"Thu 8:00 pm run","status":200,"new":[],"seeded":null,"notified":[],"skipped":[]}
+  [A] Fri 8:00 am run: {"label":"Fri 8:00 am run","status":200,"new":[],"seeded":null,"notified":[],"skipped":[]}
+  [A] pushes naming "Job interview for Sam" per adult (Wed 12:30 → Fri 8 am): {"eli":0,"christian":0,"mom":1,"dad":0,"niece":0,"guest-grandmajo":0}
+  [A] adults (other than the author, dad) who NEVER got it: ["eli","christian","niece","guest-grandmajo"]
+
+Scenario B (control): nothing announced at 8 am; Dad adds the same prayer at 12:30
+  [B] Tue 8:00 pm run (seeds watermark): {"label":"Tue 8:00 pm run (seeds watermark)","status":200,"new":[],"seeded":{"live":11},"notified":[],"skipped":[]}
+  [B] Wed 8:00 am run: {"label":"Wed 8:00 am run","status":200,"new":[],"seeded":null,"notified":[],"skipped":[]}
+  [B] dad adds "Job interview for Sam" → 200
+  [B] Wed 8:00 pm run: {"label":"Wed 8:00 pm run","status":200,"new":["Job interview for Sam [by dad]"],"seeded":null,"notified":["eli","christian","mom","niece","guest-grandmajo"],"skipped":["dad:author"]}
+  [B] Thu 8:00 am run: {"label":"Thu 8:00 am run","status":200,"new":[],"seeded":null,"notified":[],"skipped":[]}
+  [B] Thu 8:00 pm run: {"label":"Thu 8:00 pm run","status":200,"new":[],"seeded":null,"notified":[],"skipped":[]}
+  [B] Fri 8:00 am run: {"label":"Fri 8:00 am run","status":200,"new":[],"seeded":null,"notified":[],"skipped":[]}
+  [B] pushes naming "Job interview for Sam" per adult (Wed 12:30 → Fri 8 am): {"eli":1,"christian":1,"mom":1,"dad":0,"niece":1,"guest-grandmajo":1}
+  [B] adults (other than the author, dad) who NEVER got it: []
+
+wrote audits/evidence/p2/PWA/verify-prayer-push-lost-after-morning-1.json

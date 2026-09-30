@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29) done; 272 entries FIXED, 39 PARTIAL, 3 DEFERRED, 11 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29) done; 298 entries FIXED, 39 PARTIAL, 3 DEFERRED, 12 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -49,7 +49,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | 7/7 fixed, `97c39a0` |
 | 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 99/143 fixed, `80af987` |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | 37/45 fixed, `65009df` |
-| 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | open |
+| 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | 22/23 fixed, `3944d37` |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | open |
 | 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a | open |
 | 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a | open |
@@ -3490,7 +3490,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-02 — The park "child's spot went quiet" alert cannot fire for most of a park day
 
-- **Area** shell / platform (park map) · **Type** bug · **Severity** high · **Effort** S · **Batch** 2b
+- **Area** shell / platform (park map) · **Type** bug · **Severity** high · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** parkJob now runs at every firing of a new every-15-minutes cron; a kid is quiet after 20 min without an update, timed by the house's clock, and each quiet spell is told once per adult. The original verify-park-alert-misses-park-day-2 fails before and after: since batch 0d a kid's dot is refused (beacon_off). The patched copy switches Ezra's beacon on and runs the real scheduled handler in process. Every 15 min: 15/15 quiet spells alerted, 25-35 min after they began (pre-batch 7/15: tests/repro-before/park-kidshare-before-every15.txt). At the old 8/9 o'clock instants: 15/15 (pre-batch 5/15, and a guest was pushed: park-kidshare-before.txt). test-park 20/0, cron-check 18/18. The copy's Part B no longer tests anything: every dot reads 0 min old by the house's clock. After: `audits/evidence/p6/2b/tests/repro-after/p6-2b__verify-park-kidshare-every15.txt`, `audits/evidence/p6/2b/p2/PWA/verify-park-alert-misses-park-day-2-kidshare-every15.json`, `audits/evidence/p6/2b/tests/suites/test-park.txt`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__cron-check.txt`.
 - **Evidence.** `audits/02-shell.md:4579`; `worker/wrangler.toml:25`, `index.html:1269`, `scripts/test-push2.mjs:197-226`
 - **What happens now.** `parkJob` runs only on the scheduled 8 am and 8 pm New York runs (reminders.js:253-255). The 9 am and 9 pm UTC firings in `worker/wrangler.toml:25` are dropped by the hour check. A kid counts as stale only when their marker is more than 30 min and less than 4 h old.
 - **Why it matters.** The Me switch promises "Park day: a child's spot goes quiet" (index.html:1269), and CLAUDE.md lists this alert. Parents who turn it on are falsely reassured for most of the day.
@@ -3499,7 +3500,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-05 — No timeout on a hung upstream; the Chat tab freezes with no cancel
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** The Worker gives up after 45 s of upstream silence (upstream_timeout) and refunds the message. The Chat tab has a Stop button in Send's place; on Stop the Worker aborts and runs no tool after it. verify-no-timeout-on-hang-2 (WebKit, 150 s hang): before, it released at 67 s with a false "No connection" and the message spent (4 → 5); after, it releases at 46 s with "The assistant is busy right now… tap Retry", and used is back to 4. check-2b 16/16: Stop takes Send's place (≥ 44 px) and gives the message back. Review stop-write: a Stop let the soup still be added (1 row, used 4 → 5) → 0 rows, 4 → 4. Only the mock was used, not the real Anthropic API. After: `audits/evidence/p6/2b/tests/repro-after/phase2__CHAT__verify-no-timeout-on-hang-2.txt`, `audits/evidence/p6/2b/p2/CHAT/verify-no-timeout-on-hang-2-webkit.json`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__check-2b.txt`, `audits/evidence/p6/2b/review/after-rev/stop-write.txt`.
 - **Evidence.** `audits/02-shell.md:3943`; `index.html:1502`, `index.html:385-389`, `index.html:1488`, `index.html:1498`; `audits/evidence/p2/CHAT/04-hang-30s-iphone-light.png`
 - **What happens now.** Neither the Worker's fetch to Anthropic (chat.js:345-349) nor the client's fetch (index.html:1502) has a timeout or an `AbortSignal`. There is no `AbortController` anywhere in index.html.
 - **Why it matters.** On a phone the Chat tab looks dead. Desktop Chrome stays stuck for as long as the upstream does.
@@ -3508,7 +3510,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-03 — On a shared device, push stays with whoever subscribed; the next person sees "On"
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** M · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** M · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Switch deletes that person's subscription on the device, and every sign-in deletes other people's rows there. A PIN reset deletes the person's rows; Me shows the switch for whoever is signed in. verify-shared-device-push-follows-device-2 stops at 4b by design: Mom's switch now reads Off, so the test button it taps is hidden. Its patched copy: after Eli's Switch, server rows 1 → 0, and the admin's test and the 8 pm F260 nudge no longer reach the iPad (1 → 0 each); Mom sees "Off for you on this device" (was On). push.mjs: Eli's rows after Switch 2 → 1, and a push to him reaches only his phone. Review probe B: Mom's reminder to pray reached the iPad after her PIN reset → nothing. After: `audits/evidence/p6/2b/tests/repro-after/p6-2b__verify-shared-device-b2b.txt`, `audits/evidence/p6/2b/p2/PWA/verify-shared-device-push-follows-device-2-b2b.json`, `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__push.txt`, `audits/evidence/p6/2b/review/after-rev/probes.txt`.
 - **Evidence.** `audits/02-shell.md:4606`; `index.html:1282`, `apps/hub.js:175-177`, `worker/src/index.js:272-277`, `index.html:1551-1554`
 - **What happens now.** Me → Switch (index.html:1282 → apps/hub.js:175-177) calls `POST /api/logout`, which deletes only the session row (worker/src/index.js:272-277). The subscription row stays, and `pushTo` sends by `profile_id` alone (reminders.js:34-48). The switch is painted from the browser-wide `pushManager.getSubscription()` (index.html:1551-1554).
 - **Why it matters.** The shared iPad is a primary device. A signed-out adult's personal nudges keep landing there ("No reading checked off today yet…"), and the next person is misled about their own reminders.
@@ -3517,7 +3520,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-04 — Family prayers added after an 8 am prayer push are never announced to those adults
 
-- **Area** shell / platform (Prayer) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2b
+- **Area** shell / platform (Prayer) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Each adult is owed each new family request until a push to them is delivered, and prayer pushes no longer have a once-a-day gate. verify-prayer-push-lost-after-morning-1, scenario A: a prayer was pushed at 8 am and Dad added another at 12:30. Before, the second one reached only Mom; after, it reaches Eli, Mae, Mom and Mea at 8 pm, the same as control B. The guest no longer gets either one (PWA-UX-2, by design). test-push2 61/0: a second new prayer the same day still reaches Mae. After: `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-prayer-push-lost-after-morning-1.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__PWA__verify-prayer-push-lost-after-morning-1.txt`, `audits/evidence/p6/2b/p2/PWA/verify-prayer-push-lost-after-morning-1.json`, `audits/evidence/p6/2b/tests/suites/test-push2.txt`.
 - **Evidence.** `audits/02-shell.md:4642`
 - **What happens now.** `prayerJob` compares against a single household-wide watermark. Each run advances it past every new prayer, whether or not each adult was told (reminders.js:180-182). `notify`'s once-a-day gate (reminders.js:50-54, 61) then skips every adult who got a prayer push that morning. Nothing records what they missed.
 - **Why it matters.** On any day with a morning prayer push, the day's later family requests reach almost nobody by push.
@@ -3526,7 +3530,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-08 — An always-open hub never runs a new deploy
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** M · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** M · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** An open hub checks for a new build when it becomes visible and every hour. It reloads the same tab when hidden, or after 20 s idle with no app or sheet in use, nothing typed and no chat reply on its way. verify-open-page-never-takes-new-build-2: after the new service worker took over, the iPad and the TV kept running ORIGINAL under a false "next time it opens" toast → both run NEW-DEPLOY on the same hash. Review swprobe: a half-typed Larder entry was lost to the reload → kept; swprobe3: six untouched apps reload. The script forces the TV's update check, so the hourly timer itself was not waited for. After: `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-open-page-never-takes-new-build-2.txt`, `audits/evidence/p6/2b/p2/PWA/verify-open-page-never-takes-new-build-2.json`, `audits/evidence/p6/2b/review/after-rev/swprobe.txt`, `audits/evidence/p6/2b/review/after-rev/swprobe3.txt`.
 - **Evidence.** `audits/02-shell.md:5078`; `index.html:1691-1697`, `index.html:1288`, `sw.js:22`, `sw.js:4-5`
 - **What happens now.** The page only shows a toast on `installed` (index.html:1691-1697). There is no `controllerchange` listener, no `reg.update()`, and no reload except "Forget this device" (index.html:1288). sw.js:22 and :25 call `skipWaiting` and `clients.claim`.
 - **Why it matters.** Fixes do not reach the 24/7 devices until someone relaunches the app, including the fix for P2-STAB-01 (STAB GAP). On the TV the toast's "next time it opens" never happens.
@@ -3535,7 +3540,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-09 — Within `max-age=600`, a VERSION bump precaches the old files
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** sw.js precaches with cache:'reload' and revalidates with no-cache, so a VERSION bump stores the deployed files. verify-deploy-invisible-within-max-age-2 now stops with "fix patch did not apply": it tries to patch in this same fix, which is already there. Its patched copy, on a stand-in server at max-age=600 and 15: before, run A cached the OLD ./, index.html and hub.js, and all three cold opens ran ORIGINAL (B: one). After, A, B and C cache the DEPLOYED files and every cold open runs DEPLOYED-BUILD-2. The copy's "activated" flag reads false only because the new hub-config cache makes two caches. The open page's toast now says "The hub is up to date." After: `audits/evidence/p6/2b/tests/repro-after/p6-2b__verify-deploy-b2b.txt`, `audits/evidence/p6/2b/p2/PWA/verify-deploy-invisible-within-max-age-2-b2b.json`, `audits/evidence/p6/2b/tests/repro-before/phase2__PWA__verify-deploy-invisible-within-max-age-2.txt`, `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-deploy-invisible-within-max-age-2.txt`.
 - **Evidence.** `audits/02-shell.md:5104`; `sw.js:22`, `sw.js:47`
 - **What happens now.** The precache `c.add(u)` (sw.js:22) and the revalidate `fetch(req)` (sw.js:47) use the default cache mode, and the live site sends `Cache-Control: max-age=600` (manifest-run.json → live). Suppose a device fetched the shell files less than 600 s before the update check.
 - **Why it matters.** Right after a push, the toast is wrong and on-device checks show the old build. The likeliest device to hit this is the deployer's own phone, checking the fix (P2-STAB-05).
@@ -3544,7 +3550,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-CHAT-01 — Chat history, kids' included, is kept forever with no way to clear it
 
-- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Me → Chat history → Clear my chat history (DELETE /api/chat/history, behind the confirm sheet) empties a person's history; today's count stays. Kids' chat is deleted after 90 days by the scheduled run. check-2b: Clear empties the history, and a kid gets the Chat history card but the TV does not. cron-check: the 8 pm firing deletes a kid's 90-day-old chat but not an adult's. smoke-api: clear my chat history returns 200. Review chatprobe: 20 rows deleted, the day's count kept at 10. After: `audits/evidence/p6/2b/check-2b/me-chat-hist-eli-webkit.png`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__check-2b.txt`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__cron-check.txt`, `audits/evidence/p6/2b/tests/smoke-api.txt`.
 - **Evidence.** `audits/02-shell.md:4397`; `worker/schema.sql:87-94`
 - **What happens now.** Chat history, kids' included, is kept forever with no way to clear it (low). `chat_log` rows are deleted only when a guest is purged (index.js:212; worker/schema.sql:87-94). A "clear my chat" route or button: NOT FOUND IN CODE.
 - **Why it matters.** Kids' chat history is kept forever.
@@ -3553,7 +3560,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-08 — The daily cap check is read-then-insert
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** The daily cap is now taken in one step through a counter row. verify-cap-check-not-atomic-1, Worker arms at every latency: before, 2 sends at 59/60 went 1 over and 10 sends at 57/60 went 7 over; after, 0 over (the rest get 429). A burst of 100 at 59 reached 159 → 60 (1 × 200, 99 × 429, one upstream call). Ten sends 5 ms apart went 69 → 60. After: `audits/evidence/p6/2b/tests/repro-after/phase2__CHAT__verify-cap-check-not-atomic-1.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__CHAT__verify-cap-check-not-atomic-1.txt`, `audits/evidence/p6/2b/p2/CHAT/verify-cap-check-not-atomic-1.json`.
 - **Evidence.** `audits/02-shell.md:4054`; `worker/src/chat.js:113-117`, `worker/src/index.js:429-441`, `index.html:1488-1489`
 - **What happens now.** `usedToday` is read at chat.js:399 (via chat.js:113-117), and the user row is inserted later, at chat.js:411. There is no transaction, conditional insert or counter row.
 - **Why it matters.** The cap is the only spend control, and the server itself puts no bound on the overshoot. `/api/chat` has no `rateCheck` (index.js:429-441).
@@ -3562,7 +3570,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-10 — A failed upstream still spends a daily message
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** A message is refunded when the upstream fails or times out before any reply, and the error event says so (refunded). verify-failed-upstream-spends-cap-1: a 500, a 429 and a stream error each cost a message (1 → 4) → used stays 1. An outage hit the cap after 59 failed retries → 80 failures, used still 1, no cap. The success control still counts (1 → 2). Review round 2: a Stop after the model was asked counts one message; only an upstream failure or timeout refunds. After: `audits/evidence/p6/2b/tests/repro-after/phase2__CHAT__verify-failed-upstream-spends-cap-1.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__CHAT__verify-failed-upstream-spends-cap-1.txt`, `audits/evidence/p6/2b/p2/CHAT/verify-failed-upstream-spends-cap-1.json`.
 - **Evidence.** `audits/02-shell.md:4144`; `index.html:1498`, `index.html:1499`, `worker/src/chat.js:113-117`, `index.html:1498-1499`
 - **What happens now.** The user row is inserted at chat.js:411, before the model is called. The catch at chat.js:441-442 only sends an `error` event and refunds nothing.
 - **Why it matters.** During an Anthropic outage, retries use up the day's allowance.
@@ -3571,7 +3580,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-11 — Thinking blocks are dropped when a tool loop continues
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** The tool loop replays thinking and redacted_thinking blocks whole, first in the assistant turn. verify-thinking-blocks-dropped-on-tool-replay-1, thinking blocks in the replayed body: write + replay 0 → 1; interleaved 0 → 1 (second call) and 0 → 2 (third); redacted 0 → 1. In all three, the last assistant turn now starts with a thinking block. Checked against the mock, not the real API. After: `audits/evidence/p6/2b/tests/repro-after/phase2__CHAT__verify-thinking-blocks-dropped-on-tool-replay-1.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__CHAT__verify-thinking-blocks-dropped-on-tool-replay-1.txt`, `audits/evidence/p6/2b/p2/CHAT/verify-thinking-blocks-dropped-on-tool-replay-1.json`.
 - **Evidence.** `audits/02-shell.md:4179`; `worker/src/chat.js:14`
 - **What happens now.** `assistantTurn` marks every block other than `text` and `tool_use` as skipped (chat.js:373) and filters them out (chat.js:382), although its docstring says it "returns the full content blocks" (chat.js:368).
 - **Why it matters.** This goes against Anthropic's documented rule for tool use. The Thinking page's "Preserving thinking blocks" section says: "Required: within a tool-use turn, pass thinking blocks back." The model therefore continues each tool turn without its own earlier reasoning.
@@ -3580,7 +3590,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-12 — System prompt: admin not marked; expired guests named
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** The system prompt marks the signed-in admin and each guest, and leaves out expired guests and the TV. verify-prompt-admin-and-expired-guests-1: "Signed in now: Eli (adult)" → "Eli (adult, admin)". Expired guests in the prompts: Visitor Vic (Mae's and Ezra's) and Cousin Theo true → false; the kiosk also true → false. Live guests now read "(adult, guest)". After: `audits/evidence/p6/2b/tests/repro-after/phase2__CHAT__verify-prompt-admin-and-expired-guests-1.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__CHAT__verify-prompt-admin-and-expired-guests-1.txt`, `audits/evidence/p6/2b/p2/CHAT/verify-prompt-admin-and-expired-guests-1.json`.
 - **Evidence.** `audits/02-shell.md:4217`; `worker/src/chat.js:317`, `worker/src/auth.js:86-101`, `worker/src/index.js:166`
 - **What happens now.** System prompt: admin not marked; expired guests named
 - **Why it matters.** Departed visitors' names leave the house with every message until the 30-day purge. The model also gets a slightly wrong picture of who is signed in.
@@ -3589,7 +3600,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-13 — Admin → Usage counts UTC days; the cap counts New York days
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Admin → Usage groups chat and push by New York day and says so. verify-usage-utc-vs-cap-1: Dad's four messages were grouped by UTC day (23rd: 1, 22nd: 3) → 22nd: 2, 21st: 2, the same days the cap uses; the admin table matches. Eli: 22nd: 5 → 22nd: 4, 21st: 1. check-2b: the panel says the days are New York days. After: `audits/evidence/p6/2b/tests/repro-after/phase2__CHAT__verify-usage-utc-vs-cap-1.txt`, `audits/evidence/p6/2b/p2/CHAT/verify-usage-utc-vs-cap-1.json`, `audits/evidence/p6/2b/p2/CHAT/verify-usage-utc-vs-cap-1-admin.png`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__check-2b.txt`.
 - **Evidence.** `audits/02-shell.md:4254`; `worker/src/index.js:522-524`, `index.html:1609`, `worker/src/index.js:519-529`, `worker/src/chat.js:112-117`; `audits/evidence/p2/CHAT/verify-usage-utc-vs-cap-1-admin-1x.png`
 - **What happens now.** Usage groups rows by `date(created_at / 1000, 'unixepoch')`, which is the UTC date. That applies to the chat half (worker/src/index.js:522-524) and to the push half (index.js:525-526). The cap counts New York dates (chat.js:113-117). The shell prints the raw date with no time zone (index.html:1609, 1612).
 - **Why it matters.** The admin's numbers disagree with the counter people see, and late-evening rows carry a date that has not started yet for the family.
@@ -3598,7 +3610,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-16 — The display profile can register and test push subscriptions
 
-- **Area** shell / platform · **Type** bug (security) · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug (security) · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** The Worker refuses push subscribe and test for the TV (403 read_only) and for kids and the Kitchen device (403 no_push); their Me shows no Notifications card. verify-kiosk-push-allowed-2: the TV's subscribe and test went 200/200 with one push delivered → 403/403, nothing received. Ezra's went 200/200 → 403/403. Subscriptions left after the run: TV 1 and Ezra 1 → none. push.mjs: Ezra, Kiara and the TV subscribe 200 → 403. smoke-api: a kid and the kitchen are refused. check-2b: a kid and the TV get no Notifications card. After: `audits/evidence/p6/2b/tests/repro-after/phase2__PROF__verify-kiosk-push-allowed-2.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__PROF__verify-kiosk-push-allowed-2.txt`, `audits/evidence/p6/2b/p2/PROF/verify-kiosk-push-allowed-2.json`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__check-2b.txt`.
 - **Evidence.** `audits/02-shell.md:1543`; `index.html:1262`
 - **What happens now.** with the TV session, POST /api/push/subscribe returns 200, POST /api/push/test delivers one push, and DELETE returns 200. These routes use `requireProfile`, not `requireWriter` (index.js:410-426, 534-539).
 - **Why it matters.** Reminders and pushes are how the hub reaches people who are not looking at it.
@@ -3607,7 +3620,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-10 — One subscription row with no keys aborts the reminder jobs every day
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Subscribe needs an endpoint and both keys (400 bad_subscription). pushTo deletes a row it cannot encrypt for and carries on. verify-keyless-subscription-aborts-job-1: Mae's keyless subscribe 200 → 400. The 8 am job, on two mornings, and the 8 pm prayer job returned 500 (TypeError, only Eli told) → 200 with the adults told. On the real scheduled handler with a keyless row put in directly: the morning job's error → the other adults told and the bad row deleted. A kid's keyless subscribe 200 → 403. After: `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-keyless-subscription-aborts-job-1.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__PWA__verify-keyless-subscription-aborts-job-1.txt`, `audits/evidence/p6/2b/p2/PWA/verify-keyless-subscription-aborts-job-1.json`.
 - **Evidence.** `audits/02-shell.md:4666`; `worker/src/index.js:414`, `index.html:1565-1566`, `worker/src/index.js:121-128`
 - **What happens now.** Subscribe validates only `subscription.endpoint` (worker/src/index.js:414). For a row without keys, `encrypt()` throws (push.js:19-20). That call is at push.js:58, outside the `try` at :60. The throw leaves `pushTo` before the 404/410 cleanup and the `push_log` insert (reminders.js:41-46).
 - **Why it matters.** A single bad row silently stops the house's fridge and prayer reminders.
@@ -3616,7 +3630,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-11 — A failed push counts as "sent today"
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Only a delivered push counts toward the daily gate. verify-failed-send-blocks-day-1: Mea's push service answered 503 at 8:00, and the 8:30 retry skipped her as already_today → she gets it at 8:30; Dad, who got his at 8:00, is still skipped. The script's park half shows nothing before or after, because no kid goes quiet in its set-up. Review dst: jobs are now eligible at each 15-min firing of the 8 am and 8 pm hours (1 → 4 firings), so a failed push is retried; cron-check: once delivered, nothing is sent twice. After: `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-failed-send-blocks-day-1.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__PWA__verify-failed-send-blocks-day-1.txt`, `audits/evidence/p6/2b/p2/PWA/verify-failed-send-blocks-day-1.json`, `audits/evidence/p6/2b/review/after-rev/dst.txt`.
 - **Evidence.** `audits/02-shell.md:4698`
 - **What happens now.** `pushTo` writes a `push_log` row with `ok 0` when every device fails (reminders.js:46). `alreadySentToday` ignores `ok` (reminders.js:50-54), and `notify` skips on it (reminders.js:61). A failed attempt therefore uses up that kind for the person's New York day.
 - **Why it matters.** A transient push-service error costs that person any later same-kind push that day.
@@ -3625,7 +3640,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-12 — "Send a test notification" can confirm the wrong device
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** The test push goes only to this device's own subscription (the client sends its endpoint), and the toast says "Sent to this device". verify-test-button-counts-all-devices-2 now times out at A3 by design: Mom's switch reads Off on the iPad, so the button it taps is hidden. Its patched copy: Mom's raw test from the iPad sent to her phone ("Sent") → sent 0. Eli's test from the iPad reached his phone → reaches the Kitchen iPad only. push.mjs: a test with no row for this device sent 1 → 0 ("No subscription on the server for this device yet"). After: `audits/evidence/p6/2b/tests/repro-after/p6-2b__verify-test-button-b2b.txt`, `audits/evidence/p6/2b/p2/PWA/verify-test-button-counts-all-devices-2-b2b.json`, `audits/evidence/p6/2b/p2/PWA/verify-test-button-counts-all-devices-2-b2b-A.png`, `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-test-button-counts-all-devices-2.txt`.
 - **Evidence.** `audits/02-shell.md:4718`; `worker/src/index.js:534-538`, `index.html:1546`, `index.html:1553`
 - **What happens now.** `/api/push/test` pushes to every subscription of the caller's profile (worker/src/index.js:534-538 → reminders.js:37). The UI says "Sent — it should appear in a moment." if any one of them succeeds (index.html:1546), and the push body says "Notifications are working on this device."
 - **Why it matters.** The one tool for checking a device can confirm a different device.
@@ -3634,7 +3650,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-15 — A brand-new install often shows "Hub updated"
 
-- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** "Hub updated" shows only when the page already had a controller before this load. verify-first-visit-hub-updated-2: first-install toasts 5/24 → 0/24 (WebKit bare 5/8 → 0/8). The new worker still claims the page before installed fires (in 9 runs, was 5), but the toast no longer follows. After: `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-first-visit-hub-updated-2.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__PWA__verify-first-visit-hub-updated-2.txt`, `audits/evidence/p6/2b/p2/PWA/verify-first-visit-hub-updated-2.json`.
 - **Evidence.** `audits/02-shell.md:5137`; `index.html:1695`, `sw.js:25`, `index.html:510`; `audits/screens/shell/first-visit-typical-iphone-pwa-light.png`
 - **What happens now.** The guard `installed && controller` (index.html:1695) passes on a first install in WebKit. `clients.claim` (sw.js:25, after `skipWaiting` at :22) sets the controller before the queued `installed` statechange runs.
 - **Why it matters.** The first thing a new device says is an update message. That weakens the toast that matters on real updates.
@@ -3643,7 +3660,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PWA-16 — Offline, an uncached build guide shows a bare 503 "Offline"
 
-- **Area** shell / platform (build guide) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform (build guide) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** sw.js serves a styled offline.html (the hub's tokens and a ≥ 44 px Try again) for a page it has no copy of. verify-build-guide-offline-blank-1, build guide never opened: plain-text "Offline" in 13 px monospace → "Not saved on this device yet … Open it once …" in the theme, light and dark. After a VERSION bump it shows the same page; the copy is still dropped at each bump. The script's WebKit arm D replays the old response itself, so it still shows "Offline". check-2b: offline.html paints in four palettes with no sideways scroll. After: `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-build-guide-offline-blank-1.txt`, `audits/evidence/p6/2b/p2/PWA/verify-build-guide-offline-blank-1.json`, `audits/evidence/p6/2b/check-2b/offline-hearth-webkit.png`, `audits/evidence/p6/2b/check-2b/offline-midnight-webkit.png`.
 - **Evidence.** `audits/02-shell.md:5160`; `sw.js:16`, `scripts/bump-sw.mjs:18`, `sw.js:25`, `sw.js:48`
 - **What happens now.** apps/dollywood.html is deliberately not precached (sw.js:16; scripts/bump-sw.mjs:18). Activation deletes every older cache (sw.js:25), so a cached copy is lost at each VERSION bump. Offline, the service worker returns `new Response('Offline', {status: 503})` (sw.js:48), shown as `text/plain` inside the dark viewer.
 - **Why it matters.** It reads as a broken app, with no hint that one online visit fixes it.
@@ -3652,7 +3670,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P3-PRAYER-25 — Editing a family request's wording makes the prayer push announce it as "New on the family list" (from the critic)
 
-- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** prayer · **Type** bug · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** The prayer push identifies a family row by its id and createdAt, not its title. critic-push-share, after a title edit: announced as new → new []. verify-critic-title-edit-announced-as-new-9-1: Dad's title edit showed as new → new []. -9-2: before, pushed to Mae, Mom, Dad, Mea and the guest → nobody. A new request shared to the list is still announced (critic job3). test-push2: editing an existing prayer does not re-announce it. After: `audits/evidence/p6/2b/tests/repro-after/phase3__prayer__verify-critic-title-edit-announced-as-new-9-2.txt`, `audits/evidence/p6/2b/tests/repro-after/phase3__prayer__verify-critic-title-edit-announced-as-new-9-1.txt`, `audits/evidence/p6/2b/tests/repro-after/phase3__prayer__critic-push-share.txt`, `audits/evidence/p6/2b/p3/prayer/verify-critic-title-edit-announced-as-new-9-2.json`.
 - **Evidence.** `audits/03-apps/prayer.md:799`; `worker/src/reminders.js:50-63`, `worker/src/reminders.js:157`, `apps/prayer.html:1058`, `worker/src/reminders.js:195-203`; `audits/evidence/p3/prayer/verify-critic-title-edit-announced-as-new-9-1-after-save.png`, `audits/evidence/p3/prayer/verify-critic-title-edit-announced-as-new-9-2-edited-sheet.png`
 - **What happens now.** The prayer job fingerprints each family row as `createdAt|title` (`worker/src/reminders.js:157`) and treats any changed fingerprint as new (`:181`). Its comment assumes the app never changes either field after creation (`:143-147`), but the Edit sheet rewrites the title (`apps/prayer.html:1058`).
 - **Why it matters.** False "New on the family list" alerts teach the house to ignore the prayer push, and they use up the day's one prayer push, so a truly new request later that day is not pushed.
@@ -3661,7 +3680,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### PWA-GAP-2 — No `pushsubscriptionchange` handler
 
-- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2b · **Status** NEEDS DEVICE CHECK (`3944d37`)
+- **Phase 6 (NEEDS DEVICE CHECK).** sw.js handles pushsubscriptionchange by posting the browser's new subscription to POST /api/push/resubscribe; the device token is required and only that device's row moves. The shell then re-syncs. smoke-api 315/0: resubscribe without a device token 401, from another device 404, by the old endpoint 200 (moved 1). Review probe A: an unauthenticated resubscribe that redirected Mom's pushes, 200 → 401, nothing received. The rig cannot make a browser rotate a subscription, so the event itself never fired. After the deploy, watch one iPhone Home Screen app: its 8 am and 8 pm pushes should keep arriving for weeks, and Admin → Usage should show no failed sends for it. After: `audits/evidence/p6/2b/tests/smoke-api.txt`, `audits/evidence/p6/2b/review/after-rev/probes.txt`, `audits/evidence/p6/2b/review/before-rev/probes.txt`.
 - **Evidence.** `audits/02-shell.md:4824`; `sw.js:21`, `index.html:1552-1555`
 - **What happens now.** sw.js listens only for install, activate, fetch, push and notificationclick (sw.js:21, 24, 31, 53, 62).
 - **Why it matters.** Rotated subscriptions silently stop receiving.
@@ -3670,7 +3690,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### PWA-GAP-4 — Manifest and icons are incomplete (gap, low). Evidence: manifest.json:1-17; manifest-run.json
 
-- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** manifest.json gains id, lang, dir, display_override, categories, four shortcuts (Prayer, Larder, F260, Chat) and a monochrome icon; the maskable icon was already there. The apple-touch-icon is now opaque (RGB, 180 px), and a 96 px badge icon was added for notifications. The review's renders of the monochrome and badge icons on blue show clean silhouettes. bump-sw: all 74 precached files present. Screenshots were not added. How Android draws the monochrome icon was not seen; the hub's devices are iPhone, iPad and desktop. After: `audits/evidence/p6/2b/review/icon-monochrome-on-blue.png`, `audits/evidence/p6/2b/review/badge-96-on-blue.png`, `audits/evidence/p6/2b/tests/bump-sw.txt`.
 - **Evidence.** `audits/02-shell.md:5058`; `manifest.json:1-17`, `index.html:12`
 - **What happens now.** The manifest has no `id`, `display_override`, `shortcuts`, `screenshots`, `lang` or monochrome icon.
 - **Why it matters.** Install quality on iOS and Android.
@@ -3679,7 +3700,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### PWA-UX-2 — Guests get household pushes that rally excludes
 
-- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** usability · **Severity** low · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Household pushes (fridge, new family prayers, park) skip guests, and a guest's Me hides those switches. Guests still get the weekly catch-up they can see. push.mjs: the guest's 8 am Larder push and the family prayer push are gone. verify-prayer-push-lost-after-morning-1 and verify-keyless-subscription-aborts-job-1: Grandma Jo is no longer told. check-2b: a guest has no household switches. After: `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__push.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__PWA__push.txt`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__check-2b.txt`.
 - **Evidence.** `audits/02-shell.md:4829`; `worker/src/index.js:116`, `index.html:1532`; `audits/screens/shell/me-notifications-typical-iphone-pwa-light.png`
 - **What happens now.** `adultIds` selects `kind = 'adult'` with no `is_guest` filter (reminders.js:56).
 - **Why it matters.** Guests get household nudges.
@@ -3688,7 +3710,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-PRAYER-1 — No reminder to pray at a chosen time, and no word to the asker when someone prayed
 
-- **Area** prayer · **Type** feature gap · **Severity** info · **Effort** M · **Batch** 2b
+- **Area** prayer · **Type** feature gap · **Severity** info · **Effort** M · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Two new push kinds. praytime: a time chosen in Me (Off or one of 36 times), checked every 15 min, sent once a day, with no private titles on the lock screen. prayedfor: at 8 pm the person who asked hears "X prayed for your request today", once a day, and never about their own ticks. cron-check 18/18: Eli is reminded at his 8 pm slot, once; Mom hears that Eli and Ezra prayed, the receiver got both, and nothing is sent twice that day. check-2b: Eli's Me offers the time. Review prefs-stale: a tap on another switch no longer wipes the chosen time (08:30 kept). After: `audits/evidence/p6/2b/tests/repro-after/p6-2b__cron-check.txt`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__check-2b.txt`, `audits/evidence/p6/2b/check-2b/me-notif-eli-webkit.png`, `audits/evidence/p6/2b/review/after-rev/prefs-stale.txt`.
 - **Evidence.** `audits/03-apps/prayer.md:914`; `worker/src/reminders.js:174`
 - **What happens now.** No reminder to pray at a chosen time, and no word to the asker when someone prayed (info). Push has only the "new family prayer" kind for Prayer (CLAUDE.md, Push; `worker/src/reminders.js:174`). Echo Prayer offers per-prayer and group reminders at chosen times, and Reminders alerts on add and complete (https://www.echoprayer.com/; https://support.apple.com/en-us/105124). Family rows record `prayedBy`, but the asker is never told.
 - **Why it matters.** Prayer apps remind and encourage.
@@ -3697,25 +3720,29 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-STAB-05 — Under GitHub Pages' max-age=600, a new version can precache the old files, and the "Hub updated" toast is untrue (pointer → P2-PWA-09, medium)
 
-- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Pointer to P2-PWA-09: sw.js precaches with cache:'reload' and revalidates with no-cache. verify-deploy-b2b at max-age=600: cached files OLD → DEPLOYED, cold opens ORIGINAL ×3 → DEPLOYED-BUILD-2 ×3. The toast "Hub updated — it will use the new version next time it opens" → "The hub is up to date.", and the open page reloads to the new build (P2-PWA-08). After: `audits/evidence/p6/2b/tests/repro-after/p6-2b__verify-deploy-b2b.txt`, `audits/evidence/p6/2b/tests/repro-before/phase2__PWA__verify-deploy-invisible-within-max-age-2.txt`.
 - **Evidence.** `audits/02-shell.md:3199`; `sw.js:22`, `sw.js:5`, `index.html:1695`
 - **Proposed fix.** Pointer to P2-PWA-09.
 
 #### P2-PROF-17 — Admin → Usage groups chat by UTC day; the cap uses New York days (pointer)
 
-- **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Pointer to P2-CHAT-13: Admin → Usage groups by New York day (Dad: 23rd: 1, 22nd: 3 → 22nd: 2, 21st: 2) and says so. After: `audits/evidence/p6/2b/tests/repro-after/phase2__CHAT__verify-usage-utc-vs-cap-1.txt`, `audits/evidence/p6/2b/p2/CHAT/verify-usage-utc-vs-cap-1-admin.png`.
 - **Evidence.** `audits/02-shell.md:1559`; `audits/screens/shell/me-admin-usage-typical-ipad-portrait-light.png`
 - **Proposed fix.** Pointer to P2-CHAT-13: Admin → Usage groups by New York day.
 
 #### P2-STAB-10 — A brand-new install says "Hub updated" in WebKit (pointer → P2-PWA-15, low)
 
-- **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2b
+- **Area** shell / platform · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Pointer to P2-PWA-15: a first install in WebKit no longer shows an update toast (5/24 → 0/24). After: `audits/evidence/p6/2b/tests/repro-after/phase2__PWA__verify-first-visit-hub-updated-2.txt`.
 - **Evidence.** `audits/02-shell.md:3322`; `index.html:1695`, `sw.js:22`, `sw.js:25`
 - **Proposed fix.** Pointer to P2-PWA-15.
 
 #### PWA-UX-1 — Kids and the kiosk can subscribe → same issue as P2-PROF-16 (Profiles), which owns it at low and covers both the kiosk and a kid (Ezra 200/200). What this dimension adds: the kid Me shows the switch although no job targets kids (audits/screens/shell/me-kid-typical-ipad-portrait-light.png), and its "on" help text names only fridge and reading nudges (index.html:1554). The rig runs are in push-run.txt:5, 596 and 615
 
-- **Area** shell / platform (TV) · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2b
+- **Area** shell / platform (TV) · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 2b · **Status** FIXED (`3944d37`)
+- **Phase 6 (FIXED).** Pointer to P2-PROF-16: kids and the TV are refused push (Ezra's subscribe and test 200/200 → 403/403). A kid's Me now has no Notifications card (check-2b, test-push2). An adult's card says "On for you on this device. Choose what you get below." and lists one switch per kind they get (review me-notif). After: `audits/evidence/p6/2b/tests/repro-after/phase2__PROF__verify-kiosk-push-allowed-2.txt`, `audits/evidence/p6/2b/tests/repro-after/p6-2b__check-2b.txt`, `audits/evidence/p6/2b/review/after-rev/me-notif.txt`.
 - **Evidence.** `audits/02-shell.md:4828`; `index.html:1554`; `audits/screens/shell/me-kid-typical-ipad-portrait-light.png`
 - **Proposed fix.** Pointer to P2-PROF-16.
 

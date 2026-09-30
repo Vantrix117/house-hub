@@ -1,0 +1,88 @@
+
+== push_subscriptions before anything (seed)
+[]
+
+== 1a. Eli opens Me on the Kitchen iPad (https stand-in)
+{
+ "protocol": "https:",
+ "signedInAs": "eli",
+ "toggleChecked": "false",
+ "toggleDisabled": false,
+ "help": "Off for you on this device.",
+ "prefsVisible": false,
+ "browserSub": null
+}
+
+== 1b. Eli taps the switch on
+{
+ "toast": "Notifications on for you on this device.",
+ "signedInAs": "eli",
+ "toggleChecked": "true",
+ "toggleDisabled": false,
+ "help": "On for you on this device. Choose what you get below.",
+ "prefsVisible": true,
+ "browserSub": "kitchen-ipad",
+ "serverRows": [
+  {
+   "profile_id": "eli",
+   "n": 1
+  }
+ ]
+}
+
+== 2. Eli taps Me → Switch
+{
+ "pickerShown": true,
+ "hubSession": null,
+ "eliTokenAfter": "401 profile_session_invalid",
+ "serverRows": [],
+ "browserSubStill": "yes"
+}
+
+== 3a. admin test push to Eli (sent from his phone) after he switched out on the iPad
+{
+ "status": 200,
+ "sent": 0,
+ "ok": 0,
+ "received": []
+}
+
+== 3b. forced 8 pm evening job (F260 nudge)
+{
+ "status": 200,
+ "notified": [],
+ "skipped": [],
+ "received": []
+}
+
+== 4-debug
+{
+ "momMe": "200 mom",
+ "ls": "{\"token\":\"capture-rig-session-mom\",\"profile\":{\"id\":\"mom\",\"name\":\"Elizabeth\",\"emoji\":\"🌷\",\"color\":\"#8A6A4B\",\"kind\":\"adult\",\"hue\":\"bubblegum\",\"is_admin\":false,\"sort_order\":5,\"has_pin\":true,\"pin_reset\":false,\"is_guest\":false,\"expires_at\":null,\"created_by\":null,\"photo\":null}}",
+ "gate": false,
+ "consoleTail": [
+  "warning: Service Worker registration blocked by Playwright",
+  "log: init error ServiceWorkerContainer is not defined",
+  "warning: Service Worker registration blocked by Playwright"
+ ]
+}
+
+== 4a. Mom signed in on the Kitchen iPad → Me → Notifications
+{
+ "signedInAs": "mom",
+ "toggleChecked": "false",
+ "toggleDisabled": false,
+ "help": "Off for you on this device.",
+ "prefsVisible": false,
+ "browserSub": "kitchen-ipad",
+ "serverRows": [],
+ "momHasRow": false
+}
+file:///C:/Users/ex_bo/OneDrive/Claude%20Related/App%20Hub/audits/tools/phase2/PWA/verify-shared-device-push-follows-device-2.mjs:128
+  if (!(await page.isVisible('#notif-test'))) throw new Error('Mom not signed in');
+                                                    ^
+
+Error: Mom not signed in
+    at file:///C:/Users/ex_bo/OneDrive/Claude%20Related/App%20Hub/audits/tools/phase2/PWA/verify-shared-device-push-follows-device-2.mjs:128:53
+
+Node.js v24.19.0

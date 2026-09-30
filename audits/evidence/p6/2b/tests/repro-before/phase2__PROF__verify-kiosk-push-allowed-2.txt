@@ -1,0 +1,41 @@
+── 0. who is tv ──
+tv             GET    /api/me                                  → 200 {"profile":{"id":"tv","name":"Downstairs TV","emoji":"📺","color":"#4C4C58","kind":"kiosk","hue":"graphite","is_admin":false,"sort_order":8,"has_pin":false,"pin
+
+── 1. baseline: the kiosk is refused a data write ──
+tv             PUT    /api/data/reminders/item:tv-probe?scope=family → 403 {"error":"read_only","message":"This profile can only look, not change things."}
+
+── 2. no profile token: refused ──
+(device only)  POST   /api/push/subscribe                      → 401 {"error":"profile_required","message":"Choose a profile first."}
+
+── 3. kiosk subscribes, tests, and the Worker delivers ──
+tv             POST   /api/push/subscribe                      → 200 {"ok":true}
+tv             POST   /api/push/test                           → 200 {"sent":1,"ok":1,"details":[{"endpoint":"http://127.0.0.1:59336/tv…","status":201,"ok":true,"error":null}]}
+receiver hits on /tv after the kiosk test: 1
+
+── 4. the same thing as a PIN-less kid tap on the same paired device ──
+ezra           POST   /api/push/subscribe                      → 200 {"ok":true}
+ezra           POST   /api/push/test                           → 200 {"sent":1,"ok":1,"details":[{"endpoint":"http://127.0.0.1:59336/ezra…","status":201,"ok":true,"error":null}]}
+receiver hits on /ezra after the kid test: 1
+
+── 5. kiosk cannot target anyone else ──
+tv             POST   /api/push/test                           → 403 {"error":"admin_only","message":"Only the admin can do that."}
+
+── 6. what the server now holds (admin usage) ──
+eli            GET    /api/admin/usage                         → 200 {"chat":[{"profile_id":"christian","day":"2026-09-29","messages":2},{"profile_id":"eli","day":"2026-09-29","messages":5},{"profile_id":"ezra","day":"2026-09-29"
+push_subscriptions: [{"profile_id":"ezra","n":1},{"profile_id":"tv","n":1}]
+push_log rows for tv: [{"profile_id":"tv","kind":"test","day":"2026-09-29","sends":1,"ok":1}]
+
+── 7. does any scheduled job ever reach the kiosk subscription? (every job forced as the admin) ──
+job morning  → 200 notified=[] skipped=["eli:already_today","christian:already_today","mom:already_today","dad:already_today"]
+job evening  → 200 notified=[] skipped=[]
+job behind   → 200 notified=[] skipped=[]
+job prayer   → 200 notified=[] skipped=[]
+job park     → 200 notified=[] skipped=[]
+receiver hits on /tv from the five jobs: 0
+
+── 8. kiosk unsubscribes ──
+tv             DELETE /api/push/subscribe                      → 200 {"ok":true}
+push_subscriptions after the kiosk DELETE: [{"profile_id":"ezra","n":1}]
+
+── 9. the TV UI: is the Notifications card rendered for the kiosk? ──
+TV #me: {"kind":"kiosk","notifCard":false,"notifToggle":false}

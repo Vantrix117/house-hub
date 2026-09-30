@@ -1,0 +1,16 @@
+R rig 2 concurrent at 59/60: {"before":59,"fired":2,"s200":1,"s429":1,"after":60,"cap":60}
+R rig 10 concurrent at 57/60: {"before":57,"fired":10,"s200":3,"s429":7,"after":60,"cap":60}
+W worker {"latency":"0ms","before":59,"fired":2,"s200":2,"s429":0,"after":61,"cap":60,"upstreamCalls":2,"overCapBy":1}
+W worker {"latency":"0ms","before":57,"fired":10,"s200":10,"s429":0,"after":67,"cap":60,"upstreamCalls":10,"overCapBy":7}
+W worker {"latency":"1ms","before":59,"fired":2,"s200":2,"s429":0,"after":61,"cap":60,"upstreamCalls":2,"overCapBy":1}
+W worker {"latency":"1ms","before":57,"fired":10,"s200":10,"s429":0,"after":67,"cap":60,"upstreamCalls":10,"overCapBy":7}
+W worker {"latency":"5ms","before":59,"fired":2,"s200":2,"s429":0,"after":61,"cap":60,"upstreamCalls":2,"overCapBy":1}
+W worker {"latency":"5ms","before":57,"fired":10,"s200":10,"s429":0,"after":67,"cap":60,"upstreamCalls":10,"overCapBy":7}
+W worker {"latency":"20ms","before":59,"fired":2,"s200":2,"s429":0,"after":61,"cap":60,"upstreamCalls":2,"overCapBy":1}
+W worker {"latency":"20ms","before":57,"fired":10,"s200":10,"s429":0,"after":67,"cap":60,"upstreamCalls":10,"overCapBy":7}
+W worker {"latency":"jitter2-20ms","before":59,"fired":2,"s200":2,"s429":0,"after":61,"cap":60,"upstreamCalls":2,"overCapBy":1}
+W worker {"latency":"jitter2-20ms","before":57,"fired":10,"s200":10,"s429":0,"after":67,"cap":60,"upstreamCalls":10,"overCapBy":7}
+S sequential: {"latency":"20ms","startAt":59,"statuses":[200,429,429],"after":60,"upstreamCalls":1}
+X burst of 100 at 59: {"latency":"20ms","before":59,"fired":100,"s200":100,"s429":0,"after":159,"upstreamCalls":100}
+X staggered 10 (5 ms apart) at 59: {"latency":"20ms","before":59,"fired":10,"spacingMs":5,"s200":10,"s429":0,"after":69,"upstreamCalls":10}
+evidence: audits/evidence/p2/CHAT/verify-cap-check-not-atomic-1.json

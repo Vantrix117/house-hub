@@ -1,0 +1,118 @@
+
+== 0. seed: push rows / paired devices
+{
+ "rows": [],
+ "devices": [
+  "Kitchen iPad",
+  "Eli's phone (skeptic 2)",
+  "Mom's phone (skeptic 2)",
+  "Downstairs TV",
+  "Eli's iPhone",
+  "Mae's iPhone",
+  "Study PC"
+ ],
+ "kitchenIpadDeviceId": "rig-kitchen-ipad"
+}
+
+== 0b. Mom turns notifications on on her own phone (POST /api/push/subscribe from that device)
+{
+ "status": 200,
+ "rows": [
+  {
+   "profile_id": "mom",
+   "n": 1
+  }
+ ]
+}
+
+== C. control — Mom on the Kitchen iPad, this browser has no PushSubscription
+{
+ "signedInAs": "mom",
+ "switchOn": "false",
+ "help": "Off for you on this device.",
+ "testButtonVisible": false,
+ "browserSub": null
+}
+
+== A1. Eli taps Notifications on, on the Kitchen iPad
+{
+ "toast": null,
+ "signedInAs": "eli",
+ "switchOn": "true",
+ "help": "On for you on this device. Choose what you get below.",
+ "testButtonVisible": true,
+ "browserSub": "kitchen-ipad",
+ "rows": [
+  {
+   "profile_id": "eli",
+   "n": 1
+  },
+  {
+   "profile_id": "mom",
+   "n": 1
+  }
+ ]
+}
+
+== A2. Mom signs in on the Kitchen iPad → Me → Notifications
+{
+ "signedInAs": "mom",
+ "switchOn": "false",
+ "help": "Off for you on this device.",
+ "testButtonVisible": false,
+ "browserSub": "kitchen-ipad",
+ "rows": [
+  {
+   "profile_id": "eli",
+   "n": 1
+  },
+  {
+   "profile_id": "mom",
+   "n": 1
+  }
+ ]
+}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#notif-test')[22m
+[2m    - locator resolved to <button class="btn" id="notif-test">Send a test notification</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    57 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is not visible[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+    at C:\Users\ex_bo\OneDrive\Claude Related\App Hub\audits\tools\phase2\PWA\verify-test-button-counts-all-devices-2.mjs:122:14 {
+  log: [
+    "  - waiting for locator('#notif-test')",
+    '    - locator resolved to <button class="btn" id="notif-test">Send a test notification</button>',
+    '  - attempting click action',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not visible',
+    '    - retrying click action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not visible',
+    '    - retrying click action',
+    '      - waiting 100ms',
+    '    57 × waiting for element to be visible, enabled and stable',
+    '       - element is not visible',
+    '     - retrying click action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

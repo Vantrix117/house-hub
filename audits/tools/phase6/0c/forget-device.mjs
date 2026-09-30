@@ -30,8 +30,8 @@ try {
   const d = await L.device({ device: 'ipad-portrait', profile: 'eli', fixedTime: false, as: nd }); const { page } = d;
   await d.goto(''); await shellReady(page, 'eli'); await loaded(page);
   const tokens = await page.evaluate(() => ({ device: hub.device.token, session: hub.session.token, deviceId: hub.device.id }));
-  // a push subscription row for this device, as the Me switch would make (the rig's WebKit cannot subscribe for real)
-  const sub = await L.apiAs(null, '/api/push/subscribe', { method: 'POST', body: { subscription: { endpoint: 'http://127.0.0.1:9/push/forget-check', keys: { p256dh: 'x', auth: 'y' } } }, deviceToken: tokens.device, profileToken: tokens.session });
+  // a push subscription row for this device, as the Me switch would make (the rig's WebKit cannot subscribe for real) — valid-shaped keys: since batch 2b (P2-PWA-10) the Worker refuses a subscription whose keys cannot encrypt
+  const sub = await L.apiAs(null, '/api/push/subscribe', { method: 'POST', body: { subscription: { endpoint: 'http://127.0.0.1:9/push/forget-check', keys: { p256dh: 'BAs4RP9Yj3z2JqDewCCTSUp2dDJMC99wBfNLo-T7DFhWxN0KFmDf7FhGnPClKyd-ZepBq3duamj7guuxJeqEPtc', auth: 'x8uzNVqHuD2tBwWiY58quw' } } }, deviceToken: tokens.device, profileToken: tokens.session });
   check('setup: push subscription for this device', sub.status === 200, sub.status);
 
   // ── A: offline, two writes, Forget refuses ──

@@ -1,0 +1,9 @@
+file:///C:/Users/ex_bo/OneDrive/Claude%20Related/App%20Hub/audits/tools/phase2/PWA/verify-park-alert-misses-park-day-2.mjs:89
+      if (NOW <= quietAt) { const r2 = await loc('ezra', NOW); if (r2.status !== 200) throw new Error('ezra loc ' + r2.status + JSON.stringify(r2.body)); }
+                                                                                            ^
+
+Error: ezra loc 403{"error":"not_allowed","message":"This profile cannot change that.","rejected":"beacon_off","key":"loc:ezra","value":null,"updated_at":0}
+    at scenario (file:///C:/Users/ex_bo/OneDrive/Claude%20Related/App%20Hub/audits/tools/phase2/PWA/verify-park-alert-misses-park-day-2.mjs:89:93)
+    at async file:///C:/Users/ex_bo/OneDrive/Claude%20Related/App%20Hub/audits/tools/phase2/PWA/verify-park-alert-misses-park-day-2.mjs:108:34
+
+Node.js v24.19.0

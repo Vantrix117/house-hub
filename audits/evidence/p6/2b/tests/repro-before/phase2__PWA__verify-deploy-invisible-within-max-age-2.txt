@@ -1,0 +1,114 @@
+
+== A max-age=600, deploy right after use
+{
+ "label": "A max-age=600, deploy right after use",
+ "cacheControl": "max-age=600",
+ "idleBeforeDeployMs": 0,
+ "waitAfterUpdateMs": 0,
+ "overlay": "audits/tools/phase2/PWA/verify2-overlay-bump",
+ "warmOpen": "ORIGINAL",
+ "httpCacheHoldsIndexBeforeDeploy": 200,
+ "newCacheActivated": true,
+ "secondsToActivate": 4.9,
+ "toastsOnOpenPage": [
+  "Hub updated — it will use the new version next time it opens."
+ ],
+ "newCache": {
+  "./": "OLD",
+  "index.html": "OLD",
+  "apps/hub.js": "OLD",
+  "sw.js": "OLD"
+ },
+ "coldOpens": [
+  "ORIGINAL",
+  "ORIGINAL",
+  "ORIGINAL"
+ ],
+ "productionRequests": 0
+}
+
+== B max-age=15, deploy right after use, cold opens 18 s later
+{
+ "label": "B max-age=15, deploy right after use, cold opens 18 s later",
+ "cacheControl": "max-age=15",
+ "idleBeforeDeployMs": 0,
+ "waitAfterUpdateMs": 18000,
+ "overlay": "audits/tools/phase2/PWA/verify2-overlay-bump",
+ "warmOpen": "ORIGINAL",
+ "httpCacheHoldsIndexBeforeDeploy": 200,
+ "newCacheActivated": true,
+ "secondsToActivate": 3.7,
+ "toastsOnOpenPage": [
+  "Hub updated — it will use the new version next time it opens."
+ ],
+ "newCache": {
+  "./": "OLD",
+  "index.html": "OLD",
+  "apps/hub.js": "OLD",
+  "sw.js": "OLD"
+ },
+ "coldOpens": [
+  "ORIGINAL",
+  "DEPLOYED-BUILD-2",
+  "DEPLOYED-BUILD-2"
+ ],
+ "productionRequests": 0
+}
+
+== C max-age=15, device idle 18 s before the deploy
+{
+ "label": "C max-age=15, device idle 18 s before the deploy",
+ "cacheControl": "max-age=15",
+ "idleBeforeDeployMs": 18000,
+ "waitAfterUpdateMs": 0,
+ "overlay": "audits/tools/phase2/PWA/verify2-overlay-bump",
+ "warmOpen": "ORIGINAL",
+ "httpCacheHoldsIndexBeforeDeploy": 200,
+ "newCacheActivated": true,
+ "secondsToActivate": 3.8,
+ "toastsOnOpenPage": [
+  "Hub updated — it will use the new version next time it opens."
+ ],
+ "newCache": {
+  "./": "DEPLOYED",
+  "index.html": "DEPLOYED",
+  "apps/hub.js": "DEPLOYED",
+  "sw.js": "OLD"
+ },
+ "coldOpens": [
+  "DEPLOYED-BUILD-2",
+  "DEPLOYED-BUILD-2",
+  "DEPLOYED-BUILD-2"
+ ],
+ "productionRequests": 0
+}
+
+== D max-age=600, deploy whose sw.js precaches with cache:'reload'
+{
+ "label": "D max-age=600, deploy whose sw.js precaches with cache:'reload'",
+ "cacheControl": "max-age=600",
+ "idleBeforeDeployMs": 0,
+ "waitAfterUpdateMs": 0,
+ "overlay": "audits/tools/phase2/PWA/verify2-overlay-fix",
+ "warmOpen": "ORIGINAL",
+ "httpCacheHoldsIndexBeforeDeploy": 200,
+ "newCacheActivated": true,
+ "secondsToActivate": 4,
+ "toastsOnOpenPage": [
+  "Hub updated — it will use the new version next time it opens."
+ ],
+ "newCache": {
+  "./": "DEPLOYED",
+  "index.html": "DEPLOYED",
+  "apps/hub.js": "DEPLOYED",
+  "sw.js": "OLD"
+ },
+ "coldOpens": [
+  "DEPLOYED-BUILD-2",
+  "DEPLOYED-BUILD-2",
+  "DEPLOYED-BUILD-2"
+ ],
+ "productionRequests": 0
+}
+
+wrote audits/evidence/p2/PWA/verify-deploy-invisible-within-max-age-2.json; overlays removed

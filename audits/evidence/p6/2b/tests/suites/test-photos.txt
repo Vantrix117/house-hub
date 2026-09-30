@@ -1,0 +1,40 @@
+
+## Eli uploads a photo
+  ✓ no photo to start with
+  ✓ upload returns 256 + 1024 urls
+  ✓ session profile updated in place
+  ✓ GET small photo is a JPEG (3111 bytes)
+  ✓ photo is cached forever (immutable)
+  ✓ small photo under 80 KB
+  ✓ large photo bigger than small, under 420 KB (13688)
+  ✓ square crops 256 and 1024 ([[256,256],[1024,1024]])
+  ✓ the white edge stripe was cropped away (centre square)
+  ✓ Me hero shows the photo
+
+## a second device sees it
+  ✓ picker card shows the photo
+  ✓ Home feed shows Eli's face
+  ✓ chat bubble carries the photo avatar
+  ✓ hub.people() carries photos for apps
+
+## guards
+  ✓ kid cannot set their own photo (adults_only)
+  ✓ Mae cannot remove Eli's photo (not_yours)
+  ✓ kid cannot add album photos
+  ✓ server rejects non-JPEG bytes
+  ✓ unknown key is 404
+
+## family album
+  ✓ album upload returns the row
+  ✓ album row syncs to the second device (family scope)
+  ✓ Me → Family album shows the photo
+  ✓ Mae cannot remove Eli's album photo
+  ✓ removed album bytes are gone
+
+## remove the profile photo
+  ✓ session profile photo cleared
+  ✓ old photo bytes deleted
+  ✓ Me hero back to the emoji
+  ✓ no console/page errors
+
+28 passed, 0 failed

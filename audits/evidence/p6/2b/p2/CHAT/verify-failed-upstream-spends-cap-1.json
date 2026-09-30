@@ -1,0 +1,76 @@
+{
+  "control": {
+    "before": 1,
+    "after": 2,
+    "reply": "Hello Mae.",
+    "done": {
+      "usage": {
+        "input": 10,
+        "output": 20
+      },
+      "stop_reason": "end_turn",
+      "used": 2,
+      "cap": 60
+    }
+  },
+  "perKind": [
+    {
+      "kind": "http500",
+      "usedBefore": 1,
+      "usedAfter": 1,
+      "http": 200,
+      "errorEvent": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (mock internal error).",
+        "status": 502,
+        "refunded": true,
+        "used": 1,
+        "cap": 60
+      },
+      "doneEvent": null
+    },
+    {
+      "kind": "http429",
+      "usedBefore": 1,
+      "usedAfter": 1,
+      "http": 200,
+      "errorEvent": {
+        "error": "upstream",
+        "message": "The assistant is unavailable right now (rate limited upstream).",
+        "status": 503,
+        "refunded": true,
+        "used": 1,
+        "cap": 60
+      },
+      "doneEvent": null
+    },
+    {
+      "kind": "streamError",
+      "usedBefore": 1,
+      "usedAfter": 1,
+      "http": 200,
+      "errorEvent": {
+        "error": "upstream",
+        "message": "Overloaded",
+        "status": 502,
+        "refunded": true,
+        "used": 1,
+        "cap": 60
+      },
+      "doneEvent": null
+    }
+  ],
+  "outage": {
+    "usedAtStart": 1,
+    "failedSends": 80,
+    "answered": 0,
+    "upstreamCallsMade": 80,
+    "capHit": null,
+    "usedNow": 1,
+    "historyTail": [
+      "assistant: 2 on the card: “Trash and recycling go o",
+      "user: What are this week's memory verses?",
+      "assistant: For week 37: Matthew 28:18-20: Go and ma"
+    ]
+  }
+}

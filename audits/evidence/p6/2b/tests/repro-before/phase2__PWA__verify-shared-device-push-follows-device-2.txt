@@ -1,0 +1,172 @@
+
+== push_subscriptions before anything (seed)
+[]
+
+== 1a. Eli opens Me on the Kitchen iPad (https stand-in)
+{
+ "protocol": "https:",
+ "signedInAs": "eli",
+ "toggleChecked": "false",
+ "toggleDisabled": false,
+ "help": "Fridge warnings and reading nudges, sent to this device.",
+ "prefsVisible": false,
+ "browserSub": null
+}
+
+== 1b. Eli taps the switch on
+{
+ "toast": "Notifications on for this device.",
+ "signedInAs": "eli",
+ "toggleChecked": "true",
+ "toggleDisabled": false,
+ "help": "On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.",
+ "prefsVisible": true,
+ "browserSub": "kitchen-ipad",
+ "serverRows": [
+  {
+   "profile_id": "eli",
+   "n": 1
+  }
+ ]
+}
+
+== 2. Eli taps Me → Switch
+{
+ "pickerShown": true,
+ "hubSession": null,
+ "eliTokenAfter": "401 profile_session_invalid",
+ "serverRows": [
+  {
+   "profile_id": "eli",
+   "n": 1
+  }
+ ],
+ "browserSubStill": "yes"
+}
+
+== 3a. admin test push to Eli (sent from his phone) after he switched out on the iPad
+{
+ "status": 200,
+ "sent": 1,
+ "ok": 1,
+ "received": [
+  {
+   "to": "kitchen-ipad",
+   "vapid": "INVALID",
+   "title": "Anderson House",
+   "body": "Notifications are working on this device.",
+   "url": "#me"
+  }
+ ]
+}
+
+== 3b. forced 8 pm evening job (F260 nudge)
+{
+ "status": 200,
+ "notified": [
+  "eli(sent 1, ok 1)"
+ ],
+ "skipped": [],
+ "received": [
+  {
+   "to": "kitchen-ipad",
+   "vapid": "INVALID",
+   "title": "F260",
+   "body": "No reading checked off today yet. Acts 6 is next (week 38, day 3).",
+   "url": "#f260"
+  }
+ ]
+}
+
+== 4-debug
+{
+ "momMe": "200 mom",
+ "ls": "{\"token\":\"capture-rig-session-mom\",\"profile\":{\"id\":\"mom\",\"name\":\"Elizabeth\",\"emoji\":\"🌷\",\"color\":\"#8A6A4B\",\"kind\":\"adult\",\"hue\":\"bubblegum\",\"is_admin\":false,\"sort_order\":5,\"has_pin\":true,\"pin_reset\":false,\"is_guest\":false,\"expires_at\":null,\"created_by\":null,\"photo\":null}}",
+ "gate": false,
+ "consoleTail": [
+  "warning: Service Worker registration blocked by Playwright",
+  "log: init error ServiceWorkerContainer is not defined",
+  "warning: Service Worker registration blocked by Playwright"
+ ]
+}
+
+== 4a. Mom signed in on the Kitchen iPad → Me → Notifications
+{
+ "signedInAs": "mom",
+ "toggleChecked": "true",
+ "toggleDisabled": false,
+ "help": "On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.",
+ "prefsVisible": true,
+ "browserSub": "kitchen-ipad",
+ "serverRows": [
+  {
+   "profile_id": "eli",
+   "n": 1
+  }
+ ],
+ "momHasRow": false
+}
+
+== 4b. Mom taps "Send a test notification"
+{
+ "toast": "No subscription on the server for this device yet.",
+ "received": []
+}
+
+== 5. Mom taps the switch off
+{
+ "toast": "Notifications off for this device.",
+ "signedInAs": "mom",
+ "toggleChecked": "false",
+ "toggleDisabled": false,
+ "help": "Fridge warnings and reading nudges, sent to this device.",
+ "prefsVisible": false,
+ "browserSub": null,
+ "browserUnsubscribed": "http://127.0.0.1:58960/push/kitchen-ipad",
+ "serverRows": [
+  {
+   "profile_id": "eli",
+   "n": 1
+  }
+ ]
+}
+
+== 5b. push to Eli after Mom turned it off (the receiver cannot emulate a real push service rejecting the unsubscribed endpoint)
+{
+ "sent": 1,
+ "ok": 1,
+ "received": [
+  {
+   "to": "kitchen-ipad",
+   "vapid": "INVALID",
+   "title": "Anderson House",
+   "body": "Notifications are working on this device.",
+   "url": "#me"
+  }
+ ]
+}
+
+== 6a. Mom signed in, tap on Eli's F260 nudge (#f260)
+{
+ "hash": "#f260",
+ "signedInAs": "mom",
+ "appFrame": "f260",
+ "appProfile": "mom",
+ "toast": null
+}
+
+== 6b. Ezra signed in, tap on Eli's F260 nudge (#f260)
+{
+ "hash": "#f260",
+ "signedInAs": "ezra",
+ "appFrame": null,
+ "appProfile": null,
+ "toast": "That app is not available for this profile."
+}
+
+== console (errors only)
+[
+ "log: init error ServiceWorkerContainer is not defined",
+ "log: init error ServiceWorkerContainer is not defined",
+ "log: init error ServiceWorkerContainer is not defined"
+]

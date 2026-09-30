@@ -1,0 +1,10 @@
+job0 baseline (seeds the watermark) -> {"status":200,"new":[],"notified":[],"skipped":[],"seeded":{"live":11}}
+job1 control A: nothing changed -> {"status":200,"new":[],"notified":[],"skipped":[]}
+familyActiveRows -> [{"id":"s008","title":"Pastor Tim and Rebecca","createdAt":"2025-11-26","by":"dad"},{"id":"s006","title":"Our neighbors, the Nguyens","createdAt":"2026-06-24","by":"christian"},{"id":"s005","title":"The Carters in Peru","createdAt":"2026-02-24","by":"dad"},{"id":"s009","title":"A safe drive for Uncle Ben on Friday","createdAt":"2026-09-20","by":"mom"},{"id":"s004","title":"Kiara's first weeks at preschool","createdAt":"2026-09-06","by":"christian"},{"id":"s007","title":"Mea's nursing exams","createdAt":"2026-09-13","by":"mom"},{"id":"s002","title":"Grandma Jo's visit this week","createdAt":"2026-09-17","by":"eli"},{"id":"s001","title":"Grandpa's knee to heal","createdAt":"2026-09-03","by":"m
+targets -> {"titleEdit":{"id":"s008","title":"Pastor Tim and Rebecca","createdAt":"2025-11-26","by":"dad"},"detailEdit":{"id":"s006","title":"Our neighbors, the Nguyens","createdAt":"2026-06-24","by":"christian"}}
+server after detail-only edit -> {"title":"Our neighbors, the Nguyens","createdAt":"2026-06-24","by":"christian","detail":"Added a note on 1790732017390"}
+job2 control B: detail-only edit -> {"status":200,"new":[],"notified":[],"skipped":[]}
+server after title edit -> {"title":"Pastor Tim and Rebecca (updated)","createdAt":"2025-11-26","by":"dad","detail":""}
+job3 after title edit -> {"status":200,"new":[],"notified":[],"skipped":[]}
+job4 control C: nothing changed since job3 -> {"status":200,"new":[],"notified":[],"skipped":[]}
+recipients (adults not skipped as author) -> {"authorSkipped":[],"wouldBeNotified":["eli","christian","mom","dad","niece"],"editorIsMae":"christian","editorIncluded":true}

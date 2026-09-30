@@ -1,0 +1,45 @@
+
+## standalone: no session, localStorage only, no crash
+  ✓ hub.js loaded, no profile
+  ✓ <script src="hub.js" data-app="dollywood" data-scope="person"> is in the page
+  ✓ entrance section has build steps
+  ✓ no private Light/Dark button (#theme)
+  ✓ no dw-theme read left in the page
+  ✓ unsigned tick is saved to localStorage
+  ✓ no page errors standalone
+
+## legacy progress + plot migrate on the first signed-in open (Eli, adult)
+  ✓ legacy doneMap migrated into hub progress (step rows)
+  ✓ legacy dw-plot migrated into hub key "plot"
+  ✓ plot input shows the migrated value
+  ✓ migrated step is painted ticked in the list
+  ✓ migration marked done for this device
+
+## tick on the PC → ticked on the iPad after hub.pull()
+  ✓ iPad already shows the migrated tick from the server
+  ✓ PC landed on the first undone step, not the migrated one
+  ✓ iPad has that step unticked before the PC ticks it
+  ✓ PC paints the tick at once
+  ✓ PC wrote the step into hub progress (step:<id> row)
+  ✓ signed-in save goes through hub.set, not the legacy localStorage key
+  ✓ hub.activity("Ticked <step>") reached the family feed
+  ✓ iPad: same step is ticked after hub.pull() — repainted in place
+  ✓ iPad: the section count repainted
+  ✓ iPad: plot followed Eli too
+  ✓ iPad unticks it
+  ✓ PC: untick arrived and the list repainted
+   step: "Bank the sides of the approach"
+
+## the page follows data-scheme (the person's theme), no private toggle
+  ✓ Midnight → data-theme=midnight, data-scheme=dark
+  ✓ Parchment → data-theme=parchment, data-scheme=light
+  ✓ marker colours key off data-scheme (light ink on Parchment, cream on Midnight)
+  ✓ body background comes from the theme tokens
+
+## the display profile can look but not tick
+  ✓ kiosk tap does not tick
+  ✓ kiosk gets the "only looks" toast
+  ✓ kiosk queued nothing
+  ✓ no page errors across all contexts
+
+32 passed, 0 failed
