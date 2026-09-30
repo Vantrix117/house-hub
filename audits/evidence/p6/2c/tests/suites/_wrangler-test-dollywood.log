@@ -1,0 +1,192 @@
+
+ ⛅️ wrangler 4.144.0
+────────────────────
+Using secrets defined in .dev.vars
+Your Worker has access to the following bindings:
+Binding                                                                  Resource                  Mode
+env.DB (house-hub)                                                       D1 Database               local
+env.ALLOWED_ORIGINS ("https://vantrix117.github.io,http://l...")         Environment Variable      local
+env.VAPID_PUBLIC_KEY ("(hidden)")                                        Environment Variable      local
+env.VAPID_SUBJECT ("(hidden)")                                           Environment Variable      local
+env.VAPID_PRIVATE_KEY ("(hidden)")                                       Environment Variable      local
+env.HOUSE_KEY ("(hidden)")                                               Environment Variable      local
+env.ANTHROPIC_API_KEY ("(hidden)")                                       Environment Variable      local
+env.ANTHROPIC_BASE_URL ("(hidden)")                                      Environment Variable      local
+
+⎔ Starting local server...
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mScheduled Workers are not automatically triggered during local development.[0m
+
+  To manually trigger a scheduled event, run:
+    curl "http://127.0.0.1:8787/cdn-cgi/local/scheduled"
+  For more details, see [4mhttps://developers.cloudflare.com/workers/configuration/cron-triggers/#test-cron-triggers-locally[0m
+
+
+Wrangler detected this dev session is running in an AI agent.
+The Local Explorer API is available at http://127.0.0.1:8787/cdn-cgi/local/explorer/api
+Useful routes:
+  GET http://127.0.0.1:8787/cdn-cgi/local/explorer/api/local/workers - local Workers and bindings
+  POST http://127.0.0.1:8787/cdn-cgi/local/explorer/api/local/scheduled?worker=<name> - invoke a Worker's scheduled handler; cron is required (see the OpenAPI schema for the full request)
+  GET http://127.0.0.1:8787/cdn-cgi/local/explorer/api/storage/kv/namespaces - KV namespaces
+  GET http://127.0.0.1:8787/cdn-cgi/local/explorer/api/d1/database - D1 databases
+  GET http://127.0.0.1:8787/cdn-cgi/local/explorer/api/r2/buckets - R2 buckets
+  GET http://127.0.0.1:8787/cdn-cgi/local/explorer/api/workers/durable_objects/namespaces - Durable Object namespaces
+  GET http://127.0.0.1:8787/cdn-cgi/local/explorer/api/workflows - Workflows
+  POST http://127.0.0.1:8787/cdn-cgi/local/explorer/api/local/observability/query - run a read-only SQL query (SELECT/WITH only) over captured request traces and console logs. Tables: spans, logs (read attributes via json(attributes)). Example:
+    curl -X POST http://127.0.0.1:8787/cdn-cgi/local/explorer/api/local/observability/query -H 'Content-Type: application/json' -d '{"sql":"SELECT service, name, outcome, duration_ms FROM spans WHERE parent_id IS NULL LIMIT 20"}'
+  POST http://127.0.0.1:8787/cdn-cgi/local/explorer/api/local/observability/clear - clear all captured traces and logs
+If the routes above don't cover what you need, fetch the full OpenAPI schema (large - use only as a last resort):
+  GET http://127.0.0.1:8787/cdn-cgi/local/explorer/api - OpenAPI schema
+[wrangler:info] Ready on http://127.0.0.1:8787
+[wrangler:info] GET /api/health 200 OK (30ms)
+[wrangler:info] OPTIONS /api/pair 204 No Content (6ms)
+[wrangler:info] POST /api/pair 200 OK (20ms)
+[wrangler:info] OPTIONS /api/device 204 No Content (5ms)
+[wrangler:info] GET /api/device 200 OK (9ms)
+[wrangler:info] OPTIONS /api/profiles 204 No Content (5ms)
+[wrangler:info] GET /api/profiles 200 OK (10ms)
+[wrangler:info] OPTIONS /api/login 204 No Content (6ms)
+[wrangler:info] POST /api/login 200 OK (13ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (7ms)
+[wrangler:info] OPTIONS /api/data/timer 204 No Content (7ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (7ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (7ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (7ms)
+[wrangler:info] GET /api/data/hub 200 OK (12ms)
+[wrangler:info] GET /api/data/timer 200 OK (11ms)
+[wrangler:info] OPTIONS /api/data/reminders 204 No Content (89ms)
+[wrangler:info] OPTIONS /api/data/f260 204 No Content (90ms)
+[wrangler:info] OPTIONS /api/data/leftovers 204 No Content (88ms)
+[wrangler:info] OPTIONS /api/data/prayer 204 No Content (87ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (86ms)
+[wrangler:info] GET /api/data/kidverse 200 OK (54ms)
+[wrangler:info] GET /api/data/f260 200 OK (56ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (98ms)
+[wrangler:info] GET /api/data/leftovers 200 OK (67ms)
+[wrangler:info] GET /api/data/reminders 200 OK (68ms)
+[wrangler:info] GET /api/data/kidverse 200 OK (69ms)
+[wrangler:info] GET /api/data/prayer 200 OK (39ms)
+[wrangler:info] GET /api/data/hub 200 OK (40ms)
+[wrangler:info] OPTIONS /api/me 204 No Content (9ms)
+[wrangler:info] GET /api/me 200 OK (9ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (7ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (13ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (29ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (12ms)
+[wrangler:info] GET /api/dollywood/waits 200 OK (259ms)
+[wrangler:info] OPTIONS /api/pair 204 No Content (6ms)
+[wrangler:info] POST /api/pair 200 OK (16ms)
+[wrangler:info] OPTIONS /api/device 204 No Content (6ms)
+[wrangler:info] GET /api/device 200 OK (9ms)
+[wrangler:info] OPTIONS /api/profiles 204 No Content (6ms)
+[wrangler:info] GET /api/profiles 200 OK (10ms)
+[wrangler:info] OPTIONS /api/profiles/eli/pin 204 No Content (7ms)
+[wrangler:info] POST /api/profiles/eli/pin 200 OK (23ms)
+[wrangler:info] OPTIONS /api/profiles 204 No Content (8ms)
+[wrangler:info] GET /api/profiles 200 OK (12ms)
+[wrangler:info] OPTIONS /api/admin/usage 204 No Content (29ms)
+[wrangler:info] GET /api/admin/usage 200 OK (34ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (66ms)
+[wrangler:info] OPTIONS /api/data/reminders 204 No Content (66ms)
+[wrangler:info] OPTIONS /api/data/f260 204 No Content (65ms)
+[wrangler:info] OPTIONS /api/data/leftovers 204 No Content (65ms)
+[wrangler:info] OPTIONS /api/data/prayer 204 No Content (36ms)
+[wrangler:info] OPTIONS /api/activity 204 No Content (70ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (44ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (48ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (48ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (49ms)
+[wrangler:info] OPTIONS /api/data/timer 204 No Content (50ms)
+[wrangler:info] GET /api/activity 200 OK (46ms)
+[wrangler:info] GET /api/data/prayer 200 OK (55ms)
+[wrangler:info] GET /api/data/f260 200 OK (57ms)
+[wrangler:info] GET /api/data/hub 200 OK (115ms)
+[wrangler:info] GET /api/data/reminders 200 OK (64ms)
+[wrangler:info] GET /api/data/leftovers 200 OK (68ms)
+[wrangler:info] GET /api/data/timer 200 OK (44ms)
+[wrangler:info] GET /api/data/hub 200 OK (65ms)
+[wrangler:info] GET /api/data/kidverse 200 OK (56ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (59ms)
+[wrangler:info] GET /api/data/kidverse 200 OK (70ms)
+[wrangler:info] OPTIONS /api/me 204 No Content (13ms)
+[wrangler:info] OPTIONS /api/activity 204 No Content (14ms)
+[wrangler:info] GET /api/activity 200 OK (17ms)
+[wrangler:info] GET /api/me 200 OK (19ms)
+[wrangler:info] GET /api/dollywood/waits 200 OK (9ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (8ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (14ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (33ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (15ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (6ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (13ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (29ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (15ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live/batch 204 No Content (6ms)
+[wrangler:info] POST /api/data/dollywood-live/batch 200 OK (15ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live/batch 204 No Content (6ms)
+[wrangler:info] POST /api/data/dollywood-live/batch 200 OK (13ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live/batch 204 No Content (7ms)
+[wrangler:info] POST /api/data/dollywood-live/batch 200 OK (16ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live/batch 204 No Content (7ms)
+[wrangler:info] POST /api/data/dollywood-live/batch 200 OK (18ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (6ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (13ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (27ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (13ms)
+[wrangler:info] OPTIONS /api/login 204 No Content (7ms)
+[wrangler:info] POST /api/login 403 Forbidden (13ms)
+[wrangler:info] OPTIONS /api/profiles/mom/pin 204 No Content (8ms)
+[wrangler:info] POST /api/profiles/mom/pin 200 OK (22ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live/loc:mom 204 No Content (6ms)
+[wrangler:info] PUT /api/data/dollywood-live/loc:mom 200 OK (15ms)
+[wrangler:info] OPTIONS /api/login 204 No Content (8ms)
+[wrangler:info] POST /api/login 403 Forbidden (11ms)
+[wrangler:info] OPTIONS /api/profiles/dad/pin 204 No Content (7ms)
+[wrangler:info] POST /api/profiles/dad/pin 200 OK (19ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live/loc:dad 204 No Content (6ms)
+[wrangler:info] PUT /api/data/dollywood-live/loc:dad 200 OK (15ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (10ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (11ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (21ms)
+[wrangler:info] GET /api/data/dollywood-live 200 OK (27ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live/batch 204 No Content (7ms)
+[wrangler:info] POST /api/data/dollywood-live/batch 200 OK (18ms)
+[wrangler:info] OPTIONS /api/profiles 204 No Content (9ms)
+[wrangler:info] GET /api/profiles 200 OK (13ms)
+[wrangler:info] OPTIONS /api/admin/usage 204 No Content (56ms)
+[wrangler:info] OPTIONS /api/activity 204 No Content (49ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (47ms)
+[wrangler:info] OPTIONS /api/data/reminders 204 No Content (47ms)
+[wrangler:info] OPTIONS /api/data/f260 204 No Content (47ms)
+[wrangler:info] OPTIONS /api/data/leftovers 204 No Content (37ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (42ms)
+[wrangler:info] OPTIONS /api/data/prayer 204 No Content (45ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (47ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (47ms)
+[wrangler:info] OPTIONS /api/data/timer 204 No Content (49ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (49ms)
+[wrangler:info] OPTIONS /api/data/reminders 204 No Content (41ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (42ms)
+[wrangler:info] OPTIONS /api/profiles 204 No Content (44ms)
+[wrangler:info] OPTIONS /api/data/f260 204 No Content (46ms)
+[wrangler:info] OPTIONS /api/activity 204 No Content (47ms)
+[wrangler:info] OPTIONS /api/admin/usage 204 No Content (48ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (41ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (43ms)
+[wrangler:info] OPTIONS /api/data/timer 204 No Content (43ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (44ms)
+[wrangler:info] OPTIONS /api/data/prayer 204 No Content (44ms)
+[wrangler:info] OPTIONS /api/data/leftovers 204 No Content (45ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (24ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (7ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (16ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (8ms)
+[wrangler:info] OPTIONS /api/data/prayer 204 No Content (9ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (9ms)
+[wrangler:info] OPTIONS /api/data/timer 204 No Content (9ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (8ms)
+[wrangler:info] OPTIONS /api/data/kidverse 204 No Content (10ms)
+[wrangler:info] OPTIONS /api/data/dollywood-live 204 No Content (86ms)
+[wrangler:info] OPTIONS /api/data/hub 204 No Content (87ms)
+[wrangler:info] OPTIONS /api/data/reminders 204 No Content (87ms)
+[wrangler:info] OPTIONS /api/data/f260 204 No Content (88ms)
+[wrangler:info] OPTIONS /api/data/leftovers 204 No Content (86ms)

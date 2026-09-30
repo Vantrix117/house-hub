@@ -1,0 +1,538 @@
+diff --git a/index.html b/index.html
+index 3e51201..7aaa251 100644
+--- a/index.html
++++ b/index.html
+@@ -168,7 +168,6 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+   :root[data-kind="kiosk"] .home-hero { min-height: 280px; padding-right: 30%; }
+   :root[data-kind="kiosk"] .home-hero .clock { font-size: clamp(64px, 8.5vw, 150px); }
+   :root[data-kind="kiosk"] .home-hero .hero-sub { font-size: var(--fs-xl); }
+-  .kiosk-switch { position: absolute; top: var(--sp-3); right: var(--sp-3); z-index: 2; opacity: .7; }
+   .glance { display: grid; grid-template-columns: 1fr; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+   .pager-dots { display: none; }
+   /* UX-HOME-3: on a phone the cards are one row of pages (the next one peeks), so the reminders are on the first screen */
+@@ -211,61 +210,112 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+   .fresh .fl { display: flex; justify-content: space-between; font-size: var(--fs-xs); color: var(--text-2); margin-bottom: 3px; }
+   .rem-row { align-items: flex-start; }
+   .rem-text { font-size: var(--fs-lg); }
+-  :root[data-kind="kiosk"] .rem-text { font-size: var(--fs-2xl); font-weight: 600; }
+-  :root[data-kind="kiosk"] .rem-row { min-height: 84px; }
+-  /* ── TV glue board (kiosk Home): the family album blurred behind frosted panes, large type, nothing to touch.
+-     The backdrop is two fixed <img>s that crossfade; the panes keep the glass recipe but drop backdrop-filter (the
+-     photo is already blurred, and a display runs 24 h). Every colour is a token; the scrim is the theme's --scrim. */
++  /* ── TV glue board (kiosk Home; re-laid out in batch 2c): the family album blurred behind solid panes, nothing to touch.
++     The board is exactly one screen, a 12-column grid in three rows: the clock and the verse · today (who prayed, who read,
++     the kids' stars) · the feed and the reminders, the last row taking what is left. What varies is fitted into it by the
++     board's fit() (renderHome): faces in one row with a "+N", the newest reminders with "+N more", the feed's newest lines
++     that fit, so nothing runs off the bottom and no reminder goes without a count (P2-VIS-02). On a 1600 px+ screen the
++     10-foot scale is on (data-tv-scale="10ft", set by hub.js for the display; decision D16): a 28 px floor, x1.5 spacing and
++     the 5 % title-safe margins (design.css section 7). Portrait (a kiosk iPad) gives the feed the full width (PWA-VIS-4).
++     The backdrop is two fixed <img>s that crossfade; the panes are content, so they are solid (--material-solid-bg, GLASS-6);
++     only the Switch keeps the glass look, with no live blur (the kiosk's --glass-filter is none). Every colour is a token;
++     the scrim is the theme's --scrim. */
++  :root[data-kind="kiosk"] { --tv-gap: var(--sp-4); --tv-pad-y: var(--sp-5); --tv-pad-x: var(--sp-5); --tv-avatar: 64px; --tv-icon: 44px; --tv-face-gap: var(--sp-3); --tv-ring: 5px; }
+   :root[data-kind="kiosk"] #views { padding: calc(var(--sp-6) + var(--safe-top)) max(var(--sp-6), var(--safe-right)) calc(var(--sp-6) + var(--safe-bottom)) max(var(--sp-6), var(--safe-left)); }
+-  :root[data-kind="kiosk"] #view-home { max-width: none; min-height: 100%; display: grid; align-content: center; }   /* a sparse board sits mid-screen rather than hugging the top */
++  :root[data-kind="kiosk"] #view-home.on { max-width: none; height: 100%; }
+   :root[data-kind="kiosk"] .tv-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: var(--bg); pointer-events: none; }
+-  :root[data-kind="kiosk"] .tv-bg-img { position: absolute; inset: -6%; width: 112%; max-width: none; height: 112%; object-fit: cover; filter: blur(24px); opacity: 0; transition: opacity 2.5s var(--ease); }
++  :root[data-kind="kiosk"] .tv-bg-img { position: absolute; inset: -6%; width: 112%; max-width: none; height: 112%; object-fit: cover; filter: blur(24px); opacity: 0; transition: opacity var(--dur-crossfade) var(--ease); }
+   :root[data-kind="kiosk"] .tv-bg-img.on { opacity: 1; }
+   :root[data-kind="kiosk"] .tv-scrim { position: absolute; inset: 0; z-index: 3; background: var(--scrim); }
+-  :root[data-kind="kiosk"] .tv { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5); align-items: start;
+-    grid-template-areas: "hero hero" "verse verse" "prayed stars" "feed read"; }
+-  @media (min-width: 1200px) { :root[data-kind="kiosk"] .tv { grid-template-columns: 5fr 4fr 4fr; grid-template-areas: "hero verse verse" "hero prayed stars" "feed feed read"; } }
+-  :root[data-kind="kiosk"] .tv-pane { position: relative; min-width: 0; padding: var(--sp-6); border-radius: var(--r-2xl); -webkit-backdrop-filter: none; backdrop-filter: none; }
+-  :root[data-kind="kiosk"] .tv-pane h2 { font-size: var(--fs-lg); color: var(--text-2); margin: 0 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-3); }
+-  :root[data-kind="kiosk"] .tv-pane h2 .app-icon { --icon-box: 44px; }
+-  :root[data-kind="kiosk"] .tv-hero { grid-area: hero; align-self: stretch; min-height: 240px; display: flex; flex-direction: column; justify-content: center; }
+-  :root[data-kind="kiosk"] .tv-hero .hero-kicker { color: var(--text-2); }
+-  :root[data-kind="kiosk"] .tv-hero .clock { font-family: var(--font-numeral); font-size: clamp(72px, 9vw, 190px); font-weight: 700; letter-spacing: var(--ls-tight); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: var(--sp-2); }
+-  :root[data-kind="kiosk"] .tv-greet { font-family: var(--font-display); font-size: var(--fs-2xl); line-height: var(--lh-snug); color: var(--text-2); margin-top: var(--sp-3); }
+-  :root[data-kind="kiosk"] .tv-verse { grid-area: verse; }
+-  :root[data-kind="kiosk"] .tv-refs { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-8); font-family: var(--font-display); font-size: clamp(34px, 3.2vw, var(--fs-3xl)); line-height: var(--lh-tight); }
+-  :root[data-kind="kiosk"] .tv-kidline { margin-top: var(--sp-3); font-size: var(--fs-xl); color: var(--text-2); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+-  :root[data-kind="kiosk"] .tv-kidline:empty { display: none; }
+-  :root[data-kind="kiosk"] .tv-prayed { grid-area: prayed; }
+-  :root[data-kind="kiosk"] .tv-stars { grid-area: stars; }
+-  :root[data-kind="kiosk"] .tv-feed { grid-area: feed; }
+-  :root[data-kind="kiosk"] .tv-read { grid-area: read; }
+-  :root[data-kind="kiosk"] .tv-faces { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+-  :root[data-kind="kiosk"] .tv-face { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); width: 104px; text-align: center; font-weight: 600; font-size: var(--fs-sm); line-height: var(--lh-snug); }
+-  :root[data-kind="kiosk"] .tv-face .avatar { --size: 72px; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--accent-graphic); }   /* the avatar's own person family */
++  :root[data-kind="kiosk"] .tv { position: relative; z-index: 1; height: 100%; display: grid; gap: var(--tv-gap);
++    grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: auto auto minmax(0, 1fr); }
++  :root[data-kind="kiosk"] .tv-pane { position: relative; min-width: 0; padding: var(--tv-pad-y) var(--tv-pad-x); border-radius: var(--r-2xl);
++    background: var(--material-solid-bg); border: var(--border-w) solid var(--separator); box-shadow: var(--elev-card); color: var(--text); }
++  :root[data-kind="kiosk"] .tv-pane[hidden] { display: none; }
++  :root[data-kind="kiosk"] .tv-pane h2 { font-size: var(--fs-lg); line-height: var(--lh-snug); color: var(--text-2); margin: 0 0 var(--sp-3); display: flex; align-items: center; gap: var(--sp-3); min-width: 0; white-space: nowrap; }
++  :root[data-kind="kiosk"] .tv-pane h2 > span:last-child { overflow: hidden; text-overflow: ellipsis; }
++  :root[data-kind="kiosk"] .tv-pane h2 .app-icon { --icon-box: var(--tv-icon); flex: none; }
++  /* row 1: the clock (its size follows the pane: "10:20 PM" is about 4.3 em wide) and the verse of the week */
++  :root[data-kind="kiosk"] .tv-hero { grid-column: 1 / 6; grid-row: 1; container-type: inline-size; display: flex; flex-direction: column; justify-content: center; }
++  :root[data-kind="kiosk"] .tv-hero .hero-kicker { color: var(--text-2); padding-right: calc(var(--tap) * 1.6); }
++  :root[data-kind="kiosk"] .tv-hero .clock { font-family: var(--font-numeral); font-size: min(clamp(72px, 9vw, 190px), 22cqw); font-weight: 700; letter-spacing: var(--ls-tight); line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; margin-top: var(--sp-2); }
++  :root[data-kind="kiosk"] .tv-greet { font-family: var(--font-display); font-size: max(var(--fs-sm), min(var(--fs-xl), 6.2cqw)); line-height: var(--lh-snug); color: var(--text-2); margin-top: var(--sp-2); }   /* one line: "Good afternoon, Anderson house." is about 15.5 em */
++  :root[data-kind="kiosk"] .tv-wake { margin-top: var(--sp-2); font-size: var(--fs-sm); font-weight: 600; color: var(--text-2); }
++  :root[data-kind="kiosk"] .tv-wake[hidden] { display: none; }
++  .kiosk-switch { position: absolute; top: var(--sp-3); right: var(--sp-3); z-index: 2; opacity: .7; }
++  :root[data-kind="kiosk"] .tv-verse { grid-column: 6 / -1; grid-row: 1; }
++  :root[data-kind="kiosk"] .tv-refs { display: flex; flex-wrap: wrap; gap: 0 var(--sp-8); font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 600; line-height: var(--lh-tight); }
++  :root[data-kind="kiosk"] .tv-kid { margin-top: var(--sp-3); }
++  :root[data-kind="kiosk"] .tv-kidlabel { font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-2); }
++  :root[data-kind="kiosk"] .tv-kidline { font-size: var(--fs-md); line-height: var(--lh-snug); color: var(--text); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
++  :root[data-kind="kiosk"] .tv-kid:has(> .tv-kidline:empty) { display: none; }
++  /* row 2: today. Who read and the stars take what their faces need; who prayed takes the rest; each keeps its faces in one row */
++  :root[data-kind="kiosk"] .tv-today { grid-column: 1 / -1; grid-row: 2; display: flex; gap: var(--tv-gap); min-width: 0; }
++  :root[data-kind="kiosk"] .tv-prayed { flex: 1 1 0; min-width: 25%; }
++  :root[data-kind="kiosk"] .tv-read, :root[data-kind="kiosk"] .tv-stars { flex: 0 1 auto; }
++  /* the faces' rings stay inside the clip: the row is padded by the ring's width and pulled back by as much */
++  :root[data-kind="kiosk"] .tv-faces { display: flex; flex-wrap: nowrap; gap: var(--tv-face-gap); min-width: 0; overflow: hidden; padding: var(--tv-ring); margin: calc(var(--tv-ring) * -1); }
++  :root[data-kind="kiosk"] .tv-face { flex: none; display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); min-width: calc(var(--tv-avatar) + var(--sp-2)); max-width: calc(var(--tv-avatar) * 2.3);
++    text-align: center; font-weight: 600; font-size: var(--fs-sm); line-height: var(--lh-snug); }
++  :root[data-kind="kiosk"] .tv-face[hidden] { display: none; }
++  :root[data-kind="kiosk"] .tv-face > span:last-child { max-width: 100%; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
++  /* a long name gives way, never its ✓ or its star count */
++  :root[data-kind="kiosk"] .tv-face > .tv-label { display: flex; justify-content: center; gap: .25em; }
++  :root[data-kind="kiosk"] .tv-label .tv-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
++  :root[data-kind="kiosk"] .tv-label b { flex: none; }
++  :root[data-kind="kiosk"] .tv-face .avatar { --size: var(--tv-avatar); box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--accent-graphic); }   /* the avatar's own person family */
+   /* not yet today: the face fades, the name stays readable in the tertiary ink (CONS-COLOR-1; never opacity on text) */
+   :root[data-kind="kiosk"] .tv-face.off > :first-child { opacity: .38; }
+   :root[data-kind="kiosk"] .tv-face.off > span:last-child { color: var(--text-3); }
+-  :root[data-kind="kiosk"] .tv-face b { color: var(--gold-ink); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; }
+-  :root[data-kind="kiosk"] .tv-quiet { color: var(--muted); font-size: var(--fs-lg); }
+-  :root[data-kind="kiosk"] .tv-lines { list-style: none; margin: 0; padding: 0; }
+-  :root[data-kind="kiosk"] .tv-lines li { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; padding: var(--sp-2) 0; border-bottom: 1px solid var(--line-soft); font-size: var(--fs-lg); }
++  :root[data-kind="kiosk"] .tv-face b.tv-star { color: var(--gold-ink); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; }
++  :root[data-kind="kiosk"] .tv-more-n { width: var(--tv-avatar); height: var(--tv-avatar); flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--text-2);
++    font-family: var(--font-numeral); font-size: var(--fs-lg); font-weight: 700; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--separator); }
++  :root[data-kind="kiosk"] .tv-quiet { color: var(--text-2); font-size: var(--fs-lg); }
++  /* row 3: the feed and the reminders, each clipped to the row and fitted by fit() (whole lines only) */
++  :root[data-kind="kiosk"] .tv-feed { grid-column: 1 / 9; grid-row: 3; }
++  :root[data-kind="kiosk"] .tv-rem { grid-column: 9 / -1; grid-row: 3; }
++  :root[data-kind="kiosk"] .tv:has(> .tv-rem[hidden]) .tv-feed { grid-column: 1 / -1; }
++  :root[data-kind="kiosk"] :is(.tv-feed, .tv-rem) { min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
++  :root[data-kind="kiosk"] :is(.tv-lines, .tv-rem-list) { list-style: none; margin: 0 calc(var(--tv-ring) * -1); padding: 0 var(--tv-ring); flex: 1 1 auto; min-height: 0; overflow: hidden; }   /* room for the faces' rings */
++  :root[data-kind="kiosk"] :is(.tv-lines, .tv-rem-list) > li[hidden] { display: none; }
++  :root[data-kind="kiosk"] .tv-lines li { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; padding: var(--sp-1) 0; border-bottom: var(--border-w) solid var(--separator); font-size: var(--fs-md); line-height: var(--lh-snug); }
+   :root[data-kind="kiosk"] .tv-lines li:last-child { border-bottom: 0; }
+-  :root[data-kind="kiosk"] .tv-lines .who { font-weight: 700; color: var(--accent-ink); white-space: nowrap; }   /* the line carries its author's data-accent */
++  :root[data-kind="kiosk"] .tv-lines .avatar { --size: calc(var(--tv-avatar) * .5); }
++  :root[data-kind="kiosk"] .tv-lines .who { font-weight: 700; color: var(--accent-ink); white-space: nowrap; flex: none; max-width: 30%; overflow: hidden; text-overflow: ellipsis; }   /* the line carries its author's data-accent */
+   :root[data-kind="kiosk"] .tv-lines .txt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+-  :root[data-kind="kiosk"] .tv-lines .when { color: var(--muted); font-size: var(--fs-sm); white-space: nowrap; }
+-  /* reminders: last, small, one line each — the shell's renderReminders() fills #remlist; the card hides when the list is empty */
+-  :root[data-kind="kiosk"] .tv-rem { grid-column: 1 / -1; padding: var(--sp-4) var(--sp-6); }
+-  :root[data-kind="kiosk"] .tv-rem h2 { font-size: var(--fs-md); margin-bottom: var(--sp-2); }
+-  :root[data-kind="kiosk"] .tv-rem h2 .app-icon { --icon-box: 36px; }
+-  :root[data-kind="kiosk"] .tv-rem .list { background: none; border: 0; border-radius: 0; box-shadow: none; }
+-  :root[data-kind="kiosk"] .tv-rem .rem-row { min-height: 0; padding: var(--sp-1) 0; background: none; border-bottom: 1px solid var(--line-soft); }
+-  :root[data-kind="kiosk"] .tv-rem .rem-row .row-main { display: flex; align-items: baseline; gap: var(--sp-3); min-width: 0; }
+-  :root[data-kind="kiosk"] .tv-rem .rem-text { font-size: var(--fs-md); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+-  :root[data-kind="kiosk"] .tv-rem .rem-by { margin: 0; font-size: var(--fs-sm); white-space: nowrap; }
+-  :root[data-kind="kiosk"] .tv-rem .empty, :root[data-kind="kiosk"] .tv-rem .skeleton { display: none; }
+-  @media (max-height: 1100px) { :root[data-kind="kiosk"] .tv { gap: var(--sp-4); } :root[data-kind="kiosk"] .tv-pane { padding: var(--sp-5); } :root[data-kind="kiosk"] .tv-hero { min-height: 0; } }   /* a shorter screen (iPad landscape, 1080p): tighter so the board fits without scrolling */
+-  @media (max-height: 1050px) { :root[data-kind="kiosk"] .tv-lines li { font-size: var(--fs-md); padding: var(--sp-1) 0; } :root[data-kind="kiosk"] .tv-face { width: 92px; } :root[data-kind="kiosk"] .tv-face .avatar { --size: 64px; } :root[data-kind="kiosk"] .tv-hero .clock { font-size: clamp(64px, 7.5vw, 150px); } }
++  :root[data-kind="kiosk"] .tv-lines .when { color: var(--text-2); font-size: var(--fs-sm); white-space: nowrap; flex: none; }
++  /* reminders: newest first, one line each, a step smaller than the pane titles; "+N more" when they do not all fit */
++  :root[data-kind="kiosk"] .tv-rem h2 { font-size: var(--fs-md); }
++  :root[data-kind="kiosk"] .tv-rem .rem-row { display: flex; align-items: baseline; gap: var(--sp-3); min-width: 0; padding: var(--sp-1) 0; border-bottom: var(--border-w) solid var(--separator); line-height: var(--lh-snug); }
++  :root[data-kind="kiosk"] .tv-rem .rem-text { flex: 0 1 auto; font-size: var(--fs-md); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
++  :root[data-kind="kiosk"] .tv-rem .rem-by { flex: none; max-width: 35%; min-width: 0; margin: 0; font-size: var(--fs-sm); color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
++  :root[data-kind="kiosk"] .tv-rem .rem-more { padding: var(--sp-1) 0; font-size: var(--fs-md); font-weight: 700; line-height: var(--lh-snug); color: var(--text-2); }
++  /* the 10-foot TV (the tokens switch at 1600 px, design.css section 7): the title-safe margins and the board's own sizes */
++  @media (min-width: 1600px) {
++    :root[data-kind="kiosk"][data-tv-scale="10ft"] { --tv-gap: var(--sp-4); --tv-pad-y: var(--sp-3); --tv-pad-x: var(--sp-5); --tv-avatar: 72px; --tv-icon: 52px; }
++    :root[data-kind="kiosk"][data-tv-scale="10ft"] #views { padding: max(var(--margin-tv-y), var(--safe-top)) max(var(--margin-tv-x), var(--safe-right)) max(var(--margin-tv-y), var(--safe-bottom)) max(var(--margin-tv-x), var(--safe-left)); }
++    :root[data-kind="kiosk"][data-tv-scale="10ft"] .tv-pane h2 { margin-bottom: var(--sp-2); }
++  }
++  /* portrait (a kiosk iPad): the clock and the verse side by side, today on two lines, then the feed and the reminders full width */
++  @media (orientation: portrait) and (min-width: 700px) {
++    :root[data-kind="kiosk"] .tv { grid-template-rows: auto auto minmax(0, 1fr) minmax(0, 1fr); }
++    :root[data-kind="kiosk"] .tv:has(> .tv-rem[hidden]) { grid-template-rows: auto auto minmax(0, 1fr); }
++    :root[data-kind="kiosk"] .tv-hero { grid-column: 1 / 7; }
++    :root[data-kind="kiosk"] .tv-verse { grid-column: 7 / -1; }
++    :root[data-kind="kiosk"] { --tv-pad-y: var(--sp-4); }
++    :root[data-kind="kiosk"] .tv-refs { font-size: var(--fs-xl); }
++    :root[data-kind="kiosk"] .tv-today { flex-wrap: wrap; }
++    :root[data-kind="kiosk"] .tv-read { flex: 1 1 100%; order: 1; }   /* who prayed and the stars share a line; who read has the next */
++    :root[data-kind="kiosk"] .tv-feed { grid-column: 1 / -1; grid-row: 3; }
++    :root[data-kind="kiosk"] .tv-rem { grid-column: 1 / -1; grid-row: 4; }
++  }
++  /* a phone-sized window (no display runs there, but it stays usable): one column that scrolls */
++  @media (max-width: 699px) {
++    :root[data-kind="kiosk"] .tv { height: auto; grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
++    :root[data-kind="kiosk"] .tv > .tv-pane, :root[data-kind="kiosk"] .tv > .tv-today { grid-column: 1 / -1; grid-row: auto; }
++    :root[data-kind="kiosk"] .tv-today { flex-direction: column; }
++    :root[data-kind="kiosk"] .tv-today > .tv-pane { flex: none; min-width: 0; }
++  }
+   .rem-by { font-size: var(--fs-xs); color: var(--muted); margin-top: 2px; }
+   .add-row { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); }
+   .add-row .input { flex: 1; min-width: 0; text-overflow: ellipsis; }
+@@ -771,6 +821,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+     kitchenWait.t = setTimeout(again, 20000);
+   }
+   async function showPicker(msg) {
++    stopBoard();
+     hub.setSession(null);
+     resetChat(); dropRemDone();   // nothing of the last person's chat or pending ✓ outlives their session (review of batch 2a)
+     tab = 'home'; if (location.hash && location.hash !== '#home') history.replaceState(null, '', '#home');   // P2-HOME-03: whoever signs in next starts on Home
+@@ -939,6 +990,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+   }
+   function showTab(t, keepViewer) {
+     if (hub.isKitchen && (t === 'me' || t === 'chat')) t = 'home';   // KITCHEN-2: the kitchen has no Me and no Chat
++    if (hub.isKiosk) { t = 'home'; keepViewer = false; }             // P2-PROF-10: the display has its board and nothing else
+     tab = t; if (!keepViewer) closeViewer();
+     $('#chat-form').hidden = t !== 'chat';
+     document.documentElement.dataset.tab = t;
+@@ -956,6 +1008,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+   $('#tabbar').addEventListener('click', ev => { const b = ev.target.closest('.tab'); if (b) { buzz(); showTab(b.dataset.tab); } });
+   window.addEventListener('hashchange', () => {
+     const h = location.hash.slice(1);
++    if (hub.isKiosk) { if (h !== 'home') history.replaceState(null, '', '#home'); if (tab !== 'home' || current) showTab('home'); return; }   // P2-PROF-10 / P2-CHAT-14
+     if (appById(h)) { if (!current || current.id !== h) openApp(h); }
+     else if (TABS.includes(h)) { if (current || h !== tab) showTab(h); }
+   });
+@@ -1296,6 +1349,25 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+   }
+   // ── the family feed: cached for an instant paint, grouped by person, an icon per line, "Show more" in pages of 30 ──
+   let clockTimer = null, feed = null, feedLoading = false, feedAgain = false, feedFresh = false, feedLimit = 30, feedSeq = 0;
++  // P2-STAB-11: the TV board stops (its clock tick, fades, feed and readers) whenever the picker takes the screen; the next
++  // time the display signs in, renderHome starts it again. The picker has no clock of anyone's running behind it.
++  function stopBoard() { clearInterval(clockTimer); clockTimer = null; if (renderHome.tv) renderHome.tv.stopped = true; }
++  // The screen wake lock. The TV asks for it itself, on every load and whenever it comes back into view, so an untouched
++  // board, a reload, a restart or a remote-only setup stays on (P2-STAB-12); a browser that wants a tap first (Safari) gets
++  // one quiet line on the board until someone taps. Everyone else keeps it from their first tap on.
++  let wakeLock = null, wakeHint = false, wakeWanted = false;
++  async function wake() {
++    if (!('wakeLock' in navigator) || document.hidden) return false;
++    if (wakeLock && !wakeLock.released) return true;
++    try { const s = await navigator.wakeLock.request('screen'); wakeLock = s; s.addEventListener('release', () => { if (wakeLock === s) wakeLock = null; }); return true; }
++    catch { return false; }
++  }
++  async function kioskWake() {
++    if (!hub.isKiosk || !('wakeLock' in navigator) || document.hidden) return;
++    const hint = !(await wake()) && document.readyState === 'complete';   // a refusal before the page has loaded is tried again at 'load'
++    if (hint === wakeHint) return;
++    wakeHint = hint; const el = renderHome.tv && renderHome.tv.el; if (el && el.wake) el.wake.hidden = !hint;
++  }
+   try { const c = JSON.parse(localStorage.getItem('hub.feed')); if (Array.isArray(c)) feed = c; } catch {}
+   async function loadFeed(force) {
+     if (feedLoading) { if (force) feedAgain = true; return; }      // a forced load while one is in flight runs again after it
+@@ -1461,13 +1533,16 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+     if (p.kind === 'kitchen' || p.kind === 'kiosk') v._layout = null;   // their own boards replace the view: the next person's Home rebuilds
+     if (p.kind === 'kitchen') return renderKitchenHome(v, p);   // KITCHEN-2: the counter's own calm Home
+     if (p.kind === 'kiosk') {
+-      // ── the TV glue board (roadmap 21) ─────────────────────────────────────────────────────────────────────
++      // ── the TV glue board (roadmap 21; re-laid out for the 10-foot scale in batch 2c) ──────────────────────────────
+       // An ambient board for the downstairs display. Built once, then repainted in place on every renderHome (pulls,
+       // changes, the minute tick): the two backdrop <img>s are reused (src swaps + a 2.5 s opacity crossfade every 45 s),
+       // the clock is the one interval (clockTimer) and that same tick paints from the cache every minute and refreshes
+-      // the feed every 5 min. Nothing here writes; the only control is the Switch button. window.__tvStats and window.__tv
+-      // are the self-check hooks scripts/test-tv.mjs drives with fake time to prove nothing grows over a day.
+-      const tv = renderHome.tv || (renderHome.tv = { el: null, front: 0, url: ['', ''], fading: null, lastFade: 0, lastPaint: 0, lastFeed: 0 });
++      // the feed every 5 min; who read today follows every pull. Each paint ends with fit(), which fits the board to the
++      // screen. Nothing here writes; the only control is the Switch button, and the picker stops the board (stopBoard).
++      // window.__tvStats and window.__tv are the self-check hooks scripts/test-tv.mjs drives with fake time to prove
++      // nothing grows over a day.
++      const tv = renderHome.tv || (renderHome.tv = { el: null, front: 0, url: ['', ''], fading: null, lastFade: 0, lastPaint: 0, lastFeed: 0, readers: null, readersAt: 0, readersApi: null, stopped: false });
++      tv.stopped = false;
+       const stats = window.__tvStats || (window.__tvStats = { intervals: 0, listeners: 0, nodes: 0 });
+       // The two memory verses of each F260 week — a copy of apps/f260.html PLAN[].m (the kiosk cannot open anyone's F260).
+       const MEMORY = tv.MEMORY || (tv.MEMORY = [
+@@ -1524,50 +1599,175 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+       ["1 Peter 2:11","1 John 4:10-11"],
+       ["Revelation 3:19","Revelation 21:3-4"]
+       ]);
+-      const FAM_PRAYER = { app: 'prayer', scope: 'family' }, KV = { app: 'kidverse', scope: 'family' };
++      // Kid Verse's own one-sentence paraphrase for each week — a copy of apps/kidverse.html's week table as [which of the two
++      // refs it is for, the words] (scripts/test-tv.mjs checks the copy). The TV shows it under the refs, labelled as a
++      // paraphrase, unless the family week row carries a line of its own (P2-HOME-07: no app writes one).
++      const KIDWORDS = tv.KIDWORDS || (tv.KIDWORDS = [
++      [0,"God made people to be like him — boys and girls both."],
++      [0,"To come close to God you have to trust him, and he is glad to reward everyone who looks for him."],
++      [0,"Abraham believed God’s promise even when it seemed impossible, and God counted that as doing right."],
++      [1,"Let’s love people not just with words, but with the kind things we do."],
++      [0,"God works everything out for good for the people who love him."],
++      [0,"What Joseph’s brothers meant to hurt him, God used for good to save many lives."],
++      [0,"John saw Jesus and said: look, the Lamb of God, who takes away the sin of the world."],
++      [0,"God said: I am the Lord who rescued you, so have no other gods but me."],
++      [1,"Jesus said the biggest rule is to love God with everything you have, and the next is to love the people around you like yourself."],
++      [1,"Be strong and brave, because God goes ahead of you and will never leave you."],
++      [1,"Love God with all your heart, and talk about his words at home, on the road, at bedtime and in the morning."],
++      [0,"Keep God’s words with you, be strong and brave, and don’t be afraid, because God is with you everywhere you go."],
++      [0,"Joshua said: you choose who you will serve, but my family and I will serve the Lord."],
++      [0,"Lord, may the words I say and the thoughts I think make you happy."],
++      [1,"People look at the outside, but God looks at the heart."],
++      [0,"David told the giant: this battle belongs to the Lord, not to swords and spears."],
++      [0,"The Lord is my shepherd; he gives me everything I need and leads me to quiet places to rest."],
++      [1,"I keep God’s word in my heart so I will not do wrong."],
++      [0,"God knows all about me — when I sit, when I stand, and every road I take."],
++      [1,"Trust God with all your heart instead of only your own ideas, and he will show you the way."],
++      [1,"I want God the way a thirsty person in a hot, dry land wants water."],
++      [1,"Jesus said: I am the resurrection and the life — whoever believes in me will live, even after dying."],
++      [0,"Jesus was hurt for the wrong things we did, and his hurts make us well."],
++      [0,"When people stop listening to God they run wild, but the ones who keep his word are happy."],
++      [0,"God promises to give his people a soft new heart and to put his own Spirit inside them."],
++      [0,"The king said everyone should honour Daniel’s God, because he is alive forever and he rescues people."],
++      [0,"God is with you, he is glad about you, and he sings over you with joy."],
++      [1,"I will not put worthless things in front of my eyes."],
++      [0,"When people tried to scare Nehemiah, he prayed: God, make my hands strong."],
++      [1,"All of God lives in Jesus, and through Jesus God makes peace with everything."],
++      [1,"God’s Word became a real person, Jesus, and came to live here with us."],
++      [0,"Let your light shine so people see the good you do and say thank you to God."],
++      [1,"Jesus said following him means putting him first, ahead of everything you have."],
++      [0,"Jesus came not to be served but to serve, and to give his life for many people."],
++      [0,"Jesus said: love one another the way I loved you, and everyone will know you are my friends."],
++      [0,"Even on the cross, Jesus prayed: Father, forgive them."],
++      [0,"Jesus said: go and tell everyone about me, and remember, I am with you always."],
++      [0,"The first believers kept learning, sharing meals and praying together."],
++      [0,"When hard things come, be glad, because they make your trust in God strong."],
++      [1,"God made the whole world and gives everyone life and breath; he doesn’t need anything from us."],
++      [0,"The story of the cross sounds silly to some people, but to us who are being saved it is God’s power."],
++      [1,"Faith, hope and love last forever, and the greatest of them is love."],
++      [1,"Jesus died for our sins, was buried, and rose again on the third day."],
++      [0,"Because we trust Jesus, we have peace with God."],
++      [0,"Anyone who belongs to Jesus is not in trouble with God any more."],
++      [0,"Paul said: what matters is finishing the job Jesus gave me — telling people the good news."],
++      [0,"God saved us as a gift, not because we earned it, and he made us to do good things."],
++      [1,"Jesus understands how we feel, so we can come to God bravely and find help right when we need it."],
++      [1,"Anyone who belongs to Jesus is a brand-new person."],
++      [1,"Work hard to be someone God is pleased with, handling his word the right way."],
++      [1,"Real love is God sending Jesus for us — so we should love each other too."],
++      [1,"God will live with his people and wipe away every tear — no more crying, no more hurting."]
++      ]);
++      const FAM_PRAYER = { app: 'prayer', scope: 'family' }, KV = { app: 'kidverse', scope: 'family' }, REM = { app: 'reminders', scope: 'family' };
+       hub.use('prayer', 'family');                                    // who prayed today lives on the family list; person lists are not the TV's to read
+       const people = () => hub.people().filter(q => q && q.kind !== 'kiosk');
+       const ambientOf = d => { const h = d.getHours(); return h < 5 || h >= 20 ? 'night' : h < 9 ? 'dawn' : h < 17 ? 'day' : 'dusk'; };
+-      const faceHtml = (q, cls, extra) => `<span class="tv-face${cls ? ' ' + cls : ''}" data-accent="${esc(hueOf(q))}">${avatar(q, 'avatar-plain')}<span>${esc(q.name)}${extra || ''}</span></span>`;
++      const faceHtml = (q, cls, mark) => `<span class="tv-face${cls ? ' ' + cls : ''}" data-accent="${esc(hueOf(q))}">${avatar(q, 'avatar-plain')}<span class="tv-label"><span class="tv-name">${esc(q.name)}</span>${mark ? ' ' + mark : ''}</span></span>`;
++      const MORE_FACE = '<span class="tv-face tv-more" hidden><span class="tv-more-n">+0</span><span>more</span></span>';   // fit() shows it for the faces that do not fit
++      const setHtml = (el, html) => { if (el._html !== html) { el._html = html; el.innerHTML = html; } };   // unchanged markup keeps its nodes (and its photos)
+       const photoList = () => hub.list('album:', { app: 'hub', scope: 'family' }).map(r => r.value).filter(x => x && (x.lg || x.sm)).sort((a, b) => (a.at || 0) - (b.at || 0)).map(x => hub.photoUrl(x, 'lg')).filter(Boolean);
++      // Who read today (UX-SYNC-a2, P2-SYNC-12): the Worker's answer from the F260 logs (GET /api/f260/readers: the household
++      // adults whose log has today, the fact the 8 pm reminder reads), asked on every pull and kept on the device so an
++      // offline reopen still knows. A Worker without that route (404) → today's "Read week…" feed lines, as before.
++      const READERS = 'hub.tv.readers';
++      if (!tv.readers) { try { const c = JSON.parse(localStorage.getItem(READERS)); if (c && typeof c.date === 'string' && Array.isArray(c.ids)) tv.readers = c; } catch {} }
++      const saveReaders = (date, ids, src) => { tv.readers = { date, ids: [...new Set(ids.map(String))], src }; try { localStorage.setItem(READERS, JSON.stringify(tv.readers)); } catch {} };
++      const feedReaders = (rows, today) => (rows || []).filter(a => a && a.profile_id && /^Read week/.test(a.text || '') && dayKey(new Date(a.created_at)) === today).map(a => a.profile_id);
++      function fetchReaders(force) {
++        if (tv.stopped || !hub.session) return Promise.resolve(false);
++        const ms = Date.now(), wait = tv.readersApi === false ? 600000 : 15000;   // an older Worker: ask again in 10 min
++        if (!force && ms - tv.readersAt < wait && ms >= tv.readersAt) return Promise.resolve(false);
++        tv.readersAt = ms;
++        return hub.request('/api/f260/readers', { timeout: 8000 }).then(r => {
++          if (!r || typeof r.date !== 'string' || !Array.isArray(r.readers)) return false;
++          tv.readersApi = true; saveReaders(r.date, r.readers, 'f260'); paint(); return true;
++        }, e => {
++          if (e && e.status === 404) { tv.readersApi = false; if (Array.isArray(feed)) { saveReaders(dayKey(), feedReaders(feed, dayKey()), 'feed'); paint(); } }
++          return false;
++        });
++      }
++      tv.fetchReaders = fetchReaders;
+       function paint(now) {
+-        now = now || new Date(); const t = tv.el; if (!t || !t.root.isConnected) return;
++        now = now || new Date(); const t = tv.el; if (tv.stopped || !t || !t.root.isConnected) return;
+         const today = dayKey(now), h = now.getHours();
+         t.date.textContent = fmtDate(now); t.clock.textContent = fmtTime(now);
+         t.greet.textContent = 'Good ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening') + ', Anderson house.';
+-        // verse of the week: the family kidverse week row picks the F260 week; refs from the table, one kid line if the row carries it
++        t.wake.hidden = !wakeHint;
++        // verse of the week: the family kidverse week row picks the F260 week; refs from the table, and the kid line
+         const wk = hub.get('week', KV); const n = Math.min(52, Math.max(1, Math.floor(Number(wk && typeof wk === 'object' ? (wk.week || wk.w || wk.n) : wk) || 1)));
+         const weekIn = hub.isLoaded('kidverse', 'family');   // before the family week arrives, never a false "Week 1"
++        const refs = MEMORY[n - 1] || [], kw = weekIn ? KIDWORDS[n - 1] : null, own = wk && typeof wk === 'object' && typeof wk.line === 'string' ? wk.line.trim() : '';
+         t.verseHd.textContent = weekIn ? 'Verse of the week · Week ' + n : 'Verse of the week';
+-        t.refs.innerHTML = weekIn ? (MEMORY[n - 1] || []).map(r => `<span>${esc(r)}</span>`).join('') : '<span class="tv-quiet">Loading…</span>';
+-        t.kidline.textContent = wk && typeof wk === 'object' ? String(wk.line || wk.kid || wk.text || '').trim() : '';
++        setHtml(t.refs, weekIn ? refs.map(r => `<span>${esc(r)}</span>`).join('') : '<span class="tv-quiet">Loading…</span>');
++        t.kidline.textContent = own || (kw ? kw[1] : '');
++        t.kidlabel.textContent = own ? 'Kid Verse · a paraphrase' : kw ? 'Kid Verse · a paraphrase of ' + (refs[kw[0]] || refs[0] || '') : '';
+         // who prayed today: each family prayer row's prayedBy[today] → faces. Entries are profile ids (batch 0g); an older
+         // Prayer wrote names, which are matched by name. One face per person.
+         const ppl = people(), who = new Map();
+         for (const r of hub.list('prayer:', FAM_PRAYER)) { const l = r.value && r.value.prayedBy && r.value.prayedBy[today]; if (Array.isArray(l)) for (const x0 of l) { const x = String(x0); const named = ppl.filter(y => y.name === x); const q = ppl.find(y => y.id === x) || (named.length === 1 ? named[0] : null); const nm = q ? q.name : /^[a-z0-9][a-z0-9_-]*$|^guest-[A-Za-z0-9_-]+$/.test(x) ? 'Someone' : x; who.set(q ? q.id : 'n:' + x, q || { name: nm, emoji: nm.charAt(0) || '·', hue: FALLBACK }); } }
+-        t.prayed.innerHTML = who.size ? [...who.values()].map(q => faceHtml(q)).join('') : `<div class="tv-quiet">${hub.isLoaded('prayer', 'family') ? 'No one yet today.' : 'Loading…'}</div>`;   // never a false "no one" before the list has arrived
+-        // reading today: an adult whose "Read week…" feed line is dated today (F260 streaks are person scope, unreadable here)
+-        const readers = new Set((feed || []).filter(a => a && a.profile_id && /^Read week/.test(a.text || '') && dayKey(new Date(a.created_at)) === today).map(a => a.profile_id));
+-        const adults = ppl.filter(q => q.kind === 'adult');
+-        t.read.innerHTML = adults.length ? adults.map(q => faceHtml(q, readers.has(q.id) ? '' : 'off', readers.has(q.id) ? ' ✓' : '')).join('') : '<div class="tv-quiet">No readers yet.</div>';
++        setHtml(t.prayed, who.size ? [...who.values()].map(q => faceHtml(q)).join('') + MORE_FACE : `<div class="tv-quiet">${hub.isLoaded('prayer', 'family') ? 'No one yet today.' : 'Loading…'}</div>`);   // never a false "no one" before the list has arrived
++        // reading today: the household's adults, in their own order (a guest is not on the plan: UX-PROF-a2), ✓ from the
++        // readers of today (above)
++        const readers = new Set(tv.readers && tv.readers.date === today ? tv.readers.ids : tv.readersApi === false || !tv.readers ? feedReaders(feed, today) : []);
++        const adults = ppl.filter(q => q.kind === 'adult' && !q.is_guest);
++        setHtml(t.read, adults.length ? adults.map(q => faceHtml(q, readers.has(q.id) ? '' : 'off', readers.has(q.id) ? '<b>✓</b>' : '')).join('') + MORE_FACE : '<div class="tv-quiet">No readers yet.</div>');
+         // the kids' stars (family mirror rows) and the latest five feed lines
+         const kids = kidStars();
+         const starsIn = hub.isLoaded('kidverse', 'family');
+-        t.stars.innerHTML = kids.length ? kids.map(k => faceHtml(k, '', starsIn ? ` <b>★${k.stars}</b>` : ' <b>…</b>')).join('') : '<div class="tv-quiet">No stars yet.</div>';
++        setHtml(t.stars, kids.length ? kids.map(k => faceHtml(k, '', starsIn ? `<b class="tv-star">★${k.stars}</b>` : '<b class="tv-star">…</b>')).join('') + MORE_FACE : '<div class="tv-quiet">No stars yet.</div>');
+         const lines = (feed || []).slice(0, 5);
+-        t.feed.innerHTML = lines.length ? lines.map(a => `<li data-accent="${esc(hueOf(a))}">${avatar(a, 'avatar-sm')}<span class="who">${esc(a.name || 'Someone')}</span><span class="txt">${esc(a.text || '')}</span><span class="when">${esc(agoText(a.created_at))}</span></li>`).join('')
+-          : `<li class="tv-quiet">${feed ? 'Nothing has happened yet.' : 'Loading…'}</li>`;   // feed null: never fetched on this device
+-        // reminders: the shell's own renderer fills #remlist; the card only shows when there is at least one
+-        renderReminders();
+-        t.remCard.hidden = !hub.list('item:', { app: 'reminders', scope: 'family' }).length;
++        setHtml(t.feed, lines.length ? lines.map(a => `<li data-accent="${esc(hueOf(a))}">${avatar(a, 'avatar-sm')}<span class="who">${esc(a.name || 'Someone')}</span><span class="txt">${esc(a.text || '')}</span><span class="when">${esc(agoText(a.created_at))}</span></li>`).join('')
++          : `<li class="tv-quiet">${feed ? 'Nothing has happened yet.' : 'Loading…'}</li>`);   // feed null: never fetched on this device
++        // reminders: newest first, one line each; fit() shows the ones that fit and counts the rest (P2-VIS-02). The card
++        // shows only when there is at least one.
++        const rems = hub.list('item:', REM).map(r => r.value).filter(r => r && r.text).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
++        setHtml(t.rem, rems.map(r => `<li class="rem-row"><span class="rem-text">${esc(r.text)}</span><span class="rem-by">${esc(r.byName || r.by || '')}</span></li>`).join('') + '<li class="rem-more" id="tv-rem-more" hidden></li>');
++        t.remCard.hidden = !rems.length;
++        fit();
+         tv.lastPaint = now.getTime();
+         stats.nodes = t.root.querySelectorAll('*').length;
+       }
++      // Fit the board to the screen (P2-VIS-02, D16): the faces of each pane in one row, a "+N" face for the rest; the feed's
++      // newest lines and the newest reminders that fit their row, whole lines only, the other reminders counted in "+N more".
++      // Layout is read only here, once a paint (and after a resize). Nothing is removed: what does not fit is hidden.
++      function fit() {
++        const t = tv.el; if (tv.stopped || !t || !t.root.isConnected || !t.root.getClientRects().length) return;   // not on screen
++        for (const box of [t.prayed, t.read, t.stars]) fitFaces(box);
++        fitList(t.feed, null);
++        fitList(t.rem, t.rem.querySelector('.rem-more'));
++      }
++      function fitFaces(box) {
++        const more = box.querySelector(':scope > .tv-more'); if (!more) return;
++        const faces = [...box.children].filter(el => el !== more);
++        for (const el of faces) el.hidden = false;
++        more.hidden = true;
++        const edge = box.getBoundingClientRect().right - (parseFloat(getComputedStyle(box).paddingRight) || 0) + 0.5;   // inside the ring's padding
++        if (!faces.length || faces[faces.length - 1].getBoundingClientRect().right <= edge) return;
++        more.hidden = false;
++        for (let k = 1; k <= faces.length; k++) {
++          faces[faces.length - k].hidden = true;
++          more.firstElementChild.textContent = '+' + k; more.setAttribute('aria-label', k + ' more');
++          if (more.getBoundingClientRect().right <= edge) break;
++        }
++      }
++      function fitList(ul, more) {
++        const rows = [...ul.children].filter(el => el !== more && !el.classList.contains('tv-quiet'));
++        for (const el of rows) el.hidden = false;
++        if (more) more.hidden = true;
++        if (!rows.length) return;
++        const edge = ul.getBoundingClientRect().bottom + 0.5;
++        if (rows[rows.length - 1].getBoundingClientRect().bottom <= edge) return;
++        let shown = rows.length;
++        while (shown > 0 && rows[shown - 1].getBoundingClientRect().bottom > edge) shown--;   // the rows that fit as they stand
++        for (const el of rows.slice(shown)) el.hidden = true;
++        if (!more) return;
++        const count = () => { more.textContent = '+' + (rows.length - shown) + ' more'; };
++        more.hidden = false; count();
++        while (shown > 0 && more.getBoundingClientRect().bottom > edge) { rows[--shown].hidden = true; count(); }   // "+N more" takes a row's place
++      }
+       // Show the next backdrop: the next album photo (oldest → newest, round-robin) or the ambient art for this hour when the
+       // album is empty. The hidden <img> loads it first, then fades in on top; the old one drops out once the fade is over.
+       function crossfade(now) {
+         now = now || new Date(); tv.lastFade = now.getTime();
+-        const t = tv.el; if (!t || !t.root.isConnected || tv.fading) return Promise.resolve(false);
++        const t = tv.el; if (tv.stopped || !t || !t.root.isConnected || tv.fading) return Promise.resolve(false);
+         const list = photoList(), cur = tv.url[tv.front];
+         const next = list.length ? list[(list.indexOf(cur) + 1) % list.length] : 'art/ambient/' + ambientOf(now) + '.svg';
+         if (next === cur) return Promise.resolve(false);
+@@ -1591,12 +1791,18 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+         }
+         return pr;
+       }
+-      // The TV reads a 100-line page of the feed itself (a day's "Read week…" lines must fit) and never toasts about it.
++      // The TV reads a 100-line page of the feed itself (a day's "Read week…" lines must fit for an older Worker) and never
++      // toasts about it.
+       function refreshFeed() {
+-        return hub.activityFeed(100).then(rows => { if (Array.isArray(rows)) { feed = rows; feedFresh = true; try { localStorage.setItem('hub.feed', JSON.stringify(rows.slice(0, 30))); } catch {} } }, () => {}).then(() => paint());
++        if (tv.stopped) return Promise.resolve();
++        return hub.activityFeed(100).then(rows => {
++          if (!Array.isArray(rows)) return;
++          feed = rows; feedFresh = true; try { localStorage.setItem('hub.feed', JSON.stringify(rows.slice(0, 30))); } catch {}
++          if (tv.readersApi === false) saveReaders(dayKey(), feedReaders(rows, dayKey()), 'feed');
++        }, () => {}).then(() => paint());
+       }
+       function tick(now) {
+-        now = now || new Date(); const t = tv.el; if (!t || !t.root.isConnected) return;
++        now = now || new Date(); const t = tv.el; if (tv.stopped || !t || !t.root.isConnected) return;
+         const ms = now.getTime(); t.clock.textContent = fmtTime(now);
+         if (ms - tv.lastFade >= 45000 || ms < tv.lastFade) crossfade(now);
+         if (ms - tv.lastPaint >= 60000 || ms < tv.lastPaint) paint(now);
+@@ -1606,26 +1812,34 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+         const icon = (id, hue) => `<span class="app-icon" data-accent="${hue}">${id === 'star' ? ICON_STAR : `<svg class="icon"><use href="#i-${id}"/></svg>`}</span>`;
+         v.innerHTML = `<div class="tv" id="tv">
+           <div class="tv-bg" aria-hidden="true"><img class="tv-bg-img" id="tv-bg-0" alt="" decoding="async"><img class="tv-bg-img" id="tv-bg-1" alt="" decoding="async"><div class="tv-scrim"></div></div>
+-          <section class="tv-pane glass-strong tv-hero" aria-label="Clock"><div class="hero-kicker" id="tv-date"></div><div class="clock" id="clock"></div><div class="tv-greet" id="tv-greet"></div><button class="btn btn-glass kiosk-switch" id="kiosk-switch">Switch</button></section>
+-          <section class="tv-pane glass-strong tv-verse"><h2>${icon('book', hueOfApp('f260'))}<span id="tv-verse-hd">Verse of the week</span></h2><div class="tv-refs" id="tv-refs"></div><div class="tv-kidline" id="tv-kidline"></div></section>
+-          <section class="tv-pane glass-strong tv-prayed"><h2>${icon('pray', hueOfApp('prayer'))}Prayed today</h2><div class="tv-faces" id="tv-prayed"></div></section>
+-          <section class="tv-pane glass-strong tv-stars"><h2>${icon('star', hueOfApp('kidverse'))}Stars this week</h2><div class="tv-faces" id="tv-stars"></div></section>
+-          <section class="tv-pane glass-strong tv-feed"><h2>${icon('flame', FALLBACK)}Around the house</h2><ul class="tv-lines" id="tv-feed"></ul></section>
+-          <section class="tv-pane glass-strong tv-read"><h2>${icon('book', hueOfApp('f260'))}Reading today</h2><div class="tv-faces" id="tv-read"></div></section>
+-          <section class="tv-pane glass-strong tv-rem" id="tv-rem-card" hidden><h2>${icon('bell', FALLBACK)}Reminders</h2><ul class="list" id="remlist"></ul></section>
++          <section class="tv-pane tv-hero" aria-label="Clock"><div class="hero-kicker" id="tv-date"></div><div class="clock" id="clock"></div><div class="tv-greet" id="tv-greet"></div><div class="tv-wake" id="tv-wake" hidden>Tap the screen once to keep it on.</div><button class="btn btn-glass kiosk-switch" id="kiosk-switch">Switch</button></section>
++          <section class="tv-pane tv-verse"><h2>${icon('book', hueOfApp('f260'))}<span id="tv-verse-hd">Verse of the week</span></h2><div class="tv-refs" id="tv-refs"></div><div class="tv-kid"><div class="tv-kidlabel" id="tv-kidlabel"></div><div class="tv-kidline" id="tv-kidline"></div></div></section>
++          <div class="tv-today">
++            <section class="tv-pane tv-prayed"><h2>${icon('pray', hueOfApp('prayer'))}<span>Prayed today</span></h2><div class="tv-faces" id="tv-prayed"></div></section>
++            <section class="tv-pane tv-read"><h2>${icon('book', hueOfApp('f260'))}<span>Reading today</span></h2><div class="tv-faces" id="tv-read"></div></section>
++            <section class="tv-pane tv-stars"><h2>${icon('star', hueOfApp('kidverse'))}<span>Stars this week</span></h2><div class="tv-faces" id="tv-stars"></div></section>
++          </div>
++          <section class="tv-pane tv-feed"><h2>${icon('flame', FALLBACK)}<span>Around the house</span></h2><ul class="tv-lines" id="tv-feed"></ul></section>
++          <section class="tv-pane tv-rem" id="tv-rem-card" hidden><h2>${icon('bell', FALLBACK)}<span>Reminders</span></h2><ul class="tv-rem-list" id="remlist"></ul></section>
+         </div>`;
+         const q = s => v.querySelector(s);
+-        tv.el = { root: q('#tv'), img: [q('#tv-bg-0'), q('#tv-bg-1')], date: q('#tv-date'), clock: q('#clock'), greet: q('#tv-greet'), verseHd: q('#tv-verse-hd'), refs: q('#tv-refs'), kidline: q('#tv-kidline'),
+-          prayed: q('#tv-prayed'), read: q('#tv-read'), stars: q('#tv-stars'), feed: q('#tv-feed'), remCard: q('#tv-rem-card') };
++        tv.el = { root: q('#tv'), img: [q('#tv-bg-0'), q('#tv-bg-1')], date: q('#tv-date'), clock: q('#clock'), greet: q('#tv-greet'), wake: q('#tv-wake'), verseHd: q('#tv-verse-hd'), refs: q('#tv-refs'), kidlabel: q('#tv-kidlabel'), kidline: q('#tv-kidline'),
++          prayed: q('#tv-prayed'), read: q('#tv-read'), stars: q('#tv-stars'), feed: q('#tv-feed'), rem: q('#remlist'), remCard: q('#tv-rem-card') };
+         tv.front = 0; tv.url = ['', '']; tv.fading = null; tv.lastFade = 0; tv.lastPaint = 0;
+-        q('#kiosk-switch').addEventListener('click', async () => { await hub.signOut(); showPicker(); });   // the display's session ends too
+-        stats.listeners = 1;                                            // the Switch button; the <img> load hooks are on* properties, replaced each fade
++        // P2-STAB-11 / P2-PROF-11: Switch stops the board first, then ends the display's session on the server and shows the picker
++        q('#kiosk-switch').addEventListener('click', async () => { stopBoard(); await hub.signOut(); showPicker(); });
++        // a new screen size or orientation (a TV mode change, an iPad turned) fits the board again
++        if (!tv.onResize) { let rt = 0; tv.onResize = () => { clearTimeout(rt); rt = setTimeout(() => { if (renderHome.tv && renderHome.tv.fit) renderHome.tv.fit(); }, 150); }; window.addEventListener('resize', tv.onResize); }
++        stats.listeners = 2;                                            // Switch and resize; the <img> load hooks are on* properties, replaced each fade
+         tv.lastFeed = Date.now(); refreshFeed();
+         hub.pull();                                                     // fetch the family prayer list just declared; onSync repaints
+-        window.__tv = { tick, crossfade, paint, refreshFeed, state: () => ({ front: tv.front, url: tv.url.slice(), fading: !!tv.fading, lastFade: tv.lastFade, lastPaint: tv.lastPaint, lastFeed: tv.lastFeed }) };
++        window.__tv = { tick, crossfade, paint, fit, refreshFeed, fetchReaders, state: () => ({ front: tv.front, url: tv.url.slice(), fading: !!tv.fading, lastFade: tv.lastFade, lastPaint: tv.lastPaint, lastFeed: tv.lastFeed, readers: tv.readers, readersApi: tv.readersApi, stopped: tv.stopped }) };
+         crossfade();
+       }
++      tv.fit = fit;
+       paint();
++      fetchReaders();
++      kioskWake();                                                     // P2-STAB-12: the board asks for the wake lock itself, touched or not
+       if (!tv.fading && /^art\//.test(tv.url[tv.front]) && photoList().length) crossfade();   // the album arrived after the first paint: swap the stand-in art for a photo now
+       clockTimer = setInterval(() => tick(), 1000); stats.intervals = 1;
+       return;
+@@ -1801,7 +2015,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+   window.addEventListener('pagehide', commitAllRemDone);
+   document.addEventListener('visibilitychange', () => { if (document.hidden) commitAllRemDone(); });
+   function renderReminders() {
+-    const ul = $('#remlist'); if (!ul) return;
++    const ul = $('#remlist'); if (!ul || hub.isKiosk) return;   // the TV board paints its own list (renderHome)
+     const items = hub.list('item:', { app: 'reminders', scope: 'family' }).map(r => r.value).filter(r => r && !remDone.has(r.id)).sort((a, b) => a.createdAt - b.createdAt);
+     const loading = !hub.isLoaded('reminders', 'family') && !items.length;   // never "Nothing to remember" before the list has arrived, offline included
+     let html;
+@@ -1897,6 +2111,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+   window.addEventListener('hub:theme', () => { try { if (frame && frame.contentWindow) frame.contentWindow.postMessage({ source: 'hubshell', type: 'hub:theme' }, location.origin); } catch {} });
+   function renderMe() {
+     const v = $('#view-me'); const p = hub.profile; if (!p) return;
++    if (p.kind === 'kiosk') { v.innerHTML = ''; return; }   // P2-PROF-10: the display has no Me, so none of its controls exist there
+     const s = hub.sync; const theme = hub.theme(); const hue = hub.hueOf(p);
+     // P2-PROF-18: a guest reads as a guest, with the end of their stay, as on the picker and in the admin list
+     const sp = (hub.session && hub.session.profile) || {};
+@@ -2910,11 +3125,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
+   else if (!hub.session) showPicker();
+   else enterShell();
+ 
+-  // Keep the screen awake once the user has interacted (Safari needs a gesture).
+-  let lock = null;
+-  async function wake() { if (!('wakeLock' in navigator)) return; try { lock = await navigator.wakeLock.request('screen'); } catch {} }
+-  document.addEventListener('pointerdown', wake, { once: true });
+-  document.addEventListener('visibilitychange', () => { if (!document.hidden && lock) wake(); });
++  // Keep the screen awake (wake(), kioskWake() above): the TV from its own board, anyone else from their first tap on.
++  document.addEventListener('pointerdown', () => { if (hub.isKiosk) { if (wakeHint || !wakeLock) kioskWake(); } else { wakeWanted = true; if (!wakeLock) wake(); } });
++  document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (hub.isKiosk) kioskWake(); else if (wakeWanted) wake(); });
++  window.addEventListener('load', () => { if (hub.isKiosk) kioskWake(); });
+ })();
+ </script>
+ </body>

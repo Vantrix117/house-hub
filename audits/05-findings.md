@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29) done; 298 entries FIXED, 39 PARTIAL, 3 DEFERRED, 12 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 312 entries FIXED, 39 PARTIAL, 3 DEFERRED, 12 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -50,7 +50,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 99/143 fixed, `80af987` |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | 37/45 fixed, `65009df` |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | 22/23 fixed, `3944d37` |
-| 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | open |
+| 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | 12/12 fixed, `4d46316` |
 | 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a | open |
 | 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a | open |
 | 16 | **5** | Verses | 19 (0 / 0 / 5 / 13 / 1) | M | 1, 2a | open |
@@ -3750,7 +3750,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-STAB-12 — The TV kiosk takes a Screen Wake Lock only on a page load where someone taps it with a pointer, so after a reload, a restart or a remote-only setup the ambient board holds no lock
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** bug · **Severity** medium · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** The display asks for the screen wake lock by itself: on load, on every return to the screen, and on the first key or tap, one request at a time. If the lock is refused after load, the board shows a quiet "Press any button or tap the screen to keep it on." and fits again at once. wakelock.mjs, TV untouched for 10 min and remote keys only: no request at all → the lock taken in both engines (WebKit's first try is refused and the retry is granted). test-tv: the board asks with no tap; Switch lets the screen sleep. The Kitchen keeps its own lock. Not seen: a real TV browser and iPad Safari, which may refuse a lock without a tap. On those, the hint shows until someone presses a button. After: `audits/evidence/p6/2c/tests/repro-after/phase2__STAB__wakelock.txt`, `audits/evidence/p6/2c/tests/repro-before/phase2__STAB__wakelock.txt`, `audits/evidence/p6/2c/p2/STAB/wakelock.json`, `audits/evidence/p6/2c/tests/suites/test-tv.txt`.
 - **Evidence.** `audits/02-shell.md:3369`; `index.html:1710-1711`, `index.html:1708`, `index.html:1712`, `index.html:1710`
 - **What happens now.** WebKit and Chromium gave the same results in both skeptics' runs.
 - **Why it matters.** CLAUDE.md describes the TV as an ambient board that nobody touches. Its normal state is a page load that opens straight into the board after a power cycle, a browser restart or a reload, or one driven only by a remote. On such a load the shell never asks for a lock.
@@ -3759,7 +3760,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-VIS-02 — The TV board drops reminders off a 1080p screen, with no cue
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** medium · **Effort** M · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** bug · **Severity** medium · **Effort** M · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** Reminders run newest first, each whole on at most two lines. fit() shows the ones that fit and counts the rest in the heading ("Reminders · +N more"). The faces panes take one row, with "+N more". verify-tv-board-overflows-1080-1: board content hidden below the screen 8/49/90/131/913/127 px → 0 in all 11 measures. leads L11: 15 reminders, 913 px hidden and none on screen → 0 px hidden. test-tv with 15 reminders: at 1920×1080 3 are shown whole and 12 counted; at 1280×720, 1024×768, 820×1180 and 960×540 the board fits with no scroll, and the count is in the heading. After: `audits/evidence/p6/2c/tests/repro-after/phase2__VIS__verify-tv-board-overflows-1080-1.txt`, `audits/evidence/p6/2c/tests/repro-before/phase2__VIS__verify-tv-board-overflows-1080-1.txt`, `audits/evidence/p6/2c/p2/VIS/leads.json`, `audits/evidence/p6/2c/tests/suites/test-tv.txt`.
 - **Evidence.** `audits/02-shell.md:5462`; `index.html:1218-1225`, `index.html:1059-1061`, `index.html:1069`, `index.html:174`; `audits/screens/tv/board-overflow-tv-light.png`
 - **What happens now.** The kiosk board renders every family reminder with no cap, sorted oldest first (`index.html:1218-1225`, sort at `:1220`). It also renders every face under Prayed today with no cap (`index.html:1059-1061`). Only the feed is capped, at 5 (`index.html:1069`). Because the list runs oldest first, the newest reminders are the ones pushed off.
 - **Why it matters.** the room display hides the family's newest reminders on ordinary days (6 reminders, or everyone prayed), not only in stress data. Adults still see every reminder on their own Home.
@@ -3768,7 +3770,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TYPE-1 — TV board: the kiosk block uses its phone-sized steps for information text; names, star counts, times and bylines are 18 px and the date 12 px
 
-- **Area** design system (TV) · **Type** visual · **Severity** medium · **Effort** M · **Batch** 2c
+- **Area** design system (TV) · **Type** visual · **Severity** medium · **Effort** M · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** The display now uses design.css's 10-foot scale (hub.js sets data-tv-scale="10ft"; the token half is unchanged), and the board is a 12-column grid of three rows on solid panes. At 1920×1080 the smallest information text is 28 px (was 12: the date). Feed and reminders are 32.3 px; names, times and ★ counts are 28.5 px (were 18). leads L8: kicker 18 → 28 px, face labels 18 → 28.5, times 18 → 28.5, and the board scroll 1088 → 1080 px. test-tv (e): nothing under 28 px at 1920×1080; below 1600 px the kiosk keeps its own sizes, nothing under 18 px. A 3840×2160 screen at 1× stays at the 1920 sizes. Not seen: legibility from 3 m and TV overscan. After: `audits/evidence/p6/2c/tests/repro-after/p6-2c__leads-2c.txt`, `audits/evidence/p6/2c/tests/repro-before/phase2__VIS__leads.txt`, `audits/evidence/p6/2c/tests/suites/test-tv.txt`, `audits/evidence/p6/2c/capture/pxdiff-tv.txt`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: Small detail: 'names … are 18 px' applies to the face captions under avatars. The names in the 'Around the house' feed lines (.who) inherit the line size, 26 px (22 px under 1050 px height).
 - **Evidence.** `audits/04-design-system.md:1408`; `apps/design.css:286-289`, `index.html:153`, `apps/design.css:417`, `index.html:175`; `audits/screens/tv/board-typical-tv-light.png`
 - **What happens now.** Re-measured live in System and Midnight, as eight size tiers (Table TYPE-6). Only the clock, verse refs and greeting are 10-foot sizes.
@@ -3778,7 +3781,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-HOME-07 — The TV verse pane's kid line can never render: no writer supplies it
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** The TV carries Kid Verse's 52-week paraphrase table and shows the family week's line, labelled "Kid Verse · a paraphrase of <ref>". A `line` on the week row still wins. test-tv checks the TV's copy against apps/kidverse.html. verify2-tv-verse-kid-line-dead-1: the kid line was empty (display none, 0 px) for week 38 and after the stepper moved the family to week 39 → "The first believers kept learning…" for week 38, then "When hard things come, be glad…" for week 39. The control row's own line still shows. verify2-tv-verse-kid-line-dead-2: an empty kid line (0 nodes) → the paraphrase (80.7 px). After: `audits/evidence/p6/2c/tests/repro-after/phase2__HOME__verify2-tv-verse-kid-line-dead-1.txt`, `audits/evidence/p6/2c/tests/repro-before/phase2__HOME__verify2-tv-verse-kid-line-dead-1.txt`, `audits/evidence/p6/2c/p2/HOME/verify2-tv-verse-kid-line-dead-2.json`, `audits/evidence/p6/2c/p2/HOME/verify2-tv-verse-kid-line-dead-2-tv-seeded.png`.
 - **Evidence.** `audits/02-shell.md:477`; `apps/kidverse.html:338`, `index.html:1056`, `apps/verses.html:217`, `apps/kidverse.html:276`
 - **What happens now.** The TV reads `String(wk.line || wk.kid || wk.text || '')` (`index.html:1056`), under the comment "one kid line if the row carries it" (`:1052`). It hides the element when it is empty (`:147`). The only writer is Kid Verse's `setWeek`, reached only through the stepper buttons (`apps/kidverse.html:338`, `:374-376`).
 - **Why it matters.** The roadmap asked for this line: "plus the kid line when the row carries one" (`scripts/test-tv.mjs:5-6`). The family TV never shows it, and the test fixture hides the gap. Nothing is lost or broken. The pane still shows the right week and both references.
@@ -3787,7 +3791,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-PROF-10 — On the TV, a live hash change to #me / #chat / #apps renders under the board, and the hidden Me controls still take clicks
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** On the display, showTab always shows Home: a hash change is replaced with #home, renderMe renders nothing, and #view-home shows only while it is on. verify-kiosk-hash-nav-2, same-document #me: before, the Me tab rendered under the board (page 2,149 px tall), and a click on the unseen Forest card changed the display's theme (hearth → forest). After: hash #home, page 1,080 px, no Me controls to hit. The original then stops with an error before and after, because it looks for a Forget button the display never had. Its patched copy exits 0 in both engines: #me, #chat and #apps stay on the board, and a reload on #apps lands on Home. test-tv: #me and #chat leave the display on its board, with no Me controls anywhere. After: `audits/evidence/p6/2c/tests/repro-after/p6-2c__verify-kiosk-hash-nav-2c.txt`, `audits/evidence/p6/2c/tests/repro-before/phase2__PROF__verify-kiosk-hash-nav-2.txt`, `audits/evidence/p6/2c/p2/PROF/verify2-kiosk-nav-2c.json`, `audits/evidence/p6/2c/p2/PROF/verify2c-kiosk-nav-me-scrolled-tv.png`.
 - **Evidence.** `audits/02-shell.md:1389`; `index.html:650-654`, `index.html:626`, `index.html:129`, `index.html:1437`
 - **What happens now.** after a same-document hash change on the kiosk (index.html:650-654 has no kiosk guard; enterShell forces Home only at start, index.html:626):
 - **Why it matters.** there are invisible live controls on the TV.
@@ -3796,7 +3801,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-STAB-11 — After the TV's Switch, the hidden board keeps running behind the picker
 
-- **Area** shell / platform (TV) · **Type** bug (perf) · **Severity** low · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** bug (perf) · **Severity** low · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** stopBoard() runs on Switch → Switch profile and whenever the picker shows. It clears the tick; paint, fade, feed and readers stop; it forgets who read today; and it releases the TV's wake lock. Switch now opens a two-choice sheet (Switch profile · Screen look), so the original tvswitch.mjs times out waiting for the picker. Its patched copy also taps "Switch profile". Over 6 min behind the picker: before, the clock kept ticking, the board repainted and crossfaded, and it fetched the feed once. After: all stopped, 0 fetches, 0 data requests. The display's server session still answers 401. test-tv: Switch → Switch profile opens the picker and the board stops. After: `audits/evidence/p6/2c/tests/repro-after/p6-2c__tvswitch-2c.txt`, `audits/evidence/p6/2c/tests/repro-before/phase2__STAB__tvswitch.txt`, `audits/evidence/p6/2c/p2/STAB/tvswitch.json`, `audits/evidence/p6/2c/tests/repro-after/phase2__STAB__tvswitch.txt`.
 - **Evidence.** `audits/02-shell.md:3340`; `index.html:1133`, `index.html:516-517`, `index.html:496`, `index.html:1110-1116`
 - **What happens now.** Over 6 simulated minutes with the picker up, the board kept working:
 - **Why it matters.** Rendering and image traffic are wasted on an always-on device while the picker waits.
@@ -3805,7 +3811,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-SYNC-12 — After an offline reopen the TV marks readers as not read (only 30 of 100 feed lines are cached)
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** Today's readers are kept on the device (hub.tv.readers): the Worker's answer, or until it arrives the feed-derived one, never over the Worker's. The TV asks as soon as the board is built. The final run found a gap: an offline reopen within a second of the first load lost the ✓ (e10 copy: false), because the first answer came only at the first tick. After the follow-up fix (reviewed twice): the e10 copy keeps the ✓ in 8/8 runs. verify-tv-reading-cache-30-rows-2c: an offline reopen keeps Eli's ✓ (the original: lost), and a held reload brings it back in 0.8 s (was 3.1 s). The originals seed only feed lines, with no F260 tick, so Eli now has no ✓, by design. test-tv 76/0: Eli keeps his ✓ after an offline reopen. After: `audits/evidence/p6/2c/followup/e10-2c-run1.txt`, `audits/evidence/p6/2c/followup/30rows-2c.txt`, `audits/evidence/p6/2c/tests/repro-after/p6-2c__e10-tv-reading-cache-2c.txt`, `audits/evidence/p6/2c/review/followup-review.md`.
 - **Evidence.** `audits/02-shell.md:2653`; `index.html:1108`, `index.html:1135`, `sw.js:9-10`
 - **What happens now.** the board reads 100 feed lines but caches only the first 30 (index.html:1108), and a fresh page paints from that cache (:922).
 - **Why it matters.** readers lose their ✓ on the family TV after it reopens during an outage, for up to 5 minutes after the network returns.
@@ -3814,7 +3821,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P4-GLASS-04 — The TV board's only on-screen live blur is the Switch button, against the board's own no-blur rule
 
-- **Area** design system (TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2c
+- **Area** design system (TV) · **Type** bug · **Severity** low · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** No change was needed in this batch: the board had no live blur before it (0 elements with a backdrop-filter, the kiosk blur 0 px, since the batch 1 tokens). The Switch button now sits on a solid pane (was glass-strong). verify-tv-switch-live-blur-3: withBackdrop [] before and after, and the Switch's parent is "tv-pane glass-strong tv-hero" → "tv-pane tv-hero". This WebKit build paints no blur at all, so a real device should confirm it. After: `audits/evidence/p6/2c/tests/repro-after/phase4__GLASS__verify-tv-switch-live-blur-3.txt`, `audits/evidence/p6/2c/tests/repro-before/phase4__GLASS__verify-tv-switch-live-blur-3.txt`, `audits/evidence/p6/2c/p4/GLASS/verify-tv-switch-live-blur-3-tv.json`.
 - **Evidence.** `audits/04-design-system.md:3450`; `index.html:125-127`, `index.html:1121`, `apps/design.css:285-288`, `index.html:104`
 - **What happens now.** The rule. The board's panes drop `backdrop-filter` on purpose: "the panes keep the glass recipe but drop backdrop-filter (the photo is already blurred, and a display runs 24 h)" (`index.html:125-127`, `:137`). The exception.
 - **Why it matters.** The TV runs all day. One small button is the only thing on the board keeping a live blur recomputed as the clock ticks beside it, against a rule the same file states.
@@ -3823,7 +3831,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### PWA-VIS-4 — On a portrait kiosk iPad the feed shows only 2–3 words per line → owned by VIS, "The kiosk board on an iPad"
 
-- **Area** shell / platform (TV) · **Type** visual · **Severity** low · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** visual · **Severity** low · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** On a portrait kiosk iPad, the clock and verse sit side by side, and the feed and reminders run full width. Below 700 px the board is one column. test-tv at 820×1180: fits with no scroll, 3 feed lines, 3 reminders and "· +12 more", a face in every pane, and the feed full width. Rotated to 1180×820, every kid keeps a face and every "+N" stays in its pane. The tv capture's portrait iPad screens changed; the feed lines now show whole phrases, not 2-3 words. After: `audits/evidence/p6/2c/tests/suites/test-tv.txt`, `audits/evidence/p6/2c/capture/pxdiff-tv.txt`, `audits/evidence/p6/2c/check-2c/refit-webkit-1920-then-1180x820.png`.
 - **Evidence.** `audits/02-shell.md:5044`; `audits/screens/tv/board-ipad-typical-ipad-portrait-light.png`
 - **What happens now.** On a portrait kiosk iPad the feed shows only 2–3 words per line → owned by VIS, "The kiosk board on an iPad" (low; VIS has the only measurement: 19–45 % of each line visible at 820×1180). The Phase 1 capture is audits/screens/tv/board-ipad-typical-ipad-portrait-light.png.
 - **Why it matters.** Feed lines show 2-3 words.
@@ -3832,7 +3841,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-HOME-2 — On the TV the board's news is its smallest text
 
-- **Area** shell / platform (TV) · **Type** usability · **Severity** low · **Effort** M · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** usability · **Severity** low · **Effort** M · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** The feed and reminders are now the board's largest body text: 32.3 px at 1920×1080 (the smallest information text is 28 px). They were the smallest before (18 px bylines and times). Whole lines only: fit() drops a line rather than cut it. test-tv (e): all five feed lines at 1920×1080; 3-4 at the smaller sizes. leads L8: times 18 → 28.5 px, reminder bylines 18 → 28.5 px. After: `audits/evidence/p6/2c/tests/suites/test-tv.txt`, `audits/evidence/p6/2c/tests/repro-after/p6-2c__leads-2c.txt`, `audits/evidence/p6/2c/tests/repro-before/phase2__VIS__leads.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The headline 'the board's news is its smallest text' is misleading. The feed's news lines themselves are 26 px (11.6 mm on 55 inches) and pass H2.
 - **Evidence.** `audits/02-shell.md:556`; `apps/design.css:417`, `index.html:136`
 - **What happens now.** The date kicker (`.hero-kicker` stays at `--fs-xs`, `apps/design.css:417`), face labels, ★ counts, feed times and bylines all fail H2 at 3 m on a 55" TV.
@@ -3842,7 +3852,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-PROF-a2 — The TV lists guests under "Reading today" as not read
 
-- **Area** shell / platform (TV) · **Type** usability · **Severity** low · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** usability · **Severity** low · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** Reading today lists household adults only: no guests, kids, display or kitchen. verify-tv-reading-cache-30-rows-2: before, the guest Grandma Jo was listed as not read; after, she is not listed. test-tv: reading today lists household adults only. After: `audits/evidence/p6/2c/tests/repro-after/phase2__SYNC__verify-tv-reading-cache-30-rows-2.txt`, `audits/evidence/p6/2c/tests/repro-before/phase2__SYNC__verify-tv-reading-cache-30-rows-2.txt`, `audits/evidence/p6/2c/tests/suites/test-tv.txt`.
 - **Evidence.** `audits/02-shell.md:939`; `index.html:1064`, `worker/src/index.js:170`, `index.html:1063`; `audits/screens/tv/board-typical-tv-light.png`, `audits/evidence/p2/VIS/rev-critic-gaps-A-kiosk-feed-ipad-portrait.png`
 - **What happens now.** The pane lists every profile of kind `adult` (index.html:1064). A guest is always stored as kind `adult` (worker/src/index.js:170).
 - **Why it matters.** Grandma Jo sits dimmed beside the family as if she had not read.
@@ -3851,7 +3862,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### UX-SYNC-a2 — The TV's "Reading today" lags up to 5 minutes and is built from feed lines rather than F260 data
 
-- **Area** shell / platform (F260, TV) · **Type** usability · **Severity** low · **Effort** S · **Batch** 2c
+- **Area** shell / platform (F260, TV) · **Type** usability · **Severity** low · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** New GET /api/f260/readers returns {date, readers}: the household adults whose F260 log has today's New York date (log:<date> rows over the old f260.log; only true counts). It reads at most 2 indexed rows per adult. The TV asks when the board is built, then once a minute. smoke-api 322/0: device only → 401, as the display → 200, and an untick drops the reader. test-tv: the ✓ come from F260 logs, not from feed lines. A Worker without the route (404) falls back to today's "Read week…" feed lines and asks again every 10 min. Until the Worker is deployed, the live TV uses that fallback. After: `audits/evidence/p6/2c/tests/smoke-api.txt`, `audits/evidence/p6/2c/tests/suites/test-tv.txt`, `audits/evidence/p6/2c/followup/30rows-2c.txt`.
 - **Evidence.** `audits/02-shell.md:2918`; `index.html:1063`
 - **What happens now.** Readers are the profiles with a "Read week…" feed line dated today (index.html:1063), re-read every 5 minutes (:1115). Eli's ✓ appeared 178.9 s after his tick (e5; e5-tv-after-reading-shows.png).
 - **Why it matters.** The TV lags five minutes and can credit the wrong person.
@@ -3860,13 +3872,15 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### P2-CHAT-14 — Kiosk: a hash change to `#chat` shows a live composer over the TV board
 
-- **Area** shell / platform (TV) · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** bug · **Severity** low (pointer) · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** Pointer to P2-PROF-10: on the display, #chat is replaced with #home and no composer shows. Patched verify-kiosk-hash-nav-2c, #chat: the form is hidden, not on screen, and 0 upstream (mock) calls. test-tv: #chat leaves the display on its board. After: `audits/evidence/p6/2c/tests/repro-after/p6-2c__verify-kiosk-hash-nav-2c.txt`, `audits/evidence/p6/2c/p2/PROF/verify2c-kiosk-nav-chat-tv.png`, `audits/evidence/p6/2c/tests/suites/test-tv.txt`.
 - **Evidence.** `audits/02-shell.md:4281`; `index.html:129`, `index.html:68`, `index.html:130`, `index.html:78`
 - **Proposed fix.** Pointer to P2-PROF-10.
 
 #### P2-PROF-11 — TV Switch leaves the board running; the board's Switch leaves a server session (pointer)
 
-- **Area** shell / platform (TV) · **Type** bug (perf) · **Severity** low (pointer) · **Effort** S · **Batch** 2c
+- **Area** shell / platform (TV) · **Type** bug (perf) · **Severity** low (pointer) · **Effort** S · **Batch** 2c · **Status** FIXED (`4d46316`)
+- **Phase 6 (FIXED).** Pointer to P2-STAB-11: after Switch → Switch profile the board stops: no tick, repaint, crossfade or fetch; 1 feed fetch → 0 over 6 min. The display's server session answers 401 (tvswitch-2c). After: `audits/evidence/p6/2c/tests/repro-after/p6-2c__tvswitch-2c.txt`, `audits/evidence/p6/2c/p2/STAB/tvswitch.json`.
 - **Evidence.** `audits/02-shell.md:1414`; `index.html:1133`
 - **Proposed fix.** Pointer to P2-STAB-11: the TV's Switch stops the board's timers and logs the kiosk session out on the server.
 

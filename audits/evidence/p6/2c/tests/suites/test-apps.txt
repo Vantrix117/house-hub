@@ -1,0 +1,72 @@
+
+## Eli (admin): dashboard, icons, widgets
+  ✓ greeting by name
+  ✓ Home shows reading, fridge, prayer, reminders, feed
+  ✓ every tile Eli can see uses an SVG icon (9)
+  ✓ F260 wide tile has a progress ring
+
+## F260 on hub.js
+  ✓ F260 renders the plan
+  ✓ checking a reading writes its own done:<week>-<day> row to person scope (batch 0e)
+  ✓ F260 publishes a summary (1/5)
+  ✓ translation preference is stored per profile
+  ✓ Home card advances to the next reading (Genesis 3-4)
+  ✓ Home card shows read today
+  ✓ wide tile ring label 1/5
+
+## Larder Ledger on hub.js (family scope)
+  ✓ no passphrase screen any more
+  ✓ logged item renders
+  ✓ item stored under family scope item:<id>
+  ✓ Larder tile badge counts aging items
+  ✓ Home fridge card lists Chili
+
+## Prayer on hub.js (person + family)
+  ✓ lock screen, GitHub sync and PIN settings removed
+  ✓ new profile starts with an empty private list (no sample data)
+  ✓ private request stored in person scope
+  ✓ family request stored in family scope
+  ✓ who-prayed records the signed-in profile id (batch 0g)
+  ✓ voice button shown only when speech recognition exists
+
+## Mae sees the family list, not Eli's private list
+  ✓ private list is empty for Mae
+  ✓ family list shows the shared request
+  ✓ Eli's tick came through on the family list
+  ✓ Mae sees Chili in the shared ledger
+
+## Legacy migration counts (Mom, with pre-profiles localStorage)
+   before: personal prayers 3, shared prayers 2 (legacy) + 1 already on the family list; f260 readings 2
+   after : {"personal":3,"shared":3,"days":2}
+  ✓ Mom's private list migrated: 3 prayers
+  ✓ family list = 2 migrated + 1 existing = 3
+  ✓ prayer days migrated (streak history kept)
+  ✓ legacy blob left untouched
+  ✓ F260 progress + translation migrated (2 readings, ESV)
+  ✓ Home shows Mom's 2-day prayer streak
+
+## Tally + timer on hub.js
+  ✓ timer remembers the preset per profile
+  ✓ tally counts in person scope (one row per device since batch 0f)
+
+## Admin panel
+  ✓ admin lists profiles with PIN state
+  ✓ admin lists other paired devices with Unpair
+  ✓ admin rename saves and re-renders
+
+## Screenshots: kid, kiosk, dark, iPad
+  ✓ dark palette applies from prefers-color-scheme
+  ✓ no horizontal scroll at 1024
+
+## Console errors
+  ✓ no console errors in context A
+  ✓ no console errors in context B
+  ✓ no console errors in context E
+  ✓ no console errors in context K
+  ✓ no console errors in context T
+  ✓ no console errors in context D
+  ✓ no console errors in context D2
+  ✓ no console errors in context T2
+  ✓ no console errors in context L
+
+PASS 48  FAIL 0

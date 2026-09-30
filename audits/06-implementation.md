@@ -1473,3 +1473,117 @@ An independent judge rescored the Phase 4 scorecard (`audits/04-design-system.md
 - **The deploy itself.** The 15-minute cron and `event.scheduledTime` on Cloudflare (in-process runs of the scheduled handler cover the logic: cron-check 18/18, test-park 20/0); the update-and-reload flow under GitHub Pages' real `max-age=600` (the hourly timer itself was not waited out: the check forced the update); the 45 s timeout against the real Anthropic API; whether Cloudflare drops the stream when a phone disconnects (Stop covers it either way).
 - **A known gap in a patched copy.** The park copy's part B no longer tests anything (every dot reads 0 min old by the house's clock since the fix that stopped trusting the phone's clock); part A and test-park carry the entry.
 - **Production.** Nothing deployed. Deploy order: migrations 006, then 007, then `npx wrangler deploy` (it brings the new cron), then the site.
+
+## Batch 2c — The TV board at ten feet
+
+| | |
+|---|---|
+| **Findings** | 14 entries: 3 medium, 9 low and 2 pointers. **14 FIXED.** Status per entry in `audits/05-findings.md`. |
+| **Code commit** | `4d46316` (2026-09-30) |
+| **Files** | <ul><li>`index.html`: the TV CSS rewritten; the kiosk board with `fit()`, the readers, the kid words, `stopBoard()`, the wake lock and the Switch sheet with Screen look; the display's `showTab`, `hashchange`, `renderMe` and `renderReminders` guards.</li><li>`apps/hub.js`: `data-tv-scale="10ft"` on the display.</li><li>`worker/src/index.js`: `GET /api/f260/readers`.</li><li>`sw.js`: `hub-v41` → `hub-v42`.</li><li>`scripts/test-tv.mjs`: 43 → 76 checks.</li><li>`scripts/smoke-api.sh`: 315 → 322 checks.</li><li>`CLAUDE.md`, `worker/README.md`.</li><li>`docs/screens/rm21-tv-*-busy.png` (new test-tv screens).</li></ul> |
+| **Schema / data** | No schema change, no migration, no new rows. The TV keeps today's readers on the device (`localStorage` `hub.tv.readers`). The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-29-before-2c.sql` (39 KB). Nothing was deployed. **At deploy**: until the Worker is deployed, the live TV's "Reading today" uses its fallback (today's "Read week…" feed lines). |
+| **How it was built** | <ul><li>One worker did the batch.</li><li>Two independent reviewers ran three rounds before the final run. One covered core logic, privacy and stability; the other covered the entries and the screens.</li><li>Round 1 found 8 issues to fix and round 2 found 5. In round 3 the reviewers raised nothing new; I found one low issue and fixed it.</li><li>The final run then found one more gap (who read today was lost on an offline reopen in the board's first second). It was fixed, and a third reviewer passed the fix in two rounds.</li></ul> |
+
+### The change
+
+- **Ten-foot type and one screen (VIS-TYPE-1, UX-HOME-2, P2-VIS-02, PWA-VIS-4; medium).**
+  - The display turns on design.css's existing 10-foot scale; the token half is unchanged.
+  - The board is a 12-column grid of three rows on solid panes: clock and verse; today (prayed, read, stars); then the feed and reminders.
+  - After every paint and on every resize, `fit()` keeps each faces pane to one row with "+N more". The feed and reminders show only whole lines, and the reminders count the rest in the heading ("Reminders · +N more").
+  - At 1920×1080 the smallest information text is 28 px (was 12). The feed and reminders are 32.3 px (the smallest before, now the largest body text). Names, times and ★ are 28.5 px (were 18).
+  - A portrait iPad puts the clock and verse side by side, with the feed full width.
+- **The screen stays on (P2-STAB-12; medium).**
+  - The display asks for the wake lock by itself on load, on every return to the screen, and on any key or tap.
+  - If the lock is refused, a quiet line says "Press any button or tap the screen to keep it on.", and the board refits at once.
+- **The kid line (P2-HOME-07).** The TV carries Kid Verse's paraphrase table and shows the family week's line, labelled as a paraphrase. A line written on the week row still wins.
+- **The board stays the board (P2-PROF-10, P2-CHAT-14).** On the display, any hash lands on Home. Me renders nothing, so its hidden controls cannot take a click, and no chat composer shows.
+- **Switch (P2-STAB-11, P2-PROF-11).**
+  - Switch opens two choices: Switch profile, or Screen look. Screen look is the display's own theme, contrast, motion and glass, kept on the device; it restores the only way to change the TV's look, which was the hash bug.
+  - The sheet opens on Cancel, so a double OK on a remote never signs the TV out.
+  - Switch profile stops the board completely: no tick, no fetch, the wake lock released, who read today forgotten.
+- **Who read today (UX-SYNC-a2, UX-PROF-a2, P2-SYNC-12).**
+  - New `GET /api/f260/readers`: the household adults whose F260 log has today's New York date, at most two indexed rows per adult. The TV asks when the board is built and then once a minute.
+  - Guests are not listed.
+  - The answer is kept on the device, so an offline reopen keeps the ✓.
+  - An older Worker (404) falls back to the feed lines and asks again every 10 min.
+- **P4-GLASS-04.** Already fixed by batch 1's tokens (no live blur on the board before or after). The Switch now sits on a solid pane.
+
+**What the independent review changed.**
+
+- **Round 1.**
+  - The readers route scanned every F260 row of every person on each call, which could pass D1's free daily read allowance with one TV. It now reads indexed rows for household adults only, once a minute.
+  - Every reminder ended in "…". Reminders now get two lines, with the name inline.
+  - On an iPad rotation the stars pane showed no kid.
+  - The display lost its only way to change its look; Screen look was added.
+  - At 960×540 (some 1080p TV browsers) the bottom row collapsed.
+  - Wake-lock requests piled up; there is now one at a time, released on Switch.
+  - Switch now forgets who read today.
+  - Smaller layout fixes on a portrait iPad.
+- **Round 2.**
+  - "Prayed today" showed no faces at 1024, 1280 and 960 wide.
+  - A TV remote lost its place in the sheets. Focus now moves into the sheet, and Switch waits while a sheet is open.
+  - The menu now opens on Cancel.
+  - Screen look is a 4-column grid on a landscape TV.
+  - Only the TV releases its wake lock (the kitchen keeps its own).
+- **Round 3.** Nothing new from the reviewers. I found one low issue and fixed it: the board now refits when the wake hint appears, and a closed sheet gives focus back to the Switch.
+- **After the final run.**
+  - **The gap.** The patched e10 check lost Eli's ✓ on an offline reopen made about a second after the first load. The Worker was first asked only at the first tick, and the ✓ shown from the feed lines was not kept.
+  - **The fix.** The TV now asks when the board is built, and keeps the feed's answer until the Worker's arrives, never over it.
+  - **Its review.** A reviewer found one low issue: a late answer after Switch could write the kept readers again. A guard now blocks that, and the second round was clean.
+  - **The re-runs:**
+    - the e10 check keeps the ✓ in 8 of 8 runs;
+    - test-tv, test-home, test-hub and test-kitchen pass;
+    - the tv capture is identical to the one before the fix (`audits/evidence/p6/2c/followup/`, `review/followup-review.md`).
+
+### Each finding's reproduction, rerun
+
+- **How they were run.** The 11 scripts the entries name ran three at a time twice: on the unchanged code (`git archive` of `4a85f0e`) and on the final code. The patched copies filed in `audits/tools/phase6/2c/` ran on the final code.
+  - Outputs and exit codes are in `audits/evidence/p6/2c/tests/repro-before/` and `repro-after/`; the patched copies are the `p6-2c__*` lines.
+  - The files the scripts wrote are in `audits/evidence/p6/2c/p2|p4/`. The Phase 2-4 baseline was restored.
+- **Exit codes.**
+  - Before: 10 exit 0, and 1 exits 1. `verify-kiosk-hash-nav-2` stops on a Forget button the display never had.
+  - After: 8 exit 0, and 3 exit 1, each explained:
+    - `verify-kiosk-hash-nav-2` stops the same way;
+    - `tvswitch` and `leads` tap Switch and wait for the picker, but Switch now opens its two-choice sheet first.
+  - Their patched copies (`verify-kiosk-hash-nav-2c`, which also runs in Chromium; `tvswitch-2c`; `leads-2c`, which tap "Switch profile") and the two reading-cache copies all exit 0.
+
+| Finding | Before | After |
+|---|---|---|
+| P2-STAB-12 (wakelock) | TV untouched 10 min, remote keys only: no request | the lock taken in both engines with no tap |
+| P2-VIS-02 (tv-board-overflows-1080-1) | content hidden below the screen: 8 / 49 / 90 / 131 / 913 / 127 px | 0 px in all 11 measures |
+| VIS-TYPE-1, UX-HOME-2 (leads L8, L11) | page 1,088 px on a 1,080 screen; kicker, faces, times 18 px; 15 reminders all off screen | 1,080 px; 28 / 28.5 / 28.5 px; nothing hidden |
+| P2-HOME-07 (kid-line-dead-1, -2) | the kid line empty (0 px) | the week's paraphrase, following the stepper |
+| P2-PROF-10, P2-CHAT-14 (kiosk-hash-nav; the 2c copy) | #me rendered Me under the board (page 2,149 px), a click changed the TV's theme | stays #home (1,080 px); no Me or chat controls; 0 upstream calls |
+| P2-STAB-11, P2-PROF-11 (tvswitch; the 2c copy) | behind the picker for 6 min: the clock ticked, repainted, crossfaded, 1 feed fetch | nothing runs, 0 fetches |
+| P2-SYNC-12 (30-rows-2c; e10-2c) | offline reopen: Eli's ✓ lost; a held reload brought it back after 3.1 s | kept (8 of 8 e10 runs after the follow-up); back after 0.8 s |
+| UX-PROF-a2 (30-rows-2) | the guest listed as not read | not listed |
+| P4-GLASS-04 (switch-live-blur-3) | no live blur; the Switch on a glass pane | no live blur; the Switch on a solid pane |
+
+### Repo tests
+
+| Suite | Before (batch 2b's final run) | After |
+|---|---|---|
+| test-tv | 43 / 0 | 76 / 0 (the 1920×1080 fit gate, 10-foot type, five screen sizes and a rotation, reminders counted, the hash guards, Switch stops the board, the wake lock, the readers route and its 404 fallback, the offline reopen, the Switch sheet by remote) |
+| smoke-api.sh | 315 / 0 | 322 / 0 (the readers route: sign-in required, only household adults, an untick drops the reader) |
+| smoke-chat.sh (mock model) | 64 / 0 | 64 / 0 |
+| every other suite (22) | pass | pass, identical counts |
+| Earlier batches' checks, verify-1a, the token gate, browser-check | pass | pass (prayer-check stays 47/2, as since batch 0g) |
+
+`node scripts/bump-sw.mjs --check`: 74 precached files present, and all 69 shipped files are accounted for. Every inline script parses (29 of 29). The saved smoke outputs had the throwaway local test tokens and codes blanked.
+
+### Capture rig
+
+- **The run.** The tv area was recaptured on the final code: 34 captures, 0 failed (`audits/screens-after/2c/manifest.json`).
+- **Against batch 2a's capture** (`audits/evidence/p6/2c/capture/pxdiff-tv.txt`): 32 of 34 changed. That is every board state at 1920 and on the iPad (28: the new layout), and the display's #me and #chat states (4), which now show the board. The two profile-picker screens are unchanged.
+- **After the follow-up fix.** A second capture matched the first: 34 compared, 0 changed.
+- **Checked by eye.** The board, the Screen look sheet, and the 960×540 to 3840×2160 sizes were looked at by the reviewers (`check-2c/`) and by me.
+
+### Not verified
+
+- **A real TV and iPad.**
+  - Whether a TV browser or iPad Safari grants the wake lock without a tap (if not, the hint shows until a button is pressed).
+  - Legibility from 3 m, and TV overscan.
+  - A real remote's keys.
+- **A 4K screen at 1×.** It keeps the 1920 sizes, because design.css's width tiers stop at 1920.
+- **Glass.** This WebKit build paints no blur.
+- **Production.** Nothing deployed; until the Worker is deployed, the TV reads who read from feed lines. Deploy order: migrations 006, then 007, then `npx wrangler deploy`, then the site.
