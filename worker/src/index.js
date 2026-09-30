@@ -18,8 +18,8 @@ import {
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
 import { householdLoader, checkRead, guardedPut, creditFor, isHouseholdAdult } from './policy.js';
 import registry from '../../apps.json' with { type: 'json' };   // the apps' visibleTo ids are never handed to a new person
-import { runCron, pushTo, prefsFor, vapidFrom, JOBS } from './reminders.js';
-import { chatHandler, chatHistory, chatUndo, activity } from './chat.js';
+import { runCron, pushTo, prefsFor, vapidFrom, validSubscription, nyParts, jobsAt, JOBS } from './reminders.js';
+import { chatHandler, chatHistory, chatUndo, chatClear, chatStop, pruneKidChat, activity } from './chat.js';
 import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
 
 const PIN_RE = /^\d{4,8}$/;
@@ -120,8 +120,8 @@ route('GET', '/api/dollywood/waits', async c => {
 //   { x, y, name, note, by, byName, at }   (x/y map positions like the loc:* markers, at = server ms)
 // written through putOne() so every phone's hub.js picks it up on its next pull, and DELETE tombstones it the same
 // way. Household adults only — kids, the display and guests get 403 adults_only. One rally per adult per minute.
-// The push honours the 'park' switch in Me → Notifications (push_prefs.park, the park-day kind) but is logged as kind
-// 'rally', so a rally never uses up the park job's one-alert-a-day for the stale-kid-marker warning. A dead or
+// The push honours the 'park' switch in Me → Notifications (push_pref:park, the park-day kind) but is logged as kind
+// 'rally', so a rally is never taken for the park job's stale-kid-marker warning (or its memory). A dead or
 // malformed subscription is reported under `skipped`, never a 500: the row is already saved by then.
 const RALLY_APP = 'dollywood-live', RALLY_KEY = 'meet';
 const RALLY_NAME_MAX = 60, RALLY_NOTE_MAX = 140;
@@ -259,7 +259,7 @@ async function deleteProfile(env, p) {
     env.DB.prepare('DELETE FROM chat_log WHERE profile_id = ?').bind(p.id),
     env.DB.prepare('DELETE FROM push_log WHERE profile_id = ?').bind(p.id),
     env.DB.prepare('DELETE FROM activity WHERE profile_id = ?').bind(p.id),
-    env.DB.prepare('DELETE FROM rate_limits WHERE key LIKE ? OR key LIKE ? OR key = ? OR key = ?').bind(`login:${p.id}:%`, `pintrust:${p.id}:%`, `pinp:${p.id}`, `pinstrike:${p.id}`),
+    env.DB.prepare('DELETE FROM rate_limits WHERE key LIKE ? OR key LIKE ? OR key = ? OR key = ? OR key LIKE ?').bind(`login:${p.id}:%`, `pintrust:${p.id}:%`, `pinp:${p.id}`, `pinstrike:${p.id}`, `chat:${p.id}:%`),
     env.DB.prepare('DELETE FROM profiles WHERE id = ?').bind(p.id),
   ]);
 }
@@ -365,10 +365,15 @@ route('POST', '/api/device/forget', async c => {
   return { ok: true };
 });
 
+// Switch / sign out. The person's push subscription on this device goes with the session (P2-PWA-03): on a shared iPad
+// the next person never gets the previous person's nudges, and their Me shows their own switch, not the browser's.
 route('POST', '/api/logout', async c => {
-  await c.auth();
+  const auth = await c.auth();
   const pt = c.request.headers.get('X-Profile-Token');
-  if (pt) await c.env.DB.prepare('DELETE FROM sessions WHERE token_hash = ?').bind(await sha256(pt)).run();
+  if (pt) await c.env.DB.batch([
+    c.env.DB.prepare('DELETE FROM sessions WHERE token_hash = ?').bind(await sha256(pt)),
+    ...(auth.profile ? [c.env.DB.prepare('DELETE FROM push_subscriptions WHERE profile_id = ? AND device_id = ?').bind(auth.profile.id, auth.device.id)] : []),
+  ]);
   return { ok: true };
 });
 
@@ -527,17 +532,51 @@ route('GET', '/api/push/config', async c => {
   await c.auth();
   return { public_key: c.env.VAPID_PUBLIC_KEY || null, enabled: !!vapidFrom(c.env) };
 });
-route('POST', '/api/push/subscribe', async c => {
+// Who may have notifications (P2-PROF-16, PWA-UX-1): not the display (it can only look), not the kitchen (a shared
+// device), not a kid (no reminder is meant for a child; the Me card has no switch for them). Removing a subscription is
+// always allowed, so any old row can be cleaned up.
+function requirePushable(auth) {
+  const p = requireProfile(auth);
+  if (p.kind === 'kiosk') throw new HttpError(403, 'read_only', 'The display gets no notifications.');
+  if (p.kind === 'kitchen') throw new HttpError(403, 'no_push', 'The kitchen device gets no personal notifications.');
+  if (p.kind === 'kid') throw new HttpError(403, 'no_push', 'Notifications are for grown-ups.');
+  return p;
+}
+const endpointOf = row => { try { return JSON.parse(row.subscription).endpoint || null; } catch { return null; } };
+const subJson = s => JSON.stringify({ endpoint: s.endpoint, expirationTime: s.expirationTime ?? null, keys: { p256dh: s.keys.p256dh, auth: s.keys.auth } });
+// This person's subscription on this device: Me paints its switch from this, not from the browser's (P2-PWA-03).
+route('GET', '/api/push/subscribe', async c => {
   const auth = await c.auth();
   const p = requireProfile(auth);
-  if (p.kind === 'kitchen') throw new HttpError(403, 'no_push', 'The kitchen device gets no personal notifications.');
+  const row = await c.env.DB.prepare('SELECT subscription FROM push_subscriptions WHERE profile_id = ? AND device_id = ?').bind(p.id, auth.device.id).first();
+  return { subscribed: !!row, endpoint: row ? endpointOf(row) : null };
+});
+route('POST', '/api/push/subscribe', async c => {
+  const auth = await c.auth();
+  const p = requirePushable(auth);
   const { subscription } = await c.body();
-  if (!subscription || typeof subscription.endpoint !== 'string') throw new HttpError(400, 'bad_subscription', 'subscription.endpoint is required.');
+  // an endpoint and the two keys the Worker encrypts with (P2-PWA-10): a row without them would fail every push
+  if (!validSubscription(subscription)) throw new HttpError(400, 'bad_subscription', 'subscription needs an endpoint and keys.p256dh / keys.auth.');
   await c.env.DB.prepare(
     `INSERT INTO push_subscriptions (profile_id, device_id, subscription, created_at) VALUES (?, ?, ?, ?)
        ON CONFLICT(profile_id, device_id) DO UPDATE SET subscription = excluded.subscription, created_at = excluded.created_at`)
-    .bind(p.id, auth.device.id, JSON.stringify(subscription), Date.now()).run();
+    .bind(p.id, auth.device.id, subJson(subscription), Date.now()).run();
   return { ok: true };
+});
+// PWA-GAP-2: the browser replaced a subscription (pushsubscriptionchange in sw.js). The service worker holds this device's
+// token (the page hands it over, as it keeps it in localStorage) but no profile token, so the route is device-level: it
+// moves only THIS device's rows that hold the old endpoint (review of batch 2b: never another device's, never unsigned).
+route('POST', '/api/push/resubscribe', async c => {
+  const auth = await c.auth();                                            // 401 device_not_paired without the device token
+  const key = 'resub:' + auth.device.id;
+  await rateCheck(c.env, key, 20);
+  const { old_endpoint, subscription } = await c.body();
+  if (typeof old_endpoint !== 'string' || !old_endpoint || old_endpoint.length > 2048 || !validSubscription(subscription)) throw new HttpError(400, 'bad_subscription', 'old_endpoint and a new subscription are required.');
+  const { results } = await c.env.DB.prepare('SELECT id, subscription FROM push_subscriptions WHERE device_id = ?').bind(auth.device.id).all();
+  const rows = results.filter(r => endpointOf(r) === old_endpoint);
+  if (!rows.length) { await rateHit(c.env, key, 15 * MIN); throw new HttpError(404, 'no_such_subscription', 'No subscription with that endpoint.'); }
+  await c.env.DB.batch(rows.map(r => c.env.DB.prepare('UPDATE push_subscriptions SET subscription = ?, created_at = ? WHERE id = ?').bind(subJson(subscription), Date.now(), r.id)));
+  return { ok: true, moved: rows.length };
 });
 route('DELETE', '/api/push/subscribe', async c => {
   const auth = await c.auth();
@@ -554,6 +593,10 @@ route('POST', '/api/chat', async c => {
   return chatHandler(c, auth);   // the apps this person can open come from the Worker's copy of apps.json (policy.js), never the request
 });
 route('GET', '/api/chat/history', async c => { const auth = await c.auth(); requireProfile(auth); return chatHistory(c, auth); });
+// Stop on a reply that is on its way (review of batch 2b): no model call or tool runs for it after this
+route('POST', '/api/chat/stop', async c => { const auth = await c.auth(); requireProfile(auth); return chatStop(c, auth); });
+// Me → Chat history → Clear (GAP-CHAT-01): the person's own chat history goes; today's message count stays
+route('DELETE', '/api/chat/history', async c => { const auth = await c.auth(); requireWriter(auth); return chatClear(c, auth); });
 // the chip's Undo (batch 0i): puts back what one chat action wrote, where nobody has changed it since
 route('POST', '/api/chat/undo', async c => { const auth = await c.auth(); requireProfile(auth); return chatUndo(c, auth); });
 
@@ -574,6 +617,7 @@ route('POST', '/api/admin/profiles/:id/reset-pin', async c => {
     await c.env.DB.batch([
       c.env.DB.prepare('UPDATE profiles SET pin_hash = NULL, pin_reset_hash = NULL, pin_reset_expires = NULL WHERE id = ?').bind(p.id),
       c.env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id),
+      c.env.DB.prepare('DELETE FROM push_subscriptions WHERE profile_id = ?').bind(p.id),   // sessions end: so do their notifications
     ]);
     return { ok: true, id: p.id };
   }
@@ -581,6 +625,7 @@ route('POST', '/api/admin/profiles/:id/reset-pin', async c => {
   await c.env.DB.batch([
     c.env.DB.prepare('UPDATE profiles SET pin_hash = NULL, pin_reset_hash = ?, pin_reset_expires = ? WHERE id = ?').bind(await hashSecret(code), expires, p.id),
     c.env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id),
+    c.env.DB.prepare('DELETE FROM push_subscriptions WHERE profile_id = ?').bind(p.id),   // their sessions end: so do their notifications (review of batch 2b)
   ]);
   return { ok: true, id: p.id, code, expires_at: expires };
 });
@@ -619,7 +664,10 @@ route('PUT', '/api/admin/profiles/:id', async c => {
   if (kind === 'adult' && p.kind !== 'adult' && !p.is_guest) { setupCode = oneTimeCode(); resetHash = await hashSecret(setupCode); resetExpires = Date.now() + RESET_CODE_MS; }
   await c.env.DB.prepare('UPDATE profiles SET name = ?, emoji = ?, color = ?, kind = ?, sort_order = ?, pin_hash = ?, expires_at = ?, hue = ?, pin_reset_hash = ?, pin_reset_expires = ? WHERE id = ?')
     .bind(name, emoji, color, kind, sort, pinHash, expiresAt, hue, resetHash, resetExpires, p.id).run();
-  if (kind !== p.kind) await c.env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id).run();   // a new kind starts with a new sign-in
+  if (kind !== p.kind) await c.env.DB.batch([   // a new kind starts with a new sign-in, and without the old one's notifications
+    c.env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id),
+    c.env.DB.prepare('DELETE FROM push_subscriptions WHERE profile_id = ?').bind(p.id),
+  ]);
   // ending a guest's stay drops their sessions and push subscriptions now, not at the next cron
   if (p.is_guest && expiresAt !== null && expiresAt < Date.now()) await silenceExpiredGuests(c.env, Date.now(), p.id);
   return { profile: publicProfile({ ...p, name, emoji, color, kind, hue, sort_order: sort, pin_hash: pinHash, pin_reset_hash: resetHash, expires_at: expiresAt }), ...(setupCode ? { setup_code: setupCode, code_expires_at: resetExpires } : {}) };
@@ -757,28 +805,42 @@ route('POST', '/api/admin/pairing-code/rotate', async c => {
   return chosen ? { ok: true } : { ok: true, code };
 });
 
+// Usage by New York day, the day the chat cap counts (P2-CHAT-13): chat is the day's message count (the cap's counter,
+// or the history for days before the counter existed, whichever is larger), push the sends per kind.
 route('GET', '/api/admin/usage', async c => {
   requireAdmin(await c.auth());
-  const since = Date.now() - 30 * 86400000;
-  const chat = await c.env.DB.prepare(
-    `SELECT profile_id, date(created_at / 1000, 'unixepoch') AS day, COUNT(*) AS messages
-       FROM chat_log WHERE role = 'user' AND created_at > ? GROUP BY profile_id, day ORDER BY day DESC`).bind(since).all();
-  const push = await c.env.DB.prepare(
-    `SELECT profile_id, kind, date(created_at / 1000, 'unixepoch') AS day, COUNT(*) AS sends, SUM(ok) AS ok
-       FROM push_log WHERE created_at > ? GROUP BY profile_id, kind, day ORDER BY day DESC`).bind(since).all();
+  const since = Date.now() - 30 * 86400000, first = nyParts(new Date(since)).date;
+  const nyDay = ms => nyParts(new Date(ms)).date;
+  const chatMap = new Map();
+  const bump = (pid, day, n, max = false) => { const k = pid + '|' + day; const cur = chatMap.get(k) || { profile_id: pid, day, messages: 0 }; cur.messages = max ? Math.max(cur.messages, n) : cur.messages + n; chatMap.set(k, cur); };
+  for (const r of (await c.env.DB.prepare("SELECT profile_id, created_at FROM chat_log WHERE role = 'user' AND created_at > ?").bind(since).all()).results) bump(r.profile_id, nyDay(r.created_at), 1);
+  for (const r of (await c.env.DB.prepare("SELECT key, count FROM rate_limits WHERE key LIKE 'chat:%'").all()).results) {
+    const m = /^chat:(.+):(\d{4}-\d{2}-\d{2})$/.exec(r.key); if (m && m[2] >= first) bump(m[1], m[2], +r.count || 0, true);
+  }
+  const pushMap = new Map();
+  for (const r of (await c.env.DB.prepare('SELECT profile_id, kind, ok, created_at FROM push_log WHERE created_at > ?').bind(since).all()).results) {
+    const day = nyDay(r.created_at), k = r.profile_id + '|' + r.kind + '|' + day;
+    const cur = pushMap.get(k) || { profile_id: r.profile_id, kind: r.kind, day, sends: 0, ok: 0 };
+    cur.sends++; cur.ok += r.ok ? 1 : 0; pushMap.set(k, cur);
+  }
+  const newest = (a, b) => (a.day < b.day ? 1 : a.day > b.day ? -1 : 0);
   const devices = await c.env.DB.prepare('SELECT id, name, paired_at, last_seen, role FROM devices ORDER BY last_seen DESC').all();
   const subs = await c.env.DB.prepare('SELECT profile_id, COUNT(*) AS n FROM push_subscriptions GROUP BY profile_id').all();
-  return { chat: chat.results, push: push.results, devices: devices.results, push_subscriptions: subs.results };
+  return { chat: [...chatMap.values()].filter(r => r.messages > 0).sort(newest), push: [...pushMap.values()].sort(newest), devices: devices.results, push_subscriptions: subs.results, tz: 'America/New_York' };
 });
 
-// Send a test notification to the caller (or, for the admin, any profile).
+// Send a test notification to this device (P2-PWA-12): only the caller's subscription on the device that asked, so a
+// "Sent" can only mean this device. The admin may still test all of any profile's devices ({profile_id}).
 route('POST', '/api/push/test', async c => {
-  const auth = await c.auth(); const me = requireProfile(auth);
+  const auth = await c.auth(); const me = requirePushable(auth);
   const b = await c.body();
-  const target = b.profile_id && b.profile_id !== me.id ? (requireAdmin(auth), String(b.profile_id)) : me.id;
-  return pushTo(c.env, target, 'test', { title: 'Anderson House', body: 'Notifications are working on this device.', url: '#me', tag: 'test' }, { ttl: 600, urgency: 'high' });
+  if (b.profile_id && b.profile_id !== me.id) {
+    requireAdmin(auth);
+    return pushTo(c.env, String(b.profile_id), 'test', { title: 'Anderson House', body: `A test from ${me.name}: notifications are working.`, url: '#me', tag: 'test' }, { ttl: 600, urgency: 'high' });
+  }
+  return { ...(await pushTo(c.env, me.id, 'test', { title: 'Anderson House', body: 'Notifications are working on this device.', url: '#me', tag: 'test' }, { ttl: 600, urgency: 'high' }, { deviceId: auth.device.id })), device: true };
 });
-// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'park'}
+// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime'}
 route('POST', '/api/admin/cron/run', async c => {
   requireAdmin(await c.auth());
   const { job } = await c.body();
@@ -854,13 +916,20 @@ export async function handle(request, env, exec) {
 export default {
   fetch: (request, env, ctx) => handle(request, env, ctx),
   // Cron (see wrangler.toml [triggers]). Locally: wrangler dev --test-scheduled, then GET /__scheduled?cron=0+12+*+*+*
+  // Every 15 minutes (wrangler.toml). The firing's own time decides what runs (reminders.js jobsAt), so a late start never
+  // moves the 8 am / 8 pm jobs into another slot.
   async scheduled(event, env, ctx) {
-    // guests (roadmap 23): a guest whose stay ended since the last run loses sessions + push subscriptions first,
-    // so the reminder jobs below (which push to every adult) never reach a departed visitor
+    const now = Number.isFinite(+event.scheduledTime) && +event.scheduledTime > 0 ? +event.scheduledTime : Date.now();
+    const { main } = jobsAt(now);
+    // guests (roadmap 23): a guest whose stay ended since the last run loses sessions + push subscriptions first, so no
+    // job below can reach a departed visitor (the household jobs leave guests out anyway, PWA-UX-2)
     try { await silenceExpiredGuests(env, Date.now()); } catch (e) { console.error('cron guests silence', (e && e.stack) || e); }
-    const out = await runCron(env, Date.now());
+    const out = await runCron(env, now);
     console.log('cron', event.cron, JSON.stringify(out));
+    if (!main) return;
     try { const g = await purgeExpiredGuests(env, Date.now()); if (g.purged.length) console.log('cron guests purged', JSON.stringify(g.purged)); }
     catch (e) { console.error('cron guests', (e && e.stack) || e); }
+    try { const k = await pruneKidChat(env, Date.now()); if (k) console.log('cron kid chat pruned', k); }   // GAP-CHAT-01: kids' chat is kept 90 days
+    catch (e) { console.error('cron kid chat', (e && e.stack) || e); }
   },
 };

@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Roadmap 15 checks: push round 2. Three reminder kinds — "behind" (F260 weekly catch-up), "prayer" (new family-list
-// prayer → adults except the author) and "park" (a kid's map marker went quiet on a park day) — each forced through
+// prayer → adults except the author) and "park" (a kid's map marker went quiet; its full rules: scripts/test-park.mjs) — each forced through
 // POST /api/admin/cron/run as the admin, delivered to the stand-in receiver (scripts/push-receiver.mjs) and asserted
-// on the decrypted payload; opt-outs (push_prefs.<kind> = false) and the once-a-day gate are checked too. Then, headless,
+// on the decrypted payload; opt-outs (push_prefs.<kind> = false) and the per-kind memory are checked too (behind: once a
+// day; prayer: each adult is told each new family prayer once — batch 2b, P2-PWA-04 — and a title edit is not new,
+// P3-PRAYER-25; park: each quiet spell once per adult, P2-PWA-02; guests never get these, PWA-UX-2). Then, headless,
 // the three switches in Me → Notifications exist for an adult and persist in app_data(person, hub, push_prefs), and the
 // prayer app's own add form (family list active, no activity line) writes by:<id> on the row so the author is left out.
 //   cd worker && npx wrangler dev --port 8787     (a freshly reset, seeded local D1 — push_log must be empty for today)
@@ -101,6 +103,7 @@ async function serveSite() {
     ok(pair.status === 200 && pair.body.device_token, 'paired', pair.body); deviceToken = pair.body.device_token;
     for (const id of ['eli', 'christian', 'mom']) await signIn(id);
     { const r = await api('POST', '/api/login', { profile_id: 'ezra' }); tokens.ezra = r.body.profile_token; ok(r.status === 200, 'Ezra (kid) signed in'); }
+    { const r = await api('POST', '/api/login', { profile_id: 'kiara' }); tokens.kiara = r.body.profile_token; ok(r.status === 200, 'Kiara (kid) signed in'); }
     for (const id of ['eli', 'christian', 'mom']) { const r = await api('POST', '/api/push/subscribe', { subscription: subFor(id) }, id); ok(r.status === 200, `${id}: receiver subscribed`, r.body); }
     ok((await api('GET', '/api/push/config')).body.enabled === true, 'VAPID configured locally (push enabled)');
     // Elizabeth (mom) opts out of all three new kinds up front; she proves the pref gate on every job.
@@ -155,14 +158,19 @@ async function serveSite() {
     await put('eli', 'prayer', 'family', 'prayer:s001', { ...prayer, prayedBy: { eli: nyDate(new Date()) }, updatedAt: new Date().toISOString() });
     r = await run('prayer');
     ok(r.body.new.length === 0 && r.body.notified.length === 0, 'editing an existing prayer does not re-announce it', r.body);
+    // editing the wording is not a new request (P3-PRAYER-25)
+    await put('christian', 'prayer', 'family', 'prayer:s001', { ...prayer, title: "Grandma's hip surgery", prayedBy: { eli: nyDate(new Date()) }, updatedAt: new Date().toISOString() });
+    r = await run('prayer');
+    ok(r.body.new.length === 0 && r.body.notified.length === 0, 'editing the title of a family request does not announce it again', r.body);
     // a kid's private prayer (person scope) never counts
     await put('ezra', 'prayer', 'person', 'prayer:p001', { ...prayer, id: 'p001', title: 'My hamster' });
     r = await run('prayer');
     ok(r.body.new.length === 0, 'person-scope prayers are ignored', r.body);
-    // Key re-use: the app's nextId() hands out 'p' + (count + 1), so deleting the newest family prayer and adding another
-    // lands on the SAME prayer:<id> row (a tombstone that putOne updates in place, same app_data.id). It must still be
-    // announced as new. Eli adds p003 → Mae hears; Eli deletes it and adds a different p003 → announced again (Mae is
-    // on her once-a-day gate by then, so mom — who turns the pref back on — is the one who proves the payload).
+    // Key re-use: an older prayer app handed out 'p' + (count + 1), so deleting the newest family prayer and adding another
+    // landed on the SAME prayer:<id> row (a tombstone that putOne updates in place, same app_data.id). A different request
+    // (its own id) under that key must still be announced. Eli adds p003 → Mae hears; Eli deletes it and a different
+    // request lands under prayer:p003 → announced again, to Mae too (no once-a-day gate since batch 2b, P2-PWA-04) and to
+    // mom, who turns the pref back on.
     // This is the prayer app's primary add flow: typed straight into the family list, the app writes by:<profile id> on the
     // row and NO activity line (only "share to the family list" and the chat tool write one). The author must still be
     // left out.
@@ -180,11 +188,11 @@ async function serveSite() {
     await sleep(20);
     { const d = await api('DELETE', '/api/data/prayer/prayer:p003?scope=family', { updated_at: Date.now() }, 'eli'); ok(d.status === 200 && d.body.value === null, 'Eli deletes prayer:p003 (tombstone, row kept)', d.body); }
     await sleep(20);
-    await put('eli', 'prayer', 'family', 'prayer:p003', { ...p003, title: 'Totally different new prayer', updatedAt: new Date().toISOString() });
+    await put('eli', 'prayer', 'family', 'prayer:p003', { ...p003, id: 'p003b', title: 'Totally different new prayer', updatedAt: new Date().toISOString() });
     await put('mom', 'hub', 'person', 'push_prefs', { behind: false, prayer: true, park: false });   // mom turns prayer back on
     r = await run('prayer');
     ok(r.body.new.length === 1 && r.body.new[0].title === 'Totally different new prayer' && r.body.new[0].by === 'eli', 'a different prayer re-using the key prayer:p003 is announced as new', r.body.new);
-    ok(r.body.notified.length === 1 && r.body.notified[0].profile === 'mom' && r.body.skipped.some(s => s.profile === 'christian' && s.why === 'already_today') && r.body.skipped.some(s => s.profile === 'eli' && s.why === 'author'), 'mom notified (pref back on); Mae once-a-day; Eli author', r.body);
+    ok(r.body.notified.map(n => n.profile).sort().join(',') === 'christian,mom' && r.body.skipped.some(s => s.profile === 'eli' && s.why === 'author'), 'Mae and mom notified (a second new prayer the same day still reaches Mae); Eli author', r.body);
     await waitFor(() => pushesFor('mom', 'prayer').length, { label: 'mom prayer push' });
     ok(pushesFor('mom', 'prayer')[0].payload.body === 'New on the family list: Totally different new prayer.', 'mom\'s decrypted payload names the re-created prayer', pushesFor('mom', 'prayer')[0]);
     r = await run('prayer');
@@ -194,36 +202,17 @@ async function serveSite() {
     r = await run('prayer');
     ok(r.body.new.length === 0, 'a plain delete announces nothing', r.body);
 
-    console.log('\n## park: a kid\'s marker went quiet on a park day');
+    console.log('\n## park: judged by the house\'s clock (the full rules are in scripts/test-park.mjs, in process)');
     const now = Date.now();
-    const loc = (id, name, emoji, minAgo) => ({ x: 1200, y: 800, acc: 12, hdg: null, t: now - minAgo * 60000, name, emoji, color: '#137F77' });
-    await put('eli', 'dollywood-live', 'family', 'loc:eli', loc('eli', 'Eli', '🧭', 4));
-    await put('eli', 'dollywood-live', 'family', 'loc:ezra', loc('ezra', 'Ezra', '🦖', 35));
-    await put('eli', 'dollywood-live', 'family', 'loc:kiara', loc('kiara', 'Kiara', '🦄', 6 * 60));   // yesterday's marker: not at the park today
+    const loc = (name, emoji, minAgo) => ({ x: 1200, y: 800, acc: 12, hdg: null, t: now - minAgo * 60000, name, emoji, color: '#137F77' });
+    await put('eli', 'dollywood-live', 'family', 'loc:eli', loc('Eli', '🧭', 1));
+    // since batch 0d a kid's own device publishes the kid's dot, and only while a household adult has the beacon on
+    { const r = await put('eli', 'dollywood-live', 'family', 'kidshare:ezra', true); ok(r.status === 200, "Eli switches Ezra's beacon on", r.body); }
+    { const r = await put('ezra', 'dollywood-live', 'family', 'loc:ezra', loc('Ezra', '🦖', 35)); ok(r.status === 200, "Ezra's phone publishes his dot, its clock 35 min slow", r.body); }
     r = await run('park');
-    ok(r.status === 200 && r.body.parkDay === true, 'park day detected (a marker fresher than 4 h)', r.body);
-    ok(r.body.stale.length === 1 && r.body.stale[0].id === 'ezra', 'Ezra flagged, Kiara (6 h old) not', r.body.stale);
-    const who = r.body.notified.map(n => n.profile).sort();
-    ok(who.join(',') === 'christian,eli', 'Eli and Mae notified', r.body.notified);
-    ok(r.body.skipped.some(s => s.profile === 'mom' && s.why === 'pref_off'), 'mom skipped: pref off', r.body.skipped);
-    await waitFor(() => pushesFor('eli', 'park').length && pushesFor('christian', 'park').length, { label: 'park pushes' });
-    const kp = pushesFor('eli', 'park')[0];
-    ok(/^Ezra's spot has not updated for 3[5-6] min\.$/.test(kp.payload.body) && kp.payload.url === '#dollywood-live' && kp.urgency === 'high', 'decrypted payload: "Ezra\'s spot has not updated for 35 min."', kp);
-    ok(pushesFor('mom', 'park').length === 0, 'mom got nothing');
-    r = await run('park');
-    ok(r.body.notified.length === 0 && r.body.skipped.filter(s => s.why === 'already_today').length === 2, 'second run: once a day per person', r.body);
-    // no fresh adult -> no alert (they may all be on a ride with no signal)
-    await put('eli', 'dollywood-live', 'family', 'loc:eli', loc('eli', 'Eli', '🧭', 45));
-    r = await run('park');
-    ok(r.body.stale.length === 1 && r.body.notified.length === 0 && !r.body.skipped.length, 'no fresh adult marker: nothing sent', r.body);
+    ok(r.status === 200 && r.body.parkDay === true && r.body.stale.length === 0 && r.body.notified.length === 0, "a dot the house has just heard from is not quiet, whatever the phone's clock says (review of batch 2b)", r.body);
 
     console.log('\n## pref flips');
-    // mom turns park back on: the same conditions now reach her (proves the pref was the only gate)
-    await put('eli', 'dollywood-live', 'family', 'loc:eli', loc('eli', 'Eli', '🧭', 2));
-    await put('mom', 'hub', 'person', 'push_prefs', { behind: false, prayer: false, park: true });
-    r = await run('park');
-    ok(r.body.notified.length === 1 && r.body.notified[0].profile === 'mom', 'park pref back on: mom gets the alert', r.body);
-    await waitFor(() => pushesFor('mom', 'park').length, { label: 'mom park push' });
     // Eli turns behind off, mom stays off; a brand-new person (dad) with the default prefs and no subscription is not in notified
     await put('eli', 'hub', 'person', 'push_prefs', { behind: false });
     await put('eli', 'f260', 'person', 'f260.weekStart', { 3: daysAgo(6) });
@@ -231,9 +220,9 @@ async function serveSite() {
     ok(r.body.notified.length === 0 && r.body.skipped.some(s => s.profile === 'eli' && s.why === 'pref_off'), 'behind pref off: Eli skipped as pref_off (not just already_today)', r.body.skipped);
     const usage = await api('GET', '/api/admin/usage', undefined, 'eli');
     const sends = (usage.body.push || []).map(p => `${p.profile_id}:${p.kind}`).sort();
-    ok(sends.join(' ') === 'christian:park christian:prayer eli:behind eli:park eli:prayer mom:park mom:prayer', 'push_log matches: eli behind/prayer/park, christian prayer/park, mom prayer/park', sends);
+    ok(sends.join(' ') === 'christian:prayer eli:behind eli:prayer mom:prayer', 'push_log matches: eli behind/prayer, christian prayer, mom prayer', sends);
     const perKind = pushes.filter(p => p.payload).map(p => p.url + ' ' + p.payload.tag).sort();
-    ok(perKind.length === 7 && !pushes.some(p => p.error), 'receiver saw exactly 7 pushes, all decrypted + VAPID valid', perKind);
+    ok(perKind.length === 5 && !pushes.some(p => p.error), 'receiver saw exactly 5 pushes, all decrypted + VAPID valid', perKind);
 
     console.log('\n## Me → Notifications: the three switches (headless)');
     site = await serveSite();
@@ -269,9 +258,10 @@ async function serveSite() {
       await page.click('#notif-prefs [data-pref=prayer]'); await page.click('#notif-prefs [data-pref=behind]');
       ok(await page.$eval('#notif-prefs [data-pref=prayer]', e => e.getAttribute('aria-checked')) === 'false', 'tapping "New family prayers" flips it off');
       await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush' });
-      const row = await api('GET', '/api/data/hub?scope=person&key=push_prefs', undefined, 'eli');
-      const v = row.body.item && row.body.item.value;
-      ok(v && v.prayer === false && v.behind === true && v.park !== false, 'push_prefs on the server: prayer off, behind back on, park untouched', row.body);
+      // since the review of batch 2b one row per switch (push_pref:<kind>) over the old push_prefs row
+      const rows = (await api('GET', '/api/data/hub?scope=person&prefix=push_pref:', undefined, 'eli')).body.items || [];
+      const v = Object.fromEntries(rows.filter(r => r.value !== null).map(r => [r.key.slice('push_pref:'.length), r.value]));
+      ok(v.prayer === false && v.behind === true && !('park' in v), 'switch rows on the server: push_pref:prayer off, push_pref:behind back on, park untouched', rows);
       await page.evaluate(() => document.getElementById('notif').scrollIntoView());
       fs.mkdirSync(path.join(ROOT, 'docs/screens'), { recursive: true });
       await page.screenshot({ path: path.join(ROOT, 'docs/screens/rm15-me-notifications.png') });
@@ -304,8 +294,8 @@ async function serveSite() {
       ok(pr.body.skipped.some(x => x.profile === 'eli' && x.why === 'author') && !pr.body.notified.some(n => n.profile === 'eli'), 'Eli is left out as the author', pr.body);
       await sleep(400);
       ok(pushesFor('eli', 'prayer').length === before, 'receiver: no push to Eli about his own typed prayer', pushesFor('eli', 'prayer'));
-      // (Mae and mom are not pushed here only because of the once-a-day gate / pref: proved above with fresh recipients.)
-      ok(pr.body.skipped.some(x => x.profile === 'christian' && x.why === 'already_today'), 'Mae would have been told (skipped only by the once-a-day gate)', pr.body.skipped);
+      // Mae is told although she had prayer pushes earlier today (batch 2b, P2-PWA-04); mom has the switch off by now
+      ok(pr.body.notified.some(x => x.profile === 'christian'), 'Mae is told about the typed prayer (no once-a-day gate)', pr.body);
       await page.screenshot({ path: path.join(ROOT, 'docs/screens/rm15-prayer-family-add-390.png') });
       await page.goto(SITE + '/index.html'); await page.waitForSelector('#shell:not([hidden])', { timeout: 15000 });
       await page.click('.tab[data-tab=me]'); await page.waitForSelector('#notif-prefs', { state: 'attached' });
@@ -313,9 +303,11 @@ async function serveSite() {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.click('#switch'); await page.waitForSelector('.pcard[data-id]'); await page.click('.pcard[data-id=ezra]');
       await page.waitForSelector('#shell:not([hidden])', { timeout: 15000 });
-      await page.click('.tab[data-tab=me]'); await page.waitForSelector('#notif-prefs', { state: 'attached' });
+      await page.click('.tab[data-tab=me]'); await page.waitForSelector('#switch', { state: 'attached' });
+      // since batch 2b (P2-PROF-16) a kid has no Notifications card at all, and the house refuses a kid's subscription
       const kidPrefs = await page.$$eval('#notif-prefs [data-pref]', els => els.map(e => e.dataset.pref));
-      ok(!kidPrefs.some(p => ['behind', 'prayer', 'park'].includes(p)), 'Ezra (kid) has none of the three adult switches', kidPrefs);
+      ok(!kidPrefs.length && !(await page.$('#notif')), 'Ezra (kid) has no Notifications card (none of the adult switches)', kidPrefs);
+      { const r = await api('POST', '/api/push/subscribe', { subscription: subFor('ezra') }, 'ezra'); ok(r.status === 403 && r.body.error === 'no_push', 'the house refuses a kid\'s subscription (403 no_push)', r.body); }
       ok(errors.length === 0, 'no console errors', errors);
     }
   } catch (e) { fail++; console.log('  ✗ crashed:', e.stack || e); }

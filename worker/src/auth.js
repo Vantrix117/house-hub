@@ -91,6 +91,8 @@ export async function authenticate(request, env, ctx) {
          FROM sessions s JOIN profiles p ON p.id = s.profile_id
         WHERE s.token_hash = ?`).bind(await sha256(pt)).first();
     if (!row || row.session_expires < now || row.session_device !== device.id) {
+      // a session that ran out on this device takes the person's notifications here with it (review of batch 2b)
+      if (row && row.session_device === device.id) ctx.waitUntil(env.DB.prepare('DELETE FROM push_subscriptions WHERE profile_id = ? AND device_id = ?').bind(row.id, device.id).run().catch(() => {}));
       throw new HttpError(401, 'profile_session_invalid', 'Please choose your profile again.');
     }
     if (isExpiredGuest(row, now)) {
@@ -124,12 +126,19 @@ export function requireAdmin(auth) {
   return p;
 }
 
+/**
+ * A new sign-in on a device. The device's notifications belong to whoever is signed in there (P2-PWA-03, review of batch
+ * 2b): any other person's subscription on this device goes now, however their session ended (Switch, Reset PIN, a new
+ * kind, a year's expiry, any 401), so the next person never receives the previous person's pushes.
+ */
 export async function createSession(env, profileId, deviceId) {
   const token = randomToken();
   const now = Date.now();
-  await env.DB.prepare(
-    'INSERT INTO sessions (token_hash, profile_id, device_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?)')
-    .bind(await sha256(token), profileId, deviceId, now, now + SESSION_MS).run();
+  await env.DB.batch([
+    env.DB.prepare('INSERT INTO sessions (token_hash, profile_id, device_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?)')
+      .bind(await sha256(token), profileId, deviceId, now, now + SESSION_MS),
+    env.DB.prepare('DELETE FROM push_subscriptions WHERE device_id = ? AND profile_id != ?').bind(deviceId, profileId),
+  ]);
   return token;
 }
 

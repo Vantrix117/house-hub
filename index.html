@@ -383,11 +383,15 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   .chat-day { align-self: center; margin: var(--sp-3) 0 var(--sp-1); padding: 2px var(--sp-3); border-radius: var(--r-full); background: var(--surface-2); color: var(--text-2); font-size: var(--fs-caption1); font-weight: 600; }
   .chat-forgot { background: transparent; color: var(--text-3); font-weight: 500; border: 1px dashed var(--line); }
   .msg .chat-retry { display: flex; margin-top: var(--sp-2); }
+  #notif .kv { align-items: center; }
+  #notif .notif-time { flex: none; width: auto; min-width: 8.5em; max-width: 60%; min-height: var(--tap); }
   .chat-count { flex: none; padding: 0 var(--sp-2); color: var(--text-2); font-size: var(--fs-caption1); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .msg { padding: var(--sp-3) var(--sp-4); border-radius: var(--r-lg); line-height: var(--lh); white-space: pre-wrap; overflow-wrap: anywhere; min-width: 0; }
   .msg.user { background: var(--accent-fill); color: var(--accent-ink); border-bottom-right-radius: 6px; box-shadow: var(--e1); }
   .msg.bot { border-bottom-left-radius: 6px; }
   .msg.bot.err { border-color: var(--danger-graphic); color: var(--danger-ink); }
+  .msg.bot.stopped .stop-note { color: var(--text-2); font-style: italic; }
+  .msg .chips .chip .chip-undo { white-space: nowrap; }
   .msg .chips { display: flex; flex-direction: column; gap: 4px; margin-top: var(--sp-2); padding-top: var(--sp-2); border-top: 1px dashed var(--line); }
   .msg .chips:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
   .msg .chips .chip { justify-content: flex-start; min-height: 28px; font-size: var(--fs-xs); border-radius: var(--r-sm); }
@@ -604,6 +608,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         <input class="input" id="chat-in" aria-label="Message to the house" placeholder="Ask or tell the house…" maxlength="2000" enterkeyhint="send">
         <span class="chat-count" id="chat-count" hidden></span>
         <button class="btn btn-primary btn-round" type="submit" id="chat-send" aria-label="Send"><svg class="icon"><use href="#i-send"/></svg></button>
+        <button class="btn btn-soft btn-round" type="button" id="chat-stop" aria-label="Stop" hidden><svg class="icon"><use href="#i-stop"/></svg></button>
       </form>
     </section>
     <section class="view" id="view-me" aria-label="Me"></section>
@@ -652,6 +657,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   <symbol id="i-flame" viewBox="0 0 24 24"><path class="duo" d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .5 1.5 1.5 2 2 2 .5-3-1-5 1-8Z"/><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-1.5.5-2.5 1-3 .5 1.5 1.5 2 2 2 .5-3-1-5 1-8Z"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><path class="duo" d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/></symbol>
   <symbol id="i-timer" viewBox="0 0 24 24"><circle class="duo" cx="12" cy="13" r="7"/><circle cx="12" cy="13" r="7"/><path d="M12 9v4l2.5 2M10 3h4M12 3v3"/></symbol>
   <symbol id="i-sparkle" viewBox="0 0 24 24"><path class="duo" d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
 </svg>
@@ -1911,13 +1917,16 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         ${!['kiosk', 'kitchen', 'kid'].includes(p.kind) ? `<div class="card glass" id="notif"><h2>Notifications</h2>
           <div class="hstack"><div class="grow"><div>Reminders on this device</div><div class="help" id="notif-help">Checking…</div></div><button class="switch" id="notif-toggle" role="switch" aria-checked="false" aria-label="Notifications on this device" disabled></button></div>
           <div id="notif-prefs" hidden style="margin-top:var(--sp-3)">
-            ${p.kind === 'adult' ? '<div class="kv"><b>Fridge warnings, 8 am</b><button class="switch" data-pref="leftovers" role="switch" aria-checked="true" aria-label="Fridge warnings"></button></div>' : ''}
+            ${p.kind === 'adult' && !isGuest() ? '<div class="kv"><b>Fridge warnings, 8 am</b><button class="switch" data-pref="leftovers" role="switch" aria-checked="true" aria-label="Fridge warnings"></button></div>' : ''}
             ${canSee('f260') ? '<div class="kv"><b>Reading nudge, 8 pm</b><button class="switch" data-pref="f260" role="switch" aria-checked="true" aria-label="Reading nudge"></button></div>' : ''}
             ${p.kind === 'adult' && canSee('f260') ? '<div class="kv"><b>Weekly catch-up, Sunday 8 pm</b><button class="switch" data-pref="behind" role="switch" aria-checked="true" aria-label="Weekly catch-up"></button></div>' : ''}
-            ${p.kind === 'adult' && canSee('prayer') ? '<div class="kv"><b>New family prayers</b><button class="switch" data-pref="prayer" role="switch" aria-checked="true" aria-label="New family prayers"></button></div>' : ''}
-            ${p.kind === 'adult' && canSee('dollywood-live') ? '<div class="kv"><b>Park day: a child\'s spot goes quiet</b><button class="switch" data-pref="park" role="switch" aria-checked="true" aria-label="Park day alerts"></button></div>' : ''}
+            ${p.kind === 'adult' && !isGuest() && canSee('prayer') ? '<div class="kv"><b>New family prayers, 8 am and 8 pm</b><button class="switch" data-pref="prayer" role="switch" aria-checked="true" aria-label="New family prayers"></button></div>' : ''}
+            ${canSee('prayer') ? '<div class="kv"><b>Who prayed for my requests, 8 pm</b><button class="switch" data-pref="prayedfor" role="switch" aria-checked="true" aria-label="Who prayed for my requests"></button></div>' : ''}
+            ${canSee('prayer') ? `<label class="kv"><b>Reminder to pray</b><select class="select notif-time" id="notif-pray" aria-label="Reminder to pray">${PRAY_TIMES.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>` : ''}
+            ${p.kind === 'adult' && !isGuest() && canSee('dollywood-live') ? '<div class="kv"><b>Park day: a child\'s spot goes quiet</b><button class="switch" data-pref="park" role="switch" aria-checked="true" aria-label="Park day alerts"></button></div>' : ''}
             <button class="btn" id="notif-test" style="margin-top:var(--sp-3)">Send a test notification</button>
           </div></div>` : ''}
+        ${p.kind !== 'kiosk' && p.kind !== 'kitchen' ? `<div class="card glass" id="chat-hist"><h2>Chat history</h2><p class="help" style="margin:0 0 var(--sp-3)">${p.kind === 'kid' ? 'Your chats with the helper go away by themselves after 90 days. You can clear them now too.' : 'What you and the assistant said, kept on the house server. Clearing it does not give back today’s messages.'}</p><button class="btn" id="chat-clear">${p.kind === 'kid' ? 'Clear my chats' : 'Clear my chat history'}</button></div>` : ''}
         ${p.kind === 'adult' && !isGuest() ? '<div class="card glass span2" id="rewards"><h2><span class="app-icon" data-accent="' + esc(hueOfApp('kidverse')) + '">' + ICON_STAR + '</span>Kids\' rewards</h2><div id="rewards-body"></div></div>' : ''}
         <div class="card glass" id="sync-card"><h2>Sync</h2>
           <div id="sync-body">${syncBodyHtml(s)}</div>
@@ -1946,6 +1955,15 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       }
     });
     if ($('#pin-change')) $('#pin-change').addEventListener('click', changePinSheet);
+    // GAP-CHAT-01: Me → Chat history → Clear (the house keeps today's count, so the cap is unchanged)
+    if ($('#chat-clear')) $('#chat-clear').addEventListener('click', async ev => {
+      const b = ev.currentTarget;
+      if (!await hub.confirm('Everything you and the assistant said is removed from the house server. This cannot be undone.', { title: 'Clear your chat history?', ok: 'Clear history', danger: true })) return;
+      b.disabled = true;
+      try { await hub.request('/api/chat/history', { method: 'DELETE' }); chatLoaded = false; if (!chatBusy) { chatLog.innerHTML = ''; lastDay = null; } hub.toast('Your chat history is cleared.'); }
+      catch (e) { hub.toast(e.status ? e.message : 'Can’t reach the house — try again when this device is online.', 5000); }
+      finally { b.disabled = false; }
+    });
     if (p.isAdmin) renderAdmin();
     if (!['kiosk', 'kitchen', 'kid'].includes(p.kind)) renderNotif();
     // photos: own photo from the hero, album photos from the card
@@ -2111,7 +2129,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   }
 
   // ── chat ──────────────────────────────────────────────────────
-  const chatLog = $('#chat-log'), chatIn = $('#chat-in'), chatForm = $('#chat-form'), chatCap = $('#chat-cap'), chatSend = $('#chat-send'), chatCount = $('#chat-count');
+  const chatLog = $('#chat-log'), chatIn = $('#chat-in'), chatForm = $('#chat-form'), chatCap = $('#chat-cap'), chatSend = $('#chat-send'), chatCount = $('#chat-count'), chatStop = $('#chat-stop');
   let chatLoaded = false, chatBusy = false, chatEnabled = true, chatCapped = false, lastDay = null;
   // one generation per sign-in: a reply, a failure or a history still in flight from the previous person is dropped (and its
   // stream aborted), so what they typed, their cap and their spoken reply never reach the next person (review of batch 2a)
@@ -2125,7 +2143,17 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     chatBusy = false; chatEnabled = true; sendingQueued = false;
     chatLoaded = false; chatCapped = false; lastDay = null; chatLog.innerHTML = ''; chatIn.value = '';
     chatIn.disabled = false; chatIn.placeholder = PLACEHOLDER; chatIn.setAttribute('aria-label', 'Message to the house'); chatSend.disabled = false; chatCount.hidden = true; chatCap.textContent = '';
+    chatStop.hidden = true; chatSend.hidden = false;
   }
+  // P2-CHAT-05: while a reply is on its way, Stop takes Send's place; it ends the wait and keeps the message for Retry
+  const CHAT_SILENCE_MS = 60000;   // the house gives up on a silent assistant after 45 s; this is the tab's own backstop
+  chatStop.addEventListener('click', () => {
+    if (!chatAbort) return;
+    const ac = chatAbort; ac.stopped = true;
+    // the house is told too: no model call and no tool runs for this message after this (review of batch 2b)
+    ac.stopAnswer = ac.rid ? hub.request('/api/chat/stop', { method: 'POST', body: { rid: ac.rid } }).catch(() => null) : Promise.resolve(null);
+    try { ac.abort(); } catch {}
+  });
   // UX-CHAT-07: a day line when the day changes, and the time under each message
   const dayLabel = t => { const d = hub.today(t), now = hub.today(); return d === now ? 'Today' : d === hub.addDays(now, -1) ? 'Yesterday' : new Date(t).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }); };
   function dayLine(t) {
@@ -2256,7 +2284,13 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (!text || chatBusy || !chatEnabled || chatCapped) return false;
     if (navigator.onLine === false) { const q = chatQueue(); const item = { text, at: Date.now() }; q.push(item); saveChatQueue(q); queuedBubble(item); return true; }
     const gen = chatGen, ac = new AbortController(); chatAbort = ac;
+    ac.rid = (hub.uid ? hub.uid() : Math.random().toString(36).slice(2)) + Date.now().toString(36);
     chatBusy = true; chatSend.disabled = true;
+    const sendHadFocus = document.activeElement === chatSend;   // a tap on Send: the focus moves to Stop, which takes its place
+    chatSend.hidden = true; chatStop.hidden = false;
+    if (sendHadFocus) chatStop.focus();
+    let heard = Date.now();
+    const watchdog = setInterval(() => { if (Date.now() - heard > CHAT_SILENCE_MS) { ac.silent = true; try { ac.abort(); } catch {} } }, 5000);
     const userD = bubble('user', text);
     const bot = bubble('bot', '');
     const typing = document.createElement('span'); typing.className = 'typing'; typing.innerHTML = '<i></i><i></i><i></i>'; bot.append(typing);
@@ -2272,6 +2306,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       retry.onclick = () => { if (chatBusy) return; bot.closest('.mrow').remove(); userD.closest('.mrow').remove(); if (chatIn.value.trim() === text) chatIn.value = ''; sendChat(text); };
       bot.append(retry);
       if (!chatIn.value.trim()) chatIn.value = text;   // what was typed is back in the field
+      scrollChat();   // the note and its Retry are in view, above the composer
     };
     const chipBox = () => { if (!chipsEl) { chipsEl = document.createElement('div'); chipsEl.className = 'chips'; chipsEl.setAttribute('aria-live', 'polite'); bot.append(chipsEl); } return chipsEl; };
     const handle = (event, data) => {
@@ -2303,15 +2338,16 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         if (!textNode && !chipsEl) bot.append(document.createTextNode('(no reply)'));
         if (textNode) { addSayButton(bot); if (tab === 'chat') speakForKid(textNode.data, { queue: spoke }); }
       }
-      else if (event === 'error') { fail(plainError(data.message, data.status || 500), data.status || 500); }
+      else if (event === 'error') { if (data.refunded && data.used != null) setCap(data.used, data.cap); fail(plainError(data.message, data.status || 500), data.status || 500); }
     };
     try {
-      const r = await fetch(hub.api.replace(/\/$/, '') + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Token': hub.device.token, 'X-Profile-Token': hub.session.token }, body: JSON.stringify({ message: text, apps }), signal: ac.signal });
+      const r = await fetch(hub.api.replace(/\/$/, '') + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Token': hub.device.token, 'X-Profile-Token': hub.session.token }, body: JSON.stringify({ message: text, apps, rid: ac.rid }), signal: ac.signal });
       if (!r.ok) { const j = await r.json().catch(() => ({})); if (r.status === 429 && j.used != null) setCap(j.used, j.cap); const e = new Error(j.message || ''); e.status = r.status; throw e; }
       answered = true;
       const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
       while (true) {
         const { value, done } = await reader.read(); if (done) break;
+        heard = Date.now();
         buf += dec.decode(value, { stream: true });
         let i;
         while ((i = buf.indexOf('\n\n')) >= 0) {
@@ -2321,10 +2357,29 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
           if (data) handle(evName, data);
         }
       }
-    } catch (e) { if (!failed) fail(plainError(e, e.status || 0), e.status || 0); }
+    } catch (e) {
+      if (failed) {}
+      else if (ac.stopped) {
+        // no Retry here: the house may already have done part of it. What it did shows once the history reloads.
+        failed = true; typing.remove(); bot.classList.add('stopped');
+        const note = document.createElement('span'); note.className = 'stop-note'; note.textContent = 'Stopped. If the house had already started, what it did shows here in a moment.';
+        bot.insertBefore(note, chipsEl);
+        scrollChat();
+        // the words go back in the box only when the house did nothing for them: a second Send must never repeat a write
+        const told = await ac.stopAnswer;
+        if (gen === chatGen && !chipsEl && told && told.ran === 0 && !chatIn.value.trim()) chatIn.value = text;
+        setTimeout(() => { if (gen === chatGen && !chatBusy) { chatLoaded = false; if (tab === 'chat') openChat(); } }, 3500);
+      }
+      else if (ac.silent) fail('The assistant is not answering. Your message is kept — tap Retry in a moment.', 504);
+      else fail(plainError(e, e.status || 0), e.status || 0);
+    }
     finally {
+      clearInterval(watchdog);
       if (gen === chatGen) {
+        const hadStopFocus = document.activeElement === chatStop;
         chatBusy = false; chatAbort = null; chatSend.disabled = chatCapped;
+        chatStop.hidden = true; chatSend.hidden = false;
+        if (hadStopFocus) chatIn.focus();
         if (tab === 'chat' && !current) { if (!chatLoaded) openChat(); else if (!chatIn.disabled) chatIn.focus(); }
       }
     }
@@ -2352,53 +2407,108 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   }
 
   // ── notifications (Web Push) ──────────────────────────────────
+  const PRAY_TIMES = [['', 'Off'], ...Array.from({ length: 36 }, (_, i) => { const m = 300 + i * 30, h = Math.floor(m / 60), mm = m % 60;
+    return [String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0'), (h % 12 || 12) + ':' + String(mm).padStart(2, '0') + (h < 12 ? ' am' : ' pm')]; })];
+  // the person's switches: one row per kind (push_pref:<kind>) over the old whole row push_prefs (review of batch 2b)
+  const readPrefs = () => {
+    const o = { app: 'hub', scope: 'person' };
+    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, prayAt: null, ...(hub.get('push_prefs', o) || {}) };
+    for (const r of hub.list('push_pref:', o)) out[r.key.slice('push_pref:'.length)] = r.value;
+    return out;
+  };
+  let notifRepaint = null;
+  hub.onChange(ch => { if (ch.app === 'hub' && (ch.bulk || ch.key === null || /^push_pref/.test(ch.key || '')) && notifRepaint && tab === 'me') notifRepaint(); });
   const IOS = /iPhone|iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && location.protocol === 'https:';
   const b64ToBytes = s => Uint8Array.from(atob((s + '='.repeat((4 - s.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+  // The switch is this person's notifications on this device (P2-PWA-03): on only when the house holds a subscription for
+  // them here that matches this browser's. A Switch ends theirs (the Worker drops it at sign-out), so the next person on a
+  // shared iPad starts with the switch off and never sees someone else's "On".
   async function renderNotif() {
     const help = $('#notif-help'), toggle = $('#notif-toggle'), prefsEl = $('#notif-prefs'); if (!help) return;
-    const prefs = { leftovers: true, f260: true, behind: true, prayer: true, park: true, ...(hub.get('push_prefs', { app: 'hub', scope: 'person' }) || {}) };
+    const who = hub.profile && hub.profile.id;
+    const prefs = readPrefs();
+    let sub = null, on = false;
+    // one row per switch (review of batch 2b): a change here never overwrites another device's change to another switch
+    const savePrefs = next => { for (const [k, v] of Object.entries(next)) if (prefs[k] !== v) hub.set('push_pref:' + k, v, { app: 'hub', scope: 'person' }); Object.assign(prefs, next); };
+    // PWA-UX-1: what this person gets is the switches below; the help says whether any are on (review: not a list of them)
+    const anyOn = () => [...prefsEl.querySelectorAll('[data-pref]')].some(b => prefs[b.dataset.pref] !== false) || (!!$('#notif-pray') && !!prefs.prayAt);
+    const paintHelp = () => { help.textContent = on ? (anyOn() ? 'On for you on this device. Choose what you get below.' : 'On for you on this device, with every reminder below switched off.') : 'Off for you on this device.' + (IOS ? ' Works from the Home Screen app.' : ''); };
+    // another device changed a switch: this card shows it (review of batch 2b)
+    notifRepaint = () => { if (!toggle.isConnected) return; Object.assign(prefs, readPrefs());
+      prefsEl.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(prefs[b.dataset.pref] !== false)));
+      const p2 = $('#notif-pray'); if (p2 && document.activeElement !== p2) p2.value = PRAY_TIMES.some(x => x[0] === prefs.prayAt) ? (prefs.prayAt || '') : '';
+      paintHelp(); };
     prefsEl.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(prefs[b.dataset.pref] !== false)));
     prefsEl.onclick = ev => {
       const b = ev.target.closest('[data-pref]'); if (!b) return;
       const next = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', String(next));
-      try { hub.set('push_prefs', { ...prefs, [b.dataset.pref]: next }, { app: 'hub', scope: 'person' }); prefs[b.dataset.pref] = next; }
+      try { savePrefs({ ...prefs, [b.dataset.pref]: next }); paintHelp(); }
       catch (e) { b.setAttribute('aria-checked', String(!next)); }   // not loaded yet (the SDK says so): the switch goes back rather than pretend
     };
+    const pray = $('#notif-pray');
+    if (pray) {
+      pray.value = PRAY_TIMES.some(x => x[0] === prefs.prayAt) ? (prefs.prayAt || '') : '';
+      pray.onchange = () => { try { savePrefs({ ...prefs, prayAt: pray.value || null }); paintHelp(); } catch (e) { pray.value = prefs.prayAt || ''; } };
+    }
     const test = $('#notif-test');
     if (test) test.onclick = async () => {
       test.disabled = true;
-      try { const r = await hub.request('/api/push/test', { method: 'POST', body: {} }); hub.toast(r.sent ? (r.ok ? 'Sent — it should appear in a moment.' : 'The push service refused it: ' + (r.details[0] && (r.details[0].status + ' ' + (r.details[0].error || '')))) : 'No subscription on the server for this device yet.', 4000); }
-      catch (e) { hub.toast(e.message); } finally { test.disabled = false; }
+      try {
+        const r = await hub.request('/api/push/test', { method: 'POST', body: { endpoint: sub ? sub.endpoint : null } });
+        hub.toast(r.sent ? (r.ok ? 'Sent to this device — it should appear in a moment.' : 'The push service refused it: ' + (r.details[0] && (r.details[0].status + ' ' + (r.details[0].error || '')))) : 'This device has no notifications for you on the house server — turn the switch off and on again.', 4000);
+      } catch (e) { hub.toast(e.message); } finally { test.disabled = false; }
     };
     if (!pushSupported()) { help.textContent = IOS && !standalone() ? 'On iPhone and iPad, add the hub to your Home Screen first (Share → Add to Home Screen), then turn this on from there.' : 'This browser cannot receive push notifications.'; return; }
     if (Notification.permission === 'denied') { help.textContent = 'Blocked in the browser settings for this site. Allow notifications there, then come back.'; return; }
     const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
-    const paint = () => { toggle.setAttribute('aria-checked', String(!!sub)); toggle.disabled = false; prefsEl.hidden = !sub;
-      help.textContent = sub ? 'On for this device. Fridge warnings go to adults at 8 am; the reading nudge comes at 8 pm if nothing is checked off.' : 'Fridge warnings and reading nudges, sent to this device.' + (IOS ? ' Works from the Home Screen app.' : ''); };
+    sub = await reg.pushManager.getSubscription();
+    let server = null;
+    try { server = await hub.request('/api/push/subscribe'); } catch {}
+    if (!toggle.isConnected || !hub.profile || hub.profile.id !== who) return;   // Me re-rendered or someone else signed in meanwhile
+    if (!server) { help.textContent = 'Can’t reach the house right now — try again when this device is online.'; return; }
+    on = !!(sub && server.subscribed);
+    // PWA-GAP-2: the browser replaced its subscription since this person turned it on: the house gets the new one
+    if (on && server.endpoint !== sub.endpoint) { try { await hub.request('/api/push/subscribe', { method: 'POST', body: { subscription: sub.toJSON() } }); } catch {} }
+    // the house still lists this device for them, but the browser has no subscription: that row can never deliver
+    if (!sub && server.subscribed) { try { await hub.request('/api/push/subscribe', { method: 'DELETE' }); } catch {} }
+    const paint = () => { toggle.setAttribute('aria-checked', String(on)); toggle.disabled = false; prefsEl.hidden = !on; paintHelp(); };
     paint();
     toggle.onclick = async () => {
       toggle.disabled = true;
       try {
-        if (sub) { await sub.unsubscribe(); try { await hub.request('/api/push/subscribe', { method: 'DELETE' }); } catch {} sub = null; hub.toast('Notifications off for this device.'); }
-        else {
+        if (on) {
+          await hub.request('/api/push/subscribe', { method: 'DELETE' });
+          try { if (sub) await sub.unsubscribe(); } catch {}
+          sub = null; on = false; hub.toast('Notifications off for you on this device.');
+        } else {
           const perm = await Notification.requestPermission();
           if (perm !== 'granted') { help.textContent = 'Notifications were not allowed.'; toggle.disabled = false; return; }
           const cfg = await hub.request('/api/push/config');
           if (!cfg.enabled) { help.textContent = 'The house server has no push keys yet.'; toggle.disabled = false; return; }
-          sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(cfg.public_key) });
+          // the browser keeps one subscription for the whole hub: someone who used this device before may have left one
+          sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(cfg.public_key) });
           await hub.request('/api/push/subscribe', { method: 'POST', body: { subscription: sub.toJSON() } });
-          hub.toast('Notifications on for this device.');
+          tellWorker({ publicKey: cfg.public_key });
+          on = true; hub.toast('Notifications on for you on this device.');
         }
-      } catch (e) { toggle.disabled = false; toggle.setAttribute('aria-checked', String(!!sub)); help.textContent = 'Could not turn notifications on: ' + (e.message || e) + (/permission denied|push service/i.test(e.message || '') ? ' — this browser could not reach its push service.' : ''); return; }
+      } catch (e) { toggle.disabled = false; toggle.setAttribute('aria-checked', String(on)); help.textContent = 'Could not change notifications: ' + (e.message || e) + (/permission denied|push service/i.test(e.message || '') ? ' — this browser could not reach its push service.' : ''); return; }
       paint();
     };
   }
+  // the service worker keeps where the house is (and its push key), for a pushsubscriptionchange with no page open (PWA-GAP-2)
+  function tellWorker(extra = {}) {
+    try { const c = navigator.serviceWorker && navigator.serviceWorker.controller; if (c) c.postMessage({ source: 'hubshell', type: 'config', api: hub.api, deviceToken: hub.device ? hub.device.token : null, ...extra }); } catch {}
+  }
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => {
     if (!ev.data || ev.data.source !== 'hubsw') return;
-    if (ev.data.type === 'open') { const h = new URL(ev.data.url).hash; if (h && location.hash !== h) location.hash = h; else if (h) { const id = h.slice(1); appById(id) ? openApp(id) : showTab(TABS.includes(id) ? id : 'home'); } }
+    if (ev.data.type === 'pushsub') { if (tab === 'me') renderNotif(); return; }   // PWA-GAP-2: the browser replaced a subscription
+    if (ev.data.type !== 'open') return;
+    // a notification meant for someone else (sent before they switched out on this device) opens nothing of theirs
+    if (ev.data.to && hub.profile && ev.data.to !== hub.profile.id) { const p = hub.people().find(x => x.id === ev.data.to); hub.toast('That notification was for ' + (p ? p.name : 'someone else') + '.', 4000); return; }
+    if (ev.data.to && !hub.profile) return;
+    { const h = new URL(ev.data.url).hash; if (h && location.hash !== h) location.hash = h; else if (h) { const id = h.slice(1); appById(id) ? openApp(id) : showTab(TABS.includes(id) ? id : 'home'); } }
   });
 
   // ── PINs: the one-time code, a PIN prompt, Change my PIN ───────
@@ -2458,6 +2568,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         ${d.id !== me ? `<div class="hh-btns"><button class="btn${d.role === 'kitchen' ? '' : ' btn-ghost'}" data-kitchen="${esc(d.id)}" data-role="${d.role === 'kitchen' ? 'kitchen' : ''}" aria-pressed="${d.role === 'kitchen'}">${d.role === 'kitchen' ? 'Not the kitchen' : 'Make it the kitchen'}</button><button class="btn btn-ghost" data-unpair="${esc(d.id)}">Unpair</button></div>` : ''}</li>`).join('') : '<li class="row muted">No paired devices.</li>'}</ul>
       <p class="help" style="margin:var(--sp-2) 0 0">The kitchen device shows the family apps with no sign-in: nobody's chat, private prayers or settings. Change it from another device.</p>
       <h3 style="margin:var(--sp-5) 0 var(--sp-2)">Usage (30 days)</h3>
+      <p class="help" style="margin:0 0 var(--sp-3)">Days are New York days, the same day the 60-a-day chat limit counts.</p>
       <div class="grid-2">
       <table class="usage"><thead><tr><th>Day</th><th>Who</th><th>Chat messages</th></tr></thead><tbody>
         ${chatRows.length ? chatRows.map(r => `<tr><td>${esc(r.day)}</td><td>${esc(nameOf(r.profile_id))}</td><td>${r.messages}</td></tr>`).join('') : '<tr><td colspan="3" class="muted">No chat yet.</td></tr>'}
@@ -2726,16 +2837,72 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   }
 
   // ── service worker ────────────────────────────────────────────
+  // P2-PWA-08: a hub that is never closed (the kitchen iPad, the TV) still takes a new build. It asks for one when it comes
+  // back into view and every hour; sw.js activates a new build at once, and the page reloads itself on the same tab at an
+  // idle moment: hidden or 20 s untouched, and nothing that would be lost (nothing typed or open in a sheet, in the shell or
+  // the open app; no reply on its way; no PIN being typed).
+  // P2-PWA-15: only a page that was already run by a service worker when it loaded has an update to take; a first install
+  // is not an update and says nothing.
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    let hadController = !!navigator.serviceWorker.controller;
+    let updateReady = false, lastTouch = Date.now(), lastCheck = 0;
+    for (const e of ['pointerdown', 'keydown', 'wheel', 'touchstart']) document.addEventListener(e, () => { lastTouch = Date.now(); }, { capture: true, passive: true });
+    // what would be lost: a half-typed field or an open sheet in the open app (a same-origin frame), the chat composer, a
+    // reply on its way, a sheet in the shell, a PIN being typed (review of batch 2b: these hold whether hidden or not)
+    const EDIT = 'input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range]), textarea, [contenteditable=""], [contenteditable="true"]';
+    // a sheet or dialog counts only when it is actually on screen (apps hide theirs with CSS, not the hidden attribute), and a
+    // field counts only when the person changed it: not one the app filled in itself — a date or time field holding today's
+    // household date, or its data-prefill value (review round 2: an untouched Larder, F260 or park map must take the update)
+    const shown = el => { try { return el.checkVisibility ? el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }) : !!(el.offsetParent || el.getClientRects().length); } catch { return true; } };
+    const prefilled = el => { const v = String(el.value || '').trim(), ty = (el.type || '').toLowerCase();
+      if (el.dataset && 'prefill' in el.dataset && v === String(el.dataset.prefill)) return true;
+      return ['date', 'time', 'datetime-local', 'month', 'week'].includes(ty) && (v === hub.today() || v.startsWith(hub.today()) || v === hub.today().slice(0, 7)); };
+    const typedIn = doc => { try {
+      const a = doc.activeElement; if (a && a.matches && a.matches(EDIT) && shown(a) && !prefilled(a)) return true;
+      if ([...doc.querySelectorAll('.sheet-backdrop, dialog[open], [role="dialog"]:not([hidden]), [aria-modal="true"]:not([hidden])')].some(shown)) return true;
+      return [...doc.querySelectorAll(EDIT)].some(el => el.isContentEditable ? el.textContent.trim() && shown(el) : ('defaultValue' in el ? el.value.trim() && el.value !== el.defaultValue && !prefilled(el) : false));
+    } catch { return true; } };
+    const appBusy = () => { if (!current) return false; try { const d = frame.contentDocument; return !d || typedIn(d); } catch { return true; } };
+    const idle = () => (document.hidden || Date.now() - lastTouch > 20000) && !appBusy() && !chatBusy && !chatIn.value.trim()
+      && !document.querySelector('.sheet-backdrop') && !(document.activeElement && document.activeElement !== frame && document.activeElement.matches('input, textarea, select, [contenteditable]'))
+      && !(!gate.hidden && document.querySelector('#pad'));
+    const applyUpdate = () => {
+      if (!updateReady || !idle()) return;
+      updateReady = false;
+      try { if (!document.hidden && !hub.isKiosk) sessionStorage.setItem('hub.updated', '1'); } catch {}
+      location.reload();
+    };
+    try { if (sessionStorage.getItem('hub.updated')) { sessionStorage.removeItem('hub.updated'); setTimeout(() => hub.toast('The hub is up to date.', 2500), 800); } } catch {}
+    navigator.serviceWorker.addEventListener('controllerchange', () => { tellWorker(); if (!hadController) { hadController = true; return; } updateReady = true; applyUpdate(); });   // the first claim of a first install is not an update; any later one is
     navigator.serviceWorker.register('sw.js').then(reg => {
-      reg.addEventListener('updatefound', () => {
-        const w = reg.installing; if (!w) return;
-        w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) hub.toast('Hub updated — it will use the new version next time it opens.', 4000); });
-      });
+      const check = () => { if (Date.now() - lastCheck < 5 * 60000) return; lastCheck = Date.now(); reg.update().catch(() => {}); };
+      document.addEventListener('visibilitychange', () => { if (document.hidden) applyUpdate(); else check(); });
+      setInterval(() => { lastCheck = 0; check(); }, 3600000);
+      setInterval(applyUpdate, 10000);
+      tellWorker();
+    }).catch(() => {});
+    // PWA-GAP-2, when no service worker event came: the browser's subscription moved on, the house still has the old one
+    navigator.serviceWorker.ready.then(async reg => {
+      tellWorker();
+      if (!pushSupported() || Notification.permission !== 'granted' || !hub.session || !hub.profile || ['kiosk', 'kitchen', 'kid'].includes(hub.profile.kind)) return;
+      const sub = await reg.pushManager.getSubscription(); if (!sub) return;
+      const s = await hub.request('/api/push/subscribe');
+      if (s.subscribed && s.endpoint !== sub.endpoint) await hub.request('/api/push/subscribe', { method: 'POST', body: { subscription: sub.toJSON() } });
     }).catch(() => {});
   }
 
   // ── boot ──────────────────────────────────────────────────────
+  // a notification tap that opened this window says whose it was (sw.js: index.html?to=<profile>#app): someone else's opens
+  // nothing of theirs here (review of batch 2b)
+  { const q = new URLSearchParams(location.search), to = q.get('to');
+    if (to !== null) {
+      history.replaceState(null, '', location.pathname + location.hash);
+      if (!hub.session || !hub.profile || hub.profile.id !== to) {
+        const p = (hub.people() || []).find(x => x.id === to);
+        history.replaceState(null, '', location.pathname + '#home');
+        if (hub.profile) setTimeout(() => hub.toast('That notification was for ' + (p ? p.name : 'someone else') + '.', 4000), 600);
+      }
+    } }
   await loadRegistry();
   syncThemeColor();
   window.addEventListener('hub:theme', syncThemeColor);   // hub.js announces every theme, preference and OS change (P4-DARK-04)

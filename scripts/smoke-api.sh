@@ -103,8 +103,37 @@ call "since-pull carries the tombstone" GET "/api/data/dollywood-live?scope=fami
 echo "$BODY" | grep -q '"key":"meet","value":null' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected a meet tombstone"; }
 
 echo "### push"
-call "subscribe" POST /api/push/subscribe '{"subscription":{"endpoint":"https://push.example/abc","keys":{"p256dh":"x","auth":"y"}}}' "$D" "$P"; expect 200
+# batch 2b: a subscription needs real keys (P2-PWA-10); the display and kids get none (P2-PROF-16); the test goes to this
+# device only (P2-PWA-12); the switch is read from the house (P2-PWA-03); a replaced subscription moves by its old endpoint (PWA-GAP-2)
+PK='"keys":{"p256dh":"BAs4RP9Yj3z2JqDewCCTSUp2dDJMC99wBfNLo-T7DFhWxN0KFmDf7FhGnPClKyd-ZepBq3duamj7guuxJeqEPtc","auth":"x8uzNVqHuD2tBwWiY58quw"}'
+call "subscribe without keys -> 400" POST /api/push/subscribe '{"subscription":{"endpoint":"https://push.example/abc"}}' "$D" "$P"; expect 400
+call "subscribe with keys that are not keys -> 400" POST /api/push/subscribe '{"subscription":{"endpoint":"https://push.example/abc","keys":{"p256dh":"x","auth":"y"}}}' "$D" "$P"; expect 400
+call "subscribe" POST /api/push/subscribe "{\"subscription\":{\"endpoint\":\"https://push.example/abc\",$PK}}" "$D" "$P"; expect 200
+call "my subscription on this device" GET /api/push/subscribe '' "$D" "$P"; expect 200
+[ "$(echo "$BODY" | j subscribed)" = true ] && [ "$(echo "$BODY" | j endpoint)" = https://push.example/abc ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected subscribed=true, endpoint .../abc"; }
+call "the display cannot subscribe -> 403" POST /api/push/subscribe "{\"subscription\":{\"endpoint\":\"https://push.example/tv\",$PK}}" "$D" "X-Profile-Token: $TV"; expect 403
+[ "$(echo "$BODY" | j error)" = read_only ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=read_only"; }
+call "a kid cannot subscribe -> 403" POST /api/push/subscribe "{\"subscription\":{\"endpoint\":\"https://push.example/kid\",$PK}}" "$D" "X-Profile-Token: $KID"; expect 403
+call "the display cannot send a test -> 403" POST /api/push/test '{}' "$D" "X-Profile-Token: $TV"; expect 403
+call "a kid cannot send a test -> 403" POST /api/push/test '{}' "$D" "X-Profile-Token: $KID"; expect 403
+call "test goes to this device's subscription" POST /api/push/test '{}' "$D" "$P"; expect 200
+[ "$(echo "$BODY" | j device)" = true ] && [ "$(echo "$BODY" | j sent)" = 1 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected device=true, sent=1 (this device only)"; }
+call "resubscribe without a device token -> 401" POST /api/push/resubscribe "{\"old_endpoint\":\"https://push.example/abc\",\"subscription\":{\"endpoint\":\"https://push.example/evil\",$PK}}"; expect 401
+call "resubscribe from another device moves nothing -> 404" POST /api/push/resubscribe "{\"old_endpoint\":\"https://push.example/abc\",\"subscription\":{\"endpoint\":\"https://push.example/evil\",$PK}}" "X-Device-Token: $DT2"; expect 404
+call "resubscribe by the old endpoint (this device's token)" POST /api/push/resubscribe "{\"old_endpoint\":\"https://push.example/abc\",\"subscription\":{\"endpoint\":\"https://push.example/abc2\",$PK}}" "$D"; expect 200
+[ "$(echo "$BODY" | j moved)" = 1 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected moved=1"; }
+call "the house now has the new endpoint" GET /api/push/subscribe '' "$D" "$P"; expect 200
+[ "$(echo "$BODY" | j endpoint)" = https://push.example/abc2 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected endpoint .../abc2"; }
+call "resubscribe an unknown endpoint -> 404" POST /api/push/resubscribe "{\"old_endpoint\":\"https://push.example/nobody\",\"subscription\":{\"endpoint\":\"https://push.example/x\",$PK}}" "$D"; expect 404
+call "an http endpoint off this machine -> 400" POST /api/push/subscribe "{\"subscription\":{\"endpoint\":\"http://push.example/plain\",$PK}}" "$D" "$P"; expect 400
 call "unsubscribe" DELETE /api/push/subscribe '' "$D" "$P"; expect 200
+call "the switch reads off" GET /api/push/subscribe '' "$D" "$P"; expect 200
+[ "$(echo "$BODY" | j subscribed)" = false ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected subscribed=false"; }
+
+echo "### chat history (GAP-CHAT-01)"
+call "clear my chat history" DELETE /api/chat/history '' "$D" "$P"; expect 200
+[ "$(echo "$BODY" | j ok)" = true ] && [ "$(echo "$BODY" | j cap)" = 60 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected ok, cap 60"; }
+call "the display cannot clear a chat -> 403" DELETE /api/chat/history '' "$D" "X-Profile-Token: $TV"; expect 403
 
 echo "### admin"
 call "admin usage as non-admin -> 403" GET /api/admin/usage '' "$D" "$P"; expect 403
@@ -153,8 +182,27 @@ call "guest cannot rally the family -> 403" POST /api/dollywood/rally '{"name":"
 call "set a PIN on a guest from a paired device -> 403" POST "/api/profiles/$GID/pin" '{"pin":"9999"}' "$D"; expect 403
 [ "$(echo "$BODY" | j error)" = guest_pin_fixed ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=guest_pin_fixed"; }
 call "guest still signs in on tap" POST /api/login "{\"profile_id\":\"$GID\"}" "$D"; expect 200
+GT2="X-Profile-Token: $(echo "$BODY" | j profile_token)"
+# P2-PWA-03: signing out (Me → Switch) ends the person's subscription on this device with the session
+call "guest subscribes on a second session" POST /api/push/subscribe "{\"subscription\":{\"endpoint\":\"https://push.example/guest2\",$PK}}" "$D" "$GT2"; expect 200
+call "guest signs out (Switch)" POST /api/logout '{}' "$D" "$GT2"; expect 200
+call "guest subscribes again, then someone else signs in here" POST /api/push/subscribe "{\"subscription\":{\"endpoint\":\"https://push.example/guest3\",$PK}}" "$D" "$GT"; expect 200
+call "the kid signs in on this device" POST /api/login '{"profile_id":"ezra"}' "$D"; expect 200
+call "the guest's subscription here ended with it" GET /api/push/subscribe '' "$D" "$GT"; expect 200
+[ "$(echo "$BODY" | j subscribed)" = false ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected subscribed=false after another sign-in on the device"; }
+call "stop a reply (unknown id is fine)" POST /api/chat/stop '{"rid":"smoke-rid-12345"}' "$D" "$A"; expect 200
+call "stop without an id -> 400" POST /api/chat/stop '{}' "$D" "$A"; expect 400
+call "their subscription here is gone" GET /api/push/subscribe '' "$D" "$GT"; expect 200
+[ "$(echo "$BODY" | j subscribed)" = false ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected subscribed=false after sign-out"; }
+# PWA-UX-2: the household's pushes never go to a guest
+call "forced prayer job" POST /api/admin/cron/run '{"job":"prayer"}' "$D" "$A"; expect 200
+echo "$BODY" | grep -q "\"$GID\"" && { fail=$((fail+1)); echo "   ^^^ expected the guest absent from the household prayer job"; } || pass=$((pass+1))
+call "forced prayedfor job (GAP-PRAYER-1)" POST /api/admin/cron/run '{"job":"prayedfor"}' "$D" "$A"; expect 200
+call "forced praytime job (GAP-PRAYER-1)" POST /api/admin/cron/run '{"job":"praytime"}' "$D" "$A"; expect 200
+call "admin usage counts New York days" GET /api/admin/usage '' "$D" "$A"; expect 200
+[ "$(echo "$BODY" | j tz)" = America/New_York ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected tz America/New_York"; }
 # an expired guest stops receiving push: ending the stay drops their sessions and subscriptions
-call "guest subscribes to push" POST /api/push/subscribe '{"subscription":{"endpoint":"https://push.example/guest","keys":{"p256dh":"x","auth":"y"}}}' "$D" "$GT"; expect 200
+call "guest subscribes to push" POST /api/push/subscribe "{\"subscription\":{\"endpoint\":\"https://push.example/guest\",$PK}}" "$D" "$GT"; expect 200
 call "admin ends the guest's stay" PUT "/api/admin/profiles/$GID" '{"expires_at":1000}' "$D" "$A"; expect 200
 call "expired guest session -> 401" GET /api/me '' "$D" "$GT"; expect 401
 call "admin usage" GET /api/admin/usage '' "$D" "$A"; expect 200

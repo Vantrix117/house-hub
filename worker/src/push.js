@@ -52,10 +52,14 @@ export async function vapidHeader(endpoint, { publicKey, privateKey, subject }) 
 
 /**
  * Sends one notification. subscription is the browser's PushSubscription JSON.
- * Resolves { ok, status, gone } — gone=true means the subscription is dead and should be deleted.
+ * Resolves { ok, status, gone } — gone=true means the subscription is dead and should be deleted: the push service said
+ * so (404/410), or its keys cannot be encrypted for (not a P-256 point, P2-PWA-10). A VAPID problem (the server's own
+ * keys) still throws, so a misconfigured server never deletes the house's subscriptions.
  */
 export async function sendPush(subscription, payloadObj, vapid, { ttl = 86400, urgency = 'normal' } = {}) {
-  const { body, headers } = await encrypt(JSON.stringify(payloadObj), subscription.keys);
+  let body, headers;
+  try { ({ body, headers } = await encrypt(JSON.stringify(payloadObj), subscription.keys)); }
+  catch (e) { return { ok: false, status: 0, gone: true, error: 'bad_keys: ' + String(e && e.message || e).slice(0, 120) }; }
   const auth = await vapidHeader(subscription.endpoint, vapid);
   let r;
   try {

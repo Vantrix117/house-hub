@@ -18,7 +18,7 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 | `src/data.js` | `app_data` last-write-wins upsert, listing, tombstones |
 | `src/policy.js` | Who may read and write which rows (kids, guests, the kitchen, app visibility from `../apps.json`); every data and chat write goes through `guardedPut()` |
 | `src/push.js` | Web Push encryption (RFC 8291) + VAPID, WebCrypto only |
-| `src/reminders.js` | the reminder jobs (morning, evening, behind, prayer, park) and `pushTo()` |
+| `src/reminders.js` | the reminder jobs (morning, evening, behind, prayer, prayedfor, park, praytime), `jobsAt()` (what a 15-min cron firing runs) and `pushTo()` |
 | `src/chat.js` | `/api/chat`: Claude tool loop, guards, streaming |
 | `migrations/` | one-off schema migrations already applied to the live DB |
 | `../scripts/set-pairing-code.mjs` | Prompts for the pairing code and stores **only its hash** |
@@ -59,7 +59,7 @@ POST /api/dollywood/rally               {name, x, y, note?}  "Rally the family" 
                                         name ≤ 60 chars (400 bad_name), x/y JSON numbers — map positions like the loc:* markers (400 bad_point),
                                         note ≤ 140. Writes app_data(family, 'dollywood-live', 'meet') = {x, y, name, note, by, byName, at}
                                         through putOne (every phone's hub.js sees it on its next pull), logs "Set a meeting point: <name>" on
-                                        Home, then pushes every OTHER household adult whose push_prefs.park is on: {title 'Meet at <name>',
+                                        Home, then pushes every OTHER household adult whose park switch is on: {title 'Meet at <name>',
                                         body '<Name> is gathering the family — open the park map', url '#dollywood-live', tag 'rally'},
                                         TTL 30 min, urgency high, logged as kind 'rally'. Dead subscriptions never fail the call.
                                         → {ok:true, pushed (adults reached on ≥1 device), meet, updated_at, notified:[{profile, devices}],
@@ -95,8 +95,21 @@ GET  /api/activity?limit=30 (each line carries its author's name, emoji, color, 
                                         must name a family-list request or say "a private request" (400 private_title)
 
 GET  /api/push/config                   {public_key, enabled}
-POST /api/push/subscribe {subscription} DELETE /api/push/subscribe   (the kitchen → 403 no_push)
-POST /api/push/test                     sends a test notification to the caller's devices
+GET  /api/push/subscribe                → {subscribed, endpoint}: this person's subscription on this device (Me → Notifications paints
+                                        its switch from it, never from the browser's, P2-PWA-03)
+POST /api/push/subscribe {subscription} one per person per device. subscription = {endpoint (https; http only for 127.0.0.1 / localhost), keys: {p256dh (a 65-byte P-256
+                                        point), auth (16 bytes)}} base64url, else 400 bad_subscription (P2-PWA-10). The display → 403
+                                        read_only, the kitchen and kids → 403 no_push (P2-PROF-16)
+DELETE /api/push/subscribe              this person's subscription on this device (anyone, so an old row can always be removed)
+POST /api/push/resubscribe              {old_endpoint, subscription}  the device token only (the service worker's pushsubscriptionchange,
+                                        PWA-GAP-2; 401 without it). Moves THIS device's rows holding old_endpoint to the new subscription →
+                                        {ok, moved}; 404 no_such_subscription (wrong endpoints are rate-limited per device, 20 per 15 min)
+POST /api/push/test                     {profile_id?}  a test to the caller's subscription on THIS device only → {sent, ok, details, device:
+                                        true} (P2-PWA-12); the admin with profile_id: every device of that profile. The display and kids → 403
+POST /api/logout                        also removes the person's push subscription on this device (a Switch on a shared iPad, P2-PWA-03).
+                                        A sign-in on a device removes any OTHER person's subscription there, a session that ran out takes its
+                                        person's subscription on that device with it, and Reset PIN or a new kind removes the person's
+                                        subscriptions everywhere; pushTo never sends to a kid, the display or the kitchen (and drops such rows)
 
 PUT  /api/profiles/:id/photo            {sm, lg} base64 JPEGs (256 px ≤ 80 KB, 1024 px ≤ 420 KB) — own profile (adults) or any (admin)
 DELETE /api/profiles/:id/photo
@@ -107,8 +120,22 @@ GET  /api/media/photos/:id/<token>-256.jpg | -1024.jpg,  GET /api/media/album/<i
                                         public, immutable, unguessable keys; bytes in R2 when a MEDIA bucket is bound, else the D1 `media` table (src/media.js)
 
 POST /api/chat {message}                text/event-stream: text | tool | done | error events (see src/chat.js). The apps the person can use
-                                        come from the Worker's copy of apps.json (policy.js), never the request; the kiosk and the kitchen → 403
+                                        come from the Worker's copy of apps.json (policy.js), never the request; the kiosk and the kitchen → 403.
+                                        60 a New York day (429 daily_cap): the day's counter row (rate_limits 'chat:<profile>:<date>') is taken in
+                                        one statement before the call and given back if the upstream fails or times out before any reply (the
+                                        error event then carries refunded: true, used, cap); the message joins chat_log once the model answers.
+                                        An upstream silent for 45 s (env CHAT_TIMEOUT_MS) → error upstream_timeout. Thinking blocks (with their
+                                        signatures) and redacted_thinking are replayed whole in the tool loop; only text and tools reach the tab.
+                                        The system prompt names the household and guests whose stay has not ended (never the TV or the kitchen),
+                                        marking the admin and guests
+POST /api/chat/stop {rid}               the person tapped Stop on the send whose body carried that rid: the running reply sees it within 3 s,
+                                        aborts the model call and runs no further tool → {ok, ran} (ran = tools already started; 0 = nothing
+                                        was done). The message is given back only when the Stop came before the model was asked; the upstream
+                                        failing or timing out still refunds. While a reply
+                                        is on its way the stream carries a ': ping' comment every 15 s
 GET  /api/chat/history                  last 20 messages, used/cap for today
+DELETE /api/chat/history                the person's own chat history (and pending Undo records); today's count stays (GAP-CHAT-01). The display → 403.
+                                        A kid's chat is also deleted after 90 days by the 8 am / 8 pm cron
 POST /api/chat/undo {token}             undo one chat action (the chip's token, 45 s, once, the person's own): puts back the rows it wrote where nobody has changed them since; 410 gone after
 
 Admin (is_admin profile token):
@@ -141,15 +168,16 @@ PUT  /api/admin/profiles/:id/admin      {is_admin, transfer?, admin_pin}  make a
 POST /api/admin/guests/purge            run the guest cleanup now: every expired guest loses sessions + push subscriptions ("silenced"),
                                         every guest expired more than 30 days ago is deleted as above
 POST /api/admin/pairing-code/rotate     {code?}  (omit code → one is generated and returned once)
-GET  /api/admin/usage                   chat messages / push sends per profile per day, devices (with role)
+GET  /api/admin/usage                   chat messages / push sends per profile per New York day (the chat limit's day; tz: 'America/New_York'),
+                                        devices (with role)
 DELETE /api/admin/devices/:id
-POST /api/admin/cron/run                {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'park'}  run one reminder job now, ignoring the clock
+POST /api/admin/cron/run                {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime'}  run one reminder job now, ignoring the clock
                                         (expired guests are silenced first, so a forced job cannot reach them either)
 
-Cron (wrangler.toml [triggers]): 8:00 am and 8:00 pm New York — see src/reminders.js. Before the jobs run, every guest
-whose stay has ended loses their sessions and push subscriptions (silenceExpiredGuests in src/auth.js — the jobs push to
-every kind='adult' profile, and a departed visitor must not be on that list); after them, guests expired more than
-30 days ago are purged (purgeExpiredGuests in src/index.js).
+Cron (wrangler.toml [triggers]): every 15 minutes; what runs is read off the New York time of the firing — see src/reminders.js
+jobsAt(). Before the jobs run, every guest whose stay has ended loses their sessions and push subscriptions (silenceExpiredGuests
+in src/auth.js); after the 8 am / 8 pm jobs, guests expired more than 30 days ago are purged (purgeExpiredGuests in
+src/index.js) and kids' chat older than 90 days is deleted (pruneKidChat in src/chat.js).
 ```
 
 ### Guests (roadmap 23, migrations/005-guests.sql)
@@ -170,24 +198,32 @@ out or taken over from another paired device; the admin's reset-pin ("Clear PIN"
 
 ### Reminders (src/reminders.js)
 
-The cron fires at both possible UTC hours for 8 am and 8 pm New York; `runCron()` checks the local hour and runs:
+The cron fires every 15 minutes (batch 2b; one trigger). `jobsAt()` reads the New York time of the firing and runs the
+8 am jobs at every firing of the 8 o'clock hour and the 8 pm jobs at every firing of the 20 o'clock hour (a failed push is tried
+again at :15, :30 and :45; the once-a-day gate and the prayer memory keep anyone from being told twice):
 
 | Job | When | Who | Rule |
 |---|---|---|---|
-| `morning` (kind `leftovers`) | 8 am | adults | any family leftover logged 5+ days ago |
+| `morning` (kind `leftovers`) | 8 am | household adults | any family leftover logged 5+ days ago |
 | `evening` (kind `f260`) | 8 pm | each person with F260 rows | no reading ticked today (`f260.log[today]`) and the plan is not finished |
-| `behind` | Sunday 8 pm | adults with F260 rows | from `f260.summary` + `f260.weekStart`: if the current week was started more than 3 days ago, behind = 5 − weekDone; pushed when behind ≥ 2 ("You are N readings behind — <next ref> is next.") |
-| `prayer` | every run | adults except the author | live family-list `prayer:*` rows that were not live at the last run, or whose fingerprint (`createdAt|title`) changed since — the snapshot lives in `settings.last_prayer_push_at` (`{at, seen: {key: fingerprint}}`). That catches a prayer added under a key the app re-used after a delete (same `app_data` row, so the row id cannot be the watermark); praying, updates and answers never re-announce a row; the first run only seeds the snapshot. The author is the row's `by` (the prayer app writes `by: <profile id>` on every row it creates — add form, share, paste-import — so a prayer typed straight into the family list needs no activity line); rows without it (older app versions, the chat tool) fall back to the profile behind the matching "…family list: <title>" / "Added a family prayer request: <title>" activity line; unknown → everyone |
-| `park` | every run | adults | park day = any family `dollywood-live` `loc:*` marker fresher than 4 h; alert when a kid's marker is 30 min–4 h old while at least one adult's is ≤ 30 min old ("Ezra's spot has not updated for 35 min.") |
+| `behind` | Sunday 8 pm | adults (guests too: their own reading) with F260 rows | from `f260.summary` + `f260.weekStart`: if the current week was started more than 3 days ago, behind = 5 − weekDone; pushed when behind ≥ 2 ("You are N readings behind — <next ref> is next.") |
+| `prayer` | 8 am and 8 pm | household adults except the author | live family-list `prayer:*` rows that were not live at the last run, or whose fingerprint (the request's own `id` and `createdAt`, never the title: a wording edit is not new, P3-PRAYER-25) changed since — the snapshot lives in `settings.last_prayer_push_at` (`{v: 2, at, seen: {key: fingerprint}, owed: {profile: [keys]}}`). That catches a different request under a key an older app re-used after a delete; praying, updates and answers never re-announce a row; the first run only seeds the snapshot. Each new row is owed to each adult until a push to them is delivered (no once-a-day gate, P2-PWA-04: a prayer added after the morning push goes at 8 pm; a failed delivery is retried at the next run); switch off or no device → dropped. The author is the row's `by` (the prayer app writes `by: <profile id>` on every row it creates — add form, share, paste-import — so a prayer typed straight into the family list needs no activity line); rows without it (older app versions, the chat tool) fall back to the profile behind the matching "…family list: <title>" / "Added a family prayer request: <title>" activity line; unknown → everyone |
+| `prayedfor` | 8 pm | whoever added a family request (`by`) | someone else's id (or name) under today's `prayedBy` on it: "Elizabeth prayed for your request today: Grandma's surgery."; several requests name each one's own people ("Prayed for your requests today: Grandma's surgery (Eli and Ezra); Sam's job (Mae)."). Once a day (GAP-PRAYER-1) |
+| `park` | every run (15 min) | household adults | park day = any family `dollywood-live` `loc:*` marker fresher than 4 h; alert when the house last heard from a kid's marker 20 min–12 h ago while at least one household adult's (never a guest's) is ≤ 30 min old ("Ezra's spot has not updated for 35 min."). Ages are the Worker's own clock (the row's `synced_at`), never the phone's `t`, so a phone with a slow clock that keeps publishing is never "quiet". Each quiet spell (the kid's marker as last heard) is told once per adult, remembered in `settings.park_alerts` (`{kid: {t, told}}`); a failed push or a late subscriber is told at the next run (P2-PWA-02). `scripts/test-park.mjs` proves it in process |
+| `praytime` | every run (15 min) | the person | `push_pref:prayAt` (or the old `push_prefs.prayAt`; "HH:MM", New York, on the half hour in Me): the firing falls in that time's hour: "Time to pray — 3 on your list, 5 on the family list." (no private titles). Once a day (GAP-PRAYER-1) |
 
-Every kind sends at most once per person per day (`push_log`), honours `app_data(person, hub, push_prefs).<kind>`
-(default on; the switches are in Me → Notifications) and can be forced with `POST /api/admin/cron/run {job}` as the admin
-(the forced call returns that one job's result; a scheduled run returns `{nyHour, weekday, ran: [...]}`).
+Morning, evening, behind, prayedfor and praytime send at most once per person per day (`push_log`, counting only a push some
+device took, P2-PWA-11); prayer and park use their own memory (above). Every kind honours the person's switch: one row per kind,
+`app_data(person, hub, 'push_pref:<kind>')`, over the old whole row `push_prefs` (read-only base; default on; `prayAt` unset = no
+reminder; the switches are in Me → Notifications), and can be forced with
+`POST /api/admin/cron/run {job}` as the admin (the forced call returns that one job's result; a scheduled run returns
+`{nyHour, nyMinute, weekday, main, ran: [...]}`). The household kinds (morning, prayer, park) never go to a guest (PWA-UX-2).
+`pushTo()` skips and deletes a subscription it cannot encrypt for (P2-PWA-10), and puts `to: <profile>` in every payload.
 `scripts/test-push2.mjs <code>` proves the three round-2 kinds end to end against `scripts/push-receiver.mjs`.
 
 One push is not a job: `POST /api/dollywood/rally` (above) sends "Meet at <name>" to the other household adults on demand.
-It rides on the same park-day switch (`push_prefs.park`) but is logged as kind `rally`, so a rally never uses up the
-`park` job's one-a-day and has no daily cap of its own — the 60 s per-adult rate limit is the only brake.
+It rides on the same park-day switch (`push_pref:park`) but is logged as kind `rally`, so a rally is never taken for
+the `park` alert and has no daily cap of its own — the 60 s per-adult rate limit is the only brake.
 
 Errors are `{error: 'snake_code', message: 'plain English'}` with a matching HTTP status.
 

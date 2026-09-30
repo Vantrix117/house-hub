@@ -206,7 +206,7 @@ const expectedKidApps = registry.apps.filter(a => !a.visibleTo || a.visibleTo.in
     const pgLogin = await api('POST', '/api/login', { profile_id: pg.id, pin: '1111' }, N);
     ok(pgLogin.status === 200, 'Push Guest signs in with her PIN on device N');
     const PG = { ...N, 'X-Profile-Token': pgLogin.body.profile_token };
-    const subscription = { endpoint: 'https://push.example/rm23-guest', keys: { p256dh: 'x', auth: 'y' } };
+    const subscription = { endpoint: 'https://push.example/rm23-guest', keys: { p256dh: 'BAs4RP9Yj3z2JqDewCCTSUp2dDJMC99wBfNLo-T7DFhWxN0KFmDf7FhGnPClKyd-ZepBq3duamj7guuxJeqEPtc', auth: 'x8uzNVqHuD2tBwWiY58quw' } };
     ok((await api('POST', '/api/push/subscribe', { subscription }, PG)).status === 200, 'Push Guest subscribes to push on device N');
     await A.page.click('.tab[data-tab=home]'); await A.page.click('.tab[data-tab=me]'); await A.page.waitForSelector(`#admin-body [data-resetpin="${pg.id}"]`, { timeout: 15000 });
     const pgRow = await rowText(pg.id);

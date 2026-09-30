@@ -3,6 +3,10 @@
 // shapes the real Messages API does. Picks a tool from the last user message so every tool can be
 // exercised; after tool results it replies with a short confirmation.
 //   node scripts/mock-anthropic.mjs [port=8791]      then in worker/.dev.vars: ANTHROPIC_BASE_URL="http://127.0.0.1:8791"
+// Batch 2b triggers: "think it over then list apps" streams a signed thinking block before the tool call and, after the
+// tool result, answers "THINKING KEPT" only if that block came back whole (P2-CHAT-11); "the upstream fails now" answers
+// HTTP 500 (P2-CHAT-10: the message must not count); "hang for a while" sends nothing for 60 s (P2-CHAT-05: the Worker
+// gives up first — 45 s, or CHAT_TIMEOUT_MS).
 import http from 'node:http';
 const port = +(process.argv[2] || 8791);
 
@@ -34,6 +38,9 @@ http.createServer((req, res) => {
     let r; try { r = JSON.parse(body || '{}'); } catch { r = {}; }
     if (!Array.isArray(r.messages) || !r.messages.length) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: 'messages is required' } })); return; }   // a stray probe must not crash the mock
     const last = r.messages[r.messages.length - 1];
+    const said = typeof last.content === 'string' ? last.content.toLowerCase() : '';
+    if (/the upstream fails now/.test(said)) { res.writeHead(500, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ type: 'error', error: { type: 'api_error', message: 'mock outage' } })); console.log('REQ -> 500 (asked to fail)'); return; }
+    if (/hang for a while/.test(said)) { console.log('REQ -> hanging 60 s'); const h = setTimeout(() => { try { res.writeHead(200, { 'Content-Type': 'text/event-stream' }); res.end(); } catch {} }, 60000); req.on('close', () => clearTimeout(h)); res.on('close', () => clearTimeout(h)); return; }
     const events = [];
     const push = (type, obj) => events.push(`event: ${type}\ndata: ${JSON.stringify({ type, ...obj })}\n\n`);
     push('message_start', { message: { id: 'msg_mock', type: 'message', role: 'assistant', model: r.model, content: [], usage: { input_tokens: 120, output_tokens: 0 } } });
@@ -41,13 +48,27 @@ http.createServer((req, res) => {
     const afterTool = Array.isArray(last.content) && last.content.some(b => b.type === 'tool_result');
     if (afterTool) {
       const tr = last.content.find(b => b.type === 'tool_result');
-      const text = tr.is_error ? `Sorry, that didn't work: ${tr.content}` : 'Done — ' + tr.content.slice(0, 120);
+      const prev = r.messages[r.messages.length - 2];
+      const th = prev && Array.isArray(prev.content) ? prev.content.find(b => b.type === 'thinking') : null;
+      const thought = th ? (th.signature === 'mock-signature-2b' && th.thinking === 'Listing the apps first.' && prev.content[0] === th ? 'THINKING KEPT. ' : 'THINKING CHANGED. ') : '';
+      const wanted = prev && Array.isArray(prev.content) && prev.content.some(b => b.type === 'tool_use' && b.id && b.id.startsWith('toolu_think'));
+      const text = (wanted && !th ? 'THINKING DROPPED. ' : thought) + (tr.is_error ? `Sorry, that didn't work: ${tr.content}` : 'Done — ' + tr.content.slice(0, 120));
       push('content_block_start', { index: 0, content_block: { type: 'text', text: '' } });
       for (const w of text.split(/(?<= )/)) push('content_block_delta', { index: 0, delta: { type: 'text_delta', text: w } });
       push('content_block_stop', { index: 0 });
     } else {
       const tool = pick(typeof last.content === 'string' ? last.content : '');
-      if (tool) {
+      if (/think it over then list apps/.test(said)) {
+        push('content_block_start', { index: 0, content_block: { type: 'thinking', thinking: '', signature: '' } });
+        push('content_block_delta', { index: 0, delta: { type: 'thinking_delta', thinking: 'Listing the apps ' } });
+        push('content_block_delta', { index: 0, delta: { type: 'thinking_delta', thinking: 'first.' } });
+        push('content_block_delta', { index: 0, delta: { type: 'signature_delta', signature: 'mock-signature-2b' } });
+        push('content_block_stop', { index: 0 });
+        push('content_block_start', { index: 1, content_block: { type: 'tool_use', id: 'toolu_think' + Math.random().toString(36).slice(2, 8), name: 'list_apps', input: {} } });
+        push('content_block_delta', { index: 1, delta: { type: 'input_json_delta', partial_json: '{}' } });
+        push('content_block_stop', { index: 1 });
+        stop = 'tool_use';
+      } else if (tool) {
         push('content_block_start', { index: 0, content_block: { type: 'text', text: '' } });
         push('content_block_delta', { index: 0, delta: { type: 'text_delta', text: 'On it. ' } });
         push('content_block_stop', { index: 0 });

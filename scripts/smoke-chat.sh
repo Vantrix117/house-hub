@@ -115,6 +115,27 @@ curl -s -X POST "$BASE/api/chat" -H "X-Device-Token: $DT" -H "X-Profile-Token: $
 if grep -qE 'device_not_paired|profile_session_invalid' "$OUT"; then signin; curl -s -X POST "$BASE/api/chat" -H "X-Device-Token: $DT" -H "X-Profile-Token: $TV" -H 'Content-Type: application/json' --data '{"message":"hi"}' > "$OUT"; fi
 cat "$OUT"; echo
 expect "kiosk gets no_chat" 'no_chat'
+echo; echo "### Batch 2b: thinking kept, failures free, a silent upstream given up on, history cleared"
+used() { curl -s "$BASE/api/chat/history" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A" | J used; }
+chat "$P" "Think it over then list apps";            expect "thinking block replayed whole with its signature (P2-CHAT-11)" 'THINKING KEPT'
+                                                    reject "thinking never dropped or changed" 'THINKING (DROPPED|CHANGED)'
+                                                    reject "thinking never reaches the person" 'Listing the apps first'
+U0=$(used)
+chat "$P" "The upstream fails now";                 expect "a failed upstream is an error event" 'event: error'
+                                                    expect "…and says it was not counted" '"refunded":true'
+U1=$(used)
+if [ "$U0" = "$U1" ]; then PASS=$((PASS+1)); echo "    ok   a failed upstream costs nothing ($U0 → $U1) (P2-CHAT-10)"; else FAIL=$((FAIL+1)); echo "    MISS a failed upstream costs nothing ($U0 → $U1)"; fi
+T0=$(date +%s)
+chat "$P" "Hang for a while";                       expect "a silent upstream is given up on (P2-CHAT-05)" 'upstream_timeout'
+T1=$(date +%s); echo "    (gave up after $((T1-T0)) s)"
+if [ $((T1-T0)) -le 55 ]; then PASS=$((PASS+1)); echo "    ok   gave up within 55 s"; else FAIL=$((FAIL+1)); echo "    MISS gave up within 55 s"; fi
+U2=$(used)
+if [ "$U1" = "$U2" ]; then PASS=$((PASS+1)); echo "    ok   a timed-out message costs nothing"; else FAIL=$((FAIL+1)); echo "    MISS a timed-out message costs nothing ($U1 → $U2)"; fi
+curl -s -X DELETE "$BASE/api/chat/history" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A" > "$OUT"; cat "$OUT"; echo
+expect "Me → Chat history → Clear (GAP-CHAT-01)" '"ok":true'
+H=$(curl -s "$BASE/api/chat/history" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A")
+if [ "$(echo "$H" | J messages.length)" = 0 ] && [ "$(echo "$H" | J used)" = "$U2" ]; then PASS=$((PASS+1)); echo "    ok   history empty, today's count kept ($U2)"; else FAIL=$((FAIL+1)); echo "    MISS history empty, today's count kept: $(echo "$H" | cut -c1-200)"; fi
+
 echo; echo "### History (rolling window) for $P:"
 curl -s "$BASE/api/chat/history" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A" | cut -c1-300; echo
 rm -f "$OUT"

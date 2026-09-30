@@ -19,7 +19,8 @@ binding = "DB"
 database_name = "house-hub"
 database_id = "c5410eee-9095-4092-84b0-dc534aded0d8"
 
-# Reminders. Cron is UTC; both hours are listed so New York keeps 8:00 am / 8:00 pm across DST.
-# The handler checks the local hour and runs only the matching job.
+# Reminders. One trigger every 15 minutes (P2-PWA-02: the park alert watches all day). The handler reads the New York
+# time of each firing, so the 8:00 am / 8:00 pm jobs keep their local hour across DST; every other firing runs only the
+# park alert and the personal prayer reminders (src/reminders.js jobsAt).
 [triggers]
-crons = ["0 12,13 * * *", "0 0,1 * * *"]
+crons = ["*/15 * * * *"]

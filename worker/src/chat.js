@@ -6,9 +6,11 @@
 //   tool  {name, input, chip, ok, speak?, text?, undo?}   a tool ran (chip is the human-readable summary; speak:true + text asks
 //                                                 the client to read `text` aloud — read_todays_verse for kids; undo is a token
 //                                                 for POST /api/chat/undo, good for UNDO_MS, when the tool wrote something)
-//   done  {usage, stop_reason}        finished
+//   done  {usage, stop_reason, used, cap}   finished
 //   error {error, message}
-import { HttpError } from './auth.js';
+// A message counts against the day's cap only once the model answers (P2-CHAT-10): the cap is taken in one statement
+// before the call (P2-CHAT-08) and given back when the upstream fails or times out before any reply.
+import { HttpError, isExpiredGuest } from './auth.js';
 import { listData, getOne, liveItems, rowMap, putOne as rawPut } from './data.js';
 import { nyParts } from './reminders.js';
 import { appsFor, householdLoader, guardedPut } from './policy.js';
@@ -21,6 +23,8 @@ const MAX_TURNS = 6;                      // tool round-trips per message
 const BIG_VALUE = 4000;                   // chars; larger values are summarised, never sent to the model
 const UNDO_MS = 45000;                    // a chat write can be undone this long (the chip offers Undo for 30 s)
 const UNDO_APP = 'chatundo';              // app_data rows no app syncs or can read: one per undoable chat action
+const UPSTREAM_SILENCE_MS = 45000;        // P2-CHAT-05: an upstream that sends nothing for this long is given up on
+const KID_CHAT_DAYS = 90;                 // GAP-CHAT-01: a kid's chat history is kept this long
 
 const enc = new TextEncoder();
 const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -116,11 +120,35 @@ const versesFor = week => { const w = Math.min(52, Math.max(1, +week || 1)); con
 const today = () => nyParts().date;
 // F260's streak rule (apps/f260.html streakInfo): walk back from today; up to 2 rest days in a row keep a streak alive.
 const logStreak = log => { let d = today(), n = 0, gap = 0; for (let i = 0; i < 400; i++) { if (log && log[d]) { n++; gap = 0; } else if (++gap > 2) break; d = new Date(Date.parse(d + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10); } return n; };
-async function usedToday(env, profileId) {
+/** The person's user messages in today's history (New York day). */
+async function loggedToday(env, profileId) {
   const { results } = await env.DB.prepare("SELECT created_at FROM chat_log WHERE profile_id = ? AND role = 'user' AND created_at > ?").bind(profileId, Date.now() - 36 * 3600000).all();
   const d = today();
   return results.filter(r => nyParts(new Date(r.created_at)).date === d).length;
 }
+// The day's count is a counter row, rate_limits 'chat:<profile>:<New York date>', so the cap is checked and taken in one
+// statement (P2-CHAT-08) and clearing the history (GAP-CHAT-01) never gives the day back. It starts from the history's
+// count for the day, and never reads lower than it. Kept 40 days for Admin → Usage.
+const counterKey = (profileId, day) => `chat:${profileId}:${day}`;
+async function usedToday(env, profileId) {
+  const row = await env.DB.prepare('SELECT count FROM rate_limits WHERE key = ?').bind(counterKey(profileId, today())).first();
+  return Math.max(row ? +row.count || 0 : 0, await loggedToday(env, profileId));
+}
+/** Takes one message from today's allowance, atomically. → { ok, used, day } (used = the count after this one). */
+async function reserveMessage(env, profileId) {
+  const day = today(), key = counterKey(profileId, day);
+  const seed = await loggedToday(env, profileId);
+  if (seed >= DAILY_CAP) return { ok: false, used: seed, day };
+  const r = await env.DB.prepare(
+    `INSERT INTO rate_limits (key, count, reset_at) VALUES (?, ?, ?)
+       ON CONFLICT(key) DO UPDATE SET count = MAX(rate_limits.count, ?) + 1 WHERE MAX(rate_limits.count, ?) < ?`)
+    .bind(key, seed + 1, Date.now() + 40 * 86400000, seed, seed, DAILY_CAP).run();
+  if (!r.meta || !r.meta.changes) return { ok: false, used: Math.max(DAILY_CAP, seed), day };
+  const row = await env.DB.prepare('SELECT count FROM rate_limits WHERE key = ?').bind(key).first();
+  return { ok: true, used: row ? +row.count : seed + 1, day };
+}
+/** Gives a message back (the upstream never answered). */
+const releaseMessage = (env, profileId, day) => env.DB.prepare('UPDATE rate_limits SET count = count - 1 WHERE key = ? AND count > 0').bind(counterKey(profileId, day)).run();
 // ctx.apps is the list the Worker itself computed for this person (policy.js appsFor), never one from the request (P2-CHAT-06).
 const visibleApps = apps => apps || [];
 const REFUSED = { bad_date: 'That date is not a real day, or it is in the future.', not_allowed: 'This person cannot change that.', kid_readonly: 'Kids cannot change that.', household_only: 'Only a household grown-up can change that.', app_hidden: 'This person cannot use that app.', not_yours: 'That belongs to someone else.', beacon_off: 'A parent has not switched this child\'s beacon on.' };
@@ -486,12 +514,14 @@ async function runToolInner(env, ctx, name, input, writes) {
 class Refused extends Error { constructor(code) { super(code); this.code = code; } }
 
 // ── prompt ────────────────────────────────────────────────────
+// household: the people who live here and guests whose stay has not ended (P2-CHAT-12: a departed guest's name never
+// leaves the house, the TV and the kitchen are not people), each marked admin / guest where so.
 function systemPrompt({ profile, household, apps }) {
-  const people = household.map(p => `${p.name} (${p.kind}${p.is_admin ? ', admin' : ''})`).join(', ');
+  const people = household.map(p => `${p.name} (${p.kind}${p.is_admin ? ', admin' : ''}${p.is_guest ? ', guest' : ''})`).join(', ');
   const appList = visibleApps(apps).map(a => `- ${a.id}: ${a.name} [${a.scope} data]`).join('\n');
   const base = `You are the Anderson House helper, a friendly assistant built into the family's hub app.
 Household: ${people}.
-Signed in now: ${profile.name} (${profile.kind}${profile.isAdmin ? ', admin' : ''}). Only their own person-scope data is reachable; family-scope data is shared by everyone.
+Signed in now: ${profile.name} (${profile.kind}${profile.is_admin ? ', admin' : ''}${profile.is_guest ? ', guest' : ''}). Only their own person-scope data is reachable; family-scope data is shared by everyone.
 Today is ${today()} (America/New_York).
 
 Apps in the hub:
@@ -514,45 +544,81 @@ When the child asks for the Bible verse, memory verse, or "today's verse", call 
 }
 
 // ── Anthropic streaming call ──────────────────────────────────
-async function* anthropicStream(env, body) {
-  const r = await fetch((env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com').replace(/\/$/, '') + '/v1/messages', {
+// P2-CHAT-05: the call is abandoned when the upstream sends nothing for UPSTREAM_SILENCE_MS (env CHAT_TIMEOUT_MS for
+// tests) — before its headers or between two chunks — and the Chat tab is told in plain words.
+const timedOut = () => new HttpError(504, 'upstream_timeout', 'The assistant did not answer in time. Try again in a moment.');
+const stoppedErr = () => new HttpError(499, 'stopped', 'Stopped.');
+// `stop` (an AbortSignal) ends the call at once: the person tapped Stop, or left (review of batch 2b)
+async function* anthropicStream(env, body, stop = null) {
+  const silence = Math.max(1000, +env.CHAT_TIMEOUT_MS || UPSTREAM_SILENCE_MS);
+  const ac = new AbortController();
+  let onStop = null;
+  const halted = stop ? new Promise((_, rej) => { onStop = () => { try { ac.abort(); } catch {} rej(stoppedErr()); }; if (stop.aborted) onStop(); else stop.addEventListener('abort', onStop, { once: true }); }) : null;
+  if (halted) halted.catch(() => {});
+  // every wait on the upstream (its headers, then each chunk) races the silence timer: the abort frees the connection, the
+  // race makes sure the wait ends even where an abort is not honoured
+  const within = (p, onFail) => { let timer; const t = new Promise((_, rej) => { timer = setTimeout(() => { try { ac.abort(); } catch {} rej(timedOut()); }, silence); });
+    const q = p.catch(e => { throw e && e.error === 'upstream_timeout' ? e : onFail(e); }); q.catch(() => {});   // a late rejection after the timer won is not left unhandled
+    t.catch(() => {});
+    return Promise.race(halted ? [q, t, halted] : [q, t]).finally(() => clearTimeout(timer)); };
+  const r = await within(fetch((env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com').replace(/\/$/, '') + '/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({ ...body, stream: true }),
-  });
+    signal: ac.signal,
+  }), () => new HttpError(502, 'upstream', 'The assistant is unavailable right now.'));
   if (!r.ok) {
     let msg = 'HTTP ' + r.status; try { const raw = await r.text(); try { const j = JSON.parse(raw); msg = (j.error && j.error.message) || raw.slice(0, 300); } catch { msg = raw.slice(0, 300) || msg; } } catch {}
     console.error('anthropic error', r.status, msg);
     throw new HttpError(r.status === 429 ? 503 : 502, 'upstream', 'The assistant is unavailable right now (' + msg + ').');
   }
   const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buf += dec.decode(value, { stream: true });
-    let i;
-    while ((i = buf.indexOf('\n\n')) >= 0) {
-      const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
-      for (const line of chunk.split('\n')) if (line.startsWith('data:')) { try { yield JSON.parse(line.slice(5).trim()); } catch {} }
+  try {
+    while (true) {
+      const { value, done } = await within(reader.read(), () => new HttpError(502, 'upstream', 'The assistant stopped answering.'));
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf('\n\n')) >= 0) {
+        const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+        for (const line of chunk.split('\n')) if (line.startsWith('data:')) { let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch { continue; } yield ev; }
+      }
     }
-  }
+  } finally { try { reader.cancel().catch(() => {}); } catch {} if (stop && onStop) stop.removeEventListener('abort', onStop); }
 }
 
-/** One assistant turn: streams text to `send`, returns the full content blocks + stop reason. */
-async function assistantTurn(env, body, send) {
+/**
+ * One assistant turn: streams text to `send`, returns the full content blocks + stop reason. Thinking blocks come back
+ * whole — thinking with its signature, redacted_thinking with its data — because a tool-use turn must be replayed with
+ * them (P2-CHAT-11); only text and tool_use reach the person. `onAnswer` runs at the first text (a tool counts when it runs).
+ */
+async function assistantTurn(env, body, send, onAnswer = () => {}, halt = null) {
   const blocks = []; let stop = null; let usage = null;
-  for await (const ev of anthropicStream(env, body)) {
+  for await (const ev of anthropicStream(env, body, halt)) {
     if (ev.type === 'message_start') usage = ev.message.usage;
-    else if (ev.type === 'content_block_start') blocks[ev.index] = ev.content_block.type === 'tool_use' ? { type: 'tool_use', id: ev.content_block.id, name: ev.content_block.name, json: '' } : ev.content_block.type === 'text' ? { type: 'text', text: '' } : { type: ev.content_block.type, skip: true };
+    else if (ev.type === 'content_block_start') {
+      const cb = ev.content_block || {};
+      if (cb.type === 'tool_use') blocks[ev.index] = { type: 'tool_use', id: cb.id, name: cb.name, json: '' };   // counted when it runs
+      else if (cb.type === 'text') blocks[ev.index] = { type: 'text', text: cb.text || '' };
+      else if (cb.type === 'thinking') blocks[ev.index] = { type: 'thinking', thinking: cb.thinking || '', signature: cb.signature || '' };
+      else if (cb.type === 'redacted_thinking') blocks[ev.index] = { type: 'redacted_thinking', data: cb.data || '' };
+      else blocks[ev.index] = { type: cb.type, skip: true };
+    }
     else if (ev.type === 'content_block_delta') {
       const b = blocks[ev.index]; if (!b || b.skip) continue;
-      if (ev.delta.type === 'text_delta') { b.text += ev.delta.text; send('text', { text: ev.delta.text }); }
-      else if (ev.delta.type === 'input_json_delta') b.json += ev.delta.partial_json;
+      const d = ev.delta || {};
+      if (d.type === 'text_delta') { if (d.text) await onAnswer(); b.text += d.text; send('text', { text: d.text }); }
+      else if (d.type === 'input_json_delta') b.json += d.partial_json;
+      else if (d.type === 'thinking_delta' && b.type === 'thinking') b.thinking += d.thinking || '';
+      else if (d.type === 'signature_delta' && b.type === 'thinking') b.signature += d.signature || '';
     }
     else if (ev.type === 'message_delta') { stop = ev.delta.stop_reason; if (ev.usage) usage = { ...(usage || {}), ...ev.usage }; }
     else if (ev.type === 'error') throw new HttpError(502, 'upstream', (ev.error && ev.error.message) || 'stream error');
   }
-  const content = blocks.filter(b => b && !b.skip).map(b => b.type === 'tool_use' ? { type: 'tool_use', id: b.id, name: b.name, input: safeJson(b.json) } : { type: 'text', text: b.text });
+  const content = blocks.filter(b => b && !b.skip).map(b => b.type === 'tool_use' ? { type: 'tool_use', id: b.id, name: b.name, input: safeJson(b.json) }
+    : b.type === 'thinking' ? { type: 'thinking', thinking: b.thinking, signature: b.signature }
+    : b.type === 'redacted_thinking' ? { type: 'redacted_thinking', data: b.data }
+    : { type: 'text', text: b.text });
   return { content, stop, usage };
 }
 const safeJson = s => { try { return JSON.parse(s || '{}'); } catch { return null; } };
@@ -564,16 +630,19 @@ export async function chatHandler(c, auth) {
   if (profile.kind === 'kiosk') throw new HttpError(403, 'no_chat', 'The display profile has no chat.');
   const body = await c.body();
   const text = String(body.message || '').trim().slice(0, 2000);
+  const rid = typeof body.rid === 'string' && /^[A-Za-z0-9_-]{8,40}$/.test(body.rid) ? body.rid : null;   // the tab's id for this send, for Stop
   if (!text) throw new HttpError(400, 'bad_message', 'Say something first.');
   const people = householdLoader(c.env);
   const apps = await appsFor(profile, people);   // body.apps is ignored: the Worker decides what this person can open
 
-  // Daily cap: user messages sent today (New York day).
+  // Daily cap (New York day): taken now in one statement, given back if the upstream never answers
   const { results: recent } = await c.env.DB.prepare("SELECT role, content, created_at FROM chat_log WHERE profile_id = ? AND created_at > ? ORDER BY created_at DESC LIMIT 200").bind(profile.id, Date.now() - 36 * 3600000).all();
-  const used = await usedToday(c.env, profile.id);
-  if (used >= DAILY_CAP) throw new HttpError(429, 'daily_cap', `That's ${DAILY_CAP} messages for today — the assistant is resting until tomorrow.`, { used, cap: DAILY_CAP });
+  const seat = await reserveMessage(c.env, profile.id);
+  if (!seat.ok) throw new HttpError(429, 'daily_cap', `That's ${DAILY_CAP} messages for today — the assistant is resting until tomorrow.`, { used: seat.used, cap: DAILY_CAP });
 
-  const { results: household } = await c.env.DB.prepare("SELECT name, kind, is_admin FROM profiles WHERE kind != 'kitchen' ORDER BY sort_order").all();
+  const now0 = Date.now();
+  const { results: everyone } = await c.env.DB.prepare("SELECT name, kind, is_admin, is_guest, expires_at FROM profiles WHERE kind NOT IN ('kitchen', 'kiosk') ORDER BY sort_order").all();
+  const household = everyone.filter(p => !isExpiredGuest(p, now0));
   const history = recent.slice(0, HISTORY).reverse().filter(r => r.role === 'user' || r.role === 'assistant').map(r => ({ role: r.role, content: r.content }));
   // The API wants alternating turns starting with user; drop a leading assistant and collapse repeats.
   const msgs = [];
@@ -582,19 +651,38 @@ export async function chatHandler(c, auth) {
   msgs.push({ role: 'user', content: text });
 
   const now = Date.now();
-  await c.env.DB.prepare('INSERT INTO chat_log (profile_id, role, content, created_at) VALUES (?, ?, ?, ?)').bind(profile.id, 'user', text, now).run();
+  // the message joins the history once the model answers (P2-CHAT-10); a failed call leaves no trace and costs nothing
+  let answered = false;
+  const onAnswer = async () => {
+    if (answered) return; answered = true;
+    await c.env.DB.prepare('INSERT INTO chat_log (profile_id, role, content, created_at) VALUES (?, ?, ?, ?)').bind(profile.id, 'user', text, now).run();
+  };
 
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
-  const send = (event, data) => writer.write(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)).catch(() => {});
+  // Stop (review of batch 2b): the tab's POST /api/chat/stop {rid} leaves a flag, or the tab is simply gone (a write fails).
+  // A watcher looks every 3 s and sends a comment line every 15 s so a slow model or a running tool never looks dead to the
+  // tab; when stopped it aborts the model call, no tool runs after it, and a message nothing was done for is given back.
+  const halt = new AbortController(); let gone = false;
+  const send = (event, data) => writer.write(enc.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)).catch(() => { gone = true; halt.abort(); });
+  const ping = () => writer.write(enc.encode(': ping\n\n')).catch(() => { gone = true; halt.abort(); });
+  const stopKey = rid ? `chatstop:${profile.id}:${rid}` : null;
+  const ranKey = rid ? `chatran:${profile.id}:${rid}` : null;   // a tool is about to run for this send (POST /api/chat/stop reads it)
+  let modelCalled = false;
+  const stopAsked = async () => !!(stopKey && await c.env.DB.prepare('SELECT 1 AS s FROM rate_limits WHERE key = ?').bind(stopKey).first('s').catch(() => null));
+  const checkStop = async () => { if (halt.signal.aborted || gone || await stopAsked()) { halt.abort(); throw stoppedErr(); } };
+  let tick = 0;
+  const watcher = setInterval(async () => { tick++; if (tick % 5 === 0) ping(); if (!halt.signal.aborted && await stopAsked()) halt.abort(); }, 3000);
   const ctx = { profile, apps, people };
 
   const run = async () => {
     let finalText = '', chips = [], usage = null, stop = null;
     try {
       const base = { model: MODEL, max_tokens: MAX_TOKENS, system: systemPrompt({ profile, household, apps }), tools: TOOLS, thinking: { type: 'adaptive' }, output_config: { effort: 'low' } };
+      await checkStop();   // stopped before the model was asked: nothing was spent (review round 2)
       for (let turn = 0; turn < MAX_TURNS; turn++) {
-        const t = await assistantTurn(c.env, { ...base, messages: msgs }, send);
+        modelCalled = true;
+        const t = await assistantTurn(c.env, { ...base, messages: msgs }, send, onAnswer, halt.signal);
         usage = t.usage; stop = t.stop;
         finalText += t.content.filter(b => b.type === 'text').map(b => b.text).join('');
         const uses = t.content.filter(b => b.type === 'tool_use');
@@ -602,6 +690,10 @@ export async function chatHandler(c, auth) {
         msgs.push({ role: 'assistant', content: t.content });
         const results = [];
         for (const u of uses) {
+          // marked BEFORE the stop check: a Stop that reads "nothing ran" can trust it, since no tool runs after its flag
+          if (ranKey) await c.env.DB.prepare('INSERT INTO rate_limits (key, count, reset_at) VALUES (?, 1, ?) ON CONFLICT(key) DO UPDATE SET count = count + 1').bind(ranKey, Date.now() + 10 * 60000).run().catch(() => {});
+          await checkStop();                                                  // nothing is written for a person who has stopped
+          await onAnswer();                                                   // a tool that runs counts as an answer
           const r = u.input === null ? { ok: false, result: 'tool input was not valid JSON', chip: null } : await runTool(c.env, ctx, u.name, u.input);
           if (r.chip) { chips.push(r.chip); }
           send('tool', { name: u.name, input: u.input, chip: r.chip, ok: r.ok, ...(r.speak ? { speak: true, text: r.speak } : {}), ...(r.undo ? { undo: r.undo } : {}) });
@@ -611,17 +703,60 @@ export async function chatHandler(c, auth) {
         finalText += finalText && !finalText.endsWith('\n') ? '\n' : '';
       }
       if (stop === 'max_tokens') send('text', { text: ' …' });
-      send('done', { usage: usage ? { input: usage.input_tokens, output: usage.output_tokens } : null, stop_reason: stop, used: used + 1, cap: DAILY_CAP });
+      if (!answered) await onAnswer();   // an empty reply still answered
+      send('done', { usage: usage ? { input: usage.input_tokens, output: usage.output_tokens } : null, stop_reason: stop, used: seat.used, cap: DAILY_CAP });
     } catch (e) {
-      send('error', { error: e.error || 'chat_failed', message: e.message || String(e) });
+      const stopped = !!(e && e.error === 'stopped');
+      if (stopped) console.log('chat stopped', profile.id, modelCalled ? 'after the model was asked' : 'before the model was asked');
+      // given back only when the upstream failed or timed out, or a Stop came before the model was asked; a Stop after the
+      // model was asked counts (review round 2: a pre-set Stop must not buy model calls outside the daily cap)
+      const refund = !answered && (!stopped || !modelCalled);
+      if (refund) { await releaseMessage(c.env, profile.id, seat.day).catch(() => {}); }
+      send('error', { error: e.error || 'chat_failed', message: e.message || String(e), status: e.status || 502, ...(refund ? { refunded: true, used: seat.used - 1, cap: DAILY_CAP } : {}) });
     } finally {
       const saved = (finalText.trim() || (chips.length ? chips.join(' · ') : '')).slice(0, 4000);
       if (saved) await c.env.DB.prepare('INSERT INTO chat_log (profile_id, role, content, created_at) VALUES (?, ?, ?, ?)').bind(profile.id, 'assistant', saved + (chips.length && finalText.trim() ? '\n' + chips.join(' · ') : ''), Date.now()).run().catch(() => {});
+      clearInterval(watcher);
+      if (stopKey) await c.env.DB.prepare('DELETE FROM rate_limits WHERE key = ?').bind(stopKey).run().catch(() => {});
       try { await writer.close(); } catch {}
     }
   };
   c.exec.waitUntil(run());
   return new Response(readable, { headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', 'X-Accel-Buffering': 'no', ...(c.cors || {}) } });
+}
+
+/**
+ * POST /api/chat/stop {rid}: the person tapped Stop on that send. No tool runs for it after this (the running reply checks
+ * the flag before each one, and sees it within 3 s while it waits on the model). → {ok, ran}: ran = how many tools had
+ * already started; 0 means nothing was done, so the tab may put the words back to send again (review round 2).
+ */
+export async function chatStop(c, auth) {
+  const body = await c.body().catch(() => ({}));
+  const rid = String(body && body.rid || '');
+  if (!/^[A-Za-z0-9_-]{8,40}$/.test(rid)) throw new HttpError(400, 'bad_rid', 'Nothing to stop.');
+  await c.env.DB.prepare('INSERT INTO rate_limits (key, count, reset_at) VALUES (?, 1, ?) ON CONFLICT(key) DO UPDATE SET reset_at = excluded.reset_at')
+    .bind(`chatstop:${auth.profile.id}:${rid}`, Date.now() + 10 * 60000).run();
+  const ran = await c.env.DB.prepare('SELECT count FROM rate_limits WHERE key = ?').bind(`chatran:${auth.profile.id}:${rid}`).first('count');
+  return { ok: true, ran: +ran || 0 };
+}
+
+/** DELETE /api/chat/history (Me → Chat history → Clear, GAP-CHAT-01): the person's messages and pending Undo records go. */
+export async function chatClear(c, auth) {
+  const p = auth.profile;
+  const [a] = await c.env.DB.batch([
+    c.env.DB.prepare('DELETE FROM chat_log WHERE profile_id = ?').bind(p.id),
+    c.env.DB.prepare('DELETE FROM app_data WHERE app_id = ? AND scope = ? AND profile_id = ?').bind(UNDO_APP, 'person', p.id),
+  ]);
+  return { ok: true, deleted: (a && a.meta && a.meta.changes) || 0, used: await usedToday(c.env, p.id), cap: DAILY_CAP };
+}
+/** Cron (8 am / 8 pm runs): a kid's chat older than KID_CHAT_DAYS goes (GAP-CHAT-01), and day counters past their 40 days.
+ *  Returns how many chat rows went. */
+export async function pruneKidChat(env, now = Date.now()) {
+  const [r] = await env.DB.batch([
+    env.DB.prepare("DELETE FROM chat_log WHERE created_at < ? AND profile_id IN (SELECT id FROM profiles WHERE kind = 'kid')").bind(now - KID_CHAT_DAYS * 86400000),
+    env.DB.prepare("DELETE FROM rate_limits WHERE (key LIKE 'chat:%' OR key LIKE 'chatstop:%' OR key LIKE 'chatran:%') AND reset_at < ?").bind(now),
+  ]);
+  return (r && r.meta && r.meta.changes) || 0;
 }
 
 /** GET /api/chat/history — the rolling window the model also sees, for the Chat tab to show on open. */

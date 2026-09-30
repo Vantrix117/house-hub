@@ -276,6 +276,36 @@ if (process.argv.includes('--png')) {
     await page.screenshot({ path: path.join(ROOT, 'icons', out), omitBackground: !pad });
     await page.close(); console.log('  icons/' + out);
   };
-  await render(512, 0, 'icon-512.png'); await render(192, 0, 'icon-192.png'); await render(180, 0, 'apple-touch-icon.png'); await render(512, 64, 'icon-512-maskable.png');
+  await render(512, 0, 'icon-512.png'); await render(192, 0, 'icon-192.png'); await render(512, 64, 'icon-512-maskable.png');
+  await b.close();
+}
+
+// ── the install icons PWA-GAP-4 added (optional; --png renders them too) ───────
+//   apple-touch-icon.png  180 px, OPAQUE: the same art edge to edge (iOS rounds the corners itself; a transparent corner
+//                         would show black)
+//   icon-monochrome.png   512 px, the house alone (roof, walls, door, chimney) in white on transparent (manifest purpose "monochrome": Android's themed
+//                         icons use only its shape), inside the 80 % safe circle
+//   badge-96.png          96 px, the same shape: the small status-bar badge on Android notifications (sw.js)
+if (process.argv.includes('--png') || process.argv.includes('--pwa-icons')) {
+  const { createRequire } = await import('node:module');
+  const { chromium } = createRequire(import.meta.url)('playwright-core');
+  const exe = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(p => fs.existsSync(p));
+  const b = await chromium.launch({ headless: true, executablePath: exe });
+  const opaque = icon.replace('<rect width="180" height="180" rx="40"', '<rect width="180" height="180"');
+  const white = '#FFFFFF';
+  const glyph = scale => svg(180, 180, `<g transform="translate(90 94) scale(${scale}) translate(-90 -94)">` + [
+    // the house alone: no sun disc to merge with the roof (review of batch 2b)
+    stroke('M42 92 90 50l48 42', white, 11), stroke('M52 86v52h76V86', white, 11), stroke('M78 138v-28h24v28', white, 11),
+    fill('M112 58h12v20h-12z', white),
+  ].join('') + '</g>');
+  const shot = async (svgText, size, out) => {
+    const page = await b.newPage({ viewport: { width: size, height: size }, deviceScaleFactor: 1 });
+    await page.setContent(`<html><body style="margin:0;background:transparent"><img src="data:image/svg+xml;base64,${Buffer.from(svgText).toString('base64')}" style="position:absolute;left:0;top:0;width:${size}px;height:${size}px"></body></html>`);
+    await page.screenshot({ path: path.join(ROOT, 'icons', out), omitBackground: true });
+    await page.close(); console.log('  icons/' + out);
+  };
+  await shot(opaque, 180, 'apple-touch-icon.png');
+  await shot(glyph(0.78), 512, 'icon-monochrome.png');
+  await shot(glyph(1), 96, 'badge-96.png');
   await b.close();
 }
