@@ -13,6 +13,10 @@
 //       and opens the picker; the kiosk still cannot write; the board asks for the screen wake lock by itself
 //   (d) no horizontal scroll at 1024×1366 and 1920×1080; the board fits 1024×1366, 1366×1024, 1024×768 and a portrait
 //       iPad (the feed full width there)
+//   (f) IMP-PRAYER-I2 (batch 3): "A year ago today · Answered: <title>" for a family request answered on this day in an
+//       earlier year (New York dates) — in the verse pane or first in the feed, whichever fits, always whole; never a
+//       person-scope (private) title, never one answered today or on another day; nothing when there is none; every fit
+//       gate below still holds with it on the board at all five sizes
 //   (e) the 1920×1080 fit gate (decision D16, the 10-foot scale): data-tv-scale="10ft", every pane inside the title-safe
 //       screen, no scroll, every reminder shown or counted in "+N more" (with 14 of them), faces in one row with a "+N",
 //       no information text under 28 px, the feed and reminders at least body size (32 px); offline reopen keeps the ✓
@@ -92,6 +96,11 @@ const dayKey = d => { const p = {}; for (const x of new Intl.DateTimeFormat('en-
 const isoWeek = d => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = t.getUTCFullYear(); return y + '-W' + pad(Math.ceil(((t - Date.UTC(y, 0, 1)) / 86400000 + 1) / 7)); };
 const TODAY = dayKey(new Date()), YESTERDAY = dayKey(new Date(Date.now() - 86400000)), WEEK = isoWeek(new Date()), LAST_WEEK = isoWeek(new Date(Date.now() - 7 * 86400000));
 const SEED = { prayerKey: 'prayer:tv21', remKey: 'item:tv21' };
+// IMP-PRAYER-I2: the same month and day in an earlier year (a 29 February four years back)
+const YEAR_AGO = (+TODAY.slice(0, 4) - (TODAY.slice(5) === '02-29' ? 4 : 1)) + TODAY.slice(4);
+const OTHER_DAY = (+TODAY.slice(0, 4) - 1) + '-' + (TODAY.slice(5, 7) === '01' ? '02' : '01') + '-15';
+const ANNIV_KEYS = ['prayer:tv21-anniv', 'prayer:tv21-today', 'prayer:tv21-other', 'prayer:tv21-long'];
+const ANNIV_TITLE = 'Grandpa came home from the hospital';
 let ELI = null;
 async function seed() {
   await pairEli();
@@ -120,6 +129,8 @@ async function cleanup() {
   try { await api('/api/data/reminders/' + encodeURIComponent(SEED.remKey) + '?scope=family', { method: 'DELETE', profile: 'eli' }); } catch {}
   try { for (let i = 0; i < 14; i++) await api('/api/data/reminders/' + encodeURIComponent('item:tv21-' + i) + '?scope=family', { method: 'DELETE', profile: 'eli' }); } catch {}
   try { await api('/api/data/prayer/' + encodeURIComponent('prayer:tv21-all') + '?scope=family', { method: 'DELETE', profile: 'eli' }); } catch {}
+  try { for (const k of ANNIV_KEYS) await api('/api/data/prayer/' + encodeURIComponent(k) + '?scope=family', { method: 'DELETE', profile: 'eli' }); } catch {}
+  try { await api('/api/data/prayer/' + encodeURIComponent('prayer:tv21-private') + '?scope=person', { method: 'DELETE', profile: 'eli' }); } catch {}
   try { for (const p of await myPhotos()) await api('/api/album/' + encodeURIComponent(p.id), { method: 'DELETE', profile: 'eli' }).catch(() => {}); } catch {}
 }
 
@@ -153,6 +164,7 @@ async function newContext(browser, name, viewport, wakeStub) {
   await ctx.addInitScript(() => { const live = window.__live = new Set(), si = window.setInterval, ci = window.clearInterval; window.setInterval = function (...a) { const id = si.apply(this, a); live.add(id); return id; }; window.clearInterval = function (id) { live.delete(id); return ci.call(this, id); };
     const ael = window.addEventListener, rel = window.removeEventListener; window.__resizeL = 0; window.addEventListener = function (tp, ...a) { if (tp === 'resize') window.__resizeL++; return ael.call(this, tp, ...a); }; window.removeEventListener = function (tp, ...a) { if (tp === 'resize') window.__resizeL--; return rel.call(this, tp, ...a); }; });
   await ctx.addInitScript(api => { try { localStorage.setItem('hub.api', JSON.stringify(api)); } catch {} }, SITE);
+  await ctx.addInitScript(annivFn);
   // a stand-in wake lock that grants and records each request (a headless browser has no screen to keep on)
   if (wakeStub) await ctx.addInitScript(() => { const rec = window.__wl = []; class S extends EventTarget { constructor() { super(); this.released = false; this.type = 'screen'; } async release() { this.released = true; rec.push('released'); this.dispatchEvent(new Event('release')); } }
     Object.defineProperty(Navigator.prototype, 'wakeLock', { configurable: true, get() { return { request: async () => { rec.push('granted'); return new S(); } }; } }); });
@@ -191,6 +203,18 @@ async function ensurePhotos() {
 }
 const text = (page, sel) => page.$eval(sel, e => e.textContent.trim().replace(/\s+/g, ' ')).catch(() => null);
 const noHScroll = page => page.evaluate(() => { const v = document.getElementById('views'); return v.scrollWidth <= v.clientWidth + 1 && document.documentElement.scrollWidth <= window.innerWidth + 1 && document.getElementById('tv').getBoundingClientRect().right <= window.innerWidth + 1; });
+// IMP-PRAYER-I2: where the anniversary line shows (verse pane, feed or nowhere), its text, and whether it is whole: inside its
+// pane (and, in the feed, above the list's clip), nothing scrolled away inside it; at most one copy on screen
+const annivFn = `window.annivState = () => {
+  const vis = e => !!e && e.getClientRects().length > 0 && !e.hidden;
+  const v = document.getElementById('tv-anniv'), li = document.querySelector('#tv-feed > li.tv-anniv');
+  const where = vis(v) ? 'verse' : vis(li) ? 'feed' : 'none', el = where === 'verse' ? v : where === 'feed' ? li : null;
+  if (!el) return { where, copies: 0 };
+  const r = el.getBoundingClientRect(), p = el.closest('.tv-pane').getBoundingClientRect(), clip = where === 'feed' ? document.getElementById('tv-feed').getBoundingClientRect() : p;
+  const txt = where === 'feed' ? el.querySelector('.tv-anniv-txt') : el;
+  return { where, copies: [v, li].filter(vis).length, text: txt.textContent.replace(/\\s+/g, ' ').trim(), fs: parseFloat(getComputedStyle(txt).fontSize),
+    whole: r.top >= p.top - 0.5 && r.bottom <= Math.min(p.bottom, clip.bottom) + 0.5 && r.left >= p.left - 0.5 && r.right <= p.right + 0.5 && (getComputedStyle(txt).overflow === 'visible' || (txt.scrollHeight <= txt.clientHeight + 1 && txt.scrollWidth <= txt.clientWidth + 1)) && getComputedStyle(txt).textOverflow !== 'ellipsis' };
+};`;
 const boardState = page => page.evaluate(() => {
   const tv = document.getElementById('tv'), bg = tv.querySelector('.tv-bg'), on = [...tv.querySelectorAll('.tv-bg-img.on')].sort((a, b) => (+b.style.zIndex || 0) - (+a.style.zIndex || 0))[0];
   return {
@@ -202,7 +226,7 @@ const boardState = page => page.evaluate(() => {
     prayed: [...document.querySelectorAll('#tv-prayed .tv-face:not(.tv-more)')].map(f => ({ name: f.lastElementChild.textContent.trim(), face: (f.querySelector('.avatar') || {}).textContent })),
     read: [...document.querySelectorAll('#tv-read .tv-face:not(.tv-more)')].map(f => ({ name: f.lastElementChild.textContent.trim(), off: f.classList.contains('off') })),
     stars: [...document.querySelectorAll('#tv-stars .tv-face:not(.tv-more)')].map(f => f.lastElementChild.textContent.trim().replace(/\s+/g, ' ')),
-    feed: [...document.querySelectorAll('#tv-feed li')].map(li => ({ who: (li.querySelector('.who') || {}).textContent, txt: (li.querySelector('.txt') || {}).textContent, when: (li.querySelector('.when') || {}).textContent, face: !!li.querySelector('.avatar') })),
+    feed: [...document.querySelectorAll('#tv-feed li:not(.tv-anniv)')].map(li => ({ who: (li.querySelector('.who') || {}).textContent, txt: (li.querySelector('.txt') || {}).textContent, when: (li.querySelector('.when') || {}).textContent, face: !!li.querySelector('.avatar') })),
     remHidden: document.getElementById('tv-rem-card').hidden, remLast: tv.lastElementChild.id === 'tv-rem-card',
     remRows: [...document.querySelectorAll('#remlist .rem-row')].map(li => { const t = li.querySelector('.rem-text'); const cs = getComputedStyle(li); const lh = parseFloat(cs.lineHeight) || parseFloat(getComputedStyle(t).fontSize) * 1.25; const pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom); return { h: li.getBoundingClientRect().height, lines: Math.round((li.clientHeight - pad) / lh), whole: li.scrollHeight <= li.clientHeight + 1, fs: parseFloat(getComputedStyle(t).fontSize), buttons: li.querySelectorAll('button').length }; }),
     remFs: parseFloat(getComputedStyle(document.querySelector('#tv-rem-card h2')).fontSize), paneFs: parseFloat(getComputedStyle(document.querySelector('.tv-feed h2')).fontSize),
@@ -268,6 +292,10 @@ async function themeShot(page, theme, name) {
     ok(rs.api === true && rs.src === 'f260' && rs.date === x.readersDate && rs.cached && rs.cached.ids.includes('eli'), '(b) the readers come from the Worker and are kept on the device for an offline reopen (P2-SYNC-12)', JSON.stringify(rs));
     ok(s.stars.join(',') === x.stars.join(','), '(b) kids\' stars from the family stars:<kid> rows (a stale week counts as 0)', JSON.stringify([s.stars, x.stars]));
     ok(s.feed.length === 5 && s.feed.every(l => l.face && l.who && l.txt && /^(just now|\d+[mhd] ago|[A-Z][a-z]{2} \d+)$/.test(l.when)) && s.feed.map(l => l.txt).join('|') === x.feed.map(a => a.text).join('|'), '(b) the latest five feed lines, each with a face, a name and a time', JSON.stringify([s.feed.map(l => l.txt), x.feed.map(a => a.text)]));
+    const an0 = await T.page.evaluate(() => window.annivState());
+    const famAnniv = (await api('/api/data/prayer?scope=family&prefix=prayer:', { profile: 'eli' })).items.some(r => r.value && r.value.status === 'answered' && typeof r.value.answeredAt === 'string' && r.value.answeredAt.slice(5) === TODAY.slice(5) && r.value.answeredAt < TODAY.slice(0, 4));
+    if (!famAnniv) ok(an0.where === 'none' && await T.page.evaluate(() => !document.querySelector('#tv-feed > li.tv-anniv') && document.getElementById('tv-anniv').hidden), '(f) no family request answered on this day in an earlier year → no anniversary line', JSON.stringify(an0));
+    else ok(true, '(f) (the no-anniversary check skipped: the shared local DB already holds one)');
     ok(!s.remHidden && s.remLast && s.remRows.length >= 1, '(b) reminders card shows (there is one) and comes last', JSON.stringify({ hidden: s.remHidden, last: s.remLast, rows: s.remRows.length }));
     const order = await T.page.evaluate(() => { const at = new Map(hub.list('item:', { app: 'reminders', scope: 'family' }).map(r => [r.value.text, r.value.createdAt || 0])); return [...document.querySelectorAll('#remlist .rem-row .rem-text')].map(e => at.get(e.textContent)); });
     ok(order.every((v, i) => i === 0 || order[i - 1] >= v), '(b) reminders run newest first (P2-VIS-02)', JSON.stringify(order));
@@ -347,8 +375,14 @@ async function themeShot(page, theme, name) {
     await api('/api/data/reminders/batch?scope=family', { method: 'POST', profile: 'eli', body: { items: Array.from({ length: 14 }, (_, i) => ({ key: 'item:tv21-' + i, value: { id: 'tv21-' + i, text: `Busy-day reminder ${i + 1}: something the family must not miss this week`, by: 'eli', byName: 'Eli', createdAt: busy + i }, updated_at: busy + i })) } });
     const everyone = (await api('/api/profiles', { profile: 'eli' })).profiles.filter(p => p.kind === 'adult' || p.kind === 'kid').map(p => p.id);
     await api('/api/data/prayer/batch?scope=family', { method: 'POST', profile: 'eli', body: { items: [{ key: 'prayer:tv21-all', value: { id: 'tv21-all', title: 'Family prayer time', category: 'Family', status: 'active', createdAt: TODAY, prayedBy: { [TODAY]: everyone }, by: 'eli' }, updated_at: busy + 20 }] } });
+    // (f) the anniversary: one family request answered a year ago today, one answered today, one a year ago on another day,
+    //     and Eli's own (person-scope, private) request answered a year ago today — only the first may reach the TV
+    const ans = (id, title, answeredAt) => ({ key: 'prayer:' + id, value: { id, title, category: 'Family', status: 'answered', createdAt: '2020-01-01', answeredAt, answerNote: 'Thank you, Lord', prayedBy: {}, by: 'eli' }, updated_at: busy + 30 });
+    await api('/api/data/prayer/batch?scope=family', { method: 'POST', profile: 'eli', body: { items: [ans('tv21-anniv', ANNIV_TITLE, YEAR_AGO), ans('tv21-today', 'Answered this very day tv21', TODAY), ans('tv21-other', 'Answered another day tv21', OTHER_DAY)] } });
+    await api('/api/data/prayer/batch?scope=person', { method: 'POST', profile: 'eli', body: { items: [ans('tv21-private', 'PRIVATE tv21 request', YEAR_AGO)] } });
     await W.page.evaluate(() => hub.pull());
     await waitFor(() => W.page.evaluate(() => hub.list('item:', { app: 'reminders', scope: 'family' }).length >= 15), { label: 'busy reminders on the TV' });
+    await waitFor(() => W.page.evaluate(() => hub.list('prayer:', { app: 'prayer', scope: 'family' }).some(r => r.key === 'prayer:tv21-anniv')), { label: 'the anniversary row on the TV' });
     await W.page.evaluate(() => window.__tv.paint()); await sleep(300);
     const fitState = () => W.page.evaluate(() => {
       const v = document.getElementById('views'), H = innerHeight, vis = e => e.getClientRects().length > 0;
@@ -361,7 +395,7 @@ async function themeShot(page, theme, name) {
       while ((n = w.nextNode())) { const el = n.parentElement; if (!n.textContent.trim() || !vis(el) || el.closest('.avatar')) continue; sizes.push({ t: n.textContent.trim().slice(0, 30), fs: parseFloat(getComputedStyle(el).fontSize) }); }
       const fsOf = sel => parseFloat(getComputedStyle(document.querySelector(sel)).fontSize);
       return { scale: document.documentElement.dataset.tvScale, H, W: innerWidth, scroll: v.scrollHeight - v.clientHeight, hscroll: v.scrollWidth - v.clientWidth, panes, rem: { total: rows.length, shown: shown.length, more: moreN, lastRem, remBox }, prayed: faces('tv-prayed'), read: faces('tv-read'), stars: faces('tv-stars'),
-        minFs: Math.min(...sizes.map(s => s.fs)), small: sizes.filter(s => s.fs < 28).slice(0, 5), feedFs: fsOf('#tv-feed li .txt'), remFs: fsOf('#remlist .rem-text'), nameFs: fsOf('#tv-read .tv-name'), feedLines: [...document.querySelectorAll('#tv-feed li')].filter(vis).length };
+        minFs: Math.min(...sizes.map(s => s.fs)), small: sizes.filter(s => s.fs < 28).slice(0, 5), feedFs: fsOf('#tv-feed li .txt'), remFs: fsOf('#remlist .rem-text'), nameFs: fsOf('#tv-read .tv-name'), feedLines: [...document.querySelectorAll('#tv-feed li:not(.tv-anniv)')].filter(vis).length, anniv: annivState() };
     });
     let fs1 = await fitState();
     ok(fs1.scale === '10ft', '(e) the display runs on the 10-foot scale (data-tv-scale="10ft", decision D16)', String(fs1.scale));
@@ -374,14 +408,21 @@ async function themeShot(page, theme, name) {
     const whole = await W.page.evaluate(() => [...document.querySelectorAll('#remlist .rem-row')].filter(li => li.getClientRects().length).map(li => li.scrollHeight <= li.clientHeight + 1));
     ok(whole.length >= 3 && whole.every(Boolean), `(e) every reminder shown is whole, on at most two lines (${whole.length} shown)`, JSON.stringify(whole));
     ok(fs1.minFs >= 28 && fs1.feedFs >= 32 && fs1.remFs >= 32 && fs1.nameFs >= 28 && fs1.feedLines === 5, `(e) 10-foot type: nothing under 28 px (smallest ${fs1.minFs}), feed ${fs1.feedFs} and reminders ${fs1.remFs} px, names ${fs1.nameFs} px, all five feed lines (VIS-TYPE-1, UX-HOME-2)`, JSON.stringify({ small: fs1.small, feedLines: fs1.feedLines }));
+    const annText = 'A year ago today · Answered: ' + ANNIV_TITLE;
+    ok(fs1.anniv.where !== 'none' && fs1.anniv.copies === 1 && fs1.anniv.text === annText && fs1.anniv.whole && fs1.anniv.fs >= 28, `(f) 1920×1080: "${annText}" shows once, whole, in the ${fs1.anniv.where === 'verse' ? 'verse pane' : 'feed'} (${fs1.anniv.fs} px)`, JSON.stringify(fs1.anniv));
+    const tvText = await W.page.evaluate(() => document.getElementById('tv').textContent);
+    ok(!/PRIVATE tv21|Answered this very day tv21|Answered another day tv21/.test(tvText), '(f) never a private (person-scope) title, one answered today, or one answered a year ago on another day', tvText.match(/[^.]*tv21[^.]*/g));
     await W.page.screenshot({ path: path.join(SHOTS, 'rm21-tv-1920-busy.png') });
     // the same board at 1024×768 and on a portrait iPad (820×1180): no scroll, reminders counted, the feed full width in portrait
+    const annWhere = ['1920×1080: ' + fs1.anniv.where];
     for (const [w, h] of [[1280, 720], [1024, 768], [820, 1180], [960, 540]]) {
       await W.page.setViewportSize({ width: w, height: h }); await sleep(450);
       const st = await fitState();
       const feedW = await W.page.evaluate(() => [document.querySelector('.tv-feed').getBoundingClientRect().width, document.getElementById('tv').getBoundingClientRect().width]);
       const heads = await W.page.evaluate(() => ['#tv-feed-count', '#tv-rem-more'].map(s => { const e = document.querySelector(s); return e && !e.hidden ? e.textContent : ''; }));
       const counted = st.rem.shown + st.rem.more === st.rem.total && oneFace(st);
+      ok(st.anniv.where === 'none' ? st.anniv.copies === 0 : st.anniv.copies === 1 && st.anniv.text === annText && st.anniv.whole, `(f) ${w}×${h}: the anniversary ${st.anniv.where === 'none' ? 'is left out whole (no room in the verse pane or the feed)' : 'shows once, whole, in the ' + (st.anniv.where === 'verse' ? 'verse pane' : 'feed')}`, JSON.stringify(st.anniv));
+      annWhere.push(w + '×' + h + ': ' + st.anniv.where);
       ok(st.scroll <= 1 && st.hscroll <= 1 && st.panes.every(p => p.bottom <= h + 1) && counted && st.feedLines >= 1 && st.minFs >= 18 && st.scale === '10ft' && (h < w || Math.abs(feedW[0] - feedW[1]) < 1),
         `(d) ${w}×${h}: fits with no scroll, ${st.feedLines} feed lines, ${st.rem.shown} reminders shown, "${heads[1].trim()}" in the heading, every faces pane with a face ${st.prayed.shown}/${st.read.shown}/${st.stars.shown}, nothing under 18 px (the kiosk's own sizes below 1600 px)${h > w ? ', the feed full width (PWA-VIS-4)' : ''}`, JSON.stringify({ scroll: st.scroll, rem: st.rem, heads, minFs: st.minFs, feedW, panes: st.panes }));
       await W.page.screenshot({ path: path.join(SHOTS, `rm21-tv-${w}-busy.png`) });
@@ -394,9 +435,22 @@ async function themeShot(page, theme, name) {
     await W.page.setViewportSize({ width: 1920, height: 1080 }); await sleep(450);
     fs1 = await fitState();
     ok(fs1.scroll <= 1 && fs1.rem.shown + fs1.rem.more === fs1.rem.total && fs1.minFs >= 28, '(e) back at 1920×1080 after a resize the board fits again', JSON.stringify(fs1.rem));
+    console.log('    anniversary placed: ' + annWhere.join(' · '));
+    const LONG = 'After two years the whole family prayed that the Millers would find a home near the church, and after many months of waiting the house on Maple Street came through';
+    await api('/api/data/prayer/batch?scope=family', { method: 'POST', profile: 'eli', body: { items: [{ key: 'prayer:tv21-long', value: { id: 'tv21-long', title: LONG, category: 'Family', status: 'answered', createdAt: '2020-01-01', answeredAt: YEAR_AGO, prayedBy: {}, by: 'eli' }, updated_at: busy + 40 }] } });
+    await W.page.evaluate(() => hub.pull());
+    await waitFor(() => W.page.evaluate(() => hub.list('prayer:', { app: 'prayer', scope: 'family' }).some(r => r.key === 'prayer:tv21-long')), { label: 'the long anniversary on the TV' });
+    await W.page.evaluate(() => window.__tv.paint()); await sleep(200);
+    const fsL = await fitState();
+    const longOk = fsL.anniv.where === 'none' ? fsL.anniv.copies === 0 : fsL.anniv.copies === 1 && fsL.anniv.whole && /^A year ago today · Answered: /.test(fsL.anniv.text);
+    ok(longOk && fsL.feedLines >= 1 && fsL.scroll <= 1 && fsL.rem.shown + fsL.rem.more === fsL.rem.total && fsL.minFs >= 28 && fsL.panes.every(p => p.top >= 54 - 1 && p.bottom <= 1080 - 54 + 1), `(f) two anniversaries on one day: one line (the first title in order, a long one), whole even when it wraps (${fsL.anniv.where}), and the 1920 gate still holds`, JSON.stringify({ anniv: fsL.anniv, feedLines: fsL.feedLines, scroll: fsL.scroll, rem: fsL.rem }));
+    for (const k of ANNIV_KEYS) await api('/api/data/prayer/' + encodeURIComponent(k) + '?scope=family', { method: 'DELETE', profile: 'eli' });
+    await api('/api/data/prayer/' + encodeURIComponent('prayer:tv21-private') + '?scope=person', { method: 'DELETE', profile: 'eli' });
     for (let i = 0; i < 14; i++) await api('/api/data/reminders/' + encodeURIComponent('item:tv21-' + i) + '?scope=family', { method: 'DELETE', profile: 'eli' });
     await api('/api/data/prayer/' + encodeURIComponent('prayer:tv21-all') + '?scope=family', { method: 'DELETE', profile: 'eli' });
     await W.page.evaluate(() => hub.pull()); await sleep(600);
+    await W.page.evaluate(() => window.__tv.paint());
+    ok(await W.page.evaluate(() => window.annivState().where === 'none' && !document.querySelector('#tv-feed > li.tv-anniv')), '(f) the answered rows gone → the anniversary line goes at the next paint');
     // P2-SYNC-12: an offline reopen still knows who read today (the readers are kept on the device, not the last 30 feed lines)
     await W.page.route(/\/api\//, r => r.abort());
     await W.page.reload(); await W.page.waitForSelector('#tv #tv-read .tv-face');

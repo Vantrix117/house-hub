@@ -169,11 +169,12 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
       const br = b.getBoundingClientRect();
       return { title: t.textContent.trim(), titleFs: getComputedStyle(t).fontSize, fs2xl: (() => { const e = document.createElement('span'); e.style.fontSize = 'var(--fs-2xl)'; t.parentNode.appendChild(e); const v = getComputedStyle(e).fontSize; e.remove(); return v; })(), btn: b.textContent.trim(), btnW: Math.round(br.width), btnH: Math.round(br.height),
         pressed: b.getAttribute('aria-pressed'), asker: (c.querySelector('.kby') || {}).textContent.trim(), askerTint: a && a.getAttribute('data-accent'), askerSize: a && Math.round(a.getBoundingClientRect().width),
-        buttons: c.querySelectorAll('button').length, opens: c.querySelectorAll('[data-open]').length };
+        buttons: c.querySelectorAll('button.prayed').length, hands: !!b.querySelector('.khands'), opens: c.querySelectorAll('[data-open]').length };
     });
     ok(card.title === 'Healing for Grandma', 'the card shows the request title', card.title);
     ok(card.titleFs === card.fs2xl && parseFloat(card.fs2xl) >= 33, 'the title is set in --fs-2xl (kid scale, v3 28 px x 1.2)', card.titleFs + ' vs ' + card.fs2xl);
-    ok(card.buttons === 1 && card.btn === 'Prayed' && card.pressed === 'false', 'one "Prayed" button per card, not yet pressed', JSON.stringify(card));
+    // batch 3 (UX-PRAYER-2, on purpose): before the tap the button says "Pray" with praying hands (it said "Prayed" both ways)
+    ok(card.buttons === 1 && card.btn.endsWith('Pray') && card.hands && card.pressed === 'false', 'one "Pray" button (praying hands) per card, not yet pressed', JSON.stringify(card));
     ok(card.btnH >= 64 && card.btnW >= 64, 'the Prayed button is at least 64 px', card.btnW + '×' + card.btnH);
     ok(/Eli asked/.test(card.asker) && card.askerTint === await hueOf(page, P.eli) && card.askerSize === 44, 'the requester\'s face (Eli, his colour) is on the card', JSON.stringify([card.asker, card.askerTint, card.askerSize]));
     ok(card.opens === 0, 'the card does not open the detail sheet (no data-open)');
@@ -200,6 +201,9 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     const after = await page.evaluate(() => { const p = D.lists.shared.prayers[0]; return { names: p.prayedBy[TODAY] || [], done: document.querySelector('#todayList .kid').classList.contains('done'), pressed: document.querySelector('#todayList .kid .prayed').getAttribute('aria-pressed'), line: document.getElementById('todayLine').textContent }; });
     ok(after.names.includes('kiara') && (after.names.includes('Eli') || after.names.includes('eli')), 'her id joins prayedBy[today] next to Eli\'s (batch 0g: ids)', JSON.stringify(after.names));
     ok(after.done && after.pressed === 'true', 'the card turns done', JSON.stringify(after));
+    // batch 3 (UX-PRAYER-2): after the tap a word, a shape and her face: "Prayed", the ✓ in its circle, Kiara's avatar in the button
+    const doneBtn = await page.evaluate(() => { const b = document.querySelector('#todayList .kid .prayed'); const f = b.querySelector('.kme [title]'); return { word: (b.querySelector('.kw') || {}).textContent, check: !!b.querySelector('.kcheck svg'), face: f && f.getAttribute('title'), hands: !!b.querySelector('.khands') }; });
+    ok(doneBtn.word === 'Prayed' && doneBtn.check && doneBtn.face === 'Kiara' && !doneBtn.hands, 'the button now reads "Prayed" with a ✓ and her face', JSON.stringify(doneBtn));
     ok(after.line === 'You prayed for everyone today!', 'the headline cheers', after.line);
     f = await faces(page);
     ok(f.some(x => x.title === 'Kiara' && /\bavatar\b/.test(x.cls)) && f.some(x => x.title === 'Eli'), 'the card\'s who-prayed row shows both faces', JSON.stringify(f));

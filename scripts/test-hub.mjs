@@ -128,6 +128,47 @@ const tallyCount = f => f.evaluate(() => Number(document.getElementById('n').tex
     await waitFor(() => tallyCount(fb).then(n => n === 4), { label: 'B sees 4' });
     ok(true, 'B sees 4 after pull (onChange re-rendered)');
 
+    console.log('\n## hub.immersive: an app in the viewer takes the whole screen, and always has a way out (UX-PRAYER-9, batch 3)');
+    const bar = () => A.page.evaluate(() => { const v = document.getElementById('viewer'), f = document.getElementById('frame').getBoundingClientRect(); return { on: v.classList.contains('on'), immersive: v.classList.contains('immersive'), pill: getComputedStyle(document.getElementById('pill')).display !== 'none', frameTop: Math.round(f.top), frameH: Math.round(f.height), vh: innerHeight }; });
+    const escInFrame = () => fa.evaluate(() => { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })); });
+    ok(await fa.evaluate(() => hub.immersive(true)) === true, 'hub.immersive(true) inside the viewer answers true');
+    let im = await waitFor(async () => { const b = await bar(); return b.immersive && b; }, { label: 'immersive' });
+    ok(!im.pill && im.frameTop === 0 && im.frameH === im.vh, 'the shell hides its top bar and the app fills the screen', JSON.stringify(im));
+    await fa.evaluate(() => hub.immersive(false));
+    im = await waitFor(async () => { const b = await bar(); return !b.immersive && b; }, { label: 'bar back' });
+    ok(im.pill && im.on, 'hub.immersive(false) brings the bar back', JSON.stringify(im));
+    await fa.evaluate(() => { window.__imEv = []; window.addEventListener('hub:immersive', e => window.__imEv.push(e.detail.on)); hub.immersive(true); });
+    await waitFor(async () => (await bar()).immersive, { label: 'immersive 2' });
+    await escInFrame();   // Tally does not handle Escape: the SDK hands it to the shell
+    im = await waitFor(async () => { const b = await bar(); return !b.immersive && b; }, { label: 'escape in the app' });
+    const heard = await fa.evaluate(() => ({ ev: window.__imEv.slice(), state: hub.isImmersive() }));
+    ok(im.pill && im.on && heard.state === false && heard.ev.join() === 'false', 'an Escape the app does not handle brings the bar back (the viewer stays), and the app hears it', JSON.stringify([im, heard]));
+    await fa.evaluate(() => { window.__handled = ev => { if (ev.key === 'Escape') { ev.preventDefault(); } }; document.addEventListener('keydown', window.__handled); hub.immersive(true); });
+    await waitFor(async () => (await bar()).immersive, { label: 'immersive 3' });
+    await escInFrame(); await sleep(300);
+    ok((await bar()).immersive, 'an Escape the app handles itself (preventDefault) leaves the app full screen');
+    await fa.evaluate(() => document.removeEventListener('keydown', window.__handled));
+    await A.page.evaluate(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })));
+    im = await waitFor(async () => { const b = await bar(); return !b.immersive && b; }, { label: 'escape in the shell' });
+    ok(im.pill && im.on && await fa.evaluate(() => hub.isImmersive() === false), 'Escape in the shell brings the bar back first (the viewer stays open) and tells the app', JSON.stringify(im));
+    await A.page.evaluate(() => window.postMessage({ source: 'hub', type: 'hub:immersive', on: true }, location.origin)); await sleep(300);
+    ok(!(await bar()).immersive, 'only the app in the viewer can hide the bar (a message from another window is ignored)');
+    await fa.evaluate(() => hub.immersive(true)); await waitFor(async () => (await bar()).immersive, { label: 'immersive 4' });
+    await fa.evaluate(() => { window.__old = 1; location.reload(); }).catch(() => {});
+    await waitFor(() => fa.evaluate(() => !window.__old && window.hub && hub.sync && hub.sync.lastPull > 0).catch(() => false), { label: 'tally reloaded' });
+    im = await bar();
+    ok(!im.immersive && im.pill, 'a reload of the app brings the bar back', JSON.stringify(im));
+    await fa.evaluate(() => hub.immersive(true)); await waitFor(async () => (await bar()).immersive, { label: 'immersive 5' });
+    await A.page.evaluate(() => { location.hash = '#home'; });
+    await waitFor(async () => !(await bar()).on, { label: 'viewer closed' }).catch(() => {});
+    const fa2 = await openApp(A.page, 'tally');
+    im = await bar();
+    ok(!im.immersive && im.pill && im.on && await fa2.evaluate(() => !hub.isImmersive()), 'closing the viewer and opening the app again (the page kept) shows the bar', JSON.stringify(im));
+    const solo = await A.ctx.newPage();
+    await solo.goto(SITE + '/apps/tally.html'); await solo.waitForFunction(() => window.hub && typeof hub.immersive === 'function');
+    ok(await solo.evaluate(() => hub.immersive(true)) === false, 'standalone (no hub around it) hub.immersive does nothing and answers false');
+    await solo.close();
+
     console.log('\n## Kiosk profile');
     const C = await newContext(browser, 'C');
     await pair(C.page);

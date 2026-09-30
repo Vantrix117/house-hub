@@ -17,6 +17,8 @@
  *   hub.onChange(({scope, key, value}) => …) // fires when another device changed something
  *   hub.activity('Checked off Week 3 Day 2')
  *   hub.voiceInput(text => …)               // Web Speech; returns null when unsupported
+ *   hub.immersive(true|false)               // in the hub's viewer: hide / bring back the shell's top bar (full screen);
+ *                                           // standalone it does nothing. The app keeps its own Close.
  *   hub.sync.state                          // 'synced' | 'pending' | 'offline' | 'error' ('pending' until the first pull answers)
  *
  * Offline-first: every scope has a localStorage cache and a write queue. Writes apply locally at once,
@@ -1050,6 +1052,21 @@
 
   // ── misc ──────────────────────────────────────────────────────────────────
   hub.open = id => { tell({ type: 'hub:open', appId: id }); if (!inFrame) location.href = '../index.html#' + id; };
+  // hub.immersive(on) (UX-PRAYER-9): inside the hub's viewer, asks the shell to hide its top bar so the app has the whole
+  // screen (Prayer's Pray now); hub.immersive(false) brings it back. Standalone it does nothing and returns false. The
+  // shell also brings the bar back when the viewer closes, the frame reloads or navigates, and on Escape: an Escape the
+  // app does not handle (no preventDefault, still immersive after it) brings the bar back rather than trapping anyone. An
+  // app that goes immersive keeps its own visible Close that calls hub.immersive(false). When the shell puts the bar back
+  // by itself, 'hub:immersive' fires on window with detail { on: false }; hub.isImmersive() reads the state.
+  let immersed = false;
+  const immersiveOff = () => { if (!immersed) return; immersed = false; try { window.dispatchEvent(new CustomEvent('hub:immersive', { detail: { on: false } })); } catch {} };
+  hub.immersive = on => { if (!inFrame) return false; immersed = !!on; tell({ type: 'hub:immersive', on: immersed }); return true; };
+  hub.isImmersive = () => immersed;
+  if (inFrame) {
+    window.addEventListener('message', ev => { if (ev.origin === location.origin && ev.data && ev.data.source === 'hubshell' && ev.data.type === 'hub:immersive' && !ev.data.on) immersiveOff(); });
+    window.addEventListener('keydown', ev => { if (ev.key === 'Escape' && immersed) setTimeout(() => { if (immersed && !ev.defaultPrevented) { tell({ type: 'hub:immersive', on: false }); immersiveOff(); } }, 0); });
+    window.addEventListener('pagehide', () => { if (immersed) { immersed = false; tell({ type: 'hub:immersive', on: false }); } });
+  }
   // hub.toast(msg, ms, { action: 'Undo', onAction }) adds one button to the toast (batch 0h: the Larder's Undo); the
   // toast then stays up for ms and the button closes it. A tap anywhere else on the toast puts it away (UX-KIDVERSE-8, UX-VERSES-6).
   hub.toast = (msg, ms = 2200, opts = {}) => {

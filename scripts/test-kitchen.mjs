@@ -214,7 +214,8 @@ async function adminPin(page, pin) { await page.waitForSelector('#apform #apin')
     const feed = await waitFor(async () => { const f = (await api('/api/activity?limit=8', { dt: A.dt })).body.activity; return f.some(l => l.profile_id === 'ezra' && /Grandpa's knee/.test(l.text)) ? f : null; }, { timeout: 15000, label: 'the feed line' }).catch(() => null);
     ok(!!feed, 'the feed line is filed under Ezra, not the kitchen');
     await PF.click('[data-pray="kit-p1"]'); await faceSheet(PF); await PF.click('.hub-who .hub-face[data-id="ezra"]'); await sleep(600);
-    ok(await PF.evaluate(() => /Ezra already prayed/.test((document.getElementById('toastMsg') || {}).textContent || '')), 'a second tap for Ezra says he already prayed and changes nothing');
+    // batch 3 (P4-SHAPE-02, on purpose): Prayer's toast is the shared hub.toast (#hub-toast), not its own #toastMsg
+    ok(await PF.evaluate(() => /Ezra already prayed/.test((document.getElementById('hub-toast') || {}).textContent || '')), 'a second tap for Ezra says he already prayed and changes nothing');
     await PF.click('[data-pray="kit-p1"]'); await faceSheet(PF); await PF.click('.hub-who .sheet-actions .btn'); await sleep(300);
     ok(!(await PF.$('.hub-who')), 'Cancel closes the face sheet with nothing credited');
     const outsider = await K.page.evaluate(async d => {

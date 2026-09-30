@@ -6,6 +6,10 @@
 //   (c) kids get a Stars card from app_data(kidverse, person, 'stars'); adults get "Ezra ★3 · Kiara ★0" from
 //       the family mirror stars:<kidId> — both { week: 'YYYY-Www', count: n }, a stale week counts as 0
 //   (d) the feed groups consecutive lines by person, shows an app icon per line, relative times, and "Show more"
+//   (e) IMP-PRAYER-I3 (batch 3): the asker's own Home has a quiet line for each of their family-list requests someone else
+//       prayed today ("Ezra and Elizabeth prayed today for Grandma Jo's visit"), not their own tick, not yesterday's, not a
+//       request someone else asked; patched in place (the other parts keep their nodes); never on another adult's Home or a
+//       kid's; it opens Prayer
 //   AC: every card renders from the localStorage cache before the first pull (second load with /api blocked:
 //       populated cards, no skeleton, lastPull still 0) and each card's secondary text is one line at 390 and not ellipsised.
 //       The Stars/Kids play.svg art is checked by pixel: visible on Hearth, a faint ghost on Midnight.
@@ -293,6 +297,52 @@ async function artSample(page, sel) {
     await W.page.screenshot({ path: path.join(SHOTS, 'rm13-home-1024.png'), fullPage: false });
     await W.ctx.close();
 
+    console.log('\n## IMP-PRAYER-I3: the asker hears who prayed (David, 390)');
+    {
+      const RUN = Date.now().toString(36), PF = { fam: '/api/data/prayer/batch?scope=family' };
+      if (!PEOPLE) PEOPLE = Object.fromEntries((await api('/api/profiles', { profile: dadTok })).profiles.map(p => [p.id, p]));
+      const T = { a: `Grandma Jo's visit ${RUN}`, b: `David's own tick ${RUN}`, c: `Mae asked this ${RUN}`, d: `Prayed yesterday ${RUN}`, e: `The Millers' move ${RUN}` };
+      const fam = (id, title, by, prayedBy) => ({ key: `prayer:pf-${RUN}-${id}`, value: prayer(`pf-${RUN}-${id}`, title, { by, prayedBy }), updated_at: Date.now() + 1000 });
+      PF.keys = ['a', 'b', 'c', 'd', 'e'].map(id => `prayer:pf-${RUN}-${id}`);
+      await api(PF.fam, { method: 'POST', profile: dadTok, body: { items: [
+        fam('a', T.a, 'dad', { [TODAY]: ['ezra', 'dad', 'mom'] }),            // David asked; Ezra and Elizabeth prayed (and David, who is left out)
+        fam('b', T.b, 'dad', { [TODAY]: ['dad'] }),                            // only David himself
+        fam('c', T.c, 'christian', { [TODAY]: ['ezra'] }),                     // Mae asked: hers, never David's
+        fam('d', T.d, 'dad', { [YESTERDAY]: ['kiara'] }),                     // yesterday
+      ] } });
+      await A.page.click('.tab[data-tab=home]'); await A.page.evaluate(() => hub.pull());
+      const pfLines = page => page.$$eval('#view-home .pf-line', (els, run) => els.filter(e => e.textContent.includes(run)).map(e => { const r = e.getBoundingClientRect(), t = e.querySelector('.pf-t'); return { text: t.textContent.replace(/\s+/g, ' ').trim(), open: e.dataset.open, faces: e.querySelectorAll('.avatar').length, h: Math.round(r.height), clipped: t.scrollWidth > t.clientWidth + 1 || r.right > innerWidth + 1 }; }), RUN);
+      await waitFor(async () => (await pfLines(A.page)).length >= 1, { label: 'the asker\'s line' });
+      let L = await pfLines(A.page);
+      const mom = PEOPLE.mom.name;
+      ok(L.length === 1 && L[0].text === `Ezra and ${mom} prayed today for ${T.a}`, `(e) David's Home: "Ezra and ${mom} prayed today for Grandma Jo's visit" — his own tick, yesterday's and Mae's request left out`, JSON.stringify(L));
+      ok(L[0].faces === 2 && L[0].open === 'prayer' && L[0].h >= 44 && !L[0].clipped, '(e) the line shows the two faces, opens Prayer, is a 44 px target and is whole at 390', JSON.stringify(L[0]));
+      ok(await A.page.evaluate(() => !document.querySelector('.home-hero .hero-sub').textContent.includes('prayed for')), '(e) quiet: nothing added to the hero line');
+      // patched in place: another request prayed → a second line; the hero, the cards and the first line keep their nodes
+      await A.page.evaluate(() => { for (const e of document.querySelectorAll('#view-home [data-part="hero"] > *, #view-home [data-part="glance"] > *, #view-home .pf-line')) e.__keep = 1; });
+      await api(PF.fam, { method: 'POST', profile: dadTok, body: { items: [fam('e', T.e, 'dad', { [TODAY]: ['kiara', 'ezra', 'christian'] })] } });
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => (await pfLines(A.page)).length >= 2, { label: 'the second line' });
+      L = await pfLines(A.page);
+      const kept = await A.page.evaluate(run => ({ hero: [...document.querySelectorAll('#view-home [data-part="hero"] > *')].every(e => e.__keep), cards: [...document.querySelectorAll('#view-home [data-part="glance"] > *')].filter(e => !e.__keep).map(e => e.className), first: [...document.querySelectorAll('#view-home .pf-line')].filter(e => e.textContent.includes("Grandma Jo's visit " + run)).every(e => e.__keep) }), RUN);
+      const mae = PEOPLE.christian.name;
+      ok(L.length === 2 && L[0].text === `Kiara, Ezra and ${mae} prayed today for ${T.e}` && L[0].faces === 3 && L[1].text === `Ezra and ${mom} prayed today for ${T.a}`, '(e) a second request prayed → a second line (most people first), names joined "A, B and C"', JSON.stringify(L.map(l => l.text)));
+      ok(kept.hero && kept.first, '(e) patched in place: the hero and the first line keep their nodes (batch 2a)', JSON.stringify(kept));
+      await A.page.evaluate(t => [...document.querySelectorAll('#view-home .pf-line')].find(e => e.textContent.includes(t)).click(), T.a);
+      ok(await waitFor(() => A.page.$eval('#frame', f => /prayer\.html/.test(f.src))).catch(() => false), '(e) tapping the line opens Prayer');
+      await A.page.evaluate(() => document.querySelector('#pill-home').click()); await sleep(400);
+      // never on another adult's Home: Mae sees her own request's line and none of David's
+      await asOwner('christian');
+      const M = await newContext(browser, 'M');
+      await signIn(M.page, 'christian', MAE_PIN);
+      await waitFor(async () => (await pfLines(M.page)).length >= 1, { label: 'Mae\'s line' });
+      const LM = await pfLines(M.page);
+      ok(LM.length === 1 && LM[0].text === `Ezra prayed today for ${T.c}`, '(e) Mae\'s Home: only her own request ("Ezra prayed today for …"), never David\'s', JSON.stringify(LM));
+      await M.ctx.close();
+      PF.cleanup = async () => { for (const k of PF.keys) await api('/api/data/prayer/' + encodeURIComponent(k) + '?scope=family', { method: 'DELETE', profile: dadTok }).catch(() => {}); };
+      globalThis.__pfCleanup = PF.cleanup;
+    }
+
     console.log('\n## kid Home (Ezra, 390)');
     const K = await newContext(browser, 'K');
     await signIn(K.page, 'ezra');
@@ -314,6 +364,7 @@ async function artSample(page, sel) {
     const krows = await parkRows(K.page), kexp = await expectedPark(dadTok);
     ok(krows.map(r => r.name).join(',') === kexp.names && krows.map(r => r.when).join(',') === kexp.whens && krows.every(r => !r.clipped && r.inside), '(b) kid scale: every row with its time, nothing clipped', JSON.stringify([krows, kexp.names, kexp.whens]));
     ok(!(await K.page.$('#feed')) && !(await K.page.$('.prayer-card')), 'kid Home stays simple: no feed, no adult cards');
+    ok(!(await K.page.$('.pf-line')), '(e) the kid Home never has the asker\'s line (Ezra prayed on two of them)');
     const kol = await oneLiners(K.page);
     ok(kol.length >= 2 && kol.every(o => o.one), 'kid cards: secondary text is one line at 390 (kid type scale)', JSON.stringify(kol.filter(o => !o.one)));
     ok(await noHScroll(K.page), 'no horizontal scroll (kid)');
@@ -362,7 +413,7 @@ async function artSample(page, sel) {
 
     ok(errors.length === 0, 'no page errors', errors.slice(0, 5).join(' | '));
   } catch (e) { fail++; console.log('  ✗ crashed:', e.stack || e.message); }
-  finally { await browser.close(); server.close(); }
+  finally { if (globalThis.__pfCleanup) await globalThis.__pfCleanup(); await browser.close(); server.close(); }
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();

@@ -25,9 +25,11 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 <!-- No web fonts (decision D13, VIS-PRAYER-7): Manrope and Instrument Serif came from Google Fonts, which the service worker
      cannot cache, so offline Prayer lost its typeface. It now reads the house faces, --font-ui and --font-serif. -->
 <style>
-/* Text size (GAP-TYPE-1, GAP-TYPE-2, D17): Prayer keeps its own px sizes (the layout stays), each scaled by the person's
-   text size and the iPad tier; the kid scale is left out so the kid cards keep their size. At XS and S nothing drops under
-   11 px and no field under 16 px. Print keeps its pt sizes. */
+/* Type (CONS-TYPE-7, batch 3): every size is a design.css type role (--fs-body, --fs-title1 …), so the person's text size,
+   the iPad tier and kid mode (the kid roles: x1.2, a 16 px floor) reach Prayer as they reach every app; the roles floor at
+   11 px and fields read --fs-field (never under 16 px). The Kitchen view and Pray now on the iPad read the glance roles.
+   Motion (CONS-MOTION-2): every duration is a --dur-* token on its --spring-* / --ease-* curve, so Reduce Motion stills it.
+   Print keeps its pt sizes. */
 /* ══════════════════════════════════════════════════════════════
    Light brown, modern. Sand and mocha neutrals, four saturated
    accents with exactly one job each:
@@ -58,41 +60,56 @@ html,body{margin:0;padding:0}
 body{
   background:var(--paper); color:var(--ink);
   font-family:var(--font-ui);   /* the house text face; rounded for a kid (D13, CONS-TYPE-5) */
-  font-size:calc(17px * var(--ts-width, 1) * var(--ts-user, 1)); line-height:1.55; font-weight:400; letter-spacing:-.008em;
-  padding-bottom:calc(96px + env(safe-area-inset-bottom));
+  font-size:var(--fs-body); line-height:1.55; font-weight:400; letter-spacing:-.008em;
+  /* clears the nav (bottom 0) and the + above it (bottom 86 + 56 px), so nothing sits under the + (VIS-PRAYER-2) */
+  padding-bottom:calc(158px + env(safe-area-inset-bottom));
   -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:33rem;margin:0 auto;padding:0 22px}
+.wrap{max-width:var(--col-narrow);margin:0 auto;padding:0 22px}   /* the narrow column, centred (VIS-PRAYER-6) */
 
 /* ── type ─────────────────────────────────────────────────── */
-h1{font-size:calc(31px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;line-height:1.18;margin:10px 0 0;max-width:20ch;
+h1{font-size:var(--fs-title1);font-weight:600;line-height:1.18;margin:10px 0 0;max-width:20ch;
    letter-spacing:-.032em}
-h2{font-size:calc(19px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;margin:46px 0 0;letter-spacing:-.022em}
-h3{font-size:max(11px, calc(13px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;margin:30px 0 0;color:var(--muted);letter-spacing:-.005em}
-.date{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;color:var(--muted);letter-spacing:-.005em}
+h2{font-size:var(--fs-title3);font-weight:600;margin:46px 0 0;letter-spacing:-.022em}
+h3{font-size:var(--fs-footnote);font-weight:600;margin:30px 0 0;color:var(--muted);letter-spacing:-.005em}
+.date{font-size:var(--fs-subheadline);font-weight:500;color:var(--muted);letter-spacing:-.005em}
 .screen{display:none}
-.screen.on{display:block;animation:rise .3s cubic-bezier(.22,.9,.3,1)}
-@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.screen.on{display:block;animation:rise var(--dur-gentle) var(--spring-gentle)}
+@keyframes rise{from{opacity:0;transform:translateY(calc(var(--enter-distance) * .375))}to{opacity:1;transform:none}}
 header{padding:38px 0 14px}
 
 /* ── list switcher ────────────────────────────────────────── */
 .hdr{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:44px}
 .switch{display:inline-flex;margin:0;padding:3px;border-radius:999px;background:var(--sunk);flex:0 0 auto}
-.switch button{font-family:inherit;font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;padding:9px 15px;min-height:44px;border:none;
+.switch button{font-family:inherit;font-size:var(--fs-footnote);font-weight:600;padding:9px 15px;min-height:44px;border:none;
   cursor:pointer;background:transparent;color:var(--muted);border-radius:999px;
-  letter-spacing:-.01em;transition:background .2s,color .2s,box-shadow .2s}
+  letter-spacing:-.01em;transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-fast) var(--ease-standard)}
 .switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
 
 /* ── progress + stats ─────────────────────────────────────── */
 .meter{height:6px;border-radius:999px;background:var(--sunk);margin:24px 0 14px;overflow:hidden}
 .meter i{display:block;height:100%;border-radius:999px;background:var(--mint-graphic);width:0;
-  transition:width .5s cubic-bezier(.3,.9,.3,1)}
-.strip{display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;padding-bottom:4px;
-  font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:500;color:var(--muted);letter-spacing:-.008em}
+  transition:width var(--dur-progress) var(--spring-gentle)}
+/* the stats: two rows of two on a phone, one row where four fit; a zero is left out (VIS-PRAYER-8) */
+.strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;align-items:baseline;padding-bottom:4px;
+  font-size:var(--fs-footnote);font-weight:500;color:var(--muted);letter-spacing:-.008em}
 /* counts: the house numeral face with tabular figures (CONS-TYPE-3) */
-.strip b{display:inline-block;font-weight:700;font-size:calc(19px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--ink);
+.strip b{display:inline-block;font-weight:700;font-size:var(--fs-title3);color:var(--ink);
   margin-right:5px;letter-spacing:-.03em;font-family:var(--font-numeral);font-variant-numeric:var(--numeral-features)}
-.cheer{font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;color:var(--butter-ink);margin-top:6px;min-height:1.4em}
+/* VIS-PRAYER-6 on a wide screen: the header keeps to few lines so requests show above the nav on a landscape iPad: the date
+   and plan on one line (an ellipsis; the whole name in its title and in Settings), the headline on one line, each stat
+   whole on one line, a little less air above */
+@media (min-width:700px){
+  .strip{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 12px}   /* a larger text size wraps whole stats, never a scroll */
+  .strip > span{white-space:nowrap}
+  header{padding-top:26px}
+  h1{max-width:none}
+  .hdr .date{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meter{margin-top:18px}
+}
+.strip:empty{display:none}
+.cheer{font-size:var(--fs-callout);font-weight:500;color:var(--butter-ink);margin-top:6px;min-height:1.4em}
+.cheer:empty{display:none}   /* no empty line held open under the actions (VIS-PRAYER-6: the header does not eat the screen) */
 
 /* ── rows ─────────────────────────────────────────────────── */
 ul.list{list-style:none;margin:0;padding:0}
@@ -103,38 +120,38 @@ ul.list li.row:first-child{border-top:none}
 .mark{flex:0 0 auto;width:44px;height:44px;margin:-5px -7px 0 -7px;border:none;border-radius:50%;
   background:transparent;cursor:pointer;position:relative;
   display:grid;place-items:center;padding:0;color:var(--mint-on);
-  transition:transform .18s}
+  transition:transform var(--dur-snappy) var(--spring-snappy)}
 .mark::before{content:"";position:absolute;inset:7px;border-radius:50%;
-  border:1.75px solid var(--rule);transition:border-color .2s,background .2s}
+  border:1.75px solid var(--rule);transition:border-color var(--dur-fast) var(--ease-standard),background var(--dur-fast) var(--ease-standard)}
 .mark:hover::before{border-color:var(--mint-graphic)}
 .mark:active{transform:scale(.86)}
 .mark:focus-visible{outline:none}
 .mark:focus-visible::before{outline:2px solid var(--focus-ring-color);outline-offset:3px}
 .mark svg{position:relative;width:15px;height:15px;opacity:0;transform:scale(.4);
-  transition:opacity .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+  transition:opacity var(--dur-fast) var(--ease-standard),transform var(--dur-bouncy) var(--spring-bouncy)}   /* the check pops in: the one small celebration */
 /* the prayed mark: a solid carrying the check, so the pair is mint strong + mint on (the pairing rule) */
 .mark[aria-pressed="true"]::before{background:var(--mint-strong);border-color:var(--mint-strong)}
 .mark[aria-pressed="true"] svg{opacity:1;transform:scale(1)}
 .body{flex:1 1 auto;min-width:0;cursor:pointer}
-.title{font-size:calc(17.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;line-height:1.42;letter-spacing:-.012em}
+.title{font-size:var(--fs-body);font-weight:500;line-height:1.42;letter-spacing:-.012em}
 .row.done .title{color:var(--text-2);font-weight:400}   /* AA without opacity (VIS-PRAYER-1) */
-.meta{font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:500;color:var(--muted);margin-top:4px;letter-spacing:-.005em}
-.upd{font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--ink2);margin-top:7px}
+.meta{font-size:var(--fs-footnote);font-weight:500;color:var(--muted);margin-top:4px;letter-spacing:-.005em}
+.upd{font-size:var(--fs-callout);color:var(--ink2);margin-top:7px}
 .cold{color:var(--peach-ink)}
-.pill{display:inline-block;font-size:max(11px, calc(11px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;padding:3px 9px;border-radius:999px;
+.pill{display:inline-block;font-size:var(--fs-caption2);font-weight:600;padding:3px 9px;border-radius:999px;
   background:var(--aqua-fill);color:var(--aqua-ink);margin-left:8px;vertical-align:2px;
   letter-spacing:.01em}
 /* who prayed today (family list): real faces from hub.avatarHtml at 28 px, overlapping, at most five then "+N" */
 .who{display:inline-flex;align-items:center;margin-left:8px;padding-left:6px;vertical-align:middle}
 .who .avatar,.who .init,.who .more,.asker .avatar,.asker .init{--size:28px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
-  display:grid;place-items:center;overflow:hidden;margin-left:-6px;font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));line-height:1;position:relative;
+  display:grid;place-items:center;overflow:hidden;margin-left:-6px;font-size:var(--fs-subheadline);line-height:1;position:relative;
   box-shadow:0 0 0 2px var(--surface)}
 /* hub.avatarHtml puts the person's data-accent on each face, so these roles are that person's, not the viewer's */
 .who .avatar,.asker .avatar{
   background:radial-gradient(120% 120% at 30% 20%, var(--accent-fill), var(--accent-fill-strong))}
 .who .avatar img,.asker .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.who .init,.asker .init{font-size:max(11px, calc(11px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:700;background:var(--accent-fill);color:var(--accent-ink)}
-.who .more{font-size:max(11px, calc(11px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:700;background:var(--sunk);color:var(--ink2)}
+.who .init,.asker .init{font-size:var(--fs-caption2);font-weight:700;background:var(--accent-fill);color:var(--accent-ink)}
+.who .more{font-size:var(--fs-caption2);font-weight:700;background:var(--sunk);color:var(--ink2)}
 /* who asked (family list): the requester's face, same 28 px recipe, then "<name> asked" in the meta line */
 .asker{display:inline-flex;align-items:center;gap:7px;margin-left:10px;vertical-align:middle}
 .asker .avatar,.asker .init{margin-left:0}
@@ -144,17 +161,26 @@ details.cat{border-top:1px solid var(--rule-soft)}
 details.cat[open]{padding-bottom:10px}
 details.cat > summary{cursor:pointer;list-style:none;padding:16px 0;display:flex;
   justify-content:space-between;align-items:center;gap:12px;
-  font-size:calc(14.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;color:var(--ink2);letter-spacing:-.012em}
+  font-size:var(--fs-subheadline);font-weight:600;color:var(--ink2);letter-spacing:-.012em}
 details.cat > summary::-webkit-details-marker{display:none}
+/* the disclosure chevron (UX-PRAYER-7): Prayer's own drawn stroke icon (icon('chev')), pointing right while shut and down
+   when open; in the tertiary text ink (the decor tone fell to 2.9:1 on a card in the light palettes: batch 3 rescore). One icon family with the nav, the + and the marks (ICO-2). */
+details.cat > summary > .chev{order:3;flex:0 0 auto;width:20px;height:20px;margin:0 2px;color:var(--text-3);
+  transition:transform var(--dur-snappy) var(--spring-snappy)}
+details.cat[open] > summary > .chev{transform:rotate(90deg)}
+/* the check after "All prayed" and after a face at the table: the same drawn check as the prayed mark */
+.hcheck{display:inline-block;width:.9em;height:.9em;margin-left:.22em;vertical-align:-.08em;color:var(--mint-ink)}
+.tcheck{display:inline-block;width:1.1em;height:1.1em;margin-left:.15em;vertical-align:-.2em;color:var(--mint-ink)}
+details.cat > summary .end,details.cat > summary > .n{margin-left:auto}   /* the count and Copy keep to the right, by the chevron */
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:9px;vertical-align:2px;
   background:var(--d0);flex:0 0 auto}
 .dot.d1{background:var(--d1)}.dot.d2{background:var(--d2)}.dot.d3{background:var(--d3)}
 .dot.d4{background:var(--d4)}.dot.d5{background:var(--d5)}.dot.d6{background:var(--d6)}.dot.d7{background:var(--d7)}
-details.cat > summary .n{font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--muted);
+details.cat > summary .n{font-size:var(--fs-footnote);font-weight:600;color:var(--muted);
   background:var(--sunk);border-radius:999px;padding:3px 10px;
   font-family:var(--font-numeral);font-variant-numeric:var(--numeral-features)}   /* counts (CONS-TYPE-3) */
 details.cat > summary .end{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
-.copybtn{background:none;border:none;font-family:inherit;font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;
+.copybtn{background:none;border:none;font-family:inherit;font-size:var(--fs-footnote);font-weight:600;
   color:var(--muted);cursor:pointer;padding:11px 10px;min-height:44px;border-radius:999px}
 .copybtn:hover{color:var(--accent-ink)}
 details.cat > summary:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:2px}
@@ -162,37 +188,42 @@ details.cat > summary:focus-visible{outline:2px solid var(--focus-ring-color);ou
 /* ── answered ─────────────────────────────────────────────── */
 .ans{border-top:1px solid var(--rule-soft);padding:22px 0;cursor:pointer}
 #answeredList .ans:first-child{border-top:none}
-.ans .when{font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--butter-ink);letter-spacing:-.002em}
-.ans .what{font-size:calc(20px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;margin-top:5px;line-height:1.3;letter-spacing:-.02em}
-.ansnote{font-family:var(--font-serif);font-size:calc(20px * var(--ts-width, 1) * var(--ts-user, 1));font-style:italic;
+.ans .when{font-size:var(--fs-footnote);font-weight:600;color:var(--butter-ink);letter-spacing:-.002em}
+.ans .what{font-size:var(--fs-title3);font-weight:500;margin-top:5px;line-height:1.3;letter-spacing:-.02em}
+.ansnote{font-family:var(--font-serif);font-size:var(--fs-title3);font-style:italic;
   color:var(--ink2);margin-top:12px;padding-left:16px;border-left:2px solid var(--butter-graphic);
   letter-spacing:0;line-height:1.45}
 .ledger{background:var(--butter-fill);border-radius:var(--r);padding:16px 18px;margin:30px 0 4px;
-  font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));line-height:1.6}
-.ledger b{display:block;font-weight:600;color:var(--butter-ink);margin-bottom:6px;font-size:max(11px, calc(13px * var(--ts-width, 1) * var(--ts-user, 1)))}
+  font-size:var(--fs-callout);line-height:1.6}
+.ledger b{display:block;font-weight:600;color:var(--butter-ink);margin-bottom:6px;font-size:var(--fs-footnote)}
 .recall{border-left:2px solid var(--butter-graphic);padding:4px 0 4px 16px;margin:28px 0 0;
-  font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));cursor:pointer}
-.recall b{display:block;font-weight:600;color:var(--butter-ink);font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));margin-bottom:3px}
-.prompt{background:var(--accent-fill);border-radius:var(--r);padding:15px 18px;margin:26px 0 0;
-  font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;display:flex;justify-content:space-between;gap:14px;
+  font-size:var(--fs-callout);cursor:pointer}
+.recall b{display:block;font-weight:600;color:var(--butter-ink);font-size:var(--fs-footnote);margin-bottom:3px}
+.prompt{background:var(--accent-fill);border-radius:var(--r);padding:8px 8px 8px 18px;margin:18px 0 0;
+  font-size:var(--fs-callout);font-weight:500;display:flex;justify-content:space-between;gap:14px;
   align-items:center;flex-wrap:wrap}
 
 /* ── calendar ─────────────────────────────────────────────── */
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;margin:18px 0 4px}
-.cal span{aspect-ratio:1;border-radius:7px;background:var(--sunk)}
-.cal span.on{background:var(--mint-graphic)}
+.calmonth{font-size:var(--fs-headline);font-weight:600;color:var(--ink);margin:26px 0 0;letter-spacing:-.012em}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;margin:8px 0 4px}
+/* an empty day is an outlined square in the >= 3:1 decor tone, so it stays visible in dark (VIS-PRAYER-5); a prayed day
+   is the solid mark; a day still to come is fainter */
+.cal span{aspect-ratio:1;border-radius:7px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--muted-decor)}
+.cal span.on{background:var(--mint-graphic);box-shadow:none}
+.cal span.later{box-shadow:inset 0 0 0 1.5px var(--rule)}
 .cal span.today{box-shadow:0 0 0 2px var(--today-ring)}   /* the one today ring, >= 3:1 (CONS-COLOR-2) */
-.cal span.blank{background:transparent}
+.cal span.on.today{box-shadow:0 0 0 2px var(--today-ring)}
+.cal span.blank{background:transparent;box-shadow:none}
 .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;
-  font-size:max(11px, calc(11.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--muted);text-align:center;margin-top:10px}
+  font-size:var(--fs-caption1);font-weight:600;color:var(--muted);text-align:center;margin-top:10px}
 
 /* ── forms ────────────────────────────────────────────────── */
-label{display:block;font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;color:var(--ink2);margin:26px 0 8px;
+label{display:block;font-size:var(--fs-subheadline);font-weight:600;color:var(--ink2);margin:26px 0 8px;
   letter-spacing:-.01em}
 input[type=text],input[type=tel],input[type=password],textarea,select{
-  width:100%;font-family:inherit;font-size:max(16px, calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1)));color:var(--ink);background:var(--raised);
+  width:100%;font-family:inherit;font-size:var(--fs-field);color:var(--ink);background:var(--raised);
   border:1.5px solid var(--rule);border-radius:var(--r-sm);padding:13px 15px;line-height:1.5;
-  -webkit-appearance:none;appearance:none;transition:border-color .18s,box-shadow .18s}
+  -webkit-appearance:none;appearance:none;transition:border-color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-fast) var(--ease-standard)}
 select[multiple]{padding:8px;min-height:200px}
 select:not([multiple]){padding-right:44px;
   background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
@@ -203,23 +234,23 @@ textarea{min-height:120px;resize:vertical}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent-graphic);
   box-shadow:0 0 0 4px var(--accent-fill)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font-family:inherit;font-size:calc(14.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;padding:10px 16px;border-radius:999px;min-height:44px;
+.chip{font-family:inherit;font-size:var(--fs-subheadline);font-weight:600;padding:10px 16px;border-radius:999px;min-height:44px;
   cursor:pointer;background:var(--sunk);border:1.5px solid transparent;color:var(--ink2);
-  letter-spacing:-.01em;transition:background .18s,color .18s,border-color .18s}
+  letter-spacing:-.01em;transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard)}
 .chip:hover{background:var(--hover)}
 /* solids that carry a label: the person's strong tone with its own -on label (D15, the pairing rule) */
 .chip[aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on)}
-button.act{font-family:inherit;font-size:calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;padding:15px 22px;
+button.act{font-family:inherit;font-size:var(--fs-headline);font-weight:600;padding:15px 22px;
   border-radius:var(--r-sm);cursor:pointer;background:var(--accent-strong);color:var(--accent-on);
   border:1.5px solid var(--accent-strong);width:100%;margin-top:28px;letter-spacing:-.012em;
-  transition:transform .16s,opacity .2s,background .2s}
+  transition:transform var(--dur-snappy) var(--spring-snappy),opacity var(--dur-fast) var(--ease-standard),background var(--dur-fast) var(--ease-standard)}
 button.act:active{transform:translateY(1px)}
 button.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
 button.ghost:hover{background:var(--hover);border-color:var(--accent-graphic)}
 /* Delete in the detail sheet reads as destructive before the confirm (VIS-PRAYER-10); markup unchanged */
 button.ghost[data-delete]{color:var(--danger-ink);border-color:var(--danger-graphic)}
 @media (hover:hover) and (pointer:fine){button.ghost[data-delete]:hover{background:var(--danger-wash);border-color:var(--danger-graphic)}}
-button.small{width:auto;margin-top:0;font-size:calc(14.5px * var(--ts-width, 1) * var(--ts-user, 1));padding:11px 18px}
+button.small{width:auto;margin-top:0;font-size:var(--fs-subheadline);padding:11px 18px}
 button.act.danger{background:var(--danger-strong);border-color:var(--danger-strong);color:var(--danger-on)}
 button:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:3px}
 button:disabled{opacity:.35;cursor:default}
@@ -234,19 +265,21 @@ button:disabled{opacity:.35;cursor:default}
 .menu{display:flex;flex-direction:column;gap:10px;margin-top:22px}
 .menu .act{margin-top:0;min-height:60px;text-align:left;display:flex;justify-content:space-between;
   align-items:center;gap:14px}
-.menu .act span{font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:500;color:var(--muted);letter-spacing:-.005em;text-align:right}
+.menu .act span{font-size:var(--fs-footnote);font-weight:500;color:var(--muted);letter-spacing:-.005em;text-align:right}
 .catrow{display:flex;justify-content:space-between;align-items:center;gap:12px;
-  border-top:1px solid var(--rule-soft);padding:13px 0;font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500}
-.catrow button{background:none;border:none;font-family:inherit;font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;
-  color:var(--muted);cursor:pointer;padding:5px 3px}
+  border-top:1px solid var(--rule-soft);padding:13px 0;font-size:var(--fs-callout);font-weight:500}
+/* Rename / Remove at the house tap size (VIS-PRAYER-3) */
+.catrow button{background:none;border:none;font-family:inherit;font-size:var(--fs-footnote);font-weight:600;
+  color:var(--muted);cursor:pointer;padding:0 var(--sp-3);min-height:var(--tap);min-width:var(--tap);border-radius:999px}
 .catrow button:hover{color:var(--accent-ink)}
+.catrow > span:last-child{display:flex;flex:none}   /* Rename and Remove stay side by side beside a long name */
 
 /* ── inline form: replaces every native dialog ────────────── */
 .ask{background:var(--sunk);border-radius:var(--r);padding:4px 18px 18px;margin-top:14px;
-  flex:1 1 100%;width:100%;animation:rise .25s cubic-bezier(.22,.9,.3,1)}
+  flex:1 1 100%;width:100%;animation:rise var(--dur-gentle) var(--spring-gentle)}
 .ask.danger{background:var(--danger-fill)}   /* the destructive confirm panel: a tint, its text stays --ink */
 .ask label{margin-top:14px}
-.ask .line{font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;padding-top:14px;line-height:1.5}
+.ask .line{font-size:var(--fs-callout);font-weight:500;padding-top:14px;line-height:1.5}
 .ask .rowbtns{margin-top:16px}
 .ask input,.ask textarea,.ask select{background:var(--raised)}
 .ask textarea{min-height:96px}
@@ -255,41 +288,44 @@ button:disabled{opacity:.35;cursor:default}
 #shareAlso .chip{text-align:left;max-width:100%;background:var(--raised);border-color:var(--rule)}   /* off: an outlined chip, so it reads as a button on the panel */
 #shareAlso .chip[aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on)}
 #sharePreview{margin-top:10px;color:var(--ink2)}
-.err{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;color:var(--peach-ink);margin:8px 0 0}
+.err{font-size:var(--fs-subheadline);font-weight:500;color:var(--peach-ink);margin:8px 0 0}
 .err:empty{display:none}
 
 /* ── sheet ────────────────────────────────────────────────── */
 /* the veil is a plain scrim (--scrim-blur is 0): the glass sheet above it is the only blur, never glass over glass (VIS-GLASS-1) */
 .veil{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(var(--scrim-blur));
   -webkit-backdrop-filter:blur(var(--scrim-blur));display:none;z-index:20}
-.veil.on{display:block;animation:fade .22s ease}
+.veil.on{display:block;animation:fade var(--dur-fast) var(--ease-standard)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;
-  border-radius:26px 26px 0 0;max-height:88vh;overflow:auto;display:none;
-  padding:14px 22px calc(32px + env(safe-area-inset-bottom))}
-.sheet.on{display:block;animation:slide .32s cubic-bezier(.22,.9,.3,1)}
-@keyframes slide{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
-.sheet .inner{max-width:33rem;margin:0 auto}
+/* the house sheet (CONS-SHAPE-5, CONS-MOTION-3): --r-sheet corners, --elev-overlay (below, with the glass), the sheet
+   padding, rising on --dur-gentle / --spring-gentle; the narrow column, centred, so on the iPad it is an inset sheet and
+   not an edge-to-edge one (VIS-PRAYER-9) */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;margin:0 auto;max-width:var(--col-narrow);
+  border-radius:var(--r-sheet) var(--r-sheet) 0 0;max-height:88vh;overflow:auto;display:none;
+  padding:var(--sp-3) var(--pad-sheet) calc(var(--pad-sheet) + var(--sp-3) + env(safe-area-inset-bottom))}
+.sheet.on{display:block;animation:slide var(--dur-gentle) var(--spring-gentle)}
+@keyframes slide{from{transform:translateY(var(--enter-distance));opacity:0}to{transform:none;opacity:1}}
+.sheet .inner{max-width:none;margin:0 auto}
 .sheet .inner::before{content:"";display:block;width:40px;height:4px;border-radius:999px;
   background:var(--rule);margin:0 auto 16px}
-.sheet h1{font-size:calc(25px * var(--ts-width, 1) * var(--ts-user, 1))}
-.close{float:right;background:none;border:none;font-family:inherit;font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;
+.sheet h1{font-size:var(--fs-title2)}
+.close{float:right;background:none;border:none;font-family:inherit;font-size:var(--fs-subheadline);font-weight:600;
   color:var(--muted);cursor:pointer;padding:6px 0 6px 14px;min-height:44px}
 .hist{list-style:none;padding:0;margin:24px 0 0}
-.hist li{border-top:1px solid var(--rule-soft);padding:13px 0;font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1))}
-.hist .d{font-size:max(11px, calc(12.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--muted);margin-bottom:3px}
+.hist li{border-top:1px solid var(--rule-soft);padding:13px 0;font-size:var(--fs-callout)}
+.hist .d{font-size:var(--fs-footnote);font-weight:600;color:var(--muted);margin-bottom:3px}
 
 /* ── toast ────────────────────────────────────────────────── */
-.toast{position:fixed;left:50%;transform:translateX(-50%);
-  bottom:calc(108px + env(safe-area-inset-bottom));z-index:30;
-  background:var(--toast-bg);color:var(--toast-ink);padding:13px 20px;border-radius:999px;   /* the shared dark slab in both schemes (VIS-DARK-1) */
-  font-size:calc(15px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;display:none;align-items:center;gap:18px;max-width:92vw;
-  box-shadow:var(--lift-lg)}
-.toast.on{display:flex;animation:slide .28s cubic-bezier(.22,.9,.3,1)}
-.toast button{background:none;border:none;color:inherit;text-decoration:underline;text-underline-offset:3px;min-height:44px;font-family:inherit;
-  font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:700;cursor:pointer;padding:0}
+/* Prayer's toast is the shared one (P4-SHAPE-02, VIS-SHAPE-4, CONS-MOTION-3): hub.toast's .ds .toast, sized to its message
+   up to the narrow column, with a 44 px action. Only its height is Prayer's: it sits above the nav and the +, and at the
+   foot of the screen where there is no nav (a kid). #toast stays in the page for older callers, never shown. */
+#toast{display:none!important}
+#hub-toast{bottom:calc(152px + env(safe-area-inset-bottom))}
+:root[data-kind="kid"] #hub-toast{bottom:calc(var(--sp-6) + env(safe-area-inset-bottom))}
 
 /* ── floating add ─────────────────────────────────────────── */
+/* on a phone 22 px from the edge; on a wide screen just outside the right edge of the centred column, in its gutter, so it
+   sits by the content without covering it (VIS-PRAYER-6) */
 .fab{position:fixed;right:calc(22px + env(safe-area-inset-right));
   bottom:calc(86px + env(safe-area-inset-bottom));z-index:12;width:56px;height:56px;
   border-radius:50%;color:var(--accent-on);
@@ -297,18 +333,19 @@ button:disabled{opacity:.35;cursor:default}
   background:var(--accent-strong);border:1px solid var(--accent-strong);
   box-shadow:inset 0 1px 0 var(--hairline), var(--elev-float);
   cursor:pointer;display:none;place-items:center;padding:0;
-  transition:transform .16s,background .2s}
+  transition:transform var(--dur-snappy) var(--spring-snappy),background var(--dur-fast) var(--ease-standard)}
 .fab.on{display:grid}
 .fab:active{transform:scale(.94)}
 .fab svg{width:26px;height:26px}
+@media (min-width:760px){ .fab{right:calc((100vw - var(--col-narrow)) / 2 - 72px)} }
 
 /* ── nav ──────────────────────────────────────────────────── */
 nav{position:fixed;left:0;right:0;bottom:0;z-index:10;padding-bottom:env(safe-area-inset-bottom)}
-nav .inner{max-width:33rem;margin:0 auto;display:flex;padding:8px 8px}
-nav button{flex:1;background:none;border:none;font-family:inherit;font-size:max(11px, calc(12px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:var(--fw-medium);
+nav .inner{max-width:var(--col-narrow);margin:0 auto;display:flex;padding:8px 8px}
+nav button{flex:1;background:none;border:none;font-family:inherit;font-size:var(--fs-caption1);font-weight:var(--fw-medium);
   color:var(--muted);padding:9px 2px 8px;cursor:pointer;border-radius:18px;letter-spacing:-.01em;
   display:flex;flex-direction:column;align-items:center;gap:4px;min-height:56px;
-  transition:background .2s,color .2s}
+  transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
 nav button svg{width:20px;height:20px;display:block}
 /* the current tab: a >= 3:1 selection fill with its own label, plus a heavier weight, so it is not told by hue alone (P4-ACCENT-01) */
 nav button[aria-current="true"]{color:var(--sel-ink-strong);background:var(--sel-fill-strong);font-weight:var(--sel-weight)}
@@ -331,17 +368,17 @@ nav,.sheet,#kitchen .close{
 nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
   box-shadow:inset 0 1px 0 var(--hairline), 0 -1px 0 var(--glass-ring), 0 -12px 40px -24px var(--glass-inner)}
 .sheet{--g:var(--glass-strong);border-width:1px 1px 0;
-  box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), 0 0 0 1px var(--glass-ring), var(--e4)}
+  box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), 0 0 0 1px var(--glass-ring), var(--elev-overlay)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   nav,.sheet,#kitchen .close{--g:color-mix(in srgb, var(--surface) 96%, transparent)}
 }
 
-.empty{color:var(--muted);padding:38px 0;max-width:32ch;font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1))}
+.empty{color:var(--muted);padding:38px 0;max-width:32ch;font-size:var(--fs-callout)}
 .empty img{display:block;width:min(220px,70%);height:auto;margin:0 0 14px -6px}
 .empty button{display:block;margin-top:16px}
-.note{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--muted);margin-top:12px;max-width:46ch;line-height:1.55}
-.warn{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;color:var(--butter-ink);margin-top:16px;max-width:46ch}
-.sync{font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--muted);margin-top:14px;max-width:46ch}
+.note{font-size:var(--fs-subheadline);color:var(--muted);margin-top:12px;max-width:46ch;line-height:1.55}
+.warn{font-size:var(--fs-subheadline);font-weight:500;color:var(--butter-ink);margin-top:16px;max-width:46ch}
+.sync{font-size:var(--fs-subheadline);color:var(--muted);margin-top:14px;max-width:46ch}
 .sync.bad{color:var(--peach-ink)}
 .pending{display:flex;gap:14px;align-items:center;border-top:1px solid var(--rule-soft);padding:14px 0}
 
@@ -356,46 +393,69 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
 #pray{position:fixed;inset:0;background:var(--paper);z-index:35;display:none;
   flex-direction:column;touch-action:pan-y;
   padding:calc(26px + env(safe-area-inset-top)) 26px calc(26px + env(safe-area-inset-bottom))}
-#pray.on{display:flex;animation:fade .3s ease}
+#pray.on{display:flex;animation:fade var(--dur-gentle) var(--ease-standard)}
+/* the count, the Close, the bar and the buttons all sit in the one centred column, never in the far corners
+   (VIS-PRAYER-11); Close is a 44 px glass pill (UX-PRAYER-9, VIS-PRAYER-3) */
+#pray .top,#pray .card,#pray .bar,#pray .ctrl{max-width:var(--col-narrow);margin-left:auto;margin-right:auto;width:100%}
 #pray .top{display:flex;justify-content:space-between;align-items:center;
-  font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--muted)}
-#pray .top button{background:none;border:none;font-family:inherit;font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));
-  font-weight:600;color:var(--muted);cursor:pointer;padding:6px}
-#pray .card{flex:1;display:flex;flex-direction:column;justify-content:center;
-  max-width:31rem;margin:0 auto;width:100%}
-#pray .cat{font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:600;color:var(--accent-ink)}
-#pray .big{font-size:calc(clamp(30px,5.2vw,44px) * var(--ts-width, 1) * var(--ts-user, 1));line-height:1.16;font-weight:600;
+  font-size:var(--fs-footnote);font-weight:600;color:var(--muted)}
+#pray .top button{font-family:inherit;font-size:var(--fs-subheadline);font-weight:600;color:var(--ink);cursor:pointer;background:transparent;border:1.5px solid var(--rule);
+  min-height:var(--tap);min-width:var(--tap);padding:0 var(--sp-4);border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+#pray .top button:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:3px}
+#pray .card{flex:1;display:flex;flex-direction:column;justify-content:center}
+#pray .cat{font-size:var(--fs-footnote);font-weight:600;color:var(--accent-ink)}
+#pray .big{font-size:var(--fs-large-title);line-height:1.16;font-weight:600;
   margin:16px 0 0;letter-spacing:-.035em}
-#pray .for{font-size:calc(17.5px * var(--ts-width, 1) * var(--ts-user, 1));color:var(--muted);margin-top:16px;font-weight:500}
-#pray .last{font-family:var(--font-serif);font-size:calc(21px * var(--ts-width, 1) * var(--ts-user, 1));font-style:italic;
+@media (min-width:700px){ #pray .big{font-size:var(--fs-glance-3)} }
+#pray .for{font-size:var(--fs-body);color:var(--muted);margin-top:16px;font-weight:500}
+#pray .last{font-family:var(--font-serif);font-size:var(--fs-title2);font-style:italic;
   color:var(--ink2);margin-top:26px;padding-left:18px;border-left:2px solid var(--rule);
   letter-spacing:0;line-height:1.45}
 #pray .bar{height:6px;border-radius:999px;background:var(--sunk);margin-top:20px;overflow:hidden}
 #pray .bar i{display:block;height:100%;border-radius:999px;background:var(--mint-graphic);width:0;
-  transition:width .4s cubic-bezier(.3,.9,.3,1)}
-#pray .ctrl{display:flex;gap:10px;max-width:31rem;margin:18px auto 0;width:100%}
-#pray .ctrl button{flex:1;font-family:inherit;font-size:calc(15.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;padding:17px 10px;
+  transition:width var(--dur-progress) var(--spring-gentle)}
+#pray .ctrl{display:flex;gap:10px;margin-top:18px}
+#pray .ctrl button{flex:1;font-family:inherit;font-size:var(--fs-callout);min-height:var(--tap-lg);font-weight:600;padding:17px 10px;
   border-radius:var(--r-sm);cursor:pointer;border:1.5px solid var(--rule);background:transparent;
-  color:var(--ink);transition:transform .16s,background .2s}
+  color:var(--ink);transition:transform var(--dur-snappy) var(--spring-snappy),background var(--dur-fast) var(--ease-standard)}
 #pray .ctrl button:active{transform:translateY(1px)}
 #pray .ctrl button:disabled{opacity:.3}
 #pray .ctrl button.go{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on);
-  flex:2;font-size:calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1))}
+  flex:2;font-size:var(--fs-headline)}
 
 /* the kitchen device (KITCHEN-2) keeps the family list only, so Mine / Family is not offered there */
 :root[data-kind="kitchen"] #listSwitch{display:none}
 /* ── kitchen view ─────────────────────────────────────────── */
-#kitchen{position:fixed;inset:0;background:var(--paper);z-index:34;display:none;
-  overflow:auto;padding:calc(30px + env(safe-area-inset-top)) 32px 48px}
-#kitchen.on{display:block;animation:fade .28s ease}
-#kitchen h1{font-size:calc(36px * var(--ts-width, 1) * var(--ts-user, 1));margin:0;letter-spacing:-.035em}
-#kitchen .date{margin-top:8px}
-#kitchen .k-cat{font-size:max(11px, calc(13.5px * var(--ts-width, 1) * var(--ts-user, 1)));font-weight:700;color:var(--accent-ink);margin:34px 0 8px}   /* the AA ink, both schemes (P4-COLOR-02) */
-#kitchen .k-item{font-size:calc(24px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:500;line-height:1.34;padding:7px 0;
-  letter-spacing:-.022em}
-#kitchen .k-for{font-size:calc(16.5px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:400;color:var(--muted)}
-#kitchen .close{position:fixed;top:calc(20px + env(safe-area-inset-top));right:22px;
-  padding:10px 16px;min-height:44px;border-radius:999px;color:var(--ink)}
+/* Calm and dark in every theme: the TV's 7:1 panel over the page, twice, so light Hearth becomes near-black too, with the
+   TV's white and silver inks. On the iPad the glance roles: the list name at 64 px, each request at 44 px, read from across
+   the room (UX-PRAYER-3); on a phone the title roles. Two columns on a landscape iPad or wider. */
+#kitchen{position:fixed;inset:0;z-index:34;display:none;overflow:auto;color:var(--tv-text);
+  background:linear-gradient(var(--tv-panel),var(--tv-panel)),linear-gradient(var(--tv-panel),var(--tv-panel)),var(--paper);
+  padding:calc(30px + env(safe-area-inset-top)) max(32px, env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) max(32px, env(safe-area-inset-left))}
+#kitchen.on{display:block;animation:fade var(--dur-gentle) var(--ease-standard)}
+#kitchen .k-in{max-width:1180px;margin:0 auto}
+#kitchen h1{font-size:var(--fs-large-title);margin:0;letter-spacing:-.035em;line-height:1.1;max-width:none;padding-right:120px}
+#kitchen .date{margin-top:8px;color:var(--tv-text-2);font-size:var(--fs-title3)}
+#kitchen .k-cat{font-size:var(--fs-subheadline);font-weight:700;color:var(--tv-text-2);margin:34px 0 8px;
+  text-transform:uppercase;letter-spacing:var(--ls-caps);break-after:avoid}
+#kitchen .k-item{font-size:var(--fs-title1);font-weight:500;line-height:1.2;padding:10px 0;
+  letter-spacing:-.022em;break-inside:avoid}
+#kitchen .k-for{display:block;font-size:var(--fs-title3);font-weight:400;color:var(--tv-text-2);margin-top:2px;letter-spacing:-.01em}
+#kitchen .empty{color:var(--tv-text-2)}
+#kitchen .close{position:fixed;top:calc(20px + env(safe-area-inset-top));right:max(22px, env(safe-area-inset-right));
+  padding:0 var(--sp-5);min-height:var(--tap-lg);border-radius:999px;font-size:var(--fs-headline);
+  --g:var(--glass-inverse);color:var(--glass-inverse-ink);border-color:var(--glass-inverse-line)}
+@media (min-width:700px){
+  #kitchen{padding-left:max(56px, env(safe-area-inset-left));padding-right:max(56px, env(safe-area-inset-right))}
+  #kitchen h1{font-size:var(--fs-glance-2)}
+  #kitchen .date{font-size:var(--fs-title1)}
+  #kitchen .k-cat{font-size:var(--fs-title3);margin-top:48px}
+  #kitchen .k-item{font-size:var(--fs-glance-3);padding:14px 0}
+  #kitchen .k-for{font-size:var(--fs-title1)}
+}
+/* one block per category (heading + its requests, never split); two to a row on a landscape iPad, read row by row */
+#kitchen .k-group{break-inside:avoid}
+@media (min-width:1000px) and (orientation:landscape){ #kitchen .k-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:72px;align-items:start} }
 
 /* ── print ────────────────────────────────────────────────── */
 @media print{
@@ -416,11 +476,12 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
 }
 #printArea{display:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+:root[data-motion="reduce"] *{transition:none!important;animation:none!important}   /* Me → Reduce Motion, as the OS setting */
 .voicerow{display:flex;gap:8px;align-items:stretch}
 .voicerow input{flex:1;min-width:0}
 .micbtn{flex:none;width:52px;border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
 .micbtn svg{width:22px;height:22px}
-.micbtn.on{background:var(--peach-fill);color:var(--peach-ink);border-color:var(--peach-graphic);animation:micpulse 1s infinite}
+.micbtn.on{background:var(--peach-fill);color:var(--peach-ink);border-color:var(--peach-graphic);animation:micpulse var(--dur-pulse) var(--ease-in-out) infinite}
 @keyframes micpulse{50%{transform:scale(.94)}}
 :root[data-kind="kiosk"] .fab, :root[data-kind="kiosk"] nav [data-go="add"], :root[data-kind="kiosk"] .empty [data-go="add"]{display:none}
 
@@ -448,29 +509,91 @@ ul.kids{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:16px}
   .kid .prayed{width:auto}
 }
 .kid .avatar{--size:44px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
-  display:grid;place-items:center;overflow:hidden;font-size:22px;line-height:1;
+  display:grid;place-items:center;overflow:hidden;font-size:var(--fs-title2);line-height:1;
   background:radial-gradient(120% 120% at 30% 20%, var(--accent-fill), var(--accent-fill-strong));
   box-shadow:0 0 0 2.5px var(--surface), 0 0 0 5px var(--accent-graphic)}   /* the face's own data-accent (hub.avatarHtml) */
 .kid .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .kid .prayed{min-height:64px;min-width:64px;padding:0 26px;border:none;border-radius:999px;font-family:inherit;
   font-size:var(--fs-lg);font-weight:700;background:var(--accent-strong);color:var(--accent-on);cursor:pointer;
-  box-shadow:var(--lift);display:inline-flex;align-items:center;gap:10px;transition:transform .16s,background .2s}
+  box-shadow:var(--lift);display:inline-flex;align-items:center;gap:10px;
+  transition:transform var(--dur-snappy) var(--spring-snappy),background var(--dur-fast) var(--ease-standard)}
 .kid .prayed svg{width:26px;height:26px;flex:none}
 .kid .prayed:active{transform:scale(.96)}
 .kid .prayed:focus-visible{outline:none;box-shadow:var(--focus)}
 .kid.done .prayed{background:var(--mint-strong);color:var(--mint-on)}   /* the prayed solid and its own label (pairing rule) */
 .kid .kwho{grid-column:1 / -1;display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);font-weight:500;color:var(--muted);min-height:32px}
 .kid .kwho .who{margin-left:0}
-.kid .kwho .who .avatar,.kid .kwho .who .init,.kid .kwho .who .more{--size:32px;font-size:16px;box-shadow:0 0 0 2px var(--raised)}
+.kid .kwho .who .avatar,.kid .kwho .who .init,.kid .kwho .who .more{--size:32px;font-size:var(--fs-callout);box-shadow:0 0 0 2px var(--raised)}
+/* UX-PRAYER-2. The title and a speaker read the request aloud; before the tap the button is the kid's own solid with
+   praying hands and "Pray"; after it a pale mint pill with a thick mint ring, the kid's face, a big ✓ in a solid circle and
+   "Prayed", and the card takes the same ring: colour, shape and word all change, so a colour-blind eye or a pre-reader
+   tells done from not done (the solid-to-pale step is a large lightness change in both schemes). */
+.kid .khead{grid-column:1 / -1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
+.kid .kt[data-ksay]{cursor:pointer}
+.kid .ksay{flex:none;width:var(--tap);height:var(--tap);border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
+  background:var(--accent-fill);color:var(--accent-ink);
+  transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
+.kid .ksay svg{width:28px;height:28px}
+.kid .ksay.on{background:var(--accent-strong);color:var(--accent-on)}
+.kid .ksay:focus-visible{outline:none;box-shadow:var(--focus)}
+.kid .prayed .khands{display:inline-flex}
+.kid .prayed .khands svg{width:32px;height:32px}
+.kid .kby .avatar.khand-av{color:var(--accent-ink)}
+.kid .kby .avatar.khand-av svg{width:26px;height:26px}
+.kid.done{border-color:var(--mint-graphic);box-shadow:inset 0 0 0 2px var(--mint-graphic), var(--lift)}
+.kid.done .prayed{background:var(--mint-fill);color:var(--mint-ink);box-shadow:inset 0 0 0 3px var(--mint-graphic);padding:0 26px 0 12px}
+.kid .prayed .kme{display:inline-flex}
+.kid .prayed .kme .avatar,.kid .prayed .kme .init{--size:44px;box-shadow:0 0 0 2.5px var(--mint-fill), 0 0 0 5px var(--accent-graphic);font-size:var(--fs-title3)}
+.kid .prayed .kcheck{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  background:var(--mint-strong);color:var(--mint-on)}
+.kid .prayed .kcheck svg{width:30px;height:30px}
 
 /* ── loading: until both lists have pulled once on this device, quiet bars stand where the rows and stats go
    (never a 0 or "Nothing on the list today." posing as real data); the reduced-motion rule above stops the pulse ── */
-.sk{display:block;height:.85em;border-radius:6px;background:var(--sunk);animation:skpulse 1.6s ease-in-out infinite}
+.sk{display:block;height:.85em;border-radius:6px;background:var(--sunk);animation:skpulse var(--dur-shimmer) var(--ease-in-out) infinite}
 .strip .sk{display:inline-block;width:6.5em;height:1.15em}
 li.row .sk + .sk{margin-top:9px;height:.7em}
 .kid .sk{grid-column:1 / -1;height:1.5em}
 .kid .sk + .sk{height:1em}
 @keyframes skpulse{50%{opacity:.5}}
+
+/* ── batch 3, the logic half's own markup (list names, Around the table, the answered search); tokens only ── */
+/* P3-PRAYER-20: Add says which list it adds to, with the switch */
+.addto{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:14px;font-size:var(--fs-subheadline);font-weight:600;color:var(--muted)}
+#addListNote{margin-top:8px}
+#moreListNote{margin-top:6px}
+/* UX-PRAYER-1: the Add form's main button stays above the tab bar while the form is taller than the screen */
+#f-save{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:2;box-shadow:0 0 0 4px var(--paper)}
+/* a focused field scrolls clear of the tab bar, and on Add of the pinned button too (batch 3 review): the browser's focus
+   scroll keeps this much room at the foot of the screen */
+html{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-bottom))}
+/* UX-PRAYER-6: who asked and who prayed today, in a family request's detail sheet */
+.sheetwho{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:10px}
+.sheetwho .asker{margin-left:0}
+.sheetprayed{display:inline-flex;align-items:center;gap:6px}
+.sheetprayed .who{margin-left:0}
+/* GAP-PRAYER-2: the answered record by year */
+.ans-year{margin-top:26px;font-size:var(--fs-headline);color:var(--ink)}
+#answeredList .ans-year + .ans{border-top:none;padding-top:10px}
+.ans-search-lbl{margin-top:14px}
+/* IMP-PRAYER-I1, Around the table: the asker's face large above the request, and on the kitchen the faces at the table */
+#pray .asked{order:-1;display:flex;align-items:center;gap:14px;margin-bottom:20px;font-size:var(--fs-headline);font-weight:600;color:var(--ink2)}
+#pray .asked .avatar,#pray .asked .init,#pray .table .avatar,#pray .table .init{--size:88px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
+  display:grid;place-items:center;overflow:hidden;font-size:var(--fs-title1);line-height:1;
+  background:radial-gradient(120% 120% at 30% 20%, var(--accent-fill), var(--accent-fill-strong));color:var(--accent-ink)}
+#pray .asked .avatar img,#pray .table .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+#pray .table{max-width:var(--col-narrow);margin:14px auto 0;width:100%}
+#pray .table .avatar,#pray .table .init{--size:56px;font-size:var(--fs-title3)}
+#pray .tme{display:flex;align-items:center;gap:10px;font-size:var(--fs-subheadline);font-weight:600;color:var(--muted)}
+#pray .tme .avatar,#pray .tme .init{--size:32px;font-size:var(--fs-callout)}
+#pray .thead{font-size:var(--fs-subheadline);font-weight:600;color:var(--muted);margin-bottom:8px}
+#pray .tfaces{display:flex;flex-wrap:wrap;gap:8px}
+#pray .tface{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:var(--tap-lg);min-height:var(--tap-lg);padding:6px 8px;
+  border-radius:var(--r-sm);border:2px dashed var(--rule);background:transparent;color:var(--ink2);font-family:inherit;cursor:pointer}
+#pray .tface[aria-pressed="true"]{border-style:solid;border-color:var(--accent-graphic);background:var(--accent-fill);color:var(--ink)}
+#pray .tface .tname{font-size:var(--fs-footnote);font-weight:600}
+#pray .tface:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -493,7 +616,7 @@ li.row .sk + .sk{margin-top:9px;height:.7em}
   <div class="strip" id="todayStrip"></div>
   <div class="primary-row" id="todayActions">
     <button class="act hero" id="startPray">Pray now</button>
-    <button class="act ghost more" id="moreBtn" aria-label="More options" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>More</button>
+    <button class="act ghost more" id="moreBtn" aria-label="Share and print" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>Share &amp; print</button>
   </div>
   <div class="cheer" id="cheer"></div>
   <div id="reviewPrompt"></div>
@@ -511,25 +634,32 @@ li.row .sk + .sk{margin-top:9px;height:.7em}
 
 <section id="s-answered" class="screen">
   <header><h1>The record</h1></header>
-  <details class="cat" id="reviewWrap"><summary><span>Needs attention</span><span class="n" id="reviewCount"></span></summary>
+  <details class="cat" id="reviewWrap"><summary><span>Needs attention</span><span class="n" id="reviewCount"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></summary>
     <div id="reviewBody"></div>
   </details>
   <div id="record"></div>
   <h2>Answered</h2>
+  <label for="f-ansSearch" class="ans-search-lbl">Search the answered prayers</label>
+  <input type="text" id="f-ansSearch" placeholder="A name, a word, a year" autocomplete="off" enterkeyhint="search">
   <div id="answeredList"></div>
 </section>
 
 <section id="s-add" class="screen">
   <header><h1>Add a request</h1></header>
+  <div class="addto"><span id="addListLbl">Adding to</span> <div class="switch" id="addListSwitch" role="group" aria-labelledby="addListLbl">
+    <button type="button" data-addlist="personal" aria-pressed="true">My list</button>
+    <button type="button" data-addlist="shared" aria-pressed="false">Family list</button>
+  </div></div>
+  <p class="note" id="addListNote"></p>
   <label for="f-title">What are you praying for?</label>
-  <div class="voicerow"><input type="text" id="f-title" placeholder="Healing for..."><button type="button" class="micbtn" id="f-mic" aria-label="Say it instead" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></button></div>
+  <div class="voicerow"><input type="text" id="f-title" placeholder="Healing for..." enterkeyhint="next"><button type="button" class="micbtn" id="f-mic" aria-label="Say it instead" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></button></div>
   <p class="err" id="f-titleErr"></p>
   <label for="f-for">Who is it for?</label>
-  <input type="text" id="f-for" placeholder="Optional">
+  <input type="text" id="f-for" placeholder="Optional" enterkeyhint="next">
   <label for="f-detail">Detail</label>
   <textarea id="f-detail" placeholder="Optional. Anything you want to remember when you pray."></textarea>
   <label for="f-phone">Their number, to tell them you prayed</label>
-  <input type="tel" id="f-phone" placeholder="Optional">
+  <input type="tel" id="f-phone" placeholder="Optional" enterkeyhint="done">
   <label for="f-cat">Category</label>
   <select id="f-cat"></select>
   <label>How often</label>
@@ -544,7 +674,8 @@ li.row .sk + .sk{margin-top:9px;height:.7em}
 </section>
 
 <section id="s-more" class="screen">
-  <header><h1>Settings</h1></header>
+  <header><h1 id="moreTitle">Settings</h1></header>
+  <p class="note" id="moreListNote"></p>
 
   <h2>Prayer plan</h2>
   <label for="f-plan">Active plan</label>
@@ -572,6 +703,7 @@ li.row .sk + .sk{margin-top:9px;height:.7em}
     <button class="act ghost small" id="f-export">Export both lists</button>
     <button class="act ghost small" id="f-import">Import a backup</button>
   </div>
+  <input type="file" id="f-importFile" accept=".json,application/json" hidden>
 </section>
 
 </div>
@@ -584,7 +716,9 @@ li.row .sk + .sk{margin-top:9px;height:.7em}
     <div class="big" id="prayBig"></div>
     <div class="for" id="prayFor"></div>
     <div class="last" id="prayLast"></div>
+    <div class="asked" id="prayAsker" hidden></div>
   </div>
+  <div class="table" id="prayTable" hidden></div>
   <div class="bar"><i id="prayBar"></i></div>
   <div class="ctrl" style="margin-top:18px">
     <button id="prayBack">Back</button>
@@ -702,6 +836,20 @@ function load(){
   migrate();
   if(KID()) D.activeList = 'shared';       // a kid only ever sees the family list
   if(KITCHEN()) D.activeList = 'shared';   // the kitchen has no private list: it writes family rows only
+  // P3-PRAYER-21 (review): one of my devices may have taken today off (an untick that saw no other mark) while another
+  // had just prayed a different request. A My-list row prayed today puts today back on the record, and it is sent.
+  // Round 2: a pull lands one row at a time and every row fires onChange → load(), so load() only asks for the check; it
+  // runs once things are quiet (2 s after the last load) against the house's rows as they then stand.
+  if(USE_LOCAL_STORAGE && !KID() && !KITCHEN()){ clearTimeout(load._repair); load._repair = setTimeout(repairToday, 2000); }
+}
+function repairToday(){
+  if(!D || KID() || KITCHEN() || !hub.canWrite || !hub.isLoaded() || remoteDirty) return;   // a pending repaint re-asks
+  const P = { scope:'person' }, days = hub.get('prayerDays', P);
+  const prayed = hub.list('prayer:', P).some(r => r.value && r.value.lastPrayedAt === TODAY);
+  if(!prayed || (Array.isArray(days) && days.includes(TODAY))) return;
+  const L0 = D.lists.personal;
+  if(!L0.prayers.some(p => p.lastPrayedAt === TODAY)) return;                             // D is behind the house: wait
+  markDay(L0); save();
 }
 // One-time: the pre-profiles localStorage blob (both lists) into this adult's person scope + the family scope.
 // hub.migrate is async: it waits for a fresh pull and writes only keys the server does not have, then fires onChange
@@ -746,6 +894,11 @@ function migrate(){
       if(pl.groupByCategory === undefined) pl.groupByCategory = false;
       if(pl.includeDaily === undefined) pl.includeDaily = true;
       if(!pl.rotationSize) pl.rotationSize = 3;
+      // P3-PRAYER-23: a "One category only" plan left pointing at a category that was removed (before Remove re-pointed
+      // it) filtered Today down to nothing for everyone. It follows the requests, which Remove moved to Personal.
+      if(pl.mode === 'focus' && !L.categories.includes(pl.focusCategory || '')
+         && !(L.prayers || []).some(p => p && p.category === pl.focusCategory))
+        pl.focusCategory = L.categories.includes('Personal') ? 'Personal' : L.categories[0];
     });
     if(!Array.isArray(L.prayers)) L.prayers = [];
     L.prayers = L.prayers.filter(p => p && typeof p === 'object' && goodId(p.id));   // a pasted backup too (P3-PRAYER-06)
@@ -806,10 +959,12 @@ function saveKid(){
 let remoteDirty = false;
 function absorbRemote(){
   if(!remoteDirty) return;
-  const busy = el('sheet').classList.contains('on') || el('pray').classList.contains('on')
-    || (document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
+  const busy = el('sheet').classList.contains('on') || el('pray').classList.contains('on') || !!askOpen
+    || (document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)
+        && !['f-search', 'f-ansSearch'].includes(document.activeElement.id));   // a search box is not an edit: repaint under it
   if(busy){ setTimeout(absorbRemote, 4000); return; }
   remoteDirty = false; load(); renderCatAdmin(); renderPlans(); renderAllScreens();
+  refreshKitchen();                          // P3-PRAYER-19: an open Kitchen view follows the list too
 }
 
 const L  = () => D.lists[D.activeList];
@@ -864,16 +1019,37 @@ const doneToday = p => onFamilyList(p) ? mePrayed(p) : p.lastPrayedAt === TODAY;
 function refreshDay(){ const d = houseDay(); if(d !== TODAY){ TODAY = d; return true; } return false; }
 
 /* ── record ─────────────────────────────────────────────────── */
-function markDay(){ const d = L().prayerDays;
+function markDay(list){ const d = (list || L()).prayerDays;
   if(!d.includes(TODAY)){ d.push(TODAY); d.sort(); } }
+// P3-PRAYER-21: an untick that leaves nothing marked today takes today off the record again. On the family list that is
+// only when no one's tick is left on any family row today (the house merges prayedBy, and batch 0g's `unprayed` rule
+// takes back only my own tick). A kid only ever adds days (the house refuses anything else), so a kid's untick keeps it.
+function unmarkDay(list){
+  if(KID() || !list || !Array.isArray(list.prayerDays) || !list.prayerDays.includes(TODAY)) return;
+  const fam = list === D.lists.shared;
+  const any = list.prayers.some(q => fam ? (q.prayedBy && Array.isArray(q.prayedBy[TODAY]) && q.prayedBy[TODAY].length > 0)
+                                         : q.lastPrayedAt === TODAY);
+  if(!any) list.prayerDays = list.prayerDays.filter(d => d !== TODAY);
+}
+// The days on the record. The family list also counts every day a family row carries someone's tick: prayedBy is merged
+// by the house, so a day one device took off while another device's tick was on its way still shows (never erased).
+function recordDays(){
+  const S = L(), set = new Set(S.prayerDays);
+  if(S === D.lists.shared) for(const p of S.prayers) for(const d of Object.keys(p.prayedBy || {}))
+    if(/^\d{4}-\d{2}-\d{2}$/.test(d) && Array.isArray(p.prayedBy[d]) && p.prayedBy[d].length) set.add(d);
+  // My list: every row's last prayed day counts too, so an untick on one device never erases another device's day
+  if(S === D.lists.personal) for(const p of S.prayers)
+    if(/^\d{4}-\d{2}-\d{2}$/.test(String(p.lastPrayedAt || '')) && p.lastPrayedAt <= TODAY) set.add(p.lastPrayedAt);
+  return set;
+}
 function currentStreak(){
-  const set = new Set(L().prayerDays);
+  const set = recordDays();
   let c = set.has(TODAY) ? TODAY : shift(TODAY,-1);
   if(!set.has(c)) return 0;
   let n = 0; while(set.has(c)){ n++; c = shift(c,-1); } return n;
 }
 function longestStreak(){
-  const days = L().prayerDays.slice().sort();
+  const days = [...recordDays()].sort();
   let best = 0, run = 0, prev = null;
   for(const d of days){ run = (prev && shift(prev,1) === d) ? run+1 : 1;
     best = Math.max(best,run); prev = d; }
@@ -881,21 +1057,25 @@ function longestStreak(){
 }
 function monthDays(){
   const n = dObj(TODAY), y = n.getFullYear(), m = n.getMonth();
-  return L().prayerDays.filter(d => { const t = dObj(d);
+  return [...recordDays()].filter(d => { const t = dObj(d);
     return t.getFullYear() === y && t.getMonth() === m; }).length;
 }
 function calendarHTML(){
   const n = dObj(TODAY), y = n.getFullYear(), m = n.getMonth();
   const first = new Date(y,m,1).getDay(), total = new Date(y,m+1,0).getDate();
-  const set = new Set(L().prayerDays);
+  const set = recordDays();
   let cells = '';
   for(let i=0;i<first;i++) cells += '<span class="blank"></span>';
   for(let d=1; d<=total; d++){
     const k = y+'-'+pad(m+1)+'-'+pad(d);
-    cells += '<span class="'+(set.has(k)?'on ':'')+(k===TODAY?'today':'')+'" title="'+k+'"></span>';
+    cells += '<span class="'+(set.has(k)?'on ':'')+(k===TODAY?'today':k>TODAY?'later':'')+'" title="'+k+'"></span>';
   }
-  return '<div class="cal">'+cells+'</div><div class="dow">'
-    + DOW.map(d=>'<span>'+d[0]+'</span>').join('') + '</div>';
+  // VIS-PRAYER-5: the month named, the weekday letters above the grid (a day still to come is fainter)
+  const month = n.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  const count = [...set].filter(d => d.slice(0,7) === y+'-'+pad(m+1)).length;
+  return '<div class="calmonth">'+esc(month)+'</div><div class="dow" aria-hidden="true">'
+    + DOW.map(d=>'<span>'+d[0]+'</span>').join('') + '</div>'
+    + '<div class="cal" role="img" aria-label="'+esc(month)+': prayed on '+count+' day'+(count===1?'':'s')+'">'+cells+'</div>';
 }
 function milestone(){
   const s = currentStreak(), a = L().prayers.filter(p=>p.status==='answered').length;
@@ -926,18 +1106,24 @@ function anniversaries(){
 }
 
 /* ── review ─────────────────────────────────────────────────── */
+// P3-PRAYER-12: each request once, under the first heading that fits (gone quiet, then no news, then new), so the
+// "Needs attention" badge counts requests, not headings.
 function reviewItems(){
   const act = L().prayers.filter(p => p.status === 'active');
-  return {
-    cold: act.filter(p => daysSince(p.lastPrayedAt) > 30 && daysSince(p.createdAt) > 30),
-    silent: act.filter(p => daysSince(p.createdAt) > 90
-      && (!p.updates.length || daysSince(p.updates[p.updates.length-1].date) > 90)),
-    fresh: act.filter(p => daysSince(p.createdAt) <= 7)
-  };
+  const cold = act.filter(p => daysSince(p.lastPrayedAt) > 30 && daysSince(p.createdAt) > 30);
+  const silent = act.filter(p => daysSince(p.createdAt) > 90 && !cold.includes(p)
+      && (!p.updates.length || daysSince(p.updates[p.updates.length-1].date) > 90));
+  const fresh = act.filter(p => daysSince(p.createdAt) <= 7 && !cold.includes(p) && !silent.includes(p));
+  return { cold, silent, fresh };
 }
+// P3-PRAYER-22: Sunday is review day only when something has gone quiet or has had no news; a current list gets no nudge.
 function reviewDue(){
   const r = reviewItems();
-  return dowToday() === 'Sun' || r.cold.length >= 3;
+  return (dowToday() === 'Sun' && (r.cold.length + r.silent.length) > 0) || r.cold.length >= 3;
+}
+function reviewGroups(){
+  const r = reviewItems();
+  return Object.assign(r, { count: r.cold.length + r.silent.length + r.fresh.length });
 }
 
 /* ── today ──────────────────────────────────────────────────── */
@@ -954,7 +1140,9 @@ function todaySet(){
       || (plan.includeDaily && p.cadence === 'daily'));
   } else {
     const daily  = act.filter(p => p.cadence === 'daily');
-    const weekly = act.filter(p => p.cadence === 'weekly' && (p.days||[]).includes(dow));
+    // A weekly request with no days (a family copy "Send to family list" made before P3-PRAYER-08 carried the days) comes
+    // up every day rather than never: the forms refuse it, so no one chose it.
+    const weekly = act.filter(p => p.cadence === 'weekly' && ((p.days||[]).includes(dow) || !(p.days||[]).length));
     // Rotation is picked once per day and frozen. Without this, marking one
     // prayed re-sorts the list and pulls in a fresh entry, so it never ends.
     const key = D.activeList + '|' + plan.id;
@@ -994,14 +1182,20 @@ function dot(c){
   if(i < 0){ i = 0; for(const ch of String(c)) i = (i * 31 + ch.charCodeAt(0)) >>> 0; }
   return '<i class="dot d' + (i % 8) + '"></i>';
 }
-function groupedHTML(items, open){
+// P3-PRAYER-07: a group someone opened or closed stays that way through a tick, a remote change or a repaint, per screen
+// and list, for as long as the page is open. `open` is the default; `force` (a search) opens every group.
+const catOpen = new Map();
+const catKey = (where, c) => where + '|' + (D ? D.activeList : '') + '|' + c;
+function groupedHTML(items, open, where, force){
   const cats = L().categories.filter(c => items.some(p => p.category === c));
   const orph = [...new Set(items.filter(p => !L().categories.includes(p.category)).map(p => p.category))];
+  where = where || 'today';
   return [...cats,...orph].map(c => {
-    const rows = items.filter(p => p.category === c);
-    return '<details class="cat"' + (open?' open':'') + '><summary><span>' + dot(c) + esc(c)
+    const rows = items.filter(p => p.category === c), k = catKey(where, c);
+    const isOpen = force || (catOpen.has(k) ? catOpen.get(k) : open);
+    return '<details class="cat" data-where="' + where + '" data-catname="' + esc(c) + '"' + (isOpen?' open':'') + '><summary><span>' + dot(c) + esc(c)
       + '</span><span class="end"><button class="copybtn" data-copycat="' + esc(c) + '" aria-label="Copy ' + esc(c) + ' as text">Copy</button>'
-      + '<span class="n">' + rows.length + '</span></span></summary>'
+      + '<span class="n">' + rows.length + '</span></span>' + icon('chev') + '</summary>'
       + '<ul class="list">' + rows.map(rowHTML).join('') + '</ul></details>';
   }).join('');
 }
@@ -1018,15 +1212,22 @@ function renderToday(){
   el('todayDate').textContent =
     dObj(TODAY).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})
     + ' · ' + plan.name;
+  el('todayDate').title = el('todayDate').textContent;   // the whole plan name when a wide screen cuts it to one line
 
   const set = todaySet();
   const done = set.filter(doneToday).length;
   const left = set.length - done;
+  // P3-PRAYER-16: the part of the day is the reader's own clock: morning until noon, evening from five, else today.
+  const hr = new Date().getHours(), part = hr < 12 ? 'this morning' : hr >= 17 ? 'this evening' : 'today';
+  const allDone = set.length > 0 && left === 0;
   el('todayLine').textContent =
       set.length === 0 ? 'Nothing on the list today.'
-    : left === 0 ? 'You have prayed through the whole list.'
-    : left === 1 ? 'One left to pray through.'
-    : left + ' to pray through this morning.';
+    : allDone ? 'All prayed'                     // UX-PRAYER-14: a finished Today leads with that (+ the drawn check below)
+    : left === 1 ? 'One left to pray through ' + part + '.'
+    : left + ' to pray through ' + part + '.';
+  if(allDone) el('todayLine').innerHTML = 'All prayed' + icon('check', 'hcheck');   // ICO-2: a drawn check, not a text ✓
+  // A finished Today does not lead with Pray now (the kitchen, where anyone at the table may still pray, keeps it).
+  el('startPray').hidden = allDone && !KITCHEN();
   if(KID()){
     const mine = set.filter(mePrayed).length;
     el('todayLine').textContent =
@@ -1040,19 +1241,30 @@ function renderToday(){
   el('meterFill').style.width = (set.length ? Math.round(done/set.length*100) : 0) + '%';
 
   const s = currentStreak();
+  // VIS-PRAYER-8: two rows of two (the CSS); with nothing scheduled today, no "0/0 today" and no other zero either
+  const md = monthDays(), an = L().prayers.filter(p=>p.status==='answered').length, some = set.length > 0;
   el('todayStrip').innerHTML = plan.show.streak
-    ? '<span><b>' + done + '/' + set.length + '</b> today</span>'
-      + '<span><b>' + s + '</b> day' + (s===1?'':'s') + ' in a row</span>'
-      + '<span><b>' + monthDays() + '</b> days this month</span>'
-      + '<span><b>' + L().prayers.filter(p=>p.status==='answered').length + '</b> answered</span>' : '';
-  el('cheer').textContent = (plan.show.streak && left === 0) ? milestone() : '';
+    ? (some ? '<span><b>' + done + '/' + set.length + '</b> today</span>' : '')
+      + (some || s ? '<span><b>' + s + '</b> day' + (s===1?'':'s') + ' in a row</span>' : '')
+      + (some || md ? '<span><b>' + md + '</b> day' + (md===1?'':'s') + ' this month</span>' : '')
+      + (some || an ? '<span><b>' + an + '</b> answered</span>' : '') : '';
+  // P3-PRAYER-13: the cheer is for a list that was there and is done, never for a day with nothing scheduled.
+  // The strip already reads "N days in a row", so the cheer is only a real milestone line, never the bare streak again.
+  const ms = (plan.show.streak && allDone) ? milestone() : '';
+  el('cheer').textContent = /^\d+ days in a row\.$/.test(ms) ? '' : ms;
 
+  const rq = reviewItems();
   el('reviewPrompt').innerHTML = (plan.show.review && reviewDue())
-    ? '<div class="prompt"><span>Some of the list has gone quiet.</span>'
+    ? '<div class="prompt"><span>' + (rq.cold.length ? 'Some of the list has gone quiet.' : 'Some requests have had no news in a while.') + '</span>'
       + '<button class="act ghost small" data-go="answered">See what</button></div>' : '';
 
+  // UX-PRAYER-10: rows still to pray first, prayed rows after, each part in a fixed order (every-day, weekly, rotation,
+  // then oldest first), so the order is the same on every device and does not follow the cache.
+  const CAD = { daily:0, weekly:1, rotation:2 };
+  const ord = (a, b) => (CAD[a.cadence] - CAD[b.cadence]) || String(a.createdAt || '').localeCompare(String(b.createdAt || '')) || String(a.id).localeCompare(String(b.id));
+  const rows = [...set.filter(p => !doneToday(p)).sort(ord), ...set.filter(doneToday).sort(ord)];
   el('todayList').innerHTML = set.length
-    ? (KID() ? kidListHTML(set) : plan.groupByCategory ? groupedHTML(set,true) : '<ul class="list">'+set.map(rowHTML).join('')+'</ul>')
+    ? (KID() ? kidListHTML(set) : plan.groupByCategory ? groupedHTML(rows,true,'today') : '<ul class="list">'+rows.map(rowHTML).join('')+'</ul>')
     : L().prayers.some(p => p.status === 'active')
       ? '<div class="empty">Nothing scheduled for today under this plan.'
         + '<button class="act ghost small" data-go="more">Change the plan</button></div>'
@@ -1086,9 +1298,9 @@ function renderAll(){
   const ans = q ? L().prayers.filter(p => p.status === 'answered' && hit(p))
     .sort((a,b) => String(b.answeredAt).localeCompare(String(a.answeredAt))) : [];
   el('allList').innerHTML = (act.length || ans.length)
-    ? groupedHTML(act, !!q) + (ans.length
+    ? groupedHTML(act, false, 'all', !!q) + (ans.length
         ? '<details class="cat" open><summary><span>Answered</span><span class="n">' + ans.length
-          + '</span></summary>' + ans.map(ansHTML).join('') + '</details>' : '')
+          + '</span>' + icon('chev') + '</summary>' + ans.map(ansHTML).join('') + '</details>' : '')
     : q ? '<p class="empty">Nothing matches that.</p>'
     : '<div class="empty"><img src="../art/empty/prayers.svg" alt="">Nothing on the list yet.'
       + '<button class="act ghost small" data-go="add">Add a request</button></div>';
@@ -1103,13 +1315,22 @@ function renderRecord(){
     + '<span><b>' + lg + '</b> best run</span>'
     + '<span><b>' + monthDays() + '</b> days this month</span>'
     + '<span><b>' + ans.length + '</b> answered</span></div>' + calendarHTML();
-  el('answeredList').innerHTML = ans.length
-    ? ans.slice().sort((a,b) => String(b.answeredAt).localeCompare(String(a.answeredAt))).map(ansHTML).join('')
-    : '<p class="empty">Nothing answered yet \u2014 it will come.</p>';
+  // GAP-PRAYER-2: the answered record is searched here and grouped by year, newest first. The search box shows once
+  // there is something to search.
+  const aq = ((el('f-ansSearch') || {}).value || '').toLowerCase().trim();
+  const ahit = p => !aq || (p.title+' '+(p.for||'')+' '+p.category+' '+(p.detail||'')+' '+(p.answerNote||'')+' '+(p.answeredAt||'')).toLowerCase().includes(aq);
+  const shown = ans.filter(ahit).sort((a,b) => String(b.answeredAt).localeCompare(String(a.answeredAt)));
+  const few = ans.length < 2;
+  if(el('f-ansSearch').hidden !== few){ el('f-ansSearch').hidden = few; document.querySelectorAll('.ans-search-lbl').forEach(x => { x.hidden = few; }); }
+  let yr = null;
+  el('answeredList').innerHTML = !ans.length ? '<p class="empty">Nothing answered yet \u2014 it will come.</p>'
+    : !shown.length ? '<p class="empty">No answered prayer matches that.</p>'
+    : shown.map(p => { const y = String(p.answeredAt || '').slice(0,4), head = y !== yr;
+        yr = y; return (head ? '<h3 class="ans-year">' + esc(y || 'Undated') + '</h3>' : '') + ansHTML(p); }).join('');
 }
 
 function renderReview(){
-  const r = reviewItems();
+  const r = reviewGroups();
   const block = (title, note, items) => items.length
     ? '<h3>' + title + '</h3><p class="note">' + note + '</p><ul class="list">'
       + items.map(rowHTML).join('') + '</ul>' : '';
@@ -1117,7 +1338,7 @@ function renderReview(){
     + block('No news in a while','On the list over three months with no update. Worth asking how they are.', r.silent)
     + block('Added recently','New this week. Check they are filed where you want them.', r.fresh);
   el('reviewBody').innerHTML = body || '<p class="empty">Nothing needs attention. The list is current.</p>';
-  el('reviewCount').textContent = r.cold.length + r.silent.length + r.fresh.length;
+  el('reviewCount').textContent = r.count;
 }
 
 /* ── detail sheet ───────────────────────────────────────────── */
@@ -1133,12 +1354,13 @@ function sheetFor(id){
       + (p.sharedFrom ? '<span class="pill">shared</span>' : '') + '</div>'
     + '<h1 style="margin-top:4px">' + esc(p.title) + '</h1>'
     + (p.for ? '<div class="meta">For ' + esc(p.for) + '</div>' : '')
+    + familyWhoHTML(p)
     + (p.detail ? '<p>' + esc(p.detail) + '</p>' : '')
     + '<div class="meta" style="margin-top:14px">'
       + (p.lastPrayedAt ? 'Last prayed ' + pretty(p.lastPrayedAt) : 'Not prayed through yet')
       + ' &middot; on the list since ' + pretty(p.createdAt) + '</div>'
     + (p.status === 'answered'
-        ? '<div style="margin-top:20px"><div style="font-size:calc(14px * var(--ts-width, 1) * var(--ts-user, 1));font-weight:600;color:var(--butter-ink)">Answered '
+        ? '<div style="margin-top:20px"><div style="font-size:var(--fs-subheadline);font-weight:600;color:var(--butter-ink)">Answered '
           + pretty(p.answeredAt) + '</div><div class="ansnote">' + esc(p.answerNote) + '</div></div>' : '')
     + hist
     + '<div class="rowbtns">'
@@ -1185,6 +1407,13 @@ function editSheet(id){
     + '<div class="rowbtns"><button class="act small" data-esave="' + esc(p.id) + '">Save</button>'
     + '<button class="act ghost small" data-open="' + esc(p.id) + '">Cancel</button></div>';
   openSheet(); el('sheet').scrollTop = 0;
+  editSheet.snap = editFields();
+}
+// The edit form as it stands, to tell whether anything was changed before Escape throws it away (review round 1)
+function editFields(){
+  const v = id => (document.getElementById(id) || {}).value || '';
+  const on = sel => [...document.querySelectorAll(sel)].map(b => b.getAttribute('aria-pressed')).join(',');
+  return [v('e-title'), v('e-for'), v('e-phone'), v('e-detail'), v('e-cat'), on('#e-cad .chip'), on('#eday .chip')].join('\u0001');
 }
 function saveEdit(id){
   const p = byId(id); if(!p) return;
@@ -1279,7 +1508,16 @@ async function copyText(text, trigger, done){
 }
 
 let undoFn = null;
+// The shared toast (P4-SHAPE-02, VIS-SHAPE-4, CONS-MOTION-3): hub.toast, whose action is a 44 px button and whose width
+// follows the message. Same call as before: toast(msg, actionLabel, fn); an action keeps it up 6 s, a plain line 3.5 s.
+// Without the SDK's toast (never in the hub) the page's own #toast is the fallback.
 function toast(msg, actionLabel, fn){
+  if(window.hub && typeof hub.toast === 'function'){
+    undoFn = null;
+    if(actionLabel && typeof fn === 'function') hub.toast(msg, 6000, { action: actionLabel, onAction: fn });
+    else hub.toast(msg, 3500);
+    return;
+  }
   el('toastMsg').textContent = msg;
   el('toastAct').textContent = actionLabel || '';
   el('toastAct').style.display = actionLabel ? '' : 'none';
@@ -1289,8 +1527,24 @@ function toast(msg, actionLabel, fn){
   toast._t = setTimeout(() => el('toast').classList.remove('on'), 6000);
 }
 
-function renderAllScreens(){ renderToday(); renderAll(); renderRecord(); renderReview(); }
+function renderAllScreens(){ renderToday(); renderAll(); renderRecord(); renderReview(); renderListNames(); }
+// P3-PRAYER-20, UX-PRAYER-4: Add and Settings say which list they act on. Add offers the switch (the same choice as
+// Today's Mine / Family); Settings is titled for its list and, on the Family list, asks once before the first change.
+function renderListNames(){
+  const fam = D.activeList === 'shared';
+  document.querySelectorAll('#addListSwitch [data-addlist]').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.addlist === D.activeList));
+    b.hidden = b.dataset.addlist === 'personal' && KITCHEN();       // the kitchen has no private list
+  });
+  el('f-save').textContent = fam ? 'Add to the Family list' : 'Add to My list';
+  el('addListNote').textContent = fam ? 'Everyone in the house will see it, the kids and guests too.' : 'Only you will see it.';
+  el('moreTitle').textContent = fam ? 'Family list settings' : 'My list settings';
+  el('moreListNote').textContent = fam ? 'These change the Family list for everyone in the house.'
+    : 'These change only your own list. Switch to Family on Today to set up the family’s.';
+}
 function go(name){
+  // leaving Settings: the next family change asks again, and an inline panel opened there (New / Rename plan) goes too
+  if(name !== 'more'){ famSettingsOk = false; if(askOpen && el('s-more').contains(askOpen.panel)) closeAsk(); }
   if(KID()) name = 'today';                 // kids have one screen; every other route lands here
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   el('s-'+name).classList.add('on');
@@ -1308,11 +1562,12 @@ function catOptions(sel, current){
   sel.innerHTML = L().categories.map(c =>
     '<option value="' + esc(c) + '"' + (c === current ? ' selected' : '') + '>' + esc(c) + '</option>').join('');
 }
+// Requests filed under a category, answered ones included: the Settings row and its Remove confirm count the same set.
+const catCount = c => L().prayers.filter(p => p.category === c).length;
 function renderCatAdmin(){
-  const act = L().prayers.filter(p => p.status === 'active');
   el('catAdmin').innerHTML = L().categories.map((c,i) =>
-    '<div class="catrow"><span>' + dot(c) + esc(c) + ' <span style="color:var(--muted);font-size:calc(15px * var(--ts-width, 1) * var(--ts-user, 1))">'
-    + act.filter(p => p.category === c).length + '</span></span>'
+    '<div class="catrow"><span>' + dot(c) + esc(c) + ' <span style="color:var(--muted);font-size:var(--fs-subheadline)">'
+    + catCount(c) + '</span></span>'
     + '<span><button data-rencat="' + i + '">Rename</button>'
     + '<button data-delcat="' + i + '">Remove</button></span></div>').join('');
   catOptions(el('f-cat'), el('f-cat').value);
@@ -1401,7 +1656,7 @@ document.addEventListener('click', e => {
     const p = byId(t.dataset.delete);
     ask(t, {kind:'confirm', danger:true, save:'Delete',
       label:'Delete "' + p.title + '"? ' + (D.activeList === 'shared'
-        ? 'Sync does not carry deletions, so it can come back from another device.'
+        ? 'It comes off the family list for everyone in the house.'
         : (p.status === 'answered' ? 'It comes off the record too.' : 'The family copy, if there is one, stays.')),
       onSave(){ deletePrayer(p.id); }});
     return;
@@ -1467,7 +1722,7 @@ document.addEventListener('click', e => {
     const cat = pick.cat ? p.category : SHARE_CAT;
     if(!S.categories.includes(cat)) S.categories.push(cat);
     S.prayers.push({id:newId('s', S.prayers), title:title.trim(), for:pick.for ? p.for : '', phone:'',
-      detail:'', category:cat, cadence:p.cadence, days:[], status:'active',
+      detail:'', category:cat, cadence:p.cadence, days: p.cadence === 'weekly' ? (p.days || []).filter(d => DOW.includes(d)) : [], status:'active',   // P3-PRAYER-08
       createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null,
       updates:[], sharedFrom:p.id, prayedBy:{}, by:author(), updatedAt:new Date().toISOString()});
     save(); hub.activity('Sent a request to the family list: ' + title.trim());
@@ -1478,7 +1733,8 @@ document.addEventListener('click', e => {
     if(P){
       const inp = P.querySelector('#askIn'), prev = P.querySelector('#sharePreview');
       const show = () => { prev.textContent = 'The family will see: “' + ((inp && inp.value.trim()) || '…') + '”'
-        + (pick.for ? ' · For ' + p.for : '') + ' · ' + (pick.cat ? p.category : SHARE_CAT); };
+        + (pick.for ? ' · For ' + p.for : '') + ' · ' + (pick.cat ? p.category : SHARE_CAT)
+        + (p.cadence === 'weekly' && (p.days || []).length ? ' · on ' + p.days.join(', ') : ''); };
       P.querySelectorAll('#shareFor, #shareCat').forEach(b => b.addEventListener('click', e => {
         e.preventDefault();
         const on = b.getAttribute('aria-pressed') !== 'true';
@@ -1529,14 +1785,18 @@ document.addEventListener('click', e => {
   }
   if(t.dataset.delcat){
     const i = +t.dataset.delcat, name = L().categories[i];
-    const inUse = L().prayers.filter(p => p.category === name).length;
+    // P3-PRAYER-14: the same count as the row: every request filed there, answered ones included (Remove moves them all)
+    const inUse = catCount(name), ansd = L().prayers.filter(p => p.category === name && p.status === 'answered').length;
     ask(t, {kind:'confirm', danger:true, save:'Remove',
-      label: inUse ? inUse + ' request' + (inUse>1?'s are':' is') + ' in "' + name + '". Remove it and move them to Personal?'
+      label: inUse ? inUse + ' request' + (inUse>1?'s are':' is') + ' in "' + name + '"'
+                     + (ansd ? ' (' + (ansd === inUse ? (inUse > 1 ? 'all answered' : 'answered') : ansd + ' answered') + ')' : '')
+                     + '. Remove it and move ' + (inUse>1?'them':'it') + ' to Personal?'
                    : 'Remove "' + name + '"?',
       onSave(){
         L().prayers.forEach(p => { if(p.category === name){ p.category = 'Personal'; stamp(p); } });
         L().plans.forEach(pl => { DOW.forEach(d => {
-          pl.dayMap[d] = (pl.dayMap[d]||[]).filter(c => c !== name); }); });
+          pl.dayMap[d] = (pl.dayMap[d]||[]).filter(c => c !== name); });
+          if(pl.focusCategory === name) pl.focusCategory = 'Personal'; });   // P3-PRAYER-23: a focus plan follows its requests
         L().categories.splice(i,1);
         if(!L().categories.includes('Personal')) L().categories.unshift('Personal');
         save(); renderCatAdmin(); renderPlans(); renderAllScreens();
@@ -1553,7 +1813,10 @@ document.addEventListener('click', e => {
     t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') !== 'true');
     el('f-daysErr').textContent = ''; return;
   }
-  if(t.dataset.mode){ PL().mode = t.dataset.mode; L().rotationFor = null; save(); renderPlans(); renderToday(); return; }
+  if(t.dataset.mode){ PL().mode = t.dataset.mode; L().rotationFor = null;
+    // "One category only" starts on a real category (it used to start on none, so Today was empty until one was picked)
+    if(PL().mode === 'focus' && !L().categories.includes(PL().focusCategory)) PL().focusCategory = L().categories.includes('Personal') ? 'Personal' : L().categories[0];
+    save(); renderPlans(); renderToday(); return; }
   if(t.dataset.rot){ PL().rotationSize = +t.dataset.rot; L().rotationFor = null; save(); renderPlans(); renderToday(); return; }
   if(t.dataset.day){ renderPlans._day = t.dataset.day; renderPlans(); return; }
   if(t.dataset.incd){ PL().includeDaily = !PL().includeDaily; save(); renderPlans(); renderToday(); return; }
@@ -1599,6 +1862,40 @@ el('f-newplan').addEventListener('click', () => {
     }});
 });
 el('f-search').addEventListener('input', renderAll);
+el('f-ansSearch').addEventListener('input', renderRecord);
+// P3-PRAYER-07: remember a group someone opens or closes by hand (the tap on its summary, before it toggles)
+document.addEventListener('click', e => {
+  const s = e.target.closest && e.target.closest('details.cat[data-where] > summary');
+  if(!s || e.target.closest('[data-copycat]')) return;
+  const d = s.parentElement; catOpen.set(catKey(d.dataset.where, d.dataset.catname), !d.open);
+});
+// P3-PRAYER-20: the Add screen's own list switch (the same choice as Today's Mine / Family, remembered the same way)
+el('addListSwitch').addEventListener('click', e => {
+  const b = e.target.closest('[data-addlist]'); if(!b || KID()) return;
+  const to = b.dataset.addlist; if((KITCHEN() && to !== 'shared') || D.activeList === to) return;
+  D.activeList = to; save(); renderCatAdmin(); renderPlans(); renderAllScreens();
+});
+// UX-PRAYER-4: on the Family list the first change in Settings asks, in the shared confirm sheet (hub.confirm), before it
+// changes the family's plan, categories or requests for everyone; after a yes the rest of that visit goes ahead. A no
+// puts a changed menu back. Choosing which day to look at, reading pasted lines and Export are not changes.
+let famSettingsOk = false;
+const FAM_CLICK = '[data-mode],[data-rot],[data-incd],[data-show],[data-renplan],[data-delplan],[data-rencat],[data-delcat],#f-newplan,#f-addcat,[data-keep],#keepAll';
+const FAM_CHANGE = '#f-plan,#p-focus,#p-cats';
+function famGuard(e, sel){
+  if(!D || D.activeList !== 'shared' || famSettingsOk || !window.hub || !hub.confirm || !hub.canWrite) return;
+  const t = e.target && e.target.closest ? e.target.closest(sel) : null;
+  if(!t || t.disabled) return;
+  e.stopPropagation(); e.preventDefault();
+  hub.confirm('Changes here reach everyone in the house: the family’s plan, categories and requests.',
+    { title:'Change the Family list?', ok:'Change it' }).then(yes => {
+      if(!yes){ if(e.type === 'change') renderPlans(); return; }
+      famSettingsOk = true;
+      if(!t.isConnected) return;
+      if(e.type === 'change') t.dispatchEvent(new Event('change', { bubbles:true })); else t.click();
+    });
+}
+el('s-more').addEventListener('click', e => famGuard(e, FAM_CLICK), true);
+el('s-more').addEventListener('change', e => famGuard(e, FAM_CHANGE), true);
 el('toastAct').addEventListener('click', () => {
   el('toast').classList.remove('on'); if(undoFn){ undoFn(); undoFn = null; } });
 
@@ -1646,8 +1943,10 @@ function parsePaste(text, fallback){
   }
   return out;
 }
+// UX-PRAYER-11: "Sam - recovery after surgery" files "Recovery after surgery" (the parser keeps the words as written)
+const capFirst = s => String(s || '').replace(/^\p{Ll}/u, c => c.toUpperCase());
 el('f-parse').addEventListener('click', () => {
-  const items = parsePaste(el('f-paste').value, el('f-pastecat').value || 'Personal');
+  const items = parsePaste(el('f-paste').value, el('f-pastecat').value || 'Personal').map(it => Object.assign(it, { title: capFirst(it.title) }));
   const box = el('parsed');
   if(!items.length){ box.innerHTML = '<p class="note">Nothing to read yet. Paste some lines above.</p>'; return; }
   const newCats = [...new Set(items.map(i => i.category))].filter(c => !L().categories.includes(c));
@@ -1729,7 +2028,10 @@ function mergeBackup(B){
   return out;
 }
 el('f-import').addEventListener('click', () => {
-  ask(el('f-import'), {kind:'textarea', label:'Paste the contents of a backup file', required:true,
+  ask(el('f-import'), {kind:'textarea', label:'Choose the backup file, or paste what is in it', required:true,
+    // UX-PRAYER-12: the exported file itself, through the file picker (Files on the iPad), fills the box below
+    extra:'<div class="rowbtns" style="margin-top:10px"><button type="button" class="act ghost small" id="f-importPick">Choose a backup file</button></div>'
+      + '<p class="note" id="f-importName" aria-live="polite"></p>',
     help:'Adds back what is missing and brings back your own older changes. Nothing is deleted, and requests other people added to the family list are left as they are.', save:'Import',
     validate:txt => { try{ readBackup(txt); return ''; }
       catch(e){ return 'That did not read as a prayer backup. Check you pasted the whole file.'; } },
@@ -1743,6 +2045,22 @@ el('f-import').addEventListener('click', () => {
       (hub.flush ? hub.flush() : Promise.resolve({})).then(r => toast(r.rejected ? `${what} But ${r.rejected} item${r.rejected === 1 ? '' : 's'} could not be saved to the house.`
         : r.pending ? what + ' It will reach the house when you are back online.' : what));
     }});
+  const pick = document.getElementById('f-importPick');
+  if(pick) pick.addEventListener('click', () => { el('f-importFile').value = ''; el('f-importFile').click(); });
+});
+el('f-importFile').addEventListener('change', () => {
+  const f = el('f-importFile').files && el('f-importFile').files[0], box = document.getElementById('askIn'), name = document.getElementById('f-importName');
+  if(!f || !box) return;
+  if(f.size > 5 * 1024 * 1024){ if(name) name.textContent = 'That file is too big to be a prayer backup.'; return; }
+  const r = new FileReader();
+  r.onload = () => {
+    box.value = String(r.result || ''); box.dispatchEvent(new Event('input', { bubbles:true }));
+    let okShape = true; try{ readBackup(box.value); }catch(e){ okShape = false; }
+    if(name) name.textContent = okShape ? 'Read ' + f.name + '. Tap Import to restore it.' : f.name + ' did not read as a prayer backup.';
+    const err = document.getElementById('askErr'); if(err) err.textContent = '';
+  };
+  r.onerror = () => { if(name) name.textContent = 'Could not read that file.'; };
+  r.readAsText(f);
 });
 
 
@@ -1809,21 +2127,86 @@ function askerHTML(p){
   return '<span class="asker" aria-label="Asked by ' + esc(a.name) + '">' + faceHTML(a, a.name)
     + '<span class="by">' + esc(a.name) + ' asked</span></span>';
 }
+// UX-PRAYER-6: a family request's detail sheet says who asked and who prayed today, as its row does. Nothing on My list.
+function familyWhoHTML(p){
+  if(!onFamilyList(p) || D.activeList !== 'shared') return '';
+  const a = askerHTML(p), w = whoHTML(p);
+  return '<div class="meta sheetwho">' + a
+    + (w ? '<span class="sheetprayed">' + w + '<span>prayed today</span></span>'
+         : '<span class="sheetprayed">No one has prayed for it yet today.</span>') + '</div>';
+}
 // Kid mode: one big card per family request — the title, who asked, one 64 px Prayed button, and who prayed today.
 function kidCardHTML(p){
   const done = mePrayed(p);
   const asker = askerOf(p);
   const by = asker ? faceHTML(asker, asker.name) + '<span>' + esc(asker.name) + ' asked</span>'
-    : '<span class="avatar" aria-hidden="true">\u{1F64F}</span><span>' + (p.for ? 'For ' + esc(p.for) : 'Family list') + '</span>';
+    : '<span class="avatar khand-av" aria-hidden="true">' + icon('hands') + '</span><span>' + (p.for ? 'For ' + esc(p.for) : 'Family list') + '</span>';
   const who = whoHTML(p);
+  // UX-PRAYER-2: before the tap "Pray" with praying hands on the kid's own solid; after it the kid's face, a big ✓ in a
+  // solid circle and "Prayed" on a pale outlined pill — a change of colour, of shape and of word, never colour alone.
+  // The title (and the speaker beside it, where the device can speak) reads the request aloud.
+  const me = people().find(q => q.id === myId()) || (window.hub && hub.profile) || null;
+  const face = me ? '<span class="kme">' + faceHTML(me, me.name) + '</span>' : '';
+  const say = CAN_SAY ? '<button class="ksay" data-ksay="' + esc(p.id) + '" aria-label="Read it to me: ' + esc(p.title) + '">'
+    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>' : '';
   return '<li class="kid' + (done ? ' done' : '') + '">'
-    + '<div class="kt">' + esc(p.title) + '</div>'
+    + '<div class="khead"><div class="kt"' + (CAN_SAY ? ' data-ksay="' + esc(p.id) + '"' : '') + '>' + esc(p.title) + '</div>' + say + '</div>'
     + '<div class="kby">' + by + '</div>'
-    + '<button class="prayed" data-kpray="' + esc(p.id) + '" aria-pressed="' + done + '" aria-label="' + (done ? 'Prayed for ' : 'I prayed for ') + esc(p.title) + '">'
-    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Prayed</button>'
+    + '<button class="prayed" data-kpray="' + esc(p.id) + '" aria-pressed="' + done + '" aria-label="' + (done ? 'You prayed for ' : 'I prayed for ') + esc(p.title) + '">'
+    + (done
+      ? face + '<span class="kcheck" aria-hidden="true">' + icon('check') + '</span><span class="kw">Prayed</span>'
+      : '<span class="khands" aria-hidden="true">' + icon('hands') + '</span><span class="kw">Pray</span>')
+    + '</button>'
     + (who ? '<div class="kwho">' + who + '<span>prayed today</span></div>' : '')
     + '</li>';
 }
+// Prayer's drawn icons (ICO-2, batch 3 rescore): one family with the nav, the + and the prayed mark — a 24-unit stroke
+// drawing in currentColor, round caps and joins, 2 wide (the check 2.2, like the mark's), always aria-hidden beside a word.
+function icon(name, cls){
+  const P = { chev: '<path d="M9 6l6 6-6 6"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+    // praying hands: two palms meeting at the fingertips, the seam between them, the cuffs; a soft duotone fill of the
+    // palms under the strokes (the house icon style, icons/prayer.svg) so a pre-reader reads it as hands, not a line shape
+    hands: '<path d="M12 4c-.9-1-2.3-.6-2.6.6L7.8 11 5 14.3l4 5.2 3-1.7 3 1.7 4-5.2-2.8-3.3-1.6-6.4c-.3-1.2-1.7-1.6-2.6-.6Z" fill="currentColor" stroke="none" opacity=".3"/><path d="M12 4v11.5"/><path d="M12 4c-.9-1-2.3-.6-2.6.6L7.8 11 5 14.3l4 5.2 3-1.7"/><path d="M12 4c.9-1 2.3-.6 2.6.6l1.6 6.4 2.8 3.3-4 5.2-3-1.7"/><path d="M3.2 16.7 6.8 21"/><path d="M20.8 16.7 17.2 21"/>' };
+  return '<svg class="' + (cls || name) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (name === 'check' ? 2.2 : name === 'hands' ? 2.3 : 2)
+    + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + P[name] + '</svg>';
+}
+// Read a family request aloud for a pre-reader (UX-PRAYER-2): one voice, picked once, at Kid Verse's pace. A second tap
+// while it speaks stops it.
+const CAN_SAY = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+let sayVoice = null, sayingId = null;
+function pickSayVoice(){
+  if(sayVoice || !CAN_SAY) return sayVoice;
+  let vs = []; try{ vs = speechSynthesis.getVoices() || []; }catch(e){}
+  const en = vs.filter(v => /^en([-_]|$)/i.test(v.lang));
+  sayVoice = en.find(v => /natural|samantha|aria|jenny|google us english/i.test(v.name)) || en.find(v => /^en[-_]US/i.test(v.lang)) || en[0] || vs[0] || null;
+  return sayVoice;
+}
+if(CAN_SAY){ try{ speechSynthesis.addEventListener('voiceschanged', pickSayVoice); pickSayVoice(); }catch(e){} }
+function sayRequest(p){
+  const btns = () => document.querySelectorAll('.ksay[data-ksay="' + (window.CSS && CSS.escape ? CSS.escape(p.id) : p.id) + '"]');
+  const stop = () => { sayingId = null; document.querySelectorAll('.ksay.on').forEach(b => b.classList.remove('on')); };
+  if(!CAN_SAY){ toast('This device cannot read aloud.'); return; }
+  const again = sayingId === p.id;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  stop();
+  if(again) return;
+  const asker = askerOf(p);
+  const text = p.title + (p.for ? '. For ' + p.for + '.' : '.') + (asker ? ' ' + asker.name + ' asked.' : '');
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.85; const vc = pickSayVoice(); if(vc){ u.voice = vc; u.lang = vc.lang; } else u.lang = 'en-US';
+    u.onend = stop; u.onerror = stop;
+    sayingId = p.id; btns().forEach(b => b.classList.add('on'));
+    speechSynthesis.speak(u);
+  }catch(e){ stop(); toast('This device cannot read aloud.'); }
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest && e.target.closest('[data-ksay]');
+  if(!t) return;
+  const p = byId(t.dataset.ksay); if(p) sayRequest(p);
+});
+if(CAN_SAY && window.addEventListener) window.addEventListener('pagehide', () => { if(sayingId){ try{ speechSynthesis.cancel(); }catch(e){} } });
 function kidListHTML(set){ return '<ul class="kids">' + set.map(kidCardHTML).join('') + '</ul>'; }
 // The latest day before today anyone prayed a family row (lastPrayedAt when today's last tick is taken back).
 function lastBefore(p){
@@ -1854,7 +2237,8 @@ function setPrayed(p, force, as){
     if(!on && p.lastPrayedAt !== TODAY) return;          // nothing of today's to take back (never an earlier day's mark)
     p.lastPrayedAt = on ? TODAY : null;
   }
-  if(on) markDay();
+  const home = onFamilyList(p) ? D.lists.shared : D.lists.personal;
+  if(on) markDay(home); else unmarkDay(home);
   stamp(p);
   if(KID()) kidTicks.add(p.id);
   save();
@@ -1863,7 +2247,23 @@ function setPrayed(p, force, as){
   if(p.unprayed !== undefined){ const k = 'prayer:' + p.id, sent = SNAP.family[k] === JSON.stringify(p);
     if(sent){ delete p.unprayed; SNAP.family[k] = JSON.stringify(p); } }
   // A private request is never named on the family feed or the TV (P2-PWA-01); the Worker refuses any other wording.
-  if(on) hub.activity(onFamilyList(p) ? 'Prayed for ' + p.title + ' (family list)' : 'Prayed for a private request', as ? { as } : undefined);
+  // UX-PRAYER-13: during Pray now the marks are counted and closePray() posts one line for the whole run.
+  if(on && praySession){ const k = as || ''; const s = praySession.get(k) || { ids:new Set(), p:null }; s.ids.add(p.id); s.p = p; praySession.set(k, s); return; }
+  if(on) hub.activity(prayedLine(p), as ? { as } : undefined);
+}
+const prayedLine = p => onFamilyList(p) ? 'Prayed for ' + p.title + ' (family list)' : 'Prayed for a private request';
+// One feed line per person for a Pray now run: the one request's usual line, or "Prayed through N …" (never a title
+// from My list; a family run counts family requests).
+let praySession = null;
+function postPraySession(){
+  const s = praySession; praySession = null;
+  if(!s || !window.hub || !hub.activity) return;
+  for(const [as, x] of s){
+    const n = x.ids.size; if(!n) continue;
+    const fam = onFamilyList(x.p);
+    const text = n === 1 ? prayedLine(x.p) : 'Prayed through ' + n + (fam ? ' family requests' : ' requests');
+    hub.activity(text, as ? { as } : undefined);
+  }
 }
 // The kitchen's Prayed: the face sheet (everyone in the household, kids included, so a kid earns the day's prayer star),
 // then that person's tick. A face that already prayed it today changes nothing.
@@ -1886,7 +2286,53 @@ async function startPrayMode(){
   prayList = set.filter(p => prayAs ? !prayedToday(p).includes(prayAs) : !doneToday(p));
   if(!prayList.length) prayList = set;
   if(!prayList.length){ toast('Nothing on the list today.'); return; }
+  table = prayAs ? new Set([prayAs]) : null;    // Around the table: whoever started sits down first
+  praySession = new Map();
   prayIdx = 0; renderPray(); el('pray').classList.add('on'); updateFab();
+  immersive(true);                              // UX-PRAYER-9: full screen inside the hub
+  try{ el('prayShut').focus({ preventScroll:true }); }catch(e){}
+}
+// UX-PRAYER-9: Pray now asks the hub to hide its viewer bar while it is open (hub.immersive, batch 3; nothing standalone
+// or on an SDK without it). Close, Escape and the shell's own back always bring the bar back.
+function immersive(on){ try{ if(window.hub && typeof hub.immersive === 'function') hub.immersive(!!on); }catch(e){} }
+/* ── IMP-PRAYER-I1, "Around the table" ─────────────────────────
+   Pray now on the family list shows the asker's face large. On the kitchen device (where no one is signed in) a row of
+   the household's faces sits under the card: each person at the table taps their own face once to sit down, and every
+   Prayed then marks everyone sitting there, through the kitchen's attribution (setPrayed's `as`; the Worker checks each
+   name is a household member), so a kid there earns the day's prayer star as usual. On a personal device the row is
+   not offered: Prayed marks only the signed-in person, as the Worker allows, and the card says so. */
+let table = null;
+const tablePeople = () => people().filter(q => q && !q.isGuest && !q.is_guest && (q.kind === 'adult' || q.kind === 'kid'));
+function renderTable(p){
+  const fam = !!p && onFamilyList(p), a = fam ? askerOf(p) : null, box = el('prayAsker'), t = el('prayTable');
+  box.hidden = !a;
+  box.innerHTML = a ? faceHTML(a, a.name) + '<span>' + esc(a.name) + ' asked</span>' : '';
+  if(!fam){ t.hidden = true; t.innerHTML = ''; return; }
+  if(!(KITCHEN() && table)){
+    const me = window.hub && hub.profile ? (people().find(q => q.id === hub.profile.id) || hub.profile) : null;
+    t.hidden = !me || KID();
+    t.innerHTML = me ? '<div class="tme">' + faceHTML(me, me.name) + '<span>Prayed marks you</span></div>' : '';
+    return;
+  }
+  const ppl = tablePeople(), done = new Set(prayedToday(p));
+  t.hidden = !ppl.length;
+  t.innerHTML = '<div class="thead" id="tableLbl">At the table: tap your face to join</div>'
+    + '<div class="tfaces" role="group" aria-labelledby="tableLbl">' + ppl.map(q => {
+        const at = table.has(q.id), was = done.has(q.id);
+        return '<button type="button" class="tface" data-table="' + esc(q.id) + '" aria-pressed="' + at + '" aria-label="'
+          + esc(q.name) + (at ? ', at the table' : '') + (was ? ', prayed for this today' : '') + '">'
+          + faceHTML(q, q.name) + '<span class="tname">' + esc(q.name) + (was ? icon('check', 'tcheck') : '') + '</span></button>';
+      }).join('') + '</div>';
+}
+// Prayed in Pray now: everyone at the table on the kitchen; otherwise the signed-in person (or the kitchen's starter).
+function prayedNow(){
+  const p = prayList[prayIdx]; if(!p) return true;
+  if(KITCHEN() && table){
+    if(!table.size){ toast('Tap who is at the table first.'); return false; }
+    for(const id of table) setPrayed(p, true, id);
+    return true;
+  }
+  setPrayed(p, true, prayAs || undefined); return true;
 }
 function renderPray(){
   const p = prayList[prayIdx];
@@ -1901,6 +2347,7 @@ function renderPray(){
   el('prayBar').style.width = Math.round(prayIdx/prayList.length*100) + '%';
   el('prayBack').disabled = prayIdx === 0;
   el('prayNext').textContent = prayIdx === prayList.length-1 ? 'Prayed, finish' : 'Prayed';
+  renderTable(p);
 }
 function prayStep(n){
   prayIdx += n;
@@ -1909,23 +2356,38 @@ function prayStep(n){
   renderPray();
 }
 function closePray(finished){
-  el('pray').classList.remove('on'); updateFab(); prayAs = null;
+  el('pray').classList.remove('on'); updateFab(); prayAs = null; table = null;
+  if(!el('kitchen').classList.contains('on')) immersive(false);   // the Kitchen view underneath keeps the screen
+  postPraySession();
   renderAllScreens();
-  if(finished){ const m = milestone(); toast(m || 'Prayed through the list.'); }
+  // UX-PRAYER-14: one cheer. A finished Today shows "All prayed ✓" and its cheer on the page, so no toast repeats it.
+  if(finished){
+    const set = todaySet(), left = set.filter(p => !doneToday(p)).length;
+    if(!set.length || left || KITCHEN()) toast(left && !KITCHEN() ? (left === 1 ? 'One still to pray today.' : left + ' still to pray today.') : 'Prayed through the list.');
+  }
 }
 
 /* ── kitchen view ───────────────────────────────────────────── */
+// P3-PRAYER-19: an open Kitchen view is rebuilt when another device changes the list and at the house's midnight, so the
+// counter never shows a request that was answered elsewhere or misses a new one. Its scroll position is kept.
+function refreshKitchen(){
+  const k = el('kitchen'); if(!k.classList.contains('on')) return;
+  const y = k.scrollTop; openKitchen(); k.scrollTop = y;
+}
 function openKitchen(){
   const act = L().prayers.filter(p => p.status === 'active');
   const cats = L().categories.filter(c => act.some(p => p.category === c));
-  el('kitchenBody').innerHTML = '<h1>' + esc(L().label) + '</h1>'
+  // UX-PRAYER-3: calm, dark, glance-size (the CSS). Each category is one block, its heading never apart from its requests;
+  // on a landscape iPad the blocks sit two to a row, read left to right and down
+  el('kitchenBody').innerHTML = '<div class="k-in"><h1>' + esc(L().label) + '</h1>'
     + '<div class="date">' + dObj(TODAY).toLocaleDateString(undefined,
         {weekday:'long',month:'long',day:'numeric'}) + '</div>'
-    + (act.length ? cats.map(c => '<div class="k-cat">' + esc(c) + '</div>'
+    + (act.length ? '<div class="k-cols">' + cats.map(c => '<section class="k-group"><div class="k-cat">' + esc(c) + '</div>'
         + act.filter(p => p.category === c).map(p => '<div class="k-item">' + esc(p.title)
-          + (p.for ? ' <span class="k-for">' + esc(p.for) + '</span>' : '') + '</div>').join('')).join('')
-      : '<p class="empty">Nothing on this list yet.</p>');
+          + (p.for ? ' <span class="k-for">' + esc(p.for) + '</span>' : '') + '</div>').join('') + '</section>').join('') + '</div>'
+      : '<p class="empty">Nothing on this list yet.</p>') + '</div>';
   el('kitchen').classList.add('on'); updateFab();
+  immersive(true);                              // the counter view fills the screen too; Close / Escape bring the bar back
 }
 
 /* ── print ──────────────────────────────────────────────────── */
@@ -1976,14 +2438,62 @@ function mergeShared(remote){
 /* ── new wiring ─────────────────────────────────────────────── */
 el('startPray').addEventListener('click', startPrayMode);
 el('prayShut').addEventListener('click', () => closePray(false));
-el('prayNext').addEventListener('click', () => { setPrayed(prayList[prayIdx], true, prayAs || undefined); prayStep(1); });
+el('prayNext').addEventListener('click', () => { if(prayedNow()) prayStep(1); });
+// Around the table: a face joins or leaves the table for the rest of the run (never takes back a mark already made)
+el('prayTable').addEventListener('click', e => {
+  const b = e.target.closest('[data-table]'); if(!b || !table) return;
+  const id = b.dataset.table; if(table.has(id)) table.delete(id); else table.add(id);
+  renderTable(prayList[prayIdx]);
+  const again = el('prayTable').querySelector('[data-table="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]'); if(again) again.focus();
+});
 el('praySkip').addEventListener('click', () => prayStep(1));
 el('prayBack').addEventListener('click', () => prayStep(-1));
 document.addEventListener('keydown', e => {
   if(!el('pray').classList.contains('on')) return;
   if(e.key === 'Escape') closePray(false);
-  if(e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); setPrayed(prayList[prayIdx], true, prayAs || undefined); prayStep(1); }
+  if(e.key === ' ' && e.target && e.target.closest && e.target.closest('button')) return;   // Space presses the focused button
+  if(e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); if(prayedNow()) prayStep(1); }
   if(e.key === 'ArrowLeft') prayStep(-1);
+});
+// P3-PRAYER-26: Escape closes what is on top (an inline panel, then the sheet, then the Kitchen view; Pray mode has its
+// own keys above, and hub.confirm answers its own); Enter submits a one-line field (the Add form, a panel, the edit
+// form, a new category), and Ctrl/Cmd+Enter a panel's text box. Typing in another script (IME) is left alone.
+document.addEventListener('keydown', e => {
+  if(e.defaultPrevented || e.isComposing || e.keyCode === 229 || el('pray').classList.contains('on')) return;
+  if(document.querySelector('.hub-ask')) return;
+  const t = e.target || {};
+  if(e.key === 'Escape'){
+    if(askOpen){ e.preventDefault(); const trig = askOpen.trigger, c = document.getElementById('askCancel');
+      if(c) c.click(); else closeAsk(); if(trig && trig.isConnected && trig.focus) trig.focus(); return; }
+    if(el('sheet').classList.contains('on')){
+      e.preventDefault();
+      // the edit form with something typed asks first; everything else in the sheet just closes
+      if(document.getElementById('e-title') && editSheet.snap !== undefined && editFields() !== editSheet.snap && window.hub && hub.confirm){
+        hub.confirm('Your changes to this request are not saved.', { title:'Discard your changes?', ok:'Discard', danger:true })
+          .then(yes => { if(yes) shutSheet(); });
+        return;
+      }
+      shutSheet(); return;
+    }
+    if(el('kitchen').classList.contains('on')){ e.preventDefault(); el('kitchenShut').click(); return; }
+    return;
+  }
+  if(e.key !== 'Enter' || e.shiftKey || e.altKey) return;
+  if(t.id === 'askIn' && (t.tagName === 'INPUT' || (t.tagName === 'TEXTAREA' && (e.ctrlKey || e.metaKey)))){
+    e.preventDefault(); const s = document.getElementById('askSave'); if(s && !s.disabled) s.click(); return;
+  }
+  // The Add form (review round 1): Enter (the phone keyboard's "next") moves on to the next field and saves only from
+  // the last one, Their number; Ctrl/Cmd+Enter saves from any field of the form, the Detail box included.
+  if(['f-title','f-for','f-detail','f-phone'].includes(t.id)){
+    if(e.ctrlKey || e.metaKey || t.id === 'f-phone'){ e.preventDefault(); el('f-save').click(); return; }
+    if(t.id === 'f-detail') return;                            // a new line in the Detail box
+    e.preventDefault(); el(t.id === 'f-title' ? 'f-for' : 'f-detail').focus(); return;
+  }
+  if(t.tagName !== 'INPUT') return;
+  const to = { 'f-newcat':'f-addcat' }[t.id];
+  if(to){ e.preventDefault(); el(to).click(); return; }
+  if(/^e-(title|for|phone)$/.test(t.id)){ const b = document.querySelector('[data-esave]'); if(b){ e.preventDefault(); b.click(); } return; }
+  if(t.id === 'f-search' || t.id === 'f-ansSearch'){ e.preventDefault(); t.blur(); }
 });
 let tx = 0;
 el('pray').addEventListener('touchstart', e => { tx = e.changedTouches[0].clientX; }, {passive:true});
@@ -1992,13 +2502,21 @@ el('pray').addEventListener('touchend', e => {
   if(dx < -60) prayStep(1); else if(dx > 60) prayStep(-1);
 }, {passive:true});
 
-el('kitchenShut').addEventListener('click', () => { el('kitchen').classList.remove('on'); updateFab(); });
+el('kitchenShut').addEventListener('click', () => { el('kitchen').classList.remove('on'); updateFab(); if(!el('pray').classList.contains('on')) immersive(false); });
+// The shell brought its bar back by itself (Escape or back with focus in the shell): whatever full-screen view asked
+// for it closes too, so the bar never sits over an open Pray mode or Kitchen view. Pray mode first, as it is on top;
+// once both are shut nothing asks again, so this never closes twice.
+if(window.addEventListener) window.addEventListener('hub:immersive', e => {
+  if(e.detail && e.detail.on) return;
+  if(el('pray').classList.contains('on')) closePray(false);
+  if(el('kitchen').classList.contains('on')){ el('kitchen').classList.remove('on'); updateFab(); }
+});
 
 /* ── overflow: Kitchen view, Copy and Print sit behind "More" so Pray now stands alone ── */
 function openMoreSheet(){
   el('sheetInner').innerHTML =
       '<button class="close" data-shut>Done</button>'
-    + '<h1>More</h1><div class="meta">' + esc(L().label) + '</div>'
+    + '<h1>Share &amp; print</h1><div class="meta">' + esc(L().label) + '</div>'
     + '<div class="menu">'
     + '<button class="act ghost" data-more="kitchen">Kitchen view<span>Big type for the counter</span></button>'
     + '<button class="act ghost" data-more="copy">Copy as text<span>Paste it into Messages</span></button>'
@@ -2007,7 +2525,7 @@ function openMoreSheet(){
   openSheet(); el('sheet').scrollTop = 0;
 }
 function moreAction(kind, trigger){
-  if(kind === 'kitchen'){ shutSheet(); openKitchen(); return; }
+  if(kind === 'kitchen'){ shutSheet(); openKitchen(); el('kitchen').scrollTop = 0; return; }   // opened by hand: from the top (a remote repaint keeps its place)
   if(kind === 'print'){ shutSheet(); buildPrint(); window.print(); return; }
   if(kind === 'copy'){
     const items = todaySet();
@@ -2062,7 +2580,11 @@ applyTheme(); renderCatAdmin(); renderPlans(); go('today');
 if(USE_LOCAL_STORAGE){
   hub.onChange(() => { remoteDirty = true; absorbRemote(); });
   // Midnight in New York: a new household day, so a new Today (rotation, prayed marks, streak, calendar).
-  hub.onDay(d => { TODAY = d; if(!el('pray').classList.contains('on')) renderAllScreens(); });
+  hub.onDay(d => { TODAY = d; if(!el('pray').classList.contains('on')){ renderAllScreens(); refreshKitchen(); } });
+  // A Pray now run cut short by closing the app still posts its one feed line (sent with the SDK's own pagehide flush).
+  // The frame may be kept (hidden) and Pray mode still open when the person comes back: the rest of the run then counts
+  // into a fresh session, so it still ends in one line, never a line per card.
+  if(hub.onLeave) hub.onLeave(() => { if(praySession && el('pray').classList.contains('on')){ postPraySession(); praySession = new Map(); } });
   // Faces come from the profiles cache the shell fills; opened standalone it can be empty, so pull once.
   if(hub.profiles && !people().length) hub.profiles().then(() => renderAllScreens()).catch(() => {});
   // Voice: say the request instead of typing it.

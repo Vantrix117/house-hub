@@ -166,7 +166,8 @@ const token = (page, name) => page.evaluate(n => { const d = document.createElem
     await page.click('#moreBtn'); await sleep(300); await page.click('[data-more="copy"]'); await sleep(500);
     const clip = await page.evaluate(() => navigator.clipboard.readText()).catch(() => '');
     ok(/Healing for a neighbour/.test(clip) && /Wisdom for the week/.test(clip), 'Copy as text puts today\'s list on the clipboard', JSON.stringify(clip).slice(0, 80));
-    ok(await page.$eval('#toast', t => t.classList.contains('on') && /Copied 2 requests/.test(t.textContent)), 'and says so in a toast');
+    // batch 3 (P4-SHAPE-02, on purpose): Prayer's toast is the shared hub.toast (#hub-toast), not its own #toast
+    ok(await page.$eval('#hub-toast', t => !t.hidden && /Copied 2 requests/.test(t.textContent)), 'and says so in a toast');
     ok(!(await page.$eval('#sheet', s => s.classList.contains('on'))), 'the sheet closes after copying');
     await page.evaluate(() => hub.flush());
     await waitFor(() => page.evaluate(() => hub.sync.pending === 0), { label: 'flushed' });

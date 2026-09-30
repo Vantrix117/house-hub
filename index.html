@@ -255,6 +255,13 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   :root[data-kind="kiosk"] .tv-kidlabel { font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-2); }
   :root[data-kind="kiosk"] .tv-kidline { font-size: var(--fs-md); line-height: var(--lh-snug); color: var(--text); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   :root[data-kind="kiosk"] .tv-kid:has(> .tv-kidline:empty) { display: none; }
+  /* IMP-PRAYER-I2: "A year ago today · Answered: …", in the verse pane or first in the feed, always whole (wraps, never clipped) */
+  /* in the verse pane: the faces' name size, one step closer under the kid line, so a one-line anniversary fits the room the
+     clock pane leaves there at 1920 x 1080 (placeAnniv() keeps it only when row 1 does not grow) */
+  :root[data-kind="kiosk"] .tv-anniv { margin-top: var(--sp-1); font-size: var(--fs-sm); line-height: var(--lh-tight); color: var(--text); overflow-wrap: anywhere; }
+  :root[data-kind="kiosk"] .tv-verse:has(> .tv-anniv:not([hidden])) .tv-kid { margin-top: var(--sp-2); }
+  :root[data-kind="kiosk"] .tv-anniv[hidden] { display: none; }
+  :root[data-kind="kiosk"] .tv-anniv-k { font-weight: 700; color: var(--accent-ink); }
   /* row 2: today. Who read and the stars take what their faces need; who prayed takes the rest; each keeps its faces in one row */
   :root[data-kind="kiosk"] .tv-today { grid-column: 1 / -1; grid-row: 2; display: flex; gap: var(--tv-gap); min-width: 0; }
   :root[data-kind="kiosk"] .tv-prayed { flex: 1 1 0; min-width: calc(var(--tv-avatar) * 2 + var(--tv-face-gap) + var(--tv-pad-x) * 2 + var(--sp-4)); }   /* room for two faces; who read gives way last */
@@ -287,6 +294,9 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   :root[data-kind="kiosk"] :is(.tv-lines, .tv-rem-list) > li[hidden] { display: none; }
   :root[data-kind="kiosk"] .tv-lines li { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; padding: var(--sp-1) 0; border-bottom: var(--border-w) solid var(--separator); font-size: var(--fs-md); line-height: var(--lh-snug); }
   :root[data-kind="kiosk"] .tv-lines li:last-child { border-bottom: 0; }
+  :root[data-kind="kiosk"] .tv-lines > li.tv-out { display: none; }   /* the anniversary while it shows in the verse pane (or nowhere) */
+  :root[data-kind="kiosk"] .tv-lines li.tv-anniv .app-icon { --icon-box: calc(var(--tv-avatar) * .5); flex: none; }
+  :root[data-kind="kiosk"] .tv-lines li.tv-anniv .tv-anniv-txt { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   :root[data-kind="kiosk"] .tv-lines li.tv-empty { height: 100%; flex-direction: column; justify-content: center; gap: var(--sp-3); border: 0; color: var(--text-2); font-size: var(--fs-lg); }   /* an empty feed: its art, sized to the pane */
   :root[data-kind="kiosk"] .tv-empty img { flex: 0 1 auto; min-height: 0; max-height: 70%; max-width: 40%; }
   :root[data-kind="kiosk"] .tv-lines .avatar { --size: calc(var(--tv-avatar) * .5); }
@@ -356,6 +366,15 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   .kid-cta:active { transform: scale(.97); }
   .kid-cta .app-icon { --icon-box: 64px; }
   .two-col { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
+  /* IMP-PRAYER-I3: "Ezra and Elizabeth prayed today for Grandma Jo's visit", quiet lines on the asker's own Home (opens Prayer) */
+  .prayedfor { display: flex; flex-direction: column; gap: var(--sp-1); margin: 0 0 var(--sp-4); }
+  .prayedfor:empty { display: none; }
+  .pf-line { display: flex; align-items: center; gap: var(--sp-3); width: 100%; min-height: 44px; padding: var(--sp-2) var(--sp-3); border: 0; border-radius: var(--r-control); background: transparent; color: var(--text-2); font: inherit; font-size: var(--fs-sm); line-height: var(--lh-snug); text-align: left; cursor: pointer; }
+  .pf-line b { color: var(--text); font-weight: 600; }
+  .pf-line .people { flex: none; }
+  .pf-line .pf-t { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .pf-line:active { background: var(--hover); }
+  @media (hover: hover) and (pointer: fine) { .pf-line:hover { background: var(--hover); } }
   @media (min-width: 1024px) { .two-col { grid-template-columns: 3fr 2fr; align-items: start; } }
   .stack-lg > .glance { margin-bottom: 0; }
   /* park + stars cards */
@@ -602,6 +621,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   @keyframes viewer-in { from { opacity: 0; transform: scale(.9); border-radius: var(--r-xl); } }
   @keyframes viewer-out { to { opacity: 0; transform: scale(.94); } }
   #viewer.dark { background: var(--viewer-loading-bg); }
+  /* UX-PRAYER-9: the app asked for the whole screen (hub.immersive): the bar steps aside and the notch stays clear (an iframe
+     gets no safe-area insets of its own). It comes back on hub.immersive(false), Escape, a close, a reload or another app. */
+  #viewer.immersive { padding-top: var(--safe-top); }
+  #viewer.immersive #pill { display: none; }
   #frame { flex: 1; width: 100%; border: 0; background: transparent; }
   /* a slim bar above the app, never over it — apps keep their own bottom navigation free. Nothing passes beneath it, so it is
      solid material, not live glass (VIS-GLASS-2): no blur, no drifting pickup */
@@ -1128,7 +1151,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     viewer.classList.remove('closing');
     viewer.classList.toggle('dark', !!a.dark);
     $('#pill-label').textContent = a.name;
-    if (frame.dataset.id !== id) { frame.src = a.file; frame.dataset.id = id; }
+    if (frame.dataset.id !== id) { setImmersive(false); frame.src = a.file; frame.dataset.id = id; }
     viewer.classList.add('on');
     if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
     renderTimerPill(); paintViewerSync();
@@ -1141,6 +1164,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   function closeViewer({ drop = false } = {}) {
     if (!current) { if (drop) dropFrame(); return; }
     const was = current; current = null;
+    setImmersive(false, true);   // the bar is back for the next open; the kept app hears it (hub:immersive)
     try { const w = frame.contentWindow; if (w && w.hub && typeof w.hub.leaveNow === 'function') w.hub.leaveNow(); } catch {}   // the app's last writes (the Larder's finishing items) join the queue first
     viewer.classList.add('closing');   // pointer-events: none while it fades, so a tap reaches the grid under it (P4-MOTION-02)
     clearTimeout(closeTimer);
@@ -1152,9 +1176,19 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (tab === 'home') scheduleHome();
   }
   $('#pill-home').addEventListener('click', () => showTab(viewerFrom));
-  // UX-HOME-4: Escape closes the viewer (when no sheet is open over it)
-  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && current && !document.querySelector('.sheet-backdrop')) { ev.preventDefault(); showTab(viewerFrom); } });
+  // UX-HOME-4: Escape closes the viewer (when no sheet is open over it); over an app that has the whole screen
+  // (UX-PRAYER-9) the first Escape brings the bar back instead, and the app hears it
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && current && !document.querySelector('.sheet-backdrop')) { ev.preventDefault(); if (viewer.classList.contains('immersive')) setImmersive(false, true); else showTab(viewerFrom); } });
   $('#pill-reload').addEventListener('click', () => { if (current) frame.src = current.file + (current.file.includes('?') ? '&' : '?') + 'r=' + Date.now(); });
+  // UX-PRAYER-9: hub.immersive(on) from the app in the viewer (only that frame's window, only while it is open) hides the bar.
+  // A new document in the frame (a reload, a navigation, another app) always starts with the bar.
+  function setImmersive(on, tellApp) {
+    on = !!on && !!current;
+    if (viewer.classList.contains('immersive') === on) return;
+    viewer.classList.toggle('immersive', on);
+    if (!on && tellApp) { try { frame.contentWindow.postMessage({ source: 'hubshell', type: 'hub:immersive', on: false }, location.origin); } catch {} }
+  }
+  frame.addEventListener('load', () => setImmersive(false));
   // UX-HOME-6: the Switch-app sheet is a grid of the apps' own tiles (icon, colour, name) that a pre-reader can use
   $('#pill-name').addEventListener('click', async () => {
     const others = visibleApps().filter(a => !current || a.id !== current.id);
@@ -1207,6 +1241,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const m = ev.data;
     if (m.type === 'hub:sync') { setDot(m.sync.state); paintViewerSync(m.sync); }
     if (m.type === 'hub:open') openApp(m.appId);
+    if (m.type === 'hub:immersive' && ev.source === frame.contentWindow) setImmersive(m.on);   // only the app in the viewer
     if (m.type === 'hub:reauth') { closeViewer({ drop: true }); hub.device ? showPicker(m.reason === 'signed_out' ? '' : 'Please choose your profile again.') : showPairing('This device was unpaired.'); }
     if (m.type === 'hub:theme') { hub.setTheme(m.theme); syncThemeColor(); }
     if (m.type === 'hub:pref') { try { hub.setPref(m.key, m.value); } catch {} if (tab === 'me') renderMe(); }   // an app changed a person preference: the shell writes the row
@@ -1294,6 +1329,8 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   function greeting() { return 'Good ' + timeOfDay(); }
   function prayerStreak() {
     const days = new Set(hub.get('prayerDays', { app: 'prayer', scope: 'person', default: [] }));
+    // like the app's recordDays(): each own request's last prayed day counts too (an untick on another device never erases it)
+    for (const r of hub.list('prayer:', { app: 'prayer', scope: 'person' })) { const l = r.value && r.value.lastPrayedAt; if (/^\d{4}-\d{2}-\d{2}$/.test(String(l || '')) && l <= hub.today()) days.add(l); }
     if (!days.size) return 0;
     let d = hub.today(); let n = 0;
     if (!days.has(d)) d = hub.addDays(d, -1);
@@ -1315,7 +1352,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     else if (plan.mode === 'byDay') { const cats = (plan.dayMap || {})[dow] || []; picked = act.filter(p => cats.includes(p.category) || (plan.includeDaily !== false && p.cadence === 'daily')); }
     else {
       const daily = act.filter(p => !['weekly', 'rotation'].includes(p.cadence));      // the app normalises an unknown cadence to daily
-      const weekly = act.filter(p => p.cadence === 'weekly' && (p.days || []).includes(dow));
+      const weekly = act.filter(p => p.cadence === 'weekly' && ((p.days || []).includes(dow) || !(p.days || []).length));   // no days: every day, as the app (P3-PRAYER-08)
       const size = plan.rotationSize || 3, rf = hub.get('rotationFor', P), key = 'personal|' + plan.id;
       const ids = rf && rf.date === today && rf.size === size && rf.key === key ? (rf.ids || [])
         : act.filter(p => p.cadence === 'rotation').sort((a, b) => since(b.lastPrayedAt) - since(a.lastPrayedAt)).slice(0, size).map(p => p.id);
@@ -1740,6 +1777,21 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         });
       }
       tv.fetchReaders = fetchReaders;
+      // IMP-PRAYER-I2: the answered request on the family list whose answered date (the household's, New York) is today's
+      // month and day in an earlier year — the most recent year first; a 29 February answer comes back on the 28th in other
+      // years. The family rows only: the TV reads no one's own list, so a private title can never reach it.
+      function anniversary(today) {
+        const md = today.slice(5), y0 = +today.slice(0, 4), leap = y0 % 4 === 0 && (y0 % 100 !== 0 || y0 % 400 === 0);
+        let best = null;
+        for (const r of hub.list('prayer:', FAM_PRAYER)) {
+          const v = r.value; if (!v || v.status !== 'answered' || typeof v.title !== 'string' || !v.title.trim()) continue;
+          const m = /^(\d{4})-(\d{2}-\d{2})$/.exec(String(v.answeredAt || '')); if (!m) continue;
+          const y = y0 - +m[1]; if (y < 1 || !(m[2] === md || (!leap && md === '02-28' && m[2] === '02-29'))) continue;
+          const title = v.title.trim();
+          if (!best || y < best.y || (y === best.y && title < best.title)) best = { y, title };
+        }
+        return best && { ago: best.y === 1 ? 'A year ago today' : best.y + ' years ago today', title: best.title };
+      }
       function paint(now) {
         now = now || new Date(); const t = tv.el; if (tv.stopped || !t || !t.root.isConnected) return;
         const today = dayKey(now), h = now.getHours();
@@ -1768,9 +1820,14 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         const kids = kidStars();
         const starsIn = hub.isLoaded('kidverse', 'family');
         setHtml(t.stars, kids.length ? kids.map(k => faceHtml(k, '', starsIn ? `<b class="tv-star">★${k.stars}</b>` : '<b class="tv-star">…</b>')).join('') + MORE_FACE : '<div class="tv-quiet">No stars yet.</div>');
+        // IMP-PRAYER-I2: an answered family prayer from this day in an earlier year. fit() shows it in the verse pane when that
+        // pane has room, else first in the feed, else not at all; it is always whole
+        const ann = anniversary(today), annHtml = ann ? `<span class="tv-anniv-k">${esc(ann.ago)}</span> · Answered: ${esc(ann.title)}` : '';
+        setHtml(t.anniv, annHtml); t.anniv.hidden = true;   // placeAnniv() (in fit) shows one of the two
+        const annLi = ann ? `<li class="tv-anniv tv-out" data-accent="${esc(hueOfApp('prayer'))}"><span class="app-icon"><svg class="icon"><use href="#i-pray"/></svg></span><span class="tv-anniv-txt">${annHtml}</span></li>` : '';
         const lines = (feed || []).slice(0, 5);
-        setHtml(t.feed, lines.length ? lines.map(a => `<li data-accent="${esc(hueOf(a))}">${avatar(a, 'avatar-sm')}<span class="who">${esc(a.name || 'Someone')}</span><span class="txt">${esc(a.text || '')}</span><span class="when">${esc(agoText(a.created_at))}</span></li>`).join('')
-          : feed ? '<li class="tv-quiet tv-empty"><img src="art/empty/feed.svg" alt=""><span>Nothing has happened yet.</span></li>' : '<li class="tv-quiet">Loading…</li>');   // feed null: never fetched on this device
+        setHtml(t.feed, annLi + (lines.length ? lines.map(a => `<li data-accent="${esc(hueOf(a))}">${avatar(a, 'avatar-sm')}<span class="who">${esc(a.name || 'Someone')}</span><span class="txt">${esc(a.text || '')}</span><span class="when">${esc(agoText(a.created_at))}</span></li>`).join('')
+          : feed ? (ann ? '' : '<li class="tv-quiet tv-empty"><img src="art/empty/feed.svg" alt=""><span>Nothing has happened yet.</span></li>') : '<li class="tv-quiet">Loading…</li>'));   // feed null: never fetched on this device
         // reminders: newest first, one line each; fit() shows the ones that fit and counts the rest (P2-VIS-02). The card
         // shows only when there is at least one.
         const rems = hub.list('item:', REM).map(r => r.value).filter(r => r && r.text).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
@@ -1791,10 +1848,28 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         for (const box of boxes) for (const el of box.children) el.hidden = el.classList.contains('tv-more');
         // who prayed and who read each keep room for their own first face, as labelled, and its "+N" (review of batch 2c, round
         // 2: a minimum counted in bare avatars left "Prayed today" with only a "+2"), measured on the faces themselves
+        placeAnniv();
         for (const box of [t.prayed, t.read]) floorFor(box);
         for (const box of [t.read, t.stars, t.prayed]) fitFaces(box);   // who prayed last: its width is what the other two leave once they are fitted
         fitList(t.feed, t.feedCount, false);
+        const af = t.feed.querySelector(':scope > .tv-anniv');
+        // in the feed it may take the place of the oldest lines, never of the last one: when it is not whole there, or no feed
+        // line is left beside it, it is left out and the feed refitted without it
+        const feedLines = af ? [...t.feed.children].filter(el => el !== af && !el.classList.contains('tv-quiet')) : [];
+        if (af && !af.classList.contains('tv-out') && (af.hidden || (feedLines.length && feedLines.every(el => el.hidden)))) { af.classList.add('tv-out'); fitList(t.feed, t.feedCount, false); }
         fitList(t.rem, t.remCount, true);
+      }
+      // IMP-PRAYER-I2: the anniversary line stays in the verse pane only when showing it leaves row 1 as tall as it was (the
+      // clock pane is usually the taller); otherwise it goes first in the feed, where fitList keeps it only whole
+      function placeAnniv() {
+        const t = tv.el, av = t.anniv, af = t.feed.querySelector(':scope > .tv-anniv');
+        if (af) af.classList.add('tv-out');
+        if (!av.innerHTML) { av.hidden = true; return; }
+        const pane = av.closest('.tv-pane');
+        av.hidden = true; const h0 = pane.getBoundingClientRect().height;
+        av.hidden = false; const h1 = pane.getBoundingClientRect().height;
+        if (h1 <= h0 + 0.5) return;
+        av.hidden = true; if (af) af.classList.remove('tv-out');
       }
       function floorFor(box) {
         const pane = box.closest('.tv-pane'); pane.style.minWidth = '';
@@ -1821,7 +1896,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       // whole rows only; the ones that do not fit are counted in the pane's heading ("Reminders · +3 more": the count takes no
       // row of its own, review of batch 2c). The feed counts itself only when not even one line fits.
       function fitList(ul, head, always) {
-        const rows = [...ul.children].filter(el => !el.classList.contains('tv-quiet'));
+        const rows = [...ul.children].filter(el => !el.classList.contains('tv-quiet') && !el.classList.contains('tv-out'));
         for (const el of rows) el.hidden = false;
         head.hidden = true;
         if (!rows.length) return;
@@ -1830,8 +1905,9 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         let shown = rows.length;
         while (shown > 0 && rows[shown - 1].getBoundingClientRect().bottom > edge) shown--;   // the rows that fit as they stand
         for (const el of rows.slice(shown)) el.hidden = true;
-        if (!always && shown) return;
-        head.textContent = always ? `· +${rows.length - shown} more` : `· ${rows.length}`; head.hidden = false;
+        const lines = rows.filter(el => !el.classList.contains('tv-anniv'));   // the feed counts its own lines, never the anniversary
+        if (!always && (!lines.length || lines.some(el => !el.hidden))) return;
+        head.textContent = always ? `· +${rows.length - shown} more` : `· ${lines.length}`; head.hidden = false;
       }
       // Show the next backdrop: the next album photo (oldest → newest, round-robin) or the ambient art for this hour when the
       // album is empty. The hidden <img> loads it first, then fades in on top; the old one drops out once the fade is over.
@@ -1885,7 +1961,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         v.innerHTML = `<div class="tv" id="tv">
           <div class="tv-bg" aria-hidden="true"><img class="tv-bg-img" id="tv-bg-0" alt="" decoding="async"><img class="tv-bg-img" id="tv-bg-1" alt="" decoding="async"><div class="tv-scrim"></div></div>
           <section class="tv-pane tv-hero" aria-label="Clock"><div class="hero-kicker" id="tv-date"></div><div class="clock" id="clock"></div><div class="tv-greet" id="tv-greet"></div><div class="tv-wake" id="tv-wake" hidden>Press any button or tap the screen to keep it on.</div><button class="btn btn-glass kiosk-switch" id="kiosk-switch">Switch</button></section>
-          <section class="tv-pane tv-verse"><h2>${icon('book', hueOfApp('f260'))}<span class="tv-hd" id="tv-verse-hd"><span class="tv-h">Verse of the week</span></span></h2><div class="tv-refs" id="tv-refs"></div><div class="tv-kid"><div class="tv-kidlabel" id="tv-kidlabel"></div><div class="tv-kidline" id="tv-kidline"></div></div></section>
+          <section class="tv-pane tv-verse"><h2>${icon('book', hueOfApp('f260'))}<span class="tv-hd" id="tv-verse-hd"><span class="tv-h">Verse of the week</span></span></h2><div class="tv-refs" id="tv-refs"></div><div class="tv-kid"><div class="tv-kidlabel" id="tv-kidlabel"></div><div class="tv-kidline" id="tv-kidline"></div></div><div class="tv-anniv" id="tv-anniv" data-accent="${hueOfApp('prayer')}" hidden></div></section>
           <div class="tv-today">
             <section class="tv-pane tv-prayed"><h2>${icon('pray', hueOfApp('prayer'))}<span class="tv-h">Prayed today</span></h2><div class="tv-faces" id="tv-prayed"></div></section>
             <section class="tv-pane tv-read"><h2>${icon('book', hueOfApp('f260'))}<span class="tv-h">Reading today</span></h2><div class="tv-faces" id="tv-read"></div></section>
@@ -1895,7 +1971,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
           <section class="tv-pane tv-rem" id="tv-rem-card" hidden><h2>${icon('bell', FALLBACK)}<span class="tv-h">Reminders</span><span class="tv-count" id="tv-rem-more" hidden></span></h2><ul class="tv-rem-list" id="remlist"></ul></section>
         </div>`;
         const q = s => v.querySelector(s);
-        tv.el = { root: q('#tv'), img: [q('#tv-bg-0'), q('#tv-bg-1')], date: q('#tv-date'), clock: q('#clock'), greet: q('#tv-greet'), wake: q('#tv-wake'), verseHd: q('#tv-verse-hd'), refs: q('#tv-refs'), kidlabel: q('#tv-kidlabel'), kidline: q('#tv-kidline'),
+        tv.el = { root: q('#tv'), img: [q('#tv-bg-0'), q('#tv-bg-1')], date: q('#tv-date'), clock: q('#clock'), greet: q('#tv-greet'), wake: q('#tv-wake'), verseHd: q('#tv-verse-hd'), refs: q('#tv-refs'), kidlabel: q('#tv-kidlabel'), kidline: q('#tv-kidline'), anniv: q('#tv-anniv'),
           prayed: q('#tv-prayed'), read: q('#tv-read'), stars: q('#tv-stars'), feed: q('#tv-feed'), rem: q('#remlist'), remCard: q('#tv-rem-card'), feedCount: q('#tv-feed-count'), remCount: q('#tv-rem-more') };
         tv.front = 0; tv.url = ['', '']; tv.fading = null; tv.lastFade = 0; tv.lastPaint = 0;
         // Switch: "Switch profile" (P2-STAB-11 / P2-PROF-11: the board stops, the display's session ends, the picker shows) or
@@ -2002,7 +2078,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       v._layout = layout;
       v.innerHTML = kid
         ? `<div data-part="hero"></div><div class="stack-lg"><div class="kid-tiles" data-part="tiles"></div><div class="glance" data-part="glance"></div></div>`
-        : `<div data-part="hero"></div><div class="glance" data-part="glance"></div><div class="pager-dots" data-part="dots" aria-hidden="true"></div>
+        : `<div data-part="hero"></div><div class="glance" data-part="glance"></div><div class="pager-dots" data-part="dots" aria-hidden="true"></div><div class="prayedfor" data-part="prayedfor"></div>
       <div class="two-col">
       <div class="card rem-card"><h2><span class="app-icon" data-accent="graphite"><svg class="icon"><use href="#i-bell"/></svg></span>Reminders</h2><ul class="list" id="remlist"></ul>
         <form class="add-row" id="remform"><input class="input" id="remtext" aria-label="New reminder for the house" placeholder="Add a reminder" maxlength="140" autocomplete="off" enterkeyhint="done"><button type="button" class="btn btn-ghost btn-round" id="rem-mic" aria-label="Say it instead" hidden><svg class="icon"><use href="#i-mic"/></svg></button><button class="btn btn-primary btn-round" type="submit" aria-label="Add"><svg class="icon"><use href="#i-plus"/></svg></button></form>
@@ -2072,7 +2148,36 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     patchKids(part('hero'), [['hero', heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: esc(sub) })]]);
     patchKids(part('glance'), cards); part('glance').classList.toggle('two', cards.length === 2);
     { const dots = part('dots'), html = cards.length > 1 ? '<i></i>'.repeat(cards.length) : ''; if (dots && dots._html !== html) { dots._html = html; dots.innerHTML = html; } pagerDots(); }
+    { const pf = part('prayedfor'); if (pf) patchKids(pf, prayedForMe(p)); }   // IMP-PRAYER-I3, patched in place like the cards
     renderReminders(); renderFeed(); loadFeed();
+  }
+  // IMP-PRAYER-I3 (tell the asker, gently): on the asker's own Home only, a quiet line for each family-list request they asked
+  // for (by === them) that someone else prayed today: "Ezra and Elizabeth prayed today for Grandma Jo's visit". Not a push and
+  // not a reward. It reads the family prayer rows (declared here for this Home); the kid Home, the TV and the kitchen never
+  // build it. prayedBy[today] holds profile ids (batch 0g); an older Prayer wrote names, matched as the TV matches them.
+  function prayedForMe(p) {
+    if (!p || p.kind === 'kid' || hub.isKiosk || hub.isKitchen || !canSee('prayer')) return [];
+    hub.use('prayer', 'family');
+    if (!hub.isLoaded('prayer', 'family')) return [];   // quiet until the family list has arrived
+    const today = dayKey(), ppl = hub.people(), out = [];
+    for (const r of hub.list('prayer:', { app: 'prayer', scope: 'family' })) {
+      const v = r.value; if (!v || v.by !== p.id || typeof v.title !== 'string' || !v.title.trim()) continue;
+      const l = v.prayedBy && v.prayedBy[today]; if (!Array.isArray(l)) continue;
+      const who = new Map();
+      for (const x0 of l) {
+        const x = String(x0), named = ppl.filter(y => y.name === x), q = ppl.find(y => y.id === x) || (named.length === 1 ? named[0] : null);
+        if ((q && q.id === p.id) || (!q && x === p.name) || (q && (q.kind === 'kiosk' || q.kind === 'kitchen'))) continue;   // not the asker, never a shared screen
+        const nm = q ? q.name : /^[a-z0-9][a-z0-9_-]*$|^guest-[A-Za-z0-9_-]+$/.test(x) ? 'Someone' : x;
+        who.set(q ? q.id : 'n:' + x, q || { name: nm, emoji: nm.charAt(0) || '·', hue: FALLBACK });
+      }
+      if (who.size) out.push({ key: 'pf:' + r.key, title: v.title.trim(), who: [...who.values()] });
+    }
+    out.sort((a, b) => b.who.length - a.who.length || a.title.localeCompare(b.title));
+    const names = ws => { const n = ws.map(q => q.name); return n.length <= 2 ? n.join(' and ') : n.length === 3 ? `${n[0]}, ${n[1]} and ${n[2]}` : `${n[0]}, ${n[1]} and ${n.length - 2} others`; };
+    const hue = esc(hueOfApp('prayer'));
+    const parts = out.slice(0, 3).map(x => [x.key, `<button class="pf-line" data-open="prayer" data-accent="${hue}"><span class="people" aria-hidden="true">${x.who.slice(0, 3).map(q => avatar(q, 'avatar-sm')).join('')}</span><span class="pf-t"><b>${esc(names(x.who))}</b> prayed today for ${esc(x.title)}</span></button>`]);
+    if (out.length > 3) parts.push(['pf:more', `<button class="pf-line" data-open="prayer" data-accent="${hue}"><span class="pf-t">And ${out.length - 3} more of your requests were prayed for today</span></button>`]);
+    return parts;
   }
   // the phone pager's dots: the card nearest the start of the row (in its shown order) is the filled one
   function pagerDots() {
