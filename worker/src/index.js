@@ -437,6 +437,31 @@ route('GET', '/api/activity', async c => {
   return { activity: results.map(r => ({ ...r, photo: r.photo ? { sm: `/api/media/photos/${r.profile_id}/${r.photo}-256.jpg` } : null })) };
 });
 
+// ── who read today (the TV's "Reading today", UX-SYNC-a2) ──────
+// The household adults (no guests) whose F260 log has today's New York date: the fact the 8 pm reminder reads (one
+// log:<date> row per day over the old whole-map f260.log; false = unticked; read means the value true). It says who,
+// never what they read, so any signed-in profile may ask; the display cannot read anyone's person scope, so this is how
+// its board knows. Cost (review of batch 2c): the adults first, then at most two rows each through the app_data_uq
+// index (scope, IFNULL(profile_id,''), app_id, key), never a scan of everyone's F260 rows; the TV asks once a minute.
+route('GET', '/api/f260/readers', async c => {
+  requireProfile(await c.auth());
+  const { date } = nyParts(new Date());
+  const adults = (await c.env.DB.prepare("SELECT id FROM profiles WHERE kind = 'adult' AND IFNULL(is_guest, 0) = 0").all()).results.map(r => r.id);
+  if (!adults.length) return { date, readers: [] };
+  const { results } = await c.env.DB.prepare(
+    `SELECT profile_id, key, value FROM app_data
+      WHERE scope = 'person' AND IFNULL(profile_id, '') IN (${adults.map(() => '?').join(',')}) AND app_id = 'f260'
+        AND key IN (?, 'f260.log') AND value IS NOT NULL`).bind(...adults, 'log:' + date).all();
+  const day = {}, map = {};
+  for (const r of results) {
+    let v; try { v = JSON.parse(r.value); } catch { continue; }
+    if (r.key === 'f260.log') map[r.profile_id] = !!(v && typeof v === 'object' && v[date] === true);
+    else day[r.profile_id] = v === true;
+  }
+  const readers = [...new Set([...Object.keys(day), ...Object.keys(map)])].filter(id => id in day ? day[id] : map[id]).sort();
+  return { date, readers };
+});
+
 // ── photos + the family album ─────────────────────────────────
 // Bytes are stored by src/media.js (R2 when bound, else D1). Keys carry a random token, so GET /api/media/* needs no auth.
 function canEditPhoto(auth, id) {

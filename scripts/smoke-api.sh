@@ -80,6 +80,16 @@ call "post activity" POST /api/activity '{"app_id":"tally","text":"counted to 9"
 call "kiosk activity -> 403" POST /api/activity '{"app_id":"tally","text":"x"}' "$D" "X-Profile-Token: $TV"; expect 403
 call "get activity" GET "/api/activity?limit=5" '' "$D"; expect 200
 
+echo "### who read today (the TV's Reading today, batch 2c)"
+NYDAY=$(node -e "const p={};for(const x of new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()))p[x.type]=x.value;console.log(p.year+'-'+p.month+'-'+p.day)")
+call "readers with device only -> 401" GET /api/f260/readers '' "$D"; expect 401
+call "tick today in F260 (person log row)" PUT "/api/data/f260/log:$NYDAY?scope=person" "{\"value\":true,\"updated_at\":$(node -e 'console.log(Date.now())')}" "$D" "$P"; expect 200
+call "readers as the display" GET /api/f260/readers '' "$D" "X-Profile-Token: $TV"; expect 200
+[ "$(echo "$BODY" | j date)" = "$NYDAY" ] && echo "$BODY" | grep -q '"niece"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected today's date and niece among the readers"; }
+call "untick today (log row false)" PUT "/api/data/f260/log:$NYDAY?scope=person" "{\"value\":false,\"updated_at\":$(node -e 'console.log(Date.now())')}" "$D" "$P"; expect 200
+call "readers after the untick" GET /api/f260/readers '' "$D" "X-Profile-Token: $KID"; expect 200
+echo "$BODY" | grep -q '"niece"' && { fail=$((fail+1)); echo "   ^^^ expected niece gone after the untick"; } || pass=$((pass+1))
+
 echo "### rally the family (park map) — one rally per adult per minute, so wait 60 s between runs"
 call "rally with device only -> 401" POST /api/dollywood/rally '{"name":"Gazebo","x":1,"y":2}' "$D"; expect 401
 call "rally as kid -> 403" POST /api/dollywood/rally '{"name":"Gazebo","x":1,"y":2}' "$D" "X-Profile-Token: $KID"; expect 403

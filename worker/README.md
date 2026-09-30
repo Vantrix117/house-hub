@@ -93,6 +93,10 @@ GET  /api/activity?limit=30 (each line carries its author's name, emoji, color, 
                                         never ahead; as: the kitchen files the line under the household member whose face was tapped,
                                         403 bad_credit otherwise; ignored for everyone else). A prayer line "Prayed for …" / "Answered: …"
                                         must name a family-list request or say "a private request" (400 private_title)
+GET  /api/f260/readers                  → {date, readers: [profile ids]}: the household adults (no guests) whose F260 log has today's
+                                        New York date as true (log:<date> rows over the old f260.log map; false = unticked). Any
+                                        signed-in profile; the TV board's "Reading today" asks once a minute (batch 2c, UX-SYNC-a2). Reads the
+                                        adults, then at most two rows each through the app_data_uq index, never a scan of the F260 rows
 
 GET  /api/push/config                   {public_key, enabled}
 GET  /api/push/subscribe                → {subscribed, endpoint}: this person's subscription on this device (Me → Notifications paints

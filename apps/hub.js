@@ -166,6 +166,10 @@
     root.style.removeProperty('--accent');                          // v3: the person is data-accent, never an inline hex
     if (hub.profile) { root.dataset.kind = hub.profile.kind; root.dataset.accent = hub.hueOf(hub.profile); }
     else { delete root.dataset.kind; delete root.dataset.accent; }   // signed out: graphite, nobody's colour (CONS-ACCENT-1)
+    // the display reads its board from across the room: the 10-foot scale (design.css section 7, live at 1600 px+; decision D16,
+    // batch 2c). Set here, not in the pre-paint bootstrap (a byte-identical copy in every page): the shell's gate and views
+    // stay hidden until after this script has run, so the board never paints a frame at the kiosk's smaller sizes.
+    if (hub.profile && hub.profile.kind === 'kiosk') root.dataset.tvScale = '10ft'; else delete root.dataset.tvScale;
     applyPrefs(root);
     // every theme-color meta follows the palette on every call, a pull included (P4-DARK-04)
     let bg = ''; try { bg = getComputedStyle(root).getPropertyValue('--bg').trim(); } catch {}
