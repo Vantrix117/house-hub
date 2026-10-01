@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 4 (`2a6bd05`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 351 entries FIXED, 36 PARTIAL, 3 DEFERRED, 13 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 4 (`2a6bd05`, 2026-10-01), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 391 entries FIXED, 38 PARTIAL, 0 DEFERRED, 12 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -47,12 +47,12 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | 7/7 fixed, `7d9c593` |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | 6/6 fixed, `16926a2` |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | 7/7 fixed, `97c39a0` |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 102/143 fixed, `80af987` |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 106/143 fixed, `80af987` |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | 37/45 fixed, `65009df` |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | 22/23 fixed, `3944d37` |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | 12/12 fixed, `4d46316` |
 | 14 | **3** | Prayer | 36 (0 / 0 / 6 / 29 / 1) | L | 1, 2a | 35/36 fixed, `da1dcbd` |
-| 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a | open |
+| 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a | 36/38 fixed, `2a6bd05` |
 | 16 | **5** | Verses | 19 (0 / 0 / 5 / 13 / 1) | M | 1, 2a | open |
 | 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a | open |
 | 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a | open |
@@ -1705,8 +1705,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ICON-1 — Eleven icon families; no app uses the shell's own set
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Only the groundwork landed: --icon-xs…xl sizes with the kid multiplier, one weight (--icon-stroke 1.75, non-scaling) and the Lucide ISC notice; Tally's text glyphs became 1.75 SVG. There is no shared Lucide sprite yet and no app adopted one: ICON/static shows F260, Prayer, Kid Verse, the Larder and the template with their own paths as before. Each app adopts the set in its own batch (F260 4, Prayer 3, Kid Verse 7, Larder 8, build guide 9, park map 10; shell 2a). After: `audits/evidence/p6/1/p4/ICON/static.json`, `audits/evidence/p6/1/tests/repro-after/phase4__ICON__static.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** The shared set exists: icons/sprite.svg, 49 Lucide symbols at one weight (--icon-stroke 1.75), sized by --icon-* times the text size. ICON/static, pre-batch vs final: F260 private symbols 11 → 0, sprite uses 9 → 14, stroke widths 2 / 2.5 / 2.6 / 3.5 / 6 → only the rings' 3.5 / 6; Prayer's widths 1.75 / 2 / 2.2 → none, sprite uses 0 → 9. The round-1 review counted 564 sprite icons on F260 and 16 on Prayer, none blank. Unchanged and still open: Kid Verse (1.5, batch 7), the Larder (2, batch 8), the Dollywood exports (15 widths, 9/10), Verses (1.25) and the shell's 22 own symbols. After: `audits/evidence/p6/4/p4tools/out/ICON_static.txt`, `audits/evidence/p6/4/p4tools/before/ICON_static.txt`, `audits/evidence/p6/4/review/seg-and-icons.md`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The count 'eleven icon families' does not match the report's own Table ICON-1: it lists 12 families (F1-F8 plus glyphs, emoji, CSS chevrons and art-as-icon), or 10 distinct recipes if F1-F3 count as the one shell recipe as the item states.
 - **Evidence.** `audits/04-design-system.md:2979`; `index.html:913-916`, `apps/f260.html:617-620`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** The shell (F1-F3) is one custom 1.75 recipe. Each app brings its own: F260: Feather/Lucide-derived paths at 2 on 18 px, a 20-grid tick at 2.6, colour emoji, text glyphs and CSS chevrons.
@@ -1716,8 +1716,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ICON-2 — One drawing, several meanings
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** DEFERRED (`80af987`)
-- **Phase 6 (DEFERRED).** Nothing of the one-drawing-per-meaning map landed in batch 1 (the flame is still the feed in the shell and a streak in F260). F260's batch (4) takes CONS-ICON-1/2 by the batch-1 F260 worker's deferral list, the shell's half goes with batch 2a. After: `audits/evidence/p6/1/tests/repro-after/phase4__ICON__static.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260 draws each meaning once per Table ICON-6: the streak a Lucide flame (not 🔥), the journal streak pen-line, the first verse heart, a new book-marked for the first-reading milestone (reading mode keeps book-open); a disclosure is chevron-down turned while closed, next/previous chevron-right/left. Prayer's Add tab is plus, not the circle-plus that collided with Tally, and its chevrons follow the same rule. Left: the shell feed still uses i-flame (2a's half; the sprite has activity for it) and the park map's heart/AED (batch 10). After: `audits/evidence/p6/4/review/seg-and-icons.md`, `audits/evidence/p6/4/p4tools/out/ICON_static.txt`.
 - **Evidence.** `audits/04-design-system.md:3012`; `audits/screens/dollywood-live/amenity-tap-typical-iphone-pwa-light.png`
 - **What happens now.** Several drawings carry more than one meaning (Table ICON-5): Flame = the activity feed in the shell, but a streak in F260.
 - **Why it matters.** grandparents and pre-readers read icons literally.
@@ -1726,8 +1726,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-1 — Press feedback is complete in the `.ds` areas, partial or absent elsewhere, with nine scales and no brightness shift anywhere
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The global .pressable (scale 0.97 plus --press-dim) is in the .ds areas, the Larder and the Dollywood pair: MOTION/press, build guide 0/16 → 14/16 controls, park map 2/9 → 9/9, Larder 8/12 → 9/12, Tally, Timer, Kid Verse, Verses all at 0.97 with a brightness shift (none had one before). F260 (56/102) and Prayer (12/19, scales 0.86/0.94) are unchanged: they adopt it in their own batches (4 and 3), as gap row MOTION-3 says. After: `audits/evidence/p6/1/p4/MOTION/press.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__press.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260 and Prayer now press with .pressable (0.97 plus --press-dim). MOTION/press, pre-batch vs final: F260 56/102 → 105/105 controls, scales 0.94/0.97 → 0.97, brightness shift on 1 → 11 signatures; Prayer 12/19 → 19/19 (0.86/0.94 → 0.97, and 0.94 on the small check marks), kid 4/9 → 9/9. Unchanged and still open: the Larder 9/12 (batch 8), the build guide 14/16 (batch 9), the shell's Me 26/27 and Chat 6/7. The press feel needs a real iPhone and iPad. After: `audits/evidence/p6/4/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/4/p4tools/before/MOTION_press.txt`.
 - **Evidence.** `audits/04-design-system.md:4090`; `apps/prayer.html:196`, `apps/dollywood-live.html:409-411`, `apps/design.css:359`, `index.html:45`
 - **What happens now.** Complete in the `.ds` areas: Tally 3/3, Timer 8/8, Kid Verse 2/2, Verses 2/2, the kid Home 6/6, and the shell 65/68 (86-100 % per surface).
 - **Why it matters.** Taps with no visible response invite double taps, as with Prayer's main button and every build-guide control. Several apps punish double taps (P3-LEFTOVERS-01, P3-VERSES-12).
@@ -1746,8 +1746,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-4 — No shared loading state: skeletons only in the shell; a slow first pull shows blanks, false zeros or finished-looking pages
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The loading tokens exist (--sk-line, --min-h-*; hub.loaded since 0b) and two apps hold still: at 150 ms latency Kid Verse's CLS 0.073/0.163 → 0/0, and the Larder's one landmark move (363/472 px) → 0 with the pull held (MOTION/cls). The others still show blanks or move as data lands: F260's week stepper 317 px (iPad) / 514 px (iPhone), shell Home 313/418 px, Prayer's Pray now 53-97 px, the TV board CLS 0.073. Those go to their batches (F260 4, shell 2a, Prayer 3, TV 2c). After: `audits/evidence/p6/1/p4/MOTION/cls-lat150.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__cls.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** MOTION/cls at 150 ms, pre-batch vs final: F260 landmark moves 9 (317 px iPad, 514 px iPhone) → 0; Prayer's Pray now 60 → 5 px on the iPhone, 13 → 5 on the iPad, the kid page 0. webtells: F260's cold CLS 0.0463 → 0.0011, and its placeholders now paint --track (visible on Hearth, after the rescore). Prayer's adult cold CLS 0.044 / 0.033 (the review prompt arriving with the rows) was accepted as data-driven. Still moving: the shell's Home (33 moves, 391 px iPhone; 31, 403 px iPad), its Me (424 px) and the build guide (945 px, batch 9). After: `audits/evidence/p6/4/p4tools/out/MOTION_cls.txt`, `audits/evidence/p6/4/p4tools/before/MOTION_cls.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__webtells.txt`.
 - **Evidence.** `audits/04-design-system.md:4144`; `index.html:888-889`, `apps/design.css:539-544`; `audits/screens/prayer/kid-loading-iphone-pwa-light.png`, `audits/screens/verses/trainer-loading-iphone-pwa-light.png`
 - **What happens now.** What shows (Table MOTION-5), 1.2 s into a cold load with the first pull held: Skeletons appear only in the shell: 1 on Home, 1 on Me. There are none in any app or on the TV.
 - **Why it matters.** The false values are the visible face of the data-loss defects on a slow first load (P3-TALLY-02, P3-KIDVERSE-01 and -03, P3-VERSES-03, P2-SYNC-17). The screen invites a tap on wrong data.
@@ -1756,8 +1756,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-1 — The content card is built six ways: radii from 12 to 36, five paddings, three border widths, three elevations
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** One content card (--r-card, --pad-card, --material-solid-bg, --elev-card) in the shell, Kid Verse, Verses and the build guide: SHAPE/crops, shell card R22 pad 20 → R28 pad 16 on solid white, Kid Verse story and Verses stats R28 pad 20 → 16. F260's cards (R22 / R16, pad 18) and Prayer's ledger (R16) are unchanged, and the Larder's row radius stays 12: their batches (4, 3, 8) take the rest. After: `audits/evidence/p6/1/p4/SHAPE/crops.json`, `audits/evidence/p6/1/p4/SHAPE/sheet-cards.png`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260's .hero, .today, .reflect, the sheets, journal rows and .jcard, and Prayer's ledger, prompt, .ask and kid cards are now the one content card: --material-solid-bg, a --separator hairline, --r-card, --pad-card and --elev-card (.ask inside the sheet takes --r-control, concentric). The re-measure shows F260's cards at 28 px (--r-card). Left: the Larder's row radius 12 (batch 8). After: `audits/evidence/p6/4/measure/radii.json`, `audits/evidence/p6/4/review/workers-and-reviews.md`.
 - **Evidence.** `audits/04-design-system.md:2189`; `apps/design.css:381-383`, `apps/kidverse.html:41`, `apps/verses.html:72`, `apps/leftovers.html:71`; `audits/evidence/p4/SHAPE/sheet-cards.png`
 - **What happens now.** The same role, a solid content card, is drawn as follows (Table SHAPE-4):
 - **Why it matters.** Moving between apps, the same kind of surface changes its corner, weight and depth. The hub reads as separate web pages rather than one system.
@@ -1766,8 +1766,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-2 — Nine content column widths, and only two apps use a layout token
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Three column tokens exist and four apps use them: the Larder and Timer --col-narrow (Timer 608 → 560), Kid Verse and Verses --col-read (688 → 664/656 on the iPad), the shell and the build guide --margin. Prayer's 33rem column (491 px) and F260's 44rem/78rem are unchanged (SHAPE/remeasure margins); they move in batches 3 and 4. After: `audits/evidence/p6/1/p4/SHAPE/verify.json`, `audits/evidence/p6/1/p4/SHAPE/remeasure.json`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Both apps read the column tokens. SHAPE/verify, pre-batch vs final: F260 390 / 720 / 1116 / 1200 at iPhone / iPad portrait / landscape / desktop, unchanged since batch 1 (the batch-1 note's 44rem/78rem was stale); Prayer 386 → 390 on the iPhone (22 → 20 px margins) and 516 → 560 elsewhere (--col-narrow). Prayer's kid .wrap 40rem → --col-read and #kitchen 1180 px → --col-wide. The Larder, Timer, Kid Verse, Verses, the shell and the build guide were done in batch 1. Prayer's #lock PIN box keeps 19rem: a dialog width with no matching token, not a page column. After: `audits/evidence/p6/4/p4tools/out/SHAPE_verify.txt`, `audits/evidence/p6/4/p4tools/before/SHAPE_verify.txt`.
 - **Evidence.** `audits/04-design-system.md:2234`; `apps/design.css:341-342`, `index.html:68`, `apps/f260.html:44`, `apps/leftovers.html:19`; `audits/screens/kidverse/kid-typical-ipad-landscape-light.png`
 - **What happens now.** Content columns are 360 (Tally's dial), 484-528 (Prayer, 33rem), 560 (Larder), 608 (Timer), 660 or 704 and then 1204 (F260, 44rem / 78rem), 688 (Kid Verse and Verses, the only users of `--max-read`), 788-880 and then 1200 (the shell), 1400 (the build guide) and full bleed (the park map) (Table SHAPE-3).
 - **Why it matters.** On the always-on iPad the family flips between apps constantly. A jumping content edge and phone-width columns on a landscape iPad look unplanned.
@@ -1776,8 +1776,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-3 — The spacing rhythm splits the system in two: `.ds` areas are 98-100 % on the 4 px grid, own-CSS areas 34-84 %
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** DEFERRED (`80af987`)
-- **Phase 6 (DEFERRED).** No own-CSS area moved to the 4 pt spacing tokens in batch 1: SHAPE/analyze's macro grid share F260 36.4 → 36.8 %, Prayer 44.3 → 44.2 %, the Larder 46.9 → 45.8 %, the park map 65.5 → 65.6 %. The finding assigns it to each app's batch (lint row): F260 4, Prayer 3, Larder 8, build guide 9, park map 10. (The .ds areas' share fell, e.g. Kid Verse 98.4 → 50.7 %, because the analyser's 4 px grid does not know the kid ×1.25 spacing scale.) After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/tests/repro-after/phase4__SHAPE__analyze.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260 and Prayer moved their spacing to --sp-*. SHAPE/analyze, pre-batch vs final, macro spacing on the 4 px grid: F260 36.8 → 93.3 %, Prayer 44.6 → 92.3 %. TOK/literals spacing: F260 211 → 0, Prayer 170 → 1; Prayer's 22 px phone margin is --margin. Unchanged and still open: the Larder 45.8 % (batch 8), the build guide 83.5 % (9) and the park map (10). After: `audits/evidence/p6/4/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/4/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/4/p4tools/out/TOK_literals.txt`.
 - **Evidence.** `audits/04-design-system.md:2259`; `apps/prayer.html:50`
 - **What happens now.** Macro spacing on the 4 px grid (rig / re-measure): shell 99.7 / 99.7 %, TV 100 / 100, Tally 100 / 100, Timer 100 / 100, Kid Verse 98.4 / 97.2, Verses 98.6 / 96.9. Against those: build guide 83.6 / 74.9, park map 65.5 / 54.5, Larder 46.9 / 45.5, Prayer 44.3 / 40.9, F260 36.4 / 34.1.
 - **Why it matters.** Uneven gaps make the large apps feel hand-assembled next to the small ones, and literal spacing is out of reach of any future iPad or kid spacing tier.
@@ -1786,8 +1786,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-4 — The main action of a screen has six corner shapes and heights from 44 to 60
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The primary action is a capsule at --btn-h-lg in the shell, Timer, Verses and Kid Verse: SHAPE/crops, shell .btn r16 → 999, Timer Start r22 → 999, Verses Show r28 → 999, Kid Verse Done r36 → 999 (F260 Done already was). The Larder's Log (r12, 52 px) and Prayer's Pray now (r12) are unchanged, and the build guide's tabs keep r0: batches 8, 3 and 9. After: `audits/evidence/p6/1/p4/SHAPE/crops.json`, `audits/evidence/p6/1/p4/SHAPE/sheet-buttons.png`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260's Done reads --btn-h-lg instead of a literal 60 px (still a capsule, 60 px tall in test-f260), and Prayer's Pray now and Pray mode's controls are capsules at --btn-h-lg, every button.act --r-button (was --r-sm, 12 px). Left: the Larder's Log (batch 8) and the build guide's tabs (batch 9). After: `audits/evidence/p6/4/tests/suites/test-f260.txt`, `audits/evidence/p6/4/measure/radii.json`, `audits/evidence/p6/4/review/workers-and-reviews.md`.
 - **Evidence.** `audits/04-design-system.md:2274`; `apps/design.css:352`, `apps/verses.html:50`, `apps/kidverse.html:50`, `apps/prayer.html:192-194`; `audits/evidence/p4/SHAPE/sheet-buttons.png`
 - **What happens now.** The main actions are (Table SHAPE-6):
 - **Why it matters.** The one control each screen wants tapped looks different in every app, so pre-readers and grandparents get no learned "this is the button" shape.
@@ -1806,8 +1806,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-6 — The own-CSS areas use literal radii off the scale, and the kid radius scale misses the park map
 
-- **Area** design system (park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The template's radii read the --r-* roles and the kid radius scale reaches the park map (SHAPE/analyze: the park map's kid radii were literals 10/14/16/24 px, now 18/38/43, the ×1.5 kid scale of the --r-* roles). F260 (deferred by the F260 worker) and Prayer (literal 7, 18 and 26, still 48 % on scale) keep their literals: batches 4 and 3. After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/tests/repro-after/phase4__SHAPE__analyze.txt`.
+- **Area** design system (park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** No literal radius is left in F260 or Prayer: TOK/literals radius, pre-batch vs final, F260 34 → 0, Prayer 18 → 0 (Prayer's 7 → --r-xs, 18 → --r-full, .sk 6 → --r-xs); only print keeps pt. SHAPE/analyze's radius list is stale (hard-coded at analyze.mjs:12), so its "large radii on scale" (F260 93.2 → 95.6 %, Prayer 50.8 → 29.8 %, Prayer kid 97.8 → 0) misreads --r-xs 6 and the kid --r-card 38; judged by design.css's --r-* roles, as the round-1 visual review did, F260 is all roles but one pill-clamped 26 px and Prayer about 100 %. The template, the park map and the Larder were done in batch 1. After: `audits/evidence/p6/4/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/4/p4tools/before/TOK_literals.txt`, `audits/evidence/p6/4/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/4/p4tools/before/SHAPE_analyze.txt`.
 - **Evidence.** `audits/04-design-system.md:2321`; `apps/design.css:606`, `apps/design.css:283`, `apps/design.css:31`, `apps/prayer.html:239`
 - **What happens now.** Share of large non-pill radii on the `--r-*` scale: Kid Verse, Verses, Timer and the Larder 100 %; F260 94.8 %; shell 87.5 %; TV kiosk 63.6 %; build guide 55.0 %; Prayer 50.1 %; park map 42.4 %. The park map in kid mode is 10.8 %. The literals in use: Prayer: 7 (calendar), 18 (nav buttons), 26 (sheet);
 - **Why it matters.** Kids get rounder shapes in every app except the park map, and a later radius change would miss half the surfaces.
@@ -1816,8 +1816,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TELL-1 — Selectable chrome and callout suppression follow the `.ds` boundary exactly
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Base chrome rules now apply outside .ds (design.css:804: buttons, role=button/tab/switch, summary, decorative images and svg get user-select and touch-callout none). TELL/tells-webkit, selectable controls: F260 190 → 9, the Larder 9 → 0, Prayer 29 → 10, the build guide 54 → 2, the park map 13 → 1, the shell 4 → 0. Left: F260's links and a label, Prayer's row bodies (div.body ×9), two guide labels, one park link, which go to batches 4, 3, 9 and 10; the loupe and callout themselves also need a long-press on a real iPad. After: `audits/evidence/p6/1/p4/TELL/tells-webkit.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TELL__tells-webkit.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260's links and labels no longer select: webtells, a reading link user-select text → none. Prayer's row bodies, answer, recall, read-aloud title and labels are unselectable: selectable controls 10 → 0 (workers' report; no TELL tool was re-run). After the rescore the art in both apps cannot be dragged (draggable="false", -webkit-user-drag none; checked in WebKit). Left: two build-guide labels and a park-map link (batches 9 and 10), and the loupe and callout need a long-press on a real iPad. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__webtells.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__webtells.txt`, `audits/evidence/p6/4/review/workers-and-reviews.md`.
 - **Evidence.** `audits/04-design-system.md:6349`; `apps/design.css:355`, `apps/tally.html:22`, `apps/timer.html:10`
 - **What happens now.** Controls computing `-webkit-user-select: text` on the main screen (WebKit, iPad portrait): F260 all 190 (re-measure 192), Larder all 9 (15), Prayer all 29 (19), build guide all 54 (57), park map all 13 (15). The shell's 4 of 14 are the tab bar.
 - **Why it matters.** On an iPad or iPhone, a long press on a Done, week or chip button can raise the selection loupe or an image callout (needs a device). It happens exactly in the apps that keep their own CSS.
@@ -1836,8 +1836,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-1 — Four local token vocabularies, in which "ink" means four different things
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The Dollywood template's local vocabulary moved to the role tokens in batch 1 (template rebuilt, verify.py passed, exported). F260's and Prayer's alias sets and the Larder's stay: the migration table puts each app-local vocabulary in that app's batch (F260 4, Prayer 3, Larder 8), and the F260 and Prayer workers left them for there. After: `audits/evidence/p6/1/p4/TOK/local-tokens.json`, `audits/evidence/p6/1/p4/TOK/usage-matrix.json`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260 and Prayer dropped their alias blocks: no local --paper, --raised, --sunk, --ink, --ink2, --rule, --rule-soft, --lift, --lift-lg or --serif is defined or read in either file now (a grep of both; batch 4's carry-over check had counted about 123 reads in F260 and 63 in Prayer), each retargeted to the role tokens (--lift became --elev-card / --elev-float). Contrast stays 0 failing (contrast.mjs) and every app suite passes. Left: the Larder's alias set (batch 8). After: `audits/evidence/p6/4/checks/contrast.txt`, `audits/evidence/p6/4/tests/suites/test-f260.txt`, `audits/evidence/p6/4/tests/suites/test-prayer.txt`, `audits/evidence/p6/4/review/carry-overs.md`.
 - **Evidence.** `audits/04-design-system.md:841`; `apps/f260.html:16-20`, `apps/prayer.html:24-34`, `apps/dollywood.html:212`, `apps/leftovers.html:14`
 - **What happens now.** The duplicated alias sets. F260 and Prayer each define the same nine aliases for design tokens (apps/f260.html:16-20; apps/prayer.html:24-34).
 - **Why it matters.** The same word points to opposite roles, so a change made by name lands on the wrong surface.
@@ -1846,8 +1846,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-2 — The non-`.ds` apps reuse design.css class names for different components, and the segmented control exists four ways
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** DEFERRED (`80af987`)
-- **Phase 6 (DEFERRED).** Nothing landed: the non-.ds apps still reuse design.css class names and the segmented control exists four ways. Gap row TOK-20 is "Open: done per app batch" (F260 4, Prayer 3, build guide 9, park map 10); the template and F260 workers left it for those batches. After: `audits/evidence/p6/1/p4/TOK/usage-matrix.json`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** One segmented control: design.css has one recipe (:is(.ds .seg, .segmented)) that wraps when its items cannot fit, and after the rescore an opt-in .seg-grid lays long choices out in even cells on the phone (F260's theme 3 a row, passages 2, auto-lock 4em cells). F260's Plan/Journal switch and settings choices and Prayer's list switches use it (0 clipped labels at 390/430/820, default and XXL, shell included). Prayer renamed .chip, .small, .pill, .sheet, .toast, .hero to p-* names. F260 keeps .switch, .sheet and .seg, which its script and tests use. Left: that F260 part, the build guide (9) and the park map (10). After: `audits/evidence/p6/4/review/workers-and-reviews.md`, `audits/evidence/p6/4/tests/suites/test-prayer.txt`, `audits/evidence/p6/4/tests/suites/test-f260.txt`.
 - **Evidence.** `audits/04-design-system.md:853`; `apps/design.css:465-468`, `apps/f260.html:60`, `apps/prayer.html:66`, `apps/dollywood.html:25`
 - **What happens now.** The names collide. F260 (`.btn` ×35, `.row` ×10, `.seg` ×8, `.switch`, `.sheet`, `.toast`), Prayer (`.chip` ×10, `.small` ×25, `.pill`, `.sheet`, `.toast`, `.switch`) and the Dollywood template (`.btn`, `.badge`, `.pill`, `.stat`) have no `body.ds`.
 - **Why it matters.** It blocks a gradual move to `.ds`, and the same control looks different from app to app.
@@ -1856,8 +1856,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-3 — 168 `color-mix()` recipes, with the person colour mixed at 27 different ratios
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** color-mix() recipes 158 → 76 by TOK/literals' count: the Larder 6 → 0, Tally 8 → 0, Timer 5 → 0, F260 8 → 1, Prayer 10 → 1, Kid Verse and Verses 2 → 1, the shell 6 → 4, each Dollywood export 48 → 25 (design.css 15 → 18 within the token definitions). The template's remaining recipes go with batches 9/10 and the shell's with 2a. After: `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__literals.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260's last color-mix() (the hidden verse's shadow) is a token, and Prayer's glass reads --glass-pickup-layer and --glass-shadow with a token fallback. TOK/literals, pre-batch vs final: color-mix F260 1 → 0, Prayer 1 → 0. Unchanged and still open: each Dollywood export 25 (batches 9/10), the shell 2, Kid Verse 1, Verses 1. After: `audits/evidence/p6/4/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/4/p4tools/before/TOK_literals.txt`.
 - **Evidence.** `audits/04-design-system.md:871`; `apps/tally.html:47`
 - **What happens now.** Counts. 168 occurrences and 99 distinct recipes (re-measure): design.css 55;
 - **Why it matters.** Tints drift from app to app and cannot be re-tuned per theme in one place.
@@ -1866,8 +1866,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-1 — Ten areas, eight large-title treatments, none 34 bold with tight tracking; three apps repeat the viewer bar's title
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Display titles moved to the bold text face (D6): the rig finds no serif title left (serif texts: shell 1,012 → 0, build guide 3,730 → 0, Kid Verse 682 → 0; what serif remains is reading text, e.g. Verses' verse and Prayer's answer notes). Not landed: the apps inside the viewer still repeat its title ("F260 Reading Plan", "The Larder Ledger", "Kitchen timer"), which D6 drops in each app's batch. TYPE/report.mjs and montage.mjs read the committed rig (stale). After: `audits/evidence/p6/1/measure/type.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__report.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260 no longer repeats the viewer's title: in the hub its h1 "F260 Reading Plan" is visually hidden (html.framed, set before the first paint) and standalone it takes the large-title role (layout-4: h1 26/30 px → 34 px bold on iPhone and desktop). Prayer had nothing to do. Left: "The Larder Ledger" (batch 8) and "Kitchen timer" (batch 6). After: `audits/evidence/p6/4/tests/repro-after/p6-4__layout-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__layout.txt`.
 - **Evidence.** `audits/04-design-system.md:1422`; `apps/design.css:331-332`, `apps/dollywood.html:223`, `index.html:335`; `audits/evidence/p4/TYPE/titles-ipad-portrait.png`
 - **What happens now.** Titles by area (iPad portrait, re-measured live): shell: view h1 36/400 ui-serif, tracking normal; Home hero 44/400 serif;
 - **Why it matters.** The one element that should identify a screen changes face, weight and size in every app, so moving between apps feels like moving between websites.
@@ -1876,8 +1876,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-2 — The same role is set differently in every area: section headers seven ways, buttons 13-18 px at weights 400-700, body 14.5-22 px
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Roles come from the Dynamic Type tokens in the .ds areas, the Larder (every size a role: code-scan 28 px literals → 26 role tokens) and the template. F260's headers and buttons (F260 worker: CONS-TYPE-2 deferred) and Prayer's sizes (still px × text size, not roles) move in batches 4 and 3. After: `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TYPE__code-scan.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260's sizes are the --fs-* roles. TYPE/code-scan, pre-batch vs final: F260 clamp/calc 68 → 0, role tokens 56 → 120; TOK/literals font sizes 68 → 0, weights 88 → 0. After the rescore "· best" (10.8 px, under the floor) reads the caption-1 role (11 / 12 / 18 px at XS / default / XXL). Prayer finished in batch 3 (88 tokens). Still open in the same scan: each Dollywood export 143 clamp/calc plus 8 px literals, 2 of them under 11 px (batches 9/10), Kid Verse 2 px (7), Verses 1 px; whether the template's clamp/calc sizes derive from roles was not checked. After: `audits/evidence/p6/4/p4tools/out/TYPE_code-scan.txt`, `audits/evidence/p6/4/p4tools/before/TYPE_code-scan.txt`, `audits/evidence/p6/4/p4tools/out/TOK_literals.txt`.
 - **Evidence.** `audits/04-design-system.md:1440`; `apps/design.css:306-309`, `apps/f260.html:55-125`
 - **What happens now.** Section headers: shell 18/700; F260 15/700; Larder 13/700 caps; Prayer 19/600; Verses and Kid Verse 18/700; build guide 16/400 serif; park map 15/600 generic serif.
 - **Why it matters.** Hierarchy has to be relearned in each app, and a heading of the same kind means something different in each.
@@ -1968,8 +1968,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-ICON-2 — A custom shell set rather than one open-source set; Lucide and Feather paths ship without their licence notice
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The Lucide ISC notice now ships (icons/LICENSE-lucide.txt, the licence text as published, naming the Larder's icons and F260's sprite; a comment in apps/leftovers.html). Not landed: the notice does not name the template's Lucide/Feather paths (dollywood.html:1744-1746 in the finding), and no shared Lucide set replaces the custom look-alikes; that goes with each app's batch (F260 worker: "GAP-ICON-2 (set)" to batch 4; shell 2a; template 9/10). After: `audits/evidence/p6/1/p4/ICON/static.json`.
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** A shared Lucide set now replaces F260's Feather/Lucide-derived private sprite (ICON/static: F260 private symbols 11 → 0): icons/sprite.svg, and icons/LICENSE-lucide.txt lists every Lucide icon it ships and the three drawn in Lucide's style. Left: the notice does not yet name the Dollywood template's Lucide/Feather paths (batches 9/10), and the shell's 22 custom symbols are not replaced. After: `audits/evidence/p6/4/p4tools/out/ICON_static.txt`, `audits/evidence/p6/4/p4tools/before/ICON_static.txt`, `audits/evidence/p6/4/review/seg-and-icons.md`.
 - **Evidence.** `audits/04-design-system.md:3074`; `apps/leftovers.html:148`, `apps/f260.html:531-541`, `apps/dollywood.html:1744-1746`
 - **What happens now.** The shell set is custom. The shell and tile icons are hand drawn, not Lucide or Phosphor.
 - **Why it matters.** Lucide and Feather paths ship without their licence.
@@ -1978,8 +1978,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-MOTION-1 — Cold-load layout shift: CLS reads near zero where views are rebuilt with `innerHTML` while blocks move hundreds of pixels, and F260, the Larder and Kid Verse fail CLS outright
 
-- **Area** design system (F260, Larder, Kid Verse) · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Kid Verse and the Larder hold still: at 150 ms latency Kid Verse's CLS 0.073 (iPad) / 0.163 (iPhone) → 0 / 0; with the pull held the Larder's landmark moves 1 (363/472 px) → 0. F260 still moves 9 landmarks as data lands, the week stepper 317 px on the iPad and 514 px on the iPhone (was 333/578 held, 405/598 at 150 ms): F260's batch 4; shell Home 313/418 px: batch 2a. (The worker's F260 CLS 0.26 → 0.16 / 0.32 → 0.13 is not in the filed evidence; MOTION/cls reads CLS 0 for F260 in both runs.) After: `audits/evidence/p6/1/p4/MOTION/cls-lat150.json`, `audits/evidence/p6/1/tests/repro-after/phase4__MOTION__cls.txt`.
+- **Area** design system (F260, Larder, Kid Verse) · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260 no longer moves as data lands. MOTION/cls at 150 ms, pre-batch vs final: landmark moves 9 (the week stepper 317 px iPad, 514 px iPhone) → 0; webtells' cold-open CLS 0.0463 → 0.0011. Left: the shell's Home still moves 391 px on the iPhone and 403 px on the iPad (the part batch 1 gave to 2a, still not fixed). After: `audits/evidence/p6/4/p4tools/out/MOTION_cls.txt`, `audits/evidence/p6/4/p4tools/before/MOTION_cls.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__webtells.txt`.
 - **Evidence.** `audits/04-design-system.md:4179`; `audits/screens/kidverse/kid-loading-ipad-portrait-dark.png`, `audits/screens/f260/today-loading-iphone-pwa-light.png`
 - **What happens now.** Undercounted by CLS (first pull held 2.5 s, Table MOTION-6): Shell Home: CLS 0.025 / 0 while "Around the house" moves 218 / 348 px (iPad / iPhone; 260 / 435 px at 150 ms latency, at CLS 0).
 - **Why it matters.** The primary buttons (Pray now, Kid Verse's action row with Say, the F260 stepper) move under the finger as data lands.
@@ -2030,8 +2030,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-4 — Kid and kiosk scale only the tokenised subset; every literal size escapes them
 
-- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Kid and kiosk now scale every role (--ts = width × user × kind, --fs-floor, legacy --fs-* scale), and literal type sizes moved to roles: code-scan px sizes F260 123 → 0, Larder 28 → 0, template 149 → 8 (Prayer's are px × --ts). Spacing literals stay (TOK/literals: F260 211, Prayer 142, template 75/91; the F260 worker deferred GAP-TOK-4), and the TV's 10-foot scale is the opt-in batch 2c turns on. The rest: batches 4, 3, 9/10 and 2c. After: `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__literals.txt`.
+- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260 and Prayer moved to tokens that scale by kind. TOK/literals, pre-batch vs final: F260 spacing 211 → 0, radius 34 → 0, font sizes 68 → 0, weights 88 → 0, letter-spacing 29 → 9, line-height 23 → 18, targets 48 → 2; Prayer spacing 170 → 1, radius 18 → 0, local literals 7 → 0 (its avatar --size values became --face-* on --icon-*, so they scale for kids), targets 15 → 2. Left, unchanged: the Dollywood exports (spacing 75 and 91, font sizes 38 and 64; batches 9/10). After: `audits/evidence/p6/4/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/4/p4tools/before/TOK_literals.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The shell citations are wrong: index.html:60 is the adult PIN pad, :124 is a kiosk rule, and :188 is an icon size. None of them is a [data-kind=kid] rule restating 64/84px, and the kid CTA already uses var(--tap-lg).
 - **Evidence.** `audits/04-design-system.md:741`; `apps/design.css:280-289`, `index.html:60`
 - **What happens now.** Areas: design.css, the shell, F260, the Larder, Prayer, the park map.
@@ -2505,8 +2505,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-ICON-1 — Text glyphs and colour emoji stand in for icons in six areas
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Only Tally's text glyphs became icons (ICON/static: Tally's glyphs 3 → 0, two 1.75 SVGs). Kid Verse's ★ labels stay (they are matched word for word by four tests and the feed: 24 → 26 glyphs), and F260, the Larder (✓ 5 → 7), the shell and the template still use glyphs and emoji; those move in their batches (Kid Verse 7, F260 4, Larder 8, shell 2a, build guide 9, park map 10). After: `audits/evidence/p6/1/p4/ICON/static.json`, `audits/evidence/p6/1/tests/repro-after/phase4__ICON__static.txt`.
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** F260's glyphs and emoji became Lucide icons. ICON/static, pre-batch vs final: F260 emoji 13 → 1, glyphs 28 → 21: ↗ ✎ ♥ ⛰ ♪ ◐ ✝ are gone; ✓ ×4, ★ ×1 (was 2) and − stay ("Read today ✓", which test-f260 matches, and text in toasts), and the rest are → and … in running text; 🎉 stays in copied text. Prayer was done in batch 3 (no emoji). Unchanged and still open: Kid Verse ★ ×18 (batch 7), the Larder ✓ ×7 (8), the shell 48 emoji, the Dollywood exports 52-53 glyphs (9/10). After: `audits/evidence/p6/4/p4tools/out/ICON_static.txt`, `audits/evidence/p6/4/p4tools/before/ICON_static.txt`, `audits/evidence/p6/4/tests/suites/test-f260.txt`.
 - **Evidence.** `audits/04-design-system.md:3031`; `index.html:916`, `apps/f260.html:603-620`, `apps/tally.html:137-140`, `apps/kidverse.html:160`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** Glyphs render in the OS text font and emoji in the platform's colour set, so they take no token colour, weight or dark variant. Even the split between glyph and emoji depends on the platform: in the rig's WebKit, ⛰ and ✝ render as colour emoji, and repainting them changes 0 px (skeptic 1 of P4-ICON-03).
 - **Why it matters.** Glyphs stand in for icons.
@@ -2676,8 +2676,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-SHAPE-2 — The shell and the build guide keep the phone's 16 px margins on the iPad; F260 drops to 22 px in landscape, and its week stripes paint 7 px from the iPhone edge
 
-- **Area** design system (F260, build guide) · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Margins by size class (16/20/28/32 from --margin): SHAPE/remeasure, the shell on the iPad 16 → 28 px, the build guide 16 → 28 (portrait) / 32 (landscape), F260 in landscape 22 → 32. F260's week stripes on the iPhone moved 7 → 12 px from the edge, not to the 20 px size-class margin every other app now keeps: F260's batch 4. After: `audits/evidence/p6/1/p4/SHAPE/remeasure.json`, `audits/evidence/p6/1/p4/SHAPE/verify-margins-shell-ipad-portrait.png`.
+- **Area** design system (F260, build guide) · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** F260's week stripes on the iPhone sit at the 20 px page margin (--margin), not 12 px from the edge; the capture shows the stripe at 20 px. SHAPE/verify, pre-batch vs final, iPhone margins: F260 20 / 20, Prayer 22 → 20 (its literal 22 px is --margin now). The shell and the build guide were done in batch 1, so every app keeps the size-class margin. After: `audits/screens-after/4/f260/week-open-typical-iphone-pwa-light.png`, `audits/evidence/p6/4/p4tools/out/SHAPE_verify.txt`, `audits/evidence/p6/4/p4tools/before/SHAPE_verify.txt`.
 - **Evidence.** `audits/04-design-system.md:2245`; `index.html:66-67`, `apps/f260.html:466`; `audits/evidence/p4/SHAPE/verify-margins-shell-ipad-portrait.png`, `audits/screens/dollywood/map-typical-ipad-portrait-light.png`
 - **What happens now.** The shell. `#views` pads with `--sp-4` at every width below 1024 px (`index.html:66-67`), so Home, Apps and Me sit 16 px from the edge of an 820 px iPad. Inside the same shell, the apps sit 66-230 px in. The build guide also sits at 16 px on the iPad portrait and landscape.
 - **Why it matters.** On the primary device the shell looks like a stretched phone layout, while the apps inside it are inset. On the phone, F260's stripes nearly touch the screen edge.
@@ -2867,8 +2867,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-F260-16 — The glass modal is transparent enough that rows beneath collide with its buttons
 
-- **Area** f260 · **Type** visual · **Severity** info · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`80af987`)
-- **Phase 6 (NEEDS DEVICE CHECK).** F260's modals use --material-chrome-bg at 90 % (apps/f260.html:413; GLASS/opaque-blur: #complete .card alpha .9). The rig paints no backdrop blur, so whether rows still show through only a device can tell: on an iPad, open the practice modal over the week list and check that no row text or check disc beneath collides with Close. After: `audits/evidence/p6/1/p4/GLASS/opaque-blur.json`.
+- **Area** f260 · **Type** visual · **Severity** info · **Effort** S · **Batch** 1 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** F260's modal card is now solid (--material-solid-bg, --r-sheet) over a scrim, with no translucent material, so no row or check disc beneath can show through, on a device or in the rig. The iPad capture of the practice modal over the week list shows an opaque card and Close clear of everything beneath. That retires the device check this entry was waiting on. After: `audits/screens-after/4/f260/practice-typical-ipad-portrait-dark.png`.
 - **Evidence.** `audits/03-apps/f260.md:729`; `audits/screens/f260/practice-overflow-desktop-light.png`, `audits/screens/f260/reset-confirm-typical-iphone-pwa-dark.png`
 - **What happens now.** The glass modal is transparent enough that rows beneath collide with its buttons (info, provisional; from the visual check). In the practice modal, "DAY 2 Revelation 2-3" and a check disc show through beside "Close". The rig paints no backdrop blur, so a device may differ. Evidence: `audits/screens/f260/practice-overflow-desktop-light.png`; `audits/screens/f260/reset-confirm-typical-iphone-pwa-dark.png`.
 - **Why it matters.** Rows show through the modal.
@@ -4275,7 +4275,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### GAP-F260-1 — A reading missed in an earlier week is not offered again until the rest of the plan is read
 
-- **Area** f260 · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 4
+- **Area** f260 · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** A missed reading from an earlier week now shows on the Today card as "Missed: Week 30 · Day 3 — Malachi 2" with Catch up (counted from the first week read; "Not now" lasts for the page). logic gap: catch-up text on the page [] → that line and "Catch up". f260-a-4: Catch up puts Malachi 2 on the Today card, Done ticks it, then Today is back on Acts 6. After the rescore the reference is held whole (it had broken across lines). logic still counts 73 readings before the plan order reaches 30-2, because that order is unchanged; the line is the fix. "Not now" is not remembered across opens. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__logic.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__logic.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`, `audits/evidence/p6/4/workers/f260-a-today-catch.png`.
 - **Verified (step 3).** was medium; skeptics medium (partly) and low (partly); tie-break medium (partly). Correction: Two things in the report are wrong. First, it says 'The only cue before that is a half-filled 26×20 grid cell'. In fact the plan's week list also keeps Week 30's header undimmed with a 4-of-5 ring, and the Malachi book bar reads 75%. The grid cell is also a tap target that jumps to week 30.
 - **Evidence.** `audits/03-apps/f260.md:733`; `apps/f260.html:1480-1489`; `audits/screens/f260/behind-pace-typical-iphone-safari-light.png`, `audits/screens/f260/behind-typical-iphone-pwa-light.png`
 - **What happens now.** A reading missed in an earlier week is not offered again until the rest of the plan is read (medium). `nextReading` orders weeks `curWeek..52` first and earlier weeks last (`apps/f260.html:1480-1489`). With 30-2 unticked and the plan at week 38, the Today card offers "Acts 6" and nothing mentions week 30; ticking forward, 30-2 came up only after 73 more readings, labelled "· catching up". The only cue before that is a half-filled 26×20 grid cell. Being behind overall is surfaced (pace, "Pick up where you left off"; `audits/screens/f260/behind-pace-typical-iphone-safari-light.png`), but not the specific missed reading. YouVersion surfaces missed days and offers to catch up. Evidence: `audits/evidence/p3/f260/logic.json` (`gap`, `readingsBefore30_2Offered: 73`); `audits/screens/f260/behind-typical-iphone-pwa-light.png`. Run: `node "audits/tools/phase3/f260/logic.mjs" gap`.
@@ -4285,7 +4286,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-02 — Undo after Done (or any untick) leaves "Read today ✓", adds a streak day and silences the 8 pm nudge
 
-- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** An untick takes today off the log when no other reading is ticked today; the streak, summary, Home and the evening nudge follow, and a best set today is given back. verify-undo-keeps-read-today-1 and -2 after Done then Undo: "Read today ✓" → "Today", streak 13 → 12, readToday true → false, the evening job reads Eli unread, Home drops "read today ✓". logic agrees (streak 12,13,13 → 12,13,12). Mom's control with a second tick keeps her day. The reviewers found an untick could erase a day another device logged; a repair after each pull and the same rule in the Worker fix it (f260-a-4 32/0, readers and evening job). Real push not checked. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-undo-keeps-read-today-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-undo-keeps-read-today-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-undo-keeps-read-today-2.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`.
 - **Evidence.** `audits/03-apps/f260.md:191`; `apps/f260.html:1662`, `apps/f260.html:917`, `apps/f260.html:1597-1600`, `apps/f260.html:1507`; `audits/evidence/p3/f260/logic-undo-after-iphone.png`, `audits/evidence/p3/f260/logic-undo-home-iphone.png`
 - **What happens now.** Ticking a day sets `log[dayKey()] = true` (`apps/f260.html:1662`). Nothing clears it on an untick, although the code defines `log` as "days with at least one reading checked" (`apps/f260.html:917`). Undo only clicks the reading's mark again (`apps/f260.html:1597-1600`).
 - **Why it matters.** A mis-tap followed by the Undo the app offers credits a day with no reading and switches off that evening's reminder, so the streak stops being trustworthy.
@@ -4294,7 +4296,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-03 — The day after two rest days, the streak reads 0 and "Start a new streak" until the person reads
 
-- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** An unread today is pending, not a rest day, in F260, Home and chat; the card adds "read today to keep it" when both rest days are used. verify-streak-today-counted-missed-2, WebKit and Chromium: case A "Start a new streak", summary 0 → "11-day streak · read today to keep it", 11; case B 0 → 10; Home now shows the streak; case C unchanged at 11. logic C: before reading 0 → 11, after reading 12. -1 stops on its own code-lift parse error before and after, but its first read agrees (summary 0 → 11). A log that really broke (logic W, last read 8 days ago) still says "Start a new streak". After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-streak-today-counted-missed-2.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-streak-today-counted-missed-2.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-streak-today-counted-missed-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__logic.txt`.
 - **Evidence.** `audits/03-apps/f260.md:220`; `apps/f260.html:1386`, `apps/f260.html:1392`, `apps/f260.html:1530`, `index.html:1169`; `audits/evidence/p3/f260/logic-streak-before-read-iphone.png`, `audits/evidence/p3/f260/logic-streak-after-read-iphone.png`
 - **What happens now.** `streakInfo` starts its walk at today (`apps/f260.html:1386`), so an unread today adds to the gap. Read Saturday, rest Sunday and Monday, open on Tuesday: the gap reaches 3, the walk stops before Saturday, and the streak is set to 0 (`apps/f260.html:1392`).
 - **Why it matters.** The owner asked that waiting a day or two not reset the streak, and the heatmap label promises it: "2 rest days between readings keep the streak" (`apps/f260.html:594`). The rule holds only after the person reads; until then every surface, Home included, tells them it is gone.
@@ -4303,7 +4306,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-15 — The Erase and Restore confirms say "this device", but both act on every device (from the critic; was half of UX-F260-1)
 
-- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The Erase confirm, the Restore sheet and the Restore confirm now say "on all your devices". verify-critic-erase-dialog-misstates-scope-7-1 and -7-2: "will be deleted from this device" → "will be deleted on all your devices"; the erase still clears the vault on the house for every device, as the copy now says. journal-4: Restore copy "on this device" → "on all your devices", and the confirm "currently on this device will be replaced" → "will be replaced on all your devices". -7-2 also shows the set-passcode text and the footer no longer say "this device". After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-erase-dialog-misstates-scope-7-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-critic-erase-dialog-misstates-scope-7-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-erase-dialog-misstates-scope-7-2.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__journal-4.txt`.
 - **Evidence.** `audits/03-apps/f260.md:523`; `apps/f260.html:1136`, `apps/f260.html:1769`, `apps/f260.html:1056`, `apps/f260.html:903`; `audits/evidence/p3/f260/verify-critic-erase-dialog-misstates-scope-7-1-erase-dialog-ipad.png`, `audits/evidence/p3/f260/verify-critic-erase-dialog-misstates-scope-7-1-phone-after-erase.png`
 - **What happens now.** The Erase confirm reads "Every HEAR entry and the passcode will be deleted from this device. Reading progress stays. This can't be undone" (`apps/f260.html:1769`). `eraseJournal()` drops the vault row (`apps/f260.html:1056`) through `hub.remove` (`apps/f260.html:903`);
 - **Why it matters.** Someone clearing the shared iPad, or giving up on a forgotten passcode "on this device", loses the journal everywhere, having been told otherwise at the moment of consent.
@@ -4312,7 +4316,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-16 — Reset's confirm does not say it also deletes the Verses review schedule (`f260.recall`) (from the critic; was half of UX-F260-2)
 
-- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The Reset confirm now names the Verses review schedule ("and so is the Verses app's review schedule for these verses (their boxes and due dates)"), says "On all your devices" and offers a few seconds of Undo instead of "This can't be undone". verify-critic-reset-silently-wipes-verses-schedule-8-1 and -8-2, recall: mentions Verses false → true. Reset still clears the schedule (Verses boxes [2,2,6,14,40] → zeros), now with consent; f260-a-4: Undo brings back every row, each verse's box, due date, last and streak included. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-reset-silently-wipes-verses-schedule-8-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-critic-reset-silently-wipes-verses-schedule-8-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-reset-silently-wipes-verses-schedule-8-2.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`.
 - **Evidence.** `audits/03-apps/f260.md:548`; `apps/f260.html:1765-1766`, `apps/verses.html:155-169`, `apps/f260.html:1764`, `apps/verses.html:221-223`; `audits/screens/f260/reset-confirm-typical-iphone-pwa-light.png`, `audits/evidence/p3/f260/verify-critic-reset-silently-wipes-verses-schedule-8-1-dialog-iphone.png`
 - **What happens now.** Reset tombstones `f260.done`, `mem`, `log`, `weekStart`, `weekDone`, `best`, `miles`, `recall` and `finished` (`apps/f260.html:1765-1766`). `f260.recall` is F260's own practice key, and Verses keeps each verse's Leitner `box`, `due`, `last` and `streak` in the same rows (`apps/verses.html:155-169, 292-298`).
 - **Why it matters.** Months of spaced-repetition progress on each verse are deleted without being mentioned at the moment of consent, and a well-learned verse comes back as a daily review.
@@ -4321,7 +4326,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-17 — Tapping into an old HEAR entry or week note and away, without typing, re-dates it to today and adds a journal-streak day (from the critic)
 
-- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** medium · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** A HEAR entry, week note or follow-up is saved only when its text changed, so its date and the vault stay as they were. verify-critic-hear-focus-redates-entry-3-1, tapping into Tuesday's entry on Thursday without typing: "Saved Sep 24" → "Saved Sep 22", journal days [22, 24] → [22], the vault no longer re-uploaded (true → false), streak "2-day" → "1-day". -3-2 and critic-dates A stop at the same rig clock error before and after (clock.fastForward) right after day 1, so they test nothing here. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-hear-focus-redates-entry-3-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-critic-hear-focus-redates-entry-3-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-hear-focus-redates-entry-3-2.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__critic-dates.txt`.
 - **Evidence.** `audits/03-apps/f260.md:573`; `apps/f260.html:1864-1868`, `apps/f260.html:1828`, `apps/f260.html:1829`, `apps/f260.html:1818`; `audits/evidence/p3/f260/critic-dates-A-redated-iphone.png`, `audits/evidence/p3/f260/verify-critic-hear-focus-redates-entry-3-1-journal-iphone.png`
 - **What happens now.** The focusout handler saves whenever a HEAR field or week note loses focus, without checking whether its value changed (`apps/f260.html:1864-1868`). `saveJournal` stamps `j.t = Date.now()` whenever the entry has any text (`apps/f260.html:1828`) and re-encrypts and uploads the vault (`apps/f260.html:1829`);
 - **Why it matters.** The date is the record of when a reflection was written. It is silently overwritten, "Newest first" reorders by the false date, and the journal streak counts days with no writing.
@@ -4330,7 +4336,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-04 — After 260/260, unticking a reading keeps the plan "finished", which mutes the 8 pm and Sunday nudges
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** finished and summary.finished clear when the total drops below 260. verify-finished-flag-sticks-1, two unticks after 260: finished "2026-09-22" → null, summary.finished true → false; the Sunday catch-up job no_summary → 2 behind; ticking 260 again shows the Plan complete modal (false → true). -2: summary.finished true → false, pct "100%" → "99%", behind 0 → 1 as written. logic E agrees (retick shows complete false → true). After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-finished-flag-sticks-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-finished-flag-sticks-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-finished-flag-sticks-2.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__logic.txt`.
 - **Evidence.** `audits/03-apps/f260.md:248`; `apps/f260.html:1672`, `apps/f260.html:1673`, `apps/f260.html:1508`, `apps/f260.html:1765`; `audits/evidence/p3/f260/logic-plan-complete-ipad.png`, `audits/evidence/p3/f260/verify-finished-flag-sticks-1-after-untick-ipad.png`
 - **What happens now.** The 260th tick sets `finished = dayKey()` and shows the "Plan complete" modal (`apps/f260.html:1672`). The untick branch (`apps/f260.html:1673`) never clears it, and the summary writes `finished: !!finished` whatever the total (`apps/f260.html:1508`). Only Reset (`apps/f260.html:1765`) or a restore (`apps/f260.html:1119`) clears it.
 - **Why it matters.** A reader with an unread reading gets no evening nudge and no Sunday catch-up, and the finish date shown later stays the date of the first finish.
@@ -4339,7 +4346,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-07 — Done on next week's first reading starts that week, and Undo does not give the week back
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Undo after a Done that started the next week puts the previous current week back and removes the start date that Done created. verify-ahead-undo-keeps-week-1: after Undo week 38 → 37, weekStart 38 "2026-09-22" → none, the hero "Next up" → "Week 37 done / Start week 38", and the week-start keys 35-38 → 34-37 (as before the tap); the same after a reopen. -2: week 38 → 37, ws38 → null. logic B: week [37,38,38] → [37,38,37]. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-ahead-undo-keeps-week-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-ahead-undo-keeps-week-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-ahead-undo-keeps-week-2.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__logic.txt`.
 - **Evidence.** `audits/03-apps/f260.md:323`; `apps/f260.html:1592`, `apps/f260.html:1684-1689`, `apps/f260.html:1597-1600`, `apps/f260.html:1327`; `audits/evidence/p3/f260/verify-ahead-undo-keeps-week-1-before-iphone.png`, `audits/evidence/p3/f260/verify-ahead-undo-keeps-week-1-after-undo-iphone.png`
 - **What happens now.** Done on a reading in a later week calls `setCurrent(w)` (`apps/f260.html:1592`; the comment there says this is intended), which writes `weekStart[w]` when empty (`apps/f260.html:1684-1689`). Undo only clicks the reading's mark (`apps/f260.html:1597-1600`). Mae's week 37 was complete;
 - **Why it matters.** Mae's plan says she started week 38 today when she has not, and when she really starts it, its "started" date and "done in N days" count from the mistaken tap.
@@ -4348,7 +4356,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-08 — The heatmap's "today" cell takes the Today card's styles and breaks the grid
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The heatmap's today cell is .is-today, so the Today card's rules no longer reach it. verify-heatmap-today-class-collision-1-4: the cell 35×33 (iPhone), 39×37 (iPad portrait), 332×45 / 332×44 (iPad landscape, desktop) → 25×12 everywhere; the grid 12×8 / 14×7 → 12×7 at every size. -2-4: no Today-card rule matches the cell. The originals (-1, -2, layout) now fail only because they look for #heat span.today, renamed on purpose; their -4 copies pass, and layout-4 reads the same 25×12 cell. After: `audits/evidence/p6/4/tests/repro-after/p6-4__verify-heatmap-today-class-collision-1-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-heatmap-today-class-collision-1.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__verify-heatmap-today-class-collision-2-4.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__layout-4.txt`.
 - **Evidence.** `audits/03-apps/f260.md:346`; `apps/f260.html:1515`, `apps/f260.html:117`, `apps/f260.html:95`, `apps/f260.html:92-96`; `audits/evidence/p3/f260/layout-heat-today-desktop.png`, `audits/evidence/p3/f260/layout-heat-today-iphone-pwa.png`
 - **What happens now.** Today's heatmap cell gets the class `today` (`apps/f260.html:1515`), so it also matches the Today card's unscoped `.today` rules (`apps/f260.html:117, 153, 156`), where only a gold ring was meant (`apps/f260.html:95`). On the phone it is 35×33 with 16 px padding and a border, against 25×12 for the other cells.
 - **Why it matters.** On the Kitchen iPad in landscape and on desktop, the 12-week history is misdrawn: days shift and some disappear.
@@ -4357,7 +4366,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-09 — Reading mode hides the "This week" reflections card it means to keep
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Reading mode keeps the "This week" card: .readmode .side left the hide rule. verify-reading-mode-hides-reflections-1, iPhone and desktop: .side none → block, #reflect 0×0 → 390×119 and 1200×118. -2: the Apply note "hidden by .side" → shown; journal-4 the same. This change caused a regression the rescore found: at 1024 px and wider the card covered the current week's header. Fixed after the first final run (.side static in reading mode there): card bottom 455/513/455 vs week top 537/595/537 at 1024/1180/1440 (Worker B); the visual review's probe-readmode found no overlap at the three widths, light and dark. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-reading-mode-hides-reflections-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-reading-mode-hides-reflections-1.txt`, `audits/evidence/p6/4/rescore.md`, `audits/screens-after/4/f260/reading-mode-week-typical-ipad-landscape-light.png`.
 - **Evidence.** `audits/03-apps/f260.md:369`; `apps/f260.html:184-186`, `apps/f260.html:427`, `apps/f260.html:577`; `audits/evidence/p3/f260/journal-reading-mode-two-done-iphone.png`, `audits/evidence/p3/f260/verify-reading-mode-hides-reflections-2-iphone-readmode.png`
 - **What happens now.** `.readmode .side{display:block}` and `.readmode .side > :not(#reflect){display:none}` (`apps/f260.html:184-186`) exist to keep `#reflect` visible.
 - **Why it matters.** The reader loses the week's Apply and Respond notes at the moment they are reading.
@@ -4366,7 +4376,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-10 — "100% complete" with one reading left, and "0%" after the first
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The percentage is floored, at most 99 below 260 and at least 1 once a reading is done. verify-percent-rounds-to-100-1 and -2: 1 reading "0% complete" → "1%", 259 readings "100% complete" → "99%"; 2 and 258 unchanged (1 %, 99 %), 260 still 100 %. logic E: pctAt259 100 % → 99 %. (The scripts' own "math" line repeats the old rounding and is unchanged.) After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-percent-rounds-to-100-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-percent-rounds-to-100-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-percent-rounds-to-100-2.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__logic.txt`.
 - **Evidence.** `audits/03-apps/f260.md:392`; `apps/f260.html:1672`, `apps/f260.html:1494`, `apps/f260.html:1214`, `apps/f260.html:1524`; `audits/evidence/p3/f260/logic-259-of-260-ipad.png`, `audits/evidence/p3/f260/verify-percent-rounds-to-100-2-259-of-260-ipad.png`
 - **What happens now.** `Math.round(n / 260 * 100)` (`apps/f260.html:1494`) gives "100% complete" at 259 readings, while the Today card still offers "Revelation 20-22" with its Done button, and "0% complete" beside "1 of 260 readings".
 - **Why it matters.** "100%" with a reading left looks like the plan is done, and "0%" after the first reading looks like it was not counted.
@@ -4375,7 +4386,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-11 — Pace reads "2 week behind" / "2 week ahead"
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The pace line picks "week" or "weeks" from the number it shows. verify-pace-week-plural-1: mismatches 5 of 10 → 0 of 10 ("2 week behind" → "2 weeks behind", "2 week ahead" → "2 weeks ahead"). -2: the three cases at 12-13 days off → "2 weeks". logic D: behind11 and ahead11 → "2 weeks". The -2 "sweep" line reports where the number 2 appears and is the same before and after. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-pace-week-plural-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-pace-week-plural-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-pace-week-plural-2.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__logic.txt`.
 - **Evidence.** `audits/03-apps/f260.md:415`; `apps/f260.html:1403`, `apps/f260.html:599`; `audits/evidence/p3/f260/logic-pace-2-week-behind-iphone.png`, `audits/evidence/p3/f260/verify-pace-week-plural-1-iphone.png`
 - **What happens now.** The plural is chosen from the raw difference in days (≥ 14), but the number shown is `Math.round(diff / 7)` (`apps/f260.html:1403, 1405`). Between 10.5 and 14 days ahead or behind, the Next up hero's pace line (`#heroPace`, `apps/f260.html:599`) pairs "2" with "week": "2 week behind · projected finish Jan 2027".
 - **Why it matters.** A visible grammar slip in the line that tells a reader how far behind they are, shown to anyone 1.5 to 2 weeks off pace.
@@ -4384,7 +4396,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-12 — The unlock dialog says "encrypted on this iPad" on every device (from the visual check)
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The unlock and set-passcode text is true on every device: "encrypted on this iPad" → "encrypted with your passcode and follows you to each of your devices", and "It never leaves this device" → "You'll use it on each of your devices; it is never sent anywhere". The -4 copies show it on the iPhone, desktop and iPad. The originals now fail only because the Journal tab no longer opens the dialog at once (UX-F260-3, on purpose): -1-1 times out waiting for it, and -1-2 prints FAILED on the same wait although it exits 0. After: `audits/evidence/p6/4/tests/repro-after/p6-4__verify-vis-unlock-dialog-says-encrypted-on-this-ipad-on-an--1-1-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-vis-unlock-dialog-says-encrypted-on-this-ipad-on-an--1-1.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__verify-vis-unlock-dialog-says-encrypted-on-this-ipad-on-an--1-2-4.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-vis-unlock-dialog-says-encrypted-on-this-ipad-on-an--1-2.txt`.
 - **Evidence.** `audits/03-apps/f260.md:438`; `apps/f260.html:1133-1134`, `apps/f260.html:902`, `apps/f260.html:1787`, `apps/f260.html:1136`; `audits/screens/f260/journal-unlock-typical-iphone-pwa-dark.png`, `audits/evidence/p3/f260/verify-vis-unlock-dialog-says-encrypted-on-this-ipad-on-an--1-1-iphone-pwa.png`
 - **What happens now.** The unlock text is a constant (`apps/f260.html:1133-1134`): "Your HEAR journal is encrypted on this iPad. Enter your passcode to read or write it." It shows on the iPhone and on desktop too.
 - **Why it matters.** People act on this copy when deciding what Erase or a lost device means (P3-F260-15, UX-F260-1).
@@ -4393,7 +4406,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-18 — A week read ahead on the plan list and started later reads "done in -1 days" and "started" after it was finished (from the critic)
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** A week's start date is set by its first tick, and "done in N days" is at least 1. verify-critic-week-ahead-negative-days-4-1 and -4-2 (WebKit), all five of week 39 ticked on Tuesday from the plan list: weekStart 39 none → "2026-09-22" and the summary "5 of 5 readings · done in 1 day". critic-dates B the same. The scripts' next-day step (starting the week later) stops at the rig clock error before and after; f260-a-4 covers it: the first tick dates the week, Start week keeps it, "done in 1 day". After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-week-ahead-negative-days-4-1.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-critic-week-ahead-negative-days-4-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-week-ahead-negative-days-4-2.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`.
 - **Evidence.** `audits/03-apps/f260.md:598`; `apps/f260.html:1592`, `apps/f260.html:1670`, `apps/f260.html:1686`, `apps/f260.html:1327-1329`; `audits/evidence/p3/f260/critic-dates-B-negative-days-iphone.png`, `audits/evidence/p3/f260/verify-critic-week-ahead-negative-days-4-1-iphone.png`
 - **What happens now.** Ticking all five readings of a later week on the plan list sets `weekDone[w]` to today (`apps/f260.html:1670`) but never sets `weekStart[w]`. When the person later starts that week, `setCurrent` stamps `weekStart[w]` with that later day (`apps/f260.html:1686`).
 - **Why it matters.** A visible nonsense figure in the week summary and in the text a reader copies to share, and a false start date in the header.
@@ -4402,7 +4416,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-19 — The − / + week stepper and the Week select stamp a start date on every week they land on, and stepping back never removes it (from the critic)
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Browsing weeks with − / + or the Week select records no start date; a start is written only when a week is begun. verify-critic-week-stepper-stamps-start-dates-5-2: after peeking to week 41 and back, week starts {38,39,40,41} → {38}; to week 45 and back, {38,45} → {38}; the hero no longer says "started Sep 22" on a peeked week. -5-1: after + and −, {38,39} → {38} (its next-day step hits the rig clock error before and after). critic-dates C agrees. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-week-stepper-stamps-start-dates-5-2.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-critic-week-stepper-stamps-start-dates-5-2.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-week-stepper-stamps-start-dates-5-1.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__critic-dates.txt`.
 - **Evidence.** `audits/03-apps/f260.md:623`; `apps/f260.html:1397`, `apps/f260.html:616`, `apps/f260.html:1707-1711`, `apps/f260.html:1684-1689`; `audits/evidence/p3/f260/verify-critic-week-stepper-stamps-start-dates-5-2-peek-iphone.png`
 - **What happens now.** The picker is labelled "Set current week" (`apps/f260.html:616`), and each − / + tap or Week choice calls `setCurrent` (`apps/f260.html:1707-1711`). `setCurrent` stamps `weekStart` on the week it lands on when that week has none, and never removes a stamp when the person moves away (`apps/f260.html:1684-1689`).
 - **Why it matters.** The week history (start dates and "done in N days") becomes false for every week passed on the way.
@@ -4411,7 +4426,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-F260-20 — Journal search breaks HTML entities: an entry with "&" shows "&amp;" for many ordinary queries (from the critic)
 
-- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** bug · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Search matches the raw text and escapes each piece before joining with <mark>. critic-search "amp": shown "Summer camp &amp; campfire" → "Summer camp & campfire", with no mark inside the entity. verify-critic-journal-search-breaks-entities-6-2: broken results 4 of 11 queries per engine ("a", "&", "o", "t") → 0, WebKit and Chromium. -6-1 timed out before (#jf-38-1-a) and now runs: every query including "&", "lt" and "quot" shows the plain text. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__critic-search.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__critic-search.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-journal-search-breaks-entities-6-2.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__verify-critic-journal-search-breaks-entities-6-2.txt`.
 - **Evidence.** `audits/03-apps/f260.md:648`; `apps/f260.html:1988`, `apps/f260.html:1948`, `apps/f260.html:1964`, `apps/f260.html:1971`; `audits/evidence/p3/f260/critic-search-amp-iphone.png`, `audits/evidence/p3/f260/verify-critic-journal-search-breaks-entities-6-1-amp-iphone.png`
 - **What happens now.** `hl()` escapes the text first and then wraps every match of the raw query in `<mark>` inside the escaped string (`apps/f260.html:1948`), while the filter matches on the raw text (`apps/f260.html:1964`). A query "amp" selects an entry containing "camp", and `hl()` then also matches inside `&amp;`: the card shows "Summer camp &amp;
 - **Why it matters.** The result shows garbled text for the very thing just searched for.
@@ -4420,7 +4436,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-1 — The footer, the Restore sheet and the journal's empty state say "this device", but progress and the journal follow the person to every device
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** No "this device" wording is left about synced data. The footer "saved on this device … so it isn't lost with the device" → "Your progress and journal follow you to each of your devices… Settings → Backup copies both as text" (-7-2). journal-4: the journal's empty state "encrypted on this device and only readable with it" → "encrypted with it and follow you to each of your devices", and the Restore sheet "on this device" → "on all your devices". The remaining "this device" lines in the app are about things that really are per device (Face ID, an unsent copy). After: `audits/evidence/p6/4/tests/repro-after/p6-4__journal-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__journal.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__verify-critic-erase-dialog-misstates-scope-7-2.txt`.
 - **Evidence.** `audits/03-apps/f260.md:679`; `apps/f260.html:713`, `apps/f260.html:746`, `apps/f260.html:1959`, `apps/f260.html:897`; `audits/screens/f260/journal-unlock-typical-iphone-pwa-dark.png`
 - **What happens now.** The footer says progress and entries are "saved on this device" and warns "so it isn't lost with the device" (`apps/f260.html:713`). The Restore sheet says a backup "replaces the journal and reading progress on this device" (`apps/f260.html:746`).
 - **Why it matters.** The copy tells people to fear losing data that is synced.
@@ -4429,7 +4446,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-2 — "Reset progress…" cannot be undone; only a backup made beforehand brings the progress back
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Reset keeps a one-level snapshot and offers Undo for about 10 s (the Phase 3 improvement's shape, not a 30-day snapshot). f260-a-4 32/0: the confirm names all devices, the schedule and the Undo; Undo puts every row back, Leitner fields included; a reading ticked elsewhere in the window is kept; week dates and milestones merge, the higher best wins; every toast in the window keeps the Undo. Four core review rounds hardened it (merge by value, restored rows, no false "read today"). recall's dialog: "This can't be undone" → "You can undo it for a few seconds afterwards". After the window, Reset is final. After: `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__recall.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__recall.txt`, `audits/evidence/p6/4/workers/f260-a-reset-toast.png`.
 - **Evidence.** `audits/03-apps/f260.md:684`; `apps/f260.html:1763-1767`, `apps/f260.html:1098`; `audits/screens/f260/reset-confirm-typical-iphone-pwa-light.png`
 - **What happens now.** Reset drops `f260.done`, `mem`, `log`, `weekStart`, `weekDone`, `best`, `miles`, `recall` and `finished` (`apps/f260.html:1763-1767`). Before: recall 65, mem 65, done 187; after: all deleted. The dialog ends "This can't be undone." and there is no snapshot or undo toast;
 - **Why it matters.** Reset cannot be undone.
@@ -4438,7 +4456,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-3 — The Journal tab and every HEAR button open the passcode dialog at once; the in-panel locked state is never seen
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The Journal tab shows its locked state ("Journal is locked") with an Unlock or Set passcode button instead of opening the passcode dialog at once; HEAR buttons still open it. journal-4 journalTabFirst: dialog true → false; f260-a-4: "the Journal tab shows Journal is locked and an Unlock button, no dialog". journal and the vis-unlock -1-1 / -1-2 originals now fail on purpose because they wait for that dialog; their -4 copies pass. After: `audits/evidence/p6/4/tests/repro-after/p6-4__journal-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__journal.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__journal.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`.
 - **Evidence.** `audits/03-apps/f260.md:688`; `apps/f260.html:1796-1799`; `audits/screens/f260/journal-typical-iphone-pwa-light.png`
 - **What happens now.** The Journal tab and every HEAR button open the passcode dialog at once; the in-panel locked state is never seen (low). With no passcode, the Journal tab opens "Set a journal passcode" immediately; when locked, HEAR opens "Unlock journal" before the panel draws (`panelOn:false`). Evidence: `apps/f260.html:1796-1799, 1999`; `journal.json` `journalTabFirst`, `lockedHear`; `audits/screens/f260/journal-typical-iphone-pwa-light.png`.
 - **Why it matters.** The dialog pops up every time.
@@ -4447,7 +4466,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-4 — Reading mode shows two "Done" buttons that do different things
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Reading mode's exit now reads "Close" with an x icon, so only the Today card says Done. journal-4 readingMode: #readExit "Done" (76×52) → "Close" (101×52), #todayDone stays "Done" (60 px tall). f260-a-4: "reading mode: Close (not a second Done), and the reflections card stays". After: `audits/evidence/p6/4/tests/repro-after/p6-4__journal-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__journal.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`.
 - **Evidence.** `audits/03-apps/f260.md:689`; `apps/f260.html:573`; `audits/evidence/p3/f260/journal-reading-mode-two-done-iphone.png`, `audits/screens/f260/reading-mode-typical-ipad-landscape-dark.png`
 - **What happens now.** Reading mode shows two "Done" buttons that do different things (low). `#todayDone` ("Done", 363×60 at y 339) ticks the reading; `#readExit` ("Done", 76×52 at y 437) leaves reading mode. Evidence: `apps/f260.html:573, 695`; `journal.json` `readingMode`; `audits/evidence/p3/f260/journal-reading-mode-two-done-iphone.png`; `audits/screens/f260/reading-mode-typical-ipad-landscape-dark.png`.
 - **Why it matters.** Two different Done buttons.
@@ -4456,7 +4476,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-6 — The weeks pane opens at Week 1; the current week is 2,800-4,100 px down on every device
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** At 1024 px and wider the weeks column scrolls on its own and opens at the current week. layout-4: desktop week 38 at y 2,794 → 361 and iPad landscape 2,857 → 417, both now in view, with Today and Done still in view (f260-a-4). Not done on phones and portrait iPads, which still open on Today with the current week far down (iPhone 4,131 → 3,925, iPad portrait 3,972 → 3,794, not in view): scrolling the page there would push Done below the fold. Nested scrolling on a real iPad in landscape is not checked. After: `audits/evidence/p6/4/tests/repro-after/p6-4__layout-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__layout.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`, `audits/evidence/p6/4/workers/f260-a-weeks-ipad-landscape.png`.
 - **Evidence.** `audits/03-apps/f260.md:691`; `apps/f260.html:1693`; `audits/screens/f260/today-typical-desktop-light.png`, `audits/screens/f260/today-typical-ipad-landscape-dark.png`
 - **What happens now.** The weeks pane opens at Week 1; the current week is 2,800-4,100 px down on every device (low). Week 38 sits at y 4,072 of 5,772 on the iPhone, 3,889 on iPad portrait, 2,795 on iPad landscape and 2,794 on desktop, never in view on open. A scroll-to-week exists for other paths (`apps/f260.html:1693`). Evidence: `layout.json` `devices.*.weeks`; `audits/screens/f260/today-typical-desktop-light.png`; `audits/screens/f260/today-typical-ipad-landscape-dark.png`.
 - **Why it matters.** The current week is 2,800-4,100 px down.
@@ -4465,7 +4486,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-7 — "Practice again" chips are 40 px tall and can fill 340 px above Day 1
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Past three, the "Practice again" chips fold into one 44 px "Practice N verses" control. layout before vs layout-4, the overflow household on the iPhone: 14 chips in a 368 px row → 1 control in a 56 px row, so Day 1 sits 368 → 56 px below it. (The chips were already 44 px tall before this batch; the finding's 40 px is from Phase 3.) The capture shows "Practice 14 verses" in one row above Day 1. After: `audits/evidence/p6/4/tests/repro-after/p6-4__layout-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__layout.txt`, `audits/screens-after/4/f260/week-open-overflow-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/f260.md:692`; `apps/f260.html:302`; `audits/evidence/p3/f260/layout-practice-chips-overflow-iphone.png`
 - **What happens now.** "Practice again" chips are 40 px tall and can fill 340 px above Day 1 (low). In the overflow household the current week shows 14 chips at 40 px (below 44), in a 340 px row. Evidence: `apps/f260.html:302, 1343-1346`; `layout.json` `chips`; `audits/evidence/p3/f260/layout-practice-chips-overflow-iphone.png`.
 - **Why it matters.** Small chips push Day 1 below the fold.
@@ -4474,7 +4496,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-8 — Settings sits about 1,600 px down on the phone
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** A 44 px gear in the page header (#hdrSettings) opens Settings and brings it into view; #settingsBtn keeps its id lower down. f260-a-4: "a 44 px gear at the top opens Settings and brings it into view". taps reach still measures #settingsBtn itself (y 1,661 → 1,461 on the iPhone, the page being shorter). At XXL on a 390 px phone the header holds one row (Worker B's check, not in a filed script). After: `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__taps.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__taps.txt`, `audits/evidence/p6/4/workers/f260-a-header-gear.png`.
 - **Evidence.** `audits/03-apps/f260.md:693`; `apps/f260.html:614-624`; `audits/screens/f260/settings-typical-iphone-pwa-light.png`
 - **What happens now.** Settings sits about 1,600 px down on the phone (low). `#settingsBtn` is at y 1,602 on a 430×932 iPhone, below the grids, heatmap, hero, reflections and milestones. Evidence: `apps/f260.html:614-624`; `taps.json` `reach`; `audits/screens/f260/settings-typical-iphone-pwa-light.png`.
 - **Why it matters.** Settings is 1,600 px down on the phone.
@@ -4483,7 +4506,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-9 — The "Pick up where you left off" hero says "last read" twice
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The "Pick up where you left off" hero says "last read" once. logic W: the hero meta "About 4 minutes · last read Sep 14 · Week 31 · Day 2 …" → "About 4 minutes · Week 31 · Day 2 …", while the line above keeps "Last read Sep 14 · best streak 40". After the rescore "1 chapter · ~4 min" is kept whole, so "~4 min" no longer sits alone on a line at Large. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__logic.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__logic.txt`.
 - **Evidence.** `audits/03-apps/f260.md:694`; `apps/f260.html:1510`; `audits/screens/f260/behind-pace-typical-iphone-pwa-light.png`
 - **What happens now.** The "Pick up where you left off" hero says "last read" twice (low). "Last read Sep 14 · best streak 40", then the meta "About 4 minutes · last read Sep 14 · Week 31 · Day 2 · 1 chapter · started Sep 14". Evidence: `apps/f260.html:1510, 1536`; `logic.json` `quiet`; `audits/screens/f260/behind-pace-typical-iphone-pwa-light.png`.
 - **Why it matters.** Repetition.
@@ -4492,7 +4516,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-10 — The journal sort button always says "Newest first" and shows no pressed state
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The sort button names the current order ("Plan order" / "Newest first") and changes with it; its aria-label says what a tap does. f260-a-4: "the sort button names the order and changes with it". The after capture shows "Plan order" on the button over a plan-order list. After: `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`, `audits/screens-after/4/f260/journal-search-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/f260.md:695`; `apps/f260.html:1990`, `apps/f260.html:1953`, `apps/f260.html:705`; `audits/evidence/p3/f260/journal-search-two-clears-iphone.png`
 - **What happens now.** The journal sort button always says "Newest first" and shows no pressed state (low). The click only toggles `jNewest` (`apps/f260.html:1990`), and render sets only `aria-pressed` (`apps/f260.html:1953`); `.btn` has no `[aria-pressed]` style, so only the small stat line ("· in plan order") tells the order. Evidence: `apps/f260.html:705`; `audits/evidence/p3/f260/journal-search-two-clears-iphone.png`.
 - **Why it matters.** The label never changes.
@@ -4501,7 +4526,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-11 — Writing today's HEAR entry takes 6 taps, a passcode and a 1,100 px scroll; the Today card has no journal control
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** M · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** M · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The Today card has a Journal action (#todayJournal) that unlocks and opens the HEAR entry of the reading ticked today, in view: 2 taps and the passcode (was 6 taps, a passcode and an 1,100 px scroll). f260-a-4: "Journal: passcode, then the HEAR entry of the reading ticked today is open and in view". taps.mjs still follows its old hero route (6 taps) and so does not measure the new action. Not checked: the iOS keyboard when the entry takes focus. After: `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__taps.txt`, `audits/evidence/p6/4/workers/f260-a-journal-action.png`.
 - **Evidence.** `audits/03-apps/f260.md:696`; `audits/evidence/p3/f260/taps-hear-iphone.png`, `audits/screens/f260/hear-open-typical-iphone-pwa-light.png`
 - **What happens now.** Writing today's HEAR entry takes 6 taps, a passcode and a 1,100 px scroll; the Today card has no journal control (low). Evidence: `taps.json` `jobs[1]`; `audits/evidence/p3/f260/taps-hear-iphone.png`; `audits/screens/f260/hear-open-typical-iphone-pwa-light.png`.
 - **Why it matters.** Six taps and a long scroll to write today's entry.
@@ -4510,7 +4536,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-13 — After today's tick the primary button still reads "Done" under the next reading
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** After today's tick the primary button reads "Read ahead", an outlined capsule, with "Read today ✓" as the state. f260-a-4: "then Today is back on Acts 6, and the button reads Read ahead (today is read)". layout-4 accent: for Mae and Mom, who had read today, the button fill is white (outlined) where it was their colour. After: `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`, `audits/evidence/p6/4/tests/repro-after/p6-4__layout-4.txt`, `audits/evidence/p6/4/workers/f260-a-read-ahead.png`.
 - **Evidence.** `audits/03-apps/f260.md:698`; `audits/evidence/p3/f260/taps-after-done-iphone.png`, `audits/evidence/p3/f260/layout-undo-desktop.png`
 - **What happens now.** After today's tick the primary button still reads "Done" under the next reading (low; from the visual check). The kicker turns gold "READ TODAY ✓", the title moves on to Acts 7, and the same full-width green "Done" stays; it reads as a status and invites a second tap that reads ahead. Evidence: `audits/evidence/p3/f260/taps-after-done-iphone.png`; `audits/evidence/p3/f260/layout-undo-desktop.png`; `audits/screens/f260/done-toast-typical-ipad-portrait-light.png`.
 - **Why it matters.** Done under the next reading invites a second tick.
@@ -4519,7 +4546,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-F260-14 — The Today card and the Next up hero repeat the same reading one screen apart
 
-- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** usability · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The Next up hero hides its kicker, title and meta when they repeat the Today card (.hero.dup, set from the markup so nothing jumps); its pace and actions stay. f260-a-4: "the Next up hero no longer repeats the Today reading (pace and actions stay)", and the hero shows the current week again while Today offers a catch-up. After: `audits/evidence/p6/4/tests/repro-after/p6-4__f260-a-4.txt`, `audits/screens-after/4/f260/today-typical-ipad-portrait-light.png`.
 - **Evidence.** `audits/03-apps/f260.md:699`; `audits/screens/f260/today-typical-ipad-portrait-light.png`, `audits/screens/f260/today-empty-ipad-portrait-light.png`
 - **What happens now.** The Today card and the Next up hero repeat the same reading one screen apart (low; from the visual check). Both show "Acts 6 / Week 38 · Day 3 / 12-day streak", adding height to a 5,772 px phone page. Evidence: `audits/screens/f260/today-typical-ipad-portrait-light.png`; `audits/screens/f260/today-empty-ipad-portrait-light.png`.
 - **Why it matters.** The same reading twice on one screen.
@@ -4528,7 +4556,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-3 — A cold open shifts the page by CLS 0.24 when the data arrives
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The loaded heights are reserved, so a cold open barely moves. webtells, a cold iPhone open with a 1.5 s first pull: CLS 0.0463 → 0.0011, the one shift now a few pixels of the Today meta text instead of the hero, journey and labels (Phase 3 measured 0.24 before batch 0b). MOTION/cls at 150 ms latency, pre-batch vs final: F260's landmark moves 9 (the week stepper 317 px iPad, 514 px iPhone) → 0. After the rescore the loading placeholders paint --track, so they are visible on Hearth. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__webtells.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__webtells.txt`, `audits/evidence/p6/4/p4tools/out/MOTION_cls.txt`, `audits/evidence/p6/4/p4tools/before/MOTION_cls.txt`.
 - **Evidence.** `audits/03-apps/f260.md:711`; `audits/screens/f260/today-loading-iphone-pwa-light.png`
 - **What happens now.** A cold open shifts the page by CLS 0.24 when the data arrives (low). On a cold iPhone with a 1.5 s first pull (Chromium layout-shift entries), one shift of 0.2403 at 3.18 s moved `.side`, `.hero`, `.tc` and `#reflect`, above the 0.1 "good" limit. Evidence: `audits/evidence/p3/f260/webtells.json` (`cls-cold-1500ms`); `audits/screens/f260/today-loading-iphone-pwa-light.png`. Run: `node "audits/tools/phase3/f260/webtells.mjs"`.
 - **Why it matters.** CLS 0.24 on a cold open.
@@ -4537,7 +4566,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-4 — Disabled settings buttons look exactly like enabled ones
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Disabled buttons look disabled: --op-disabled, cursor default, no pointer events. journal-4 settings while locked: Lock now, Change passcode and Face ID Enable opacity 1 / cursor pointer → 0.4 / default. The final re-measure counts F260's below-AA text at 239 (batch 1: 69): 201 are these disabled controls (and Search, sort, Copy all while locked or empty), which WCAG exempts; 24 are content sampled through the iPhone's floating glass Plan/Journal bar (accepted, like Prayer's pill under the +); 10 are "suspect" edge samples whose median is 5.9 or more; 4 are a milestone toast caught mid fade-in. The print subtitle is gone from the list. After: `audits/evidence/p6/4/tests/repro-after/p6-4__journal-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__journal.txt`, `audits/evidence/p6/4/p3/f260/journal.json`, `audits/evidence/p6/4/measure/failing-pairs.json`.
 - **Evidence.** `audits/03-apps/f260.md:712`; `apps/f260.html:211`; `audits/evidence/p3/f260/journal-settings-locked-iphone.png`, `audits/screens/f260/settings-more-typical-ipad-portrait-light.png`
 - **What happens now.** Disabled settings buttons look exactly like enabled ones (low). Once locked, Lock now, Change passcode and Face ID Enable are disabled, but opacity 1, colour and cursor pointer match the enabled state; only `.btn[disabled]` is styled (`apps/f260.html:211, 219-227`). The visual checker saw the same on the Face ID buttons beside "Not available in this browser". Evidence: `journal.json` `settings`; `audits/evidence/p3/f260/journal-settings-locked-iphone.png`; `audits/screens/f260/settings-more-typical-ipad-portrait-light.png`.
 - **Why it matters.** Disabled buttons look enabled.
@@ -4546,7 +4576,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-5 — The week-note footer and its Copy button are unstyled
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The week-note footer and its Copy match the HEAR footer, now one rule. journal-4: both footers 13 px flex, both Copy buttons 47×44 at 15 px with no grey fill. The defect was already gone before this batch (the pre-batch run read 13 px flex and a 45×44 Copy for both; Phase 3 had 17 px block and a grey 55×35 Copy). After: `audits/evidence/p6/4/tests/repro-after/p6-4__journal-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__journal.txt`.
 - **Evidence.** `audits/03-apps/f260.md:713`; `apps/f260.html:332-333`; `audits/evidence/p3/f260/journal-week-note-footer-iphone.png`
 - **What happens now.** The week-note footer and its Copy button are unstyled (low). The HEAR footer is 13 px flex with a 44 px Copy; the week-note footer is 17 px block, and its Copy is a default 55×35 grey button (rgb(192,192,192)), jammed against "Saved". The `.jft` rules exist only as `.jr .jft` (`apps/f260.html:332-333, 1297`). Evidence: `journal.json` `footers`; `audits/evidence/p3/f260/journal-week-note-footer-iphone.png`.
 - **Why it matters.** An unstyled footer.
@@ -4555,7 +4586,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-6 — Journal search shows WebKit's clear glyph next to the app's ×, and the focus ring sits on the inner input
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** WebKit's own search clear glyph is hidden and the focus ring sits on the whole pill (:focus-within). The rig cannot read the pseudo-element (journal search: webkitCancelDisplay empty before and after), so the proof is the capture: one × inside a ringed pill. webtells lists the new pill focus rule. After: `audits/screens-after/4/f260/journal-search-typical-iphone-pwa-light.png`, `audits/evidence/p6/4/tests/repro-after/phase3__f260__webtells.txt`.
 - **Evidence.** `audits/03-apps/f260.md:714`; `apps/f260.html:704`; `audits/evidence/p3/f260/journal-search-two-clears-iphone.png`, `audits/screens/f260/journal-search-typical-iphone-pwa-light.png`
 - **What happens now.** Journal search shows WebKit's clear glyph next to the app's ×, and the focus ring sits on the inner input (low). `type=search` keeps WebKit's cancel button beside `#jClear` (`apps/f260.html:704`); the pseudo-element's computed style is not readable in the rig, but both show in the screenshot. Evidence: `audits/evidence/p3/f260/journal-search-two-clears-iphone.png`; `audits/screens/f260/journal-search-typical-iphone-pwa-light.png`.
 - **Why it matters.** Two clear buttons.
@@ -4564,7 +4596,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-7 — The printed plan shows no ticks or read state, and each week's header rule curls up
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The printed plan shows progress and straight week rules. print: tick boxes printed (.mark hidden → shown), a read reading rgb(0,0,0) plain → rgb(105,105,105) struck through, an unread one black; week header radius 12 px → 0; still 3 pages. Round 1 review fixes: ticked boxes black in every theme, transitions off for print, a memory verse and its box kept together. The print subtitle's grey (3.95:1, older than this batch) became dimgray, 5.5:1, after the first final run; print re-run passes, 3 pages, and the re-measure no longer lists it. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__print.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__print.txt`, `audits/evidence/p6/4/tests/print-after-dimgray.txt`, `audits/evidence/p6/4/p3/f260/print-eli.pdf`.
 - **Evidence.** `audits/03-apps/f260.md:715`; `apps/f260.html:499`, `apps/f260.html:237`; `audits/evidence/p3/f260/print-media-page1.png`, `audits/evidence/p3/f260/print-media-wkhead-zoom.png`
 - **What happens now.** The printed plan shows no ticks or read state, and each week's header rule curls up (low). Print hides `.mark` (`apps/f260.html:499`), read and unread links print identically (black, no decoration), and the week header keeps its 12 px radius over a 1 px bottom border (`apps/f260.html:237, 510`). Evidence: `audits/evidence/p3/f260/print.json`; `audits/evidence/p3/f260/print-media-page1.png`; `audits/evidence/p3/f260/print-media-wkhead-zoom.png`; `audits/screens/f260/print-typical-desktop-light.png`.
 - **Why it matters.** The printed plan shows no progress.
@@ -4573,7 +4606,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-8 — The theme hint renders at 17 px body ink
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The theme hint is styled locally as a footnote in --text-3. journal-4 settings.themeHint: 17 px rgb(34,28,23) → 13 px rgb(99,91,83), the same as the neighbouring hint. After: `audits/evidence/p6/4/tests/repro-after/p6-4__journal-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__journal.txt`.
 - **Evidence.** `audits/03-apps/f260.md:716`; `apps/f260.html:644`, `apps/design.css:454`; `audits/screens/f260/settings-typical-iphone-pwa-light.png`
 - **What happens now.** The theme hint renders at 17 px body ink (low). `<p class="help">` (`apps/f260.html:644`) is styled only as `.ds .help` (`apps/design.css:454`), and F260 does not use `.ds`; the neighbouring hints are 13.5 px muted. Evidence: `journal.json` `settings.themeHint`; `audits/screens/f260/settings-typical-iphone-pwa-light.png`.
 - **Why it matters.** The hint renders as body text.
@@ -4582,7 +4616,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-9 — Undo drops onto its own line below Done at 1180 and 1440 px
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** Undo stays beside Done at 1180 and 1440 px. layout before vs layout-4: iPad landscape Done y 285 / Undo y 355 → 278 / 286, desktop 232 / 302 → 227 / 235; sameRow false → true at both widths. At 390 after Done the row holds Done, Undo (64×44) and the pen-only Journal; at XL/XXL Done takes its own row. After: `audits/evidence/p6/4/tests/repro-after/p6-4__layout-4.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__layout.txt`.
 - **Evidence.** `audits/03-apps/f260.md:717`; `apps/f260.html:143`; `audits/evidence/p3/f260/layout-undo-desktop.png`, `audits/evidence/p3/f260/layout-undo-ipad-landscape.png`
 - **What happens now.** Undo drops onto its own line below Done at 1180 and 1440 px (low). Done y 232, Undo y 302 at both widths (`apps/f260.html:143, 153`). Evidence: `layout.json` `devices.desktop.undo`; `audits/evidence/p3/f260/layout-undo-desktop.png`; `audits/evidence/p3/f260/layout-undo-ipad-landscape.png`.
 - **Why it matters.** Undo wraps.
@@ -4591,7 +4626,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-12 — Web tells: selectable chrome, a native checkbox, emoji as icons, 109 targets under 44 px per page
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** M · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** M · **Batch** 4 · **Status** PARTIAL (`2a6bd05`)
+- **Phase 6 (PARTIAL).** Done in part. webtells: reading links no longer select (text → none); "Show passcode" is the shared switch (native checkbox 22 px → a 52 px switch); milestones are sprite icons; the Today and journal art cannot be dragged (post-rescore); long settings choices sit in a .seg-grid on the phone. Targets: TOK/literals 48 → 2, SHAPE/analyze under-44 selectors 17 → 14, layout 107 → 105 per page. Left: the year-grid cells (11×18) cannot reach 44 px in their grid, and the book-bar segments are 3-5 px wide (44 tall). The h1 stays selectable. A long-press on a real iPad is not checked. After: `audits/evidence/p6/4/tests/repro-after/phase3__f260__webtells.txt`, `audits/evidence/p6/4/tests/repro-before/phase3__f260__webtells.txt`, `audits/evidence/p6/4/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/4/p4tools/out/SHAPE_analyze.txt`.
 - **Evidence.** `audits/03-apps/f260.md:720`; `apps/f260.html:734`, `apps/f260.html:1219-1232`, `apps/f260.html:77`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** Done, the week headers, the marks and the switch compute `-webkit-user-select: text`.
 - **Why it matters.** Web tells.
@@ -4600,7 +4636,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-13 — The current week's header truncates its start date on the phone
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** The current week's subtitle wraps under the NOW badge and ring on the phone instead of cutting to "started Se…". The iPhone capture shows "Acts · started Sep 20" whole on its own line under "Week 38 NOW". After: `audits/screens-after/4/f260/week-open-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/f260.md:726`; `audits/evidence/p3/f260/journal-week-note-footer-iphone.png`, `audits/screens/f260/hear-open-empty-iphone-pwa-light.png`
 - **What happens now.** The current week's header truncates its start date on the phone (low; from the visual check). With the note badge and ring on the row, the subtitle cuts to "Acts · started Se…". Evidence: `audits/evidence/p3/f260/journal-week-note-footer-iphone.png`; `audits/screens/f260/hear-open-empty-iphone-pwa-light.png`; `audits/screens/f260/hear-open-typical-iphone-safari-dark.png`.
 - **Why it matters.** The start date is cut off.
@@ -4609,7 +4646,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-F260-15 — A locked or empty journal keeps Search, Newest first and Copy all live-looking, and "Set passcode" crowds its caption
 
-- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4
+- **Area** f260 · **Type** visual · **Severity** low · **Effort** S · **Batch** 4 · **Status** FIXED (`2a6bd05`)
+- **Phase 6 (FIXED).** While the journal is locked or empty, Search, the sort button and Copy all are disabled and look it, and Set passcode has room under its caption. The desktop capture shows the dimmed controls and a separate Set passcode button. The final re-measure lists jSearch (15), jSort (15) and jCopyAll (7) among F260's below-AA texts: all in this disabled state, which WCAG exempts (see VIS-F260-4). After: `audits/screens-after/4/f260/journal-locked-typical-desktop-dark.png`, `audits/evidence/p6/4/measure/failing-pairs.json`.
 - **Evidence.** `audits/03-apps/f260.md:728`; `audits/screens/f260/journal-locked-typical-desktop-dark.png`
 - **What happens now.** A locked or empty journal keeps Search, Newest first and Copy all live-looking, and "Set passcode" crowds its caption (low; from the visual check). Evidence: `audits/screens/f260/journal-locked-typical-desktop-dark.png`.
 - **Why it matters.** Dead controls look live.
@@ -4622,7 +4660,9 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 | ID | Improvement | Kind | Delight | Effort | Source | Status |
 |---|---|---|---|---|---|---|
-| IMP-F260-F4 | Choose the reading-reminder time per person (as Books and Journal do); the toggle already lives in Me, the hour goes in `push_prefs` | feature | 3 | M | `audits/03-apps/f260.md:903` | open |
+| IMP-F260-F4 | Choose the reading-reminder time per person (as Books and Journal do); the toggle already lives in Me, the hour goes in `push_prefs` | feature | 3 | M | `audits/03-apps/f260.md:903` | FIXED (`2a6bd05`) |
+
+- **IMP-F260-F4 — Phase 6 (FIXED).** Each person picks the reading nudge time: push_pref:readAt "HH:MM" on the half hour (unset = 8 pm, the old push_prefs row still read), in Me → Notifications (36 half hours, a 44 px control, greyed while the nudge is off). The evening job runs at every firing for people in their hour, once a day, only when nothing is logged; a forced admin run ignores the times. cron-check-4 31/0 (Mae at 6:30 and only Mae; Mom from the old 07:00; nobody twice); test-push2 70/0 with the stand-in receiver; smoke-api 325/0. Not checked: a real push arriving at a chosen time on a phone. After: `audits/evidence/p6/4/tests/repro-after/p6-4__cron-check-4.txt`, `audits/evidence/p6/4/tests/suites/test-push2.txt`, `audits/evidence/p6/4/tests/smoke-api.txt`.
 
 ### Batch 5 — Verses (20)
 

@@ -1,0 +1,7 @@
+BEFORE  rows {"recall":66,"mem":66} | Verses {"due":3,"boxes":[2,1,7,15,41],"total":66,"streak":13} | log days 13 | frame {"rc":66,"mem":66,"r36":{"s":"got","t":1789821600000,"box":5,"due":"2026-10-03","last":"2026-09-19","streak":6},"r37":{"s":"got","t":1789908000000,"box":4,"due":"2026-09-27","last":"2026-09-20","streak":4}}
+DIALOG  Reset all progress? On all your devices: every checkmark, memorized verse, milestone, week date and the reading streak are cleared, and so is the Verses app’s review schedule for these verses (their boxes and due dates). Your HEAR journal entries stay. You can undo it for a few seconds afterwards. Keep it Reset | mentions Verses/schedule: true
+AFTER   rows {"recall":null,"mem":null,"verses":7,"done":null,"journalKeysKept":[]}
+VERSES after reset   {"due":0,"boxes":[0,0,0,0,0],"total":0,"streak":13} | Eli · all done Nothing to train yet Mark a memory verse as memorised in F260 and it will show up here on its review day. | log days 13
+tombstone {"value":null,"updated_at":1790080802902} re-mark put 200 server mem 3 | frame sees {"rc":0,"mem":3,"r36":null,"r37":null}
+VERSES after re-mark {"due":3,"boxes":[3,0,0,0,0],"total":3,"streak":13} | Eli · 3 to go WEEK 36 · VERSE 1 · 2 MORE AFTER THIS Luke 23:34 Say it from memory, then tap Show. Read aloud Show Your b | recall rows null
+evidence → audits/evidence/p3/f260/verify-critic-reset-silently-wipes-verses-schedule-8-2.json

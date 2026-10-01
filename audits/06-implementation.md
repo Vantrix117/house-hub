@@ -1671,3 +1671,188 @@ An independent judge rescored the Phase 4 scorecard (`audits/04-design-system.md
 - **Found, not fixed (outside this batch):** a device that was offline, taps Prayed on a family request someone else has since deleted, brings it back when it syncs (last write wins; `verify-delete-copy-wrong-2`, `staleOfflineWriteResurrects: true`). It needs its own finding (a tombstone must win over an older edit).
 - **Accepted small points:** a feed line posted when another app is opened mid-run arrives about 20 s late (never lost or doubled); a cut-off plan name cannot be read by tap on Today (it is in Settings); the "shared" pill sits under the + at the resting scroll (colours pass; nothing is covered at the list's end).
 - **Production.** Nothing deployed. Deploy order: migrations 006, then 007, then `npx wrangler deploy`, then the site.
+
+## Batch 4 — F260 Reading Plan (and the Prayer parts batch 3 missed)
+
+| | |
+|---|---|
+| **Findings** | 38 F260 entries (6 medium, 32 low), the kept improvement IMP-F260-F4 and 21 batch-1 carry-overs. **36 FIXED and 2 PARTIAL** (UX-F260-6: the weeks open at the current week on wide screens only; VIS-F260-12: the year grid's cells cannot reach 44 px); **IMP-F260-F4 FIXED**; of the 21 carry-overs **4 now FIXED** (CONS-SHAPE-2, CONS-SHAPE-6, VIS-SHAPE-2, VIS-F260-16) and **17 stay PARTIAL**, each naming the later app batch that owns the rest. Status per entry in `audits/05-findings.md`; the carry-overs in batch 1's section, the improvement in "Improvements with no finding (f260)". |
+| **Code commit** | `2a6bd05` (2026-10-01) |
+| **Files** | <ul><li>`apps/f260.html` (the batch; every existing id and the layout kept, additions only)</li><li>`apps/prayer.html` (batch 1's leftovers that batch 3 missed)</li><li>`apps/design.css`, component half only (one segmented control `.ds .seg` / `.segmented` with `.seg-grid`; `svg.sym` scaled by the text size); the token half byte-identical</li><li>new `icons/sprite.svg` (49 Lucide-style symbols) and `icons/LICENSE-lucide.txt`</li><li>`index.html` (Me → Notifications reading time; Home's streak rule)</li><li>`worker/src/reminders.js` (the reading nudge at each person's time; the two-device day rule; `pruneRestored`), `worker/src/index.js` (`/api/f260/readers` on the same rule), `worker/src/chat.js` (chat's untick follows the app)</li><li>`sw.js` (`hub-v43` → `hub-v44`), `CLAUDE.md`, `worker/README.md`</li><li>tests: `scripts/test-push2.mjs` (61 → 70 checks), `scripts/smoke-api.sh` (322 → 325), `test-prayer.mjs` and `test-prayer-faces.mjs` read the new switch and kid button on purpose</li></ul> |
+| **Schema / data** | No schema change and no migration. New person rows `app_data(person, hub, 'push_pref:readAt')` (the reading nudge's time) and `app_data(person, f260, 'restored:<date>:<uid>')` (what an Undo or a restore wrote back; pruned after a day). F260's rows keep their shape. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-09-30-before-4.sql` (39 KB, 111 rows). Nothing was deployed. |
+| **How it was built** | <ul><li>Before the batch, an agent sorted batch 1's 26 unfinished design entries that mention F260 or Prayer. This found that batch 3 had taken only 4 of its own, because the notes write it as "(F260 4, Prayer 3, …)" and the search matched only "Prayer's batch".</li><li>Three workers: A (F260's logic, copy and the reading time), B (F260's look, its carry-overs and the shared icon set) and P (Prayer's missed carry-overs).</li><li>Two independent reviewers ran 5 core rounds and 4 visual rounds before the review closed.</li><li>After the final run, the status writer and the independent rescore each found work (below). It was fixed, reviewed again and followed by a second full final run on the final code.</li></ul> |
+
+### The change
+
+**Reading that counts.**
+- **Undo and the day (P3-F260-02, -04, -07).** Undo takes back what a tick did: today's day on the log (only when nothing else was read today), a best streak set today, a finished plan, a week the tick started.
+- **The streak (P3-F260-03).** An unread today is pending, never a rest day, so two rest days keep the streak as the owner asked. The same rule holds in F260, on Home and in chat.
+- **Week dates (P3-F260-18, -19).** A week's date is set by its first reading, never by stepping through weeks.
+- **Missed readings (GAP-F260-1).** A reading missed in an earlier week shows on Today: "Missed: Week 30 · Day 3 — Malachi 2 · Catch up".
+
+**Two devices, one day.**
+- **An untick on one device never erases another device's day.** The app repairs it once a sync has landed. The Worker applies the same rule, so the evening nudge and the TV's "read today" stay right.
+- **Readings written back by an Undo or a restore don't count as read today.** They are listed once in a row of their own, so an Undo can't mark today as read. A real re-tick still counts.
+- **Reset (P3-F260-16, UX-F260-2).** It names everything it clears, including the Verses review schedule. It can be undone for 10 s, merging by value, so a change made on another device meanwhile is kept.
+
+**Honest words and fewer taps.**
+- "On all your devices", where it used to say "this device" (P3-F260-12, -15, UX-F260-1).
+- Percentages that never read 100 % with a reading left or 0 % after one (P3-F260-10), and plurals that agree with their number (P3-F260-11).
+- The journal saves only real changes (P3-F260-17), and search can't break on "&" (P3-F260-20).
+- A Journal button on the Today card cuts writing today's entry from 6 taps to 2 plus the passcode (UX-F260-11).
+- A settings gear in the header (UX-F260-8).
+- "Read ahead" after today's tick (UX-F260-13).
+- The journal's locked state is shown in place (UX-F260-3).
+- The weeks column opens at the current week on wide screens (UX-F260-6, partly).
+
+**The look.**
+- **Loading and tokens.** Nothing jumps while data loads: 9 moving landmarks → 0, cold CLS 0.0463 → 0.0011 (VIS-F260-3). Every size, space, radius and duration is a design token.
+- **Icons.** One shared icon set (`icons/sprite.svg`, one stroke weight, one drawing per meaning) replaces F260's private sprite, its emoji and its text glyphs.
+- **One segmented control for every app.** It has a visible track and capsule items, and puts long choices in tidy equal cells on a phone.
+- **Print (VIS-F260-7).** The printed plan has tick boxes, greys what was read, and keeps its subtitle legible.
+- **Other entries.**
+  - VIS-F260-4: disabled controls look disabled.
+  - VIS-F260-5: the footers are styled.
+  - VIS-F260-6: the search has one clear button.
+  - VIS-F260-8: the hint is the footnote role.
+  - VIS-F260-9: Undo stays on Done's row.
+  - VIS-F260-13: the week header wraps cleanly.
+  - VIS-F260-15: locked controls are disabled.
+  - UX-F260-7: the practice chips fold into one "Practice N verses".
+
+**The reading nudge's time (IMP-F260-F4).** Each person picks when the reading reminder comes (Me → Notifications). It is still once a day, and only when nothing was read.
+
+**Prayer's missed carry-overs.**
+- Its alias colour names are gone.
+- The shared press feel; capsule primaries.
+- Cards, radii and spacing on tokens (spacing on the grid 44.6 % → 92.3 %).
+- The shared segmented control.
+- Loading placeholders that hold the page still for kids.
+- The shared icons, bolder for kids.
+- Its own class names, so its sheet no longer restyles the hub's confirm sheet.
+
+**What the independent review changed.**
+- **Core round 1:** an untick erased a day another device had logged (fixed by the repair rule). Also Reset's Undo overwrote changes made in its window, chat's untick did not give back a best streak, and a stale summary.
+- **Visual round 1:**
+  - two segmented-control looks, one of them invisible on Hearth;
+  - icons that did not grow with the text;
+  - kid icons too thin;
+  - Prayer's cold load moved (the adult shift that remains, a review prompt appearing, was accepted as data-driven);
+  - a print border in dark mode;
+  - a wrapped Journal button;
+  - one drawing for two meanings.
+- **Rounds 2-5:** each fix was attacked until nothing broke.
+  - The Undo guard lost dates, so it now merges by value, not by time, because device clocks differ.
+  - An Undo could mark today as read, so a synced per-Undo row was added.
+  - That row hid a real re-tick, so it now records an `upTo` stamp.
+  - The shared segmented control overlapped long labels, so it now wraps on whole words.
+- **After the first final run:**
+  - The independent rescore found reading mode's side card covering the week header on wide screens, a regression from P3-F260-09. It also found a sub-11-px streak note, untidy phone choices, references split across lines, invisible placeholders and draggable art. All were fixed and reviewed clean.
+  - The status writer found 46 contrast samples nobody had examined, and that the Phase 4 measuring tools had not been re-run in the final run.
+    - Every sample is accounted for (below). The one real one, the printed subtitle at 3.95:1 (there since before the batch), is now 5.5:1.
+    - The tools were run on the final code and on the pre-batch archive.
+  - Then the whole final run was repeated on the final code.
+
+### Each finding's reproduction, rerun
+
+- **How they were run.** The 42 scripts the entries name ran three at a time on the unchanged code (`git archive` of `d636fc2`) and on the final code. The copies in `audits/tools/phase6/4/` and `/3/` also ran.
+  - Outputs and exit codes are in `audits/evidence/p6/4/tests/repro-before/` and `repro-after/`.
+  - The files the scripts wrote are in `audits/evidence/p6/4/p3/` and `p6-3/`, and the baseline was restored.
+- **Exit codes.** Five originals now fail, each because its screen changed on purpose:
+  - journal and vis-unlock-1-1: the Journal tab shows its locked state in place;
+  - layout and the two heatmap scripts: the today cell's class changed.
+  - Their `-4` copies pass.
+  - Some scripts stop at the same rig clock error before and after, after reaching the fix.
+  - Verdicts rest on what the outputs say. f260-a-4 (32 checks) and cron-check-4 (31) cover the later steps.
+
+| Finding | Before | After |
+|---|---|---|
+| P3-F260-02 (untick) | "Read today ✓" and a streak day stayed after Undo | the day comes off; streak [12, 13, 12] |
+| P3-F260-03 (2 rest days) | "Start a new streak · 0" the day after two rest days | "11-day streak · read today to keep it" |
+| P3-F260-07 (Done ahead, Undo) | Undo left the new week current and dated | back to week 37; week 38's start date removed |
+| P3-F260-10 (percent) | 100 % with one left, 0 % after one | 99 % / 1 % |
+| P3-F260-19 (stepper) | week starts stamped 38-41 | only week 38 |
+| P3-F260-17 (HEAR focus) | re-dated and re-uploaded on focus | unchanged, nothing sent |
+| Two devices (review probe p1) | the house's day erased, readers drop the person | the day kept, readers right |
+| VIS-F260-3 (cold load) | CLS 0.0463, 9 landmarks move | 0.0011, 0 move |
+| P3-F260-08 (heatmap) | the today cell broke the grid (8 rows) | 25 × 12 like the rest, 7 rows |
+| UX-F260-7 (practice chips) | Day 1 340 px below | 56 px below, one 44 px chip |
+| UX-F260-11 (journal today) | 6 taps, 1,100 px scroll | 2 taps + the passcode |
+| VIS-F260-7 (print) | no ticks, curled rules | tick boxes, read in grey, straight rules, 3 pages |
+| IMP-F260-F4 (cron-check-4) | — | 31/0: the chosen hour only, once a day, nothing when read |
+
+**The Phase 4 measuring tools**, run on the pre-batch archive and on the final code (`audits/evidence/p6/4/p4tools/before/` and `out/`):
+
+| Tool | F260 before → after | Prayer before → after |
+|---|---|---|
+| TOK/literals: literal spacing / radii / font sizes / colour mixes | 211 / 34 / 68 / 1 → 0 / 0 / 0 / 0 | 170 / 18 / 0 / 1 → 1 / 0 / 0 / 0 |
+| TYPE/code-scan: sizes on roles vs computed | 56 roles + 68 calc → 120 roles, 0 calc | 87 → 88 roles (all already roles) |
+| ICON/static: private symbols, stroke weights | 11 symbols, 5 weights (2, 2.5, 2.6, 3.5, 6) → 0 symbols (the shared sprite), the progress rings only (6, 3.5) | 3 weights (1.75, 2, 2.2) → the sprite (one weight) |
+| MOTION/press: controls with press feedback | 56 / 102 → 105 / 105 at 0.97 | 12 / 19 → 19 / 19; kid 4 / 9 → 9 / 9 |
+| MOTION/cls: landmarks that move as data lands | 9 (317 px iPad, 514 px iPhone) → 0 | 4 (13 / 60 px) → 4 (5 / 5 px) |
+| SHAPE/analyze: macro spacing on the 4 px grid | 36.8 % → 93.3 % | 44.6 % → 92.3 % |
+| SHAPE/verify: page margins (iPhone / iPad portrait / landscape) | 20 / 50 / 32 → the same | 22 / 152 / 332 → 20 / 130 / 310 (the `--col-narrow` column) |
+
+SHAPE/analyze's "large radii on the scale" uses a hard-coded list older than the tokens (`analyze.mjs:12`), so its radius figure is not used; by design.css's `--r-*` roles every large radius in both apps is a role.
+
+### Repo tests
+
+| Suite | Before (batch 3's final run) | After |
+|---|---|---|
+| test-push2 | 61 / 0 | 70 / 0 (the reading nudge at the chosen time) |
+| smoke-api.sh | 322 / 0 | 325 / 0 (the reading time's row) |
+| test-f260 / test-prefs / test-kidstory / test-verses / test-home | 58 / 35 / 50 / 80 / 65 | the same, all 0 failed |
+| test-prayer / test-prayer-faces / test-kitchen / test-rewards | 36 / 42 / 55 / 73 | the same |
+| every other suite | pass | pass, identical counts |
+| smoke-chat (mock) | 64 / 0 | 64 / 0 (chat's untick checked separately, 7/0) |
+| Earlier batches' checks, verify-1a, the token gate, browser-check | pass | pass; `handoff/prayer/check.js` 47/2 as since batch 0g, `0g/check-ids.js` 49/49; Prayer's `prayer-claims-3` 6/6 |
+
+-- `node scripts/bump-sw.mjs --check`: 75 precached files present, 70 shipped files accounted for. Every inline script parses (30 of 30). The saved smoke outputs had their throwaway local test tokens and codes blanked.
+- `scripts/screens-apps.mjs`: 90/1 both before and after this batch. The one failure, Tally's page background, is pre-existing and is Tally's (batch 11).
+
+### Measurement, captures and the rescore
+
+**Contrast.** F260 and Prayer were re-measured on the final code (themes, devices and states).
+- F260's text below AA: 1,809 (Phase 4) → 69 (batch 1) → 239. Every one is accounted for:
+  - **201** are controls disabled on purpose in the measured state (the journal locked, a passcode not set): VIS-F260-4 and -15 made disabled controls look disabled, and WCAG exempts them.
+  - **24** were sampled through the iPhone's floating glass Plan/Journal bar, over content scrolling under it.
+  - **10** are edge samples whose median passes.
+  - **4** are the milestone toast caught fading in (on screen it is white on its dark pill).
+- Prayer: 162, all disabled controls, as before.
+
+**Captures.** Three areas were recaptured on the final code: F260 629, Prayer 809, shell 979, 0 failed (`audits/screens-after/4/`).
+- **F260:** 629 of 629 changed against the pre-batch control, from type, spacing, icons and the new controls.
+- **Prayer:** 800 of 809 changed against batch 3's capture (its whole style pass); the 9 unchanged are the print pages.
+- **The shell:** 79 of 979 changed, from the segmented controls in Me → Appearance, the guest and household sheets (checked by eye), plus the known 60 px Kitchen-timer label shift.
+
+**Rescore** (`audits/evidence/p6/4/rescore.md`; an independent judge, the Phase 4 method, bases held):
+- **F260: 5.4 → 6.0.**
+  - Layout 5.5 → 6.5: spacing on the grid 36.8 → 93.3 %, the 20 px phone margin.
+  - Colour 5 → 6.
+  - Icons 3.5 → 4.5.
+  - Motion 4.5 → 5.5.
+  - Native 5 → 6.
+  - Typography, Shape and Ease each +½.
+- **Prayer: 5.6 → 5.9.**
+  - Layout 5 → 6.
+  - Shape and Icons each +½.
+  - Colour 5 → 6 by a consistency ruling the file names.
+
+### Not verified
+- **A real iPhone and iPad:**
+  - the reading nudge arriving at a chosen time through real push;
+  - the shared icon file served offline in an installed app (checked offline in Chromium only);
+  - press and long-press feel;
+  - iOS select pickers and the keyboard when the Journal opens;
+  - nested scrolling of the weeks column on an iPad in landscape;
+  - Face ID;
+  - Prayer's speech;
+  - two real devices whose clocks differ by more than the rig's 4 s (the rules are by value or by each row's own stamp, and a 10-minute skew passed in the rig).
+- **Left partly done:**
+  - **UX-F260-6:** phones still open on Today, because scrolling the page there would push Done out of view.
+  - **VIS-F260-12:** the year grid's cells cannot reach 44 px.
+  - **17 carry-overs stay PARTIAL**, owned by the later app batches named in each.
+- **Found, not fixed (outside this batch):**
+  - Me → Add a guest's face grid is cut off at 390 px / text size XXL. It was the same before this batch; the owner is the shell.
+  - The Tally page-background test failure.
+- **Production.** Nothing deployed. Deploy order: migrations 006, then 007, then `npx wrangler deploy` (it brings the reading time and the two-device rule to the Worker), then the site.

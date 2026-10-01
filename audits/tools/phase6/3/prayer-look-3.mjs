@@ -10,6 +10,9 @@
 //   kid      UX-PRAYER-2: "Pray" + hands before, face + ✓ + "Prayed" after; lightness change >= 3:1 between the two fills for
 //            Ezra and Kiara in both schemes; the speaker reads the request (speechSynthesis.speak called with the title)
 // Rescore follow-up (ICO-2): the hands, the checks and the chevron are drawn SVGs now, and the checks read them as such.
+// Batch 4 (Worker P): the calendar's empty-day check no longer depends on the date. On the 1st of a month the grid has no past
+// empty day (every day is today or later), so the check found nothing and failed; when there is none it now measures a probe
+// day: one plain span put in the same grid (an empty day is a plain span), read, and removed. The result notes which it used.
 // Run: node "audits/tools/phase6/3/prayer-look-3.mjs" -> audits/evidence/p6/3/prayer-look-3.json (exit 1 on any FAIL)
 import fs from 'node:fs';
 import { local, sleep } from '../../lib/local.mjs';
@@ -45,12 +48,14 @@ try {
     // Record: the calendar
     await f.evaluate(() => go('answered')); await sleep(400);
     const cal = await f.evaluate(() => { const m = document.querySelector('#record .calmonth'), dow = document.querySelector('#record .dow'), g = document.querySelector('#record .cal');
-      const empty = [...g.querySelectorAll('span:not(.on):not(.blank):not(.later):not(.today)')][0];
+      let empty = [...g.querySelectorAll('span:not(.on):not(.blank):not(.later):not(.today)')][0], probe = null;
+      if (!empty) { probe = document.createElement('span'); g.appendChild(probe); empty = probe; }   // the 1st of a month: no past empty day yet
       const ring = empty ? getComputedStyle(empty).boxShadow.match(/rgba?\([^)]*\)/)[0] : null;
-      return { month: m && m.textContent, dowAbove: !!(dow && g && dow.getBoundingClientRect().bottom <= g.getBoundingClientRect().top + 1), ring, bg: getComputedStyle(document.body).backgroundColor }; });
+      if (probe) probe.remove();
+      return { month: m && m.textContent, dowAbove: !!(dow && g && dow.getBoundingClientRect().bottom <= g.getBoundingClientRect().top + 1), ring, probe: !!probe, bg: getComputedStyle(document.body).backgroundColor }; });
     ok(/\w+ \d{4}/.test(cal.month || ''), 'calendar: the month is named', cal.month);
     ok(cal.dowAbove, 'calendar: the weekday letters sit above the grid');
-    ok(cal.ring && cr(cal.ring, cal.bg) >= 3, 'calendar: an empty day is >= 3:1 against the page', cal.ring && cr(cal.ring, cal.bg));
+    ok(cal.ring && cr(cal.ring, cal.bg) >= 3, 'calendar: an empty day is >= 3:1 against the page', cal.ring && (cr(cal.ring, cal.bg) + (cal.probe ? ' (a probe day: no past empty day this month)' : '')));
     // List: chevrons
     await f.evaluate(() => go('all')); await sleep(400);
     // batch 3 rescore (ICO-2, on purpose): the chevron is a drawn SVG (summary > svg.chev), no longer a CSS ::after square

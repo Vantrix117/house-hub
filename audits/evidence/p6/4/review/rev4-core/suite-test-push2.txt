@@ -1,0 +1,88 @@
+
+## setup: pair, sign in three adults + a kid, subscribe the receiver
+  ✓ paired
+  ✓ Ezra (kid) signed in
+  ✓ Kiara (kid) signed in
+  ✓ eli: receiver subscribed
+  ✓ christian: receiver subscribed
+  ✓ mom: receiver subscribed
+  ✓ VAPID configured locally (push enabled)
+  ✓ mom: push_prefs behind/prayer/park = off
+  ✓ cron/run rejects an unknown job
+  ✓ cron/run is admin only
+
+## behind: F260 weekly catch-up
+  ✓ behind job ran
+  ✓ Eli is 3 behind (5 - 2, week started 6 days ago)
+  ✓ Mae is 1 behind (not pushed)
+  ✓ only Eli notified
+  ✓ mom skipped: pref off
+  ✓ decrypted payload: "You are 3 readings behind — Genesis 27 is next."
+  ✓ Mae and mom got nothing
+  ✓ second run the same day: Eli not pushed again
+  ✓ week started 2 days ago: not judged (week_too_young)
+
+## prayer: new family-list prayer -> adults except the author
+  ✓ first run only seeds the watermark (no pushes)
+  ✓ one new prayer, author resolved to Mae from the activity line
+  ✓ only Eli notified
+  ✓ Mae skipped: she added it
+  ✓ mom skipped: pref off
+  ✓ decrypted payload names the prayer
+  ✓ Mae and mom got nothing
+  ✓ editing an existing prayer does not re-announce it
+  ✓ editing the title of a family request does not announce it again
+  ✓ person-scope prayers are ignored
+  ✓ Eli adds prayer:p003 "First prayer" with by:eli and no activity line — new, author Eli
+  ✓ Eli is skipped as the author (not pushed about his own prayer)
+  ✓ Mae notified, Eli skipped as author
+  ✓ Mae's decrypted payload names "First prayer"
+  ✓ the receiver saw no prayer push to Eli for his own prayer
+  ✓ Eli deletes prayer:p003 (tombstone, row kept)
+  ✓ a different prayer re-using the key prayer:p003 is announced as new
+  ✓ Mae and mom notified (a second new prayer the same day still reaches Mae); Eli author
+  ✓ mom's decrypted payload names the re-created prayer
+  ✓ next run: the re-created prayer is not announced twice
+  ✓ a plain delete announces nothing
+
+## park: judged by the house's clock (the full rules are in scripts/test-park.mjs, in process)
+  ✓ Eli switches Ezra's beacon on
+  ✓ Ezra's phone publishes his dot, its clock 35 min slow
+  ✓ a dot the house has just heard from is not quiet, whatever the phone's clock says (review of batch 2b)
+
+## pref flips
+  ✓ behind pref off: Eli skipped as pref_off (not just already_today)
+  ✓ push_log matches: eli behind/prayer, christian prayer, mom prayer
+  ✓ receiver saw exactly 5 pushes, all decrypted + VAPID valid
+
+## the reading nudge at each person's own time (batch 4, IMP-F260-F4; the clock rules: audits/tools/phase6/4/cron-check-4.mjs)
+  ✓ Mae picks 6:30 am for her reading nudge (push_pref:readAt)
+  ✓ the evening job reads each person's time: Mae 06:30, Eli unset = 20:00
+  ✓ forced from Admin it ignores the times: Eli and Mae (nothing read today) are nudged now
+  ✓ receiver: one reading nudge each (tag f260)
+  ✓ a second run the same day: already_today, nobody nudged twice
+
+## Me → Notifications: the three switches (headless)
+  ✓ switches for behind, prayer and park are in the card
+  ✓ plain labels
+  ✓ switches reflect push_prefs (behind off from the API, the others default on)
+  ✓ switches are touch-sized (≥ 44 px wide)
+  ✓ tapping "New family prayers" flips it off
+  ✓ switch rows on the server: push_pref:prayer off, push_pref:behind back on, park untouched
+  ✓ Me: "Reading nudge time" reads 8:00 pm for Eli (unset), 36 half hours, a 44 px control
+  ✓ the choice is the row push_pref:readAt = "07:00"
+  ✓ the time is greyed while the reading nudge is off
+  ✓ and back when it is on again
+
+## prayer app: a prayer typed straight into the family list names its author (headless)
+  ✓ the family row the app wrote carries by:eli
+  ✓ no activity line was written for it (the row is the only trace of the author)
+  ✓ prayer job: the typed prayer is new and its author is Eli
+  ✓ Eli is left out as the author
+  ✓ receiver: no push to Eli about his own typed prayer
+  ✓ Mae is told about the typed prayer (no once-a-day gate)
+  ✓ Ezra (kid) has no Notifications card (none of the adult switches)
+  ✓ the house refuses a kid's subscription (403 no_push)
+  ✓ no console errors
+
+70 passed, 0 failed

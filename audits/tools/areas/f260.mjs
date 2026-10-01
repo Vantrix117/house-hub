@@ -50,7 +50,19 @@ async function setPass(t, f) {
   if (await f.locator('#pass.on').count()) throw new Error('passcode dialog still open: ' + ((await f.textContent('#passErr')) || 'no message'));
   await t.sleep(150);
 }
+// batch 4 (UX-F260-3): the Journal tab shows its locked state first; its Set passcode / Unlock button opens the dialog
+async function journalTab(t, f) {
+  await t.tap($(f, '#tabJournal'));
+  await waitOn(f, '[data-unlock-view]');
+  await t.tap($(f, '[data-unlock-view]'));
+}
 // the current week's day ids, e.g. ["38-0", …, "38-4"], and the last one already read (else the first)
+// batch 4 (UX-F260-7): past three, the "Practice again" chips fold into one "Practice N verses" button: open it first
+async function practiceChip(t, f, id) {
+  const more = f.locator('.week.current [data-recallall]');
+  if (await more.count()) { await t.tap(more.first()); await waitOn(f, `.week.current [data-practice="${id}"]`); }
+  await t.tap($(f, `.week.current [data-practice="${id}"]`));
+}
 const weekDays = f => f.evaluate(() => [...document.querySelectorAll('.week.current .day')].map(d => d.dataset.day));
 const lastRead = f => f.evaluate(() => { const d = [...document.querySelectorAll('.week.current .day.done')].pop() || document.querySelector('.week.current .day'); return d && d.dataset.day; });
 // Type one HEAR entry into a day's panel (opening it first); blurring the last field saves it, as leaving the field does.
@@ -241,10 +253,10 @@ export const screens = [
   {
     screen: 'journal',
     states: ['typical', 'error'],
-    note: 'The Journal tab. No passcode has been set, so opening it asks for one at once (“Set a journal passcode”). Error: two passcodes that do not match. The vault is encrypted, so no journal content is seeded, and empty/overflow look the same as typical.',
+    note: 'The Journal tab. No passcode has been set: its Set passcode button asks for one (“Set a journal passcode”; batch 4, UX-F260-3). Error: two passcodes that do not match. The vault is encrypted, so no journal content is seeded, and empty/overflow look the same as typical.',
     async go(t) {
       const f = await open(t);
-      await t.tap($(f, '#tabJournal'));
+      await journalTab(t, f);
       await waitOn(f, '#pass.on');
       await t.sleep(250);
       if (t.error) {
@@ -269,13 +281,11 @@ export const screens = [
   {
     screen: 'journal-locked',
     states: ['typical'],
-    note: 'The Journal tab after cancelling the passcode prompt: the private-journal empty state with “Set passcode”, search/sort/copy disabled.',
+    note: 'The Journal tab as it opens without a passcode (batch 4, UX-F260-3: no prompt until Set passcode is tapped): the private-journal empty state with “Set passcode”, search/sort/copy disabled.',
     async go(t) {
       const f = await open(t);
       await t.tap($(f, '#tabJournal'));
-      await waitOn(f, '#pass.on');
-      await t.tap($(f, '#passCancel'));
-      await f.waitForSelector('#pass.on', { state: 'detached', timeout: 1500 }).catch(() => {});
+      await waitOn(f, '[data-unlock-view]');   // batch 4 (UX-F260-3): no dialog on the tab itself
       await t.sleep(250);
       await toTop(t, f);
     },
@@ -287,7 +297,7 @@ export const screens = [
     async go(t) {
       await noWrites(t);
       const f = await open(t);
-      await t.tap($(f, '#tabJournal'));
+      await journalTab(t, f);
       await setPass(t, f);
       await waitOn(f, '#jLock:not([hidden])');
       await t.tap($(f, '#jLock'));
@@ -343,7 +353,7 @@ export const screens = [
     async go(t) {
       await noWrites(t);
       const f = await open(t);
-      if (t.state === 'empty') { await t.tap($(f, '#tabJournal')); await setPass(t, f); await waitOn(f, '#jList .empty'); await toTop(t, f); return; }
+      if (t.state === 'empty') { await journalTab(t, f); await setPass(t, f); await waitOn(f, '#jList .empty'); await toTop(t, f); return; }
       const ids = await weekDays(f), list = ENTRIES[t.state];
       await reveal(t, f, '.week.current');
       await t.tap($(f, `[data-jr="${ids[0]}"]`));
@@ -424,7 +434,7 @@ export const screens = [
     async go(t) {
       await noWrites(t);
       const f = await open(t);
-      await t.tap($(f, '#tabJournal')); await setPass(t, f);
+      await journalTab(t, f); await setPass(t, f);
       await t.tap($(f, '#tabPlan'));
       await settings(t, f);
       await reveal(t, f, '#backupBtn', 'end');
@@ -437,7 +447,7 @@ export const screens = [
     async go(t) {
       await noWrites(t);
       const f = await open(t);
-      await t.tap($(f, '#tabJournal')); await setPass(t, f);
+      await journalTab(t, f); await setPass(t, f);
       await t.tap($(f, '#tabPlan'));
       await settings(t, f);
       await t.tap($(f, '#changePassBtn'));
@@ -480,7 +490,7 @@ export const screens = [
     async go(t) {
       const f = await open(t);
       const id = t.state === 'overflow' ? '37-0' : '36-1';
-      await t.tap($(f, `.week.current [data-practice="${id}"]`));
+      await practiceChip(t, f, id);
       await waitOn(f, '#practice.on'); await t.sleep(250);
     },
   },
@@ -491,7 +501,7 @@ export const screens = [
     async go(t) {
       const f = await open(t);
       const id = t.state === 'overflow' ? '37-0' : '36-1';
-      await t.tap($(f, `.week.current [data-practice="${id}"]`));
+      await practiceChip(t, f, id);
       await waitOn(f, '#practice.on');
       await t.tap($(f, '#practice [data-prreveal]'));
       await waitOn(f, '#practice [data-prmark]'); await t.sleep(250);
@@ -503,7 +513,7 @@ export const screens = [
     note: 'Practice for a verse whose text was never pasted: the paste box with Open passage ↗ / Cancel / Save.',
     async go(t) {
       const f = await open(t);
-      await t.tap($(f, '.week.current [data-practice="37-0"]'));
+      await practiceChip(t, f, '37-0');
       await waitOn(f, '#prPaste'); await t.sleep(250);
     },
   },
