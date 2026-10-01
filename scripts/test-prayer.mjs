@@ -178,9 +178,9 @@ const token = (page, name) => page.evaluate(n => { const d = document.createElem
     ({ ctx, page } = await openApp(browser, tv, 'tv'));
     ok(await page.evaluate(() => hub.canWrite === false), 'kiosk session cannot write');
     ok(!(await vis(page, '.fab')) && !(await vis(page, 'nav [data-go="add"]')), 'kiosk hides the + button and the Add tab');
-    await page.click('.switch button[data-list="shared"]'); await sleep(300);
+    await page.click('#listSwitch button[data-list="shared"]'); await sleep(300);
     ok(await page.$eval('#todayList .empty', e => !!e.querySelector('img')) && (await page.$$eval('#todayList .empty button', bs => bs.filter(b => b.offsetParent).length)) === 0, 'kiosk empty state keeps the picture and drops the Add action');
-    await page.click('.switch button[data-list="personal"]'); await sleep(200);
+    await page.click('#listSwitch button[data-list="personal"]'); await sleep(200);
     ok(!errors.some(e => e.startsWith('tv:')), 'no page errors for the display profile', errors.filter(e => e.startsWith('tv:')).join(' | '));
     await ctx.close();
   } catch (e) { fail++; console.log('  ✗ threw:', e.stack || e); }

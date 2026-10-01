@@ -1,13 +1,13 @@
 // Scheduled reminders + push delivery.
 //   morning   (8:00 New York):        leftovers that hit "use it up" within two days -> every household adult who opted in
-//   evening   (8:00 pm New York):     F260 reading not checked today -> that profile
+//   evening   (every run, 15 min):    F260 reading not checked today -> that profile, at their time (push_pref:readAt; 8 pm unset)
 //   behind    (Sunday 8:00 pm):       F260 week running 2+ readings behind -> that adult (weekly catch-up)
 //   prayer    (8 am and 8 pm hours):  family-list prayers each household adult has not been told about yet (never their own)
 //   prayedfor (8 pm hour):            someone prayed today for a family request you added -> you (GAP-PRAYER-1)
 //   park      (every run, 15 min):    a kid's map marker has gone quiet while an adult's is fresh -> household adults
 //   praytime  (every run, 15 min):    the person's own "reminder to pray" time (push_prefs.prayAt) -> that person
-// The cron (wrangler.toml) fires every 15 minutes; runCron reads the New York time of the firing, so 8:00 am / 8:00 pm
-// stay put across daylight saving, and every firing of those hours runs them (a failed push is tried again). morning,
+// The cron (wrangler.toml) fires every 15 minutes; runCron reads the New York time of the firing, so 8:00 am / 8:00 pm (and
+// each person's chosen time) stay put across daylight saving, and every firing of those hours runs them (a failed push is tried again). morning,
 // evening, behind, praytime and prayedfor send at most once per person per day (push_log, delivered pushes only); prayer
 // and park remember per person what they have told (settings), so nothing is lost to a push sent earlier that day. Every
 // kind honours the person's switch (app_data(person, hub, 'push_pref:<kind>') over the old 'push_prefs' row; default on)
@@ -34,8 +34,23 @@ export const vapidFrom = env => (env.VAPID_PRIVATE_KEY && env.VAPID_PUBLIC_KEY
   ? { publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY, subject: env.VAPID_SUBJECT || 'mailto:hub@example.com' } : null);
 
 /** Every reminder kind and its default. The Me tab stores overrides as app_data(person, hub, 'push_pref:<kind>'); prayAt ("HH:MM",
- *  a quarter hour, New York time) turns the reminder to pray on — unset, it is off. */
-export const PREF_DEFAULTS = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, prayAt: null };
+ *  a quarter hour, New York time) turns the reminder to pray on — unset, it is off. readAt ("HH:MM", New York) is when the
+ *  reading nudge (kind f260) comes — unset, 8 pm (IMP-F260-F4); the f260 switch still turns it off. */
+export const PREF_DEFAULTS = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, prayAt: null, readAt: null };
+export const READ_AT_DEFAULT = '20:00';
+/** "HH:MM" → minutes after midnight, or null for anything else. */
+export const minutesOf = s => { const m = /^(\d{2}):(\d{2})$/.exec(String(s || '')); return m && +m[1] < 24 && +m[2] < 60 ? +m[1] * 60 + +m[2] : null; };
+/** A per-person time pref (prayAt, readAt) for everyone who set one: the row push_pref:<name> over the old whole row. */
+async function chosenTimes(env, name) {
+  const { results } = await env.DB.prepare("SELECT profile_id, key, value FROM app_data WHERE app_id = 'hub' AND scope = 'person' AND ((key = 'push_prefs' AND value LIKE ?) OR key = ?)").bind('%' + name + '%', 'push_pref:' + name).all();
+  const at = {};
+  for (const r of results) {
+    let v; try { v = r.value == null ? undefined : JSON.parse(r.value); } catch { continue; }
+    if (r.key === 'push_pref:' + name) { if (v !== undefined) at[r.profile_id] = { v, row: true }; }
+    else if (!(at[r.profile_id] && at[r.profile_id].row) && v && typeof v === 'object') at[r.profile_id] = { v: v[name], row: false };
+  }
+  return Object.fromEntries(Object.entries(at).map(([pid, x]) => [pid, x.v]));
+}
 
 /**
  * Per-profile toggles. Since the review of batch 2b the Me tab keeps one row per kind, app_data(person, hub, 'push_pref:<kind>')
@@ -159,12 +174,12 @@ export async function morningJob(env, now = Date.now()) {
  * Everyone's F260 person rows, keyed by profile: { 'f260.log', 'f260.summary', 'f260.weekStart' }. Since batch 0e the
  * log is one row per day (log:<date>, true | false) over the old whole-map row; they are folded into 'f260.log' here.
  */
-async function f260ByProfile(env) {
-  const { results } = await env.DB.prepare("SELECT profile_id, key, value FROM app_data WHERE app_id = 'f260' AND scope = 'person' AND (key IN ('f260.log', 'f260.summary', 'f260.weekStart') OR substr(key, 1, 4) = 'log:') AND value IS NOT NULL ORDER BY key").all();
+async function f260ByProfile(env, date = null, now = Date.now()) {
+  const { results } = await env.DB.prepare("SELECT profile_id, key, value, updated_at FROM app_data WHERE app_id = 'f260' AND scope = 'person' AND (key IN ('f260.log', 'f260.summary', 'f260.weekStart') OR substr(key, 1, 4) = 'log:') AND value IS NOT NULL ORDER BY key").all();
   const byProfile = {}, days = {};
   for (const r of results) {
     let v; try { v = JSON.parse(r.value); } catch { continue; }
-    if (r.key.startsWith('log:')) (days[r.profile_id] ||= []).push([r.key.slice(4), v]);
+    if (r.key.startsWith('log:')) { (days[r.profile_id] ||= []).push([r.key.slice(4), v]); if (date && r.key === 'log:' + date) (byProfile[r.profile_id] ||= {}).logRow = { value: v, updated_at: +r.updated_at }; }
     else (byProfile[r.profile_id] ||= {})[r.key] = v;
   }
   for (const [pid, list] of Object.entries(days)) {
@@ -172,17 +187,79 @@ async function f260ByProfile(env) {
     for (const [day, v] of list) { if (v === false) delete log[day]; else log[day] = v; }
     d['f260.log'] = log;
   }
+  // the readings ticked in the last two days, for an untick another device's tick outlived (f260UntickOutlived)
+  if (date) {
+    const ticks = await f260RecentTicks(env, null, date, now);
+    for (const [pid, list] of Object.entries(ticks)) if (byProfile[pid]) byProfile[pid].ticks = list;
+  }
   return byProfile;
 }
+/**
+ * P3-F260-02, review round 1: an untick on one device sees only that device's ticks, so a reading another device ticked
+ * offline can land after it with an older log:<date> = true that loses. Today still counts as read when its log:<date>
+ * row is an untick (false) written AFTER a reading that is still ticked and was ticked that day (the app puts the day
+ * back on its next pull; this is the house's own reading meanwhile). A later write (a Reset's Undo, a restore) never counts.
+ */
+/**
+ * The readings ticked in the last two days, per profile, as their rows' times — less the ones a Reset's Undo or a restore
+ * wrote back on `date` (listed in the person row restored:<date>, review round 3): those carry today's date but were
+ * not read today. profileIds null = everyone.
+ */
+export async function f260RecentTicks(env, profileIds, date, now = Date.now()) {
+  const only = profileIds ? ` AND IFNULL(profile_id, '') IN (${profileIds.map(() => '?').join(',')})` : '';
+  const args = profileIds || [];
+  const { results: ticks } = await env.DB.prepare(`SELECT profile_id, key, updated_at FROM app_data WHERE app_id = 'f260' AND scope = 'person' AND substr(key, 1, 5) = 'done:' AND value = 'true' AND updated_at > ?${only}`).bind(now - 2 * 86400000, ...args).all();
+  const { results: back } = await env.DB.prepare(`SELECT profile_id, value FROM app_data WHERE app_id = 'f260' AND scope = 'person' AND substr(key, 1, ?) = ? AND value IS NOT NULL${only}`).bind(('restored:' + date + ':').length, 'restored:' + date + ':', ...args).all();
+  const restored = {};
+  for (const r of back) { let v; try { v = JSON.parse(r.value); } catch { continue; } addRestored((restored[r.profile_id] ||= new Map()), v); }
+  const out = {};
+  for (const t of ticks) { if (isWrittenBack(restored[t.profile_id], t.key.slice(5), +t.updated_at)) continue; (out[t.profile_id] ||= []).push(+t.updated_at); }
+  return out;
+}
+/**
+ * Review round 4: a restored:<date>:<uid> row is { ids, upTo } — the readings one Undo or restore turned back on and the
+ * newest stamp it gave them (upTo null while it is being written: all of them). A done: row of a listed id stamped at or
+ * before upTo was written back; a later tick of it is real. apps/f260.html restoredOn()/ticksToday() read it the same way.
+ */
+export function addRestored(map, v) {
+  if (!v || typeof v !== 'object' || !Array.isArray(v.ids)) return map;
+  const up = v.upTo != null && Number.isFinite(+v.upTo) ? +v.upTo : Infinity;
+  for (const id of v.ids) map.set(String(id), Math.max(map.get(String(id)) || 0, up));
+  return map;
+}
+export const isWrittenBack = (map, id, t) => !!map && map.has(id) && t <= map.get(id);
+/** The first 8 am / 8 pm firing: restored:<date>:* rows older than yesterday (New York) go (round 4); only today's are read. */
+export async function pruneRestored(env, now = Date.now()) {
+  const today = nyParts(new Date(now)).date, yesterday = new Date(Date.parse(today + 'T12:00:00Z') - 86400000).toISOString().slice(0, 10);
+  const r = await env.DB.prepare("DELETE FROM app_data WHERE app_id = 'f260' AND scope = 'person' AND substr(key, 1, 9) = 'restored:' AND substr(key, 10, 10) < ?").bind(yesterday).run();
+  return (r && r.meta && r.meta.changes) || 0;
+}
+export function f260UntickOutlived(date, logRow, tickTimes) {
+  if (!logRow || logRow.value !== false || !logRow.updated_at) return false;
+  return (tickTimes || []).some(t => t < logRow.updated_at && nyParts(new Date(t)).date === date);
+}
 
-export async function eveningJob(env, now = Date.now()) {
-  const { date } = nyParts(new Date(now));
+/**
+ * The reading nudge (kind f260): no F260 reading logged today -> that person, at the time they chose in Me → Notifications
+ * (push_pref:readAt, "HH:MM" New York, on the half hour; unset = 8 pm), once a day. It runs at every cron firing (IMP-F260-F4);
+ * the chosen time's whole hour is eligible, as praytime's is, so a push that failed is tried again at the next firing and the
+ * once-a-day gate (delivered pushes only) stops a second. Forced from Admin ({ forced }), it ignores the time.
+ */
+export async function eveningJob(env, now = Date.now(), { forced = false } = {}) {
+  const { date, hour, minute } = nyParts(new Date(now));
   const out = { job: 'evening', date, checked: [], notified: [], skipped: [] };
-  for (const [pid, d] of Object.entries(await f260ByProfile(env))) {
+  const times = await chosenTimes(env, 'readAt'), nowMin = hour * 60 + minute;
+  const timeOf = pid => (minutesOf(times[pid]) !== null ? times[pid] : READ_AT_DEFAULT);
+  const due = pid => { const m = minutesOf(timeOf(pid)); return nowMin >= m && nowMin < m + 60; };
+  // a firing in no one's hour reads nothing more (the default hour, 8 pm, covers everyone who chose no time)
+  const defaultDue = (m => nowMin >= m && nowMin < m + 60)(minutesOf(READ_AT_DEFAULT));
+  if (!forced && !defaultDue && !Object.keys(times).some(pid => minutesOf(times[pid]) !== null && due(pid))) { out.quiet = true; return out; }
+  for (const [pid, d] of Object.entries(await f260ByProfile(env, date, now))) {
     const log = d['f260.log'] || {}, sum = d['f260.summary'] || null;
-    const readToday = !!log[date];
-    out.checked.push({ profile: pid, readToday });
+    const readToday = !!log[date] || f260UntickOutlived(date, d.logRow, d.ticks);   // an untick another device's tick outlived (review round 1)
+    out.checked.push({ profile: pid, readToday, at: timeOf(pid) });
     if (readToday || (sum && sum.finished)) continue;
+    if (!forced && !due(pid)) { out.skipped.push({ profile: pid, why: 'not_their_time' }); continue; }
     const next = sum && sum.next ? `${sum.next.ref} is next (week ${sum.next.week}, day ${sum.next.day}).` : 'Your next reading is waiting.';
     await notify(env, out, pid, 'f260', { title: 'F260', body: `No reading checked off today yet. ${next}`, url: '#f260', tag: 'f260' }, { ttl: 3 * 3600 }, now);
   }
@@ -345,18 +422,11 @@ export async function prayTimeJob(env, now = Date.now()) {
   const slot = `${String(hour).padStart(2, '0')}:${String(minute - minute % 15).padStart(2, '0')}`;
   const out = { job: 'praytime', date, slot, due: [], notified: [], skipped: [] };
   // who chose a time: the per-kind row push_pref:prayAt over the old whole row (review of batch 2b)
-  const { results } = await env.DB.prepare("SELECT profile_id, key, value, updated_at FROM app_data WHERE app_id = 'hub' AND scope = 'person' AND ((key = 'push_prefs' AND value LIKE '%prayAt%') OR key = 'push_pref:prayAt')").all();
-  const at = {};
-  for (const r of results) {
-    let v; try { v = r.value == null ? undefined : JSON.parse(r.value); } catch { continue; }
-    if (r.key === 'push_pref:prayAt') { if (v !== undefined) at[r.profile_id] = { v, row: true }; }
-    else if (!(at[r.profile_id] && at[r.profile_id].row) && v && typeof v === 'object') at[r.profile_id] = { v: v.prayAt, row: false };
-  }
+  const at = await chosenTimes(env, 'prayAt');
   // the chosen time's whole hour is eligible (a push that failed at the time is tried again until it lands, review of
   // batch 2b); the once-a-day gate (delivered pushes only) stops a second one
-  const mins = s => { const m = /^(\d{2}):(\d{2})$/.exec(String(s || '')); return m ? +m[1] * 60 + +m[2] : null; };
   const nowMin = hour * 60 + minute;
-  const due = Object.entries(at).filter(([, x]) => { const m = mins(x.v); return m !== null && nowMin >= m && nowMin < m + 60; }).map(([pid]) => pid);
+  const due = Object.entries(at).filter(([, v]) => { const m = minutesOf(v); return m !== null && nowMin >= m && nowMin < m + 60; }).map(([pid]) => pid);
   if (!due.length) return out;
   const { results: rows } = await env.DB.prepare("SELECT scope, profile_id, value FROM app_data WHERE app_id = 'prayer' AND key LIKE 'prayer:%' AND value IS NOT NULL AND (scope = 'family' OR (scope = 'person' AND profile_id IN (" + due.map(() => '?').join(',') + ')))').bind(...due).all();
   const active = r => { try { const v = JSON.parse(r.value); return !!(v && v.title && (v.status || 'active') === 'active'); } catch { return false; } };
@@ -425,10 +495,10 @@ export const JOBS = { morning: morningJob, evening: eveningJob, behind: behindJo
 
 /**
  * What a cron firing at `now` runs (the cron fires every 15 min): every firing of the 8 o'clock hour, New York -> morning +
- * prayer; of the 20 o'clock hour -> evening (+ behind on Sundays) + prayer + prayedfor (a push that failed at :00 is tried
- * again at :15, :30, :45; the once-a-day gate and the prayer memory keep anyone from being told twice); every firing ->
- * park + praytime (which picks the people whose chosen time's hour this is). main = the first firing of 8 am / 8 pm (the
- * guest and kids'-chat clean-ups run then).
+ * prayer; of the 20 o'clock hour -> behind on Sundays + prayer + prayedfor (a push that failed at :00 is tried again at
+ * :15, :30, :45; the once-a-day gate and the prayer memory keep anyone from being told twice); every firing -> evening (the
+ * reading nudge, which picks the people whose chosen time's hour this is, 8 pm unless they chose another; IMP-F260-F4),
+ * park and praytime (likewise). main = the first firing of 8 am / 8 pm (the guest and kids'-chat clean-ups run then).
  */
 export function jobsAt(now) {
   const { hour, minute, weekday } = nyParts(new Date(now));
@@ -436,8 +506,8 @@ export function jobsAt(now) {
   // every firing of the 8 o'clock and 20 o'clock hours runs that hour's jobs (review of batch 2b): a push that failed at
   // 8:00 is tried again at 8:15, 8:30 and 8:45; the once-a-day gate (delivered pushes only) and the prayer job's own memory
   // keep anyone from being told twice
-  const names = hour === 8 ? ['morning', 'prayer'] : hour === 20 ? ['evening', ...(weekday === 'Sun' ? ['behind'] : []), 'prayer', 'prayedfor'] : [];
-  return { hour, minute, weekday, main, names: [...names, 'park', 'praytime'] };
+  const names = hour === 8 ? ['morning', 'prayer'] : hour === 20 ? [...(weekday === 'Sun' ? ['behind'] : []), 'prayer', 'prayedfor'] : [];
+  return { hour, minute, weekday, main, names: ['evening', ...names, 'park', 'praytime'] };
 }
 /**
  * Called by the cron trigger. `force` runs one named job regardless of the clock and returns its result alone
@@ -446,7 +516,7 @@ export function jobsAt(now) {
 export async function runCron(env, now = Date.now(), force = null) {
   if (force) {
     if (!JOBS[force]) return { job: null, error: 'bad_job' };
-    return JOBS[force](env, now);
+    return JOBS[force](env, now, { forced: true });   // the reading nudge then ignores each person's time (the others ignore the flag)
   }
   const { hour, minute, weekday, main, names } = jobsAt(now);
   const ran = [];

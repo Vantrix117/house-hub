@@ -224,6 +224,17 @@ async function serveSite() {
     const perKind = pushes.filter(p => p.payload).map(p => p.url + ' ' + p.payload.tag).sort();
     ok(perKind.length === 5 && !pushes.some(p => p.error), 'receiver saw exactly 5 pushes, all decrypted + VAPID valid', perKind);
 
+    console.log('\n## the reading nudge at each person\'s own time (batch 4, IMP-F260-F4; the clock rules: audits/tools/phase6/4/cron-check-4.mjs)');
+    { const r = await put('christian', 'hub', 'person', 'push_pref:readAt', '06:30'); ok(r.status === 200, 'Mae picks 6:30 am for her reading nudge (push_pref:readAt)', r.body); }
+    r = await run('evening');
+    const at = Object.fromEntries((r.body.checked || []).map(c => [c.profile, c.at]));
+    ok(r.status === 200 && at.christian === '06:30' && at.eli === '20:00', 'the evening job reads each person\'s time: Mae 06:30, Eli unset = 20:00', r.body.checked);
+    ok(['eli', 'christian'].every(p => r.body.notified.some(n => n.profile === p)), 'forced from Admin it ignores the times: Eli and Mae (nothing read today) are nudged now', r.body.notified.map(n => n.profile));
+    await sleep(400);
+    ok(['eli', 'christian'].every(p => pushesFor(p, 'f260').length === 1), 'receiver: one reading nudge each (tag f260)', ['eli', 'christian'].map(p => pushesFor(p, 'f260').length));
+    r = await run('evening');
+    ok(!r.body.notified.length && r.body.skipped.some(s => s.profile === 'christian' && s.why === 'already_today'), 'a second run the same day: already_today, nobody nudged twice', r.body.skipped);
+
     console.log('\n## Me → Notifications: the three switches (headless)');
     site = await serveSite();
     if (!site) { ok(false, `port ${SITE_PORT} stayed busy — headless Me check skipped`); }
@@ -262,6 +273,16 @@ async function serveSite() {
       const rows = (await api('GET', '/api/data/hub?scope=person&prefix=push_pref:', undefined, 'eli')).body.items || [];
       const v = Object.fromEntries(rows.filter(r => r.value !== null).map(r => [r.key.slice('push_pref:'.length), r.value]));
       ok(v.prayer === false && v.behind === true && !('park' in v), 'switch rows on the server: push_pref:prayer off, push_pref:behind back on, park untouched', rows);
+      // IMP-F260-F4: the reading nudge has a time under its switch; unset it reads 8:00 pm, and a choice is one row
+      const rd = await page.$eval('#notif-read', e => ({ v: e.value, n: e.options.length, label: e.closest('.kv').querySelector('b').textContent, h: e.getBoundingClientRect().height }));
+      ok(rd.v === '20:00' && rd.n === 36 && /Reading nudge time/.test(rd.label) && rd.h >= 44, 'Me: "Reading nudge time" reads 8:00 pm for Eli (unset), 36 half hours, a 44 px control', rd);
+      await page.selectOption('#notif-read', '07:00');
+      await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush readAt' });
+      { const r = (await api('GET', '/api/data/hub?scope=person&prefix=push_pref:readAt', undefined, 'eli')).body.items || []; ok(r.length === 1 && r[0].value === '07:00', 'the choice is the row push_pref:readAt = "07:00"', r); }
+      await page.click('#notif-prefs [data-pref=f260]');
+      ok(await page.$eval('#notif-read', e => e.disabled), 'the time is greyed while the reading nudge is off');
+      await page.click('#notif-prefs [data-pref=f260]');
+      ok(!(await page.$eval('#notif-read', e => e.disabled)), 'and back when it is on again');
       await page.evaluate(() => document.getElementById('notif').scrollIntoView());
       fs.mkdirSync(path.join(ROOT, 'docs/screens'), { recursive: true });
       await page.screenshot({ path: path.join(ROOT, 'docs/screens/rm15-me-notifications.png') });

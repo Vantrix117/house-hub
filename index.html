@@ -1322,7 +1322,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   const f260On = f => { if (!f) return null; if (f.readOn) return f.readOn; const r = hub.list('f260.summary', { app: 'f260', scope: 'person' })[0]; return r && r.updated_at ? hub.today(r.updated_at) : null; };
   // one row per day since batch 0e (log:<date>) over the old whole-map row; null when neither is there yet
   const f260Log = () => { const F = { app: 'f260', scope: 'person' }, l = hub.get('f260.log', F); return (l && typeof l === 'object') || hub.list('log:', F).length ? hub.rowMap('log:', 'f260.log', F) : null; };
-  const logStreak = days => { let d = hub.today(), n = 0, gap = 0; for (let i = 0; i < 400; i++) { if (days[d]) { n++; gap = 0; } else if (++gap > 2) break; d = hub.addDays(d, -1); } return n; };
+  const logStreak = days => { let d = hub.today(), n = 0, gap = 0; if (!days[d]) d = hub.addDays(d, -1); /* an unread today is pending, not a rest day (P3-F260-03) */ for (let i = 0; i < 400; i++) { if (days[d]) { n++; gap = 0; } else if (++gap > 2) break; d = hub.addDays(d, -1); } return n; };
   const f260Today = f => { const l = f260Log(); return l ? !!l[hub.today()] : !!(f && f.readToday && f260On(f) === hub.today()); };
   const f260Streak = f => { const l = f260Log(); if (l) return logStreak(l); const on = f && f.streak && f260On(f); return on && on === hub.today() ? f.streak : 0; };   // no log: trust a summary's streak only on the day it was written
   const timeOfDay = () => { const h = new Date().getHours(); return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening'; };
@@ -2357,7 +2357,8 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
           <div class="hstack"><div class="grow"><div>Reminders on this device</div><div class="help" id="notif-help">Checking…</div></div><button class="switch" id="notif-toggle" role="switch" aria-checked="false" aria-label="Notifications on this device" disabled></button></div>
           <div id="notif-prefs" hidden style="margin-top:var(--sp-3)">
             ${p.kind === 'adult' && !isGuest() ? '<div class="kv"><b>Fridge warnings, 8 am</b><button class="switch" data-pref="leftovers" role="switch" aria-checked="true" aria-label="Fridge warnings"></button></div>' : ''}
-            ${canSee('f260') ? '<div class="kv"><b>Reading nudge, 8 pm</b><button class="switch" data-pref="f260" role="switch" aria-checked="true" aria-label="Reading nudge"></button></div>' : ''}
+            ${canSee('f260') ? '<div class="kv"><b>Reading nudge</b><button class="switch" data-pref="f260" role="switch" aria-checked="true" aria-label="Reading nudge"></button></div>' : ''}
+            ${canSee('f260') ? `<label class="kv"><b>Reading nudge time</b><select class="select notif-time" id="notif-read" aria-label="Reading nudge time">${READ_TIMES.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>` : ''}
             ${p.kind === 'adult' && canSee('f260') ? '<div class="kv"><b>Weekly catch-up, Sunday 8 pm</b><button class="switch" data-pref="behind" role="switch" aria-checked="true" aria-label="Weekly catch-up"></button></div>' : ''}
             ${p.kind === 'adult' && !isGuest() && canSee('prayer') ? '<div class="kv"><b>New family prayers, 8 am and 8 pm</b><button class="switch" data-pref="prayer" role="switch" aria-checked="true" aria-label="New family prayers"></button></div>' : ''}
             ${canSee('prayer') ? '<div class="kv"><b>Who prayed for my requests, 8 pm</b><button class="switch" data-pref="prayedfor" role="switch" aria-checked="true" aria-label="Who prayed for my requests"></button></div>' : ''}
@@ -2848,10 +2849,13 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // ── notifications (Web Push) ──────────────────────────────────
   const PRAY_TIMES = [['', 'Off'], ...Array.from({ length: 36 }, (_, i) => { const m = 300 + i * 30, h = Math.floor(m / 60), mm = m % 60;
     return [String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0'), (h % 12 || 12) + ':' + String(mm).padStart(2, '0') + (h < 12 ? ' am' : ' pm')]; })];
+  // IMP-F260-F4: the reading nudge's time (push_pref:readAt), the same half hours; unset is 8 pm, and its switch turns it off
+  const READ_TIMES = PRAY_TIMES.slice(1), READ_DEFAULT = '20:00';
+  const readAtOf = p => READ_TIMES.some(x => x[0] === p.readAt) ? p.readAt : READ_DEFAULT;
   // the person's switches: one row per kind (push_pref:<kind>) over the old whole row push_prefs (review of batch 2b)
   const readPrefs = () => {
     const o = { app: 'hub', scope: 'person' };
-    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, prayAt: null, ...(hub.get('push_prefs', o) || {}) };
+    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, prayAt: null, readAt: null, ...(hub.get('push_prefs', o) || {}) };
     for (const r of hub.list('push_pref:', o)) out[r.key.slice('push_pref:'.length)] = r.value;
     return out;
   };
@@ -2878,12 +2882,17 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     notifRepaint = () => { if (!toggle.isConnected) return; Object.assign(prefs, readPrefs());
       prefsEl.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(prefs[b.dataset.pref] !== false)));
       const p2 = $('#notif-pray'); if (p2 && document.activeElement !== p2) p2.value = PRAY_TIMES.some(x => x[0] === prefs.prayAt) ? (prefs.prayAt || '') : '';
-      paintHelp(); };
+      paintRead(); paintHelp(); };
+    // IMP-F260-F4: the reading nudge's time; it is greyed while the nudge itself is off
+    const read = $('#notif-read');
+    const paintRead = () => { if (!read) return; if (document.activeElement !== read) read.value = readAtOf(prefs); read.disabled = prefs.f260 === false; };
+    if (read) read.onchange = () => { try { savePrefs({ ...prefs, readAt: read.value || null }); } catch (e) { read.value = readAtOf(prefs); } };
+    paintRead();
     prefsEl.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-checked', String(prefs[b.dataset.pref] !== false)));
     prefsEl.onclick = ev => {
       const b = ev.target.closest('[data-pref]'); if (!b) return;
       const next = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', String(next));
-      try { savePrefs({ ...prefs, [b.dataset.pref]: next }); paintHelp(); }
+      try { savePrefs({ ...prefs, [b.dataset.pref]: next }); paintHelp(); paintRead(); }
       catch (e) { b.setAttribute('aria-checked', String(!next)); }   // not loaded yet (the SDK says so): the switch goes back rather than pretend
     };
     const pray = $('#notif-pray');

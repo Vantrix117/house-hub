@@ -29,7 +29,12 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
    the iPad tier and kid mode (the kid roles: x1.2, a 16 px floor) reach Prayer as they reach every app; the roles floor at
    11 px and fields read --fs-field (never under 16 px). The Kitchen view and Pray now on the iPad read the glance roles.
    Motion (CONS-MOTION-2): every duration is a --dur-* token on its --spring-* / --ease-* curve, so Reduce Motion stills it.
-   Print keeps its pt sizes. */
+   Print keeps its pt sizes.
+   Batch 4 (the design-system leftovers): Prayer reads design.css's own names, with no local aliases (CONS-TOK-1); spacing is
+   the --sp-* scale and radii the --r-* roles, both of which grow for a kid (--space-k, --shape-k; CONS-SHAPE-3/6, GAP-TOK-4);
+   the content cards are the one card (CONS-SHAPE-1); the primary actions are capsules at --btn-h-lg (CONS-SHAPE-4); every
+   control presses the house way (CONS-MOTION-1); and Prayer's own components carry names of their own, so none borrows a
+   design.css component name (CONS-TOK-2): the Mine/Family control IS design.css's segmented control (.ds .seg). */
 /* ══════════════════════════════════════════════════════════════
    Light brown, modern. Sand and mocha neutrals, four saturated
    accents with exactly one job each:
@@ -37,17 +42,23 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
      teal = family list   terracotta = wants attention
    ══════════════════════════════════════════════════════════════ */
 :root{
-  /* Neutrals, the four accents, shadows and radii come from design.css; this block only maps the names. */
-  --paper:var(--bg); --raised:var(--surface); --sunk:var(--surface-2);
-  --ink:var(--text); --ink2:var(--text-2);
-  --rule:var(--line); --rule-soft:var(--line-soft);
-  --dim:var(--text);
-  /* category dots (audit batch 1a): marks, so they read the categorical GRAPHIC tones (>= 3:1), never the text inks the
+  /* Neutrals, the four accents, shadows and radii are design.css's own names (--bg, --surface, --text, --line, --elev-* and the rest),
+     read directly: the old local aliases (--paper, --raised, --ink and the rest) are gone (CONS-TOK-1).
+     Category dots (audit batch 1a): marks, so they read the categorical GRAPHIC tones (>= 3:1), never the text inks the
      bare hue names now point at. d0-d3 are the four graphics (peach for the old mocha, aqua, mint, butter); d4-d7 the
      same four families' fills, the softer tint of each. Every theme flips them. */
   --d0:var(--cat-2); --d1:var(--cat-5); --d2:var(--cat-4); --d3:var(--cat-3);
   --d4:var(--peach-fill-strong); --d5:var(--aqua-fill-strong); --d6:var(--mint-fill-strong); --d7:var(--butter-fill-strong);
-  --lift:var(--shadow); --lift-lg:var(--shadow-lg);
+  /* faces (GAP-TOK-4): on the icon scale, so they grow for a kid (--icon-k 1.25) like every other mark */
+  --face-xs:var(--icon-lg);                  /* 28: the faces in a row */
+  --face-sm:var(--icon-xl);                  /* 32 */
+  /* the kid cards' faces, which only a kid sees: the kid sizes they were drawn at (44 and 32), still on the kind-scaled token */
+  --face-kid:calc(var(--icon-xl) * 1.1);     /* 44 for a kid */
+  --face-kid-sm:calc(var(--icon-xl) * .8);   /* 32 for a kid */
+  --face-lg:calc(var(--icon-xl) * 1.75);     /* 56: Around the table */
+  --face-xl:calc(var(--icon-xl) * 2.75);     /* 88: who asked, in Pray mode */
+  /* the house press (design.css .pressable): scale and dim in at once, springing back out */
+  --press-t:transform var(--dur-snappy) var(--spring-snappy),filter var(--dur-snappy) var(--ease-standard);
   /* the person's colour: hub.js puts data-accent="<hue>" on <html>, and design.css derives every --accent-* role from it */
 }
 /* Dark themes need no block of their own: hub.js marks the resolved scheme on <html>
@@ -58,76 +69,76 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
-  background:var(--paper); color:var(--ink);
+  background:var(--bg); color:var(--text);
   font-family:var(--font-ui);   /* the house text face; rounded for a kid (D13, CONS-TYPE-5) */
   font-size:var(--fs-body); line-height:1.55; font-weight:400; letter-spacing:-.008em;
-  /* clears the nav (bottom 0) and the + above it (bottom 86 + 56 px), so nothing sits under the + (VIS-PRAYER-2) */
-  padding-bottom:calc(158px + env(safe-area-inset-bottom));
+  /* clears the nav (bottom 0) and the + above it (bottom 88 + 56 px), so nothing sits under the + (VIS-PRAYER-2) */
+  padding-bottom:calc(var(--sp-16) * 2 + var(--sp-8) + env(safe-area-inset-bottom));
   -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:var(--col-narrow);margin:0 auto;padding:0 22px}   /* the narrow column, centred (VIS-PRAYER-6) */
+/* the narrow column of text, centred (VIS-PRAYER-6), with the house side margin outside it (VIS-SHAPE-2: 20 px on an iPhone,
+   28 on an iPad), so a wide screen still reads a whole --col-narrow line */
+.wrap{max-width:calc(var(--col-narrow) + var(--margin-left) + var(--margin-right));margin:0 auto;padding:0 var(--margin-right) 0 var(--margin-left)}
 
 /* ── type ─────────────────────────────────────────────────── */
-h1{font-size:var(--fs-title1);font-weight:600;line-height:1.18;margin:10px 0 0;max-width:20ch;
+h1{font-size:var(--fs-title1);font-weight:600;line-height:1.18;margin:var(--sp-2) 0 0;max-width:20ch;
    letter-spacing:-.032em}
-h2{font-size:var(--fs-title3);font-weight:600;margin:46px 0 0;letter-spacing:-.022em}
-h3{font-size:var(--fs-footnote);font-weight:600;margin:30px 0 0;color:var(--muted);letter-spacing:-.005em}
+h2{font-size:var(--fs-title3);font-weight:600;margin:var(--sp-12) 0 0;letter-spacing:-.022em}
+h3{font-size:var(--fs-footnote);font-weight:600;margin:var(--sp-8) 0 0;color:var(--muted);letter-spacing:-.005em}
 .date{font-size:var(--fs-subheadline);font-weight:500;color:var(--muted);letter-spacing:-.005em}
 .screen{display:none}
 .screen.on{display:block;animation:rise var(--dur-gentle) var(--spring-gentle)}
 @keyframes rise{from{opacity:0;transform:translateY(calc(var(--enter-distance) * .375))}to{opacity:1;transform:none}}
-header{padding:38px 0 14px}
+header{padding:var(--sp-10) 0 var(--sp-3)}
 
-/* ── list switcher ────────────────────────────────────────── */
-.hdr{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:44px}
-.switch{display:inline-flex;margin:0;padding:3px;border-radius:999px;background:var(--sunk);flex:0 0 auto}
-.switch button{font-family:inherit;font-size:var(--fs-footnote);font-weight:600;padding:9px 15px;min-height:44px;border:none;
-  cursor:pointer;background:transparent;color:var(--muted);border-radius:999px;
-  letter-spacing:-.01em;transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-fast) var(--ease-standard)}
-.switch button[aria-pressed="true"]{background:var(--raised);color:var(--ink);box-shadow:var(--lift)}
+/* ── list switcher: design.css's segmented control (.ds .seg; CONS-TOK-2) ──
+   The row that holds it carries class "ds", so the shared component styles it: the selection is a >= 3:1 solid plus
+   weight, never a hue shift. Only its placement is Prayer's: the label size and the room each side of the word. */
+.hdr{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-3);min-height:var(--tap)}
+.hdr .seg,.addto .seg{flex:0 0 auto;font-size:var(--fs-footnote)}
+.hdr .seg button,.addto .seg button{letter-spacing:-.01em}
 
 /* ── progress + stats ─────────────────────────────────────── */
-.meter{height:6px;border-radius:999px;background:var(--sunk);margin:24px 0 14px;overflow:hidden}
-.meter i{display:block;height:100%;border-radius:999px;background:var(--mint-graphic);width:0;
+.meter{height:6px;border-radius:var(--r-full);background:var(--track);margin:var(--sp-6) 0 var(--sp-3);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:var(--r-full);background:var(--mint-graphic);width:0;
   transition:width var(--dur-progress) var(--spring-gentle)}
 /* the stats: two rows of two on a phone, one row where four fit; a zero is left out (VIS-PRAYER-8) */
-.strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;align-items:baseline;padding-bottom:4px;
+.strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-2) var(--sp-5);align-items:baseline;padding-bottom:var(--sp-1);
   font-size:var(--fs-footnote);font-weight:500;color:var(--muted);letter-spacing:-.008em}
 /* counts: the house numeral face with tabular figures (CONS-TYPE-3) */
-.strip b{display:inline-block;font-weight:700;font-size:var(--fs-title3);color:var(--ink);
-  margin-right:5px;letter-spacing:-.03em;font-family:var(--font-numeral);font-variant-numeric:var(--numeral-features)}
+.strip b{display:inline-block;font-weight:700;font-size:var(--fs-title3);color:var(--text);
+  margin-right:var(--sp-1);letter-spacing:-.03em;font-family:var(--font-numeral);font-variant-numeric:var(--numeral-features)}
 /* VIS-PRAYER-6 on a wide screen: the header keeps to few lines so requests show above the nav on a landscape iPad: the date
    and plan on one line (an ellipsis; the whole name in its title and in Settings), the headline on one line, each stat
    whole on one line, a little less air above */
 @media (min-width:700px){
-  .strip{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 12px}   /* a larger text size wraps whole stats, never a scroll */
+  .strip{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--sp-2) var(--sp-3)}   /* a larger text size wraps whole stats, never a scroll */
   .strip > span{white-space:nowrap}
-  header{padding-top:26px}
+  header{padding-top:var(--sp-6)}
   h1{max-width:none}
   .hdr .date{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .meter{margin-top:18px}
+  .meter{margin-top:var(--sp-4)}
 }
 .strip:empty{display:none}
-.cheer{font-size:var(--fs-callout);font-weight:500;color:var(--butter-ink);margin-top:6px;min-height:1.4em}
+.cheer{font-size:var(--fs-callout);font-weight:500;color:var(--butter-ink);margin-top:var(--sp-2);min-height:1.4em}
 .cheer:empty{display:none}   /* no empty line held open under the actions (VIS-PRAYER-6: the header does not eat the screen) */
 
 /* ── rows ─────────────────────────────────────────────────── */
 ul.list{list-style:none;margin:0;padding:0}
-li.row{display:flex;gap:15px;align-items:flex-start;padding:16px 0;
-  border-top:1px solid var(--rule-soft)}
+li.row{display:flex;gap:var(--sp-4);align-items:flex-start;padding:var(--sp-4) 0;
+  border-top:1px solid var(--separator)}
 ul.list li.row:first-child{border-top:none}
 /* 44 px tap target; the 30 px circle it always drew sits on ::before so the row looks the same */
-.mark{flex:0 0 auto;width:44px;height:44px;margin:-5px -7px 0 -7px;border:none;border-radius:50%;
+.mark{flex:0 0 auto;width:var(--tap);height:var(--tap);margin:calc(var(--sp-1) * -1) calc(var(--sp-2) * -1) 0;border:none;border-radius:50%;
   background:transparent;cursor:pointer;position:relative;
   display:grid;place-items:center;padding:0;color:var(--mint-on);
-  transition:transform var(--dur-snappy) var(--spring-snappy)}
+  transition:var(--press-t)}
 .mark::before{content:"";position:absolute;inset:7px;border-radius:50%;
-  border:1.75px solid var(--rule);transition:border-color var(--dur-fast) var(--ease-standard),background var(--dur-fast) var(--ease-standard)}
+  border:1.75px solid var(--line);transition:border-color var(--dur-fast) var(--ease-standard),background var(--dur-fast) var(--ease-standard)}
 .mark:hover::before{border-color:var(--mint-graphic)}
-.mark:active{transform:scale(.86)}
 .mark:focus-visible{outline:none}
 .mark:focus-visible::before{outline:2px solid var(--focus-ring-color);outline-offset:3px}
-.mark svg{position:relative;width:15px;height:15px;opacity:0;transform:scale(.4);
+.mark svg{position:relative;width:calc(var(--icon-xs) * var(--ts-user, 1));height:calc(var(--icon-xs) * var(--ts-user, 1));opacity:0;transform:scale(.4);
   transition:opacity var(--dur-fast) var(--ease-standard),transform var(--dur-bouncy) var(--spring-bouncy)}   /* the check pops in: the one small celebration */
 /* the prayed mark: a solid carrying the check, so the pair is mint strong + mint on (the pairing rule) */
 .mark[aria-pressed="true"]::before{background:var(--mint-strong);border-color:var(--mint-strong)}
@@ -135,97 +146,102 @@ ul.list li.row:first-child{border-top:none}
 .body{flex:1 1 auto;min-width:0;cursor:pointer}
 .title{font-size:var(--fs-body);font-weight:500;line-height:1.42;letter-spacing:-.012em}
 .row.done .title{color:var(--text-2);font-weight:400}   /* AA without opacity (VIS-PRAYER-1) */
-.meta{font-size:var(--fs-footnote);font-weight:500;color:var(--muted);margin-top:4px;letter-spacing:-.005em}
-.upd{font-size:var(--fs-callout);color:var(--ink2);margin-top:7px}
+.meta{font-size:var(--fs-footnote);font-weight:500;color:var(--muted);margin-top:var(--sp-1);letter-spacing:-.005em}
+.upd{font-size:var(--fs-callout);color:var(--text-2);margin-top:var(--sp-2)}
 .cold{color:var(--peach-ink)}
-.pill{display:inline-block;font-size:var(--fs-caption2);font-weight:600;padding:3px 9px;border-radius:999px;
-  background:var(--aqua-fill);color:var(--aqua-ink);margin-left:8px;vertical-align:2px;
+/* "shared" on a copy sent to the family list: Prayer's own tag (not design.css's .pill, a glass control; CONS-TOK-2) */
+.p-tag{display:inline-block;font-size:var(--fs-caption2);font-weight:600;padding:var(--sp-0-5) var(--sp-2);border-radius:var(--r-full);
+  background:var(--aqua-fill);color:var(--aqua-ink);margin-left:var(--sp-2);vertical-align:2px;
   letter-spacing:.01em}
-/* who prayed today (family list): real faces from hub.avatarHtml at 28 px, overlapping, at most five then "+N" */
-.who{display:inline-flex;align-items:center;margin-left:8px;padding-left:6px;vertical-align:middle}
-.who .avatar,.who .init,.who .more,.asker .avatar,.asker .init{--size:28px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
-  display:grid;place-items:center;overflow:hidden;margin-left:-6px;font-size:var(--fs-subheadline);line-height:1;position:relative;
+/* who prayed today (family list): real faces from hub.avatarHtml at 28 px (35 for a kid), overlapping, at most five then "+N" */
+.who{display:inline-flex;align-items:center;margin-left:var(--sp-2);padding-left:var(--sp-1-5);vertical-align:middle}
+.who .avatar,.who .init,.who .more,.asker .avatar,.asker .init{--size:var(--face-xs);width:var(--size);height:var(--size);border-radius:50%;flex:none;
+  display:grid;place-items:center;overflow:hidden;margin-left:calc(var(--sp-1-5) * -1);font-size:var(--fs-subheadline);line-height:1;position:relative;
   box-shadow:0 0 0 2px var(--surface)}
 /* hub.avatarHtml puts the person's data-accent on each face, so these roles are that person's, not the viewer's */
 .who .avatar,.asker .avatar{
   background:radial-gradient(120% 120% at 30% 20%, var(--accent-fill), var(--accent-fill-strong))}
 .who .avatar img,.asker .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .who .init,.asker .init{font-size:var(--fs-caption2);font-weight:700;background:var(--accent-fill);color:var(--accent-ink)}
-.who .more{font-size:var(--fs-caption2);font-weight:700;background:var(--sunk);color:var(--ink2)}
+.who .more{font-size:var(--fs-caption2);font-weight:700;background:var(--surface-2);color:var(--text-2)}
 /* who asked (family list): the requester's face, same 28 px recipe, then "<name> asked" in the meta line */
-.asker{display:inline-flex;align-items:center;gap:7px;margin-left:10px;vertical-align:middle}
+.asker{display:inline-flex;align-items:center;gap:var(--sp-2);margin-left:var(--sp-2);vertical-align:middle}
 .asker .avatar,.asker .init{margin-left:0}
 
 /* ── category sections ────────────────────────────────────── */
-details.cat{border-top:1px solid var(--rule-soft)}
-details.cat[open]{padding-bottom:10px}
-details.cat > summary{cursor:pointer;list-style:none;padding:16px 0;display:flex;
-  justify-content:space-between;align-items:center;gap:12px;
-  font-size:var(--fs-subheadline);font-weight:600;color:var(--ink2);letter-spacing:-.012em}
+details.cat{border-top:1px solid var(--separator)}
+details.cat[open]{padding-bottom:var(--sp-2)}
+details.cat > summary{cursor:pointer;list-style:none;padding:var(--sp-4) 0;display:flex;
+  justify-content:space-between;align-items:center;gap:var(--sp-3);
+  font-size:var(--fs-subheadline);font-weight:600;color:var(--text-2);letter-spacing:-.012em;
+  transition:var(--press-t)}
 details.cat > summary::-webkit-details-marker{display:none}
-/* the disclosure chevron (UX-PRAYER-7): Prayer's own drawn stroke icon (icon('chev')), pointing right while shut and down
-   when open; in the tertiary text ink (the decor tone fell to 2.9:1 on a card in the light palettes: batch 3 rescore). One icon family with the nav, the + and the marks (ICO-2). */
-details.cat > summary > .chev{order:3;flex:0 0 auto;width:20px;height:20px;margin:0 2px;color:var(--text-3);
+/* the disclosure chevron (UX-PRAYER-7): the shared set's chevron-down (icon('chev')), turned to point right while shut and
+   upright when open (the hub's one disclosure, Table ICON-6); in the tertiary text ink (the decor tone fell to 2.9:1 on a card in the light palettes: batch 3 rescore). Every
+   icon on the page is the hub's one set (icons/sprite.svg, design.css svg.sym): one weight, --icon-stroke (CONS-ICON-1). */
+details.cat > summary > .chev{order:3;flex:0 0 auto;width:calc(var(--icon-sm) * var(--ts-user, 1));height:calc(var(--icon-sm) * var(--ts-user, 1));margin:0 var(--sp-0-5);color:var(--text-3);
   transition:transform var(--dur-snappy) var(--spring-snappy)}
-details.cat[open] > summary > .chev{transform:rotate(90deg)}
+details.cat:not([open]) > summary > .chev{transform:rotate(-90deg)}
 /* the check after "All prayed" and after a face at the table: the same drawn check as the prayed mark */
-.hcheck{display:inline-block;width:.9em;height:.9em;margin-left:.22em;vertical-align:-.08em;color:var(--mint-ink)}
-.tcheck{display:inline-block;width:1.1em;height:1.1em;margin-left:.15em;vertical-align:-.2em;color:var(--mint-ink)}
+svg.hcheck{display:inline-block;width:calc(var(--icon-md) * var(--ts-user, 1));height:calc(var(--icon-md) * var(--ts-user, 1));margin-left:var(--sp-1-5);vertical-align:-.08em;color:var(--mint-ink)}
+svg.tcheck{display:inline-block;width:calc(var(--icon-xs) * var(--ts-user, 1));height:calc(var(--icon-xs) * var(--ts-user, 1));margin-left:var(--sp-1);vertical-align:-.2em;color:var(--mint-ink)}
 details.cat > summary .end,details.cat > summary > .n{margin-left:auto}   /* the count and Copy keep to the right, by the chevron */
-.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:9px;vertical-align:2px;
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:var(--sp-2);vertical-align:2px;
   background:var(--d0);flex:0 0 auto}
 .dot.d1{background:var(--d1)}.dot.d2{background:var(--d2)}.dot.d3{background:var(--d3)}
 .dot.d4{background:var(--d4)}.dot.d5{background:var(--d5)}.dot.d6{background:var(--d6)}.dot.d7{background:var(--d7)}
 details.cat > summary .n{font-size:var(--fs-footnote);font-weight:600;color:var(--muted);
-  background:var(--sunk);border-radius:999px;padding:3px 10px;
+  background:var(--surface-2);border-radius:var(--r-full);padding:var(--sp-0-5) var(--sp-2);
   font-family:var(--font-numeral);font-variant-numeric:var(--numeral-features)}   /* counts (CONS-TYPE-3) */
-details.cat > summary .end{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto}
+details.cat > summary .end{display:inline-flex;align-items:center;gap:var(--sp-2);flex:0 0 auto}
 .copybtn{background:none;border:none;font-family:inherit;font-size:var(--fs-footnote);font-weight:600;
-  color:var(--muted);cursor:pointer;padding:11px 10px;min-height:44px;border-radius:999px}
+  color:var(--muted);cursor:pointer;padding:0 var(--sp-3);min-height:var(--tap);border-radius:var(--r-button);transition:var(--press-t)}
 .copybtn:hover{color:var(--accent-ink)}
 details.cat > summary:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:2px}
 
 /* ── answered ─────────────────────────────────────────────── */
-.ans{border-top:1px solid var(--rule-soft);padding:22px 0;cursor:pointer}
+.ans{border-top:1px solid var(--separator);padding:var(--sp-5) 0;cursor:pointer;transition:var(--press-t)}
 #answeredList .ans:first-child{border-top:none}
 .ans .when{font-size:var(--fs-footnote);font-weight:600;color:var(--butter-ink);letter-spacing:-.002em}
-.ans .what{font-size:var(--fs-title3);font-weight:500;margin-top:5px;line-height:1.3;letter-spacing:-.02em}
+.ans .what{font-size:var(--fs-title3);font-weight:500;margin-top:var(--sp-1);line-height:1.3;letter-spacing:-.02em}
 .ansnote{font-family:var(--font-serif);font-size:var(--fs-title3);font-style:italic;
-  color:var(--ink2);margin-top:12px;padding-left:16px;border-left:2px solid var(--butter-graphic);
+  color:var(--text-2);margin-top:var(--sp-3);padding-left:var(--sp-4);border-left:2px solid var(--butter-graphic);
   letter-spacing:0;line-height:1.45}
-.ledger{background:var(--butter-fill);border-radius:var(--r);padding:16px 18px;margin:30px 0 4px;
+/* the ledger, the review prompt and the inline form are the one content card's shape (CONS-SHAPE-1): --r-card corners and
+   --pad-card inside; each keeps its own tint (the answered gold, the person's wash, the form well) */
+.ledger{background:var(--butter-fill);border-radius:var(--r-card);padding:var(--pad-card);margin:var(--sp-8) 0 var(--sp-1);
   font-size:var(--fs-callout);line-height:1.6}
-.ledger b{display:block;font-weight:600;color:var(--butter-ink);margin-bottom:6px;font-size:var(--fs-footnote)}
-.recall{border-left:2px solid var(--butter-graphic);padding:4px 0 4px 16px;margin:28px 0 0;
-  font-size:var(--fs-callout);cursor:pointer}
-.recall b{display:block;font-weight:600;color:var(--butter-ink);font-size:var(--fs-footnote);margin-bottom:3px}
-.prompt{background:var(--accent-fill);border-radius:var(--r);padding:8px 8px 8px 18px;margin:18px 0 0;
-  font-size:var(--fs-callout);font-weight:500;display:flex;justify-content:space-between;gap:14px;
+.ledger b{display:block;font-weight:600;color:var(--butter-ink);margin-bottom:var(--sp-1);font-size:var(--fs-footnote)}
+.recall{border-left:2px solid var(--butter-graphic);padding:var(--sp-1) 0 var(--sp-1) var(--sp-4);margin:var(--sp-6) 0 0;
+  font-size:var(--fs-callout);cursor:pointer;transition:var(--press-t)}
+.recall b{display:block;font-weight:600;color:var(--butter-ink);font-size:var(--fs-footnote);margin-bottom:var(--sp-1)}
+.prompt{background:var(--accent-fill);border-radius:var(--r-card);padding:var(--sp-2) var(--sp-2) var(--sp-2) var(--pad-card);margin:var(--sp-4) 0 0;
+  font-size:var(--fs-callout);font-weight:500;display:flex;justify-content:space-between;gap:var(--sp-3);
   align-items:center;flex-wrap:wrap}
 
 /* ── calendar ─────────────────────────────────────────────── */
-.calmonth{font-size:var(--fs-headline);font-weight:600;color:var(--ink);margin:26px 0 0;letter-spacing:-.012em}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;margin:8px 0 4px}
+.calmonth{font-size:var(--fs-headline);font-weight:600;color:var(--text);margin:var(--sp-6) 0 0;letter-spacing:-.012em}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--sp-2);max-width:300px;margin:var(--sp-2) 0 var(--sp-1)}
 /* an empty day is an outlined square in the >= 3:1 decor tone, so it stays visible in dark (VIS-PRAYER-5); a prayed day
    is the solid mark; a day still to come is fainter */
-.cal span{aspect-ratio:1;border-radius:7px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--muted-decor)}
+.cal span{aspect-ratio:1;border-radius:var(--r-xs);background:transparent;box-shadow:inset 0 0 0 1.5px var(--muted-decor)}
 .cal span.on{background:var(--mint-graphic);box-shadow:none}
-.cal span.later{box-shadow:inset 0 0 0 1.5px var(--rule)}
+.cal span.later{box-shadow:inset 0 0 0 1.5px var(--line)}
 .cal span.today{box-shadow:0 0 0 2px var(--today-ring)}   /* the one today ring, >= 3:1 (CONS-COLOR-2) */
 .cal span.on.today{box-shadow:0 0 0 2px var(--today-ring)}
 .cal span.blank{background:transparent;box-shadow:none}
-.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:300px;
-  font-size:var(--fs-caption1);font-weight:600;color:var(--muted);text-align:center;margin-top:10px}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--sp-2);max-width:300px;
+  font-size:var(--fs-caption1);font-weight:600;color:var(--muted);text-align:center;margin-top:var(--sp-2)}
 
 /* ── forms ────────────────────────────────────────────────── */
-label{display:block;font-size:var(--fs-subheadline);font-weight:600;color:var(--ink2);margin:26px 0 8px;
+label{display:block;font-size:var(--fs-subheadline);font-weight:600;color:var(--text-2);margin:var(--sp-6) 0 var(--sp-2);
   letter-spacing:-.01em}
 input[type=text],input[type=tel],input[type=password],textarea,select{
-  width:100%;font-family:inherit;font-size:var(--fs-field);color:var(--ink);background:var(--raised);
-  border:1.5px solid var(--rule);border-radius:var(--r-sm);padding:13px 15px;line-height:1.5;
+  width:100%;font-family:inherit;font-size:var(--fs-field);color:var(--text);background:var(--surface);
+  border:1.5px solid var(--line);border-radius:var(--r-control);padding:var(--sp-3) var(--sp-4);line-height:1.5;
   -webkit-appearance:none;appearance:none;transition:border-color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-fast) var(--ease-standard)}
-select[multiple]{padding:8px;min-height:200px}
-select:not([multiple]){padding-right:44px;
+select[multiple]{padding:var(--sp-2);min-height:200px}
+select:not([multiple]){padding-right:var(--tap);
   background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
     linear-gradient(135deg,var(--muted) 50%,transparent 50%);
   background-position:calc(100% - 21px) 23px,calc(100% - 15px) 23px;
@@ -233,62 +249,65 @@ select:not([multiple]){padding-right:44px;
 textarea{min-height:120px;resize:vertical}
 input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent-graphic);
   box-shadow:0 0 0 4px var(--accent-fill)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font-family:inherit;font-size:var(--fs-subheadline);font-weight:600;padding:10px 16px;border-radius:999px;min-height:44px;
-  cursor:pointer;background:var(--sunk);border:1.5px solid transparent;color:var(--ink2);
-  letter-spacing:-.01em;transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard)}
-.chip:hover{background:var(--hover)}
+/* option chips: Prayer's own toggle buttons (design.css's .chip is a small label, another component; CONS-TOK-2) */
+.chips{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+.p-chip{font-family:inherit;font-size:var(--fs-subheadline);font-weight:600;padding:var(--sp-2) var(--sp-4);border-radius:var(--r-button);min-height:var(--tap);
+  cursor:pointer;background:var(--surface-2);border:1.5px solid transparent;color:var(--text-2);
+  letter-spacing:-.01em;transition:var(--press-t),background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard)}
+.p-chip:hover{background:var(--hover)}
 /* solids that carry a label: the person's strong tone with its own -on label (D15, the pairing rule) */
-.chip[aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on)}
-button.act{font-family:inherit;font-size:var(--fs-headline);font-weight:600;padding:15px 22px;
-  border-radius:var(--r-sm);cursor:pointer;background:var(--accent-strong);color:var(--accent-on);
-  border:1.5px solid var(--accent-strong);width:100%;margin-top:28px;letter-spacing:-.012em;
-  transition:transform var(--dur-snappy) var(--spring-snappy),opacity var(--dur-fast) var(--ease-standard),background var(--dur-fast) var(--ease-standard)}
-button.act:active{transform:translateY(1px)}
-button.ghost{background:transparent;color:var(--ink);border-color:var(--rule)}
+.p-chip[aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on)}
+/* the buttons: every free-standing button is a capsule (--r-button; CONS-SHAPE-4, design.css's button-shape rule) */
+button.act{font-family:inherit;font-size:var(--fs-headline);font-weight:600;padding:var(--sp-3) var(--sp-5);min-height:var(--btn-h);
+  border-radius:var(--r-button);cursor:pointer;background:var(--accent-strong);color:var(--accent-on);
+  border:1.5px solid var(--accent-strong);width:100%;margin-top:var(--sp-6);letter-spacing:-.012em;
+  transition:var(--press-t),opacity var(--dur-fast) var(--ease-standard),background var(--dur-fast) var(--ease-standard)}
+button.ghost{background:transparent;color:var(--text);border-color:var(--line)}
 button.ghost:hover{background:var(--hover);border-color:var(--accent-graphic)}
 /* Delete in the detail sheet reads as destructive before the confirm (VIS-PRAYER-10); markup unchanged */
 button.ghost[data-delete]{color:var(--danger-ink);border-color:var(--danger-graphic)}
 @media (hover:hover) and (pointer:fine){button.ghost[data-delete]:hover{background:var(--danger-wash);border-color:var(--danger-graphic)}}
-button.small{width:auto;margin-top:0;font-size:var(--fs-subheadline);padding:11px 18px}
+button.compact{width:auto;margin-top:0;font-size:var(--fs-subheadline);padding:var(--sp-2) var(--sp-4)}
 button.act.danger{background:var(--danger-strong);border-color:var(--danger-strong);color:var(--danger-on)}
 button:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:3px}
 button:disabled{opacity:.35;cursor:default}
-.rowbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
-/* Today's one primary action, with the quieter actions behind "More" */
-.primary-row{display:flex;gap:10px;margin-top:22px}
+.rowbtns{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-6)}
+/* Today's one primary action, with the quieter actions behind "More": Pray now is the house primary, a capsule at
+   --btn-h-lg (CONS-SHAPE-4) */
+.primary-row{display:flex;flex-wrap:wrap;gap:var(--sp-3);margin-top:var(--sp-5)}   /* at the largest text sizes Share & print takes a second line, and Pray now never breaks its label */
 .primary-row[hidden]{display:none}
-.primary-row .act{margin-top:0;min-height:60px;padding:14px 20px}
-.primary-row .hero{flex:1 1 auto}
-.primary-row .more{flex:0 0 auto;width:auto;display:inline-flex;align-items:center;gap:8px;padding:14px 18px}
-.primary-row .more svg{width:22px;height:22px;display:block}
-.menu{display:flex;flex-direction:column;gap:10px;margin-top:22px}
-.menu .act{margin-top:0;min-height:60px;text-align:left;display:flex;justify-content:space-between;
-  align-items:center;gap:14px}
+.primary-row .act{margin-top:0;width:auto;min-height:var(--btn-h-lg);padding:0 var(--sp-5);white-space:nowrap}
+.primary-row .lead{flex:1 1 auto}
+.primary-row .more{flex:0 0 auto;width:auto;display:inline-flex;align-items:center;gap:var(--sp-2);padding:0 var(--sp-5)}
+.primary-row .more svg{width:calc(var(--icon-sm) * var(--ts-user, 1));height:calc(var(--icon-sm) * var(--ts-user, 1));display:block}
+.menu{display:flex;flex-direction:column;gap:var(--sp-3);margin-top:var(--sp-5)}
+.menu .act{margin-top:0;min-height:var(--btn-h-lg);text-align:left;display:flex;justify-content:space-between;
+  align-items:center;gap:var(--sp-3)}
 .menu .act span{font-size:var(--fs-footnote);font-weight:500;color:var(--muted);letter-spacing:-.005em;text-align:right}
-.catrow{display:flex;justify-content:space-between;align-items:center;gap:12px;
-  border-top:1px solid var(--rule-soft);padding:13px 0;font-size:var(--fs-callout);font-weight:500}
+.catrow{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-3);
+  border-top:1px solid var(--separator);padding:var(--sp-3) 0;font-size:var(--fs-callout);font-weight:500}
 /* Rename / Remove at the house tap size (VIS-PRAYER-3) */
 .catrow button{background:none;border:none;font-family:inherit;font-size:var(--fs-footnote);font-weight:600;
-  color:var(--muted);cursor:pointer;padding:0 var(--sp-3);min-height:var(--tap);min-width:var(--tap);border-radius:999px}
+  color:var(--muted);cursor:pointer;padding:0 var(--sp-3);min-height:var(--tap);min-width:var(--tap);border-radius:var(--r-button);transition:var(--press-t)}
 .catrow button:hover{color:var(--accent-ink)}
 .catrow > span:last-child{display:flex;flex:none}   /* Rename and Remove stay side by side beside a long name */
 
 /* ── inline form: replaces every native dialog ────────────── */
-.ask{background:var(--sunk);border-radius:var(--r);padding:4px 18px 18px;margin-top:14px;
+.ask{background:var(--surface-2);border-radius:var(--r-card);padding:var(--sp-1) var(--pad-card) var(--pad-card);margin-top:var(--sp-3);
   flex:1 1 100%;width:100%;animation:rise var(--dur-gentle) var(--spring-gentle)}
-.ask.danger{background:var(--danger-fill)}   /* the destructive confirm panel: a tint, its text stays --ink */
-.ask label{margin-top:14px}
-.ask .line{font-size:var(--fs-callout);font-weight:500;padding-top:14px;line-height:1.5}
-.ask .rowbtns{margin-top:16px}
-.ask input,.ask textarea,.ask select{background:var(--raised)}
+.p-sheet .ask{border-radius:var(--r-control)}   /* inside the sheet: concentric with its --r-sheet corners (32 - 20 = 12) */
+.ask.danger{background:var(--danger-fill)}   /* the destructive confirm panel: a tint, its text stays --text */
+.ask label{margin-top:var(--sp-3)}
+.ask .line{font-size:var(--fs-callout);font-weight:500;padding-top:var(--sp-3);line-height:1.5}
+.ask .rowbtns{margin-top:var(--sp-4)}
+.ask input,.ask textarea,.ask select{background:var(--surface)}
 .ask textarea{min-height:96px}
 /* Send to family list: For / Category go only when turned on (P3-PRAYER-18) */
-#shareAlso{margin-top:8px}
-#shareAlso .chip{text-align:left;max-width:100%;background:var(--raised);border-color:var(--rule)}   /* off: an outlined chip, so it reads as a button on the panel */
-#shareAlso .chip[aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on)}
-#sharePreview{margin-top:10px;color:var(--ink2)}
-.err{font-size:var(--fs-subheadline);font-weight:500;color:var(--peach-ink);margin:8px 0 0}
+#shareAlso{margin-top:var(--sp-2)}
+#shareAlso .p-chip{text-align:left;max-width:100%;background:var(--surface);border-color:var(--line)}   /* off: an outlined chip, so it reads as a button on the panel */
+#shareAlso .p-chip[aria-pressed="true"]{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on)}
+#sharePreview{margin-top:var(--sp-2);color:var(--text-2)}
+.err{font-size:var(--fs-subheadline);font-weight:500;color:var(--peach-ink);margin:var(--sp-2) 0 0}
 .err:empty{display:none}
 
 /* ── sheet ────────────────────────────────────────────────── */
@@ -299,126 +318,125 @@ button:disabled{opacity:.35;cursor:default}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 /* the house sheet (CONS-SHAPE-5, CONS-MOTION-3): --r-sheet corners, --elev-overlay (below, with the glass), the sheet
    padding, rising on --dur-gentle / --spring-gentle; the narrow column, centred, so on the iPad it is an inset sheet and
-   not an edge-to-edge one (VIS-PRAYER-9) */
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;margin:0 auto;max-width:var(--col-narrow);
+   not an edge-to-edge one (VIS-PRAYER-9). Its class is Prayer's own (.p-sheet), so it never reaches hub.confirm's .sheet. */
+.p-sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;margin:0 auto;max-width:var(--col-narrow);
   border-radius:var(--r-sheet) var(--r-sheet) 0 0;max-height:88vh;overflow:auto;display:none;
   padding:var(--sp-3) var(--pad-sheet) calc(var(--pad-sheet) + var(--sp-3) + env(safe-area-inset-bottom))}
-.sheet.on{display:block;animation:slide var(--dur-gentle) var(--spring-gentle)}
+.p-sheet.on{display:block;animation:slide var(--dur-gentle) var(--spring-gentle)}
 @keyframes slide{from{transform:translateY(var(--enter-distance));opacity:0}to{transform:none;opacity:1}}
-.sheet .inner{max-width:none;margin:0 auto}
-.sheet .inner::before{content:"";display:block;width:40px;height:4px;border-radius:999px;
-  background:var(--rule);margin:0 auto 16px}
-.sheet h1{font-size:var(--fs-title2)}
+.p-sheet .inner{max-width:none;margin:0 auto}
+.p-sheet .inner::before{content:"";display:block;width:40px;height:4px;border-radius:var(--r-full);
+  background:var(--line);margin:0 auto var(--sp-4)}
+.p-sheet h1{font-size:var(--fs-title2)}
 .close{float:right;background:none;border:none;font-family:inherit;font-size:var(--fs-subheadline);font-weight:600;
-  color:var(--muted);cursor:pointer;padding:6px 0 6px 14px;min-height:44px}
-.hist{list-style:none;padding:0;margin:24px 0 0}
-.hist li{border-top:1px solid var(--rule-soft);padding:13px 0;font-size:var(--fs-callout)}
-.hist .d{font-size:var(--fs-footnote);font-weight:600;color:var(--muted);margin-bottom:3px}
+  color:var(--muted);cursor:pointer;padding:0 0 0 var(--sp-3);min-height:var(--tap);transition:var(--press-t)}
+.hist{list-style:none;padding:0;margin:var(--sp-6) 0 0}
+.hist li{border-top:1px solid var(--separator);padding:var(--sp-3) 0;font-size:var(--fs-callout)}
+.hist .d{font-size:var(--fs-footnote);font-weight:600;color:var(--muted);margin-bottom:var(--sp-1)}
 
 /* ── toast ────────────────────────────────────────────────── */
 /* Prayer's toast is the shared one (P4-SHAPE-02, VIS-SHAPE-4, CONS-MOTION-3): hub.toast's .ds .toast, sized to its message
    up to the narrow column, with a 44 px action. Only its height is Prayer's: it sits above the nav and the +, and at the
-   foot of the screen where there is no nav (a kid). #toast stays in the page for older callers, never shown. */
+   foot of the screen where there is no nav (a kid). #toast (.p-toast) stays in the page for older callers, never shown. */
 #toast{display:none!important}
-#hub-toast{bottom:calc(152px + env(safe-area-inset-bottom))}
+#hub-toast{bottom:calc(var(--sp-16) * 2 + var(--sp-6) + env(safe-area-inset-bottom))}
 :root[data-kind="kid"] #hub-toast{bottom:calc(var(--sp-6) + env(safe-area-inset-bottom))}
 
 /* ── floating add ─────────────────────────────────────────── */
-/* on a phone 22 px from the edge; on a wide screen just outside the right edge of the centred column, in its gutter, so it
-   sits by the content without covering it (VIS-PRAYER-6) */
-.fab{position:fixed;right:calc(22px + env(safe-area-inset-right));
-  bottom:calc(86px + env(safe-area-inset-bottom));z-index:12;width:56px;height:56px;
+/* on a phone at the house margin from the edge; on a wide screen just outside the right edge of the centred column, in its
+   gutter, so it sits by the content without covering it (VIS-PRAYER-6) */
+.fab{position:fixed;right:calc(var(--margin) + env(safe-area-inset-right));
+  bottom:calc(var(--sp-16) + var(--sp-6) + env(safe-area-inset-bottom));z-index:12;
+  width:calc(var(--tap) + var(--sp-3));height:calc(var(--tap) + var(--sp-3));
   border-radius:50%;color:var(--accent-on);
   /* a solid, not glass: an opaque fill hid its live blur, cost with no look (P4-GLASS-03) */
   background:var(--accent-strong);border:1px solid var(--accent-strong);
   box-shadow:inset 0 1px 0 var(--hairline), var(--elev-float);
   cursor:pointer;display:none;place-items:center;padding:0;
-  transition:transform var(--dur-snappy) var(--spring-snappy),background var(--dur-fast) var(--ease-standard)}
+  transition:var(--press-t),background var(--dur-fast) var(--ease-standard)}
 .fab.on{display:grid}
-.fab:active{transform:scale(.94)}
-.fab svg{width:26px;height:26px}
-@media (min-width:760px){ .fab{right:calc((100vw - var(--col-narrow)) / 2 - 72px)} }
+.fab svg{width:calc(var(--icon-lg) * var(--ts-user, 1));height:calc(var(--icon-lg) * var(--ts-user, 1))}
+@media (min-width:760px){ .fab{right:calc((100vw - var(--col-narrow)) / 2 - var(--sp-16) - var(--sp-2))} }
 
 /* ── nav ──────────────────────────────────────────────────── */
 nav{position:fixed;left:0;right:0;bottom:0;z-index:10;padding-bottom:env(safe-area-inset-bottom)}
-nav .inner{max-width:var(--col-narrow);margin:0 auto;display:flex;padding:8px 8px}
+nav .inner{max-width:var(--col-narrow);margin:0 auto;display:flex;padding:var(--sp-2)}
 nav button{flex:1;background:none;border:none;font-family:inherit;font-size:var(--fs-caption1);font-weight:var(--fw-medium);
-  color:var(--muted);padding:9px 2px 8px;cursor:pointer;border-radius:18px;letter-spacing:-.01em;
-  display:flex;flex-direction:column;align-items:center;gap:4px;min-height:56px;
-  transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
-nav button svg{width:20px;height:20px;display:block}
+  color:var(--muted);padding:var(--sp-2) var(--sp-0-5);cursor:pointer;border-radius:var(--r-full);letter-spacing:-.01em;
+  display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);min-height:calc(var(--tap) + var(--sp-3));
+  transition:var(--press-t),background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
+nav button svg{width:calc(var(--icon-sm) * var(--ts-user, 1));height:calc(var(--icon-sm) * var(--ts-user, 1));display:block}
 /* the current tab: a >= 3:1 selection fill with its own label, plus a heavier weight, so it is not told by hue alone (P4-ACCENT-01) */
 nav button[aria-current="true"]{color:var(--sel-ink-strong);background:var(--sel-fill-strong);font-weight:var(--sel-weight)}
 
-/* ── liquid glass: the design.css recipe on this page's own chrome ──
-   (copied rather than classed because this page keeps its own component CSS and no .ds). The pickup is the person's
-   tile-end tone (--accent-fill-strong), and the filter is the house --glass-filter, so Reduce Transparency and the
-   kiosk turn the blur off here too. */
-nav,.sheet,#kitchen .close{
+/* ── liquid glass: design.css's glass on this page's own chrome (CONS-TOK-3) ──
+   The layers are the house's: the specular sheen, the person's pickup (--glass-pickup-layer, the tile-end tone painted in
+   place), the fill (--g, the component hook); the edge and shadow are --glass-edge / --glass-shadow and the filter is the
+   house --glass-filter, so Reduce Transparency and the kiosk turn the blur off here too. The page keeps its own component
+   CSS and no body.ds, so the layers are applied here rather than by class. */
+nav,.p-sheet,#kitchen .close{
   --g:var(--glass);
-  background:
-    linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%),
-    radial-gradient(90% 70% at var(--sheen-x) -10%, color-mix(in srgb, var(--accent-fill-strong) var(--glass-pickup), transparent), transparent 62%),
-    var(--g);
+  background:linear-gradient(to bottom, var(--glass-spec) 0, transparent 34%), var(--glass-pickup-layer), var(--g);
   border:1px solid var(--glass-edge);
-  box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), inset 0 -12px 28px -18px var(--glass-inner),
-    0 0 0 1px var(--glass-ring), var(--e2);
+  box-shadow:var(--glass-shadow);
   -webkit-backdrop-filter:var(--glass-filter);
   backdrop-filter:var(--glass-filter)}
 nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
-  box-shadow:inset 0 1px 0 var(--hairline), 0 -1px 0 var(--glass-ring), 0 -12px 40px -24px var(--glass-inner)}
-.sheet{--g:var(--glass-strong);border-width:1px 1px 0;
+  box-shadow:inset 0 1px 0 var(--hairline), var(--elev-bar-up)}
+.p-sheet{--g:var(--glass-strong);border-width:1px 1px 0;
   box-shadow:inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), 0 0 0 1px var(--glass-ring), var(--elev-overlay)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
-  nav,.sheet,#kitchen .close{--g:color-mix(in srgb, var(--surface) 96%, transparent)}
+  nav,.p-sheet,#kitchen .close{--g:var(--glass-strong-solid)}   /* no live blur: the house's opaque glass */
 }
 
-.empty{color:var(--muted);padding:38px 0;max-width:32ch;font-size:var(--fs-callout)}
-.empty img{display:block;width:min(220px,70%);height:auto;margin:0 0 14px -6px}
-.empty button{display:block;margin-top:16px}
-.note{font-size:var(--fs-subheadline);color:var(--muted);margin-top:12px;max-width:46ch;line-height:1.55}
-.warn{font-size:var(--fs-subheadline);font-weight:500;color:var(--butter-ink);margin-top:16px;max-width:46ch}
-.sync{font-size:var(--fs-subheadline);color:var(--muted);margin-top:14px;max-width:46ch}
+.empty{color:var(--muted);padding:var(--sp-10) 0;max-width:32ch;font-size:var(--fs-callout)}
+.empty img{display:block;width:min(220px,70%);height:auto;margin:0 0 var(--sp-3) calc(var(--sp-1-5) * -1);
+  -webkit-user-drag:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}   /* decorative art: never dragged off or selected (a web tell) */
+.empty button{display:block;margin-top:var(--sp-4)}
+.note{font-size:var(--fs-subheadline);color:var(--muted);margin-top:var(--sp-3);max-width:46ch;line-height:1.55}
+.warn{font-size:var(--fs-subheadline);font-weight:500;color:var(--butter-ink);margin-top:var(--sp-4);max-width:46ch}
+.sync{font-size:var(--fs-subheadline);color:var(--muted);margin-top:var(--sp-3);max-width:46ch}
 .sync.bad{color:var(--peach-ink)}
-.pending{display:flex;gap:14px;align-items:center;border-top:1px solid var(--rule-soft);padding:14px 0}
+.pending{display:flex;gap:var(--sp-3);align-items:center;border-top:1px solid var(--separator);padding:var(--sp-3) 0}
 
 /* ── lock ─────────────────────────────────────────────────── */
-#lock{position:fixed;inset:0;background:var(--paper);z-index:40;display:none;
-  place-items:center;padding:24px}
+#lock{position:fixed;inset:0;background:var(--bg);z-index:40;display:none;
+  place-items:center;padding:var(--sp-6)}
 #lock.on{display:grid}
 #lock .inner{max-width:19rem;width:100%;text-align:center}
 #lock input{text-align:center;letter-spacing:.4em}
 
 /* ── prayer mode ──────────────────────────────────────────── */
-#pray{position:fixed;inset:0;background:var(--paper);z-index:35;display:none;
+#pray{position:fixed;inset:0;background:var(--bg);z-index:35;display:none;
   flex-direction:column;touch-action:pan-y;
-  padding:calc(26px + env(safe-area-inset-top)) 26px calc(26px + env(safe-area-inset-bottom))}
+  padding:calc(var(--sp-6) + env(safe-area-inset-top)) var(--sp-6) calc(var(--sp-6) + env(safe-area-inset-bottom))}
 #pray.on{display:flex;animation:fade var(--dur-gentle) var(--ease-standard)}
 /* the count, the Close, the bar and the buttons all sit in the one centred column, never in the far corners
    (VIS-PRAYER-11); Close is a 44 px glass pill (UX-PRAYER-9, VIS-PRAYER-3) */
 #pray .top,#pray .card,#pray .bar,#pray .ctrl{max-width:var(--col-narrow);margin-left:auto;margin-right:auto;width:100%}
 #pray .top{display:flex;justify-content:space-between;align-items:center;
   font-size:var(--fs-footnote);font-weight:600;color:var(--muted)}
-#pray .top button{font-family:inherit;font-size:var(--fs-subheadline);font-weight:600;color:var(--ink);cursor:pointer;background:transparent;border:1.5px solid var(--rule);
-  min-height:var(--tap);min-width:var(--tap);padding:0 var(--sp-4);border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+#pray .top button{font-family:inherit;font-size:var(--fs-subheadline);font-weight:600;color:var(--text);cursor:pointer;background:transparent;border:1.5px solid var(--line);
+  min-height:var(--tap);min-width:var(--tap);padding:0 var(--sp-4);border-radius:var(--r-button);display:inline-flex;align-items:center;gap:var(--sp-1-5);
+  transition:var(--press-t)}
 #pray .top button:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:3px}
 #pray .card{flex:1;display:flex;flex-direction:column;justify-content:center}
 #pray .cat{font-size:var(--fs-footnote);font-weight:600;color:var(--accent-ink)}
 #pray .big{font-size:var(--fs-large-title);line-height:1.16;font-weight:600;
-  margin:16px 0 0;letter-spacing:-.035em}
+  margin:var(--sp-4) 0 0;letter-spacing:-.035em}
 @media (min-width:700px){ #pray .big{font-size:var(--fs-glance-3)} }
-#pray .for{font-size:var(--fs-body);color:var(--muted);margin-top:16px;font-weight:500}
+#pray .for{font-size:var(--fs-body);color:var(--muted);margin-top:var(--sp-4);font-weight:500}
 #pray .last{font-family:var(--font-serif);font-size:var(--fs-title2);font-style:italic;
-  color:var(--ink2);margin-top:26px;padding-left:18px;border-left:2px solid var(--rule);
+  color:var(--text-2);margin-top:var(--sp-6);padding-left:var(--sp-4);border-left:2px solid var(--line);
   letter-spacing:0;line-height:1.45}
-#pray .bar{height:6px;border-radius:999px;background:var(--sunk);margin-top:20px;overflow:hidden}
-#pray .bar i{display:block;height:100%;border-radius:999px;background:var(--mint-graphic);width:0;
+#pray .bar{height:6px;border-radius:var(--r-full);background:var(--track);margin-top:var(--sp-5);overflow:hidden}
+#pray .bar i{display:block;height:100%;border-radius:var(--r-full);background:var(--mint-graphic);width:0;
   transition:width var(--dur-progress) var(--spring-gentle)}
-#pray .ctrl{display:flex;gap:10px;margin-top:18px}
-#pray .ctrl button{flex:1;font-family:inherit;font-size:var(--fs-callout);min-height:var(--tap-lg);font-weight:600;padding:17px 10px;
-  border-radius:var(--r-sm);cursor:pointer;border:1.5px solid var(--rule);background:transparent;
-  color:var(--ink);transition:transform var(--dur-snappy) var(--spring-snappy),background var(--dur-fast) var(--ease-standard)}
-#pray .ctrl button:active{transform:translateY(1px)}
+/* Back, Prayed and Skip: capsules at the house's large button height, Prayed the solid (CONS-SHAPE-4) */
+#pray .ctrl{display:flex;gap:var(--sp-3);margin-top:var(--sp-4)}
+#pray .ctrl button{flex:1;font-family:inherit;font-size:var(--fs-callout);min-height:var(--btn-h-lg);font-weight:600;padding:0 var(--sp-2);
+  border-radius:var(--r-button);cursor:pointer;border:1.5px solid var(--line);background:transparent;
+  color:var(--text);transition:var(--press-t),background var(--dur-fast) var(--ease-standard)}
 #pray .ctrl button:disabled{opacity:.3}
 #pray .ctrl button.go{background:var(--accent-strong);border-color:var(--accent-strong);color:var(--accent-on);
   flex:2;font-size:var(--fs-headline)}
@@ -430,36 +448,36 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
    TV's white and silver inks. On the iPad the glance roles: the list name at 64 px, each request at 44 px, read from across
    the room (UX-PRAYER-3); on a phone the title roles. Two columns on a landscape iPad or wider. */
 #kitchen{position:fixed;inset:0;z-index:34;display:none;overflow:auto;color:var(--tv-text);
-  background:linear-gradient(var(--tv-panel),var(--tv-panel)),linear-gradient(var(--tv-panel),var(--tv-panel)),var(--paper);
-  padding:calc(30px + env(safe-area-inset-top)) max(32px, env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) max(32px, env(safe-area-inset-left))}
+  background:linear-gradient(var(--tv-panel),var(--tv-panel)),linear-gradient(var(--tv-panel),var(--tv-panel)),var(--bg);
+  padding:calc(var(--sp-8) + env(safe-area-inset-top)) max(var(--sp-8), env(safe-area-inset-right)) calc(var(--sp-12) + env(safe-area-inset-bottom)) max(var(--sp-8), env(safe-area-inset-left))}
 #kitchen.on{display:block;animation:fade var(--dur-gentle) var(--ease-standard)}
-#kitchen .k-in{max-width:1180px;margin:0 auto}
-#kitchen h1{font-size:var(--fs-large-title);margin:0;letter-spacing:-.035em;line-height:1.1;max-width:none;padding-right:120px}
-#kitchen .date{margin-top:8px;color:var(--tv-text-2);font-size:var(--fs-title3)}
-#kitchen .k-cat{font-size:var(--fs-subheadline);font-weight:700;color:var(--tv-text-2);margin:34px 0 8px;
+#kitchen .k-in{max-width:var(--col-wide);margin:0 auto}
+#kitchen h1{font-size:var(--fs-large-title);margin:0;letter-spacing:-.035em;line-height:1.1;max-width:none;padding-right:calc(var(--sp-16) + var(--sp-12) + var(--sp-2))}
+#kitchen .date{margin-top:var(--sp-2);color:var(--tv-text-2);font-size:var(--fs-title3)}
+#kitchen .k-cat{font-size:var(--fs-subheadline);font-weight:700;color:var(--tv-text-2);margin:var(--sp-8) 0 var(--sp-2);
   text-transform:uppercase;letter-spacing:var(--ls-caps);break-after:avoid}
-#kitchen .k-item{font-size:var(--fs-title1);font-weight:500;line-height:1.2;padding:10px 0;
+#kitchen .k-item{font-size:var(--fs-title1);font-weight:500;line-height:1.2;padding:var(--sp-2) 0;
   letter-spacing:-.022em;break-inside:avoid}
-#kitchen .k-for{display:block;font-size:var(--fs-title3);font-weight:400;color:var(--tv-text-2);margin-top:2px;letter-spacing:-.01em}
+#kitchen .k-for{display:block;font-size:var(--fs-title3);font-weight:400;color:var(--tv-text-2);margin-top:var(--sp-0-5);letter-spacing:-.01em}
 #kitchen .empty{color:var(--tv-text-2)}
-#kitchen .close{position:fixed;top:calc(20px + env(safe-area-inset-top));right:max(22px, env(safe-area-inset-right));
-  padding:0 var(--sp-5);min-height:var(--tap-lg);border-radius:999px;font-size:var(--fs-headline);
+#kitchen .close{position:fixed;top:calc(var(--sp-5) + env(safe-area-inset-top));right:max(var(--sp-5), env(safe-area-inset-right));
+  padding:0 var(--sp-5);min-height:var(--tap-lg);border-radius:var(--r-button);font-size:var(--fs-headline);
   --g:var(--glass-inverse);color:var(--glass-inverse-ink);border-color:var(--glass-inverse-line)}
 @media (min-width:700px){
-  #kitchen{padding-left:max(56px, env(safe-area-inset-left));padding-right:max(56px, env(safe-area-inset-right))}
+  #kitchen{padding-left:max(calc(var(--sp-12) + var(--sp-2)), env(safe-area-inset-left));padding-right:max(calc(var(--sp-12) + var(--sp-2)), env(safe-area-inset-right))}
   #kitchen h1{font-size:var(--fs-glance-2)}
   #kitchen .date{font-size:var(--fs-title1)}
-  #kitchen .k-cat{font-size:var(--fs-title3);margin-top:48px}
-  #kitchen .k-item{font-size:var(--fs-glance-3);padding:14px 0}
+  #kitchen .k-cat{font-size:var(--fs-title3);margin-top:var(--sp-12)}
+  #kitchen .k-item{font-size:var(--fs-glance-3);padding:var(--sp-3) 0}
   #kitchen .k-for{font-size:var(--fs-title1)}
 }
 /* one block per category (heading + its requests, never split); two to a row on a landscape iPad, read row by row */
 #kitchen .k-group{break-inside:avoid}
-@media (min-width:1000px) and (orientation:landscape){ #kitchen .k-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:72px;align-items:start} }
+@media (min-width:1000px) and (orientation:landscape){ #kitchen .k-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:calc(var(--sp-16) + var(--sp-2));align-items:start} }
 
 /* ── print ────────────────────────────────────────────────── */
 @media print{
-  nav,.veil,.sheet,.toast,.switch,.meter,.strip,.cheer,.prompt,#pray,#kitchen,.fab,
+  nav,.veil,.p-sheet,.p-toast,#hub-toast,.seg,.meter,.strip,.cheer,.prompt,#pray,#kitchen,.fab,
   #lock,button,input,textarea,select,label,.note,.warn{display:none!important}
   body{background:white;color:black;font-size:11pt;padding:0}
   .wrap{max-width:none;padding:0}
@@ -477,121 +495,147 @@ nav{--g:var(--glass-strong);border-width:1px 0 0;border-radius:0;
 #printArea{display:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 :root[data-motion="reduce"] *{transition:none!important;animation:none!important}   /* Me → Reduce Motion, as the OS setting */
-.voicerow{display:flex;gap:8px;align-items:stretch}
+.voicerow{display:flex;gap:var(--sp-2);align-items:stretch}
 .voicerow input{flex:1;min-width:0}
-.micbtn{flex:none;width:52px;border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--sunk);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
-.micbtn svg{width:22px;height:22px}
+.micbtn{flex:none;width:var(--tap-row);border:1px solid var(--line);border-radius:var(--r-control);background:var(--surface-2);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;transition:var(--press-t)}
+.micbtn svg{width:calc(var(--icon-sm) * var(--ts-user, 1));height:calc(var(--icon-sm) * var(--ts-user, 1))}
 .micbtn.on{background:var(--peach-fill);color:var(--peach-ink);border-color:var(--peach-graphic);animation:micpulse var(--dur-pulse) var(--ease-in-out) infinite}
-@keyframes micpulse{50%{transform:scale(.94)}}
+@keyframes micpulse{50%{transform:scale(var(--pulse-scale))}}
 :root[data-kind="kiosk"] .fab, :root[data-kind="kiosk"] nav [data-go="add"], :root[data-kind="kiosk"] .empty [data-go="add"]{display:none}
 
 /* ── kid mode: the family list only, as big cards with one Prayed button each.
    No nav, no list switch, no Add / More / Record / private list, no text input anywhere. ── */
-:root[data-kind="kid"] nav,:root[data-kind="kid"] .fab,:root[data-kind="kid"] .switch,
+:root[data-kind="kid"] nav,:root[data-kind="kid"] .fab,:root[data-kind="kid"] #listSwitch,
 :root[data-kind="kid"] #todayActions,:root[data-kind="kid"] #reviewPrompt,:root[data-kind="kid"] #anniv,
 :root[data-kind="kid"] #todayAnswered,:root[data-kind="kid"] #meterWrap,:root[data-kind="kid"] #todayStrip,
 :root[data-kind="kid"] .cheer,:root[data-kind="kid"] .empty [data-go],
 :root[data-kind="kid"] #s-all,:root[data-kind="kid"] #s-answered,:root[data-kind="kid"] #s-add,:root[data-kind="kid"] #s-more{display:none!important}
-:root[data-kind="kid"] body{padding-bottom:calc(32px + env(safe-area-inset-bottom))}
-:root[data-kind="kid"] .wrap{max-width:40rem}
+:root[data-kind="kid"] body{padding-bottom:calc(var(--sp-8) + env(safe-area-inset-bottom))}
+:root[data-kind="kid"] .wrap{max-width:calc(var(--col-read) + var(--margin-left) + var(--margin-right))}   /* the reading column (CONS-SHAPE-2): Kid Verse's width */
 :root[data-kind="kid"] h1{font-size:var(--fs-2xl);max-width:none}
-ul.kids{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:16px}
-.kid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:center;padding:22px 24px;
-  border-radius:var(--r-xl);background:var(--raised);border:1px solid var(--rule-soft);box-shadow:var(--lift)}
+ul.kids{list-style:none;margin:var(--sp-5) 0 0;padding:0;display:grid;gap:var(--sp-4)}
+/* each request is the one content card (CONS-SHAPE-1): solid, --r-card corners (38 px for a kid), --pad-card, --elev-card */
+.kid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-4);align-items:center;padding:var(--pad-card);
+  border-radius:var(--r-card);background:var(--material-solid-bg);border:1px solid var(--separator);box-shadow:var(--elev-card)}
 .kid .kt{grid-column:1 / -1;font-size:var(--fs-2xl);font-weight:600;line-height:1.2;letter-spacing:-.025em;overflow-wrap:anywhere}
 .kid.done .kt{color:var(--muted)}
-.kid .kby{display:flex;align-items:center;gap:12px;min-width:0;font-size:var(--fs-md);font-weight:500;color:var(--ink2)}
+.kid .kby{display:flex;align-items:center;gap:var(--sp-3);min-width:0;font-size:var(--fs-md);font-weight:500;color:var(--text-2)}
 .kid .kby > span:not(.avatar){min-width:0;overflow-wrap:anywhere}
 .kid .prayed{width:100%;justify-content:center}
 /* wide enough (iPad, desktop): who asked on the left, the button on the right */
 @media (min-width:560px){
-  .kid{grid-template-columns:minmax(0,1fr) auto;gap:14px 18px}
+  .kid{grid-template-columns:minmax(0,1fr) auto;gap:var(--sp-3) var(--sp-4)}
   .kid .prayed{width:auto}
 }
-.kid .avatar{--size:44px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
+.kid .avatar{--size:var(--face-kid);width:var(--size);height:var(--size);border-radius:50%;flex:none;
   display:grid;place-items:center;overflow:hidden;font-size:var(--fs-title2);line-height:1;
   background:radial-gradient(120% 120% at 30% 20%, var(--accent-fill), var(--accent-fill-strong));
   box-shadow:0 0 0 2.5px var(--surface), 0 0 0 5px var(--accent-graphic)}   /* the face's own data-accent (hub.avatarHtml) */
 .kid .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.kid .prayed{min-height:64px;min-width:64px;padding:0 26px;border:none;border-radius:999px;font-family:inherit;
+.kid .prayed{min-height:64px;min-width:64px;padding:0 var(--sp-6);border:none;border-radius:var(--r-button);font-family:inherit;
   font-size:var(--fs-lg);font-weight:700;background:var(--accent-strong);color:var(--accent-on);cursor:pointer;
-  box-shadow:var(--lift);display:inline-flex;align-items:center;gap:10px;
-  transition:transform var(--dur-snappy) var(--spring-snappy),background var(--dur-fast) var(--ease-standard)}
-.kid .prayed svg{width:26px;height:26px;flex:none}
-.kid .prayed:active{transform:scale(.96)}
+  box-shadow:var(--elev-control);display:inline-flex;align-items:center;gap:var(--sp-2);
+  transition:var(--press-t),background var(--dur-fast) var(--ease-standard)}
+.kid .prayed svg{width:calc(var(--icon-md) * var(--ts-user, 1));height:calc(var(--icon-md) * var(--ts-user, 1));flex:none}
 .kid .prayed:focus-visible{outline:none;box-shadow:var(--focus)}
 .kid.done .prayed{background:var(--mint-strong);color:var(--mint-on)}   /* the prayed solid and its own label (pairing rule) */
-.kid .kwho{grid-column:1 / -1;display:flex;align-items:center;gap:10px;font-size:var(--fs-sm);font-weight:500;color:var(--muted);min-height:32px}
+.kid .kwho{grid-column:1 / -1;display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm);font-weight:500;color:var(--muted);min-height:var(--face-kid-sm)}
 .kid .kwho .who{margin-left:0}
-.kid .kwho .who .avatar,.kid .kwho .who .init,.kid .kwho .who .more{--size:32px;font-size:var(--fs-callout);box-shadow:0 0 0 2px var(--raised)}
+.kid .kwho .who .avatar,.kid .kwho .who .init,.kid .kwho .who .more{--size:var(--face-kid-sm);font-size:var(--fs-callout);box-shadow:0 0 0 2px var(--surface)}
 /* UX-PRAYER-2. The title and a speaker read the request aloud; before the tap the button is the kid's own solid with
    praying hands and "Pray"; after it a pale mint pill with a thick mint ring, the kid's face, a big ✓ in a solid circle and
    "Prayed", and the card takes the same ring: colour, shape and word all change, so a colour-blind eye or a pre-reader
    tells done from not done (the solid-to-pale step is a large lightness change in both schemes). */
-.kid .khead{grid-column:1 / -1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
+.kid .khead{grid-column:1 / -1;display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp-3);min-width:0}
 .kid .kt[data-ksay]{cursor:pointer}
 .kid .ksay{flex:none;width:var(--tap);height:var(--tap);border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
   background:var(--accent-fill);color:var(--accent-ink);
-  transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
-.kid .ksay svg{width:28px;height:28px}
+  transition:var(--press-t),background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard)}
+.kid .ksay svg{width:calc(var(--icon-md) * var(--ts-user, 1));height:calc(var(--icon-md) * var(--ts-user, 1))}
 .kid .ksay.on{background:var(--accent-strong);color:var(--accent-on)}
 .kid .ksay:focus-visible{outline:none;box-shadow:var(--focus)}
 .kid .prayed .khands{display:inline-flex}
-.kid .prayed .khands svg{width:32px;height:32px}
+.kid .prayed .khands svg{width:calc(var(--icon-lg) * var(--ts-user, 1));height:calc(var(--icon-lg) * var(--ts-user, 1))}
 .kid .kby .avatar.khand-av{color:var(--accent-ink)}
-.kid .kby .avatar.khand-av svg{width:26px;height:26px}
-.kid.done{border-color:var(--mint-graphic);box-shadow:inset 0 0 0 2px var(--mint-graphic), var(--lift)}
-.kid.done .prayed{background:var(--mint-fill);color:var(--mint-ink);box-shadow:inset 0 0 0 3px var(--mint-graphic);padding:0 26px 0 12px}
+.kid .kby .avatar.khand-av svg{width:calc(var(--icon-md) * var(--ts-user, 1));height:calc(var(--icon-md) * var(--ts-user, 1))}
+.kid.done{border-color:var(--mint-graphic);box-shadow:inset 0 0 0 2px var(--mint-graphic), var(--elev-card)}
+.kid.done .prayed{background:var(--mint-fill);color:var(--mint-ink);box-shadow:inset 0 0 0 3px var(--mint-graphic);padding:0 var(--sp-6) 0 var(--sp-3)}
+/* the kid cards' drawn icons (the hands, the check, the speaker) at a heavier stroke than the house 1.75, so a pre-reader reads
+   them on the 64 px buttons; the hands keep their soft palm fill (the sprite's i-hands) */
+.kid{--icon-stroke:2.25}
 .kid .prayed .kme{display:inline-flex}
-.kid .prayed .kme .avatar,.kid .prayed .kme .init{--size:44px;box-shadow:0 0 0 2.5px var(--mint-fill), 0 0 0 5px var(--accent-graphic);font-size:var(--fs-title3)}
-.kid .prayed .kcheck{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+.kid .prayed .kme .avatar,.kid .prayed .kme .init{--size:var(--face-kid);box-shadow:0 0 0 2.5px var(--mint-fill), 0 0 0 5px var(--accent-graphic);font-size:var(--fs-title3)}
+.kid .prayed .kcheck{flex:none;width:var(--face-kid);height:var(--face-kid);border-radius:50%;display:grid;place-items:center;
   background:var(--mint-strong);color:var(--mint-on)}
-.kid .prayed .kcheck svg{width:30px;height:30px}
+.kid .prayed .kcheck svg{width:calc(var(--icon-md) * var(--ts-user, 1));height:calc(var(--icon-md) * var(--ts-user, 1))}
+
+/* ── press (CONS-MOTION-1): design.css's .pressable, the one house press, on every Prayer control: --press-scale (0.97) and
+   --press-dim at once (--dur-press), springing back on --spring-snappy (each control's transition above carries --press-t).
+   The rows' and kid cards' class lists are read as written by handoff/prayer/check.js, so the recipe is applied here by
+   selector rather than by adding the class to each template; the values are .pressable's own tokens. The small round
+   controls take --press-scale-sm, like .pressable.is-small. A row that opens its sheet (the request, an answered one, the
+   record's recall) or a category heading dims only: a whole row does not shrink. ── */
+button:not(:disabled):active{transform:scale(var(--press-scale));filter:var(--press-dim);transition-duration:var(--dur-press)}
+.mark:not(:disabled):active,.kid .ksay:not(:disabled):active{transform:scale(var(--press-scale-sm))}
+details.cat > summary:active,.body:active,.ans:active,.recall:active,.kid .kt[data-ksay]:active{filter:var(--press-dim);transition-duration:var(--dur-press)}
+.body,.kid .kt[data-ksay]{transition:var(--press-t)}
+/* no selectable chrome (CONS-TELL-1): what opens, reads aloud or labels a field never selects or pops the iOS callout (the
+   base rule in design.css covers buttons and summaries) */
+.body,.ans,.recall,.kid .kt[data-ksay],label{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 
 /* ── loading: until both lists have pulled once on this device, quiet bars stand where the rows and stats go
-   (never a 0 or "Nothing on the list today." posing as real data); the reduced-motion rule above stops the pulse ── */
-.sk{display:block;height:.85em;border-radius:6px;background:var(--sunk);animation:skpulse var(--dur-shimmer) var(--ease-in-out) infinite}
-.strip .sk{display:inline-block;width:6.5em;height:1.15em}
-li.row .sk + .sk{margin-top:9px;height:.7em}
-.kid .sk{grid-column:1 / -1;height:1.5em}
-.kid .sk + .sk{height:1em}
+   (never a 0 or "Nothing on the list today." posing as real data); the reduced-motion rule above stops the pulse.
+   Each bar keeps the box of what it stands for (CONS-MOTION-4): a stat bar sits in a count's own line, and the plan
+   name's bar after the date, so Pray now does not move when the data lands. ── */
+.sk{display:block;height:.85em;border-radius:var(--r-xs);background:var(--track);animation:skpulse var(--dur-shimmer) var(--ease-in-out) infinite}
+.strip b .sk{display:inline-block;width:3.5em;height:.8em;vertical-align:-.05em}
+.date .sk{display:inline-block;width:5em;height:.8em;vertical-align:-.05em}
+li.row .sk + .sk{margin-top:var(--sp-2);height:.7em}
+.kid .sk{grid-column:1 / -1;height:1.5em;border-radius:var(--r-inset)}   /* inset in the card: concentric */
+/* a kid's placeholder card has the real card's parts and heights (CONS-MOTION-4): the title, who asked, the Pray button */
+.kid .sk.sk-kt{font-size:var(--fs-2xl);height:1.2em}
+.kid .sk.sk-by{width:45%;height:var(--face-kid);border-radius:var(--r-full)}
+.kid .sk.sk-btn{width:100%;height:var(--tap);border-radius:var(--r-button)}
+/* the headline while loading: on a phone the real one ("5 to pray through this morning.") takes two lines, so the
+   loading line holds two as well; from 700 px both are one line */
+@media (max-width:699px){ :root:not([data-kind="kid"]) #s-today[aria-busy="true"] #todayLine{min-height:2.36em} }
 @keyframes skpulse{50%{opacity:.5}}
 
 /* ── batch 3, the logic half's own markup (list names, Around the table, the answered search); tokens only ── */
 /* P3-PRAYER-20: Add says which list it adds to, with the switch */
-.addto{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:14px;font-size:var(--fs-subheadline);font-weight:600;color:var(--muted)}
-#addListNote{margin-top:8px}
-#moreListNote{margin-top:6px}
+.addto{display:flex;align-items:center;flex-wrap:wrap;gap:var(--sp-3);margin-top:var(--sp-3);font-size:var(--fs-subheadline);font-weight:600;color:var(--muted)}
+#addListNote{margin-top:var(--sp-2)}
+#moreListNote{margin-top:var(--sp-2)}
 /* UX-PRAYER-1: the Add form's main button stays above the tab bar while the form is taller than the screen */
-#f-save{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));z-index:2;box-shadow:0 0 0 4px var(--paper)}
+#f-save{min-height:var(--btn-h-lg);position:sticky;bottom:calc(var(--sp-16) + var(--sp-5) + env(safe-area-inset-bottom));z-index:2;box-shadow:0 0 0 4px var(--bg)}
 /* a focused field scrolls clear of the tab bar, and on Add of the pinned button too (batch 3 review): the browser's focus
    scroll keeps this much room at the foot of the screen */
-html{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom))}
-html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-bottom))}
+html{scroll-padding-bottom:calc(var(--sp-16) + var(--sp-8) + env(safe-area-inset-bottom))}
+html:has(#s-add.on){scroll-padding-bottom:calc(var(--sp-16) * 2 + var(--sp-10) + var(--sp-1) + env(safe-area-inset-bottom))}
 /* UX-PRAYER-6: who asked and who prayed today, in a family request's detail sheet */
-.sheetwho{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:10px}
+.sheetwho{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-3);margin-top:var(--sp-2)}
 .sheetwho .asker{margin-left:0}
-.sheetprayed{display:inline-flex;align-items:center;gap:6px}
+.sheetprayed{display:inline-flex;align-items:center;gap:var(--sp-1-5)}
 .sheetprayed .who{margin-left:0}
 /* GAP-PRAYER-2: the answered record by year */
-.ans-year{margin-top:26px;font-size:var(--fs-headline);color:var(--ink)}
-#answeredList .ans-year + .ans{border-top:none;padding-top:10px}
-.ans-search-lbl{margin-top:14px}
+.ans-year{margin-top:var(--sp-6);font-size:var(--fs-headline);color:var(--text)}
+#answeredList .ans-year + .ans{border-top:none;padding-top:var(--sp-2)}
+.ans-search-lbl{margin-top:var(--sp-3)}
 /* IMP-PRAYER-I1, Around the table: the asker's face large above the request, and on the kitchen the faces at the table */
-#pray .asked{order:-1;display:flex;align-items:center;gap:14px;margin-bottom:20px;font-size:var(--fs-headline);font-weight:600;color:var(--ink2)}
-#pray .asked .avatar,#pray .asked .init,#pray .table .avatar,#pray .table .init{--size:88px;width:var(--size);height:var(--size);border-radius:50%;flex:none;
+#pray .asked{order:-1;display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-5);font-size:var(--fs-headline);font-weight:600;color:var(--text-2)}
+#pray .asked .avatar,#pray .asked .init,#pray .table .avatar,#pray .table .init{--size:var(--face-xl);width:var(--size);height:var(--size);border-radius:50%;flex:none;
   display:grid;place-items:center;overflow:hidden;font-size:var(--fs-title1);line-height:1;
   background:radial-gradient(120% 120% at 30% 20%, var(--accent-fill), var(--accent-fill-strong));color:var(--accent-ink)}
 #pray .asked .avatar img,#pray .table .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-#pray .table{max-width:var(--col-narrow);margin:14px auto 0;width:100%}
-#pray .table .avatar,#pray .table .init{--size:56px;font-size:var(--fs-title3)}
-#pray .tme{display:flex;align-items:center;gap:10px;font-size:var(--fs-subheadline);font-weight:600;color:var(--muted)}
-#pray .tme .avatar,#pray .tme .init{--size:32px;font-size:var(--fs-callout)}
-#pray .thead{font-size:var(--fs-subheadline);font-weight:600;color:var(--muted);margin-bottom:8px}
-#pray .tfaces{display:flex;flex-wrap:wrap;gap:8px}
-#pray .tface{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:var(--tap-lg);min-height:var(--tap-lg);padding:6px 8px;
-  border-radius:var(--r-sm);border:2px dashed var(--rule);background:transparent;color:var(--ink2);font-family:inherit;cursor:pointer}
-#pray .tface[aria-pressed="true"]{border-style:solid;border-color:var(--accent-graphic);background:var(--accent-fill);color:var(--ink)}
+#pray .table{max-width:var(--col-narrow);margin:var(--sp-3) auto 0;width:100%}
+#pray .table .avatar,#pray .table .init{--size:var(--face-lg);font-size:var(--fs-title3)}
+#pray .tme{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-subheadline);font-weight:600;color:var(--muted)}
+#pray .tme .avatar,#pray .tme .init{--size:var(--face-sm);font-size:var(--fs-callout)}
+#pray .thead{font-size:var(--fs-subheadline);font-weight:600;color:var(--muted);margin-bottom:var(--sp-2)}
+#pray .tfaces{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+#pray .tface{display:flex;flex-direction:column;align-items:center;gap:var(--sp-1);min-width:var(--tap-lg);min-height:var(--tap-lg);padding:var(--sp-1) var(--sp-2);
+  border-radius:var(--r-control);border:2px dashed var(--line);background:transparent;color:var(--text-2);font-family:inherit;cursor:pointer;transition:var(--press-t)}
+#pray .tface[aria-pressed="true"]{border-style:solid;border-color:var(--accent-graphic);background:var(--accent-fill);color:var(--text)}
 #pray .tface .tname{font-size:var(--fs-footnote);font-weight:600}
 #pray .tface:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:2px}
 </style>
@@ -603,9 +647,9 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
 
 <section id="s-today" class="screen on">
   <header>
-    <div class="hdr">
+    <div class="hdr ds">
       <div class="date" id="todayDate"></div>
-      <div class="switch" id="listSwitch">
+      <div class="seg" id="listSwitch" role="group" aria-label="Which list">
         <button data-list="personal" aria-pressed="true">Mine</button>
         <button data-list="shared" aria-pressed="false">Family</button>
       </div>
@@ -615,8 +659,8 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
   <div class="meter" id="meterWrap"><i id="meterFill"></i></div>
   <div class="strip" id="todayStrip"></div>
   <div class="primary-row" id="todayActions">
-    <button class="act hero" id="startPray">Pray now</button>
-    <button class="act ghost more" id="moreBtn" aria-label="Share and print" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>Share &amp; print</button>
+    <button class="act lead" id="startPray">Pray now</button>
+    <button class="act ghost more" id="moreBtn" aria-label="Share and print" aria-haspopup="dialog"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-ellipsis"/></svg>Share &amp; print</button>
   </div>
   <div class="cheer" id="cheer"></div>
   <div id="reviewPrompt"></div>
@@ -634,7 +678,7 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
 
 <section id="s-answered" class="screen">
   <header><h1>The record</h1></header>
-  <details class="cat" id="reviewWrap"><summary><span>Needs attention</span><span class="n" id="reviewCount"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></summary>
+  <details class="cat" id="reviewWrap"><summary><span>Needs attention</span><span class="n" id="reviewCount"></span><svg class="sym chev" stroke="currentColor" aria-hidden="true"><use href="../icons/sprite.svg#i-chevron-down"/></svg></summary>
     <div id="reviewBody"></div>
   </details>
   <div id="record"></div>
@@ -646,13 +690,13 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
 
 <section id="s-add" class="screen">
   <header><h1>Add a request</h1></header>
-  <div class="addto"><span id="addListLbl">Adding to</span> <div class="switch" id="addListSwitch" role="group" aria-labelledby="addListLbl">
+  <div class="addto ds"><span id="addListLbl">Adding to</span> <div class="seg" id="addListSwitch" role="group" aria-labelledby="addListLbl">
     <button type="button" data-addlist="personal" aria-pressed="true">My list</button>
     <button type="button" data-addlist="shared" aria-pressed="false">Family list</button>
   </div></div>
   <p class="note" id="addListNote"></p>
   <label for="f-title">What are you praying for?</label>
-  <div class="voicerow"><input type="text" id="f-title" placeholder="Healing for..." enterkeyhint="next"><button type="button" class="micbtn" id="f-mic" aria-label="Say it instead" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></button></div>
+  <div class="voicerow"><input type="text" id="f-title" placeholder="Healing for..." enterkeyhint="next"><button type="button" class="micbtn" id="f-mic" aria-label="Say it instead" hidden><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-mic"/></svg></button></div>
   <p class="err" id="f-titleErr"></p>
   <label for="f-for">Who is it for?</label>
   <input type="text" id="f-for" placeholder="Optional" enterkeyhint="next">
@@ -664,9 +708,9 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
   <select id="f-cat"></select>
   <label>How often</label>
   <div class="chips" id="f-cad">
-    <button class="chip" data-cad="daily" aria-pressed="true">Every day</button>
-    <button class="chip" data-cad="weekly" aria-pressed="false">On certain days</button>
-    <button class="chip" data-cad="rotation" aria-pressed="false">In rotation</button>
+    <button class="p-chip" data-cad="daily" aria-pressed="true">Every day</button>
+    <button class="p-chip" data-cad="weekly" aria-pressed="false">On certain days</button>
+    <button class="p-chip" data-cad="rotation" aria-pressed="false">In rotation</button>
   </div>
   <div id="f-daysWrap" hidden></div>
   <button class="act" id="f-save">Add to the list</button>
@@ -681,10 +725,10 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
   <label for="f-plan">Active plan</label>
   <select id="f-plan"></select>
   <div id="planEditor"></div>
-  <button class="act ghost small" id="f-newplan" style="margin-top:18px">New plan</button>
+  <button class="act ghost compact" id="f-newplan" style="margin-top:var(--sp-4)">New plan</button>
 
   <h2>Paste a list</h2>
-  <p class="note" style="margin-top:4px">A line ending in a colon becomes the category for the lines under it. "Name - request" splits into who and what.</p>
+  <p class="note" style="margin-top:var(--sp-1)">A line ending in a colon becomes the category for the lines under it. "Name - request" splits into who and what.</p>
   <textarea id="f-paste" placeholder="Health Needs:&#10;Sam - recovery after surgery&#10;Aunt Ruth&#10;&#10;Missionaries - Abroad:&#10;The Carters in Peru"></textarea>
   <label for="f-pastecat">Category for lines with no heading</label>
   <select id="f-pastecat"></select>
@@ -696,12 +740,12 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
   <label for="f-newcat">Add a category</label>
   <input type="text" id="f-newcat" placeholder="Name it whatever you like">
   <p class="err" id="f-newcatErr"></p>
-  <button class="act ghost small" id="f-addcat" style="margin-top:12px">Add category</button>
+  <button class="act ghost compact" id="f-addcat" style="margin-top:var(--sp-3)">Add category</button>
 
   <h2>Backup</h2>
-  <div class="rowbtns" style="margin-top:14px">
-    <button class="act ghost small" id="f-export">Export both lists</button>
-    <button class="act ghost small" id="f-import">Import a backup</button>
+  <div class="rowbtns" style="margin-top:var(--sp-3)">
+    <button class="act ghost compact" id="f-export">Export both lists</button>
+    <button class="act ghost compact" id="f-import">Import a backup</button>
   </div>
   <input type="file" id="f-importFile" accept=".json,application/json" hidden>
 </section>
@@ -720,7 +764,7 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
   </div>
   <div class="table" id="prayTable" hidden></div>
   <div class="bar"><i id="prayBar"></i></div>
-  <div class="ctrl" style="margin-top:18px">
+  <div class="ctrl">
     <button id="prayBack">Back</button>
     <button class="go" id="prayNext">Prayed</button>
     <button id="praySkip">Skip</button>
@@ -728,23 +772,23 @@ html:has(#s-add.on){scroll-padding-bottom:calc(172px + env(safe-area-inset-botto
 </div>
 
 <div id="kitchen">
-  <button class="act ghost small close" id="kitchenShut">Close</button>
+  <button class="act ghost compact close" id="kitchenShut">Close</button>
   <div id="kitchenBody"></div>
 </div>
 
 <div id="printArea"></div>
 
-<button class="fab" id="fab" data-go="add" aria-label="Add a request"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+<button class="fab" id="fab" data-go="add" aria-label="Add a request"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-plus"/></svg></button>
 <div class="veil" id="veil"></div>
-<div class="sheet" id="sheet"><div class="inner" id="sheetInner"></div></div>
-<div class="toast" id="toast"><span id="toastMsg"></span><button id="toastAct"></button></div>
+<div class="p-sheet" id="sheet"><div class="inner" id="sheetInner"></div></div>
+<div class="p-toast" id="toast"><span id="toastMsg"></span><button id="toastAct"></button></div>
 
 <nav><div class="inner">
-  <button data-go="today" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Today</button>
-  <button data-go="all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".75"/><circle cx="4.5" cy="12" r=".75"/><circle cx="4.5" cy="18" r=".75"/></svg>List</button>
-  <button data-go="answered"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>Record</button>
-  <button data-go="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add</button>
-  <button data-go="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>More</button>
+  <button data-go="today" aria-current="true"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-sun"/></svg>Today</button>
+  <button data-go="all"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-list"/></svg>List</button>
+  <button data-go="answered"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-bookmark"/></svg>Record</button>
+  <button data-go="add"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-plus"/></svg>Add</button>
+  <button data-go="more"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-sliders-horizontal"/></svg>More</button>
 </div></nav>
 
 <script src="hub.js" data-app="prayer" data-scope="both"></script>
@@ -1166,10 +1210,10 @@ function rowHTML(p){
   const cold = p.cadence === 'rotation' && p.lastPrayedAt && daysSince(p.lastPrayedAt) > 20;
   return '<li class="row ' + (done?'done':'') + '">'
     + '<button class="mark" aria-pressed="' + done + '" data-pray="' + esc(p.id) + '" aria-label="Mark prayed">'
-    + '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    + icon('check')
     + '</button><div class="body" data-open="' + esc(p.id) + '">'
     + '<div class="title">' + esc(p.title)
-      + (p.sharedFrom ? '<span class="pill">shared</span>' : '') + whoHTML(p) + '</div>'
+      + (p.sharedFrom ? '<span class="p-tag">shared</span>' : '') + whoHTML(p) + '</div>'
     + '<div class="meta">' + esc(p.category)
       + (cold ? ' &middot; <span class="cold">not prayed in ' + daysSince(p.lastPrayedAt) + ' days</span>' : '')
       + askerHTML(p) + '</div>'
@@ -1256,7 +1300,7 @@ function renderToday(){
   const rq = reviewItems();
   el('reviewPrompt').innerHTML = (plan.show.review && reviewDue())
     ? '<div class="prompt"><span>' + (rq.cold.length ? 'Some of the list has gone quiet.' : 'Some requests have had no news in a while.') + '</span>'
-      + '<button class="act ghost small" data-go="answered">See what</button></div>' : '';
+      + '<button class="act ghost compact" data-go="answered">See what</button></div>' : '';
 
   // UX-PRAYER-10: rows still to pray first, prayed rows after, each part in a fixed order (every-day, weekly, rotation,
   // then oldest first), so the order is the same on every device and does not follow the cache.
@@ -1267,9 +1311,9 @@ function renderToday(){
     ? (KID() ? kidListHTML(set) : plan.groupByCategory ? groupedHTML(rows,true,'today') : '<ul class="list">'+rows.map(rowHTML).join('')+'</ul>')
     : L().prayers.some(p => p.status === 'active')
       ? '<div class="empty">Nothing scheduled for today under this plan.'
-        + '<button class="act ghost small" data-go="more">Change the plan</button></div>'
-      : '<div class="empty"><img src="../art/empty/prayers.svg" alt="">Nothing on this list yet.'
-        + '<button class="act small" data-go="add">Add a request</button></div>';
+        + '<button class="act ghost compact" data-go="more">Change the plan</button></div>'
+      : '<div class="empty"><img src="../art/empty/prayers.svg" alt="" draggable="false">Nothing on this list yet.'
+        + '<button class="act compact" data-go="add">Add a request</button></div>';
 
   const ann = plan.show.anniversaries ? anniversaries() : [];
   el('anniv').innerHTML = ann.length
@@ -1302,15 +1346,15 @@ function renderAll(){
         ? '<details class="cat" open><summary><span>Answered</span><span class="n">' + ans.length
           + '</span>' + icon('chev') + '</summary>' + ans.map(ansHTML).join('') + '</details>' : '')
     : q ? '<p class="empty">Nothing matches that.</p>'
-    : '<div class="empty"><img src="../art/empty/prayers.svg" alt="">Nothing on the list yet.'
-      + '<button class="act ghost small" data-go="add">Add a request</button></div>';
+    : '<div class="empty"><img src="../art/empty/prayers.svg" alt="" draggable="false">Nothing on the list yet.'
+      + '<button class="act ghost compact" data-go="add">Add a request</button></div>';
 }
 
 function renderRecord(){
   const ans = L().prayers.filter(p => p.status === 'answered');
   const s = currentStreak(), lg = longestStreak();
   el('record').innerHTML =
-      '<div class="strip" style="margin-top:16px">'
+      '<div class="strip" style="margin-top:var(--sp-4)">'
     + '<span><b>' + s + '</b> day' + (s===1?'':'s') + ' in a row</span>'
     + '<span><b>' + lg + '</b> best run</span>'
     + '<span><b>' + monthDays() + '</b> days this month</span>'
@@ -1351,45 +1395,45 @@ function sheetFor(id){
   el('sheetInner').innerHTML =
       '<button class="close" data-shut>Done</button>'
     + '<div class="meta" style="margin:0">' + dot(p.category) + esc(p.category)
-      + (p.sharedFrom ? '<span class="pill">shared</span>' : '') + '</div>'
-    + '<h1 style="margin-top:4px">' + esc(p.title) + '</h1>'
+      + (p.sharedFrom ? '<span class="p-tag">shared</span>' : '') + '</div>'
+    + '<h1 style="margin-top:var(--sp-1)">' + esc(p.title) + '</h1>'
     + (p.for ? '<div class="meta">For ' + esc(p.for) + '</div>' : '')
     + familyWhoHTML(p)
     + (p.detail ? '<p>' + esc(p.detail) + '</p>' : '')
-    + '<div class="meta" style="margin-top:14px">'
+    + '<div class="meta" style="margin-top:var(--sp-3)">'
       + (p.lastPrayedAt ? 'Last prayed ' + pretty(p.lastPrayedAt) : 'Not prayed through yet')
       + ' &middot; on the list since ' + pretty(p.createdAt) + '</div>'
     + (p.status === 'answered'
-        ? '<div style="margin-top:20px"><div style="font-size:var(--fs-subheadline);font-weight:600;color:var(--butter-ink)">Answered '
+        ? '<div style="margin-top:var(--sp-5)"><div style="font-size:var(--fs-subheadline);font-weight:600;color:var(--butter-ink)">Answered '
           + pretty(p.answeredAt) + '</div><div class="ansnote">' + esc(p.answerNote) + '</div></div>' : '')
     + hist
     + '<div class="rowbtns">'
     + (p.status === 'active'
-        ? '<button class="act ghost small" data-update="' + esc(p.id) + '">Add an update</button>'
-          + '<button class="act ghost small" data-tell="' + esc(p.id) + '">Tell them you prayed</button>'
-          + '<button class="act ghost small" data-recat="' + esc(p.id) + '">Change category</button>'
+        ? '<button class="act ghost compact" data-update="' + esc(p.id) + '">Add an update</button>'
+          + '<button class="act ghost compact" data-tell="' + esc(p.id) + '">Tell them you prayed</button>'
+          + '<button class="act ghost compact" data-recat="' + esc(p.id) + '">Change category</button>'
           + (D.activeList === 'personal'
-              ? '<button class="act ghost small" data-share="' + esc(p.id) + '">Send to family list</button>' : '')
-          + '<button class="act small" data-answer="' + esc(p.id) + '">Mark answered</button>'
-        : '<button class="act ghost small" data-reopen="' + esc(p.id) + '">Put back on the list</button>')
+              ? '<button class="act ghost compact" data-share="' + esc(p.id) + '">Send to family list</button>' : '')
+          + '<button class="act compact" data-answer="' + esc(p.id) + '">Mark answered</button>'
+        : '<button class="act ghost compact" data-reopen="' + esc(p.id) + '">Put back on the list</button>')
     + '</div>'
-    + '<div class="rowbtns" style="margin-top:14px">'
-    + '<button class="act ghost small" data-edit="' + esc(p.id) + '">Edit</button>'
-    + '<button class="act ghost small" data-delete="' + esc(p.id) + '">Delete</button></div>';
+    + '<div class="rowbtns" style="margin-top:var(--sp-3)">'
+    + '<button class="act ghost compact" data-edit="' + esc(p.id) + '">Edit</button>'
+    + '<button class="act ghost compact" data-delete="' + esc(p.id) + '">Delete</button></div>';
   openSheet();
 }
 
 /* ── edit form, in the same sheet ───────────────────────────── */
 function dayChips(id, days){
-  return '<div class="chips" id="' + id + '">' + DOW.map(d => '<button class="chip" data-' + id + '="' + d
+  return '<div class="chips" id="' + id + '">' + DOW.map(d => '<button class="p-chip" data-' + id + '="' + d
     + '" aria-pressed="' + (days||[]).includes(d) + '">' + d + '</button>').join('') + '</div>';
 }
 function editSheet(id){
   const p = byId(id); if(!p) return;
   el('sheetInner').innerHTML =
       '<button class="close" data-open="' + esc(p.id) + '">Cancel</button>'
-    + '<h1 style="margin-top:4px">Edit</h1>'
-    + '<label for="e-title" style="margin-top:18px">What are you praying for?</label>'
+    + '<h1 style="margin-top:var(--sp-1)">Edit</h1>'
+    + '<label for="e-title" style="margin-top:var(--sp-4)">What are you praying for?</label>'
     + '<input type="text" id="e-title" value="' + esc(p.title) + '"><p class="err" id="e-titleErr"></p>'
     + '<label for="e-for">Who is it for?</label><input type="text" id="e-for" value="' + esc(p.for) + '" placeholder="Optional">'
     + '<label for="e-phone">Their number, to tell them you prayed</label><input type="tel" id="e-phone" value="' + esc(p.phone) + '" placeholder="Optional">'
@@ -1400,12 +1444,12 @@ function editSheet(id){
     + '</select>'
     + '<label>How often</label><div class="chips" id="e-cad">'
     + [['daily','Every day'],['weekly','On certain days'],['rotation','In rotation']].map(c =>
-        '<button class="chip" data-ecad="' + c[0] + '" aria-pressed="' + (p.cadence === c[0]) + '">' + c[1] + '</button>').join('')
+        '<button class="p-chip" data-ecad="' + c[0] + '" aria-pressed="' + (p.cadence === c[0]) + '">' + c[1] + '</button>').join('')
     + '</div>'
     + '<div id="e-daysWrap"' + (p.cadence === 'weekly' ? '' : ' hidden') + '><label>Which days</label>'
     + dayChips('eday', p.days) + '<p class="err" id="e-daysErr"></p></div>'
-    + '<div class="rowbtns"><button class="act small" data-esave="' + esc(p.id) + '">Save</button>'
-    + '<button class="act ghost small" data-open="' + esc(p.id) + '">Cancel</button></div>';
+    + '<div class="rowbtns"><button class="act compact" data-esave="' + esc(p.id) + '">Save</button>'
+    + '<button class="act ghost compact" data-open="' + esc(p.id) + '">Cancel</button></div>';
   openSheet(); el('sheet').scrollTop = 0;
   editSheet.snap = editFields();
 }
@@ -1413,14 +1457,14 @@ function editSheet(id){
 function editFields(){
   const v = id => (document.getElementById(id) || {}).value || '';
   const on = sel => [...document.querySelectorAll(sel)].map(b => b.getAttribute('aria-pressed')).join(',');
-  return [v('e-title'), v('e-for'), v('e-phone'), v('e-detail'), v('e-cat'), on('#e-cad .chip'), on('#eday .chip')].join('\u0001');
+  return [v('e-title'), v('e-for'), v('e-phone'), v('e-detail'), v('e-cat'), on('#e-cad .p-chip'), on('#eday .p-chip')].join('\u0001');
 }
 function saveEdit(id){
   const p = byId(id); if(!p) return;
   const title = el('e-title').value.trim();
   if(!title){ el('e-titleErr').textContent = 'Add a few words about what you are praying for.'; return; }
-  const cad = (document.querySelector('#e-cad .chip[aria-pressed="true"]') || {dataset:{}}).dataset.ecad || 'daily';
-  const days = [...document.querySelectorAll('#eday .chip[aria-pressed="true"]')].map(b => b.dataset.eday);
+  const cad = (document.querySelector('#e-cad .p-chip[aria-pressed="true"]') || {dataset:{}}).dataset.ecad || 'daily';
+  const days = [...document.querySelectorAll('#eday .p-chip[aria-pressed="true"]')].map(b => b.dataset.eday);
   if(cad === 'weekly' && !days.length){ el('e-daysErr').textContent = 'Pick at least one day.'; return; }
   const wasCat = p.category;
   Object.assign(p, { title, for:el('e-for').value.trim(), phone:el('e-phone').value.trim(),
@@ -1473,8 +1517,8 @@ function ask(trigger, o){
     + (o.extra || '')                       // caller-built markup, every value in it already through esc()
     + (o.help ? '<p class="note">' + esc(o.help) + '</p>' : '')
     + '<p class="err" id="askErr"></p>'
-    + '<div class="rowbtns"><button class="act small' + (o.danger ? ' danger' : '') + '" id="askSave">'
-    + esc(o.save || 'Save') + '</button><button class="act ghost small" id="askCancel">'
+    + '<div class="rowbtns"><button class="act compact' + (o.danger ? ' danger' : '') + '" id="askSave">'
+    + esc(o.save || 'Save') + '</button><button class="act ghost compact" id="askCancel">'
     + esc(o.cancel || 'Cancel') + '</button></div>';
   // Sit below the button's row so a flex row of buttons is not split.
   const anchor = trigger.closest('.rowbtns, .catrow, details.cat') || trigger;
@@ -1580,12 +1624,12 @@ function renderPlans(){
   const dow = dowToday();
   let h = '<label>What Today shows</label><div class="chips" id="p-mode">'
     + [['everything','Daily plus rotation'],['byDay','A set of categories each day'],['focus','One category only']]
-        .map(m => '<button class="chip" data-mode="' + m[0] + '" aria-pressed="'
+        .map(m => '<button class="p-chip" data-mode="' + m[0] + '" aria-pressed="'
           + (cur.mode===m[0]) + '">' + m[1] + '</button>').join('') + '</div>';
 
   if(cur.mode === 'everything'){
     h += '<label>How many rotation requests surface each day</label><div class="chips" id="p-rot">'
-      + [2,3,4,5,6,8].map(n => '<button class="chip" data-rot="' + n + '" aria-pressed="'
+      + [2,3,4,5,6,8].map(n => '<button class="p-chip" data-rot="' + n + '" aria-pressed="'
         + (cur.rotationSize===n) + '">' + n + '</button>').join('') + '</div>';
   }
   if(cur.mode === 'focus'){
@@ -1595,7 +1639,7 @@ function renderPlans(){
   }
   if(cur.mode === 'byDay'){
     h += '<label>Day to edit</label><div class="chips" id="p-day">'
-      + DOW.map(d => '<button class="chip" data-day="' + d + '" aria-pressed="'
+      + DOW.map(d => '<button class="p-chip" data-day="' + d + '" aria-pressed="'
         + (d===(renderPlans._day||dow)) + '">' + d + '</button>').join('') + '</div>'
       + '<label for="p-cats">Categories on ' + (renderPlans._day||dow)
         + ' <span style="color:var(--muted)">(tap to toggle)</span></label>'
@@ -1603,7 +1647,7 @@ function renderPlans(){
       + L().categories.map(c => '<option value="' + esc(c) + '"'
         + ((cur.dayMap[renderPlans._day||dow]||[]).includes(c)?' selected':'') + '>'
         + esc(c) + '</option>').join('') + '</select>'
-      + '<div class="chips" style="margin-top:12px"><button class="chip" data-incd="1" aria-pressed="'
+      + '<div class="chips" style="margin-top:var(--sp-3)"><button class="p-chip" data-incd="1" aria-pressed="'
         + (!!cur.includeDaily) + '">Always include every-day requests</button></div>';
   }
   h += '<label>Layout and extras</label><div class="chips" id="p-show">'
@@ -1613,10 +1657,10 @@ function renderPlans(){
        ['answered','Recently answered',cur.show.answered],
        ['anniversaries','Anniversaries',cur.show.anniversaries],
        ['review','Review nudge',cur.show.review]]
-      .map(x => '<button class="chip" data-show="' + x[0] + '" aria-pressed="' + !!x[2] + '">'
+      .map(x => '<button class="p-chip" data-show="' + x[0] + '" aria-pressed="' + !!x[2] + '">'
         + x[1] + '</button>').join('') + '</div>'
-    + '<div class="rowbtns"><button class="act ghost small" data-renplan="1">Rename plan</button>'
-    + (L().plans.length > 1 ? '<button class="act ghost small" data-delplan="1">Delete plan</button>' : '')
+    + '<div class="rowbtns"><button class="act ghost compact" data-renplan="1">Rename plan</button>'
+    + (L().plans.length > 1 ? '<button class="act ghost compact" data-delplan="1">Delete plan</button>' : '')
     + '</div>';
   el('planEditor').innerHTML = h;
 }
@@ -1710,7 +1754,7 @@ document.addEventListener('click', e => {
     // when turned on here (off by default), otherwise no For and the neutral 'Personal'. Detail and number never go.
     const pick = { for:false, cat:false };
     const hasFor = !!String(p.for || '').trim(), hasCat = !!p.category && p.category !== SHARE_CAT;
-    const chip = (id, text) => '<button type="button" class="chip" id="' + id + '" aria-pressed="false">' + esc(text) + '</button>';
+    const chip = (id, text) => '<button type="button" class="p-chip" id="' + id + '" aria-pressed="false">' + esc(text) + '</button>';
     ask(t, {kind:'text', label:'How should this read on the family list?', value:p.title, required:true,
       extra: (hasFor || hasCat ? '<label id="shareAlsoLbl">Also share (tap to include)</label>'
           + '<div class="chips" id="shareAlso" role="group" aria-labelledby="shareAlsoLbl">'
@@ -1903,15 +1947,15 @@ el('f-save').addEventListener('click', () => {
   const title = el('f-title').value.trim();
   if(!title){ el('f-titleErr').textContent = 'Add a few words about what you are praying for.'; el('f-title').focus(); return; }
   el('f-titleErr').textContent = '';
-  const cad = (document.querySelector('#f-cad .chip[aria-pressed="true"]') || {dataset:{}}).dataset.cad || 'daily';
-  const days = [...document.querySelectorAll('#fday .chip[aria-pressed="true"]')].map(b => b.dataset.fday);
+  const cad = (document.querySelector('#f-cad .p-chip[aria-pressed="true"]') || {dataset:{}}).dataset.cad || 'daily';
+  const days = [...document.querySelectorAll('#fday .p-chip[aria-pressed="true"]')].map(b => b.dataset.fday);
   if(cad === 'weekly' && !days.length){ el('f-daysErr').textContent = 'Pick at least one day.'; return; }
   L().prayers.push({id:nextId(), title, for:el('f-for').value.trim(), phone:el('f-phone').value.trim(),
     detail:el('f-detail').value.trim(), category:el('f-cat').value || 'Personal', cadence:cad, days: cad === 'weekly' ? days : [],
     status:'active', createdAt:TODAY, lastPrayedAt:null, answeredAt:null, answerNote:null, updates:[],
     sharedFrom:null, prayedBy:{}, by:author(), updatedAt:new Date().toISOString()});
   save(); el('f-title').value = ''; el('f-for').value = ''; el('f-phone').value = ''; el('f-detail').value = '';
-  document.querySelectorAll('#fday .chip').forEach(b => b.setAttribute('aria-pressed','false'));
+  document.querySelectorAll('#fday .p-chip').forEach(b => b.setAttribute('aria-pressed','false'));
   renderCatAdmin(); go('today');
 });
 
@@ -1954,8 +1998,8 @@ el('f-parse').addEventListener('click', () => {
     + (newCats.length ? '. New categories will be created: ' + esc(newCats.join(', ')) : '') + '.</p>'
     + items.map((it,i) => '<div class="pending"><div class="body"><div class="title">' + esc(it.title)
         + '</div><div class="meta">' + esc(it.category) + (it.for ? ' &middot; ' + esc(it.for) : '')
-        + '</div></div><button class="act ghost small" data-keep="' + i + '">Keep</button></div>').join('')
-    + '<button class="act ghost small" id="keepAll" style="margin-top:18px">Keep all</button>';
+        + '</div></div><button class="act ghost compact" data-keep="' + i + '">Keep</button></div>').join('')
+    + '<button class="act ghost compact" id="keepAll" style="margin-top:var(--sp-4)">Keep all</button>';
   const add = it => {
     if(!L().categories.includes(it.category)) L().categories.push(it.category);
     L().prayers.push({id:nextId(), title:it.title, for:it.for, phone:'', detail:'',
@@ -2030,7 +2074,7 @@ function mergeBackup(B){
 el('f-import').addEventListener('click', () => {
   ask(el('f-import'), {kind:'textarea', label:'Choose the backup file, or paste what is in it', required:true,
     // UX-PRAYER-12: the exported file itself, through the file picker (Files on the iPad), fills the box below
-    extra:'<div class="rowbtns" style="margin-top:10px"><button type="button" class="act ghost small" id="f-importPick">Choose a backup file</button></div>'
+    extra:'<div class="rowbtns" style="margin-top:var(--sp-2)"><button type="button" class="act ghost compact" id="f-importPick">Choose a backup file</button></div>'
       + '<p class="note" id="f-importName" aria-live="polite"></p>',
     help:'Adds back what is missing and brings back your own older changes. Nothing is deleted, and requests other people added to the family list are left as they are.', save:'Import',
     validate:txt => { try{ readBackup(txt); return ''; }
@@ -2148,7 +2192,7 @@ function kidCardHTML(p){
   const me = people().find(q => q.id === myId()) || (window.hub && hub.profile) || null;
   const face = me ? '<span class="kme">' + faceHTML(me, me.name) + '</span>' : '';
   const say = CAN_SAY ? '<button class="ksay" data-ksay="' + esc(p.id) + '" aria-label="Read it to me: ' + esc(p.title) + '">'
-    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>' : '';
+    + icon('speak') + '</button>' : '';
   return '<li class="kid' + (done ? ' done' : '') + '">'
     + '<div class="khead"><div class="kt"' + (CAN_SAY ? ' data-ksay="' + esc(p.id) + '"' : '') + '>' + esc(p.title) + '</div>' + say + '</div>'
     + '<div class="kby">' + by + '</div>'
@@ -2160,16 +2204,14 @@ function kidCardHTML(p){
     + (who ? '<div class="kwho">' + who + '<span>prayed today</span></div>' : '')
     + '</li>';
 }
-// Prayer's drawn icons (ICO-2, batch 3 rescore): one family with the nav, the + and the prayed mark — a 24-unit stroke
-// drawing in currentColor, round caps and joins, 2 wide (the check 2.2, like the mark's), always aria-hidden beside a word.
+// Prayer's icons are the hub's one shared set (CONS-ICON-1, batch 4): icons/sprite.svg, Lucide geometry at one weight
+// (--icon-stroke 1.75, non-scaling) in currentColor, sized by the --icon-* roles in the CSS (design.css svg.sym). One drawing
+// per meaning (Table ICON-6): the chevron, the check, the kid's praying hands (the house's own drawing, duotone palms), the
+// speaker. Always aria-hidden beside a word. The class keeps the old names (chev, check, hands) the checks read.
+const ICON_ID = { chev: 'chevron-down', check: 'check', hands: 'hands', speak: 'volume-2' };
 function icon(name, cls){
-  const P = { chev: '<path d="M9 6l6 6-6 6"/>',
-    check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
-    // praying hands: two palms meeting at the fingertips, the seam between them, the cuffs; a soft duotone fill of the
-    // palms under the strokes (the house icon style, icons/prayer.svg) so a pre-reader reads it as hands, not a line shape
-    hands: '<path d="M12 4c-.9-1-2.3-.6-2.6.6L7.8 11 5 14.3l4 5.2 3-1.7 3 1.7 4-5.2-2.8-3.3-1.6-6.4c-.3-1.2-1.7-1.6-2.6-.6Z" fill="currentColor" stroke="none" opacity=".3"/><path d="M12 4v11.5"/><path d="M12 4c-.9-1-2.3-.6-2.6.6L7.8 11 5 14.3l4 5.2 3-1.7"/><path d="M12 4c.9-1 2.3-.6 2.6.6l1.6 6.4 2.8 3.3-4 5.2-3-1.7"/><path d="M3.2 16.7 6.8 21"/><path d="M20.8 16.7 17.2 21"/>' };
-  return '<svg class="' + (cls || name) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (name === 'check' ? 2.2 : name === 'hands' ? 2.3 : 2)
-    + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + P[name] + '</svg>';
+  return '<svg class="sym ' + (cls || name) + '" stroke="currentColor" aria-hidden="true"><use href="../icons/sprite.svg#i-'
+    + (ICON_ID[name] || name) + '"/></svg>';
 }
 // Read a family request aloud for a pre-reader (UX-PRAYER-2): one voice, picked once, at Kid Verse's pace. A second tap
 // while it speaks stops it.
@@ -2550,12 +2592,15 @@ function setBusy(on){
 }
 function renderLoading(){
   setBusy(true);
-  el('todayDate').textContent = dObj(TODAY).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+  // CONS-MOTION-4: each placeholder keeps the box of what it stands for, so Pray now stays put when the data lands: a bar
+  // where the plan's name goes after the date (it wraps as the name would), and four stats, each bar in a count's own line
+  el('todayDate').innerHTML = esc(dObj(TODAY).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}))
+    + ' · <span class="sk" aria-hidden="true"></span>';
   el('todayLine').textContent = KID() ? 'Getting the family list…' : 'Loading your prayer list…';
-  el('todayStrip').innerHTML = '<span class="sk"></span><span class="sk"></span><span class="sk"></span>';
+  el('todayStrip').innerHTML = '<span><b><span class="sk"></span></b></span>'.repeat(4);
   const bar = w => '<span class="sk" style="width:' + w + '%"></span>';
   el('todayList').innerHTML = KID()
-    ? '<ul class="kids" aria-hidden="true">' + [70,55].map(w => '<li class="kid">' + bar(w) + bar(35) + '</li>').join('') + '</ul>'
+    ? '<ul class="kids" aria-hidden="true">' + [70,55].map(w => '<li class="kid"><span class="sk sk-kt" style="width:' + w + '%"></span><span class="sk sk-by"></span><span class="sk sk-btn"></span></li>').join('') + '</ul>'
     : '<ul class="list" aria-hidden="true">' + [72,58,66,48].map(w => '<li class="row"><span class="mark"></span><div class="body">'
         + bar(w) + bar(30) + '</div></li>').join('') + '</ul>';
 }

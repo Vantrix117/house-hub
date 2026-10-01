@@ -8,13 +8,13 @@
    - A document it has no copy of, offline, gets offline.html (P2-PWA-16) instead of a bare "Offline".
    - push: shows the notification the Worker sent; notificationclick deep-links into the app via the URL hash and says
      whose it was (a shared device). pushsubscriptionchange hands the house the browser's new subscription (PWA-GAP-2). */
-const VERSION = 'hub-v43';
+const VERSION = 'hub-v44';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'sw.js', 'offline.html',
   'apps/design.css', 'apps/hub.js',
   'apps/f260.html', 'apps/leftovers.html', 'apps/prayer.html', 'apps/tally.html', 'apps/timer.html', 'apps/kidverse.html', 'apps/verses.html',
   'icons/f260.svg', 'icons/leftovers.svg', 'icons/prayer.svg', 'icons/tally.svg', 'icons/timer.svg',
-  'icons/dollywood.svg', 'icons/dollywood-live.svg', 'icons/kidverse.svg', 'icons/verses.svg',
+  'icons/dollywood.svg', 'icons/dollywood-live.svg', 'icons/kidverse.svg', 'icons/verses.svg', 'icons/sprite.svg',
   'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png', 'icons/icon-monochrome.png', 'icons/badge-96.png',
   // the park map must work in the park: the page + the layers it opens with (the aerial photo is cached on first use)
   'apps/dollywood-live.html', 'apps/dollywood/relief.jpg', 'apps/dollywood/slope.png', 'apps/dollywood/relief_soft.jpg', 'apps/dollywood/illustrated_lo.jpg',

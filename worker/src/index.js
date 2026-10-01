@@ -18,7 +18,7 @@ import {
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
 import { householdLoader, checkRead, guardedPut, creditFor, isHouseholdAdult } from './policy.js';
 import registry from '../../apps.json' with { type: 'json' };   // the apps' visibleTo ids are never handed to a new person
-import { runCron, pushTo, prefsFor, vapidFrom, validSubscription, nyParts, jobsAt, JOBS } from './reminders.js';
+import { runCron, pushTo, prefsFor, vapidFrom, validSubscription, nyParts, jobsAt, JOBS, f260UntickOutlived, f260RecentTicks, pruneRestored } from './reminders.js';
 import { chatHandler, chatHistory, chatUndo, chatClear, chatStop, pruneKidChat, activity } from './chat.js';
 import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
 
@@ -449,14 +449,20 @@ route('GET', '/api/f260/readers', async c => {
   const adults = (await c.env.DB.prepare("SELECT id FROM profiles WHERE kind = 'adult' AND IFNULL(is_guest, 0) = 0").all()).results.map(r => r.id);
   if (!adults.length) return { date, readers: [] };
   const { results } = await c.env.DB.prepare(
-    `SELECT profile_id, key, value FROM app_data
+    `SELECT profile_id, key, value, updated_at FROM app_data
       WHERE scope = 'person' AND IFNULL(profile_id, '') IN (${adults.map(() => '?').join(',')}) AND app_id = 'f260'
         AND key IN (?, 'f260.log') AND value IS NOT NULL`).bind(...adults, 'log:' + date).all();
-  const day = {}, map = {};
+  const day = {}, map = {}, untick = {};
   for (const r of results) {
     let v; try { v = JSON.parse(r.value); } catch { continue; }
     if (r.key === 'f260.log') map[r.profile_id] = !!(v && typeof v === 'object' && v[date] === true);
-    else day[r.profile_id] = v === true;
+    else { day[r.profile_id] = v === true; if (v === false) untick[r.profile_id] = { value: false, updated_at: +r.updated_at }; }
+  }
+  // an untick another device's earlier tick outlived still counts as read (P3-F260-02, review round 1; reminders.js)
+  const unticked = Object.keys(untick);
+  if (unticked.length) {
+    const ticks = await f260RecentTicks(c.env, unticked, date);   // less the readings an Undo or a restore wrote back today (round 3)
+    for (const id of unticked) if (f260UntickOutlived(date, untick[id], ticks[id] || [])) day[id] = true;
   }
   const readers = [...new Set([...Object.keys(day), ...Object.keys(map)])].filter(id => id in day ? day[id] : map[id]).sort();
   return { date, readers };
@@ -956,5 +962,7 @@ export default {
     catch (e) { console.error('cron guests', (e && e.stack) || e); }
     try { const k = await pruneKidChat(env, Date.now()); if (k) console.log('cron kid chat pruned', k); }   // GAP-CHAT-01: kids' chat is kept 90 days
     catch (e) { console.error('cron kid chat', (e && e.stack) || e); }
+    try { const n = await pruneRestored(env, now); if (n) console.log('cron f260 restored rows pruned', n); }   // batch 4, round 4: only today's are read
+    catch (e) { console.error('cron f260 restored', (e && e.stack) || e); }
   },
 };

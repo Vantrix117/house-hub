@@ -175,7 +175,7 @@ POST /api/admin/pairing-code/rotate     {code?}  (omit code → one is generated
 GET  /api/admin/usage                   chat messages / push sends per profile per New York day (the chat limit's day; tz: 'America/New_York'),
                                         devices (with role)
 DELETE /api/admin/devices/:id
-POST /api/admin/cron/run                {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime'}  run one reminder job now, ignoring the clock
+POST /api/admin/cron/run                {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime'}  run one reminder job now, ignoring the clock (evening: everyone's reading time too)
                                         (expired guests are silenced first, so a forced job cannot reach them either)
 
 Cron (wrangler.toml [triggers]): every 15 minutes; what runs is read off the New York time of the firing — see src/reminders.js
@@ -204,12 +204,13 @@ out or taken over from another paired device; the admin's reset-pin ("Clear PIN"
 
 The cron fires every 15 minutes (batch 2b; one trigger). `jobsAt()` reads the New York time of the firing and runs the
 8 am jobs at every firing of the 8 o'clock hour and the 8 pm jobs at every firing of the 20 o'clock hour (a failed push is tried
-again at :15, :30 and :45; the once-a-day gate and the prayer memory keep anyone from being told twice):
+again at :15, :30 and :45; the once-a-day gate and the prayer memory keep anyone from being told twice); `evening`, `park`
+and `praytime` run at every firing and pick whom it concerns:
 
 | Job | When | Who | Rule |
 |---|---|---|---|
 | `morning` (kind `leftovers`) | 8 am | household adults | any family leftover logged 5+ days ago |
-| `evening` (kind `f260`) | 8 pm | each person with F260 rows | no reading ticked today (`f260.log[today]`) and the plan is not finished |
+| `evening` (kind `f260`) | every run (15 min): the person's own time | each person with F260 rows | no reading ticked today (`f260.log[today]`) and the plan is not finished, at the time the person chose in Me → Notifications (`push_pref:readAt`, or the old `push_prefs.readAt`; "HH:MM", New York, on the half hour; unset = 8 pm, IMP-F260-F4): the firing falls in that time's hour. A firing in no one's hour reads nothing more (`quiet`); a forced run ignores the times. Once a day |
 | `behind` | Sunday 8 pm | adults (guests too: their own reading) with F260 rows | from `f260.summary` + `f260.weekStart`: if the current week was started more than 3 days ago, behind = 5 − weekDone; pushed when behind ≥ 2 ("You are N readings behind — <next ref> is next.") |
 | `prayer` | 8 am and 8 pm | household adults except the author | live family-list `prayer:*` rows that were not live at the last run, or whose fingerprint (the request's own `id` and `createdAt`, never the title: a wording edit is not new, P3-PRAYER-25) changed since — the snapshot lives in `settings.last_prayer_push_at` (`{v: 2, at, seen: {key: fingerprint}, owed: {profile: [keys]}}`). That catches a different request under a key an older app re-used after a delete; praying, updates and answers never re-announce a row; the first run only seeds the snapshot. Each new row is owed to each adult until a push to them is delivered (no once-a-day gate, P2-PWA-04: a prayer added after the morning push goes at 8 pm; a failed delivery is retried at the next run); switch off or no device → dropped. The author is the row's `by` (the prayer app writes `by: <profile id>` on every row it creates — add form, share, paste-import — so a prayer typed straight into the family list needs no activity line); rows without it (older app versions, the chat tool) fall back to the profile behind the matching "…family list: <title>" / "Added a family prayer request: <title>" activity line; unknown → everyone |
 | `prayedfor` | 8 pm | whoever added a family request (`by`) | someone else's id (or name) under today's `prayedBy` on it: "Elizabeth prayed for your request today: Grandma's surgery."; several requests name each one's own people ("Prayed for your requests today: Grandma's surgery (Eli and Ezra); Sam's job (Mae)."). Once a day (GAP-PRAYER-1) |
@@ -219,11 +220,18 @@ again at :15, :30 and :45; the once-a-day gate and the prayer memory keep anyone
 Morning, evening, behind, prayedfor and praytime send at most once per person per day (`push_log`, counting only a push some
 device took, P2-PWA-11); prayer and park use their own memory (above). Every kind honours the person's switch: one row per kind,
 `app_data(person, hub, 'push_pref:<kind>')`, over the old whole row `push_prefs` (read-only base; default on; `prayAt` unset = no
-reminder; the switches are in Me → Notifications), and can be forced with
-`POST /api/admin/cron/run {job}` as the admin (the forced call returns that one job's result; a scheduled run returns
+reminder; `readAt` unset = the reading nudge at 8 pm; the switches and both times are in Me → Notifications), and can be forced with
+`POST /api/admin/cron/run {job}` as the admin (the forced call returns that one job's result, the reading nudge whatever anyone's time; a scheduled run returns
 `{nyHour, nyMinute, weekday, main, ran: [...]}`). The household kinds (morning, prayer, park) never go to a guest (PWA-UX-2).
 `pushTo()` skips and deletes a subscription it cannot encrypt for (P2-PWA-10), and puts `to: <profile>` in every payload.
 `scripts/test-push2.mjs <code>` proves the three round-2 kinds end to end against `scripts/push-receiver.mjs`.
+
+"Read today" for the evening job and `GET /api/f260/readers` is the person's `log:<date>` row, or — when that row is an
+untick another device's earlier tick outlived — a reading still ticked that day (`f260UntickOutlived`). Readings a Reset's
+Undo or a restore wrote back are not counted: the app records each such write-back as `f260 restored:<date>:<uid>` =
+`{ ids, upTo }` (a done: row of a listed id stamped at or before `upTo`; a later real tick counts), read by
+`f260RecentTicks` and chat's untick alike. The first 8 am / 8 pm firing deletes `restored:*` rows older than yesterday
+(`pruneRestored`, batch 4).
 
 One push is not a job: `POST /api/dollywood/rally` (above) sends "Meet at <name>" to the other household adults on demand.
 It rides on the same park-day switch (`push_pref:park`) but is logged as kind `rally`, so a rally is never taken for

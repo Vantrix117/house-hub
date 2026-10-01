@@ -126,7 +126,7 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     await clearLists(page);
     await page.reload({ waitUntil: 'networkidle' });
     await page.waitForFunction(() => window.hub && hub.sync.lastPull > 0 && typeof D !== "undefined" && D, null, { timeout: 15000 }); await sleep(300);
-    await page.click('.switch button[data-list="shared"]'); await sleep(300);
+    await page.click('#listSwitch button[data-list="shared"]'); await sleep(300);
     ok(await page.evaluate(() => D.activeList === 'shared'), 'Eli switches to the Family list');
     await page.click('nav button[data-go="add"]'); await sleep(200);
     await page.fill('#f-title', 'Healing for Grandma'); await page.fill('#f-for', 'Grandma'); await page.click('#f-save'); await sleep(500);
@@ -137,9 +137,9 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     let asked = await askers(page);
     ok(asked.length === 1 && /\bavatar\b/.test(asked[0].cls) && asked[0].title === 'Eli' && asked[0].text === 'Eli asked', 'the adult family row shows the requester as a face: "Eli asked"', JSON.stringify(asked));
     ok(asked[0] && asked[0].w === 28 && asked[0].h === 28 && asked[0].tint === await hueOf(page, P.eli), 'the requester face is 28 px in Eli\'s colour (his data-accent)', JSON.stringify(asked[0]));
-    await page.click('.switch button[data-list="personal"]'); await sleep(200);
+    await page.click('#listSwitch button[data-list="personal"]'); await sleep(200);
     ok((await askers(page)).length === 0, 'the private list shows no requester face');
-    await page.click('.switch button[data-list="shared"]'); await sleep(200);
+    await page.click('#listSwitch button[data-list="shared"]'); await sleep(200);
     await page.click('#todayList .mark'); await sleep(300);
     let f = await faces(page);
     ok(f.length === 1 && f[0].title === 'Eli' && /\bavatar\b/.test(f[0].cls), 'after Eli prays, his face is on the row (hub.avatarHtml)', JSON.stringify(f));
@@ -160,7 +160,7 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     ok(await page.evaluate(() => hub.isKid === true && document.documentElement.dataset.kind === 'kid'), 'kid session, <html data-kind="kid">');
     ok(await page.evaluate(() => D.activeList === 'shared'), 'opens straight on the family list');
     ok(await vis(page, '#s-today') && !(await vis(page, '#s-all')) && !(await vis(page, '#s-add')) && !(await vis(page, '#s-more')) && !(await vis(page, '#s-answered')), 'only the Today screen is shown');
-    ok(!(await vis(page, 'nav')) && !(await vis(page, '.switch')) && !(await vis(page, '.fab')) && !(await vis(page, '#todayActions')) && !(await vis(page, '#moreBtn')), 'no nav, no Mine/Family switch, no +, no Pray now / More');
+    ok(!(await vis(page, 'nav')) && !(await vis(page, '#listSwitch')) && !(await vis(page, '.fab')) && !(await vis(page, '#todayActions')) && !(await vis(page, '#moreBtn')), 'no nav, no Mine/Family switch, no +, no Pray now / More');
     const inputs = await visibleInputs(page);
     ok(inputs.length === 0, 'no input, textarea, select or contenteditable is reachable', inputs.join(','));
     await waitFor(() => page.$$eval('#todayList .kid', c => c.length === 1), { label: 'kid card' });
@@ -188,7 +188,7 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
       go('add'); out.add = document.getElementById('s-today').classList.contains('on') && !document.getElementById('s-add').classList.contains('on');
       go('more'); out.more = document.getElementById('s-today').classList.contains('on') && !document.getElementById('s-more').classList.contains('on');
       document.querySelector('nav button[data-go="all"]').click(); out.navAll = document.getElementById('s-today').classList.contains('on');
-      document.querySelector('.switch button[data-list="personal"]').click(); out.list = D.activeList;
+      document.querySelector('#listSwitch button[data-list="personal"]').click(); out.list = D.activeList;
       document.getElementById('fab').click(); out.fab = document.getElementById('s-today').classList.contains('on');
       return out; });
     ok(blocked.all && blocked.add && blocked.more, 'go("all" | "add" | "more") lands on Today', JSON.stringify(blocked));
@@ -230,7 +230,7 @@ const visibleInputs = page => page.$$eval('input, textarea, select, [contentedit
     ok(f.length === 2 && f.every(a => /\bavatar\b/.test(a.cls)), 'both faces are avatars, no initials fallback', JSON.stringify(f));
     asked = await askers(page);
     ok(asked.length === 1 && asked[0].title === 'Eli' && /\bavatar\b/.test(asked[0].cls) && asked[0].w === 28, 'the requester face (Eli, 28 px) is still on the row after reload', JSON.stringify(asked));
-    ok(await vis(page, 'nav') && await vis(page, '.switch') && (await page.$$eval('#todayList .kid', c => c.length)) === 0, 'an adult still gets the normal rows, nav and list switch');
+    ok(await vis(page, 'nav') && await vis(page, '#listSwitch') && (await page.$$eval('#todayList .kid', c => c.length)) === 0, 'an adult still gets the normal rows, nav and list switch');
     await shot(page, 'rm18-prayer-family-eli-after-390.png');
     await ctx.close();
   } catch (e) { fail++; console.log('  ✗ threw:', e.stack || e); }

@@ -12,7 +12,7 @@
 // before the call (P2-CHAT-08) and given back when the upstream fails or times out before any reply.
 import { HttpError, isExpiredGuest } from './auth.js';
 import { listData, getOne, liveItems, rowMap, putOne as rawPut } from './data.js';
-import { nyParts } from './reminders.js';
+import { nyParts, addRestored, isWrittenBack } from './reminders.js';
 import { appsFor, householdLoader, guardedPut } from './policy.js';
 
 export const MODEL = 'claude-sonnet-5';
@@ -118,8 +118,9 @@ const MV = [
 const versesFor = week => { const w = Math.min(52, Math.max(1, +week || 1)); const m = MV[w - 1]; return [{ ref: m[0], gist: m[1] }, { ref: m[2], gist: m[3] }]; };
 
 const today = () => nyParts().date;
-// F260's streak rule (apps/f260.html streakInfo): walk back from today; up to 2 rest days in a row keep a streak alive.
-const logStreak = log => { let d = today(), n = 0, gap = 0; for (let i = 0; i < 400; i++) { if (log && log[d]) { n++; gap = 0; } else if (++gap > 2) break; d = new Date(Date.parse(d + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10); } return n; };
+// F260's streak rule (apps/f260.html streakInfo): walk back from today; up to 2 rest days in a row keep a streak alive. An
+// unread today is pending (P3-F260-03): the walk then starts from yesterday.
+const logStreak = log => { let d = today(), n = 0, gap = 0; if (!(log && log[d])) d = new Date(Date.parse(d + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10); for (let i = 0; i < 400; i++) { if (log && log[d]) { n++; gap = 0; } else if (++gap > 2) break; d = new Date(Date.parse(d + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10); } return n; };
 /** The person's user messages in today's history (New York day). */
 async function loggedToday(env, profileId) {
   const { results } = await env.DB.prepare("SELECT created_at FROM chat_log WHERE profile_id = ? AND role = 'user' AND created_at > ?").bind(profileId, Date.now() - 36 * 3600000).all();
@@ -395,11 +396,29 @@ async function runToolInner(env, ctx, name, input, writes) {
       if (done[k] && !log[today()]) {
         log[today()] = true;
         await putOne(env, { ...F, key: 'log:' + today(), value: true, updated_at: now }, { soft: true });
+      } else if (!done[k] && log[today()]) {
+        // P3-F260-02, as the app does it: an untick that leaves no reading ticked today takes back a day a tick logged
+        const logRow = await getOne(env, { ...F, key: 'log:' + today() });
+        const ticks = await liveItems(env, { ...F, prefix: 'done:' });
+        const back = new Map(); for (const r of await liveItems(env, { ...F, prefix: 'restored:' + today() + ':' })) addRestored(back, r.value);   // written back by an Undo or a restore, not read today (rounds 3-4)
+        if (logRow && logRow.value === true && !ticks.some(r => r.value === true && !isWrittenBack(back, r.key.slice(5), +r.updated_at) && nyParts(new Date(+r.updated_at)).date === today())) {
+          delete log[today()];
+          await putOne(env, { ...F, key: 'log:' + today(), value: false, updated_at: now }, { soft: true });
+          // and a best streak that day had just set goes back, as the app's giveBackBest() does (review round 1)
+          const bestRow = await getOne(env, { ...F, key: 'f260.best' }), b = bestRow && bestRow.value, s = logStreak(log);
+          if (b && typeof b === 'object' && b.at === today() && (+b.n || 0) > s) {
+            const p = b.prev && typeof b.prev === 'object' ? b.prev : null;
+            await putOne(env, { ...F, key: 'f260.best', value: p && +p.n >= s ? p : s ? { n: s, at: today() } : {}, updated_at: now }, { soft: true });
+          }
+        }
       }
+      const total = Object.keys(done).length;
+      // below 260 the plan is no longer finished, so the nudges resume (P3-F260-04, as the app does it; review round 1)
+      if (!done[k] && total < 260) { const fr = await getOne(env, { ...F, key: 'f260.finished' }); if (fr && fr.value != null) await putOne(env, { ...F, key: 'f260.finished', value: null, updated_at: now }, { soft: true }); }
       const sumRow = await getOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary' });
       if (sumRow && sumRow.value) {
         const s = sumRow.value; const weekDone = [0, 1, 2, 3, 4].filter(d => done[`${input.week}-${d}`]).length;
-        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary', value: { ...s, weekDone: s.week === input.week ? weekDone : s.weekDone, readToday: !!log[today()], readOn: today(), streak: logStreak(log), total: Object.keys(done).length }, updated_at: now }, { soft: true });   // readOn: the household date readToday and streak refer to
+        await putOne(env, { appId: 'f260', scope: 'person', profile, key: 'f260.summary', value: { ...s, weekDone: s.week === input.week ? weekDone : s.weekDone, readToday: !!log[today()], readOn: today(), streak: logStreak(log), total, finished: !!s.finished && total >= 260 }, updated_at: now }, { soft: true });   // readOn: the household date readToday and streak refer to
       }
       await activity(env, profile, 'f260', `${done[k] ? 'Read' : 'Unchecked'} week ${input.week} day ${input.day} (via chat)`);
       return { ok: true, result: { week: input.week, day: input.day, done: !!done[k] }, chip: `✓ Week ${input.week} day ${input.day} ${done[k] ? 'checked off' : 'unchecked'}` };

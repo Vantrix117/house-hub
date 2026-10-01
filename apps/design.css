@@ -812,6 +812,16 @@ img, svg { display: block; max-width: 100%; }
 /* the duotone layer of a sprite icon: matched on the <symbol>'s own path, so it reaches through <use>; the colour and
    opacity are inherited from the <svg class="icon"> that draws it (P4-ICON-02) */
 svg .duo { fill: var(--icon-duo, currentColor); fill-opacity: var(--icon-duo-opacity, .2); stroke: none; }
+/* the one shared icon set (batch 4: CONS-ICON-1, ICON-5): icons/sprite.svg, Lucide geometry (ISC, icons/LICENSE-lucide.txt).
+   <svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-check"/></svg> — GLOBAL, like .pressable, so the apps
+   that keep their own component CSS use it too. One weight: the sprite's shapes carry vector-effect: non-scaling-stroke, so
+   --icon-stroke is 1.75 px at every size; currentColor; the --icon-* sizes (x --icon-k for a kid or the TV) times the person's
+   text size (--ts-user), so a glyph beside a word grows with the word while its stroke stays 1.75 px (round 1 of batch 4). */
+svg.sym { width: calc(var(--icon-sm) * var(--ts-user, 1)); height: calc(var(--icon-sm) * var(--ts-user, 1)); flex: none; fill: none; stroke: currentColor; stroke-width: var(--icon-stroke); stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+svg.sym.sym-xs { width: calc(var(--icon-xs) * var(--ts-user, 1)); height: calc(var(--icon-xs) * var(--ts-user, 1)); }
+svg.sym.sym-md { width: calc(var(--icon-md) * var(--ts-user, 1)); height: calc(var(--icon-md) * var(--ts-user, 1)); }
+svg.sym.sym-lg { width: calc(var(--icon-lg) * var(--ts-user, 1)); height: calc(var(--icon-lg) * var(--ts-user, 1)); }
+svg.sym.sym-xl { width: calc(var(--icon-xl) * var(--ts-user, 1)); height: calc(var(--icon-xl) * var(--ts-user, 1)); }
 
 /* press feedback, a GLOBAL opt-in (MOTION-3): the press-in is instant, the release springs back. hub.js registers the
    passive touchstart listener iOS needs before :active shows (GAP-MOTION-3). */
@@ -986,12 +996,28 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
 .ds .switch[aria-checked="true"]::after { transform: translateX(20px); }
 .ds .switch:disabled { opacity: .4; cursor: default; }
 
-/* segmented control: the selection is a >= 3:1 solid plus weight, not a hue shift (P4-ACCENT-01) */
-.ds .seg { display: flex; background: var(--surface-2); border-radius: var(--r-control); padding: 4px; gap: 4px; }
-.ds .seg button { flex: 1; min-height: var(--tap); border: 0; border-radius: calc(var(--r-control) - 4px); background: transparent; color: var(--text-2); font: inherit; font-weight: var(--fw-medium); cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), transform var(--dur-snappy) var(--spring-snappy); }
-.ds .seg button.on, .ds .seg button[aria-pressed="true"] { background: var(--sel-fill-strong); color: var(--sel-ink-strong); font-weight: var(--sel-weight); box-shadow: var(--e1); }
-.ds .seg button:active { transform: scale(var(--press-scale)); transition-duration: var(--dur-press); }
+/* THE segmented control, one recipe hub-wide (batch 4, CONS-TOK-2): a track you can see on the page (--track, a --separator
+   hairline) holding capsule items; the selection is a >= 3:1 solid plus weight, not a hue shift (P4-ACCENT-01). It WRAPS
+   when its items cannot fit (round 2 of batch 4): each item is never narrower than its longest word (no min-width: 0), keeps
+   its words whole and shares the row's width, so a short control (Plan/Journal, Mine/Family, the text sizes) stays one row and
+   a long one (the passage sites, the theme names, auto-lock at XXL) goes onto rows instead of clipping or scrolling the page.
+   The track's corner radius is the capsule radius of one row (tap / 2 + its padding): one row reads as a capsule, rows as a
+   rounded rectangle whose corners stay concentric with the capsules in them. .ds .seg inside the shell and the .ds
+   apps; .segmented (GLOBAL, like .pressable) for the apps that keep their own component CSS (F260). */
+:is(.ds .seg, .segmented) { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--sp-1); padding: var(--sp-1); background: var(--track);
+  box-shadow: inset 0 0 0 var(--border-w) var(--separator); border-radius: calc(var(--tap) / 2 + var(--sp-1)); }
+:is(.ds .seg, .segmented) button { flex: 1 1 auto; min-height: var(--tap); margin: 0; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-full);
+  background: transparent; color: var(--text-2); font: inherit; font-weight: var(--fw-medium); white-space: normal; overflow-wrap: normal; word-break: normal; text-align: center; line-height: var(--lh-title3); cursor: pointer; box-shadow: none;
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), transform var(--dur-snappy) var(--spring-snappy), filter var(--dur-snappy) var(--ease-standard); }
+:is(.ds .seg, .segmented) button.on, :is(.ds .seg, .segmented) button[aria-pressed="true"] { background: var(--sel-fill-strong); color: var(--sel-ink-strong); font-weight: var(--sel-weight); box-shadow: var(--elev-control); }
+:is(.ds .seg, .segmented) button:active { transform: scale(var(--press-scale)); filter: var(--press-dim); transition-duration: var(--dur-press); }
+:is(.ds .seg, .segmented) button:disabled { opacity: var(--op-disabled); cursor: default; }
+/* a long choice (many options, or long names) as a tidy grid of equal cells instead of ragged rows: as many columns of at
+   least --seg-cell (8em by default; it follows the text size) as fit, the last row keeping the cell width, never one item
+   stretched alone across the track (rescore of batch 4). Add .seg-grid next to .seg / .segmented. */
+:is(.ds .seg, .segmented).seg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--seg-cell, 8em)), 1fr)); }
+:is(.ds .seg, .segmented).seg-grid button { padding: var(--sp-1) var(--sp-2); }
+@media (hover: hover) and (pointer: fine) { :is(.ds .seg, .segmented) button:not(.on):not([aria-pressed="true"]):not(:disabled):hover { color: var(--text); background: var(--hover); } }
 
 /* ── lists & rows ─────────────────────────────────────────────── */
 .ds .list { list-style: none; margin: 0; padding: 0; background: var(--material-solid-bg); border: var(--border-w) solid var(--separator); border-radius: var(--r-card); overflow: hidden; box-shadow: var(--elev-card); }
