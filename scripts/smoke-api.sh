@@ -91,6 +91,10 @@ call "readers after the untick" GET /api/f260/readers '' "$D" "X-Profile-Token: 
 echo "$BODY" | grep -q '"niece"' && { fail=$((fail+1)); echo "   ^^^ expected niece gone after the untick"; } || pass=$((pass+1))
 # IMP-F260-F4 (batch 4): the reading nudge comes at the person's own time, one row push_pref:readAt ("HH:MM", unset = 8 pm)
 call "choose a reading-nudge time (push_pref:readAt)" PUT "/api/data/hub/push_pref:readAt?scope=person" "{\"value\":\"06:30\",\"updated_at\":$(node -e 'console.log(Date.now())')}" "$D" "$P"; expect 200
+# IMP-VERSES-I2 (batch 5): the evening verse review starts off; one row push_pref:verses turns it on. A memorised verse with
+# no review row is due (the job counts from the F260 rows, never the app's summary)
+call "memorise a verse (F260 mem:1-0)" PUT "/api/data/f260/mem:1-0?scope=person" "{\"value\":true,\"updated_at\":$(node -e 'console.log(Date.now())')}" "$D" "$P"; expect 200
+call "turn the verse review on (push_pref:verses)" PUT "/api/data/hub/push_pref:verses?scope=person" "{\"value\":true,\"updated_at\":$(node -e 'console.log(Date.now())')}" "$D" "$P"; expect 200
 
 echo "### rally the family (park map) — one rally per adult per minute, so wait 60 s between runs"
 call "rally with device only -> 401" POST /api/dollywood/rally '{"name":"Gazebo","x":1,"y":2}' "$D"; expect 401
@@ -213,6 +217,9 @@ call "forced prayedfor job (GAP-PRAYER-1)" POST /api/admin/cron/run '{"job":"pra
 call "forced praytime job (GAP-PRAYER-1)" POST /api/admin/cron/run '{"job":"praytime"}' "$D" "$A"; expect 200
 call "forced evening job (the reading nudge, IMP-F260-F4)" POST /api/admin/cron/run '{"job":"evening"}' "$D" "$A"; expect 200
 echo "$BODY" | grep -q '"profile":"niece","readToday":false,"at":"06:30"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the niece checked at her own time, 06:30"; }
+call "forced verses job (IMP-VERSES-I2)" POST /api/admin/cron/run '{"job":"verses"}' "$D" "$A"; expect 200
+echo "$BODY" | grep -q '"profile":"niece","due":[1-9]' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the niece (switch on) checked with a verse due"; }
+echo "$BODY" | grep -Eq '"(ezra|kiara|tv|kitchen)"' && { fail=$((fail+1)); echo "   ^^^ expected no kid, display or kitchen in the verses job"; } || pass=$((pass+1))
 call "admin usage counts New York days" GET /api/admin/usage '' "$D" "$A"; expect 200
 [ "$(echo "$BODY" | j tz)" = America/New_York ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected tz America/New_York"; }
 # an expired guest stops receiving push: ending the stay drops their sessions and subscriptions

@@ -1216,7 +1216,7 @@
    *  the person's own data-accent, so its fill, ink and ring are theirs inside any page (a record with no colour is graphite). */
   hub.avatarHtml = (p, cls = '', size = 'sm') => {
     const url = hub.photoUrl(p, size); const e = hub.escape;
-    return `<span class="avatar ${cls}" data-accent="${e(hub.hueOf(p))}">${url ? `<img src="${e(url)}" alt="" loading="lazy">` : e((p && p.emoji) || '·')}</span>`;
+    return `<span class="avatar ${cls}" data-accent="${e(hub.hueOf(p))}">${url ? `<img src="${e(url)}" alt="" loading="lazy" draggable="false">` : e((p && p.emoji) || '·')}</span>`;
   };
   // Square-crop + resize on the device; the server only ever receives two small JPEGs.
   async function squareJpeg(file, size, quality) {

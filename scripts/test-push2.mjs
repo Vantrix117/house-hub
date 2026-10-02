@@ -7,6 +7,8 @@
 // P3-PRAYER-25; park: each quiet spell once per adult, P2-PWA-02; guests never get these, PWA-UX-2). Then, headless,
 // the three switches in Me → Notifications exist for an adult and persist in app_data(person, hub, push_prefs), and the
 // prayer app's own add form (family list active, no activity line) writes by:<id> on the row so the author is left out.
+// Batch 5 (IMP-VERSES-I2) adds the evening verse review: off until push_pref:verses is on, the due count from the F260 rows,
+// due > 0 only, once a day, never a kid; and its switch in Me.
 //   cd worker && npx wrangler dev --port 8787     (a freshly reset, seeded local D1 — push_log must be empty for today)
 //   node scripts/test-push2.mjs <pairing-code>
 import http from 'node:http';
@@ -235,6 +237,36 @@ async function serveSite() {
     r = await run('evening');
     ok(!r.body.notified.length && r.body.skipped.some(s => s.profile === 'christian' && s.why === 'already_today'), 'a second run the same day: already_today, nobody nudged twice', r.body.skipped);
 
+    console.log('\n## the evening verse review (batch 5, IMP-VERSES-I2; its 7 pm hour: audits/tools/phase6/5/cron-check-5.mjs)');
+    // Eli: three memorised verses, two due (one overdue since yesterday, one never reviewed), one due in 3 days. Mae: one,
+    // due in 2 days. Mom: two never reviewed, but the switch starts off. Ezra (a kid): a due recall row and the switch on.
+    for (const [pid, key, value] of [
+      ['eli', 'mem:1-0', true], ['eli', 'mem:1-1', true], ['eli', 'mem:2-0', true],
+      ['eli', 'recall:1-0', { s: 'got', t: Date.now(), box: 2, due: daysAgo(1), last: daysAgo(3), streak: 1 }],
+      ['eli', 'recall:1-1', { s: 'got', t: Date.now(), box: 3, due: daysAgo(-3), last: daysAgo(1), streak: 2 }],
+      ['christian', 'mem:3-0', true], ['christian', 'recall:3-0', { s: 'got', t: Date.now(), box: 2, due: daysAgo(-2), last: daysAgo(0), streak: 1 }],
+      ['mom', 'mem:4-0', true], ['mom', 'mem:4-1', true],
+    ]) { const w = await put(pid, 'f260', 'person', key, value); if (w.status !== 200) ok(false, `seed ${pid} ${key}`, w.body); }
+    { const w = await put('ezra', 'f260', 'person', 'recall:5-0', { s: 'not', t: Date.now(), box: 1, due: daysAgo(1), last: daysAgo(2), streak: 0 }); ok(w.status === 200, 'Ezra (kid) has a recall row due (Verses writes it in his F260 scope)', w.body); }
+    { const w = await put('ezra', 'hub', 'person', 'push_pref:verses', true); ok(w.status === 200, 'Ezra\'s own push_pref:verses row is on', w.body); }
+    r = await run('verses');
+    const offFor = new Set((r.body.skipped || []).filter(s => s.why === 'pref_off').map(s => s.profile));
+    ok(r.status === 200 && r.body.job === 'verses' && !r.body.notified.length && ['eli', 'christian', 'mom'].every(p => offFor.has(p)), 'the switch starts off: nobody is told until they turn it on (eli, Mae, mom: pref_off)', r.body);
+    const noKid = b => !JSON.stringify([b.checked, b.notified, b.skipped]).includes('"ezra"') && !JSON.stringify([b.checked, b.notified, b.skipped]).includes('"kiara"');
+    ok(noKid(r.body), 'kids are never considered (Ezra\'s switch row is on, and he has a verse due)', r.body);
+    await put('eli', 'hub', 'person', 'push_pref:verses', true);
+    await put('christian', 'hub', 'person', 'push_pref:verses', true);
+    r = await run('verses');
+    const vChk = Object.fromEntries((r.body.checked || []).map(c => [c.profile, c.due]));
+    ok(vChk.eli === 2 && vChk.christian === 0 && !('mom' in vChk), 'the due count is the house\'s own, from the F260 rows: Eli 2, Mae 0 (mom not counted: switch off)', r.body.checked);
+    ok(r.body.notified.map(n => n.profile).join() === 'eli' && r.body.skipped.some(s => s.profile === 'christian' && s.why === 'nothing_due') && r.body.skipped.some(s => s.profile === 'mom' && s.why === 'pref_off') && noKid(r.body), 'only Eli is told (due > 0); Mae has nothing due; mom has the switch off; no kid', r.body);
+    await waitFor(() => pushesFor('eli', 'verses').length, { label: 'verses push' });
+    { const vp = pushesFor('eli', 'verses')[0]; ok(vp.payload.title === 'Verses' && vp.payload.body === '2 verses to review today.' && vp.payload.url === '#verses' && vp.vapid === 'valid', 'decrypted payload: "2 verses to review today." opening Verses', vp); }
+    r = await run('verses');
+    ok(!r.body.notified.length && r.body.skipped.some(s => s.profile === 'eli' && s.why === 'already_today'), 'a second run the same day: already_today, once a day', r.body.skipped);
+    await sleep(300);
+    ok(pushesFor('eli', 'verses').length === 1 && !pushesFor('christian', 'verses').length && !pushesFor('mom', 'verses').length && !pushes.some(p => p.url === '/push/ezra'), 'receiver: exactly one verse review push, to Eli; none to a kid', pushes.filter(p => p.payload && p.payload.tag === 'verses').map(p => p.url));
+
     console.log('\n## Me → Notifications: the three switches (headless)');
     site = await serveSite();
     if (!site) { ok(false, `port ${SITE_PORT} stayed busy — headless Me check skipped`); }
@@ -283,6 +315,12 @@ async function serveSite() {
       ok(await page.$eval('#notif-read', e => e.disabled), 'the time is greyed while the reading nudge is off');
       await page.click('#notif-prefs [data-pref=f260]');
       ok(!(await page.$eval('#notif-read', e => e.disabled)), 'and back when it is on again');
+      // IMP-VERSES-I2: the evening verse review has its own switch, which shows the row (on for Eli since the API turned it on)
+      { const vs = await page.$eval('#notif-prefs [data-pref=verses]', e => ({ on: e.getAttribute('aria-checked'), label: e.closest('.kv').querySelector('b').textContent }));
+        ok(vs.on === 'true' && /Verses to review, 7 pm/.test(vs.label), 'Me: "Verses to review, 7 pm" switch reflects push_pref:verses (on)', vs); }
+      await page.click('#notif-prefs [data-pref=verses]');
+      await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush verses' });
+      { const r = (await api('GET', '/api/data/hub?scope=person&prefix=push_pref:verses', undefined, 'eli')).body.items || []; ok(r.length === 1 && r[0].value === false, 'tapping it off writes push_pref:verses = false', r); }
       await page.evaluate(() => document.getElementById('notif').scrollIntoView());
       fs.mkdirSync(path.join(ROOT, 'docs/screens'), { recursive: true });
       await page.screenshot({ path: path.join(ROOT, 'docs/screens/rm15-me-notifications.png') });

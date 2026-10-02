@@ -871,7 +871,7 @@ route('POST', '/api/push/test', async c => {
   }
   return { ...(await pushTo(c.env, me.id, 'test', { title: 'Anderson House', body: 'Notifications are working on this device.', url: '#me', tag: 'test' }, { ttl: 600, urgency: 'high' }, { deviceId: auth.device.id })), device: true };
 });
-// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime'}
+// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime' | 'verses'}
 route('POST', '/api/admin/cron/run', async c => {
   requireAdmin(await c.auth());
   const { job } = await c.body();

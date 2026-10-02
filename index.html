@@ -31,7 +31,9 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   html, body { height: 100%; }
   body { display: flex; flex-direction: column; min-height: 100dvh; position: fixed; inset: 0; overflow: hidden; }
   /* spot illustration in a card's corner (art/app/*.svg); the card's text sits above it */
-  .spot { position: absolute; right: 4px; bottom: 0; width: 34%; max-width: 150px; height: auto; opacity: .55; pointer-events: none; z-index: 0; }
+  /* Batch 5: the art has its own cell in the card's grid (.gcard below), the footer's right-hand column, and reaches into
+     the card's padding as it used to; it is never under a word, whatever the width, the text size or the content */
+  .spot { display: block; height: auto; opacity: .55; pointer-events: none; }
   .empty-art { width: min(200px, 60%); margin: 0 auto var(--sp-3); }
   .empty-art img { width: 100%; height: auto; display: block; }
   .hero-soft .hero-art { color: var(--accent); opacity: .8; }
@@ -185,25 +187,58 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     .pager-dots i.on { background: var(--accent-graphic); transform: scale(1.2); }
     :root:not([data-kind="kid"]) .home-hero { min-height: 136px; margin-bottom: var(--sp-4); }
     :root:not([data-kind="kid"]) .home-hero .hero-title { font-size: clamp(26px, 6.4vw, 34px); }
+    :root:not([data-kind="kid"]):not([data-kind="kiosk"]) .home-hero .hero-sub { min-height: 2lh; }   /* batch 5: the summary line's usual two lines are kept from the first paint */
   }
   /* VIS-HOME-3: no orphan — an odd last card spans the row (two columns), and on the three-column grid a lone last card
      spans it and a last pair shares it */
-  @media (min-width: 720px) { .glance { grid-template-columns: 1fr 1fr; gap: var(--sp-4); } .glance > :last-child:nth-child(odd) { grid-column: 1 / -1; } }
+  /* batch 5: on the phone pager and the two-column iPad a Verses card still loading takes no place: it fills its own page,
+     or the cell beside Prayer, when its rows land, and moves nothing; on three columns its skeleton keeps its row */
+  @media (max-width: 1023px) { .glance > .verses-card.is-loading { display: none; } }
+  @media (min-width: 720px) { .glance { grid-template-columns: 1fr 1fr; gap: var(--sp-4); } .glance > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+    /* batch 5: Kids always takes the whole row (never squeezed or stretched beside a tall card, as in batch 4 on a park
+       day); the card before it then follows the no-orphan rule as if Kids were not there */
+    :root .glance > .card.kids-card { grid-column: 1 / -1; }
+    .glance:has(> .kids-card:last-child) > :nth-last-child(2):nth-child(odd) { grid-column: 1 / -1; }
+    /* review round 7: a kid's Home has at most two cards (Stars, and the park on a park day); each takes the whole row, so the
+       big "3 stars this week" stays on one line and a week's stars on one row */
+    :root[data-kind="kid"] .glance > .card.gcard { grid-column: 1 / -1; } }
   @media (min-width: 1024px) {
     .glance { grid-template-columns: repeat(6, minmax(0, 1fr)); } .glance > * { grid-column: span 2; }
     .glance > :last-child:nth-child(odd) { grid-column: span 2; }
     .glance > :last-child:nth-child(3n+1) { grid-column: 1 / -1; }
     .glance > :last-child:nth-child(3n+2), .glance > :nth-last-child(2):nth-child(3n+1) { grid-column: span 3; }
+    /* batch 5: Kids takes the whole row on three columns (as in batch 4, never squeezed beside a tall card); the cards before
+       it follow the same no-orphan rules as if it were not there */
+    :root .glance > .card.kids-card { grid-column: 1 / -1; }
+    .glance:has(> .kids-card:last-child) > :nth-last-child(2):nth-child(n) { grid-column: span 2; }   /* undo the two-column rule above */
+    .glance:has(> .kids-card:last-child) > :nth-last-child(2):nth-child(3n+1) { grid-column: 1 / -1; }
+    .glance:has(> .kids-card:last-child) > :nth-last-child(2):nth-child(3n+2), .glance:has(> .kids-card:last-child) > :nth-last-child(3):nth-child(3n+1) { grid-column: span 3; }
   }
   .card h2 { font-size: var(--fs-lg); margin-bottom: var(--sp-3); display: flex; align-items: center; gap: var(--sp-3); position: relative; z-index: 1; }
   .card h2 .app-icon { --icon-box: 40px; }   /* a size sets only --icon-box; the corner is size x --r-icon-ratio (CONS-TOK-4) */
-  .gcard { position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 196px; }
-  .gcard .gbody { flex: 1; display: flex; align-items: center; gap: var(--sp-4); position: relative; z-index: 1; }
+  /* A Home card (batch 5): the heading, the body, then a footer row (.gfoot) with the button on the left and the spot art on
+     the right. Words and art never share a box, so the art can never overlap the text (audits/tools/phase6/5/home-art-5.mjs
+     measures it). The art gives way first: it shrinks, down to nothing, before the button's label would wrap; only a label
+     wider than the whole card wraps (and then it is never cut off) */
+  .gcard { --spot-w: min(34%, 150px); position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 196px; }
+  .gcard .gbody { flex: 1; display: flex; align-items: center; gap: var(--sp-4); position: relative; z-index: 1; min-width: 0; }
+  .gfoot { display: flex; align-items: flex-end; gap: var(--sp-3); margin-top: var(--sp-3); min-width: 0; }
+  .gfoot > .btn { flex: none; max-width: 100%; }
+  .gcard .gfoot > .btn { margin-top: 0; }
+  .gfoot > .spot.thin { visibility: hidden; }   /* under 48 px it would be a speck (watchSpots in the script) */
+  .gfoot > .spot { flex: 0 1 calc(var(--spot-w) + var(--pad-card) - 4px); width: auto; min-width: 0; margin: 0 calc(4px - var(--pad-card)) calc(-1 * var(--pad-card)) auto; }
+  /* a wide card (560 px and more: a card alone on its row) keeps batch 4's compact height: the art sits in the bottom-right
+     corner and the body and the footer keep the art's width free, so the words still never reach it */
+  .gcard { container: gcard / inline-size; --spot-wide: 150px; }
+  @container gcard (min-width: 560px) {
+    .gcard .gbody, .gcard .gfoot { padding-right: calc(var(--spot-wide) + var(--sp-3)); }
+    .gfoot > .spot.spot { position: absolute; right: 4px; bottom: 0; width: var(--spot-wide); flex: none; margin: 0; }
+  }
   .gbig { font-size: var(--fs-xl); font-weight: 700; line-height: 1.2; min-height: 1.3em; letter-spacing: var(--ls-tight); }
   .gsub { color: var(--text-2); font-size: var(--fs-sm); margin-top: 2px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   .gbig.one { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   @media (max-width: 719px) { .gsub, .gbig.one { display: block; white-space: nowrap; text-overflow: ellipsis; } }   /* full-width cards: one line */
-  .gcard .btn { align-self: flex-start; margin-top: var(--sp-3); position: relative; z-index: 1; }
+  .gcard .btn { margin-top: var(--sp-3); position: relative; z-index: 1; }
   .fresh { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
   .fresh .bar { --tint: var(--aging); }
   .fresh .stale .bar { --tint: var(--use-soon); }   /* the Larder ramp: graphics, not inks */
@@ -380,19 +415,29 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   /* park + stars cards */
   .park-list { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
   .park-list li { display: flex; align-items: center; gap: var(--sp-3); min-height: 32px; }
-  .park-list .pn { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .park-list .pn { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }   /* batch 5: a long name wraps, never cut ("Elizabeth" at XXL) */
   .park-list .pt { flex: none; font-family: var(--font-numeral); color: var(--text-2); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .star-big { font-family: var(--font-numeral); display: inline-flex; align-items: center; gap: 2px; flex: none; font-size: var(--fs-2xl); font-weight: 700; letter-spacing: var(--ls-tight); color: var(--gold-ink); line-height: 1; }
   .star-big .icon { width: 1.1em; height: 1.1em; color: var(--star-stroke); --icon-duo: var(--star-fill); --icon-duo-opacity: 1; }
 
   /* play.svg is drawn in paper-white for the hero, so these cards fade to gold-soft under it (.ds .card sets the background at 0,2,0, so match that) */
   .ds .stars-card, .ds .kids-card { background: linear-gradient(120deg, var(--surface) 30%, var(--gold-soft) 72%); }
-  .stars-card .spot, .kids-card .spot { opacity: .9; width: 44%; max-width: 200px; right: 0; bottom: -4px; }
+  .stars-card, .kids-card { --spot-w: min(38%, 170px); }
+  .stars-card, .kids-card { --spot-wide: 170px; }
+  @container gcard (min-width: 560px) {
+    .kids-card .gfoot > .spot.spot { right: 0; bottom: -4px; margin: 0; }
+    /* the kid's Stars card keeps its whole body width for the big "3 stars this week" (one line, as in batch 4): its art
+       stays in the footer row beside the button, never in the body's corner */
+    .stars-card .gbody.gbody, .stars-card .gfoot.gfoot { padding-right: 0; }
+    .stars-card .gfoot > .spot.spot { position: static; width: auto; flex: 0 1 calc(var(--spot-w) + var(--pad-card)); margin: 0 calc(-1 * var(--pad-card)) calc(-4px - var(--pad-card)) auto; }
+  }
+  .stars-card .gfoot > .spot, .kids-card .gfoot > .spot { opacity: .9; flex-basis: calc(var(--spot-w) + var(--pad-card)); margin-right: calc(-1 * var(--pad-card)); margin-bottom: calc(-4px - var(--pad-card)); }
   :root[data-scheme="dark"] .stars-card .spot, :root[data-scheme="dark"] .kids-card .spot { opacity: .12; }   /* on a dark palette the white art is a faint ghost, never a glare under the words */
   .kids-line { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; min-height: 1.3em; }
   /* P2-VIS-05: a long name gives way (ellipsis); the face, the ★ count and the badges always show */
   .kid-chip { display: inline-flex; align-items: center; gap: var(--sp-2); min-width: 0; max-width: 100%; font-size: var(--fs-lg); font-weight: 600; white-space: nowrap; }
-  .kid-chip .kn { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .kid-chip { flex-wrap: wrap; row-gap: 0; }   /* batch 5: in a narrow card the stars and badges move under the name; the name is never cut */
+  .kid-chip .kn { min-width: 0; overflow-wrap: anywhere; }
   .kid-chip b, .kid-chip .kb, .kid-chip .avatar { flex: none; }
   .kid-chip b { color: var(--butter-ink); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; }
   .kid-chip .kb { color: var(--text-2); font-size: var(--fs-sm); font-weight: 500; }
@@ -407,11 +452,12 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   .kid-tile.kid-all { grid-column: 1 / -1; flex-direction: row; gap: var(--sp-4); min-height: var(--tap-lg); background: var(--material-solid-bg); color: var(--text); }
   .kid-tile.kid-all .app-icon { --icon-box: 64px; }
   .star-row { display: flex; flex-wrap: wrap; gap: 2px; margin-top: var(--sp-3); position: relative; z-index: 1; }
-  .star-row span { display: inline-grid; width: 30px; height: 30px; color: var(--track-info); }
+  /* a week's seven places always fit one row: each star is at most 30 px (40 for a kid) and at least a seventh of the row */
+  .star-row span { display: inline-grid; width: min(30px, calc((100% - 12px) / 7)); height: auto; aspect-ratio: 1; color: var(--track-info); }
   .star-row .icon { width: 100%; height: 100%; --icon-duo-opacity: 0; }
   .star-row span.on { color: var(--star-stroke); }
   .star-row span.on .icon { --icon-duo: var(--star-fill); --icon-duo-opacity: 1; }
-  :root[data-kind="kid"] .star-row span { width: 40px; height: 40px; }
+  :root[data-kind="kid"] .star-row span { width: min(40px, calc((100% - 12px) / 7)); }
   /* UX-HOME-1: on the iPad the key numbers use the glance roles, readable from across the kitchen */
   :root[data-glance]:not([data-kind="kiosk"]) .gcard .gbig { font-size: var(--fs-glance-3); line-height: 1.05; font-family: var(--font-numeral); letter-spacing: var(--ls-numeral); }
   :root[data-glance]:not([data-kind="kiosk"]) .kid-chip { font-size: var(--fs-glance-3); line-height: 1.1; }
@@ -768,6 +814,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/></symbol>
   <symbol id="i-timer" viewBox="0 0 24 24"><circle class="duo" cx="12" cy="13" r="7"/><circle cx="12" cy="13" r="7"/><path d="M12 9v4l2.5 2M10 3h4M12 3v3"/></symbol>
   <symbol id="i-sparkle" viewBox="0 0 24 24"><path class="duo" d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
+  <symbol id="i-verses" viewBox="0 0 24 24"><path class="duo" d="M4 5.5h6.5a2 2 0 0 1 2 2V19a1.5 1.5 0 0 0-1.5-1.5H4z"/><path d="M4 5.5h6.5a2 2 0 0 1 2 2V19a1.5 1.5 0 0 0-1.5-1.5H4zM20 5.5h-6.5a2 2 0 0 0-2 2V19a1.5 1.5 0 0 1 1.5-1.5H20z"/><path d="M7 9.5h2.5M7 12.5h2.5"/><path d="M15 12.5l1.7 1.7L20 10.5"/></symbol>
 </svg>
 
 <script src="apps/hub.js" data-app="hub" data-scope="family"></script>
@@ -793,7 +840,8 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 
   // Data the dashboard reads from other apps (each app still owns its own keys).
   hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person').use('timer', 'person')
-    .use('dollywood-live', 'family').use('kidverse', 'both');   // park days + kids' stars (kidverse writes; the shell only reads)
+    .use('dollywood-live', 'family').use('kidverse', 'both')    // park days + kids' stars (kidverse writes; the shell only reads)
+    .use('verses', 'person');                                   // the Home Verses card: the review days (rev:) and the summary (Verses writes)
 
   // ── registry ──────────────────────────────────────────────────
   async function loadRegistry() {
@@ -1387,23 +1435,23 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   function parkCardHtml(who) {
     const a = appById('dollywood-live'); const n = who.length;
     const big = n === 1 ? esc(who[0].name) : n === 2 ? esc(who[0].name) + ' and ' + esc(who[1].name) : n + ' of the family';   // names never clip; the rows below list everyone
-    return `<div class="card gcard park-card" data-accent="${esc(appHue(a))}"><img class="spot" src="art/app/dollywood-live.svg" alt="" width="200" height="160">
+    return `<div class="card gcard park-card" data-accent="${esc(appHue(a))}">
       <h2><span class="app-icon">${ICON_PIN}</span>At the park</h2>
       <div class="gbody"><div class="grow">
         <div class="gbig one">${big}</div>
         <div class="gsub">At Dollywood · last seen ${esc(agoText(who[0].t))}</div>
         <ul class="park-list">${who.map(w => `<li data-accent="${esc(hueOf(w))}">${avatar(w, 'avatar-sm')}<span class="pn">${esc(w.name)}</span><span class="pt">${esc(agoText(w.t))}</span></li>`).join('')}</ul>
-      </div></div>${a && canSee('dollywood-live') ? '<button class="btn btn-soft" data-open="dollywood-live">Open the map</button>' : ''}</div>`;
+      </div></div><div class="gfoot">${a && canSee('dollywood-live') ? '<button class="btn btn-soft" data-open="dollywood-live">Open the map</button>' : ''}<img class="spot" src="art/app/dollywood-live.svg" alt="" width="200" height="160"></div></div>`;
   }
   function starsCardHtml(n, loaded = true) {   // loaded false: the kid's stars row has never arrived on this device — a skeleton, never ★0
     const kv = appById('kidverse'), can = !!kv && canSee('kidverse');
-    return `<div class="card gcard stars-card" data-accent="${esc(hueOfApp('kidverse'))}"><img class="spot" src="art/hero/play.svg" alt="" width="300" height="200">
+    return `<div class="card gcard stars-card" data-accent="${esc(hueOfApp('kidverse'))}">
       <h2><span class="app-icon">${ICON_STAR}</span>Stars</h2>
       <div class="gbody"><span class="star-big" aria-hidden="true">${ICON_STAR}<b>${loaded ? n : '·'}</b></span><div class="grow">
         <div class="gbig one">${!loaded ? '<span class="skeleton">loading</span>' : n ? n + (n === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet'}</div>
         <div class="gsub">${!loaded ? '' : n ? 'Every verse earns one more.' : 'Learn a verse to earn your first!'}</div>
         ${loaded ? starRowHtml(n) : ''}
-      </div></div>${can ? `<button class="btn btn-soft" data-open="kidverse">Open ${esc(kv.name)}</button>` : ''}</div>`;
+      </div></div><div class="gfoot">${can ? `<button class="btn btn-soft" data-open="kidverse">Open ${esc(kv.name)}</button>` : ''}<img class="spot" src="art/hero/play.svg" alt="" width="300" height="200"></div></div>`;
   }
   // UX-HOME-7: the week's stars as stars a pre-reader can count, at least a week's seven places
   function starRowHtml(n) {
@@ -1412,12 +1460,93 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   }
   function kidsCardHtml(kids, loaded = true) {   // loaded false: the family stars rows have never arrived here — skeletons, not ★0
     const total = kids.reduce((s, k) => s + k.stars, 0), bank = kids.reduce((s, k) => s + (k.total || 0), 0);   // item 20: bank = every kid's balance
-    return `<div class="card gcard kids-card" data-accent="${esc(hueOfApp('kidverse'))}"><img class="spot" src="art/hero/play.svg" alt="" width="300" height="200">
+    return `<div class="card gcard kids-card" data-accent="${esc(hueOfApp('kidverse'))}">
       <h2><span class="app-icon">${ICON_STAR}</span>Kids</h2>
       <div class="gbody"><div class="grow">
-        <div class="kids-line">${kids.map(k => `<span class="kid-chip" data-accent="${esc(hueOf(k))}">${avatar(k, 'avatar-sm')}<span class="kn">${esc(k.name)}</span> <b>${loaded ? '★' + k.stars : '<span class="skeleton">★0</span>'}</b>${loaded && k.badges ? `<span class="kb"> · ${k.badges + (k.badges === 1 ? ' badge' : ' badges')}</span>` : ''}</span>`).join('')}</div>
-        <div class="gsub">${!loaded ? '' : total ? total + (total === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week.'}${loaded && bank ? ' · ' + bank + ' to cash in' : ''}</div>
-      </div></div></div>`;
+        <div class="kids-line">${kids.map(k => `<span class="kid-chip" data-accent="${esc(hueOf(k))}">${avatar(k, 'avatar-sm')}<span class="kn">${esc(k.name)}</span> <b>${loaded ? '★' + k.stars : '<span class="skeleton">★0</span>'}</b>${loaded && k.badges ? `<span class="kb"> · ${k.badges + (k.badges === 1 ? ' badge' : ' badges')}</span>` : !loaded ? '<span class="kb"><span class="skeleton"> · 0 badges</span></span>' : ''}</span>`).join('')}</div>
+        <div class="gsub">${!loaded ? '<span class="skeleton">loading</span>' : total ? total + (total === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week.'}${loaded && bank ? ' · ' + bank + ' to cash in' : ''}</div>
+      </div></div><div class="gfoot"><img class="spot" src="art/hero/play.svg" alt="" width="300" height="200"></div></div>`;   // batch 5: the line's place is kept while loading, so a Kids row of its own does not grow when the stars land
+  }
+  // ── GAP-HOME-2 / UX-VERSES-3: the memory-verse review, one tap from Home ───────────────────────────────────────────
+  // Counted from the person's own rows, as apps/verses.html counts them (F260's mem:<week>-<i> and recall:<week>-<i> over the
+  // old f260.mem / f260.recall maps, and Verses' own rev:<date>:<id>:<device> counts over its old log map), so the card is
+  // right on a new day before Verses has been opened; Verses' summary row stands in only while those rows have never
+  // arrived on this device. Grown-ups and guests with at least one memorised verse; the kid Home keeps its picture tiles
+  // (Verses is not one of them), and the TV and the kitchen have Homes of their own.
+  const VERSE_ID = /^(\d{1,2})-([01])$/, isDayStr = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+  function versesLog() {   // ratings per household day: the old whole log map plus every rev: row
+    const V = { app: 'verses', scope: 'person' }, out = {}, old = hub.get('log', V);
+    if (old && typeof old === 'object') for (const [d, n] of Object.entries(old)) if (isDayStr(d)) out[d] = Math.max(0, Math.floor(Number(n) || 0));
+    for (const r of hub.list('rev:', V)) { const d = r.key.slice(4, 14); if (isDayStr(d)) out[d] = (out[d] || 0) + Math.max(0, Math.floor(Number(r.value) || 0)); }
+    return out;
+  }
+  /* VERSES-STREAK (a copy of apps/verses.html dayStreak; test-home.mjs checks the two agree on the same rows) */
+  function versesStreak(lg, rc, ids, today) {
+    // P3-VERSES-11: the days with at least one rating, counted back from today, or from yesterday while today's review is
+    // still to come (today is pending). A past day with no rating breaks it only if something was due that day; a day with
+    // nothing due neither counts nor breaks. "Was anything due on d" from the rows (Verses' wasDueOn): a verse last reviewed
+    // before d was due if its due day is on or before d (exact); a verse never reviewed was due from the day its mem: row
+    // was written (one only in the old f260.mem map has no date and does not count); a verse reviewed on or after d had an
+    // earlier schedule: its row keeps a short history of the schedules its ratings replaced (hist: [{due, last}, …], the
+    // last 30 days; a review-round-1 row's single prev: {due, last} reads as one entry), and d is judged on the schedule in
+    // force that day — the latest whose review came before d; an entry with no last is the schedule before the first
+    // review (due from the memorised day). A day older than the kept history, or a row with no history, is read generously
+    // (not due: the streak is kept).
+    const days = Object.keys(lg).filter(d => lg[d] > 0 && d <= today).sort(); if (!days.length) return 0;
+    const memDay = {};
+    for (const r of hub.list('mem:', { app: 'f260', scope: 'person' })) if (r.value) memDay[r.key.slice(4)] = hub.today(r.updated_at);
+    // a rating the row lost (review round 3): a device that rated from a stale copy can overwrite another device's newer
+    // rating, so the row's history no longer shows it. The rev: rows (rev:<date>:<id>:<device>) still do: when this verse was
+    // rated on a day x after the schedule chosen for d and before d, the schedule after x is unknown, so d is read
+    // generously — a rating another device overwrote never counts against the streak. (The old log map has no per-verse
+    // days and cannot help here.)
+    const rated = {};
+    for (const r of hub.list('rev:', { app: 'verses', scope: 'person' })) { const m = /^rev:(\d{4}-\d{2}-\d{2}):([^:]+):/.exec(r.key); if (m && Number(r.value) > 0) (rated[m[2]] || (rated[m[2]] = [])).push(m[1]); }
+    const lost = (id, after, d) => (rated[id] || []).some(x => (!after || x > after) && x < d);
+    const sched = e => e && typeof e === 'object' && !Array.isArray(e) ? { due: isDayStr(e.due) ? e.due : null, last: isDayStr(e.last) ? e.last : null } : null;
+    const checks = ids.map(id => {
+      const r = rc[id] && typeof rc[id] === 'object' && !Array.isArray(rc[id]) ? rc[id] : null;
+      const from = memDay[id], never = d => !!from && from <= d && !lost(id, null, d);
+      if (!r) return never;
+      const hist = Array.isArray(r.hist) ? r.hist.map(sched).filter(Boolean) : r.prev ? [sched(r.prev)].filter(Boolean) : [];
+      const all = [...hist, sched(r)];   // every known schedule, oldest first, the current one last
+      return d => {
+        for (let k = all.length - 1; k >= 0; k--) { const e = all[k]; if (e.last && e.last < d) return !!e.due && e.due <= d && !lost(id, e.last, d); }
+        return all.some(e => !e.last) ? never(d) : false;
+      };
+    });
+    const dueOn = d => checks.some(f => f(d)), first = days[0];
+    let d = lg[today] > 0 ? today : hub.addDays(today, -1), n = 0;
+    for (let i = 0; i < 4000 && d >= first; i++, d = hub.addDays(d, -1)) { if (lg[d] > 0) n++; else if (dueOn(d)) break; }
+    return n;
+  }
+  /* /VERSES-STREAK */
+  function versesHome() {
+    const F = { app: 'f260', scope: 'person' }, V = { app: 'verses', scope: 'person' }, today = dayKey();
+    const sum = hub.get('summary', V), pulled = !!hub.sync.lastPull;
+    // nothing has arrived here yet: a skeleton card in its place (no jump when the rows land), unless the summary already says
+    // this person has nothing memorised
+    if (!pulled && !cached('f260', 'person')) return sum && typeof sum === 'object' && !(+sum.total > 0) ? null : { total: sum && +sum.total > 0 ? +sum.total : 0, loading: true };
+    const mem = hub.rowMap('mem:', 'f260.mem', F), rc = hub.rowMap('recall:', 'f260.recall', F);
+    const ids = Object.keys(mem).filter(id => { const m = VERSE_ID.exec(id); return mem[id] && m && +m[1] >= 1 && +m[1] <= 52; });
+    const dueOf = id => { const r = rc[id]; return r && typeof r === 'object' && isDayStr(r.due) ? r.due : null; };
+    const due = ids.filter(id => { const x = dueOf(id); return !x || x <= today; }).length;
+    const next = ids.map(dueOf).filter(x => x && x > today).sort()[0] || null;
+    const logLoaded = pulled || cached('verses', 'person'), lg = logLoaded ? versesLog() : {};
+    return { total: ids.length, due, next, reviewedToday: lg[today] || 0, streak: logLoaded ? versesStreak(lg, rc, ids, today) : null };
+  }
+  function versesCardHtml(vs) {
+    const a = appById('verses'), big = glanceMode(), n = vs.due;
+    const when = d => { const k = hub.daysBetween(dayKey(), d); return k === 1 ? 'tomorrow' : 'in ' + k + ' days'; };
+    const line = vs.loading ? '<span class="skeleton">loading</span>' : n ? (big ? `${n} to review` : `${n} ${n === 1 ? 'verse' : 'verses'} to review`) : 'Nothing due today';
+    const sub = vs.loading ? '' : [vs.streak ? `${vs.streak}-day streak` : '', !n ? (vs.reviewedToday ? 'reviewed today' : vs.next ? 'next review ' + when(vs.next) : '') : ''].filter(Boolean).join(' · ')
+      || (n ? 'A few minutes keeps them fresh.' : '');
+    return `<div class="card gcard verses-card${vs.loading ? ' is-loading' : ''}" data-accent="${esc(appHue(a))}">
+      <h2><span class="app-icon"><svg class="icon"><use href="#i-verses"/></svg></span>Memory verses</h2>
+      <div class="gbody"><div class="grow">
+        <div class="gbig one">${line}</div>
+        <div class="gsub">${esc(sub)}</div>
+      </div></div><div class="gfoot"><button class="btn btn-soft" data-open="verses">${!vs.loading && n ? 'Review now' : 'Open Verses'}</button><img class="spot" src="art/app/verses.svg" alt="" width="200" height="160"></div></div>`;
   }
   // ── the family feed: cached for an instant paint, grouped by person, an icon per line, "Show more" in pages of 30 ──
   let clockTimer = null, feed = null, feedLoading = false, feedAgain = false, feedFresh = false, feedLimit = 30, feedSeq = 0;
@@ -2068,6 +2197,12 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     }
     for (const el of have.values()) el.remove();
   }
+  // Review round 7: a card's art gives way before its button's label would wrap (.gfoot); where that would leave a speck
+  // (narrower than 48 px, e.g. a narrow card at XXL) it is hidden instead. visibility, so its box and this observer stay.
+  const SPOT_MIN = 48;
+  const spotRO = 'ResizeObserver' in window ? new ResizeObserver(es => { for (const e of es) { if (!e.target.isConnected) { spotRO.unobserve(e.target); continue; } e.target.classList.toggle('thin', e.contentRect.width < SPOT_MIN); } }) : null;
+  const spotSeen = new WeakSet();
+  function watchSpots(root) { if (!spotRO || !root) return; for (const img of root.querySelectorAll('.gfoot > .spot')) if (!spotSeen.has(img)) { spotSeen.add(img); spotRO.observe(img); } }
   const KID_TILES = ['kidverse', 'prayer', 'timer', 'tally'];
   const KID_NAMES = { timer: 'Timer', tally: 'Tally' };
   function homeView(v, p) {
@@ -2099,7 +2234,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       tiles.push(['all', `<button class="kid-tile kid-all" id="kid-apps" aria-label="Open all my apps"><span class="app-icon"><svg class="icon"><use href="#i-apps"/></svg></span><span>All my apps</span></button>`]);
       patchKids(part('tiles'), tiles);
       const kcards = [['stars', starsCardHtml(stars, hub.isLoaded('kidverse', 'family'))]]; if (park.length) kcards.push(['park', parkCardHtml(park)]);
-      patchKids(part('glance'), kcards); part('glance').classList.toggle('two', kcards.length === 2);
+      patchKids(part('glance'), kcards); part('glance').classList.toggle('two', kcards.length === 2); watchSpots(part('glance'));
       return;
     }
     const pulled = !!hub.sync.lastPull;   // offline with nothing cached is still "not loaded": skeletons, never final empty wording
@@ -2109,23 +2244,23 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (canSee('f260')) {
       const a = appById('f260'); const loaded = pulled || cached('f260', 'person');
       if (f && f.next) bits.push(f260Today(f) ? 'reading done' : 'a reading waiting');
-      cards.push(['f260', `<div class="card gcard" data-accent="${esc(appHue(a))}"><img class="spot" src="art/app/f260.svg" alt="" width="200" height="160">
+      cards.push(['f260', `<div class="card gcard" data-accent="${esc(appHue(a))}">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-book"/></svg></span>Today's reading</h2>
         <div class="gbody">${f ? ringHtml(f.weekDone / 5, f.weekDone + '/5', null, true) : ringHtml(0, loaded ? '0/5' : '·', null, true)}<div class="grow">
           <div class="gbig">${!loaded && !f ? sk : f ? (f.next ? esc(f.next.ref) : 'Plan complete') : 'Start with Genesis 1-2'}</div>
           <div class="gsub">${f ? `Week ${f.week}, day ${f.next ? f.next.day : 5}${f260Today(f) ? ' · read today ✓' : ''}${f260Streak(f) ? ' · ' + f260Streak(f) + '-day streak' : ''}` : !loaded ? '' : 'Week 1 of 52'}</div>
-        </div></div><button class="btn btn-soft" data-open="f260">Open F260</button></div>`]);
+        </div></div><div class="gfoot"><button class="btn btn-soft" data-open="f260">Open F260</button><img class="spot" src="art/app/f260.svg" alt="" width="200" height="160"></div></div>`]);
     }
     {
       const due = fridgeDue(); const a = appById('leftovers'); const loaded = pulled || cached('leftovers', 'family');
       if (due.length) bits.push(due.length + ' to eat');
       const bars = due.slice(0, 3).map(i => `<div class="${i.days >= 7 ? 'stale' : ''}"><div class="fl"><span>${esc(i.name)}</span><span>${i.days === Infinity ? 'date?' : i.days + 'd'}</span></div><div class="bar" style="--p:${Math.min(1, i.days / 10)}"><i></i></div></div>`).join('');
-      cards.push(['leftovers', `<div class="card gcard" data-accent="${esc(appHue(a))}"><img class="spot" src="art/app/leftovers.svg" alt="" width="200" height="160">
+      cards.push(['leftovers', `<div class="card gcard" data-accent="${esc(appHue(a))}">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-bowl"/></svg></span>In the fridge</h2>
         <div class="gbody"><div class="grow">
           <div class="gbig">${!loaded ? sk : due.length ? due.length + (big ? ' to eat' : ' to eat this week') : 'Nothing aging'}</div>
           ${due.length ? `<div class="fresh">${bars}</div>` : loaded ? `<div class="gsub">Log leftovers when you put them away.</div>` : ''}
-        </div></div>${a && canSee('leftovers') ? '<button class="btn btn-soft" data-open="leftovers">Open the ledger</button>' : ''}</div>`]);
+        </div></div><div class="gfoot">${a && canSee('leftovers') ? '<button class="btn btn-soft" data-open="leftovers">Open the ledger</button>' : ''}<img class="spot" src="art/app/leftovers.svg" alt="" width="200" height="160"></div></div>`]);
     }
     if (canSee('prayer')) {
       const n = prayerStreak(); const t = prayerToday(); const a = appById('prayer'); const loaded = pulled || cached('prayer', 'person');
@@ -2133,21 +2268,25 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       // on the iPad the count alone is the glance line and "N done" joins the line under it
       const bigLine = !t.total ? (big ? 'All clear' : 'Nothing on the list today') : big ? `${t.due} to pray` : `${t.due} to pray · ${t.done} done`;
       const sub = (big && t.total ? `${t.done} done · ` : '') + (n ? `${n}-day streak${t.total && !t.due ? ' · all done today ✓' : ' · keep it going'}` : t.total ? 'Pray through your list to start a streak.' : 'Add a request in the prayer app.');
-      cards.push(['prayer', `<div class="card gcard prayer-card" data-accent="${esc(appHue(a))}"><img class="spot" src="art/app/prayer.svg" alt="" width="200" height="160">
+      cards.push(['prayer', `<div class="card gcard prayer-card" data-accent="${esc(appHue(a))}">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-pray"/></svg></span>Prayer</h2>
         <div class="gbody">${avatar(p, 'avatar-lg')}<div class="grow">
           <div class="gbig one">${!loaded ? sk : bigLine}</div>
           <div class="gsub">${!loaded ? '' : sub}</div>
-        </div></div><button class="btn btn-soft" data-open="prayer">Open prayer</button></div>`]);
+        </div></div><div class="gfoot"><button class="btn btn-soft" data-open="prayer">Open prayer</button><img class="spot" src="art/app/prayer.svg" alt="" width="200" height="160"></div></div>`]);
     }
+    // GAP-HOME-2: hidden with nothing memorised. After Prayer, so batch 4's pairs stay as they were (Today's reading with the
+    // fridge, Prayer with Memory verses on the two-column iPad; on three columns Verses shares the second row)
+    if (canSee('verses')) { const vs = versesHome(); if (vs && (vs.loading || vs.total > 0)) cards.push(['verses', versesCardHtml(vs)]); }
     if (park.length) { bits.push(park.length + ' at the park'); cards.push(['park', parkCardHtml(park)]); }
     const kids = kidStars(); if (kids.length) cards.push(['kids', kidsCardHtml(kids, hub.isLoaded('kidverse', 'family'))]);
     const remCount = hub.list('item:', { app: 'reminders', scope: 'family' }).filter(r => !remDone.has(r.value && r.value.id)).length;
     if (remCount) bits.push(remCount + (remCount === 1 ? ' reminder' : ' reminders'));
     const sub = !pulled && !cached('reminders', 'family') ? '' : bits.length ? bits.join(' · ') : 'All quiet in the house.';
-    patchKids(part('hero'), [['hero', heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: esc(sub) })]]);
-    patchKids(part('glance'), cards); part('glance').classList.toggle('two', cards.length === 2);
-    { const dots = part('dots'), html = cards.length > 1 ? '<i></i>'.repeat(cards.length) : ''; if (dots && dots._html !== html) { dots._html = html; dots.innerHTML = html; } pagerDots(); }
+    // batch 5: while the first pull is on its way the line's place is kept (a skeleton), so nothing under the hero moves
+    patchKids(part('hero'), [['hero', heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: sub ? esc(sub) : '<span class="skeleton">loading</span>' })]]);
+    patchKids(part('glance'), cards); part('glance').classList.toggle('two', cards.length === 2); watchSpots(part('glance'));
+    paintDots();
     { const pf = part('prayedfor'); if (pf) patchKids(pf, prayedForMe(p)); }   // IMP-PRAYER-I3, patched in place like the cards
     renderReminders(); renderFeed(); loadFeed();
   }
@@ -2180,10 +2319,22 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     return parts;
   }
   // the phone pager's dots: the card nearest the start of the row (in its shown order) is the filled one
+  // One dot per card that takes a place in the pager (a Verses card still loading has none below 1024 px). Counted from the
+  // cards themselves, so it is right after a paint and after the width crosses 1024 or 720 px (an iPad turned, a split view)
+  // while that card is still loading; the dots row is one fixed-height line, so a new count moves nothing.
+  function paintDots() {
+    const g = document.querySelector('#view-home [data-part="glance"]'), dots = document.querySelector('#view-home [data-part="dots"]');
+    if (!g || !dots) return;
+    const n = [...g.children].filter(c => c.getClientRects().length).length, html = n > 1 ? '<i></i>'.repeat(n) : '';
+    if (dots._html !== html) { dots._html = html; dots.innerHTML = html; }
+    pagerDots();
+  }
+  for (const q of ['(max-width: 1023px)', '(max-width: 719px)']) { try { matchMedia(q).addEventListener('change', paintDots); } catch {} }
   function pagerDots() {
     const g = document.querySelector('#view-home [data-part="glance"]'), dots = document.querySelector('#view-home [data-part="dots"]');
     if (!g || !dots || !dots.children.length) return;
-    const x0 = Math.min(...[...g.children].map(c => c.offsetLeft)), xs = [...g.children].map(c => c.offsetLeft - x0).sort((a, b) => a - b);
+    const kids = [...g.children].filter(c => c.offsetParent !== null);   // a card that takes no place (a loading Verses card) has no dot
+    const x0 = Math.min(...kids.map(c => c.offsetLeft)), xs = kids.map(c => c.offsetLeft - x0).sort((a, b) => a - b);
     let at = 0; xs.forEach((x, i) => { if (Math.abs(x - g.scrollLeft) < Math.abs(xs[at] - g.scrollLeft)) at = i; });
     if (g.scrollLeft + g.clientWidth >= g.scrollWidth - 2) at = xs.length - 1;   // scrolled to the end: the last card
     [...dots.children].forEach((d, i) => d.classList.toggle('on', i === at));
@@ -2362,6 +2513,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
             ${p.kind === 'adult' && canSee('f260') ? '<div class="kv"><b>Weekly catch-up, Sunday 8 pm</b><button class="switch" data-pref="behind" role="switch" aria-checked="true" aria-label="Weekly catch-up"></button></div>' : ''}
             ${p.kind === 'adult' && !isGuest() && canSee('prayer') ? '<div class="kv"><b>New family prayers, 8 am and 8 pm</b><button class="switch" data-pref="prayer" role="switch" aria-checked="true" aria-label="New family prayers"></button></div>' : ''}
             ${canSee('prayer') ? '<div class="kv"><b>Who prayed for my requests, 8 pm</b><button class="switch" data-pref="prayedfor" role="switch" aria-checked="true" aria-label="Who prayed for my requests"></button></div>' : ''}
+            ${canSee('verses') ? '<div class="kv"><b>Verses to review, 7 pm</b><button class="switch" data-pref="verses" role="switch" aria-checked="false" aria-label="Verses to review"></button></div>' : ''}
             ${canSee('prayer') ? `<label class="kv"><b>Reminder to pray</b><select class="select notif-time" id="notif-pray" aria-label="Reminder to pray">${PRAY_TIMES.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>` : ''}
             ${p.kind === 'adult' && !isGuest() && canSee('dollywood-live') ? '<div class="kv"><b>Park day: a child\'s spot goes quiet</b><button class="switch" data-pref="park" role="switch" aria-checked="true" aria-label="Park day alerts"></button></div>' : ''}
             <button class="btn" id="notif-test" style="margin-top:var(--sp-3)">Send a test notification</button>
@@ -2855,7 +3007,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // the person's switches: one row per kind (push_pref:<kind>) over the old whole row push_prefs (review of batch 2b)
   const readPrefs = () => {
     const o = { app: 'hub', scope: 'person' };
-    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, prayAt: null, readAt: null, ...(hub.get('push_prefs', o) || {}) };
+    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, prayAt: null, readAt: null, ...(hub.get('push_prefs', o) || {}) };   // verses starts off (IMP-VERSES-I2)
     for (const r of hub.list('push_pref:', o)) out[r.key.slice('push_pref:'.length)] = r.value;
     return out;
   };

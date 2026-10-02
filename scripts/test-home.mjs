@@ -117,6 +117,12 @@ async function seed() {
   await ownRow('kidverse', 'stars:kiara', 'kiara', { week: LAST_WEEK, count: 7 }, now);
   await api('/api/data/kidverse/stars?scope=person', { method: 'PUT', profile: ezra, body: { value: { week: WEEK, count: 3 }, updated_at: now } });
   await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: kiara }).catch(() => {});
+  // (f) a clean slate for David's memory verses (F260's mem:/recall: rows and maps, Verses' own rows): no Verses card until (f)
+  for (const [app, prefix] of [['f260', 'mem:'], ['f260', 'recall:'], ['f260', 'f260.mem'], ['f260', 'f260.recall'], ['verses', '']]) {
+    for (const it of (await api(`/api/data/${app}?scope=person&prefix=${encodeURIComponent(prefix)}`, { profile: dad })).items) {
+      if (it.value != null && (app === 'verses' || it.key.startsWith(prefix))) await api(`/api/data/${app}/${encodeURIComponent(it.key)}?scope=person`, { method: 'DELETE', profile: dad });
+    }
+  }
   // (d) 40 activity entries: runs of three by David then two by Ezra, across four apps
   const apps = ['f260', 'leftovers', 'prayer', 'reminders'];
   for (let i = 0; i < 40; i++) {
@@ -213,6 +219,7 @@ async function artSample(page, sel) {
     ok(await text(A.page, '.prayer-card .gbig') === '4 to pray · 1 done', '(a) Prayer card: "4 to pray · 1 done" from the person rows (3 daily, 1 weekly today, 1 rotation; 1 prayed)', await text(A.page, '.prayer-card .gbig'));
     ok(/^2-day streak · keep it going$/.test(await text(A.page, '.prayer-card .gsub') || ''), '(a) Prayer secondary: "2-day streak · keep it going"', await text(A.page, '.prayer-card .gsub'));
     ok(/4 to pray/.test(await text(A.page, '.home-hero .hero-sub') || ''), '(a) hero line mentions 4 to pray');
+    ok(!(await A.page.$('#view-home .verses-card')), '(f) GAP-HOME-2: nothing memorised → no Verses card');
     ok(!!(await A.page.$('.park-card')), '(b) "At the park" card shows on a park day');
     const exp1 = await expectedPark(dadTok), parkBig = await text(A.page, '.park-card .gbig'), parkSub = await text(A.page, '.park-card .gsub');
     ok(exp1.who.length >= 2 && exp1.who.some(w => w.id === 'ezra') && exp1.who.some(w => w.id === 'kiara') && !exp1.who.some(w => w.id === 'christian'), '(b) the API agrees: Ezra + Kiara fresh, Mae (5 h) not' + (exp1.who.length > 2 ? ' (extra fresh pins already in the shared local DB: ' + exp1.names + ')' : ''), exp1.names);
@@ -277,7 +284,7 @@ async function artSample(page, sel) {
       lastPull: hub.sync.lastPull, skeletons: document.querySelectorAll('#view-home .skeleton').length,
       prayer: document.querySelector('.prayer-card .gbig').textContent.trim(), park: !!document.querySelector('.park-card'),
       kids: (document.querySelector('.kids-card .kids-line') || {}).textContent, f260: document.querySelector('#view-home .gcard .gbig').textContent.trim(),
-      fridge: [...document.querySelectorAll('#view-home .gcard .gbig')][1].textContent.trim(),
+      fridge: document.querySelector('#view-home .gcard:has([data-open="leftovers"]) .gbig').textContent.trim(),   // by its button: batch 5's Verses card may sit second
       feedLines: document.querySelectorAll('#feed .fline').length, hero: document.querySelector('.home-hero .hero-sub').textContent.trim(),
     }));
     ok(snap.lastPull === 0, 'AC: no pull has happened (API blocked)', JSON.stringify(snap));
@@ -343,6 +350,115 @@ async function artSample(page, sel) {
       globalThis.__pfCleanup = PF.cleanup;
     }
 
+    console.log('\n## (f) GAP-HOME-2 / UX-VERSES-3: the Verses card (David, 390)');
+    {
+      // household (New York) days, as the shell and Verses count them
+      const nyDay = (n = 0) => { const p = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date()); const g = t => p.find(x => x.type === t).value; return new Date(Date.UTC(+g('year'), +g('month') - 1, +g('day')) + n * 86400000).toISOString().slice(0, 10); };
+      const D = nyDay, t0 = Date.now() + 1000;
+      // four memorised verses: 1-0 overdue since yesterday, 2-0 never reviewed, 2-1 due today → 3 due; 1-1 due in 3 days.
+      // Reviews yesterday and the day before. Verses' summary row is yesterday's and stale (0 due, a 9-day streak): the
+      // card must count from the rows, as Verses would today, before Verses has been opened.
+      await api('/api/data/f260/batch?scope=person', { method: 'POST', profile: dadTok, body: { items: [
+        ['mem:1-0', true], ['mem:1-1', true], ['mem:2-0', true], ['mem:2-1', true],
+        ['recall:1-0', { s: 'got', t: t0, box: 2, due: D(-1), last: D(-3), streak: 1 }],
+        ['recall:1-1', { s: 'got', t: t0, box: 3, due: D(3), last: D(-1), streak: 2 }],
+        ['recall:2-1', { s: 'not', t: t0, box: 1, due: D(0), last: D(-1), streak: 0 }],
+      ].map(([key, value], i) => ({ key, value, updated_at: t0 + i })) } });
+      await api('/api/data/verses/batch?scope=person', { method: 'POST', profile: dadTok, body: { items: [
+        // reviews yesterday, the day before and four days ago; three days ago nothing was rated and the rows show nothing
+        // due that day, so it keeps the streak (P3-VERSES-11): 3 days, where the pre-batch rule said 2
+        [`rev:${D(-1)}:1-1:dev-a`, 1], [`rev:${D(-1)}:2-1:dev-a`, 1], [`rev:${D(-2)}:1-0:dev-b`, 2], [`rev:${D(-4)}:1-1:dev-b`, 1],
+        ['summary', { due: 0, streak: 9, boxes: [1, 1, 1, 0, 0], total: 4, reviewedToday: 0, week: null, at: D(-1) }],
+      ].map(([key, value], i) => ({ key, value, updated_at: t0 + i })) } });
+      await A.page.click('.tab[data-tab=home]'); await A.page.evaluate(() => hub.pull());
+      await waitFor(() => A.page.$('#view-home .verses-card'), { label: 'the Verses card' });
+      const card = () => A.page.$eval('#view-home .verses-card', c => ({ big: c.querySelector('.gbig').textContent.trim(), sub: c.querySelector('.gsub').textContent.trim(), btn: c.querySelector('[data-open]').textContent.trim(), open: c.querySelector('[data-open]').dataset.open, accent: c.dataset.accent,
+        art: (c.querySelector('.spot') || {}).getAttribute && c.querySelector('.spot').getAttribute('src'), h: Math.round(c.getBoundingClientRect().height), btnH: Math.round(c.querySelector('[data-open]').getBoundingClientRect().height),
+        after: (c.previousElementSibling && c.previousElementSibling.querySelector('[data-open]') || {}).dataset?.open || null }));
+      let C = await card();
+      ok(C.big === '3 verses to review' && C.btn === 'Review now' && C.open === 'verses', '(f) the card counts from the rows: "3 verses to review" (overdue, never reviewed, due today), "Review now" opens Verses — not the stale summary\'s 0', JSON.stringify(C));
+      ok(!/9-day/.test(C.sub), '(f) the stale summary\'s 9-day streak is not shown', C.sub);
+      ok(C.accent === 'pistachio' && C.art === 'art/app/verses.svg' && C.after === 'prayer' && C.btnH >= 44, '(f) pistachio, the Verses spot art, after Prayer (batch 4\'s pairs kept), a 44 px button', JSON.stringify(C));
+      const vol = (await oneLiners(A.page)).filter(o => o.text === C.big || o.text === C.sub);
+      ok(vol.length >= 1 && vol.every(o => o.one), '(f) its lines are one line and unclipped at 390', JSON.stringify(vol));
+      // the shell and Verses agree on the same rows: open Verses as David in a second tab and ask it
+      const VP = await A.ctx.newPage();
+      await VP.goto(SITE + '/apps/verses.html');
+      await VP.waitForFunction(() => window.verses && window.hub && hub.isLoaded() && hub.isLoaded('f260', 'person'), null, { timeout: 15000 });
+      const fromApp = await VP.evaluate(() => ({ due: window.verses.dueIds().length, streak: window.verses.dayStreak() }));
+      await VP.close();
+      ok(fromApp.due === 3, '(f) Verses itself counts 3 due on these rows', JSON.stringify(fromApp));
+      ok(fromApp.streak === 3 && C.sub.startsWith('3-day streak'), `(f) the card's streak is Verses' own day streak: 3 (a day with nothing due keeps it; today is pending) — Verses says ${fromApp.streak}`, JSON.stringify({ sub: C.sub, fromApp }));
+      // patched in place (batch 2a): a review today changes the Verses card only; the hero and the other cards keep their nodes
+      await A.page.evaluate(() => { for (const e of document.querySelectorAll('#view-home [data-part="hero"] > *, #view-home [data-part="glance"] > *')) e.__keep = 1; });
+      const t1 = Date.now() + 2000;
+      await api('/api/data/f260/batch?scope=person', { method: 'POST', profile: dadTok, body: { items: [{ key: 'recall:2-1', value: { s: 'got', t: t1, box: 2, due: D(2), last: D(0), streak: 1 }, updated_at: t1 }] } });
+      await api('/api/data/verses/batch?scope=person', { method: 'POST', profile: dadTok, body: { items: [{ key: `rev:${D(0)}:2-1:dev-a`, value: 1, updated_at: t1 }] } });
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => (await card()).big === '2 verses to review', { label: 'the Verses card after a review' });
+      const kept = await A.page.evaluate(() => ({ hero: [...document.querySelectorAll('#view-home [data-part="hero"] > *')].every(e => e.__keep), changed: [...document.querySelectorAll('#view-home [data-part="glance"] > *')].filter(e => !e.__keep).map(e => e.dataset.key) }));
+      // (the park card's "5m ago" may have ticked over meanwhile; nothing else may change)
+      ok(kept.hero && kept.changed.includes('verses') && kept.changed.every(k => k === 'verses' || k === 'park'), '(f) patched in place: only the Verses card was replaced', JSON.stringify(kept));
+      const C2 = await card();
+      ok(Math.abs(C2.h - C.h) <= 1, '(f) no layout shift: the card keeps its height', JSON.stringify([C.h, C2.h]));
+      // nothing due: a calm line, and the button opens Verses rather than asking for a review
+      const t2 = Date.now() + 3000;
+      await api('/api/data/f260/batch?scope=person', { method: 'POST', profile: dadTok, body: { items: [
+        { key: 'recall:1-0', value: { s: 'got', t: t2, box: 3, due: D(1), last: D(0), streak: 2 }, updated_at: t2 },
+        { key: 'recall:2-0', value: { s: 'got', t: t2, box: 2, due: D(2), last: D(0), streak: 1 }, updated_at: t2 + 1 },
+      ] } });
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => (await card()).big === 'Nothing due today', { label: 'nothing due' });
+      C = await card();
+      ok(C.btn === 'Open Verses' && /reviewed today$/.test(C.sub), '(f) nothing due: "Nothing due today", "reviewed today", "Open Verses"', JSON.stringify(C));
+      const vol2 = (await oneLiners(A.page)).filter(o => o.text === C.big || o.text === C.sub);
+      ok(vol2.length === 2 && vol2.every(o => o.one), '(f) and still one line each, unclipped, at 390', JSON.stringify(vol2));
+      await A.page.evaluate(() => document.querySelector('.verses-card').scrollIntoView({ block: 'center' })); await sleep(150);
+      await A.page.screenshot({ path: path.join(SHOTS, 'rm13-home-verses-390.png'), fullPage: false });
+      await A.page.click('.verses-card [data-open="verses"]');
+      ok(await waitFor(() => A.page.$eval('#frame', f => /verses\.html/.test(f.src))).catch(() => false), '(f) one tap opens the trainer');
+      await A.page.evaluate(() => document.querySelector('#pill-home').click()); await sleep(400);
+      // batch 5 review round 2 (E2b): a verse missed three days ago, then reviewed yesterday and again today, keeps the
+      // missed day in its row's history (hist), so the streak still breaks there — on the card and in Verses alike: 3
+      // (today, yesterday, the day before), where reading only the last replaced schedule said 4
+      const t3 = Date.now() + 4000;
+      await api('/api/data/f260/batch?scope=person', { method: 'POST', profile: dadTok, body: { items: [
+        { key: 'recall:2-0', value: { s: 'got', t: t3, box: 2, due: D(2), last: D(0), streak: 1, hist: [{ due: D(-3), last: D(-5) }, { due: D(0), last: D(-1) }] }, updated_at: t3 },
+      ] } });
+      await A.page.evaluate(() => hub.pull());
+      const streakOfCard = async () => { const m = /^(\d+)-day streak/.exec((await card()).sub); return m ? +m[1] : null; };
+      await waitFor(async () => (await streakOfCard()) === 3, { label: 'the card after the history row' }).catch(() => {});
+      const VP2 = await A.ctx.newPage();
+      await VP2.goto(SITE + '/apps/verses.html');
+      await VP2.waitForFunction(() => window.verses && window.hub && hub.isLoaded('verses', 'person') && hub.isLoaded('f260', 'person') && (hub.get('recall:2-0', { app: 'f260', scope: 'person' }) || {}).hist, null, { timeout: 15000 });
+      const appStreak2 = await VP2.evaluate(() => window.verses.dayStreak());
+      await VP2.close();
+      const cardStreak2 = await streakOfCard();
+      ok(appStreak2 === 3 && cardStreak2 === 3, '(f) a day missed two reviews back still breaks the streak: Verses 3, the card 3 (E2b)', JSON.stringify({ appStreak2, cardStreak2, sub: (await card()).sub }));
+      // batch 5 review round 3 (H1): a rating the row lost — a device offline for days rated 2-0 from its stale copy and
+      // overwrote the review made three days ago, so the row's history knows only the schedule before it (due three days
+      // ago). The rev: rows still show that lost review, so the days after it are read generously: 3 (today, three days
+      // ago, ten days ago), on the card and in Verses alike — never 1
+      const t4 = Date.now() + 5000;
+      for (const k of [`rev:${D(-1)}:1-1:dev-a`, `rev:${D(-1)}:2-1:dev-a`, `rev:${D(-2)}:1-0:dev-b`, `rev:${D(-4)}:1-1:dev-b`, `rev:${D(0)}:2-1:dev-a`]) await api('/api/data/verses/' + encodeURIComponent(k) + '?scope=person', { method: 'DELETE', profile: dadTok }).catch(() => {});
+      await api('/api/data/f260/batch?scope=person', { method: 'POST', profile: dadTok, body: { items: [
+        ['recall:1-0', { s: 'got', t: t4, box: 3, due: D(1), last: D(0), streak: 2 }], ['recall:1-1', { s: 'got', t: t4, box: 3, due: D(3), last: D(0), streak: 3 }],
+        ['recall:2-1', { s: 'got', t: t4, box: 2, due: D(2), last: D(0), streak: 1 }],
+        ['recall:2-0', { s: 'got', t: t4, box: 5, due: D(14), last: D(0), streak: 2, hist: [{ due: D(-3), last: D(-10) }] }],
+      ].map(([key, value], i) => ({ key, value, updated_at: t4 + i })) } });
+      await api('/api/data/verses/batch?scope=person', { method: 'POST', profile: dadTok, body: { items: [[`rev:${D(-10)}:2-0:h1-a`, 1], [`rev:${D(-3)}:2-0:h1-a`, 1], [`rev:${D(0)}:2-0:h1-b`, 1]].map(([key, value], i) => ({ key, value, updated_at: t4 + i })) } });
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => (await streakOfCard()) === 3, { label: 'the card with the lost rating' }).catch(() => {});
+      const VP3 = await A.ctx.newPage();
+      await VP3.goto(SITE + '/apps/verses.html');
+      await VP3.waitForFunction(() => window.verses && window.hub && hub.isLoaded('verses', 'person') && hub.isLoaded('f260', 'person') && ((hub.get('recall:2-0', { app: 'f260', scope: 'person' }) || {}).due || '') > hub.today() && !hub.has('rev:' + hub.addDays(hub.today(), -1) + ':1-1:dev-a'), null, { timeout: 15000 });
+      const appStreak3 = await VP3.evaluate(() => window.verses.dayStreak());
+      await VP3.close();
+      const cardStreak3 = await streakOfCard();
+      ok(appStreak3 === 3 && cardStreak3 === 3, '(f) a rating the row lost never counts against the streak: Verses 3, the card 3 (H1)', JSON.stringify({ appStreak3, cardStreak3, sub: (await card()).sub }));
+      globalThis.__versesCleanup = async () => { for (const k of ['mem:1-0', 'mem:1-1', 'mem:2-0', 'mem:2-1', 'recall:1-0', 'recall:1-1', 'recall:2-0', 'recall:2-1']) await api('/api/data/f260/' + encodeURIComponent(k) + '?scope=person', { method: 'DELETE', profile: dadTok }).catch(() => {}); };
+    }
+
     console.log('\n## kid Home (Ezra, 390)');
     const K = await newContext(browser, 'K');
     await signIn(K.page, 'ezra');
@@ -365,6 +481,7 @@ async function artSample(page, sel) {
     ok(krows.map(r => r.name).join(',') === kexp.names && krows.map(r => r.when).join(',') === kexp.whens && krows.every(r => !r.clipped && r.inside), '(b) kid scale: every row with its time, nothing clipped', JSON.stringify([krows, kexp.names, kexp.whens]));
     ok(!(await K.page.$('#feed')) && !(await K.page.$('.prayer-card')), 'kid Home stays simple: no feed, no adult cards');
     ok(!(await K.page.$('.pf-line')), '(e) the kid Home never has the asker\'s line (Ezra prayed on two of them)');
+    ok(!(await K.page.$('.verses-card')), '(f) the kid Home keeps its picture tiles: no Verses card');
     const kol = await oneLiners(K.page);
     ok(kol.length >= 2 && kol.every(o => o.one), 'kid cards: secondary text is one line at 390 (kid type scale)', JSON.stringify(kol.filter(o => !o.one)));
     ok(await noHScroll(K.page), 'no horizontal scroll (kid)');
@@ -413,7 +530,7 @@ async function artSample(page, sel) {
 
     ok(errors.length === 0, 'no page errors', errors.slice(0, 5).join(' | '));
   } catch (e) { fail++; console.log('  ✗ crashed:', e.stack || e.message); }
-  finally { if (globalThis.__pfCleanup) await globalThis.__pfCleanup(); await browser.close(); server.close(); }
+  finally { if (globalThis.__pfCleanup) await globalThis.__pfCleanup(); if (globalThis.__versesCleanup) await globalThis.__versesCleanup(); await browser.close(); server.close(); }
   console.log(`\n${pass} passed, ${fail} failed`);
   process.exit(fail ? 1 : 0);
 })();

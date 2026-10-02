@@ -6,15 +6,17 @@
 //   prayedfor (8 pm hour):            someone prayed today for a family request you added -> you (GAP-PRAYER-1)
 //   park      (every run, 15 min):    a kid's map marker has gone quiet while an adult's is fresh -> household adults
 //   praytime  (every run, 15 min):    the person's own "reminder to pray" time (push_prefs.prayAt) -> that person
+//   verses    (7 pm hour):            memory verses due for review today -> that person, only if they switched it on (IMP-VERSES-I2)
 // The cron (wrangler.toml) fires every 15 minutes; runCron reads the New York time of the firing, so 8:00 am / 8:00 pm (and
 // each person's chosen time) stay put across daylight saving, and every firing of those hours runs them (a failed push is tried again). morning,
-// evening, behind, praytime and prayedfor send at most once per person per day (push_log, delivered pushes only); prayer
+// evening, behind, praytime, prayedfor and verses send at most once per person per day (push_log, delivered pushes only); prayer
 // and park remember per person what they have told (settings), so nothing is lost to a push sent earlier that day. Every
-// kind honours the person's switch (app_data(person, hub, 'push_pref:<kind>') over the old 'push_prefs' row; default on)
-// and can be forced with POST /api/admin/cron/run {job}. Guests get only their own nudges (evening, behind, praytime,
-// prayedfor), never the household's (morning, prayer, park) — PWA-UX-2. Kids, the display and the kitchen get none.
+// kind honours the person's switch (app_data(person, hub, 'push_pref:<kind>') over the old 'push_prefs' row; default on,
+// except verses, which is off until the person turns it on) and can be forced with POST /api/admin/cron/run {job}. Guests
+// get only their own nudges (evening, behind, praytime, prayedfor, verses), never the household's (morning, prayer, park)
+// — PWA-UX-2. Kids, the display and the kitchen get none.
 import { sendPush, unb64u } from './push.js';
-import { liveItems, getOne } from './data.js';
+import { liveItems, getOne, rowMap } from './data.js';
 
 const NY = 'America/New_York';
 export function nyParts(d = new Date()) {
@@ -35,8 +37,9 @@ export const vapidFrom = env => (env.VAPID_PRIVATE_KEY && env.VAPID_PUBLIC_KEY
 
 /** Every reminder kind and its default. The Me tab stores overrides as app_data(person, hub, 'push_pref:<kind>'); prayAt ("HH:MM",
  *  a quarter hour, New York time) turns the reminder to pray on — unset, it is off. readAt ("HH:MM", New York) is when the
- *  reading nudge (kind f260) comes — unset, 8 pm (IMP-F260-F4); the f260 switch still turns it off. */
-export const PREF_DEFAULTS = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, prayAt: null, readAt: null };
+ *  reading nudge (kind f260) comes — unset, 8 pm (IMP-F260-F4); the f260 switch still turns it off. The evening verse
+ *  review (kind verses, IMP-VERSES-I2) is the one switch that starts OFF: only push_pref:verses = true turns it on. */
+export const PREF_DEFAULTS = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, prayAt: null, readAt: null };
 export const READ_AT_DEFAULT = '20:00';
 /** "HH:MM" → minutes after midnight, or null for anything else. */
 export const minutesOf = s => { const m = /^(\d{2}):(\d{2})$/.exec(String(s || '')); return m && +m[1] < 24 && +m[2] < 60 ? +m[1] * 60 + +m[2] : null; };
@@ -138,7 +141,7 @@ const anyAdultIds = async env => (await env.DB.prepare("SELECT id FROM profiles 
 
 /** Opt-in + once-a-day gate, then send. Appends to out.notified when the person has a device to send to. */
 async function notify(env, out, profileId, kind, payload, opts, now) {
-  if ((await prefsFor(env, profileId))[kind] === false) { out.skipped.push({ profile: profileId, why: 'pref_off' }); return null; }   // a kind with no switch (praytime: its time is its switch) is on
+  if ((await prefsFor(env, profileId))[kind] === false) { out.skipped.push({ profile: profileId, why: 'pref_off' }); return null; }   // a kind with no switch (praytime: its time is its switch) is on; verses defaults to false (off)
   if (await alreadySentToday(env, profileId, kind, now)) { out.skipped.push({ profile: profileId, why: 'already_today' }); return null; }
   const r = await pushTo(env, profileId, kind, payload, opts);
   if (r.sent) out.notified.push({ profile: profileId, ...r });
@@ -491,22 +494,61 @@ export async function parkJob(env, now = Date.now()) {
   return out;
 }
 
-export const JOBS = { morning: morningJob, evening: eveningJob, behind: behindJob, prayer: prayerJob, prayedfor: prayedForJob, park: parkJob, praytime: prayTimeJob };
+/**
+ * IMP-VERSES-I2, the evening verse review: in the 7 pm New York hour each grown-up (guests too: it is their own review) who
+ * turned it on in Me → Notifications (push_pref:verses = true; it starts off) and has memory verses due today hears
+ * "3 verses to review today." Once a day (kind 'verses', delivered pushes only), so every firing of the hour may try again.
+ * The count is the house's own, read from the person's F260 rows, never from the app's summary row (which is only as fresh
+ * as the last time Verses was opened): versesDue() is apps/verses.html dueIds() for a grown-up. Kids, the display and the
+ * kitchen never: they are not grown-ups here, and pushTo refuses them anyway.
+ */
+const VERSE_ID = /^(\d{1,2})-([01])$/;
+const isDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+/** The memorised verses due on `today`: mem:<week>-<i> on (week 1-52, i 0|1) and its recall row has no due day, or one on or before today. */
+export function versesDue(mem, recall, today) {
+  const out = [];
+  for (const [id, on] of Object.entries(mem || {})) {
+    const m = VERSE_ID.exec(id); if (!on || !m || +m[1] < 1 || +m[1] > 52) continue;
+    const r = recall && recall[id], due = r && typeof r === 'object' && !Array.isArray(r) && isDay(r.due) ? r.due : null;
+    if (!due || due <= today) out.push(id);
+  }
+  return out;
+}
+export async function versesJob(env, now = Date.now()) {
+  const { date } = nyParts(new Date(now));
+  const out = { job: 'verses', date, checked: [], notified: [], skipped: [] };
+  for (const pid of await anyAdultIds(env)) {
+    if ((await prefsFor(env, pid)).verses !== true) { out.skipped.push({ profile: pid, why: 'pref_off' }); continue; }   // off unless they turned it on
+    const profile = { id: pid };
+    const [mem, recall] = await Promise.all([
+      rowMap(env, { appId: 'f260', scope: 'person', profile, prefix: 'mem:', legacyKey: 'f260.mem' }),
+      rowMap(env, { appId: 'f260', scope: 'person', profile, prefix: 'recall:', legacyKey: 'f260.recall' }),
+    ]);
+    const due = versesDue(mem, recall, date).length;
+    out.checked.push({ profile: pid, due });
+    if (!due) { out.skipped.push({ profile: pid, why: 'nothing_due' }); continue; }
+    await notify(env, out, pid, 'verses', { title: 'Verses', body: due === 1 ? '1 verse to review today.' : `${due} verses to review today.`, url: '#verses', tag: 'verses' }, { ttl: 3 * 3600 }, now);
+  }
+  return out;
+}
+
+export const JOBS = { morning: morningJob, evening: eveningJob, behind: behindJob, prayer: prayerJob, prayedfor: prayedForJob, park: parkJob, praytime: prayTimeJob, verses: versesJob };
 
 /**
  * What a cron firing at `now` runs (the cron fires every 15 min): every firing of the 8 o'clock hour, New York -> morning +
  * prayer; of the 20 o'clock hour -> behind on Sundays + prayer + prayedfor (a push that failed at :00 is tried again at
  * :15, :30, :45; the once-a-day gate and the prayer memory keep anyone from being told twice); every firing -> evening (the
  * reading nudge, which picks the people whose chosen time's hour this is, 8 pm unless they chose another; IMP-F260-F4),
- * park and praytime (likewise). main = the first firing of 8 am / 8 pm (the guest and kids'-chat clean-ups run then).
+ * park and praytime (likewise); every firing of the 19 o'clock hour -> verses (IMP-VERSES-I2, the evening verse review).
+ * main = the first firing of 8 am / 8 pm (the guest and kids'-chat clean-ups run then).
  */
 export function jobsAt(now) {
   const { hour, minute, weekday } = nyParts(new Date(now));
   const main = minute < 15 && (hour === 8 || hour === 20);
   // every firing of the 8 o'clock and 20 o'clock hours runs that hour's jobs (review of batch 2b): a push that failed at
   // 8:00 is tried again at 8:15, 8:30 and 8:45; the once-a-day gate (delivered pushes only) and the prayer job's own memory
-  // keep anyone from being told twice
-  const names = hour === 8 ? ['morning', 'prayer'] : hour === 20 ? [...(weekday === 'Sun' ? ['behind'] : []), 'prayer', 'prayedfor'] : [];
+  // keep anyone from being told twice. The 7 pm hour's verse review works the same way.
+  const names = hour === 8 ? ['morning', 'prayer'] : hour === 19 ? ['verses'] : hour === 20 ? [...(weekday === 'Sun' ? ['behind'] : []), 'prayer', 'prayedfor'] : [];
   return { hour, minute, weekday, main, names: ['evening', ...names, 'park', 'praytime'] };
 }
 /**

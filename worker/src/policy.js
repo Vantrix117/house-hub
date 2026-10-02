@@ -186,6 +186,16 @@ export async function writeError(profile, { appId, scope, key, value }, cur, loa
     if (m && m[2] !== self) return 'not_yours';                         // Kid Verse, signed in as that kid, is the only writer
     if ((lk === 'week' || lk.startsWith('ledger:')) && !isHouseholdAdult(profile)) return 'household_only';
   }
+  // Verses' household verse text (batch 5, GAP-VERSES-1): its family rows are only text:<week>-<i> (week 1-52, i 0|1), each
+  // either cleared (null) or { text: 1-4000 characters, by: the writer's own id, at }, written by a grown-up (a household
+  // adult or a guest — kind 'adult'). Kids, the TV and the kitchen are refused here as well as by the rules below.
+  if (appId === 'verses' && scope === 'family') {
+    const m = /^text:(\d{1,2})-([01])$/.exec(key);
+    if (!m || +m[1] < 1 || +m[1] > 52) return 'bad_key';
+    if (profile.kind !== 'adult') return 'household_only';
+    if (value != null && !(obj(value) && typeof value.text === 'string' && value.text.trim() && value.text.length <= 4000 && value.by === self
+      && Object.keys(value).every(k => k === 'text' || k === 'by' || k === 'at') && (value.at === undefined || Number.isFinite(value.at)))) return 'bad_value';
+  }
   if (appId === 'dollywood-live' && scope === 'family') {
     if ((lk.startsWith('kidshare:') || lk.startsWith('kid:') || lk === 'meet') && !(isHouseholdAdult(profile) || (lk === 'meet' && profile.kind === 'adult'))) return 'household_only';
     const m = /^loc:(.+)$/i.exec(key);

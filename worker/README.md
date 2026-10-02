@@ -18,7 +18,7 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 | `src/data.js` | `app_data` last-write-wins upsert, listing, tombstones |
 | `src/policy.js` | Who may read and write which rows (kids, guests, the kitchen, app visibility from `../apps.json`); every data and chat write goes through `guardedPut()` |
 | `src/push.js` | Web Push encryption (RFC 8291) + VAPID, WebCrypto only |
-| `src/reminders.js` | the reminder jobs (morning, evening, behind, prayer, prayedfor, park, praytime), `jobsAt()` (what a 15-min cron firing runs) and `pushTo()` |
+| `src/reminders.js` | the reminder jobs (morning, evening, behind, prayer, prayedfor, park, praytime, verses), `jobsAt()` (what a 15-min cron firing runs) and `pushTo()` |
 | `src/chat.js` | `/api/chat`: Claude tool loop, guards, streaming |
 | `migrations/` | one-off schema migrations already applied to the live DB |
 | `../scripts/set-pairing-code.mjs` | Prompts for the pairing code and stores **only its hash** |
@@ -175,7 +175,7 @@ POST /api/admin/pairing-code/rotate     {code?}  (omit code → one is generated
 GET  /api/admin/usage                   chat messages / push sends per profile per New York day (the chat limit's day; tz: 'America/New_York'),
                                         devices (with role)
 DELETE /api/admin/devices/:id
-POST /api/admin/cron/run                {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime'}  run one reminder job now, ignoring the clock (evening: everyone's reading time too)
+POST /api/admin/cron/run                {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime' | 'verses'}  run one reminder job now, ignoring the clock (evening: everyone's reading time too)
                                         (expired guests are silenced first, so a forced job cannot reach them either)
 
 Cron (wrangler.toml [triggers]): every 15 minutes; what runs is read off the New York time of the firing — see src/reminders.js
@@ -204,8 +204,8 @@ out or taken over from another paired device; the admin's reset-pin ("Clear PIN"
 
 The cron fires every 15 minutes (batch 2b; one trigger). `jobsAt()` reads the New York time of the firing and runs the
 8 am jobs at every firing of the 8 o'clock hour and the 8 pm jobs at every firing of the 20 o'clock hour (a failed push is tried
-again at :15, :30 and :45; the once-a-day gate and the prayer memory keep anyone from being told twice); `evening`, `park`
-and `praytime` run at every firing and pick whom it concerns:
+again at :15, :30 and :45; the once-a-day gate and the prayer memory keep anyone from being told twice), and `verses` at every
+firing of the 19 o'clock hour (batch 5) the same way; `evening`, `park` and `praytime` run at every firing and pick whom it concerns:
 
 | Job | When | Who | Rule |
 |---|---|---|---|
@@ -216,15 +216,16 @@ and `praytime` run at every firing and pick whom it concerns:
 | `prayedfor` | 8 pm | whoever added a family request (`by`) | someone else's id (or name) under today's `prayedBy` on it: "Elizabeth prayed for your request today: Grandma's surgery."; several requests name each one's own people ("Prayed for your requests today: Grandma's surgery (Eli and Ezra); Sam's job (Mae)."). Once a day (GAP-PRAYER-1) |
 | `park` | every run (15 min) | household adults | park day = any family `dollywood-live` `loc:*` marker fresher than 4 h; alert when the house last heard from a kid's marker 20 min–12 h ago while at least one household adult's (never a guest's) is ≤ 30 min old ("Ezra's spot has not updated for 35 min."). Ages are the Worker's own clock (the row's `synced_at`), never the phone's `t`, so a phone with a slow clock that keeps publishing is never "quiet". Each quiet spell (the kid's marker as last heard) is told once per adult, remembered in `settings.park_alerts` (`{kid: {t, told}}`); a failed push or a late subscriber is told at the next run (P2-PWA-02). `scripts/test-park.mjs` proves it in process |
 | `praytime` | every run (15 min) | the person | `push_pref:prayAt` (or the old `push_prefs.prayAt`; "HH:MM", New York, on the half hour in Me): the firing falls in that time's hour: "Time to pray — 3 on your list, 5 on the family list." (no private titles). Once a day (GAP-PRAYER-1) |
+| `verses` | 7 pm (every firing of the hour) | adults (guests too: their own review) who turned it on | IMP-VERSES-I2: `push_pref:verses` = true (it starts off). The due count is the house's own, from the person's F260 rows, never Verses' summary row: a memorised verse (`mem:<week>-<i>` over the old `f260.mem`; week 1–52, i 0 or 1) is due when its `recall:<id>` row (over `f260.recall`) has no valid `due` day or one on or before today (`versesDue()`, the same rule as `apps/verses.html` `dueIds()` for a grown-up). Sent only when due > 0: "3 verses to review today." (url `#verses`). Once a day; kids, the display and the kitchen never. `audits/tools/phase6/5/cron-check-5.mjs` proves the hour and the rules in process |
 
-Morning, evening, behind, prayedfor and praytime send at most once per person per day (`push_log`, counting only a push some
+Morning, evening, behind, prayedfor, praytime and verses send at most once per person per day (`push_log`, counting only a push some
 device took, P2-PWA-11); prayer and park use their own memory (above). Every kind honours the person's switch: one row per kind,
 `app_data(person, hub, 'push_pref:<kind>')`, over the old whole row `push_prefs` (read-only base; default on; `prayAt` unset = no
-reminder; `readAt` unset = the reading nudge at 8 pm; the switches and both times are in Me → Notifications), and can be forced with
+reminder; `readAt` unset = the reading nudge at 8 pm; `verses` is the one switch that starts OFF; the switches and both times are in Me → Notifications), and can be forced with
 `POST /api/admin/cron/run {job}` as the admin (the forced call returns that one job's result, the reading nudge whatever anyone's time; a scheduled run returns
 `{nyHour, nyMinute, weekday, main, ran: [...]}`). The household kinds (morning, prayer, park) never go to a guest (PWA-UX-2).
 `pushTo()` skips and deletes a subscription it cannot encrypt for (P2-PWA-10), and puts `to: <profile>` in every payload.
-`scripts/test-push2.mjs <code>` proves the three round-2 kinds end to end against `scripts/push-receiver.mjs`.
+`scripts/test-push2.mjs <code>` proves the three round-2 kinds and the evening verse review end to end against `scripts/push-receiver.mjs`.
 
 "Read today" for the evening job and `GET /api/f260/readers` is the person's `log:<date>` row, or — when that row is an
 untick another device's earlier tick outlived — a reading still ticked that day (`f260UntickOutlived`). Readings a Reset's

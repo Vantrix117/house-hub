@@ -21,16 +21,17 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 <style>
   /* Verses — a memory-verse trainer over the F260 memory verses (a Leitner box system).
      One card at a time: the reference in big type, the person recites from memory, taps Show, then rates
-     Got it / Almost / Not yet. Adults also see the queue and their boxes; kids get this week's two verses and huge buttons.
+     Got it / Almost / Not yet. Adults also see the queue and their boxes; kids get the one verse Kid Verse teaches this week and huge buttons.
      Every colour is a design.css token (audit batch 1: the v3 roles; legacy --olive/--muted names retired here): the page is a
-     mint wash with the person's own wash in the corner; the trainer and done cards are solid content, glass is kept for the
-     controls (the pill and Read aloud). */
+     mint wash with the person's own wash in the corner; the trainer and done cards are solid content, and so are the
+     buttons inside them (batch 5, CONS-GLASS-2: Read aloud and Practise again are solid secondaries); glass is kept for
+     the pill, which floats over the page. Every glyph is the shared sprite (icons/sprite.svg; CONS-ICON-1). */
   html, body { min-height: 100%; }
   body.ds {
     /* the pre-pass: a bare hue read as a background moves to its -fill / -wash (P4-COLOR-01); no --sheen-x at the page level
        (P4-GLASS-01: it is written on the two bars only) */
     background:
-      radial-gradient(120% 70% at 30% -10%, color-mix(in srgb, var(--mint-fill) 60%, transparent), transparent 60%),
+      radial-gradient(120% 70% at 30% -10%, var(--mint-wash), transparent 60%),   /* the hue's own wash token, not a mix (CONS-TOK-3) */
       radial-gradient(90% 50% at 100% 100%, var(--accent-wash), transparent 55%),
       var(--bg);
     background-attachment: fixed;
@@ -38,24 +39,77 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     overflow-x: hidden;
   }
   .wrap { max-width: var(--col-read); margin: 0 auto; display: grid; gap: var(--sp-4); }
-  /* room under the last card for the shared toast, so the rating toast never has to sit on the stats or the queue (UX-VERSES-6) */
-  .ds .wrap { padding-bottom: calc(var(--sp-16) + var(--sp-6) + var(--safe-bottom)); }
+  /* The rating's result line (Worker A, rescore 5; it replaces the shared toast for ratings, so nothing covers the pill,
+     the kicker, a box label, a reference or a button — UX-VERSES-6): "<word> — <ref>. Next review in N days." with Undo,
+     at the top of the card on screen (the trainer, or the done card when the queue empties). It is a polite status line.
+     Its row is reserved from the first rating of the visit on (.armed), so neither its arrival on the next card nor its
+     fading after 10 s moves anything: it fades (the motion tokens; instant under Reduce Motion) and keeps its space.
+     Before any rating it takes no room. Undo is 44 px, 64 px for a kid. */
+  /* (B) scoped to the line itself: #trainer also takes the class .rated during its 400 ms guard (P3-VERSES-12) */
+  p.rated { display: none; }
+  /* (B, review round 7) in the trainer the line's row is kept from the first paint, empty and invisible until the first
+     rating, so the first result never pushes the next card down under the finger; it costs its room once, never a jump.
+     The done card still shows it only once armed. */
+  .ds .trainer > p.rated:not(.armed) { display: grid; visibility: hidden; min-height: var(--tap); margin: 0; }
+  :root[data-kind="kid"] .ds .trainer > p.rated:not(.armed) { min-height: max(64px, var(--tap)); }
+  /* (B, final rescore A) ONE slot at the top of an adult's card: the kicker row (Week N · verse i, the chip) and the result
+     line share the first grid row, so the slot is as tall as the taller of the two from the first paint and nothing moves
+     when the line comes or goes. Before a rating it shows the kicker; for the line's 10 s the line replaces it (the kicker
+     is hidden, so it is not read twice); when the line fades the kicker comes back. A kid's line stays at the foot. */
+  :root:not([data-kind="kid"]) .ds .trainer > :is(p.rated, .kick) { grid-row: 1; grid-column: 1; }
+  :root:not([data-kind="kid"]) .ds .trainer > .kick { align-self: start; }   /* the kicker hugs the card's top; a taller line takes the slot's full height */
+  :root:not([data-kind="kid"]) .ds .trainer:has(> p.rated.armed:not(.faded)) > .kick { visibility: hidden; }
+  /* before Show the room kept for the rating row sits at the FOOT of an adult's card (order), so "Add the verse text"
+     sits right under the buttons, not under an empty row; after Show the ratings take their place under Read aloud */
+  :root:not([data-kind="kid"]) .ds .trainer:not(.revealed) > #act-rate[hidden] { order: 1; }
+  /* a kid's line lives at the foot of the trainer (the script moves it there with the first paint of a card); before that,
+     still first in the markup while the card loads, it takes no room, so nothing moves up when it goes */
+  :root[data-kind="kid"] .ds .trainer > p.rated:first-child:not(.armed) { display: none; }
+  p.rated.armed { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0 var(--sp-3); text-align: start; min-height: var(--tap); margin: 0; color: var(--text-2); font-size: var(--fs-sm); font-weight: var(--fw-semibold); line-height: var(--lh-snug); text-wrap: balance; transition: opacity var(--dur-base) var(--ease-standard), visibility 0s linear var(--dur-base); }
+  p.rated.armed.faded { opacity: 0; visibility: hidden; }
+  .ds p.rated .btn { min-height: var(--tap); min-width: var(--tap); padding: var(--sp-1) var(--sp-4); font-size: var(--fs-sm); background: var(--accent-fill); color: var(--accent-ink); border-color: transparent; box-shadow: none; }   /* (B, round 7) Undo reads as a button: the soft fill */
+  :root[data-kind="kid"] p.rated.armed { min-height: max(64px, var(--tap)); font-size: var(--fs-lg); }
+  :root[data-kind="kid"] .ds p.rated .btn { min-height: max(64px, var(--tap)); min-width: max(64px, var(--tap)); font-size: var(--fs-lg); }
+  .ds .done > p.rated.armed { justify-self: stretch; }
+  p.rated .cv { white-space: nowrap; }   /* a reference in the line stays whole, if the script marks it */
+  /* (B, rescore follow-up) the words and Undo share one row, words left, Undo right: two short lines of words fit in the
+     44 px row, so the line costs one row, not three, and Show stays on a small phone's first screen */
+  /* a little room under the last card (no toast sits over it: the rating result is a line in the card) */
+  .ds .wrap { padding-bottom: calc(var(--sp-6) + var(--safe-bottom)); }
 
   /* who + how many to go, on a glass pill */
   .top { display: flex; justify-content: center; }
   .ds .top .pill { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--tap); padding: var(--sp-2) var(--sp-5); border-radius: var(--r-full); color: var(--text); }
-  .ds .top .pill .avatar { --size: 28px; font-size: 16px; }
-  .top .pill b { color: var(--mint-ink); }
+  .ds .top .pill .avatar { --size: var(--icon-lg); }   /* 28 px x the kind's icon scale; design.css sizes the emoji from --size (CONS-TYPE-2, GAP-TOK-4) */
+  .top .pill b { color: var(--mint-ink); white-space: nowrap; }   /* "2 to go" stays together beside a long name (review round 4) */
 
   /* the card: the reference big, then the hidden part (verse text if F260 has it), then the buttons. A SOLID content card on
      the house card radius (VIS-VERSES-2, P4-GLASS-02, CONS-SHAPE-1: no live blur in the scroller).
-     min-height fits the tallest state (three stacked ratings at phone width) so the card never grows on Show. */
-  .ds .trainer { display: grid; gap: var(--sp-4); text-align: center; padding: var(--sp-6) var(--sp-4); min-height: 448px; align-content: start; }
-  :root[data-kind="kid"] .ds .trainer { min-height: 610px; }   /* holds the revealed card (three stacked kid buttons on the v3 kid scale) so Show never makes it jump */
-  @media (min-width: 560px) { .ds .trainer, :root[data-kind="kid"] .ds .trainer { min-height: 380px; } }
+     Sized to its content (VIS-VERSES-1, batch 5: the fixed 448 / 610 / 380 px min-heights are gone). So that Show never makes
+     it jump, the card reserves ONLY what Show adds: before Show the rating row is laid out but invisible (visibility, so it
+     is neither seen, focused nor read; its [hidden] stays for the script and the tests), and Read aloud keeps the row it
+     shared with Show. After Show nothing is reserved. Nothing is reserved where no Show is offered (the display). */
+  .ds .trainer { display: grid; gap: var(--sp-4); text-align: center; padding: var(--sp-6) var(--sp-4); align-content: start; }
+  .ds .trainer:has(> #act-show:not([hidden]) > #show:not([hidden])) > #act-rate[hidden] { display: grid !important; visibility: hidden; }
+  /* a card with text offers "Edit the text" after Show: its row is kept before Show too */
+  :root:not([data-kind="kid"]) .ds .trainer:not(.revealed):has(> #text:not([hidden])):has(> #act-show:not([hidden]) > #show:not([hidden])) > #edittext[hidden] { display: inline-flex !important; visibility: hidden; }
+  /* a tapped Due today / Coming up row scrolls the card to the top, a little clear of the edge (the rating result is a
+     line in the card now, so no toast band needs to be kept free up there) */
+  .ds .trainer { scroll-margin-top: calc(var(--safe-top) + var(--sp-4)); }
+  /* the ratings scrolled into view after Show stop clear of the bottom edge and the home indicator (review round 2) */
+  .ds #act-rate { scroll-margin-bottom: calc(var(--sp-4) + var(--safe-bottom)); }
+  /* "Add / Edit the text" and its editor sit UNDER the buttons (rescore follow-up; Record is a compact row right under them, round 7), so on a small phone
+     Show is on the first screen even with the text and the recorder; nothing above Read aloud and Show arrives late on a
+     card without text (MOTION/cls), and the one band kept before Show is the rating row's, right under the buttons */
   /* the kicker row is as tall as the box chip before the chip arrives, so the reference does not step down when the first
      pull lands (GAP-MOTION-1 / CONS-MOTION-4: no block moves after first paint) */
   .trainer .kick { display: flex; justify-content: center; gap: var(--sp-2); flex-wrap: wrap; align-items: center; min-height: 28px; }
+  /* at phone width the chip sits on its own row under the kicker, and an adult's card keeps that row from the first paint, so
+     Read aloud and Show do not drop when the chip arrives with the data (CONS-MOTION-4, GAP-MOTION-1: the 27 px move) */
+  @media (max-width: 559.98px) {
+    .trainer .kick { flex-direction: column; gap: var(--sp-1); }
+    :root:not([data-kind="kid"]) .ds .trainer .kick > #boxchip[hidden] { display: inline-flex !important; visibility: hidden; }
+  }
   .trainer .kick .kicker { color: var(--mint-ink); }
   /* the reference: the display role, bold (VIS-VERSES-5: one display weight per card, the same as "All done for today";
      D6: rounded for a kid through the kid block). The verse text below stays the reading serif. */
@@ -69,15 +123,74 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   /* loading: the reference is a skeleton bar about as wide as a reference (design.css .ds .skeleton) */
   .ds .trainer h1.skeleton { width: min(72%, 340px); margin: 0 auto; border-radius: var(--r-lg); }
 
-  /* the buttons: capsules at the large button height (kids: 64 px or more), stacked at phone width (CONS-SHAPE-4) */
+  /* the buttons: capsules at the large button height (kids: 64 px or more; CONS-SHAPE-4); the rows below set their columns */
   .actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
   @media (min-width: 560px) { .actions { grid-template-columns: 1fr 1fr; } .actions.three { grid-template-columns: 1fr 1fr 1fr; } }
+  /* Read aloud and Show share one row of two equal columns at every width (a long word wraps inside its button); after Show,
+     Read aloud stays (P3-VERSES-06), centred at the same width, so its row keeps its height and Show adds only the rating row */
+  .ds #act-show { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ds .trainer.revealed #act-show > #say { grid-column: 1 / -1; justify-self: center; width: calc(50% - var(--sp-3) / 2); }
+  .ds #act-show > .btn { padding-inline: var(--sp-3); gap: var(--sp-2); }
+  @media (max-width: 559.98px) { .ds #act-show > .btn { padding-inline: var(--sp-2); font-size: var(--fs-md); } }   /* "Read aloud" fits its half of a 375 px phone */
+  .ds #act-show > .btn > span { overflow-wrap: break-word; }
+  /* a kid's two buttons: a picture beside its word, one kid-height row, so the picture ratings under them still fit on a
+     phone screen after "I said it" (review round 1) */
+  :root[data-kind="kid"] .ds #act-show > .btn { gap: var(--sp-2); min-height: var(--btn-h-lg); padding: var(--sp-2); border-radius: var(--r-inset); }
+  :root[data-kind="kid"] .ds #act-show > .btn .ico { width: var(--icon-lg); height: var(--icon-lg); }
+  /* (confirmation pass) a kid's "I said it" is the same reveal as Show, so it wears Show's eye: one drawing, one meaning
+     (the microphone is Record's, and would suggest the app is listening) */
+  :root[data-kind="kid"] .ds #act-show > .btn > span { font-size: var(--fs-md); line-height: var(--lh-tight); }
+  /* at the default text size both words stay on one line in their half of a 375 px phone (review round 2: "Read / aloud"):
+     the smaller glyph, a tighter gap and padding and the next type step; at XL and XXL a word may wrap */
+  :root[data-kind="kid"]:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds #act-show > .btn { gap: var(--sp-1); padding-inline: var(--sp-1); }
+  :root[data-kind="kid"]:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds #act-show > .btn .ico { width: var(--icon-md); height: var(--icon-md); }
+  :root[data-kind="kid"]:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds #act-show > .btn > span { font-size: var(--fs-sm); white-space: nowrap; }
   .ds .actions .btn { min-height: var(--btn-h-lg); font-size: var(--fs-lg); gap: var(--sp-3); padding: var(--sp-2) var(--sp-4); }
   :root[data-kind="kid"] .ds .actions .btn { min-height: max(64px, var(--btn-h-lg)); }
-  .ds .actions .btn .icon { width: 1.3em; height: 1.3em; flex: none; }
-  .ds .actions .btn-glass { --g: var(--glass-strong); }
+  /* the glyphs are the shared sprite (icons/sprite.svg, batch 5) at the house stroke and the --icon-md size x the person's text size */
+  .ds .actions .btn .ico { width: calc(var(--icon-md) * var(--ts-user, 1)); height: calc(var(--icon-md) * var(--ts-user, 1)); flex: none; }
+  /* each rating names its next review under the word (GAP-VERSES-2): the glyph spans both lines */
+  .ds .actions .btn[data-rate] { display: inline-grid; grid-template-columns: auto auto; align-items: center; justify-content: center; column-gap: var(--sp-3); row-gap: 0; }
+  .ds .actions .btn[data-rate] > .ico { grid-row: 1 / span 2; }
+  .ds .actions .btn[data-rate] > span, .ds .actions .btn[data-rate] > .nx { grid-column: 2; text-align: start; }
+  .ds .actions .btn[data-rate] > .nx { font-size: var(--fs-sm); font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
+  .ds .actions .btn[data-rate] > .nx:empty { display: none; }
+  :root:not([data-kind="kid"]) #act-rate:not(.pics) .pic { display: none; }
+  /* at phone width the three ratings share one row too, each its glyph over its word and its next review, so what Show
+     adds (and the room the card keeps for it before Show) is one row, not three stacked capsules (VIS-VERSES-1) */
+  @media (max-width: 559.98px) {
+    :root:not([data-kind="kid"]) .ds #act-rate:not(.pics) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-2); }
+    :root:not([data-kind="kid"]) .ds #act-rate:not(.pics) .btn[data-rate] { grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: center; row-gap: 0; padding: var(--sp-2) var(--sp-1); border-radius: var(--r-inset); }
+    :root:not([data-kind="kid"]) .ds #act-rate:not(.pics) .btn[data-rate] > .ico { grid-row: auto; margin-bottom: var(--sp-1); }
+    :root:not([data-kind="kid"]) .ds #act-rate:not(.pics) .btn[data-rate] > span, :root:not([data-kind="kid"]) .ds #act-rate:not(.pics) .btn[data-rate] > .nx { grid-column: 1; text-align: center; overflow-wrap: break-word; }
+  }
+  /* kids (UX-VERSES-1): three big picture buttons in one row — a big check, the adults' dashed circle, a try-again arrow (the star is kept for
+     rewards and the celebration, rescore follow-up) — each with its word under
+     it; no reading needed, every target well over 64 px */
+  :is(:root[data-kind="kid"] #act-rate, #act-rate.pics) .ico, :is(:root[data-kind="kid"] #act-rate, #act-rate.pics) .nx { display: none; }
+  .ds :is(:root[data-kind="kid"] #act-rate, #act-rate.pics) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ds :is(:root[data-kind="kid"] #act-rate, #act-rate.pics) .btn[data-rate] { grid-template-columns: auto; grid-template-rows: auto auto; justify-items: center; align-content: center; row-gap: var(--sp-1); min-height: calc(var(--btn-h-lg) * 1.25); padding: var(--sp-2); border-radius: var(--r-inset); }
+  .ds :is(:root[data-kind="kid"] #act-rate, #act-rate.pics) .btn[data-rate] > span { grid-column: 1; text-align: center; font-size: var(--fs-md); line-height: var(--lh-tight); overflow-wrap: break-word; }
+  :is(:root[data-kind="kid"] #act-rate, #act-rate.pics) .pic { width: var(--icon-xl); height: var(--icon-xl); }
+  /* at phone width with the two largest text sizes one row of three would break the words, so the ratings stack again,
+     one per row with the glyph (or the kid's picture) beside its words; the card still reserves exactly that before Show */
+  @media (max-width: 559.98px) {
+    :root:is([data-text-size="xl"], [data-text-size="xxl"]) .ds #act-rate#act-rate { grid-template-columns: minmax(0, 1fr); }   /* the doubled id outranks both row rules above */
+    :root:not([data-kind="kid"]):is([data-text-size="xl"], [data-text-size="xxl"]) .ds #act-rate:not(.pics) .btn[data-rate] { grid-template-columns: auto auto; justify-items: start; justify-content: center; column-gap: var(--sp-3); border-radius: var(--r-button); }
+    :root:not([data-kind="kid"]):is([data-text-size="xl"], [data-text-size="xxl"]) .ds #act-rate:not(.pics) .btn[data-rate] > .ico { grid-row: 1 / span 2; margin-bottom: 0; }
+    :root:not([data-kind="kid"]):is([data-text-size="xl"], [data-text-size="xxl"]) .ds #act-rate:not(.pics) .btn[data-rate] > :is(span, .nx) { grid-column: 2; text-align: start; }
+    :root[data-kind="kid"]:is([data-text-size="xl"], [data-text-size="xxl"]) .ds #act-rate .btn[data-rate] { grid-template-columns: auto auto; grid-template-rows: auto; justify-content: center; column-gap: var(--sp-3); min-height: var(--btn-h-lg); }
+    :root[data-kind="kid"]:is([data-text-size="xl"], [data-text-size="xxl"]) .ds #act-rate .btn[data-rate] > span { grid-column: 2; text-align: start; }
+  }
+  /* the 400 ms after a rating: the row ignores taps (P3-VERSES-12, the script guards too) */
+  .ds .trainer.rated #act-rate { pointer-events: none; }
+  /* the next card comes in on a short token transition, none under Reduce Motion (P3-VERSES-12) */
+  .ds .trainer.card-in { animation: verses-card-in var(--dur-gentle) var(--spring-gentle) both; }
+  @keyframes verses-card-in { from { opacity: 0; transform: translateY(var(--enter-distance)); } }
+  :root[data-motion="reduce"] .ds .trainer.card-in { animation: none; }
+  @media (prefers-reduced-motion: reduce) { :root:not([data-motion="full"]) .ds .trainer.card-in { animation: none; } }
   /* the reading-aloud pulse reads the motion tokens, so Reduce Motion (the OS or Me > Appearance) stills it (CONS-MOTION-5) */
-  .ds .btn.say.on .icon { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
+  .ds .btn.say.on .ico { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
   @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(var(--pulse-scale)); } }
   /* Show is .btn-primary as it stands: the person's solid with its -on label in both schemes (VIS-VERSES-4, D15).
      The three ratings are the semantic families, each with its own pair (the migration row; GAP-TOK-2, VIS-VERSES-3, -7):
@@ -96,41 +209,165 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 
   /* all done / nothing to train: a solid content card, the bold display title (VIS-VERSES-5) */
   .ds .done { text-align: center; display: grid; gap: var(--sp-3); justify-items: center; padding: var(--sp-8) var(--sp-4); }
-  .done .big { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-3xl); line-height: 1.1; letter-spacing: var(--ls-large-title); color: var(--text); margin: 0; text-wrap: balance; }
+  .done .big { font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-3xl); line-height: var(--lh-tight); letter-spacing: var(--ls-large-title); color: var(--text); margin: 0; text-wrap: balance; }
   .done p { margin: 0; color: var(--text-3); font-size: var(--fs-md); }
   .ds .done .btn { min-height: var(--btn-h-lg); font-size: var(--fs-md); }
   :root[data-kind="kid"] .ds .done .btn { min-height: max(64px, var(--btn-h-lg)); font-size: var(--fs-lg); }
-  /* the celebration star: the butter star, read by its outline (--star-fill / --star-stroke) */
-  .done .icon.star { width: 64px; height: 64px; fill: var(--star-fill); stroke: var(--star-stroke); stroke-width: 1.25; }
-  .ds .empty-art { width: min(200px, 60%); margin: 0 auto var(--sp-2); }
+  /* the celebration star: the sprite's one star drawing, filled butter and read by its outline (--star-fill / --star-stroke;
+     the sprite's i-star shape reads --sym-fill). Shown only after reviews (UX-VERSES-4). */
+  .ds .done svg.star { width: calc(var(--icon-xl) * 2); height: calc(var(--icon-xl) * 2); --sym-fill: var(--star-fill); color: var(--star-stroke); }
+  /* the spot art sits on the art plate so it reads in the dark palettes too (CONS-DARK-1's stopgap), and is not draggable */
+  .ds .empty-art { width: min(200px, 60%); margin: 0 auto var(--sp-2); background: var(--art-plate); border-radius: var(--r-control); }
+  .ds .empty-art img { display: block; width: 100%; height: auto; -webkit-user-drag: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 
   /* adults: stats and the queue */
   .ds .grown { display: grid; gap: var(--sp-4); }
-  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
-  .grown h2 .icon { width: 1.2em; height: 1.2em; color: var(--mint-ink); }
+  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); }   /* a long note wraps onto its own line, the title stays whole */
+  .ds .grown h2 .sym { width: calc(var(--icon-md) * var(--ts-user, 1)); height: calc(var(--icon-md) * var(--ts-user, 1)); color: var(--mint-ink); }
   .grown h2 small { font-weight: var(--fw-semibold); color: var(--text-3); font-size: var(--fs-sm); margin-left: auto; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
   .stats .stat b { color: var(--text); }
-  /* five Leitner boxes as a tiny histogram: daily … fortnightly. The bars are marks, so they read the mint -graphic
-     (>= 3:1 in every palette); an empty box is a >= 3:1 --cell-empty stub (VIS-VERSES-7: no dark-on-dark bars) */
+  @media (max-width: 559.98px) { .ds .stats .stat span { font-size: var(--fs-xs); } }   /* "reviewed today" fits its third of a phone on one line */
+  /* five Leitner boxes as a tiny histogram: daily … fortnightly. The height is the count; the TINT IS THE BOX (VIS-VERSES-6,
+     batch 5): the mint family's own five steps, wash to fill to fill-strong to graphic to ink-hi, lighter to deeper in the light
+     palettes and darker to brighter in the dark ones, so the row reads as progress whatever the counts (no colour mix:
+     CONS-TOK-3). Every bar is outlined in the mint -graphic (>= 3:1 on the card in every palette), so a pale first-box bar
+     still has a visible edge. An empty box is a >= 3:1 --cell-empty stub (VIS-VERSES-7). verses-look-5.mjs checks the order. */
   .boxes { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-2); align-items: end; }
   .boxes .bx { display: grid; gap: var(--sp-1); justify-items: center; text-align: center; }
   .boxes .col { width: 100%; height: 72px; display: flex; align-items: flex-end; }
-  .boxes .col i { display: block; width: 100%; min-height: 4px; height: calc(4px + 68px * var(--p, 0)); border-radius: var(--r-xs) var(--r-xs) 0 0; background: var(--mint-graphic); transition: height var(--dur-progress) var(--spring-gentle); }
-  .boxes .bx.zero .col i { background: var(--cell-empty); }
+  .boxes .col i { display: block; box-sizing: border-box; width: 100%; min-height: 4px; height: calc(4px + 68px * var(--p, 0)); border-radius: var(--r-xs) var(--r-xs) 0 0;
+    border: var(--border-w) solid var(--mint-graphic); border-bottom: 0; background: var(--mint-wash); transition: height var(--dur-progress) var(--spring-gentle); }
+  .boxes .bx:nth-child(2) .col i { background: var(--mint-fill); }
+  .boxes .bx:nth-child(3) .col i { background: var(--mint-fill-strong); }
+  .boxes .bx:nth-child(4) .col i { background: var(--mint-graphic); }
+  .boxes .bx:nth-child(5) .col i { background: var(--mint-ink-hi); }
+  /* dark palettes (rescore follow-up): the fill to the strong solid, so the low boxes are filled, not near-black outlines,
+     and the fifth box stops at the hue's solid instead of its palest ink; mint has no step between its graphic and its
+     strong in dark, so the fourth box borrows the neighbouring seafoam graphic (still darker than the fifth) */
+  :root[data-scheme="dark"] .boxes .bx:nth-child(1) .col i { background: var(--mint-fill); }
+  :root[data-scheme="dark"] .boxes .bx:nth-child(2) .col i { background: var(--mint-fill-strong); }
+  :root[data-scheme="dark"] .boxes .bx:nth-child(3) .col i { background: var(--mint-graphic); }
+  :root[data-scheme="dark"] .boxes .bx:nth-child(4) .col i { background: var(--seafoam-graphic); }
+  :root[data-scheme="dark"] .boxes .bx:nth-child(5) .col i { background: var(--mint-strong); }
+  .boxes .bx.zero .col i, :root[data-scheme="dark"] .boxes .bx.zero .col i { background: var(--cell-empty); border-color: var(--cell-empty); }
   /* numerals: the rounded numeral face with tabular figures (CONS-TYPE-3) */
   .boxes .n { font-family: var(--font-numeral); font-weight: var(--fw-bold); font-variant-numeric: var(--numeral-features); color: var(--text); }
   .boxes .lbl { font-size: var(--fs-xs); color: var(--text-3); font-weight: var(--fw-semibold); line-height: 1.2; }
   .queue { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
   .queue li { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); padding: var(--sp-2) 0; border-top: var(--border-w) solid var(--separator); flex-wrap: wrap; }
   .queue li:first-child { border-top: 0; }
-  .queue .rf { font-weight: var(--fw-bold); flex: 1; min-width: 0; color: var(--text); }
+  .queue .rf { font-weight: var(--fw-bold); flex: 1; color: var(--text); }   /* min-width stays auto: the reference never shrinks under its widest unbreakable part, so nothing overlaps it */
+  /* a reference never breaks at its hyphen ("20:1- / 3", review round 3): it stays whole and the chip and the day move to
+     the next line instead; at XL / XXL a long one may wrap rather than scroll sideways */
+  :root:not([data-text-size="xl"]):not([data-text-size="xxl"]) .queue .rf { white-space: nowrap; min-width: auto; }
   .queue .rf small { display: block; font-weight: var(--fw-semibold); color: var(--text-3); font-size: var(--fs-xs); }
   .queue .when { font-size: var(--fs-sm); color: var(--text-3); font-weight: var(--fw-semibold); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); }
   .queue li.now .when { color: var(--mint-ink); }
   .queue li.late .when { color: var(--warning-ink); }   /* overdue is a status: the warning ink (CONS-COLOR-4) */
   .queue .none { color: var(--text-3); font-size: var(--fs-sm); }
-  .ds .chip.box { background: var(--mint-fill); color: var(--mint-ink); min-height: 28px; font-size: var(--fs-xs); font-weight: var(--fw-bold); }
+  /* a chip is a label, not text to select: no selection, no long-press callout (CONS-TELL-1) */
+  .ds .chip.box { background: var(--mint-fill); color: var(--mint-ink); min-height: 28px; font-size: var(--fs-xs); font-weight: var(--fw-bold); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  /* a row in Due today / Coming up is one button: tap to practise that verse now (IMP-VERSES-F6). The row is the 44 px target,
+     the separator stays on the li, the verse on the card is marked with the selection fill */
+  .queue li:has(> .qrow) { padding: 0; }
+  /* two columns (review round 4): the row's words in the first (the reference first; its chip and day beside it, or under it
+     when the line is full), the chevron always in the second, so it never drops onto a line of its own */
+  .ds .queue .qrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--sp-3); width: 100%; min-height: var(--tap); margin: 0; padding: var(--sp-2) var(--sp-2);
+    border: 0; border-radius: var(--r-control); background: transparent; color: inherit; font: inherit; text-align: start; cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-standard), transform var(--dur-snappy) var(--spring-snappy), filter var(--dur-snappy) var(--ease-standard); }
+  .ds .queue .qrow > .sym { color: var(--text-3); }
+  .ds .queue .qbody { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-3); min-width: 0; }
+  .ds .queue .qbody > .when { margin-left: auto; }   /* a day that wraps under the reference keeps to the right, under the chip */
+  /* "20:1-3" and "Week 8" never break inside (a break between the book and the chapter is fine), at every text size */
+  .queue .rf .cv { white-space: nowrap; }
+  .ds .queue li.cur .qrow { background: var(--sel-fill); }
+  .ds .queue li.cur :is(.rf small, .when) { color: var(--text-2); }   /* --text-3 on --sel-fill was 4.19 / 4.26 in Frost */
+  /* controls are not text to select, and have no long-press callout (CONS-TELL-1) */
+  .ds :is(.queue .qrow, .pm-w, .pm-chunk, #pm-modes button, .rec-row .btn) { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  /* the house press (design.css .pressable): an instant press-in, a spring release; a row presses like a button */
+  .ds .queue .qrow:active { background: var(--hover); transform: scale(var(--press-scale)); filter: var(--press-dim); transition-duration: var(--dur-press); }
+  .ds .pm-w:not(.plain):not(:disabled):active, .ds .pm-chunk:not(:disabled):active { transform: scale(var(--press-scale)); filter: var(--press-dim); transition-duration: var(--dur-press); }
+  @media (hover: hover) and (pointer: fine) { .ds .queue .qrow:hover { background: var(--hover); } .ds .queue li.cur .qrow:hover { background: var(--sel-fill); } }
+
+  /* the kid card's paraphrase (UX-VERSES-1): Kid Verse's own words for the week, plainly labelled a paraphrase */
+  .ds .trainer .para { display: grid; gap: var(--sp-2); margin: 0; padding: var(--sp-4); border-radius: var(--r-control); background: var(--mint-wash); text-align: center; }
+  .trainer .para .kicker { color: var(--mint-ink); }
+  .trainer .para p { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-read); font-weight: var(--fw-semibold); color: var(--text); text-wrap: pretty; }
+  .trainer .para small { color: var(--text-3); font-size: var(--fs-sm); }
+  /* a short phone (iPhone SE, Safari with its bars): a kid reaches Read aloud and "I said it" without scrolling (review
+     round 3). The card and the paraphrase sit tighter, the hint and the paraphrase take the next type step down, and the
+     small print goes (the kicker above it already says "In our own words — a paraphrase"). XL / XXL may scroll. */
+  @media (max-height: 760px) {
+    :root:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds .trainer { padding-block: var(--sp-4); gap: var(--sp-3); }   /* adults too (rescore follow-up: Show on an iPhone SE's first screen) */
+    :root[data-kind="kid"]:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds .trainer .hint { font-size: var(--fs-md); }
+    :root[data-kind="kid"]:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds .trainer .para { padding: var(--sp-3); gap: var(--sp-1); }
+    :root[data-kind="kid"]:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds .trainer .para p { font-size: var(--fs-md); }
+    :root[data-kind="kid"]:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds .trainer .para small { display: none; }
+  }
+
+  /* the household's verse text (GAP-VERSES-1): Add / Edit sit centred under the text; the editor is a plain field */
+  .ds .trainer > #addtext, .ds .trainer > #edittext { justify-self: center; min-height: var(--tap); }
+  .ds .trainer .textedit { display: grid; gap: var(--sp-3); text-align: start; }
+  .trainer .textedit label { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-2); }
+  .ds .trainer .textedit textarea { width: 100%; min-height: calc(var(--tap) * 2.6); padding: var(--sp-3) var(--sp-4); resize: vertical;
+    border: var(--border-w) solid var(--field-border); border-radius: var(--r-control); background: var(--surface); color: var(--text);
+    font-family: var(--font-serif); font-size: var(--fs-field); line-height: var(--lh-read);
+    transition: border-color var(--dur-fast) var(--ease-standard); }
+  .ds .trainer .textedit textarea:focus { border-color: var(--accent-graphic); }
+  .trainer .textedit .note { margin: 0; font-size: var(--fs-sm); color: var(--text-3); text-wrap: pretty; }
+  .ds .trainer .textedit .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; }
+  .ds .trainer .textedit .actions .btn { flex: 1 1 auto; min-height: var(--tap); font-size: var(--fs-md); }
+
+  /* ── practice modes (IMP-VERSES-I3): the shared segmented control, then the mode's surface in the text's place. Every word
+     keeps its own width whether it is hidden or shown, so revealing never reflows the verse. ── */
+  .ds .trainer .pm { display: grid; gap: var(--sp-3); }
+  .ds .trainer .pm .seg { --seg-cell: 7.5em; }
+  @media (max-width: 559.98px) {   /* one row of four on a phone (rescore follow-up): a two-word label may take two short lines */
+    :root:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds .trainer .pm .seg.seg-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .ds .trainer .pm .seg button { padding-inline: var(--sp-1); font-size: var(--fs-sm); line-height: var(--lh-tight); }
+    /* at XL / XXL: two by two (7.5em cells did not fit two to a row, so it stacked four deep); words wrap whole */
+    :root:is([data-text-size="xl"], [data-text-size="xxl"]) .ds .trainer .pm .seg.seg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    :root:is([data-text-size="xl"], [data-text-size="xxl"]) .ds .trainer .pm .seg button { overflow-wrap: normal; word-break: normal; hyphens: manual; }
+  }
+  .trainer[data-pm] > #text { display: none !important; }
+  .ds .pm-area { margin: 0; padding: var(--sp-3) var(--sp-2); border-radius: var(--r-control); background: var(--surface-2); font-family: var(--font-serif); font-size: var(--fs-lg); line-height: var(--lh-read); color: var(--text); text-align: center; overflow-wrap: break-word; }
+  .ds .pm-area[hidden] { display: none; }
+  .ds .pm-words { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: var(--sp-1) var(--sp-2); }
+  /* a hidden word: its letters keep their room but are clear; a dotted line shows where it is; a tap shows it */
+  .ds .pm-w { display: inline-flex; align-items: center; justify-content: center; min-height: var(--tap); min-width: var(--tap); margin: 0; padding: 0 var(--sp-1); border: 0; border-bottom: var(--border-w) solid transparent; border-radius: var(--r-sm) var(--r-sm) 0 0; background: transparent; color: var(--text); font: inherit; line-height: inherit; cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-standard), transform var(--dur-snappy) var(--spring-snappy), filter var(--dur-snappy) var(--ease-standard); }
+  .ds .pm-w:disabled { cursor: default; }
+  .ds .pm-w .rest { color: transparent; }
+  .ds .pm-w:not(.plain):not(.shown) { border-bottom-color: var(--text-3); }   /* one solid hairline per hidden word (every word keeps a clear one, so showing it moves nothing) */
+  .ds .pm-w.gap .whole { color: transparent; }
+  .ds .pm-w.shown .rest, .ds .pm-w.shown .whole { color: inherit; text-decoration: none; }
+  .ds .pm-w.plain { cursor: default; min-width: 0; padding: 0; }
+  .ds .pm-w:not(.plain):not(.shown) { background: var(--fill-field); }
+  @media (hover: hover) and (pointer: fine) { .ds .pm-w:not(.plain):not(.shown):hover { background: var(--hover); } }
+  /* word order: the verse so far on top (the places still to fill are clear), the chunks to tap below */
+  .ds .pm-order { display: grid; gap: var(--sp-3); }
+  .ds .pm-pool { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-2); }
+  .ds .pm-chunk { min-height: var(--tap); padding: var(--sp-2) var(--sp-3); border: var(--border-w) solid var(--field-border); border-radius: var(--r-control); background: var(--surface); color: var(--text); font: inherit; font-size: var(--fs-md); line-height: var(--lh-tight); cursor: pointer; box-shadow: var(--elev-control);
+    transition: background var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard), transform var(--dur-snappy) var(--spring-snappy), filter var(--dur-snappy) var(--ease-standard); }
+  .ds .pm-chunk.used { visibility: hidden; }
+  .ds .pm-chunk.wrong { background: var(--danger-fill); border-color: var(--danger-graphic); color: var(--danger-ink); animation: verses-shake var(--dur-snappy) var(--ease-standard); }
+  @keyframes verses-shake { 25% { transform: translateX(calc(var(--enter-distance) * -.4)); } 75% { transform: translateX(calc(var(--enter-distance) * .4)); } }
+  .ds .pm-line .slot { color: transparent; text-decoration: underline var(--text-3); text-decoration-thickness: var(--border-w-strong); text-underline-offset: .25em; }
+  .ds .pm-line .slot.placed { color: inherit; text-decoration: none; }
+  .ds .pm-help { margin: 0; font-size: var(--fs-sm); color: var(--text-3); font-family: var(--font-text); }
+
+  /* ── record yourself (IMP-VERSES-I1): one row of glass buttons, a quiet note that the recording never leaves the device ── */
+  .ds .trainer .rec { display: grid; justify-items: center; }
+  .ds .trainer .rec[hidden] { display: none; }
+  .ds .rec-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--sp-1) var(--sp-3); }
+  .ds .rec-row .btn { min-height: var(--tap); font-size: var(--fs-md); gap: var(--sp-2); }
+  .ds .rec-row .btn.on { color: var(--danger-ink); }
+  .ds .rec-row .btn.on .sym { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
+  .ds .rec .rec-note { margin: 0; font-size: var(--fs-xs); color: var(--text-3); }
+  /* (round 7) the row is part of the Read aloud / Show group: it sits close under it */
+  .ds .trainer > #act-show + #rec:not([hidden]) { margin-top: calc(var(--sp-2) - var(--sp-4)); }
+  @media (max-height: 760px) { :root:not([data-text-size="xl"]):not([data-text-size="xxl"]) .ds .trainer > #act-show + #rec:not([hidden]) { margin-top: calc(var(--sp-2) - var(--sp-3)); } }
 
   /* the Kitchen iPad (UX-VERSES-7): on a touch screen 744 px or wider the reference and the three counts take the glance
      roles, so they read from across the kitchen */
@@ -145,52 +382,90 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   <div class="top"><span class="pill" id="who"><span>Loading…</span></span></div>
 
   <section class="card trainer" id="trainer" aria-busy="true">
+    <p class="rated" id="rated" role="status" aria-live="polite"><span id="rated-text"></span><button class="btn btn-ghost" id="rated-undo" type="button" hidden aria-keyshortcuts="U Control+Z Meta+Z" title="Undo (U)"><span>Undo</span></button></p>
     <div class="kick"><span class="kicker" id="kick">Memory verse</span><span class="chip box" id="boxchip" hidden></span></div>
     <h1 id="ref" class="skeleton" aria-hidden="true">&nbsp;</h1>
     <p class="hint" id="hint">Loading your verses…</p>
-    <p class="text veiled" id="text" hidden></p>
+    <div class="para" id="para" hidden><span class="kicker">In our own words — a paraphrase</span><p id="para-text"></p><small>A simple paraphrase for little ears — not the Bible's own words.</small></div>
+    <!-- B: how to practise (IMP-VERSES-I3, verses with text), above the text or the mode's surface; painted by B's script block -->
+    <div class="pm" id="pm" hidden>
+      <div class="seg seg-grid" id="pm-modes" role="group" aria-label="How to practise">
+        <button type="button" data-mode="recall" aria-pressed="true">Recall</button>
+        <button type="button" data-mode="letters" aria-pressed="false" aria-label="First letters">Letters</button>
+        <button type="button" data-mode="gaps" aria-pressed="false" aria-label="Fill the gaps">Gaps</button>
+        <button type="button" data-mode="order" aria-pressed="false" aria-label="Word order">Order</button>
+      </div>
+    </div>
+    <p class="text veiled" id="text" hidden aria-hidden="true" inert></p>
+    <!-- B: the practice mode's surface takes the text's place (IMP-VERSES-I3); painted by B's script block from verses.onCard -->
+    <div class="pm-area" id="pm-area" hidden></div>
     <div class="actions" id="act-show">
-      <button class="btn btn-glass say" id="say" type="button" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read aloud</span></button>
-      <button class="btn btn-primary" id="show" type="button" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Show</span></button>
+      <button class="btn say" id="say" type="button" disabled aria-disabled="true"><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-volume-2"/></svg><span>Read aloud</span></button>
+      <button class="btn btn-primary" id="show" type="button" disabled aria-disabled="true"><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-eye"/></svg><span>Show</span></button>
+    </div>
+    <!-- B: record yourself (IMP-VERSES-I1, adults): one compact row right under Read aloud / Show (review round 7), so it reads as
+         part of that group before Show (you record first, then compare after Show); painted by B's script block -->
+    <div class="rec" id="rec" hidden>
+      <div class="rec-row">
+        <button class="btn" id="rec-btn" type="button" aria-describedby="rec-note"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-mic"/></svg><span>Record</span></button>
+        <button class="btn" id="rec-play" type="button" hidden><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-play"/></svg><span>Play back</span></button>
+        <span class="rec-note" id="rec-note">Stays on this device</span>
+      </div>
     </div>
     <div class="actions three" id="act-rate" hidden>
-      <button class="btn btn-soft not" type="button" disabled aria-disabled="true" data-rate="not"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg><span>Not yet</span></button>
-      <button class="btn btn-soft almost" type="button" disabled aria-disabled="true" data-rate="almost"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg><span>Almost</span></button>
-      <button class="btn btn-primary got" type="button" disabled aria-disabled="true" data-rate="got"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><span>Got it</span></button>
+      <button class="btn btn-soft not" type="button" disabled aria-disabled="true" data-rate="not"><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-rotate-ccw"/></svg><svg class="sym pic" aria-hidden="true"><use href="../icons/sprite.svg#i-rotate-ccw"/></svg><span>Not yet</span><small class="nx"></small></button>
+      <button class="btn btn-soft almost" type="button" disabled aria-disabled="true" data-rate="almost"><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-circle-dashed"/></svg><svg class="sym pic" aria-hidden="true"><use href="../icons/sprite.svg#i-circle-dashed"/></svg><span>Almost</span><small class="nx"></small></button>
+      <button class="btn btn-primary got" type="button" disabled aria-disabled="true" data-rate="got"><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-check"/></svg><svg class="sym pic" aria-hidden="true"><use href="../icons/sprite.svg#i-check"/></svg><span>Got it</span><small class="nx"></small></button>
+    </div>
+    <!-- (moved by B, rescore follow-up: under the ratings so Show stays on a small phone's first screen) -->
+    <button class="btn btn-soft" id="addtext" type="button" hidden><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-pen-line"/></svg><span>Add the verse text</span></button>
+    <button class="btn btn-ghost" id="edittext" type="button" hidden><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-pen-line"/></svg><span>Edit the text</span></button>
+    <div class="textedit" id="textedit" hidden>
+      <label for="text-input" id="text-label">The verse text</label>
+      <textarea id="text-input" rows="4" autocomplete="off" spellcheck="true" aria-describedby="text-note"></textarea>
+      <p class="note" id="text-note">Everyone in the house who learns this verse sees the text you add here.</p>
+      <div class="actions">
+        <button class="btn" id="text-mic" type="button" hidden><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-mic"/></svg><span>Say it</span></button>
+        <button class="btn" id="text-cancel" type="button"><span>Cancel</span></button>
+        <button class="btn btn-ghost" id="text-clear" type="button" hidden><span>Remove the text</span></button>
+        <button class="btn btn-primary" id="text-save" type="button"><span>Save</span></button>
+      </div>
     </div>
   </section>
 
   <section class="card done" id="done" hidden>
-    <svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>
+    <svg class="sym icon star" aria-hidden="true"><use href="../icons/sprite.svg#i-star"/></svg>
     <h2 class="big" id="done-big">All done for today</h2>
     <p id="done-sub"></p>
-    <button class="btn btn-glass" id="again" type="button" hidden><span>Practise again</span></button>
+    <button class="btn" id="again" type="button" hidden><span>Practise again</span></button>
   </section>
 
   <section class="card done" id="empty" hidden>
-    <div class="empty-art"><img src="../art/app/verses.svg" alt="" width="200" height="160"></div>
+    <div class="empty-art"><img src="../art/app/verses.svg" alt="" width="200" height="160" draggable="false"></div>
     <h2 class="big">Nothing to train yet</h2>
-    <p>Mark a memory verse as memorised in F260 and it will show up here on its review day.</p>
+    <p>Mark a memory verse as memorised in F260 and you can review it here straight away.</p>
+    <button class="btn btn-primary" id="open-f260" type="button" hidden><svg class="sym ico" aria-hidden="true"><use href="../icons/sprite.svg#i-book-open"/></svg><span>Open F260</span></button>
   </section>
 
   <section class="card grown" id="stats" hidden>
-    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Your boxes<small id="stats-sub"></small></h2>
+    <h2><svg class="sym icon" aria-hidden="true"><use href="../icons/sprite.svg#i-chart-column"/></svg>Your verses<small id="stats-sub"></small></h2>
     <div class="stats">
-      <div class="stat"><b id="st-due">0</b><span>due today</span></div>
+      <div class="stat" hidden><b id="st-due">0</b><span>due today</span></div>
+      <div class="stat"><b id="st-today">0</b><span>reviewed today</span></div>
       <div class="stat"><b id="st-streak">0</b><span id="st-streak-lbl">day streak</span></div>
       <div class="stat"><b id="st-total">0</b><span>memorised</span></div>
     </div>
-    <div class="boxes" id="boxes" aria-label="Verses per Leitner box"></div>
+    <div class="boxes" id="boxes" role="img" aria-label="Your verses by how often they come back"></div>
   </section>
 
   <section class="card grown" id="queue" hidden>
-    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Due today<small id="queue-sub"></small></h2>
+    <h2 id="queue-h"><svg class="sym icon" aria-hidden="true"><use href="../icons/sprite.svg#i-list"/></svg>Due today<small id="queue-sub"></small></h2>
     <ul class="queue" id="queue-list"></ul>
-    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Coming up<small id="later-sub"></small></h2>
+    <h2><svg class="sym icon" aria-hidden="true"><use href="../icons/sprite.svg#i-clock"/></svg>Coming up<small id="later-sub"></small></h2>
     <ul class="queue" id="later-list"></ul>
   </section>
 </div>
-<script src="hub.js" data-app="verses" data-scope="person"></script>
+<script src="hub.js" data-app="verses" data-scope="both"></script>
 <script>
 (() => {
   'use strict';
@@ -199,31 +474,47 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
        mem:<week>-<i>  true | false            the verses the person has marked memorised, one row each (batch 0e); i = 0 | 1
                                                 is the verse's place in that week's pair, exactly as F260 keys it (PLAN[w-1].m[i]).
                                                 The old whole map f260.mem is the read-only base the rows override.
-       f260.verses  { "<week>-<i>": "text" }    verse text F260 has on file (pasted there once) — shown after Show when present
+       f260.verses  { "<week>-<i>": "text" }    verse text the person pasted in F260 once (read-only here); the household's
+                                                own text row below wins over it (GAP-VERSES-1)
+     Family scope (app verses) — the verse text, ONCE PER VERSE FOR THE HOUSEHOLD (GAP-VERSES-1):
+       text:<week>-<i>  { text, by, at }        typed or pasted in Verses ("Add the verse text") by a household adult or a
+                                                guest (worker/src/policy.js already lets an adult write the family rows of an
+                                                app they can open; kids, the TV and the kitchen cannot); everyone who trains
+                                                that verse sees it after Show. Edit and Remove (a tombstone: F260's paste,
+                                                if any, shows again). No verse text ships in this file.
      Writes (app f260, person scope) — one row per verse, recall:<week>-<i> (batch 0e, P3-VERSES-02: two devices'
      ratings of different verses both survive; the old whole map f260.recall is the read-only base), with F260's own
      fields and the Leitner fields. F260's practice rating changes only s and t on the same row:
        recall:<id>  {
                         s: 'got' | 'not',       F260's own field: 'not' lists the verse in its "Practice again" row
-                                                (Got it → 'got'; Almost and Not yet → 'not')
+                                                (Got it -> 'got'; Almost and Not yet -> 'not')
                         t: 1758000000000,       F260's own field: ms timestamp of the last rating
                         box: 1..5,              Leitner box — 1 reviews daily, 5 every two weeks
                         due: 'YYYY-MM-DD',      next review day = last + [1, 2, 4, 7, 14][box - 1] days
                         last: 'YYYY-MM-DD',     the last review day
                         streak: n               consecutive "Got it" ratings on this verse
                       }
-       Got it moves the box up (max 5), Almost holds it, Not yet moves it down (min 1). A verse with no recall row (or a
-       pre-Leitner one from F260 with only s/t) counts as box 1 and due now.
+       Got it moves the box up (max 5), Almost holds it, Not yet sends it back to box 1, due tomorrow (classic Leitner,
+       GAP-VERSES-2). A verse with no recall row (or a pre-Leitner one from F260 with only s/t) counts as box 1 and due
+       now. On screen the boxes are never named: each rating button shows its next interval, the toast the real next
+       review, the card "Reviewed 4 days ago", the lists "in 4 days" and the histogram its own labels (UX-VERSES-9).
+       Undo (10 s, UX-VERSES-2) puts the verse's previous row back by value, only while the row is still the one this
+       rating wrote (a newer review from another device is kept), and takes back the rev: count.
      Own person scope (app verses):
        rev:<date>:<id>:<device>  n              ratings of that verse on that day on that device (batch 0e), so two devices
                                                 reviewing on the same day both count; a day's total is their sum plus the old
                                                 log map's count
-       log          { 'YYYY-MM-DD': n }         (before batch 0e; read-only) ratings per day — the day streak is consecutive
-                                                days with ≥ 1
+       log          { 'YYYY-MM-DD': n }         (before batch 0e; read-only) ratings per day
+       The day streak (P3-VERSES-11, dayStreak below) counts the days with ≥ 1 rating; a day with nothing due keeps it,
+       today is pending until it ends, and only a past day with something due and nothing rated breaks it.
        summary      { due, streak, boxes: [b1..b5], total, reviewedToday, week, at }   for the Home card (read by index.html,
                                                 never by this app); refreshed on open and after every rating
-     Kids see the current family week's two verses (app kidverse, family scope, key 'week' — the week Kid Verse shows)
-     and never the stats; their ratings land in their own recall rows the same way. ─────────────────────────────── */
+     Kids practise ONE verse: the one Kid Verse teaches in the current family week (app kidverse, family scope, key 'week';
+     KIDWORDS[w - 1][0] says which of the two), never the stats; their ratings land in their own recall rows the same way,
+     and older rows of other verses stay but are neither shown nor counted. Its card shows and reads aloud Kid Verse's
+     paraphrase, labelled one (UX-VERSES-1), and the
+     ratings are picture buttons (a check, a dashed circle, a try-again arrow). Kids never see verse text or the text editor.
+     B's practice modes keep the chosen mode in one person row 'mode' (IMP-VERSES-I3). ─────────────────────────── */
 
   // the 52 weeks of F260 memory verses, two per week, copied from apps/f260.html PLAN[w-1].m (references only)
   const REFS = [
@@ -245,7 +536,71 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   const BOX_LABELS = ['Daily', '2 days', '4 days', 'Weekly', '2 weeks'];
   const F260 = { app: 'f260', scope: 'person' };
   const FAMILY_WEEK = { app: 'kidverse', scope: 'family' };
+  // this app's family rows: the household's verse text (text:<id>). Verses is scope "both" (data-scope above and apps.json):
+  // its own rows (log, rev:, summary, mode) stay person scope, the default for an unscoped hub.get/set/list here.
+  const HOUSE = { app: 'verses', scope: 'family' };
   hub.use('f260', 'person').use('kidverse', 'family');
+  // Kid Verse's own one-sentence paraphrase for each week — a copy of apps/kidverse.html's week table as [which of the two
+  // refs it is for, the words] (the third copy, after index.html's TV board; scripts/test-verses.mjs checks it is exact).
+  // A kid's card for that verse shows it, labelled a paraphrase, and Read aloud reads it (UX-VERSES-1).
+  const KIDWORDS = [
+    [0, 'God made people to be like him — boys and girls both.'],
+    [0, 'To come close to God you have to trust him, and he is glad to reward everyone who looks for him.'],
+    [0, 'Abraham believed God’s promise even when it seemed impossible, and God counted that as doing right.'],
+    [1, 'Let’s love people not just with words, but with the kind things we do.'],
+    [0, 'God works everything out for good for the people who love him.'],
+    [0, 'What Joseph’s brothers meant to hurt him, God used for good to save many lives.'],
+    [0, 'John saw Jesus and said: look, the Lamb of God, who takes away the sin of the world.'],
+    [0, 'God said: I am the Lord who rescued you, so have no other gods but me.'],
+    [1, 'Jesus said the biggest rule is to love God with everything you have, and the next is to love the people around you like yourself.'],
+    [1, 'Be strong and brave, because God goes ahead of you and will never leave you.'],
+    [1, 'Love God with all your heart, and talk about his words at home, on the road, at bedtime and in the morning.'],
+    [0, 'Keep God’s words with you, be strong and brave, and don’t be afraid, because God is with you everywhere you go.'],
+    [0, 'Joshua said: you choose who you will serve, but my family and I will serve the Lord.'],
+    [0, 'Lord, may the words I say and the thoughts I think make you happy.'],
+    [1, 'People look at the outside, but God looks at the heart.'],
+    [0, 'David told the giant: this battle belongs to the Lord, not to swords and spears.'],
+    [0, 'The Lord is my shepherd; he gives me everything I need and leads me to quiet places to rest.'],
+    [1, 'I keep God’s word in my heart so I will not do wrong.'],
+    [0, 'God knows all about me — when I sit, when I stand, and every road I take.'],
+    [1, 'Trust God with all your heart instead of only your own ideas, and he will show you the way.'],
+    [1, 'I want God the way a thirsty person in a hot, dry land wants water.'],
+    [1, 'Jesus said: I am the resurrection and the life — whoever believes in me will live, even after dying.'],
+    [0, 'Jesus was hurt for the wrong things we did, and his hurts make us well.'],
+    [0, 'When people stop listening to God they run wild, but the ones who keep his word are happy.'],
+    [0, 'God promises to give his people a soft new heart and to put his own Spirit inside them.'],
+    [0, 'The king said everyone should honour Daniel’s God, because he is alive forever and he rescues people.'],
+    [0, 'God is with you, he is glad about you, and he sings over you with joy.'],
+    [1, 'I will not put worthless things in front of my eyes.'],
+    [0, 'When people tried to scare Nehemiah, he prayed: God, make my hands strong.'],
+    [1, 'All of God lives in Jesus, and through Jesus God makes peace with everything.'],
+    [1, 'God’s Word became a real person, Jesus, and came to live here with us.'],
+    [0, 'Let your light shine so people see the good you do and say thank you to God.'],
+    [1, 'Jesus said following him means putting him first, ahead of everything you have.'],
+    [0, 'Jesus came not to be served but to serve, and to give his life for many people.'],
+    [0, 'Jesus said: love one another the way I loved you, and everyone will know you are my friends.'],
+    [0, 'Even on the cross, Jesus prayed: Father, forgive them.'],
+    [0, 'Jesus said: go and tell everyone about me, and remember, I am with you always.'],
+    [0, 'The first believers kept learning, sharing meals and praying together.'],
+    [0, 'When hard things come, be glad, because they make your trust in God strong.'],
+    [1, 'God made the whole world and gives everyone life and breath; he doesn’t need anything from us.'],
+    [0, 'The story of the cross sounds silly to some people, but to us who are being saved it is God’s power.'],
+    [1, 'Faith, hope and love last forever, and the greatest of them is love.'],
+    [1, 'Jesus died for our sins, was buried, and rose again on the third day.'],
+    [0, 'Because we trust Jesus, we have peace with God.'],
+    [0, 'Anyone who belongs to Jesus is not in trouble with God any more.'],
+    [0, 'Paul said: what matters is finishing the job Jesus gave me — telling people the good news.'],
+    [0, 'God saved us as a gift, not because we earned it, and he made us to do good things.'],
+    [1, 'Jesus understands how we feel, so we can come to God bravely and find help right when we need it.'],
+    [1, 'Anyone who belongs to Jesus is a brand-new person.'],
+    [1, 'Work hard to be someone God is pleased with, handling his word the right way.'],
+    [1, 'Real love is God sending Jesus for us — so we should love each other too.'],
+    [1, 'God will live with his people and wipe away every tear — no more crying, no more hurting.'],
+  ];
+  // the paraphrase on a kid's card: only on the verse Kid Verse paraphrases that week
+  const paraphraseOf = id => { const p = parseId(id); const kw = p && KIDWORDS[p.w - 1]; return kw && kw[0] === p.i ? kw[1] : ''; };
+  // the next review, in words: "tomorrow", "in 4 days" (UX-VERSES-9: intervals, never box numbers)
+  const nextWords = days => days === 1 ? 'tomorrow' : 'in ' + days + ' days';
 
   const $ = s => document.querySelector(s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -259,7 +614,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // Nothing is rated, summarised or shown as "all done" until every channel it reads has pulled once on this device:
   // a rating computed from an empty cache replaces the whole log (a kid's whole recall map too, and a kid's week comes
   // from kidverse/family) under last-write-wins (P3-VERSES-03, -07).
-  const loaded = () => hub.isLoaded() && hub.isLoaded('f260', 'person') && (!hub.isKid || hub.isLoaded('kidverse', 'family'));
+  // The household text rows (verses, family) are NOT waited for: a device that has never pulled that channel (one updated
+  // from before batch 5, offline) still trains; the text appears when its pull lands. Rating and the summary read only
+  // the channels below, so the batch-0b rule holds. Writing a text row waits for its own channel (canEditText).
+  const loaded = () => hub.isLoaded('verses', 'person') && hub.isLoaded('f260', 'person') && (!hub.isKid || hub.isLoaded('kidverse', 'family'));
   const clampBox = b => Math.min(5, Math.max(1, Math.floor(Number(b) || 1)));
   const clampWeek = w => Math.min(52, Math.max(1, Math.floor(Number(w) || 1)));
   const parseId = id => { const m = /^(\d{1,2})-([01])$/.exec(String(id)); if (!m) return null; const w = +m[1]; return w >= 1 && w <= 52 ? { w, i: +m[2] } : null; };
@@ -269,6 +627,15 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   const mem = () => hub.rowMap('mem:', 'f260.mem', F260);
   const recall = () => hub.rowMap('recall:', 'f260.recall', F260);
   const texts = () => obj(hub.get('f260.verses', F260));
+  // the household's text of a verse (GAP-VERSES-1): one family row per verse, written in Verses by any grown-up
+  const houseText = id => { const v = id ? hub.get('text:' + id, HOUSE) : null; return v && typeof v === 'object' && typeof v.text === 'string' && v.text.trim() ? v : null; };
+  // the text to show after Show (and for B's practice modes): the household's row wins, then the person's F260 paste.
+  // Never a bundled text — nothing here ships Scripture.
+  function textOf(id) {
+    if (!id) return '';
+    const h = houseText(id); if (h) return h.text.trim();
+    const t = texts()[id]; return typeof t === 'string' ? t.trim() : '';
+  }
   // ratings per day: the old whole map plus every rev:<date>:<id> row (batch 0e)
   function log() {
     const out = {}; const old = obj(hub.get('log'));
@@ -276,25 +643,83 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     for (const r of hub.list('rev:')) { const d = r.key.slice(4, 14); if (isDay(d)) out[d] = (out[d] || 0) + Math.max(0, Math.floor(Number(r.value) || 0)); }
     return out;
   }
+  // the one verse a kid practises: the one Kid Verse paraphrases in the family week (KIDWORDS[w - 1][0] is its place)
+  const kidVerse = () => { const w = familyWeek(), kw = KIDWORDS[w - 1]; return w + '-' + (kw ? kw[0] : 0); };
   const familyWeek = () => { const v = hub.get('week', FAMILY_WEEK); return clampWeek(v && typeof v === 'object' ? v.week : v); };
   // a recall row as the trainer understands it: pre-Leitner rows (F260's own s/t) count as box 1, due now
-  const norm = r => { r = obj(r); return { box: clampBox(r.box), due: isDay(r.due) ? r.due : null, last: isDay(r.last) ? r.last : null, streak: Math.max(0, Math.floor(Number(r.streak) || 0)), s: r.s, t: r.t }; };
-  // the ids this person trains: adults every memorised verse; kids this week's two plus anything they have rated before
+  const norm = r => { r = obj(r); return { box: clampBox(r.box), due: isDay(r.due) ? r.due : null, last: isDay(r.last) ? r.last : null, streak: Math.max(0, Math.floor(Number(r.streak) || 0)), s: r.s, t: r.t,
+    hist: histOf(r) }; };
+  // the schedules a recall row's ratings replaced, oldest first (hist; a round-1 row's single prev reads as one entry)
+  const sched = e => e && typeof e === 'object' && !Array.isArray(e) ? { due: isDay(e.due) ? e.due : null, last: isDay(e.last) ? e.last : null } : null;
+  const histOf = r => Array.isArray(r.hist) ? r.hist.map(sched).filter(Boolean) : r.prev ? [sched(r.prev)].filter(Boolean) : [];
+  const HIST_DAYS = 30;   // how far back the history reaches (the streak reads older days generously)
+  // the ids this person trains: adults every memorised verse; a kid the one verse of the week Kid Verse teaches
   function trained() {
-    if (hub.isKid) { const w = familyWeek(); const ids = new Set([w + '-0', w + '-1']); for (const id of Object.keys(recall())) if (refOf(id)) ids.add(id); return [...ids]; }
+    // a kid practises only the verse Kid Verse teaches this week (UX-VERSES-1, review: the other verse has no words a
+    // pre-reader can hear); older recall rows of other verses stay in the kid's F260 scope but are not shown or counted
+    if (hub.isKid) return [kidVerse()];
     const m = mem(); return Object.keys(m).filter(id => m[id] && refOf(id));
   }
   // due today: due ≤ today, or never reviewed. Never-reviewed first, then the longest overdue, then plan order.
   function dueIds(today) {
     const rc = recall();
-    if (hub.isKid) { const w = familyWeek(); return [w + '-0', w + '-1'].filter(id => { const r = rc[id] && norm(rc[id]); return !(r && r.last === today); }); }
+    if (hub.isKid) return [kidVerse()].filter(id => { const r = rc[id] && norm(rc[id]); return !(r && r.last === today); });
     return trained().map(id => ({ id, r: rc[id] ? norm(rc[id]) : null })).filter(x => !x.r || !x.r.due || x.r.due <= today)
       .sort((a, b) => (a.r && a.r.due ? a.r.due : '') < (b.r && b.r.due ? b.r.due : '') ? -1 : (a.r && a.r.due ? a.r.due : '') > (b.r && b.r.due ? b.r.due : '') ? 1 : parseId(a.id).w - parseId(b.id).w || parseId(a.id).i - parseId(b.id).i)
       .map(x => x.id);
   }
   const laterIds = today => { const rc = recall(); return trained().map(id => ({ id, r: rc[id] ? norm(rc[id]) : null })).filter(x => x.r && x.r.due && x.r.due > today).sort((a, b) => a.r.due < b.r.due ? -1 : a.r.due > b.r.due ? 1 : 0); };
-  // consecutive days with at least one rating, ending today (or yesterday if today's review is still to come)
-  function dayStreak(lg, today) { let d = lg[today] ? today : shiftDay(today, -1), n = 0; while (lg[d]) { n++; d = shiftDay(d, -1); } return n; }
+  // The day streak (P3-VERSES-11): the days with at least one rating, counted back from today — or from yesterday while
+  // today's review is still to come (today is pending until the day ends, never a break, as F260's streak since batch 4).
+  // A past day with no rating breaks it only if something was due that day; a day with nothing due keeps it (it neither
+  // counts nor breaks, like F260's rest days). The rows keep only each verse's latest schedule, so "was anything due on
+  // day d" is rebuilt like this (wasDueOn):
+  //   - a verse whose last review (recall row `last`) is before d was due on d if its `due` is on or before d — its
+  //     schedule has not changed since that review, so this is exact;
+  //   - a verse never reviewed in Verses (no row, or F260's pre-Leitner s/t only) was due from the day it was memorised:
+  //     its mem:<id> row's own write time; a verse only in the old whole f260.mem map has no date, so it does not count;
+  //   - a verse reviewed on or after d: its row keeps a short HISTORY of the schedules its ratings replaced
+  //     (hist: [{due, last}, …], oldest first, the last 30 days — HIST_DAYS), so d is judged on the schedule in force that
+  //     day: the latest one whose review (last) came before d (exact again). An entry with no last is the schedule before
+  //     the first review: due from the memorised day. Reviewing an overdue verse, once or many times, never hides the day
+  //     it was missed — within those 30 days. A day older than the kept history, or a row with no history at all
+  //     (written before batch 5's review, or by F260 alone), is read GENEROUSLY: not due, the streak is kept. A row from
+  //     review round 1 carries one replaced schedule as prev: {due, last}; it is read as a one-entry history.
+  //     (A missed day can be forgiven; one is never invented.)
+  // A kid's week verse is due every day, so for a kid any past day without a rating breaks the streak.
+  function wasDueOn() {
+    if (hub.isKid) return () => true;
+    const rc = recall(), memDay = {};
+    for (const r of hub.list('mem:', F260)) if (r.value) memDay[r.key.slice(4)] = hub.today(r.updated_at);
+    // a rating the row lost (review round 3): a device that rated from a stale copy can overwrite another device's newer
+    // rating, so the row's history no longer shows it. The rev: rows (rev:<date>:<id>:<device>) still do: when this verse was
+    // rated on a day x after the schedule chosen for d and before d, the schedule after x is unknown, so d is read
+    // generously — a rating another device overwrote never counts against the streak. (The old log map has no per-verse
+    // days and cannot help here.)
+    const rated = {};
+    for (const r of hub.list('rev:')) { const m = /^rev:(\d{4}-\d{2}-\d{2}):([^:]+):/.exec(r.key); if (m && Number(r.value) > 0) (rated[m[2]] || (rated[m[2]] = [])).push(m[1]); }
+    const lost = (id, after, d) => (rated[id] || []).some(x => (!after || x > after) && x < d);
+    const checks = trained().map(id => {
+      const r = rc[id] ? norm(rc[id]) : null, from = memDay[id];
+      const never = d => !!from && from <= d && !lost(id, null, d);   // never reviewed: due from the day it was memorised
+      if (!r) return never;
+      const all = [...r.hist, { due: r.due, last: r.last }];   // every known schedule, oldest first, the current one last
+      return d => {
+        for (let k = all.length - 1; k >= 0; k--) { const e = all[k]; if (e.last && e.last < d) return !!e.due && e.due <= d && !lost(id, e.last, d); }
+        // d is on or before every known review: before the first review (an entry without last) it was due from the
+        // memorised day; otherwise d is older than the kept history — generous, not due
+        return all.some(e => !e.last) ? never(d) : false;
+      };
+    });
+    return d => checks.some(f => f(d));
+  }
+  function dayStreak(lg, today) {
+    const days = Object.keys(lg).filter(d => lg[d] > 0 && d <= today).sort(); if (!days.length) return 0;
+    const first = days[0], dueOn = wasDueOn();
+    let d = lg[today] > 0 ? today : shiftDay(today, -1), n = 0;
+    for (let i = 0; i < 4000 && d >= first; i++, d = shiftDay(d, -1)) { if (lg[d] > 0) n++; else if (dueOn(d)) break; }
+    return n;
+  }
   function boxCounts() { const rc = recall(), b = [0, 0, 0, 0, 0]; for (const id of trained()) b[(rc[id] ? norm(rc[id]).box : 1) - 1]++; return b; }
 
   // ── the summary for the Home card, in this app's own person scope ────────────────────────────────────────
@@ -318,7 +743,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   }
   if (canSpeak) { try { speechSynthesis.addEventListener('voiceschanged', pickVoice); pickVoice(); } catch {} }
   const ORD = { 1: 'First', 2: 'Second', 3: 'Third' };
-  // "1 John 3:18" → "First John, chapter 3, verse 18" · "Psalm 23:1-3" → "Psalm 23, verses 1 to 3"
+  // "1 John 3:18" -> "First John, chapter 3, verse 18" · "Psalm 23:1-3" -> "Psalm 23, verses 1 to 3"
   function sayRef(ref) {
     const m = String(ref).match(/^(\d\s)?([A-Za-z ]+?)\s+(\d+):(\d+)(?:-(\d+))?[a-z]?$/); if (!m) return ref;
     const book = (m[1] ? ORD[m[1].trim()] + ' ' : '') + m[2].trim();
@@ -331,7 +756,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (!cur) return;
     if (!canSpeak) { hub.toast('This device cannot read aloud.'); return; }
     if (speaking) { try { speechSynthesis.cancel(); } catch {} return; }
-    const text = sayRef(refOf(cur)) + (revealed && texts()[cur] ? '. ' + texts()[cur] : '');
+    // what is read: the reference; after Show, the verse text too (P3-VERSES-06). A kid's card reads Kid Verse's
+    // paraphrase where it has one, before and after Show: it is on the card for a pre-reader to hear (UX-VERSES-1).
+    const extra = hub.isKid ? paraphraseOf(cur) : revealed ? textOf(cur) : '';
+    const text = sayRef(refOf(cur)) + (extra ? '. ' + extra : '');
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
@@ -347,27 +775,231 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   let cur = null;            // the id on the card; it stays until rated, even if data changes underneath
   let revealed = false;      // Show tapped for this card
   let rated = 0;             // ratings this session (for the feed line and the all-done screen)
-  let againIds = null;       // kids: "Practise again" reopens the week's two even though they were rated today
+  let againIds = null;       // kids: "Practise again" reopens the week's verse even though it was rated today
+  // a verse chosen to practise now (IMP-VERSES-F6: a tap on a row in Due today or Coming up; an adult's "Practise one
+  // anyway"; an Undo). It goes on the card, but the due count, the pill and the Due today list keep the real due set
+  // (P3-VERSES-08): a verse that is not due is practice, never "1 due today".
+  let pickId = null;
+  let cooling = false;       // the 400 ms after a rating (P3-VERSES-12): the rated card stays and ignores taps
+  let coolTimer = null;
+  let lastRating = null;     // what Undo puts back (UX-VERSES-2)
+  let undoUntil = 0;         // while the result line offers Undo (its 10 s, and the keyboard shortcut's window)
+  let ratedTimer = null;
+  // The rating's result line (rescore 5: it replaced the shared toast, which covered the pill — the one place the due
+  // count shows — for 10 s): at the top of the card on screen, "<word> — <ref>. Next review in N days." and Undo. It is
+  // replaced by the next rating's line and fades after 10 s, keeping its row so nothing moves (CSS .rated).
+  // msg is a list of pieces: strings, and { ref } for a reference, whose chapter:verse part goes in a nowrap .cv span (as
+  // the queue rows' refHtml does) so "14:26-27" never breaks at its hyphen
+  function showRated(msg) {
+    const line = $('#rated'), ub = $('#rated-undo'), out = $('#rated-text');
+    clearTimeout(ratedTimer);
+    out.textContent = '';
+    for (const part of [].concat(msg)) {
+      if (part && typeof part === 'object' && part.ref) {
+        const ref = String(part.ref), k = ref.lastIndexOf(' '), cv = document.createElement('span');
+        cv.className = 'cv'; cv.textContent = k < 0 ? ref : ref.slice(k + 1);
+        if (k >= 0) out.append(ref.slice(0, k) + ' ');
+        out.append(cv);
+      } else out.append(String(part));
+    }
+    line.classList.add('armed'); line.classList.remove('faded'); ub.hidden = false; ub.disabled = false; ub.removeAttribute('aria-disabled');
+    undoUntil = Date.now() + UNDO_MS;
+    ratedTimer = setTimeout(hideRated, UNDO_MS);
+  }
+  function hideRated() {
+    clearTimeout(ratedTimer); ratedTimer = null; undoUntil = 0;
+    const line = $('#rated'), ub = $('#rated-undo'), had = document.activeElement === ub;
+    line.classList.add('faded'); ub.hidden = true;
+    if (had) focusFirst('#trainer:not([hidden]) #show', '#act-rate:not([hidden]) [data-rate="got"]', '#done:not([hidden]) #again', '#empty:not([hidden]) #open-f260');
+  }
+  // the line goes with the card on screen: the trainer, or the done card once the queue is empty
+  function placeRated() {
+    const line = $('#rated'), host = !$('#trainer').hidden ? $('#trainer') : !$('#done').hidden ? $('#done') : null;
+    if (!host) return;
+    // (B, review round 7) a kid's line sits at the FOOT of the trainer, under the picture buttons: its row is kept from the
+    // first paint (CSS), and at the top that would push "I said it" off a small phone's first screen
+    const foot = hub.isKid && host === $('#trainer');
+    if (line.parentElement !== host || (foot ? host.lastElementChild !== line : host.firstElementChild !== line)) { if (foot) host.append(line); else host.prepend(line); }
+  }
+  // the U / Ctrl+Z shortcut works only while the line shows its Undo, and never while a confirm sheet or any dialog is
+  // open (review round 2)
+  const undoOffered = () => {
+    if (!lastRating || Date.now() >= undoUntil) return false;
+    const line = $('#rated'), ub = $('#rated-undo');
+    if (!line.classList.contains('armed') || line.classList.contains('faded') || ub.hidden || !ub.getClientRects().length) return false;
+    return !document.querySelector('.hub-ask, [role="dialog"], [role="alertdialog"]');
+  };
+  let editing = false;       // the household text editor is open (GAP-VERSES-1)
+  const COOL_MS = 400, UNDO_MS = 10000;
+  // the next review a rating gives, in days: Got it -> the next box up, Almost -> the same box, Not yet -> box 1 (tomorrow)
+  const boxAfter = (kind, box) => kind === 'got' ? Math.min(5, box + 1) : kind === 'not' ? 1 : box;
+  const nextDays = (kind, box) => INTERVALS[boxAfter(kind, box) - 1];
 
   function rate(kind) {
-    if (!cur || !loaded()) return;
-    if (!hub.canWrite) { hub.kioskNudge(); return; }
-    if (!['got', 'almost', 'not'].includes(kind)) return;
-    const today = dayKey(), prev = norm(recall()[cur]);
-    const box = kind === 'got' ? Math.min(5, prev.box + 1) : kind === 'not' ? Math.max(1, prev.box - 1) : prev.box;
+    if (!cur || !loaded() || cooling) return false;
+    if (!hub.canWrite) { hub.kioskNudge(); return false; }
+    if (!['got', 'almost', 'not'].includes(kind)) return false;
+    const id = cur, today = dayKey(), raw = hub.get('recall:' + id, F260), prev = norm(recall()[id]);
+    const box = boxAfter(kind, prev.box);
     const entry = { s: kind === 'got' ? 'got' : 'not', t: Date.now(), box, due: shiftDay(today, INTERVALS[box - 1]), last: today, streak: kind === 'got' ? prev.streak + 1 : kind === 'almost' ? prev.streak : 0 };
+    // the schedule this rating replaces joins the row's history, so the day streak still knows every day this verse was
+    // missed in the last HIST_DAYS days (P3-VERSES-11, wasDueOn). A second rating the same day adds nothing: the day's
+    // first rating already recorded the schedule that was in force before it. Entries older than HIST_DAYS are dropped,
+    // and with them the never-reviewed entry, so a trimmed history is never read as "never reviewed".
+    let hist = prev.last === today ? prev.hist.slice() : [...prev.hist, { due: prev.due, last: prev.last }];
+    const cut = shiftDay(today, -HIST_DAYS), old = hist.map(e => !!e.last && e.last < cut).lastIndexOf(true);
+    hist = hist.slice(old + 1);
+    entry.hist = hist;
     // only this verse's row and today's count for it: another device's ratings of other verses stay (P3-VERSES-02)
-    const revKey = 'rev:' + today + ':' + cur + ':' + ((hub.device && hub.device.id) || 'this'), n = Math.max(0, Math.floor(Number(hub.get(revKey)) || 0)) + 1;
-    try { hub.set('recall:' + cur, entry, F260); hub.set(revKey, n); } catch (e) { console.error(e); hub.toast('Could not save that.'); return; }
+    const revKey = 'rev:' + today + ':' + id + ':' + ((hub.device && hub.device.id) || 'this'), n = Math.max(0, Math.floor(Number(hub.get(revKey)) || 0)) + 1;
+    try { hub.set('recall:' + id, entry, F260); hub.set(revKey, n); } catch (e) { console.error(e); hub.toast('Could not save that.'); return false; }
     rated++;
-    if (againIds) againIds = againIds.filter(id => id !== cur);
-    const ref = refOf(cur);
-    hub.toast(kind === 'got' ? 'Got it — ' + ref + ' moves to box ' + box : kind === 'almost' ? 'Almost — ' + ref + (INTERVALS[box - 1] === 1 ? ' again tomorrow' : ' again in ' + INTERVALS[box - 1] + ' days') :'Not yet — ' + ref + ' again tomorrow');
-    cur = null; revealed = false;
-    render();
+    lastRating = { id, raw: raw === undefined ? undefined : JSON.parse(JSON.stringify(raw)), wrote: entry, revKey, againWas: againIds ? againIds.slice() : null };
+    if (againIds) againIds = againIds.filter(x => x !== id);
+    if (pickId === id) pickId = null;
+    // the result line states the real next review, with Undo for 10 s (P3-VERSES-05, GAP-VERSES-2, UX-VERSES-2); a kid's
+    // in plain words. U (or Ctrl/Cmd+Z) undoes from the keyboard while it shows (the keydown handler below)
+    const word = kind === 'got' ? 'Got it' : kind === 'almost' ? 'Almost' : 'Not yet', next = nextWords(INTERVALS[box - 1]);
+    // a kid's week verses come back every day (the kid queue ignores due), so a kid's line names no interval
+    showRated(hub.isKid ? { got: 'Got it! See you tomorrow.', almost: 'Almost! Let\'s try again tomorrow.', not: 'Not yet — we\'ll try again tomorrow.' }[kind] : [word + ' — ', { ref: refOf(id) }, '. Next review ' + next + '.']);
+    writeSummary();
     if (!currentQueue().length && rated) { hub.activity(hub.profile.name + ' reviewed ' + rated + (rated === 1 ? ' memory verse' : ' memory verses')); rated = 0; }
+    // P3-VERSES-12: the rated card stays for 400 ms and its rating row ignores taps, so a double tap never lands on the
+    // next card's Show; then the next card comes in with a short token transition (none under Reduce Motion: B's CSS)
+    cooling = true; $('#trainer').classList.add('rated');
+    clearTimeout(coolTimer);
+    coolTimer = setTimeout(() => { coolTimer = null; cooling = false; $('#trainer').classList.remove('rated'); cur = null; revealed = false; render(); cardIn(); focusFirst('#trainer:not([hidden]) #show', '#done:not([hidden]) #again', '#empty:not([hidden]) #open-f260'); }, COOL_MS);
+    return true;
   }
-  const currentQueue = () => { if (againIds && !againIds.length) againIds = null; return againIds ? againIds.slice() : dueIds(dayKey()); };
+  function cardIn() {
+    const tr = $('#trainer'); if (tr.hidden) return;
+    tr.classList.remove('card-in'); void tr.offsetWidth; tr.classList.add('card-in');
+    clearTimeout(cardIn.t); cardIn.t = setTimeout(() => tr.classList.remove('card-in'), 700);
+  }
+  // Undo (UX-VERSES-2): the verse's previous recall row back BY VALUE — but only while the row is still the one this rating
+  // wrote; a newer review from another device meanwhile is kept — and this device's rev: count for it taken back. The card
+  // returns to that verse, revealed. It pulls first (as F260's Undo of Reset does): a review another device made and this
+  // device has not pulled yet must be compared against, never written over.
+  async function undo() {
+    const u = lastRating; if (!u || !loaded()) return false;
+    if (!hub.canWrite) { hub.kioskNudge(); return false; }
+    lastRating = null; hideRated();
+    if (coolTimer) { clearTimeout(coolTimer); coolTimer = null; }
+    // a rated card still in its 400 ms guard keeps the guard (cooling, .rated) until the pull below has answered, so its
+    // rating row never comes back to life while Undo waits (review round 2)
+    try { await hub.pull(); } catch (e) {}                     // what other devices did meanwhile (offline: this device's copy)
+    cooling = false; $('#trainer').classList.remove('rated');
+    let newer = false;
+    try {
+      const now = hub.get('recall:' + u.id, F260);
+      if (JSON.stringify(now) === JSON.stringify(u.wrote)) { if (u.raw === undefined) hub.remove('recall:' + u.id, F260); else hub.set('recall:' + u.id, u.raw, F260); }
+      else newer = true;
+      // the review count is taken back only when the rating itself is undone. When a newer review from another device is
+      // kept, this device's rating still counts as the review it was. (The feed line "… reviewed N memory verses", if the
+      // rating had emptied the queue, stays as posted in both cases: the feed has no take-back.)
+      if (!newer) { const n = Math.max(0, Math.floor(Number(hub.get(u.revKey)) || 0)) - 1; if (n > 0) hub.set(u.revKey, n); else if (hub.has(u.revKey)) hub.remove(u.revKey); }
+    } catch (e) { console.error(e); hub.toast('Could not undo that.'); return false; }
+    if (newer) { hub.toast(refOf(u.id) + ' was reviewed again on another device — that newer review stays.', 4000); render(); focusFirst('#trainer:not([hidden]) #show', '#act-rate:not([hidden]) [data-rate="got"]', '#done:not([hidden]) #again'); return false; }
+    if (u.againWas) againIds = u.againWas;
+    rated = Math.max(0, rated - 1);
+    pickId = u.id; cur = u.id; revealed = true; editing = false;
+    render(); cardIn(); focusFirst('#act-rate [data-rate="got"]');
+    return true;
+  }
+  // "Practise again" keeps only verses still trained (core round 6): a family week stepped meanwhile (a kid's verse is the
+  // week's) or a verse unmarked in F260 drops out, and an emptied list falls back to the real due list; render() then
+  // moves the card off a verse that left the queue
+  const currentQueue = () => {
+    if (againIds) { const t = trained(); againIds = againIds.filter(id => t.includes(id)); }
+    if (againIds && !againIds.length) againIds = null;
+    return againIds ? againIds.slice() : dueIds(dayKey());
+  };
+  // Show (also for B's practice modes once they have shown the whole verse)
+  function reveal() { if (!cur || !loaded() || cooling || revealed) return false; revealed = true; render(); focusFirst('#act-rate:not([hidden]) [data-rate]'); return true; }
+  // focus never falls to <body> when the control that had it goes away (review round 1): the first of these that is shown
+  function focusFirst(...sels) {
+    for (const sel of sels) { const el = document.querySelector(sel); if (el && !el.hidden && !el.closest('[hidden]') && el.getClientRects().length) { try { el.focus({ preventScroll: true }); } catch {} return el; } }
+    return null;
+  }
+  // IMP-VERSES-F6: practise this verse now (a row in Due today / Coming up, or "Practise one anyway")
+  function practise(id) {
+    if (!loaded() || !refOf(id) || cooling) return false;
+    if (!hub.canWrite) { hub.kioskNudge(); return false; }
+    if (!trained().includes(id)) return false;
+    pickId = id; if (cur !== id) { cur = id; revealed = false; } editing = false;
+    render(); cardIn();
+    const tr = $('#trainer');
+    // the person's own Motion setting wins over the OS, both ways (the same test as ratingsIntoView below)
+    const m = document.documentElement.dataset.motion;
+    const still = m === 'reduce' || (m !== 'full' && !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches));
+    try { tr.scrollIntoView({ block: 'start', behavior: still ? 'auto' : 'smooth' }); } catch {}
+    const s = $('#show'); if (s && !s.hidden) try { s.focus({ preventScroll: true }); } catch {}
+    return true;
+  }
+  // the household text editor (GAP-VERSES-1): household adults and guests; never kids, the TV or the kitchen
+  const canEditText = () => hub.canWrite && !!hub.profile && hub.profile.kind === 'adult' && hub.isLoaded('verses', 'family');
+  let mic = null, saving = false;
+  function stopMic() { if (mic) { try { mic.stop(); } catch {} mic = null; const b = $('#text-mic'); b.classList.remove('on'); b.querySelector('span').textContent = 'Say it'; } }
+  function openEditor() {
+    if (!cur || !loaded() || cooling || !canEditText()) return false;
+    editing = true;
+    $('#text-input').value = textOf(cur);
+    $('#text-label').textContent = privatePaste(cur) ? 'Your own text of ' + refOf(cur) + ', from F260' : 'The text of ' + refOf(cur);
+    render();
+    try { $('#text-input').focus({ preventScroll: true }); } catch {}
+    return true;
+  }
+  function closeEditor() { stopMic(); if (!editing) return; editing = false; render(); focusFirst('#edittext', '#addtext', '#show', '#act-rate:not([hidden]) [data-rate]'); }
+  // the card's text is the person's own F260 paste, with no household row yet: sharing it is a choice, never a side effect
+  const privatePaste = id => !houseText(id) && typeof texts()[id] === 'string' && !!texts()[id].trim();
+  async function saveText() {
+    if (!cur || !editing || saving) return false;
+    stopMic();
+    const id = cur, v = $('#text-input').value.replace(/[ \t]+\n/g, '\n').trim(), h = houseText(id);
+    if (!v) { if (h) clearText(); else closeEditor(); return false; }
+    if (v.length > 4000) { hub.toast('That is longer than a verse passage — keep it under 4,000 letters.', 3200); return false; }
+    if (h && h.text.trim() === v) { closeEditor(); return false; }          // nothing changed: nothing to write
+    // the first write that turns a private F260 paste into a household row asks first (review round 1): an unchanged
+    // prefill must never publish the paste with one Enter press
+    if (privatePaste(id)) {
+      saving = true;
+      let yes = false;
+      try { yes = await hub.confirm('Everyone in the house who learns ' + refOf(id) + ' will see this text. Your own F260 copy stays as it is.', { title: 'Share this text with the house?', ok: 'Share' }); } finally { saving = false; }
+      if (!yes || cur !== id || !editing) return false;
+    }
+    try { hub.set('text:' + id, { text: v, by: hub.profile.id, at: Date.now() }, HOUSE); } catch (e) { console.error(e); hub.toast('Could not save that.'); return false; }
+    const ref = refOf(cur); editing = false; render(); focusFirst('#edittext', '#addtext', '#show', '#act-rate:not([hidden]) [data-rate]');
+    hub.toast('Saved — the house now has the text of ' + ref + '.', 3200);
+    return true;
+  }
+  async function clearText() {
+    if (!cur || !houseText(cur)) return false;
+    const id = cur, ref = refOf(id);
+    if (!(await hub.confirm('Everyone in the house who learns ' + ref + ' will stop seeing this text.', { title: 'Remove the verse text?', ok: 'Remove', danger: true }))) return false;
+    try { hub.remove('text:' + id, HOUSE); } catch (e) { console.error(e); hub.toast('Could not remove that.'); return false; }
+    stopMic(); if (cur === id) editing = false; render();
+    hub.toast('Removed the text of ' + ref + '.', 2600);
+    return true;
+  }
+  function toggleMic() {
+    if (mic) { stopMic(); return; }
+    const b = $('#text-mic'), box = $('#text-input');
+    mic = hub.voiceInput(t => { box.value = (box.value.trim() ? box.value.trim() + ' ' : '') + t; }, {
+      onEnd: () => stopMic(),
+      onError: err => { stopMic(); hub.toast(err === 'not-allowed' || err === 'service-not-allowed' ? 'The microphone is off for the hub — you can type the text instead.' : 'Could not hear that — try again, or type it.', 3200); },
+    });
+    if (!mic) { hub.toast('This device cannot listen — type the text instead.', 2600); return; }
+    b.classList.add('on'); b.querySelector('span').textContent = 'Listening…';
+  }
+  // hooks for B's practice modes and record-yourself blocks (SCRATCH/b5-hooks.md): fn({ id, revealed, kid, text })
+  // after every paint of the card, with id null when no card is on screen
+  const cardListeners = new Set();
+  function tellCard() {
+    const tr = $('#trainer'), on = loaded() && !!cur && !tr.hidden;
+    // text is '' while the household text editor is open, so a practice mode steps aside for it
+    const st = { id: on ? cur : null, revealed: on && revealed, kid: hub.isKid, text: on && !hub.isKid && !editing ? textOf(cur) : '', editing: on && editing };
+    for (const fn of cardListeners) { try { fn(st); } catch (e) { console.error(e); } }
+  }
 
   // the loading card: the trainer's own frame with a skeleton reference and every button disabled — no "0 to go",
   // no "all done", no stats (UX-VERSES-5, P3-VERSES-07)
@@ -381,7 +1013,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     tr.hidden = false; $('#done').hidden = $('#empty').hidden = $('#stats').hidden = $('#queue').hidden = true;
     $('#kick').textContent = 'Memory verse'; $('#boxchip').hidden = true; ref.textContent = ' '; $('#text').hidden = true;
     $('#hint').textContent = hub.sync.state === 'offline' ? 'Waiting for a connection to load your verses…' : 'Loading your verses…';
-    $('#act-show').hidden = !hub.canWrite; $('#act-rate').hidden = true;
+    $('#para').hidden = $('#addtext').hidden = $('#edittext').hidden = $('#textedit').hidden = true;
+    $('#act-show').hidden = !hub.canWrite; $('#show').hidden = false; $('#act-rate').hidden = true;
+    tr.classList.remove('revealed');
+    tellCard();
   }
 
   function render() {
@@ -390,85 +1025,429 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const today = dayKey();
     const kid = hub.isKid, canWrite = hub.canWrite;
     const queue = currentQueue();
-    if (!cur || !queue.includes(cur)) { cur = queue[0] || null; revealed = false; }
-    const total = trained().length;
-    // who + how many to go
-    $('#who').innerHTML = hub.avatarHtml(hub.profile, '', 'sm') + '<span>' + esc(hub.profile.name) + (queue.length ? ' · <b>' + queue.length + (queue.length === 1 ? ' to go' : ' to go') + '</b>' : ' · <b>all done</b>') + '</span>';
+    const ids = trained(), total = ids.length;
+    if (pickId && !ids.includes(pickId)) pickId = null;
+    // the card: the rated card stays through the 400 ms cool-down; then a picked verse (practice), else the first due one
+    if (!cooling) {
+      const want = pickId || (cur && queue.includes(cur) ? cur : queue[0] || null);
+      if (want !== cur) { cur = want; revealed = false; editing = false; stopMic(); }
+    }
+    if (cur && !ids.includes(cur) && !queue.includes(cur)) { cur = queue[0] || null; revealed = false; editing = false; }
+    const lg = log(), n = Math.max(0, Math.floor(Number(lg[today]) || 0));
+    const practice = !!cur && !queue.includes(cur);
+    // who + how many to go: the due count is said here and only here (UX-VERSES-8); "all done" only after reviews today,
+    // otherwise "nothing due" (UX-VERSES-4); nothing at all over "Nothing to train yet" (its card says it)
+    const tail = !total ? '' : queue.length ? queue.length + ' to go' : practice ? 'practice' : n ? 'all done' : 'nothing due';
+    $('#who').innerHTML = hub.avatarHtml(hub.profile, '', 'sm') + '<span>' + esc(hub.profile.name) + (tail ? ' · <b>' + tail + '</b>' : '') + '</span>';
     const p = cur && parseId(cur);
-    $('#trainer').hidden = !cur;
+    const tr = $('#trainer');
+    tr.hidden = !cur;
     $('#done').hidden = !!cur || !total;
     $('#empty').hidden = !!cur || !!total;
     if (cur) {
-      const r = recall()[cur] ? norm(recall()[cur]) : null, txt = texts()[cur];
-      $('#kick').textContent = 'Week ' + p.w + ' · verse ' + (p.i + 1) + (kid ? '' : (queue.length > 1 ? ' · ' + (queue.length - 1) + ' more after this' : ' · last one'));
-      $('#boxchip').hidden = kid || !r; if (r && !kid) $('#boxchip').textContent = 'Box ' + r.box + (r.last ? ' · last ' + (r.last === today ? 'today' : daysBetween(r.last, today) + 'd ago') : '');
+      const r = recall()[cur] ? norm(recall()[cur]) : null, txt = kid ? '' : textOf(cur), para = kid ? paraphraseOf(cur) : '';
+      const showing = revealed || cooling;
+      tr.classList.toggle('revealed', showing);
+      $('#kick').textContent = 'Week ' + p.w + ' · verse ' + (p.i + 1) + (practice && !kid ? ' · extra practice' : '');
+      // when it was last reviewed, in days — never its box (UX-VERSES-9)
+      $('#boxchip').hidden = kid;
+      if (!kid) $('#boxchip').textContent = !r || !r.last ? 'New' : r.last === today ? 'Reviewed today' : 'Reviewed ' + ago(r.last, today);
       $('#ref').textContent = refOf(cur);
-      $('#text').hidden = !txt; if (txt) { $('#text').textContent = txt; $('#text').classList.toggle('veiled', !revealed); }
-      $('#hint').textContent = !canWrite ? 'This screen only looks — sign in on a phone to practise.' : revealed ? (txt ? 'How did it go?' : 'Did you get it? Be honest — that is what makes it stick.') : (kid ? 'Say the verse out loud, then tap Show.' : 'Say it from memory, then tap Show.');
-      $('#act-show').hidden = revealed || !canWrite;
-      $('#act-rate').hidden = !revealed || !canWrite;
+      // a kid's card: the week's paraphrase, labelled one, shown from the start (it is read aloud for a pre-reader)
+      $('#para').hidden = !para; $('#para-text').textContent = para;
+      // the verse text: veiled until Show — blurred, and hidden from screen readers and focus too (P3-VERSES-13)
+      const t = $('#text');
+      t.hidden = !txt || editing;
+      if (txt) {
+        t.textContent = txt;
+        const veil = !showing; t.classList.toggle('veiled', veil);
+        if (veil) { t.setAttribute('aria-hidden', 'true'); t.inert = true; t.setAttribute('inert', ''); }
+        else { t.removeAttribute('aria-hidden'); t.inert = false; t.removeAttribute('inert'); }
+      } else { t.textContent = ''; t.classList.add('veiled'); t.setAttribute('aria-hidden', 'true'); t.inert = true; t.setAttribute('inert', ''); }
+      $('#hint').textContent = !canWrite ? 'This screen only looks — sign in on a phone to practise.'
+        : editing ? 'Type or paste the verse as your Bible has it.'
+        : showing ? (kid ? 'How did it go?' : txt ? 'How did it go?' : 'Did you get it? Be honest.')   // one line at 390, like the line before Show (VIS-VERSES-1)
+        : kid ? (para ? 'Listen, say it with me, then tap I said it.' : 'Say the verse out loud, then tap I said it.') : 'Say it from memory, then tap Show.';   // the button's name never breaks across lines
+      // Read aloud stays after Show and then reads the text too (P3-VERSES-06): #act-show stays, only #show goes
+      $('#act-show').hidden = !canWrite || editing;
+      $('#show').hidden = showing;
       $('#say').hidden = false;
-    } else if (total) {
-      const lg = log(), n = Math.floor(Number(lg[today]) || 0), later = laterIds(today);
-      $('#done-big').textContent = n ? 'All done for today' : 'Nothing due today';
-      $('#done-sub').textContent = kid ? (n ? 'You practised this week’s verses. Come back tomorrow!' : 'Come back tomorrow!')
-        : (n ? n + (n === 1 ? ' review' : ' reviews') + ' today. ' : '') + (later.length ? 'Next up ' + refOf(later[0].id) + ' ' + whenLabel(later[0].r.due, today) + '.' : 'Every memorised verse is in its box.');
-      $('#again').hidden = !canWrite || !(kid ? true : later.length);
-      $('#again').querySelector('span').textContent = kid ? 'Practise again' : 'Practise one anyway';
+      $('#show').querySelector('span').textContent = kid ? 'I said it' : 'Show';
+      // the ratings: each shows its next review (GAP-VERSES-2); a kid's are picture buttons with no reading needed (UX-VERSES-1)
+      const ar = $('#act-rate');
+      ar.hidden = !showing || !canWrite || editing;
+      ar.classList.toggle('pics', kid);
+      for (const b of ar.querySelectorAll('[data-rate]')) {
+        const nx = b.querySelector('.nx'), days = nextDays(b.dataset.rate, r ? r.box : 1);
+        if (nx) { nx.textContent = kid ? '' : nextWords(days); nx.hidden = kid; }
+        b.setAttribute('aria-label', b.querySelector('span').textContent + (kid ? '' : ', next review ' + nextWords(days)));
+        if (cooling) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled');
+      }
+      // the household's text (GAP-VERSES-1): add it on a card without one; edit it after Show; grown-ups only
+      const can = canEditText() && !cooling;
+      $('#addtext').hidden = !(can && !txt && !editing);
+      $('#edittext').hidden = !(can && txt && showing && !editing);
+      // the text on the card is only this person's own F260 paste: the button says what a save would do (review round 1)
+      $('#edittext').querySelector('span').textContent = privatePaste(cur) ? 'Share this text with the house' : 'Edit the text';
+      $('#textedit').hidden = !editing;
+      $('#text-mic').hidden = !hub.voiceSupported;
+      $('#text-clear').hidden = !houseText(cur);
+    } else {
+      tr.classList.remove('revealed'); editing = false; stopMic();
+      if (total) {
+        const later = laterIds(today), streak = dayStreak(lg, today);
+        $('#done-big').textContent = n ? 'All done for today' : 'Nothing due today';
+        $('#done .icon.star').toggleAttribute('hidden', !n);   // the celebration star only after reviews (UX-VERSES-4); an svg element has no .hidden property, so the attribute
+        $('#done-sub').textContent = kid ? (n ? 'You practised this week’s verse. Come back tomorrow!' : 'Come back tomorrow!')
+          : (n ? n + (n === 1 ? ' review' : ' reviews') + ' today. ' : '') + (later.length ? 'Next up ' + refOf(later[0].id) + ' ' + whenLabel(later[0].r.due, today) + '.' : 'Every memorised verse is on its schedule.')
+            + (!n && streak ? ' A day with nothing due keeps your streak.' : '');
+        $('#again').hidden = !canWrite || !(kid ? true : later.length);
+        $('#again').querySelector('span').textContent = kid ? 'Practise again' : 'Practise one anyway';
+      }
+      // nothing to train yet: a way to F260 (GAP-VERSES-3) — never for a kid or the TV
+      $('#open-f260').hidden = !canWrite || kid;
     }
     // adults: stats + the queue
     $('#stats').hidden = kid || !total; $('#queue').hidden = kid || !total;
     if (!kid && total) {
-      const lg = log(), streak = dayStreak(lg, today), boxes = boxCounts(), later = laterIds(today);
-      $('#st-due').textContent = queue.length; $('#st-streak').textContent = streak; $('#st-total').textContent = total;
-      $('#stats-sub').textContent = lg[today] ? 'reviewed today' : streak ? 'keep it going today' : '';
+      const streak = dayStreak(lg, today), boxes = boxCounts(), later = laterIds(today);
+      $('#st-due').textContent = queue.length; $('#st-today').textContent = n; $('#st-streak').textContent = streak; $('#st-total').textContent = total;
+      $('#stats-sub').textContent = n ? '' : streak ? (queue.length ? 'keep it going today' : 'streak safe') : '';
       const mx = Math.max(1, ...boxes);
-      $('#boxes').innerHTML = boxes.map((n, i) => '<div class="bx' + (n ? '' : ' zero') + '" title="Box ' + (i + 1) + ': every ' + INTERVALS[i] + (INTERVALS[i] === 1 ? ' day' : ' days') + '"><span class="n">' + n + '</span><div class="col"><i style="--p:' + (n / mx).toFixed(3) + '"></i></div><span class="lbl">' + BOX_LABELS[i] + '</span></div>').join('');
+      // the histogram: its own labels, never "box N" (UX-VERSES-9); data-box / --b for B's tint by box (VIS-VERSES-6)
+      $('#boxes').innerHTML = boxes.map((c, i) => '<div class="bx' + (c ? '' : ' zero') + '" data-box="' + (i + 1) + '" style="--b:' + (i / 4).toFixed(2) + '" title="' + BOX_LABELS[i] + ': back ' + (i ? 'every ' + INTERVALS[i] + ' days' : 'every day') + '"><span class="n">' + c + '</span><div class="col"><i style="--p:' + (c / mx).toFixed(3) + '"></i></div><span class="lbl">' + BOX_LABELS[i] + '</span></div>').join('');
+      $('#boxes').setAttribute('aria-label', 'Your verses by how often they come back: ' + boxes.map((c, i) => BOX_LABELS[i] + ' ' + c).join(', '));
       const rc = recall();
-      $('#queue-sub').textContent = queue.length ? queue.length + (queue.length === 1 ? ' verse' : ' verses') : 'none';
-      $('#queue-list').innerHTML = queue.length ? queue.map(id => { const r = rc[id] ? norm(rc[id]) : null; const q = parseId(id); const late = r && r.due && r.due < today;
-        return '<li class="' + (late ? 'late' : 'now') + (id === cur ? ' cur' : '') + '"><span class="rf">' + esc(refOf(id)) + '<small>Week ' + q.w + '</small></span>' + (r ? '<span class="chip box">Box ' + r.box + '</span>' : '<span class="chip box">New</span>') + '<span class="when">' + (r && r.due ? whenLabel(r.due, today) : 'never reviewed') + '</span></li>'; }).join('')
-        : '<li><span class="none">Nothing due — come back ' + (later.length ? whenLabel(later[0].r.due, today) : 'when you memorise another verse') + '.</span></li>';
+      // IMP-VERSES-F6: every row is a button that practises that verse now
+      // (B, review round 4) the row's words sit in one .qbody beside the chevron, and the reference's "chapter:verse" and
+      // "Week N" are kept whole (.cv, nowrap) so neither breaks at its hyphen or space at any text size
+      // (B, rescore follow-up) the chip reads as an interval, so "2 weeks  tomorrow" is not read as one phrase
+      const EVERY = { 'Daily': 'every day', '2 days': 'every 2 days', '4 days': 'every 4 days', 'Weekly': 'every week', '2 weeks': 'every 2 weeks' };
+      const refHtml = ref => { const k = ref.lastIndexOf(' '); return k < 0 ? '<span class="cv">' + esc(ref) + '</span>' : esc(ref.slice(0, k)) + ' <span class="cv">' + esc(ref.slice(k + 1)) + '</span>'; };
+      const row = (id, cls, chip, when) => { const q = parseId(id), ref = refOf(id);
+        return '<li class="' + cls + (id === cur ? ' cur' : '') + '"><button class="qrow" type="button" data-id="' + esc(id) + '" aria-label="Practise ' + esc(ref) + '"><span class="qbody"><span class="rf">' + refHtml(ref) + '<small><span class="cv">Week ' + q.w + '</span></small></span>' + (chip ? '<span class="chip box">' + esc(EVERY[chip] || chip) + '</span>' : '') + '<span class="when">' + esc(when) + '</span></span><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-chevron-right"/></svg></button></li>'; };
+      // the Due today list only when something is due: the done card already says "Nothing due" (UX-VERSES-8)
+      $('#queue-h').hidden = $('#queue-list').hidden = !queue.length;
+      $('#queue-sub').textContent = queue.length ? queue.length + ' due · tap one to practise it' : '';   // (B, final rescore E) the count where the scrolled list is
+      $('#queue-list').innerHTML = queue.map(id => { const r = rc[id] ? norm(rc[id]) : null; const late = r && r.due && r.due < today;
+        return row(id, late ? 'late' : 'now', '', r && r.due ? whenLabel(r.due, today) : 'never reviewed'); }).join('');
       $('#later-sub').textContent = later.length ? later.length + (later.length === 1 ? ' verse' : ' verses') : 'none';
-      $('#later-list').innerHTML = later.length ? later.slice(0, 12).map(({ id, r }) => { const q = parseId(id); return '<li><span class="rf">' + esc(refOf(id)) + '<small>Week ' + q.w + '</small></span><span class="chip box">Box ' + r.box + '</span><span class="when">' + whenLabel(r.due, today) + '</span></li>'; }).join('') + (later.length > 12 ? '<li><span class="none">and ' + (later.length - 12) + ' more</span></li>' : '')
+      $('#later-list').innerHTML = later.length ? later.slice(0, 12).map(({ id, r }) => row(id, '', BOX_LABELS[r.box - 1], whenLabel(r.due, today))).join('') + (later.length > 12 ? '<li><span class="none">and ' + (later.length - 12) + ' more</span></li>' : '')
         : '<li><span class="none">Nothing scheduled yet.</span></li>';
     }
+    placeRated();
     writeSummary();
+    tellCard();
   }
+  const ago = (d, today) => { const n = daysBetween(d, today); return n === 1 ? 'yesterday' : n + ' days ago'; };
   function whenLabel(due, today) { const d = daysBetween(today, due); return d === 0 ? 'due today' : d === 1 ? 'tomorrow' : d > 1 ? 'in ' + d + ' days' : d === -1 ? '1 day overdue' : (-d) + ' days overdue'; }
+
+  // ── window.verses: the test scripts' handle, and the hooks B's practice-mode / record-yourself blocks use
+  //    (SCRATCH/b5-hooks.md). Set before hub.ready() so a later block always finds it.
+  window.verses = {
+    REFS, INTERVALS, KIDWORDS, rate, dueIds: () => dueIds(dayKey()), trained, dayStreak: () => dayStreak(log(), dayKey()),
+    streakOf: (lg, today) => dayStreak(obj(lg), today || dayKey()),   // tests: the streak rule over a given day map
+    boxCounts, summary: writeSummary, current: () => cur, sayRef, paraphraseOf, undo, practise,
+    isCooling: () => cooling, pickedId: () => pickId, endUndo: hideRated,   // endUndo: what the line's 10 s end does (tests)
+    // the hooks
+    currentId: () => cur, revealedNow: () => !!cur && revealed, reveal, rateCurrent: kind => rate(kind), textOf,
+    isKid: () => hub.isKid, canWrite: () => hub.canWrite,
+    onCard: fn => { if (typeof fn !== 'function') return () => {}; cardListeners.add(fn); if (hub.profile) { try { tellCard(); } catch (e) { console.error(e); } } return () => cardListeners.delete(fn); },
+  };
 
   // ── wiring ───────────────────────────────────────────────────────────────────────────────────────────────
   (async () => {
     await hub.ready();
     $('#say').addEventListener('click', speak);
-    $('#show').addEventListener('click', () => { if (!cur || !loaded()) return; revealed = true; render(); });
+    $('#show').addEventListener('click', () => { reveal(); });
+    // a tap on the rating row in the 400 ms after a rating does nothing (P3-VERSES-12: rate() ignores it while cooling)
     $('#act-rate').addEventListener('click', e => { const b = e.target.closest('[data-rate]'); if (b) rate(b.dataset.rate); });
     $('#again').addEventListener('click', () => {
       if (!loaded()) return;
       if (!hub.canWrite) { hub.kioskNudge(); return; }
       const today = dayKey();
-      if (hub.isKid) { const w = familyWeek(); againIds = [w + '-0', w + '-1']; }
-      else { const later = laterIds(today); againIds = later.length ? [later[0].id] : []; }
-      cur = null; revealed = false; render();
+      if (hub.isKid) { againIds = [kidVerse()]; cur = null; revealed = false; render(); cardIn(); }
+      else { const later = laterIds(today); if (later.length) practise(later[0].id); }
+    });
+    // IMP-VERSES-F6: a row in Due today or Coming up practises that verse now
+    for (const sel of ['#queue-list', '#later-list']) $(sel).addEventListener('click', e => { const b = e.target.closest('button.qrow[data-id]'); if (b) practise(b.dataset.id); });
+    // the household text (GAP-VERSES-1)
+    $('#addtext').addEventListener('click', openEditor);
+    $('#edittext').addEventListener('click', openEditor);
+    $('#text-save').addEventListener('click', saveText);
+    $('#text-cancel').addEventListener('click', closeEditor);
+    $('#text-clear').addEventListener('click', clearText);
+    $('#text-mic').addEventListener('click', toggleMic);
+    $('#rated-undo').addEventListener('click', () => { undo(); });
+    $('#textedit').addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeEditor(); }
+      else if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'text-input' && !e.isComposing) { e.preventDefault(); saveText(); }
+    });
+    $('#open-f260').addEventListener('click', () => {
+      // inside the hub the shell opens F260 (hub.open -> 'hub:open'); standalone, F260's own page
+      const inFrame = (() => { try { return window.parent !== window; } catch { return true; } })();
+      if (inFrame) hub.open('f260'); else location.href = 'f260.html';
     });
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} }
-      if (!cur || !hub.canWrite || !loaded() || e.target.closest('input, textarea')) return;
-      if (e.key === 'Enter' || e.key === ' ') { if (!revealed) { e.preventDefault(); revealed = true; render(); } }
+      // Undo from the keyboard while the toast offers it: U, or Ctrl/Cmd+Z (never inside a field)
+      if (undoOffered() && !e.defaultPrevented && !e.altKey && !e.target.closest('input, textarea, select, [contenteditable]')
+        && ((/^u$/i.test(e.key) && !e.ctrlKey && !e.metaKey) || (/^z$/i.test(e.key) && (e.ctrlKey || e.metaKey) && !e.shiftKey))) {
+        e.preventDefault(); undo(); return;
+      }
+      if (!cur || !hub.canWrite || !loaded() || cooling || editing || e.defaultPrevented) return;
+      if (e.altKey || e.ctrlKey || e.metaKey || e.target.closest('input, textarea, select, [contenteditable]')) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        // P3-VERSES-10: Enter or Space on a focused button presses that button; the Show shortcut is only for when focus
+        // is on nothing that takes a key
+        if (e.target.closest('button, a[href], [role="button"], summary')) return;
+        if (!revealed) { e.preventDefault(); reveal(); }
+      }
       else if (revealed && (e.key === '1' || e.key === '2' || e.key === '3')) rate({ 1: 'not', 2: 'almost', 3: 'got' }[e.key]);
     });
     window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
     hub.onChange(() => render());
     // the card appears once every channel it reads has pulled (hub.onChange does not fire for a pull that changes nothing)
-    Promise.all([hub.loaded(), hub.loaded('f260', 'person'), hub.isKid ? hub.loaded('kidverse', 'family') : true]).then(() => render());
+    Promise.all([hub.loaded('verses', 'person'), hub.loaded('f260', 'person'), hub.isKid ? hub.loaded('kidverse', 'family') : true]).then(() => render());
+    hub.loaded('verses', 'family').then(() => render());   // the household text, when it lands (it never holds up the trainer)
     hub.onSync(() => { if (!loaded()) render(); });   // the loading line says so while the device is offline
     // past midnight (or waking the next morning) the due list is the new day's: a kid's reopened pair and an adult's
     // 'Practise one anyway' pick were yesterday's (P3-VERSES-04). hub.onDay also checks on visibilitychange and focus.
-    hub.onDay(() => { againIds = null; render(); });
+    hub.onDay(() => { againIds = null; pickId = null; render(); });
     render();
-    // for the test script
-    window.verses = { REFS, INTERVALS, rate, dueIds: () => dueIds(dayKey()), trained, dayStreak: () => dayStreak(log(), dayKey()), boxCounts, summary: writeSummary, current: () => cur, sayRef };
   })();
+})();
+</script>
+<script>
+/* Worker B's script (batch 5): the practice modes and record yourself. Reads only window.verses (A's hooks: currentId,
+   revealedNow, reveal, textOf, isKid, canWrite, onCard) and hub.*; never calls the trainer's render(). */
+(() => {
+  'use strict';
+  const V = window.verses;
+  if (!V || typeof V.onCard !== 'function') return;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const adult = () => !V.isKid() && V.canWrite();
+
+  // ── practice modes (IMP-VERSES-I3) ──────────────────────────────────────────────────────────────────────────
+  // On a verse that has text (the household's row or the person's F260 paste, via verses.textOf), an adult picks how to
+  // practise: Recall (the card as it always was: say it, then Show), First letters (each word as its first letter; tap a
+  // word to see it), Fill the gaps (every third or fourth word blank; tap a blank to see it) or Word order (the verse in
+  // pieces to tap in order; a wrong piece shakes, or flashes under Reduce Motion, and does not count; the last piece
+  // reveals the card). Every mode ends in the same three ratings, so there is one schedule. Show reveals everything in
+  // place. The choice follows the person: one person-scope row 'mode' in this app. Kids and the display get none of it.
+  const MODES = ['recall', 'letters', 'gaps', 'order'];
+  const modeOf = () => { const m = hub.get('mode'); return MODES.includes(m) ? m : 'recall'; };
+  let pm = { key: null, mode: 'recall', id: null, text: '', next: 0, chunks: [], pool: [] };
+  const words = t => String(t || '').trim().split(/\s+/).filter(Boolean);
+  const LETTER = /[\p{L}\p{N}]/u;
+  // "(Lord," gives lead "(L" and rest "ord,"; a word with no letter or digit (a dash) is shown as it is
+  const split = w => { const i = w.search(LETTER); return i < 0 ? null : { lead: w.slice(0, i + 1), rest: w.slice(i + 1) }; };
+  // blanks: words 3, 6, 10, 13, 17 … (every third, then fourth, word), never a word with no letter
+  const isGap = i => (i % 7 === 2 || i % 7 === 5);
+  // a small deterministic shuffle (the same verse shows the same order on a repaint), never the verse's own order
+  function shuffled(n, seed) {
+    const a = [...Array(n).keys()]; let s = 0; for (const c of String(seed)) s = (s * 31 + c.charCodeAt(0)) >>> 0;
+    for (let i = n - 1; i > 0; i--) { s = (s * 1103515245 + 12345) >>> 0; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+    if (n > 1 && a.every((v, i) => v === i)) a.push(a.shift());
+    return a;
+  }
+  // pieces of 1-3 words (more words per piece for a long verse, at most 12 pieces)
+  function chunksOf(ws) { let size = ws.length <= 6 ? 1 : ws.length <= 15 ? 2 : 3; size = Math.max(size, Math.ceil(ws.length / 12)); const out = []; for (let i = 0; i < ws.length; i += size) out.push(ws.slice(i, i + size).join(' ')); return out; }
+
+  function paintModes(mode) {
+    for (const b of document.querySelectorAll('#pm-modes [data-mode]')) { const on = b.dataset.mode === mode; b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.classList.toggle('on', on); }
+  }
+  function wordHtml(w, i, mode, shown) {
+    if (mode === 'letters') { const p = split(w); if (!p) return '<span class="pm-w plain">' + esc(w) + '</span>';
+      return '<button type="button" class="pm-w' + (shown ? ' shown' : '') + '" data-i="' + i + '"' + (shown ? ' disabled' : '') + ' aria-label="' + (shown ? esc(w) : 'Show word ' + (i + 1)) + '"><span aria-hidden="true">' + esc(p.lead) + '<span class="rest">' + esc(p.rest) + '</span></span></button>'; }
+    if (mode === 'gaps' && isGap(i) && split(w)) return '<button type="button" class="pm-w gap' + (shown ? ' shown' : '') + '" data-i="' + i + '"' + (shown ? ' disabled' : '') + ' aria-label="' + (shown ? esc(w) : 'Show the missing word') + '"><span class="whole" aria-hidden="true">' + esc(w) + '</span></button>';
+    return '<span class="pm-w plain">' + esc(w) + '</span>';
+  }
+  function buildArea(revealed) {
+    const area = $('#pm-area'), ws = words(pm.text);
+    if (pm.mode === 'letters' || pm.mode === 'gaps') {
+      area.innerHTML = '<div class="pm-words">' + ws.map((w, i) => wordHtml(w, i, pm.mode, revealed)).join('') + '</div>'
+        + '<p class="pm-help" id="pm-help">' + (pm.mode === 'letters' ? 'Say each word from its first letter. Tap a word to see it.' : 'Say the missing words. Tap a blank to see it.') + '</p>';
+    } else if (pm.mode === 'order') {
+      pm.chunks = chunksOf(ws); pm.pool = shuffled(pm.chunks.length, pm.id + '|' + pm.text.length);
+      const done = revealed ? pm.chunks.length : pm.next;
+      area.innerHTML = '<div class="pm-order"><p class="pm-line" id="pm-line">' + pm.chunks.map((c, i) => '<span class="slot' + (i < done ? ' placed' : '') + '"' + (i < done ? '' : ' aria-hidden="true"') + '>' + esc(c) + '</span>').join(' ') + '</p>'
+        // after Show (or the last piece) the pool keeps its room with every piece placed, so the ratings do not move up under
+        // the finger (review round 1: the card shrank 339 px on reveal)
+        + '<div class="pm-pool" id="pm-pool"' + (revealed ? ' aria-hidden="true"' : '') + '>' + pm.pool.map(k => '<button type="button" class="pm-chunk' + (revealed ? ' used' : '') + '" data-k="' + k + '"' + (revealed ? ' disabled tabindex="-1"' : '') + '>' + esc(pm.chunks[k]) + '</button>').join('') + '</div>'
+        + '<p class="pm-help" id="pm-help" aria-live="polite">' + (revealed ? 'All ' + pm.chunks.length + ' pieces in order' : 'Tap the pieces in order · ' + done + ' of ' + pm.chunks.length) + '</p></div>';
+      // pieces already placed before this repaint stay used
+      if (!revealed) markUsed();
+    }
+  }
+  // the pool pieces that have been placed: the first `next` pieces of the verse, matched by text (two pieces with the same
+  // words are interchangeable)
+  function markUsed() {
+    const need = pm.chunks.slice(0, pm.next), used = new Set();
+    for (const t of need) { const k = pm.pool.find(k => !used.has(k) && pm.chunks[k] === t); if (k != null) used.add(k); }
+    for (const b of document.querySelectorAll('#pm-pool .pm-chunk')) { const u = used.has(+b.dataset.k); b.classList.toggle('used', u); b.disabled = u; }
+  }
+  function paintPractice(card) {
+    const box = $('#pm'), area = $('#pm-area'), tr = $('#trainer');
+    const on = !!(card && card.id && adult() && card.text);
+    box.hidden = !on;
+    if (!on) { area.hidden = true; area.innerHTML = ''; tr.removeAttribute('data-pm'); pm.key = null; return; }
+    const mode = modeOf(), key = card.id + '|' + mode + '|' + card.text;
+    paintModes(mode);
+    if (mode === 'recall') { area.hidden = true; area.innerHTML = ''; tr.removeAttribute('data-pm'); pm.key = key; pm.mode = mode; return; }
+    tr.setAttribute('data-pm', mode); area.hidden = false;
+    const fresh = key !== pm.key;
+    if (fresh) { pm = { key, mode, id: card.id, text: card.text, next: 0, chunks: [], pool: [], revealed: !!card.revealed }; buildArea(!!card.revealed); return; }
+    if (!!card.revealed !== pm.revealed) { pm.revealed = !!card.revealed; buildArea(pm.revealed); }
+  }
+  function setMode(mode) {
+    if (!MODES.includes(mode) || !adult()) return;
+    try { if (hub.get('mode') !== mode) hub.set('mode', mode); } catch (e) { console.error(e); }
+    pm.key = null;
+    paintPractice({ id: V.currentId(), revealed: V.revealedNow(), kid: V.isKid(), text: V.currentId() ? V.textOf(V.currentId()) : '' });
+  }
+  $('#pm-modes').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (b) setMode(b.dataset.mode); });
+  $('#pm-area').addEventListener('click', e => {
+    const w = e.target.closest('.pm-w[data-i]');
+    if (w && !w.disabled) { w.classList.add('shown'); w.disabled = true; w.setAttribute('aria-label', words(pm.text)[+w.dataset.i] || ''); return; }
+    const c = e.target.closest('.pm-chunk');
+    if (!c || c.disabled || pm.mode !== 'order' || V.revealedNow()) return;
+    const k = +c.dataset.k;
+    if (pm.chunks[k] === pm.chunks[pm.next]) {
+      pm.next++;
+      c.classList.add('used'); c.disabled = true;
+      const slot = document.querySelectorAll('#pm-line .slot')[pm.next - 1]; if (slot) { slot.classList.add('placed'); slot.removeAttribute('aria-hidden'); }
+      const help = $('#pm-help'); if (help) help.textContent = 'Tap the pieces in order · ' + pm.next + ' of ' + pm.chunks.length;
+      if (pm.next >= pm.chunks.length) { const f = document.activeElement; V.reveal(); if (f && !f.isConnected) { const r = document.querySelector('#act-rate [data-rate="got"]'); if (r) r.focus({ preventScroll: true }); } }
+    } else {
+      // a wrong piece: shake (a colour flash only under Reduce Motion: design.css turns the animation off there), no count
+      c.classList.remove('wrong'); void c.offsetWidth; c.classList.add('wrong');
+      clearTimeout(c._t); c._t = setTimeout(() => c.classList.remove('wrong'), 450);
+    }
+  });
+
+  // ── record yourself (IMP-VERSES-I1) ─────────────────────────────────────────────────────────────────────────
+  // An adult can record a recitation and play it back, as Remember Me does. The recording lives in this page's memory
+  // only: it is never uploaded, never stored (no hub.set, no localStorage, no cache), and it is dropped when the card
+  // changes or the page goes away. The button is not offered where the browser has no MediaRecorder or getUserMedia;
+  // a refused microphone gives a calm toast, never an alert. Not for kids or the display.
+  const canRecord = !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function' && typeof window.MediaRecorder === 'function');
+  const REC_MAX_MS = 120000;
+  let rec = { id: null, recorder: null, stream: null, chunks: [], url: null, audio: null, timer: null, starting: false };
+  const recBtn = $('#rec-btn'), playBtn = $('#rec-play');
+  const label = (b, icon, text) => { b.querySelector('use').setAttribute('href', '../icons/sprite.svg#i-' + icon); b.querySelector('span').textContent = text; };
+  function stopTracks() { if (rec.stream) { for (const t of rec.stream.getTracks()) { try { t.stop(); } catch {} } rec.stream = null; } }
+  function stopPlaying() { if (rec.audio) { try { rec.audio.pause(); } catch {} rec.audio = null; } playBtn.classList.remove('on'); label(playBtn, 'play', 'Play back'); }
+  function dropRecording() {
+    clearTimeout(rec.timer);
+    if (rec.recorder && rec.recorder.state !== 'inactive') { rec.recorder.ondataavailable = null; rec.recorder.onstop = null; try { rec.recorder.stop(); } catch {} }
+    stopTracks(); stopPlaying();
+    if (rec.url) { try { URL.revokeObjectURL(rec.url); } catch {} }
+    rec = { id: null, recorder: null, stream: null, chunks: [], url: null, audio: null, timer: null, starting: false };
+    recBtn.classList.remove('on'); recBtn.setAttribute('aria-pressed', 'false'); label(recBtn, 'mic', 'Record'); playBtn.hidden = true;
+  }
+  async function startRecording() {
+    if (rec.starting) return;
+    const id = V.currentId(); if (!id) return;
+    stopPlaying();
+    if (rec.url) { try { URL.revokeObjectURL(rec.url); } catch {} rec.url = null; playBtn.hidden = true; }
+    rec.starting = true;
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) {
+      rec.starting = false;
+      hub.toast(e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? 'The microphone is not allowed here, so recording is off. You can allow it in your settings.' : 'This device could not start a recording.', 4000);
+      return;
+    }
+    rec.starting = false;
+    if (V.currentId() !== id) { for (const t of stream.getTracks()) t.stop(); return; }   // the card changed while asking
+    let r; try { r = new MediaRecorder(stream); } catch { for (const t of stream.getTracks()) t.stop(); hub.toast('This device could not start a recording.', 4000); return; }
+    rec.id = id; rec.stream = stream; rec.recorder = r; rec.chunks = [];
+    r.ondataavailable = e => { if (e.data && e.data.size) rec.chunks.push(e.data); };
+    r.onstop = () => {
+      stopTracks(); clearTimeout(rec.timer);
+      recBtn.classList.remove('on'); recBtn.setAttribute('aria-pressed', 'false'); label(recBtn, 'mic', 'Record again');
+      if (rec.id !== V.currentId() || !rec.chunks.length) { rec.chunks = []; return; }
+      rec.url = URL.createObjectURL(new Blob(rec.chunks, { type: r.mimeType || 'audio/webm' })); rec.chunks = [];
+      playBtn.hidden = false;
+    };
+    try { r.start(); } catch { stopTracks(); hub.toast('This device could not start a recording.', 4000); return; }
+    recBtn.classList.add('on'); recBtn.setAttribute('aria-pressed', 'true'); label(recBtn, 'square', 'Stop');
+    rec.timer = setTimeout(() => { if (rec.recorder && rec.recorder.state === 'recording') rec.recorder.stop(); }, REC_MAX_MS);
+  }
+  recBtn.addEventListener('click', () => {
+    if (!adult()) return;
+    if (rec.recorder && rec.recorder.state === 'recording') { try { rec.recorder.stop(); } catch {} return; }
+    startRecording();
+  });
+  playBtn.addEventListener('click', () => {
+    if (!rec.url) return;
+    if (rec.audio) { stopPlaying(); return; }
+    const a = new Audio(rec.url); rec.audio = a;
+    a.onended = a.onerror = () => { if (rec.audio === a) stopPlaying(); };
+    playBtn.classList.add('on'); label(playBtn, 'square', 'Stop');
+    a.play().catch(() => { stopPlaying(); hub.toast('This device could not play the recording.', 4000); });
+  });
+  function paintRecorder(card) {
+    // shown (disabled) while the card loads too, so Read aloud and Show do not move down when the data lands
+    const loading = $('#trainer').getAttribute('aria-busy') === 'true';
+    const on = !!(card && (card.id || loading) && canRecord && adult());
+    $('#rec').hidden = !on;
+    recBtn.disabled = !(card && card.id);
+    if (!on || (rec.id && rec.id !== card.id)) dropRecording();
+  }
+  // the recording is dropped whenever the card changes (another verse, the done screen, a sign-out) and when the page goes
+  window.addEventListener('pagehide', dropRecording);
+  document.addEventListener('visibilitychange', () => { if (document.hidden && rec.recorder && rec.recorder.state === 'recording') { try { rec.recorder.stop(); } catch {} } });
+
+  // ── the card keeps its height on Show (VIS-VERSES-1) ───────────────────────────────────────────────────────────
+  // CSS keeps the rating row's room before Show. The one other thing that changes on Show is the hint's wording: where the
+  // after-Show hint takes fewer lines (a kid's card, or the largest text sizes) the hint keeps the height it had before
+  // Show on that same card, so nothing under it moves up; a new card starts from its own height again.
+  let hintHold = { id: null, h: 0 };
+  function holdHint(card) {
+    const h = $('#hint');
+    if (!card || !card.id) { h.style.minHeight = ''; hintHold = { id: null, h: 0 }; return; }
+    if (!card.revealed) { h.style.minHeight = ''; hintHold = { id: card.id, h: h.getBoundingClientRect().height }; }
+    else if (hintHold.id === card.id && hintHold.h) h.style.minHeight = hintHold.h + 'px';
+    else h.style.minHeight = '';
+  }
+  // a text-size change (or a rotation) before Show re-measures it
+  if (typeof ResizeObserver === 'function') new ResizeObserver(() => { const id = V.currentId(); if (id && id === hintHold.id && !V.revealedNow()) hintHold.h = $('#hint').getBoundingClientRect().height; }).observe($('#hint'));
+
+  // ── the ratings in view after Show (review round 1) ───────────────────────────────────────────────────────────
+  // On a phone a kid's card (the paraphrase, the picture buttons) can put the ratings under the bottom edge: when a card
+  // turns revealed, the rating row is scrolled just into view (block 'nearest': no move when it is already visible),
+  // smoothly unless Reduce Motion is on (the switch in Me, or the OS setting unless the switch says full motion).
+  let shownFor = null;
+  function ratingsIntoView(card) {
+    if (!card || !card.id || !card.revealed) { if (!card || card.id !== shownFor) shownFor = null; return; }
+    if (shownFor === card.id) return;
+    shownFor = card.id;
+    const row = $('#act-rate'); if (!row || row.hidden) return;
+    const m = document.documentElement.dataset.motion;
+    const still = m === 'reduce' || (m !== 'full' && !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches));
+    // (final rescore B) this page's own scroll only: scrollIntoView also scrolls the hub's page around the frame, which slid
+    // the card's top under the viewer bar on an iPad. And while the result line shows (with its Undo) it never leaves the
+    // screen: the ratings come as far into view as that allows.
+    requestAnimationFrame(() => { try {
+      const r = row.getBoundingClientRect(), mb = parseFloat(getComputedStyle(row).scrollMarginBottom) || 0;
+      let dy = r.bottom + mb > innerHeight ? r.bottom + mb - innerHeight : r.top < 0 ? r.top : 0;
+      const line = $('#rated');
+      if (dy > 0 && line && line.closest('#trainer') && line.classList.contains('armed') && !line.classList.contains('faded')) dy = Math.max(0, Math.min(dy, line.getBoundingClientRect().top - (parseFloat(getComputedStyle($('#trainer')).scrollMarginTop) || 0)));
+      if (dy) window.scrollBy({ top: dy, behavior: still ? 'auto' : 'smooth' });
+    } catch {} });
+  }
+
+  let lastId = null;
+  V.onCard(card => {
+    if ((card && card.id) !== lastId) { lastId = card && card.id; if (rec.id || rec.url || rec.recorder) dropRecording(); }
+    paintPractice(card); paintRecorder(card); holdHint(card); ratingsIntoView(card);
+  });
+  hub.onChange(() => { const id = V.currentId(); if (id && pm.key && adult()) { const m = modeOf(); if (m !== pm.mode) paintPractice({ id, revealed: V.revealedNow(), kid: V.isKid(), text: V.textOf(id) }); } });
+  // for the test scripts (B's own; A's members stay on window.verses)
+  window.versesB = { canRecord, mode: modeOf, setMode, practice: () => ({ mode: pm.mode, next: pm.next, chunks: pm.chunks.slice(), pool: pm.pool.slice() }), recording: () => ({ id: rec.id, state: rec.recorder ? rec.recorder.state : 'none', hasUrl: !!rec.url }) };
 })();
 </script>
 </body>
