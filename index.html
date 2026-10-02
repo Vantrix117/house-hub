@@ -122,6 +122,18 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   .k-list .k-days.stale { color: var(--danger-ink); }
   .k-faces { display: flex; flex: none; flex-wrap: nowrap; gap: 4px; }   /* up to four faces in a row, never a column */
   .k-faces .avatar { --size: 32px; }
+  /* the kitchen's timers (GAP-HOME-1): one row each, the owner's face, the time in the glance numerals; one timer keeps the big number */
+  .k-timers li.k-timer-row { flex-wrap: wrap; row-gap: var(--sp-2); }
+  .k-timers .k-twho { display: flex; align-items: center; gap: var(--sp-3); flex: 1 1 12em; min-width: 0; }
+  .k-timers .k-twho .grow svg.sym { display: inline-block; vertical-align: -0.15em; }
+  .k-timers .k-twho .app-icon { --icon-box: 40px; }   /* the kitchen's own timer: its mark beside the others' faces, not a tile */
+  .k-timers .k-tnum { font-family: var(--font-numeral); font-size: var(--fs-glance-3); font-weight: var(--fw-bold); line-height: var(--lh-tight); font-variant-numeric: var(--numeral-features); flex: none; }
+  .k-timers li.one { flex-direction: column; align-items: flex-start; }
+  .k-timers li.one .k-twho { flex: none; }
+  .k-timers .k-ended { font-family: inherit; color: var(--accent-ink); font-size: var(--fs-glance-3); }
+  .k-timers li.ringing .k-twho .grow { font-weight: var(--fw-bold); }
+  .k-timers .k-tacts { display: flex; flex-wrap: wrap; gap: var(--sp-2); flex: none; }
+  .k-card .k-timers .btn { align-self: auto; margin-top: 0; }
   .k-wide { grid-column: 1 / -1; }
   .k-card h2 { flex-wrap: wrap; }
   #k-album-add { white-space: nowrap; flex: none; }
@@ -215,7 +227,8 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     .glance:has(> .kids-card:last-child) > :nth-last-child(2):nth-child(3n+2), .glance:has(> .kids-card:last-child) > :nth-last-child(3):nth-child(3n+1) { grid-column: span 3; }
   }
   .card h2 { font-size: var(--fs-lg); margin-bottom: var(--sp-3); display: flex; align-items: center; gap: var(--sp-3); position: relative; z-index: 1; }
-  .card h2 .app-icon { --icon-box: 40px; }   /* a size sets only --icon-box; the corner is size x --r-icon-ratio (CONS-TOK-4) */
+  .card h2 .app-icon { --icon-box: 40px; }
+  .app-icon > svg.sym { height: auto; aspect-ratio: 1; }   /* a sprite symbol (no viewBox of its own): square, never the 150 px default height */   /* a size sets only --icon-box; the corner is size x --r-icon-ratio (CONS-TOK-4) */
   /* A Home card (batch 5): the heading, the body, then a footer row (.gfoot) with the button on the left and the spot art on
      the right. Words and art never share a box, so the art can never overlap the text (audits/tools/phase6/5/home-art-5.mjs
      measures it). The art gives way first: it shrinks, down to nothing, before the button's label would wrap; only a label
@@ -239,6 +252,20 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   .gbig.one { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   @media (max-width: 719px) { .gsub, .gbig.one { display: block; white-space: nowrap; text-overflow: ellipsis; } }   /* full-width cards: one line */
   .gcard .btn { margin-top: var(--sp-3); position: relative; z-index: 1; }
+  /* the Home timer card (UX-TIMER-7, batch 6): one-tap lengths, then each running timer with Pause / Stop */
+  .timer-card .gbody .btn { margin-top: 0; }
+  .timer-card .tm-recents { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-2); }
+  .timer-card .tm-go { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); gap: var(--sp-2); }
+  .timer-card .tm-row { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); padding: var(--sp-1) 0; }
+  .timer-card .tm-row + .tm-row { border-top: var(--border-w) solid var(--separator); }
+  .timer-card .tm-what { flex: 1 1 6em; min-width: 0; font-weight: var(--fw-semibold); overflow-wrap: anywhere; }
+  .timer-card .tm-what svg.sym { display: inline-block; vertical-align: -0.15em; color: var(--accent-ink); }
+  .timer-card .tm-left { flex: none; min-width: 3.6em; font-family: var(--font-numeral); font-size: var(--fs-xl); font-weight: var(--fw-bold); line-height: var(--lh-tight); font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); }
+  .timer-card .tm-row.ringing .tm-left { font-family: inherit; font-size: var(--fs-lg); color: var(--accent-ink); }
+  .timer-card .tm-acts { display: flex; gap: var(--sp-2); flex: none; }
+  .timer-card .tm-row.bare .tm-what { flex: none; }
+  .timer-card .tm-row.bare .tm-left { flex: 1 1 auto; }
+  :root[data-glance]:not([data-kind="kiosk"]) .timer-card .tm-left { font-size: var(--fs-glance-3); }
   .fresh { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
   .fresh .bar { --tint: var(--aging); }
   .fresh .stale .bar { --tint: var(--use-soon); }   /* the Larder ramp: graphics, not inks */
@@ -331,6 +358,16 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   :root[data-kind="kiosk"] .tv-lines li:last-child { border-bottom: 0; }
   :root[data-kind="kiosk"] .tv-lines > li.tv-out { display: none; }   /* the anniversary while it shows in the verse pane (or nowhere) */
   :root[data-kind="kiosk"] .tv-lines li.tv-anniv .app-icon { --icon-box: calc(var(--tv-avatar) * .5); flex: none; }
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .app-icon { --icon-box: calc(var(--tv-avatar) * .5); flex: none; }
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .txt { display: flex; gap: var(--sp-4); }
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .tv-tm { display: flex; align-items: baseline; gap: var(--sp-2); min-width: 0; flex: none; }
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .tv-tm.squeeze { flex: 0 1 auto; }   /* a timer alone on the line that still does not fit: its label gives way */
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers :is(.tv-tm, .tv-tmore)[hidden] { display: none; }
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .tv-tn { color: var(--accent-ink); flex: none; max-width: 7em; overflow: hidden; text-overflow: ellipsis; }
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .tv-tt { flex: none; }   /* the time never gives way */
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .tv-tleft { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-bold); }
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .tv-tlab { flex: 1 1 auto; min-width: 0; max-width: 9em; overflow: hidden; text-overflow: ellipsis; color: var(--text-2); }   /* the label goes first */
+  :root[data-kind="kiosk"] .tv-lines li.tv-timers .tv-tmore { flex: none; color: var(--text-2); }
   :root[data-kind="kiosk"] .tv-lines li.tv-anniv .tv-anniv-txt { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   :root[data-kind="kiosk"] .tv-lines li.tv-empty { height: 100%; flex-direction: column; justify-content: center; gap: var(--sp-3); border: 0; color: var(--text-2); font-size: var(--fs-lg); }   /* an empty feed: its art, sized to the pane */
   :root[data-kind="kiosk"] .tv-empty img { flex: 0 1 auto; min-height: 0; max-height: 70%; max-width: 40%; }
@@ -466,7 +503,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   :root[data-glance]:not([data-kind="kiosk"]) .star-big { font-size: var(--fs-glance-2); }
   :root[data-glance]:not([data-kind="kiosk"]) #timer-pill { min-height: 72px; padding: 0 var(--sp-6) 0 var(--sp-5); }
   :root[data-glance]:not([data-kind="kiosk"]) #timer-pill .tp-time { font-size: var(--fs-glance-3); line-height: 1; }
-  :root[data-glance]:not([data-kind="kiosk"]) #timer-pill .icon, :root[data-glance]:not([data-kind="kiosk"]) #timer-pill .tp-ring .ring { width: 30px; height: 30px; }
+  :root[data-glance]:not([data-kind="kiosk"]) #timer-pill svg.sym, :root[data-glance]:not([data-kind="kiosk"]) #timer-pill .tp-ring .ring { width: var(--icon-xl); height: var(--icon-xl); }
   #rem-mic.on { background: var(--danger-fill); color: var(--danger-ink); animation: pulse 1s infinite; }
   /* the feed: one row per person, one line per thing they did */
   .feed .fwho { display: block; margin-bottom: 2px; }
@@ -698,31 +735,80 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     #pill .pill-sync { padding: 0 var(--sp-2); }
     #pill:has(#pill-sync:not([hidden])) #pill-back, #pill:has(#pill-timer:not([hidden])) #pill-back { display: none; }
     #pill #pill-home, #pill #pill-reload, #pill #pill-timer { flex: none; padding: 0 var(--sp-2); }
+    /* the title gives way first (an ellipsis), so Back, the timer chip and Reload always stay on screen (a kid at XXL on 375) */
+    #pill #pill-name { flex: 1 1 auto; min-width: 0; }
+    #pill #pill-name svg { flex: none; }   /* the chevron keeps its size; the title is what gives way */
+    /* a kid's Back is its arrow alone (pre-readers: the icon is the cue; "Back to Apps" stays its name for VoiceOver), and the bar's
+       buttons keep the kid target (64 px) rather than growing with the text size, so the title keeps its room (visual review round 5) */
+    :root[data-kind="kid"] #pill #pill-back { display: none; }
+    :root[data-kind="kid"] #pill :is(#pill-home, #pill-reload) { min-width: var(--tap-base); }
+    :root[data-kind="kid"] #pill:has(#pill-timer:not([hidden])) #pill-name svg { display: none; }   /* beside a running timer a kid's title keeps the chevron's room too (the whole title is still the Switch app button) */
   }
   #pill #pill-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   #pill .icon { width: 20px; height: 20px; }
   @media (hover: hover) and (pointer: fine) { #pill button:hover { background: var(--hover); } }
   .ds .toast { bottom: calc(88px + var(--safe-bottom)); }
   @media (min-width: 1024px) { .ds .toast { bottom: var(--sp-8); left: calc(50% + 110px); } }
+  /* with the timer pill on screen, a toast (a Reset's Undo) sits above the pill's band, never over its Stop (visual review round 6) */
+  @media (max-width: 1023px) { :root[data-timer]:not([data-kind="kiosk"]):not([data-tab="chat"]):not([data-kind="kitchen"][data-tab="home"]) .ds .toast { bottom: calc(var(--tp-base) + 4px + var(--tp-room)); } }
 
-  /* ── timer pill: a running kitchen timer follows you across every tab (timer.active, person scope) ── */
-  #timer-pill { position: fixed; left: 50%; bottom: calc(84px + var(--safe-bottom)); transform: translateX(-50%); z-index: 25;
-    min-height: 44px; padding: 0 var(--sp-5) 0 var(--sp-4); gap: var(--sp-3); color: var(--text); font: inherit; font-weight: 600; font-size: var(--fs-md);
-    cursor: pointer; white-space: nowrap; animation: tp-in var(--dur-3) var(--spring); }
+  /* ── timer pill: the most urgent live timer follows you across every tab (timer:<id> rows, batch 6), "+N" for the others ──
+     Every size is a token (GAP-TOK-4): the height is --tap (64 px for a kid, P4-SHAPE-01), the icons the --icon roles, the
+     layer --z-fab (above the tab bar, under the scrim and the toast). The press is the shared one (CONS-MOTION-1). */
+  #timer-pill { position: fixed; left: 50%; bottom: calc(84px + var(--safe-bottom)); transform: translateX(-50%); z-index: var(--z-fab);
+    min-height: var(--tap); width: max-content; max-width: calc(100vw - 2 * var(--sp-4));   /* max-content: left 50% alone would shrink it to half the screen and drop the label */ padding: 0 var(--sp-5) 0 var(--sp-4); gap: var(--sp-3); color: var(--text); font: inherit; font-weight: var(--fw-semibold); font-size: var(--fs-md);
+    cursor: pointer; white-space: nowrap; animation: tp-in var(--dur-3) var(--spring);
+    transition: transform var(--dur-snappy) var(--spring-snappy), filter var(--dur-snappy) var(--spring-snappy); }
   @keyframes tp-in { from { opacity: 0; } }
   #timer-pill[hidden] { display: none; }
-  #timer-pill .icon { width: 20px; height: 20px; color: var(--accent-deep); }
-  #timer-pill .tp-time { font-family: var(--font-numeral); font-variant-numeric: tabular-nums; letter-spacing: .01em; min-width: 3.2em; text-align: left; color: var(--accent-strong); }
-  #timer-pill .tp-ring .ring { --tint: var(--accent); width: 22px; height: 22px; } #timer-pill .tp-ring .ring circle { stroke-width: 7; }
-  #timer-pill:active { transform: translateX(-50%) scale(.96); }
+  #timer-pill svg.sym { width: var(--icon-sm); height: var(--icon-sm); color: var(--accent-deep); }
+  #timer-pill .tp-time { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); min-width: 3.2em; text-align: left; color: var(--accent-strong); }
+  #timer-pill .tp-label { min-width: 0; max-width: 14em; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+  #timer-pill.ringing .tp-label { color: var(--accent-ink); }
+  /* a kid's or a large text size's ringing pill keeps the words "Time's up" whole: the name and the count give way first */
+  @media (max-width: 1023px) { :root:is([data-kind="kid"], [data-text-size="xl"], [data-text-size="xxl"]) #timer-pill.ringing :is(.tp-name, .tp-more) { display: none; } }
+  #timer-pill .tp-label[hidden], #timer-pill .tp-more[hidden], #timer-pill .tp-stop[hidden], #timer-pill .tp-ring[hidden] { display: none; }
+  #timer-pill .tp-more { font-size: var(--fs-sm); color: var(--text-2); font-variant-numeric: var(--numeral-features); }
+  #timer-pill .tp-ring .ring { --tint: var(--accent); width: var(--icon-md); height: var(--icon-md); } #timer-pill .tp-ring .ring circle { stroke-width: 7; }
+  #timer-pill .tp-ring .ring .bg { stroke: var(--tint-fill-strong); }
+  /* time's up (GAP-TIMER-2, UX-TIMER-4): the words, the bell and a Stop capsule in the timer's solid; the whole pill is Stop */
+  #timer-pill.ringing .tp-time { display: none; }
+  #timer-pill .tp-stop { display: inline-flex; flex: none; align-items: center; min-height: calc(var(--tap) - var(--sp-3)); padding: 0 var(--sp-4); border-radius: var(--r-full); background: var(--timer-done); color: var(--accent-on); font-weight: var(--fw-bold); }
+  #timer-pill.ringing svg.sym { color: var(--accent-ink); }
+  #timer-pill:active { transform: translateX(-50%) scale(var(--press-scale)); filter: var(--press-dim); transition-duration: var(--dur-press); }
   @media (hover: hover) and (pointer: fine) { #timer-pill:hover { --g: var(--glass-strong); } }
   /* VIS-HOME-2: the pill keeps its own band — the page reserves room for it above the tab bar, so it never sits on content —
      and on the desktop it lives at the foot of the sidebar, beside the content, not over it */
-  @media (min-width: 1024px) { #timer-pill { left: var(--sp-3); width: calc(220px - 2 * var(--sp-3)); justify-content: center; bottom: calc(var(--sp-6) + var(--safe-bottom)); transform: none; } #timer-pill:active { transform: scale(.96); } }
-  :root { --tp-room: 64px; } :root[data-glance] { --tp-room: 92px; }
+  @media (min-width: 1024px) { #timer-pill { left: var(--sp-3); width: calc(220px - 2 * var(--sp-3)); justify-content: center; bottom: calc(var(--sp-6) + var(--safe-bottom)); transform: none; }
+    #timer-pill:active { transform: scale(var(--press-scale)); }
+    /* the sidebar's width: the words and the time, no ring; the time never wider than the pill (the iPad's glance size too) */
+    #timer-pill { justify-content: flex-start; gap: var(--sp-2); padding: 0 var(--sp-3); } #timer-pill .tp-ring { display: none; }
+    #timer-pill .tp-more { flex: none; }   /* running: one row, the label gives way (an ellipsis), the time and "+N" stay */
+    #timer-pill .tp-time { min-width: 0; flex: none; } #timer-pill .tp-label { flex: 1 1 auto; max-width: none; }
+    #timer-pill .tp-stop { padding: 0 var(--sp-3); }
+    /* a kid's or an XXL Stop is wide: it takes a row of its own rather than squeezing "Time's up" to a letter */
+    /* ringing: two rows, the bell and "Time's up · <name>" (the name clipped first), then a full-width Stop */
+    #timer-pill.ringing { flex-wrap: wrap; row-gap: var(--sp-1); padding-block: var(--sp-2); }
+    #timer-pill.ringing .tp-label { flex: 1 1 0; white-space: normal; text-overflow: clip; } #timer-pill.ringing .tp-name { white-space: nowrap; } #timer-pill.ringing .tp-more { display: none; }   /* a kid's or XXL words wrap whole rather than "Time's …" */
+    #timer-pill.ringing .tp-stop { flex: 1 0 100%; justify-content: center; }
+    /* the pill is the container (its width is fixed here), so the time is sized by what it has: "10:00" is about 2.4 em of the
+       numeral face, "23:59:59" 3.8 em. Beside the icon and "+N" it is capped so a kid's XXL "+1" stays inside (pill probe) */
+    #timer-pill { container-type: inline-size; }
+    :root[data-glance]:not([data-kind="kiosk"]) #timer-pill .tp-time { font-size: min(var(--fs-title2), 17cqw); }
+    :root[data-glance]:not([data-kind="kiosk"]) #timer-pill[data-long] .tp-time { font-size: min(var(--fs-title2), 11cqw); }
+    /* one timer, not ringing, on the iPad (rescore item 4): the time is a glance readout again, on its own row under the icon
+       and the label, as large as the pill's width allows */
+    :root[data-glance]:not([data-kind="kiosk"]) #timer-pill:not(.ringing):has(#timer-pill-more[hidden]) { flex-wrap: wrap; row-gap: 0; padding-block: var(--sp-2); }
+    :root[data-glance]:not([data-kind="kiosk"]) #timer-pill:not(.ringing):has(#timer-pill-more[hidden]) .tp-label { flex: 1 1 0; text-align: start; }   /* the label stays beside the icon (an ellipsis), never a row of its own */
+    :root[data-glance]:not([data-kind="kiosk"]) #timer-pill:not(.ringing):has(#timer-pill-more[hidden]) .tp-time { flex: 1 0 100%; font-size: min(var(--fs-glance-3), 38cqw); line-height: 1.05; }
+    :root[data-glance]:not([data-kind="kiosk"]) #timer-pill[data-long]:not(.ringing):has(#timer-pill-more[hidden]) .tp-time { font-size: min(var(--fs-glance-3), 25cqw); } }
+  :root { --tp-room: calc(max(var(--tp-h, 0px), var(--tap)) + var(--sp-5)); } :root[data-glance] { --tp-room: calc(max(var(--tp-h, 0px), 72px) + var(--sp-5)); }   /* the pill's own height (--tp-h, measured: a kid's XXL pill is taller than --tap) and its gap */
   @media (max-width: 1023px) {
+    /* the pill's band starts above the tab bar, whatever its height (--tabbar-h, measured: a kid's XXL tabs are taller than 84 px) */
+    :root { --tp-base: max(calc(84px + var(--safe-bottom)), calc(var(--tabbar-h, 0px) + var(--sp-2))); }
+    #timer-pill { bottom: var(--tp-base); }
     /* the scroller ends above the pill's band, so nothing scrolls under it (the Chat tab keeps its composer layout below) */
-    :root[data-timer]:not([data-kind="kiosk"]):not([data-tab="chat"]):not([data-kind="kitchen"][data-tab="home"]) #views {   /* the kitchen's Home hides the pill: no band there */ margin-bottom: calc(80px + var(--tp-room) + var(--safe-bottom)); padding-bottom: var(--sp-4); }
+    :root[data-timer]:not([data-kind="kiosk"]):not([data-tab="chat"]):not([data-kind="kitchen"][data-tab="home"]) #views {   /* the kitchen's Home hides the pill: no band there */ margin-bottom: calc(var(--tp-base) - 4px + var(--tp-room)); padding-bottom: var(--sp-4); }
   }
   :root[data-kind="kiosk"] #timer-pill { bottom: calc(var(--sp-6) + var(--safe-bottom)); cursor: default; }
   /* on the Chat tab the composer owns that band: the pill lifts above it (--chat-h is the composer's measured height), and the
@@ -732,8 +818,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     :root[data-timer][data-tab="chat"] .chat { padding-bottom: calc(92px + var(--tp-room)); }
   }
   /* inside an app the countdown sits in the slim bar above it, never over the app */
-  #pill #pill-timer { color: var(--accent-strong); font-family: var(--font-numeral); font-variant-numeric: tabular-nums; gap: 6px; }
-  #pill #pill-timer .icon { color: var(--accent-deep); }
+  #pill #pill-timer { color: var(--accent-strong); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); gap: var(--sp-1); }
+  #pill #pill-timer svg.sym { width: var(--icon-sm); height: var(--icon-sm); color: var(--accent-deep); }   /* a fixed size: the chip stays as narrow as before batch 6 at any text size */
+  #pill #pill-timer.ringing { background: var(--timer-done); color: var(--accent-on); font-family: inherit; }
+  #pill #pill-timer.ringing svg.sym { color: inherit; }
 </style>
 </head>
 <body class="ds">
@@ -778,14 +866,14 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   </nav>
 </div>
 
-<button id="timer-pill" class="pill" hidden aria-label="Kitchen timer running — open it"><svg class="icon"><use href="#i-timer"/></svg><span class="tp-time" id="timer-pill-time">0:00</span><span class="ringwrap tp-ring" aria-hidden="true"><svg class="ring" id="timer-pill-ring" viewBox="0 0 52 52" style="--p:1"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg></span></button>
+<button id="timer-pill" class="pill" hidden aria-label="Kitchen timer running — open it"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-timer"/></svg><span class="tp-label" id="timer-pill-label" hidden></span><span class="tp-time" id="timer-pill-time">0:00</span><span class="tp-more" id="timer-pill-more" hidden>+1</span><span class="tp-stop" id="timer-pill-stop" hidden aria-hidden="true">Stop</span><span class="ringwrap tp-ring" aria-hidden="true"><svg class="ring" id="timer-pill-ring" viewBox="0 0 52 52" style="--p:1"><circle class="bg" cx="26" cy="26" r="22"/><circle class="fg" cx="26" cy="26" r="22"/></svg></span></button>
 
 <div id="viewer">
   <div id="pill" class="topbar">
     <button id="pill-home" aria-label="Back to Apps"><svg class="icon"><use href="#i-back"/></svg><span id="pill-back">Apps</span></button>
     <button id="pill-name" aria-label="Switch app"><span id="pill-label">App</span><svg class="icon" style="transform:rotate(180deg)"><use href="#i-chev"/></svg></button>
     <span id="pill-sync" class="pill-sync" role="status" aria-live="polite" hidden><span class="dot" id="pill-sync-dot"></span><span id="pill-sync-t"></span><span id="pill-sync-s" aria-hidden="true"></span></span>
-    <button id="pill-timer" hidden aria-label="Kitchen timer running — open it"><svg class="icon"><use href="#i-timer"/></svg><span id="pill-timer-time">0:00</span></button>
+    <button id="pill-timer" hidden aria-label="Kitchen timer running — open it"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-timer"/></svg><span id="pill-timer-time">0:00</span></button>
     <button id="pill-reload" aria-label="Reload this app"><svg class="icon"><use href="#i-refresh"/></svg></button>
   </div>
   <iframe id="frame" title="App" allow="microphone; camera; web-share; geolocation; screen-wake-lock"></iframe>
@@ -812,7 +900,6 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   <symbol id="i-mic" viewBox="0 0 24 24"><path class="duo" d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/></symbol>
-  <symbol id="i-timer" viewBox="0 0 24 24"><circle class="duo" cx="12" cy="13" r="7"/><circle cx="12" cy="13" r="7"/><path d="M12 9v4l2.5 2M10 3h4M12 3v3"/></symbol>
   <symbol id="i-sparkle" viewBox="0 0 24 24"><path class="duo" d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></symbol>
   <symbol id="i-verses" viewBox="0 0 24 24"><path class="duo" d="M4 5.5h6.5a2 2 0 0 1 2 2V19a1.5 1.5 0 0 0-1.5-1.5H4z"/><path d="M4 5.5h6.5a2 2 0 0 1 2 2V19a1.5 1.5 0 0 0-1.5-1.5H4zM20 5.5h-6.5a2 2 0 0 0-2 2V19a1.5 1.5 0 0 1 1.5-1.5H20z"/><path d="M7 9.5h2.5M7 12.5h2.5"/><path d="M15 12.5l1.7 1.7L20 10.5"/></symbol>
 </svg>
@@ -841,7 +928,8 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // Data the dashboard reads from other apps (each app still owns its own keys).
   hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person').use('timer', 'person')
     .use('dollywood-live', 'family').use('kidverse', 'both')    // park days + kids' stars (kidverse writes; the shell only reads)
-    .use('verses', 'person');                                   // the Home Verses card: the review days (rev:) and the summary (Verses writes)
+    .use('verses', 'person')                                    // the Home Verses card: the review days (rev:) and the summary (Verses writes)
+    .use('timer', 'family');                                    // the running timers' mirror (batch 6): the kitchen, the TV, and timers kept on this device after a Switch
 
   // ── registry ──────────────────────────────────────────────────
   async function loadRegistry() {
@@ -929,7 +1017,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   async function showPicker(msg) {
     stopBoard();
     hub.setSession(null);
-    resetChat(); dropRemDone();   // nothing of the last person's chat or pending ✓ outlives their session (review of batch 2a)
+    resetChat(); dropRemDone(); hideToast();   // nothing of the last person's chat, pending ✓ or Undo toast outlives their session (review of batch 2a; core review round 4)
     tab = 'home'; if (location.hash && location.hash !== '#home') history.replaceState(null, '', '#home');   // P2-HOME-03: whoever signs in next starts on Home
     if (hub.device && await kitchenSignIn()) return;
     const last = hub.lastProfile();
@@ -1081,7 +1169,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   let tab = 'home';
   function enterShell() {
     gate.hidden = true; shell.hidden = false;
-    resetChat();
+    resetChat(); hideToast();   // a sign-in never inherits the last person's toast (its Undo was theirs, core review round 4)
     hub.reset(); hub.ready().then(() => { renderGrid(); if (tab === 'home') renderHome(); renderTimerPill(); sendQueued(); });
     try { if (!localStorage.getItem('hub.persistAsked')) { localStorage.setItem('hub.persistAsked', '1'); hub.persistStorage(); } } catch {}   // devices paired before the request existed
     renderBrand(); renderMe(); renderGrid(); syncThemeColor();
@@ -1301,62 +1389,157 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   hub.onSync(s => setDot(s.state));
   hub.onAuthLoss(() => { dropRemDone(); closeViewer({ drop: true }); hub.device ? showPicker('Please choose your profile again.') : showPairing('This device was unpaired.'); });
 
-  // ── timer that survives navigation ────────────────────────────
-  // The Timer app writes timer.active = { endAt, total, startedAt } in its person scope when a countdown starts and
-  // clears it on pause/reset. The shell shows it as a pill on every tab (and a chip in the app bar over other apps),
-  // ticks it each second, and at 0 — with the app closed — beeps, shows a local notification, clears the record and
-  // toasts. Another device sees the same record within a pull. The display profile only looks: pill, no beep, no write.
-  // With the Timer app open it handles its own finish (beep, done state, clear) — the shell adds no toast over its buttons.
-  // The pill never shows over the gate: Switch signs out but keeps the store, so the gate hides it and stops the tick.
-  const TIMER = { app: 'timer', scope: 'person' };
+  // ── timers that survive navigation and a Switch (batch 6) ────────────────────────────────────────────────────────
+  // The Timer app keeps one person-scope row per timer, timer:<id> (apps/hub.js hub.timers holds the one copy of the rules:
+  // server time, the startedAt clear rule, the family mirror, the 10-minute rule). The shell shows the most urgent live
+  // timer as a pill on every tab (a chip in the app bar over other apps) with "+N" for the others. At endAt (server time,
+  // P2-STAB-08) a timer rings: its owner's sound every 15 s until Stop, for at most 10 minutes; a timer that ended while
+  // this device was away reads "Ended at 6:42" (UX-TIMER-3). With the Timer app open it rings for itself, so the shell
+  // rings only what the app does not show. Whenever the page is hidden at 0 a local notification shows, whichever app is
+  // open (P3-TIMER-04; hub.timers.notify shows it once per timer on this device). Timers started on this device stay on it
+  // across a Switch (P2-PROF-08, hub.timers.device): they count down, ring and notify, and the pill reads "Mae's timer ·
+  // 3:12"; a Stop by someone else stops it here only (the owner's row is the owner's, or the Worker's 10-minute rule's).
+  // At the picker only a ringing timer shows (its Stop). The TV never rings or writes.
+  const TIMER = { app: 'timer', scope: 'person' }, TM = hub.timers;
   const tpill = $('#timer-pill'), tchip = $('#pill-timer');
-  let timerTick = null, timerDone = 0;
-  const fmtLeft = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  // the band the pill, the scroller's end and a toast keep: the tab bar's and the pill's real heights (visual review round 6)
+  if (window.ResizeObserver) {
+    const rootStyle = document.documentElement.style, tbar = $('#tabbar');
+    new ResizeObserver(() => { const h = tbar ? tbar.offsetHeight : 0; if (h) rootStyle.setProperty('--tabbar-h', h + 'px'); else rootStyle.removeProperty('--tabbar-h'); }).observe(tbar);
+    new ResizeObserver(() => { const h = tpill.offsetHeight; if (h) rootStyle.setProperty('--tp-h', h + 'px'); }).observe(tpill);
+  }
+  let timerTick = null, timerSig = '';
+  const ringing = new Map();                                  // owner:id@startedAt -> { at: when it last rang (device ms) }
+  const shellTimers = window.__timerShell = { ringing: [], rings: 0, notified: 0 };
+  const fmtLeft = s => TM.fmt(s * 1000);                      // seconds as m:ss, h:mm:ss from an hour (VIS-TIMER-4)
+  const timeAt = ms => new Date(ms).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const tKey = r => r.owner + ':' + r.id + '@' + r.startedAt;
   function hideToast() { const t = document.getElementById('hub-toast'); if (t) { clearTimeout(t._t); t.hidden = true; } }
-  function timerActive() {
-    try { const a = hub.get('timer.active', TIMER); return a && typeof a === 'object' && Number(a.endAt) > 0 && a.endAt !== timerDone ? a : null; } catch { return null; }
+  /** Every timer this device shows: the signed-in person's rows, then the ones started here by someone not signed in. */
+  function liveTimers() {
+    if (hub.isKiosk) return [];                                 // the TV shows timers only in its board's quiet line, never a pill with Stop (M1)
+    const out = [], p = hub.profile, signedIn = gate.hidden && p;
+    if (signedIn) { try { for (const r of TM.list()) out.push({ ...r, own: true, owner: p.id, name: p.name }); } catch {} }
+    for (const e of TM.device()) if (e.state === 'running' || e.state === 'paused' || e.state === 'ended') out.push({ ...e.row, state: e.state, left: e.left, own: false, owner: e.owner, name: e.name, hue: e.hue, sound: e.sound });
+    const rank = r => r.state === 'ended' ? 0 : r.state === 'running' ? 1 : 2;
+    return out.sort((a, b) => rank(a) - rank(b) || (a.state === 'ended' ? a.endAt - b.endAt : a.left - b.left));
   }
-  function timerBeep() {                 // the same three-note tone the Timer app plays
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      [0, .3, .6].forEach(d => { const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination); o.frequency.value = 880;
-        g.gain.setValueAtTime(.4, ctx.currentTime + d); g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + d + .25);
-        o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + .25); });
-    } catch {}
+  // what a timer is called: its label, "Mae's timer" for someone not signed in here, else "Timer"
+  const timerName = r => (!r.own && r.name ? r.name + "'s " + (r.label ? r.label : 'timer') : r.label || 'Timer');
+  const endedLine = r => hub.serverNow() - r.endAt < 60000 ? "Time's up" : 'Ended at ' + timeAt(r.endAt);
+  function playFor(r) { TM.play(r.own ? undefined : r.sound || 'chime'); shellTimers.rings++; }
+  // Rings each ended timer the open Timer app is not already ringing; the notification whenever the page is hidden
+  function ringTimers(all) {
+    const now = Date.now(), appOpen = !!current && current.id === 'timer', live = new Set();   // the open Timer rings its own, hidden or not
+    for (const r of all) {
+      if (r.state !== 'ended') continue;
+      const k = tKey(r); live.add(k);
+      if (hub.isKiosk) continue;
+      if (document.hidden) TM.notify(r, r.own ? null : r.name, r.owner).then(n => { if (n) shellTimers.notified++; });
+      if (r.own && appOpen) { ringing.delete(k); continue; }   // the Timer app rings its own person's timers
+      const st = ringing.get(k);
+      if (!st) {
+        ringing.set(k, { at: now }); playFor(r);   // no toast: the pill, or the chip in an app's bar, says "Time's up" and is the Stop (visual review: a toast covered it)
+      } else if (now - st.at >= 14500) { st.at = now; playFor(r); }   // every 15 s on the 1 s tick (a tick a few ms late must not slip to 16 s)
+    }
+    for (const k of [...ringing.keys()]) if (!live.has(k)) ringing.delete(k);
+    shellTimers.ringing = [...ringing.keys()];
   }
-  async function timerNotify(a) {        // local, from this device's service worker — no server push involved
-    try {
-      if (!('Notification' in window) || Notification.permission !== 'granted' || !('serviceWorker' in navigator)) return;
-      const reg = await navigator.serviceWorker.getRegistration(); if (!reg) return;
-      await reg.showNotification('Timer done', { body: fmtLeft(Number(a.total) || 0) + ' is up.', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: 'timer', renotify: true, data: { url: '#timer' } });
-    } catch {}
+  /** Stop: the person's own timer is cleared (hub.timers.clear: only that start, after a pull); anyone else's stops here only. */
+  function stopTimer(r) {
+    ringing.delete(tKey(r));
+    if (r.own) TM.clear(r.id, r.startedAt).then(() => { renderTimerPill(); paintTimerViews(true); });
+    else TM.dropDevice(r.owner, r.id, r.startedAt);
+    hideToast(); renderTimerPill(); paintTimerViews(true);
   }
-  function finishTimer(a) {
-    if (timerDone === a.endAt) return; timerDone = a.endAt;
-    const recent = Date.now() - a.endAt < 60000;                       // one that ran out while the hub was closed just gets cleared
-    const appOpen = !!current && current.id === 'timer';               // the open app beeps for itself
-    if (recent && !appOpen && hub.canWrite) timerBeep();
-    if (hub.canWrite) { try { if (hub.has('timer.active', TIMER)) hub.remove('timer.active', TIMER); } catch {} }
-    if (recent && !appOpen) { hub.toast('Timer done — ' + fmtLeft(Number(a.total) || 0) + ' is up.', 4000); timerNotify(a); }
-    renderTimerPill();
+  /**
+   * Reset (a running or paused timer of this person's): cleared as Stop clears it, with a 6 s Undo that puts the row back as it
+   * was (hub.timers.restore: same start and end, so it kept counting meanwhile). The Timer app uses the same words.
+   */
+  function resetTimer(r) {
+    const was = { id: r.id, label: r.label, total: r.total, startedAt: r.startedAt, endAt: r.endAt, pausedAt: r.pausedAt, remaining: r.remaining, by: r.by };
+    const owner = hub.profile ? hub.profile.id : null;
+    stopTimer(r);
+    hub.toast((r.label ? r.label + ' timer' : 'Timer') + ' reset', 6000, { action: 'Undo', onAction: () => {
+      if (!hub.profile || hub.profile.id !== owner) return;   // after a Switch the Undo is nobody's (core review round 4)
+      try { if (!TM.restore(was)) hub.toast('A newer timer took its place.', 3200); } catch (e) { hub.toast(e && e.message ? e.message : 'Could not put the timer back.', 3200); }
+      renderTimerPill(); paintTimerViews(true);
+    } });
   }
   function renderTimerPill() {
-    const a = gate.hidden && hub.profile ? timerActive() : null;   // nothing over the pairing / profile screens
-    if (!a) { tpill.hidden = true; tchip.hidden = true; document.documentElement.removeAttribute('data-timer'); clearInterval(timerTick); timerTick = null; return; }
-    const left = Math.max(0, Math.round((a.endAt - Date.now()) / 1000));
-    const txt = fmtLeft(left), total = Number(a.total) > 0 ? Number(a.total) : left;
-    $('#timer-pill-time').textContent = txt; $('#pill-timer-time').textContent = txt;
-    $('#timer-pill-ring').style.setProperty('--p', Math.min(1, left / total).toFixed(3));
-    tpill.hidden = !!current; tchip.hidden = !current || current.id === 'timer'; document.documentElement.toggleAttribute('data-timer', !tpill.hidden);
-    if (left === 0) { finishTimer(a); return; }
-    if (!timerTick) timerTick = setInterval(renderTimerPill, 1000);
+    const all = liveTimers(), shown = all.filter(r => r.state === 'running' || r.state === 'paused' || r.state === 'ended');
+    ringTimers(all);
+    const ticking = shown.some(r => r.state !== 'paused');
+    if (ticking && !timerTick) timerTick = setInterval(timerSecond, 1000);
+    if (!ticking && timerTick) { clearInterval(timerTick); timerTick = null; }
+    const atGate = !gate.hidden;
+    const top = shown[0];
+    if (!top || (atGate && top.state !== 'ended')) { tpill.hidden = true; tchip.hidden = true; document.documentElement.removeAttribute('data-timer'); return; }
+    const ended = top.state === 'ended', paused = top.state === 'paused';
+    const txt = ended ? 'Stop' : TM.fmt(top.left);
+    const named = top.label || !top.own;
+    const head = ended ? endedLine(top) : named ? timerName(top) : '', tail = ended ? (named ? ' · ' + timerName(top) : '') : paused ? (named ? ' · ' : '') + 'Paused' : '';
+    $('#timer-pill-time').textContent = txt; $('#pill-timer-time').textContent = txt; tpill.toggleAttribute('data-long', txt.length > 5);   /* h:mm:ss: the iPad's big sidebar time steps down */
+    const lab = $('#timer-pill-label'), lh = esc(head) + (tail ? '<span class="tp-name">' + esc(tail) + '</span>' : '');
+    if (lab._h !== lh) { lab._h = lh; lab.innerHTML = lh; } lab.hidden = !(head || tail);   // the sidebar shows the first part only ("Time's up")
+    const more = $('#timer-pill-more'); more.textContent = '+' + (shown.length - 1); more.hidden = shown.length < 2;
+    $('#timer-pill-stop').hidden = !ended;
+    tpill.querySelector('.tp-ring').hidden = ended;
+    for (const u of [tpill.querySelector('use'), tchip.querySelector('use')]) { const h = 'icons/sprite.svg#i-' + (ended ? 'bell' : 'timer'); if (u.getAttribute('href') !== h) u.setAttribute('href', h); }   // only on a change: a reset blanks it for a frame   // the shared sprite's Lucide timer and bell (CONS-ICON-1)
+    $('#timer-pill-ring').style.setProperty('--p', Math.min(1, top.total ? top.left / top.total : 0).toFixed(3));
+    tpill.classList.toggle('ringing', ended); tchip.classList.toggle('ringing', ended);
+    if (top.owner && top.hue) tpill.dataset.accent = top.hue; else if (top.own) delete tpill.dataset.accent;
+    const label = ended ? `${endedLine(top)}: ${timerName(top)}. Stop it` : `${timerName(top)}${paused ? ', paused' : ''}: ${TM.words(top.left)} left — open the timer`;
+    tpill.setAttribute('aria-label', label + (shown.length > 1 ? ` (${shown.length} timers)` : '')); tchip.setAttribute('aria-label', label);
+    tpill.hidden = !!current || (atGate && !ended); tchip.hidden = !current || (current.id === 'timer' && top.own);
+    // a running pill in the narrow sidebar: a label squeezed under about three letters ("L.") goes, so it reads "20:01 +2" (visual review round 3)
+    if (!tpill.hidden && !ended && head) { lab.hidden = false; const fs = parseFloat(getComputedStyle(lab).fontSize) || 16; if (lab.scrollWidth > lab.clientWidth + 1 && lab.clientWidth < fs * 2.2) lab.hidden = true; }   /* only a label actually cut that short ("Tea" whole stays, visual review round 6) */
+    document.documentElement.toggleAttribute('data-timer', !tpill.hidden && !atGate);
   }
-  tpill.addEventListener('click', () => { buzz(); openApp('timer'); });
-  tchip.addEventListener('click', () => { buzz(); openApp('timer'); });
-  hub.onChange(ch => { if (ch.app === 'timer') renderTimerPill(); });
-  hub.onSync(s => { if (s.lastPull) renderTimerPill(); });
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) renderTimerPill(); });
+  // one tick a second while a timer counts or rings: the pill, and the numbers on Home and the kitchen Home in place;
+  // a timer that changed state (ran out, cleared) redraws its card
+  function timerSecond() {
+    renderTimerPill();
+    paintTimerViews(false);
+  }
+  function paintTimerViews(force) {
+    const sig = (gate.hidden && hub.profile ? liveTimers().map(r => tKey(r) + r.state).join(',') : '') + '|' + (hub.isKitchen || hub.isKiosk ? runSig() : '');
+    if (force || sig !== timerSig) { timerSig = sig; if (tab === 'home' && gate.hidden) { if (hub.isKitchen) paintKitchenTimer(); else if (!hub.isKiosk) scheduleHome(); } }
+    fillTimes();
+  }
+  /** Every [data-tleft] number on the page (Home card, kitchen, TV) from its timer, in place. */
+  function fillTimes() {
+    for (const el of document.querySelectorAll('[data-tleft]')) {
+      const r = findTimer(el.dataset.tleft); if (!r) continue;
+      const t = r.state === 'ended' ? endedLine(r) : TM.fmt(r.left); if (el.textContent !== t) el.textContent = t;
+    }
+  }
+  const runSig = () => { try { return TM.running().map(r => r.owner + ':' + r.id + '@' + r.startedAt + r.state).join(','); } catch { return ''; } };
+  // a timer by its tKey: the person's own, one kept on this device, or the family mirror (the kitchen, the TV)
+  function findTimer(k) {
+    for (const r of liveTimers()) if (tKey(r) === k) return r;
+    try { for (const r of TM.running()) if (tKey(r) === k) return r; } catch {}
+    return null;
+  }
+  tpill.addEventListener('click', () => {
+    buzz(); TM.unlock();
+    const top = liveTimers().find(r => r.state === 'running' || r.state === 'paused' || r.state === 'ended');
+    if (top && top.state === 'ended') return stopTimer(top);
+    if (gate.hidden && hub.profile && !hub.isKiosk) openApp('timer');
+  });
+  tchip.addEventListener('click', () => {
+    buzz(); TM.unlock();
+    const top = liveTimers().find(r => r.state === 'running' || r.state === 'paused' || r.state === 'ended');
+    if (top && top.state === 'ended') return stopTimer(top);
+    openApp('timer');
+  });
+  hub.onChange(ch => { if (ch.app === 'timer' || ch.bulk) { renderTimerPill(); paintTimerViews(false); } });
+  hub.onSync(s => { if (!s.lastPull) return; if (hub.profile && !hub.isKiosk && gate.hidden) { TM.migrate(); TM.sweep(); TM.updateDevice(); }   /* each acts only right after a pull that succeeded (H1) */ renderTimerPill(); paintTimerViews(false); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { renderTimerPill(); paintTimerViews(false); } });
+  // the sound needs a tap to start (iOS): any tap while a timer is live unlocks the one AudioContext (P3-TIMER-03)
+  document.addEventListener('pointerdown', () => { if (!hub.isKiosk && liveTimers().length) TM.unlock(); }, { passive: true });
+  /** A timer is counting on this device (wake lock, P2-STAB-09). */
+  const timersRunning = () => liveTimers().some(r => r.state === 'running' || r.state === 'ended');
 
   // ── home ──────────────────────────────────────────────────────
   const fmtDate = d => d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
@@ -1601,7 +1784,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     }
     finally { feedLoading = false; renderFeed(); if (feedAgain) { feedAgain = false; loadFeed(true); } }
   }
-  const FEED_SYMBOLS = { reminders: '#i-bell', chat: '#i-chat', hub: '#i-home', timer: '#i-timer' };
+  const FEED_SYMBOLS = { reminders: '#i-bell', chat: '#i-chat', hub: '#i-home', timer: 'icons/sprite.svg#i-timer' };   // the timer: the shared sprite's Lucide timer (CONS-ICON-1)
   const feedSymbol = id => `<svg class="icon"><use href="${FEED_SYMBOLS[id] || '#i-sparkle'}"/></svg>`;
   const FEED_HUES = { reminders: FALLBACK, hub: FALLBACK };   // the shell's own lines (reminders, album, household) wear the hub's graphite, never a person's family (D5)
   const feedHue = id => appById(id) ? appHue(appById(id)) : FEED_HUES[id] || FALLBACK;
@@ -1652,8 +1835,9 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   const kSk = w => `<span class="skeleton" style="display:inline-block;width:${w}">loading</span>`;
   function renderKitchenHome(v, p) {
     hub.use('prayer', 'family');                                   // the family list the Home card and the Prayer app share
+    hub.use('timer', 'family');                                    // every running timer in the house (the run: mirror, GAP-HOME-1)
     if (!v.querySelector('#kitchen-home')) {
-      const icon = (id, fam) => `<span class="app-icon" data-accent="${fam}"><svg class="icon"><use href="#i-${id}"/></svg></span>`;
+      const icon = (id, fam) => `<span class="app-icon" data-accent="${fam}">${id === 'timer' ? '<svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-timer"/></svg>' : `<svg class="icon"><use href="#i-${id}"/></svg>`}</span>`;
       v.innerHTML = `<div class="kitchen-home" id="kitchen-home">
         <div class="k-hero"><div><div class="k-date" id="k-date"></div><div class="k-clock" id="k-clock"></div></div><div class="k-sub" id="k-greet"></div></div>
         <section class="card k-card" aria-labelledby="k-timer-h"><h2 id="k-timer-h">${icon('timer', hueOfApp('timer'))}Timer</h2><div id="k-timer"></div><button class="btn btn-soft btn-lg" data-open="timer" id="k-timer-btn">Start a timer</button></section>
@@ -1686,6 +1870,15 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         catch (e) { hub.toast(e.message || 'Could not upload that.', 4000); }
       });
       if (!renderKitchenHome.people) { renderKitchenHome.people = true; hub.profiles().then(() => { if (tab === 'home') paintKitchen(); }, () => {}); }   // faces for the prayer card and the face sheet
+      // the kitchen's own timers: Pause / Resume / Stop on its own rows only; everyone else's are read-only here
+      v.querySelector('#k-timer').addEventListener('click', ev => {
+        const b = ev.target.closest('[data-ktimer]'); if (!b) return;
+        const r = kitchenTimers().find(x => x.own && x.id === b.dataset.id); if (!r) return;
+        buzz(); TM.unlock();
+        try { if (b.dataset.ktimer === 'stop') stopTimer(r); else if (b.dataset.ktimer === 'reset') resetTimer(r); else if (b.dataset.ktimer === 'pause') TM.pause(r); else TM.resume(r); } catch (e) { if (e && e.message) hub.toast(e.message); }
+        paintKitchenTimer(); renderTimerPill();
+      });
+      hub.pull();                                                  // the timer mirror just declared
       if (!renderKitchenHome.hooked) { renderKitchenHome.hooked = true; hub.onChange(ch => { if (hub.isKitchen && ch.app === 'reminders') paintKitchenRem(); }); }
     }
     paintKitchen();
@@ -1715,14 +1908,34 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       : `<div class="k-val">${done} of ${reqs.length} prayed</div><ul class="k-list">${reqs.slice(0, 4).map(r => `<li><span class="grow">${esc(r.x.title)}</span>${r.who.length ? `<span class="k-faces" aria-label="Prayed today: ${esc(r.who.map(q => q.name).join(', '))}">${r.who.slice(0, 4).map(q => avatar(q, 'avatar-sm')).join('')}</span>` : ''}</li>`).join('')}</ul>`;
     paintKitchenRem(); paintKitchenAlbum();
   }
+  // GAP-HOME-1: every running timer in the house — the run: mirror each owner's device keeps — with the owner's face; the
+  // kitchen's own (its own rows, the freshest here) with Pause / Resume and Stop, everyone else's read-only. Ringing ones first.
+  function kitchenTimers() {
+    const me = hub.profile ? hub.profile.id : null;
+    let own = [], fam = [];
+    try { own = TM.list().map(r => ({ ...r, owner: me, own: true })); } catch {}
+    try { fam = TM.running().filter(r => r.owner !== me).map(r => ({ ...r, own: false })); } catch {}
+    const rank = r => r.state === 'ended' ? 0 : r.state === 'running' ? 1 : 2;
+    return [...own, ...fam].sort((a, b) => rank(a) - rank(b) || a.left - b.left);
+  }
   function paintKitchenTimer() {
     const el = $('#k-timer'); if (!el) return;
-    const a = timerActive();
-    if (a) {
-      const left = Math.max(0, Math.round((a.endAt - Date.now()) / 1000));
-      el.innerHTML = `<div class="k-num" id="k-left" role="timer" aria-label="Time left">${fmtLeft(left)}</div><div class="k-sub">of ${fmtLeft(Math.max(left, Number(a.total) || 0))}</div>`;
-    } else el.innerHTML = `<div class="k-quiet">${hub.isLoaded('timer', 'person') ? 'No timer running.' : kSk('6em')}</div>`;
-    $('#k-timer-btn').textContent = a ? 'Open the timer' : 'Start a timer';
+    const list = kitchenTimers(), ppl = hub.people();
+    $('#k-timer-btn').textContent = list.length ? 'Open the timer' : 'Start a timer';
+    if (!list.length) { el.innerHTML = `<div class="k-quiet">${hub.isLoaded('timer', 'person') ? 'No timer running.' : kSk('6em')}</div>`; return; }
+    const one = list.length === 1;
+    el.innerHTML = `<ul class="k-list k-timers">${list.slice(0, 4).map(r => {
+      const who = r.own ? null : ppl.find(q => q.id === r.owner);
+      const face = who ? avatar(who, 'avatar-sm') : `<span class="app-icon" data-accent="${esc(hueOfApp('timer'))}"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-timer"/></svg></span>`;
+      const name = (who ? who.name : r.own ? 'Kitchen' : 'Someone') + (r.label ? ' · ' + r.label : '') + (r.state === 'paused' ? ' · Paused' : '');
+      const t = r.state === 'ended' ? endedLine(r) : TM.fmt(r.left);
+      const acts = !r.own ? '' : (r.state === 'ended' ? '' : `<button class="btn btn-soft btn-lg" data-ktimer="${r.state === 'paused' ? 'resume' : 'pause'}" data-id="${esc(r.id)}"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-${r.state === 'paused' ? 'play' : 'pause'}"/></svg>${r.state === 'paused' ? 'Resume' : 'Pause'}</button>`)
+        + (r.state === 'ended' ? `<button class="btn btn-primary btn-lg" data-ktimer="stop" data-id="${esc(r.id)}"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-square"/></svg>Stop</button>`
+          : `<button class="btn btn-soft btn-lg" data-ktimer="reset" data-id="${esc(r.id)}" aria-label="Reset ${esc(r.label ? r.label + ' timer' : 'timer')}"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-rotate-ccw"/></svg>Reset</button>`);
+      const num = `<span class="${one ? 'k-num' : 'k-tnum'}${r.state === 'ended' ? ' k-ended' : ''}" data-tleft="${esc(tKey(r))}" role="timer" aria-label="${esc(name)}">${esc(t)}</span>`;
+      const bell = r.state === 'ended' ? '<svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-bell"/></svg> ' : '';
+      return `<li class="k-timer-row${one ? ' one' : ''}${r.state === 'ended' ? ' ringing' : ''}" data-owner="${esc(r.owner)}" data-timer-id="${esc(r.id)}"><span class="k-twho">${face}<span class="grow">${bell}${esc(name)}</span></span>${num}${acts ? `<span class="k-tacts">${acts}</span>` : ''}</li>`;
+    }).join('')}</ul>${list.length > 4 ? `<div class="k-sub">And ${list.length - 4} more</div>` : ''}`;
   }
   function paintKitchenRem() {
     const ul = $('#k-rem'); if (!ul) return;
@@ -1743,9 +1956,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (!$('#kitchen-home') || tab !== 'home') { clearInterval(clockTimer); return; }
     const now = new Date(), t = fmtTime(now), c = $('#k-clock');
     if (c.textContent !== t) { c.textContent = t; $('#k-date').textContent = fmtDate(now); }
-    const a = timerActive(), el = $('#k-left');
-    if (!!a !== !!el) { paintKitchenTimer(); return; }
-    if (a) el.textContent = fmtLeft(Math.max(0, Math.round((a.endAt - Date.now()) / 1000)));
+    paintTimerViews(false);                                        // the timers' numbers in place; a timer that changed state redraws the card
   }
   function renderHome() {
     const v = $('#view-home'); const p = hub.profile; if (!p) return;
@@ -1878,6 +2089,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       ]);
       const FAM_PRAYER = { app: 'prayer', scope: 'family' }, KV = { app: 'kidverse', scope: 'family' }, REM = { app: 'reminders', scope: 'family' };
       hub.use('prayer', 'family');                                    // who prayed today lives on the family list; person lists are not the TV's to read
+      hub.use('timer', 'family');                                     // the running timers' mirror (GAP-HOME-1): read-only, never a person's own rows
       const people = () => hub.people().filter(q => q && q.kind !== 'kiosk');
       const ambientOf = d => { const h = d.getHours(); return h < 5 || h >= 20 ? 'night' : h < 9 ? 'dawn' : h < 17 ? 'day' : 'dusk'; };
       const faceHtml = (q, cls, mark) => `<span class="tv-face${cls ? ' ' + cls : ''}" data-accent="${esc(hueOf(q))}">${avatar(q, 'avatar-plain')}<span class="tv-label"><span class="tv-name">${esc(q.name)}</span>${mark ? ' ' + mark : ''}</span></span>`;
@@ -1954,14 +2166,22 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         const ann = anniversary(today), annHtml = ann ? `<span class="tv-anniv-k">${esc(ann.ago)}</span> · Answered: ${esc(ann.title)}` : '';
         setHtml(t.anniv, annHtml); t.anniv.hidden = true;   // placeAnniv() (in fit) shows one of the two
         const annLi = ann ? `<li class="tv-anniv tv-out" data-accent="${esc(hueOfApp('prayer'))}"><span class="app-icon"><svg class="icon"><use href="#i-pray"/></svg></span><span class="tv-anniv-txt">${annHtml}</span></li>` : '';
+        // GAP-HOME-1: the running timers (the family mirror), one quiet line first in the feed pane: whose, what, how long; fit()
+        // keeps it whole or leaves it out, and it takes the place of the oldest feed lines, never of the last one. The numbers
+        // are filled in place every second (fillTimes), never in the markup.
+        let runs = []; try { runs = TM.running(); } catch {}
+        tv.runSig = runSig();
+        // each timer: whose, how long LEFT (never read as a clock time), then its label, which gives way first (visual review)
+        const tmLi = runs.length ? `<li class="tv-timers" data-accent="${esc(hueOfApp('timer'))}"><span class="app-icon"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-timer"/></svg></span><span class="txt">${runs.map(r => { const q = ppl.find(y => y.id === r.owner); return `<span class="tv-tm"><b class="tv-tn">${esc(q ? q.name : 'Kitchen')}</b> <span class="tv-tt"><span class="tv-tleft" data-tleft="${esc(tKey(r))}"></span>${r.state === 'running' ? ' left' : r.state === 'paused' ? ' left, paused' : ''}</span>${r.label ? ` <span class="tv-tlab">${esc(r.label)}</span>` : ''}</span>`; }).join(' ')} <span class="tv-tmore" hidden></span></span></li>` : '';   // fitTimers() shows the timers that fit whole and counts the rest
         const lines = (feed || []).slice(0, 5);
-        setHtml(t.feed, annLi + (lines.length ? lines.map(a => `<li data-accent="${esc(hueOf(a))}">${avatar(a, 'avatar-sm')}<span class="who">${esc(a.name || 'Someone')}</span><span class="txt">${esc(a.text || '')}</span><span class="when">${esc(agoText(a.created_at))}</span></li>`).join('')
-          : feed ? (ann ? '' : '<li class="tv-quiet tv-empty"><img src="art/empty/feed.svg" alt=""><span>Nothing has happened yet.</span></li>') : '<li class="tv-quiet">Loading…</li>'));   // feed null: never fetched on this device
+        setHtml(t.feed, tmLi + annLi + (lines.length ? lines.map(a => `<li data-accent="${esc(hueOf(a))}">${avatar(a, 'avatar-sm')}<span class="who">${esc(a.name || 'Someone')}</span><span class="txt">${esc(a.text || '')}</span><span class="when">${esc(agoText(a.created_at))}</span></li>`).join('')
+          : feed ? (ann || tmLi ? '' : '<li class="tv-quiet tv-empty"><img src="art/empty/feed.svg" alt=""><span>Nothing has happened yet.</span></li>') : '<li class="tv-quiet">Loading…</li>'));   // feed null: never fetched on this device
         // reminders: newest first, one line each; fit() shows the ones that fit and counts the rest (P2-VIS-02). The card
         // shows only when there is at least one.
         const rems = hub.list('item:', REM).map(r => r.value).filter(r => r && r.text).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         setHtml(t.rem, rems.map(r => `<li class="rem-row"><span class="rem-text">${esc(r.text)}</span>${r.byName || r.by ? ` <span class="rem-by">· ${esc(r.byName || r.by)}</span>` : ''}</li>`).join(''));
         t.remCard.hidden = !rems.length;
+        fillTimes();
         fit();
         tv.lastPaint = now.getTime();
         stats.nodes = t.root.querySelectorAll('*').length;
@@ -1977,6 +2197,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         for (const box of boxes) for (const el of box.children) el.hidden = el.classList.contains('tv-more');
         // who prayed and who read each keep room for their own first face, as labelled, and its "+N" (review of batch 2c, round
         // 2: a minimum counted in bare avatars left "Prayed today" with only a "+2"), measured on the faces themselves
+        const tl = t.feed.querySelector(':scope > .tv-timers'); if (tl) { tl.classList.remove('tv-out'); fitTimers(tl); }
         placeAnniv();
         for (const box of [t.prayed, t.read]) floorFor(box);
         for (const box of [t.read, t.stars, t.prayed]) fitFaces(box);   // who prayed last: its width is what the other two leave once they are fitted
@@ -1984,8 +2205,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         const af = t.feed.querySelector(':scope > .tv-anniv');
         // in the feed it may take the place of the oldest lines, never of the last one: when it is not whole there, or no feed
         // line is left beside it, it is left out and the feed refitted without it
-        const feedLines = af ? [...t.feed.children].filter(el => el !== af && !el.classList.contains('tv-quiet')) : [];
+        const feedLines = [...t.feed.children].filter(el => el !== af && el !== tl && !el.classList.contains('tv-quiet'));
         if (af && !af.classList.contains('tv-out') && (af.hidden || (feedLines.length && feedLines.every(el => el.hidden)))) { af.classList.add('tv-out'); fitList(t.feed, t.feedCount, false); }
+        // the timer line (GAP-HOME-1) the same way: whole, and never in place of the last feed line
+        if (tl && (tl.hidden || (feedLines.length && feedLines.every(el => el.hidden)))) { tl.classList.add('tv-out'); fitList(t.feed, t.feedCount, false); }
         fitList(t.rem, t.remCount, true);
       }
       // IMP-PRAYER-I2: the anniversary line stays in the verse pane only when showing it leaves row 1 as tall as it was (the
@@ -1999,6 +2222,13 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         av.hidden = false; const h1 = pane.getBoundingClientRect().height;
         if (h1 <= h0 + 0.5) return;
         av.hidden = true; if (af) af.classList.remove('tv-out');
+      }
+      // the timer line: every timer whole (its name, its time and "left"), as many as fit, then "+N" for the rest (visual review)
+      function fitTimers(li) {
+        const txt = li.querySelector('.txt'), items = [...txt.querySelectorAll('.tv-tm')], more = txt.querySelector('.tv-tmore');
+        for (const e of items) { e.hidden = false; e.classList.remove('squeeze'); } if (more) more.hidden = true;
+        for (let k = 1; k < items.length && txt.scrollWidth > txt.clientWidth + 1; k++) { items[items.length - k].hidden = true; if (more) { more.textContent = '+' + k; more.hidden = false; } }
+        if (items[0] && txt.scrollWidth > txt.clientWidth + 1) items[0].classList.add('squeeze');   // never two timers overlapping: only the first may shrink, alone
       }
       function floorFor(box) {
         const pane = box.closest('.tv-pane'); pane.style.minWidth = '';
@@ -2034,7 +2264,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         let shown = rows.length;
         while (shown > 0 && rows[shown - 1].getBoundingClientRect().bottom > edge) shown--;   // the rows that fit as they stand
         for (const el of rows.slice(shown)) el.hidden = true;
-        const lines = rows.filter(el => !el.classList.contains('tv-anniv'));   // the feed counts its own lines, never the anniversary
+        const lines = rows.filter(el => !el.classList.contains('tv-anniv') && !el.classList.contains('tv-timers'));   // the feed counts its own lines, never the anniversary or the timers
         if (!always && (!lines.length || lines.some(el => !el.hidden))) return;
         head.textContent = always ? `· +${rows.length - shown} more` : `· ${lines.length}`; head.hidden = false;
       }
@@ -2080,6 +2310,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       function tick(now) {
         now = now || new Date(); const t = tv.el; if (tv.stopped || !t || !t.root.isConnected) return;
         const ms = now.getTime(); t.clock.textContent = fmtTime(now);
+        if (runSig() !== tv.runSig) paint(now); else fillTimes();      // the timers' numbers in place; one that started or ended repaints
         if (ms - tv.lastFade >= 45000 || ms < tv.lastFade) crossfade(now);
         if (ms - tv.lastPaint >= 60000 || ms < tv.lastPaint) paint(now);
         if (ms - tv.lastFeed >= 300000 || ms < tv.lastFeed) { tv.lastFeed = ms; refreshFeed(); }
@@ -2278,6 +2509,8 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     // GAP-HOME-2: hidden with nothing memorised. After Prayer, so batch 4's pairs stay as they were (Today's reading with the
     // fridge, Prayer with Memory verses on the two-column iPad; on three columns Verses shares the second row)
     if (canSee('verses')) { const vs = versesHome(); if (vs && (vs.loading || vs.total > 0)) cards.push(['verses', versesCardHtml(vs)]); }
+    // UX-TIMER-7: start a timer in one tap (the last three lengths), and every running one with Pause and Stop
+    if (canSee('timer')) { const tc = timerCardHtml(pulled); if (tc.bit) bits.push(tc.bit); cards.push(['timer', tc.html]); }
     if (park.length) { bits.push(park.length + ' at the park'); cards.push(['park', parkCardHtml(park)]); }
     const kids = kidStars(); if (kids.length) cards.push(['kids', kidsCardHtml(kids, hub.isLoaded('kidverse', 'family'))]);
     const remCount = hub.list('item:', { app: 'reminders', scope: 'family' }).filter(r => !remDone.has(r.value && r.value.id)).length;
@@ -2286,10 +2519,58 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     // batch 5: while the first pull is on its way the line's place is kept (a skeleton), so nothing under the hero moves
     patchKids(part('hero'), [['hero', heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: sub ? esc(sub) : '<span class="skeleton">loading</span>' })]]);
     patchKids(part('glance'), cards); part('glance').classList.toggle('two', cards.length === 2); watchSpots(part('glance'));
+    fillTimes();                                                   // the timer card's numbers (kept out of its markup, so a tick never rebuilds it)
     paintDots();
     { const pf = part('prayedfor'); if (pf) patchKids(pf, prayedForMe(p)); }   // IMP-PRAYER-I3, patched in place like the cards
     renderReminders(); renderFeed(); loadFeed();
   }
+  // UX-TIMER-7 (batch 6): the Home timer card. With nothing running: "Start a timer" and the last three lengths (recents; 3,
+  // 5 and 10 minutes before there are any) as one-tap buttons. While timers run: each one, its time (filled in place by the
+  // shell's tick, never in the markup) with Pause / Resume and Stop; a ringing one says "Time's up" with a bell and a Stop
+  // button. Open Timer in the footer. Adults and guests; the kid Home stays picture-first (its Timer tile, and the pill
+  // with Stop while one runs).
+  function timerCardHtml(pulled) {
+    const a = appById('timer'), p = hub.profile, loaded = pulled || cached('timer', 'person');
+    let list = []; try { list = TM.list().map(r => ({ ...r, own: true, owner: p.id })); } catch {}
+    const rank = r => r.state === 'ended' ? 0 : r.state === 'running' ? 1 : 2;
+    list.sort((a, b) => rank(a) - rank(b) || a.left - b.left);   // ringing first, as the pill
+    const sym = n => `<svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-${n}"/></svg>`;
+    const ringingNow = list.filter(r => r.state === 'ended').length, running = list.filter(r => r.state === 'running').length;
+    const bit = ringingNow ? "time's up" : running ? (running === 1 ? 'a timer running' : running + ' timers running') : '';
+    const recents = (() => { let r = []; try { r = TM.recents(); } catch {} return r.length ? r : [{ total: 180000 }, { total: 300000 }, { total: 600000 }]; })();
+    const startRow = `<div class="tm-recents" role="group" aria-label="Start a timer">${recents.map(x => `<button class="btn btn-soft tm-go" data-timer-recent="${Math.round(x.total)}" data-label="${esc(x.label || '')}" aria-label="Start ${esc(TM.words(x.total))}${x.label ? ' for ' + esc(x.label) : ''}">${sym('play')}<span>${esc(TM.fmt(x.total))}${x.label ? ' · ' + esc(x.label) : ''}</span></button>`).join('')}</div>`;
+    const rows = list.slice(0, 3).map(r => {
+      // an unlabelled timer shows its time alone ("Timer" again under the card's title read "Timer / Timer 6:20", rescore NIT)
+      const ended = r.state === 'ended', paused = r.state === 'paused', name = r.label || 'Timer', what = (r.label ? esc(r.label) + (paused ? ' · Paused' : '') : paused ? 'Paused' : '');
+      // one action, one name (rescore ICO-4, the Timer app's rule): a running or paused timer is Reset (rotate-ccw, with Undo); a ringing one is Stop (square)
+      const tname = r.label ? r.label + ' timer' : 'timer';
+      return `<div class="tm-row${ended ? ' ringing' : ''}${r.label ? '' : ' bare'}" data-timer-id="${esc(r.id)}">${ended || what ? `<span class="tm-what">${ended ? sym('bell') + (what ? ' ' : '') : ''}${what}</span>` : ''}<span class="tm-left" data-tleft="${esc(tKey(r))}" role="timer" aria-label="${esc(name)}"></span>
+        <span class="tm-acts">${ended ? `<button class="btn btn-primary" data-timer-act="stop" data-id="${esc(r.id)}" aria-label="Stop ${esc(tname)}">${sym('square')}<span>Stop</span></button>`
+          : `<button class="btn btn-soft btn-round" data-timer-act="${paused ? 'resume' : 'pause'}" data-id="${esc(r.id)}" aria-label="${paused ? 'Resume' : 'Pause'} ${esc(tname)}">${sym(paused ? 'play' : 'pause')}</button><button class="btn btn-soft btn-round" data-timer-act="reset" data-id="${esc(r.id)}" aria-label="Reset ${esc(tname)}">${sym('rotate-ccw')}</button>`}</span></div>`;
+    }).join('');
+    const body = !loaded && !list.length ? `<div class="gbig">Start a timer</div>${startRow.replace(/<button /g, '<button disabled aria-disabled="true" ')}`   // while loading: the card as it will be (3, 5, 10 minutes, not yet live), so nothing moves
+      : list.length ? rows + (list.length > 3 ? `<div class="gsub">And ${list.length - 3} more in the Timer</div>` : '')
+      : `<div class="gbig">Start a timer</div>${startRow}`;
+    return { bit, html: `<div class="card gcard timer-card" id="home-timer" data-accent="${esc(appHue(a))}">
+        <h2><span class="app-icon">${sym('timer')}</span>Timer</h2>
+        <div class="gbody"><div class="grow">${body}</div></div><div class="gfoot"><button class="btn btn-soft" data-open="timer" id="home-timer-open">Open Timer</button><img class="spot" src="art/app/timer.svg" alt="" width="200" height="160"></div></div>` };
+  }
+  // the card's buttons: a recent length starts a timer at once (the sound is unlocked by the same tap); Pause, Resume, Stop
+  document.addEventListener('click', ev => {
+    const go = ev.target.closest('#view-home [data-timer-recent]'), act = ev.target.closest('#view-home [data-timer-act]');
+    if (!go && !act) return;
+    buzz(); TM.unlock();
+    try {
+      if (go) { const r = TM.start({ total: +go.dataset.timerRecent, label: go.dataset.label || '' }); if (!r) return; }
+      else {
+        const r = TM.list().find(x => x.id === act.dataset.id); if (!r) return;
+        if (act.dataset.timerAct === 'stop') return stopTimer({ ...r, own: true, owner: hub.profile.id });
+        if (act.dataset.timerAct === 'reset') return resetTimer({ ...r, own: true, owner: hub.profile.id });
+        if (act.dataset.timerAct === 'pause') TM.pause(r); else TM.resume(r);
+      }
+    } catch (e) { hub.toast(e && e.message ? e.message : 'Could not change the timer.', 3200); return; }
+    renderTimerPill(); scheduleHome();
+  });
   // IMP-PRAYER-I3 (tell the asker, gently): on the asker's own Home only, a quiet line for each family-list request they asked
   // for (by === them) that someone else prayed today: "Ezra and Elizabeth prayed today for Grandma Jo's visit". Not a push and
   // not a reward. It reads the family prayer rows (declared here for this Home); the kid Home, the TV and the kitchen never
@@ -2513,6 +2794,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
             ${p.kind === 'adult' && canSee('f260') ? '<div class="kv"><b>Weekly catch-up, Sunday 8 pm</b><button class="switch" data-pref="behind" role="switch" aria-checked="true" aria-label="Weekly catch-up"></button></div>' : ''}
             ${p.kind === 'adult' && !isGuest() && canSee('prayer') ? '<div class="kv"><b>New family prayers, 8 am and 8 pm</b><button class="switch" data-pref="prayer" role="switch" aria-checked="true" aria-label="New family prayers"></button></div>' : ''}
             ${canSee('prayer') ? '<div class="kv"><b>Who prayed for my requests, 8 pm</b><button class="switch" data-pref="prayedfor" role="switch" aria-checked="true" aria-label="Who prayed for my requests"></button></div>' : ''}
+            ${canSee('timer') ? '<div class="kv"><b>Timer done</b><button class="switch" data-pref="timer" role="switch" aria-checked="true" aria-label="Timer done"></button></div>' : ''}
             ${canSee('verses') ? '<div class="kv"><b>Verses to review, 7 pm</b><button class="switch" data-pref="verses" role="switch" aria-checked="false" aria-label="Verses to review"></button></div>' : ''}
             ${canSee('prayer') ? `<label class="kv"><b>Reminder to pray</b><select class="select notif-time" id="notif-pray" aria-label="Reminder to pray">${PRAY_TIMES.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>` : ''}
             ${p.kind === 'adult' && !isGuest() && canSee('dollywood-live') ? '<div class="kv"><b>Park day: a child\'s spot goes quiet</b><button class="switch" data-pref="park" role="switch" aria-checked="true" aria-label="Park day alerts"></button></div>' : ''}
@@ -2869,7 +3151,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (data.name !== 'set_data' || !data.chip || !data.input) return data.chip;
     const k = String(data.input.key || ''), a = appById(data.input.app_id);
     if (!k || !String(data.chip).includes(k)) return data.chip;
-    const what = /^album:/.test(k) ? 'a photo in the album' : k === 'theme' ? 'your theme' : k === 'timer.active' ? 'the kitchen timer' : /^stars/.test(k) ? 'the stars' : /^(item|prayer):/.test(k) ? 'an item' : a ? a.name : 'a setting';
+    const what = /^album:/.test(k) ? 'a photo in the album' : k === 'theme' ? 'your theme' : k === 'timer.active' || /^(timer|run):/.test(k) ? 'the kitchen timer' : /^stars/.test(k) ? 'the stars' : /^(item|prayer):/.test(k) ? 'an item' : a ? a.name : 'a setting';
     return (data.input.value === null ? '✓ Cleared ' : '✓ Saved ') + what;
   };
   async function sendChat(text, { queued = null } = {}) {
@@ -3007,7 +3289,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // the person's switches: one row per kind (push_pref:<kind>) over the old whole row push_prefs (review of batch 2b)
   const readPrefs = () => {
     const o = { app: 'hub', scope: 'person' };
-    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, prayAt: null, readAt: null, ...(hub.get('push_prefs', o) || {}) };   // verses starts off (IMP-VERSES-I2)
+    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, timer: true, prayAt: null, readAt: null, ...(hub.get('push_prefs', o) || {}) };   // verses starts off (IMP-VERSES-I2); timer on (PWA-GAP-1)
     for (const r of hub.list('push_pref:', o)) out[r.key.slice('push_pref:'.length)] = r.value;
     return out;
   };
@@ -3514,7 +3796,8 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // back into view and on a tap or a remote's key; anyone else from their first tap on. Never from a repaint.
   document.addEventListener('pointerdown', () => { if (hub.isKiosk) { if (wakeHint || !wakeLock) kioskWake(); } else { wakeWanted = true; if (!wakeLock) wake(); } });
   document.addEventListener('keydown', () => { if (hub.isKiosk && (wakeHint || !wakeLock)) kioskWake(); });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (hub.isKiosk) kioskWake(); else if (wakeWanted) wake(); });
+  // P2-STAB-09: while a timer counts on this device the shell asks again on every return to view, whoever tapped what
+  document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (hub.isKiosk) kioskWake(); else if (wakeWanted || timersRunning()) wake(); });
   window.addEventListener('load', () => { if (hub.isKiosk) kioskWake(); });
 })();
 </script>

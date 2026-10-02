@@ -12,7 +12,7 @@
 // before the call (P2-CHAT-08) and given back when the upstream fails or times out before any reply.
 import { HttpError, isExpiredGuest } from './auth.js';
 import { listData, getOne, liveItems, rowMap, putOne as rawPut } from './data.js';
-import { nyParts, addRestored, isWrittenBack } from './reminders.js';
+import { nyParts, addRestored, isWrittenBack, timerFmt } from './reminders.js';
 import { appsFor, householdLoader, guardedPut } from './policy.js';
 
 export const MODEL = 'claude-sonnet-5';
@@ -34,7 +34,7 @@ const TOOLS = [
   { name: 'list_apps', description: 'List the apps in the hub this person can use, with their data scope.', input_schema: { type: 'object', properties: {}, additionalProperties: false } },
   { name: 'get_data', description: "Read an app's stored data. scope 'person' is the signed-in person's own data; 'family' is shared by the whole house. Omit key to list everything.",
     input_schema: { type: 'object', properties: { app_id: { type: 'string' }, scope: { type: 'string', enum: ['person', 'family'] }, key: { type: 'string' } }, required: ['app_id', 'scope'], additionalProperties: false } },
-  { name: 'set_data', description: "Change one of these settings, and nothing else: app 'tally' key 'count' (scope person, a whole number); app 'timer' key 'timer.active' (scope person, {endAt, total, startedAt} in ms, or null to stop); app 'hub' key 'theme' (scope person, one of system, hearth, parchment, frost, midnight, forest, graphite). Everything else is changed in its app, or with the list and prayer tools.",
+  { name: 'set_data', description: "Change one of these settings, and nothing else: app 'tally' key 'count' (scope person, a whole number); app 'hub' key 'theme' (scope person, one of system, hearth, parchment, frost, midnight, forest, graphite). Everything else is changed in its app, or with the list, prayer and timer tools.",
     input_schema: { type: 'object', properties: { app_id: { type: 'string' }, scope: { type: 'string', enum: ['person', 'family'] }, key: { type: 'string' }, value: {} }, required: ['app_id', 'scope', 'key', 'value'], additionalProperties: false } },
   { name: 'add_list_item', description: "Add an item to a family list. app_id 'leftovers' (item: {name, size?, dateLogged?}) or 'reminders' (item: {text}).",
     input_schema: { type: 'object', properties: { app_id: { type: 'string', enum: ['leftovers', 'reminders'] }, item: { type: 'object', properties: { name: { type: 'string' }, size: { type: 'string', enum: ['Small', 'Medium', 'Large', 'Family-size'] }, dateLogged: { type: 'string', description: 'YYYY-MM-DD, defaults to today' }, text: { type: 'string' } }, additionalProperties: false } }, required: ['app_id', 'item'], additionalProperties: false } },
@@ -48,6 +48,8 @@ const TOOLS = [
     input_schema: { type: 'object', properties: { list: { type: 'string', enum: ['private', 'family'] }, prayer_id: { type: 'string' }, note: { type: 'string' } }, required: ['list', 'prayer_id'], additionalProperties: false } },
   { name: 'finish_leftover', description: 'Remove one item from the family fridge list (Larder Ledger) because it was eaten or thrown out. Give the item id, or its exact name; if the name is not exact the tool lists the likely items and you ask which one.',
     input_schema: { type: 'object', properties: { item_id: { type: 'string' }, name: { type: 'string' } }, additionalProperties: false } },
+  { name: 'start_timer', description: 'Start a kitchen timer for the signed-in person, e.g. "pasta 12 minutes" → minutes 12, label "pasta". It rings on their devices and shows on Home, the kitchen iPad and the TV. At most 3 at once.',
+    input_schema: { type: 'object', properties: { minutes: { type: 'number', minimum: 0, maximum: 1440 }, seconds: { type: 'number', minimum: 0, maximum: 59 }, label: { type: 'string', description: 'what it is for, optional, a few words' } }, required: ['minutes'], additionalProperties: false } },
   { name: 'where_is_family', description: 'Where family members were last seen on the Dollywood Live map in the last 4 hours (who, map position, how long ago). Read-only.',
     input_schema: { type: 'object', properties: {}, additionalProperties: false } },
   { name: 'f260_status', description: "The signed-in person's F260 Bible reading progress: current week, readings done this week, the next reading, streak, and this week's memory verses. Read-only.",
@@ -57,7 +59,7 @@ const TOOLS = [
 ];
 
 // Tools a kid may call. Everything else refuses for kids with a plain result (never throws).
-const KID_TOOLS = ['list_apps', 'get_data', 'set_data', 'add_list_item', 'read_todays_verse'];
+const KID_TOOLS = ['list_apps', 'get_data', 'set_data', 'add_list_item', 'read_todays_verse', 'start_timer'];
 
 // F260 memory verses by week (references from apps/f260.html's PLAN) with a one-line gist in kid words.
 // The app keeps no verse text (people paste it themselves to practise), so the gist stands in for it.
@@ -338,11 +340,10 @@ async function runToolInner(env, ctx, name, input, writes) {
 
     if (name === 'set_data') {
       // Only these settings (P2-CHAT-01): anything else, a family row above all, is changed in its app or with its own tool.
-      const SET_OK = { 'tally|person|count': 1, 'timer|person|timer.active': 1, 'hub|person|theme': 1 };
+      const SET_OK = { 'tally|person|count': 1, 'hub|person|theme': 1 };   // the timer is start_timer since batch 6 (timer.active is never written again)
       if (!SET_OK[`${input.app_id}|${input.scope}|${input.key}`]) return { ok: false, result: 'That cannot be changed from chat. Tell the person to change it in the app itself.', chip: null };
       if (input.app_id !== 'hub' && !canUse(input.app_id)) return { ok: false, result: 'This person cannot use that app.', chip: null };
       if (input.key === 'theme' && !['system', 'hearth', 'parchment', 'frost', 'midnight', 'forest', 'graphite'].includes(input.value)) return { ok: false, result: 'theme must be one of system, hearth, parchment, frost, midnight, forest, graphite', chip: null };
-      if (input.key === 'timer.active' && input.value !== null && !(input.value && typeof input.value === 'object' && ['endAt', 'total', 'startedAt'].every(k => Number.isFinite(+input.value[k])))) return { ok: false, result: 'timer.active is {endAt, total, startedAt} in ms, or null', chip: null };
       // Tally keeps one row per device on a reset epoch since batch 0f: "set my tally to N" starts a new epoch at N
       if (input.app_id === 'tally' && input.key === 'count' && input.scope === 'person') {
         const n = Math.max(0, Math.floor(Number(input.value) || 0)), epoch = rid(), now = Date.now();
@@ -351,11 +352,11 @@ async function runToolInner(env, ctx, name, input, writes) {
         await activity(env, profile, 'tally', `Set the tally to ${n} (via chat)`);
         return { ok: true, result: 'saved', chip: `✓ Tally set to ${n}` };
       }
-      const value = input.key === 'timer.active' && input.value ? { endAt: +input.value.endAt, total: +input.value.total, startedAt: +input.value.startedAt } : input.value;
+      const value = input.value;
       await putOne(env, { appId: input.app_id, scope: input.scope, profile, key: input.key, value, updated_at: Date.now() });
-      const said = input.key === 'theme' ? `Changed their look to ${String(input.value)[0].toUpperCase() + String(input.value).slice(1)}` : value === null ? 'Stopped the timer' : 'Started a timer';   // UX-CHAT-06: words, not a storage key
+      const said = `Changed their look to ${String(input.value)[0].toUpperCase() + String(input.value).slice(1)}`;   // UX-CHAT-06: words, not a storage key
       await activity(env, profile, input.app_id, `${said} (via chat)`);
-      return { ok: true, result: 'saved', chip: input.key === 'theme' ? `✓ Look set to ${String(input.value)[0].toUpperCase() + String(input.value).slice(1)}` : value === null ? '✓ Timer stopped' : '✓ Timer set' };
+      return { ok: true, result: 'saved', chip: `✓ Look set to ${String(input.value)[0].toUpperCase() + String(input.value).slice(1)}` };
     }
 
     if (name === 'add_list_item') {
@@ -494,6 +495,29 @@ async function runToolInner(env, ctx, name, input, writes) {
       return { ok: true, result: { removed: it.name, id: it.id }, chip: `✓ Finished ${it.name}` };
     }
 
+    // IMP-TIMER-I2 (batch 6): a timer:<id> row as the Timer app writes it (server ms; apps/hub.js hub.timers), its family
+    // mirror run:<me>:<id> for the kitchen and the TV, and the recents. Kids may (their own timer); the TV never reaches chat.
+    if (name === 'start_timer') {
+      if (!canUse('timer')) return { ok: false, result: 'This person cannot use the Timer.', chip: null };
+      const min = Number(input.minutes), sec = input.seconds == null ? 0 : Number(input.seconds);
+      if (!Number.isFinite(min) || !Number.isFinite(sec) || min < 0 || sec < 0) return { ok: false, result: 'minutes and seconds are numbers of 0 or more.', chip: null };
+      const total = Math.round((min * 60 + sec) * 1000);
+      if (total < 1000 || total > 24 * 3600000) return { ok: false, result: 'A timer runs from 1 second to 24 hours.', chip: null };
+      const label = String(input.label || '').replace(/[<>]/g, '').trim().slice(0, 60);
+      const T = { appId: 'timer', scope: 'person', profile }, now = Date.now();
+      const live = (await liveItems(env, { ...T, prefix: 'timer:' })).filter(r => r.value && typeof r.value === 'object' && (+r.value.pausedAt > 0 || (+r.value.endAt > 0 && now - +r.value.endAt <= 10 * 60000 && !r.value.ackAt)));
+      if (live.length >= 3) return { ok: false, result: 'Three timers are already running; one has to finish or be stopped in the Timer first.', chip: null };
+      const id = 'c' + rid();
+      const row = { id, label, total, startedAt: now, endAt: now + total, pausedAt: null, remaining: null, by: profile.id, ackAt: null };
+      await putOne(env, { ...T, key: 'timer:' + id, value: row, updated_at: now });
+      await putOne(env, { appId: 'timer', scope: 'family', profile, key: `run:${profile.id}:${id}`, value: { label, total, endAt: row.endAt, pausedAt: null, remaining: null, by: profile.id, startedAt: now }, updated_at: now }, { soft: true });
+      const rec = await getOne(env, { ...T, key: 'recents' });
+      const recents = [{ total, label }, ...(Array.isArray(rec && rec.value) ? rec.value : []).filter(x => x && +x.total > 0 && +x.total !== total)].slice(0, 3);
+      await putOne(env, { ...T, key: 'recents', value: recents, updated_at: now }, { soft: true });
+      await activity(env, profile, 'timer', `Started a ${timerFmt(total)} timer (via chat)`);   // the label stays off the family feed
+      return { ok: true, result: { id, label, length: timerFmt(total), endsAt: new Date(row.endAt).toISOString() }, chip: `✓ Timer set: ${timerFmt(total)}${label ? ' · ' + label : ''}` };
+    }
+
     if (name === 'where_is_family') {
       const cutoff = Date.now() - 4 * 3600000;
       const rows = await liveItems(env, { appId: 'dollywood-live', scope: 'family', profile, prefix: 'loc:' });
@@ -553,6 +577,7 @@ How to behave:
 - To add food to the fridge list use add_list_item with app_id leftovers; when something was eaten or thrown out use finish_leftover; for house reminders use add_list_item with app_id reminders.
 - Prayers: add_prayer adds one; mark_prayed records that they prayed for a request today ("I prayed for Grandma"); answer_prayer moves it to the answered record ("Grandma's knee is better"). Both take the id from get_data on app prayer, or the request's title. If the tool says several match, ask which one.
 - F260: f260_status is the quick way to answer "where am I in my reading" (week, next reading, streak, this week's memory verses); set_f260_reading with done true checks a reading off (done false unchecks it).
+- start_timer starts a kitchen timer ("set a timer for 12 minutes for the pasta": minutes 12, label pasta).
 - where_is_family says who was last seen on the Dollywood Live map and how long ago (only while the family is at the park).
 - If something isn't possible or the app isn't available to this person, say so simply.`;
   const kid = `

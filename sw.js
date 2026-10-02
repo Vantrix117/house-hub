@@ -8,7 +8,7 @@
    - A document it has no copy of, offline, gets offline.html (P2-PWA-16) instead of a bare "Offline".
    - push: shows the notification the Worker sent; notificationclick deep-links into the app via the URL hash and says
      whose it was (a shared device). pushsubscriptionchange hands the house the browser's new subscription (PWA-GAP-2). */
-const VERSION = 'hub-v45';
+const VERSION = 'hub-v46';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'sw.js', 'offline.html',
   'apps/design.css', 'apps/hub.js',
@@ -84,7 +84,7 @@ self.addEventListener('push', e => {
   const title = data.title || 'Anderson House';
   e.waitUntil(self.registration.showNotification(title, {
     body: data.body || '', icon: 'icons/icon-192.png', badge: 'icons/badge-96.png',
-    tag: data.tag || 'hub', renotify: !!data.tag, data: { url: data.url || '#home', to: data.to || null },
+    tag: data.tag || 'hub', renotify: !!data.tag && !/^timer-/.test(data.tag),   /* a timer's push after the device's own "Timer done" replaces it quietly (L2) */ data: { url: data.url || '#home', to: data.to || null },
   }));
 });
 // The hub's own window: a top-level client (never an app's frame inside it, which would swallow the message), the focused

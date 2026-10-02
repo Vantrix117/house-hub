@@ -21,6 +21,7 @@ database_id = "c5410eee-9095-4092-84b0-dc534aded0d8"
 
 # Reminders. One trigger every 15 minutes (P2-PWA-02: the park alert watches all day). The handler reads the New York
 # time of each firing, so the 8:00 am / 8:00 pm jobs keep their local hour across DST; every other firing runs only the
-# park alert and the personal prayer reminders (src/reminders.js jobsAt).
+# park alert and the personal prayer reminders (src/reminders.js jobsAt). A second trigger every minute runs only the
+# "Timer done" push (batch 6, PWA-GAP-1: src/reminders.js timerJob); the 15-minute one runs the other jobs unchanged.
 [triggers]
-crons = ["*/15 * * * *"]
+crons = ["*/15 * * * *", "* * * * *"]

@@ -9,6 +9,9 @@
 // prayer app's own add form (family list active, no activity line) writes by:<id> on the row so the author is left out.
 // Batch 5 (IMP-VERSES-I2) adds the evening verse review: off until push_pref:verses is on, the due count from the F260 rows,
 // due > 0 only, once a day, never a kid; and its switch in Me.
+// Batch 6 (PWA-GAP-1) adds "Timer done": a timer:<id> row that ended in the last 10 minutes → its owner, once per start, the
+// label only, on unless push_pref:timer is off, never a kid; the 10-minute rule clears older rows; and its switch in Me.
+// (The minute trigger itself, the retry and the pruning: audits/tools/phase6/6/cron-check-6.mjs.)
 //   cd worker && npx wrangler dev --port 8787     (a freshly reset, seeded local D1 — push_log must be empty for today)
 //   node scripts/test-push2.mjs <pairing-code>
 import http from 'node:http';
@@ -267,6 +270,30 @@ async function serveSite() {
     await sleep(300);
     ok(pushesFor('eli', 'verses').length === 1 && !pushesFor('christian', 'verses').length && !pushesFor('mom', 'verses').length && !pushes.some(p => p.url === '/push/ezra'), 'receiver: exactly one verse review push, to Eli; none to a kid', pushes.filter(p => p.payload && p.payload.tag === 'verses').map(p => p.url));
 
+    console.log('\n## Timer done (batch 6, PWA-GAP-1): the timer job, forced');
+    {
+      const now = Date.now(), row = (id, o) => ({ id, label: '', total: 60000, startedAt: now - 120000, endAt: now - 60000, pausedAt: null, remaining: null, by: null, ackAt: null, ...o });
+      await put('eli', 'timer', 'person', 'timer:p6', row('p6', { label: 'Pasta', total: 720000, startedAt: now - 780000, by: 'eli' }));
+      await put('eli', 'timer', 'person', 'timer:o6', row('o6', { label: 'Oven', endAt: now + 600000, by: 'eli' }));                         // still running
+      await put('eli', 'timer', 'person', 'timer:old6', row('old6', { label: 'Old', startedAt: now - 15 * 60000, endAt: now - 12 * 60000, by: 'eli' }));   // ended 12 min ago
+      await put('christian', 'timer', 'person', 'timer:t6', row('t6', { label: 'Tea', by: 'christian' }));
+      await put('christian', 'hub', 'person', 'push_pref:timer', false);                                                               // Mae turned it off
+      await put('ezra', 'timer', 'person', 'timer:e6', row('e6', { label: 'Egg', by: 'ezra' }));
+      r = await run('timer');
+      ok(r.status === 200 && r.body.job === 'timer', 'POST /api/admin/cron/run {job: "timer"}', r.body);
+      const dueKeys = (r.body.due || []).map(d => d.profile + ' ' + d.key).sort().join(', ');
+      ok(dueKeys === 'christian timer:t6, eli timer:p6, ezra timer:e6', 'due: the three timers that ended in the last 10 minutes (not the running oven, not the one 12 minutes old)', r.body.due);
+      ok(r.body.notified.map(n => n.profile).join() === 'eli' && r.body.skipped.some(x => x.profile === 'christian' && x.why === 'pref_off') && r.body.skipped.some(x => x.profile === 'ezra' && x.why === 'no_push_for_kind'), 'told: Eli; Mae has the switch off; Ezra is a kid', r.body);
+      ok((r.body.cleared || []).some(c => c.profile === 'eli' && c.key === 'timer:old6'), 'the 10-minute rule cleared the old one', r.body.cleared);
+      await waitFor(() => pushes.filter(x => x.url === '/push/eli' && x.payload && /^timer-p6-\d+$/.test(x.payload.tag || '')).length, { label: 'timer push' });
+      { const tp = pushes.filter(x => x.url === '/push/eli' && x.payload && /^timer-p6-\d+$/.test(x.payload.tag || ''))[0]; ok(tp.payload.title === 'Timer done: Pasta' && tp.payload.body === 'Pasta is up.' && tp.payload.url === '#timer' && tp.payload.to === 'eli' && tp.vapid === 'valid' && tp.urgency === 'high', 'decrypted payload: "Timer done: Pasta", "Pasta is up.", opening the Timer, urgency high', tp); }
+      r = await run('timer');
+      ok(!r.body.notified.length && !(r.body.due || []).length, 'a second run: nobody twice (each timer start once)', r.body);
+      await sleep(300);
+      ok(pushes.filter(p => p.payload && /^timer-/.test(p.payload.tag || '')).length === 1 && !pushes.some(p => p.url === '/push/ezra'), 'receiver: exactly one Timer done push, none to a kid', pushes.filter(p => p.payload && /^timer-/.test(p.payload.tag || '')).map(p => p.url));
+      for (const [pid, k] of [['eli', 'timer:p6'], ['eli', 'timer:o6'], ['christian', 'timer:t6'], ['ezra', 'timer:e6']]) await put(pid, 'timer', 'person', k, null);
+    }
+
     console.log('\n## Me → Notifications: the three switches (headless)');
     site = await serveSite();
     if (!site) { ok(false, `port ${SITE_PORT} stayed busy — headless Me check skipped`); }
@@ -321,6 +348,14 @@ async function serveSite() {
       await page.click('#notif-prefs [data-pref=verses]');
       await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush verses' });
       { const r = (await api('GET', '/api/data/hub?scope=person&prefix=push_pref:verses', undefined, 'eli')).body.items || []; ok(r.length === 1 && r[0].value === false, 'tapping it off writes push_pref:verses = false', r); }
+      // batch 6 (PWA-GAP-1): "Timer done" is on with no row; tapping it writes push_pref:timer = false
+      { const tm = await page.$eval('#notif-prefs [data-pref=timer]', e => ({ on: e.getAttribute('aria-checked'), label: e.closest('.kv').querySelector('b').textContent })).catch(() => null);
+        ok(tm && tm.on === 'true' && /Timer done/.test(tm.label), 'Me: a "Timer done" switch, on by default', tm); }
+      await page.click('#notif-prefs [data-pref=timer]');
+      await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush timer' });
+      { const r = (await api('GET', '/api/data/hub?scope=person&prefix=push_pref:timer', undefined, 'eli')).body.items || []; ok(r.length === 1 && r[0].value === false, 'tapping it off writes push_pref:timer = false', r); }
+      await page.click('#notif-prefs [data-pref=timer]');
+      await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush timer on' });
       await page.evaluate(() => document.getElementById('notif').scrollIntoView());
       fs.mkdirSync(path.join(ROOT, 'docs/screens'), { recursive: true });
       await page.screenshot({ path: path.join(ROOT, 'docs/screens/rm15-me-notifications.png') });

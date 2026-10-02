@@ -17,6 +17,9 @@
 //       earlier year (New York dates) — in the verse pane or first in the feed, whichever fits, always whole; never a
 //       person-scope (private) title, never one answered today or on another day; nothing when there is none; every fit
 //       gate below still holds with it on the board at all five sizes
+//   (g) GAP-HOME-1 (batch 6): running timers (the family mirror run:<owner>:<id>) in one quiet line first in the feed pane —
+//       whose, what, the time counting in place; whole or left out, never in place of the last feed line; every fit gate holds
+//       with it at all five sizes; it goes when the timer goes
 //   (e) the 1920×1080 fit gate (decision D16, the 10-foot scale): data-tv-scale="10ft", every pane inside the title-safe
 //       screen, no scroll, every reminder shown or counted in "+N more" (with 14 of them), faces in one row with a "+N",
 //       no information text under 28 px, the feed and reminders at least body size (32 px); offline reopen keeps the ✓
@@ -226,7 +229,7 @@ const boardState = page => page.evaluate(() => {
     prayed: [...document.querySelectorAll('#tv-prayed .tv-face:not(.tv-more)')].map(f => ({ name: f.lastElementChild.textContent.trim(), face: (f.querySelector('.avatar') || {}).textContent })),
     read: [...document.querySelectorAll('#tv-read .tv-face:not(.tv-more)')].map(f => ({ name: f.lastElementChild.textContent.trim(), off: f.classList.contains('off') })),
     stars: [...document.querySelectorAll('#tv-stars .tv-face:not(.tv-more)')].map(f => f.lastElementChild.textContent.trim().replace(/\s+/g, ' ')),
-    feed: [...document.querySelectorAll('#tv-feed li:not(.tv-anniv)')].map(li => ({ who: (li.querySelector('.who') || {}).textContent, txt: (li.querySelector('.txt') || {}).textContent, when: (li.querySelector('.when') || {}).textContent, face: !!li.querySelector('.avatar') })),
+    feed: [...document.querySelectorAll('#tv-feed li:not(.tv-anniv):not(.tv-timers)')].map(li => ({ who: (li.querySelector('.who') || {}).textContent, txt: (li.querySelector('.txt') || {}).textContent, when: (li.querySelector('.when') || {}).textContent, face: !!li.querySelector('.avatar') })),
     remHidden: document.getElementById('tv-rem-card').hidden, remLast: tv.lastElementChild.id === 'tv-rem-card',
     remRows: [...document.querySelectorAll('#remlist .rem-row')].map(li => { const t = li.querySelector('.rem-text'); const cs = getComputedStyle(li); const lh = parseFloat(cs.lineHeight) || parseFloat(getComputedStyle(t).fontSize) * 1.25; const pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom); return { h: li.getBoundingClientRect().height, lines: Math.round((li.clientHeight - pad) / lh), whole: li.scrollHeight <= li.clientHeight + 1, fs: parseFloat(getComputedStyle(t).fontSize), buttons: li.querySelectorAll('button').length }; }),
     remFs: parseFloat(getComputedStyle(document.querySelector('#tv-rem-card h2')).fontSize), paneFs: parseFloat(getComputedStyle(document.querySelector('.tv-feed h2')).fontSize),
@@ -395,7 +398,7 @@ async function themeShot(page, theme, name) {
       while ((n = w.nextNode())) { const el = n.parentElement; if (!n.textContent.trim() || !vis(el) || el.closest('.avatar')) continue; sizes.push({ t: n.textContent.trim().slice(0, 30), fs: parseFloat(getComputedStyle(el).fontSize) }); }
       const fsOf = sel => parseFloat(getComputedStyle(document.querySelector(sel)).fontSize);
       return { scale: document.documentElement.dataset.tvScale, H, W: innerWidth, scroll: v.scrollHeight - v.clientHeight, hscroll: v.scrollWidth - v.clientWidth, panes, rem: { total: rows.length, shown: shown.length, more: moreN, lastRem, remBox }, prayed: faces('tv-prayed'), read: faces('tv-read'), stars: faces('tv-stars'),
-        minFs: Math.min(...sizes.map(s => s.fs)), small: sizes.filter(s => s.fs < 28).slice(0, 5), feedFs: fsOf('#tv-feed li .txt'), remFs: fsOf('#remlist .rem-text'), nameFs: fsOf('#tv-read .tv-name'), feedLines: [...document.querySelectorAll('#tv-feed li:not(.tv-anniv)')].filter(vis).length, anniv: annivState() };
+        minFs: Math.min(...sizes.map(s => s.fs)), small: sizes.filter(s => s.fs < 28).slice(0, 5), feedFs: fsOf('#tv-feed li .txt'), remFs: fsOf('#remlist .rem-text'), nameFs: fsOf('#tv-read .tv-name'), feedLines: [...document.querySelectorAll('#tv-feed li:not(.tv-anniv):not(.tv-timers)')].filter(vis).length, anniv: annivState() };
     });
     let fs1 = await fitState();
     ok(fs1.scale === '10ft', '(e) the display runs on the 10-foot scale (data-tv-scale="10ft", decision D16)', String(fs1.scale));
@@ -444,6 +447,75 @@ async function themeShot(page, theme, name) {
     const fsL = await fitState();
     const longOk = fsL.anniv.where === 'none' ? fsL.anniv.copies === 0 : fsL.anniv.copies === 1 && fsL.anniv.whole && /^A year ago today · Answered: /.test(fsL.anniv.text);
     ok(longOk && fsL.feedLines >= 1 && fsL.scroll <= 1 && fsL.rem.shown + fsL.rem.more === fsL.rem.total && fsL.minFs >= 28 && fsL.panes.every(p => p.top >= 54 - 1 && p.bottom <= 1080 - 54 + 1), `(f) two anniversaries on one day: one line (the first title in order, a long one), whole even when it wraps (${fsL.anniv.where}), and the 1920 gate still holds`, JSON.stringify({ anniv: fsL.anniv, feedLines: fsL.feedLines, scroll: fsL.scroll, rem: fsL.rem }));
+    // (g) GAP-HOME-1: two running timers of Eli's (his phone keeps the family mirror) on the busy board
+    {
+      const t0 = Date.now();
+      const run = (id, label, left) => ({ key: 'run:eli:' + id, value: { label, total: 3600000, startedAt: t0 - 600000, endAt: t0 + left, pausedAt: null, remaining: null, by: 'eli' }, updated_at: t0 });
+      const w = await api('/api/data/timer/batch?scope=family', { method: 'POST', profile: 'eli', body: { items: [run('tv6a', 'Roast', 3000000), run('tv6b', 'Rice', 540000)] } });
+      ok(Array.isArray(w.results) && w.results.length === 2 && w.results.every(r => !r.rejected), '(g) Eli\'s phone keeps the family mirror of two running timers', JSON.stringify(w));
+      await W.page.evaluate(() => hub.pull());
+      await waitFor(() => W.page.evaluate(() => hub.timers.running().length === 2), { label: 'the timers on the TV' }).catch(() => {});
+      await W.page.evaluate(() => window.__tv.paint()); await sleep(200);
+      const tmState = () => W.page.evaluate(() => {
+        const li = document.querySelector('#tv-feed > li.tv-timers'); if (!li) return { where: 'none' };
+        const vis = li.getClientRects().length > 0 && !li.hidden && !li.classList.contains('tv-out'), txt = li.querySelector('.txt');
+        const r = li.getBoundingClientRect(), clip = document.getElementById('tv-feed').getBoundingClientRect();
+        return { where: vis ? 'feed' : 'out', text: li.textContent.replace(/\s+/g, ' ').trim(), nums: [...li.querySelectorAll('[data-tleft]')].map(e => e.textContent), first: li === document.querySelector('#tv-feed > li:not([hidden]):not(.tv-out)'),
+          whole: !vis || r.bottom <= clip.bottom + 0.5,
+          // every time is on screen in full, inside the line (the label gives way first: visual review round 1)
+          shownN: [...li.querySelectorAll('.tv-tm')].filter(e => e.getClientRects().length).length, moreN: (m => m && !m.hidden ? +m.textContent.replace(/\D/g, '') : 0)(li.querySelector('.tv-tmore')),
+          timesSeen: !vis || [...li.querySelectorAll('.tv-tm')].filter(e => e.getClientRects().length).map(e => e.querySelector('.tv-tt')).every(e => { const b = e.getBoundingClientRect(); return b.width > 0 && b.left >= r.left - 0.5 && b.right <= r.right + 0.5 && e.scrollWidth <= e.clientWidth + 1; }), fs: parseFloat(getComputedStyle(txt).fontSize), copies: document.querySelectorAll('.tv-timers').length };
+      });
+      const tmWhere = [];
+      for (const [w2, h2] of [[1920, 1080], [1280, 720], [1024, 768], [820, 1180], [960, 540]]) {
+        await W.page.setViewportSize({ width: w2, height: h2 }); await sleep(450);
+        const st = await fitState(), tm = await tmState();
+        tmWhere.push(w2 + '×' + h2 + ': ' + tm.where);
+        if (process.env.TV_TIMER_SHOTS) await W.page.screenshot({ path: path.join(process.env.TV_TIMER_SHOTS, `tv-timers-${w2}x${h2}.png`) });
+        const shownOk = tm.where === 'out' || (tm.first && tm.whole && tm.timesSeen && /Eli \d+:\d\d left Roast/.test(tm.text) && /Eli \d+:\d\d left Rice/.test(tm.text) && tm.nums.length === 2 && tm.nums.every(n => /^\d+:\d\d(:\d\d)?$/.test(n)));
+        const gate = w2 === 1920 ? st.minFs >= 28 && st.panes.every(p => p.top >= 54 - 1 && p.bottom <= 1080 - 54 + 1 && p.left >= 96 - 1 && p.right <= 1920 - 96 + 1) && tm.where === 'feed' : st.minFs >= 18;
+        ok(tm.copies === 1 && shownOk && gate && st.scroll <= 1 && st.hscroll <= 1 && st.feedLines >= 1 && st.rem.shown + st.rem.more === st.rem.total && oneFace(st) && st.panes.every(p => p.bottom <= h2 + 1),
+          `(g) ${w2}×${h2}: the timer line ${tm.where === 'feed' ? 'shows first in the feed, whole (' + tm.text + ')' : 'is left out whole'}; the board still fits (${st.feedLines} feed lines, ${st.rem.shown} reminders shown, no scroll)`, JSON.stringify({ tm, scroll: st.scroll, feedLines: st.feedLines, rem: st.rem, minFs: st.minFs, panes: st.panes }));
+      }
+      console.log('    timer line placed: ' + tmWhere.join(' · '));
+      // a third timer with a long label: every time still shows in full ("N:NN left"); the labels give way first
+      {
+        const t2 = Date.now();
+        await api('/api/data/timer/batch?scope=family', { method: 'POST', profile: 'eli', body: { items: [{ key: 'run:eli:tv6c', value: { label: 'Lasagne for the church potluck supper on Sunday afternoon', total: 1200000, startedAt: t2, endAt: t2 + 1200000, pausedAt: null, remaining: null, by: 'eli' }, updated_at: t2 }] } });
+        await W.page.evaluate(() => hub.pull());
+        await waitFor(() => W.page.evaluate(() => hub.timers.running().length === 3), { label: 'three timers on the TV' }).catch(() => {});
+        for (const [w2, h2] of [[1920, 1080], [960, 540]]) {
+          await W.page.setViewportSize({ width: w2, height: h2 }); await sleep(450); await W.page.evaluate(() => window.__tv.paint()); await sleep(150);
+          const tm = await tmState();
+          ok(tm.where === 'out' || (tm.timesSeen && tm.shownN >= 1 && tm.shownN + tm.moreN === 3), `(g) ${w2}×${h2}: three timers, one with a long label: ${tm.shownN} shown whole (name, time, "left"), ${tm.moreN} counted in "+N"`, JSON.stringify(tm));
+        }
+        await api('/api/data/timer/' + encodeURIComponent('run:eli:tv6c') + '?scope=family', { method: 'DELETE', profile: 'eli' });
+        await W.page.evaluate(() => hub.pull()); await sleep(400);
+        await W.page.setViewportSize({ width: 1920, height: 1080 }); await sleep(300);
+      }
+      await W.page.setViewportSize({ width: 1920, height: 1080 }); await sleep(450);
+      const n0 = (await tmState()).nums; await sleep(1100); await W.page.evaluate(() => window.__tv.tick(new Date())); const n1 = (await tmState()).nums;
+      ok(n0.length === 2 && n1.length === 2 && n0[1] !== n1[1], '(g) the times count down in place with the clock tick', JSON.stringify([n0, n1]));
+      const tvT = await W.page.evaluate(() => document.querySelectorAll('#tv .tv-timers :is(button, input, textarea, a, [contenteditable])').length);
+      ok(tvT === 0, '(g) the timer line holds no control (the TV only looks)', String(tvT));
+      // M1 (core review round 1): a timer kept on this device (hub.timers.device, ringing, with its mirror on the house)
+      // never puts a pill with Stop over the board, and the TV never rings
+      {
+        const t1 = Date.now(), kept = { id: 'dev6', label: 'Kept', total: 60000, startedAt: t1 - 120000, endAt: t1 - 60000, pausedAt: null, remaining: null, by: 'eli', ackAt: null };
+        await api('/api/data/timer/batch?scope=family', { method: 'POST', profile: 'eli', body: { items: [{ key: 'run:eli:dev6', value: { label: 'Kept', total: 60000, startedAt: kept.startedAt, endAt: kept.endAt, pausedAt: null, remaining: null, by: 'eli' }, updated_at: t1 }] } });
+        await W.page.evaluate(() => hub.pull()); await sleep(400);
+        await W.page.evaluate(row => { localStorage.setItem('hub.timers.device', JSON.stringify([{ owner: 'eli', name: 'Eli', hue: 'periwinkle', sound: 'chime', row }])); document.dispatchEvent(new Event('visibilitychange')); }, kept);
+        await W.page.evaluate(() => window.__tv.tick(new Date())); await sleep(1300);
+        const m1 = await W.page.evaluate(() => ({ pill: !document.getElementById('timer-pill').hidden, rings: (window.__timerShell || {}).rings || 0, line: !!document.querySelector('#tv-feed > li.tv-timers') }));
+        ok(!m1.pill && m1.rings === 0, '(g) M1: a timer kept on the device never shows a pill with Stop on the TV, and the TV never rings', JSON.stringify(m1));
+        await W.page.evaluate(() => localStorage.removeItem('hub.timers.device'));
+        await api('/api/data/timer/' + encodeURIComponent('run:eli:dev6') + '?scope=family', { method: 'DELETE', profile: 'eli' });
+      }
+      for (const id of ['tv6a', 'tv6b']) await api('/api/data/timer/' + encodeURIComponent('run:eli:' + id) + '?scope=family', { method: 'DELETE', profile: 'eli' });
+      await W.page.evaluate(() => hub.pull()); await sleep(600);
+      await W.page.evaluate(() => window.__tv.tick(new Date()));
+      ok((await tmState()).where === 'none', '(g) the timers gone → the line goes at the next tick');
+    }
     for (const k of ANNIV_KEYS) await api('/api/data/prayer/' + encodeURIComponent(k) + '?scope=family', { method: 'DELETE', profile: 'eli' });
     await api('/api/data/prayer/' + encodeURIComponent('prayer:tv21-private') + '?scope=person', { method: 'DELETE', profile: 'eli' });
     for (let i = 0; i < 14; i++) await api('/api/data/reminders/' + encodeURIComponent('item:tv21-' + i) + '?scope=family', { method: 'DELETE', profile: 'eli' });

@@ -6,13 +6,16 @@
 // Batch 2b triggers: "think it over then list apps" streams a signed thinking block before the tool call and, after the
 // tool result, answers "THINKING KEPT" only if that block came back whole (P2-CHAT-11); "the upstream fails now" answers
 // HTTP 500 (P2-CHAT-10: the message must not count); "hang for a while" sends nothing for 60 s (P2-CHAT-05: the Worker
-// gives up first — 45 s, or CHAT_TIMEOUT_MS).
+// gives up first — 45 s, or CHAT_TIMEOUT_MS). Batch 6: "set a timer for 12 minutes for the pasta" (also "… 1 minute and 30
+// seconds") calls start_timer.
 import http from 'node:http';
 const port = +(process.argv[2] || 8791);
 
 function pick(text) {
   const t = text.toLowerCase();
   if (/log (.+) in the fridge on (.+)/.test(t)) { const m = t.match(/log (.+) in the fridge on (.+)/); return { name: 'add_list_item', input: { app_id: 'leftovers', item: { name: cap(m[1]), dateLogged: m[2] } } }; }
+  // batch 6 (IMP-TIMER-I2): "set a timer for 12 minutes for the pasta" → start_timer { minutes: 12, label: 'Pasta' }
+  if (/(?:set|start) a timer for ([\d.]+) minutes?(?: and (\d+) seconds?)?(?: for (?:the )?(.+))?/.test(t)) { const m = t.match(/(?:set|start) a timer for ([\d.]+) minutes?(?: and (\d+) seconds?)?(?: for (?:the )?(.+))?/); return { name: 'start_timer', input: { minutes: +m[1], ...(m[2] ? { seconds: +m[2] } : {}), ...(m[3] ? { label: cap(m[3]) } : {}) } }; }
   if (/which apps|list apps/.test(t)) return { name: 'list_apps', input: {} };
   if (/what.*fridge|in the fridge/.test(t)) return { name: 'get_data', input: { app_id: 'leftovers', scope: 'family' } };
   if (/add (.+) to (the )?(leftovers|fridge)/.test(t)) return { name: 'add_list_item', input: { app_id: 'leftovers', item: { name: cap(t.match(/add (.+?) to (the )?(leftovers|fridge)/)[1]), size: 'Small' } } };

@@ -207,6 +207,16 @@ export async function writeError(profile, { appId, scope, key, value }, cur, loa
     }
   }
 
+  // The Timer's family mirror (batch 6, GAP-HOME-1): run:<writer>:<id>, a read-only copy of one running timer for the
+  // Kitchen iPad and the TV. Only its own writer writes it — a kid and the kitchen too, the one family row they write here —
+  // and the Timer keeps no other family row.
+  if (appId === 'timer' && scope === 'family') {
+    const m = /^run:([^:]+):(.+)$/i.exec(key);
+    if (!m || m[1] !== self) return 'not_yours';
+    if (value != null && !obj(value)) return 'bad_value';
+    return null;
+  }
+
   if (profile.kind === 'kid') return kidWrite(profile, { appId, scope, key, value }, cur);
   if (profile.kind === 'kitchen') return kitchenWrite(profile, { appId, scope, key, value }, cur, people);
   if (profile.kind !== 'adult') return 'read_only';

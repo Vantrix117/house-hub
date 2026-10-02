@@ -220,6 +220,11 @@ echo "$BODY" | grep -q '"profile":"niece","readToday":false,"at":"06:30"' && pas
 call "forced verses job (IMP-VERSES-I2)" POST /api/admin/cron/run '{"job":"verses"}' "$D" "$A"; expect 200
 echo "$BODY" | grep -q '"profile":"niece","due":[1-9]' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the niece (switch on) checked with a verse due"; }
 echo "$BODY" | grep -Eq '"(ezra|kiara|tv|kitchen)"' && { fail=$((fail+1)); echo "   ^^^ expected no kid, display or kitchen in the verses job"; } || pass=$((pass+1))
+# batch 6 (PWA-GAP-1): the "Timer done" push is its own job on the minute trigger, forceable from Admin
+call "forced timer job (PWA-GAP-1)" POST /api/admin/cron/run '{"job":"timer"}' "$D" "$A"; expect 200
+[ "$(echo "$BODY" | j job)" = timer ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected job=timer"; }
+call "an unknown job names the timer job" POST /api/admin/cron/run '{"job":"nope"}' "$D" "$A"; expect 400
+echo "$BODY" | grep -q "'timer'" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected 'timer' among the jobs"; }
 call "admin usage counts New York days" GET /api/admin/usage '' "$D" "$A"; expect 200
 [ "$(echo "$BODY" | j tz)" = America/New_York ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected tz America/New_York"; }
 # an expired guest stops receiving push: ending the stay drops their sessions and subscriptions
@@ -281,6 +286,16 @@ call "kid switches own beacon on -> 403" PUT "/api/data/dollywood-live/kidshare:
 call "kid places own dot, beacon off -> 403" PUT "/api/data/dollywood-live/loc:ezra?scope=family" '{"value":{"x":1,"y":2,"t":1}}' "$D" "$K"; expect 403
 call "kid reads a hidden app's family rows -> 403" GET "/api/data/f260?scope=family" '' "$D" "$K"; expect 403
 call "kid writes a hidden app's person rows -> 403" PUT "/api/data/f260/week?scope=person" '{"value":3}' "$D" "$K"; expect 403
+# batch 6 (GAP-HOME-1): the Timer's family mirror run:<writer>:<id> is written only by its own writer — a kid too
+call "kid writes its own timer mirror" PUT "/api/data/timer/run:ezra:smk?scope=family" "{\"value\":{\"total\":60000,\"endAt\":$((NOW+60000)),\"startedAt\":$NOW},\"updated_at\":$NOW}" "$D" "$K"; expect 200
+call "kid writes a sibling's timer mirror -> 403" PUT "/api/data/timer/run:kiara:smk?scope=family" '{"value":{"total":1}}' "$D" "$K"; expect 403
+call "adult writes a kid's timer mirror -> 403" PUT "/api/data/timer/run:ezra:smk2?scope=family" '{"value":{"total":1}}' "$D" "$A"; expect 403
+call "any other family timer row -> 403" PUT "/api/data/timer/active?scope=family" '{"value":1}' "$D" "$A"; expect 403
+call "casing is no way round: RUN:kiara by a kid -> 403" PUT "/api/data/timer/RUN:kiara:x?scope=family" '{"value":{"total":1}}' "$D" "$K"; expect 403
+call "the TV reads the timers' mirror" GET "/api/data/timer?scope=family" '' "$D" "X-Profile-Token: $TV"; expect 200
+echo "$BODY" | grep -q '"run:ezra:smk"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected run:ezra:smk on the TV"; }
+call "the TV writes no mirror -> 403" PUT "/api/data/timer/run:tv:x?scope=family" '{"value":{"total":1}}' "$D" "X-Profile-Token: $TV"; expect 403
+call "kid clears its own timer mirror" DELETE "/api/data/timer/run:ezra:smk?scope=family" '' "$D" "$K"; expect 200
 call "key casing is no way round: LOC:kiara by a kid -> 403" PUT "/api/data/dollywood-live/LOC:kiara?scope=family" '{"value":{"x":1,"y":2,"t":1}}' "$D" "$K"; expect 403
 TODAY=$(TZ=America/New_York date +%F); OLD=$(TZ=America/New_York date -d '-10 days' +%F)
 call "an adult adds a family prayer Kiara prayed" PUT "/api/data/prayer/prayer:smk1?scope=family" "{\"value\":{\"id\":\"smk1\",\"title\":\"Smoke\",\"status\":\"active\",\"prayedBy\":{\"$TODAY\":[\"Kiara\"]}},\"updated_at\":$NOW}" "$D" "$N"; expect 200
@@ -365,6 +380,9 @@ call "kitchen feed line for an adult" POST /api/activity '{"app_id":"leftovers",
 call "kitchen credits the TV -> 403" POST /api/activity '{"app_id":"prayer","text":"x","as":"tv"}' "$DKH" "$KT"; expect 403
 call "kitchen writes its own timer" PUT "/api/data/timer/timer.active?scope=person" '{"value":{"endAt":1}}' "$DKH" "$KT"; expect 200
 call "kitchen writes a person app -> 403" PUT "/api/data/f260/week?scope=person" '{"value":3}' "$DKH" "$KT"; expect 403
+call "kitchen writes its own timer mirror (batch 6)" PUT "/api/data/timer/run:kitchen:k1?scope=family" '{"value":{"total":60000,"endAt":1,"startedAt":1}}' "$DKH" "$KT"; expect 200
+call "kitchen writes a person's timer mirror -> 403" PUT "/api/data/timer/run:niece:k1?scope=family" '{"value":{"total":1}}' "$DKH" "$KT"; expect 403
+call "kitchen clears its own timer mirror" DELETE "/api/data/timer/run:kitchen:k1?scope=family" '' "$DKH" "$KT"; expect 200
 call "kitchen chat -> 403" POST /api/chat '{"message":"hi"}' "$DKH" "$KT"; expect 403
 call "kitchen push subscription -> 403" POST /api/push/subscribe '{"subscription":{"endpoint":"https://push.example/k"}}' "$DKH" "$KT"; expect 403
 call "kitchen admin call -> 403" GET /api/admin/usage '' "$DKH" "$KT"; expect 403

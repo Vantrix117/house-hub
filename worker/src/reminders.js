@@ -7,6 +7,7 @@
 //   park      (every run, 15 min):    a kid's map marker has gone quiet while an adult's is fresh -> household adults
 //   praytime  (every run, 15 min):    the person's own "reminder to pray" time (push_prefs.prayAt) -> that person
 //   verses    (7 pm hour):            memory verses due for review today -> that person, only if they switched it on (IMP-VERSES-I2)
+//   timer     (every minute, its own cron): a timer that ended in the last 10 minutes and was not stopped -> its owner (PWA-GAP-1)
 // The cron (wrangler.toml) fires every 15 minutes; runCron reads the New York time of the firing, so 8:00 am / 8:00 pm (and
 // each person's chosen time) stay put across daylight saving, and every firing of those hours runs them (a failed push is tried again). morning,
 // evening, behind, praytime, prayedfor and verses send at most once per person per day (push_log, delivered pushes only); prayer
@@ -39,7 +40,7 @@ export const vapidFrom = env => (env.VAPID_PRIVATE_KEY && env.VAPID_PUBLIC_KEY
  *  a quarter hour, New York time) turns the reminder to pray on — unset, it is off. readAt ("HH:MM", New York) is when the
  *  reading nudge (kind f260) comes — unset, 8 pm (IMP-F260-F4); the f260 switch still turns it off. The evening verse
  *  review (kind verses, IMP-VERSES-I2) is the one switch that starts OFF: only push_pref:verses = true turns it on. */
-export const PREF_DEFAULTS = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, prayAt: null, readAt: null };
+export const PREF_DEFAULTS = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, timer: true, prayAt: null, readAt: null };
 export const READ_AT_DEFAULT = '20:00';
 /** "HH:MM" → minutes after midnight, or null for anything else. */
 export const minutesOf = s => { const m = /^(\d{2}):(\d{2})$/.exec(String(s || '')); return m && +m[1] < 24 && +m[2] < 60 ? +m[1] * 60 + +m[2] : null; };
@@ -532,7 +533,93 @@ export async function versesJob(env, now = Date.now()) {
   return out;
 }
 
-export const JOBS = { morning: morningJob, evening: eveningJob, behind: behindJob, prayer: prayerJob, prayedfor: prayedForJob, park: parkJob, praytime: prayTimeJob, verses: versesJob };
+/**
+ * PWA-GAP-1, "Timer done" (batch 6): the minute cron ("* * * * *", wrangler.toml) runs this job alone. It reads every person's
+ * timer:<id> rows (apps/timer.html; server ms) and the legacy timer.active (one running timer, total in seconds): a timer
+ * whose endAt fell in the last 10 minutes, not paused, not acknowledged (Stop removes the row; ackAt set counts as Stop) and
+ * not pushed yet is pushed to its owner's devices, kind 'timer' ("Timer done: <label>" — nothing private beyond the label;
+ * tag timer-<id>-<endAt>, the same as the device's own notification, so the two replace each other quietly). The switch push_pref:timer is
+ * on unless the person turned it off (a timer is something they asked for). Each push is remembered once in
+ * settings.timer_pushed = { "<profile>|<key>|<startedAt>|<endAt>": at }, pruned after a day; a delivery that failed is tried again
+ * at the next minute while the 10 minutes last. Kids, the TV and the kitchen cannot subscribe: their timers ring on the
+ * device only. The 10-minute rule: a row that ended more than 10 minutes ago is cleared (a tombstone, written only if the
+ * row is still the one read: same updated_at), with its family mirror run:<owner>:<id> (GAP-HOME-1) under the same start.
+ * A mirror left without its person row (or itself ended over 10 minutes ago) is cleared too.
+ */
+const TIMER_KEEP_MS = 10 * 60000;
+const TIMER_PUSHED = 'timer_pushed';
+/** 'm:ss' or 'h:mm:ss' for ms, seconds rounded up (apps/hub.js hub.timers.fmt). */
+export const timerFmt = ms => { const s = Math.max(0, Math.ceil((+ms || 0) / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = String(s % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${m}:${x}`; };
+/** A stored timer row as { id, label, total (ms), startedAt, endAt, pausedAt, ackAt } — the legacy timer.active too — or null. */
+export function timerRow(key, v) {
+  if (!v || typeof v !== 'object') return null;
+  const n = x => (x == null || !Number.isFinite(+x) ? null : +x);
+  if (key === 'timer.active') return n(v.endAt) > 0 ? { id: 'legacy', label: '', total: (n(v.total) || 0) * 1000, startedAt: n(v.startedAt) || 0, endAt: n(v.endAt), pausedAt: null, ackAt: null } : null;
+  if (!key.startsWith('timer:')) return null;
+  return { id: key.slice(6), label: typeof v.label === 'string' ? v.label.slice(0, 60) : '', total: n(v.total) || 0, startedAt: n(v.startedAt) || 0, endAt: n(v.endAt), pausedAt: n(v.pausedAt), ackAt: n(v.ackAt) };
+}
+// 30 days, not one (core review round 2): pulls are incremental, so a device away longer than this never hears of a
+// tombstone purged before it pulls again, and a PAUSED copy of a stopped timer would stay on it as a ghost (paused rows never
+// go stale). The partial index already keeps the minute reads to the live rows, so keeping a month of tombstones costs nothing there.
+export const TIMER_TOMB_MS = 30 * 86400000;
+export async function timerJob(env, now = Date.now(), { forced = false } = {}) {
+  const out = { job: 'timer', due: [], notified: [], skipped: [], cleared: [] };
+  // M2 (review round 1): the Timer's tombstones older than 30 days (TIMER_TOMB_MS) go, once an hour (and on a forced run),
+  // so the table stays small however many timers were ever started. The reads use the partial index app_data_timer_live
+  // (migrations/008): live rows only.
+  if (forced || new Date(now).getUTCMinutes() === 0) {
+    const d = await env.DB.prepare("DELETE FROM app_data WHERE app_id = 'timer' AND value IS NULL AND updated_at < ?").bind(now - TIMER_TOMB_MS).run();
+    out.purged = (d && d.meta && d.meta.changes) || 0;
+  }
+  const { results } = await env.DB.prepare("SELECT id, profile_id, key, value, updated_at FROM app_data INDEXED BY app_data_timer_live WHERE app_id = 'timer' AND scope = 'person' AND value IS NOT NULL AND (substr(key, 1, 6) = 'timer:' OR key = 'timer.active')").all()
+    .catch(() => env.DB.prepare("SELECT id, profile_id, key, value, updated_at FROM app_data WHERE app_id = 'timer' AND scope = 'person' AND value IS NOT NULL AND (substr(key, 1, 6) = 'timer:' OR key = 'timer.active')").all());   // before migration 008
+  const { results: mirrors } = await env.DB.prepare("SELECT id, key, value, updated_at FROM app_data INDEXED BY app_data_timer_live WHERE app_id = 'timer' AND scope = 'family' AND profile_id IS NULL AND value IS NOT NULL AND substr(key, 1, 4) = 'run:'").all()
+    .catch(() => env.DB.prepare("SELECT id, key, value, updated_at FROM app_data WHERE app_id = 'timer' AND scope = 'family' AND profile_id IS NULL AND value IS NOT NULL AND substr(key, 1, 4) = 'run:'").all());
+  const kinds = Object.fromEntries((await env.DB.prepare('SELECT id, kind FROM profiles').all()).results.map(p => [p.id, p.kind]));
+  const memory = (await readSetting(env, TIMER_PUSHED)) || {};
+  const pushed = {}; for (const [k, at] of Object.entries(memory)) if (+at > now - 86400000) pushed[k] = +at;
+  const tomb = (rowId, at) => env.DB.prepare('UPDATE app_data SET value = NULL, updated_at = ?, synced_at = ? WHERE id = ? AND updated_at = ?').bind(Math.max(now, +at + 1), Date.now(), rowId, at).run();
+  const live = new Set();   // "<owner>:<id>" of person rows that still stand
+  for (const r of results) {
+    let v; try { v = JSON.parse(r.value); } catch { continue; }
+    const t = timerRow(r.key, v); if (!t) continue;
+    if (t.pausedAt > 0 || !(t.endAt > 0)) { live.add(r.profile_id + ':' + t.id); continue; }
+    const since = now - t.endAt;
+    if (since > TIMER_KEEP_MS) {                                           // the 10-minute rule: cleared, never a newer row
+      await tomb(r.id, r.updated_at);
+      const m = mirrors.find(x => x.key === `run:${r.profile_id}:${t.id}`);
+      if (m) { let mv = null; try { mv = JSON.parse(m.value); } catch {} if (!mv || !mv.startedAt || +mv.startedAt === t.startedAt) await tomb(m.id, m.updated_at); }
+      out.cleared.push({ profile: r.profile_id, key: r.key });
+      continue;
+    }
+    live.add(r.profile_id + ':' + t.id);
+    if (since < 0 || t.ackAt) continue;                                    // still running, or stopped
+    const mark = `${r.profile_id}|${r.key}|${t.startedAt}|${t.endAt}`;   // + endAt: +1 min after it rang is a new end, told again (L1)
+    if (pushed[mark]) continue;
+    out.due.push({ profile: r.profile_id, key: r.key });
+    if (['kid', 'kiosk', 'kitchen'].includes(kinds[r.profile_id]) || !kinds[r.profile_id]) { pushed[mark] = now; out.skipped.push({ profile: r.profile_id, why: 'no_push_for_kind' }); continue; }
+    if ((await prefsFor(env, r.profile_id)).timer === false) { pushed[mark] = now; out.skipped.push({ profile: r.profile_id, why: 'pref_off' }); continue; }
+    const what = t.label || `${timerFmt(t.total)} timer`;
+    const p = await pushTo(env, r.profile_id, 'timer', { title: t.label ? `Timer done: ${t.label}` : 'Timer done', body: `${what} is up.`, url: '#timer', tag: `timer-${t.id}-${t.endAt}` }, { ttl: 600, urgency: 'high' });
+    if (p.sent) out.notified.push({ profile: r.profile_id, key: r.key, ...p });
+    if (p.ok || !p.sent) pushed[mark] = now;                               // told, or nowhere to tell them
+    else out.skipped.push({ profile: r.profile_id, why: 'delivery_failed_retry' });
+  }
+  // mirrors: one whose own timer ended over 10 minutes ago, or whose person row is gone (a minute's grace for a write in flight)
+  for (const m of mirrors) {
+    const k = /^run:([^:]+):(.+)$/.exec(m.key); if (!k) continue;
+    let v; try { v = JSON.parse(m.value); } catch { v = null; }
+    const ended = v && !(+v.pausedAt > 0) && +v.endAt > 0 && now - +v.endAt > TIMER_KEEP_MS;
+    const orphan = !live.has(k[1] + ':' + k[2]) && now - +m.updated_at > 60000;
+    if (ended || orphan) { await tomb(m.id, m.updated_at); out.cleared.push({ mirror: m.key }); }
+  }
+  if (JSON.stringify(pushed) !== JSON.stringify(memory)) await writeSetting(env, TIMER_PUSHED, pushed);
+  return out;
+}
+
+export const JOBS = { morning: morningJob, evening: eveningJob, behind: behindJob, prayer: prayerJob, prayedfor: prayedForJob, park: parkJob, praytime: prayTimeJob, verses: versesJob, timer: timerJob };
+/** The minute cron's own job list (wrangler.toml "* * * * *"): only the timer. */
+export const MINUTE_CRON = '* * * * *';
 
 /**
  * What a cron firing at `now` runs (the cron fires every 15 min): every firing of the 8 o'clock hour, New York -> morning +

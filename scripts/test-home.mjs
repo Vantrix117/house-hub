@@ -10,6 +10,10 @@
 //       prayed today ("Ezra and Elizabeth prayed today for Grandma Jo's visit"), not their own tick, not yesterday's, not a
 //       request someone else asked; patched in place (the other parts keep their nodes); never on another adult's Home or a
 //       kid's; it opens Prayer
+//   (g) UX-TIMER-7 (batch 6): the adult's Home has a Timer card — "Start a timer" with the last three lengths (3, 5, 10 minutes
+//       before there are any) as one-tap buttons and Open Timer in the footer; one tap starts a timer:<id> row (server ms) and
+//       its family mirror; the card then shows it counting in place with Pause / Stop, the pill stays; Pause is stored; Stop
+//       removes the row; the length joins the recents. The kid Home has no Timer card (its picture tile, and the pill)
 //   AC: every card renders from the localStorage cache before the first pull (second load with /api blocked:
 //       populated cards, no skeleton, lastPull still 0) and each card's secondary text is one line at 390 and not ellipsised.
 //       The Stars/Kids play.svg art is checked by pixel: visible on Hearth, a faint ghost on Midnight.
@@ -459,6 +463,126 @@ async function artSample(page, sel) {
       globalThis.__versesCleanup = async () => { for (const k of ['mem:1-0', 'mem:1-1', 'mem:2-0', 'mem:2-1', 'recall:1-0', 'recall:1-1', 'recall:2-0', 'recall:2-1']) await api('/api/data/f260/' + encodeURIComponent(k) + '?scope=person', { method: 'DELETE', profile: dadTok }).catch(() => {}); };
     }
 
+    console.log('\n## (g) the Home timer card (UX-TIMER-7, batch 6; David, 390)');
+    {
+      const live = async () => ((await api('/api/data/timer?scope=person', { profile: dadTok })).items || []).filter(i => i.value != null && (/^timer:/.test(i.key) || i.key === 'timer.active'));
+      for (const r of ((await api('/api/data/timer?scope=person', { profile: dadTok })).items || [])) if (r.value != null) await api('/api/data/timer/' + encodeURIComponent(r.key) + '?scope=person', { method: 'DELETE', profile: dadTok });
+      const TM = await newContext(browser, 'TM'); await signIn(TM.page, 'dad', DAD_PIN);
+      await TM.page.waitForSelector('#home-timer [data-timer-recent]', { timeout: 15000 });
+      const rec = await TM.page.$$eval('#home-timer [data-timer-recent]', bs => bs.map(b => +b.dataset.timerRecent));
+      ok(rec.join() === '180000,300000,600000' && /Start a timer/.test(await text(TM.page, '#home-timer .gbig') || ''), '(g) no recents yet: "Start a timer" with 3, 5 and 10 minutes', JSON.stringify(rec));
+      ok(await TM.page.$eval('#home-timer .gfoot > #home-timer-open', b => b.textContent.trim() === 'Open Timer'), '(g) Open Timer in the card\'s footer');
+      await TM.page.click('#home-timer [data-timer-recent="300000"]');   // one tap
+      await waitFor(() => TM.page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush the start' });
+      const rows1 = await live();
+      ok(rows1.length === 1 && rows1[0].value.total === 300000 && rows1[0].value.endAt - rows1[0].value.startedAt === 300000 && rows1[0].value.by === 'dad' && !rows1[0].value.pausedAt, '(g) one tap starts a 5-minute timer: one timer:<id> row on the house', JSON.stringify(rows1));
+      const id1 = rows1[0] && rows1[0].value.id;
+      const fam = ((await api('/api/data/timer?scope=family', { profile: dadTok })).items || []).filter(i => i.key === 'run:dad:' + id1 && i.value);
+      ok(fam.length === 1 && fam[0].value.endAt === rows1[0].value.endAt, '(g) …and its family mirror run:dad:<id> (the kitchen and the TV read it)', JSON.stringify(fam));
+      await TM.page.waitForSelector('#home-timer .tm-row [data-timer-act=pause]');
+      const t1 = await text(TM.page, '#home-timer .tm-left'); await sleep(1400); const t2 = await text(TM.page, '#home-timer .tm-left');
+      ok(/^[45]:\d\d$/.test(t1 || '') && t1 !== t2, '(g) the card shows it counting, in place', t1 + ' → ' + t2);
+      // rescore round: an unlabelled timer shows its time alone (no second "Timer" under the card's title); one action, one name:
+      // a running timer's clear is Reset (rotate-ccw) with an accessible name, a square Stop only for a ringing one
+      const row1 = await TM.page.$eval('#home-timer .tm-row', e => ({ what: !!e.querySelector('.tm-what'), text: e.textContent.replace(/\s+/g, ' ').trim(), reset: (e.querySelector('[data-timer-act=reset]') || {}).ariaLabel || null, icon: (e.querySelector('[data-timer-act=reset] use') || { getAttribute: () => '' }).getAttribute('href'), stop: !!e.querySelector('[data-timer-act=stop]') }));
+      ok(!row1.what && !/Timer/.test(row1.text) && row1.reset === 'Reset timer' && /#i-rotate-ccw$/.test(row1.icon) && !row1.stop, '(g) the unlabelled row reads its time only, and its clear is "Reset timer" (rotate-ccw), no Stop', JSON.stringify(row1));
+      ok(await TM.page.$eval('#timer-pill', p => !p.hidden), '(g) the pill stays while it runs');
+      ok(await noHScroll(TM.page), '(g) no horizontal scroll with a timer running at 390');
+      await TM.page.click('#home-timer [data-timer-act=pause]');
+      await TM.page.waitForSelector('#home-timer [data-timer-act=resume]');
+      await waitFor(() => TM.page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush the pause' });
+      const p1 = (await live()).find(i => i.key === 'timer:' + id1);
+      ok(p1 && p1.value.pausedAt > 0 && p1.value.endAt == null && p1.value.remaining > 200000 && p1.value.remaining <= 300000, '(g) Pause is stored on the house (pausedAt, remaining, no endAt)', JSON.stringify(p1));
+      ok(/Paused/.test(await text(TM.page, '#home-timer .tm-what') || ''), '(g) the card says Paused');
+      await TM.page.click('#home-timer [data-timer-act=reset]');
+      await waitFor(async () => !(await live()).length, { label: 'the row removed' }).catch(() => {});
+      ok(!(await live()).length, '(g) Reset removes the row from the house');
+      const tst = await TM.page.$eval('#hub-toast', t => ({ shown: !t.hidden, text: t.textContent, act: (t.querySelector('.toast-act') || {}).textContent }));
+      ok(tst.shown && /Timer reset/.test(tst.text) && tst.act === 'Undo', '(g) …with a "Timer reset" toast and Undo', JSON.stringify(tst));
+      await TM.page.click('#hub-toast .toast-act');
+      await waitFor(() => TM.page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush the undo' });
+      const u1 = (await live()).find(i => i.key === 'timer:' + id1);
+      ok(u1 && u1.value.startedAt === p1.value.startedAt && u1.value.pausedAt === p1.value.pausedAt && u1.value.remaining === p1.value.remaining, '(g) Undo puts the timer back on the house as it was (same start, still paused, same time left)', JSON.stringify(u1));
+      await TM.page.waitForSelector('#home-timer [data-timer-act=resume]', { timeout: 5000 }).catch(() => {});
+      ok(!!(await TM.page.$('#home-timer [data-timer-act=resume]')), '(g) …and the card shows it again');
+      await TM.page.click('#home-timer [data-timer-act=reset]');
+      await waitFor(async () => !(await live()).length, { label: 'the row removed again' }).catch(() => {});
+      ok(!(await live()).length, '(g) Reset again (no Undo) and it is gone');
+      // core review round 1: Pause on a legacy timer.active (an older app's single row) from the card writes its migrated row
+      {
+        const t0 = Date.now();
+        await api('/api/data/timer/timer.active?scope=person', { method: 'PUT', profile: dadTok, body: { value: { endAt: t0 + 240000, total: 300, startedAt: t0 - 60000 }, updated_at: t0 } });
+        await TM.page.evaluate(() => hub.pull());
+        await TM.page.waitForSelector('#home-timer [data-timer-act=pause]', { timeout: 8000 }).catch(() => {});
+        await TM.page.click('#home-timer [data-timer-act=pause]');
+        await TM.page.waitForSelector('#home-timer [data-timer-act=resume]', { timeout: 8000 }).catch(() => {});
+        await waitFor(() => TM.page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush the legacy pause' });
+        const all = ((await api('/api/data/timer?scope=person', { profile: dadTok })).items || []);
+        const mig = all.find(i => i.key === 'timer:m' + (t0 - 60000)), leg = all.find(i => i.key === 'timer.active');
+        ok(mig && mig.value && mig.value.pausedAt > 0 && mig.value.total === 300000 && (!leg || leg.value === null) && !(await TM.page.$eval('#hub-toast', t => !t.hidden && t.textContent.includes('Not a timer')).catch(() => false)), '(g) Pause on a legacy timer.active writes its migrated row timer:m<startedAt>, paused, and removes timer.active', JSON.stringify({ mig, leg }));
+        await TM.page.click('#home-timer [data-timer-act=reset]');
+        await waitFor(async () => !(await live()).length, { label: 'the legacy copy stopped' }).catch(() => {});
+      }
+      await TM.page.waitForSelector('#home-timer [data-timer-recent]');
+      const rec2 = await TM.page.$$eval('#home-timer [data-timer-recent]', bs => bs.map(b => +b.dataset.timerRecent));
+      ok(rec2[0] === 300000 && rec2.length >= 1, '(g) 5 minutes is now the first recent length', JSON.stringify(rec2));
+      // visual review round 6: with a ringing pill on a phone, a Reset's Undo toast sits above the pill, never over its Stop
+      {
+        const pasta = await TM.page.evaluate(() => { hub.timers.start({ total: 1000, label: 'Tea' }); return hub.timers.start({ total: 600000, label: 'Pasta' }); });
+        await TM.page.waitForSelector('#timer-pill.ringing:not([hidden])', { timeout: 8000 }).catch(() => {});
+        await TM.page.waitForSelector(`#home-timer [data-timer-act=reset][data-id="${pasta.id}"]`, { timeout: 8000 });
+        await TM.page.click(`#home-timer [data-timer-act=reset][data-id="${pasta.id}"]`);
+        await sleep(400);
+        const g = await TM.page.evaluate(() => { const R = id => { const e = document.getElementById(id); if (!e || e.hidden) return null; const b = e.getBoundingClientRect(); return { t: Math.round(b.top), b: Math.round(b.bottom), l: Math.round(b.left), r: Math.round(b.right) }; }; return { toast: R('hub-toast'), pill: R('timer-pill'), ringing: document.getElementById('timer-pill').classList.contains('ringing') }; });
+        const apart = g.toast && g.pill && (g.toast.b <= g.pill.t || g.toast.t >= g.pill.b || g.toast.r <= g.pill.l || g.toast.l >= g.pill.r);
+        ok(g.ringing && apart, '(g) at 390 the Reset toast and the ringing pill (its Stop) do not overlap', JSON.stringify(g));
+        await TM.page.evaluate(() => { document.getElementById('hub-toast').hidden = true; for (const r of hub.timers.list({ stale: true })) hub.timers.clear(r.id, r.startedAt); });
+        await sleep(600);
+      }
+      // core review round 4 (E10): Reset, then a Switch to Ezra within the 6 s: the Undo toast is gone at the picker, and an Undo
+      // (the toast's, or hub.timers.restore with Dad's row) writes nothing into Ezra's rows
+      {
+        const r = await TM.page.evaluate(() => hub.timers.start({ total: 600000, label: 'Roast' }));
+        await TM.page.waitForSelector(`#home-timer [data-timer-act=reset][data-id="${r.id}"]`, { timeout: 8000 });
+        const was = await TM.page.evaluate(id => hub.timers.list().find(x => x.id === id), r.id);
+        await TM.page.click(`#home-timer [data-timer-act=reset][data-id="${r.id}"]`);
+        const shown = await TM.page.$eval('#hub-toast', t => !t.hidden && /Roast timer reset/.test(t.textContent));
+        await TM.page.click('.tab[data-tab=me]'); await TM.page.click('#switch');
+        await TM.page.waitForSelector('.pcard[data-id=ezra]');
+        const atPicker = await TM.page.$eval('#hub-toast', t => t.hidden);
+        await TM.page.click('.pcard[data-id=ezra]');
+        await TM.page.waitForFunction(() => window.hub && hub.profile && hub.profile.id === 'ezra', null, { timeout: 15000 });
+        const afterIn = await TM.page.$eval('#hub-toast', t => t.hidden || !/reset/.test(t.textContent));
+        const restored = await TM.page.evaluate(w => hub.timers.restore(w), was);
+        await TM.page.evaluate(() => hub.flush()).catch(() => {}); await sleep(800);
+        const ezraRows = ((await api('/api/data/timer?scope=person', { profile: await asOwner('ezra') })).items || []).filter(i => i.value && /^timer:/.test(i.key));
+        ok(shown && atPicker && afterIn, '(g) Reset then Switch within 6 s: the "Roast timer reset · Undo" toast is gone at the picker and after Ezra signs in', JSON.stringify({ shown, atPicker, afterIn }));
+        ok(restored === null && !ezraRows.length, "(g) …and an Undo then (hub.timers.restore with Dad's row) writes nothing into Ezra's rows", JSON.stringify({ restored, ezraRows }));
+      }
+      await TM.ctx.close();
+      // visual review round 4: inside another app with a timer running, at XXL on a 375 phone, the viewer bar keeps Back, the
+      // timer chip and Reload on screen (the title gives way first), for an adult and a kid
+      for (const [who, pin] of [['dad', DAD_PIN], ['ezra', null]]) {
+        const V = await newContext(browser, 'V-' + who, 375);
+        await signIn(V.page, who, pin);
+        await V.page.evaluate(() => { hub.setTextSize('xxl'); for (const r of hub.timers.list({ stale: true })) hub.timers.clear(r.id, r.startedAt); });
+        await sleep(400);
+        await V.page.evaluate(() => hub.timers.start({ total: 600000 }));
+        await V.page.evaluate(() => { location.hash = '#tally'; });
+        await V.page.waitForFunction(() => { const f = document.getElementById('frame'); return f && f.dataset.id === 'tally'; }, null, { timeout: 15000 });
+        await V.page.waitForSelector('#pill-timer:not([hidden])', { timeout: 8000 }).catch(() => {});
+        await V.page.waitForFunction(() => /^9:/.test(document.getElementById('pill-timer-time').textContent), null, { timeout: 5000 }).catch(() => {});   // measured at 9:59, as the review measured it
+        await sleep(300);
+        const bar = await V.page.evaluate(() => { const r = id => { const e = document.getElementById(id); if (!e || e.hidden || getComputedStyle(e).display === 'none') return null; const b = e.getBoundingClientRect(); return { l: Math.round(b.left), r: Math.round(b.right), w: Math.round(b.width) }; }; return { vw: innerWidth, back: r('pill-home'), chip: r('pill-timer'), reload: r('pill-reload'), name: r('pill-name'), title: r('pill-label') }; });
+        ok(bar.reload && bar.reload.r <= bar.vw && bar.chip && bar.chip.l >= 0 && bar.chip.r <= bar.vw && bar.back && bar.back.l >= 0, `(g) ${who} at XXL on 375, in Tally with a timer running: Back, the chip (${bar.chip && bar.chip.w} px) and Reload (right edge ${bar.reload && bar.reload.r}) are on screen`, JSON.stringify(bar));
+        // visual review round 5: the title keeps its room (an adult as at HEAD; a kid: Back is its arrow, the chevron goes beside the chip)
+        ok(bar.title && bar.title.w >= (who === 'ezra' ? 70 : 120), `(g) ${who}: the title keeps ${bar.title && bar.title.w} px (at least ${who === 'ezra' ? 70 : 120})`, JSON.stringify(bar));
+        await V.page.evaluate(() => { hub.setTextSize('m'); for (const r of hub.timers.list({ stale: true })) hub.timers.clear(r.id, r.startedAt); });
+        await sleep(800); await V.page.evaluate(() => hub.flush()).catch(() => {});
+        await V.ctx.close();
+      }
+    }
+
     console.log('\n## kid Home (Ezra, 390)');
     const K = await newContext(browser, 'K');
     await signIn(K.page, 'ezra');
@@ -482,6 +606,7 @@ async function artSample(page, sel) {
     ok(!(await K.page.$('#feed')) && !(await K.page.$('.prayer-card')), 'kid Home stays simple: no feed, no adult cards');
     ok(!(await K.page.$('.pf-line')), '(e) the kid Home never has the asker\'s line (Ezra prayed on two of them)');
     ok(!(await K.page.$('.verses-card')), '(f) the kid Home keeps its picture tiles: no Verses card');
+    ok(!(await K.page.$('#home-timer')) && !!(await K.page.$('.kid-tile[data-open=timer]')), '(g) the kid Home has no Timer card; its Timer picture tile stays');
     const kol = await oneLiners(K.page);
     ok(kol.length >= 2 && kol.every(o => o.one), 'kid cards: secondary text is one line at 390 (kid type scale)', JSON.stringify(kol.filter(o => !o.one)));
     ok(await noHScroll(K.page), 'no horizontal scroll (kid)');

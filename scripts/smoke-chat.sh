@@ -33,6 +33,11 @@ put() { # put PROFILE_ID app scope key json-value   (seed a row the way an app w
     --data "{\"value\":$5,\"updated_at\":$(date +%s)000}" > "$OUT"
   if grep -qE 'device_not_paired|profile_session_invalid' "$OUT"; then signin; curl -s -X PUT "$BASE/api/data/$2/$4?scope=$3" -H "X-Device-Token: $DT" -H "X-Profile-Token: $(tok "$1")" -H 'Content-Type: application/json' --data "{\"value\":$5,\"updated_at\":$(date +%s)000}" > /dev/null; fi
 }
+cleartimers() { # cleartimers PROFILE_ID   (stop every timer:<id> row the profile has, so the 3-at-once rule starts from 0 on a re-run)
+  for k in $(curl -s "$BASE/api/data/timer?scope=person" -H "X-Device-Token: $DT" -H "X-Profile-Token: $(tok "$1")" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{for(const i of JSON.parse(s).items)if(/^timer:/.test(i.key)&&i.value)console.log(i.key)}catch{}})"); do
+    curl -s -X DELETE "$BASE/api/data/timer/$k?scope=person" -H "X-Device-Token: $DT" -H "X-Profile-Token: $(tok "$1")" > /dev/null
+  done
+}
 signin() { # pair this run's device and sign in the adult, the kid and the kiosk
   DT=$(curl -s -X POST $BASE/api/pair -H 'Content-Type: application/json' --data "{\"code\":\"$CODE\",\"name\":\"chat smoke\"}" | J device_token)
   if [ -n "$PIN" ]; then A=$(curl -s -X POST $BASE/api/login -H "X-Device-Token: $DT" -H 'Content-Type: application/json' --data "{\"profile_id\":\"$P\",\"pin\":\"$PIN\"}" | J profile_token)
@@ -71,6 +76,22 @@ chat "$P" "Please pray for Grandma's knee on the family list";     expect "praye
 chat "$P" "Set my tally to 42";                                    expect "set_data chip" 'Tally set to 42'
 chat "$P" "What's my tally?";                                     expect "tally read is the summed count" 'Done — 42'
 
+echo; echo "### $P (adult): batch 6 — start_timer (IMP-TIMER-I2)"
+cleartimers "$P"
+chat "$P" "Set a timer for 12 minutes for the pasta";             expect "start_timer chip with its label" 'Timer set: 12:00 · Pasta'
+                                                                  expect "start_timer offers Undo" '"name":"start_timer".*"undo":"[a-z0-9]+"'
+curl -s "$BASE/api/data/timer?scope=person" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A" > "$OUT"
+expect "a timer:<id> row in server ms (total 720000)" '"key":"timer:c[a-z0-9]+","value":\{"id":"c[a-z0-9]+","label":"Pasta","total":720000'
+expect "recents remembers the length" '"key":"recents","value":\[\{"total":720000,"label":"Pasta"\}'
+curl -s "$BASE/api/data/timer?scope=family" -H "X-Device-Token: $DT" -H "X-Profile-Token: $A" > "$OUT"
+expect "its family mirror for the kitchen and the TV" "\"key\":\"run:$P:c[a-z0-9]+\",\"value\":\\{\"label\":\"Pasta\""
+chat "$P" "Set a timer for 1 minute and 30 seconds";              expect "minutes and seconds" 'Timer set: 1:30'
+chat "$P" "Set a timer for 90 minutes";                           expect "an hour and more reads h:mm:ss" 'Timer set: 1:30:00'
+chat "$P" "Set a timer for 5 minutes";                            expect "a fourth is refused (three at once)" 'Three timers are already running'
+reject "nothing set past three" 'Timer set: 5:00'
+chat "$P" "Set a timer for 0 minutes";                            expect "zero is refused" '1 second to 24 hours'
+cleartimers "$P"
+
 echo; echo "### $P (adult): round-2 tools — prayers, fridge clean-up, map, F260 status"
 chat "$P" "Please pray for Uncle Bob's trip $RUN on the family list";                 expect "family prayer added" "prayer list: Uncle Bob's trip $RUN"
 chat "$P" "I prayed for Uncle Bob's trip $RUN on the family list";                    expect "mark_prayed chip (family)" "Prayed for Uncle Bob's trip $RUN"
@@ -98,6 +119,11 @@ chat "$P" "What's today's verse?";                                              
 
 echo; echo "### Ezra (kid): adult-only app blocked, reminders blocked, kid-safe prompt"
 chat ezra "Set my tally to 3";                      expect "kid may write own tally" 'Tally set to 3'
+cleartimers ezra
+chat ezra "Set a timer for 3 minutes";              expect "a kid may start their own timer (batch 6)" 'Timer set: 3:00'
+curl -s "$BASE/api/data/timer?scope=family" -H "X-Device-Token: $DT" -H "X-Profile-Token: $K" > "$OUT"
+expect "the kid's mirror is written (the policy's run:<writer> rule)" '"key":"run:ezra:c[a-z0-9]+","value":\{'
+cleartimers ezra
 chat ezra "Change the prayer app for me";           expect "set_data refuses a row outside its short list" 'cannot be changed from chat'
 chat ezra "Remind everyone to buy cake";            expect "kid blocked from reminders" 'Kids cannot add reminders'
 chat ezra "Hello!";                                 expect "kid prompt in play" 'KID|event: done'

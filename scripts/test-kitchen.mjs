@@ -9,7 +9,8 @@
 //
 // Eli is signed in on the iPad when the admin, from his phone's Me → Admin → Devices, makes it the kitchen with his PIN (a
 // wrong PIN is refused there). On its next request the iPad is the kitchen: no picker, no Me or Chat tab at 390, 820 and
-// 1280, only the Larder, Prayer, Timer and Tally, and the calm kitchen Home. The kitchen writes the family apps, cannot
+// 1280, only the Larder, Prayer, Timer and Tally, and the calm kitchen Home (batch 6: every running timer in the house with
+// its owner's face, read-only unless it is the kitchen's own). The kitchen writes the family apps, cannot
 // read or write anyone's person scope, has no chat or admin, cannot sign in as a person (Eli included) and nobody else can
 // sign in as it (P2-PROF-09). Prayed, the Larder's finish and the album's Add open the face sheet (Prayer: everyone in the
 // household; the Larder and the album: adults only) and credit the tapped person, which another device sees in the rows
@@ -184,6 +185,32 @@ async function adminPin(page, pin) { await page.waitForSelector('#apform #apin')
     await K.page.evaluate(() => hub.pull());
     await waitFor(() => K.page.$eval('#k-timer', e => /\d+:\d\d/.test(e.textContent)), { label: 'the timer card counting' }).catch(() => {});
     ok(await K.page.$eval('#k-timer', e => /\d+:\d\d/.test(e.textContent) && parseFloat(getComputedStyle(e.querySelector('.k-num')).fontSize) >= 48), 'the running timer shows on the kitchen Home in glance-size numbers', await K.page.$eval('#k-timer', e => e.textContent));
+    // GAP-HOME-1 (batch 6): every running timer in the house — the family mirror run:<owner>:<id> each owner's device keeps —
+    // with the owner's face; only the kitchen's own has Pause / Stop
+    {
+      const t0 = Date.now();
+      await api('/api/data/timer/timer:k6?scope=person', { method: 'PUT', ...A, body: { value: { id: 'k6', label: 'Roast', total: 3600000, startedAt: t0 - 600000, endAt: t0 + 3000000, pausedAt: null, remaining: null, by: 'eli', ackAt: null }, updated_at: t0 } });
+      const m = await api('/api/data/timer/run:eli:k6?scope=family', { method: 'PUT', ...A, body: { value: { label: 'Roast', total: 3600000, startedAt: t0 - 600000, endAt: t0 + 3000000, pausedAt: null, remaining: null, by: 'eli' }, updated_at: t0 } });
+      ok(m.status === 200, "Eli's phone keeps the family mirror of his roast timer", JSON.stringify(m.body));
+      await K.page.evaluate(() => hub.pull());
+      await waitFor(() => K.page.$$eval('#k-timer .k-timer-row', els => els.length >= 2), { label: 'two timers on the kitchen' }).catch(() => {});
+      const rows = await K.page.$$eval('#k-timer .k-timer-row', els => els.map(e => ({ owner: e.dataset.owner, face: !!e.querySelector('.avatar'), acts: e.querySelectorAll('[data-ktimer]').length, text: e.textContent.replace(/\s+/g, ' ').trim(), num: (e.querySelector('[data-tleft]') || {}).textContent })));
+      ok(rows.some(r => r.owner === 'eli' && r.face && r.acts === 0 && /Eli · Roast/.test(r.text) && /^\d+:\d\d$/.test(r.num || '')), "Eli's running timer shows on the kitchen with his face and name, read-only", JSON.stringify(rows));
+      ok(rows.some(r => r.owner === 'kitchen' && r.acts === 2), "the kitchen's own timer has Pause and Reset", JSON.stringify(rows));
+      const kr = await K.page.$eval('#k-timer .k-timer-row[data-owner=kitchen] [data-ktimer=reset]', b => ({ name: b.getAttribute('aria-label'), word: b.textContent.trim(), icon: b.querySelector('use').getAttribute('href') })).catch(() => null);
+      ok(kr && /^Reset (\S.* )?timer$/.test(kr.name) && kr.word === 'Reset' && /#i-rotate-ccw$/.test(kr.icon), "…Reset is the app's word and drawing (rotate-ccw), with a name", JSON.stringify(kr));
+      if (SHOTS) { await K.page.$eval('#k-timer', e => e.scrollIntoView({ block: 'center' })); await K.page.screenshot({ path: path.join(SHOTS, 'kitchen-two-timers.png') }); }
+      const before = await K.page.$eval('#k-timer .k-timer-row[data-owner=eli] [data-tleft]', e => e.textContent);
+      await sleep(2200);
+      const after = await K.page.$eval('#k-timer .k-timer-row[data-owner=eli] [data-tleft]', e => e.textContent);
+      ok(before !== after, 'its time counts down in place', before + ' → ' + after);
+      await K.page.click('#k-timer .k-timer-row[data-owner=kitchen] [data-ktimer=reset]');
+      await waitFor(() => K.page.evaluate(() => hub.request('/api/data/timer?scope=person').then(r => !r.items.some(i => i.value && (i.key === 'timer.active' || /^timer:/.test(i.key))))), { label: 'the kitchen timer stopped on the house' }).catch(() => {});
+      ok(await K.page.evaluate(() => hub.request('/api/data/timer?scope=person').then(r => !r.items.some(i => i.value && (i.key === 'timer.active' || /^timer:/.test(i.key))))), "Reset on the kitchen's own timer removes its row from the house");
+      ok(await K.page.$$eval('#k-timer .k-timer-row', els => els.length === 1 && els[0].dataset.owner === 'eli'), "…and Eli's stays (the kitchen never clears someone else's)");
+      await api('/api/data/timer/timer:k6?scope=person', { method: 'PUT', ...A, body: { value: null, updated_at: Date.now() } });
+      await api('/api/data/timer/run:eli:k6?scope=family', { method: 'PUT', ...A, body: { value: null, updated_at: Date.now() } });
+    }
     for (const [id, pin] of [['niece', '2468'], ['eli', ADMIN_PIN]]) {
       const noPerson = await K.page.evaluate(([i, p]) => hub.login(i, p).then(() => 'signed in', e => e.error), [id, pin]);
       ok(noPerson === 'kitchen_device', `nobody signs in as a person on the kitchen device (${id})`, noPerson);

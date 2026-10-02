@@ -184,7 +184,11 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     console.log('\n## Tally + timer on hub.js');
     f = await openApp(A.page, 'timer');
     await f.click('[data-s="600"]');
-    ok(await f.evaluate(() => hub.get('lastPreset') === 600), 'timer remembers the preset per profile');
+    // batch 6: a preset only picks the length; Start starts it, and the Timer remembers started lengths in the person
+    // row `recents` (the old `lastPreset` row is read only)
+    await f.click('#go');
+    await f.waitForFunction(() => (hub.get('recents') || []).some(x => x && x.total === 600000), null, { timeout: 5000 }).catch(() => {});
+    ok(await f.evaluate(() => (hub.get('recents') || []).some(x => x && x.total === 600000)), 'timer remembers the preset per profile (recents)');
     f = await openApp(A.page, 'tally');
     await f.click('#plus');
     ok(await f.evaluate(() => hub.list('count:').reduce((n, r) => n + (r.value && r.value.n || 0), 0) === 1), 'tally counts in person scope (one row per device since batch 0f)');

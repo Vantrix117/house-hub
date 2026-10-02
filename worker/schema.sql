@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS app_data (
 -- SQLite treats NULLs as distinct in UNIQUE constraints, so family rows need the IFNULL.
 CREATE UNIQUE INDEX IF NOT EXISTS app_data_uq ON app_data (scope, IFNULL(profile_id, ''), app_id, key);
 CREATE INDEX IF NOT EXISTS app_data_pull ON app_data (app_id, scope, profile_id, synced_at);
+-- batch 6 (migrations/008-timer-live.sql): the minute cron's "Timer done" job reads only the live Timer rows
+CREATE INDEX IF NOT EXISTS app_data_timer_live ON app_data (scope, key) WHERE app_id = 'timer' AND value IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS devices (
   id         TEXT PRIMARY KEY,

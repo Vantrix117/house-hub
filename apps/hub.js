@@ -20,6 +20,8 @@
  *   hub.immersive(true|false)               // in the hub's viewer: hide / bring back the shell's top bar (full screen);
  *                                           // standalone it does nothing. The app keeps its own Close.
  *   hub.sync.state                          // 'synced' | 'pending' | 'offline' | 'error' ('pending' until the first pull answers)
+ *   hub.serverNow()                         // the house's clock (ms): Date.now() + hub.skew
+ *   hub.timers                              // the Timer's rows and rules, shared by the Timer app and the shell (batch 6; below)
  *
  * Offline-first: every scope has a localStorage cache and a write queue. Writes apply locally at once,
  * flush in batches when online, and resolve conflicts by updated_at (last write wins). Data is pulled on
@@ -32,6 +34,8 @@
   'use strict';
   const script = document.currentScript;
   const DEFAULT_API = 'https://house-hub-api.catalystfarm1.workers.dev';
+  const DOC = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);   // this page load: its own write-queue keys
+  const ALIVE_MS = 180000;   // a document whose heartbeat is older than this is gone (closed, frozen, crashed): its queue is adopted
   const LS = {
     device: 'hub.device', session: 'hub.session', last: 'hub.lastProfile', api: 'hub.api', theme: 'hub.theme',
     migrated: 'hub.migrated', profiles: 'hub.profiles', skew: 'hub.skew',
@@ -44,11 +48,16 @@
     lastSync: 'hub.lastSync',                  // when this device last finished a pull, kept across a reopen (P2-SYNC-14)
     activity: pid => `hub.aqueue.${pid}`,      // feed lines waiting to post, per author
     cache: (app, scope, pid) => `hub.cache.${app}.${scope}${scope === 'person' ? '.' + pid : ''}`,
-    // Every queue belongs to the person who wrote it, family writes too: only their own session ever sends it.
-    queue: (app, scope, pid) => `hub.queue.${app}.${scope}.${pid}`,
+    // Every queue belongs to the person who wrote it, family writes too: only their own session ever sends it. Since batch 6
+    // (core review round 2) each DOCUMENT has its own key, hub.queue.<app>.<scope>.<pid>.<docId> (the shell, an app frame and
+    // a second tab each write only their own, so no write ever replaces another document's queued row); a key without a
+    // docId is a queue from before that, read and sent like any other.
+    queue: (app, scope, pid) => `hub.queue.${app}.${scope}.${pid}.${DOC}`,
+    alive: doc => `hub.qalive.${doc}`,     // a document's heartbeat: the queue keys of a document gone quiet are adopted by another
     legacyFamilyQueue: app => `hub.queue.${app}.family`,
   };
-  const QUEUE_RE = /^hub\.queue\.([^.]+)\.(person|family)\.([^.]+)$/, LEGACY_FAMILY_RE = /^hub\.queue\.([^.]+)\.family$/;
+  // m[1] app, m[2] scope, m[3] the writer's profile id, m[4] the document (absent on a queue from before batch 6)
+  const QUEUE_RE = /^hub\.queue\.([^.]+)\.(person|family)\.([^.]+)(?:\.([A-Za-z0-9]+))?$/, LEGACY_FAMILY_RE = /^hub\.queue\.([^.]+)\.family$/;
   const PERSON_CACHE_RE = /^hub\.cache\.[^.]+\.person\.([^.]+)$/;
   const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
   const lsKeys = () => { try { return Object.keys(localStorage); } catch { return []; } };
@@ -441,8 +450,10 @@
   // A write still waiting to send is what this device shows, whatever the cache holds: after a Switch the person's cache
   // is gone but their queue stays, and a value missing from the store would let the app write its default over it.
   function overlay(ch) {
-    const items = store[ch].items;
-    for (const [k, e] of Object.entries(queue[ch] || {})) if (!items[k] || items[k].t < e.updated_at) items[k] = { v: e.value, t: e.updated_at };
+    const items = store[ch].items, { app, scope } = CH.get(ch), mineKey = LS.queue(app, scope, pid());
+    const put = q => { for (const [k, e] of Object.entries(q || {})) if (e && (!items[k] || items[k].t < e.updated_at)) items[k] = { v: e.value, t: e.updated_at }; };
+    put(queue[ch]);
+    for (const k of lsKeys()) { const m = k.match(QUEUE_RE); if (m && k !== mineKey && m[1] === app && m[2] === scope && m[3] === pid()) put(lsGet(k, {})); }   // another document's waiting rows: shown, never written
   }
   // Two windows (the hub shell and an app iframe) sync the same channel through one localStorage. After an await,
   // re-read it so a write the other window made meanwhile (a Pause tombstone, say) is never overwritten by a stale copy,
@@ -470,9 +481,12 @@
     if (prev) { c = { ...c, items: { ...c.items } }; for (const [k, it] of Object.entries(prev)) { if (it) c.items[k] = it; else delete c.items[k]; } }
     lsSet(LS.cache(app, scope, pid()), c);
   }
-  // A queue that cannot be stored (device full) stays in memory, is still sent, and the person is told once.
+  // the newer of two copies of a row (updated_at) wins
+  const mergeQueue = (into, from) => { for (const [k, e] of Object.entries(from || {})) if (e && (!into[k] || into[k].updated_at < e.updated_at)) into[k] = e; return into; };
+  // A queue that cannot be stored (device full) stays in memory, is still sent, and the person is told once. The key is this
+  // document's own (LS.queue), so a save never read-modify-writes anyone else's rows (core review round 2: two tabs).
   function saveQueue(ch) {
-    const { app, scope } = CH.get(ch); const q = queue[ch] || {};
+    const { app, scope } = CH.get(ch); const q = queue[ch] || (queue[ch] = {});
     if (lsSet(LS.queue(app, scope, pid()), Object.keys(q).length ? q : undefined)) { if (unsaved.delete(ch)) { delete unsavedPrev[ch]; saveStore(ch); } return true; }
     unsaved.add(ch); fullNudge(); return false;
   }
@@ -482,18 +496,46 @@
     hub.sync.lastError = 'storage_full';
     hub.toast("This device's storage is full — your change is kept, but keep the hub open until it syncs.", 5000);
   }
-  // Every queue on this device that belongs to `who`: the channels this window syncs and any other app's queue left in
-  // localStorage (Tally's taps after Tally closed, a queue from before a Switch).
+  // ── per-document queues (core review round 2) ──
+  // A document says it is alive (a heartbeat every 20 s, and when it comes back into view); on pagehide it stops. The rows
+  // of a document that is gone — no heartbeat for ALIVE_MS, or a key from before batch 6 — are ADOPTED by the next document
+  // that flushes for that person: read, added to its own key (the newer copy of a row winning), then the old key removed.
+  // A document never writes another's key. Adopting a document that was in fact only asleep loses nothing: its rows are still
+  // in its memory and its next save writes them back, so at worst a row is sent twice (the house keeps the newer stamp).
+  const beat = () => { if (hub.device) lsSet(LS.alive(DOC), Date.now()); };   // an unpaired (or forgotten) device keeps no heartbeat
+  const aliveDoc = doc => !!doc && (doc === DOC || Date.now() - (+lsGet(LS.alive(doc), 0) || 0) < ALIVE_MS);
+  beat(); setInterval(beat, 20000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) beat(); });
+  window.addEventListener('pageshow', beat);
+  /** The queue keys of `who` on this device that are not this document's: [{ key, app, scope, doc, live }]. */
+  const otherKeys = who => lsKeys().map(k => [k, k.match(QUEUE_RE)]).filter(([, m]) => m && m[3] === who && m[4] !== DOC)
+    .map(([key, m]) => ({ key, app: m[1], scope: m[2], doc: m[4] || null, live: aliveDoc(m[4]) }));
+  /** Adopt the queues of `who` that documents now gone left behind (every one with { all: true }: a signed-out person). */
+  function adoptQueues(who, { all = false } = {}) {
+    for (const o of otherKeys(who)) {
+      if (o.live && !all) continue;
+      const rows = lsGet(o.key, null); if (!rows || typeof rows !== 'object') { lsSet(o.key, undefined); continue; }
+      const ch = chKey(o.app, o.scope), own = LS.queue(o.app, o.scope, who);
+      let ok;
+      if (who === pid() && CH.has(ch) && queue[ch]) { mergeQueue(queue[ch], rows); saveQueue(ch); ok = true; }   // in memory even if the device is full
+      else ok = lsSet(own, mergeQueue({ ...(lsGet(own, {}) || {}) }, rows));
+      if (ok) lsSet(o.key, undefined);
+    }
+    const keys = lsKeys();
+    for (const k of keys) { const m = k.match(/^hub\.qalive\.([A-Za-z0-9]+)$/); if (m && !aliveDoc(m[1]) && !keys.some(x => x.startsWith('hub.queue.') && x.endsWith('.' + m[1]))) lsSet(k, undefined); }   // old heartbeats go
+  }
+  // Every queue of `who` this document sends: its own keys (the channels this window syncs, and rows it adopted for any app).
   function queuesOf(who) {
     const out = new Map();
-    for (const k of lsKeys()) { const m = k.match(QUEUE_RE); if (m && m[3] === who) out.set(chKey(m[1], m[2]), { app: m[1], scope: m[2] }); }
+    for (const k of lsKeys()) { const m = k.match(QUEUE_RE); if (m && m[3] === who && m[4] === DOC) out.set(chKey(m[1], m[2]), { app: m[1], scope: m[2] }); }
     if (who === pid()) for (const [ch, q] of Object.entries(queue)) if (Object.keys(q).length) out.set(ch, CH.get(ch));
     return [...out.values()];
   }
+  // What this document has waiting, and what gone documents left for it to adopt (a live document's rows are its own to send)
   function pendingCount() {
     const who = pid(); let n = 0; const seen = new Set();
     for (const [ch, q] of Object.entries(queue)) { n += Object.keys(q).length; const { app, scope } = CH.get(ch); seen.add(LS.queue(app, scope, who)); }
-    for (const k of lsKeys()) { const m = k.match(QUEUE_RE); if (m && m[3] === who && !seen.has(k)) n += Object.keys(lsGet(k, {})).length; }
+    for (const k of lsKeys()) { const m = k.match(QUEUE_RE); if (m && m[3] === who && !seen.has(k) && (m[4] === DOC || !aliveDoc(m[4]))) n += Object.keys(lsGet(k, {})).length; }
     return n;
   }
   // Before batch 0c a family queue had no owner, so whoever signed in next sent it (or, as the display, emptied it).
@@ -604,9 +646,12 @@
    * own token. A row the server refuses on its own (a bad key, too big) is dropped and counted; everything else that
    * fails stays queued. Returns { sent, rejected }.
    */
-  async function flushQueue(app, scope, who, token, g) {
-    const ch = chKey(app, scope), mine = () => g === gen && who === pid() && CH.has(ch);
-    const qk = LS.queue(app, scope, who), ck = LS.cache(app, scope, who);
+  // otherKey: another LIVE document's queue key, sent read-only (its rows go now, so this document's flush still sends every
+  // queue of the person, as batch 0c says; the key itself is that document's to clear, so nothing is written to it here and
+  // its refusals are its own to count). A row may thus go twice; the house keeps the newer stamp.
+  async function flushQueue(app, scope, who, token, g, otherKey = null) {
+    const ro = !!otherKey, ch = chKey(app, scope), mine = () => !ro && g === gen && who === pid() && CH.has(ch);
+    const qk = otherKey || LS.queue(app, scope, who), ck = LS.cache(app, scope, who);
     const snapshot = () => { const q = { ...lsGet(qk, {}) }; if (mine() && queue[ch]) for (const [k, e] of Object.entries(queue[ch])) if (!q[k] || q[k].updated_at < e.updated_at) q[k] = e; return q; };
     const snap = snapshot();
     const rows = Object.entries(snap).map(([key, q]) => ({ key, value: q.value, updated_at: q.updated_at }));
@@ -636,6 +681,7 @@
         if (q[r.key] && q[r.key].updated_at === s.updated_at) delete q[r.key];
         if (mine() && queue[ch] && queue[ch][r.key] && queue[ch][r.key].updated_at === s.updated_at) { delete queue[ch][r.key]; if (unsavedPrev[ch]) delete unsavedPrev[ch][r.key]; }
         if (r.rejected) {
+          if (ro) continue;                                   // the owning document puts it back and says so
           rejected++;
           // a row the house's rules refuse (batch 0d: a kid, a guest or the kitchen writing what it may not) comes back
           // with what the house holds: put that back, unless a newer change to the same row is still waiting
@@ -653,7 +699,7 @@
           else if (local.t === s.updated_at && r.updated_at < local.t) local.t = r.updated_at;                       // the server's stamp (it clamps a fast clock), so later edits by others are not skipped
         } else if (!(local && local.t > r.updated_at)) c.items[r.key] = { v: r.value, t: r.updated_at };
       }
-      lsSet(qk, Object.keys(q).length ? q : undefined);
+      if (!ro) lsSet(qk, Object.keys(q).length ? q : undefined);
       if (c) lsSet(ck, c);
       if (mine()) { refreshScope(ch); if (unsaved.has(ch)) saveQueue(ch); }   // adopt what is stored now, telling the app about every value that changed
     }
@@ -682,11 +728,14 @@
         if (!hub.session || !hub.profile) return total;
         const g = gen, who = pid(), token = hub.session.token;
         adoptLegacyFamilyQueues();
+        adoptQueues(who);
         for (const { app, scope } of queuesOf(who)) {
           if (g !== gen) return total;
           const r = await flushQueue(app, scope, who, token, g);
           total.sent += r.sent; total.rejected += r.rejected; total.refused += r.refused;
         }
+        // every queue of the person on the device goes, a live document's too (read-only: it clears its own key)
+        for (const o of otherKeys(who)) { if (g !== gen) return total; if (o.live && Object.keys(lsGet(o.key, {}) || {}).length) await flushQueue(o.app, o.scope, who, token, g, o.key); }
         if (g !== gen) return total;
         rejectedNudge(total.rejected, total.refused);
         setSync({ state: hub.sync.lastPull ? 'synced' : 'pending', lastError: total.rejected ? 'refused' : null });
@@ -734,6 +783,7 @@
           for (const r of lsGet(LS.retiring, [])) {
             if (navigator.onLine === false || !hub.device) return;
             try {
+              adoptQueues(r.pid, { all: true });                   // nobody writes a signed-out person's queue any more
               for (const { app, scope } of queuesOf(r.pid)) await flushQueue(app, scope, r.pid, r.token, null);
               // the session ends only once its feed lines have posted (or been refused): never strand them behind a logout
               if (!(await drainActivityFor(r.pid, r.token))) return;
@@ -825,6 +875,8 @@
   hub.leaveNow = () => { for (const fn of leaveFns) { try { fn(); } catch (e) { console.error(e); } } };
   window.addEventListener('pagehide', () => {
     hub.leaveNow();
+    for (const ch of [...unsaved]) saveQueue(ch);
+    lsSet(LS.alive(DOC), undefined);                      // gone: another document adopts what this one leaves (pageshow beats again)
     if (!hub.session || !hub.device || navigator.onLine === false) return;
     let budget = 60000;                                   // browsers cap keepalive bodies at 64 KB in flight
     for (const { app, scope } of queuesOf(pid())) {
@@ -884,13 +936,15 @@
           if (ev.key === LS.cache(app, scope, pid())) {
             const sig = it => JSON.stringify(Object.keys(it).sort().map(k => [k, it[k].t, it[k].v]));
             const before = sig((store[ch] || {}).items || {});
-            store[ch] = lsGet(ev.key, { items: {}, since: 0 });
+            store[ch] = lsGet(ev.key, { items: {}, since: 0 }); overlay(ch);   // what this document still has waiting stays shown
             checkLoaded();
             if (sig(store[ch].items) !== before) {
               for (const cb of listeners.change) { try { cb({ app, scope, key: null, value: null, updated_at: 0, remote: true, bulk: true }); } catch (e) { console.error(e); } }
             }
-          } else if (ev.key === LS.queue(app, scope, pid()) && !unsaved.has(ch)) { queue[ch] = lsGet(ev.key, {}); setSync({}); if (hub.sync.pending) scheduleFlush(500); }
+          }
         }
+        // a queue key is only ever written by its own document: another document's change only updates what is waiting
+        { const m = ev.key.match(QUEUE_RE); if (m && m[3] === pid() && m[4] !== DOC) { setSync({}); if (hub.sync.pending) scheduleFlush(500); } }
       });
       }
       return hub;
@@ -1049,6 +1103,294 @@
     return { stop: () => { try { rec.stop(); } catch {} }, abort: () => { try { rec.abort(); } catch {} } };
   };
   hub.voiceSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  // ── timers (batch 6): the one copy of the rules the Timer app and the shell both follow ────────────────────────
+  /** The house's clock (ms): this device's clock plus the skew the server last reported (P2-STAB-08). Every timer time is in it. */
+  hub.serverNow = () => Date.now() + (+hub.skew || 0);
+  /*
+   * Person scope, app 'timer', one row per timer: timer:<id> = { id, label, total, startedAt, endAt, pausedAt, remaining, by, ackAt }
+   * (server ms; total and remaining are ms). running: endAt set, pausedAt null · paused: pausedAt set, remaining the ms left,
+   * endAt null · ended (ringing, or ended unseen): endAt <= now, no ackAt, for 10 minutes · Stop: the row is removed.
+   * A device clears a row only when the stored row's startedAt is the one it saw end, and only on data it has just pulled, so
+   * it never clears a newer timer (P2-STAB-13). The owner's device mirrors each row to the family row run:<owner>:<id>
+   * (GAP-HOME-1: the Kitchen iPad and the TV read it; the Worker lets only its writer write it). The legacy single row
+   * timer.active ({ endAt, total in s, startedAt }) is read as one more timer until migrate() has written its copy
+   * timer:m<startedAt> (review round 1: a legacy timer still running beside new rows keeps showing and ringing).
+   * The page needs the 'timer' person channel (the Timer app declares it; the shell hub.use('timer', 'person')); the
+   * family channel is added on the first mirror write or read.
+   */
+  hub.timers = (() => {
+    const P = { app: 'timer', scope: 'person' }, F = { app: 'timer', scope: 'family' };
+    const KEEP = 600000, MAX = 3, SOUNDS = ['chime', 'bell', 'beep'];
+    const DEV = 'hub.timers.device', ACKED = 'hub.timers.acked', NOTIFIED = 'hub.timers.notified';
+    const ROOT = (() => { try { return new URL('../', (script && script.src) || location.href).href; } catch { return ''; } })();   // the hub's folder (hub.js is in apps/)
+    const num = v => (Number.isFinite(+v) ? +v : 0);
+    const me = () => (hub.profile ? hub.profile.id : null);
+    const sig = r => r.id + '@' + num(r.startedAt);
+    const family = () => { if (!CH.has(chKey('timer', 'family'))) hub.use('timer', 'family'); return F; };
+    /** A stored value as a contract row, or null. The legacy timer.active becomes { id: 'legacy', legacy: true, total in ms }. */
+    function norm(v, id) {
+      if (!v || typeof v !== 'object') return null;
+      if (id === 'legacy') {
+        if (!(num(v.endAt) > 0)) return null;
+        return { id: 'legacy', legacy: true, label: '', total: Math.max(0, num(v.total)) * 1000, startedAt: num(v.startedAt) || num(v.endAt) - num(v.total) * 1000, endAt: num(v.endAt), pausedAt: null, remaining: null, by: me(), ackAt: null };
+      }
+      const r = { id: String(v.id || id), label: typeof v.label === 'string' ? v.label.slice(0, 60) : '', total: Math.max(0, num(v.total)), startedAt: num(v.startedAt),
+        endAt: v.endAt == null ? null : num(v.endAt), pausedAt: v.pausedAt == null ? null : num(v.pausedAt), remaining: v.remaining == null ? null : Math.max(0, num(v.remaining)),
+        by: v.by == null ? null : String(v.by), ackAt: v.ackAt == null ? null : num(v.ackAt) };
+      if (!(r.pausedAt > 0) && !(r.endAt > 0)) return null;
+      return r;
+    }
+    /** 'running' | 'paused' | 'ended' (ringing / ended unseen, under 10 minutes) | 'stale' (ended over 10 minutes ago) | 'acked' | null */
+    function state(r, now = hub.serverNow()) {
+      if (!r) return null;
+      if (r.pausedAt > 0) return 'paused';
+      if (r.endAt > now) return 'running';
+      if (r.ackAt) return 'acked';
+      return now - r.endAt <= KEEP ? 'ended' : 'stale';
+    }
+    /** ms left: running endAt − now, paused the remaining, otherwise 0. */
+    const left = (r, now = hub.serverNow()) => !r ? 0 : r.pausedAt > 0 ? Math.max(0, num(r.remaining)) : Math.max(0, num(r.endAt) - now);
+    /** 'm:ss', or 'h:mm:ss' from an hour (VIS-TIMER-4); seconds round UP, so 1:00 turns 0:59 a whole second after Start (P3-TIMER-05). */
+    function fmt(ms) {
+      const s = Math.max(0, Math.ceil(num(ms) / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = String(s % 60).padStart(2, '0');
+      return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${m}:${x}`;
+    }
+    /** Spoken form for aria ("12 minutes 5 seconds"). */
+    function words(ms) {
+      const s = Math.max(0, Math.ceil(num(ms) / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60, out = [];
+      if (h) out.push(h + (h === 1 ? ' hour' : ' hours')); if (m) out.push(m + (m === 1 ? ' minute' : ' minutes')); if (x || !out.length) out.push(x + (x === 1 ? ' second' : ' seconds'));
+      return out.join(' ');
+    }
+    const acked = () => { const a = lsGet(ACKED, {}) || {}, cut = Date.now() - 3600000; let n = false; for (const k of Object.keys(a)) if (!(a[k] > cut)) { delete a[k]; n = true; } if (n) lsSet(ACKED, Object.keys(a).length ? a : undefined); return a; };
+    const markAcked = r => { const a = acked(); a[sig(r)] = Date.now(); lsSet(ACKED, a); };
+    /**
+     * The person's timers on this device, oldest start first: [{ id, label, total, startedAt, endAt, pausedAt, remaining, by,
+     * ackAt, state, left }]. Rows stopped on this device and waiting for the house are left out; so are stale rows unless
+     * { stale: true }. Needs the 'timer' person channel.
+     */
+    function list({ stale = false, now = hub.serverNow() } = {}) {
+      const a = acked();
+      let rows = hub.list('timer:', P).map(x => norm(x.value, x.key.slice(6))).filter(Boolean);
+      { const l = norm(hub.get('timer.active', P), 'legacy'); if (l && !rows.some(r => r.id === legacyId(l))) rows.push(l); }   // until it is migrated (review round 1)
+      return rows.map(r => ({ ...r, state: state(r, now), left: left(r, now) }))
+        .filter(r => r.state && r.state !== 'acked' && (stale || r.state !== 'stale') && !a[sig(r)])
+        .sort((x, y) => x.startedAt - y.startedAt || (x.id < y.id ? -1 : 1));
+    }
+    const legacyId = l => 'm' + Math.round(num(l.startedAt));   // the id the legacy row migrates to: the same on every device
+    const get = id => { if (id === 'legacy') return norm(hub.get('timer.active', P), 'legacy'); return norm(hub.get('timer:' + id, P), id); };
+    const mirrorOf = r => ({ label: r.label || '', total: r.total, endAt: r.endAt, pausedAt: r.pausedAt, remaining: r.remaining, by: r.by, startedAt: r.startedAt });
+    // the device's own list of timers started here, kept across a Switch (P2-PROF-08): [{ owner, name, hue, sound, row }]
+    const devList = () => (lsGet(DEV, []) || []).filter(e => e && e.row && e.owner && state(e.row) && state(e.row) !== 'stale' && state(e.row) !== 'acked');
+    const saveDev = l => lsSet(DEV, l.length ? l : undefined);
+    function devPut(r) {
+      if (!hub.profile || hub.isKiosk) return;
+      const l = devList().filter(e => !(e.owner === me() && e.row.id === r.id));
+      l.push({ owner: me(), name: hub.profile.name, hue: hub.hueOf(hub.profile), emoji: hub.profile.emoji || '', sound: soundName(), row: { ...r } });
+      saveDev(l);
+    }
+    const devDrop = (owner, id, startedAt) => saveDev(devList().filter(e => !(e.owner === owner && e.row.id === id && (startedAt == null || num(e.row.startedAt) === num(startedAt)))));
+    /**
+     * Writes timer:<id> and its family mirror, and keeps this device's list. Returns the row, or null when this profile cannot
+     * write (the TV). { fresh: true } for a brand-new timer (a new id: its value depends on nothing stored).
+     */
+    function put(row, { fresh = false } = {}) {
+      if (!hub.canWrite || !hub.profile) return null;
+      // the legacy timer.active (a Pause or +1 on it from Home, review round 1): written as its migrated row m<startedAt>
+      if (row && (row.legacy || row.id === 'legacy')) { const { legacy, ...rest } = row; row = { ...rest, id: legacyId(row) }; fresh = true; }
+      const r = norm({ ...row, by: row.by || me() }, row.id); if (!r || r.id === 'legacy') throw new HubError(400, 'bad_timer', 'Not a timer.');
+      const v = { id: r.id, label: r.label, total: r.total, startedAt: r.startedAt, endAt: r.endAt, pausedAt: r.pausedAt, remaining: r.remaining, by: r.by, ackAt: r.ackAt };
+      hub.set('timer:' + r.id, v, { ...P, ...(fresh ? { unloaded: true } : {}) });
+      try { hub.set(`run:${me()}:${r.id}`, mirrorOf(r), { ...family(), unloaded: true }); } catch (e) { console.error(e); }
+      devPut(r);
+      // the legacy row goes once a contract row stands for it (same start)
+      try { const l = norm(hub.get('timer.active', P), 'legacy'); if (l && Math.abs(l.startedAt - r.startedAt) < 2000) hub.remove('timer.active', P); } catch {}
+      return r;
+    }
+    /** A new running timer of `total` ms. Throws HubError 'too_many' at 3 (running, paused or ringing). */
+    function start({ total, label = '', id } = {}) {
+      total = Math.round(num(total)); if (!(total >= 1000) || total > 24 * 3600000) throw new HubError(400, 'bad_total', 'Choose a time between 1 second and 24 hours.');
+      if (list().filter(r => r.id !== id).length >= MAX) throw new HubError(409, 'too_many', 'Three timers are running already.');
+      const now = hub.serverNow();
+      const r = put({ id: id || hub.uid(), label: String(label || '').trim().slice(0, 60), total, startedAt: now, endAt: now + total, pausedAt: null, remaining: null, ackAt: null }, { fresh: !id });
+      if (r) remember(total, r.label);
+      return r;
+    }
+    const pause = r => { const now = hub.serverNow(); return put({ ...r, pausedAt: now, remaining: Math.max(0, num(r.endAt) - now), endAt: null }); };
+    const resume = r => { const now = hub.serverNow(); return put({ ...r, endAt: now + Math.max(1000, num(r.remaining)), pausedAt: null, remaining: null }); };
+    /** +ms on a running or paused timer (default one minute); total grows with it. */
+    const add = (r, ms = 60000) => r.pausedAt > 0 ? put({ ...r, remaining: num(r.remaining) + ms, total: r.total + ms }) : put({ ...r, endAt: Math.max(num(r.endAt), hub.serverNow()) + ms, total: r.total + ms });
+    /** recents: [{ total, label }], the last three distinct lengths, newest first (UX-TIMER-7). */
+    const recents = () => (hub.get('recents', P) || []).filter(x => x && num(x.total) > 0).slice(0, 3);
+    function remember(total, label = '') {
+      if (!hub.canWrite) return;
+      const next = [{ total, label: label || '' }, ...recents().filter(x => num(x.total) !== total)].slice(0, 3);
+      try { if (JSON.stringify(next) !== JSON.stringify(recents())) hub.set('recents', next, P); } catch {}
+    }
+    /**
+     * The pre-batch-6 single row timer.active becomes one timer: row, m<startedAt> (the same id on every device, so two
+     * migrating at once write one row); put() then removes timer.active under the same-start rule. A stale one is cleared
+     * instead (once per start; clear() pulls first). Runs on fresh data only. Returns the new row or null.
+     */
+    let migStale = 0;
+    function migrate() {
+      if (!hub.canWrite || !hub.profile || hub.isKiosk || !justPulled(0)) return null;   // never from a stale cache (it could revive a cleared one)
+      const l = get('legacy'); if (!l) return null;
+      if (get(legacyId(l))) { try { if (hub.has('timer.active', P)) hub.remove('timer.active', P); } catch {} return null; }
+      if (state(l) === 'stale') { if (migStale !== l.startedAt) { migStale = l.startedAt; clear('legacy', l.startedAt).catch(() => {}); } return null; }
+      return put({ ...l, id: legacyId(l) }, { fresh: true });
+    }
+    const pendingClears = new Map();   // sig -> { id, startedAt, owner }: cleared once a pull has landed
+    function clearNow(id, startedAt) {
+      if (!hub.canWrite) return false;
+      const cur = get(id);
+      if (cur && num(cur.startedAt) !== num(startedAt)) return false;                  // a newer timer: never cleared
+      try { const k = id === 'legacy' ? 'timer.active' : 'timer:' + id; if (hub.has(k, P)) hub.set(k, null, { ...P, unloaded: true }); } catch (e) { console.error(e); return false; }
+      if (id !== 'legacy') try {
+        const m = hub.get(`run:${me()}:${id}`, family());
+        if (m && (num(m.startedAt) === num(startedAt) || !m.startedAt)) hub.set(`run:${me()}:${id}`, null, { ...family(), unloaded: true });
+      } catch (e) { console.error(e); }
+      devDrop(me(), id, startedAt);
+      return true;
+    }
+    /**
+     * Stop / clear the timer `id` that started at `startedAt`. It stops on this device at once (left out of list()), and the
+     * row is removed only after a pull has landed and only if the stored row is still that start (P2-STAB-13). Resolves true
+     * once removed (false: a newer timer stands, or it waits for the next pull). The TV never writes.
+     */
+    // H1 (review round 1): "fresh" is a pull that has just SUCCEEDED in this window — lastPull newer than the one the caller
+    // last acted on, no error, not offline, and a few seconds old at most. A failed pull, a write or an offline spell also
+    // fires onSync with the old lastPull still set, and a sweep or clear on that stale cache would tombstone a timer another
+    // device has since paused (the tombstone, stamped now, would win).
+    const justPulled = after => { const s = hub.sync; return s.lastPull > after && !s.lastError && s.state !== 'offline' && s.state !== 'error' && navigator.onLine !== false && Date.now() - s.lastPull < 5000; };
+    async function clear(id, startedAt) {
+      const r = { id, startedAt }; markAcked(r); devDrop(me(), id, startedAt);
+      if (!hub.canWrite || !hub.profile) return false;
+      const key = sig(r), who = me();
+      const before = hub.sync.lastPull; pendingClears.set(key, { id, startedAt, owner: who, after: before });
+      await hub.pull();
+      if (me() !== who) return false;
+      if (!pendingClears.has(key)) return false;                                          // the onSync handler did it
+      if (!justPulled(before)) return false;                                               // offline: the next good pull does it
+      pendingClears.delete(key);
+      return clearNow(id, startedAt);
+    }
+    /**
+     * Undo for a Reset (rescore round): puts back the row `r` exactly as it was before clear() (its own start, end or pause, so
+     * a running timer kept running meanwhile), cancels the clear if it is still waiting for a pull, and forgets the local stop.
+     * Returns the row, or null when this profile cannot write, the row is not this person's (r.by) or a newer timer has that id.
+     */
+    function restore(r) {
+      if (!r || !r.id || !hub.canWrite || !hub.profile) return null;
+      if (r.by !== me()) return null;   // only the person whose timer it was (an Undo outliving a Switch writes nothing, core review round 4)
+      const s = sig(r); pendingClears.delete(s);
+      const a = acked(); if (a[s]) { delete a[s]; lsSet(ACKED, Object.keys(a).length ? a : undefined); }
+      const cur = get(r.id); if (cur && num(cur.startedAt) !== num(r.startedAt)) return null;
+      return put({ id: r.id, label: r.label, total: r.total, startedAt: r.startedAt, endAt: r.endAt, pausedAt: r.pausedAt, remaining: r.remaining, by: r.by, ackAt: null });
+    }
+    hub.onSync(() => {
+      if (!pendingClears.size) return;
+      for (const [k, c] of [...pendingClears]) { if (c.owner !== me()) { pendingClears.delete(k); continue; } if (!justPulled(c.after)) continue; pendingClears.delete(k); clearNow(c.id, c.startedAt); }
+    });
+    /**
+     * Clears this person's rows that ended over 10 minutes ago, only right after a pull that just succeeded (justPulled), and
+     * once per pull. Returns how many. The Worker's minute job applies the same rule with a conditional tombstone, so a device
+     * that is offline or asleep never needs to.
+     */
+    let sweptPull = 0;
+    function sweep() {
+      if (!hub.canWrite || !hub.isLoaded('timer', 'person') || !justPulled(sweptPull)) return 0;
+      sweptPull = hub.sync.lastPull;
+      let n = 0; for (const r of list({ stale: true })) if (r.state === 'stale' && clearNow(r.id, r.startedAt)) n++;
+      return n;
+    }
+    /**
+     * Running and ringing timers to show on THIS device for people who are not signed in here: what was started here before a
+     * Switch (P2-PROF-08). [{ owner, name, hue, emoji, sound, row, state, left }]. updateDevice() refreshes the signed-in
+     * person's own entries from their rows (call it after a pull).
+     */
+    // Once this page has pulled the family mirror, an entry follows its owner's mirror row: a pause or +1 on the owner's
+    // phone shows here, and a timer they stopped (its mirror gone) stops here too. Before that the device's own copy stands.
+    function fromMirror(e) {
+      const ch = chKey('timer', 'family');
+      if (!CH.has(ch) || !store[ch] || !(store[ch].since > 0)) return e;
+      const m = hub.get(`run:${e.owner}:${e.row.id}`, F);
+      if (!m) return null;
+      const r = norm({ ...m, id: e.row.id, by: e.owner }, e.row.id);
+      return r && num(r.startedAt) >= num(e.row.startedAt) ? { ...e, row: { ...e.row, ...r } } : e;
+    }
+    const device = ({ others = true } = {}) => devList().filter(e => !others || e.owner !== me()).map(fromMirror).filter(Boolean)
+      .map(e => ({ ...e, state: state(e.row), left: left(e.row) })).filter(e => e.state && e.state !== 'stale' && e.state !== 'acked');
+    function updateDevice() {
+      if (!hub.profile || !justPulled(0) || !hub.isLoaded('timer', 'person')) return;
+      const mine = new Map(list({ stale: true }).map(r => [r.id, r]));
+      saveDev(devList().map(e => e.owner !== me() ? e : mine.has(e.row.id) ? { ...e, row: { ...mine.get(e.row.id) } } : null).filter(Boolean));
+    }
+    /** Another person's device entry is stopped here only (their own rows are theirs to clear: the Worker's 10-minute rule). */
+    const dropDevice = (owner, id, startedAt) => { markAcked({ id, startedAt }); devDrop(owner, id, startedAt); };
+    /** The family mirror (Kitchen iPad, TV): [{ owner, id, label, total, endAt, pausedAt, remaining, startedAt, state, left }], running, paused and ringing only. */
+    function running({ now = hub.serverNow() } = {}) {
+      const out = [];
+      for (const x of hub.list('run:', family())) {
+        const m = /^run:([^:]+):(.+)$/.exec(x.key); if (!m) continue;
+        const r = norm({ ...x.value, id: m[2] }, m[2]); if (!r) continue;
+        const st = state(r, now); if (!st || st === 'stale' || st === 'acked') continue;
+        out.push({ owner: m[1], ...r, state: st, left: left(r, now) });
+      }
+      return out.sort((a, b) => a.startedAt - b.startedAt);
+    }
+    // ── sound: one AudioContext per window, made and resumed on a tap (Start), reused for every ring (P3-TIMER-03) ──
+    let ctx = null, contexts = 0, played = 0;   // contexts / played: test hooks (hub.timers.contexts stays <= 1)
+    function unlock() {
+      try { if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); contexts++; } if (ctx.state === 'suspended') ctx.resume().catch(() => {}); } catch { return null; }
+      return ctx;
+    }
+    const soundName = () => { try { const s = hub.get('sound', P); return SOUNDS.includes(s) ? s : 'chime'; } catch { return 'chime'; } };
+    const TUNES = {
+      chime: [[0, 1046.5, .9, 'sine'], [.22, 1318.5, .9, 'sine'], [.44, 1568, 1.2, 'sine']],
+      bell: [[0, 880, 1.8, 'triangle'], [0, 1760, 1.2, 'sine'], [.9, 880, 1.8, 'triangle'], [.9, 1760, 1.2, 'sine']],
+      beep: [[0, 880, .25, 'square'], [.3, 880, .25, 'square'], [.6, 880, .25, 'square']],
+    };
+    /** Plays one ring of `name` (chime | bell | beep). True when it could play (an AudioContext that is not suspended). */
+    function play(name = soundName()) {
+      const c = unlock(); if (!c) return false;
+      try {
+        const t0 = c.currentTime + .02;
+        for (const [d, f, len, type] of TUNES[SOUNDS.includes(name) ? name : 'chime']) {
+          const o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.value = f;
+          o.connect(g); g.connect(c.destination);
+          g.gain.setValueAtTime(.0001, t0 + d); g.gain.exponentialRampToValueAtTime(type === 'square' ? .12 : .35, t0 + d + .015); g.gain.exponentialRampToValueAtTime(.0001, t0 + d + len);
+          o.start(t0 + d); o.stop(t0 + d + len + .05);
+        }
+        played++;
+        return c.state === 'running';
+      } catch { return false; }
+    }
+    /**
+     * The local "Timer done" notification, once per timer start on this device whichever window (shell or app) asks first.
+     * owner / ownerId: the name and id when it is not the signed-in person's timer (a timer kept on this device after a
+     * Switch). Tag timer-<id>-<endAt>, the same as the Worker's push, so the two replace each other quietly (one alert per end,
+     * L2), and a timer given +1 min after it rang is told again at its new end (L1). The icon is the hub's own, whichever
+     * page asks (an app frame is one folder down).
+     */
+    async function notify(r, owner, ownerId) {
+      try {
+        const n = lsGet(NOTIFIED, {}) || {}, cut = Date.now() - 86400000; for (const k of Object.keys(n)) if (!(n[k] > cut)) delete n[k];
+        const nk = sig(r) + '@' + num(r.endAt);   // + endAt: a timer given +1 min after it rang ends again, and is told again (L1)
+        if (n[nk]) return false; n[nk] = Date.now(); lsSet(NOTIFIED, n);
+        if (!('Notification' in window) || Notification.permission !== 'granted' || !('serviceWorker' in navigator)) return false;
+        const reg = await navigator.serviceWorker.getRegistration(); if (!reg) return false;
+        const what = r.label ? r.label : fmt(r.total) + ' timer';
+        const icon = ROOT + 'icons/icon-192.png';
+        await reg.showNotification(r.label ? 'Timer done: ' + r.label : 'Timer done', { body: (owner ? owner + "'s " : '') + what + ' is up.', icon, badge: icon, tag: 'timer-' + r.id + '-' + Math.round(num(r.endAt)), renotify: false, requireInteraction: true, data: { url: '#timer', to: ownerId || me() } });
+        return true;
+      } catch { return false; }
+    }
+    const api = { MAX, KEEP, SOUNDS, norm, state, left, fmt, words, list, get, put, start, pause, resume, add, recents, remember, clear, restore, sweep, migrate, device, updateDevice, dropDevice, running, unlock, play, soundName, notify };
+    Object.defineProperty(api, 'contexts', { get: () => contexts });
+    Object.defineProperty(api, 'played', { get: () => played });
+    return api;
+  })();
 
   // ── misc ──────────────────────────────────────────────────────────────────
   hub.open = id => { tell({ type: 'hub:open', appId: id }); if (!inFrame) location.href = '../index.html#' + id; };
