@@ -1,0 +1,51 @@
+
+## Eli, iPhone: the contract, Replace or Add, three timers (UX-TIMER-1, GAP-TIMER-3, VIS-TIMER-1)
+  ✓ idle: the last length (Eli's 10 min) is on the dial and pressed
+  ✓ every preset carries aria-pressed; the countdown has an aria-live region (UX-TIMER-10)
+  ✓ Start stores timer:<id> {total 600000 ms, endAt in server ms}
+  ✓ the family mirror run:eli:<id> follows (for the Kitchen and the TV)
+  ✓ running: Pause is the primary button (VIS-TIMER-1)
+  ✓ a preset while running asks "Replace 10:00?"; nothing is cancelled (UX-TIMER-1)
+  ✓ "Add a second timer" runs 3:00 beside 10:00
+  ✓ Replace swaps only the timer on the dial
+  ✓ a third, labelled "pasta"; at three New timer goes
+  ✓ +1 min adds a minute to the timer on the dial
+  ✓ recents: the last three distinct lengths, newest first, with labels
+
+## Pause is stored and seen on another device; a device 90 s fast agrees (UX-TIMER-2, P2-STAB-08)
+  ✓ Pause stores {pausedAt, remaining, endAt null}; the dial says Paused; Resume
+  ✓ the iPad shows pasta paused, not gone
+  ✓ the iPad's clock runs 90 s fast (skew -90 s) and both count the same time left
+
+## the clear rule (P2-STAB-13)
+  ✓ a device asked to clear the start it saw leaves the newer start alone
+
+## custom time in hours, Say it, Notify me (VIS-TIMER-4, IMP-TIMER-I2, GAP-TIMER-1)
+  ✓ custom 125 min 30 s reads 2:05:30 (h:mm:ss)
+  ✓ Say it shows where speech recognition exists
+  ✓ "pasta 12 minutes" asks "Start 12:00 for pasta?" before anything starts
+  ✓ Start: 12:00 labelled pasta
+  ✓ "add a minute" adds one minute (no question)
+  ✓ the parser: ten minutes, 1 hour 5 minutes, 90 seconds, an hour and a half, eggs for 7 minutes, and no time
+  ✓ Notify me when it ends is offered while the browser has not been asked
+  ✓ one tap asks the browser once, in context; then it goes
+
+## time's up in words; a timer that ended unseen; the 10-minute rule (UX-TIMER-4, UX-TIMER-3)
+  ✓ "Time's up" in words with the bell; Stop is the primary button
+  ✓ ended unseen 3 min ago: "Bread timer ended at 12:46 AM"
+  ✓ the one ended 11 min ago is cleared (10-minute rule); the 3-minute one stays until Stop
+  ✓ Stop clears it in the house
+
+## the migration (Elizabeth's seeded timer.active) and a kid's own timer
+  ✗ the seeded timer.active becomes timer:m<startedAt> (total in ms) and timer.active is removed {"after":[{"id":"rigoven","label":"","total":900000,"startedAt":1790915960000,"endAt":1790916860000,"pausedAt":null,"remaining":null,"by":"mom","ackAt":null}]}
+  ✓ Ezra starts his own timer; its mirror run:ezra:<id> is accepted
+
+## Chromium: the alert repeats every 15 s on one AudioContext until Stop (GAP-TIMER-2, P3-TIMER-03)
+  ✓ 0.6 s after Start it still reads 1:00 (Math.ceil, P3-TIMER-05)
+  ✓ the Timer asked for the screen wake lock itself (P2-STAB-09)
+  ✓ time's up at or after endAt, never before (441 ms after)
+  ✓ hidden at 0 with the Timer open: one "Timer done" notification (P3-TIMER-04)
+  ✓ it rings, and again 15 s later, on one AudioContext (notes 3 → 6, contexts 1)
+  ✓ Stop: no more rings
+
+34 passed, 1 failed

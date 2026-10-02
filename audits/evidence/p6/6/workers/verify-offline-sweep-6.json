@@ -1,0 +1,88 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "name": "B pauses the timer while A is offline",
+   "v": {
+    "id": "muree6eswbehv",
+    "label": "h1",
+    "total": 60000,
+    "startedAt": 1790971843030,
+    "endAt": null,
+    "pausedAt": 1790971843895,
+    "remaining": 59135,
+    "by": "eli",
+    "ackAt": null
+   }
+  },
+  {
+   "ok": true,
+   "name": "A (offline, its cache says \"stale\") queues no tombstone after a failed pull",
+   "v": {
+    "seen": [
+     "stale"
+    ],
+    "q": {}
+   }
+  },
+  {
+   "ok": true,
+   "name": "after A is back the house still has B's paused timer",
+   "v": [
+    {
+     "id": "muree6eswbehv",
+     "label": "h1",
+     "total": 60000,
+     "startedAt": 1790971843030,
+     "endAt": null,
+     "pausedAt": 1790971843895,
+     "remaining": 59135,
+     "by": "eli",
+     "ackAt": null
+    }
+   ]
+  },
+  {
+   "ok": true,
+   "name": "B and A both show it paused",
+   "v": {
+    "bView": [
+     "paused"
+    ],
+    "aView": [
+     "paused"
+    ]
+   }
+  },
+  {
+   "ok": true,
+   "name": "its family mirror says paused too",
+   "v": [
+    {
+     "label": "h1",
+     "total": 60000,
+     "endAt": null,
+     "pausedAt": 1790971843895,
+     "remaining": 59135,
+     "by": "eli",
+     "startedAt": 1790971843030
+    }
+   ]
+  },
+  {
+   "ok": true,
+   "name": "offline: Stop hides it on A at once, and nothing is written yet",
+   "v": {
+    "hid": true,
+    "q2": {}
+   }
+  },
+  {
+   "ok": true,
+   "name": "back online, the first good pull removes it from the house",
+   "v": [
+    null
+   ]
+  }
+ ]
+}

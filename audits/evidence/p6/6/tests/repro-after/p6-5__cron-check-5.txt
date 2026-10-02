@@ -1,0 +1,37 @@
+## jobsAt: the 7 pm hour
+  ✓ 7:00 pm EDT (23:00Z) runs verses
+  ✓ 7:00 pm EST (00:00Z next day) runs verses
+  ✓ every firing of the hour (7:45 pm) runs it, and it is not a main firing
+  ✓ 6:45 pm: no verses
+  ✓ 8:00 pm (Tuesday): the 8 pm jobs, no verses
+  ✓ the 8 am and Sunday 8 pm runs are unchanged
+  ✓ the verses switch starts off (every other kind starts on)
+## versesDue: apps/verses.html dueIds() for a grown-up
+  ✓ overdue, due today, a pre-Leitner row (no due) and a bad due are due; a future due is not
+  ✓ week 53, week 0, a third verse, a junk id and a verse marked off are never counted
+  ✓ a truthy mem value counts (F260 writes true) and no recall map means never reviewed
+## the job, through the scheduled handler
+  ✓ Ezra (kid) writes his own recall row
+  ✓ Ezra writes push_pref:verses = true
+  ✓ 6:45 pm: no verses job, nothing sent
+  ✓ 7:00 pm: David has 2 due (today's and the never-reviewed; the row beats the old map both ways; the stale summary's 0 is not read)
+  ✓ Eli's count is the rows' own (3, counted independently here)
+  ✓ Mom (switched off again) and Mae (never on) are not counted or told
+  ✓ no kid, display or kitchen is ever considered (Ezra has a verse due and his switch on)
+  ✓ told and received: dad,eli
+  ✓ 7:15 pm: eligible again, but nobody twice (once a day, delivered pushes only)
+  ✓ 8:00 pm: the verses job does not run
+  ✓ forced from Admin at 3 am (30 Sept): it runs whatever the hour and tells David (a new day)
+  ✓ forcing it is admin only
+  ✓ 30 Sept, 7 pm: the forced push that morning counts toward the day
+  ✓ the next evening (1 Oct, 7 pm): David is told again
+  ✓ nothing due (2 Oct): David is not told
+## a guest
+  ✓ the rig has a guest
+  ✓ the guest subscribes on her phone
+  ✓ the guest writes her own mem:20-0
+  ✓ the guest writes her own mem:20-1
+  ✓ the guest writes her own recall:20-1
+  ✓ switched on, 2 due: the guest is told at 7 pm (her own review)
+  ✓ switched off (verses still due): the guest is not told
+32 passed, 0 failed

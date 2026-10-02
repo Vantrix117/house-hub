@@ -2053,3 +2053,155 @@ SHAPE/analyze's "large radii on the scale" uses a hard-coded list older than the
   - The Tally page-background test failure.
   - The F260 plan's own memory references "Psalm 1:1-7" and "Jeremiah 1:15" look odd (Psalm 1 has 6 verses). They match a church-published copy of the plan, so the app copies them as printed.
 - **Production.** Nothing deployed. Deploy order: migrations 006, then 007, then `npx wrangler deploy` (this brings the evening review job and the Verses text rule to the Worker), then the site.
+
+## Batch 6 — Kitchen timer, its pill, Home card, Kitchen and TV views, the "Timer done" push and per-page write queues
+
+| | |
+|---|---|
+| **Findings** | 24 Timer entries (9 medium, 15 low) and the kept improvement IMP-TIMER-I2. **22 FIXED, 2 NEEDS DEVICE CHECK** (GAP-TIMER-2: the iOS sound unlock and ringing while locked; UX-TIMER-5: reading the Kitchen iPad across a room). **IMP-TIMER-I2 FIXED.** Of the 14 earlier carry-overs with a Timer part, **5 are now FIXED** (P4-SHAPE-01, CONS-ACCENT-2, P4-ICON-01, GAP-TOK-3, VIS-COLOR-1) and **9 stay PARTIAL**, each naming the later batch that owns the rest. Status per entry in `audits/05-findings.md`. |
+| **Code commit** | `1484889` (2026-10-02) |
+| **Files** | <ul><li>`apps/timer.html` (the batch)</li><li>`index.html`: the shell pill for up to three timers, the Timer Home card, the Kitchen Home's timers, the TV's timer line, the "Timer done" switch in Me → Notifications, Reset with Undo</li><li>`apps/hub.js`: `hub.timers` (fmt, device, restore), `hub.serverNow()`, per-page write queues with a heartbeat</li><li>`icons/sprite.svg` (52 → 60 symbols: timer, pause, bell, egg-fried, apple, popcorn, cooking-pot, cookie, pizza), `icons/timer.svg`, `icons/LICENSE-lucide.txt`</li><li>`worker/src/reminders.js` (`timerJob`, the tombstone purge), `worker/src/index.js` (the minute cron), `worker/src/policy.js` (`run:<self>:*` only), `worker/src/chat.js` (`start_timer`), `worker/wrangler.toml` (cron `* * * * *`), `worker/schema.sql`, `worker/migrations/008-timer-live.sql`</li><li>`sw.js` (`hub-v45` → `hub-v46`), `CLAUDE.md`, `worker/README.md`</li><li>tests: `test-timer.mjs` (45 → 115 checks), `test-home.mjs` (80 → 105), `test-kitchen.mjs` (55 → 62), `test-tv.mjs` (85 → 97), `test-push2.mjs` (81 → 90), `smoke-api.sh` (330 → 346), `smoke-chat.sh` (64 → 76), `test-apps.mjs` (one assertion moved to the new `recents` row), `mock-anthropic.mjs`</li></ul> |
+| **Schema / data** | **New migration `008-timer-live.sql`**: a partial index for the minute job's read of live timer rows. It must run at deploy, after 006 and 007. New rows: `app_data(person, timer, 'timer:<id>')` = `{id, label, total, startedAt, endAt, pausedAt, remaining, by, ackAt}` in server ms, at most three; `recents` and `sound` in the same scope; the family mirror `app_data(family, timer, 'run:<owner>:<id>')` (the Worker accepts only the writer's own); `push_pref:timer` (on by default); `settings.timer_pushed`. The old `timer.active` row moves to `timer:m<startedAt>` once. Timer tombstones older than 30 days are purged hourly. The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-10-01-before-6.sql` (41 KB, 116 rows). Nothing was deployed. |
+| **How it was built** | <ul><li>Before the batch, an agent sorted the earlier batches' unfinished entries with a Timer part (14).</li><li>Three workers: A (the timer logic, data, Worker and push), B (its look, kid pictures and the carry-overs) and C (the pill, Home card, Kitchen and TV views, docs).</li><li>Two independent reviewers: 3 core rounds and 5 visual rounds.</li><li>Three full final runs. After the first, the independent rescore found a "control panel" screen, which was redesigned and reviewed; after the second, its ten items were fixed and checked; the third confirmed.</li></ul> |
+
+### The change
+
+**More than one timer (GAP-TIMER-3).**
+- Up to three timers, one row each. New timer opens the lengths in place while the first runs.
+- A custom time, +1 min, an optional label, and the last three lengths.
+
+**A running timer is safe.**
+- A preset can no longer cancel it: the presets hide while a timer runs (UX-TIMER-1).
+- Pause is stored and shows as paused on every device (UX-TIMER-2).
+- A Switch no longer silences it: the shell keeps counting and rings for timers started on that device (P2-PROF-08).
+- Nothing clears a timer at 0. Stop removes it; a device clears a row only right after a good pull, for the start it saw end, or after 10 minutes (P2-STAB-13).
+- Every time is server time, so a fast phone no longer ends a timer early (P2-STAB-08).
+
+**An alarm you notice.**
+- At 0 it rings every 15 s until Stop, for up to 10 minutes, with a choice of three sounds on one AudioContext (GAP-TIMER-2, P3-TIMER-03).
+- "Time's up" in words with a bell; Stop is the only action (UX-TIMER-4).
+- A timer that ended unseen says "Ended 8:37 AM" with OK (UX-TIMER-3).
+- "Timer done" shows whichever app is open, once (P3-TIMER-04). The time no longer reaches 0:00 early (P3-TIMER-05).
+- "Notify me when it ends" offered once, in context (GAP-TIMER-1).
+- A server "Timer done" push, from a minute cron, once per start (PWA-GAP-1).
+- The wake lock while a timer runs or rings (P2-STAB-09).
+
+**The whole house sees it (GAP-HOME-1, UX-TIMER-5, UX-TIMER-7).**
+- A Home card: "Start a timer" with three one-tap lengths, and each running timer with Pause and Reset.
+- The Kitchen iPad lists every running timer with its owner's face, on a large dial.
+- The TV shows one quiet line first in its feed.
+- Reset has a 6 s Undo in the app, on Home and on the Kitchen.
+
+**The look.**
+- One primary button in every state (VIS-TIMER-1); no repeated title in the hub (VIS-TIMER-2); h:mm:ss for an hour or more (VIS-TIMER-4); the dial stays round at 0 (P3-TIMER-02).
+- Kids get pictures and words: food pictures on the lengths (UX-TIMER-6).
+- A calm screen while a timer runs; settings behind a gear.
+- Screen readers hear the countdown each minute, at 10 s and at 0 (UX-TIMER-10).
+
+**Kept improvement (IMP-TIMER-I2).** "Say it": "pasta 12 minutes" and similar phrases, confirmed before starting. Adults only, where speech recognition exists. Chat gained `start_timer`.
+
+**Beyond the entries.**
+- **The SDK's write queues are per page.** The shell, an app frame and a second tab each keep their own queue with a heartbeat; a page that died hands its queue to the next flusher. Before, one could overwrite another's unsent writes.
+- **The Home card grid** was corrected for the new card.
+
+**What the reviews and runs changed.**
+- **Core review.**
+  - An offline sweep deleted a paused timer (now gated on a good pull).
+  - The minute job's reads were unbounded (an index and the purge).
+  - A write was lost between the shell, a frame and a second tab (the per-page queues).
+  - Undo after a Switch wrote into another person's rows (`hub.timers.restore` checks the owner).
+  - The TV pill.
+- **Visual review.** The pill overflowing with three timers, the toast over Stop, labels, "Ended 10:20" cut off, a lopsided action row, the kid dial shrinking.
+- **The independent rescore.** After the first run: the running screen read as a control panel, so it became the calm screen, the "New timer" picker, the gear, no Replace prompt, Reset hidden while ringing and one Reset name everywhere. After the second run: ten items (the iPad pill's digits, state-word size and others), all fixed.
+- **The final runs.**
+  - test-apps checked the old `lastPreset` row; moved to `recents`, 48/0.
+  - `prayer-look-3` timed out under load; alone 61/0 in 27 s.
+  - `basics-6` hung after passing; it now closes its rig and exits.
+
+### Each finding's reproduction, rerun
+
+**How the scripts were run.**
+- The scripts the entries name ran three at a time on the unchanged code (`git archive` of `084044f`) and on the final code, together with the copies and checks in `audits/tools/phase6/6/`.
+- Outputs are in `audits/evidence/p6/6/tests/repro-before/` and `repro-after/`.
+
+**Exit codes.** Five originals now fail on the final code only because the screen changed on purpose: `basics`, `critic-early-finish`, `verify-critic-early-finish-rounding-4-1`, `verify-done-dial-oval-1` and `-2` wait for a preset or a Start that a running timer now hides, or read the old row. Their `-6` copies measure the same thing on the new screen, and all pass.
+
+| Finding | Before | After |
+|---|---|---|
+| UX-TIMER-1 (preset during a run) | one tap on 3 min reset a running 9:57 and nulled the row | presets hidden while running; New timer adds one |
+| UX-TIMER-2 (pause) | the row null, reopened "3:00 Start" | paused with 175 s left, reopened still paused |
+| P2-STAB-08 (clock skew) | a phone 86 s fast: 9:57 vs the iPad's 11:23; a 3-minute timer ended at 91 s | every device counts in server time |
+| P2-STAB-13 (sleeping device) | woke 70 s late, 0 beeps, nulled the row | the `-6` copy 11/0: kept until Stop |
+| P3-TIMER-02 (done dial) | iPhone 345.8 × 392.9, Start 24 px lower | 352.6 × 352.6, nothing moves |
+| P3-TIMER-03 (AudioContext) | 1, 2, 3 contexts over three finishes | 1 in the app, 1 in the shell |
+| P3-TIMER-05 (early finish) | 0:00 207–490 ms early | 108–172 ms after the end |
+| GAP-TIMER-2 (ring) | one chime, never again | 15 rings in the first minute, until Stop |
+| UX-TIMER-3 (ended unseen) | no beep, notification or pill | the pill's Stop, one notification, "Ended 8:37 AM" |
+| UX-TIMER-6 (kid) | 0 of 8 controls with a picture | 7 of 7 |
+| UX-TIMER-10 (screen readers) | 0 live regions, 0 `aria-pressed` | 1 and 10 |
+| PWA-GAP-1 (`cron-check-6`) | no server push | "Timer done" once per start, retried, kids, TV and kitchen skipped |
+
+**The Phase 4 measuring tools**, on the pre-batch archive and on the final code (`audits/evidence/p6/6/p4tools/before/` and `out/`, 8/8 exit 0 each):
+
+| Tool | Timer before → after |
+|---|---|
+| TOK/literals: literals / ones with an exact token | 23 / 1 → 29 / 0 (more code, none that a token already names); colour mixes 0 → 0 |
+| TYPE/code-scan | 1 local variable, 0 role tokens → 10 role tokens, none under 11 px |
+| ICON/static | 1 private SVG, 0 sprite uses → 23 sprite uses, no emoji |
+| MOTION/press | 8 of 8 controls → 10 of 11 (the 11th is the text field) at 0.97 |
+| MOTION/cls | 0 moves → 0 moves, iPhone and iPad |
+| SHAPE/analyze: macro spacing on the 4 px grid | 92.3 % → 90.2 % (the area now includes the TV and Kitchen jobs; the Timer's own reached 90.8 % in the rescore's reading) |
+| SHAPE/verify: column | 398 / 560, unchanged; 984 at 1180 and 1440 |
+| TELL/tells-webkit: selectable controls | 0 of 8 → 0 of 10 |
+
+**The shell Home's motion, held arm** (`p4tools/held/`, two runs each): iPhone CLS 0.180 → 0.083, largest move 376 → 339 px; iPad CLS 0.016 / 0.043 → 0.050 / 0.043, moves 31 → 37 (the new card's landmarks; the largest 403 px both). See `p4tools/cls-home-note.md`.
+
+### Repo tests
+
+| Suite | Before (batch 5's final run) | After |
+|---|---|---|
+| test-timer | 45 / 0 | 115 / 0 |
+| test-home | 80 / 0 | 105 / 0 (the Timer card) |
+| test-kitchen | 55 / 0 | 62 / 0 (the Kitchen's timers) |
+| test-tv | 85 / 0 | 97 / 0 (the timer line) |
+| test-push2 | 81 / 0 | 90 / 0 (the "Timer done" push) |
+| smoke-api.sh | 330 / 0 | 346 / 0 |
+| smoke-chat (mock) | 64 / 0 | 76 / 0 (`start_timer`) |
+| test-apps | 48 / 0 | 48 / 0 (one assertion moved to `recents`) |
+| every other suite | pass | pass, identical counts |
+| Earlier batches' checks | pass | pass. `handoff/prayer/check.js` 47/2 (as since 0g), `0g/check-ids.js` 49/49, the p6-3, p6-4 and p6-5 copies |
+
+- **Batch-6 checks:** timer-a-6, timer-look-6, cron-check-6, basics-6, background-6, verify-offline-sweep-6, verify-queue-merge-6 and the `-6` copies, all exit 0.
+- **Service worker:** `bump-sw --check` finds 75 precached files present.
+- **Scripts:** all 32 inline scripts parse.
+- **screens-apps:** the one failure is Tally's page background, which predates this batch.
+
+### Measurement, captures and the rescore
+
+**Contrast** (`audits/evidence/p6/6/measure/contrast-accounting.md`).
+- **Timer:** 43 samples below AA (the first final run had 115, the second 51). 36 are controls disabled on purpose while the page loads; 7 are the Home card's ringing Stop read through the fixed bars. None is a reading failure.
+- **The shell:** 737 samples, as in batch 5, plus 12 on the loading recents.
+- **The TV:** 0.
+
+**Captures** on the final code, in `audits/screens-after/6/` (0 failed): pixel diffs Timer 140 of 140 changed, the shell 275, the TV 22 (against batch 2c). Verses showed 37 changed shots; they are the viewer bar, the seed chip and scroll timing, see `capture/verses-noise.md`.
+
+**Rescore** (`audits/evidence/p6/6/rescore.md`; an independent judge, the Phase 4 method, bases held):
+- **Timer: 5.5 → 6.1.** First pass 6.0; the second, on the second final run, 6.05; the confirmation on the third, 6.1 (range 6.1–6.4).
+  - Typography 7, Colour 6 (from 5 at the base), Layout 7, Icons 6.5, Glance 5.5.
+  - Shape held at 5.5 (content glass from other apps in the area's jobs), Motion at 4.5, Dark and Native at 6.5.
+
+### Not verified
+- **On a real iPhone and iPad:**
+  - the iOS sound unlock and the alarm ringing while the phone is locked (GAP-TIMER-2);
+  - reading the Kitchen iPad from across the room (UX-TIMER-5; measured in the rig at about 4 m);
+  - the "Timer done" push arriving on a phone, and its tap;
+  - the wake lock keeping the screen on;
+  - VoiceOver reading the countdown;
+  - "Say it" with Safari's speech recognition.
+- **Left partly done:** 9 carry-overs stay PARTIAL, each owned by a later app batch or the shell.
+- **Found, not fixed (outside this batch):**
+  - The kid Home hero text in dark mode (4.01–4.38:1).
+  - The kid's chat microphone under the tab bar at XXL text (pre-existing).
+  - The Tally page-background test failure (batch 11).
+  - Accepted: the idle screen's empty band, the ended chip repeating "Ended".
+- **Production.** Nothing deployed. Deploy order: migrations 006, 007, then **008-timer-live**, then `npx wrangler deploy` (this brings the minute cron, the timer push and the timer rules to the Worker), then the site.

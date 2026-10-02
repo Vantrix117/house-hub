@@ -1,0 +1,30 @@
+   5 rig: B installed clock flows naturally before sleep (ms over 2 s)      2008
+   5 rig: AudioContext native in engine (A / B)                             ["undefined","undefined"]
+  11 P1 timer1 (1 min) started on A; ends                                   2026-10-02T02:06:26.883Z
+  11 P1 B pill after pull (before sleep)                                    0:57
+  11 P1 B asleep (hidden + clock paused)                                    true
+  72 P1 A at end+4 s: beeps / toasts / pill                                 {"beeps":1,"toasts":["Timer done — 1:00 is up."],"pillVisible":false,"pillText":"","localTimer":null,"writes":[{"at":"02:06:26.527","value":null,"prevEndAt":1790906786883}]}
+  72 P1 server at end+4 s                                                   {"value":null,"updated_at":1790906786514}
+ 138 P1 server just before B wakes (end+70 s)                               {"value":null,"updated_at":1790906786514}
+ 142 P1 B after waking at end+70 s: beeps / toasts / pill / writes          {"beeps":0,"toasts":[],"pillVisible":false,"pillText":"","localTimer":null,"writes":[{"at":"02:07:36.894","value":null,"prevEndAt":1790906786883}]}
+ 142 P1 server after B woke                                                 {"value":null,"updated_at":1790906856900}
+ 142 P1 A after B woke (no pill to lose; no new alert)                      {"beeps":1,"toasts":["Timer done — 1:00 is up."],"pillVisible":false,"pillText":"","localTimer":null,"writes":[{"at":"02:06:26.527","value":null,"prevEndAt":1790906786883}]}
+ 149 P2 timer1b (1 min) started on A; ends                                  2026-10-02T02:08:45.107Z
+ 149 P2 B pill after pull (before sleep)                                    0:58
+ 210 P2 A at end+4 s: beeps / toasts (A alerted and cleared timer1b)        {"beeps":2,"toasts":["Timer done — 1:00 is up.","Timer done — 1:00 is up."],"pill":false}
+ 214 P2 A starts timer2 (10 min) at end1b+8 s; ends                         2026-10-02T02:18:51.079Z
+ 214 P2 server after timer2 started                                         {"value":{"endAt":1790907531079,"total":600,"startedAt":1790906931079},"updated_at":1790906931065}
+ 276 P2 A just before B wakes (timer2 running)                              8:56
+ 276 P2 server just before B wakes                                          {"value":{"endAt":1790907531079,"total":600,"startedAt":1790906931079},"updated_at":1790906931065}
+ 280 P2 B after waking: beeps / toasts / pill / writes                      {"beeps":0,"toasts":[],"pillVisible":false,"pillText":"","localTimer":null,"writes":[{"at":"02:07:36.894","value":null,"prevEndAt":1790906786883},{"at":"02:09:55.246","value":null,"prevEndAt":1790906925107}]}
+ 280 P2 server 4 s after B woke                                             {"value":null,"updated_at":1790906995254}
+ 302 P2 A: timer2 pill gone at end1b+N s (null = still there after 35 s)    96
+ 302 P2 A after: pill / local timer.active / new beeps / new toasts         {"pill":false,"localTimer":null,"newBeeps":0,"newToasts":[]}
+ 302 P2 A pill log                                                          [{"at":"02:06:26","visible":false,"text":""},{"at":"02:07:46","visible":true,"text":"0:59"},{"at":"02:08:44","visible":false,"text":""},{"at":"02:08:52","visible":true,"text":"9:59"},{"at":"02:09:51","visible":true,"text":"8:59"},{"at":"02:10:20","visible":false,"text":""}]
+ 302 P2 timer2 seconds still to run when it vanished                        510
+ 308 P3 timer3 (1 min) started on A; ends / C pill before close             ["2026-10-02T02:11:24.564Z","0:58"]
+ 373 P3 A starts timer4 (10 min) at end3+8 s; server                        {"value":{"endAt":1790907690457,"total":600,"startedAt":1790907090457},"updated_at":1790907090456}
+ 440 P3 C reopened at end3+70 s: beeps / toasts / pill / writes             {"beeps":0,"toasts":[],"pillVisible":false,"pillText":"","localTimer":null,"writes":[{"at":"02:12:34.770","value":null,"prevEndAt":1790907084564}]}
+ 440 P3 server 4 s after C reopened                                         {"value":null,"updated_at":1790907154758}
+ 452 P3 A: timer4 pill gone at end3+N s (null = still there)                86
+ 452 P3 A after: pill / new beeps / timer4 seconds left                     {"pill":false,"newBeeps":0,"secondsLeft":519}

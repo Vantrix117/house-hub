@@ -1,0 +1,55 @@
+## the two triggers
+  ✓ wrangler.toml: crons = ["*/15 * * * *", "* * * * *"]
+  ✓ the minute cron name and the timer job (forceable from Admin)
+  ✓ the 15-minute firings run what they ran before batch 6, never the timer
+  ✓ the timer switch starts on (a timer is something you asked for)
+  ✓ the Worker formats as the hub does (h:mm:ss, seconds rounded up)
+  ✓ a kid cannot subscribe (403): a kid's timer rings on the device
+## seeds
+  ✓ eli timer:pasta
+  ✓ eli timer:oven
+  ✓ eli timer:rest
+  ✓ christian timer:tea
+  ✓ mom timer:bread
+  ✓ ezra timer:egg
+  ✓ Mom turns the Timer done switch off
+  ✓ dad timer.active (legacy, total in s)
+  ✓ eli mirror run:eli:pasta
+  ✓ eli mirror run:eli:ghost
+  ✓ eli mirror run:eli:oven
+## the minute trigger
+  ✓ the minute trigger runs nothing of the 15-minute jobs
+  ✓ 4:04:30 pm: nothing has ended yet, nothing sent
+  ✓ 5:05:10 pm: the five ended timers are due (not the running oven, not the paused dough)
+  ✓ Eli hears "Timer done: Pasta" (tag timer-pasta-<endAt>, to eli)
+  ✓ David's legacy timer.active: "Timer done", "5:00 timer is up."
+  ✓ the payload carries nothing but the title, body, tag, link and whose it is
+  ✓ Mom (switch off) is not told
+  ✓ Ezra (a kid) is not pushed
+  ✓ Mae's delivery failed: kept for the next minute
+  ✓ 5:06 pm: Mae is told now; nobody else twice
+  ✓ 5:07 pm: nothing more (each timer once)
+  ✓ settings.timer_pushed: one entry per timer start and end (profile|key|startedAt|endAt)
+  ✓ the same row restarted (a new startedAt) is told again
+  ✓ an acknowledged timer (ackAt) is not told
+  ✓ +1 min after it rang: told at the first end, nothing while it runs again, told again at the new end (tag timer-<id>-<endAt>)
+## the 10-minute rule
+  ✓ 9 minutes after: the ended rows still stand ("Ended at 5:05")
+  ✓ a mirror whose person row is gone is cleared
+  ✓ the running oven's mirror and the restarted pasta's stay
+  ✓ 11 minutes after: ended rows are cleared (the legacy row too)
+  ✓ the running oven, the paused dough and the restarted pasta stay
+  ✓ the job says what it cleared
+  ✓ 5:21 pm: the restarted pasta (ended 5:09:30) is cleared, with its mirror under the same start
+  ✓ an old row is cleared but a mirror of a newer start is not (it waits for its own row, or the orphan rule)
+  ✓ the clear names the updated_at it read: a newer write is never cleared (the SQL the job uses)
+## settings.timer_pushed is pruned after a day
+  ✓ yesterday's entries are gone; today's one is kept
+  ✓ the 6 pm firing purges only tombstones older than 30 days: none yet, 13 younger ones kept (a device away up to a month still hears of them); 2 live rows stay
+  ✓ a tombstone 31 days old is purged at the top of the hour
+  ✓ the job reads through the partial index of live Timer rows (migrations/008)
+  ✓ off the hour the job purges nothing (it only reads)
+## forced from Admin
+  ✓ POST /api/admin/cron/run {job: "timer"}
+  ✓ admin only
+48 passed, 0 failed

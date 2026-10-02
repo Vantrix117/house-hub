@@ -116,10 +116,11 @@ async function startServer(variant = 'typical') {
 // and the picker's cached profile list (what a real device has after its first visit).
 async function sessionsFor(srv) {
   const info = await srv.rig('/__rig/info');
-  const call = async (p, pt) => { const r = await fetch(srv.api + p, { headers: { 'X-Device-Token': info.device.token, ...(pt ? { 'X-Profile-Token': pt } : {}) } }); return r.json(); };
+  const call = async (p, pt, dt = info.device.token) => { const r = await fetch(srv.api + p, { headers: { 'X-Device-Token': dt, ...(pt ? { 'X-Profile-Token': pt } : {}) } }); return r.json(); };
   const profiles = await call('/api/profiles');
   const sessions = {};
-  for (const [id, token] of Object.entries(info.sessions)) { const me = await call('/api/me', token); if (me.profile) sessions[id] = { token, profile: me.profile }; }
+  // the kitchen profile's session lives on the rig's kitchen device (seed.mjs KITCHEN_DEVICE, batch 6)
+  for (const [id, token] of Object.entries(info.sessions)) { const me = await call('/api/me', token, id === 'kitchen' && info.kitchenDevice ? info.kitchenDevice.token : undefined); if (me.profile) sessions[id] = { token, profile: me.profile }; }
   return { info, profiles: profiles.profiles || profiles, sessions };
 }
 
@@ -191,7 +192,7 @@ async function capture(browser, srv, S, job) {
   const who = s.profile === undefined ? 'eli' : s.profile;             // null = signed out (picker); 'unpaired' = no device
   const cfg = {
     site: srv.site, api: srv.api, dev: { platform: dev.platform, touchPoints: dev.touchPoints, standalone: dev.standalone },
-    device: who === 'unpaired' ? null : S.info.device,
+    device: who === 'unpaired' ? null : who === 'kitchen' && S.info.kitchenDevice ? S.info.kitchenDevice : S.info.device,
     session: who && who !== 'unpaired' ? S.sessions[who] : null,
     profiles: who === 'unpaired' ? null : S.profiles,
     last: s.lastProfile || (who && who !== 'unpaired' ? who : null),

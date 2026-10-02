@@ -1,0 +1,93 @@
+{
+ "engine": "chromium",
+ "device": "desktop",
+ "timer": "1:00",
+ "method": "hidden = document.hidden/visibilityState forced + visibilitychange in every frame; clock.runFor(1000) x64 with 60 ms real yields (timers keep firing, as in a hidden desktop tab)",
+ "A_appOpen_hidden": {
+  "appOpen": true,
+  "hidden": true,
+  "before": {
+   "pill": null,
+   "appTime": "1:00"
+  },
+  "atEndWhileHidden": {
+   "shell": {
+    "notify": [
+     {
+      "title": "Timer done",
+      "body": "1:00 timer is up.",
+      "at": 1790971803729
+     }
+    ],
+    "beeps": 0,
+    "toast": null,
+    "pill": null,
+    "hidden": true,
+    "openApp": "http://localhost:63609/apps/timer.html"
+   },
+   "app": {
+    "notify": [],
+    "beeps": 1,
+    "time": "0:00",
+    "done": true,
+    "hidden": true
+   }
+  },
+  "notifications": 1,
+  "beeps": 1
+ },
+ "C_appClosed_hidden": {
+  "appOpen": false,
+  "hidden": true,
+  "before": {
+   "pill": "0:58",
+   "appTime": null
+  },
+  "atEndWhileHidden": {
+   "shell": {
+    "notify": [
+     {
+      "title": "Timer done",
+      "body": "1:00 timer is up.",
+      "at": 1790971808390
+     }
+    ],
+    "beeps": 1,
+    "toast": null,
+    "pill": "Stop",
+    "hidden": true,
+    "openApp": "about:blank"
+   },
+   "app": null
+  },
+  "notifications": 1,
+  "beeps": 1
+ },
+ "V_appOpen_visible": {
+  "appOpen": true,
+  "hidden": false,
+  "before": {
+   "pill": null,
+   "appTime": "1:00"
+  },
+  "atEndWhileHidden": {
+   "shell": {
+    "notify": [],
+    "beeps": 0,
+    "toast": null,
+    "pill": null,
+    "hidden": false,
+    "openApp": "http://localhost:63609/apps/timer.html"
+   },
+   "app": {
+    "notify": [],
+    "beeps": 1,
+    "time": "0:00",
+    "done": true,
+    "hidden": false
+   }
+  },
+  "notifications": 0,
+  "beeps": 1
+ }
+}

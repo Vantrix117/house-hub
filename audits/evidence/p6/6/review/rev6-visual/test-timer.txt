@@ -1,0 +1,155 @@
+
+## the contract: Start writes timer:<id> (server time) and its family mirror
+  ✓ A: idle, Start is the primary button (Start)
+  ✓ A: every preset carries aria-pressed (UX-TIMER-10)
+  ✓ A: a preset with no timer running only sets the length (1:00, pressed 60,chime)
+  ✓ A: Start writes timer:<id> {total 60000 ms, endAt in server time, startedAt, by eli}
+  ✓ A: the stored row has exactly the contract's fields
+  ✓ A: the family mirror run:eli:<id> follows it (GAP-HOME-1)
+  ✓ A: nothing writes the old timer.active
+  ✓ A: while running, Pause is the primary button (VIS-TIMER-1)
+  ✓ A: half a second after Start it still reads 1:00 (Math.ceil, P3-TIMER-05)
+  ✓ A: the app asked for the wake lock itself while the timer runs (P2-STAB-09)
+  ✓ A: no pill or chip while the timer app itself is open
+
+## the pill follows you (the shell)
+  ✓ A: shell pill shows with the app closed (1:00)
+  ✓ A: the pill counts down each second (60 → 58)
+  ✓ A: still there on Home
+  ✓ A: still there on Me
+  ✓ A: still there on Chat
+  ✓ A: on Chat the pill sits clear above the composer, input/mic/send all tappable ({"overlap":false,"gap":12,"pillTop":645,"underInput":"chat-in","underInputLeft":"chat-in","underSend":"use","underMic":"svg"})
+  ✓ A: a tap in the middle of the chat input focuses it, not the timer
+  ✓ A: pill is a 44 px target above the tab bar (h 44, bottom 760)
+  ✓ A: over another app the countdown sits in the app bar (0:57)
+  ✓ A: the chip reopens the app and it resumes from endAt (0:56), not from 1:00
+
+## two devices, two clocks (P2-STAB-08)
+  ✓ B: this device runs 90 s fast and knows it (skew -90 s)
+  ✓ A and B agree on the time left despite B's clock (54 vs 54)
+
+## Pause is stored, +1 min, Resume (UX-TIMER-2, GAP-TIMER-3)
+  ✓ A: Pause stores {pausedAt, remaining 54 s, endAt null}; the dial says Paused; the button Resume
+  ✓ B: the second device shows it paused (0:54), not gone
+  ✓ A: reopened, it is still paused at 0:54, not reset to 1:00
+  ✓ A: +1 min on a paused timer adds a minute (1:54, total 120 s)
+  ✓ A: Resume runs it again (1:54)
+  ✓ A: +1 min on a running timer moves endAt a minute later
+
+## a preset never replaces a running timer without asking (UX-TIMER-1)
+  ✓ A: tapping 3 min asks "Replace 2:54?" and the timer keeps running
+  ✓ A: Keep closes the question; nothing changed
+  ✓ A: "Add a second timer" starts 3:00 beside the first
+  ✓ A: the list shows both timers and New timer (Timer 2:54 | Timer 3:00)
+  ✓ A: another preset asks again (Replace 3:00?)
+  ✓ A: Replace swaps only the timer on the dial for 5:00
+  ✓ A: after a pull the house has the two timers (180,300 s)
+
+## a third timer with a label; three is the most
+  ✓ A: New timer opens a new length while the two keep running
+  ✓ A: setting a new timer, a preset just picks its length (no question)
+  ✓ A: the third timer carries its label "pasta" on the dial (pasta)
+  ✓ A: at three timers New timer is gone
+  ✓ A: at three a preset can only replace, never add (Replace pasta (10:00)?)
+  ✓ A: renaming the timer on the dial saves its label
+
+## recents (UX-TIMER-7) and a custom time in hours (VIS-TIMER-4)
+  ✓ A: recents keep the last three distinct lengths, newest first (600 pasta, 300, 180)
+  ✓ A: the recents show as chips (10:00 · pasta | 5:00 | 3:00)
+  ✓ A: Reset clears each timer
+  ✓ A: Custom opens minutes and seconds, the minutes focused
+  ✓ A: 65 minutes shows as 1:05:00, never 65:00 (1:05:00)
+  ✓ A: the seconds stepper adds 5 s (1:05:05)
+  ✓ A: 0:00 is refused (the panel stays open)
+  ✓ A: Escape closes Custom
+  ✓ A: a recent picks its length and label (10:00 pasta)
+
+## time's up: the alert repeats every 15 s until Stop, on one AudioContext (GAP-TIMER-2, P3-TIMER-03, UX-TIMER-4)
+  ✓ A: aria-live says "10 seconds left" (UX-TIMER-10; "10 seconds left on pasta")
+  ✓ A: at 0 the dial says "Time's up" in words, Stop is the primary button
+  ✓ A: with the bell from the sprite
+  ✓ A: aria-live says Time's up
+  ✓ A: it rang (3 notes)
+  ✓ A: one AudioContext for the life of the page (1)
+  ✓ A: the row stays (ended) until Stop: nothing clears it just because it ended
+  ✓ A: 15 s later it rings again (3 more notes, still 1 context)
+  ✓ A: with the Timer open the shell stays quiet (0 shell rings)
+  ✓ A: no shell toast over the app
+  ✓ A: Stop and Reset are tappable at 0 (under: frame, frame)
+  ✓ A: Stop ends the ringing; the length is ready again (0:12)
+  ✓ A: and it does not ring again
+  ✓ A: Stop removed the row in the house
+
+## the clear rule: a device never clears a newer start (P2-STAB-13)
+  ✓ B: sees the timer
+  ✓ B: clear(old start) refused (false); A's newer start is still there
+  ✓ A: the newer timer survives the device that woke (oven:running)
+  ✓ B: and B shows it running after its pull
+
+## the shell rings with the app closed; Stop from the pill
+  ✓ A: the pill stays at 0 for the ringing timer (Stop)
+  ✓ A: toast "Time's up: oven. Stop"
+  ✓ A: a tap on the ringing pill stops it
+  ✓ B: gone on the second device too
+
+## a timer that ended unseen, and the 10-minute rule (UX-TIMER-3)
+  ✓ A: reopened 3 min after the end: "Bread timer ended at 1:35 AM", and it rings
+  ✓ A: the one ended 11 min ago does not ring (only the 3-minute one is live)
+  ✓ A: the 11-minute one was cleared on fresh data (the 10-minute rule)
+  ✓ A: Stop clears it and its note
+
+## the migration from timer.active
+  ✓ A: the shell shows an old timer.active as one running timer (m1790919460599)
+  ✓ A: opening the Timer moves it to timer:m1790919460599 and removes timer.active
+  ✓ A: a timer.active written beside a running timer: row is moved too and shows (m1790919401351, muqj8qm2h8fyv)
+
+## Say it: the parser (IMP-TIMER-I2)
+  ✓ parser: 15/15 phrases understood
+  ✓ Say it shows only where speech recognition exists
+
+## Notify me (GAP-TIMER-1) and the sound choice
+  ✓ Notify me is offered while the browser has not been asked
+  ✓ Bell chosen: a person row, pressed
+
+## desktop: the pill sits beside the sidebar
+  ✓ D: pill at the foot of the sidebar at 1440, never on content (VIS-HOME-2; left 12, right 208)
+  ✓ D: on Chat at 1440 the pill (in the sidebar) is clear of the composer, mic and send uncovered ({"overlap":false,"gap":-67,"pillTop":832,"underInput":"chat-in","underInputLeft":"chat-in","underSend":"use","underMic":"svg"})
+  ✓ D: back on Home the pill drops back to the bottom
+  ✓ E: on Chat at 820 the pill sits clear above the composer ({"overlap":false,"gap":12,"pillTop":978,"underInput":"chat-in","underInputLeft":"chat-in","underSend":"use","underMic":"svg"})
+
+## the shell: several timers, the ring, Stop in the pill (batch 6, Worker C)
+  ✓ two timers: the pill shows the soonest ("Tea 0:06") and "+1" for the other
+  ✓ at 0 the pill says "Time's up · Tea" with the bell and a Stop (UX-TIMER-4: words and an icon, not colour alone)
+  ✓ the shell rang (the Timer app is closed) and the pill is Stop for VoiceOver
+  ✓ one AudioContext in the shell, reused (P3-TIMER-03): 1
+  ✓ it rings again 15 s later until Stop (GAP-TIMER-2): 1 → 2
+  ✓ the ended row stays on the house until Stop (no device clears it at 0)
+  ✓ Stop in the pill: Tea stops at once on this device and the pill shows Roast
+  ✓ Tea's row is removed from the house (after a pull, under its own start)
+  ✓ after Stop nothing rings
+  ✓ P2-STAB-09: back in view with a timer counting, the shell asks for the wake lock with no tap
+
+## the Timer app open, the page hidden at 0: a notification all the same (P3-TIMER-04)
+  ✓ with the Timer open and the page hidden, "Timer done" is notified once for Kettle (marks 1; the shell showed 1)
+  ✓ with the Timer app open the shell plays nothing for the person's own timers (the app rings for itself)
+
+## a Switch keeps the running timer on this device (P2-PROF-08)
+  ✓ at the picker the timer is kept on this device (hub.timers.device) and the pill waits (only a ringing one shows there)
+  ✓ after the Switch Ezra's pill reads "Eli's Pasta · 0:15"
+  ✓ P4-SHAPE-01: a kid's pill is --tap high (64 px at 820, ≥ 64)
+  ✓ at 0 it rings on this device for Ezra: "Time's up · Eli's Pasta"
+  ✓ Ezra's Stop stops it on this device
+  ✓ Eli's ended row is still on the house after Ezra's Stop (nobody writes another person's rows)
+
+## the shell and the Timer frame write the same queue at once (core review round 1)
+  ✗ offline, 12 pairs written at once by the shell and the Timer frame: all 24 rows stay queued (hub.js saveQueue merges the stored queue; missing 12) ["probe:muqja7d9:s0","probe:muqja7d9:s1","probe:muqja7d9:s2","probe:muqja7d9:s3","probe:muqja7d9:s4","probe:muqja7d9:s5","probe:muqja7d9:s6","probe:muqja7d9:s7","probe:muqja7d9:s8","probe:muqja7d9:s9","probe:muqja7d9:s10","probe:muqja7d9:s11"]
+  ✗ back online, every one of them reaches the house (lost 12) ["probe:muqja7d9:s0","probe:muqja7d9:s1","probe:muqja7d9:s2","probe:muqja7d9:s3","probe:muqja7d9:s4","probe:muqja7d9:s5","probe:muqja7d9:s6","probe:muqja7d9:s7","probe:muqja7d9:s8","probe:muqja7d9:s9","probe:muqja7d9:s10","probe:muqja7d9:s11"]
+
+## the display profile only looks
+  ✓ kiosk session
+  ✓ kiosk: hub.timers writes nothing
+  ✓ kiosk: no beep
+  ✓ kiosk: nothing written, no error
+  ✓ no console/page errors
+
+111 passed, 2 failed

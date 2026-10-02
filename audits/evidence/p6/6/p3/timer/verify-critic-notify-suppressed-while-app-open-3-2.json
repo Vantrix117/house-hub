@@ -1,0 +1,40 @@
+{
+ "engine": "chromium",
+ "device": "desktop",
+ "timer": "1:00",
+ "method": "hidden = document.hidden/visibilityState forced + visibilitychange in every frame; clock.runFor(1000) x64 with 60 ms real yields (timers keep firing, as in a hidden desktop tab)",
+ "A_appOpen_hidden": {
+  "appOpen": true,
+  "hidden": true,
+  "before": {
+   "pill": null,
+   "appTime": "1:00"
+  },
+  "atEndWhileHidden": {
+   "shell": {
+    "notify": [
+     {
+      "title": "Timer done",
+      "body": "1:00 timer is up.",
+      "at": 1790969345674
+     }
+    ],
+    "beeps": 0,
+    "toast": null,
+    "pill": null,
+    "hidden": true,
+    "openApp": "http://localhost:62764/apps/timer.html"
+   },
+   "app": {
+    "notify": [],
+    "beeps": 1,
+    "time": "0:00",
+    "done": true,
+    "hidden": true
+   }
+  },
+  "notifications": 1,
+  "beeps": 1
+ },
+ "error": "TimeoutError: frame.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-s=\"60\"]')\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"btn\" data-s=\"60\" aria-pressed=\"false\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2"
+}

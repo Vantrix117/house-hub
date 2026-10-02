@@ -1,0 +1,2300 @@
+{
+ "area": "prayer",
+ "file": "apps/prayer.html",
+ "rules": {
+  "notLiteral": "0, 0px, auto, inherit, initial, unset, none, normal, currentColor, transparent, 100%, 1 (opacity), 0/1 z-index 0 are not literals",
+  "varOnly": "values built only from var(--token), calc() of tokens and color-mix() of tokens are not literals; the percentages inside a token color-mix are counted separately as \"mixRatio\" (ad-hoc derived colours)",
+  "fallback": "a literal inside var(--x, <literal>) is a fallback, counted as status \"fallback\", not a violation",
+  "print": "@media print declarations are exempt",
+  "keyframes": "declarations inside @keyframes are motion frames: counted only for colour",
+  "hairline": "1px and 2px in spacing/borders are sub-grid hairlines: status \"subgrid\", not counted as violations",
+  "circle": "border-radius 50% is a circle: status \"acceptable\"",
+  "relative": "em/%/vw/ch/dvh/cqw values are relative: status \"relative\" (they scale with their parent, unlike px), not violations",
+  "dollywood": "Dollywood template: selectors are split by flavour ([data-flavor=hub] = build guide only, [data-flavor=live] = park map only, html:not([data-flavor=live]) = build guide/standalone); lines 259-308 and 525-565 and SVG-shape selectors are cartography (colour exempt, as scripts/screens-apps.mjs allows); the :where(:root) / :where([data-theme=light]) palette blocks (lines 7-12) are standalone-only (overridden by the hub flavour block at line 212) except the map category colours",
+  "designCss": "apps/design.css: only declarations outside the token/theme/kind blocks are scanned (the component layer, resets, print)",
+  "meta": "<meta name=\"theme-color\"> hex is counted in category colour with status \"meta\" (a token cannot reach a meta tag; hub.js/index.html set it from JS)"
+ },
+ "summary": {
+  "file": "apps/prayer.html",
+  "byCategoryStatus": {
+   "lineHeight": {
+    "violation": 17
+   },
+   "fontWeight": {
+    "violation": 54
+   },
+   "letterSpacing": {
+    "violation": 26
+   },
+   "radius": {
+    "acceptable": 9
+   },
+   "spacing": {
+    "violation": 1
+   },
+   "shadow": {
+    "violation": 15
+   },
+   "opacity": {
+    "violation": 2
+   },
+   "zIndex": {
+    "violation": 8
+   },
+   "print": {
+    "exempt": 34
+   },
+   "targetSize": {
+    "violation": 2
+   },
+   "colour": {
+    "violation": 23,
+    "meta": 1
+   },
+   "breakpoint": {
+    "info": 7
+   }
+  },
+  "violations": {
+   "lineHeight": {
+    "total": 17,
+    "exactToken": 3,
+    "noToken": 14
+   },
+   "fontWeight": {
+    "total": 54,
+    "exactToken": 0,
+    "noToken": 54
+   },
+   "letterSpacing": {
+    "total": 26,
+    "exactToken": 1,
+    "noToken": 25
+   },
+   "spacing": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "shadow": {
+    "total": 15,
+    "exactToken": 0,
+    "noToken": 15
+   },
+   "opacity": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "zIndex": {
+    "total": 8,
+    "exactToken": 0,
+    "noToken": 8
+   },
+   "targetSize": {
+    "total": 2,
+    "exactToken": 2,
+    "noToken": 0
+   },
+   "colour": {
+    "total": 23,
+    "exactToken": 0,
+    "noToken": 23
+   }
+  },
+  "distinctViolationValues": {
+   "lineHeight": 11,
+   "fontWeight": 4,
+   "letterSpacing": 13,
+   "spacing": 1,
+   "shadow": 8,
+   "opacity": 2,
+   "zIndex": 8,
+   "targetSize": 1,
+   "colour": 17
+  },
+  "mixRatios": {
+   "count": 0,
+   "distinct": 0
+  },
+  "breakpoints": [
+   "min-width 700",
+   "min-width 760",
+   "min-width 1000",
+   "min-width 560",
+   "max-width 699"
+  ]
+ },
+ "hits": [
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.55",
+   "literal": "1.55",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.55 step (tokens 1.1/1.25/1.45)",
+   "line": 74,
+   "selector": "body",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 74,
+   "selector": "body",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.008em",
+   "literal": "-.008em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 74,
+   "selector": "body",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 84,
+   "selector": "h1",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.18",
+   "literal": "1.18",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.18 step (tokens 1.1/1.25/1.45)",
+   "line": 84,
+   "selector": "h1",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.032em",
+   "literal": "-.032em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 85,
+   "selector": "h1",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 86,
+   "selector": "h2",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.022em",
+   "literal": "-.022em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 86,
+   "selector": "h2",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 87,
+   "selector": "h3",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.005em",
+   "literal": "-.005em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 87,
+   "selector": "h3",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 88,
+   "selector": ".date",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.005em",
+   "literal": "-.005em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 88,
+   "selector": ".date",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.01em",
+   "literal": "-.01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 99,
+   "selector": ".hdr .seg button,.addto .seg button",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 107,
+   "selector": ".strip",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.008em",
+   "literal": "-.008em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 107,
+   "selector": ".strip",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 109,
+   "selector": ".strip b",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.03em",
+   "literal": "-.03em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 110,
+   "selector": ".strip b",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 123,
+   "selector": ".cheer",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 132,
+   "selector": ".mark",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "inset",
+   "value": "7px",
+   "literal": "7",
+   "status": "violation",
+   "token": null,
+   "why": "off the 4-pt token scale: 7px (nearest --sp-2)",
+   "line": 136,
+   "selector": ".mark::before",
+   "src": "css",
+   "offGrid": [
+    7
+   ],
+   "onGrid": [],
+   "sub": []
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 136,
+   "selector": ".mark::before",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 147,
+   "selector": ".title",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.42",
+   "literal": "1.42",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.42 step (tokens 1.1/1.25/1.45)",
+   "line": 147,
+   "selector": ".title",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.012em",
+   "literal": "-.012em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 147,
+   "selector": ".title",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 148,
+   "selector": ".row.done .title",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 149,
+   "selector": ".meta",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.005em",
+   "literal": "-.005em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 149,
+   "selector": ".meta",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 153,
+   "selector": ".p-tag",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": ".01em",
+   "literal": ".01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 155,
+   "selector": ".p-tag",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 158,
+   "selector": ".who .avatar,.who .init,.who .more,.asker .avatar,.asker .init",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 159,
+   "selector": ".who .avatar,.who .init,.who .more,.asker .avatar,.asker .init",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--surface)",
+   "literal": "0 0 0 2px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 160,
+   "selector": ".who .avatar,.who .init,.who .more,.asker .avatar,.asker .init",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 165,
+   "selector": ".who .init,.asker .init",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 166,
+   "selector": ".who .more",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 176,
+   "selector": "details.cat > summary",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.012em",
+   "literal": "-.012em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 176,
+   "selector": "details.cat > summary",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 189,
+   "selector": ".dot",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 193,
+   "selector": "details.cat > summary .n",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 197,
+   "selector": ".copybtn",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 205,
+   "selector": ".ans .when",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.002em",
+   "literal": "-.002em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 205,
+   "selector": ".ans .when",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 206,
+   "selector": ".ans .what",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.3",
+   "literal": "1.3",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.3 step (tokens 1.1/1.25/1.45)",
+   "line": 206,
+   "selector": ".ans .what",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.02em",
+   "literal": "-.02em",
+   "status": "violation",
+   "token": "--ls-tight",
+   "why": "exact",
+   "line": 206,
+   "selector": ".ans .what",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.45",
+   "literal": "1.45",
+   "status": "violation",
+   "token": "--lh",
+   "why": "exact",
+   "line": 209,
+   "selector": ".ansnote",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.6",
+   "literal": "1.6",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.6 step (tokens 1.1/1.25/1.45)",
+   "line": 213,
+   "selector": ".ledger",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 214,
+   "selector": ".ledger b",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 217,
+   "selector": ".recall b",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 219,
+   "selector": ".prompt",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 223,
+   "selector": ".calmonth",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.012em",
+   "literal": "-.012em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 223,
+   "selector": ".calmonth",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 0 0 1.5px var(--muted-decor)",
+   "literal": "inset 0 0 0 1.5px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 227,
+   "selector": ".cal span",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 0 0 1.5px var(--line)",
+   "literal": "inset 0 0 0 1.5px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 229,
+   "selector": ".cal span.later",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--today-ring)",
+   "literal": "0 0 0 2px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 230,
+   "selector": ".cal span.today",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--today-ring)",
+   "literal": "0 0 0 2px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 231,
+   "selector": ".cal span.on.today",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 234,
+   "selector": ".dow",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 237,
+   "selector": "label",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.01em",
+   "literal": "-.01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 238,
+   "selector": "label",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.5",
+   "literal": "1.5",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.5 step (tokens 1.1/1.25/1.45)",
+   "line": 241,
+   "selector": "input[type=text],input[type=tel],input[type=password],textarea,select",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 4px var(--accent-fill)",
+   "literal": "0 0 0 4px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 251,
+   "selector": "input:focus,textarea:focus,select:focus",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 254,
+   "selector": ".p-chip",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.01em",
+   "literal": "-.01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 256,
+   "selector": ".p-chip",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 261,
+   "selector": "button.act",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.012em",
+   "literal": "-.012em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 263,
+   "selector": "button.act",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".35",
+   "literal": ".35",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 273,
+   "selector": "button:disabled",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 286,
+   "selector": ".menu .act span",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.005em",
+   "literal": "-.005em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 286,
+   "selector": ".menu .act span",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 288,
+   "selector": ".catrow",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 290,
+   "selector": ".catrow button",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 301,
+   "selector": ".ask .line",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.5",
+   "literal": "1.5",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.5 step (tokens 1.1/1.25/1.45)",
+   "line": 301,
+   "selector": ".ask .line",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 310,
+   "selector": ".err",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "20",
+   "literal": "20",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 316,
+   "selector": ".veil",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "21",
+   "literal": "21",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 322,
+   "selector": ".p-sheet",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 331,
+   "selector": ".close",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 335,
+   "selector": ".hist .d",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "12",
+   "literal": "12",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 349,
+   "selector": ".fab",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 351,
+   "selector": ".fab",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), var(--elev-float)",
+   "literal": "inset 0 1px 0 TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 354,
+   "selector": ".fab",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "10",
+   "literal": "10",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 362,
+   "selector": "nav",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.01em",
+   "literal": "-.01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 365,
+   "selector": "nav button",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), var(--elev-bar-up)",
+   "literal": "inset 0 1px 0 TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 385,
+   "selector": "nav",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), inset 0 -1px 0 var(--glass-edge), 0 0 0 1px var(--glass-ring), var(--elev-overlay)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -1px 0 TOKEN , 0 0 0 1px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 387,
+   "selector": ".p-sheet",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.55",
+   "literal": "1.55",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.55 step (tokens 1.1/1.25/1.45)",
+   "line": 396,
+   "selector": ".note",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 397,
+   "selector": ".warn",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "40",
+   "literal": "40",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 403,
+   "selector": "#lock",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": ".4em",
+   "literal": ".4em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 407,
+   "selector": "#lock input",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "35",
+   "literal": "35",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 410,
+   "selector": "#pray",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 418,
+   "selector": "#pray .top",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 419,
+   "selector": "#pray .top button",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 424,
+   "selector": "#pray .cat",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.16",
+   "literal": "1.16",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.16 step (tokens 1.1/1.25/1.45)",
+   "line": 425,
+   "selector": "#pray .big",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 425,
+   "selector": "#pray .big",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.035em",
+   "literal": "-.035em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 426,
+   "selector": "#pray .big",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 428,
+   "selector": "#pray .for",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.45",
+   "literal": "1.45",
+   "status": "violation",
+   "token": "--lh",
+   "why": "exact",
+   "line": 431,
+   "selector": "#pray .last",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 437,
+   "selector": "#pray .ctrl button",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".3",
+   "literal": ".3",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 440,
+   "selector": "#pray .ctrl button:disabled",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "34",
+   "literal": "34",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 450,
+   "selector": "#kitchen",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.035em",
+   "literal": "-.035em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 455,
+   "selector": "#kitchen h1",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.1",
+   "literal": "1.1",
+   "status": "violation",
+   "token": "--lh-tight",
+   "why": "exact",
+   "line": 455,
+   "selector": "#kitchen h1",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 457,
+   "selector": "#kitchen .k-cat",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 459,
+   "selector": "#kitchen .k-item",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.2",
+   "literal": "1.2",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.2 step (tokens 1.1/1.25/1.45)",
+   "line": 459,
+   "selector": "#kitchen .k-item",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.022em",
+   "literal": "-.022em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 460,
+   "selector": "#kitchen .k-item",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "400",
+   "literal": "400",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 461,
+   "selector": "#kitchen .k-for",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.01em",
+   "literal": "-.01em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 461,
+   "selector": "#kitchen .k-for",
+   "src": "css"
+  },
+  {
+   "cat": "print",
+   "prop": "display",
+   "value": "none",
+   "status": "exempt",
+   "line": 481
+  },
+  {
+   "cat": "print",
+   "prop": "background",
+   "value": "white",
+   "status": "exempt",
+   "line": 482
+  },
+  {
+   "cat": "print",
+   "prop": "color",
+   "value": "black",
+   "status": "exempt",
+   "line": 482
+  },
+  {
+   "cat": "print",
+   "prop": "font-size",
+   "value": "11pt",
+   "status": "exempt",
+   "line": 482
+  },
+  {
+   "cat": "print",
+   "prop": "padding",
+   "value": "0",
+   "status": "exempt",
+   "line": 482
+  },
+  {
+   "cat": "print",
+   "prop": "max-width",
+   "value": "none",
+   "status": "exempt",
+   "line": 483
+  },
+  {
+   "cat": "print",
+   "prop": "padding",
+   "value": "0",
+   "status": "exempt",
+   "line": 483
+  },
+  {
+   "cat": "print",
+   "prop": "display",
+   "value": "none",
+   "status": "exempt",
+   "line": 484
+  },
+  {
+   "cat": "print",
+   "prop": "display",
+   "value": "block",
+   "status": "exempt",
+   "line": 485
+  },
+  {
+   "cat": "print",
+   "prop": "font-size",
+   "value": "20pt",
+   "status": "exempt",
+   "line": 486
+  },
+  {
+   "cat": "print",
+   "prop": "font-weight",
+   "value": "600",
+   "status": "exempt",
+   "line": 486
+  },
+  {
+   "cat": "print",
+   "prop": "letter-spacing",
+   "value": "-.03em",
+   "status": "exempt",
+   "line": 486
+  },
+  {
+   "cat": "print",
+   "prop": "margin",
+   "value": "0 0 4pt",
+   "status": "exempt",
+   "line": 486
+  },
+  {
+   "cat": "print",
+   "prop": "font-size",
+   "value": "9.5pt",
+   "status": "exempt",
+   "line": 487
+  },
+  {
+   "cat": "print",
+   "prop": "font-weight",
+   "value": "600",
+   "status": "exempt",
+   "line": 487
+  },
+  {
+   "cat": "print",
+   "prop": "color",
+   "value": "dimgray",
+   "status": "exempt",
+   "line": 487
+  },
+  {
+   "cat": "print",
+   "prop": "margin-bottom",
+   "value": "16pt",
+   "status": "exempt",
+   "line": 487
+  },
+  {
+   "cat": "print",
+   "prop": "font-size",
+   "value": "9.5pt",
+   "status": "exempt",
+   "line": 488
+  },
+  {
+   "cat": "print",
+   "prop": "font-weight",
+   "value": "700",
+   "status": "exempt",
+   "line": 488
+  },
+  {
+   "cat": "print",
+   "prop": "margin",
+   "value": "15pt 0 5pt",
+   "status": "exempt",
+   "line": 488
+  },
+  {
+   "cat": "print",
+   "prop": "border-bottom",
+   "value": ".5pt solid silver",
+   "status": "exempt",
+   "line": 489
+  },
+  {
+   "cat": "print",
+   "prop": "padding-bottom",
+   "value": "3pt",
+   "status": "exempt",
+   "line": 489
+  },
+  {
+   "cat": "print",
+   "prop": "break-after",
+   "value": "avoid",
+   "status": "exempt",
+   "line": 489
+  },
+  {
+   "cat": "print",
+   "prop": "font-size",
+   "value": "10.5pt",
+   "status": "exempt",
+   "line": 490
+  },
+  {
+   "cat": "print",
+   "prop": "padding",
+   "value": "3pt 0",
+   "status": "exempt",
+   "line": 490
+  },
+  {
+   "cat": "print",
+   "prop": "break-inside",
+   "value": "avoid",
+   "status": "exempt",
+   "line": 490
+  },
+  {
+   "cat": "print",
+   "prop": "display",
+   "value": "inline-block",
+   "status": "exempt",
+   "line": 491
+  },
+  {
+   "cat": "print",
+   "prop": "width",
+   "value": "9pt",
+   "status": "exempt",
+   "line": 491
+  },
+  {
+   "cat": "print",
+   "prop": "height",
+   "value": "9pt",
+   "status": "exempt",
+   "line": 491
+  },
+  {
+   "cat": "print",
+   "prop": "border",
+   "value": ".75pt solid black",
+   "status": "exempt",
+   "line": 491
+  },
+  {
+   "cat": "print",
+   "prop": "border-radius",
+   "value": "2pt",
+   "status": "exempt",
+   "line": 492
+  },
+  {
+   "cat": "print",
+   "prop": "margin-right",
+   "value": "9pt",
+   "status": "exempt",
+   "line": 492
+  },
+  {
+   "cat": "print",
+   "prop": "vertical-align",
+   "value": "-1pt",
+   "status": "exempt",
+   "line": 492
+  },
+  {
+   "cat": "print",
+   "prop": "color",
+   "value": "dimgray",
+   "status": "exempt",
+   "line": 493
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 520,
+   "selector": ".kid .kt",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1.2",
+   "literal": "1.2",
+   "status": "violation",
+   "token": null,
+   "why": "no 1.2 step (tokens 1.1/1.25/1.45)",
+   "line": 520,
+   "selector": ".kid .kt",
+   "src": "css"
+  },
+  {
+   "cat": "letterSpacing",
+   "prop": "letter-spacing",
+   "value": "-.025em",
+   "literal": "-.025em",
+   "status": "violation",
+   "token": null,
+   "why": "no token (tokens -0.02em / .08em)",
+   "line": 520,
+   "selector": ".kid .kt",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 522,
+   "selector": ".kid .kby",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 530,
+   "selector": ".kid .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 531,
+   "selector": ".kid .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2.5px var(--surface), 0 0 0 5px var(--accent-graphic)",
+   "literal": "0 0 0 2.5px TOKEN , 0 0 0 5px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 533,
+   "selector": ".kid .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 535,
+   "selector": ".kid .prayed",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-width",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 535,
+   "selector": ".kid .prayed",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "700",
+   "literal": "700",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 536,
+   "selector": ".kid .prayed",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "500",
+   "literal": "500",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 542,
+   "selector": ".kid .kwho",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2px var(--surface)",
+   "literal": "0 0 0 2px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 544,
+   "selector": ".kid .kwho .who .avatar,.kid .kwho .who .init,.kid .kwho .who .more",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 551,
+   "selector": ".kid .ksay",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 0 0 2px var(--mint-graphic), var(--elev-card)",
+   "literal": "inset 0 0 0 2px TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 561,
+   "selector": ".kid.done",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 0 0 3px var(--mint-graphic)",
+   "literal": "inset 0 0 0 3px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 562,
+   "selector": ".kid.done .prayed",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 2.5px var(--mint-fill), 0 0 0 5px var(--accent-graphic)",
+   "literal": "0 0 0 2.5px TOKEN , 0 0 0 5px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 567,
+   "selector": ".kid .prayed .kme .avatar,.kid .prayed .kme .init",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 568,
+   "selector": ".kid .prayed .kcheck",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 606,
+   "selector": ".addto",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "2",
+   "literal": "2",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 610,
+   "selector": "#f-save",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 4px var(--bg)",
+   "literal": "0 0 0 4px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "focus/selection ring geometry: no --ring token (gap)",
+   "line": 610,
+   "selector": "#f-save",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 625,
+   "selector": "#pray .asked",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 626,
+   "selector": "#pray .asked .avatar,#pray .asked .init,#pray .table .avatar,#pray .table .init",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 627,
+   "selector": "#pray .asked .avatar,#pray .asked .init,#pray .table .avatar,#pray .table .init",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 632,
+   "selector": "#pray .tme",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 634,
+   "selector": "#pray .thead",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 639,
+   "selector": "#pray .tface .tname",
+   "src": "css"
+  },
+  {
+   "cat": "fontWeight",
+   "prop": "font-weight",
+   "value": "600",
+   "literal": "600",
+   "status": "violation",
+   "token": null,
+   "why": "no weight tokens exist (gap: --fw-regular/-semibold/-bold)",
+   "line": 1407,
+   "selector": "[style in JS]",
+   "src": "js-inline"
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F4F1EC",
+   "value": ":'dark',forest:'dark',graphite:'dark'}, B={hearth:'#F4F1EC',pa",
+   "status": "violation",
+   "token": "--tv-text",
+   "why": "nearest Hearth token --tv-text (ΔE 4.2)",
+   "line": 13
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#ECE2CD",
+   "value": "',graphite:'dark'}, B={hearth:'#F4F1EC',parchment:'#ECE2CD',fr",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@parchment",
+   "line": 13
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F2F2F7",
+   "value": "'}, B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',mi",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@frost, --surface-2@frost",
+   "line": 13
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#0B0A09",
+   "value": "1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',fo",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@midnight",
+   "line": 13
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#070F0D",
+   "value": "ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',gr",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 72.4)",
+   "line": 13
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#000000",
+   "value": "2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'}, ",
+   "status": "violation",
+   "token": null,
+   "why": "pure black: no --black / shade token (gap)",
+   "line": 13
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4f5d8c",
+   "value": "#0B0A09',forest:'#070F0D',graphite:'#000000'}, H={'#4f5d8c':'p",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 40.3)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#bc5a38",
+   "value": "D',graphite:'#000000'}, H={'#4f5d8c':'periwinkle','#bc5a38':'p",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#137f77",
+   "value": "00'}, H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'a",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 35.6)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#b4861b",
+   "value": "':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'l",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 26.9)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8a6a4b",
+   "value": "38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'b",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.1)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#3d5a3d",
+   "value": "'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'m",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 45.2)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5b8143",
+   "value": "'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'b",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4c4c58",
+   "value": "':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 46.3)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8c4f7a",
+   "value": "d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'s",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 38.2)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4c7b6a",
+   "value": "43':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'s",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.5)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5e7a6e",
+   "value": "c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 14
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F4F1EC",
+   "value": "'s map is the fallback. const THEME_BG = { hearth:'#F4F1EC', p",
+   "status": "violation",
+   "token": "--tv-text",
+   "why": "nearest Hearth token --tv-text (ΔE 4.2)",
+   "line": 2114
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#ECE2CD",
+   "value": "k. const THEME_BG = { hearth:'#F4F1EC', parchment:'#ECE2CD', f",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@parchment",
+   "line": 2114
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F2F2F7",
+   "value": " = { hearth:'#F4F1EC', parchment:'#ECE2CD', frost:'#F2F2F7', m",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@frost, --surface-2@frost",
+   "line": 2114
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#0B0A09",
+   "value": "', parchment:'#ECE2CD', frost:'#F2F2F7', midnight:'#0B0A09', f",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@midnight",
+   "line": 2114
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#070F0D",
+   "value": "2CD', frost:'#F2F2F7', midnight:'#0B0A09', forest:'#070F0D', g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 72.4)",
+   "line": 2114
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#000000",
+   "value": "', midnight:'#0B0A09', forest:'#070F0D', graphite:'#000000' };",
+   "status": "violation",
+   "token": null,
+   "why": "pure black: no --black / shade token (gap)",
+   "line": 2114
+  },
+  {
+   "cat": "colour",
+   "src": "meta",
+   "prop": "meta theme-color",
+   "literal": "#F4F1EC",
+   "status": "meta",
+   "token": "--tv-text",
+   "why": "a meta tag cannot use var(); set it from the resolved --bg in JS",
+   "line": 9
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 700",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 114
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 760",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 359
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 700",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 427
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 700",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 466
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1000",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 476
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 560",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 526
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-width 699",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 601
+  }
+ ]
+}

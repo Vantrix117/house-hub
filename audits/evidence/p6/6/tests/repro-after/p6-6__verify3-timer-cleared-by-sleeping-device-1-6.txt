@@ -1,0 +1,26 @@
+   3 slate: server timers                                             []
+   4 P1 timer (1 min) started on A; ends                              2026-10-02T20:11:55.373Z
+   4 P1 B before sleep                                                {"rings":0,"pill":true,"ringing":false,"label":"P1","rows":[{"id":"mureefx46zj89","label":"P1","state":"running","startedAt":1790971855373}]}
+  67 P1 A at end+4 s                                                  {"rings":1,"pill":true,"ringing":true,"label":"Time's up · P1","rows":[{"id":"mureefx46zj89","label":"P1","state":"ended","startedAt":1790971855373}]}
+  ✓ P1: A rang at 0 and its pill says time is up 
+  67 P1 server at end+4 s                                             [{"id":"mureefx46zj89","label":"P1","startedAt":1790971855373,"endAt":1790971915373}]
+  ✓ P1: no device cleared the row at 0 (it stays until Stop) 
+ 136 P1 B 3 s after waking at end+70 s                                {"rings":1,"pill":true,"ringing":true,"label":"Ended at 4:11 PM · P1","rows":[{"id":"mureefx46zj89","label":"P1","state":"ended","startedAt":1790971855373}]}
+  ✓ P1: B, woken 70 s after the end, rings and reads "Ended at …" (UX-TIMER-3: not "no trace") 
+  ✓ P1: B's wake cleared nothing 
+ 140 P1 after A's Stop: B                                             {"rings":1,"pill":false,"ringing":true,"label":"Ended at 4:11 PM · P1","rows":[]}
+  ✓ P1: Stop on A removes the row; B stops ringing on its next pull 
+ 207 P2 A stopped P2a and started P2b (10 min); server                [{"id":"mureisyjpahy5","label":"P2b","startedAt":1790972058892,"endAt":1790972658892}]
+ 274 P2 server 4 s after B woke                                       [{"id":"mureisyjpahy5","label":"P2b","startedAt":1790972058892,"endAt":1790972658892}]
+  ✓ P2: the new 10-minute timer survives B's wake (and the stopped one stays stopped) 
+  ✓ P2: A still shows it running 
+  ✓ P2: B shows the new timer after its wake 
+ 340 P3 A restarted the same row (samerow) with a new start           2026-10-02T20:16:31.828Z
+ 406 P3 B on waking (before any pull) holds the start                 1790972127835
+ 410 P3 server 4 s after B's Stop                                     [{"id":"samerow","label":"P3","startedAt":1790972191828,"endAt":1790972791828}]
+  ✓ P3: B's Stop of the start it saw end never removes the newer start of the same row (P2-STAB-13) 
+ 545 P4 server 4 s after C reopened                                   [{"id":"mureom5uq15d7","label":"P4b","startedAt":1790972330017,"endAt":1790972930017}]
+  ✓ P4: the new timer survives C's cold reopen 
+  ✓ P4: C shows it running 
+
+11 passed, 0 failed

@@ -1,0 +1,1473 @@
+### eli (adult)
+
+>>> Which apps can I use?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"list_apps","input":{},"chip":null,"ok":true}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"[{\"id\":\"f260\",\"name\":\"F260 "}
+    event: text
+    data: {"text":"Reading "}
+    event: text
+    data: {"text":"Plan\",\"scope\":\"person\"},{\"id\":\"leftovers\",\"name\":\"Larder "}
+    event: text
+    data: {"text":"Ledger\",\"scope\":\"family\"},{\""}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":1,"cap":60}
+    reply: On it. Done — [{"id":"f260","name":"F260 Reading Plan","scope":"person"},{"id":"leftovers","name":"Larder Ledger","scope":"family"},{"
+    ok   list_apps ran
+
+>>> What's in the fridge?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"get_data","input":{"app_id":"leftovers","scope":"family"},"chip":null,"ok":true}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"[]"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":2,"cap":60}
+    reply: On it. Done — []
+    ok   get_data ran
+
+>>> Add milk to the leftovers
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"leftovers","item":{"name":"Milk","size":"Small"}},"chip":"✓ Added Milk to leftovers","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"muqhkgpvuguze\",\"name\":\"Milk\",\"size\":\"Small\",\"dateLogged\":\"2026-10-02\",\"by\":\"eli\",\"byName\":\"Eli\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":3,"cap":60}
+    reply: On it. Done — {"id":"muqhkgpvuguze","name":"Milk","size":"Small","dateLogged":"2026-10-02","by":"eli","byName":"Eli"}
+    ok   leftover chip
+    ok   the chip carries an undo token
+
+>>> Add sour cream 16707 to the leftovers
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"leftovers","item":{"name":"Sour cream 16707","size":"Small"}},"chip":"✓ Added Sour cream 16707 to leftovers","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"muqhkhasr69ni\",\"name\":\"Sour "}
+    event: text
+    data: {"text":"cream "}
+    event: text
+    data: {"text":"16707\",\"size\":\"Small\",\"dateLogged\":\"2026-10-02\",\"by\":\"eli\",\"byName\":\"Eli\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":4,"cap":60}
+    reply: On it. Done — {"id":"muqhkhasr69ni","name":"Sour cream 16707","size":"Small","dateLogged":"2026-10-02","by":"eli","byName":"Eli"}
+    ok   a second leftover
+    undo: {"ok":true,"restored":1,"message":"Undone."}
+    ok   undo puts the row back
+    ok   the undone item is gone from the fridge
+    ok   an undo works once
+    ok   someone else's undo token does nothing
+
+>>> Log jam jar 16707 in the fridge on yesterday
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"leftovers","item":{"name":"Jam jar 16707","dateLogged":"yesterday"}},"chip":"✓ Added Jam jar 16707 to leftovers","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"muqhki3r4n2az\",\"name\":\"Jam "}
+    event: text
+    data: {"text":"jar "}
+    event: text
+    data: {"text":"16707\",\"size\":\"Medium\",\"dateLogged\":\"2026-10-01\",\"by\":\"eli\",\"byName\":\"Eli\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":5,"cap":60}
+    reply: On it. Done — {"id":"muqhki3r4n2az","name":"Jam jar 16707","size":"Medium","dateLogged":"2026-10-01","by":"eli","byName":"Eli"}
+    ok   a word date is normalised
+    ok   stored as a real day
+
+>>> Log jelly 16707 in the fridge on 2099-01-01
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"leftovers","item":{"name":"Jelly 16707","dateLogged":"2099-01-01"}},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"dateLogged "}
+    event: text
+    data: {"text":"must "}
+    event: text
+    data: {"text":"be "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"real "}
+    event: text
+    data: {"text":"date "}
+    event: text
+    data: {"text":"as "}
+    event: text
+    data: {"text":"YYYY-MM-DD "}
+    event: text
+    data: {"text":"(or "}
+    event: text
+    data: {"text":"today "}
+    event: text
+    data: {"text":"/ "}
+    event: text
+    data: {"text":"yesterday "}
+    event: text
+    data: {"text":"/ "}
+    event: text
+    data: {"text":"N "}
+    event: text
+    data: {"text":"days "}
+    event: text
+    data: {"text":"ago), "}
+    event: text
+    data: {"text":"and "}
+    event: text
+    data: {"text":"not "}
+    event: text
+    data: {"text":"in "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"future."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":6,"cap":60}
+    reply: On it. Sorry, that didn't work: dateLogged must be a real date as YYYY-MM-DD (or today / yesterday / N days ago), and not in the future.
+    ok   a future date is refused
+
+>>> Log jelly 16707 in the fridge on sometime
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"leftovers","item":{"name":"Jelly 16707","dateLogged":"sometime"}},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"dateLogged "}
+    event: text
+    data: {"text":"must "}
+    event: text
+    data: {"text":"be "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"real "}
+    event: text
+    data: {"text":"date "}
+    event: text
+    data: {"text":"as "}
+    event: text
+    data: {"text":"YYYY-MM-DD "}
+    event: text
+    data: {"text":"(or "}
+    event: text
+    data: {"text":"today "}
+    event: text
+    data: {"text":"/ "}
+    event: text
+    data: {"text":"yesterday "}
+    event: text
+    data: {"text":"/ "}
+    event: text
+    data: {"text":"N "}
+    event: text
+    data: {"text":"days "}
+    event: text
+    data: {"text":"ago), "}
+    event: text
+    data: {"text":"and "}
+    event: text
+    data: {"text":"not "}
+    event: text
+    data: {"text":"in "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"future."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":7,"cap":60}
+    reply: On it. Sorry, that didn't work: dateLogged must be a real date as YYYY-MM-DD (or today / yesterday / N days ago), and not in the future.
+    ok   a date that is not a day is refused
+
+>>> Remind everyone to take the bins out tonight
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"reminders","item":{"text":"Take the bins out tonight"}},"chip":"✓ Added reminder: Take the bins out tonight","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"muqhkka29rk8v\",\"text\":\"Take "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"bins "}
+    event: text
+    data: {"text":"out "}
+    event: text
+    data: {"text":"tonight\",\"by\":\"eli\",\"byName\":\"Eli\",\"createdAt\":1790916713642}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":8,"cap":60}
+    reply: On it. Done — {"id":"muqhkka29rk8v","text":"Take the bins out tonight","by":"eli","byName":"Eli","createdAt":1790916713642}
+    ok   reminder chip
+
+>>> I read week 2 day 1 of F260
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"set_f260_reading","input":{"week":2,"day":1,"done":true},"chip":"✓ Week 2 day 1 checked off","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"week\":2,\"day\":1,\"done\":true}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":9,"cap":60}
+    reply: On it. Done — {"week":2,"day":1,"done":true}
+    ok   f260 chip
+
+>>> I read week 2 day 1 of F260
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"set_f260_reading","input":{"week":2,"day":1,"done":true},"chip":"Week 2 day 1 was already checked off","ok":true}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"week\":2,\"day\":1,\"done\":true,\"unchanged\":true}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":10,"cap":60}
+    reply: On it. Done — {"week":2,"day":1,"done":true,"unchanged":true}
+    ok   tick means tick: asked again, it stays ticked
+    ok   a repeated tick never unticks
+
+>>> Please pray for Grandma's knee on the family list
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_prayer","input":{"list":"family","text":"Grandma's knee"},"chip":"✓ Added to the family prayer list: Grandma's knee","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhklryondvj\",\"title\":\"Grandma's "}
+    event: text
+    data: {"text":"knee\",\"for\":\"\",\"phone\":\"\",\"detail\":\"\",\"category\":\"Personal\",\"cadence\":\"daily\","}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":11,"cap":60}
+    reply: On it. Done — {"id":"cmuqhklryondvj","title":"Grandma's knee","for":"","phone":"","detail":"","category":"Personal","cadence":"daily",
+    ok   prayer chip
+
+>>> Set my tally to 42
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"set_data","input":{"app_id":"tally","scope":"person","key":"count","value":42},"chip":"✓ Tally set to 42","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"saved"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":12,"cap":60}
+    reply: On it. Done — saved
+    ok   set_data chip
+
+>>> What's my tally?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"get_data","input":{"app_id":"tally","scope":"person","key":"count"},"chip":null,"ok":true}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"42"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":13,"cap":60}
+    reply: On it. Done — 42
+    ok   tally read is the summed count
+
+### eli (adult): batch 6 — start_timer (IMP-TIMER-I2)
+
+>>> Set a timer for 12 minutes for the pasta
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"start_timer","input":{"minutes":12,"label":"Pasta"},"chip":"✓ Timer set: 12:00 · Pasta","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhknb3w40io\",\"label\":\"Pasta\",\"length\":\"12:00\",\"endsAt\":\"2026-10-02T05:03:57.566Z\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":14,"cap":60}
+    reply: On it. Done — {"id":"cmuqhknb3w40io","label":"Pasta","length":"12:00","endsAt":"2026-10-02T05:03:57.566Z"}
+    ok   start_timer chip with its label
+    ok   start_timer offers Undo
+    ok   a timer:<id> row in server ms (total 720000)
+    ok   recents remembers the length
+    ok   its family mirror for the kitchen and the TV
+
+>>> Set a timer for 1 minute and 30 seconds
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"start_timer","input":{"minutes":1,"seconds":30},"chip":"✓ Timer set: 1:30","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhknvrptl0v\",\"label\":\"\",\"length\":\"1:30\",\"endsAt\":\"2026-10-02T04:53:28.309Z\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":15,"cap":60}
+    reply: On it. Done — {"id":"cmuqhknvrptl0v","label":"","length":"1:30","endsAt":"2026-10-02T04:53:28.309Z"}
+    ok   minutes and seconds
+
+>>> Set a timer for 90 minutes
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"start_timer","input":{"minutes":90},"chip":"✓ Timer set: 1:30:00","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhkobkx1e9w\",\"label\":\"\",\"length\":\"1:30:00\",\"endsAt\":\"2026-10-02T06:21:58.878Z\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":16,"cap":60}
+    reply: On it. Done — {"id":"cmuqhkobkx1e9w","label":"","length":"1:30:00","endsAt":"2026-10-02T06:21:58.878Z"}
+    ok   an hour and more reads h:mm:ss
+
+>>> Set a timer for 5 minutes
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"start_timer","input":{"minutes":5},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"Three "}
+    event: text
+    data: {"text":"timers "}
+    event: text
+    data: {"text":"are "}
+    event: text
+    data: {"text":"already "}
+    event: text
+    data: {"text":"running; "}
+    event: text
+    data: {"text":"one "}
+    event: text
+    data: {"text":"has "}
+    event: text
+    data: {"text":"to "}
+    event: text
+    data: {"text":"finish "}
+    event: text
+    data: {"text":"or "}
+    event: text
+    data: {"text":"be "}
+    event: text
+    data: {"text":"stopped "}
+    event: text
+    data: {"text":"in "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"Timer "}
+    event: text
+    data: {"text":"first."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":17,"cap":60}
+    reply: On it. Sorry, that didn't work: Three timers are already running; one has to finish or be stopped in the Timer first.
+    ok   a fourth is refused (three at once)
+    ok   nothing set past three
+
+>>> Set a timer for 0 minutes
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"start_timer","input":{"minutes":0},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"A "}
+    event: text
+    data: {"text":"timer "}
+    event: text
+    data: {"text":"runs "}
+    event: text
+    data: {"text":"from "}
+    event: text
+    data: {"text":"1 "}
+    event: text
+    data: {"text":"second "}
+    event: text
+    data: {"text":"to "}
+    event: text
+    data: {"text":"24 "}
+    event: text
+    data: {"text":"hours."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":18,"cap":60}
+    reply: On it. Sorry, that didn't work: A timer runs from 1 second to 24 hours.
+    ok   zero is refused
+
+### eli (adult): round-2 tools — prayers, fridge clean-up, map, F260 status
+
+>>> Please pray for Uncle Bob's trip 16707 on the family list
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_prayer","input":{"list":"family","text":"Uncle bob's trip 16707"},"chip":"✓ Added to the family prayer list: Uncle bob's trip 16707","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhkq88i3xso\",\"title\":\"Uncle "}
+    event: text
+    data: {"text":"bob's "}
+    event: text
+    data: {"text":"trip "}
+    event: text
+    data: {"text":"16707\",\"for\":\"\",\"phone\":\"\",\"detail\":\"\",\"category\":\"Personal\",\"cadence\":"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":19,"cap":60}
+    reply: On it. Done — {"id":"cmuqhkq88i3xso","title":"Uncle bob's trip 16707","for":"","phone":"","detail":"","category":"Personal","cadence":
+    ok   family prayer added
+
+>>> I prayed for Uncle Bob's trip 16707 on the family list
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"mark_prayed","input":{"list":"family","prayer_id":"Uncle bob's trip 16707"},"chip":"✓ Prayed for Uncle bob's trip 16707","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhkq88i3xso\",\"title\":\"Uncle "}
+    event: text
+    data: {"text":"bob's "}
+    event: text
+    data: {"text":"trip "}
+    event: text
+    data: {"text":"16707\",\"lastPrayedAt\":\"2026-10-02\",\"prayedBy\":[\"eli\"]}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":20,"cap":60}
+    reply: On it. Done — {"id":"cmuqhkq88i3xso","title":"Uncle bob's trip 16707","lastPrayedAt":"2026-10-02","prayedBy":["eli"]}
+    ok   mark_prayed chip (family)
+
+>>> Please pray for a calm week 16707
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_prayer","input":{"list":"private","text":"A calm week 16707"},"chip":"✓ Added to your private prayer list: A calm week 16707","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhkrbe6wbz1\",\"title\":\"A "}
+    event: text
+    data: {"text":"calm "}
+    event: text
+    data: {"text":"week "}
+    event: text
+    data: {"text":"16707\",\"for\":\"\",\"phone\":\"\",\"detail\":\"\",\"category\":\"Personal\",\"cadence\":\"dail"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":21,"cap":60}
+    reply: On it. Done — {"id":"cmuqhkrbe6wbz1","title":"A calm week 16707","for":"","phone":"","detail":"","category":"Personal","cadence":"dail
+    ok   private prayer added
+
+>>> I prayed for a calm week 16707
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"mark_prayed","input":{"list":"private","prayer_id":"A calm week 16707"},"chip":"✓ Prayed for A calm week 16707","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhkrbe6wbz1\",\"title\":\"A "}
+    event: text
+    data: {"text":"calm "}
+    event: text
+    data: {"text":"week "}
+    event: text
+    data: {"text":"16707\",\"lastPrayedAt\":\"2026-10-02\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":22,"cap":60}
+    reply: On it. Done — {"id":"cmuqhkrbe6wbz1","title":"A calm week 16707","lastPrayedAt":"2026-10-02"}
+    ok   mark_prayed chip (private)
+
+>>> Uncle Bob's trip 16707 was answered on the family list: he got home safe
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"answer_prayer","input":{"list":"family","prayer_id":"Uncle bob's trip 16707","note":"He got home safe"},"chip":"✓ Answered: Uncle bob's trip 16707","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhkq88i3xso\",\"title\":\"Uncle "}
+    event: text
+    data: {"text":"bob's "}
+    event: text
+    data: {"text":"trip "}
+    event: text
+    data: {"text":"16707\",\"status\":\"answered\",\"answeredAt\":\"2026-10-02\",\"answerNote\":\"He "}
+    event: text
+    data: {"text":"g"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":23,"cap":60}
+    reply: On it. Done — {"id":"cmuqhkq88i3xso","title":"Uncle bob's trip 16707","status":"answered","answeredAt":"2026-10-02","answerNote":"He g
+    ok   answer_prayer chip
+
+>>> Uncle Bob's trip 16707 was answered on the family list
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"answer_prayer","input":{"list":"family","prayer_id":"Uncle bob's trip 16707"},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"\"Uncle "}
+    event: text
+    data: {"text":"bob's "}
+    event: text
+    data: {"text":"trip "}
+    event: text
+    data: {"text":"16707\" "}
+    event: text
+    data: {"text":"is "}
+    event: text
+    data: {"text":"already "}
+    event: text
+    data: {"text":"marked "}
+    event: text
+    data: {"text":"answered "}
+    event: text
+    data: {"text":"(2026-10-02)."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":24,"cap":60}
+    reply: On it. Sorry, that didn't work: "Uncle bob's trip 16707" is already marked answered (2026-10-02).
+    ok   answer twice refused
+
+>>> I prayed for nothing-like-this-16707
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"mark_prayed","input":{"list":"private","prayer_id":"Nothing-like-this-16707"},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"No "}
+    event: text
+    data: {"text":"prayer "}
+    event: text
+    data: {"text":"on "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"private "}
+    event: text
+    data: {"text":"list "}
+    event: text
+    data: {"text":"matches "}
+    event: text
+    data: {"text":"\"Nothing-like-this-16707\". "}
+    event: text
+    data: {"text":"Requests "}
+    event: text
+    data: {"text":"there: "}
+    event: text
+    data: {"text":"A "}
+    event: text
+    data: {"text":"calm "}
+    event: text
+    data: {"text":"week "}
+    event: text
+    data: {"text":"16707 "}
+    event: text
+    data: {"text":"(id "}
+    event: text
+    data: {"text":"cmuqhkrbe6wbz1)"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":25,"cap":60}
+    reply: On it. Sorry, that didn't work: No prayer on the private list matches "Nothing-like-this-16707". Requests there: A calm week 16707 (id cmuqhkrbe6wbz1)
+    ok   unknown prayer refused
+
+>>> Add tuna bake 16707 to the fridge
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"leftovers","item":{"name":"Tuna bake 16707","size":"Small"}},"chip":"✓ Added Tuna bake 16707 to leftovers","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"muqhkue6zw4am\",\"name\":\"Tuna "}
+    event: text
+    data: {"text":"bake "}
+    event: text
+    data: {"text":"16707\",\"size\":\"Small\",\"dateLogged\":\"2026-10-02\",\"by\":\"eli\",\"byName\":\"Eli\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":26,"cap":60}
+    reply: On it. Done — {"id":"muqhkue6zw4am","name":"Tuna bake 16707","size":"Small","dateLogged":"2026-10-02","by":"eli","byName":"Eli"}
+    ok   tuna logged
+
+>>> We finished the tuna bake 16707 from the fridge
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"finish_leftover","input":{"name":"Tuna bake 16707"},"chip":"✓ Finished Tuna bake 16707","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"removed\":\"Tuna "}
+    event: text
+    data: {"text":"bake "}
+    event: text
+    data: {"text":"16707\",\"id\":\"muqhkue6zw4am\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":27,"cap":60}
+    reply: On it. Done — {"removed":"Tuna bake 16707","id":"muqhkue6zw4am"}
+    ok   finish_leftover chip
+
+>>> We finished the tuna bake 16707 from the fridge
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"finish_leftover","input":{"name":"Tuna bake 16707"},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"Nothing "}
+    event: text
+    data: {"text":"in "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"fridge "}
+    event: text
+    data: {"text":"list "}
+    event: text
+    data: {"text":"matches "}
+    event: text
+    data: {"text":"that. "}
+    event: text
+    data: {"text":"Items: "}
+    event: text
+    data: {"text":"Milk "}
+    event: text
+    data: {"text":"(id "}
+    event: text
+    data: {"text":"muqhkgpvuguze), "}
+    event: text
+    data: {"text":"Jam "}
+    event: text
+    data: {"text":"jar "}
+    event: text
+    data: {"text":"16707 "}
+    event: text
+    data: {"text":"(id "}
+    event: text
+    data: {"text":"muqhki3r4n2az)"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":28,"cap":60}
+    reply: On it. Sorry, that didn't work: Nothing in the fridge list matches that. Items: Milk (id muqhkgpvuguze), Jam jar 16707 (id muqhki3r4n2az)
+    ok   finish twice: nothing matches
+
+>>> Add pasta 16707 red to the fridge
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"leftovers","item":{"name":"Pasta 16707 red","size":"Small"}},"chip":"✓ Added Pasta 16707 red to leftovers","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"muqhkw596odhd\",\"name\":\"Pasta "}
+    event: text
+    data: {"text":"16707 "}
+    event: text
+    data: {"text":"red\",\"size\":\"Small\",\"dateLogged\":\"2026-10-02\",\"by\":\"eli\",\"byName\":\"Eli\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":29,"cap":60}
+    reply: On it. Done — {"id":"muqhkw596odhd","name":"Pasta 16707 red","size":"Small","dateLogged":"2026-10-02","by":"eli","byName":"Eli"}
+    ok   pasta a logged
+
+>>> Add pasta 16707 green to the fridge
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"leftovers","item":{"name":"Pasta 16707 green","size":"Small"}},"chip":"✓ Added Pasta 16707 green to leftovers","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"muqhkwpwp9xp9\",\"name\":\"Pasta "}
+    event: text
+    data: {"text":"16707 "}
+    event: text
+    data: {"text":"green\",\"size\":\"Small\",\"dateLogged\":\"2026-10-02\",\"by\":\"eli\",\"byName\":\"Eli\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":30,"cap":60}
+    reply: On it. Done — {"id":"muqhkwpwp9xp9","name":"Pasta 16707 green","size":"Small","dateLogged":"2026-10-02","by":"eli","byName":"Eli"}
+    ok   pasta b logged
+
+>>> We ate the pasta 16707
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"finish_leftover","input":{"name":"Pasta 16707"},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"No "}
+    event: text
+    data: {"text":"item "}
+    event: text
+    data: {"text":"is "}
+    event: text
+    data: {"text":"called "}
+    event: text
+    data: {"text":"exactly "}
+    event: text
+    data: {"text":"that. "}
+    event: text
+    data: {"text":"Ask "}
+    event: text
+    data: {"text":"which "}
+    event: text
+    data: {"text":"one "}
+    event: text
+    data: {"text":"they "}
+    event: text
+    data: {"text":"mean, "}
+    event: text
+    data: {"text":"then "}
+    event: text
+    data: {"text":"call "}
+    event: text
+    data: {"text":"again "}
+    event: text
+    data: {"text":"with "}
+    event: text
+    data: {"text":"its "}
+    event: text
+    data: {"text":"id: "}
+    event: text
+    data: {"text":"Pasta "}
+    event: text
+    data: {"text":"16707 "}
+    event: text
+    data: {"text":"red "}
+    event: text
+    data: {"text":"(Small, "}
+    event: text
+    data: {"text":"logged "}
+    event: text
+    data: {"text":"2026-10-02, "}
+    event: text
+    data: {"text":"id "}
+    event: text
+    data: {"text":"muqhkw596odhd); "}
+    event: text
+    data: {"text":"Pasta "}
+    event: text
+    data: {"text":"16707 "}
+    event: text
+    data: {"text":"green "}
+    event: text
+    data: {"text":"(Small, "}
+    event: text
+    data: {"text":"logged "}
+    event: text
+    data: {"text":"2026-10-02, "}
+    event: text
+    data: {"text":"id "}
+    event: text
+    data: {"text":"muqhkwpwp9xp9)"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":31,"cap":60}
+    reply: On it. Sorry, that didn't work: No item is called exactly that. Ask which one they mean, then call again with its id: Pasta 16707 red (Small, logged 2026-10-02, id muqhkw596odhd); Pasta 16707 green (Small, log
+    ok   a shared word never picks one: it asks
+    ok   nothing was finished on a shared word
+
+>>> Where is everyone?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"where_is_family","input":{},"chip":null,"ok":true}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"people\":[{\"id\":\"eli\",\"name\":\"Eli\",\"x\":412,\"y\":198,\"minutesAgo\":0,\"at\":\"2026-10-02T04:52:11.000Z\",\"accuracyM\":9}],\"note"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":32,"cap":60}
+    reply: On it. Done — {"people":[{"id":"eli","name":"Eli","x":412,"y":198,"minutesAgo":0,"at":"2026-10-02T04:52:11.000Z","accuracyM":9}],"note
+    ok   where_is_family ran
+    ok   fresh position reported
+    ok   stale (5 h) position dropped
+
+>>> Where am I in my reading?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"f260_status","input":{},"chip":null,"ok":true}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"week\":3,\"weekDone\":2,\"total\":12,\"streak\":1,\"readToday\":true,\"next\":{\"week\":3,\"day\":3,\"ref\":\"Genesis "}
+    event: text
+    data: {"text":"22\"},\"finished\":fa"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":33,"cap":60}
+    reply: On it. Done — {"week":3,"weekDone":2,"total":12,"streak":1,"readToday":true,"next":{"week":3,"day":3,"ref":"Genesis 22"},"finished":fa
+    ok   f260_status ran
+    ok   week + next reading
+
+>>> What's today's verse?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"read_todays_verse","input":{},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"read_todays_verse "}
+    event: text
+    data: {"text":"is "}
+    event: text
+    data: {"text":"for "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"kids' "}
+    event: text
+    data: {"text":"profiles; "}
+    event: text
+    data: {"text":"use "}
+    event: text
+    data: {"text":"f260_status "}
+    event: text
+    data: {"text":"for "}
+    event: text
+    data: {"text":"this "}
+    event: text
+    data: {"text":"person's "}
+    event: text
+    data: {"text":"own "}
+    event: text
+    data: {"text":"week "}
+    event: text
+    data: {"text":"and "}
+    event: text
+    data: {"text":"verses."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":34,"cap":60}
+    reply: On it. Sorry, that didn't work: read_todays_verse is for the kids' profiles; use f260_status for this person's own week and verses.
+    ok   verse tool is kids-only for adults
+
+### Ezra (kid): adult-only app blocked, reminders blocked, kid-safe prompt
+
+>>> Set my tally to 3
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"set_data","input":{"app_id":"tally","scope":"person","key":"count","value":3},"chip":"✓ Tally set to 3","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"saved"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":1,"cap":60}
+    reply: On it. Done — saved
+    ok   kid may write own tally
+
+>>> Set a timer for 3 minutes
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"start_timer","input":{"minutes":3},"chip":"✓ Timer set: 3:00","ok":true,"undo":"[redacted]"}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"id\":\"cmuqhl0b9wy3hi\",\"label\":\"\",\"length\":\"3:00\",\"endsAt\":\"2026-10-02T04:55:14.419Z\"}"}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":2,"cap":60}
+    reply: On it. Done — {"id":"cmuqhl0b9wy3hi","label":"","length":"3:00","endsAt":"2026-10-02T04:55:14.419Z"}
+    ok   a kid may start their own timer (batch 6)
+    ok   the kid's mirror is written (the policy's run:<writer> rule)
+
+>>> Change the prayer app for me
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"set_data","input":{"app_id":"prayer","scope":"person","key":"label","value":"hacked"},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"That "}
+    event: text
+    data: {"text":"cannot "}
+    event: text
+    data: {"text":"be "}
+    event: text
+    data: {"text":"changed "}
+    event: text
+    data: {"text":"from "}
+    event: text
+    data: {"text":"chat. "}
+    event: text
+    data: {"text":"Tell "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"person "}
+    event: text
+    data: {"text":"to "}
+    event: text
+    data: {"text":"change "}
+    event: text
+    data: {"text":"it "}
+    event: text
+    data: {"text":"in "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"app "}
+    event: text
+    data: {"text":"itself."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":3,"cap":60}
+    reply: On it. Sorry, that didn't work: That cannot be changed from chat. Tell the person to change it in the app itself.
+    ok   set_data refuses a row outside its short list
+
+>>> Remind everyone to buy cake
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"add_list_item","input":{"app_id":"reminders","item":{"text":"Buy cake"}},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"Kids "}
+    event: text
+    data: {"text":"cannot "}
+    event: text
+    data: {"text":"add "}
+    event: text
+    data: {"text":"reminders "}
+    event: text
+    data: {"text":"for "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"house."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":4,"cap":60}
+    reply: On it. Sorry, that didn't work: Kids cannot add reminders for the house.
+    ok   kid blocked from reminders
+
+>>> Hello!
+    event: text
+    data: {"text":"(mock) "}
+    event: text
+    data: {"text":"You "}
+    event: text
+    data: {"text":"said: "}
+    event: text
+    data: {"text":"Hello!. "}
+    event: text
+    data: {"text":"System "}
+    event: text
+    data: {"text":"prompt "}
+    event: text
+    data: {"text":"mentions "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"KID."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":5,"cap":60}
+    reply: (mock) You said: Hello!. System prompt mentions a KID.
+    ok   kid prompt in play
+
+### Ezra (kid): round-2 guards — grown-up tools refuse, the verse speaks
+
+>>> I prayed for a calm week 16707
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"mark_prayed","input":{"list":"private","prayer_id":"A calm week 16707"},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"That "}
+    event: text
+    data: {"text":"is "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"grown-up "}
+    event: text
+    data: {"text":"tool; "}
+    event: text
+    data: {"text":"kids "}
+    event: text
+    data: {"text":"cannot "}
+    event: text
+    data: {"text":"use "}
+    event: text
+    data: {"text":"it. "}
+    event: text
+    data: {"text":"Tell "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"child "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"parent "}
+    event: text
+    data: {"text":"can "}
+    event: text
+    data: {"text":"do "}
+    event: text
+    data: {"text":"that."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":6,"cap":60}
+    reply: On it. Sorry, that didn't work: That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.
+    ok   kid: mark_prayed refused
+
+>>> A calm week 16707 was answered
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"answer_prayer","input":{"list":"private","prayer_id":"A calm week 16707"},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"That "}
+    event: text
+    data: {"text":"is "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"grown-up "}
+    event: text
+    data: {"text":"tool; "}
+    event: text
+    data: {"text":"kids "}
+    event: text
+    data: {"text":"cannot "}
+    event: text
+    data: {"text":"use "}
+    event: text
+    data: {"text":"it. "}
+    event: text
+    data: {"text":"Tell "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"child "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"parent "}
+    event: text
+    data: {"text":"can "}
+    event: text
+    data: {"text":"do "}
+    event: text
+    data: {"text":"that."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":7,"cap":60}
+    reply: On it. Sorry, that didn't work: That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.
+    ok   kid: answer_prayer refused
+
+>>> We ate the milk
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"finish_leftover","input":{"name":"Milk"},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"That "}
+    event: text
+    data: {"text":"is "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"grown-up "}
+    event: text
+    data: {"text":"tool; "}
+    event: text
+    data: {"text":"kids "}
+    event: text
+    data: {"text":"cannot "}
+    event: text
+    data: {"text":"use "}
+    event: text
+    data: {"text":"it. "}
+    event: text
+    data: {"text":"Tell "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"child "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"parent "}
+    event: text
+    data: {"text":"can "}
+    event: text
+    data: {"text":"do "}
+    event: text
+    data: {"text":"that."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":8,"cap":60}
+    reply: On it. Sorry, that didn't work: That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.
+    ok   kid: finish_leftover refused
+
+>>> Where is everyone?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"where_is_family","input":{},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"That "}
+    event: text
+    data: {"text":"is "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"grown-up "}
+    event: text
+    data: {"text":"tool; "}
+    event: text
+    data: {"text":"kids "}
+    event: text
+    data: {"text":"cannot "}
+    event: text
+    data: {"text":"use "}
+    event: text
+    data: {"text":"it. "}
+    event: text
+    data: {"text":"Tell "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"child "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"parent "}
+    event: text
+    data: {"text":"can "}
+    event: text
+    data: {"text":"do "}
+    event: text
+    data: {"text":"that."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":9,"cap":60}
+    reply: On it. Sorry, that didn't work: That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.
+    ok   kid: where_is_family refused
+
+>>> Where am I in my reading?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"f260_status","input":{},"chip":null,"ok":false}
+    event: text
+    data: {"text":"Sorry, "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"didn't "}
+    event: text
+    data: {"text":"work: "}
+    event: text
+    data: {"text":"That "}
+    event: text
+    data: {"text":"is "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"grown-up "}
+    event: text
+    data: {"text":"tool; "}
+    event: text
+    data: {"text":"kids "}
+    event: text
+    data: {"text":"cannot "}
+    event: text
+    data: {"text":"use "}
+    event: text
+    data: {"text":"it. "}
+    event: text
+    data: {"text":"Tell "}
+    event: text
+    data: {"text":"the "}
+    event: text
+    data: {"text":"child "}
+    event: text
+    data: {"text":"a "}
+    event: text
+    data: {"text":"parent "}
+    event: text
+    data: {"text":"can "}
+    event: text
+    data: {"text":"do "}
+    event: text
+    data: {"text":"that."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":10,"cap":60}
+    reply: On it. Sorry, that didn't work: That is a grown-up tool; kids cannot use it. Tell the child a parent can do that.
+    ok   kid: f260_status refused
+
+>>> What's today's verse?
+    event: text
+    data: {"text":"On it. "}
+    event: tool
+    data: {"name":"read_todays_verse","input":{},"chip":null,"ok":true,"speak":true,"text":"Romans 4:20-22. Abraham believed God's promise, and God counted that faith as right. Hebrews 11:17-19. Abraham trusted God with 
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"{\"week\":3,\"verses\":[{\"ref\":\"Romans "}
+    event: text
+    data: {"text":"4:20-22\",\"gist\":\"Abraham "}
+    event: text
+    data: {"text":"believed "}
+    event: text
+    data: {"text":"God's "}
+    event: text
+    data: {"text":"promise, "}
+    event: text
+    data: {"text":"and "}
+    event: text
+    data: {"text":"God "}
+    event: text
+    data: {"text":"counted "}
+    event: text
+    data: {"text":"that "}
+    event: text
+    data: {"text":"faith "}
+    event: text
+    data: {"text":"as "}
+    event: text
+    data: {"text":"right."}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":11,"cap":60}
+    reply: On it. Romans 4:20-22. Abraham believed God's promise, and God counted that faith as right. Hebrews 11:17-19. Abraham trusted God with Isaac, believing God could even raise the dead.Done — {"week":3,"verses"
+    ok   kid: read_todays_verse ran
+    ok   kid: tool event carries speak + text
+    ok   kid: no chip on a read-only tool
+
+### Kiosk profile has no chat:
+{"error":"no_chat","message":"The display profile has no chat."}
+    ok   kiosk gets no_chat
+
+### Batch 2b: thinking kept, failures free, a silent upstream given up on, history cleared
+
+>>> Think it over then list apps
+    event: tool
+    data: {"name":"list_apps","input":{},"chip":null,"ok":true}
+    event: text
+    data: {"text":"THINKING "}
+    event: text
+    data: {"text":"KEPT. "}
+    event: text
+    data: {"text":"Done "}
+    event: text
+    data: {"text":"— "}
+    event: text
+    data: {"text":"[{\"id\":\"f260\",\"name\":\"F260 "}
+    event: text
+    data: {"text":"Reading "}
+    event: text
+    data: {"text":"Plan\",\"scope\":\"person\"},{\"id\":\"leftovers\",\"name\":\"Larder "}
+    event: text
+    data: {"text":"Ledger\",\"scope\":\"family\"},{\""}
+    event: done
+    data: {"usage":{"input":120,"output":40},"stop_reason":"end_turn","used":35,"cap":60}
+    reply: THINKING KEPT. Done — [{"id":"f260","name":"F260 Reading Plan","scope":"person"},{"id":"leftovers","name":"Larder Ledger","scope":"family"},{"
+    ok   thinking block replayed whole with its signature (P2-CHAT-11)
+    ok   thinking never dropped or changed
+    ok   thinking never reaches the person
+
+>>> The upstream fails now
+    event: error
+    data: {"error":"upstream","message":"The assistant is unavailable right now (mock outage).","status":502,"refunded":true,"used":35,"cap":60}
+    reply: 
+    ok   a failed upstream is an error event
+    ok   …and says it was not counted
+    ok   a failed upstream costs nothing (35 → 35) (P2-CHAT-10)
+
+>>> Hang for a while
+    http: : ping
+    http: : ping
+    event: error
+    data: {"error":"upstream_timeout","message":"The assistant did not answer in time. Try again in a moment.","status":504,"refunded":true,"used":35,"cap":60}
+    reply: 
+    ok   a silent upstream is given up on (P2-CHAT-05)
+    (gave up after 45 s)
+    ok   gave up within 55 s
+    ok   a timed-out message costs nothing
+{"ok":true,"deleted":71,"used":35,"cap":60}
+    ok   Me → Chat history → Clear (GAP-CHAT-01)
+    ok   history empty, today's count kept (35)
+
+### History (rolling window) for eli:
+{"messages":[],"used":35,"cap":60,"enabled":true}
+
+
+smoke-chat: 76 ok, 0 missed

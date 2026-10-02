@@ -1,0 +1,58 @@
+
+## Eli, iPhone: the contract, the calm running screen, New timer, three timers (rescore 6, UX-TIMER-1, GAP-TIMER-3, VIS-TIMER-1)
+  ✓ idle: the last length (Eli's 10 min) is on the dial and pressed
+  ✓ every preset carries aria-pressed; the countdown has an aria-live region (UX-TIMER-10)
+  ✓ the first Start offers "Notify me when it ends" inline (permission undecided), below the list: Start/Pause did not move
+  ✓ "Not now" puts it away (it is offered once per device)
+  ✓ Start stores timer:<id> {total 600000 ms, endAt in server ms}
+  ✓ the family mirror run:eli:<id> follows (for the Kitchen and the TV)
+  ✓ running: Pause is the primary button (VIS-TIMER-1)
+  ✓ running: nothing below the actions but the list; no preset to tap, so none can replace it (below: nothing)
+  ✓ New timer opens the picker in place; the first keeps running
+  ✓ Start runs 3:00 beside 10:00; calm again with both in the list
+  ✓ a third, labelled "pasta"; at three New timer goes
+  ✓ +1 min adds a minute to the timer on the dial
+  ✓ recents: the last three distinct lengths, newest first, with labels
+
+## Pause is stored and seen on another device; a device 90 s fast agrees (UX-TIMER-2, P2-STAB-08)
+  ✓ Pause stores {pausedAt, remaining, endAt null}; the dial says Paused; Resume
+  ✓ the iPad shows pasta paused, not gone
+  ✓ the iPad's clock runs 90 s fast (skew -90 s) and both count the same time left
+
+## the clear rule (P2-STAB-13)
+  ✓ a device asked to clear the start it saw leaves the newer start alone
+
+## custom time in hours, Say it, Notify me (VIS-TIMER-4, IMP-TIMER-I2, GAP-TIMER-1)
+  ✓ Reset toasts "pasta timer reset Undo"; Undo puts the paused pasta timer back as it was (on the server too), focus on Resume
+  ✓ custom 125 min 30 s reads 2:05:30 (h:mm:ss)
+  ✓ Sound and Notify me sit in one closed "Timer settings"
+  ✓ Notify me when it ends is offered (in Timer settings) while the browser has not been asked
+  ✓ one tap asks the browser once, in context; then it goes
+  ✓ Say it shows where speech recognition exists
+  ✓ "pasta 12 minutes" asks "Start 12:00 for pasta?" before anything starts
+  ✓ Start: 12:00 labelled pasta
+  ✓ Say it is not on the calm running screen
+  ✓ "add a minute" adds one minute (no question)
+  ✓ the parser: ten minutes, 1 hour 5 minutes, 90 seconds, an hour and a half, eggs for 7 minutes, and no time
+
+## time's up in words; a timer that ended unseen; the 10-minute rule (UX-TIMER-4, UX-TIMER-3)
+  ✓ ended unseen 3 min ago: said once, on the dial ("Ended 5:53 PM" with the bell), the main button OK; no separate line, no Reset
+  ✓ ringing: nothing below the actions but the list
+  ✓ the one ended 11 min ago is cleared (10-minute rule); the 3-minute one stays until Stop
+  ✓ OK clears it in the house
+
+## the migration (the park variant keeps Elizabeth's old timer.active) and a kid's own timer
+  ✓ the seeded timer.active becomes timer:m<startedAt> (total in ms) and timer.active is removed
+  ✓ a timer.active written beside a running timer: row is still moved (timer:m<startedAt>) and shows
+  ✓ a kid gets no Say it, no Timer settings, no New timer and no inline Notify me
+  ✓ Ezra starts his own timer; its mirror run:ezra:<id> is accepted
+
+## Chromium: the alert repeats every 15 s on one AudioContext until Stop (GAP-TIMER-2, P3-TIMER-03)
+  ✓ 0.6 s after Start it still reads 1:00 (Math.ceil, P3-TIMER-05)
+  ✓ the Timer asked for the screen wake lock itself (P2-STAB-09)
+  ✓ time's up at or after endAt, never before (216 ms after)
+  ✓ hidden at 0 with the Timer open: one "Timer done" notification (P3-TIMER-04)
+  ✓ it rings, and again 15 s later, on one AudioContext (notes 3 → 6, contexts 1)
+  ✓ Stop: no more rings
+
+42 passed, 0 failed

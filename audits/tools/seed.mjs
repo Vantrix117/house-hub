@@ -24,6 +24,10 @@ export const VARIANTS = ['empty', 'typical', 'overflow', 'park'];
 export const SEED_ORDER = ['f260', 'leftovers', 'prayer', 'tally', 'timer', 'kidverse', 'verses', 'dollywood', 'dollywood-live', 'shell', 'chat'];
 
 export const DEVICE = { id: 'rig-kitchen-ipad', token: 'capture-rig-device-token', name: 'Kitchen iPad' };
+// Batch 6: a device the admin has marked as the kitchen (devices.role = 'kitchen', migrations/006), holding the kitchen
+// profile's session, so the capture can show the real Kitchen device (areas/timer.mjs: profile 'kitchen'). The kitchen
+// profile signs in only there (worker/src/auth.js), so its session is on this device, not on DEVICE.
+export const KITCHEN_DEVICE = { id: 'rig-kitchen-counter', token: 'capture-rig-kitchen-device-token', name: 'Kitchen counter' };
 export const sessionToken = id => 'capture-rig-session-' + id;
 
 const pad = n => String(n).padStart(2, '0');
@@ -55,6 +59,8 @@ export async function seedDemo(DB, { variant = 'typical', now = Date.now(), asse
   const dev = (id, name, token, pairedDays, seenMin) => db.prepare('INSERT INTO devices (id, name, token_hash, paired_at, last_seen) VALUES (?, ?, ?, ?, ?)')
     .run(id, name, sha256b64url(token), now - pairedDays * 86400000, now - seenMin * 60000);
   dev(DEVICE.id, DEVICE.name, DEVICE.token, 6, 0);
+  dev(KITCHEN_DEVICE.id, KITCHEN_DEVICE.name, KITCHEN_DEVICE.token, 6, 0);
+  db.prepare("UPDATE devices SET role = 'kitchen' WHERE id = ?").run(KITCHEN_DEVICE.id);
   if (variant !== 'empty') {
     dev('rig-eli-iphone', "Eli's iPhone", crypto.randomUUID(), 6, 12);
     dev('rig-tv', 'Downstairs TV', crypto.randomUUID(), 5, 1);
@@ -64,7 +70,7 @@ export async function seedDemo(DB, { variant = 'typical', now = Date.now(), asse
   // one session per profile on the capture device (tokens are fixed strings: local demo only)
   const ids = db.prepare('SELECT id FROM profiles').all().map(r => r.id);
   for (const id of ids) db.prepare('INSERT INTO sessions (token_hash, profile_id, device_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?)')
-    .run(sha256b64url(sessionToken(id)), id, DEVICE.id, now - 86400000, now + 300 * 86400000);
+    .run(sha256b64url(sessionToken(id)), id, id === 'kitchen' ? KITCHEN_DEVICE.id : DEVICE.id, now - 86400000, now + 300 * 86400000);
   // the pairing code: random, never shown — the pairing capture only ever types a wrong one
   db.prepare("INSERT INTO settings (key, value) VALUES ('pairing_code_hash', ?)").run(await hashSecret(crypto.randomBytes(9).toString('base64url')));
   // profile photos
@@ -88,6 +94,7 @@ export async function seedDemo(DB, { variant = 'typical', now = Date.now(), asse
   }
   return {
     device: DEVICE,
+    kitchenDevice: KITCHEN_DEVICE,
     sessions: Object.fromEntries(ids.map(id => [id, sessionToken(id)])),
     seeded: ran,
     counts: Object.fromEntries(['app_data', 'activity', 'chat_log', 'media', 'profiles'].map(t => [t, db.prepare(`SELECT COUNT(*) AS n FROM ${t}`).get().n])),
