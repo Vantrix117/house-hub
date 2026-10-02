@@ -1,0 +1,194 @@
+{
+ "sessions": [
+  "christian",
+  "dad",
+  "eli",
+  "ezra",
+  "guest-grandmajo",
+  "kiara",
+  "kitchen",
+  "mom",
+  "niece",
+  "tv"
+ ],
+ "a household adult writes text:12-0 = { text, by: self, at }": {
+  "pass": true,
+  "got": [
+   200,
+   null
+  ]
+ },
+ "another adult writes the last verse, text:52-1": {
+  "pass": true,
+  "got": [
+   200,
+   null
+  ]
+ },
+ "a guest writes a text row": {
+  "pass": true,
+  "got": [
+   "guest-grandmajo",
+   200,
+   null
+  ]
+ },
+ "key \"text:0-0\" is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_key"
+  ]
+ },
+ "key \"text:53-0\" is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_key"
+  ]
+ },
+ "key \"text:12-2\" is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_key"
+  ]
+ },
+ "key \"text:12\" is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_key"
+  ]
+ },
+ "key \"note:12-0\" is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_key"
+  ]
+ },
+ "key \"TEXT:12-0\" is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_key"
+  ]
+ },
+ "key \"text:12-0x\" is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_key"
+  ]
+ },
+ "key \"summary\" is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_key"
+  ]
+ },
+ "a value by someone else is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_value"
+  ]
+ },
+ "a value no by is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_value"
+  ]
+ },
+ "a value empty text is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_value"
+  ]
+ },
+ "a value 4001 characters is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_value"
+  ]
+ },
+ "a value not text is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_value"
+  ]
+ },
+ "a value a string is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_value"
+  ]
+ },
+ "a value an extra field is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_value"
+  ]
+ },
+ "a value at not a number is refused": {
+  "pass": true,
+  "got": [
+   403,
+   "bad_value"
+  ]
+ },
+ "exactly 4000 characters is allowed": {
+  "pass": true,
+  "got": [
+   200,
+   null
+  ]
+ },
+ "ezra cannot write a text row": {
+  "pass": true,
+  "got": [
+   403,
+   "household_only"
+  ]
+ },
+ "kiara cannot write a text row": {
+  "pass": true,
+  "got": [
+   403,
+   "household_only"
+  ]
+ },
+ "tv cannot write a text row": {
+  "pass": true,
+  "got": [
+   403,
+   "read_only"
+  ]
+ },
+ "a kid cannot clear one either": {
+  "pass": true,
+  "got": [
+   403,
+   "household_only"
+  ]
+ },
+ "a grown-up clears one (null)": {
+  "pass": true,
+  "got": [
+   200,
+   null
+  ]
+ },
+ "a kid still reads the family rows": {
+  "pass": true,
+  "got": 200
+ }
+}

@@ -1856,3 +1856,200 @@ SHAPE/analyze's "large radii on the scale" uses a hard-coded list older than the
   - Me → Add a guest's face grid is cut off at 390 px / text size XXL. It was the same before this batch; the owner is the shell.
   - The Tally page-background test failure.
 - **Production.** Nothing deployed. Deploy order: migrations 006, then 007, then `npx wrangler deploy` (it brings the reading time and the two-device rule to the Worker), then the site.
+
+
+## Batch 5 — Verses (the memory-verse trainer), its Home card and evening review
+
+| | |
+|---|---|
+| **Findings** | 20 Verses entries (5 medium, 14 low, 1 info) and the 4 kept improvements IMP-VERSES-F6, -I1, -I2 and -I3. **All 20 FIXED; all 4 improvements FIXED.** Of the 11 earlier carry-overs with a Verses part, **1 is now FIXED** (UX-VERSES-6) and **10 stay PARTIAL**, each naming the later batch that owns the rest. Status per entry in `audits/05-findings.md`. |
+| **Code commit** | `2f699c2` (2026-10-01) |
+| **Files** | <ul><li>`apps/verses.html` (the batch; every existing id kept)</li><li>`index.html`: the Memory verses Home card; a Home card grid whose art never covers text; loading reservations; the verse review switch in Me → Notifications</li><li>`apps.json`: Verses' scope is now `both`</li><li>`apps/hub.js`: one attribute, `draggable="false"` on avatar photos</li><li>`icons/sprite.svg` (49 → 52 symbols: circle-dashed, play, square) and `icons/LICENSE-lucide.txt`</li><li>`worker/src/reminders.js` (`versesJob`, `versesDue`), `worker/src/policy.js` (Verses' household text rows only; narrower), `worker/src/index.js` (a comment)</li><li>`sw.js` (`hub-v44` → `hub-v45`), `CLAUDE.md`, `worker/README.md`</li><li>tests: `test-verses.mjs` rewritten (80 → 184 checks), `test-home.mjs` (65 → 80), `test-push2.mjs` (70 → 81), `smoke-api.sh` (325 → 330)</li></ul> |
+| **Schema / data** | No schema change and no migration. New rows: `app_data(family, verses, 'text:<week>-<i>')` = `{text, by, at}` (the household's verse text; the Worker accepts only that key shape, text up to 4,000 characters, `by` = the writer, adults and guests only); `app_data(person, verses, 'mode')`; `app_data(person, hub, 'push_pref:verses')`. Recall rows gain `hist` (the replaced schedules, 30 days). The production D1 was exported first: `%LOCALAPPDATA%\house-hub-audit\backups\house-hub-prod-2026-10-01-before-5.sql` (40 KB, 115 rows). Nothing was deployed. |
+| **How it was built** | <ul><li>Before the batch, an agent sorted the earlier batches' unfinished entries with a Verses part (11).</li><li>Three workers: A (Verses logic, data and copy), B (its look, the carry-overs, practice modes and recording) and C (the Home card, the evening push, docs).</li><li>Two independent reviewers: 6 core rounds and 8 visual rounds.</li><li>Three full final runs. The first found a Home regression (below). After the first and second, the independent rescore found work, which was fixed and reviewed each time. A last icon change after the third run was checked in a focused follow-up.</li></ul> |
+
+### The change
+
+**The verse text, once for the household (GAP-VERSES-1).**
+- "Add the verse text" on a card stores it once per verse for the whole house, so Show reveals it for everyone who trains that verse.
+- It can be edited or removed. Sharing a private F260 paste asks first.
+- Kids never get the editor, and the Worker refuses their writes.
+- No Bible text is shipped in the app.
+
+**A schedule that tells the truth.**
+- Not yet sends a verse back to tomorrow (classic Leitner) (GAP-VERSES-2).
+- Each rating button shows its next review, and the result says "Next review in 4 days" (P3-VERSES-05).
+- No box numbers anywhere; the lists say "every 4 days" (UX-VERSES-9).
+
+**A streak that keeps its promise (P3-VERSES-11).**
+- A day with nothing due keeps the streak, and today is pending.
+- A due day with no review breaks it, even after the overdue verse is reviewed later. Recall rows keep 30 days of replaced schedules, and a rating another device overwrote still counts.
+- The Home card uses the same rule.
+
+**Undo and the result in the card (UX-VERSES-2, UX-VERSES-6).**
+- The rating toast is gone. The result and an Undo button sit in a line in the card's top slot, where the week label usually is, for 10 s. It covers nothing and moves nothing.
+- Undo pulls first and restores by value, so a newer review from another device is kept.
+- Undo is reachable by keyboard (U or Ctrl+Z).
+
+**Bugs.**
+- Read aloud stays after Show (P3-VERSES-06).
+- Enter on a focused button presses that button (P3-VERSES-10).
+- A double tap can't reveal the next verse (P3-VERSES-12).
+- The hidden text is hidden from screen readers too (P3-VERSES-13).
+- Extra practice is never counted as due (P3-VERSES-08).
+- Honest empty and done states with an Open F260 button (P3-VERSES-14, GAP-VERSES-3, UX-VERSES-4, UX-VERSES-8).
+
+**Kids (UX-VERSES-1).**
+- A kid practises the one verse Kid Verse teaches that week. Its paraphrase is shown, labelled, and read aloud.
+- Picture buttons at 64 px or more: a try-again arrow, the dashed circle and a check. The icons are the same as the adults', and none is the reward star.
+- Everything fits the first screen of a small iPhone.
+
+**The look (VIS-VERSES-1, -6).**
+- The card is sized to its content and nothing jumps on Show.
+- The histogram is tinted by box.
+- Every icon comes from the shared sprite.
+- Spacing, type and radii are tokens.
+
+**Kept improvements.**
+- **F6:** tap any listed verse to practise it.
+- **I1:** "Record yourself", kept in memory on the device only.
+- **I2:** an evening "N verses to review" push at 7 pm, off by default, counted on the server.
+- **I3:** practice modes on verses with text (Letters, Gaps, Order).
+
+**The Home card (GAP-HOME-2, UX-VERSES-3).**
+- "3 to review · 13-day streak" with Review now. It is right before Verses is opened that day, and it shows for adults and guests only.
+
+**What the reviews and runs changed.**
+- **Core review.**
+  - Undo could erase a newer review from another device that had not been pulled yet.
+  - A missed day was forgiven once the overdue verse was reviewed (fixed in three steps: one replaced schedule, then a 30-day history, then the `rev:` rows for a rating another device overwrote).
+  - A private paste reached the house with one Enter.
+  - The trainer waited for the household channel when offline.
+  - The Worker accepted any key.
+  - The Undo shortcut outlived its line.
+  - A kid's Practise again kept last week's verse.
+- **Visual review.**
+  - The kid's ratings were below the fold.
+  - The toast covered the reference after a row tap.
+  - Focus fell to the page.
+  - Tab order, a 56–60 px jump on the first rating, the recorder floating, Word order jumping, the queue's chevron and hyphen wraps.
+- **The first final run (found by the orchestrator).** The new Home card changed the grid pairs, and Today's reading art covered its text on the iPad. The Home card art had always lain under the text: 322 overlaps already in batch 4. Now:
+  - every card has a footer row (button, then art) and art never covers text;
+  - art under 48 px is hidden;
+  - Kids takes a full row;
+  - `home-art-5.mjs` checks 384 page loads and 1,616 cards: 0 overlaps, 0 wrapped labels, 0 cut names.
+- **The independent rescore**, after the first run:
+  - Show below the fold on a small iPhone;
+  - the recorder missing from the rig;
+  - the toast over the pill (now the in-card line);
+  - a Frost AA miss;
+  - icon collisions, radii, the dark ramp, labels.
+
+  After the second run:
+  - a top band;
+  - the iPad Undo under the bar;
+  - kid icons;
+  - mode labels;
+  - the due count.
+
+  After the third run:
+  - the kid's "I said it" shared the microphone with Record; it now uses Show's eye.
+- **The status writer.** Home moved more as data landed (iPhone 33 → 43 moves). Fixed by reserving the loading cards: held arm iPhone 29 / 376 px (batch 4: 33 / 391), iPad 31 / 403 (unchanged).
+
+### Each finding's reproduction, rerun
+
+**How the scripts were run.**
+- The 25 scripts the entries name ran three at a time on the unchanged code (`git archive` of `1ba5cec`) and on the final code, together with the copies and claims checks in `audits/tools/phase6/5/`.
+- Outputs are in `audits/evidence/p6/5/tests/repro-before/` and `repro-after/`.
+
+**Exit codes.**
+- Four originals fail on BOTH the pre-batch and the final code because they are stale tooling: kid-flow reads the whole-map `f260.recall` that batch 0e replaced, and the three double-tap scripts never reset the rig household.
+- Their `-5` copies are the measurement, and all pass.
+- verify-read-aloud-gone-after-show-2 has a `-5` copy that waits out the new 400 ms guard.
+
+| Finding | Before | After |
+|---|---|---|
+| P3-VERSES-05 (Not yet) | "again tomorrow" while Coming up said 7 days | Not yet is tomorrow; the line states the real interval |
+| P3-VERSES-06 (Read aloud) | hidden after Show (all 4 cases) | visible, reads the text |
+| P3-VERSES-11 (streak) | Wednesday with nothing due: 0 | 21; a missed due day still breaks it (e1/e3/e4 repros) |
+| P3-VERSES-08 (practise anyway) | "1 to go", 1 due | "practice", 0 due |
+| P3-VERSES-10 (Enter on Read aloud) | revealed, spoke 0 | read aloud, not revealed |
+| P3-VERSES-12 (double tap) | the next card revealed | the second tap ignored for 400 ms (`-5` copies) |
+| P3-VERSES-13 (veiled text) | in the accessibility tree | aria-hidden and inert |
+| UX-VERSES-1 (kid) | Read aloud said only the reference | the paraphrase, labelled; picture buttons |
+| UX-VERSES-2 (Undo) | none | 10 s in-card Undo, by value after a pull |
+| IMP-VERSES-I2 (`cron-check-5`) | — | 32/0: the 7 pm hour, due > 0, once a day, off by default, guests their own, never kids |
+
+**The Phase 4 measuring tools**, on the pre-batch archive and on the final code (`audits/evidence/p6/5/p4tools/before/` and `out/`):
+
+| Tool | Verses before → after |
+|---|---|
+| TOK/literals: colour mixes / local literals / font sizes | 1 / 1 / 1 → 0 / 0 / 0 |
+| TYPE/code-scan | 1 px literal, 18 role tokens → 0 px, 42 role tokens, none under 11 px |
+| ICON/static | 9 private SVGs, stroke 1.25, 4 "→" → 20 sprite uses, no own stroke, no glyph icons |
+| MOTION/press | 2 / 2 → 7 / 7 controls at 0.97 |
+| MOTION/cls | the iPhone's 2 landmark moves (27 px) → 0; the iPad 0 → 0 |
+| SHAPE/analyze: macro spacing on the 4 px grid | 93.9 % → 95.5 % |
+| SHAPE/verify: column | 390 / 664 / 656 / 656, unchanged |
+| TELL/tells-webkit: selectable controls | 16 of 18 → 0 of 31 |
+
+**The shell Home's motion.** The default MOTION/cls arm's move count swings from run to run on the same code (10–40), so the held arm is the measure; see `p4tools/cls-home-note.md`.
+
+### Repo tests
+
+| Suite | Before (batch 4's final run) | After |
+|---|---|---|
+| test-verses | 80 / 0 | 184 / 0 (rewritten for every batch-5 rule) |
+| test-home | 65 / 0 | 80 / 0 (the Verses card) |
+| test-push2 | 70 / 0 | 81 / 0 (the evening review push) |
+| smoke-api.sh | 325 / 0 | 330 / 0 |
+| screens-shell | not in the final run | 18 / 0, Home layout shift 0.000 |
+| every other suite | pass | pass, identical counts |
+| smoke-chat (mock) | 64 / 0 | 64 / 0 |
+| Earlier batches' checks | pass | pass. `handoff/prayer/check.js` 47/2 (as since 0g), `0g/check-ids.js` 49/49, the p6-3 and p6-4 copies, `prayer-claims-3` |
+
+- **Batch-5 checks:** verses-a-5 24/0, verses-look-5 275/0, text-policy-5 26/0, cron-check-5 32/0, home-art-5 0 failures.
+- **Service worker:** `bump-sw --check` finds 75 precached files present.
+- **Scripts:** all 31 inline scripts parse.
+- **screens-apps:** 90/1 before and after; the failure is Tally's page background, which predates this batch.
+
+### Measurement, captures and the rescore
+
+**Contrast** (`audits/evidence/p6/5/measure/contrast-accounting.md`).
+- **Verses:** 12 samples below AA, all on Show, Read aloud and Record, which are disabled on purpose while the card loads. These are exempt.
+- **The shell:** 725 samples, against 737 in batch 1.
+  - New since batch 1 and not from this batch: a disabled PIN pad, and edge samples on the offline picker.
+  - One real item: the kid Home's hero text over its art in dark mode measures 4.01–4.38:1. It is found, not fixed, and is shell work.
+
+**Captures** on the final code, in `audits/screens-after/5/` (0 failed):
+- **Verses, 208:** all of them changed, against both the pre-batch control and Phase 1.
+- **Shell, 979:** 218 changed against batch 4. They are Home screens, apart from 7 Apps shots (60 px, anti-aliasing only) and 5 Chat shots (14–24 px).
+- **F260, 629, and Prayer, 809:** a few shots changed (23 and 20), but a recapture of the pre-batch code shows a different set, and the opened pairs differ only in scroll position. See `capture/f260-prayer-noise.md`.
+
+**Rescore** (`audits/evidence/p6/5/rescore.md`; an independent judge, the Phase 4 method, bases held):
+- **Verses: 5.6 → 6.2.** The first pass gave 5.9; the second, on the second final run, 6.1; the confirmation after the last icon fix, 6.2.
+  - Colour 4.5 → 6.5.
+  - Shape 5.5 → 6.5.
+  - Native 6 → 7.
+  - Ease 5 → 6.
+  - Delight 5.5 → 6.5.
+  - Motion and Icons +½ each.
+  - Layout held at 6: the 656 px column still leaves the wide screens empty.
+
+### Not verified
+- **On a real iPhone and iPad:**
+  - recording (the microphone prompt, then record and play back in Safari; proven in Chromium with a stand-in microphone);
+  - read-aloud voices;
+  - the editor's dictation;
+  - the 7 pm verses push arriving, and its tap;
+  - the result line and the smooth scroll under the notch;
+  - the kid picture buttons and the press feel;
+  - VoiceOver announcing the status line.
+- **Left partly done:**
+  - 10 carry-overs stay PARTIAL, each owned by a later app batch or the shell.
+  - GLASS/layers was not re-run (the rescore found no content glass in 356 Verses jobs).
+- **Found, not fixed (outside this batch):**
+  - The kid Home hero text in dark mode (4.01–4.38:1).
+  - The Tally page-background test failure.
+  - The F260 plan's own memory references "Psalm 1:1-7" and "Jeremiah 1:15" look odd (Psalm 1 has 6 verses). They match a church-published copy of the plan, so the app copies them as printed.
+- **Production.** Nothing deployed. Deploy order: migrations 006, then 007, then `npx wrangler deploy` (this brings the evening review job and the Verses text rule to the Worker), then the site.

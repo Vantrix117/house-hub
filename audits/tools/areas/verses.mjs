@@ -6,7 +6,19 @@ export const area = 'verses';
 
 // Open Verses and wait until render() has picked a card, the all-done card or the empty card (apps/verses.html:318-320).
 const VIEW = '#trainer:not([hidden]), #done:not([hidden]), #empty:not([hidden])';
+// Batch 5 (rescore follow-up): the rig's WebKit has no MediaRecorder, so Verses' "Record yourself" row (IMP-VERSES-I1,
+// adults) never showed in the captures and every adult card was about 85 px shorter than on a phone. Minimal stand-ins
+// make the row appear as a device does; getUserMedia is replaced too, so no capture ever asks for a real microphone
+// (nothing here records: the captures never tap the button). Kids never get the row whatever the browser has.
+const fakeRecorder = () => {
+  if (!/\/apps\/verses\.html/.test(location.pathname)) return;
+  if (typeof window.MediaRecorder !== 'function') window.MediaRecorder = class { constructor(stream) { this.stream = stream; this.state = 'inactive'; this.mimeType = 'audio/webm'; } start() { this.state = 'recording'; } stop() { this.state = 'inactive'; if (this.onstop) this.onstop(); } };
+  const md = navigator.mediaDevices || {};
+  try { if (!navigator.mediaDevices) Object.defineProperty(Navigator.prototype, 'mediaDevices', { get: () => md, configurable: true }); } catch {}
+  md.getUserMedia = async () => (typeof MediaStream === 'function' ? new MediaStream() : {});
+};
 async function open(t) {
+  await t.ctx.addInitScript(fakeRecorder);
   const f = await t.openApp('verses');
   if (t.loading) return f;
   await f.waitForSelector(VIEW, { timeout: 8000 }).catch(() => {});
@@ -37,6 +49,9 @@ async function rateGot(t, f) {
   const n = await f.evaluate(() => document.getElementById('ref').textContent).catch(() => '');
   await t.page.keyboard.press('Enter');
   await t.page.keyboard.press('3');
+  // batch 5: after a rating the card stays for 400 ms and its rating row ignores taps (#trainer.rated, P3-VERSES-12), then
+  // the next card comes in; wait that out before judging whether the keys landed (a no-op on the pre-batch-5 page)
+  await f.waitForFunction(r => { const tr = document.getElementById('trainer'); return !tr.classList.contains('rated') && (tr.hidden || document.getElementById('ref').textContent !== r); }, n, { timeout: 1500 }).catch(() => {});
   // fall back to taps if the keys did not land (the card on top did not change)
   if (await visible(f, '#trainer') && await f.evaluate(r => document.getElementById('ref').textContent === r, n).catch(() => false)) {
     await reveal(t, f); await t.tap(f.locator('#act-rate [data-rate="got"]'));
@@ -75,6 +90,7 @@ export const screens = [
     loadingWait: 400,
     note: 'Eli\'s first open with no cache on a slow connection, about 7 s in: hub.ready stops waiting after 6 s (apps/hub.js:336-337) and the trainer renders from an empty cache. "Eli · all done" over "Nothing to train yet", although he has 64 memorised verses and 3 due. writeSummary (apps/verses.html:239-245) also queues a { total: 0 } summary. Loading only; the 1.2 s moment is trainer-loading.',
     async go(t) {
+      await t.ctx.addInitScript(fakeRecorder);
       const f = await t.openApp('verses');
       await f.waitForSelector(VIEW, { timeout: 9000 }).catch(() => {});
       await t.sleep(200);

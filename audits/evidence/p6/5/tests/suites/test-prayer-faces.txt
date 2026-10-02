@@ -1,0 +1,56 @@
+  ✓ the profiles list has Eli and Kiara (kid)
+
+## apps.json: the prayer app is visible to the kids
+  ✓ prayer.visibleTo lists ezra and kiara
+
+## Eli adds a family prayer and marks it prayed
+  ✓ Eli switches to the Family list
+  ✓ the family list has the request, authored by eli
+  ✓ no who-prayed faces before anyone prays
+  ✓ the adult family row shows the requester as a face: "Eli asked"
+  ✓ the requester face is 28 px in Eli's colour (his data-accent)
+  ✓ the private list shows no requester face
+  ✓ after Eli prays, his face is on the row (hub.avatarHtml)
+  ✓ the face is 28 px
+  ✓ and carries Eli's colour as data-accent
+  ✓ seven names → five faces then "+2"
+
+## Kiara (kid) opens the app
+  ✓ kid session, <html data-kind="kid">
+  ✓ opens straight on the family list
+  ✓ only the Today screen is shown
+  ✓ no nav, no Mine/Family switch, no +, no Pray now / More
+  ✓ no input, textarea, select or contenteditable is reachable
+  ✓ the card shows the request title
+  ✓ the title is set in --fs-2xl (kid scale, v3 28 px x 1.2)
+  ✓ one "Pray" button (praying hands) per card, not yet pressed
+  ✓ the Prayed button is at least 64 px
+  ✓ the requester's face (Eli, his colour) is on the card
+  ✓ the card does not open the detail sheet (no data-open)
+  ✓ no horizontal scroll at 390
+
+## the private list and the other screens are unreachable for a kid
+  ✓ go("all" | "add" | "more") lands on Today
+  ✓ the hidden nav / + buttons cannot leave Today either
+  ✓ the hidden Mine switch cannot reach the private list
+  ✓ still no sheet, pray-through view or input on screen
+
+## Kiara taps Prayed
+  ✓ her id joins prayedBy[today] next to Eli's (batch 0g: ids)
+  ✓ the card turns done
+  ✓ the button now reads "Prayed" with a ✓ and her face
+  ✓ the headline cheers
+  ✓ the card's who-prayed row shows both faces
+  ✓ a second tap does not un-pray or double her
+  ✓ no page errors for the kid
+  ✓ at 1024: no nav, no input, no horizontal scroll
+
+## Eli reloads and sees Kiara's face
+  ✓ Eli comes back on the Family list (his choice was saved)
+  ✓ Kiara's avatar (her colour, 28 px) is in who-prayed
+  ✓ both faces are avatars, no initials fallback
+  ✓ the requester face (Eli, 28 px) is still on the row after reload
+  ✓ an adult still gets the normal rows, nav and list switch
+  ✓ no console or page errors
+
+42 passed, 0 failed

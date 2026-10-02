@@ -1,0 +1,205 @@
+
+## seed
+  ✓ paired, signed in Eli/Ezra/TV/Mom/Dad/Mea; Eli has 6 memorised verses (4 new, 1 overdue, 1 due tomorrow) and reviews yesterday and three days ago
+
+## (a) registration
+  ✓ apps.json: verses registered (both scopes: its own rows person, the household text family; small, icon)
+  ✓ visible to all seven people and not the TV
+  ✓ icon (duotone) + spot art exist
+  ✓ the spot art comes from scripts/make-art.mjs
+  ✓ no hex and no prefers-color-scheme in the app's CSS
+  ✓ hub.js with app id verses, scope both (matches apps.json); reads F260 through hub.use
+  ✓ the recall shape and the household text row are documented in the file
+  ✓ Verses' kid paraphrase table is an exact copy of Kid Verse's 52 weeks
+
+## (b) adult flow — Eli, 390
+  ✓ runs in adult mode
+  ✓ the due queue: the four never-reviewed first (plan order), then the overdue one; not the one due tomorrow
+  ✓ the pill says "5 to go"
+  ✓ the queue list names all five, "never reviewed" … "1 day overdue"
+  ✓ the due count is said once: no "due today" stat, no count in the list header; the first stat is "reviewed today" (0)
+  ✓ "Coming up" holds the one due tomorrow (Acts 17:11)
+  ✓ stats: 6 memorised, streak 2 — yesterday and three days ago; the day between had nothing due, so it kept the streak (P3-VERSES-11)
+  ✓ histogram before: 4 daily (three new + the pre-Leitner row), 1 every 4 days, 1 weekly
+  ✓ every row is a button ≥ 44 px labelled "Practise <ref>"
+  ✓ the first card: Genesis 1:27 in big type
+  ✓ its chip says "New", never a box number
+  ✓ the reference is ≥ 34 px
+  ✓ rating buttons hidden until Show
+  ✓ Show and Read aloud are ≥ 60 px tall
+  ✓ no horizontal scroll at 390
+  ✓ "Read aloud" speaks the reference
+  ✓ Show reveals the three ratings; Read aloud stays (P3-VERSES-06)
+  ✓ after Show, focus is on the first rating, never on <body> (review round 1)
+  ✓ the card does not grow on Show (no layout jump)
+  ✓ each rating shows its next review: Not yet tomorrow, Almost tomorrow, Got it in 2 days (GAP-VERSES-2)
+  ✓ Got it is ≥ 60 px tall
+  ✓ right after the rating the card is cooling down (#trainer.rated)
+  ✓ the toast states the real next review and offers Undo
+  ✓ after 400 ms the next card, Hebrews 11:17-19, comes in unrevealed (the second tap did nothing)
+  ✓ after the cool-down, focus is on the next card's Show
+  ✓ the double tap counted one review of Genesis 1:27
+  ✓ the day streak is now 3 (today, yesterday, three days ago)
+  ✓ Almost → Joshua 1:8-9 (the one with text on file)
+  ✓ the Almost toast says tomorrow (the first box)
+  ✓ the verse text is on the card, blurred, aria-hidden and inert until Show (P3-VERSES-13)
+  ✓ Enter on the focused Read aloud reads aloud and leaves the card hidden (P3-VERSES-10)
+  ✓ before Show, Read aloud says only the reference
+  ✓ Show unveils the text F260 has on file and exposes it to screen readers
+  ✓ after Show, Read aloud reads the reference and the verse text (P3-VERSES-06)
+  ✓ a private F260 paste: the button reads "Share this text with the house"
+  ✓ the editor is prefilled with the paste and says it is your own
+  ✓ Enter on the unchanged prefill asks first ("Everyone in the house will see this text…")
+  ✓ Cancel publishes nothing: no household row text:12-0
+  ✓ the Not yet toast states the real next review (P3-VERSES-05)
+  ✓ Not yet → Proverbs 3:5-6 (the pre-Leitner F260 row)
+  ✓ a pre-Leitner row counts as new
+  ✓ Enter (focus on no button) reveals the ratings
+  ✓ 3 rates Got it → Psalm 51:17 (the overdue one)
+  ✓ its chip says "Reviewed 5 days ago" (UX-VERSES-9)
+  ✓ its ratings: Not yet tomorrow, Almost in 4 days, Got it in 7 days
+  ✓ no "box" anywhere on the screen
+  ✓ the queue is empty: "All done for today", with the star
+  ✓ the pill says "all done" after reviews today
+  ✓ on the done card, focus is on "Practise one anyway"
+  ✓ the done card counts 5 reviews and names the next verse
+  ✓ dueIds() is empty
+  ✓ nothing is said twice: the Due today list is gone (the done card says it), all six are in "Coming up" (UX-VERSES-8)
+  ✓ histogram after: [2,2,0,2,0]
+  ✓ stats: 5 reviewed today, streak 3
+  ✓ the rated row keeps the schedule it replaced in its history: hist = [{ due: yesterday, last: 5 days ago }]
+  ✓ a missed day stays missed after the overdue verse is reviewed (streak 1, not 2)
+  ✓ recall 1-0: Got it on a new verse → box 2, due +2, s got, streak 1
+  ✓ recall 3-1: Almost on a new verse → box 1, due +1, s not
+  ✓ recall 12-0: Not yet → box 1, due +1, s not
+  ✓ recall 20-1: pre-Leitner row → Got it → box 2, due +2
+  ✓ recall 30-0: third box overdue → Got it → fourth box, due +7, streak 3
+  ✓ recall 40-0 untouched (not due)
+  ✓ no other rows in f260.recall
+  ✓ f260.mem untouched
+
+## (c) summary row + feed line
+  ✓ the review log: { yesterday: 2, today: 5 }
+  ✓ app_data(verses, person, summary) = { due: 0, streak: 3, boxes: [2,2,0,2,0], total: 6, reviewedToday: 5, week: null, at: today }
+  ✓ the feed has "Eli reviewed 5 memory verses"
+
+## (d) a second device as Eli, 1024: practice, rows, Undo
+  ✓ the other device: all done, the same boxes, streak 3
+  ✓ no horizontal scroll at 1024
+  ✓ "Practise one anyway" opens the next scheduled verse (due tomorrow)
+  ✓ it is practice: "extra practice" on the card, the pill says practice, nothing due, no Due today list
+  ✓ a tap on Psalm 51:17 in Coming up puts it on the card, unrevealed, as practice
+  ✓ focus lands on Show
+  ✓ the summary still counts 0 due
+  ✓ Not yet from the fourth box: "Next review tomorrow"
+  ✓ Not yet sends it back to box 1, due tomorrow (GAP-VERSES-2)
+  ✓ a second rating the same day keeps the history as it was: hist = [{ due: yesterday, last: 5 days ago }] (P3-VERSES-11)
+  ✓ the toast has an Undo button
+  ✓ Undo: the card returns to Psalm 51:17, revealed
+  ✓ after Undo, focus is on that card's Got it
+  ✓ Undo: the row is the one from before, by value
+  ✓ on the server too: the row is back and the review count of Psalm 51:17 is back to 1
+  ✓ the toast's Undo names its keyboard shortcut
+  ✓ U undoes the Almost: the row is back, the card revealed
+  ✓ U does nothing once another toast has replaced the Undo toast
+  ✓ U does nothing while a confirm sheet is open
+  ✓ the other device's review has not reached this device yet (no pull)
+  ✓ Undo is still offered
+  ✓ Undo pulls first, finds the newer review from another device and keeps it
+  ✓ the other device's review is not clobbered on the server
+  ✓ and this device's review count is not taken back (the rating stands as a review)
+
+## (e) the household verse text — Mom, 390, then Eli
+  ✓ Mom: Genesis 1:27 first, 4 to go
+  ✓ no text yet: "Add the verse text" is offered
+  ✓ the editor opens with the field focused
+  ✓ it says once that the household shares the text
+  ✓ no Show or ratings while the editor is open
+  ✓ Enter saves it
+  ✓ after Save, focus goes back to the card (Show), not <body>
+  ✓ the field is described by the household note
+  ✓ the card now has the text, veiled and hidden from screen readers until Show
+  ✓ the family row text:1-0 = { text, by: mom, at }
+  ✓ after Show: "Edit the text"
+  ✓ Escape closes the editor and changes nothing
+  ✓ next, Joshua 1:8-9: Mom has no paste for it, so "Add the verse text"
+  ✓ Save adds it
+  ✓ Eli sees the text Mom added for Genesis 1:27
+  ✓ the household text of Joshua 1:8-9 wins over Eli's own F260 paste
+  ✓ a kid's write of a text row is refused (403)
+  ✓ on Eli's other device: the household text
+  ✓ the editor offers "Remove the text" for a household row
+  ✓ Remove asks first, in the shared confirm sheet
+  ✓ after Remove, Eli's own F260 paste shows again
+  ✓ the family row text:12-0 is gone
+
+## (f) the Leitner rule and the streak rule — Mom
+  ✓ Mom still on Joshua 1:8-9
+  ✓ a past day with a verse due and no review breaks the streak (Mom: 1); a day with nothing due keeps it (Eli: 2)
+  ✓ today is pending: yesterday alone is a streak of 1, today + yesterday 2, nothing 0
+  ✓ then Proverbs 3:5-6
+  ✓ then Psalm 51:17, "Reviewed 8 days ago"
+  ✓ from the fourth box: Not yet tomorrow, Almost in 7 days, Got it in 14 days
+  ✓ Not yet → box 1, due tomorrow, streak 0 (classic Leitner)
+  ✓ Mom: all done
+
+## (g) kid flow — Ezra, 390
+  ✓ the app carries the 52-week, two-per-week reference table
+  ✓ the app runs in kid mode (data-kind="kid")
+  ✓ family week 5 → Romans 8:28-30 (its first verse)
+  ✓ the pill says "2 to go"
+  ✓ no stats, no queue, no chip for a kid
+  ✓ the card shows Kid Verse's paraphrase for the week, labelled a paraphrase
+  ✓ no text input, no "Add the verse text", no verse text for a kid
+  ✓ the reference is ≥ 40 px for a kid
+  ✓ every visible control is a ≥ 64 px button
+  ✓ no horizontal scroll at 390
+  ✓ "Read aloud" speaks the reference and the paraphrase at rate 0.85
+  ✓ the button returns to "Read aloud" when the voice finishes
+  ✓ the kid card does not grow on Show
+  ✓ the three rating buttons are ≥ 64 px for a kid
+  ✓ picture buttons: a star for Got it, a smile for Almost, a try-again arrow for Not yet; no interval words
+  ✓ the pictures are drawn and big (≥ 24 px)
+  ✓ Got it → the week's second verse, Ephesians 3:20-21
+  ✓ the second card shows the paraphrase only if it is the verse Kid Verse teaches
+  ✓ two ratings → "All done for today" with Practise again
+  ✓ still no stats
+  ✓ Ezra's own recall rows: 5-0 box 2 (+2), 5-1 box 1 (+1), nothing else
+  ✓ Ezra's summary: { due: 0, streak: 1, reviewedToday: 2, week: 5, boxes: [1,1,0,0,0] }
+  ✓ the feed has "Ezra reviewed 2 memory verses"
+  ✓ Practise again reopens the week's verses
+  ✓ the kid's due list follows the family week (hub.onChange)
+
+## (h) the kiosk — Downstairs TV, standalone
+  ✓ standalone open works: nothing to train, no rating buttons, no Open F260 on the TV
+  ✓ the TV's pill says nothing about "all done"
+  ✓ the kiosk wrote no summary
+  ✓ rate() on the kiosk does not throw
+
+## (i) nothing due — Dad
+  ✓ "Nothing due today", without the celebration star (UX-VERSES-4)
+  ✓ the pill says "nothing due", not "all done"
+  ✓ the streak (1) is kept, and the screen says so
+  ✓ the empty message is said once
+
+## (j) nothing to train — Mea
+  ✓ the empty card: "…you can review it here straight away" (P3-VERSES-14)
+  ✓ the pill says neither "all done" nor "nothing due"
+  ✓ an "Open F260" button (GAP-VERSES-3)
+  ✓ Open F260 opens F260 in the hub
+
+## (k) the household text never holds up the trainer (review round 1)
+  ✓ without the family channel the trainer still shows Dad's card (not "loading")
+  ✓ the household text channel loads when it can, on its own
+
+## (l) a missed day stays missed after two reviews (review round 2, E2b)
+  ✓ before today's review: 1 (a round-1 row's prev still counts the missed day)
+  ✓ the row keeps a history of both replaced schedules (hist), oldest first
+  ✓ after today's review: 2 (today, yesterday) — the day missed two reviews back still breaks it
+  ✓ a second rating today adds nothing to the history
+  ✓ entries older than 30 days are dropped, the never-reviewed entry with them
+
+## console
+  ✓ no console errors or page errors
+
+175 passed, 0 failed
