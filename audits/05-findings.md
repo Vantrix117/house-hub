@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 4 (`2a6bd05`), 5 (`2f699c2`), 6 (`1484889`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 4 (`2a6bd05`), 5 (`2f699c2`), 6 (`1484889`), 7 (`7a77c6b`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 4 (`2a6bd05`, 2026-10-01), 5 (`2f699c2`, 2026-10-01), 6 (`1484889`, 2026-10-02), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 439 entries FIXED, 32 PARTIAL, 0 DEFERRED, 14 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 4 (`2a6bd05`, 2026-10-01), 5 (`2f699c2`, 2026-10-01), 6 (`1484889`, 2026-10-02), 7 (`7a77c6b`, 2026-10-04), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 455 entries FIXED, 32 PARTIAL, 0 DEFERRED, 14 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -55,7 +55,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 15 | **4** | F260 Reading Plan | 38 (0 / 0 / 6 / 32 / 0) | L | 1, 2a | 36/38 fixed, `2a6bd05` |
 | 16 | **5** | Verses | 19 (0 / 0 / 5 / 13 / 1) | M | 1, 2a | 19/19 fixed, `2f699c2` |
 | 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a | 22/24 fixed, `1484889` |
-| 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a | open |
+| 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a | 16/16 fixed, `7a77c6b` |
 | 19 | **8** | Larder Ledger | 16 (0 / 0 / 2 / 14 / 0) | M | 1, 2a | open |
 | 20 | **9** | Dollywood build guide | 47 (0 / 0 / 10 / 36 / 1) | L | 1, 2a | open |
 | 21 | **10** | Dollywood park map | 42 (0 / 0 / 13 / 28 / 1) | L | 1, 2a | open |
@@ -1695,8 +1695,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-GLASS-2 — Five areas put live glass on content in most screens, four keep it on the control layer, and Phase 3 scored both groups the same
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2f699c2`)
-- **Phase 6 (PARTIAL).** Verses' Read aloud and Practise again are now solid secondary buttons inside the solid cards, and the new Record row is solid too; glass stays only on the floating pill. GLASS/layers was not re-run, but the final rescore's measure found content glass in 0 of 356 Verses jobs (batch 1: 120 content-live screens, the Read aloud button). Unchanged: the chat's reply bubbles are still glass-strong (the shell, 2a), Kid Verse's Read it to me (batch 7) and the build guide's map controls (batch 9). After: `audits/evidence/p6/5/rescore.md`, `audits/screens-after/5/verses/rated-typical-iphone-pwa-light.png`, `audits/evidence/p6/5/review/workers-and-reviews.md`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
+- **Phase 6 (PARTIAL).** Kid Verse's two "Read it to me" buttons are solid secondary buttons, the who-chip is solid and the shelf sheet and recorder are solid too. The final measurement: Kid Verse content glass in 0 of 214 jobs (measure/glass.json; batch 1: the two glass buttons in 186 of 186). kidverse-look-7 §12 and §16: no live blur in the page, no glass button. Unchanged: the chat's reply bubbles (the shell, 2a) and the build guide's map controls (9). After: `audits/evidence/p6/7/measure/glass.json`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
 - **Evidence.** `audits/04-design-system.md:3520`
 - **What happens now.** (Table GLASS-1, share of each area's screens with a visible live blur on content): Tally 100 % (dial, +, −, Reset), Kid Verse 100 % (scene card, Read buttons), Verses 89 % (trainer and done cards), Timer 87 % (the dial), the build guide 48 % (exaggeration control, north button). F260, the Larder, Prayer and the park map: 0 %.
 - **Why it matters.** In four apps glass means "this floats and controls"; in five it means "anything", so it stops telling the family what can be tapped.
@@ -1705,8 +1705,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ICON-1 — Eleven icon families; no app uses the shell's own set
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** The Timer and the shell's timer draw from the shared sprite at --icon-stroke. ICON/static, pre-batch vs final: Timer sprite uses 0 → 23, stroke widths only the dial ring's 3 (a progress ring, not an icon); the shell's own symbols 23 → 22 (i-timer now comes from the sprite in the pill, the chip, the feed, the kitchen card and the TV). The sprite went 52 → 60 symbols (timer, pause, apple, popcorn, egg-fried, cooking-pot, cookie, pizza). The Timer's three counted "glyphs" are two × in CSS comments and the … of "Loading…". Still open: Kid Verse (1.5, batch 7), the Larder (2, batch 8), the Dollywood exports (15 widths, 9/10) and the shell's other 22 own symbols. After: `audits/evidence/p6/6/p4tools/out/ICON_static.txt`, `audits/evidence/p6/6/p4tools/before/ICON_static.txt`, `audits/evidence/p6/6/tests/repro-after-rerun/timer-look-6.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
+- **Phase 6 (PARTIAL).** Kid Verse now draws every icon from the shared sprite at --icon-stroke. ICON/static, pre-batch vs final, Kid Verse: hand-drawn SVGs 7 → 0, sprite uses 0 → 8, stroke widths {1.5} → none. The sprite went 60 → 62 symbols (scroll-text, ear; named in the Lucide notice). kidverse-look-7 §9: every <svg> is a svg.sym naming a sprite symbol. Still open: the Larder (2, batch 8), the Dollywood exports (15 widths, 9/10) and the shell's 22 own symbols. After: `audits/evidence/p6/7/p4tools/out/ICON_static.txt`, `audits/evidence/p6/7/p4tools/before/ICON_static.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The count 'eleven icon families' does not match the report's own Table ICON-1: it lists 12 families (F1-F8 plus glyphs, emoji, CSS chevrons and art-as-icon), or 10 distinct recipes if F1-F3 count as the one shell recipe as the item states.
 - **Evidence.** `audits/04-design-system.md:2979`; `index.html:913-916`, `apps/f260.html:617-620`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** The shell (F1-F3) is one custom 1.75 recipe. Each app brings its own: F260: Feather/Lucide-derived paths at 2 on 18 px, a 20-grid tick at 2.6, colour emoji, text glyphs and CSS chevrons.
@@ -1856,8 +1856,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-3 — 168 `color-mix()` recipes, with the person colour mixed at 27 different ratios
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2f699c2`)
-- **Phase 6 (PARTIAL).** Verses' last color-mix() recipe, the page wash, is now a token. TOK/literals, pre-batch vs final: color-mix Verses 1 → 0. Unchanged and still open: each Dollywood export 25 (batches 9/10), the shell 2, Kid Verse 1 (batch 7). After: `audits/evidence/p6/5/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/5/p4tools/before/TOK_literals.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
+- **Phase 6 (PARTIAL).** Kid Verse's last color-mix(), the page wash, is now the --butter-wash token. TOK/literals, pre-batch vs final: color-mix Kid Verse 1 → 0. kidverse-look-7 §12: no color-mix and no hex in the <style>. Still open: each Dollywood export 25 (batches 9/10), the shell 2. After: `audits/evidence/p6/7/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/7/p4tools/before/TOK_literals.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
 - **Evidence.** `audits/04-design-system.md:871`; `apps/tally.html:47`
 - **What happens now.** Counts. 168 occurrences and 99 distinct recipes (re-measure): design.css 55;
 - **Why it matters.** Tints drift from app to app and cannot be re-tuned per theme in one place.
@@ -1876,8 +1876,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-2 — The same role is set differently in every area: section headers seven ways, buttons 13-18 px at weights 400-700, body 14.5-22 px
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** Every Timer size now reads a role. TYPE/code-scan, pre-batch vs final, Timer: role tokens 0 → 10 (large title, title 2 and 3, body, subheadline), local var 1 → 0, other 1 → 0; its 6 clamp/calc are min()/max() of a role and the ring width (the digits, the state line, the kitchen's glance digits), with no px. Still open in the same scan: each Dollywood export 143 clamp/calc plus 8 px, 2 under 11 px (batches 9/10), and Kid Verse 2 px (batch 7). After: `audits/evidence/p6/6/p4tools/out/TYPE_code-scan.txt`, `audits/evidence/p6/6/p4tools/before/TYPE_code-scan.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
+- **Phase 6 (PARTIAL).** Kid Verse's two px sizes (the avatars' 16 and 22 px) are gone and every size is a role. TYPE/code-scan, pre-batch vs final, Kid Verse: px 2 → 0, role tokens 30 → 43 (the migration aliases --fs-xs/-lg/-xl/-2xl/-3xl replaced by roles), none under 11 px. Still open in the same scan: each Dollywood export 143 clamp/calc plus 8 px, 2 under 11 px (batches 9/10). After: `audits/evidence/p6/7/p4tools/out/TYPE_code-scan.txt`, `audits/evidence/p6/7/p4tools/before/TYPE_code-scan.txt`.
 - **Evidence.** `audits/04-design-system.md:1440`; `apps/design.css:306-309`, `apps/f260.html:55-125`
 - **What happens now.** Section headers: shell 18/700; F260 15/700; Larder 13/700 caps; Prayer 19/600; Verses and Kid Verse 18/700; build guide 16/400 serif; park map 15/600 generic serif.
 - **Why it matters.** Hierarchy has to be relearned in each app, and a heading of the same kind means something different in each.
@@ -2030,8 +2030,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-4 — Kid and kiosk scale only the tokenised subset; every literal size escapes them
 
-- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** The Timer's header art and the shell's timer pill moved to tokens that scale by kind. TOK/literals, pre-batch vs final: Timer targets 1 → 0; font sizes 1 → 6 are roles capped by the ring width (min()/max()); shadows 3 → 4 (the quiet unseen dial), one spacing literal (the kitchen dial's 680 px cap). The pill (min-height --tap, --fw-semibold, the numeral tokens, --z-fab, --sp-*) takes the shell's weights 49 → 48, letter-spacing 3 → 2, spacing 29 → 28, z-index 14 → 13, targets 19 → 18, local literals 30 → 29; font sizes 10 → 14 and line heights 14 → 15 are the new pill, card and kitchen sizes. Left, unchanged: the Dollywood exports' spacing 75 and 91, font sizes 38 and 64 (9/10). After: `audits/evidence/p6/6/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/6/p4tools/before/TOK_literals.txt`.
+- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
+- **Phase 6 (PARTIAL).** Kid Verse's literal sizes moved to tokens that scale by kind. TOK/literals, pre-batch vs final, Kid Verse: 41 → 18 (font sizes 2 → 0, line heights 8 → 0, targets 7 → 0, local literals 2 → 0, opacity 1 → 0); the 18 left are the 17 bootstrap colours every app carries and the dark art dim brightness(.82), a recorded exception with no token. Left, unchanged: the Dollywood exports' spacing 75 and 91, font sizes 38 and 64 (9/10). After: `audits/evidence/p6/7/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/7/p4tools/before/TOK_literals.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The shell citations are wrong: index.html:60 is the adult PIN pad, :124 is a kiosk rule, and :188 is an icon size. None of them is a [data-kind=kid] rule restating 64/84px, and the kid CTA already uses var(--tap-lg).
 - **Evidence.** `audits/04-design-system.md:741`; `apps/design.css:280-289`, `index.html:60`
 - **What happens now.** Areas: design.css, the shell, F260, the Larder, Prayer, the park map.
@@ -2505,8 +2505,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-ICON-1 — Text glyphs and colour emoji stand in for icons in six areas
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
-- **Phase 6 (PARTIAL).** F260's glyphs and emoji became Lucide icons. ICON/static, pre-batch vs final: F260 emoji 13 → 1, glyphs 28 → 21: ↗ ✎ ♥ ⛰ ♪ ◐ ✝ are gone; ✓ ×4, ★ ×1 (was 2) and − stay ("Read today ✓", which test-f260 matches, and text in toasts), and the rest are → and … in running text; 🎉 stays in copied text. Prayer was done in batch 3 (no emoji). Unchanged and still open: Kid Verse ★ ×18 (batch 7), the Larder ✓ ×7 (8), the shell 48 emoji, the Dollywood exports 52-53 glyphs (9/10). After: `audits/evidence/p6/4/p4tools/out/ICON_static.txt`, `audits/evidence/p6/4/p4tools/before/ICON_static.txt`, `audits/evidence/p6/4/tests/suites/test-f260.txt`.
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
+- **Phase 6 (PARTIAL).** Kid Verse's labels lost their glyphs. ICON/static, pre-batch vs final, Kid Verse: glyphs 26 → 17 (★ 18 → 12, ✓ 1 → 0, − 2 → 0); the 12 ★ left are code comments, the speech text and the feed line "Read the verse ★", which Home and the TV show and the tests match; one emoji, a fallback face for a recording whose author is missing. Still open: the Larder ✓ ×7 (8), the shell's 48 emoji, the Dollywood exports' 52-53 glyphs (9/10). After: `audits/evidence/p6/7/p4tools/out/ICON_static.txt`, `audits/evidence/p6/7/p4tools/before/ICON_static.txt`.
 - **Evidence.** `audits/04-design-system.md:3031`; `index.html:916`, `apps/f260.html:603-620`, `apps/tally.html:137-140`, `apps/kidverse.html:160`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** Glyphs render in the OS text font and emoji in the platform's colour set, so they take no token colour, weight or dark variant. Even the split between glyph and emoji depends on the platform: in the rig's WebKit, ⛰ and ✝ render as colour emoji, and repainting them changes 0 px (skeptic 1 of P4-ICON-03).
 - **Why it matters.** Glyphs stand in for icons.
@@ -2546,8 +2546,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-6 — The story art's background is fixed: a pale panel on dark pages, and two dark slabs on light pages
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The stopgap landed: the story art sits on --art-plate and is dimmed in dark (brightness .82). The scenes still carry their own fixed backgrounds, because scripts/make-art.mjs does not emit token fills yet (DARK/art-dark unchanged); gap row DARK-10 is "Partly" and names no batch for the art pipeline. After: `audits/evidence/p6/1/p3/kidverse/visual-C-kid-midnight-top.png`, `audits/evidence/p6/1/tests/repro-after/phase4__DARK__art-dark.txt`.
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
+- **Phase 6 (PARTIAL).** Out of scope for batch 7. The story art still has no dark form: make-art.mjs emits fixed fills (gap row DARK-10, no batch named), so the stopgap (the pale --art-plate, dimmed in dark) stays. The art is now smaller (about 8-12 % of the first screen in dark, the rescore), so it glares less. Found, not fixed: a dark plate or dark art, and the verse picture repeated as the story thumbnail on one screen (the rescore's issue 2). After: `audits/evidence/p6/7/rescore.md`.
 - **Evidence.** `audits/03-apps/kidverse.md:716`; `audits/screens/kidverse/kid-typical-desktop-dark.png`, `audits/evidence/p3/kidverse/visual-C-kid-midnight-top.png`
 - **What happens now.** The scene SVGs carry their own full-bleed background (for example `art/story/12-church.svg:2`, `#DCECEA`). Loaded as `<img>`, no theme token reaches them, and the pale block glares on Midnight and Forest (688 px wide on desktop and iPad).
 - **Why it matters.** A pale panel glares on dark pages.
@@ -2576,8 +2576,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-KIDVERSE-10 — No touch-callout suppression on the story art, and card chrome text is selectable
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`80af987`)
-- **Phase 6 (NEEDS DEVICE CHECK).** The story art and the card chrome get -webkit-touch-callout none and user-select none, and the art is not draggable: TELL/tells-webkit, Kid Verse draggable images 2 → 0, selectable chrome none. The long-press itself needs a device: on an iPad, press and hold the story picture and the stars card and check that no image callout, loupe or selection appears. After: `audits/evidence/p6/1/p4/TELL/tells-webkit.json`.
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`7a77c6b`)
+- **Phase 6 (NEEDS DEVICE CHECK).** Nothing more the rig can prove. TELL, pre-batch vs final, Kid Verse: controls 4 → 11, all user-select none; a double-click selects only the verse reference "Acts" (content, left selectable). The pictures stay not draggable with no touch callout. The long-press needs an iPad: press and hold the story picture and the stars card and check that no callout, loupe or selection appears. After: `audits/evidence/p6/7/p4tools/out/TELL_tells-webkit.txt`, `audits/evidence/p6/7/p4tools/before/TELL_tells-webkit.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:732`
 - **What happens now.** `#art` has no `-webkit-touch-callout` and is draggable; the pill, stars card and badges are `user-select: text`; only `.btn` is `none`.
 - **Why it matters.** Long-press menus on the art.
@@ -2666,8 +2666,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-SHAPE-1 — Concentric corners are impossible by construction; at least 58 of 99 container/child pairs are off
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** Concentric by construction in design.css (--r-card = --r-control + --pad-card, --r-inset). SHAPE/analyze, distinct off-concentric pairs 55 → 23: shell 25 → 4, build guide 11 → 1, Verses 4 → 0, Kid Verse 2 → 1, park map 5 → 4; the Larder stays 4 and the TV board rises 3 → 8 (the kiosk's ×1.5 radii). The rest goes with the Larder (8), park map (10), TV (2c) and shell (2a) batches. measure/page-lib.mjs prints the same output before and after (stale). After: `audits/evidence/p6/1/p4/SHAPE/analyze.json`, `audits/evidence/p6/1/p4/SHAPE/sheet-concentric.png`, `audits/evidence/p6/1/tests/repro-after/phase4__SHAPE__analyze.txt`.
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
+- **Phase 6 (PARTIAL).** Kid Verse's story picture sits at the card's padding corner with a concentric radius (R 38, inset 20, r 18). SHAPE/analyze, pre-batch vs final, Kid Verse: off-concentric pairs 1 → 0 (the story picture in 66 jobs). Still open: shell 4 (2a), park map 4 (10), the Larder 4 (8), build guide 1 (9), the TV board 8 (2c). After: `audits/evidence/p6/7/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/7/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
 - **Evidence.** `audits/04-design-system.md:2208`; `apps/design.css:381-383`; `audits/evidence/p4/SHAPE/sheet-concentric.png`
 - **What happens now.** The root cause is in design.css. `.card` is R22 with 20 px padding and a 1 px border, an inset of 21 (`apps/design.css:381-383`), and `.btn` is r16 (`:352`). Concentric would need r1, so every button in a card is 15 px off.
 - **Why it matters.** Mismatched nested corners are one of the clearest tells between the hub and first-party iPadOS surfaces, and design.css produces them by default.
@@ -5150,7 +5150,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-KIDVERSE-04 — The seven day dots and their "N of 7 days" label show verse days only, while ★N also counts story and prayed stars
 
-- **Area** kidverse · **Type** bug · **Severity** medium · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** bug · **Severity** medium · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** Each day dot now carries one mark per star earned that day (a star for the verse, a book for the story, praying hands for prayed), and the label counts what ★N counts. verify-day-dots-vs-count-1: Ezra's card ★4 with 1 lit dot and "4 of 7 days" → 3 dots with marks and "4 stars this week"; the grown-ups' row the same (Ezra ★5: 1 → 3 dots). -2: ★13 read "13 of 7 days" over 1 dot → 6 marked dots, "13 stars this week". stars-a-7 §6: marks 6 = count 6 on screen and in the mirror. Found, not fixed: the marks are 10-13 px inside a 36-44 px dot when two or three share it (rescore). After: `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__verify-day-dots-vs-count-1.txt`, `audits/evidence/p6/7/tests/repro-before/phase3__kidverse__verify-day-dots-vs-count-1.txt`, `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__verify-day-dots-vs-count-2.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:289`; `apps/kidverse.html:277`, `apps/kidverse.html:60`; `audits/evidence/p3/kidverse/verify-day-dots-vs-count-1-mom-kids-panel.png`, `audits/evidence/p3/kidverse/verify-day-dots-vs-count-2-ezra-after-verse-and-story.png`
 - **What happens now.** `daysHtml` lights a dot only where `s.days[d] === true`, a verse star (`apps/kidverse.html:277`). `weekCount` adds `credited.story` and `credited.prayed` (`:414`), and item 20 widened the count this way (`:269`) without changing the dots. Both the kid card (`:361`) and the grown-ups panel (`:372`) use them.
 - **Why it matters.** For a pre-reader the dot row is the picture of their progress. It contradicts the number, hides two of the three ways to earn, and VoiceOver reads an impossible "N of 7 days".
@@ -5159,7 +5160,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-KIDVERSE-05 — After the week stepper the verse moves, but the story card stays on the old week while its speaker reads the new week's story
 
-- **Area** kidverse · **Type** bug · **Severity** medium · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** bug · **Severity** medium · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** A week change now repaints the story card and its speaker at once, and stops any reading in progress. verify-story-card-stale-after-step-2: after "+" to week 39 the story card read week 38's "Wind, fire and a bright light" until a reload → "Good news for everyone" (week 39) at once, after a pull and after a remote step back. -1: storyStaleAfterPlus and storyStaleAfter35s true → false. stars-a-7 §8: the minus follows too, the story speaker speaks week 39's story, one feed line per real change. kidverse-look-7 §15: a step from another device mid-reading stops it and shows the new words. After: `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__verify-story-card-stale-after-step-2.txt`, `audits/evidence/p6/7/tests/repro-before/phase3__kidverse__verify-story-card-stale-after-step-2.txt`, `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__verify-story-card-stale-after-step-1.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:325`; `apps/kidverse.html:336-340`, `apps/hub.js:206-210`, `apps/kidverse.html:672`; `audits/evidence/p3/kidverse/adult-week-A-after-plus-story-card.png`, `audits/evidence/p3/kidverse/verify-story-card-stale-after-step-2-after-plus-story.png`
 - **What happens now.** `setWeek` calls only `render()` (`apps/kidverse.html:336-340`), which never touches the story card (`:343-377`). `renderStory` runs at boot and on `hub.onChange` (`:676`), and hub.js fires `onChange` only for remote changes (`apps/hub.js:206-210`): `hub.set` never emits (`:231-243`), and a pull skips a row whose local stamp is as new, so …
 - **Why it matters.** The adult who just set the week sees a mismatched story. Reading the card aloud gives last week's story; tapping the speaker gives a different story from the one on screen.
@@ -5168,7 +5170,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-KIDVERSE-12 — A Reset week that Kid Verse applies after the ISO week rolls over leaves that week's verse stars on the balance
 
-- **Area** kidverse · **Type** bug · **Severity** medium · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** bug · **Severity** medium · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** A reset row's days now clear the verse stars in whatever ISO week Kid Verse applies it, and the mirror keeps 30 days so Me shows the reset at once. The three original scripts fail before and after (they never answer the confirm sheet and assume the week of 27 Sep 2026); their -7 copies pin the clock. critic-reset-crossweek-7: Me on Monday before Kid Verse opens ★404 → ★402, the kid's days {} → 21 and 27 Sep reset; keeps-verse-stars-1-1-7 and 1-2-7 the same ★404 → ★402. stars-a-7 §1: Me reads ★0 on Monday before the kid opens. A real midnight on two kid devices is not verified. After: `audits/evidence/p6/7/tests/reset-copies/reset-after/critic-reset-crossweek-7.txt`, `audits/evidence/p6/7/tests/reset-copies/reset-before/critic-reset-crossweek-7.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__verify-critic-reset-crossweek-keeps-verse-stars-1-2-7.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:538`; `index.html:1374`, `apps/kidverse.html:270`, `index.html:1326`, `apps/kidverse.html:456`; `audits/evidence/p3/kidverse/critic-reset-crossweek-next-kid-after.png`, `audits/evidence/p3/kidverse/critic-reset-crossweek-same-kid-after.png`
 - **What happens now.** The reset row lists this ISO week's days up to today (`index.html:1374`). `normStars` rebuilds a row from an earlier ISO week with `days: {}` (`apps/kidverse.html:270`), and the shell's `rewardRow` does the same (`index.html:1326`). `applyLedger` resets a verse day only where `s.days[d] === true` (`apps/kidverse.html:456`;
 - **Why it matters.** The parent was told "This week's 6 stars come off the balance". Up to 7 verse stars stay payable, and the balance in Me silently goes back up overnight.
@@ -5177,7 +5180,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-KIDVERSE-13 — A story or prayed day not yet credited when a parent resets the week is credited after the reset
 
-- **Area** kidverse · **Type** bug · **Severity** medium · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** bug · **Severity** medium · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** A story or prayed day the reset lists, heard or prayed but not yet credited, is now spent with a reset marker and never credited afterwards; a star stamped after the reset stays. Originals: two crash before and after (no reset row: the confirm sheet is never answered) and -4-1 exits 0 with no reset row, so the -7 copies are the measure. critic-reset-uncredited-prayed-7: after Kiara reopens, count 1 → 0, total 2 → 1, earned 3 → 2, prayed today true → reset. 4-1-7 and 4-2-7: Me later "★2 · 1 this week · 3 ever" → "★1 · 0 this week · 2 ever". stars-a-7 §2-4: both arrival orders, two devices identical. A real midnight on two devices is not verified. After: `audits/evidence/p6/7/tests/reset-copies/reset-after/critic-reset-uncredited-prayed-7.txt`, `audits/evidence/p6/7/tests/reset-copies/reset-before/critic-reset-uncredited-prayed-7.txt`, `audits/evidence/p6/7/tests/reset-copies/reset-after/verify-critic-reset-misses-uncredited-prayed-days-4-2-7.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:576`; `apps/kidverse.html:457`, `index.html:1348`, `apps/kidverse.html:453-457`, `index.html:1341`; `audits/evidence/p3/kidverse/critic-reset-uncredited-prayed-kiara-after.png`, `audits/evidence/p3/kidverse/verify-critic-reset-misses-uncredited-prayed-days-4-2-kiara-after.png`
 - **What happens now.** `applyLedger` marks `'reset'` only the story and prayed days already credited `=== true` (`apps/kidverse.html:457`). `reconcile()` applies the ledger first (`:471`), then credits every uncredited story and prayed day in the 14-day look-back with a fresh `earnedAt` (`:473-474`), which is later than the reset's `at`, so the `before()` …
 - **Why it matters.** The parent sees the week cleared; then the kid's card shows stars for that same week and the balance goes back up, even above its pre-reset figure.
@@ -5186,7 +5190,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-KIDVERSE-2 — Done ★ is below the first screen on iPhone, iPad landscape and desktop; "I heard it" is two screens down
 
-- **Area** kidverse · **Type** usability · **Severity** medium · **Effort** M · **Batch** 7
+- **Area** kidverse · **Type** usability · **Severity** medium · **Effort** M · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** The kids' first screen is the art (sized to the screen, 3:2), the reference, the verse speaker and Done side by side; the story follows. visual.mjs at 430 × 932: Done 922-1006 px (below the fold in the hub) → 484-593, "I heard it" 1886 → 1024. kidverse-look-7 §1: art, reference, speaker and Done on the first screen at 390, 430, 820, 1180 and 1440, light and dark, and at XXL from 820; "I heard it" ends within 1.5 screens (390: 1.49). Accepted cost: the kid's stars card is now below the story, so a kid no longer sees ★N change after Done. Found, not fixed: the art letterboxed in a full-width card, one 656 px column on wide screens. After: `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__visual.txt`, `audits/evidence/p6/7/tests/repro-before/phase3__kidverse__visual.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: The report understates the landscape, desktop and Safari case. There, 'Read it to me' is off the first screen as well as Done ★, so the whole action row is hidden. 'I heard it is two screens down' is loose: its top sits at 1.89 viewport heights, on the second screen, about one screen of scrolling.
 - **Evidence.** `audits/03-apps/kidverse.md:663`; `audits/evidence/p3/kidverse/visual-P-kid-iphone-first-screen.png`, `audits/screens/kidverse/kid-typical-iphone-pwa-light.png`
 - **What happens now.** Standalone at 430×932 the scene art takes 274 px; Done ★ spans 851-935 px, so in the shell (48 px viewer bar) only its top edge shows; the stars card starts at 951 px, "I heard it" at 1713 px, on a 2304 px page.
@@ -5196,7 +5201,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### GAP-KIDVERSE-1 — The family week never advances by itself, and changing it tells nobody
 
-- **Area** kidverse · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** A week change posts one feed line, "Kid Verse is now week N: <ref>", and from the first Sunday 5 pm New York more than 5 days after the week was set a household adult is offered "Move to week N+1?" (Move / Not now, a person row; no push; never at week 52). stars-a-7 §7: 4:59 pm no, 5:00 pm yes in EDT and EST, 224 week-set instants always a Sunday at 5 pm, per adult, never a kid, Move writes the week and the line. test-kidverse (g): 336 instants across both clock changes; 51 → 69 checks. kidverse-look-7 §13: the offer is first in the panel, both buttons 44 px or more. Checked on pinned clocks, not on a real Sunday. After: `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`, `audits/evidence/p6/7/tests/suites/test-kidverse.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:741`; `apps/kidverse.html:338`, `apps/kidverse.html:336-340`; `audits/screens/kidverse/adult-f260-hint-typical-iphone-pwa-light.png`
 - **What happens now.** `setWeek` writes only `{week, by, at}` (`apps/kidverse.html:338`), with no `hub.activity` line. Nothing advances the week with the calendar or F260; the only link is the adult's own "Use week N" hint (`:370`). This also leaves the TV's kid line empty (P2-HOME-07).
 - **Why it matters.** The week never advances and nobody is told.
@@ -5205,7 +5211,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-KIDVERSE-06 — The kid's stars card labels the cash-in balance "all time"
 
-- **Area** kidverse · **Type** bug · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** bug · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** The kid's stars card no longer calls the balance "all time": it says "N stars this week", and My rewards shows "to cash in" and "N ever" as separate items. verify-all-time-label-1 and -2: the sub-line "6 stars this week · 422 all time" → "6 stars this week"; the balance 422 "to cash in" and "871 ever" unchanged. Me's line was already right and now wraps as whole items. kidverse-look-7 §11: the balance reads "to cash in", never "all time". test-rewards (l): "to cash in" / "N ever" in Kid Verse and in Me; 73 → 88. After: `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__verify-all-time-label-2.txt`, `audits/evidence/p6/7/tests/repro-before/phase3__kidverse__verify-all-time-label-2.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`, `audits/evidence/p6/7/tests/suites/test-rewards.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:361`; `apps/kidverse.html:361`, `apps/kidverse.html:497`, `apps/kidverse.html:381-384`, `apps/kidverse.html:355-362`; `audits/evidence/p3/kidverse/verify-all-time-label-2-A-before-cashin.png`, `audits/screens/kidverse/kid-stars-overflow-ipad-portrait-light.png`
 - **What happens now.** The stars card prints `s.total`, the balance a cash-in resets, as "N all time" (`apps/kidverse.html:361`). The code's own comment (`:381-384`) and CLAUDE.md define `total` as the cash-in balance and `earned` as all-time; "My rewards" on the same page prints `s.earned` as "N ever" (`:497`).
 - **Why it matters.** Two contradictory totals sit on one screen, and a parent looking at the kid's device misreads the balance.
@@ -5214,7 +5221,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-KIDVERSE-09 — The stars row keeps every credited day forever, and every change uploads the whole row twice
 
-- **Area** kidverse · **Type** bug (perf) · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** bug (perf) · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** The stars row is bounded: days, credited days and earnedAt keep 30 days, older ones fold into counters, and one Done writes the mirror once. verify-stars-row-growth-1 (a year of facts): Ezra's mirror 14 400 → 3 778 bytes; one Done uploads 14 468 → 3 846 bytes, opening 14 417 → 3 795; Kiara 7 118 → 3 019. -2: old story / prayed days kept in the mirror 150 / 150 → 0 / 0. stars-a-7 §5: 1 and 2 years mirror 3 582 / 4 169 bytes (the exact derivation 33 408 / 66 440), balance, earned and badge counts equal an independent replay, Done writes the mirror once. The pre-0f person row stays, unrewritten, as a read-only base. After: `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__verify-stars-row-growth-1.txt`, `audits/evidence/p6/7/tests/repro-before/phase3__kidverse__verify-stars-row-growth-1.txt`, `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__verify-stars-row-growth-2.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:437`; `worker/src/data.js:4`, `apps/kidverse.html:405`, `apps/hub.js:264`, `apps/kidverse.html:402-413`; `audits/evidence/p3/kidverse/verify-stars-row-growth-2-after-tap.png`
 - **What happens now.** `rewardsExtra` keeps every date key in `credited.story` and `credited.prayed` (`apps/kidverse.html:405, 411`) and trims only `earnedAt`, to 30 days (`:410`). `applied` is never pruned either (`:409`); `payouts` is capped at 50 (`:407, 449`).
 - **Why it matters.** Each star uploads about 15 KB twice after a year, and every device keeps and re-downloads it.
@@ -5223,7 +5231,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-KIDVERSE-1 — Several kid steps need reading: identical "Read it to me" buttons, the "I heard it" check, and text-only toasts
 
-- **Area** kidverse · **Type** usability · **Severity** low · **Effort** M · **Batch** 7
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** M · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** Kid steps no longer need reading: the verse speaker is a scroll and the story's an open book, "I heard it" is an ear with a small star, Done is the star, and every toast a kid sees is spoken, never over a reading. kidverse-look-7 §9 and §14: distinct pictures, the ear 56 px with a 24 px star badge, no ★/✓/− in a label; §6: a toast is spoken when nothing else is and waits during a reading. Hearing a spoken toast on an iPhone or iPad is a device check. Found, not fixed: the no-week placeholder's speaker is a speaker, not the scroll, and the story tiles wrap "Read it / to me" at 390-430. After: `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`, `audits/evidence/p6/7/rescore.md`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The headline 'several kid steps need reading' overstates it. No step needs reading to complete. Reading is needed only to understand text-only feedback and to know to listen before tapping. 'Past midnight a pressed Done today ★ can show beside 0 stars' is not supported.
 - **Evidence.** `audits/03-apps/kidverse.md:656`; `apps/kidverse.html:665`; `audits/evidence/p3/kidverse/webtells-toast-over-content.png`, `audits/screens/kidverse/kid-story-typical-iphone-pwa-light.png`
 - **What happens now.** Verse: speaker, then star, works by icon and position, but Done ★ is off the first iPhone screen and nothing tells the child to listen first.
@@ -5233,7 +5242,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-KIDVERSE-4 — After a parent's Reset week, the stars card says "No stars yet" while the story card says "Heard 1 day this week"
 
-- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** After a parent's Reset week the two cards agree: the story card says "Heard 1 day · no stars this week" (apps/kidverse.html, read in the code and seen in the rescore's week-reset captures; no suite asserts the wording), and Done answers "Your star for today was reset — come back tomorrow!" with no second star. stars-a-7 §3: a reset after today's star takes it, Done gives that line and writes no star row; a star earned after the reset's time stays. The reset no longer leaves uncredited story days to come back (P3-KIDVERSE-13). After: `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`, `audits/evidence/p6/7/rescore.md`.
 - **Evidence.** `audits/03-apps/kidverse.md:672`; `apps/kidverse.html:451-458`; `audits/evidence/p3/kidverse/ledger-L4-after-reset-today-spent.png`, `audits/screens/kidverse/kid-week-reset-typical-ipad-portrait-light.png`
 - **What happens now.** A reset marks credited days "reset" in the stars row (`apps/kidverse.html:451-458`); the story card counts the separate story row (`:661-665`), which a reset does not touch. After a reset of today, Done ★ stays pressed ("Done today ★") beside 0: correct under the one-a-day rule, but it looks like an error to a child.
 - **Why it matters.** Contradictory cards.
@@ -5242,7 +5252,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-KIDVERSE-5 — With no family week set, Kid Verse silently shows week 1
 
-- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** With no family week ever set, Kid Verse no longer shows week 1: a kid sees a picture and "A grown-up will pick this week's verse" (read aloud on tap) with no Done, story or shelf; an adult sees "Pick this week's verse" and the stepper, and nothing is written until Use week N. Owner decision: no verse or story star without a week, but the star for praying on the family list still counts (stars-a-7 §9). kidverse-look-7 §10; the TV says the line quietly with no week number or kid line (test-tv 97 → 100) and Home paints (test-home 105 → 109). Found, not fixed: the placeholder's speaker icon. After: `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`, `audits/evidence/p6/7/tests/suites/test-tv.txt`, `audits/evidence/p6/7/tests/suites/test-home.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:675`; `apps/kidverse.html:253`; `audits/screens/kidverse/kid-empty-iphone-pwa-light.png`, `audits/screens/kidverse/adult-empty-iphone-pwa-light.png`
 - **What happens now.** `clampWeek(undefined)` is 1 (`apps/kidverse.html:253, 276`). An empty household sees Genesis 1:27 and the creation art as if an adult had chosen it, with no prompt to pick a week.
 - **Why it matters.** Week 1 shows silently.
@@ -5251,7 +5262,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-KIDVERSE-9 — Badge and payout dates have no year
 
-- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** A date from an earlier year now shows its year, in Kid Verse and in Me. rowsize: Overflow Ezra's badges "Aug 4" … "Aug 26" → "Aug 4, 2025" … "Aug 26, 2025"; this year's "Last cashed in: 15 stars on Mar 8." stays without a year. Me printed the raw date ("last cash-in 15 on 2026-03-08") → "on Mar 8" (verify-all-time-label-1). stars-a-7 §10: "Jul 28, 2025", "Last cashed in: 3 stars on Mar 1, 2025.", Me "last cash-in 3 on Mar 1, 2025", and a payout this year has no year. After: `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__rowsize.txt`, `audits/evidence/p6/7/tests/repro-before/phase3__kidverse__rowsize.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__stars-a-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:691`; `apps/kidverse.html:490`; `audits/evidence/p3/kidverse/rowsize-overflow-ezra-rewards.png`
 - **What happens now.** `fmtDay` formats month and day only (`apps/kidverse.html:490, 498-499`). Overflow Ezra's badges from 2025 read "Jul 28" and "Jul 30"; "Last cashed in: 13 stars on Mar 1."
 - **Why it matters.** Badge dates have no year.
@@ -5260,7 +5272,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-KIDVERSE-10 — For adults, their own panel is two or more screens below the kid art
 
-- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** usability · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** For a grown-up the panel comes first: the Move offer, the kids' stars, the week stepper and the voice recorder, then the kids' screen under "What the kids see". kidverse-look-7 §2: at 390, 430, 820, 1180 and 1440 the panel is above the kid art, starts on the first screen and labels the preview. The rescore: the adult's main job is now first (Layout). After: `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`, `audits/evidence/p6/7/rescore.md`.
 - **Evidence.** `audits/03-apps/kidverse.md:694`; `audits/screens/kidverse/adult-verse-typical-desktop-light.png`, `audits/screens/kidverse/adult-empty-ipad-portrait-light.png`
 - **What happens now.** Adults get the full kid layout first: the scene, the reference and two cards. The Kids' stars panel and the week stepper, the adult's job here, sit two or more screens down on desktop, iPad and iPhone.
 - **Why it matters.** The adult's job is two screens down.
@@ -5269,7 +5282,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-KIDVERSE-5 — In the grown-ups panel on iPhone the day dots cover each kid's ★ count
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** In the grown-ups' panel each kid's face, name and count share a line and the day dots sit below, so nothing covers the count. visual.mjs, the long-named household at 430: the counts ended at 198 / 201 px under dots starting at 149 px (covered) → name rows at 136 / 231 px and dots from 173 / 267 px (not covered). kidverse-look-7 §3: at 375, 390 and 430, light and dark, name and count share a line and nothing overlaps. After: `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__visual.txt`, `audits/evidence/p6/7/tests/repro-before/phase3__kidverse__visual.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:712`; `apps/kidverse.html:104-111`; `audits/evidence/p3/kidverse/visual-G-adult-kids-panel-overflow-430.png`, `audits/screens/kidverse/adult-typical-iphone-pwa-light.png`
 - **What happens now.** `.kn` is `flex:1; min-width:0` beside a `flex:0 0 auto` `.days` (`apps/kidverse.html:104-111`), so the name box is 48 px wide: "Ezra ★3" count right edge 151 px vs dots from 149 px; "Kiara ★1" 157 vs 149, so the "1" is hidden. In overflow, "Ezra Bartholomew Anderson ★6" wraps into three lines under the dots.
 - **Why it matters.** The dots cover the count.
@@ -5278,7 +5292,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-KIDVERSE-9 — Button labels repeat their own icon, and the stepper uses text − and +
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** Labels no longer repeat their icon: "Done ★" → Done with the star, "Heard it today ✓" → "Heard it today", and the stepper's text − / + are the sprite's minus and plus. ICON/static, Kid Verse: glyphs ★18 ✓1 −2 → ★12 ✓0 −0; the 12 ★ are code comments, the speech text and the feed line "Read the verse ★" (shown on Home and the TV, kept). The badge numerals 7, 10 and 50 stay numbers. kidverse-look-7 §9: no ★/✓/− glyph in any label. Found, not fixed (rescore): two loading tells, Done losing its fill while loading and no skeleton for the reference. After: `audits/evidence/p6/7/p4tools/out/ICON_static.txt`, `audits/evidence/p6/7/p4tools/before/ICON_static.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
 - **Evidence.** `audits/03-apps/kidverse.md:729`; `apps/kidverse.html:160`; `audits/screens/kidverse/kid-stars-overflow-ipad-portrait-light.png`, `audits/screens/kidverse/adult-typical-iphone-pwa-light.png`
 - **What happens now.** A star SVG beside "Done ★" / "Done today ★" (`apps/kidverse.html:160, 359`), a check SVG beside "Heard it today ✓" (`:173, 663`); the stepper's − and + are text glyphs (`:369`); three badges use the numerals 7, 10 and 50 as glyphs.
 - **Why it matters.** Doubled icons.
@@ -5287,7 +5302,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-KIDVERSE-11 — The rewards summary wraps with a dangling separator
 
-- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 7
+- **Area** kidverse · **Type** visual · **Severity** low · **Effort** S · **Batch** 7 · **Status** FIXED (`7a77c6b`)
+- **Phase 6 (FIXED).** The rewards summary is separate items in a wrapping row with no "·" between them, and Me's rewards line wraps item by item ("· 867 ever" moves whole). verify-all-time-label-2: "422 stars to cash in · 6 this week · 871 ever" → three items. kidverse-look-7 §11. Me's change is in the shell pixel diff (capture/pixel-diff-accounting.md). Found, not fixed: other wraps at 390-430 ("EZRA'S STORY THIS / WEEK", XXL "I heard / it"), and the kid section titles are 24-26 px, under the rescore's 28 px. After: `audits/evidence/p6/7/tests/repro-after/phase3__kidverse__verify-all-time-label-2.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`, `audits/evidence/p6/7/capture/pixel-diff-accounting.md`.
 - **Evidence.** `audits/03-apps/kidverse.md:735`; `audits/screens/kidverse/kid-rewards-overflow-iphone-pwa-dark.png`, `audits/screens/kidverse/kid-story-overflow-iphone-pwa-light.png`
 - **What happens now.** With a large balance at 430 px, "· 6 this week ·" ends line 1 with a dot and "867 ever" sits alone on line 2.
 - **Why it matters.** A dangling dot.
@@ -5300,9 +5316,13 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 | ID | Improvement | Kind | Delight | Effort | Source | Status |
 |---|---|---|---|---|---|---|
-| IMP-KIDVERSE-F3 | Highlight each word of the paraphrase and story as it is read, from `SpeechSynthesisUtterance` boundary events | feature | 5 | M | `audits/03-apps/kidverse.md:903` | open |
-| IMP-KIDVERSE-I1 | Past weeks shelf: earlier weeks' scene cards a kid can tap to hear an old verse or story again (read-only, no new stars) | idea | 4 | M | `audits/03-apps/kidverse.md:911` | open |
-| IMP-KIDVERSE-I2 | Record a parent's voice: an adult records the verse once a week (the media store), and "Read it to me" plays Mom's or Dad's voice instead of the synthetic one | idea | 5 | L | `audits/03-apps/kidverse.md:912` | open |
+| IMP-KIDVERSE-F3 | Highlight each word of the paraphrase and story as it is read, from `SpeechSynthesisUtterance` boundary events | feature | 5 | M | `audits/03-apps/kidverse.md:903` | FIXED (`7a77c6b`) |
+| IMP-KIDVERSE-I1 | Past weeks shelf: earlier weeks' scene cards a kid can tap to hear an old verse or story again (read-only, no new stars) | idea | 4 | M | `audits/03-apps/kidverse.md:911` | FIXED (`7a77c6b`) |
+| IMP-KIDVERSE-I2 | Record a parent's voice: an adult records the verse once a week (the media store), and "Read it to me" plays Mom's or Dad's voice instead of the synthetic one | idea | 5 | L | `audits/03-apps/kidverse.md:912` | FIXED (`7a77c6b`) |
+
+- **IMP-KIDVERSE-F3 — Phase 6 (FIXED).** While the verse or the story is read aloud, the word being spoken is highlighted from the speech engine's boundary events, with no motion; a voice that sends none shows nothing. kidverse-look-7 §6 (simulated events): the third word lights exactly "believers", a Safari-style boundary with no length takes the word to the next space, the lead-in lights nothing, cleared on end, error and a second tap; the story and the shelf do the same. Not verified: whether iOS speech sends boundary events for the household's voices (a device check). After: `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
+- **IMP-KIDVERSE-I1 — Phase 6 (FIXED).** Earlier weeks: below the story, the last 6 earlier weeks (newest first) then Show all, for kids and adults, never the TV. A card opens a read-only sheet, "Just for listening", with the verse and story speakers and Close only: no Done, no star. kidverse-look-7 §7: weeks 37-32 then Show all 37, modal with focus on Close, Escape returns focus, one voice at a time, nothing written and the rows byte-identical; a kid's cards 167 × 182-207 px. The rescore: the sheet's focus on iOS is a device check. After: `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
+- **IMP-KIDVERSE-I2 — Phase 6 (FIXED).** A household adult records the week's verse (90 s, 1 MB at most) and "Read it to me" plays it, labelled with the recorder's face and name, falling back to the synthetic voice quietly. The audio is private: only a signed-in device can fetch it, never /api/media. voice-7 52/0 in Chromium with a fake microphone (recorder only for adults, refused mic a calm toast, Replace and Remove ask, 1:30 stop, the shelf plays it, decode error falls back). smoke-api 346 → 422 (kids, guests, TV and kitchen refused; type, size and length limits; the row is the Worker's). Not verified: recording and playback in Safari on an iPhone or iPad, and autoplay there. After: `audits/evidence/p6/7/tests/repro-after/p6-7__voice-7.txt`, `audits/evidence/p6/7/tests/smoke-api.txt`.
 
 ### Batch 8 — Larder Ledger (16)
 

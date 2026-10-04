@@ -2205,3 +2205,169 @@ SHAPE/analyze's "large radii on the scale" uses a hard-coded list older than the
   - The Tally page-background test failure (batch 11).
   - Accepted: the idle screen's empty band, the ended chip repeating "Ended".
 - **Production.** Nothing deployed. Deploy order: migrations 006, 007, then **008-timer-live**, then `npx wrangler deploy` (this brings the minute cron, the timer push and the timer rules to the Worker), then the site.
+
+## Batch 7 — Kid Verse: the stars, Reset week, the first screen, the grown-ups' panel, the Sunday week offer and a parent's voice
+
+| | |
+|---|---|
+| **Findings** | 16 Kid Verse entries (5 medium, 11 low) and the three kept improvements IMP-KIDVERSE-F3, -I1 and -I2. **16 FIXED; F3, I1 and I2 FIXED.** Of the 9 earlier carry-overs with a Kid Verse part, Kid Verse's part is done in all 7 that other apps share (CONS-ICON-1, VIS-ICON-1, CONS-TOK-3, CONS-TYPE-2, GAP-TOK-4, CONS-GLASS-2, VIS-SHAPE-1), which **stay PARTIAL** for the batches that own the rest; **VIS-KIDVERSE-6** (the story art's dark form) was out of scope and **stays PARTIAL**; **VIS-KIDVERSE-10** (the iPad long-press) stays **NEEDS DEVICE CHECK**. Status per entry in `audits/05-findings.md`. |
+| **Code commit** | `7a77c6b` (2026-10-04) |
+| **Files** | <ul><li>`apps/kidverse.html` (the batch)</li><li>`index.html`: Me → Kids' rewards (whole items that wrap, dates with the year only when it is not this year, the ledger rules reading the 30-day mirror), the TV's no-week line</li><li>`icons/sprite.svg` (60 → 62 symbols: scroll-text, ear), `icons/LICENSE-lucide.txt`</li><li>`worker/src/index.js` and `worker/src/media.js` (the private voice routes, `POST`/`GET`/`DELETE /api/kidverse/voice/…`), `worker/src/policy.js` (`voice:` rows are the Worker's only)</li><li>`sw.js` (`hub-v46` → `hub-v47`), `CLAUDE.md`, `worker/README.md`</li><li>tests: `test-kidverse.mjs` (51 → 69 checks), `test-rewards.mjs` (73 → 88), `test-home.mjs` (105 → 109), `test-tv.mjs` (97 → 100), `smoke-api.sh` (346 → 422; 432 with `D1_PERSIST`), `test-kidstory.mjs` (50, its labels' words)</li><li>the batch's checks in `audits/tools/phase6/7/` (stars-a-7, kidverse-look-7, voice-7 and six date-pinned reset copies) and `audits/tools/areas/kidverse.mjs`, `audits/tools/lib/local.mjs` (optional browser flags), committed with the evidence (`654b45a`)</li></ul> |
+| **Schema / data** | **No migration.** New rows: the family row `app_data(family, kidverse, 'voice:<week>')` = `{id, by, byName, at, mime, ms, bytes}`, written only by the Worker, with the audio in the media store under `voice/<week>/<random>` (private: a device token and a signed-in profile; never `/api/media/*`); the person row `moveoffer:<week>` (Not now); reset markers `reset:<kind>:<date>` now `{by, at}`; the family mirror `stars:<kid>` keeps 30 days of `days` and `credited.*`, with older ones folded into `creditedBase` and `appliedBefore`. The production D1 was exported before the batch on the owner's PC (`house-hub-prod-2026-10-03-before-7.sql`). Nothing was deployed. |
+| **How it was built** | <ul><li>Before the batch, an agent sorted the earlier batches' unfinished entries with a Kid Verse part (9).</li><li>Three workers: A (the stars and week logic), B (the look, the first screen, the word highlight, the shelf and the carry-overs) and C (the recorded voice, the Worker, the TV and Home guards, the docs).</li><li>One combined independent reviewer (core and look): round 1 found 8 items, all fixed; a confirmation round found nothing new beyond one accepted cost and two nits, fixed.</li><li>An independent rescore, then one final run on the owner's PC.</li><li>The status entries, the 05 rebuild, the accounting of the pixel diffs and the contrast samples, and this section were finished in the cloud session.</li></ul> |
+
+### The change
+
+**Stars that add up (P3-KIDVERSE-04, -06, -09, UX-KIDVERSE-9).**
+- Each day dot shows every star earned that day: a star for the verse, a book for the story, praying hands for prayed. The label counts what ★N counts ("4 stars this week").
+- The balance reads "to cash in", never "all time"; "N ever" is the all-time count.
+- The stars mirror is bounded: 30 days kept, older days folded into counters, every total equal to the exact derivation. One Done writes the mirror once.
+- A date from an earlier year shows its year, in Kid Verse and in Me.
+
+**Reset week that holds (P3-KIDVERSE-12, -13, UX-KIDVERSE-4).**
+- A reset clears all three kinds of the days it lists, in whatever ISO week Kid Verse applies it. Me shows the reset on Monday before the kid opens Kid Verse.
+- A story or prayed day heard but not yet credited is spent, never credited later.
+- A star earned after the reset's time stays, whichever order the rows arrive in, on one device or two.
+- After a reset the two cards agree ("Heard 1 day · no stars this week"), and Done says "Your star for today was reset — come back tomorrow!".
+
+**The week (P3-KIDVERSE-05, GAP-KIDVERSE-1, UX-KIDVERSE-5).**
+- A week change repaints the story card and its speaker at once and stops a reading in progress.
+- Each real change posts one feed line, "Kid Verse is now week N: <ref>".
+- From the first Sunday 5 pm New York more than 5 days after the week was set, a household adult is offered "Move to week N+1?" (Not now is remembered per adult; no push; never a weekday, never at week 52).
+- With no family week ever set, a kid sees a picture and "A grown-up will pick this week's verse", and a grown-up "Pick this week's verse". **Owner decision:** with no week there is no verse or story star, but the star for praying on the family list still counts. The TV says the same line quietly; Home paints as usual.
+
+**The screens (UX-KIDVERSE-1, -2, -10, VIS-KIDVERSE-5, -9, -11).**
+- The kids' first screen is the art, the reference, the verse speaker and Done, side by side, at every device size; "I heard it" ends within 1.5 screens.
+- Pictures, not reading: a scroll for the verse speaker, an open book for the story, an ear with a star for "I heard it", the star for Done; every toast a kid sees is spoken, never over a reading.
+- For a grown-up the panel comes first (the offer, the kids' stars, the stepper, the recorder), then the kids' screen under "What the kids see". Each kid's name and count share a line, with the dots below.
+- No ★, ✓ or text − / + in a label; the stepper uses the sprite's minus and plus. The rewards summary wraps as whole items.
+
+**Kept improvements.**
+- **IMP-KIDVERSE-F3:** the word being spoken is highlighted from the speech engine's boundary events (nothing where they never fire).
+- **IMP-KIDVERSE-I1:** Earlier weeks, a read-only shelf ("Just for listening", no star), never on the TV.
+- **IMP-KIDVERSE-I2:** a parent's recorded voice for the week's verse, played in place of the synthetic voice, private to signed-in devices.
+
+**The carry-overs.** Kid Verse's icons are the shared sprite, its last `color-mix()`, px sizes and literal sizes are tokens, its "Read it to me" buttons and who-chip are solid, and its story picture is concentric.
+
+**What the review changed.**
+- **Round 1:**
+  - the Move offer could appear on a weekday (now only the first Sunday 5 pm more than 5 days after);
+  - a 56 px star covered the kid's ear;
+  - a reset marker could take a star another device stamped after the reset (markers now carry `{by, at}`);
+  - "I heard it" sat at 1.95 screens on a phone (the stars card moved below the story);
+  - a week change from another device mid-reading left stale words;
+  - "Record again" was glass;
+  - the no-week prayer star became the owner decision above.
+- **Confirmation:**
+  - one accepted cost: with the stars card below the story, a kid no longer sees ★N change on screen after Done;
+  - stopping the speech now stops only the verse or story it belongs to.
+
+### Each finding's reproduction, rerun
+
+**How the scripts were run.**
+- The scripts the entries name ran on the unchanged code (`git archive` of `ac5f7e4`) and on the final code.
+- Outputs are in `audits/evidence/p6/7/tests/repro-before/` and `repro-after/`; the date-pinned reset copies in `tests/reset-copies/reset-before|reset-after/`.
+
+**Exit codes.**
+- Five original reset scripts exit 1 both before and after, and a sixth exits 0 having proved nothing:
+  - they never answer the confirm sheet, so no reset row is written;
+  - the cross-week ones assume the week of 27 Sep 2026, so Reset week is disabled on any other date.
+- Their `-7` copies (`audits/tools/phase6/7/`) press the sheet and pin the clock, and are the measure. The three "uncredited" copies use the real clock and must not run on a Monday.
+- Every other script exits 0 before and after. Their outputs, not their exit codes, show the change.
+
+| Finding | Before | After |
+|---|---|---|
+| P3-KIDVERSE-04 (day dots, verify-day-dots-vs-count-1/-2) | Ezra ★4 with 1 lit dot, "4 of 7 days"; ★13 read "13 of 7 days" | 3 marked dots, "4 stars this week"; 6 marked dots, "13 stars this week" |
+| P3-KIDVERSE-05 (verify-story-card-stale-after-step-2) | after "+", the story card stayed on week 38 until a reload | week 39's story at once, after a pull and after a remote step back |
+| P3-KIDVERSE-12 (critic-reset-crossweek-7, 1-1-7, 1-2-7) | Me on Monday before Kid Verse opens ★404; the kid's days {} | ★402; 21 and 27 Sep marked reset |
+| P3-KIDVERSE-13 (critic-reset-uncredited-prayed-7, 4-1-7, 4-2-7) | Kiara's prayed day credited after the reset: count 1, total 2, earned 3; Me "★2 · 1 this week · 3 ever" | spent: count 0, total 1, earned 2; Me "★1 · 0 this week · 2 ever" |
+| UX-KIDVERSE-2 (visual.mjs, 430 × 932) | Done at 922-1006 px, "I heard it" at 1886 px | Done at 484-593, "I heard it" at 1024 |
+| P3-KIDVERSE-06 (verify-all-time-label-1/-2) | "6 stars this week · 422 all time" | "6 stars this week"; "422 to cash in", "871 ever" |
+| P3-KIDVERSE-09 (verify-stars-row-growth-1/-2) | Ezra's mirror 14 400 B, one Done uploads 14 468 B; 150 / 150 old days kept | 3 778 B, one Done 3 846 B; 0 / 0 |
+| UX-KIDVERSE-9 (rowsize) | badges "Aug 4" … "Aug 26" (2025); Me "on 2026-03-08" | "Aug 4, 2025" …; Me "on Mar 8" |
+| VIS-KIDVERSE-5 (visual.mjs, the long-named household) | the counts end at 198 / 201 px under dots from 149 px | name rows above the dots, nothing covered |
+| VIS-KIDVERSE-9 (ICON/static) | glyphs ★18 ✓1 −2 | ★12 (comments, speech text, the feed line), ✓0, −0 |
+
+**The batch's own checks** (final run, all exit 0):
+- **stars-a-7: 81/0.** Reset across weeks, uncredited days spent, stars after a reset kept (both orders), two devices identical, one and two years bounded and exact, the day marks, the Move offer over 224 instants, the week repaint, no week, years on dates, markers `{by, at}`.
+- **kidverse-look-7: 148/0.** The first screen at five sizes, light and dark (and XXL from 820), the adult panel first, the iPhone kids panel, no horizontal scroll 375-1440, kid targets 64 px, pictures and one sprite, the word highlight, the shelf, no week, the ear's badge, a remote week change, the recorder solid, the Move offer.
+- **voice-7: 52/0** (Chromium, fake microphone).
+
+**The Phase 4 measuring tools**, on the pre-batch archive and on the final code (`audits/evidence/p6/7/p4tools/before/` and `out/`, 8/8 exit 0 each):
+
+| Tool | Kid Verse before → after |
+|---|---|
+| TOK/literals | 41 → 18 (font sizes 2, line heights 8, targets 7, local literals 2, opacity 1 → 0; left: the 17 bootstrap colours every app has and the dark art dim `brightness(.82)`, a recorded exception); colour mixes 1 → 0 |
+| TYPE/code-scan | 2 px sizes, 30 tokens → 0 px, 43 role tokens; none under 11 px |
+| ICON/static | 7 hand-drawn SVGs, 0 sprite uses, stroke 1.5 → 0 hand-drawn, 8 sprite uses, no own stroke width; glyphs 26 → 17 |
+| MOTION/press | kid 2 of 2, adult 1 of 1 → kid 4 of 4, adult 4 of 4, at 0.97 |
+| MOTION/cls | 0 moves → 0 moves, iPhone and iPad |
+| SHAPE/analyze | off-concentric pairs 1 → 0; macro 4 px grid 50.7 % → 48.4 % (the kid ×1.25 of the spacing tokens; TOK spacing 0) |
+| SHAPE/verify | column 390 / 664 / 656 / 656, unchanged; the kid's Done, verse and story buttons 84 → 113 px tall |
+| TELL/tells-webkit | 0 of 4 → 0 of 11 selectable controls; a double-click selects only the verse reference |
+
+### Repo tests
+
+| Suite | Before (batch 6's final run) | After |
+|---|---|---|
+| test-kidverse | 51 / 0 | 69 / 0 (the week line, the Sunday offer over 336 instants, no week) |
+| test-rewards | 73 / 0 | 88 / 0 (reset across weeks, spent days, a year of facts, "to cash in" and years) |
+| test-kidstory | 50 / 0 | 50 / 0 (its labels' words) |
+| test-home | 105 / 0 | 109 / 0 (no family week) |
+| test-tv | 97 / 0 | 100 / 0 (the no-week line) |
+| test-kitchen | 62 / 0 | 62 / 0 |
+| smoke-api.sh | 346 / 0 | 422 / 0 (the recorded voice; 432 with `D1_PERSIST`) |
+| smoke-chat (mock) | 76 / 0 | 76 / 0 |
+| every other suite | pass | pass, identical counts |
+| Earlier batches' checks | pass | pass. `handoff/prayer/check.js` 47/2 (as since 0g; do-not-touch), `0g/check-ids.js` 49/49, the p6-3 to p6-6 copies |
+
+- **test-park** printed 20 passed, 0 failed, then exited 127: a Windows libuv assertion while Node closed (`src\win\async.c`), after every check had passed.
+- **Service worker:** `hub-v47`; `bump-sw --check` finds 75 precached files present and 70 shipped files accounted for.
+- **Scripts:** all 33 inline scripts parse (the new `kv-voice` script is the 33rd).
+
+### Measurement, captures and the rescore
+
+**Contrast** (`audits/evidence/p6/7/measure/contrast-accounting.md`). Kid Verse, the shell and the TV were re-measured.
+- **Kid Verse: 13 samples** (batch 1: 12).
+  - 8 are the two "Read it to me" buttons, disabled on purpose while the family week loads.
+  - 5 are transient, sampled under a toast (the star count "0" in the week-reset state; one shelf card under the cash-in toast).
+  - None is a resting failure.
+- **The shell: 737 samples,** the same groups as batch 6.
+- **The TV: 0.**
+- **Glass:** Kid Verse content glass in 0 of 214 jobs (`measure/glass.json`; batch 1: the two glass buttons in 186 of 186).
+
+**Captures** on the final code (Windows, 0 failed): Kid Verse 240, the shell 979, the TV 34. Pixel diffs (`audits/evidence/p6/7/capture/`; accounted in `capture/pixel-diff-accounting.md`):
+- **Kid Verse:** 240 of 240 changed, the batch.
+- **The shell: 47 of 979 changed against batch 6.**
+  - 36 are Me's rewards card: the date "on 2026-03-08" → "on Mar 8", and the whole-item wrap.
+  - 11 are noise: the chat thread, the "Kitchen timer" tile label and one Home overflow shot.
+  - A cloud re-capture of those screens on the pre-batch and the batch-7 code (Chromium, compared only with itself) shows them unchanged, and only the rewards card changing.
+- **The TV: 8 of 34 changed,** all in the empty household: "A grown-up will pick this week's verse." replaces week 1's verse.
+
+**Rescore** (`audits/evidence/p6/7/rescore.md`; an independent judge, the Phase 4 method, bases held): **Kid Verse 5.6 → 6.1** (range 5.95-6.36).
+- Layout 6 (the first screen), Shape 6.5, Icons 6.5, Dark 6.5, Ease 7 (Done on the first screen and 114 px tall).
+- Typography held at 6, Colour 6, Motion 5, Native 6.5, Glance 5.5, Delight 6.
+- Shape's provisional SHP-2 stands: the final glass aggregate shows no Kid Verse content glass.
+
+### Not verified
+- **On a real iPhone and iPad:**
+  - whether iOS speech sends the boundary events the word highlight needs (IMP-KIDVERSE-F3);
+  - recording and playback of a parent's voice in Safari, and autoplay there (IMP-KIDVERSE-I2);
+  - hearing the kid's spoken toasts (UX-KIDVERSE-1);
+  - the iPad long-press on the story picture and the stars card (VIS-KIDVERSE-10);
+  - the shelf sheet's focus on iOS;
+  - a real midnight across two kid devices (the reset and star rules are proven with pinned clocks and two rig devices);
+  - the Move offer on a real Sunday at 5 pm (proven on pinned clocks).
+- **Left partly done:** 8 carry-overs stay PARTIAL: seven owned by the Larder, the Dollywood exports or the shell, and VIS-KIDVERSE-6.
+- **Found, not fixed** (the rescore's list, for a later polish pass):
+  - the verse art letterboxed in a full-width card;
+  - no dark art, and the verse picture repeated as the story thumbnail;
+  - day-dot marks 10-13 px when two or three share a dot;
+  - one 656 px column on desktop and iPad landscape;
+  - two loading tells (Done loses its fill; no skeleton for the reference);
+  - wraps at 390-430 ("EZRA'S STORY THIS / WEEK", "Read it / to me", XXL "I heard / it");
+  - kid section titles 24-26 px;
+  - the no-week placeholder's speaker icon (a speaker, not the scroll).
+  - Accepted: a kid no longer sees ★N change after Done (the cost of UX-KIDVERSE-2).
+  - `icons/LICENSE-lucide.txt` lists "ear" twice.
+- **Production.** Nothing deployed. Batch 7 adds no migration; it ships with the Worker (`npx wrangler deploy`: the voice routes and the `voice:` rule) and the site, in the order already set: migrations 006, 007, 008-timer-live, then the Worker, then the site.
