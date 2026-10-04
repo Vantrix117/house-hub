@@ -34,7 +34,8 @@ const outFile = process.argv[4] || path.join(ROOT, 'audits', 'evidence', 'p4', '
 const H = (process.env.HUB_AUDIT_HOME || path.join(process.env.LOCALAPPDATA, 'house-hub-audit'));
 process.env.PLAYWRIGHT_BROWSERS_PATH = path.join(H, 'browsers');
 const { webkit, chromium } = createRequire(path.join(H, 'noop.js'))('playwright-core');
-const CHROME = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(p => fs.existsSync(p));
+// HUB_CHROME: a Chromium on Linux or anywhere else (the cloud rig: /opt/pw-browsers/chromium); otherwise Windows Chrome/Edge
+const CHROME = [process.env.HUB_CHROME, 'C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(p => p && fs.existsSync(p));
 const css = fs.readFileSync(cssFile, 'utf8');
 // apps/design.css is one file in two halves. Since audit batch 1a the v3 token half comes first and the components start at
 // the "COMPONENTS (audit batch 1b" banner; before that batch the token half was lines 1-289 (so the gate still runs on either).

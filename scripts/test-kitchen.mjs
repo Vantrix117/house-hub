@@ -277,6 +277,21 @@ async function adminPin(page, pin) { await page.waitForSelector('#apform #apin')
     ok(!!fin && fin.finishedBy === 'dad', 'another device sees the Chili finished by David', JSON.stringify(fin));
     const feed2 = (await api('/api/activity?limit=8', { dt: A.dt })).body.activity;
     ok(feed2.some(l => l.profile_id === 'dad' && /Finished the Chili/.test(l.text)), 'the feed line is filed under David', JSON.stringify(feed2.slice(0, 3).map(l => [l.profile_id, l.text])));
+    // batch 8 (IMP-LEFTOVERS-I1): a full swipe on a card is the check button's own path, so on the Kitchen iPad it opens the same face sheet
+    await api('/api/data/leftovers/item:kit3?scope=family', { method: 'PUT', ...A, body: { value: { id: 'kit3', name: 'Soup', size: 'Medium', dateLogged: today, by: 'eli', byName: 'Eli' } } });
+    await LF.evaluate(() => hub.pull());
+    { const pill3 = await LF.waitForSelector('#newpill:not([hidden])', { timeout: 4000 }).catch(() => null); if (pill3) await pill3.click(); }
+    await LF.waitForSelector('.item[data-id="kit3"]', { timeout: 15000 });
+    await LF.evaluate(() => document.querySelector('.item[data-id="kit3"]').scrollIntoView({ block: 'center' })); await sleep(400);
+    { const fe = await (await LF.frameElement()).boundingBox(), g = await LF.$eval('.item[data-id="kit3"]', e => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
+      const x0 = fe.x + g.x + g.w - 90, y0 = fe.y + g.y + g.h / 2;
+      await K.page.mouse.move(x0, y0); await K.page.mouse.down(); for (let i = 1; i <= 14; i++) await K.page.mouse.move(x0 - (g.w * 0.85) * i / 14, y0); await K.page.mouse.up(); }
+    const swipeFaces = await faceSheet(LF);
+    ok(!swipeFaces.some(f => kids.includes(f)) && adults.every(a => swipeFaces.includes(a)), 'a full swipe on the Kitchen iPad opens the same face sheet (household adults, no kids)', JSON.stringify(swipeFaces));
+    await LF.click('.hub-who .hub-face[data-id="mom"]');
+    ok(await waitFor(() => LF.$eval('.item[data-id="kit3"]', c => c.classList.contains('finishing')).catch(() => false), { timeout: 8000, label: 'the swiped card finishing' }).then(() => true, () => false), 'the swiped card then finishes in place with Undo, like the check button');
+    await sleep(900); await LF.click('.item[data-id="kit3"] .undo').catch(() => {});
+    await api('/api/data/leftovers/item:kit3?scope=family', { method: 'DELETE', ...A }).catch(() => {});
     // the Worker checks finishedBy like by (review of batch 2a): a kid, a guest or the TV is refused, an adult is taken
     const guest = (await api('/api/profiles', { method: 'POST', ...A, body: { name: 'Kitchen Credit', emoji: '🙂', color: '#4C4C58', hue: 'sky' } })).body.profile;
     const pplNow = (await api('/api/profiles', { dt: A.dt })).body.profiles;

@@ -490,7 +490,7 @@ async function runToolInner(env, ctx, name, input, writes) {
       await putOne(env, { appId: 'leftovers', scope: 'family', profile, key, value: null, updated_at: Date.now() });   // tombstone, as the app's hub.remove does
       // kept seven days under "Recently finished" in the app, where it can be put back (batch 0h, as the app's ✓ does)
       if (it.id) await putOne(env, { appId: 'leftovers', scope: 'family', profile, key: 'finished:' + it.id, updated_at: Date.now(),
-        value: { id: it.id, name: it.name, size: it.size, dateLogged: it.dateLogged, loggedBy: it.by, loggedByName: it.byName, finishedAt: today(), finishedBy: profile.id, finishedByName: profile.name } }, { soft: true }).catch(() => {});
+        value: { id: it.id, name: it.name, size: it.size, dateLogged: it.dateLogged, loggedBy: it.by, loggedByName: it.byName, ...(it.useBy ? { useBy: it.useBy } : {}), ...(it.portion === 'some' ? { portion: 'some' } : {}), finishedAt: today(), finishedBy: profile.id, finishedByName: profile.name } }, { soft: true }).catch(() => {});   // useBy / portion (batch 8) so Put back restores them
       await activity(env, profile, 'leftovers', `Finished ${it.name} from the fridge (via chat)`);
       return { ok: true, result: { removed: it.name, id: it.id }, chip: `✓ Finished ${it.name}` };
     }

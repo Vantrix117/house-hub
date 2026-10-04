@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Roadmap 12 checks: the Larder Ledger is list-first. Signed in as Eli on a 390×844 phone, three items logged
 // through the sticky glass add bar come back oldest first with a freshness bar each; the oldest item, its chip
-// and the add bar all fit in the viewport at once; "Copy list for Hearth" still copies; and the "Nd ago" ages,
+// and the add bar all fit in the viewport at once; "Copy the list" still copies (and, when the clipboard is refused, shows the text
+// selected in a box); and the "N days" ages,
 // the groups and the date box roll over when midnight passes while the page is open. The display profile (kiosk)
 // sees the list but no bar and no Hearth block.
 //   cd worker && npx wrangler dev --port 8787     (seeded local D1, pairing code local-test-code)
@@ -105,7 +106,7 @@ const inView = (r, H = 844, W = 390) => r && r.h > 0 && r.top >= 0 && r.bottom <
     const days = await A.page.$$eval('#list .item', els => els.map(e => +e.dataset.days));
     ok(JSON.stringify(days) === JSON.stringify([8, 5, 2]), 'ages are 8, 5, 2 days', JSON.stringify(days));
     const groups = await A.page.$$eval('#list .group', els => els.map(e => e.dataset.tone + ':' + e.querySelectorAll('.item').length));
-    ok(JSON.stringify(groups) === JSON.stringify(['urgent:1', 'warn:1', 'fresh:1']), 'grouped Use it up / Aging / Fresh, one each', JSON.stringify(groups));
+    ok(JSON.stringify(groups) === JSON.stringify(['urgent:1', 'warn:1', 'fresh:1']), 'grouped Use it up / Eat soon / Fresh, one each (batch 8: "Aging" is now "Eat soon")', JSON.stringify(groups));
     ok(await A.page.$eval('#name', i => i.value === '') && await A.page.$eval('#date', i => i.value === document.querySelector('#date').max), 'bar resets to an empty name and today after logging');
 
     console.log('\n## freshness bars');
@@ -147,9 +148,10 @@ const inView = (r, H = 844, W = 390) => r && r.h > 0 && r.top >= 0 && r.bottom <
     await A.page.click('#copy');
     const copied = await waitFor(() => A.page.evaluate(() => window.__copied), { label: 'clipboard' });
     console.log('    ' + copied.split('\n').join('\n    '));
-    ok(/^Push these to the Hearth Calendar:/.test(copied), 'copied text starts with the Hearth line');
-    ok(/• Rice \(Small\) — logged 8d ago, use it up/.test(copied) && /• Soup \(Medium\) — logged 5d ago, eat soon/.test(copied), 'lists Rice (use it up) and Soup (eat soon)');
-    ok(!/Pasta bake/.test(copied), 'fresh Pasta bake is not in the Hearth list');
+    ok(/^Leftovers to eat soon or use up:/.test(copied) && !/hearth|claude/i.test(copied), 'copied text starts with the neutral heading and makes no claim about Hearth or Claude (batch 8, UX-LEFTOVERS-4)');
+    ok(/• Rice \(Small\) — use it up, logged 8 days ago/.test(copied) && /• Soup \(Medium\) — eat soon, logged 5 days ago/.test(copied), 'lists Rice (use it up) and Soup (eat soon) in the Larder words');
+    ok(!/Pasta bake/.test(copied), 'fresh Pasta bake is not in the list');
+    ok(/Paste it into a message, a note or Hearth\./.test(await A.page.textContent('#copyhelp')) && !/Claude/.test(await A.page.textContent('.hearth')), 'the help line is neutral: Paste it into a message, a note or Hearth. (no Claude)');
     ok(/Copied!/.test(await A.page.textContent('#copy')), 'button says Copied!');
 
     console.log('\n## midnight rollover while the page is open');
@@ -163,8 +165,8 @@ const inView = (r, H = 844, W = 390) => r && r.h > 0 && r.top >= 0 && r.bottom <
                groups: [...document.querySelectorAll('#list .group')].map(e => e.dataset.tone + ':' + e.querySelectorAll('.item').length) };
     });
     ok(rolled.ticked === true && rolled.today !== before.today && rolled.today > before.today, 'the minute check notices the new day key', rolled.today + ' vs ' + before.today);
-    ok(JSON.stringify(rolled.ages) === JSON.stringify(before.ages.map(d => d + 1)), '"Nd ago" ages all advance by one (9, 6, 3)', JSON.stringify(rolled.ages));
-    ok(rolled.meta.every((m, i) => m.includes(rolled.ages[i] + 'd ago')), 'meta lines show the new ages');
+    ok(JSON.stringify(rolled.ages) === JSON.stringify(before.ages.map(d => d + 1)), 'ages all advance by one (9, 6, 3 days)', JSON.stringify(rolled.ages));
+    ok(rolled.meta.every((m, i) => m.includes(rolled.ages[i] + ' days')), 'meta lines show the new ages ("9 days")', JSON.stringify(rolled.meta));
     ok(rolled.max === rolled.today && rolled.value === rolled.today && before.value === before.today, 'date box default and max move to the new today');
     ok(await A.page.evaluate(() => __larder.rollover() === false), 'a second check on the same day is a no-op');
     // the interval is registered too: 60 s is too long to wait here, so check it exists (setInterval was called with the hook)
