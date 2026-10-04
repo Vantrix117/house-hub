@@ -270,6 +270,33 @@ async function serveSite() {
     await sleep(300);
     ok(pushesFor('eli', 'verses').length === 1 && !pushesFor('christian', 'verses').length && !pushesFor('mom', 'verses').length && !pushes.some(p => p.url === '/push/ezra'), 'receiver: exactly one verse review push, to Eli; none to a kid', pushes.filter(p => p.payload && p.payload.tag === 'verses').map(p => p.url));
 
+    console.log('\n## the 8 am fridge push (batch 8, P3-LEFTOVERS-02): one Larder rule, in the Larder words');
+    {
+      // one dish per case: the old rule (5+ days, "N to use up") would have missed Soup (4 days) and the use-by ones, and said nothing of "eat soon"
+      const row = (id, name, daysOld, extra = {}) => ({ id, name, size: 'Medium', dateLogged: daysAgo(daysOld), by: 'eli', byName: 'Eli', ...extra });
+      const day = n => nyDate(new Date(Date.now() + n * 86400000));
+      const seeds = [
+        row('m1', 'Chili', 10), row('m2', 'Stew', 7), row('m3', 'Curry', 1, { useBy: day(-1) }), row('m4', 'Rice', 6, { portion: 'some' }), row('m5', 'Pie', 1, { useBy: day(2) }),
+        row('m6', 'Soup', 4), row('m7', 'Salad', 3), row('m8', 'Beans', 9, { useBy: day(5) }),
+      ];
+      for (const s of seeds) { const w = await put('eli', 'leftovers', 'family', 'item:' + s.id, s); if (w.status !== 200) ok(false, 'seed ' + s.name, w.body); }
+      r = await run('morning');
+      ok(r.status === 200 && r.body.job === 'morning', 'POST /api/admin/cron/run {job: "morning"}', r.body);
+      ok(JSON.stringify((r.body.due || []).map(x => x.replace(/ \(.*$/, '')).sort()) === JSON.stringify(['Chili', 'Curry', 'Pie', 'Rice', 'Soup', 'Stew']), 'told: the three "use it up" and the three "eat soon" ones, from 4 days (Soup) and by use-by; Salad (3 days) and Beans (9 days but a use-by in 5) are fresh', r.body.due);
+      const want = 'Use it up: Chili (10 days), Curry (1 day past use-by), Stew (7 days) \u00b7 Eat soon: Rice (6 days) \u00b7 +2 more';
+      ok(r.body.body === want, 'the body is the Larder\'s words: "Use it up: \u2026 \u00b7 Eat soon: \u2026", the most urgent first, four names then "+N more"', r.body.body);
+      ok(['eli', 'christian'].every(p => r.body.notified.some(n => n.profile === p)) && !r.body.notified.some(n => ['ezra', 'kiara'].includes(n.profile)), 'every household adult who has the switch on is told, never a kid', r.body.notified.map(n => n.profile));
+      await waitFor(() => pushesFor('eli', 'leftovers').length, { label: 'fridge push' });
+      { const fp = pushesFor('eli', 'leftovers')[0]; ok(fp.payload.title === 'Larder Ledger' && fp.payload.body === want && fp.payload.url === '#leftovers' && fp.vapid === 'valid', 'decrypted payload: the same words, titled Larder Ledger, opens #leftovers', fp.payload); }
+      r = await run('morning');
+      ok(!r.body.notified.length && r.body.skipped.some(s => s.profile === 'eli' && s.why === 'already_today'), 'a second run the same day: already_today', r.body.skipped);
+      for (const s of seeds) await put('eli', 'leftovers', 'family', 'item:' + s.id, null);
+      await put('eli', 'leftovers', 'family', 'item:m9', row('m9', 'Salad', 3));
+      r = await run('morning');
+      ok(r.status === 200 && !(r.body.due || []).length && r.body.body === undefined && !r.body.notified.length, 'with only fresh food nothing is sent', r.body);
+      await put('eli', 'leftovers', 'family', 'item:m9', null);
+    }
+
     console.log('\n## Timer done (batch 6, PWA-GAP-1): the timer job, forced');
     {
       const now = Date.now(), row = (id, o) => ({ id, label: '', total: 60000, startedAt: now - 120000, endAt: now - 60000, pausedAt: null, remaining: null, by: null, ackAt: null, ...o });

@@ -1,0 +1,112 @@
+{
+ "seeded six dishes, ages 3..8": {
+  "pass": true,
+  "got": 200
+ },
+ "ages 3..8: the Larder groups every item by the rule (fresh 0-3, eat soon 4-6, use it up 7+)": {
+  "pass": true,
+  "got": {
+   "want": [
+    "Age8 dish:old",
+    "Age7 dish:old",
+    "Age6 dish:soon",
+    "Age5 dish:soon",
+    "Age4 dish:soon",
+    "Age3 dish:fresh"
+   ],
+   "got": {
+    "Age8 dish": "old",
+    "Age7 dish": "old",
+    "Age6 dish": "soon",
+    "Age5 dish": "soon",
+    "Age4 dish": "soon",
+    "Age3 dish": "fresh"
+   }
+  }
+ },
+ "ages 3..8: Home lists the most urgent items needing food eaten (up to 3), the same ones": {
+  "pass": true,
+  "got": {
+   "home": [
+    "Age8 dish",
+    "Age7 dish",
+    "Age6 dish"
+   ],
+   "want": [
+    "Age8 dish",
+    "Age7 dish",
+    "Age6 dish"
+   ]
+  }
+ },
+ "ages 3..8: Home marks exactly the \"use it up\" ones": {
+  "pass": true,
+  "got": [
+   {
+    "name": "Age8 dish",
+    "right": "8d",
+    "stale": true
+   },
+   {
+    "name": "Age7 dish",
+    "right": "7d",
+    "stale": true
+   },
+   {
+    "name": "Age6 dish",
+    "right": "6d",
+    "stale": false
+   }
+  ]
+ },
+ "ages 3..8: the Apps badge counts what needs eating (5)": {
+  "pass": true,
+  "got": {
+   "n": 5,
+   "aria": "5 to eat soon or use up"
+  }
+ },
+ "ages 3..8: the 8 am push names the same items (eat soon from 4 days, not 5)": {
+  "pass": true,
+  "got": {
+   "push": [
+    "Age4 dish",
+    "Age5 dish",
+    "Age6 dish",
+    "Age7 dish",
+    "Age8 dish"
+   ],
+   "want": [
+    "Age4 dish",
+    "Age5 dish",
+    "Age6 dish",
+    "Age7 dish",
+    "Age8 dish"
+   ]
+  }
+ },
+ "ages 3..8: the red banner appears only with a \"use it up\" item and names the oldest": {
+  "pass": true,
+  "got": "Age8 dish is 8 days old · and 1 more"
+ },
+ "ages 3..8: the Larder's group headings are \"Use it up\" / \"Eat soon\" (not \"Aging\")": {
+  "pass": true,
+  "got": [
+   "Use it up2 · a week or more",
+   "Eat soon3 · 4 to 6 days",
+   "Fresh1 · up to 3 days"
+  ]
+ },
+ "ages 3..8: Home says \"use it up\" for the old ones": {
+  "pass": true,
+  "got": "2 use it up"
+ },
+ "ages 3..8: the push body says \"Use it up: <name> (N days)\"": {
+  "pass": true,
+  "got": "Use it up: Age8 dish (8 days), Age7 dish (7 days) · Eat soon: Age6 dish (6 days), Age5 dish (5 days) · +1 more"
+ },
+ "ages 3..8: the push body says \"Eat soon: ...\" for the 4-6 day ones": {
+  "pass": true,
+  "got": "Use it up: Age8 dish (8 days), Age7 dish (7 days) · Eat soon: Age6 dish (6 days), Age5 dish (5 days) · +1 more"
+ }
+}

@@ -22,6 +22,8 @@
  *   hub.sync.state                          // 'synced' | 'pending' | 'offline' | 'error' ('pending' until the first pull answers)
  *   hub.serverNow()                         // the house's clock (ms): Date.now() + hub.skew
  *   hub.timers                              // the Timer's rows and rules, shared by the Timer app and the shell (batch 6; below)
+ *   hub.larder.fresh(item, today)            // the Larder's one freshness rule (batch 8): { level: 'fresh'|'soon'|'old', days, daysLeft, label, … }
+ *   hub.larder.due(items, today)             // what needs eating, most urgent first: { due, old, soon }
  *
  * Offline-first: every scope has a localStorage cache and a write queue. Writes apply locally at once,
  * flush in batches when online, and resolve conflicts by updated_at (last write wins). Data is pulled on
@@ -1088,6 +1090,48 @@
     }
     return () => dayCbs.delete(cb);
   };
+
+  // ── the Larder's one freshness rule (batch 8, P3-LEFTOVERS-02, GAP-LEFTOVERS-1) ──────────────────────────────────
+  /*
+   * The Larder, Home's fridge card and the Apps badge read an item through fresh(); the 8 am push has a small copy of the same
+   * rule in worker/src/larder.js (the Worker cannot import this file; audits/tools/phase6/8/larder-a-8.mjs runs both over one
+   * table and asserts they agree). Without a use-by: 0-3 days old is fresh, 4-6 days "eat soon", 7 or more "use it up"
+   * (a date that is not a real day is "check the date": use it up). With a use-by (item.useBy, YYYY-MM-DD): "use it up" from
+   * the use-by day, "eat soon" in the two days before it, fresh before that. Returns
+   *   { level: 'fresh' | 'soon' | 'old', days, daysLeft, label, age, when, short, score, useBy }
+   * days: age in calendar days (Infinity when dateLogged is not a day); daysLeft: days to the use-by (null without one);
+   * label: "Fresh" | "Eat soon" | "Use it up" | "Check date"; age: "3 days" | "today" | "date unknown"; when: the words the push
+   * and Home use after the name ("8 days", "use by tomorrow", "check the date"); short: Home's right-hand column ("8d", "2d left");
+   * score: an age in days that sorts by urgency (a use-by day scores as a week old; Infinity for an unknown date).
+   * A "some left" item (portion: 'some') is judged exactly like any other.
+   */
+  hub.larder = (() => {
+    const OLD_DAYS = 7, SOON_DAYS = 4, SOON_BEFORE = 2;
+    const isDay = v => { const d = String(v || ''); if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false; const x = new Date(d + 'T12:00:00Z'); return !isNaN(x) && x.toISOString().slice(0, 10) === d; };
+    const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    function fresh(item, today) {
+      const it = item || {}, now = today || hub.today();
+      const days = isDay(it.dateLogged) ? Math.max(0, hub.daysBetween(it.dateLogged, now)) : Infinity;
+      const useBy = isDay(it.useBy) ? String(it.useBy) : null;
+      const daysLeft = useBy ? hub.daysBetween(now, useBy) : null;
+      const level = useBy ? (daysLeft <= 0 ? 'old' : daysLeft <= SOON_BEFORE ? 'soon' : 'fresh')
+        : (days === Infinity || days >= OLD_DAYS ? 'old' : days >= SOON_DAYS ? 'soon' : 'fresh');
+      const label = !useBy && days === Infinity ? 'Check date' : level === 'old' ? 'Use it up' : level === 'soon' ? 'Eat soon' : 'Fresh';
+      const age = days === Infinity ? 'date unknown' : days === 0 ? 'today' : plural(days, 'day');
+      const when = useBy ? (daysLeft < 0 ? plural(-daysLeft, 'day') + ' past use-by' : daysLeft === 0 ? 'use by today' : daysLeft === 1 ? 'use by tomorrow' : 'use by in ' + daysLeft + ' days')
+        : days === Infinity ? 'check the date' : age;
+      const short = useBy ? (daysLeft === 0 ? 'today' : daysLeft < 0 ? -daysLeft + 'd over' : daysLeft + 'd left') : days === Infinity ? 'date?' : days + 'd';
+      const score = useBy ? OLD_DAYS - daysLeft : days;
+      return { level, days, daysLeft, useBy, label, age, when, short, score };
+    }
+    /** What needs eating, most urgent first (an unknown date first of all): { due: [{ it, f }], old: [...], soon: [...] }. */
+    function due(items, today) {
+      const all = (items || []).filter(Boolean).map(it => ({ it, f: fresh(it, today) })).filter(x => x.f.level !== 'fresh');
+      all.sort((a, b) => (b.f.score === a.f.score ? 0 : b.f.score > a.f.score ? 1 : -1));
+      return { due: all, old: all.filter(x => x.f.level === 'old'), soon: all.filter(x => x.f.level === 'soon') };
+    }
+    return { fresh, due, isDay, OLD_DAYS, SOON_DAYS, SOON_BEFORE };
+  })();
 
   // ── voice input ───────────────────────────────────────────────────────────
   hub.voiceInput = function (onResult, { lang = 'en-US', onEnd, onError } = {}) {
