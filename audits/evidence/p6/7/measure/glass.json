@@ -1,0 +1,1838 @@
+{
+ "note": "Elements with a computed backdrop-filter (this WebKit build computes it but paints no blur, see lib/check-backdrop-filter.mjs). layers = all with a backdrop-filter in the document; visible = intersecting the viewport; visArea = their on-screen px² summed (overlaps counted twice). chrome = fixed/sticky (self or ancestor), a chrome name (tabbar, topbar, sheet, pill, toolbar, nav …), a nav/header/dialog tag or a dialog/navigation/toolbar/tablist role; everything else is content.",
+ "areas": {
+  "dollywood": {
+   "jobs": 818,
+   "maxVisibleLayers": 2,
+   "medianVisibleLayers": 1,
+   "maxVisAreaShare": 0.499,
+   "jobsWithContentGlass": 196,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 2183
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 0,
+     "n": 409,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-dark-system",
+      "devices/dollywood/about-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#pill.topbar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "sticky",
+     "why": [
+      "sticky",
+      "name"
+     ],
+     "maxArea": 69120,
+     "n": 409,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-dark-system",
+      "devices/dollywood/about-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#toolbar.toolbar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "sticky",
+     "why": [
+      "sticky",
+      "name",
+      "role=toolbar"
+     ],
+     "maxArea": 69216,
+     "n": 65,
+     "jobs": [
+      "devices/dollywood/about-typical-iphone-pwa-dark-system",
+      "devices/dollywood/about-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "sel": "div#pop.pop.show",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "absolute",
+     "why": [
+      "role=dialog"
+     ],
+     "maxArea": 321537,
+     "n": 47,
+     "jobs": [
+      "devices/dollywood/building-typical-desktop-dark-system",
+      "devices/dollywood/building-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "span#help-pop.helppop",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "absolute",
+     "why": [
+      "role=dialog"
+     ],
+     "maxArea": 71889,
+     "n": 13,
+     "jobs": [
+      "devices/dollywood/help-typical-desktop-dark-system",
+      "devices/dollywood/help-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "span#bmenu.bmenu",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "absolute",
+     "why": [
+      "name"
+     ],
+     "maxArea": 28440,
+     "n": 13,
+     "jobs": [
+      "devices/dollywood/progress-menu-typical-desktop-dark-system",
+      "devices/dollywood/progress-menu-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#vmenu.vmenu",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "absolute",
+     "why": [
+      "name",
+      "role=toolbar"
+     ],
+     "maxArea": 27750,
+     "n": 11,
+     "jobs": [
+      "devices/dollywood/view-menu-typical-desktop-dark-system",
+      "devices/dollywood/view-menu-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div#exag.exag",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "absolute",
+     "why": [],
+     "maxArea": 21452,
+     "n": 13,
+     "jobs": [
+      "devices/dollywood/view-3d-typical-desktop-dark-system",
+      "devices/dollywood/view-3d-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#lv-north.lv-north",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "relative",
+     "why": [],
+     "maxArea": 1936,
+     "n": 344,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-dark-system",
+      "devices/dollywood/about-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 409,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-dark-system",
+      "devices/dollywood/about-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#readout.readout",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "absolute",
+     "why": [],
+     "maxArea": 0,
+     "n": 409,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-dark-system",
+      "devices/dollywood/about-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#maphint.maphint",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "absolute",
+     "why": [],
+     "maxArea": 0,
+     "n": 41,
+     "jobs": [
+      "devices/dollywood/cross-section-compare-typical-desktop-dark-system",
+      "devices/dollywood/cross-section-compare-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "devices/dollywood/coaster-typical-desktop-dark-system",
+     "doc": "frame:dollywood",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 323473,
+     "viewport": 1226880,
+     "chrome": 1,
+     "content": 1
+    },
+    {
+     "job": "devices/dollywood/coaster-typical-desktop-light-system",
+     "doc": "frame:dollywood",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 323473,
+     "viewport": 1226880,
+     "chrome": 1,
+     "content": 1
+    },
+    {
+     "job": "states/dollywood/coaster-empty-ipad-portrait-dark-system",
+     "doc": "frame:dollywood",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 272535,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 1
+    },
+    {
+     "job": "states/dollywood/coaster-empty-ipad-portrait-light-system",
+     "doc": "frame:dollywood",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 272535,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 1
+    },
+    {
+     "job": "states/dollywood/coaster-overflow-ipad-portrait-dark-system",
+     "doc": "frame:dollywood",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 272535,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 1
+    }
+   ]
+  },
+  "dollywood-live": {
+   "jobs": 1284,
+   "maxVisibleLayers": 6,
+   "medianVisibleLayers": 2,
+   "maxVisAreaShare": 0.964,
+   "jobsWithContentGlass": 0,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 5853,
+    "blur(8px)": 642
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 0,
+     "n": 642,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#pill.topbar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "sticky",
+     "why": [
+      "sticky",
+      "name"
+     ],
+     "maxArea": 69120,
+     "n": 642,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#lv-pill.lv-pill",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)",
+      "name"
+     ],
+     "maxArea": 47709,
+     "n": 642,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#lv-fit.fab",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)",
+      "name"
+     ],
+     "maxArea": 4096,
+     "n": 642,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#lv-scale.lv-scale",
+     "bf": "blur(8px)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)"
+     ],
+     "maxArea": 0,
+     "n": 642,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#lv-north.lv-north",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)"
+     ],
+     "maxArea": 5322,
+     "n": 642,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#lv-sheet.lv-sheet",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)",
+      "name"
+     ],
+     "maxArea": 1105920,
+     "n": 642,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#lv-meet.lv-meet",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)"
+     ],
+     "maxArea": 94009,
+     "n": 616,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#loc-btn.fab.fab-primary",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)",
+      "name"
+     ],
+     "maxArea": 4096,
+     "n": 601,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#pop.pop.show",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)",
+      "role=dialog"
+     ],
+     "maxArea": 923232,
+     "n": 88,
+     "jobs": [
+      "devices/dollywood-live/coaster-card-typical-desktop-dark-system",
+      "devices/dollywood-live/coaster-card-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#lv-route.lv-route",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)"
+     ],
+     "maxArea": 115050,
+     "n": 41,
+     "jobs": [
+      "devices/dollywood-live/directions-amenity-typical-desktop-dark-system",
+      "devices/dollywood-live/directions-amenity-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#lv-route.lv-route.open",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)"
+     ],
+     "maxArea": 525225,
+     "n": 13,
+     "jobs": [
+      "devices/dollywood-live/directions-steps-typical-desktop-dark-system",
+      "devices/dollywood-live/directions-steps-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 642,
+     "jobs": [
+      "devices/dollywood-live/amenity-tap-typical-desktop-dark-system",
+      "devices/dollywood-live/amenity-tap-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "devices/dollywood-live/kid-family-typical-desktop-dark-system",
+     "doc": "frame:dollywood-live",
+     "layers": 7,
+     "visible": 6,
+     "visArea": 739251,
+     "viewport": 1226880,
+     "chrome": 6,
+     "content": 0
+    },
+    {
+     "job": "devices/dollywood-live/kid-family-typical-desktop-light-system",
+     "doc": "frame:dollywood-live",
+     "layers": 7,
+     "visible": 6,
+     "visArea": 739251,
+     "viewport": 1226880,
+     "chrome": 6,
+     "content": 0
+    },
+    {
+     "job": "devices/dollywood-live/family-kids-typical-desktop-dark-system",
+     "doc": "frame:dollywood-live",
+     "layers": 7,
+     "visible": 6,
+     "visArea": 717528,
+     "viewport": 1226880,
+     "chrome": 6,
+     "content": 0
+    },
+    {
+     "job": "devices/dollywood-live/family-kids-typical-desktop-light-system",
+     "doc": "frame:dollywood-live",
+     "layers": 7,
+     "visible": 6,
+     "visArea": 717528,
+     "viewport": 1226880,
+     "chrome": 6,
+     "content": 0
+    },
+    {
+     "job": "devices/dollywood-live/family-typical-desktop-dark-system",
+     "doc": "frame:dollywood-live",
+     "layers": 7,
+     "visible": 6,
+     "visArea": 717528,
+     "viewport": 1226880,
+     "chrome": 6,
+     "content": 0
+    }
+   ]
+  },
+  "f260": {
+   "jobs": 719,
+   "maxVisibleLayers": 2,
+   "medianVisibleLayers": 0,
+   "maxVisAreaShare": 0.136,
+   "jobsWithContentGlass": 0,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 1251
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 0,
+     "n": 523,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#hub-toast.toast",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 14520,
+     "n": 103,
+     "jobs": [
+      "devices/f260/done-toast-typical-desktop-dark-system",
+      "devices/f260/done-toast-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div.hdr > div.switch.segmented",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "role=tablist"
+     ],
+     "maxArea": 25831,
+     "n": 70,
+     "jobs": [
+      "devices/f260/behind-pace-typical-iphone-pwa-dark-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "sel": "div#readbar.readbar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "sticky",
+     "why": [
+      "sticky",
+      "name"
+     ],
+     "maxArea": 85120,
+     "n": 32,
+     "jobs": [
+      "devices/f260/reading-mode-typical-desktop-dark-system",
+      "devices/f260/reading-mode-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 523,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "devices/f260/reading-mode-typical-iphone-pwa-dark-system",
+     "doc": "frame:f260",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 51820,
+     "viewport": 380120,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/f260/reading-mode-typical-iphone-pwa-light-system",
+     "doc": "frame:f260",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 51820,
+     "viewport": 380120,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/f260/reading-mode-week-typical-iphone-pwa-dark-system",
+     "doc": "frame:f260",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 51820,
+     "viewport": 380120,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/f260/reading-mode-week-typical-iphone-pwa-light-system",
+     "doc": "frame:f260",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 51820,
+     "viewport": 380120,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/f260/done-toast-typical-iphone-pwa-dark-system",
+     "doc": "frame:f260",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 33113,
+     "viewport": 380120,
+     "chrome": 2,
+     "content": 0
+    }
+   ]
+  },
+  "kidverse": {
+   "jobs": 214,
+   "maxVisibleLayers": 1,
+   "medianVisibleLayers": 0,
+   "maxVisAreaShare": 0.036,
+   "jobsWithContentGlass": 0,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 400
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 0,
+     "n": 186,
+     "jobs": [
+      "devices/kidverse/adult-f260-hint-typical-desktop-dark-system",
+      "devices/kidverse/adult-f260-hint-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#hub-toast.toast",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 15391,
+     "n": 28,
+     "jobs": [
+      "devices/kidverse/kid-cashed-in-typical-desktop-dark-system",
+      "devices/kidverse/kid-cashed-in-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 186,
+     "jobs": [
+      "devices/kidverse/adult-f260-hint-typical-desktop-dark-system",
+      "devices/kidverse/adult-f260-hint-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "states/kidverse/kid-award-empty-ipad-portrait-dark-system",
+     "doc": "frame:kidverse",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 15391,
+     "viewport": 908560,
+     "chrome": 1,
+     "content": 0
+    },
+    {
+     "job": "states/kidverse/kid-award-empty-ipad-portrait-light-system",
+     "doc": "frame:kidverse",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 15391,
+     "viewport": 908560,
+     "chrome": 1,
+     "content": 0
+    },
+    {
+     "job": "devices/kidverse/kid-week-reset-typical-ipad-landscape-dark-system",
+     "doc": "frame:kidverse",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 15360,
+     "viewport": 882640,
+     "chrome": 1,
+     "content": 0
+    },
+    {
+     "job": "devices/kidverse/kid-week-reset-typical-ipad-landscape-light-system",
+     "doc": "frame:kidverse",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 15360,
+     "viewport": 882640,
+     "chrome": 1,
+     "content": 0
+    },
+    {
+     "job": "themes/kidverse/kid-week-reset-typical-ipad-portrait-dark-hearth",
+     "doc": "frame:kidverse",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 15360,
+     "viewport": 908560,
+     "chrome": 1,
+     "content": 0
+    }
+   ]
+  },
+  "leftovers": {
+   "jobs": 265,
+   "maxVisibleLayers": 2,
+   "medianVisibleLayers": 1,
+   "maxVisAreaShare": 0.197,
+   "jobsWithContentGlass": 0,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 556
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 0,
+     "n": 139,
+     "jobs": [
+      "devices/leftovers/add-typical-desktop-dark-system",
+      "devices/leftovers/add-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#pill.topbar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "sticky",
+     "why": [
+      "sticky",
+      "name"
+     ],
+     "maxArea": 69120,
+     "n": 139,
+     "jobs": [
+      "devices/leftovers/add-typical-desktop-dark-system",
+      "devices/leftovers/add-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "form#add.sans",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed"
+     ],
+     "maxArea": 89084,
+     "n": 126,
+     "jobs": [
+      "devices/leftovers/add-typical-desktop-dark-system",
+      "devices/leftovers/add-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#hub-toast.toast",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 24265,
+     "n": 13,
+     "jobs": [
+      "devices/leftovers/finished-typical-desktop-dark-system",
+      "devices/leftovers/finished-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 139,
+     "jobs": [
+      "devices/leftovers/add-typical-desktop-dark-system",
+      "devices/leftovers/add-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "devices/leftovers/finished-typical-ipad-landscape-dark-system",
+     "doc": "frame:leftovers",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 97065,
+     "viewport": 910960,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/leftovers/finished-typical-ipad-landscape-light-system",
+     "doc": "frame:leftovers",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 97065,
+     "viewport": 910960,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "themes/leftovers/finished-typical-ipad-portrait-dark-hearth",
+     "doc": "frame:leftovers",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 97065,
+     "viewport": 928240,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "themes/leftovers/finished-typical-ipad-portrait-dark-system",
+     "doc": "frame:leftovers",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 97065,
+     "viewport": 928240,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "themes/leftovers/finished-typical-ipad-portrait-light-forest",
+     "doc": "frame:leftovers",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 97065,
+     "viewport": 928240,
+     "chrome": 2,
+     "content": 0
+    }
+   ]
+  },
+  "prayer": {
+   "jobs": 1253,
+   "maxVisibleLayers": 2,
+   "medianVisibleLayers": 0,
+   "maxVisAreaShare": 1.739,
+   "jobsWithContentGlass": 0,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 2089,
+    "blur(0px)": 155
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 0,
+     "n": 640,
+     "jobs": [
+      "devices/prayer/add-filled-typical-desktop-dark-system",
+      "devices/prayer/add-filled-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "body > nav",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "nav"
+     ],
+     "maxArea": 108855,
+     "n": 514,
+     "jobs": [
+      "devices/prayer/add-filled-typical-desktop-dark-system",
+      "devices/prayer/add-filled-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#veil.veil.on",
+     "bf": "blur(0px)",
+     "position": "fixed",
+     "why": [
+      "fixed"
+     ],
+     "maxArea": 1226880,
+     "n": 155,
+     "jobs": [
+      "devices/prayer/ask-answer-typical-desktop-dark-system",
+      "devices/prayer/ask-answer-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#sheet.p-sheet.on",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 557848,
+     "n": 155,
+     "jobs": [
+      "devices/prayer/ask-answer-typical-desktop-dark-system",
+      "devices/prayer/ask-answer-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "body.shared > nav",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "nav"
+     ],
+     "maxArea": 108855,
+     "n": 90,
+     "jobs": [
+      "devices/prayer/ask-delete-typical-desktop-dark-system",
+      "devices/prayer/ask-delete-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#kitchenShut.act.ghost.compact",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed"
+     ],
+     "maxArea": 5242,
+     "n": 28,
+     "jobs": [
+      "devices/prayer/kitchen-family-typical-desktop-dark-system",
+      "devices/prayer/kitchen-family-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#hub-toast.toast",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 19924,
+     "n": 13,
+     "jobs": [
+      "devices/prayer/mark-answered-typical-desktop-dark-system",
+      "devices/prayer/mark-answered-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 649,
+     "jobs": [
+      "devices/prayer/add-filled-typical-desktop-dark-system",
+      "devices/prayer/add-filled-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "devices/prayer/ask-answer-typical-desktop-dark-system",
+     "doc": "frame:prayer",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 1646740,
+     "viewport": 1226880,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/prayer/ask-answer-typical-desktop-light-system",
+     "doc": "frame:prayer",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 1646740,
+     "viewport": 1226880,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/prayer/ask-recat-typical-desktop-dark-system",
+     "doc": "frame:prayer",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 1646740,
+     "viewport": 1226880,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/prayer/ask-recat-typical-desktop-light-system",
+     "doc": "frame:prayer",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 1646740,
+     "viewport": 1226880,
+     "chrome": 2,
+     "content": 0
+    },
+    {
+     "job": "devices/prayer/ask-share-typical-desktop-dark-system",
+     "doc": "frame:prayer",
+     "layers": 3,
+     "visible": 2,
+     "visArea": 1646740,
+     "viewport": 1226880,
+     "chrome": 2,
+     "content": 0
+    }
+   ]
+  },
+  "shell": {
+   "jobs": 776,
+   "maxVisibleLayers": 13,
+   "medianVisibleLayers": 1,
+   "maxVisAreaShare": 0.974,
+   "jobsWithContentGlass": 206,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 3488
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 198000,
+     "n": 624,
+     "jobs": [
+      "devices/shell/app-blocked-typical-desktop-dark-system",
+      "devices/shell/app-blocked-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div.sheet-backdrop > div.sheet",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)",
+      "name",
+      "role=dialog"
+     ],
+     "maxArea": 647360,
+     "n": 86,
+     "jobs": [
+      "devices/shell/guest-add-typical-desktop-dark-system",
+      "devices/shell/guest-add-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "form#chat-form.chat-form.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed"
+     ],
+     "maxArea": 98040,
+     "n": 83,
+     "jobs": [
+      "devices/shell/chat-guest-typical-desktop-dark-system",
+      "devices/shell/chat-guest-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#who.who.kicker",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed"
+     ],
+     "maxArea": 8121,
+     "n": 52,
+     "jobs": [
+      "devices/shell/switch-app-kid-typical-desktop-dark-system",
+      "devices/shell/switch-app-kid-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#hub-toast.toast",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 25410,
+     "n": 13,
+     "jobs": [
+      "devices/shell/app-blocked-typical-desktop-dark-system",
+      "devices/shell/app-blocked-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#timer-pill.pill",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 19785,
+     "n": 13,
+     "jobs": [
+      "devices/shell/home-timer-typical-desktop-dark-system",
+      "devices/shell/home-timer-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div.sheet-backdrop.hub-ask > div.sheet",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed(ancestor)",
+     "why": [
+      "fixed(ancestor)",
+      "name",
+      "role=alertdialog"
+     ],
+     "maxArea": 92216,
+     "n": 13,
+     "jobs": [
+      "devices/shell/pairing-code-new-typical-desktop-dark-system",
+      "devices/shell/pairing-code-new-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div.mcol > div.msg.bot.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 331547,
+     "n": 319,
+     "jobs": [
+      "devices/shell/chat-guest-typical-desktop-dark-system",
+      "devices/shell/chat-guest-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#profiles.profiles.stagger > button.pcard.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "relative",
+     "why": [],
+     "maxArea": 59325,
+     "n": 278,
+     "jobs": [
+      "devices/shell/picker-typical-desktop-dark-system",
+      "devices/shell/picker-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#profiles.profiles.stagger > button.pcard.glass-strong.last",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "relative",
+     "why": [],
+     "maxArea": 52225,
+     "n": 34,
+     "jobs": [
+      "devices/shell/picker-typical-desktop-dark-system",
+      "devices/shell/picker-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#reset.btn.btn-ghost.reset",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "relative",
+     "why": [],
+     "maxArea": 12607,
+     "n": 52,
+     "jobs": [
+      "devices/shell/switch-app-kid-typical-desktop-dark-system",
+      "devices/shell/switch-app-kid-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "figure.album-item > button.btn.btn-round.btn-glass",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "absolute",
+     "why": [],
+     "maxArea": 1408,
+     "n": 1297,
+     "jobs": [
+      "devices/shell/guest-add-typical-desktop-dark-system",
+      "devices/shell/guest-add-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 613,
+     "jobs": [
+      "devices/shell/app-blocked-typical-desktop-dark-system",
+      "devices/shell/app-blocked-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#ptr.arm > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 11,
+     "jobs": [
+      "devices/shell/home-pull-typical-ipad-landscape-dark-system",
+      "devices/shell/home-pull-typical-ipad-landscape-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "states/shell/me-album-overflow-ipad-portrait-dark-system",
+     "doc": "page",
+     "layers": 14,
+     "visible": 13,
+     "visArea": 76756,
+     "viewport": 967600,
+     "chrome": 1,
+     "content": 12
+    },
+    {
+     "job": "states/shell/me-album-overflow-ipad-portrait-light-system",
+     "doc": "page",
+     "layers": 14,
+     "visible": 13,
+     "visArea": 76756,
+     "viewport": 967600,
+     "chrome": 1,
+     "content": 12
+    },
+    {
+     "job": "states/shell/me-overflow-ipad-portrait-dark-system",
+     "doc": "page",
+     "layers": 14,
+     "visible": 13,
+     "visArea": 76756,
+     "viewport": 967600,
+     "chrome": 1,
+     "content": 12
+    },
+    {
+     "job": "states/shell/me-overflow-ipad-portrait-light-system",
+     "doc": "page",
+     "layers": 14,
+     "visible": 13,
+     "visArea": 76756,
+     "viewport": 967600,
+     "chrome": 1,
+     "content": 12
+    },
+    {
+     "job": "states/shell/picker-overflow-ipad-portrait-dark-system",
+     "doc": "page",
+     "layers": 11,
+     "visible": 11,
+     "visArea": 567392,
+     "viewport": 967600,
+     "chrome": 0,
+     "content": 11
+    }
+   ]
+  },
+  "tally": {
+   "jobs": 72,
+   "maxVisibleLayers": 2,
+   "medianVisibleLayers": 2,
+   "maxVisAreaShare": 0.059,
+   "jobsWithContentGlass": 36,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 180
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 0,
+     "n": 36,
+     "jobs": [
+      "devices/tally/kid-typical-desktop-dark-system",
+      "devices/tally/kid-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#pill.topbar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "sticky",
+     "why": [
+      "sticky",
+      "name"
+     ],
+     "maxArea": 69120,
+     "n": 36,
+     "jobs": [
+      "devices/tally/kid-typical-desktop-dark-system",
+      "devices/tally/kid-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#who.who.kicker",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed"
+     ],
+     "maxArea": 18639,
+     "n": 36,
+     "jobs": [
+      "devices/tally/kid-typical-desktop-dark-system",
+      "devices/tally/kid-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "button#reset.btn.btn-ghost.reset",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "relative",
+     "why": [],
+     "maxArea": 12607,
+     "n": 36,
+     "jobs": [
+      "devices/tally/kid-typical-desktop-dark-system",
+      "devices/tally/kid-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 36,
+     "jobs": [
+      "devices/tally/kid-typical-desktop-dark-system",
+      "devices/tally/kid-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "states/tally/kid-overflow-ipad-portrait-dark-system",
+     "doc": "frame:tally",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 31246,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 1
+    },
+    {
+     "job": "states/tally/kid-overflow-ipad-portrait-light-system",
+     "doc": "frame:tally",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 31246,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 1
+    },
+    {
+     "job": "devices/tally/kid-typical-ipad-landscape-dark-system",
+     "doc": "frame:tally",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 20728,
+     "viewport": 910960,
+     "chrome": 1,
+     "content": 1
+    },
+    {
+     "job": "devices/tally/kid-typical-ipad-landscape-light-system",
+     "doc": "frame:tally",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 20728,
+     "viewport": 910960,
+     "chrome": 1,
+     "content": 1
+    },
+    {
+     "job": "themes/tally/kid-typical-ipad-portrait-dark-hearth",
+     "doc": "frame:tally",
+     "layers": 2,
+     "visible": 2,
+     "visArea": 20728,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 1
+    }
+   ]
+  },
+  "timer": {
+   "jobs": 191,
+   "maxVisibleLayers": 5,
+   "medianVisibleLayers": 0,
+   "maxVisAreaShare": 0.37,
+   "jobsWithContentGlass": 15,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 466
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 198000,
+     "n": 189,
+     "jobs": [
+      "devices/timer/done-toast-typical-desktop-dark-system",
+      "devices/timer/done-toast-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#timer-pill.pill",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 42217,
+     "n": 17,
+     "jobs": [
+      "devices/timer/pill-chat-typical-desktop-dark-system",
+      "devices/timer/pill-chat-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "form#chat-form.chat-form.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed"
+     ],
+     "maxArea": 77037,
+     "n": 15,
+     "jobs": [
+      "devices/timer/pill-chat-typical-desktop-dark-system",
+      "devices/timer/pill-chat-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#timer-pill.pill.ringing",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name"
+     ],
+     "maxArea": 18468,
+     "n": 13,
+     "jobs": [
+      "devices/timer/done-toast-typical-desktop-dark-system",
+      "devices/timer/done-toast-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#pill.topbar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "sticky",
+     "why": [
+      "sticky",
+      "name"
+     ],
+     "maxArea": 69120,
+     "n": 13,
+     "jobs": [
+      "devices/timer/done-typical-desktop-dark-system",
+      "devices/timer/done-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "div#who.who.kicker",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed"
+     ],
+     "maxArea": 12081,
+     "n": 2,
+     "jobs": [
+      "states/timer/chip-overflow-ipad-portrait-dark-system",
+      "states/timer/chip-overflow-ipad-portrait-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div.mcol > div.msg.bot.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 60929,
+     "n": 26,
+     "jobs": [
+      "devices/timer/pill-chat-typical-desktop-dark-system",
+      "devices/timer/pill-chat-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "button#reset.btn.btn-ghost.reset",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "relative",
+     "why": [],
+     "maxArea": 7149,
+     "n": 2,
+     "jobs": [
+      "states/timer/chip-overflow-ipad-portrait-dark-system",
+      "states/timer/chip-overflow-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 189,
+     "jobs": [
+      "devices/timer/done-toast-typical-desktop-dark-system",
+      "devices/timer/done-toast-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "devices/timer/pill-chat-typical-ipad-landscape-dark-system",
+     "doc": "page",
+     "layers": 6,
+     "visible": 5,
+     "visArea": 358439,
+     "viewport": 967600,
+     "chrome": 3,
+     "content": 2
+    },
+    {
+     "job": "devices/timer/pill-chat-typical-ipad-landscape-light-system",
+     "doc": "page",
+     "layers": 6,
+     "visible": 5,
+     "visArea": 358439,
+     "viewport": 967600,
+     "chrome": 3,
+     "content": 2
+    },
+    {
+     "job": "devices/timer/pill-chat-typical-desktop-dark-system",
+     "doc": "page",
+     "layers": 6,
+     "visible": 5,
+     "visArea": 351950,
+     "viewport": 1296000,
+     "chrome": 3,
+     "content": 2
+    },
+    {
+     "job": "devices/timer/pill-chat-typical-desktop-light-system",
+     "doc": "page",
+     "layers": 6,
+     "visible": 5,
+     "visArea": 351950,
+     "viewport": 1296000,
+     "chrome": 3,
+     "content": 2
+    },
+    {
+     "job": "themes/timer/pill-chat-typical-ipad-portrait-dark-hearth",
+     "doc": "page",
+     "layers": 6,
+     "visible": 5,
+     "visArea": 237481,
+     "viewport": 967600,
+     "chrome": 3,
+     "content": 2
+    }
+   ]
+  },
+  "tv": {
+   "jobs": 60,
+   "maxVisibleLayers": 9,
+   "medianVisibleLayers": 0,
+   "maxVisAreaShare": 0.127,
+   "jobsWithContentGlass": 7,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 63
+   },
+   "chrome": [],
+   "content": [
+    {
+     "sel": "div#profiles.profiles.stagger > button.pcard.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "relative",
+     "why": [],
+     "maxArea": 31780,
+     "n": 56,
+     "jobs": [
+      "themes/tv/picker-tv-typical-tv-dark-hearth",
+      "themes/tv/picker-tv-typical-tv-dark-system"
+     ]
+    },
+    {
+     "sel": "div#profiles.profiles.stagger > button.pcard.glass-strong.last",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "relative",
+     "why": [],
+     "maxArea": 31780,
+     "n": 7,
+     "jobs": [
+      "themes/tv/picker-tv-typical-tv-dark-hearth",
+      "themes/tv/picker-tv-typical-tv-dark-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "themes/tv/picker-tv-typical-tv-dark-hearth",
+     "doc": "page",
+     "layers": 9,
+     "visible": 9,
+     "visArea": 262675,
+     "viewport": 2073600,
+     "chrome": 0,
+     "content": 9
+    },
+    {
+     "job": "themes/tv/picker-tv-typical-tv-dark-system",
+     "doc": "page",
+     "layers": 9,
+     "visible": 9,
+     "visArea": 262675,
+     "viewport": 2073600,
+     "chrome": 0,
+     "content": 9
+    },
+    {
+     "job": "themes/tv/picker-tv-typical-tv-light-forest",
+     "doc": "page",
+     "layers": 9,
+     "visible": 9,
+     "visArea": 262675,
+     "viewport": 2073600,
+     "chrome": 0,
+     "content": 9
+    },
+    {
+     "job": "themes/tv/picker-tv-typical-tv-light-frost",
+     "doc": "page",
+     "layers": 9,
+     "visible": 9,
+     "visArea": 262675,
+     "viewport": 2073600,
+     "chrome": 0,
+     "content": 9
+    },
+    {
+     "job": "themes/tv/picker-tv-typical-tv-light-midnight",
+     "doc": "page",
+     "layers": 9,
+     "visible": 9,
+     "visArea": 262675,
+     "viewport": 2073600,
+     "chrome": 0,
+     "content": 9
+    }
+   ]
+  },
+  "verses": {
+   "jobs": 356,
+   "maxVisibleLayers": 1,
+   "medianVisibleLayers": 0,
+   "maxVisAreaShare": 0.037,
+   "jobsWithContentGlass": 0,
+   "backdropValues": {
+    "blur(20px) saturate(1.8)": 534
+   },
+   "chrome": [
+    {
+     "sel": "nav#tabbar.tabbar.sidebar",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "fixed",
+     "why": [
+      "fixed",
+      "name",
+      "nav"
+     ],
+     "maxArea": 0,
+     "n": 178,
+     "jobs": [
+      "devices/verses/done-typical-desktop-dark-system",
+      "devices/verses/done-typical-desktop-light-system"
+     ]
+    },
+    {
+     "sel": "span#who.pill",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [
+      "name"
+     ],
+     "maxArea": 28213,
+     "n": 178,
+     "jobs": [
+      "devices/verses/done-typical-desktop-dark-system",
+      "devices/verses/done-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "content": [
+    {
+     "sel": "div#ptr > span.glass-strong",
+     "bf": "blur(20px) saturate(1.8)",
+     "position": "static",
+     "why": [],
+     "maxArea": 0,
+     "n": 178,
+     "jobs": [
+      "devices/verses/done-typical-desktop-dark-system",
+      "devices/verses/done-typical-desktop-light-system"
+     ]
+    }
+   ],
+   "heaviest": [
+    {
+     "job": "states/verses/kid-overflow-ipad-portrait-dark-system",
+     "doc": "frame:verses",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 28213,
+     "viewport": 908560,
+     "chrome": 1,
+     "content": 0
+    },
+    {
+     "job": "states/verses/kid-overflow-ipad-portrait-light-system",
+     "doc": "frame:verses",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 28213,
+     "viewport": 908560,
+     "chrome": 1,
+     "content": 0
+    },
+    {
+     "job": "states/verses/revealed-overflow-ipad-portrait-dark-system",
+     "doc": "frame:verses",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 17751,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 0
+    },
+    {
+     "job": "states/verses/revealed-overflow-ipad-portrait-light-system",
+     "doc": "frame:verses",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 17751,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 0
+    },
+    {
+     "job": "states/verses/trainer-overflow-ipad-portrait-dark-system",
+     "doc": "frame:verses",
+     "layers": 1,
+     "visible": 1,
+     "visArea": 17751,
+     "viewport": 928240,
+     "chrome": 1,
+     "content": 0
+    }
+   ]
+  }
+ }
+}

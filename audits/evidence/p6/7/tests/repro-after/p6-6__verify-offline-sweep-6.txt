@@ -1,0 +1,11 @@
+## a paused timer survives the sweep of a device that was offline (H1)
+  ✓ B pauses the timer while A is offline 
+  ✓ A (offline, its cache says "stale") queues no tombstone after a failed pull 
+  ✓ after A is back the house still has B's paused timer 
+  ✓ B and A both show it paused 
+  ✓ its family mirror says paused too 
+## a Stop made offline waits for a good pull
+  ✓ offline: Stop hides it on A at once, and nothing is written yet 
+  ✓ back online, the first good pull removes it from the house 
+
+7 passed, 0 failed

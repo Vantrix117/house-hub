@@ -1,0 +1,31 @@
+
+## setup: three adults subscribed, mom has the park switch off, the kids' beacons on
+  ✓ eli subscribed
+  ✓ christian subscribed
+  ✓ mom subscribed
+  ✓ mom: park switch off (one row per switch)
+  ✓ ezra's beacon on
+  ✓ kiara's beacon on
+
+## a kid goes quiet
+  ✓ everyone just heard from: nothing (Kiara's slow clock does not count against her)
+  ✓ Ezra quiet 25 min (> 20) is flagged, Kiara (updating) is not
+  ✓ Eli and Mae are told
+  ✓ mom skipped: switch off
+  ✓ the receiver: one push to Eli, none to mom
+  ✓ the next run: the same quiet spell is not told again
+  ✓ mom turns the park switch on
+  ✓ mom is told about the spell she missed
+
+## the spell ends, a second one is told again
+  ✓ Ezra updates: no one is quiet
+  ✓ Ezra quiet again (21 min): all three adults are told again
+
+## who counts as an adult at the park
+  ✓ no fresh adult dot: nothing sent
+  ✓ a guest publishes a dot
+  ✓ a guest's fresh dot is not "an adult at the park"
+  ✓ a dot 13 h old is not today's park day
+
+20 passed, 0 failed
+Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 94

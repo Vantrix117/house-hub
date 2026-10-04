@@ -1,0 +1,252 @@
+{
+ "pass": 52,
+ "fail": 0,
+ "checks": {
+  "week 38 is the family week and has no recording yet": {
+   "pass": true
+  },
+  "the voice card's CSS block has no hex and no prefers-color-scheme": {
+   "pass": true
+  },
+  "a kid has no recorder card": {
+   "pass": true
+  },
+  "a grown-up where MediaRecorder is missing: the card stays hidden": {
+   "pass": true
+  },
+  "the TV has no recorder card": {
+   "pass": true
+  },
+  "and its play() answers false at once (the TV does not play)": {
+   "pass": true
+  },
+  "a refused microphone: \"The microphone is off for this page. Allow it in your browser’s settings, then try again.\"": {
+   "pass": true
+  },
+  "and the card is still usable (Record shows, nothing is stuck recording)": {
+   "pass": true
+  },
+  "the card names the week and offers Record": {
+   "pass": true,
+   "x": "Week 38 · Acts 2:42. Record the verse in your own voice, up to 90 seconds, and the kids hear you when they tap Read it to me. One recording a week."
+  },
+  "it sits in the grown-ups' area, after the kids' stars and the week stepper": {
+   "pass": true
+  },
+  "Record starts: a running time and \"Recording…\"": {
+   "pass": true,
+   "x": "Recording…"
+  },
+  "the clock counts the take (about 0:02)": {
+   "pass": true,
+   "x": "0:02"
+  },
+  "Stop shows the take (not saved yet) with Play my take, Save and Record again": {
+   "pass": true,
+   "x": "Your take for week 380:02 · not saved yet"
+  },
+  "Play my take plays the take": {
+   "pass": true
+  },
+  "saved: one family row voice:38 = { id, by: eli, byName, at, mime: audio/webm, ms, bytes <= 1 MB }": {
+   "pass": true,
+   "x": {
+    "id": "j_GW0Ex5lHIr",
+    "by": "eli",
+    "byName": "Eli",
+    "at": 1791083174657,
+    "mime": "audio/webm",
+    "ms": 2316,
+    "bytes": 7610
+   }
+  },
+  "the card now shows \"Eli’s voice\" with the recorder's face, Play and Remove": {
+   "pass": true,
+   "x": "🧭Eli’s voice0:02 · saved Oct 3 Play Remove"
+  },
+  "one stored recording for the week": {
+   "pass": true,
+   "x": null
+  },
+  "not public: /api/media/voice/… is 404 and the audio route without a session is 401": {
+   "pass": true,
+   "x": [
+    404,
+    401
+   ]
+  },
+  "a signed-in kid fetches the exact recorded bytes (a webm)": {
+   "pass": true,
+   "x": {
+    "n": 7610
+   }
+  },
+  "Play on the card plays the saved recording": {
+   "pass": true
+  },
+  "and a second tap stops it": {
+   "pass": true
+  },
+  "the kid's verse speaker is \"Eli’s voice\" with Eli's face": {
+   "pass": true,
+   "x": "Eli’s voice"
+  },
+  "and it reads that way to a screen reader": {
+   "pass": true,
+   "x": "Eli’s voice: Acts 2:42"
+  },
+  "the kid's speaker button stays >= 64 px tall": {
+   "pass": true,
+   "x": {
+    "h": 109,
+    "w": 168
+   }
+  },
+  "tapping Read it to me plays a blob: URL (the audio was fetched with the session, not linked)": {
+   "pass": true,
+   "x": {
+    "plays": [
+     {
+      "blob": true
+     }
+    ],
+    "spoken": 0,
+    "playing": 38
+   }
+  },
+  "and the synthetic voice stays silent": {
+   "pass": true,
+   "x": {
+    "plays": [
+     {
+      "blob": true
+     }
+    ],
+    "spoken": 0,
+    "playing": 38
+   }
+  },
+  "the audio request carries the device and session headers": {
+   "pass": true,
+   "x": [
+    {
+     "method": "GET",
+     "url": "/api/kidverse/voice/38/j_GW0Ex5lHIr",
+     "profile": true,
+     "device": true
+    },
+    {
+     "method": "GET",
+     "url": "/api/kidverse/voice/38/j_GW0Ex5lHIr",
+     "profile": true,
+     "device": true
+    }
+   ]
+  },
+  "when it ends the speaker is back to \"Eli’s voice\"": {
+   "pass": true
+  },
+  "a second tap while it plays stops it, and does not fall back to the synthetic voice": {
+   "pass": true
+  },
+  "no toast at all while it plays": {
+   "pass": true,
+   "x": ""
+  },
+  "a recording that will not decode: the synthetic voice reads the verse at rate 0.85": {
+   "pass": true,
+   "x": [
+    {
+     "text": "This week's verse is Acts, chapter 2, verse 42. In our own words: The first believers kept learning, sharing meals and praying together.",
+     "rate": 0.8500000238418579
+    }
+   ]
+  },
+  "and nothing is said about it (no toast)": {
+   "pass": true,
+   "x": null
+  },
+  "the recording is not left \"playing\"": {
+   "pass": true
+  },
+  "the audio cannot be fetched: the synthetic voice reads, quietly": {
+   "pass": true
+  },
+  "the sheet names whose recording it replaces": {
+   "pass": true,
+   "x": "Replace the recording?Eli’s recording of week 38 will be replaced by this one. The old one is deleted for good.Keep the old oneReplace it"
+  },
+  "Keep the old one: the recording on the Worker is unchanged and the take is still there": {
+   "pass": true
+  },
+  "Replace it: a new recording": {
+   "pass": true,
+   "x": {
+    "id": "INTwzKrQ2i1O",
+    "by": "eli",
+    "byName": "Eli",
+    "at": 1791083186488,
+    "mime": "audio/webm",
+    "ms": 1623,
+    "bytes": 3540
+   }
+  },
+  "the replaced recording is gone (404)": {
+   "pass": true,
+   "x": 404
+  },
+  "and its bytes are deleted: still exactly one stored recording": {
+   "pass": true,
+   "x": null
+  },
+  "a take that runs past 90 s is stopped at 1:30": {
+   "pass": true,
+   "x": "Your take for week 381:30 · not saved yet"
+  },
+  "on week 39 (no recording) the verse speaker is the synthetic \"Read it to me\"": {
+   "pass": true,
+   "x": "Read it to me"
+  },
+  "Earlier weeks, week 38: its speaker is labelled \"Eli’s voice\"": {
+   "pass": true,
+   "x": "🧭Eli’s voice"
+  },
+  "the shelf plays week 38's recording": {
+   "pass": true
+  },
+  "closing the sheet stops it": {
+   "pass": true
+  },
+  "Remove asks, naming whose recording it is": {
+   "pass": true,
+   "x": "Remove the recording?Eli’s recording of week 38 will be deleted for good. The kids will hear the read-aloud voice again.Keep itRemove it"
+  },
+  "Keep it: the recording stays": {
+   "pass": true
+  },
+  "Remove it: the family row is a tombstone": {
+   "pass": true
+  },
+  "the audio is gone for everyone and its bytes are deleted": {
+   "pass": true,
+   "x": {
+    "status": 404,
+    "bytes": null
+   }
+  },
+  "the card is back to a plain Record": {
+   "pass": true
+  },
+  "the kid is back on \"Read it to me\"": {
+   "pass": true,
+   "x": "Read it to me"
+  },
+  "and it reads with the synthetic voice again": {
+   "pass": true
+  },
+  "no console errors in any context": {
+   "pass": true,
+   "x": []
+  }
+ }
+}

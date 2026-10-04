@@ -47,6 +47,15 @@ const ledgerArrives = (t, row) => t.ctx.route(u => u.href.startsWith(t.api + '/a
   if (Array.isArray(body.items)) body.items.push({ key: `ledger:${t.profile}:${AT.toString(36)}-rig1`, value: { ...row, by: 'eli', at: AT }, updated_at: AT });
   await r.fulfill({ response: res, json: body });
 });
+// batch 7 (UX-KIDVERSE-5): with no family week Kid Verse shows a placeholder and no Done, so the empty household's
+// first-star screen gets the family week in the pull's answer only (like ledgerArrives: the seed stays empty)
+const weekArrives = (t, week) => t.ctx.route(u => u.href.startsWith(t.api + '/api/data/kidverse?') && new URL(u.href).searchParams.get('scope') === 'family', async r => {
+  if (r.request().method() !== 'GET') return r.fallback();
+  const res = await r.fetch();
+  let body; try { body = await res.json(); } catch { return r.fulfill({ response: res }); }
+  if (Array.isArray(body.items) && !body.items.some(i => i.key === 'week')) body.items.push({ key: 'week', value: { week, by: 'eli', at: AT }, updated_at: AT });
+  await r.fulfill({ response: res, json: body });
+});
 const toastSays = (f, re) => f.waitForFunction(src => { const el = document.getElementById('hub-toast'); return el && !el.hidden && new RegExp(src).test(el.textContent); }, re.source, { timeout: 5000 }).catch(() => {});
 
 export const screens = [
@@ -99,6 +108,7 @@ export const screens = [
     animations: 'allow',
     note: 'Ezra\'s very first star: from the empty household he taps Done ★, so the button turns to "Done today ★", his stars read 1, the calm confetti falls (it may have mostly faded by the shot) and the "New badge: First star!" toast shows at the bottom (apps/kidverse.html:323-334, 476-481). Empty only: it is the one state where a single tap earns a badge; in typical the tap only adds a star.',
     async go(t) {
+      await weekArrives(t, 38);
       const f = await open(t, '#done:not([hidden])');
       await pulled(f);
       await t.tap(f.locator('#done'));

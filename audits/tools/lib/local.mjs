@@ -53,7 +53,7 @@ async function vapidPair() {
   return { publicKey: raw, privateKey: jwk.d };
 }
 
-export async function local({ variant = 'typical', clock = 'demo', engine = 'webkit', siteCacheControl, vapid = false, overlay, headless = true } = {}) {
+export async function local({ variant = 'typical', clock = 'demo', engine = 'webkit', siteCacheControl, vapid = false, overlay, headless = true, args: browserArgs = [] } = {}) {
   const pw = playwright();
   const [sitePort, apiPort] = [await freePort(), await freePort()];
   const env = { ...process.env };
@@ -72,7 +72,7 @@ export async function local({ variant = 'typical', clock = 'demo', engine = 'web
   });
   const rig = async (p, init) => { const r = await fetch(ready.api + p, init); const t = await r.text(); let j; try { j = JSON.parse(t); } catch { j = t; } if (!r.ok) throw new Error(`${p} → ${r.status} ${t}`); return j; };
   const browser = engine === 'chromium'
-    ? await pw.chromium.launch({ executablePath: CHROME, headless })
+    ? await pw.chromium.launch({ executablePath: CHROME, headless, args: browserArgs })
     : await pw.webkit.launch({ headless });
 
   let S = null;
