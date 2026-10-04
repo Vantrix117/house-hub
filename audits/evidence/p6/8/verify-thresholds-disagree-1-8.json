@@ -1,0 +1,104 @@
+{
+ "iPhone, Mom: the Larder groups every item by the rule (fresh 0-3, eat soon 4-6, use it up 7+)": {
+  "pass": true,
+  "got": {
+   "want": [
+    "Chicken alfredo:old",
+    "Beef and bean chili:soon",
+    "Roasted sweet potatoes:soon",
+    "Sunday pot roast:fresh",
+    "Spaghetti and meatballs:fresh",
+    "Blueberry pancakes:fresh"
+   ],
+   "got": {
+    "Chicken alfredo": "old",
+    "Beef and bean chili": "soon",
+    "Roasted sweet potatoes": "soon",
+    "Sunday pot roast": "fresh",
+    "Spaghetti and meatballs": "fresh",
+    "Blueberry pancakes": "fresh"
+   }
+  }
+ },
+ "iPhone, Mom: Home lists the most urgent items needing food eaten (up to 3), the same ones": {
+  "pass": true,
+  "got": {
+   "home": [
+    "Chicken alfredo",
+    "Beef and bean chili",
+    "Roasted sweet potatoes"
+   ],
+   "want": [
+    "Chicken alfredo",
+    "Beef and bean chili",
+    "Roasted sweet potatoes"
+   ]
+  }
+ },
+ "iPhone, Mom: Home marks exactly the \"use it up\" ones": {
+  "pass": true,
+  "got": [
+   {
+    "name": "Chicken alfredo",
+    "right": "8d",
+    "stale": true
+   },
+   {
+    "name": "Beef and bean chili",
+    "right": "5d",
+    "stale": false
+   },
+   {
+    "name": "Roasted sweet potatoes",
+    "right": "4d",
+    "stale": false
+   }
+  ]
+ },
+ "iPhone, Mom: the Apps badge counts what needs eating (3)": {
+  "pass": true,
+  "got": {
+   "n": 3,
+   "aria": "3 to eat soon or use up"
+  }
+ },
+ "iPhone, Mom: the 8 am push names the same items (eat soon from 4 days, not 5)": {
+  "pass": true,
+  "got": {
+   "push": [
+    "Beef and bean chili",
+    "Chicken alfredo",
+    "Roasted sweet potatoes"
+   ],
+   "want": [
+    "Beef and bean chili",
+    "Chicken alfredo",
+    "Roasted sweet potatoes"
+   ]
+  }
+ },
+ "iPhone, Mom: the red banner appears only with a \"use it up\" item and names the oldest": {
+  "pass": true,
+  "got": "Chicken alfredo is 8 days old"
+ },
+ "iPhone, Mom: the Larder's group headings are \"Use it up\" / \"Eat soon\" (not \"Aging\")": {
+  "pass": true,
+  "got": [
+   "Use it up1 · a week or more",
+   "Eat soon2 · 4 to 6 days",
+   "Fresh3 · up to 3 days"
+  ]
+ },
+ "iPhone, Mom: Home says \"use it up\" for the old ones": {
+  "pass": true,
+  "got": "1 use it up · 2 eat soon"
+ },
+ "iPhone, Mom: the push body says \"Use it up: <name> (N days)\"": {
+  "pass": true,
+  "got": "Use it up: Chicken alfredo (8 days) · Eat soon: Beef and bean chili (5 days), Roasted sweet potatoes (4 days)"
+ },
+ "iPhone, Mom: the push body says \"Eat soon: ...\" for the 4-6 day ones": {
+  "pass": true,
+  "got": "Use it up: Chicken alfredo (8 days) · Eat soon: Beef and bean chili (5 days), Roasted sweet potatoes (4 days)"
+ }
+}

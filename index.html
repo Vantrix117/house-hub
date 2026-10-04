@@ -1232,9 +1232,11 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // ── apps grid + widgets ───────────────────────────────────────
   // calendar days in New York, as the Larder and the 8 am job count them (a DST change cannot shift it); a future date is
   // today, and a date that is not a real YYYY-MM-DD is unknown and listed with the oldest (batch 0i, P3-LEFTOVERS-04)
-  const ageDays = s => { const d = String(s || ''), x = new Date(d + 'T12:00:00Z'); return /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(x) && x.toISOString().slice(0, 10) === d ? Math.max(0, hub.daysBetween(d, hub.today())) : Infinity; };
-  const fridgeDue = () => hub.list('item:', { app: 'leftovers', scope: 'family' }).map(r => r.value)
-    .map(i => ({ ...i, days: ageDays(i.dateLogged) })).filter(i => i.days >= 4).sort((a, b) => b.days - a.days);
+  // batch 8 (P3-LEFTOVERS-02): the Larder's one freshness rule, hub.larder.fresh (apps/hub.js; the 8 am push has its twin in worker/src/larder.js):
+  // "eat soon" from 4 days (or within 2 days of a use-by) and "use it up" from 7 (or the use-by day), most urgent first; each item carries f
+  const fridgeDue = () => hub.larder.due(hub.list('item:', { app: 'leftovers', scope: 'family' }).map(r => r.value), hub.today()).due.map(x => ({ ...x.it, f: x.f, days: x.f.days }));
+  // the Larder's words for a count: "2 use it up · 1 eat soon" (the first part only where there is no room)
+  const fridgeWords = (due, first) => { const o = due.filter(i => i.f.level === 'old').length, s = due.length - o, parts = [o ? o + ' use it up' : '', s ? s + ' eat soon' : ''].filter(Boolean); return first ? parts[0] : parts.join(' · '); };
   function ringHtml(p, label, _unused, big) {   // the ring takes the family of the tile or card around it (data-accent)
     return `<span class="ringwrap${big ? ' lg' : ''}"><svg class="ring${big ? ' ring-lg' : ''}" viewBox="0 0 52 52" style="--p:${p}"><circle class="bg" cx="26" cy="26" r="22"/>${p > 0 ? '<circle class="fg" cx="26" cy="26" r="22"/>' : ''}</svg><span class="ring-lbl">${esc(label)}</span></span>`;   // no fg at 0: a round cap would draw a dot
   }
@@ -1261,7 +1263,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       return `<button class="tile${wide ? ' wide' : ''}" data-id="${esc(a.id)}" data-accent="${esc(appHue(a))}" aria-label="Open ${esc(a.name)}">
         <span class="app-icon ticon">${await iconHtml(a)}</span>
         ${wide ? `<span class="twidget">${widgetHtml(a)}</span>` : `<span class="tlabel">${esc(a.name)}</span>`}
-        ${badge ? `<span class="badge" aria-label="${badge} to eat this week">${badge}</span>` : ''}
+        ${badge ? `<span class="badge" aria-label="${badge} to eat soon or use up">${badge}</span>` : ''}
       </button>`;
     }));
     if (mine !== gridRender) return;
@@ -1889,12 +1891,12 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const now = new Date();
     $('#k-date').textContent = fmtDate(now); $('#k-clock').textContent = fmtTime(now); $('#k-greet').textContent = greeting() + '.';
     paintKitchenTimer();
-    // food to eat soon: the Larder's rule (4 days and older), the oldest first
+    // food to eat soon: the Larder's rule (hub.larder.fresh), the most urgent first
     const all = hub.list('item:', { app: 'leftovers', scope: 'family' }).map(r => r.value).filter(Boolean), due = fridgeDue();
     const foodIn = hub.isLoaded('leftovers', 'family') || all.length;
     $('#k-food').innerHTML = !foodIn ? `<div class="k-val">${kSk('8em')}</div>`
-      : (due.length ? `<div class="k-val">${due.length} to eat soon</div>` : `<div class="k-quiet">${all.length ? 'Nothing aging' : 'The fridge list is empty.'}</div>`)
-        + (due.length ? `<ul class="k-list">${due.slice(0, 4).map(i => `<li><span class="grow">${esc(i.name)}</span><span class="k-days${i.days >= 7 ? ' stale' : ''}">${i.days === Infinity ? 'date?' : i.days + ' d'}</span></li>`).join('')}</ul>`
+      : (due.length ? `<div class="k-val">${fridgeWords(due)}</div>` : `<div class="k-quiet">${all.length ? 'Nothing to eat soon' : 'The fridge list is empty.'}</div>`)
+        + (due.length ? `<ul class="k-list">${due.slice(0, 4).map(i => `<li><span class="grow">${esc(i.name)}</span><span class="k-days${i.f.level === 'old' ? ' stale' : ''}">${esc(i.f.short)}</span></li>`).join('')}</ul>`
           : all.length ? `<div class="k-sub">${all.length} in the fridge, all fresh.</div>` : '');
     // today's family prayers: who prayed each (faces), the ones nobody has prayed yet first
     const today = dayKey(), ppl = hub.people();
@@ -2487,12 +2489,12 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     }
     {
       const due = fridgeDue(); const a = appById('leftovers'); const loaded = pulled || cached('leftovers', 'family');
-      if (due.length) bits.push(due.length + ' to eat');
-      const bars = due.slice(0, 3).map(i => `<div class="${i.days >= 7 ? 'stale' : ''}"><div class="fl"><span>${esc(i.name)}</span><span>${i.days === Infinity ? 'date?' : i.days + 'd'}</span></div><div class="bar" style="--p:${Math.min(1, i.days / 10)}"><i></i></div></div>`).join('');
+      if (due.length) bits.push(fridgeWords(due, true));   // the most urgent part, in the Larder's words
+      const bars = due.slice(0, 3).map(i => `<div class="${i.f.level === 'old' ? 'stale' : ''}"><div class="fl"><span>${esc(i.name)}</span><span>${esc(i.f.short)}</span></div><div class="bar" style="--p:${Math.min(1, i.f.score / 10)}"><i></i></div></div>`).join('');
       cards.push(['leftovers', `<div class="card gcard" data-accent="${esc(appHue(a))}">
         <h2><span class="app-icon"><svg class="icon"><use href="#i-bowl"/></svg></span>In the fridge</h2>
         <div class="gbody"><div class="grow">
-          <div class="gbig">${!loaded ? sk : due.length ? due.length + (big ? ' to eat' : ' to eat this week') : 'Nothing aging'}</div>
+          <div class="gbig">${!loaded ? sk : due.length ? fridgeWords(due, big) : 'Nothing to eat soon'}</div>
           ${due.length ? `<div class="fresh">${bars}</div>` : loaded ? `<div class="gsub">Log leftovers when you put them away.</div>` : ''}
         </div></div><div class="gfoot">${a && canSee('leftovers') ? '<button class="btn btn-soft" data-open="leftovers">Open the ledger</button>' : ''}<img class="spot" src="art/app/leftovers.svg" alt="" width="200" height="160"></div></div>`]);
     }

@@ -175,6 +175,13 @@ export async function writeError(profile, { appId, scope, key, value }, cur, loa
   if (appId === 'leftovers' && scope === 'family' && /^item:/i.test(key) && obj(value)) {
     const d = String(value.dateLogged || ''), x = new Date(d + 'T12:00:00Z');
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || isNaN(x) || x.toISOString().slice(0, 10) !== d || d > [...houseDays()].sort().pop()) return 'bad_date';   // up to the house's tomorrow: a device clock a little fast just before midnight
+    // Batch 8 (GAP-LEFTOVERS-1, IMP-LEFTOVERS-I1): the optional fields of an edited item. A use-by is a real YYYY-MM-DD and, unlike
+    // dateLogged, may be any day (a future use-by is the point; a past one just means "use it up now"); portion is only 'some'
+    // (a whole item has none); editedBy is the writer's own id (or what the row already says) and editedAt a time.
+    if (value.useBy != null) { const u = String(value.useBy), y = new Date(u + 'T12:00:00Z'); if (!/^\d{4}-\d{2}-\d{2}$/.test(u) || isNaN(y) || y.toISOString().slice(0, 10) !== u) return 'bad_date'; }
+    if (value.portion != null && value.portion !== 'some') return 'bad_value';
+    if (value.editedAt != null && !Number.isFinite(value.editedAt)) return 'bad_value';
+    if (value.editedBy != null && value.editedBy !== self && !(obj(cur) && cur.editedBy === value.editedBy)) return 'not_yours';
   }
 
   // Rows that belong to one person, whoever writes them.

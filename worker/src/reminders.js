@@ -1,5 +1,5 @@
 // Scheduled reminders + push delivery.
-//   morning   (8:00 New York):        leftovers that hit "use it up" within two days -> every household adult who opted in
+//   morning   (8:00 New York):        leftovers "eat soon" or "use it up" by the Larder's rule (worker/src/larder.js) -> every household adult who opted in
 //   evening   (every run, 15 min):    F260 reading not checked today -> that profile, at their time (push_pref:readAt; 8 pm unset)
 //   behind    (Sunday 8:00 pm):       F260 week running 2+ readings behind -> that adult (weekly catch-up)
 //   prayer    (8 am and 8 pm hours):  family-list prayers each household adult has not been told about yet (never their own)
@@ -18,6 +18,7 @@
 // — PWA-UX-2. Kids, the display and the kitchen get none.
 import { sendPush, unb64u } from './push.js';
 import { liveItems, getOne, rowMap } from './data.js';
+import { due as larderDue, pushBody as larderPushBody } from './larder.js';
 
 const NY = 'America/New_York';
 export function nyParts(d = new Date()) {
@@ -26,12 +27,8 @@ export function nyParts(d = new Date()) {
   return { date: `${g('year')}-${g('month')}-${g('day')}`, hour: +g('hour') % 24, minute: +g('minute') || 0, weekday: g('weekday') };
 }
 const ageDays = (dateLogged, today) => Math.round((Date.parse(today + 'T00:00:00Z') - Date.parse(dateLogged + 'T00:00:00Z')) / 86400000);
-// A Larder item's age in calendar days; a future date counts as today, and a date that is not a real YYYY-MM-DD as long overdue (the Larder shows it
-// as "Check date" with the oldest, batch 0i) so it is still warned about
-const UNKNOWN_AGE = 99;                   // a date that is not a real day: warned about, worded "check the date"
-const larderAge = (dateLogged, today) => { const d = String(dateLogged || ''), x = Date.parse(d + 'T00:00:00Z');
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || isNaN(x)) return UNKNOWN_AGE;
-  return Math.max(0, Math.round((Date.parse(today + 'T00:00:00Z') - x) / 86400000)); };
+// A Larder item's freshness (its age, a future date counting as today, an unknown date as "check the date", an optional use-by)
+// is worker/src/larder.js, the twin of hub.larder.fresh (batch 8).
 
 export const vapidFrom = env => (env.VAPID_PRIVATE_KEY && env.VAPID_PUBLIC_KEY
   ? { publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY, subject: env.VAPID_SUBJECT || 'mailto:hub@example.com' } : null);
@@ -160,14 +157,14 @@ async function writeSetting(env, key, value) {
 
 export async function morningJob(env, now = Date.now()) {
   const { date } = nyParts(new Date(now));
-  const items = (await liveItems(env, { appId: 'leftovers', scope: 'family', profile: null, prefix: 'item:' })).map(r => r.value)
-    .map(i => ({ ...i, days: larderAge(i.dateLogged, date) })).filter(i => i.days >= 5).sort((a, b) => b.days - a.days);
-  const age = i => i.days === UNKNOWN_AGE ? 'check the date' : i.days + 'd';
-  const out = { job: 'morning', date, due: items.map(i => `${i.name} (${age(i)})`), notified: [], skipped: [] };
+  // batch 8 (P3-LEFTOVERS-02): the Larder's one rule (worker/src/larder.js, the twin of hub.larder.fresh): anything "eat soon" (4-6
+  // days, or within two days of its use-by) or "use it up" (7+ days, or from its use-by day) is told, in the Larder's words
+  const rows = (await liveItems(env, { appId: 'leftovers', scope: 'family', profile: null, prefix: 'item:' })).map(r => r.value);
+  const items = larderDue(rows, date).due;
+  const out = { job: 'morning', date, due: items.map(x => `${x.it.name} (${x.f.when})`), notified: [], skipped: [] };
   if (!items.length) return out;
-  const body = items.length === 1
-    ? (items[0].days === UNKNOWN_AGE ? `${items[0].name}: check the date — it may need using up.` : `${items[0].name} is ${items[0].days} days old — use it up.`)
-    : `${items.length} to use up: ` + items.slice(0, 4).map(i => `${i.name} (${age(i)})`).join(', ') + (items.length > 4 ? '…' : '');
+  const body = larderPushBody(rows, date);
+  out.body = body;   // what the push says (the forced run reports it, so a test needs no receiver)
   for (const pid of await adultIds(env)) {
     await notify(env, out, pid, 'leftovers', { title: 'Larder Ledger', body, url: '#leftovers', tag: 'leftovers' }, { ttl: 6 * 3600 }, now);
   }

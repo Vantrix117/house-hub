@@ -122,8 +122,8 @@ const shot = async (page, name) => { await sleep(400); /* let the view's entry f
     await waitFor(() => A.page.$eval('.tile[data-id=leftovers] .badge', b => +b.textContent >= 1).catch(() => false), { label: 'badge' });
     ok(true, 'Larder tile badge counts aging items');
     await A.page.click('.tab[data-tab=home]');
-    await waitFor(() => A.page.textContent('#view-home').then(x => /\d+ to eat this week/.test(x) && x.includes('Chili')), { label: 'home fridge card' });
-    ok(true, 'Home fridge card lists Chili');
+    await waitFor(() => A.page.textContent('#view-home').then(x => /\d+ (use it up|eat soon)/.test(x) && x.includes('Chili')), { label: 'home fridge card' });
+    ok(true, 'Home fridge card lists Chili, in the Larder\'s words (batch 8)');
 
     console.log('\n## Prayer on hub.js (person + family)');
     f = await openApp(A.page, 'prayer');

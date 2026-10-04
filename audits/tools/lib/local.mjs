@@ -35,7 +35,8 @@ export const ROOT = path.resolve(HERE, '..', '..', '..');
 const HOME = process.env.HUB_AUDIT_HOME || path.join(process.env.LOCALAPPDATA || os.homedir(), 'house-hub-audit');
 const ASSETS = path.join(HOME, 'assets-v2');
 const PROD_API = 'https://house-hub-api.catalystfarm1.workers.dev';
-const CHROME = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(p => fs.existsSync(p));
+// HUB_CHROME: a Chromium on Linux or anywhere else (the cloud rig: /opt/pw-browsers/chromium); otherwise Windows Chrome/Edge
+const CHROME = [process.env.HUB_CHROME, 'C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(p => p && fs.existsSync(p));
 export const DEMO = Date.parse(DEMO_TIME);
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 

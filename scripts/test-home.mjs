@@ -308,6 +308,26 @@ async function artSample(page, sel) {
     await W.page.screenshot({ path: path.join(SHOTS, 'rm13-home-1024.png'), fullPage: false });
     await W.ctx.close();
 
+    console.log('\n## P3-LEFTOVERS-02 (batch 8): the Home fridge card and the Apps badge in the Larder one rule and words');
+    {
+      const RUN = Date.now().toString(36), day = n => dayKey(new Date(Date.now() + n * 86400000));
+      const fr = (id, name, daysOld, extra = {}) => ({ key: `item:fr-${RUN}-${id}`, value: { id: `fr-${RUN}-${id}`, name: name + ' ' + RUN, size: 'Medium', dateLogged: day(-daysOld), by: 'dad', byName: 'David', ...extra }, updated_at: Date.now() + 1000 });
+      const rows = [fr('a', 'Chili', 8), fr('b', 'Soup', 4), fr('c', 'Pie', 1, { useBy: day(1) }), fr('d', 'Beans', 9, { useBy: day(5) }), fr('e', 'Salad', 2)];
+      const before = await A.page.evaluate(() => hub.list('item:', { app: 'leftovers', scope: 'family' }).filter(r => r.value).length);
+      await api('/api/data/leftovers/batch?scope=family', { method: 'POST', profile: dadTok, body: { items: rows } });
+      await A.page.click('.tab[data-tab=home]'); await A.page.evaluate(() => hub.pull());
+      const card = () => A.page.evaluate(run => { const c = document.querySelector('#view-home .gcard:has([data-open="leftovers"])'); return c && { big: c.querySelector('.gbig').textContent.trim(), rows: [...c.querySelectorAll('.fresh > div')].filter(r => r.textContent.includes(run)).map(r => ({ t: r.querySelector('.fl span').textContent.replace(' ' + run, ''), right: r.querySelector('.fl span:last-child').textContent.trim(), stale: r.classList.contains('stale') })) }; }, RUN);
+      await waitFor(async () => { const c = await card(); return c && c.rows.length >= 1; }, { label: 'the fridge card with the new items' });
+      const c = await card();
+      ok(/\d+ use it up/.test(c.big) && /eat soon/.test(c.big) && !/this week/.test(c.big), '(h) the fridge card says it in the Larder words: "N use it up · N eat soon" (no "to eat this week")', JSON.stringify(c));
+      ok(JSON.stringify(c.rows.map(r => r.t)) === JSON.stringify(['Chili', 'Pie', 'Soup']) && JSON.stringify(c.rows.map(r => r.right)) === JSON.stringify(['8d', '1d left', '4d']) && JSON.stringify(c.rows.map(r => r.stale)) === JSON.stringify([true, false, false]), '(h) most urgent first by the shared rule: Chili 8d (use it up), Pie 1d left (use-by tomorrow), Soup 4d; Beans (9 days, use-by in 5) and Salad are fresh and not listed', JSON.stringify(c.rows));
+      await A.page.click('.tab[data-tab=apps]');
+      const badge = await waitFor(() => A.page.$eval('.tile[data-id=leftovers] .badge', b => ({ n: +b.textContent, aria: b.getAttribute('aria-label') })).catch(() => null), { label: 'the badge' });
+      ok(badge.n >= 3 && /eat soon or use up/.test(badge.aria), '(h) the Apps badge counts what needs eating (Chili, Pie, Soup and anything else due) and says "eat soon or use up"', JSON.stringify(badge));
+      for (const r of rows) await api('/api/data/leftovers/' + encodeURIComponent(r.key) + '?scope=family', { method: 'DELETE', profile: dadTok });
+      await A.page.click('.tab[data-tab=home]'); await A.page.evaluate(() => hub.pull());
+    }
+
     console.log('\n## IMP-PRAYER-I3: the asker hears who prayed (David, 390)');
     {
       const RUN = Date.now().toString(36), PF = { fam: '/api/data/prayer/batch?scope=family' };

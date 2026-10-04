@@ -19,191 +19,322 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 <title>The Larder Ledger</title>
 <link rel="stylesheet" href="design.css">
 <style>
-  /* The ledger keeps its own component CSS and takes every colour, size and duration from design.css role tokens (audit
-     batch 1, CONS-TOK-1: the old --ledger / --ledger-ink / --ledger-press vocabulary is gone, split by what reads it).
-     Meaning is semantic: the Log button is the success solid with its -on label, the mic and ✓ glyphs are success ink,
-     the freshness ramp is --fresh / --aging / --use-soon (graphics) and the chips are success / warning / danger fill
-     with their -ink label (VIS-LEFTOVERS-2, -3). Nothing here keys off a colour scheme.
-     Layout is list-first: the grouped list reads top-down, oldest first, and the add bar is a glass pane
-     fixed above the safe area so the list and the bar are both on screen at once. */
+  /* The ledger keeps its own component CSS and takes every colour, size, space and duration from design.css role tokens
+     (audit batch 1, CONS-TOK-1; batch 8, CONS-SHAPE-3 / GAP-TOK-4: no px spacing). Meaning is semantic: the freshness ramp is
+     --fresh / --aging / --use-soon (graphics) and the chips are success / warning / danger fill with their -ink label; the
+     person's colour is the Log button, the mic and the little face on every card (CONS-ACCENT-4, VIS-LEFTOVERS-4). Nothing
+     here keys off a colour scheme. Layout is list-first: the grouped list reads top-down, oldest first, and the add bar is a
+     glass pane fixed above the safe area; the page's bottom padding is that bar's measured height (VIS-LEFTOVERS-6).
+     Recorded exceptions (GAP-TOK-4): --addbar-h's first guess, the skeleton's two opacities, saturate(0) on a finished card. */
   :root { --addbar-h: 150px; }   /* layout plumbing: the add bar's measured height (set by the script below) */
+  /* anything scrolled into view (a focused card, the copy box, a new card) stops above the add bar, never under it */
+  html { scroll-padding-bottom: calc(var(--addbar-h) + max(var(--sp-3), var(--safe-bottom)) + var(--sp-4)); }
+  :root[data-kind="kid"], :root[data-kind="kiosk"] { scroll-padding-bottom: 0; }
   body { min-height: 100vh; font-family: var(--font-ui);
-         padding: 32px max(16px, var(--safe-right)) calc(var(--addbar-h) + 24px + var(--safe-bottom)) max(16px, var(--safe-left)); }
-  :root[data-kind="kiosk"] body { padding-bottom: max(64px, var(--safe-bottom)); }
+         padding: var(--sp-8) max(var(--margin), var(--safe-right)) calc(var(--addbar-h) + max(var(--sp-3), var(--safe-bottom)) + var(--sp-4)) max(var(--margin), var(--safe-left)); }
+  :root[data-kind="kiosk"] body { padding-bottom: max(var(--sp-16), var(--safe-bottom)); }
   .wrap { max-width: var(--col-narrow); margin: 0 auto; }   /* CONS-SHAPE-2: the forms-and-lists column (560) */
   .sans { font-family: var(--font-ui); }
 
-  /* type: every size is a role, so the iPad tier, the person's text size and the kid scale reach the Larder
-     (CONS-TYPE-4, CONS-TYPE-7, GAP-TOK-4, GAP-TYPE-1) */
-  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
-  h1 { font-size: var(--fs-title1); font-weight: var(--fw-title1); letter-spacing: var(--ls-title1); margin: 0; }
-  .tally { font-family: var(--font-mono); font-size: var(--fs-caption1); color: var(--text-3); letter-spacing: var(--ls-caps); text-transform: uppercase; white-space: nowrap; }
-  .lede { color: var(--text-2); font-size: var(--fs-subheadline); margin: 0 0 6px; }
-  .mode { font-size: var(--fs-caption1); color: var(--text-3); margin: 0 0 16px; }
-  .mode.warn { color: var(--warning-ink); }
+  /* type: every size is a role, so the iPad tier, the person's text size and the kid scale reach the Larder */
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-1); }
+  h1 { font-size: var(--fs-large-title); font-weight: var(--fw-large-title); line-height: var(--lh-large-title); letter-spacing: var(--ls-large-title); margin: 0; }
+  /* inside the hub the viewer bar already names the app (CONS-TYPE-1): html.framed is set before first paint; the h1 stays for screen readers */
+  .framed h1 { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+  /* the subtitle's row: the count sits on it, and its space is held from the first paint (nothing moves when the count lands) */
+  .sub { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--sp-1) var(--sp-3); margin: 0 0 var(--sp-2); }
+  .sub .lede { flex: 1 1 20em; margin: 0; }
+  .tally { margin-left: auto; display: inline-block; min-width: 9em; min-height: calc(var(--fs-caption1) * var(--lh-caption1)); line-height: var(--lh-caption1); text-align: right; font-family: var(--font-mono); font-size: var(--fs-caption1); color: var(--text-3); letter-spacing: var(--ls-caps); text-transform: uppercase; white-space: nowrap; }
+  /* an empty count still has a line box: its height is the role's line (not the mono font's "normal"), and it keeps a text baseline,
+     so the row's baseline alignment puts it in the same place before and after the count lands (rescore 5) */
+  .tally::before { content: '\200b'; }
+  .lede { color: var(--text-2); font-size: var(--fs-subheadline); margin: 0 0 var(--sp-2); }
 
-  .alert { display: flex; align-items: center; gap: 8px; background: var(--danger-fill); color: var(--danger-ink);
-           padding: 12px 14px; border-radius: var(--r-control); font-size: var(--fs-footnote); margin: 0 0 16px; }
+  /* the sync notice (UX-LEFTOVERS-8): plain words, and Retry when there is something to retry */
+  .mode { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-footnote); color: var(--text-3); margin: 0 0 var(--sp-4); }
+  .mode[hidden] { display: none; }
+  .mode.warn { font-size: var(--fs-subheadline); color: var(--warning-ink); background: var(--warning-fill); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-control); }
+  .retry { flex: none; min-height: var(--tap); padding: 0 var(--sp-4); border: 0; border-radius: var(--r-control); background: var(--warning-strong); color: var(--warning-on);
+           font: inherit; font-size: var(--fs-subheadline); font-weight: var(--fw-semibold); cursor: pointer; }
 
-  /* ── the add bar: one glass pane over the list, the house recipe from the tokens (CONS-GLASS-1): the sheen, the person's
-        colour caught in the pane (painted in place, no drift), the edge/ring/inner shadow and the saturated blur ── */
-  form { position: fixed; z-index: var(--z-bar);
-         left: max(12px, var(--safe-left)); right: max(12px, var(--safe-right)); bottom: max(12px, var(--safe-bottom));
+  /* the banner: names the oldest item, and a tap goes to its card (UX-LEFTOVERS-9) */
+  .alert { display: flex; align-items: center; gap: var(--sp-2); width: 100%; text-align: left; background: var(--danger-fill); color: var(--danger-ink);
+           min-height: var(--tap); padding: var(--sp-3) var(--sp-4); border: 0; border-radius: var(--r-control); font: inherit; font-size: var(--fs-subheadline);
+           font-weight: var(--fw-semibold); margin: 0 0 var(--sp-4); cursor: pointer; }
+  .alert .alert-text { flex: 1; min-width: 0; }
+  /* the card the banner points at: a static ring (no motion to reduce), taken off by the script after a moment */
+  .item.hl { box-shadow: 0 0 0 var(--focus-ring-w, 3px) var(--danger-graphic), var(--elev-card); }
+  .item { transition: box-shadow var(--dur-slow) var(--ease-standard); }
+  .item, .skel { container-type: inline-size; }   /* a card knows its own width: from 480 px the chip sits beside the check button (shorter cards) */
+
+  /* ── the add bar: one glass pane over the list, the house recipe from the tokens (CONS-GLASS-1). Its corner is concentric
+        with its fields: radius = the field's + the padding (VIS-SHAPE-1). Solid glass (Reduce Transparency) makes it opaque. ── */
+  form[id="add"] { position: fixed; z-index: var(--z-bar);
+         left: max(var(--sp-3), var(--safe-left)); right: max(var(--sp-3), var(--safe-right)); bottom: max(var(--sp-3), var(--safe-bottom));
          max-width: var(--col-narrow); margin: 0 auto;
          background: var(--glass-bg-strong-tinted);
-         border: 1px solid var(--glass-edge); border-radius: var(--r); padding: 12px;
+         border: 1px solid var(--glass-edge); border-radius: var(--r-card); padding: var(--pad-card);
          box-shadow: var(--glass-shadow);
          -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter);
-         display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }   /* minmax(0,…): rows shrink instead of overflowing on a narrow phone */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { form { background: var(--glass-strong-solid); } }
-  .namerow { display: flex; align-items: stretch; gap: 8px; min-width: 0; }
-  /* fields: a >= 3:1 boundary and the house placeholder ink (P4-COLOR-05), never under 16 px so iOS does not zoom (P4-TELL-02) */
-  #name { flex: 1; min-width: 0; border: 1px solid var(--field-border); border-radius: var(--r-control); padding: 0 14px; font-size: var(--fs-field);
-          background: var(--surface); color: var(--text); min-height: var(--tap-row); }
-  #name:focus, #name:focus-visible { outline: none; border-color: var(--focus-ring-color); box-shadow: var(--focus-ring); }
-  .pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; min-width: 0; }
-  select, #date { border: 1px solid var(--field-border); border-radius: var(--r-control); padding: 0 12px; font-size: var(--fs-field);
-                  background: var(--surface); color: var(--text); min-height: var(--tap); width: 100%; min-width: 0; }
-  /* Log: the success solid with its own label colour (the pairing rule, GAP-TOK-2); the press is the house .pressable */
-  .log { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--success-strong); flex: none;
-         color: var(--success-on); border: none; border-radius: var(--r-control); min-height: var(--tap-row); min-width: 88px; padding: 0 16px;
-         font-size: var(--fs-callout); font-weight: var(--fw-semibold); cursor: pointer;
-         box-shadow: inset 0 1px 0 var(--hi-3), var(--elev-control); }
+         display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); }   /* minmax(0,…): rows shrink instead of overflowing on a narrow phone */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { form[id="add"] { background: var(--glass-strong-solid); } }
+  .namerow { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+  /* fields: a >= 3:1 boundary and the house placeholder ink (P4-COLOR-05), never under 16 px so iOS does not zoom (P4-TELL-02);
+     one recipe for the name, the size and the date (VIS-LEFTOVERS-5: no native grey) */
+  #name, form[id="add"] select, #date { border: 1px solid var(--field-border); border-radius: var(--r-control); padding: 0 var(--sp-4); font: inherit; font-size: var(--fs-field);
+          background-color: var(--surface); color: var(--text); min-height: var(--tap-row); box-shadow: inset 0 1px 2px var(--shade-1); width: 100%; min-width: 0;
+          -webkit-appearance: none; appearance: none; text-align: left; }
+  #name { flex: 1; width: auto; }
+  #name:focus, #name:focus-visible, form[id="add"] select:focus-visible, #date:focus-visible { outline: none; border-color: var(--focus-ring-color); box-shadow: var(--focus-ring); }
+  form[id="add"] select { padding-right: var(--sp-10);
+          background-image: linear-gradient(45deg, transparent 50%, var(--chevron-colour) 50%), linear-gradient(135deg, var(--chevron-colour) 50%, transparent 50%);
+          background-size: var(--sp-2) var(--sp-2), var(--sp-2) var(--sp-2); background-repeat: no-repeat;
+          background-position: right calc(var(--sp-4) + var(--sp-2)) center, right var(--sp-4) center; }
+  #date::-webkit-date-and-time-value { text-align: left; min-height: 1.2em; }
+  /* at the largest text sizes the name takes its own row, so it never shrinks to a few letters */
+  :root:is([data-text-size="xl"], [data-text-size="xxl"]) .namerow { flex-wrap: wrap; }
+  :root:is([data-text-size="xl"], [data-text-size="xxl"]) #name { flex: 1 1 100%; }
+  :root:is([data-text-size="xl"], [data-text-size="xxl"]) .log { flex: 1; min-height: var(--tap-row); }
+  .pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-2); min-width: 0; }
+  .fielderr { margin: calc(var(--sp-1) * -1) 0 0 var(--sp-1); color: var(--danger-ink); font-size: var(--fs-footnote); font-weight: var(--fw-semibold); }
+  /* Log: the house primary, a capsule at --btn-h-lg in the person's own solid (CONS-SHAPE-4, CONS-ACCENT-4); the press is the house .pressable */
+  .log { display: flex; align-items: center; justify-content: center; gap: var(--sp-2); background: var(--accent-strong); flex: none;
+         color: var(--accent-on); border: none; border-radius: var(--r-button); min-height: var(--btn-h-lg); padding: 0 var(--sp-5);
+         font-size: var(--fs-callout); font-weight: var(--fw-semibold); cursor: pointer; }
+  /* the mic: its space is held from the first paint (visibility), so the name field never shrinks when it appears (VIS-LEFTOVERS-11);
+     where speech is not supported at all the page's first script marks html.nomic and the mic is not laid out */
   .mic { width: var(--tap-row); min-height: var(--tap-row); flex: none; border: 1px solid var(--field-border); border-radius: var(--r-control); background: var(--surface);
-         color: var(--success-ink); display: grid; place-items: center; cursor: pointer; }
-  .mic[hidden] { display: none; }
+         color: var(--accent-ink); display: grid; place-items: center; cursor: pointer; padding: 0; }
+  .mic.mic-off { visibility: hidden; }
+  .nomic .mic { display: none; }
   .mic.on { background: var(--danger-fill); color: var(--danger-ink); border-color: var(--danger-graphic); animation: pulse var(--dur-pulse) infinite; }
   @keyframes pulse { 50% { transform: scale(var(--pulse-scale)); } }   /* --pulse-scale is 1 under Reduce Motion */
-  .err { color: var(--danger-ink); font-size: var(--fs-footnote); }   /* P3-LEFTOVERS-15: the danger ink at footnote size */
+  .err { color: var(--danger-ink); font-size: var(--fs-footnote); }
   .wait { color: var(--text-2); font-size: var(--fs-footnote); }
 
   /* ── loading: until this device has pulled the list once, placeholder cards with the real card's geometry stand in for
         it (never "0" or "Nothing logged"), and what sits below the list waits, so nothing moves when it lands (GAP-MOTION-1) ── */
   .loading { font-size: var(--fs-footnote); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; line-height: var(--lh-tight);
-             color: var(--text-3); margin: 0 0 8px 2px; }
-  .skel .nm i, .skel .meta i { display: inline-block; vertical-align: middle; height: .7em; border-radius: var(--r-full); background: var(--surface-2); }
+             color: var(--text-3); margin: 0 0 var(--sp-2) var(--sp-1); }
+  .skel .nm i, .skel .meta i, .skel .right i { display: inline-block; vertical-align: middle; height: .7em; border-radius: var(--r-full); background: var(--surface-2); }
   .skel .nm i { width: 42%; } .skel .meta i { width: 64%; height: .55em; }
+  .skel .right .chipph { width: 7.5em; height: calc(var(--fs-caption1) + var(--sp-4)); }
+  .skel .right .btnph { width: max(var(--sp-12), var(--tap)); height: max(var(--sp-12), var(--tap)); border-radius: var(--r-control); }
   .skel:nth-child(2) { opacity: .75; } .skel:nth-child(3) { opacity: .5; }
   #list[aria-busy="true"] ~ .donelist, #list[aria-busy="true"] ~ .hearth { display: none; }
   .copy:disabled { opacity: var(--op-disabled); cursor: default; }
 
   /* ── the grouped list: Use it up · Aging · Fresh, oldest first ── */
-  .group { margin-bottom: 18px; }
-  .group h2 { display: flex; align-items: baseline; gap: 8px; font-size: var(--fs-footnote); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase;
-              color: var(--group-ink); margin: 0 0 8px 2px; }
+  .group { margin-bottom: var(--sp-5); }
+  .group h2 { display: flex; align-items: baseline; gap: var(--sp-2); font-size: var(--fs-footnote); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase;
+              color: var(--group-ink); margin: 0 0 var(--sp-2) var(--sp-1); }
   .group h2 small { font-family: var(--font-mono); font-weight: var(--fw-medium); font-size: var(--fs-caption2); color: var(--text-3); letter-spacing: var(--ls-caps); }
-  .list { display: grid; gap: 10px; }
-  /* a content card is solid (CONS-SHAPE-1: --material-solid-bg, --elev-card) */
-  .item, .skel { display: flex; align-items: stretch; background: var(--material-solid-bg); border: 1px solid var(--separator); border-radius: var(--r-control);
+  .list { display: grid; gap: var(--sp-3); }
+  /* a content card is solid: the house card (CONS-SHAPE-1: --r-card, --material-solid-bg, a hairline, --elev-card). The swipe
+     layer (Finish, Some left) sits behind the face, which slides over it (IMP-LEFTOVERS-I1). */
+  .item, .skel { position: relative; background: var(--material-solid-bg); border: 1px solid var(--separator); border-radius: var(--r-card);
                  overflow: hidden; box-shadow: var(--elev-card); }
-  .stripe { width: 5px; flex: none; background: var(--tint); }
+  .swipe-face { position: relative; z-index: var(--z-raised); display: flex; align-items: stretch; background: var(--material-solid-bg);
+                transform: translateX(var(--sx, 0px)); transition: transform var(--dur-snappy) var(--spring-snappy); touch-action: pan-y; }
+  .item.swiping .swipe-face { transition: none; }
+  /* the stripe is an inset pill, concentric with the card's corner */
+  .stripe { width: var(--sp-1); flex: none; align-self: stretch; margin: var(--sp-3) 0 var(--sp-3) var(--sp-3); border-radius: var(--r-full); background: var(--tint); }
   .skel .stripe, :root[data-kind="kid"] .skel .pic { background: var(--surface-2); }
-  .body { flex: 1; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+  .body { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--pad-card) var(--sp-3) var(--sp-3); }
   .info { flex: 1; min-width: 0; }
-  .nm { font-size: var(--fs-callout); font-weight: var(--fw-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .meta { font-size: var(--fs-footnote); color: var(--text-3); margin-top: 2px; }
+  .nm[role="button"] { cursor: pointer; border-radius: var(--r-control); }
+  /* the name wraps to two lines (P3-LEFTOVERS-11); the edit sheet shows all of it */
+  .nm { font-size: var(--fs-callout); font-weight: var(--fw-semibold); line-height: var(--lh-callout); overflow: hidden; overflow-wrap: break-word;
+        display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+  .meta { display: flex; align-items: flex-start; gap: var(--sp-2); font-size: var(--fs-footnote); color: var(--text-3); margin-top: var(--sp-1); }
+  .meta .mt { flex: 1; min-width: 0; }
+  .useby { display: block; }
+  .age { display: none; }
+  /* who logged it: the person's own face, in their own colour (VIS-LEFTOVERS-4); design.css's .avatar is scoped to .ds, so the Larder carries its small one */
+  .logger { flex: none; display: block; padding: var(--sp-1); margin: calc(var(--sp-1) * -1) 0 calc(var(--sp-1) * -1) calc(var(--sp-1) * -1); }
+  .avatar { --size: calc(var(--icon-sm) * var(--ts-user, 1)); width: var(--size); height: var(--size); border-radius: 50%; display: grid; place-items: center; overflow: hidden;
+            font-size: calc(var(--size) * .56); line-height: 1; background: var(--accent-fill); color: var(--accent-ink);
+            box-shadow: 0 0 0 var(--sp-1) var(--material-solid-bg), 0 0 0 calc(var(--sp-1) + 1px) var(--accent-graphic); }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  /* "Some left" (IMP-LEFTOVERS-I1): the half circle and the words */
+  .portion { display: flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-1); font-size: var(--fs-footnote); font-weight: var(--fw-semibold); color: var(--text-2); }
   /* freshness bar: --fresh / --aging / --use-soon, graphics >= 3:1 against the --surface-2 track in every palette
      (VIS-LEFTOVERS-2; a solid fill, no lighter left end); --p = days/10 */
-  .bar { height: 6px; border-radius: var(--r-full); background: var(--surface-2); overflow: hidden; margin-top: 8px; max-width: 220px; }
+  .bar { height: var(--sp-2); border-radius: var(--r-full); background: var(--surface-2); overflow: hidden; margin-top: var(--sp-2); max-width: calc(var(--sp-16) * 3); }
   .bar > i { display: block; height: 100%; width: calc(100% * var(--p, 0)); border-radius: inherit;
              background: var(--tint); transition: width var(--dur-progress) var(--spring-gentle); }
-  .right { display: flex; align-items: center; gap: 10px; flex: none; }
+  /* the right column: the state chip over the check button (one width, so no card changes size) */
+  .right { display: grid; justify-items: center; gap: var(--sp-2); flex: none; }
+  @container (min-width: 480px) { :root:not([data-kind="kitchen"]) .right { display: flex; align-items: center; gap: var(--sp-3); } }
   /* the state chip: the state's fill with its -ink label (lifted >= 1.5:1 off the card in the dark palettes, VIS-LEFTOVERS-3)
-     and the state's glyph, so the three states differ without colour (VIS-LEFTOVERS-2) */
-  .status { font-size: var(--fs-caption1); font-weight: var(--fw-semibold); padding: 6px 11px; border-radius: var(--r-full); background: var(--chip); color: var(--chip-text); white-space: nowrap; }
-  .status::before { content: var(--chip-glyph); display: inline-block; margin-right: .35em; font-weight: var(--fw-heavy); }
-  .item.finishing .status::before, .item.gone .status::before { content: none; }
-  /* ✓: a lit control, the success ink glyph on the success fill, never a dark well (VIS-LEFTOVERS-10) */
-  .done { border: 1px solid transparent; background: var(--success-fill); border-radius: var(--r-control); width: max(48px, var(--tap)); height: max(48px, var(--tap));
-          display: flex; align-items: center; justify-content: center; color: var(--success-ink); flex: none; cursor: pointer; }
+     and the state's sprite icon, so the three states differ without colour (VIS-LEFTOVERS-2) */
+  .status { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-1); box-sizing: border-box; min-width: 7.5em;
+            font-size: var(--fs-caption1); font-weight: var(--fw-semibold); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-full); background: var(--chip); color: var(--chip-text); white-space: nowrap; }
+  /* the check button: a lit control, the success ink glyph on the success fill, never a dark well (VIS-LEFTOVERS-10; the accepted deviation, CONS-ACCENT-4) */
+  .done { border: 1px solid transparent; background: var(--success-fill); border-radius: var(--r-control); width: max(var(--sp-12), var(--tap)); height: max(var(--sp-12), var(--tap));
+          display: flex; align-items: center; justify-content: center; color: var(--success-ink); flex: none; cursor: pointer; padding: 0; }
 
-  .empty { text-align: center; padding: 32px 0 40px; color: var(--text-3); }
+  .empty { text-align: center; padding: var(--sp-8) 0 var(--sp-10); color: var(--text-3); }
   .empty p { margin: 0; }
   /* the empty-state art sits on the art plate (VIS-LEFTOVERS-7: transparent in light, a raised surface in dark) */
-  .empty img { width: 176px; max-width: 70%; margin: 0 auto 14px; padding: 12px; background: var(--art-plate); border-radius: var(--r-card); }
+  .empty img { width: calc(var(--sp-16) * 2.75); max-width: 70%; margin: 0 auto var(--sp-4); padding: var(--sp-3); background: var(--art-plate); border-radius: var(--r-card); }
 
-  .hearth { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
-  .hearth p { font-size: var(--fs-footnote); color: var(--text-2); margin: 0 0 12px; }
-  .copy { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface-2);
-          border-radius: var(--r-control); padding: 0 18px; min-height: var(--tap-row); font-size: var(--fs-subheadline); color: var(--text); cursor: pointer; }
-  /* a ✓ keeps the card in place for six seconds, struck through, with its own Undo (batch 0h) */
+  .hearth { margin-top: var(--sp-6); padding-top: var(--sp-5); border-top: 1px solid var(--line); }
+  .hearth p { font-size: var(--fs-footnote); color: var(--text-2); margin: 0 0 var(--sp-3); }
+  .copy { display: inline-flex; align-items: center; gap: var(--sp-2); border: 1px solid var(--line); background: var(--surface-2);
+          border-radius: var(--r-control); padding: 0 var(--sp-4); min-height: var(--tap-row); font: inherit; font-size: var(--fs-subheadline); color: var(--text); cursor: pointer; }
+  /* when the clipboard refuses (P3-LEFTOVERS-10): the text itself, pre-selected, to copy by hand */
+  .copybox { margin-top: var(--sp-3); }
+  .copybox textarea { display: block; width: 100%; min-height: calc(var(--tap) * 2.4); padding: var(--sp-3) var(--sp-4); border: 1px solid var(--field-border); border-radius: var(--r-control);
+          background: var(--surface); color: var(--text); font: inherit; font-size: var(--fs-subheadline); line-height: var(--lh-subheadline); resize: vertical; box-sizing: border-box; user-select: text; -webkit-user-select: text; }
+  .copybox-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-2); }
+  /* a check keeps the card in place for six seconds, struck through, with its own Undo (batch 0h) */
   /* a finishing or finished card reads as past by its ink and its strike-through, never by fading the text (CONS-COLOR-1);
      the picture and the chip lose their colour instead */
   .item.finishing .info, .item.finishing .info *, .item.gone .info, .item.gone .info * { color: var(--text-3); }
   .item.finishing .pic, .item.gone .pic, .item.gone .status { filter: saturate(0); }
   .item.finishing .nm, .item.gone .nm { text-decoration: line-through; }
-  .status { min-width: 7.5em; text-align: center; box-sizing: border-box; }   /* one width for every label, so no card changes width */
-  .undo { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-control); width: max(48px, var(--tap)); height: max(48px, var(--tap)); padding: 0;
+  /* a finished card settles in place (a short fade on the motion tokens, 150 ms under Reduce Motion); it keeps its box (P3-LEFTOVERS-12) */
+  .item.gone .swipe-face { animation: settle var(--dur-gentle) var(--spring-gentle) both; }
+  @keyframes settle { from { opacity: 1; } to { opacity: .72; } }
+  .undo { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-control); width: max(var(--sp-12), var(--tap)); height: max(var(--sp-12), var(--tap)); padding: 0;
           font: inherit; font-size: var(--fs-footnote); font-weight: var(--fw-bold); color: var(--success-ink); cursor: pointer; flex: none; }
-  .slot { width: max(48px, var(--tap)); height: max(48px, var(--tap)); flex: none; }
-  .newpill { position: fixed; z-index: var(--z-pill); top: max(12px, var(--safe-top)); left: 50%; transform: translateX(-50%);
-             min-height: var(--tap); padding: 0 18px; border-radius: var(--r-full); border: 1px solid var(--glass-edge); background: var(--glass-bg-strong-tinted);
+  .slot { width: max(var(--sp-12), var(--tap)); height: max(var(--sp-12), var(--tap)); flex: none; }
+  /* swipe to finish (IMP-LEFTOVERS-I1): the layer behind the face, trailing side */
+  .swipe-act { position: absolute; z-index: 0; top: 0; bottom: 0; right: 0; display: flex; width: var(--swipe-w, calc(var(--tap-lg) * 2.6)); visibility: hidden; }
+  .item.swiping .swipe-act, .item.swipe-open .swipe-act { visibility: visible; }
+  .swipe-act button { flex: 1; min-width: 0; display: grid; place-content: center; justify-items: center; gap: var(--sp-1); border: 0; padding: 0 var(--sp-2); font: inherit;
+          font-size: var(--fs-footnote); font-weight: var(--fw-semibold); cursor: pointer; }
+  .sw-some { background: var(--warning-strong); color: var(--warning-on); }
+  .sw-fin { background: var(--success-strong); color: var(--success-on); }
+  .newpill { position: fixed; z-index: var(--z-pill); top: max(var(--sp-3), var(--safe-top)); left: 50%; transform: translateX(-50%);
+             min-height: var(--tap); padding: 0 var(--sp-5); border-radius: var(--r-full); border: 1px solid var(--glass-edge); background: var(--glass-bg-strong-tinted);
              -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); box-shadow: var(--glass-shadow);
              font: inherit; font-size: var(--fs-subheadline); font-weight: var(--fw-semibold); color: var(--text); cursor: pointer; }
   .newpill[hidden] { display: none; }
   .newpill.pressable:active { transform: translateX(-50%) scale(var(--press-scale)); }   /* keep the centring while pressed */
-  .donelist { margin-top: 18px; }
+  .donelist { margin-top: var(--sp-5); }
   .donelist summary { cursor: pointer; font-size: var(--fs-footnote); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-3);
                       min-height: var(--tap); display: flex; align-items: center; }
-  .donelist .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 2px; border-top: 1px solid var(--separator); }
+  .donelist .row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); padding: var(--sp-2) var(--sp-1); border-top: 1px solid var(--separator); }
   .donelist .row.back .t { color: var(--text-3); }
   .donelist .row .t { min-width: 0; font-size: var(--fs-subheadline); } .donelist .row .t small { display: block; color: var(--text-3); font-size: var(--fs-caption1); }
-  .putback { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--r-control); min-height: var(--tap); width: 96px; padding: 0 8px;
+  .putback { border: 1px solid var(--line); background: var(--surface-2); border-radius: var(--r-control); min-height: var(--tap); width: calc(var(--sp-16) * 1.5); padding: 0 var(--sp-2);
              font: inherit; font-size: var(--fs-footnote); font-weight: var(--fw-semibold); color: var(--text); cursor: pointer; flex: none; box-sizing: border-box; }
-  .putback.tag { display: inline-flex; align-items: center; justify-content: center; cursor: default; background: transparent; color: var(--text-3); }
+  .putback.tag { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-1); cursor: default; background: transparent; color: var(--text-3); }
+
+  /* the edit sheet (GAP-LEFTOVERS-1): the house sheet, in a .ds of its own like hub.confirm */
+  /* the name field grows with the name, so a long one shows whole (N3); it looks like its sibling fields */
+  #editsheet #e-name { min-height: var(--tap); resize: none; overflow: hidden; line-height: var(--lh-callout); display: block; }
+  #editsheet .switchrow { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-top: var(--sp-4); }
+  #editsheet .switchrow .help { margin-top: var(--sp-1); }
+  #editsheet .textbtn { align-self: flex-start; margin-top: var(--sp-2); min-height: var(--tap); padding: 0; border: 0; background: none; color: var(--accent-ink); font: inherit; font-size: var(--fs-subheadline); font-weight: var(--fw-semibold); cursor: pointer; }
+
   /* kids: a picture view, no controls (P5-D2) — a food picture, the name in big type, how old it is and the freshness colour.
-     The roles already carry the kid scale (16 px floor); only the name steps up a role. */
+     The roles and the --sp-* tokens already carry the kid scale (16 px floor, spacing x1.25). */
   .pic { display: none; }
   :root[data-kind="kid"] .pic { display: grid; place-items: center; flex: none; width: var(--tap); height: var(--tap); font-size: var(--fs-large-title); line-height: var(--lh-tight);
                                 border-radius: var(--r-control); background: var(--chip); }
-  :root[data-kind="kid"] .body { gap: 14px; padding: 14px 16px; }
-  :root[data-kind="kid"] .nm { font-size: var(--fs-headline); white-space: normal; }
-  /* at a large text size the name wraps to two lines instead of shrinking to a few letters (review, batch 1) */
-  :root:is([data-text-size="l"], [data-text-size="xl"], [data-text-size="xxl"]) .nm { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
-  :root[data-kind="kid"] .status { padding: 8px 13px; }
-  :root[data-kind="kid"] body { padding-bottom: max(40px, var(--safe-bottom)); }
+  /* the picture view is as it was before batch 8: the flush stripe, the 12-radius card, the same padding and gaps (P5) */
+  :root[data-kind="kid"] :is(.item, .skel) { border-radius: var(--r-control); }
+  :root[data-kind="kid"] .stripe { margin: 0; border-radius: 0; }
+  :root[data-kind="kid"] .body { padding: var(--sp-3); }
+  /* the name has the card's whole width (one line for a typical name, review P5): the chip never sits beside the name, where a
+     wide chip squeezed it onto two lines. On a phone-width card the age line takes the full width too and the chip sits beside
+     the freshness bar; from a 480 px card (an iPad) the chip sits beside the age line and the bar, as before. */
+  :root[data-kind="kid"] .body { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: repeat(4, auto); column-gap: var(--sp-3); row-gap: 0; align-items: center; }
+  :root[data-kind="kid"] .info { display: contents; }
+  :root[data-kind="kid"] .pic { grid-column: 1; grid-row: 1 / -1; }
+  :root[data-kind="kid"] .nm { grid-column: 2 / -1; grid-row: 1; }
+  :root[data-kind="kid"] .meta { grid-column: 2 / -1; grid-row: 2; }
+  :root[data-kind="kid"] .portion { grid-column: 2 / -1; grid-row: 3; }
+  :root[data-kind="kid"] .bar { grid-column: 2; grid-row: 4; }
+  :root[data-kind="kid"] .right { grid-column: 3; grid-row: 4; align-self: end; }
+  :root[data-kind="kid"] .status { padding: var(--sp-1) var(--sp-3); }
+  @container (min-width: 480px) {
+    :root[data-kind="kid"] :is(.meta, .portion) { grid-column: 2; }
+    :root[data-kind="kid"] .right { grid-row: 2 / -1; align-self: center; }
+    :root[data-kind="kid"] .status { padding: var(--sp-2) var(--sp-3); }
+  }
+  :root[data-kind="kid"] .skel .btnph { display: none; }   /* a kid's card has no check button, so its placeholder has none either */
+  :root[data-kind="kid"] .nm { font-size: var(--fs-headline); display: block; -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; }   /* a kid reads the whole name (P5-D2) */
+  :root[data-kind="kid"] body { padding-bottom: max(var(--sp-10), var(--safe-bottom)); padding-left: max(var(--sp-3), var(--safe-left)); padding-right: max(var(--sp-3), var(--safe-right)); }   /* the pre-batch 16 px page margin: the name keeps its room */
   :root[data-kind="kid"] .hearth, :root[data-kind="kid"] form[id="add"], :root[data-kind="kid"] .donelist { display: none; }
   /* kid minimum targets outside .ds (P4-SHAPE-01, proposal SHAPE-9): anything a kid can tap is at least --tap (64 px) */
   :root[data-kind="kid"] :is(button, a[href], [role="button"], input:not([type="hidden"]), select, summary, label[for]) { min-width: var(--tap); min-height: var(--tap); }
   :root[data-kind="kiosk"] .hearth, :root[data-kind="kiosk"] form[id="add"] { display: none; }   /* the form id is written as an attribute selector so hex-colour linting does not misread it */
+
+  /* from 1024 px wide (the landscape iPad, a desktop) the groups lay out in two columns inside --col-wide; the Kitchen and the kids keep one */
+  @media (min-width: 1024px) {
+    :root:not([data-kind="kitchen"]):not([data-kind="kid"]):not([data-kind="kiosk"]) .wrap { max-width: var(--col-wide); }
+    :root:not([data-kind="kitchen"]):not([data-kind="kid"]):not([data-kind="kiosk"]) .list { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    :root:not([data-kind="kitchen"]):not([data-kind="kid"]):not([data-kind="kiosk"]) :is(.hearth, .donelist, .mode) { max-width: var(--col-narrow); }
+  }
+  /* 6: on an iPad the banner's oldest-item line reads from across the room */
+  @media (min-width: 768px) { :root:not([data-kind="kid"]) .alert { font-size: var(--fs-title2); } }
+  /* 8 (review R1): the toast keeps the hub's shared position; moved above the add bar it covered a card's own Undo, a just-logged card and Select and copy */
+
+  /* the Kitchen iPad is read from across the room (UX-LEFTOVERS-3): every name at a glance role, the oldest item's age too,
+     in a wider column; the chip and the headings step up with them */
+  :root[data-kind="kitchen"] .wrap, :root[data-kind="kitchen"] form[id="add"] { max-width: calc(var(--col-narrow) * 1.5); }
+  :root[data-kind="kitchen"] .nm { font-size: var(--fs-glance-3); line-height: var(--lh-tight); font-weight: var(--fw-bold); }
+  :root[data-kind="kitchen"] .age { display: block; margin-top: var(--sp-1); font-size: var(--fs-title3); font-weight: var(--fw-semibold); color: var(--text-2); }
+  #list > .group:first-of-type > .list > .item:first-child .age { font-size: var(--fs-glance-3); line-height: var(--lh-tight); }
+  :root[data-kind="kitchen"] .meta { font-size: var(--fs-subheadline); }
+  :root[data-kind="kitchen"] .mage { display: none; }
+  :root[data-kind="kitchen"] .status { font-size: var(--fs-title3); }
+  :root[data-kind="kitchen"] .group h2 { font-size: var(--fs-headline); }
+  :root[data-kind="kitchen"] :is(.done, .undo, .slot) { width: var(--tap-lg); height: var(--tap-lg); }
+  :root[data-kind="kitchen"] .done .sym { width: var(--icon-xl); height: var(--icon-xl); }
 </style>
 </head>
 <body>
+<script>try{if(window.parent!==window)document.documentElement.classList.add('framed')}catch(e){document.documentElement.classList.add('framed')}
+if(!(window.SpeechRecognition||window.webkitSpeechRecognition))document.documentElement.classList.add('nomic')</script>
 <div class="wrap">
   <div class="head">
     <h1>The Larder Ledger</h1>
+  </div>
+  <div class="sub">
+    <p class="lede">Log it when you put it away. Cross it off when it's gone.</p>
     <span class="tally" id="tally"></span>
   </div>
-  <p class="lede">Log it when you put it away. Cross it off when it's gone.</p>
-  <p class="mode sans" id="mode" hidden></p>
+  <div class="mode sans" id="mode" hidden><span id="modetext"></span><button type="button" id="retry" class="retry pressable" hidden>Retry</button></div>
 
   <!-- the "at a week or older" alert is drawn at the top of the list itself (GAP-MOTION-1), so the list never moves when it lands -->
   <div id="list" class="sans" aria-busy="true">
     <p class="loading">Loading the fridge…</p>
     <div class="list" aria-hidden="true">
-      <div class="skel"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div></div></div>
-      <div class="skel"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div></div></div>
-      <div class="skel"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div></div></div>
+      <div class="skel"><div class="swipe-face"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div><div class="right"><i class="chipph"></i><i class="btnph"></i></div></div></div></div>
+      <div class="skel"><div class="swipe-face"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div><div class="right"><i class="chipph"></i><i class="btnph"></i></div></div></div></div>
+      <div class="skel"><div class="swipe-face"><div class="stripe"></div><div class="body"><span class="pic"></span><div class="info"><div class="nm"><i></i>&nbsp;</div><div class="meta"><i></i>&nbsp;</div><div class="bar"></div></div><div class="right"><i class="chipph"></i><i class="btnph"></i></div></div></div></div>
     </div>
   </div>
 
   <div id="donelist" class="donelist sans"></div>
 
   <div class="hearth sans">
-    <p>Want this week's warnings on the Hearth wall display? Copy the list below and tell Claude
-       "push my leftovers to Hearth" — it'll add them straight to the Hearth Calendar.</p>
-    <button type="button" class="copy pressable" id="copy" disabled aria-disabled="true"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Copy list for Hearth</button>
+    <p id="copyhelp">Paste it into a message, a note or Hearth.</p>
+    <button type="button" class="copy pressable" id="copy" disabled aria-disabled="true"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-copy"/></svg> Copy the list</button>
+    <div class="copybox" id="copybox" hidden>
+      <textarea id="copytext" readonly aria-label="The list, to copy by hand"></textarea>
+      <div class="copybox-actions">
+        <button type="button" class="copy pressable" id="copyselect">Select and copy</button>
+        <button type="button" class="copy pressable" id="copyshare" hidden>Share</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <button type="button" id="newpill" class="newpill sans pressable" hidden></button>
 
-<form id="add" class="sans" aria-label="Log a leftover">
+<form id="add" class="sans" aria-label="Log a leftover" novalidate>
   <div class="namerow">
-    <input id="name" placeholder="What is it? e.g. Chicken alfredo" autocomplete="off" enterkeyhint="done" aria-label="Leftover name">
-    <button type="button" class="mic pressable is-small" id="mic" aria-label="Say the name" hidden></button>
-    <button type="submit" class="log pressable"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Log</button>
+    <input id="name" placeholder="What is it?" autocomplete="off" enterkeyhint="done" aria-label="Leftover name">
+    <button type="button" class="mic mic-off pressable is-small" id="mic" aria-label="Say the name"><svg class="sym sym-md" aria-hidden="true"><use href="../icons/sprite.svg#i-mic"/></svg></button>
+    <button type="submit" class="log pressable"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-plus"/></svg> Log</button>
   </div>
+  <p class="fielderr" id="name-err" role="alert" hidden>Type what it is</p>
   <div class="pair">
     <select id="size" aria-label="Container size"><option>Small</option><option selected>Medium</option><option>Large</option><option>Family-size</option></select>
     <input type="date" id="date" aria-label="Date logged">
@@ -211,7 +342,48 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   <span class="wait" id="wait" role="status" hidden></span>
   <span class="err" id="err" hidden></span>
 </form>
+
+<!-- the edit sheet (GAP-LEFTOVERS-1): the house sheet in a .ds of its own, like hub.confirm; the script opens it -->
+<div class="ds" id="editwrap" hidden>
+  <div class="sheet-backdrop" id="editbd">
+    <div class="sheet" id="editsheet" role="dialog" aria-modal="true" aria-labelledby="e-title">
+      <h2 id="e-title">Edit leftover</h2>
+      <div class="field">
+        <label class="label" for="e-name">What is it</label>
+        <textarea class="textarea" id="e-name" rows="1" autocomplete="off" enterkeyhint="done" spellcheck="true"></textarea>
+        <p class="fielderr" id="e-name-err" role="alert" hidden>Type what it is</p>
+      </div>
+      <div class="field">
+        <label class="label" for="e-size">Container size</label>
+        <select class="select" id="e-size"><option>Small</option><option>Medium</option><option>Large</option><option>Family-size</option></select>
+      </div>
+      <div class="field">
+        <label class="label" for="e-date">Made or logged</label>
+        <input class="input" type="date" id="e-date">
+      </div>
+      <div class="field">
+        <label class="label" for="e-useby">Use by (optional)</label>
+        <input class="input" type="date" id="e-useby">
+        <button type="button" class="textbtn" id="e-useby-clear">No use-by date</button>
+      </div>
+      <div class="switchrow">
+        <div><div class="label" id="e-some-label">Some left</div><div class="help">Show it as part eaten.</div></div>
+        <button type="button" class="switch" id="e-some" role="switch" aria-checked="false" aria-labelledby="e-some-label"></button>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn" id="e-cancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="e-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
+  // The page's bottom padding is the add bar's measured height (VIS-LEFTOVERS-6), set from the first frame and kept in step.
+  (function () {
+    var f = document.getElementById('add'), root = document.documentElement;
+    var set = function () { var h = Math.ceil(f.getBoundingClientRect().height); if (h) root.style.setProperty('--addbar-h', h + 'px'); };
+    set(); if ('ResizeObserver' in window) new ResizeObserver(set).observe(f);
+  })();
   // From the first byte a Log tap or Enter only raises a flag: the browser's own submit (no action, so a GET of this page)
   // would reload the frame and lose the typed name. The app below takes the entry over and logs it once the list has loaded.
   document.getElementById('add').onsubmit = e => {
@@ -221,41 +393,29 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const w = document.getElementById('wait'); w.textContent = 'Logging “' + n + '” as soon as the list has loaded…'; w.hidden = false;
   };
 </script>
-
 <script src="hub.js" data-app="leftovers" data-scope="family"></script>
 <script>
 (async () => {
   const SIZES = ['Small', 'Medium', 'Large', 'Family-size'];
-  const WARN_DAYS = 7, AGING_DAYS = 4, FULL_BAR_DAYS = 10;   // the freshness bar fills over ten days, like the Home fridge card
+  const FULL_BAR_DAYS = 10;   // the freshness bar fills over ten days, like the Home fridge card (the thresholds are hub.larder.fresh's, below)
   // Each state's roles (audit batch 1, migration table; VIS-LEFTOVERS-2, -3): the stripe and freshness bar are graphics
-  // (--fresh / --aging / --use-soon, >= 3:1), the chip is the state's fill with its -ink label and its glyph, the group
+  // (--fresh / --aging / --use-soon, >= 3:1), the chip is the state's fill with its -ink label and its sprite icon, the group
   // heading is the -ink.
   const TONES = {
-    fresh:  { tint: 'var(--fresh)',    chip: 'var(--success-fill)', chipText: 'var(--success-ink)', ink: 'var(--success-ink)', glyph: 'var(--success-glyph)' },
-    warn:   { tint: 'var(--aging)',    chip: 'var(--warning-fill)', chipText: 'var(--warning-ink)', ink: 'var(--warning-ink)', glyph: 'var(--warning-glyph)' },
+    fresh:  { tint: 'var(--fresh)',    chip: 'var(--success-fill)', chipText: 'var(--success-ink)', ink: 'var(--success-ink)' },
+    warn:   { tint: 'var(--aging)',    chip: 'var(--warning-fill)', chipText: 'var(--warning-ink)', ink: 'var(--warning-ink)' },
     urgent: { tint: 'var(--use-soon)', chip: 'var(--danger-fill)',  chipText: 'var(--danger-ink)',  ink: 'var(--danger-ink)',  glyph: 'var(--danger-glyph)' },
   };
   const GROUPS = [
-    { tone: 'urgent', title: 'Use it up', sub: 'a week or older' },
-    { tone: 'warn',   title: 'Aging',     sub: 'eat soon' },
-    { tone: 'fresh',  title: 'Fresh',     sub: 'this week' },
+    { tone: 'urgent', title: 'Use it up', sub: '7+ days, or at use-by' },
+    { tone: 'warn',   title: 'Eat soon',  sub: '4-6 days, or near use-by' },
+    { tone: 'fresh',  title: 'Fresh',     sub: 'up to 3 days old' },
   ];
-  // Lucide glyphs, inlined — no icon library on a static host. Lucide (https://lucide.dev), ISC licence,
-  // copyright (c) Lucide Contributors; derived from Feather, copyright (c) 2013-2023 Cole Bemis (GAP-ICON-2).
-  const ICON = {
-    plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
-    check: '<path d="M20 6 9 17l-5-5"/>',
-    refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
-    alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
-    mic: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
-  };
-  function svg(name, size, stroke) {
-    const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('width', size); s.setAttribute('height', size);
-    s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor');
-    s.setAttribute('stroke-width', stroke || 2); s.setAttribute('stroke-linecap', 'round');
-    s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true');
-    s.innerHTML = ICON[name];
+  // Icons come from the shared sprite (CONS-ICON-1): <svg class="sym"><use href="../icons/sprite.svg#i-NAME"/></svg>
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function sym(name, cls) {
+    const s = document.createElementNS(SVGNS, 'svg'); s.setAttribute('class', 'sym' + (cls ? ' ' + cls : '')); s.setAttribute('aria-hidden', 'true');
+    const u = document.createElementNS(SVGNS, 'use'); u.setAttribute('href', '../icons/sprite.svg#i-' + name); s.append(u);
     return s;
   }
 
@@ -267,11 +427,9 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // An item's age in days (batch 0i, P3-LEFTOVERS-04, -09): a future date reads as today, and a date that is not a real
   // YYYY-MM-DD (an older row, "yesterday" from chat) is unknown — shown as "Check date" with the oldest, never as Fresh.
   const isDay = v => { const d = String(v || ''); if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false; const x = new Date(d + 'T12:00:00Z'); return !isNaN(x) && x.toISOString().slice(0, 10) === d; };
-  const daysBetween = s => isDay(s) ? Math.max(0, hub.daysBetween(s, dayKey)) : Infinity;
-  const statusFor = d => d === Infinity ? { label: 'Check date', tone: 'urgent' }
-                       : d >= WARN_DAYS ? { label: 'Use it up', tone: 'urgent' }
-                       : d >= AGING_DAYS ? { label: 'Aging', tone: 'warn' }
-                       : { label: 'Fresh', tone: 'fresh' };
+  // The one freshness rule (batch 8, P3-LEFTOVERS-02): hub.larder.fresh, shared with Home, the Apps badge and (as a twin in
+  // worker/src/larder.js) the 8 am push. Without a use-by 0-3 days is fresh, 4-6 eat soon, 7+ use it up; with a use-by, use it
+  // up from that day and eat soon in the two days before it.
 
   await hub.ready();
   // Family data lives on the server already; this only rescues an item cached on a device that never synced. Async: it
@@ -284,20 +442,21 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   const setWait = m => { waitEl.textContent = m; waitEl.hidden = !m; };
   const canEdit = hub.canWrite && !hub.isKid;   // P5-D2: kids only look at the Larder (the Worker refuses their writes); their picture view comes in batch 8
 
-  // Only speak up when sync ISN'T working — silence means the house list is fine.
+  // Only speak up when sync ISN'T working — silence means the house list is fine. Plain words and a Retry that pulls (UX-LEFTOVERS-8):
+  // never a raw server code.
+  let modeKey = '';
   hub.onSync(s => {
-    if (s.state === 'offline') { modeEl.textContent = (hub.isLoaded() ? "Can't reach the house list — showing the last copy saved here." : "Can't reach the house list yet — the fridge shows up once it connects.") + (s.pending ? ' Your changes will send when it is back.' : ''); modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
-    else if (s.state === 'error') { modeEl.textContent = 'The house list had a problem: ' + (s.lastError || 'unknown') + '.'; modeEl.className = 'mode sans warn'; modeEl.hidden = false; }
-    else modeEl.hidden = true;
+    let msg = '';
+    if (s.state === 'offline') msg = (hub.isLoaded() ? "Can't reach the house list — showing the last copy saved here." : "Can't reach the house list yet — the fridge shows up once it connects.") + (s.pending ? ' Your changes will send when it is back.' : '');
+    else if (s.state === 'error') msg = "Couldn't reach the house. Your changes are saved on this device.";
+    if (!msg) { modeEl.hidden = true; modeKey = ''; return; }
+    if (msg !== modeKey) { $('modetext').textContent = msg; modeEl.className = 'mode sans warn'; $('retry').hidden = false; modeKey = msg; }   // not rebuilt while it reads the same, so a focused Retry stays
+    modeEl.hidden = false;
   });
-
-  // The page's bottom padding follows the real height of the bar (the mic slot and the error line change it).
-  if (canEdit && 'ResizeObserver' in window) {
-    new ResizeObserver(() => document.documentElement.style.setProperty('--addbar-h', Math.ceil(form.getBoundingClientRect().height) + 'px')).observe(form);
-  }
+  $('retry').onclick = () => { const b = $('retry'); b.disabled = true; Promise.resolve().then(() => hub.pull()).catch(() => {}).finally(() => { b.disabled = false; }); };
 
   // ── one tap, one item (batch 0h: P3-LEFTOVERS-01, -12, UX-LEFTOVERS-1) ──
-  // A ✓ marks its own item (by id) as finishing: the card stays where it is, struck through, with an Undo on it and on a
+  // A tap on the check button marks its own item (by id) as finishing: the card stays where it is, struck through, with an Undo on it and on a
   // toast. The item is taken off the house list only after six seconds (or when the page is left), so a second tap
   // lands on the same card's Undo, never on the next item, and a mistaken tap costs nothing. Finished items are kept
   // for seven days under "Recently finished" (finished:<id>, with their size and date), where they can be put back.
@@ -306,7 +465,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // A change never moves a card under a finger (P3-LEFTOVERS-12). The list is laid out (sorted and grouped) only when it
   // opens, on this device's own Log or Put back, at midnight, when the app comes back into view, or on "Show" in the
   // "N new" pill. Everything else updates cards where they stand: an item finished on another device (or this one's
-  // own ✓ after its six seconds) stays in its place, dimmed and marked Finished, with nothing to tap; an item added
+  // own check after its six seconds) stays in its place, dimmed and marked Finished, with nothing to tap; an item added
   // elsewhere waits behind the pill. Nothing in a card changes width, so no card changes height either.
   let laidOut = false;
   const seen = new Map();   // id -> the item as last shown, so a card finished elsewhere keeps its name
@@ -314,18 +473,33 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   pillEl.onclick = () => render();
   // An item finishing here that someone else finished (or that went some other way) is no longer finishing here.
   function dropStale() { for (const [id, p] of pending) if (!hub.get('item:' + id)) { clearTimeout(p.t); pending.delete(id); } }
+  // would the new card be exactly as tall as the one on screen? (measured off screen, at the same width)
+  const own = new Set();   // ids this device itself just changed: refresh() shows those at once
+  function sameHeight(card, next) {
+    const s = next.style, w = card.getBoundingClientRect().width, h = card.getBoundingClientRect().height;
+    s.position = 'absolute'; s.visibility = 'hidden'; s.pointerEvents = 'none'; s.width = w + 'px';
+    card.after(next); const nh = next.getBoundingClientRect().height; next.remove();
+    for (const p of ['position', 'visibility', 'pointer-events', 'width']) s.removeProperty(p);
+    return Math.abs(nh - h) < 0.5;
+  }
   function refresh() {
     if (!hub.isLoaded()) return;
     if (!laidOut || !listEl.querySelector('.item')) { render(); return; }   // nothing on screen to aim at
     dropStale();
     const live = new Map(items().map(i => [i.id, i]));
     const act = document.activeElement, focusCard = act && act.closest && act.closest('.item'), focusSel = act && act.classList.contains('undo') ? '.undo' : '.done';
+    let deferred = 0;
     for (const card of [...listEl.querySelectorAll('.item')]) {
       const id = card.dataset.id, it = live.get(id) || seen.get(id);
       if (!it) continue;
       if (live.has(id)) seen.set(id, it);
       const next = itemCard(it, !live.has(id));
       if (next.dataset.sig === card.dataset.sig) continue;               // unchanged: left alone (focus, a tap in progress)
+      // A card is replaced where it stands only when it comes out exactly as tall as it was (a finishing or finished state, a new chip,
+      // a bar that moved). One that would grow or shrink (a two-line rename, a remote "Some left") would push every card below it, so it
+      // waits, unchanged, behind the "Show" pill until the next layout (review R2; the 0h rule: a remote change never moves a card).
+      const stateChange = card.classList.contains('finishing') !== next.classList.contains('finishing') || card.classList.contains('gone') !== next.classList.contains('gone');
+      if (!stateChange && !own.has(id) && !sameHeight(card, next)) { deferred++; continue; }
       card.replaceWith(next);
       if (focusCard === card) {                                          // focus stays with its card, or moves on from a finished one
         const b = next.querySelector(focusSel) || next.querySelector('button');
@@ -340,7 +514,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     }
     const shown = new Set([...listEl.querySelectorAll('.item')].map(c => c.dataset.id));
     const added = [...live.keys()].filter(id => !shown.has(id)).length;
-    pillEl.textContent = added + ' new in the fridge · Show'; pillEl.hidden = !added;
+    pillEl.textContent = deferred ? (added + deferred) + ' new or changed in the fridge · Show' : added + ' new in the fridge · Show'; pillEl.hidden = !(added || deferred);
     tallyEl.textContent = [...live.keys()].filter(id => !pending.has(id)).length + ' in the fridge';
     renderDone(false);
   }
@@ -359,18 +533,21 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     copyBtn.disabled = false; copyBtn.removeAttribute('aria-disabled');
     laidOut = true; pillEl.hidden = true; seen.clear();
     dropStale();
-    const sorted = items().sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged));
+    const sorted = items().sort(byUrgency);
     renderDone();
     tallyEl.textContent = sorted.filter(i => !pending.has(i.id)).length + ' in the fridge';
 
-    const warnCount = sorted.filter(i => daysBetween(i.dateLogged) >= WARN_DAYS).length;
+    const old = sorted.filter(i => freshOf(i).level === 'old');
     listEl.textContent = '';
-    if (warnCount) {   // at the top of the list, where the loading line was (GAP-MOTION-1)
-      const d = document.createElement('div');
-      d.className = 'alert sans';
-      d.append(svg('alert', 16, 2.2),
-        document.createTextNode(warnCount + ' item' + (warnCount > 1 ? 's' : '') + ' at a week or older'));
-      listEl.append(d);
+    if (old.length) {   // at the top of the list, where the loading line was (GAP-MOTION-1); it names the oldest and a tap goes to it (UX-LEFTOVERS-9)
+      const o = old[0], fo = freshOf(o);
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'alert sans pressable'; b.dataset.target = o.id;
+      const tx = document.createElement('span'); tx.className = 'alert-text';
+      tx.textContent = fo.useBy ? o.name + (fo.daysLeft < 0 ? ' is past its use-by' : ': use by today') : fo.days === Infinity ? o.name + ' needs its date checked' : o.name + ' is ' + fo.age + ' old';
+      if (old.length > 1) tx.textContent += ' · and ' + (old.length - 1) + ' more';
+      b.append(sym('triangle-alert'), tx);
+      b.onclick = () => jumpTo(o.id);
+      listEl.append(b);
     }
 
     if (!sorted.length) {
@@ -379,14 +556,14 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       const p = document.createElement('p');
       p.textContent = 'Nothing logged yet.';
       const art = document.createElement('img');
-      art.src = '../art/empty/fridge.svg'; art.alt = ''; art.decoding = 'async';
+      art.src = '../art/empty/fridge.svg'; art.alt = ''; art.decoding = 'async'; art.draggable = false;
       e.append(art, p);
       listEl.append(e);
       return;
     }
 
     for (const g of GROUPS) {
-      const rows = sorted.filter(i => statusFor(daysBetween(i.dateLogged)).tone === g.tone);
+      const rows = sorted.filter(i => freshOf(i).tone === g.tone);
       if (!rows.length) continue;
       const t = TONES[g.tone];
       const group = document.createElement('section');
@@ -404,38 +581,78 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     }
   }
 
+  // Friendly dates (VIS-LEFTOVERS-5): "Mon 14 Sep", with the year only when it is not this year.
+  const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function friendlyDate(iso) {
+    if (!isDay(iso)) return '';
+    const [y, m, d] = String(iso).split('-').map(Number);
+    const wd = WEEKDAYS[new Date(Date.UTC(y, m - 1, d, 12)).getUTCDay()];
+    return wd + ' ' + d + ' ' + MONTHS[m - 1] + (String(y) !== String(dayKey).slice(0, 4) ? ' ' + y : '');
+  }
+  // freshOf reads the shared rule; metaText is the adult meta line ("Large · Mon 14 Sep · 8 days"); byUrgency orders the list, most urgent first
+  function freshOf(it) { const f = hub.larder.fresh(it, dayKey); return { ...f, tone: f.level === 'old' ? 'urgent' : f.level === 'soon' ? 'warn' : 'fresh' }; }
+  function byUrgency(a, b) { const x = freshOf(a).score, y = freshOf(b).score; return x === y ? 0 : y > x ? 1 : -1; }
+  function metaText(it, f) { return [it.size, f.days === Infinity ? 'date unknown' : friendlyDate(it.dateLogged) + ' · ' + f.age].join(' · ') + (f.useBy ? ' · use by ' + friendlyDate(f.useBy) : ''); }
+  // the state chip's sprite icon: one drawing per state, so the three differ without colour (VIS-LEFTOVERS-2, VIS-ICON-1)
+  const CHIP_ICON = { fresh: null, soon: 'clock', old: 'triangle-alert' };   // Fresh wears none (the check is the finish action only); Eat soon the clock (coming up); Use it up the warning triangle, as the banner
+  // who logged it: the person's own face in their own colour; a person who has gone still gets their initial
+  const loggerOf = it => {
+    let p = null; try { p = (hub.people ? hub.people() : []).find(x => x && x.id === it.by); } catch {}
+    return p || { id: it.by, name: it.byName, emoji: String(it.byName || '·').trim().charAt(0).toUpperCase() || '·' };
+  };
+
   function itemCard(it, gone = false) {
-    const days = daysBetween(it.dateLogged);
-    const { label, tone } = statusFor(days);
+    const f = freshOf(it), days = f.days, tone = f.tone;
     const t = TONES[tone];
+    const finishing = pending.has(it.id);
 
     const card = document.createElement('div');
-    const finishing = pending.has(it.id);
-    card.className = 'item' + (finishing ? ' finishing' : '') + (gone ? ' gone' : ''); card.dataset.id = it.id; card.dataset.days = days === Infinity ? 'unknown' : days; card.dataset.tone = tone;
+    card.className = 'item' + (finishing ? ' finishing' : '') + (gone ? ' gone' : '') + (it.portion === 'some' ? ' some' : '');
+    card.dataset.id = it.id; card.dataset.days = days === Infinity ? 'unknown' : days; card.dataset.tone = tone; card.dataset.level = f.level;
     card.style.setProperty('--tint', t.tint);
     card.style.setProperty('--chip', t.chip);
     card.style.setProperty('--chip-text', t.chipText);
-    card.style.setProperty('--chip-glyph', t.glyph);
 
+    const face = document.createElement('div'); face.className = 'swipe-face';
     const stripe = document.createElement('div'); stripe.className = 'stripe';
     const body = document.createElement('div'); body.className = 'body';
     const pic = document.createElement('span'); pic.className = 'pic'; pic.setAttribute('aria-hidden', 'true'); pic.textContent = foodPic(it.name);
     const info = document.createElement('div'); info.className = 'info';
     const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = it.name;
     const meta = document.createElement('div'); meta.className = 'meta';
-    meta.textContent = hub.isKid ? (days === Infinity ? 'Date unknown' : days <= 0 ? 'Put in today' : days + (days === 1 ? ' day' : ' days') + ' in the fridge')
-      : it.size + ' · ' + (days === Infinity ? 'date unknown' : 'logged ' + it.dateLogged + ' · ' + days + 'd ago') + (it.byName ? ' · ' + it.byName : '');
+    const mt = document.createElement('span'); mt.className = 'mt';
+    if (hub.isKid) mt.textContent = days === Infinity ? 'Date unknown' : days <= 0 ? 'Put in today' : days + (days === 1 ? ' day' : ' days') + ' in the fridge';
+    else {
+      const mtext = metaText(it, f), tail = f.days === Infinity ? '' : ' · ' + f.age, at = tail ? mtext.indexOf(tail) : -1;
+      if (at >= 0) { mt.append(document.createTextNode(mtext.slice(0, at))); const ma = document.createElement('span'); ma.className = 'mage'; ma.textContent = tail; mt.append(ma, document.createTextNode(mtext.slice(at + tail.length))); }   // the age is its own span: the Kitchen shows it once, large
+      else mt.textContent = mtext;
+      if (it.by || it.byName) {                                       // the person's face beside the line (VIS-LEFTOVERS-4)
+        const lg = document.createElement('span'); lg.className = 'logger';
+        const who = loggerOf(it); lg.title = 'Logged by ' + (it.byName || who.name || 'someone'); lg.setAttribute('role', 'img'); lg.setAttribute('aria-label', lg.title);
+        lg.innerHTML = hub.avatarHtml(who, 'avatar-sm'); meta.append(lg);
+      }
+    }
+    meta.append(mt);
+    info.append(nm);
+    const age = document.createElement('div'); age.className = 'age'; age.textContent = days === Infinity ? 'Date unknown' : f.age;   // read from across the room on the Kitchen iPad
+    info.append(age, meta);
+    if (it.portion === 'some') {                                      // "some left" (IMP-LEFTOVERS-I1): a half-filled bar and the words
+      const pt = document.createElement('div'); pt.className = 'portion';
+      pt.append(sym('circle-half', 'sym-xs'), document.createTextNode('Some left')); info.append(pt);
+    }
     const bar = document.createElement('div'); bar.className = 'bar';
-    bar.style.setProperty('--p', Math.min(1, Math.max(0, days) / FULL_BAR_DAYS));
-    bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', days === Infinity ? 'Date unknown' : days + ' of ' + FULL_BAR_DAYS + ' days');
+    bar.style.setProperty('--p', Math.min(1, Math.max(0, f.score) / FULL_BAR_DAYS));   // the rule's score: a use-by counts, as on Home (review N1)
+    bar.setAttribute('role', 'img'); bar.setAttribute('aria-label', f.useBy ? f.label + ', ' + f.when : days === Infinity ? 'Date unknown' : days + ' of ' + FULL_BAR_DAYS + ' days');
     bar.append(document.createElement('i'));
-    info.append(nm, meta, bar);
+    info.append(bar);
 
     const right = document.createElement('div'); right.className = 'right';
-    const chip = document.createElement('span'); chip.className = 'status'; chip.textContent = finishing || gone ? 'Finished' : label;
+    const chip = document.createElement('span'); chip.className = 'status';
+    if (!(finishing || gone) && CHIP_ICON[f.level]) chip.append(sym(CHIP_ICON[f.level], 'sym-xs'));
+    chip.append(document.createTextNode(finishing || gone ? 'Finished' : f.label));
     right.append(chip);
     if (canEdit && gone) {
-      const slot = document.createElement('span'); slot.className = 'slot'; slot.setAttribute('aria-hidden', 'true');   // where the ✓ was
+      const slot = document.createElement('span'); slot.className = 'slot'; slot.setAttribute('aria-hidden', 'true');   // where the check button was
       right.append(slot);
     } else if (canEdit && finishing) {
       const undo = document.createElement('button');
@@ -449,26 +666,43 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       done.type = 'button'; done.className = 'done pressable is-small';
       done.title = 'Mark used up';
       done.setAttribute('aria-label', 'Mark ' + it.name + ' used up');
-      done.append(svg('check', 18, 2.4));
+      done.append(sym('check', 'sym-md'));
       done.onclick = async () => {
         done.disabled = true;
-        // KITCHEN-2: on the kitchen device the face sheet first (household adults only, P5-D2); the finish is theirs
-        if (hub.isKitchen && hub.whoDidThis) { const q = await hub.whoDidThis({ who: 'adults', title: 'Who finished it?', message: it.name }); if (!q) { done.disabled = false; return; } removeItem(it.id, q); return; }
-        removeItem(it.id);
+        if (!(await finishFlow(it))) done.disabled = false;      // the swipe takes the same path (finishFlow); a cancelled face sheet leaves the button as it was
       };
       right.append(done);
     }
     body.append(pic, info, right);
-    card.append(stripe, body);
-    card.dataset.sig = JSON.stringify([it.name, it.size, it.dateLogged, it.byName, days, finishing, gone]);   // what the card shows
+    face.append(stripe, body);
+    if (canEdit && !finishing && !gone) {
+      // a tap on the card (not on a button) opens the edit sheet (GAP-LEFTOVERS-1); the name is the keyboard's way in
+      nm.setAttribute('role', 'button'); nm.tabIndex = 0; nm.setAttribute('aria-label', 'Edit ' + it.name);
+      const edit = () => { if (typeof window.__larderEdit === 'function') window.__larderEdit(it.id); };
+      face.addEventListener('click', e => { if (card.dataset.swiped) return; if (e.target.closest('button')) return; edit(); });
+      nm.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === nm) { e.preventDefault(); edit(); } });
+      // the layer behind the face: Some left and Finish (the swipe is D's: attachSwipe)
+      const act = document.createElement('div'); act.className = 'swipe-act'; act.setAttribute('aria-hidden', 'true');
+      const some = document.createElement('button'); some.type = 'button'; some.className = 'sw-some'; some.tabIndex = -1;
+      const st = document.createElement('span'); st.textContent = it.portion === 'some' ? 'Whole again' : 'Some left'; some.append(sym('circle-half', 'sym-md'), st);
+      const fin = document.createElement('button'); fin.type = 'button'; fin.className = 'sw-fin'; fin.tabIndex = -1;
+      fin.append(sym('check', 'sym-md'), document.createTextNode('Finish'));
+      act.append(some, fin); card.append(act);
+    }
+    card.append(face);
+    if (canEdit && !finishing && !gone && typeof attachSwipe === 'function') attachSwipe(card, it);
+    card.dataset.sig = JSON.stringify([it.name, it.size, it.dateLogged, it.useBy, it.portion, it.editedAt, it.by, it.byName, f.level, f.days, f.score, f.label, finishing, gone]);   // what the card shows
     return card;
   }
 
+  // an empty Log says what is missing and puts the cursor there (UX-LEFTOVERS-5)
+  function nameErr(on) { const e = $('name-err'), n = $('name'); e.hidden = !on; if (on) { n.setAttribute('aria-invalid', 'true'); n.setAttribute('aria-describedby', 'name-err'); n.focus(); } else { n.removeAttribute('aria-invalid'); n.removeAttribute('aria-describedby'); } }
+  $('name').addEventListener('input', () => { if (!$('name-err').hidden) nameErr(false); });
   // An entry made before the list has loaded is held (the name stays in the box) and logged once it has.
   let held = !!window.__larderHeld;
   function submit() {
     const name = $('name').value.trim();
-    if (!name) { held = false; setWait(''); return; }
+    if (!name) { held = false; setWait(''); nameErr(true); return; }   // "Type what it is" under the field, focus on it
     if (!canEdit) { held = false; setWait(''); hub.kioskNudge(); setErr('This profile can only look at the list.'); return; }
     if (!hub.isLoaded()) { held = true; setErr(''); setWait('Logging “' + name + '” as soon as the list has loaded…'); return; }
     held = false; setWait('');
@@ -483,7 +717,8 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     $('size').value = SIZES[1];
     $('date').value = $('date').max = dayKey;   // value and max always agree
     hub.activity('Logged ' + item.name + ' (' + item.size + ') in the fridge');
-    setErr(''); render();
+    setErr(''); nameErr(false); render();
+    hub.toast('Logged ' + item.name, 2600); revealAboveBar(item.id);   // the new card above the bar, never under it
   }
   form.onsubmit = e => { e.preventDefault(); submit(); };
   // The browser checks the date against max before submit fires, so the day is re-keyed on the tap / Enter itself.
@@ -511,10 +746,193 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     try { hub.remove('item:' + id); } catch { refresh(); return; }   // the SDK's toast has said why
     const by = p.who || hub.profile;
     if (it.id) try { hub.set('finished:' + id, { id: it.id, name: it.name, size: it.size, dateLogged: it.dateLogged, loggedBy: it.by, loggedByName: it.byName,
+      ...(isDay(it.useBy) ? { useBy: it.useBy } : {}), ...(it.portion === 'some' ? { portion: 'some' } : {}),
       finishedAt: dayKey, finishedBy: by.id, finishedByName: by.name }); } catch {}
     hub.activity('Finished the ' + it.name, p.who ? { as: p.who.id } : undefined);
     refresh();
   }
+  // ── finishing: the check button and the swipe are one path (batch 8, IMP-LEFTOVERS-I1) ──
+  // Both go through here, so a swipe gets the same six seconds, the same toast with Undo and, on the Kitchen iPad, the same
+  // face sheet of household adults (P5-D2) as the check button. Returns false when nothing was finished (a cancelled sheet).
+  async function finishFlow(it) {
+    if (!canEdit || pending.has(it.id)) return false;
+    // KITCHEN-2: on the kitchen device the face sheet first (household adults only, P5-D2); the finish is theirs
+    if (hub.isKitchen && hub.whoDidThis) { const q = await hub.whoDidThis({ who: 'adults', title: 'Who finished it?', message: it.name }); if (!q) return false; removeItem(it.id, q); return true; }
+    removeItem(it.id); return true;
+  }
+
+  // ── a card shown to the eye on purpose: the banner's tap and a fresh Log (UX-LEFTOVERS-6, -9) ──
+  const reducedMotion = () => { try { return ((hub.prefs && hub.prefs()) || {}).motion === 'reduce' || matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } };
+  const cardOf = id => [...listEl.querySelectorAll('.item')].find(c => c.dataset.id === id);
+  // scroll to a card and mark it for a moment; the mark is static (an outline) under Reduce Motion, which E's CSS decides
+  function jumpTo(id) {
+    const card = cardOf(id); if (!card) return;
+    card.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' });
+    card.classList.remove('hl'); void card.offsetWidth; card.classList.add('hl');
+    clearTimeout(card._hl); card._hl = setTimeout(() => card.classList.remove('hl'), 1600);
+  }
+  // bring a card into view above the add bar (never under it)
+  function revealAboveBar(id) {
+    const card = cardOf(id); if (!card) return;
+    const r = card.getBoundingClientRect(), barTop = canEdit && form.getBoundingClientRect().height ? form.getBoundingClientRect().top : innerHeight;
+    if (r.bottom > barTop - 12) window.scrollBy({ top: r.bottom - barTop + 16, behavior: 'auto' });
+    else if (r.top < 8) window.scrollBy({ top: r.top - 12, behavior: 'auto' });
+  }
+
+  // ── "some left" (IMP-LEFTOVERS-I1): portion: 'some' on the row; an old row has none and means full ──
+  function setPortion(id, on) {
+    if (!canEdit || pending.has(id)) return;
+    const prev = hub.get('item:' + id); if (!prev) { refresh(); return; }
+    if ((prev.portion === 'some') === !!on) return;
+    const at = hub.serverNow ? hub.serverNow() : Date.now();
+    const next = { ...prev, editedBy: hub.profile.id, editedByName: hub.profile.name, editedAt: at };
+    if (on) next.portion = 'some'; else delete next.portion;
+    try { hub.set('item:' + id, next); } catch { return; }
+    own.add(id); refresh(); own.delete(id);                       // in place: the card keeps its spot (this device's own change is shown at once, even if the card grows)
+    // Undo puts the row back as it was, unless something has changed it since
+    hub.toast(on ? 'Some left of the ' + prev.name + '.' : 'The ' + prev.name + ' is whole again.', FINISH_MS, { action: 'Undo', onAction: () => {
+      const cur = hub.get('item:' + id);
+      // put back only the portion, onto the row as it is now, written as this person (the house refuses an editedBy that is someone else's, review P1)
+      if (cur && (cur.portion === 'some') === !!on) {
+        const back = { ...cur, editedBy: hub.profile.id, editedByName: hub.profile.name, editedAt: hub.serverNow ? hub.serverNow() : Date.now() };
+        if (prev.portion === 'some') back.portion = 'some'; else delete back.portion;
+        try { hub.set('item:' + id, back); } catch {}
+        own.add(id); refresh(); own.delete(id);
+      }
+    } });
+  }
+
+  // ── the edit sheet (GAP-LEFTOVERS-1, P3-LEFTOVERS-11): name, size, the date it was made or logged, an optional use-by ──
+  // Save keeps who logged it (by, byName) and adds editedBy / editedAt; an edit posts no feed line. Enter saves, Escape closes.
+  let editing = null;                                             // { id, opener, some }
+  const editWrap = $('editwrap'), eName = $('e-name'), eNameErr = $('e-name-err'), eSome = $('e-some');
+  const setSome = on => { if (editing) editing.some = !!on; eSome.setAttribute('aria-checked', on ? 'true' : 'false'); };
+  function openEdit(id) {
+    if (!canEdit || editing || pending.has(id)) return;
+    const it = hub.get('item:' + id); if (!it) { refresh(); return; }
+    editing = { id, opener: document.activeElement, some: it.portion === 'some' };
+    eName.value = it.name || '';
+    // what the sheet showed when it opened: Save writes only the fields changed from this, onto the row as it is by then (review P2)
+    editing.snap = { name: String(it.name || '').trim(), size: SIZES.includes(it.size) ? it.size : SIZES[1], date: isDay(it.dateLogged) ? it.dateLogged : dayKey, useBy: isDay(it.useBy) ? it.useBy : '', some: it.portion === 'some' };
+    $('e-size').value = SIZES.includes(it.size) ? it.size : SIZES[1];
+    $('e-date').max = dayKey; $('e-date').value = isDay(it.dateLogged) ? it.dateLogged : dayKey;
+    $('e-useby').value = isDay(it.useBy) ? it.useBy : '';
+    setSome(editing.some);
+    eNameErr.hidden = true; eName.removeAttribute('aria-invalid');
+    editWrap.hidden = false;
+    growName(); eName.focus(); try { eName.setSelectionRange(eName.value.length, eName.value.length); } catch {}
+  }
+  function growName() { eName.style.height = 'auto'; eName.style.height = eName.scrollHeight + 2 + 'px'; }
+  function closeEdit() {
+    if (!editing) return;
+    const { id, opener } = editing; editing = null; editWrap.hidden = true;
+    const back = opener && opener.isConnected ? opener : (cardOf(id) || document).querySelector('.nm[role="button"]');
+    if (back && back.focus) back.focus();
+  }
+  // a pull that never holds Save up for long: the house's answer if it comes within two seconds, else what this device has (offline is fine)
+  const pullBounded = () => Promise.race([Promise.resolve().then(() => hub.pull()).catch(() => {}), new Promise(r => setTimeout(r, 2000))]);
+  async function saveEdit() {
+    if (!editing || editing.saving) return;
+    const name = eName.value.replace(/\s*\n\s*/g, ' ').trim();
+    if (!name) { eNameErr.hidden = false; eName.setAttribute('aria-invalid', 'true'); eName.focus(); return; }   // UX-LEFTOVERS-5, in the sheet too
+    const id = editing.id, snap = editing.snap;
+    const form = { name, size: $('e-size').value, date: $('e-date').value, useBy: isDay($('e-useby').value) ? $('e-useby').value : '', some: !!editing.some };
+    // only what the person changed since the sheet opened (review P2): an untouched Save writes nothing, and another device's edit made meanwhile stays
+    const chg = { name: form.name !== snap.name, size: form.size !== snap.size, date: form.date !== snap.date && isDay(form.date), useBy: form.useBy !== snap.useBy, some: form.some !== snap.some };
+    closeEdit();
+    if (!Object.values(chg).some(Boolean)) return;
+    await pullBounded();                                          // the house's latest first (review P8): an item finished meanwhile is not brought back
+    const cur = hub.get('item:' + id);
+    if (!cur || pending.has(id)) { hub.toast('That one was finished on another device, so nothing was saved.'); refresh(); return; }
+    const next = { ...cur, editedBy: hub.profile.id, editedByName: hub.profile.name, editedAt: hub.serverNow ? hub.serverNow() : Date.now() };
+    if (chg.name) next.name = form.name;
+    if (chg.size) next.size = form.size;
+    if (chg.date) next.dateLogged = form.date > dayKey ? dayKey : form.date;
+    if (chg.useBy) { if (form.useBy) next.useBy = form.useBy; else delete next.useBy; }
+    if (chg.some) { if (form.some) next.portion = 'some'; else delete next.portion; }
+    try { hub.set('item:' + id, next); } catch { return; }       // the SDK's toast has said why
+    hub.toast('Saved ' + next.name, 2200);
+    render(); revealAboveBar(id);                                 // this device's own change: the list is laid out afresh, like Log
+    const back = cardOf(id) && cardOf(id).querySelector('.nm[role="button"]'); if (back && back.focus) back.focus({ preventScroll: true });   // the keyboard stays where it was (review P6)
+  }
+  $('e-save').onclick = saveEdit; $('e-cancel').onclick = closeEdit;
+  $('editbd').addEventListener('click', e => { if (e.target === e.currentTarget) closeEdit(); });
+  eName.addEventListener('input', () => { growName(); eNameErr.hidden = true; eName.removeAttribute('aria-invalid'); });
+  $('e-useby-clear').onclick = () => { $('e-useby').value = ''; $('e-useby').focus(); };
+  eSome.onclick = () => setSome(!(editing && editing.some));
+  editWrap.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeEdit(); return; }
+    if (e.key === 'Enter' && e.target.matches && e.target.matches('input, select, textarea') && !e.shiftKey) { e.preventDefault(); saveEdit(); return; }
+    if (e.key === 'Tab') {                                        // the focus stays in the sheet
+      const f = [...editWrap.querySelectorAll('input, select, textarea, button')].filter(x => !x.disabled && x.getClientRects().length);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+  window.__larderEdit = openEdit;                                 // E's card calls this on a tap
+
+  // ── swipe to finish (IMP-LEFTOVERS-I1): an iOS-style trailing swipe reveals Some left and Finish; a full swipe finishes ──
+  // Pointer events; the horizontal intent is decided after 10 px, so a vertical drag is the page's scroll and never breaks
+  // (touch-action: pan-y hands vertical pans to the browser). The card face moves with --sx on the card (E's CSS reads it).
+  // A full swipe goes through finishFlow, the check button's own path (six seconds, Undo; on the Kitchen iPad the face sheet).
+  let openSwipe = null;
+  document.addEventListener('pointerdown', e => {
+    if (!openSwipe || e.target.closest('.swipe-act')) return;       // a tap on Some left / Finish is theirs
+    const c = openSwipe;
+    if (c.contains(e.target)) { c.dataset.swiped = '1'; setTimeout(() => { delete c.dataset.swiped; }, 350); }   // a tap on the open card only closes it: its click opens no sheet (review P7)
+    c._swipeClose();
+  }, true);
+  addEventListener('scroll', () => { if (openSwipe) openSwipe._swipeClose(); }, { passive: true });
+  function attachSwipe(card, it) {
+    const act = card.querySelector('.swipe-act'); if (!act) return;
+    card.style.touchAction = 'pan-y';
+    const reveal = () => Math.ceil(act.getBoundingClientRect().width) || 176;
+    const setX = x => card.style.setProperty('--sx', Math.round(x) + 'px');
+    const open = on => {
+      card.classList.toggle('swipe-open', on); act.setAttribute('aria-hidden', on ? 'false' : 'true');
+      for (const b of act.querySelectorAll('button')) b.tabIndex = on ? 0 : -1;
+      setX(on ? -reveal() : 0);
+      if (on) openSwipe = card; else if (openSwipe === card) openSwipe = null;
+    };
+    card._swipeClose = () => open(false);
+    let st = null;
+    card.addEventListener('pointerdown', e => {
+      if ((e.pointerType === 'mouse' && e.button !== 0) || e.target.closest('.swipe-act')) return;
+      st = { id: e.pointerId, x: e.clientX, y: e.clientY, base: card.classList.contains('swipe-open') ? -reveal() : 0, w: reveal(), mode: null };
+    });
+    card.addEventListener('pointermove', e => {
+      if (!st || e.pointerId !== st.id) return;
+      const dx = e.clientX - st.x, dy = e.clientY - st.y;
+      if (!st.mode) {
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+        st.mode = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+        if (st.mode === 'h') { try { card.setPointerCapture(e.pointerId); } catch {} card.classList.add('swiping'); try { getSelection().removeAllRanges(); } catch {} }
+      }
+      if (st.mode !== 'h') return;
+      if (e.cancelable) e.preventDefault();
+      setX(Math.max(-card.getBoundingClientRect().width, Math.min(0, st.base + dx)));
+    });
+    const end = (e, cancelled) => {
+      if (!st || e.pointerId !== st.id) return;
+      const s = st; st = null;
+      if (!s.mode) return;                                        // a tap: the card's own click opens the sheet
+      card.dataset.swiped = '1'; setTimeout(() => { delete card.dataset.swiped; }, 350);   // the click that ends a drag, sideways or a scroll, opens nothing
+      if (s.mode !== 'h') return;                                 // a vertical scroll: nothing to settle
+      card.classList.remove('swiping');
+      const x = parseFloat(card.style.getPropertyValue('--sx')) || 0;
+      if (cancelled) { open(card.classList.contains('swipe-open')); return; }
+      if (x <= -card.getBoundingClientRect().width * 0.6) { open(false); finishFlow(it); return; }   // a full swipe finishes
+      open(x <= -s.w * 0.5);
+    };
+    card.addEventListener('pointerup', e => end(e, false));
+    card.addEventListener('pointercancel', e => end(e, true));
+    const fin = act.querySelector('.sw-fin'), some = act.querySelector('.sw-some');
+    if (fin) fin.onclick = () => { open(false); finishFlow(it); };
+    if (some) some.onclick = () => { open(false); const cur = hub.get('item:' + it.id) || it; setPortion(it.id, cur.portion !== 'some'); };
+  }
+
   // Leaving the page finishes what is finishing (the queue sends it as usual).
   const commitAll = () => { for (const id of [...pending.keys()]) commitFinish(id); };
   if (typeof hub.onLeave === 'function') hub.onLeave(commitAll); else addEventListener('pagehide', commitAll);
@@ -532,10 +950,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const row = document.createElement('div'); row.className = 'row' + (back ? ' back' : ''); row.dataset.id = v.id;
     const t = document.createElement('div'); t.className = 't'; t.textContent = v.name;
     const small = document.createElement('small');
-    small.textContent = (v.size ? v.size + ' · ' : '') + 'logged ' + v.dateLogged + ' · finished ' + (v.finishedAt === dayKey ? 'today' : v.finishedAt) + (v.finishedByName ? ' · ' + v.finishedByName : '');
+    small.textContent = (v.size ? v.size + ' · ' : '') + 'logged ' + (friendlyDate(v.dateLogged) || v.dateLogged) + ' · finished ' + (v.finishedAt === dayKey ? 'today' : friendlyDate(v.finishedAt) || v.finishedAt) + (v.finishedByName ? ' · ' + v.finishedByName : '');
     t.append(small); row.append(t);
     if (canEdit && back) {                                              // the same box as the button, so the row keeps its size
-      const tag = document.createElement('span'); tag.className = 'putback tag'; tag.textContent = 'Back ✓';
+      const tag = document.createElement('span'); tag.className = 'putback tag'; tag.textContent = 'Back';   // text only: the check is the finish action's alone
       tag.setAttribute('aria-label', v.name + ' is back in the fridge');
       row.append(tag);
     } else if (canEdit) {
@@ -590,6 +1008,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     }
     // a date the house refuses (from before batch 0i) comes back as the day it was finished, or today
     const item = { id: v.id, name: v.name, size: v.size, dateLogged: isDay(v.dateLogged) && v.dateLogged <= dayKey ? v.dateLogged : (isDay(v.finishedAt) ? v.finishedAt : dayKey) }; if (by) { item.by = by; item.byName = byName; }
+    if (isDay(v.useBy)) item.useBy = v.useBy; if (v.portion === 'some') item.portion = 'some';   // what an edit had set comes back with it
     try { hub.set('item:' + v.id, item); } catch { return; }
     hub.activity('Put the ' + v.name + ' back in the fridge');
     render();
@@ -598,7 +1017,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // Voice: tap, say the name, it lands in the box.
   const mic = $('mic');
   if (hub.voiceSupported && canEdit) {
-    mic.hidden = false; mic.append(svg('mic', 22));
+    mic.classList.remove('mic-off');   // its space was held from the first paint
     let rec = null;
     mic.onclick = () => {
       if (rec) { rec.stop(); return; }
@@ -610,15 +1029,12 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     };
   }
 
-  function buildHearthText() {
-    const due = items().sort((a, b) => daysBetween(b.dateLogged) - daysBetween(a.dateLogged))
-      .filter(i => daysBetween(i.dateLogged) >= AGING_DAYS);
-    if (!due.length) return "Nothing aging right now — fridge's in good shape.";
-    const lines = due.map(i => {
-      const d = daysBetween(i.dateLogged);
-      return `• ${i.name} (${i.size}) — ${d === Infinity ? 'date unknown, check it' : 'logged ' + d + 'd ago, ' + (d >= WARN_DAYS ? 'use it up' : 'eat soon')}`;
-    });
-    return 'Push these to the Hearth Calendar:\n' + lines.join('\n');
+  // The list to paste anywhere (a message, a note, Hearth): what to eat soon or use up, in the Larder's words. It makes no claim that
+  // the hub's assistant can send it anywhere (UX-LEFTOVERS-4).
+  function buildListText() {
+    const { due } = hub.larder.due(items(), dayKey);
+    if (!due.length) return "Nothing to eat soon or use up — the fridge is in good shape.";
+    return 'Leftovers to eat soon or use up:\n' + due.map(({ it, f }) => '• ' + it.name + ' (' + it.size + ') — ' + (f.label === 'Check date' ? 'check the date' : f.label.toLowerCase() + ', ' + (f.useBy ? f.when : 'logged ' + f.age + ' ago')) + (it.portion === 'some' ? ', some left' : '')).join('\n');
   }
 
   async function copyText(text) {
@@ -631,15 +1047,30 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     } catch { return false; }
   }
 
-  const copyBtn = $('copy');
+  const copyBtn = $('copy'), copyBox = $('copybox'), copyTa = $('copytext');
   function setCopy(state) {
     copyBtn.textContent = '';
-    copyBtn.append(svg('refresh', 15), document.createTextNode(
-      state === 'copied' ? ' Copied!' : state === 'failed' ? ' Copy failed — select manually' : ' Copy list for Hearth'));
+    copyBtn.append(sym('copy'), document.createTextNode(
+      state === 'copied' ? ' Copied!' : state === 'failed' ? " Couldn't copy here" : ' Copy the list'));
   }
+  // When the clipboard is refused (an iframe in Safari, an old browser) the text is shown, selected, in a read-only box, with
+  // Select and copy, and Share where the device has it (P3-LEFTOVERS-10): never an instruction the page makes impossible
+  function showCopyBox(text) {
+    copyTa.value = text; copyBox.hidden = false; $('copyshare').hidden = typeof navigator.share !== 'function';
+    copyTa.focus({ preventScroll: true }); copyTa.select(); try { copyTa.setSelectionRange(0, text.length); } catch {}
+    copyBox.scrollIntoView({ block: 'end', behavior: 'auto' });   // the whole box, its buttons too, above the add bar (scroll-padding)
+  }
+  $('copyselect').onclick = () => {
+    copyTa.focus(); copyTa.select(); try { copyTa.setSelectionRange(0, copyTa.value.length); } catch {}
+    let done = false; try { done = document.execCommand('copy'); } catch {}
+    const b = $('copyselect'); b.textContent = done ? 'Copied!' : 'Selected: press and hold, then Copy'; setTimeout(() => { b.textContent = 'Select and copy'; }, 2600);
+  };
+  $('copyshare').onclick = async () => { try { await navigator.share({ title: 'The fridge list', text: copyTa.value }); } catch {} };
   copyBtn.onclick = async () => {
-    if (!hub.isLoaded()) return;   // an empty cache would copy "Nothing aging"
-    setCopy(await copyText(buildHearthText()) ? 'copied' : 'failed');
+    if (!hub.isLoaded()) return;   // an empty cache would copy "Nothing to eat soon"
+    const text = buildListText();
+    if (await copyText(text)) { copyBox.hidden = true; setCopy('copied'); }
+    else { setCopy('failed'); showCopyBox(text); }
     setTimeout(() => setCopy('idle'), 2000);
   };
 
@@ -657,7 +1088,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     return true;
   }
   hub.onDay(rollover);
-  window.__larder = { render, rollover, today: () => dayKey };   // test hook (scripts/test-leftovers.mjs)
+  window.__larder = { render, rollover, today: () => dayKey, fresh: freshOf, listText: buildListText, openEdit, setPortion, finishFlow, jumpTo };   // test hook (scripts/test-leftovers.mjs)
 
   hub.onChange(refresh);   // someone else logged or finished something: cards update where they stand
   render();

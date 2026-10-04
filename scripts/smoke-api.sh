@@ -375,6 +375,21 @@ echo "$BODY" | grep -q '"rejected":"bad_date"' && pass=$((pass+1)) || { fail=$((
 call "a Larder row dated 2099-01-01 -> 403" PUT "/api/data/leftovers/item:bd2?scope=family" '{"value":{"id":"bd2","name":"Stew","dateLogged":"2099-01-01"}}' "$D" "$N"; expect 403
 call "a Larder row dated today -> 200" PUT "/api/data/leftovers/item:bd3?scope=family" "{\"value\":{\"id\":\"bd3\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\"}}" "$D" "$N"; expect 200
 call "tidy the dated row" DELETE "/api/data/leftovers/item:bd3?scope=family" '' "$D" "$N"; expect 200
+# an edited Larder item (batch 8, GAP-LEFTOVERS-1, IMP-LEFTOVERS-I1): useBy is a real day (any day, a future one included), portion is only 'some', editedBy is the writer's own id
+call "a Larder row with a future use-by -> 200" PUT "/api/data/leftovers/item:ub1?scope=family" "{\"value\":{\"id\":\"ub1\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\",\"useBy\":\"2099-01-01\",\"portion\":\"some\",\"by\":\"niece\",\"editedBy\":\"niece\",\"editedByName\":\"Mea\",\"editedAt\":1790000000000}}" "$D" "$N"; expect 200
+call "a Larder row with a past use-by -> 200" PUT "/api/data/leftovers/item:ub1?scope=family" "{\"value\":{\"id\":\"ub1\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\",\"useBy\":\"$OLD\"}}" "$D" "$N"; expect 200
+call "a use-by that is not a day -> 403" PUT "/api/data/leftovers/item:ub2?scope=family" "{\"value\":{\"id\":\"ub2\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\",\"useBy\":\"soon\"}}" "$D" "$N"; expect 403
+echo "$BODY" | grep -q '"rejected":"bad_date"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected rejected bad_date"; }
+call "a use-by of 2026-02-30 -> 403" PUT "/api/data/leftovers/item:ub2?scope=family" "{\"value\":{\"id\":\"ub2\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\",\"useBy\":\"2026-02-30\"}}" "$D" "$N"; expect 403
+call "portion 'half' -> 403" PUT "/api/data/leftovers/item:ub2?scope=family" "{\"value\":{\"id\":\"ub2\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\",\"portion\":\"half\"}}" "$D" "$N"; expect 403
+echo "$BODY" | grep -q '"rejected":"bad_value"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected rejected bad_value"; }
+call "editedBy someone else -> 403" PUT "/api/data/leftovers/item:ub2?scope=family" "{\"value\":{\"id\":\"ub2\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\",\"editedBy\":\"eli\",\"editedAt\":1790000000000}}" "$D" "$N"; expect 403
+call "editedAt that is not a time -> 403" PUT "/api/data/leftovers/item:ub2?scope=family" "{\"value\":{\"id\":\"ub2\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\",\"editedBy\":\"niece\",\"editedAt\":\"yesterday\"}}" "$D" "$N"; expect 403
+call "the kitchen edits an item and keeps its logger -> 200" PUT "/api/data/leftovers/item:ub1?scope=family" "{\"value\":{\"id\":\"ub1\",\"name\":\"Stew (big)\",\"dateLogged\":\"$TODAY\",\"by\":\"niece\",\"byName\":\"Mea\",\"portion\":\"some\",\"editedBy\":\"kitchen\",\"editedByName\":\"Kitchen\",\"editedAt\":1790000000001}}" "$DKH" "$KT"; expect 200
+call "an Undo written as its own editor over someone else's edit -> 200" PUT "/api/data/leftovers/item:ub1?scope=family" "{\"value\":{\"id\":\"ub1\",\"name\":\"Stew (big)\",\"dateLogged\":\"$TODAY\",\"by\":\"niece\",\"byName\":\"Mea\",\"editedBy\":\"niece\",\"editedByName\":\"Mea\",\"editedAt\":1790000000002}}" "$D" "$N"; expect 200
+call "a Larder row that still names someone else as editor -> 403" PUT "/api/data/leftovers/item:ub1?scope=family" "{\"value\":{\"id\":\"ub1\",\"name\":\"Stew\",\"dateLogged\":\"$TODAY\",\"by\":\"niece\",\"editedBy\":\"kitchen\",\"editedAt\":1790000000003}}" "$D" "$N"; expect 403
+call "a kid cannot edit a Larder item -> 403" PUT "/api/data/leftovers/item:ub1?scope=family" "{\"value\":{\"id\":\"ub1\",\"name\":\"x\",\"dateLogged\":\"$TODAY\"}}" "$D" "$K"; expect 403
+call "tidy the edited row" DELETE "/api/data/leftovers/item:ub1?scope=family" '' "$D" "$N"; expect 200
 call "kitchen feed line for a kid on the Larder -> 403" POST /api/activity '{"app_id":"leftovers","text":"Finished soup","as":"ezra"}' "$DKH" "$KT"; expect 403
 call "kitchen feed line for an adult" POST /api/activity '{"app_id":"leftovers","text":"Finished soup","as":"niece"}' "$DKH" "$KT"; expect 200
 [ "$(echo "$BODY" | j profile_id)" = niece ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the line filed under niece"; }
