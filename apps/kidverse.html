@@ -19,17 +19,17 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 <title>Kid Verse</title>
 <link rel="stylesheet" href="design.css">
 <style>
-  /* Kid Verse — the family's F260 memory verse for the week, made for a child who cannot read yet:
-     story art, the reference in big type, a one-sentence paraphrase, "Read it to me" (speech) and "Done ★".
-     Every colour is a design.css token (audit batch 1: the v3 roles; legacy --gold/--muted names retired here): the page is a
-     butter wash with the person's own wash in the corner; content cards are solid, glass is kept for the controls (the pill
-     and the Read buttons). */
+  /* Kid Verse — the family's F260 memory verse for the week, made for a child who cannot read yet: story art, the
+     reference in big type, a picture button that reads it aloud (the paraphrase is highlighted word by word as it is
+     spoken), a picture button for the star. Every colour is a design.css token (audit batch 1: the v3 roles): the page is
+     a butter wash with the person's own wash in the corner; content cards are solid, and nothing here is glass (batch 7,
+     CONS-GLASS-2: the Read buttons are solid, the who-chip is a solid chip). Batch 7: every icon is the shared sprite
+     (CONS-ICON-1), sizes and heights are tokens (GAP-TOK-4), and what is left without a token is named where it stands. */
   html, body { min-height: 100%; }
   body.ds {
-    /* the pre-pass: a bare hue read as a background moves to its -fill / -wash (P4-COLOR-01); no --sheen-x at the page level
-       (P4-GLASS-01: it is written on the two bars only) */
+    /* the page wash: the butter hue's own wash token (CONS-TOK-3: no color-mix), the person's wash in the corner */
     background:
-      radial-gradient(120% 70% at 30% -10%, color-mix(in srgb, var(--butter-fill) 60%, transparent), transparent 60%),
+      radial-gradient(120% 70% at 30% -10%, var(--butter-wash), transparent 60%),
       radial-gradient(90% 50% at 100% 100%, var(--accent-wash), transparent 55%),
       var(--bg);
     background-attachment: fixed;
@@ -39,21 +39,26 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   .wrap { max-width: var(--col-read); margin: 0 auto; display: grid; gap: var(--sp-4); }
   /* room under the last card for the shared toast, so a toast never has to sit on it (UX-KIDVERSE-8) */
   .ds .wrap { padding-bottom: calc(var(--sp-16) + var(--sp-6) + var(--safe-bottom)); }
+  .wrap > [hidden] { display: none !important; }
 
-  /* who + week, on a glass pill (a control-layer look; the cards below are solid). Chrome text is not selectable (VIS-KIDVERSE-10). */
+  /* who + week: a SOLID chip (CONS-GLASS-2: it is a label, not a control, so it takes no glass). Chrome text is not selectable (VIS-KIDVERSE-10). */
   .top { display: flex; justify-content: center; }
-  .ds .top .pill { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--tap); padding: var(--sp-2) var(--sp-5); border-radius: var(--r-full); color: var(--text); }
-  .ds .top .pill .avatar { --size: 28px; font-size: 16px; }
-  .top, .ds .scene, .ds .stars, .rewards h2, .rewards .bank, .badges, .ds .grown h2, .stepper, .kids { -webkit-user-select: none; user-select: none; }
+  .ds .top .who { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--tap); padding: var(--sp-1) var(--sp-5) var(--sp-1) var(--sp-2); border-radius: var(--r-full); color: var(--text); background: var(--surface); border: var(--border-w) solid var(--separator); box-shadow: var(--elev-control); }
+  .top, .ds .scene, .ds .stars, .rewards h2, .rewards .bank, .badges, .ds .grown h2, .stepper, .kids, .shelf h2 { -webkit-user-select: none; user-select: none; }
 
-  /* the scene: story art on a SOLID card (VIS-KIDVERSE-8: content is not glass), always 3:2 so nothing shifts when the picture
-     loads; the picture's corner is concentric with the card's (card radius minus the padding). The art sits on --art-plate and
-     is dimmed a little in dark so a pale scene is never the brightest thing on the screen (VIS-KIDVERSE-6; the token-filled
-     art itself is scripts/make-art.mjs's job). No long-press callout, no drag (VIS-KIDVERSE-10). */
+  /* what the grown-ups see first is their own panel; the kid's screen below it is a preview, labelled as one (UX-KIDVERSE-10) */
+  .kv-label { display: flex; align-items: center; gap: var(--sp-2); margin: var(--sp-2) 0 0; padding-top: var(--sp-4); border-top: var(--border-w) dashed var(--separator); font-size: var(--fs-subheadline); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-3); }
+
+  /* the scene: story art on a SOLID card (VIS-KIDVERSE-8), 3:2 until the screen is short: the art's height gives way first
+     (UX-KIDVERSE-2), so the reference, the speaker and Done always fit the first screen. --art-h reads the viewer's own height
+     (dvh): the picture is centred, always 3:2 and never cropped or stretched, and its corner is concentric with the card's.
+     Dimmed a little in dark so a pale scene is never the brightest thing on the screen (VIS-KIDVERSE-6: the 0.82 has no
+     token yet; make-art.mjs owns the dark art). No long-press callout, no drag (VIS-KIDVERSE-10). */
   .ds .scene { padding: var(--sp-3); }
-  .ds .scene img { display: block; width: 100%; aspect-ratio: 240 / 160; height: auto; border-radius: calc(var(--r-card) - var(--sp-3)); background: var(--art-plate); object-fit: cover; }
-  .ds .scene img, .story-head img { -webkit-touch-callout: none; -webkit-user-drag: none; -webkit-user-select: none; user-select: none; }
-  [data-scheme="dark"] .ds .scene img, [data-scheme="dark"] .story-head img { filter: brightness(.82); }
+  .ds .scene img { display: block; width: min(100%, calc(var(--art-h) * 1.5)); height: auto; aspect-ratio: 240 / 160; margin-inline: auto; border-radius: var(--r-inset); background: var(--art-plate); object-fit: cover; }
+  .ds .scene { --art-h: clamp(var(--tap-lg), 21dvh, 36dvh); }
+  .ds .scene img, .story-head img, .shelf-card img, .vsheet img { -webkit-touch-callout: none; -webkit-user-drag: none; -webkit-user-select: none; user-select: none; }
+  [data-scheme="dark"] .ds .scene img, [data-scheme="dark"] .story-head img, [data-scheme="dark"] .shelf-card img, [data-scheme="dark"] .vsheet img { filter: brightness(.82); }
 
   /* the reference: the large display role, bold (D6; rounded for a kid through the kid block) */
   .ref { text-align: center; display: grid; gap: var(--sp-1); padding: 0 var(--sp-2); }
@@ -61,97 +66,127 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   .ref h1 { margin: 0; font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-display); line-height: var(--lh-tight); letter-spacing: var(--ls-large-title); color: var(--text); text-wrap: balance; }
   .ref .also { color: var(--text-3); font-size: var(--fs-sm); font-weight: var(--fw-semibold); min-height: 1.5em; }
 
-  /* the paraphrase: clearly not the Bible's own words */
-  .ds .words { display: grid; gap: var(--sp-2); }
-  .ds .words .kicker { color: var(--butter-ink); }
-  .words p { margin: 0; font-size: var(--fs-xl); line-height: var(--lh-snug); color: var(--text); text-wrap: pretty; }
-  :root[data-kind="kid"] .words p { font-size: var(--fs-2xl); }
-  .words small { color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
-
-  /* the two big buttons: capsules at the large button height, never under 64 px (the kid target), stacked at phone width
-     (CONS-SHAPE-4: the primary action is a capsule everywhere) */
-  .actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
-  @media (min-width: 560px) { .actions { grid-template-columns: 1fr 1fr; } }
-  .ds .actions .btn { min-height: max(64px, var(--btn-h-lg)); font-size: var(--fs-lg); gap: var(--sp-3); }
-  .ds .actions .btn .icon { width: 1.4em; height: 1.4em; }
-  /* the kids' star: the butter star, read by its outline, for every kid in every palette (--star-fill / --star-stroke) */
-  .ds .icon.star { fill: var(--star-fill); stroke: var(--star-stroke); stroke-width: 1.5; }
+  /* the picture buttons: for a kid two big tiles side by side (a picture over a word, never under 64 px), for a grown-up the
+     usual capsules (CONS-SHAPE-4: the primary action is a capsule everywhere). Solid, not glass (CONS-GLASS-2). */
+  .actions, .story-actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr 1fr; }
+  .actions.solo, .story-actions.solo { grid-template-columns: 1fr; }
+  .ds .actions .btn, .ds .story-actions .btn { min-height: var(--tap-lg); font-size: var(--fs-title3); gap: var(--sp-3); }
+  .ds .actions .btn > .sym, .ds .story-actions .btn > .sym { width: var(--icon-xl); height: var(--icon-xl); }
+  :root[data-kind="kid"] .ds .actions .btn, :root[data-kind="kid"] .ds .story-actions .btn { flex-direction: column; gap: var(--sp-1); min-height: var(--tap-lg); padding-block: var(--sp-2); line-height: var(--lh-tight); text-align: center; border-radius: var(--r-card); }
+  :root[data-kind="kid"] .ds .actions .btn > span, :root[data-kind="kid"] .ds .story-actions .btn > span { text-wrap: balance; }   /* a tile (picture over word), not a capsule: a tall capsule reads as an oval */
+  :root[data-kind="kid"] .ds .actions .btn > .sym, :root[data-kind="kid"] .ds .story-actions .btn > .sym { width: calc(var(--icon-xl) * 1.4); height: calc(var(--icon-xl) * 1.4); }
+  @media (max-width: 559px) { .ds .actions .btn, .ds .story-actions .btn { padding-inline: var(--sp-3); } }
+  /* the picture of "I heard it": an ear with the star beside it; the picture of Done: the star */
+  .ds .btn .pic { position: relative; display: inline-grid; place-items: center; flex: none; }
+  .ds .btn .pic .sym.star { position: absolute; right: calc(var(--sp-2) * -1); top: calc(var(--sp-1) * -1); width: calc(var(--icon-xl) * .6); height: calc(var(--icon-xl) * .6); }   /* a badge on the ear: small for a kid too (the kid tile rule above is on the button's direct picture only) */
+  .ds .btn .pic .sym.big { width: var(--icon-xl); height: var(--icon-xl); }
+  :root[data-kind="kid"] .ds .btn .pic .sym.big { width: calc(var(--icon-xl) * 1.4); height: calc(var(--icon-xl) * 1.4); }
+  .ds .btn .face { display: inline-flex; flex: none; }
+  /* the kids' star: the butter star, read by its outline, for every kid in every palette (--star-fill / --star-stroke); the
+     sprite's one star drawing is filled through --sym-fill (CONS-ICON-1) */
+  .ds svg.sym.star { --sym-fill: var(--star-fill); color: var(--star-stroke); }
   /* on a filled button or an earned badge disc the star takes the label's own -on colour, so it never sinks into the fill */
-  .ds .btn .icon.star, .badges li.on .bicon .icon.star { fill: currentColor; stroke: none; }
-  .actions.solo { grid-template-columns: 1fr; }
-  .ds .actions .btn-glass { --g: var(--glass-strong); }
-  /* Done ★ carries data-accent="butter" in the markup (P3-KIDVERSE-14, CONS-ACCENT-3): the scope re-derives every accent role,
-     so .btn-primary paints the butter solid with its -on label for every kid, never the kid's own colour. Earned today: the
-     butter fill with the butter ink (the pairing rule). */
+  .ds .btn svg.sym.star, .badges li.on .bicon svg.sym.star { --sym-fill: currentColor; color: inherit; }
+  /* Done carries data-accent="butter" in the markup (P3-KIDVERSE-14, CONS-ACCENT-3). Earned today: the butter fill with the butter ink. */
   .ds .btn.done.today { background: var(--accent-fill); color: var(--accent-ink); border-color: transparent; box-shadow: none; }
   /* the reading-aloud pulse reads the motion tokens, so Reduce Motion (the OS or Me > Appearance) stills it (CONS-MOTION-2/-5) */
-  .ds .btn.say.on .icon { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
+  .ds .btn.say.on .sym, .ds .btn.story-say.on .sym { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
   @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(var(--pulse-scale)); } }
 
+  /* the paraphrase: clearly not the Bible's own words. The word being spoken is the butter pair, background only, no motion
+     (IMP-KIDVERSE-F3); the pair is the same under Reduce Motion because nothing moves */
+  .ds .words { display: grid; gap: var(--sp-2); }
+  .ds .words .kicker { color: var(--butter-ink); }
+  .words p, .vsheet p { margin: 0; font-size: var(--fs-title2); line-height: var(--lh-snug); color: var(--text); text-wrap: pretty; }
+  :root[data-kind="kid"] .words p, :root[data-kind="kid"] .vsheet p { font-size: var(--fs-title2); }
+  .words small, .vsheet small { color: var(--text-3); font-size: var(--fs-caption1); line-height: var(--lh-caption1); }
+  mark.hl { background: var(--butter-fill); color: var(--butter-ink); border-radius: var(--r-control); padding: 0; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
   /* the week's stars: a count and seven day dots */
-  .ds .stars { display: grid; gap: var(--sp-3); justify-items: center; text-align: center; }
+  .ds .stars { display: grid; gap: var(--sp-2); justify-items: center; text-align: center; }
   /* numerals: the rounded numeral face with tabular figures (CONS-TYPE-3, VIS-KIDVERSE-7) */
-  .stars .count { display: inline-flex; align-items: center; gap: var(--sp-2); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-bold); letter-spacing: var(--ls-numeral); font-size: var(--fs-3xl); line-height: 1; color: var(--text); }
-  .stars .count .icon { width: 1em; height: 1em; }
-  .stars .sub { color: var(--text-3); font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
-  /* the day dots (VIS-KIDVERSE-1, -2, CONS-COLOR-2): an empty dot is a >= 3:1 ring (--cell-empty) with its letter in --text-3
-     (>= 4.5:1 on the well) at caption2 or more; an earned dot is the butter fill with a butter edge and the star; today is ONE
-     ring in the kid's own colour (--today-ring, >= 3:1), drawn as an outline so it sits outside the dot's own edge */
-  .days { display: flex; gap: var(--sp-2); justify-content: center; flex-wrap: wrap; }
-  .days span { width: 36px; height: 36px; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface-2); color: var(--text-3); font-size: var(--fs-xs); font-weight: var(--fw-bold); border: var(--border-w-strong) solid var(--cell-empty); }
-  .days span.on { background: var(--butter-fill); color: var(--butter-ink); border-color: var(--butter-graphic); }
-  .days span.on .icon { width: 20px; height: 20px; }
-  .days span.today { outline: var(--ring-w) solid var(--today-ring); outline-offset: var(--ring-w-sm); }
-  :root[data-kind="kid"] .days { gap: var(--sp-2); }
-  /* the kid's own week stays one row on a phone: the dots shrink a little (to 30 px) before they would wrap (v3 kid spacing) */
-  :root[data-kind="kid"] #mine .days { flex-wrap: nowrap; width: 100%; }
-  :root[data-kind="kid"] .days span { width: 38px; height: 38px; }
-  :root[data-kind="kid"] #mine .days span { flex: 0 1 38px; min-width: 30px; width: auto; height: auto; aspect-ratio: 1; }
+  .stars .count { display: inline-flex; align-items: center; gap: var(--sp-2); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-bold); letter-spacing: var(--ls-numeral); font-size: var(--fs-large-title); line-height: var(--lh-tight); color: var(--text); }
+  .stars .count .sym { width: 1em; height: 1em; }
+  .stars .sub { color: var(--text-3); font-size: var(--fs-subheadline); font-weight: var(--fw-semibold); }
+  .stars .kind { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-0-5) var(--sp-3); color: var(--text-3); font-size: var(--fs-footnote); font-weight: var(--fw-semibold); }
+  /* the count and its words side by side (the card stays short, so the story is a short scroll away) */
+  .stars .mtop { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--sp-1) var(--sp-4); }
+  .stars .msub { display: grid; gap: var(--sp-0-5); justify-items: start; text-align: start; }
+  /* the day dots (P3-KIDVERSE-04): each shows every star earned that day, one small mark per kind (the star for the verse, the
+     book for the story, the praying hands for praying). An empty dot is a >= 3:1 ring (--cell-empty) with its letter in --text-3;
+     an earned dot is the butter fill with a butter edge and its marks; today is ONE ring in the kid's own colour (--today-ring),
+     drawn as an outline so it sits outside the dot's own edge. The dots share the row and shrink together (flex, no minimum width),
+     so seven always fit one row from 375 px up. */
+  .days { --dot: calc(var(--icon-xl) * 1.2); display: flex; gap: var(--sp-2); justify-content: center; width: 100%; }
+  .days .day { flex: 0 1 var(--dot); min-width: 0; aspect-ratio: 1; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface-2); color: var(--text-3); font-size: var(--fs-caption2); font-weight: var(--fw-bold); border: var(--border-w-strong) solid var(--cell-empty); }
+  .days .day.on { background: var(--butter-fill); color: var(--butter-ink); border-color: var(--butter-graphic); }
+  .days .day.today { outline: var(--ring-w) solid var(--today-ring); outline-offset: var(--ring-w-sm); }
+  .days .marks { display: grid; grid-template-columns: repeat(2, auto); gap: var(--sp-0-5); justify-content: center; align-items: center; justify-items: center; }
+  .days .marks svg.sym { width: var(--icon-xs); height: var(--icon-xs); }
+  .days .marks.m1 { grid-template-columns: auto; }
+  .days .marks.m1 svg.sym { width: var(--icon-sm); height: var(--icon-sm); }
+  .days .marks.m3 svg.sym { width: calc(var(--icon-xs) * .8); height: calc(var(--icon-xs) * .8); }
+  .days .marks.m3 svg.sym:last-child { grid-column: 1 / -1; }
+  .days .day.skd { background: var(--surface-2); border-color: var(--separator); }
+  :root[data-kind="kid"] .days { gap: var(--sp-1); }
 
   /* item 20 — rewards: the balance to cash in and the six badges (kids only); every colour a token, no layout shift */
   .ds .rewards { display: grid; gap: var(--sp-3); }
-  .rewards h2 { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
-  .rewards h2 .icon { width: 1.2em; height: 1.2em; }
-  .rewards .bank { display: flex; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap; color: var(--text-3); font-size: var(--fs-sm); font-weight: var(--fw-semibold); min-height: 1.5em; }
-  .rewards .bank b { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); font-size: var(--fs-3xl); line-height: 1; color: var(--text); font-weight: var(--fw-bold); }
-  .rewards .bank .icon { width: .9em; height: .9em; align-self: center; }
+  .rewards h2 { margin: 0; font-size: var(--fs-title3); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
+  .rewards h2 .sym { width: 1.2em; height: 1.2em; }
+  /* the summary is separate items in a wrapping flex row with gaps, never a dot between them (VIS-KIDVERSE-11): an item wraps whole */
+  .rewards .bank { display: flex; align-items: baseline; gap: var(--sp-1) var(--sp-4); flex-wrap: wrap; color: var(--text-3); font-size: var(--fs-subheadline); font-weight: var(--fw-semibold); min-height: 1.5em; }
+  .rewards .bank .bi { display: inline-flex; align-items: baseline; gap: var(--sp-2); }
+  .rewards .bank b { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); font-size: var(--fs-large-title); line-height: var(--lh-tight); color: var(--text); font-weight: var(--fw-bold); }
+  .rewards .bank .sym { width: .9em; height: .9em; align-self: center; }
   .badges { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); }
   @media (min-width: 560px) { .badges { grid-template-columns: repeat(6, 1fr); } }
-  /* a badge tile is inset in the card: its corner is --r-inset (concentric). Unearned (VIS-KIDVERSE-1, -3): a >= 3:1 ringed
-     disc with its glyph in --text-3 (a visible goal in dark too), the hint in --text-3 at caption2 (11 px adult, 16 px kid,
-     never the old 10 px). Earned: the butter fill, and the disc is the butter solid with its -on glyph (the pairing rule). */
-  .badges li { min-height: 64px; display: grid; justify-items: center; align-content: start; gap: var(--sp-1); padding: var(--sp-2) var(--sp-1); border-radius: var(--r-inset); text-align: center; background: var(--surface-2); border: var(--border-w) solid var(--separator); color: var(--text-3); }
-  .badges li .bicon { width: 44px; height: 44px; border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface); color: var(--text-3); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-heavy); font-size: var(--fs-lg); border: var(--border-w-strong) solid var(--cell-empty); }
-  .badges li .bicon .icon { width: 24px; height: 24px; }
-  .badges li .bname { font-size: var(--fs-xs); font-weight: var(--fw-bold); line-height: 1.2; color: var(--text); }
-  .badges li small { font-size: var(--fs-caption2); line-height: 1.2; color: var(--text-3); }
+  /* a badge tile is inset in the card: its corner is --r-inset (concentric). Unearned: a >= 3:1 ringed disc with its glyph in
+     --text-3, the hint in --text-3 at caption2. Earned: the butter fill, and the disc is the butter solid with its -on glyph.
+     The numerals 7, 10 and 50 stay numbers on their discs (a count is a number, not a picture). */
+  .badges li { min-height: var(--tap); display: grid; justify-items: center; align-content: start; gap: var(--sp-1); padding: var(--sp-2) var(--sp-1); border-radius: var(--r-inset); text-align: center; background: var(--surface-2); border: var(--border-w) solid var(--separator); color: var(--text-3); }
+  .badges li .bicon { width: calc(var(--icon-xl) * 1.5); height: calc(var(--icon-xl) * 1.5); border-radius: var(--r-full); display: grid; place-items: center; background: var(--surface); color: var(--text-3); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-heavy); font-size: var(--fs-title3); border: var(--border-w-strong) solid var(--cell-empty); }
+  .badges li .bicon svg.sym { width: var(--icon-md); height: var(--icon-md); }
+  .badges li .bname { font-size: var(--fs-caption1); font-weight: var(--fw-bold); line-height: var(--lh-caption1); color: var(--text); }
+  .badges li small { font-size: var(--fs-caption2); line-height: var(--lh-caption2); color: var(--text-3); }
   .badges li.on { background: var(--butter-fill); border-color: transparent; color: var(--butter-ink); }
   .badges li.on .bicon { background: var(--butter-strong); color: var(--butter-on); border-color: transparent; box-shadow: var(--elev-control); }
   .badges li.on .bname { color: var(--butter-ink); }
   .badges li.on small { color: var(--butter-ink); }
-  .rewards .paid, .rewards .how { margin: 0; color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
-  :root[data-kind="kid"] .badges li .bicon { width: 48px; height: 48px; }
+  .rewards .paid, .rewards .how { margin: 0; color: var(--text-3); font-size: var(--fs-caption1); line-height: var(--lh-footnote); }
 
-  /* adults: the week stepper and every kid's stars, read-only */
+  /* adults: every kid's stars (read-only), the week stepper, the offer to move on (UX-KIDVERSE-10: this is the first card) */
   .ds .grown { display: grid; gap: var(--sp-4); }
-  .grown h2 { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
-  .grown h2 .icon { width: 1.2em; height: 1.2em; }
+  .grown h2, .grown h3 { margin: 0; font-size: var(--fs-title3); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
+  .grown h3 { font-size: var(--fs-headline); color: var(--text-2); }
+  .grown h2 .sym { width: 1.2em; height: 1.2em; }
   .stepper { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
-  .stepper .wk { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-bold); font-size: var(--fs-2xl); line-height: 1; color: var(--text); text-align: center; flex: 1; }
-  .stepper .wk small { display: block; font-family: var(--font-ui); font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-3); margin-top: var(--sp-1); }
-  .ds .stepper .btn { width: var(--tap-lg); min-width: var(--tap-lg); min-height: var(--tap-lg); padding: 0; font-size: var(--fs-2xl); font-weight: var(--fw-regular); border-radius: var(--r-full); }
-  .grown .hint { color: var(--text-3); font-size: var(--fs-sm); margin: 0; }
-  .ds .grown .hint .btn { margin-left: var(--sp-2); min-height: var(--tap); font-size: var(--fs-sm); }
-  .kids { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
-  /* each kid's row carries that kid's data-accent, so the today ring on the row is theirs */
-  .kids li { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
-  .kids .avatar { --size: 40px; font-size: 22px; }
-  .kids .kn { font-weight: var(--fw-bold); flex: 1; min-width: 0; }
-  .kids .kn b { color: var(--butter-ink); margin-left: var(--sp-2); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); }
-  .kids .days { flex: 0 0 auto; }
-  .kids .days span { width: 28px; height: 28px; font-size: var(--fs-caption2); }   /* was 10 px, under the 11 px floor (VIS-KIDVERSE-7) */
-  .kids .days span.on .icon { width: 16px; height: 16px; }
-  .kids .none { color: var(--text-3); }
+  .stepper .wk { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-bold); font-size: var(--fs-title1); line-height: var(--lh-tight); color: var(--text); text-align: center; flex: 1; }
+  .stepper .wk small { display: block; font-family: var(--font-ui); font-size: var(--fs-caption1); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--text-3); margin-top: var(--sp-1); }
+  .ds .stepper .btn { width: var(--tap-lg); min-width: var(--tap-lg); min-height: var(--tap-lg); padding: 0; border-radius: var(--r-full); }
+  .ds .stepper .btn .sym { width: var(--icon-lg); height: var(--icon-lg); }
+  .grown .hint { color: var(--text-3); font-size: var(--fs-subheadline); margin: 0; }
+  .ds .grown .hint .btn { margin-left: var(--sp-2); min-height: var(--tap); font-size: var(--fs-subheadline); }
+  .grown .stepblock { display: grid; gap: var(--sp-3); }
+  /* the Move offer (GAP-KIDVERSE-1): one quiet line at the top of the panel, its two buttons beside it */
+  .offer { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-inset); background: var(--butter-fill); color: var(--butter-ink); }
+  .offer .otext { flex: 1 1 12em; display: grid; gap: var(--sp-0-5); min-width: 0; font-weight: var(--fw-bold); }
+  .offer .otext small { font-weight: var(--fw-regular); font-size: var(--fs-subheadline); }
+  .offer .obtn { display: flex; gap: var(--sp-2); }
+  .ds .offer .btn { min-height: var(--tap); }
+  .ds .offer .btn:not(.btn-primary) { background: var(--surface); }
+  /* each kid: the face, the name and the star count share one line (a long name wraps inside its own cell); the seven dots
+     take the line below, full width (VIS-KIDVERSE-5). From 640 px the dots sit beside the name. */
+  .kids { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-4); }
+  .kids li { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "av kn" "dots dots"; align-items: center; gap: var(--sp-2) var(--sp-3); }
+  .kids .avatar { grid-area: av; }
+  .kids .kn { grid-area: kn; display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); min-width: 0; font-weight: var(--fw-bold); }
+  .kids .kn .nm { min-width: 0; overflow-wrap: anywhere; }
+  .kids .kn b { flex: none; display: inline-flex; align-items: center; gap: var(--sp-1); color: var(--butter-ink); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); }
+  .kids .kn b .sym { width: .9em; height: .9em; }
+  .kids .days { grid-area: dots; }
+  .kids .none { display: block; color: var(--text-3); }
+  @media (min-width: 640px) { .kids li { grid-template-columns: auto minmax(8em, 1fr) minmax(0, 18em); grid-template-areas: "av kn dots"; } }
 
   /* a calm confetti: a dozen dots in the eight categorical graphics (--cat-*) drifting down; nothing at all under Reduce
      Motion, from the OS or from Me > Appearance (data-motion) */
@@ -162,74 +197,116 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   :root[data-motion="reduce"] .confetti { display: none; }
   @media (prefers-reduced-motion: reduce) { :root:not([data-motion="full"]) .confetti { display: none; } }
 
-  /* ── item 17: this week's story — a two-sentence retelling of the grown-ups' F260 reading, on a card below the verse ── */
+  /* ── item 17: this week's story — a two-sentence retelling of the grown-ups' F260 reading, on a card below the verse ──
+     The head, then the two picture buttons, then the words: "I heard it" is reached with a short scroll. */
   .ds .story { display: grid; gap: var(--sp-3); }
-  .story-head { display: flex; align-items: center; gap: var(--sp-3); }
-  .story-head img { flex: 0 0 auto; width: 84px; aspect-ratio: 240 / 160; height: auto; border-radius: var(--r-control); background: var(--art-plate); object-fit: cover; }
+  /* start-aligned, so the picture sits at the card's own padding corner and its radius is the concentric --r-inset (VIS-SHAPE-1) */
+  .story-head { display: flex; align-items: flex-start; gap: var(--sp-3); }
+  .story-head img, .shelf-card img { flex: 0 0 auto; aspect-ratio: 240 / 160; height: auto; border-radius: var(--r-inset); background: var(--art-plate); object-fit: cover; }
+  .story-head img { width: calc(var(--tap-lg) * 1.4); }
+  :root:is([data-text-size="xl"], [data-text-size="xxl"]) .story-head { flex-direction: column; }   /* large text: the picture above the title, so a reference never splits across two lines */
   .story-head > div { min-width: 0; display: grid; gap: var(--sp-0-5); }
   .story-head .kicker { color: var(--butter-ink); }
-  .story-head h2 { margin: 0; font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-2xl); line-height: var(--lh-tight); letter-spacing: var(--ls-title1); color: var(--text); text-wrap: balance; }
-  .story-span { color: var(--text-3); font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
-  .story p { margin: 0; font-size: var(--fs-lg); line-height: var(--lh-snug); color: var(--text); text-wrap: pretty; min-height: 2.6em; }
-  :root[data-kind="kid"] .story p { font-size: var(--fs-xl); }
-  .story small { color: var(--text-3); font-size: var(--fs-xs); line-height: 1.35; }
-  .story-actions { display: grid; gap: var(--sp-3); grid-template-columns: 1fr; }
-  @media (min-width: 560px) { .story-actions { grid-template-columns: 1fr 1fr; } .story-actions.solo { grid-template-columns: 1fr; } }
-  /* capsules, like the verse's buttons: a capsule needs no concentric corner inside the card (VIS-KIDVERSE-8) */
-  .ds .story-actions .btn { min-height: max(64px, var(--btn-h-lg)); font-size: var(--fs-lg); gap: var(--sp-3); }
-  .ds .story-actions .btn .icon { width: 1.4em; height: 1.4em; }
-  .ds .story-actions .btn-glass { --g: var(--glass-strong); }
-  /* "I heard it" carries data-accent="butter" in the markup, as Done ★ does (P3-KIDVERSE-14) */
+  .story-head h2 { margin: 0; font-family: var(--font-display); font-weight: var(--fw-bold); font-size: var(--fs-title2); line-height: var(--lh-tight); letter-spacing: var(--ls-title1); color: var(--text); text-wrap: balance; }
+  :root[data-kind="kid"] .story-span { display: none; }   /* which readings the grown-ups have is for grown-ups; a kid's story card gets to "I heard it" sooner */
+  .story-span { color: var(--text-3); font-size: var(--fs-caption1); font-weight: var(--fw-semibold); }
+  .story p { margin: 0; font-size: var(--fs-title3); line-height: var(--lh-snug); color: var(--text); text-wrap: pretty; min-height: 2.6em; }
+  :root[data-kind="kid"] .story p { font-size: var(--fs-title2); }
+  .story small { color: var(--text-3); font-size: var(--fs-caption1); line-height: var(--lh-caption1); }
   .ds .btn.story-heard.today { background: var(--accent-fill); color: var(--accent-ink); border-color: transparent; box-shadow: none; }
-  .ds .btn.story-say.on .icon { animation: pulse var(--dur-pulse) var(--ease-standard) infinite; }
-  .story-sub { color: var(--text-3); font-size: var(--fs-sm); font-weight: var(--fw-semibold); text-align: center; min-height: 1.5em; }
+  .story-sub { color: var(--text-3); font-size: var(--fs-subheadline); font-weight: var(--fw-semibold); text-align: center; min-height: 1.5em; }
+
+  /* the kid's picture-only screen while no grown-up has picked the week (UX-KIDVERSE-5), and the grown-up's prompt */
+  .ds .noweek { display: grid; gap: var(--sp-3); justify-items: center; text-align: center; padding-block: var(--sp-8); }
+  .noweek .bigpic { width: calc(var(--icon-xl) * 3); height: calc(var(--icon-xl) * 3); display: grid; place-items: center; border-radius: var(--r-full); background: var(--butter-fill); color: var(--butter-ink); }
+  .noweek .bigpic svg.sym { width: calc(var(--icon-xl) * 1.8); height: calc(var(--icon-xl) * 1.8); }
+  .noweek p { margin: 0; font-size: var(--fs-title1); font-weight: var(--fw-bold); line-height: var(--lh-snug); text-wrap: balance; }
+  .ds .noweek .btn { min-width: 60%; }
+
+  /* the earlier weeks shelf (IMP-KIDVERSE-I1): small cards, newest first; a tap opens a read-only sheet "Just for listening" */
+  .ds .shelf { display: grid; gap: var(--sp-3); }
+  .shelf h2 { margin: 0; font-size: var(--fs-title3); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
+  .shelf h2 .sym { width: 1.2em; height: 1.2em; }
+  .shelf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); }
+  @media (min-width: 560px) { .shelf-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .ds .shelf-card { display: grid; gap: var(--sp-1); align-content: start; justify-items: stretch; text-align: start; min-height: var(--tap-lg); padding: var(--sp-2); border-radius: var(--r-card); background: var(--surface-2); border: var(--border-w) solid var(--separator); color: var(--text); font: inherit; cursor: pointer; }
+  .shelf-card img { width: 100%; }
+  .shelf-card .wk { font-size: var(--fs-caption1); font-weight: var(--fw-bold); letter-spacing: var(--ls-caps); text-transform: uppercase; color: var(--butter-ink); padding-inline: var(--sp-1); }
+  .shelf-card .rf { font-size: var(--fs-headline); font-weight: var(--fw-bold); line-height: var(--lh-snug); padding-inline: var(--sp-1); padding-bottom: var(--sp-1); text-wrap: balance; }
+  .ds .shelf-more { min-height: var(--tap); justify-self: center; }
+  /* the sheet holds reading text, so it is solid, never glass (the page behind must not show through it) */
+  .ds .sheet.vsheet { background: var(--material-solid-bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .vsheet-body { display: grid; gap: var(--sp-4); }
+  .vsheet-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+  .vsheet .listen { display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-1) var(--sp-4) var(--sp-1) var(--sp-2); border-radius: var(--r-full); background: var(--butter-fill); color: var(--butter-ink); font-weight: var(--fw-bold); font-size: var(--fs-subheadline); }
+  .vsheet .listen svg.sym { width: var(--icon-md); height: var(--icon-md); }
+  .vsheet img { display: block; width: 100%; height: clamp(var(--tap-lg), 22dvh, 30dvh); object-fit: contain; border-radius: var(--r-inset); background: var(--art-plate); }
+  .vsheet h2 { margin: 0; font-size: var(--fs-title1); line-height: var(--lh-tight); text-wrap: balance; }
+  .vsheet .part { display: grid; gap: var(--sp-2); }
+  .vsheet .part .kicker { color: var(--butter-ink); }
+  .ds .vsheet .btn { min-height: var(--tap-lg); justify-content: center; font-size: var(--fs-title3); gap: var(--sp-3); }
+  .ds .vsheet .btn .sym { width: var(--icon-xl); height: var(--icon-xl); }
+  .ds .vsheet .close { min-width: var(--tap-lg); min-height: var(--tap-lg); padding: 0 var(--sp-4); }
 
   /* 0b — until the family week and the stars have pulled once on this device: skeletons of the loaded size (never a
-     made-up "Week 1" or a zero, and nothing jumps when the data lands), and Done ★ / I heard it / the week stepper wait,
+     made-up "Week 1" or a zero, and nothing jumps when the data lands), and Done / I heard it / the week stepper wait,
      calm and readable, instead of writing a value computed from an empty cache over the real rows. The design.css
      shimmer is already off under reduced motion. */
   .ds .sk { display: inline-block; vertical-align: middle; width: var(--w, 60%); height: .8em; min-height: 0; }
   .ds .sk.l { display: block; box-sizing: border-box; width: var(--w, 100%); height: calc(1em * var(--lh-snug)); border-block: .2em solid transparent; background-clip: padding-box; }   /* exactly one text line tall (margins would collapse) */
-  .days span.skd { opacity: .6; }
   .ds .btn.loading:disabled { opacity: 1; background: var(--surface-2); color: var(--text-3); border-color: transparent; box-shadow: none; }
 </style>
 </head>
 <body class="ds">
 <div class="wrap">
-  <div class="top"><span class="pill" id="who"></span></div>
-  <!-- 0b: a blank 3:2 plate and skeletons until the family week has pulled (render() swaps in the week's art and text) -->
-  <div class="card scene"><img id="art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160" draggable="false"></div>
-  <div class="ref">
+  <div class="top"><span class="who" id="who"></span></div>
+  <!-- UX-KIDVERSE-10: for a grown-up the panel (every kid's stars, the week, the offer to move on) comes FIRST; the kid's own
+       screen follows, labelled as a preview. #voice-panel is the parent's recorded voice (Worker C's code fills and shows it). -->
+  <div class="card grown" id="grown" hidden></div>
+  <section class="card voice" id="voice-panel" aria-labelledby="voice-title" hidden></section>
+  <h2 class="kv-label" id="kv-label" hidden><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-eye"/></svg>What the kids see</h2>
+  <!-- UX-KIDVERSE-5: with no family week a kid sees a picture and one sentence (read aloud on tap), never a made-up Week 1 -->
+  <div class="card noweek" id="no-week-kid" hidden>
+    <span class="bigpic"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-scroll-text"/></svg></span>
+    <p id="no-week-text">A grown-up will pick this week’s verse</p>
+    <button class="btn btn-soft say" id="no-week-say" type="button"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-volume-2"/></svg><span>Read it to me</span></button>
+  </div>
+  <!-- 0b: a blank plate and skeletons until the family week has pulled (render() swaps in the week's art and text) -->
+  <div class="card scene" id="scene"><img id="art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160" draggable="false"></div>
+  <div class="ref" id="refblock">
     <span class="kicker" id="kick">This week's verse</span>
     <h1 id="ref"><span class="skeleton sk" style="--w:62%"></span></h1>
     <div class="also" id="also"><span class="skeleton sk" style="--w:45%"></span></div>
   </div>
-  <div class="card words">
+  <!-- UX-KIDVERSE-1: two big pictures side by side: a scroll that reads the verse, a star for Done. The words follow them. -->
+  <div class="actions" id="actions">
+    <button class="btn btn-soft say" id="say"><div class="face" id="say-face" hidden></div><svg class="sym" id="say-ico" aria-hidden="true"><use href="../icons/sprite.svg#i-scroll-text"/></svg><span>Read it to me</span></button>
+    <button class="btn btn-primary done" id="done" data-accent="butter" hidden><svg class="sym star" aria-hidden="true"><use href="../icons/sprite.svg#i-star"/></svg><span>Done</span></button>
+  </div>
+  <div class="card words" id="wordscard">
     <span class="kicker">In our own words</span>
     <p id="words"><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l" style="--w:60%"></span></p>
     <small>A simple paraphrase for little ears — not the Bible's own words. Open the Bible together to read the real verse.</small>
   </div>
-  <div class="actions">
-    <button class="btn btn-glass say" id="say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
-    <button class="btn btn-primary done" id="done" data-accent="butter" hidden><svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span>Done ★</span></button>
-  </div>
-  <div class="card stars" id="mine" hidden></div>
   <!-- item 17: this week's story — the grown-ups' F260 reading for the family week, retold in two sentences for a small child -->
   <section class="card story" id="story" aria-labelledby="story-title">
     <div class="story-head">
       <img id="story-art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E" alt="" width="240" height="160" draggable="false">
       <div><span class="kicker" id="story-kick">This week's story</span><h2 id="story-title"><span class="skeleton sk" style="--w:70%"></span></h2><div class="story-span" id="story-span"><span class="skeleton sk" style="--w:85%"></span></div></div>
     </div>
-    <p id="story-text"><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l" style="--w:55%"></span></p>
-    <small>A short retelling in our own words of what the grown-ups are reading this week — not the Bible's own words. Open the Bible together to read the real story.</small>
     <div class="story-actions" id="story-actions">
-      <button class="btn btn-glass story-say" id="story-say"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span>Read it to me</span></button>
-      <button class="btn btn-primary story-heard" id="story-heard" data-accent="butter" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>I heard it</span></button>
+      <button class="btn btn-soft story-say" id="story-say"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-book-open"/></svg><span>Read it to me</span></button>
+      <button class="btn btn-primary story-heard" id="story-heard" data-accent="butter" hidden><i class="pic" aria-hidden="true"><svg class="sym big"><use href="../icons/sprite.svg#i-ear"/></svg><svg class="sym star"><use href="../icons/sprite.svg#i-star"/></svg></i><span>I heard it</span></button>
     </div>
     <div class="story-sub" id="story-sub" hidden></div>
+    <p id="story-text"><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l"></span><span class="skeleton sk l" style="--w:55%"></span></p>
+    <small>A short retelling in our own words of what the grown-ups are reading this week — not the Bible's own words. Open the Bible together to read the real story.</small>
   </section>
+  <!-- UX-KIDVERSE-2: the kid's stars card follows the story, so "I heard it" is a short scroll after Done -->
+  <div class="card stars" id="mine" hidden></div>
   <div class="card rewards" id="rewards" hidden></div><!-- item 20: badges + the balance to cash in (kids) -->
-  <div class="card grown" id="grown" hidden></div>
+  <!-- IMP-KIDVERSE-I1: the weeks before the family week, to listen to again (read-only; never for the TV); painted by the story script -->
+  <section class="card shelf" id="shelf" aria-labelledby="shelf-title" hidden></section>
 </div>
 <script src="hub.js" data-app="kidverse" data-scope="both"></script>
 <script>
@@ -308,7 +385,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 
   const $ = s => document.querySelector(s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const STAR = '<svg class="icon star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
+  // CONS-ICON-1: every icon is the shared sprite (icons/sprite.svg) drawn as svg.sym; the one star drawing is filled through
+  // --sym-fill (see the CSS). SYM(name, cls) is the markup, STAR the filled butter star.
+  const SYM = (n, cls = '') => `<svg class="sym${cls ? ' ' + cls : ''}" aria-hidden="true"><use href="../icons/sprite.svg#i-${n}"/></svg>`;
+  const STAR = SYM('star', 'star');
   const pad = n => String(n).padStart(2, '0');
   // One household day (0b): "today", the ISO week and the week's Mon–Sun are the house's (America/New_York, hub.today()),
   // never the device's own zone — so a phone set to Los Angeles cannot earn a second ★ in one household day, and the
@@ -327,21 +407,39 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   const BLANK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'/%3E";
   const setBusy = (btn, busy) => { btn.disabled = busy; btn.setAttribute('aria-disabled', busy ? 'true' : 'false'); btn.classList.toggle('loading', busy); };
 
-  // stars: { week: 'YYYY-Www', count, days: { 'YYYY-MM-DD': true }, total } — a stale week starts over at 0 (index.html does the same)
+  // stars: { week: 'YYYY-Www', count, days: { 'YYYY-MM-DD': true|'reset' }, total, ... } as a reader sees the family mirror.
+  // Batch 7 (P3-KIDVERSE-12): a mirror written in an earlier ISO week is no longer emptied. `days` (like `credited.*`) holds the
+  // last KEEP_DAYS days, so a Reset week whose days belong to last week still finds the verse stars it must take off; the
+  // week's count is taken over the CURRENT ISO week's seven keys only (weekCount), so an old mirror simply counts 0 for this
+  // week, exactly as before (index.html does the same).
   function normStars(v) {
     const wk = isoWeek(); const ok = v && typeof v === 'object';
     const total = ok ? Math.max(0, Math.floor(Number(v.total) || 0)) : 0;
+    const days = {}; if (ok && v.days && typeof v.days === 'object') for (const k of Object.keys(v.days)) if (isDate(k) && v.days[k]) days[k] = v.days[k] === 'reset' ? 'reset' : true;
     // item 20: the rewards fields ride along and count covers every star source this week (rewardsExtra / weekCount below)
-    if (!ok || v.week !== wk) { const s = { week: wk, count: 0, days: {}, total, ...rewardsExtra(v) }; s.count = weekCount(s); return s; }
-    const days = v.days && typeof v.days === 'object' ? { ...v.days } : {};
     const s = { week: wk, count: 0, days, total, ...rewardsExtra(v) }; s.count = weekCount(s); return s;
   }
   const myStars = () => deriveStars();                                // batch 0f: from the kid's own rows (see deriveStars below)
   const kidStars = id => { const s = normStars(hub.get('stars:' + id, { scope: 'family' })); applyLedger(s, ledgerRows(id)); return s; };   // item 20: + the parent ledger rows the kid has not taken in yet
   const familyWeek = () => { const v = hub.get('week', { scope: 'family' }); return clampWeek(v && typeof v === 'object' ? v.week : v); };
-  const daysHtml = (s, small) => { const today = dayKey(); return `<div class="days" aria-label="${s.count} of 7 days">${weekDays().map((k, i) => `<span class="${s.days[k] === true ? 'on' : ''}${k === today ? ' today' : ''}" title="${k}">${s.days[k] === true ? STAR : DOW[i]}</span>`).join('')}</div>`; };
+  // P3-KIDVERSE-04: each of the seven dots shows every star earned that day, one small mark per kind — the star for the verse,
+  // the open book for the story, the praying hands for praying — and the label counts what the ★N counts ("6 stars this week");
+  // VoiceOver reads each day's marks. Read from the stars object's current-week keys (a reset day shows nothing).
+  const MARKS = { verse: [STAR, 'verse star'], story: [SYM('book-open'), 'story star'], prayed: [SYM('hands'), 'prayer star'] };
+  const dayMarks = (s, k) => { const m = []; if (s.days[k] === true) m.push('verse'); if (s.credited && s.credited.story && s.credited.story[k] === true) m.push('story'); if (s.credited && s.credited.prayed && s.credited.prayed[k] === true) m.push('prayed'); return m; };
+  const dayName = k => { try { return utcOf(k).toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }); } catch { return k; } };
+  const daysHtml = s => {
+    const today = dayKey();
+    return `<div class="days" role="group" aria-label="${s.count} ${s.count === 1 ? 'star' : 'stars'} this week">${weekDays().map((k, i) => {
+      const m = dayMarks(s, k);
+      return `<span class="day${m.length ? ' on' : ''}${k === today ? ' today' : ''}" data-day="${k}" data-marks="${m.join(',')}" role="img" aria-label="${dayName(k)}${k === today ? ' (today)' : ''}: ${m.length ? m.map(x => MARKS[x][1]).join(', ') : 'no stars'}" title="${k}">${m.length ? `<span class="marks m${m.length}">${m.map(x => MARKS[x][0]).join('')}</span>` : DOW[i]}</span>`;
+    }).join('')}</div>`;
+  };
 
-  // ── speech: one voice, picked once, rate 0.85 ────────────────────────────────────────────────────────────
+  // ── speech: ONE voice (picked once, rate 0.85) and ONE queue for the verse, the story, the shelf and every toast a kid sees
+  // (UX-KIDVERSE-1, IMP-KIDVERSE-F3). Nothing talks over itself: a Read it to me stops what is being read first; a spoken
+  // toast waits for silence (it is skipped while anything is being read or played, never queued over it). Where `boundary`
+  // events never arrive (some iOS voices) nothing is highlighted and nothing breaks; the highlight is cleared on end, cancel and error.
   const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
   let voice = null;
   function pickVoice() {
@@ -360,21 +458,96 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const verses = m[5] ? `verses ${m[4]} to ${m[5]}` : `verse ${m[4]}`;
     return /^Psalms?$/i.test(m[2].trim()) ? `Psalm ${m[3]}, ${verses}` : `${book}, chapter ${m[3]}, ${verses}`;
   }
-  let speaking = false;
-  function speak(v) {
-    const btn = $('#say');
-    if (!canSpeak) { hub.toast('This device cannot read aloud.'); return; }
-    if (speaking) { try { speechSynthesis.cancel(); } catch {} return; }
-    const text = `This week's verse is ${sayRef(v.refs[v.p])}. In our own words: ${v.words}`;
-    try {
-      speechSynthesis.cancel();
+  const SPEECH = (() => {
+    let cur = null;        // what is being read: { key, text, hl: { el, text, offset } | null, onend }
+    let toastU = null;     // a spoken toast in flight
+    const utter = text => {
       const u = new SpeechSynthesisUtterance(text);
       u.rate = 0.85; u.pitch = 1; const vc = pickVoice(); if (vc) { u.voice = vc; u.lang = vc.lang; } else u.lang = 'en-US';
-      const done = () => { speaking = false; btn.classList.remove('on'); btn.querySelector('span').textContent = 'Read it to me'; };
-      u.onend = done; u.onerror = done;
-      speaking = true; btn.classList.add('on'); btn.querySelector('span').textContent = 'Reading…';
-      speechSynthesis.speak(u);
-    } catch { speaking = false; hub.toast('This device cannot read aloud.'); }
+      return u;
+    };
+    // the word being spoken: the paraphrase's own element is repainted with one <mark class="hl"> (a background, no motion)
+    const unmark = c => { const el = c && c.hl && c.hl.el; if (el && el.querySelector && el.querySelector('mark.hl')) el.textContent = el.textContent; };
+    function paint(c, charIndex, charLength) {
+      const hl = c.hl; if (!hl || !hl.el) return;
+      const i = (Number(charIndex) || 0) - hl.offset, t = hl.text;
+      if (!(i >= 0 && i < t.length)) { if (i >= t.length) unmark(c); return; }   // before the paraphrase (the spoken lead-in): nothing to light
+      let len = Number(charLength) > 0 ? Number(charLength) : (/^\S+/.exec(t.slice(i)) || [''])[0].length;   // Safari sends no length: the word runs to the next space
+      while (len > 1 && /[.,;:!?”"’'—–)]/.test(t[i + len - 1])) len--;   // the mark takes the word, not its punctuation
+      if (hl.el.textContent !== t) return;                                // the element changed under us (a new week): leave it alone
+      hl.el.innerHTML = esc(t.slice(0, i)) + '<mark class="hl">' + esc(t.slice(i, i + len)) + '</mark>' + esc(t.slice(i + len));
+    }
+    function end(c, why) { if (cur !== c) return; cur = null; unmark(c); try { if (c.onend) c.onend(why); } catch (e) { console.error(e); } }
+    function stop() {
+      const c = cur; toastU = null;
+      try { if (canSpeak) speechSynthesis.cancel(); } catch {}
+      if (c) end(c, 'stop');
+    }
+    // key: which button asked (a second press on the same one stops it). o: { hl, onstart, onend }. true = started, 'stopped' = toggled off, false = cannot
+    function speak(key, text, o = {}) {
+      if (!canSpeak) { hub.toast('This device cannot read aloud.'); return false; }
+      if (cur && cur.key === key) { stop(); return 'stopped'; }
+      if (cur) stop();
+      let c = null;
+      try {
+        try { if (window.kidverseVoice && typeof window.kidverseVoice.stop === 'function') window.kidverseVoice.stop(); } catch {}
+        toastU = null; speechSynthesis.cancel();
+        const u = utter(text);
+        c = cur = { key, text, hl: o.hl || null, onend: o.onend };
+        u.onend = () => end(c, 'end'); u.onerror = () => end(c, 'error');
+        u.onboundary = e => { if (cur !== c || (e && e.name && e.name !== 'word')) return; paint(c, e && e.charIndex, e && e.charLength); };
+        if (o.onstart) o.onstart();
+        speechSynthesis.speak(u);
+        return true;
+      } catch { if (c) end(c, 'error'); hub.toast('This device cannot read aloud.'); return false; }
+    }
+    // a toast a kid sees is also spoken (UX-KIDVERSE-1): only into silence
+    function say(text) {
+      if (!canSpeak || cur || toastU) return false;
+      try {
+        if (window.kidverseVoice && typeof window.kidverseVoice.playing === 'function' && window.kidverseVoice.playing()) return false;
+        const u = utter(String(text).replace(/★/g, 'star').replace(/\s+/g, ' ').trim()); toastU = u;
+        u.onend = u.onerror = () => { if (toastU === u) toastU = null; };
+        speechSynthesis.speak(u); return true;
+      } catch { toastU = null; return false; }
+    }
+    return { speak, stop, say, busy: () => !!(cur || toastU), key: () => (cur ? cur.key : '') };
+  })();
+  // every toast a kid sees is spoken too, through the same voice (never over a reading: SPEECH.say skips)
+  (() => { const t = hub.toast; if (typeof t !== 'function') return; hub.toast = function (msg) { try { if (hub.profile && hub.profile.kind === 'kid' && msg) SPEECH.say(msg); } catch {} return t.apply(this, arguments); }; })();
+
+  // the verse's Read it to me: the parent's recording when one exists for the week (Worker C's window.kidverseVoice), the
+  // synthetic voice otherwise — and quietly the synthetic voice when the recording cannot play. Its face + name label the button.
+  const vvoice = () => (window.kidverseVoice && typeof window.kidverseVoice.info === 'function' ? window.kidverseVoice : null);
+  const voiceNow = w => { const vv = vvoice(); try { return vv ? vv.info(w) : null; } catch { return null; } };
+  const sayPlaying = w => { const vv = vvoice(); try { return !!(vv && vv.playing() === w); } catch { return false; } };
+  function paintSay(w) {
+    const btn = $('#say'); if (!btn) return;
+    const rec = voiceNow(w), on = SPEECH.key() === 'verse' || sayPlaying(w);
+    const label = SPEECH.key() === 'verse' ? 'Reading…' : rec ? rec.label : 'Read it to me';
+    btn.classList.toggle('on', on);
+    const span = btn.querySelector('span'); if (span.textContent !== label) span.textContent = label;
+    const face = $('#say-face'), ico = $('#say-ico');
+    face.hidden = !rec; ico.style.display = rec ? 'none' : '';
+    const fh = rec ? rec.faceHtml || '' : ''; if (face.innerHTML !== fh) face.innerHTML = fh;
+    const vr = VERSES[w - 1]; if (vr && weekSet()) btn.setAttribute('aria-label', (rec ? rec.label : 'Read it to me') + ': ' + vr.refs[vr.p]);   // a recording that arrives after render() relabels it for a screen reader too (C)
+    return rec;
+  }
+  // the paraphrase under the shown reference: repainted whenever a reading ends or is stopped (a reading holds the element while it is highlighted)
+  const paintWords = () => { if (weekReady() && weekSet() && SPEECH.key() !== 'verse') $('#words').textContent = VERSES[familyWeek() - 1].words; };
+  let shownWeek = 0;   // the week the verse card shows: when it changes (another device stepped it), a reading of the old week stops first
+  function speakVerse() {
+    const w = familyWeek(), v = VERSES[w - 1];
+    const text = `This week's verse is ${sayRef(v.refs[v.p])}. In our own words: ${v.words}`;
+    const synthetic = () => SPEECH.speak('verse', text, { hl: { el: $('#words'), text: v.words, offset: text.length - v.words.length }, onstart: () => paintSay(w), onend: () => { paintSay(w); paintWords(); } });
+    const vv = vvoice();
+    if (vv && voiceNow(w)) {
+      if (sayPlaying(w)) { vv.stop(); return; }
+      SPEECH.stop();
+      vv.play(w, { onstart: () => paintSay(w), onend: () => { paintSay(w); paintWords(); } }).then(ok => { paintSay(w); if (!ok) synthetic(); }, () => synthetic());
+      return;
+    }
+    synthetic();
   }
 
   // ── the star ───────────────────────────────────────────────────────────────────────────────────────────
@@ -392,71 +565,157 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (!hub.canWrite) { hub.kioskNudge(); return false; }            // the display profile only looks
     if (hub.profile.kind !== 'kid') { hub.toast('Stars are for the kids — sign in as one of them to earn a star.'); return false; }
     if (!allReady()) { render(); return false; }                        // 0b: never from an unpulled row (the button is disabled meanwhile)
+    if (!weekSet()) { hub.toast('A grown-up needs to pick this week’s verse first.'); return false; }   // UX-KIDVERSE-5: no week, no verse ★
     const s = myStars(); const today = dayKey();
+    if (s.days[today] === 'reset') { hub.toast('Your star for today was reset — come back tomorrow!'); return false; }   // a parent's reset spent today's one star (UX-KIDVERSE-4)
     if (s.days[today]) { hub.toast('You already have today’s star — come back tomorrow!'); return false; }   // one per day
     // batch 0f (P3-KIDVERSE-02): the star is its own row, so a second device with an older copy can never erase it
     try {
       hub.set('star:verse:' + today, { at: serverNow() }, { scope: 'person' });
-      writeMirror();                                                     // the family mirror adults and the TV read
     } catch (e) { render(); return false; }                              // not_loaded / read_only: the SDK has said so
+    // P3-KIDVERSE-09: reconcile() takes in the badge this star may complete and then writes the family mirror adults and the
+    // TV read, ONCE (the star and its badge used to be two uploads of the whole row)
+    reconcile(true, false);
     hub.activity('Read the verse ★');   // the feed and the TV print the name beside the line (P2-HOME-06)
     confetti(); render();
     return true;
   }
+  // ── the family week (the one row `week` = { week, by, at }, family scope) ───────────────────────────────────
+  // No row, or a row without a usable week, means NO week has been picked (UX-KIDVERSE-5): familyWeek() still answers 1 for
+  // callers that need a number, so every screen asks weekSet() first. `at` is the house's clock (serverNow), which the
+  // Sunday offer below measures its "set more than 5 days ago" against.
+  const rawWeek = () => { const v = hub.get('week', { scope: 'family' }); const k = Math.floor(Number(v && typeof v === 'object' ? v.week : v)); return Number.isFinite(k) && k >= 1 ? Math.min(52, k) : 0; };
+  const weekSet = () => rawWeek() > 0;
+  const refOf = w => { const v = VERSES[clampWeek(w) - 1]; return v.refs[v.p]; };
   function setWeek(w) {
     if (!hub.canWrite || hub.profile.kind !== 'adult' || hub.profile.isGuest) { hub.kioskNudge(); return; }   // household adults only (UX-KIDVERSE-3; the Worker refuses the rest)
     if (!weekReady()) { render(); return; }                              // 0b: the family's real week has not arrived yet
-    try { hub.set('week', { week: clampWeek(w), by: hub.profile.id, at: Date.now() }, { scope: 'family' }); } catch {}
+    const was = rawWeek(), next = clampWeek(w);
+    if (next === was) { render(); return; }                              // nothing changed: no new `at` (it times the Sunday offer), no feed line
+    try { hub.set('week', { week: next, by: hub.profile.id, at: serverNow() }, { scope: 'family' }); } catch { render(); return; }
+    try { hub.activity('Kid Verse is now week ' + next + ': ' + refOf(next)); } catch {}   // GAP-KIDVERSE-1: a change tells the house (and the TV's kid line)
+    try { SPEECH.stop(); const vv = vvoice(); if (vv) vv.stop(); } catch {}   // a read-aloud of last week's verse or story must not finish (B: through the one speech queue, so its buttons and highlight reset too)
+    render();
+    // P3-KIDVERSE-05: hub.set never emits onChange for this device's own write, so the story card (a second script) was
+    // left on the old week while its speaker read the new one — repaint it with the verse, at once
+    try { if (window.kidverse && typeof window.kidverse.renderStory === 'function') window.kidverse.renderStory(); } catch (e) { console.error(e); }
+  }
+  // GAP-KIDVERSE-1: a household adult opening Kid Verse is offered "Move to week N+1?" from the FIRST Sunday 5 pm (New York)
+  // that is more than 5 days after the family week was set, until the week changes (so a week stepped on Thursday is not
+  // pushed on again that Sunday, and one set on a Sunday afternoon is first offered the Sunday after: the offer never starts
+  // on a weekday). Never at week 52, never once the adult has said Not now for this week (a person row moveoffer:<week>,
+  // remembered per adult per week). No push. `nowMs` is for the checks; the app passes nothing.
+  const MOVE_HOUR = 17, MOVE_MIN_AGE = 5 * 86400000;
+  const nyHour = t => Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', hourCycle: 'h23' }).format(new Date(t)));
+  const nyInstant = (day, hour) => { const [y, m, d] = day.split('-').map(Number); for (const off of [4, 5]) { const t = Date.UTC(y, m - 1, d, hour + off); if (hub.today(t) === day && nyHour(t) === hour) return t; } return Date.UTC(y, m - 1, d, hour + 5); };   // the instant `hour`:00 New York time on household date `day` (EDT is UTC-4, EST UTC-5)
+  // the instant the offer starts for a week set at `at` (ms): the first Sunday 5 pm New York strictly after at + 5 days
+  function moveOfferFrom(at) {
+    const edge = at + MOVE_MIN_AGE, d0 = hub.today(edge);
+    const sunday = hub.addDays(d0, 6 - ((utcOf(d0).getUTCDay() + 6) % 7));        // that day, or the Sunday after it
+    let from = nyInstant(sunday, MOVE_HOUR); if (from <= edge) from = nyInstant(hub.addDays(sunday, 7), MOVE_HOUR);
+    return from;
+  }
+  function moveOffer(nowMs = serverNow()) {
+    const p = hub.profile; if (!p || p.kind !== 'adult' || p.isGuest || !hub.canWrite) return null;
+    if (!weekReady() || !allReady() || !weekSet()) return null;          // the dismissal is a person row: never offer from an unpulled cache
+    const w = rawWeek(); if (w >= 52) return null;
+    const v = hub.get('week', { scope: 'family' }), at = v && typeof v === 'object' ? Number(v.at) : NaN;
+    if (!(at > 0)) return null;                                          // no stamp (an older row): nothing to measure, so no offer
+    if (nowMs < moveOfferFrom(at)) return null;
+    if (hub.get('moveoffer:' + w, { scope: 'person' })) return null;      // Not now, for this week
+    return { from: w, to: w + 1, ref: refOf(w + 1) };
+  }
+  const moveOfferAccept = nowMs => { const o = moveOffer(nowMs); if (o) setWeek(o.to); };
+  function moveOfferDismiss() {
+    // Not now: for the week the family is on (the offer is only ever for that week, so this needs no clock)
+    const w = rawWeek(), p = hub.profile;
+    if (w > 0 && w < 52 && p && p.kind === 'adult' && !p.isGuest && hub.canWrite && weekReady() && allReady()) { try { hub.set('moveoffer:' + w, { at: serverNow() }, { scope: 'person' }); } catch {} }
     render();
   }
 
   // ── render ─────────────────────────────────────────────────────────────────────────────────────────────
+  // The page order (markup): who, then — for a grown-up — the panel (every kid's stars, the week, the offer to move on) and the
+  // parent's voice, then "What the kids see" and the kid's own screen: art, reference, the two picture buttons, the words, the
+  // stars card, the story, the rewards and the earlier weeks (UX-KIDVERSE-10, -2). With no family week picked (UX-KIDVERSE-5) a
+  // kid sees a picture and one sentence, a grown-up a prompt; nothing shows a made-up Week 1.
+  let pickWeek = 0;                 // the no-week prompt's candidate: only on this screen until the grown-up taps "Use week N"
+  const kindLine = items => `<div class="kind">${items.map(t => `<span>${t}</span>`).join('')}</div>`;
   function render() {
     const p = hub.profile; if (!p) return;
     const wkOk = weekReady(), ok = allReady();
+    const isKid = p.kind === 'kid', isAdult = p.kind === 'adult';
+    const set = wkOk && weekSet(), noWeek = wkOk && !set;       // until the family channel has pulled, neither is known: skeletons
     $('.wrap').setAttribute('aria-busy', ok ? 'false' : 'true');
     const w = familyWeek(), v = VERSES[w - 1], scene = sceneFor(w);
-    const art = $('#art'); const src = wkOk ? '../art/story/' + scene + '.svg' : BLANK; if (!art.getAttribute('src').endsWith(src)) art.src = src;
-    art.dataset.scene = wkOk ? scene : '';
-    $('#who').innerHTML = hub.avatarHtml(p, 'avatar-sm') + `<span><b>${esc(p.name)}</b> · ${wkOk ? 'Week ' + w : SK('3.2em')}</span>`;
-    $('#kick').textContent = p.kind === 'kid' ? p.name + "'s verse this week" : 'This week’s verse';
-    if (wkOk) { $('#ref').textContent = v.refs[v.p]; $('#also').textContent = 'Also this week: ' + v.refs[1 - v.p]; $('#words').textContent = v.words; }
-    else { $('#ref').innerHTML = SK('62%'); $('#also').innerHTML = SK('45%'); $('#words').innerHTML = SK('100%', ' l') + SK('100%', ' l') + SK('60%', ' l'); }   // three lines: the usual paraphrase at phone width
+    for (const id of ['scene', 'refblock', 'actions', 'wordscard']) $('#' + id).hidden = noWeek;
+    $('#no-week-kid').hidden = !(noWeek && isKid);
+    $('#kv-label').hidden = isKid || noWeek;
+    const art = $('#art'); const src = wkOk && set ? '../art/story/' + scene + '.svg' : BLANK; if (!art.getAttribute('src').endsWith(src)) art.src = src;
+    art.dataset.scene = wkOk && set ? scene : '';
+    $('#who').innerHTML = hub.avatarHtml(p, 'avatar-sm') + `<span><b>${esc(p.name)}</b> · ${!wkOk ? SK('3.2em') : set ? 'Week ' + w : 'No week yet'}</span>`;
+    $('#kick').textContent = isKid ? p.name + "'s verse this week" : 'This week’s verse';
+    if (wkOk && set) {
+      if (shownWeek && shownWeek !== w) { if (/^(verse|story)$/.test(SPEECH.key())) SPEECH.stop(); try { const vv = vvoice(); if (vv && vv.playing()) vv.stop(); } catch {} }   // another device changed the week mid-reading: stop, then show the new words (never the old words under the new reference)
+      shownWeek = w;
+      $('#ref').textContent = v.refs[v.p]; $('#also').textContent = 'Also this week: ' + v.refs[1 - v.p]; if (SPEECH.key() !== 'verse') $('#words').textContent = v.words;
+    } else if (!wkOk) { $('#ref').innerHTML = SK('62%'); $('#also').innerHTML = SK('45%'); $('#words').innerHTML = SK('100%', ' l') + SK('100%', ' l') + SK('60%', ' l'); }   // three lines: the usual paraphrase at phone width
     const say = $('#say'); setBusy(say, !wkOk); say.classList.remove('loading');   // nothing to read until the week is known
-    say.setAttribute('aria-label', wkOk ? 'Read it to me: ' + v.refs[v.p] : 'Read it to me');
-    // Done ★ + my stars: kids only (adults and the TV look, they do not earn). Until the stars rows have pulled, the same
-    // shapes with skeletons in them, and Done ★ waits ("Getting your stars…") — its tap would overwrite the whole row.
+    paintSay(w);                                                                      // the parent's voice (face + name) when one is recorded for this week
+    const rec = voiceNow(w);
+    say.setAttribute('aria-label', !wkOk || !set ? 'Read it to me' : (rec ? rec.label : 'Read it to me') + ': ' + v.refs[v.p]);
+    // Done + my stars: kids only (adults and the TV look, they do not earn). Until the stars rows have pulled, the same
+    // shapes with skeletons in them, and Done waits ("Getting your stars…") — its tap would overwrite the whole row.
     const done = $('#done'), mine = $('#mine');
-    if (p.kind === 'kid' && !ok) {
+    if (isKid && !ok) {
       done.hidden = false; setBusy(done, true); done.classList.remove('today'); done.removeAttribute('aria-pressed');
       done.querySelector('span').textContent = 'Getting your stars…';
       mine.hidden = false;
-      mine.innerHTML = `<div class="count">${STAR}${SK('.9em')}</div><div class="sub">${SK('11em')}</div><div class="days" aria-hidden="true">${'<span class="skd"></span>'.repeat(7)}</div>`;
-    } else if (p.kind === 'kid') {
-      const s = myStars(), today = s.days[dayKey()];
+      mine.innerHTML = `<div class="mtop"><div class="count">${STAR}${SK('.9em')}</div><div class="msub"><div class="sub">${SK('9em')}</div></div></div><div class="days" aria-hidden="true">${'<span class="day skd"></span>'.repeat(7)}</div>`;
+    } else if (isKid) {
+      const s = myStars(), today = s.days[dayKey()], reset = today === 'reset';
       done.hidden = false; setBusy(done, false); done.classList.toggle('today', !!today); done.setAttribute('aria-pressed', today ? 'true' : 'false');
-      done.querySelector('span').textContent = today ? 'Done today ★' : 'Done ★';
+      done.querySelector('span').textContent = today ? 'Done today' : 'Done';
       mine.hidden = false;
-      mine.innerHTML = `<div class="count">${STAR}<b id="star-count">${s.count}</b></div><div class="sub">${s.count ? s.count + (s.count === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week'}${s.total > s.count ? ' · ' + s.total + ' all time' : ''}</div>${daysHtml(s)}`;
+      // the balance is "to cash in", the all-time number "ever" (P3-KIDVERSE-06); items wrap whole, no separator between them
+      const items = []; if (s.total > s.count) items.push(`${s.total} to cash in`); if (s.earned > s.total) items.push(`${s.earned} ever`);
+      mine.innerHTML = `<div class="mtop"><div class="count">${STAR}<b id="star-count">${s.count}</b></div><div class="msub"><div class="sub">${s.count ? s.count + (s.count === 1 ? ' star' : ' stars') + ' this week' : 'No stars yet this week'}</div>${reset ? `<div class="kind" id="reset-note">Your star for today was reset</div>` : ''}${items.length ? kindLine(items) : ''}</div></div>${daysHtml(s)}`;
     } else { done.hidden = true; mine.hidden = true; }
-    document.querySelector('.actions').classList.toggle('solo', done.hidden);
-    // grown-ups (and the TV): the week stepper (adults only) and every kid's stars, read-only
+    $('#actions').classList.toggle('solo', done.hidden);
+    // grown-ups (and the TV): the offer to move on, the week stepper (adults only) and every kid's stars, read-only
     const g = $('#grown');
-    if (p.kind === 'kid') { g.hidden = true; return; }
+    if (isKid) { g.hidden = true; return; }
     const kids = hub.people().filter(q => q && q.kind === 'kid').map(q => ({ ...q, s: wkOk ? kidStars(q.id) : null }));
     let f260 = null; try { const fs = hub.get('f260.summary', { app: 'f260', scope: 'person' }); if (fs && fs.week) f260 = clampWeek(fs.week); } catch {}
+    const stepBtn = (id, label, icon, off) => `<button class="btn btn-round" id="${id}" type="button" aria-label="${label}"${off ? ' disabled aria-disabled="true"' : ''}>${SYM(icon)}</button>`;
+    const mo = isAdult && !p.isGuest && wkOk ? moveOffer() : null;
+    const offer = mo ? `<div class="offer" id="move-offer" role="group" aria-labelledby="move-offer-t">${SYM('calendar')}<span class="otext"><span id="move-offer-t">Move to week ${mo.to}?</span><small>${esc(mo.ref)}</small></span><span class="obtn"><button class="btn btn-primary" id="move-yes" type="button">Move</button><button class="btn" id="move-no" type="button">Not now</button></span></div>` : '';
+    // no week yet: the stepper picks one (a candidate stays on this screen until "Use week N"); a guest only sees that none is picked
+    const cand = clampWeek(pickWeek || f260 || 1);
+    const hint = '<p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>';
     // the stepper stays disabled until the family week has pulled: "+" on a made-up Week 1 would write week 2 over the real one
     // a guest sees the family's week but only the household steps it (UX-KIDVERSE-3, P5-D8)
-    const stepper = p.kind !== 'adult' ? '' : p.isGuest ? (wkOk ? `<p class="hint" id="week-now">The family is on week ${w}.</p>` : '') : !wkOk
-      ? `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week" disabled aria-disabled="true">−</button><div class="wk" id="week-now">${SK('3.4em')}<small>Loading the family week…</small></div><button class="btn" id="week-up" aria-label="Next week" disabled aria-disabled="true">+</button></div><p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>`
-      : `<div class="stepper"><button class="btn" id="week-down" aria-label="Previous week"${w <= 1 ? ' disabled' : ''}>−</button><div class="wk" id="week-now">Week ${w}<small>the family is on</small></div><button class="btn" id="week-up" aria-label="Next week"${w >= 52 ? ' disabled' : ''}>+</button></div>` +
-      (f260 && f260 !== w ? `<p class="hint">Your F260 plan is on week ${f260}.<button class="btn btn-soft" id="week-f260">Use week ${f260}</button></p>` : '<p class="hint">The kids see this week’s memory verse; step it along with your F260 reading.</p>');
+    const stepper = !isAdult ? '' : p.isGuest ? (!wkOk ? '' : set ? `<p class="hint" id="week-now">The family is on week ${w}.</p>` : '<p class="hint" id="week-now">No week has been picked yet.</p>') : !wkOk
+      ? `<div class="stepblock"><div class="stepper">${stepBtn('week-down', 'Previous week', 'minus', true)}<div class="wk" id="week-now">${SK('3.4em')}<small>Loading the family week…</small></div>${stepBtn('week-up', 'Next week', 'plus', true)}</div>${hint}</div>`
+      : noWeek
+      ? `<div class="stepblock" id="no-week-adult"><h3>Pick this week’s verse</h3><div class="stepper">${stepBtn('week-down', 'Previous week', 'minus', cand <= 1)}<div class="wk" id="week-now">Week ${cand}<small>${esc(refOf(cand))}</small></div>${stepBtn('week-up', 'Next week', 'plus', cand >= 52)}</div><button class="btn btn-primary" id="week-pick" type="button">Use week ${cand}</button><p class="hint">Until you do, the kids see a picture and “A grown-up will pick this week’s verse”.</p></div>`
+      : `<div class="stepblock"><div class="stepper">${stepBtn('week-down', 'Previous week', 'minus', w <= 1)}<div class="wk" id="week-now">Week ${w}<small>the family is on</small></div>${stepBtn('week-up', 'Next week', 'plus', w >= 52)}</div>` +
+        (f260 && f260 !== w ? `<p class="hint">Your F260 plan is on week ${f260}.<button class="btn btn-soft" id="week-f260" type="button">Use week ${f260}</button></p>` : hint) + '</div>';
+    const kidLi = k => `<li data-kid="${esc(k.id)}" data-accent="${esc(hub.hueOf(k))}">${hub.avatarHtml(k, 'avatar-sm')}<span class="kn"><span class="nm">${esc(k.name)}</span>${k.s ? `<b aria-label="${k.s.count} ${k.s.count === 1 ? 'star' : 'stars'} this week">${STAR}${k.s.count}</b>` : SK('2em')}</span>${k.s ? daysHtml(k.s) : `<div class="days" aria-hidden="true">${'<span class="day skd"></span>'.repeat(7)}</div>`}</li>`;
+    const kidsBlock = `<h2>${STAR}Kids’ stars</h2><ul class="kids" id="kids">${kids.length ? kids.map(kidLi).join('') : '<li class="none">No kid profiles yet.</li>'}</ul>`;
     g.hidden = false;
-    g.innerHTML = `<h2>${STAR}Kids’ stars</h2>${stepper}<ul class="kids" id="kids">${kids.length ? kids.map(k => `<li data-kid="${esc(k.id)}" data-accent="${esc(hub.hueOf(k))}">${hub.avatarHtml(k, 'avatar-sm')}<span class="kn">${esc(k.name)}${k.s ? `<b>★${k.s.count}</b>` : ' ' + SK('2em')}</span>${k.s ? daysHtml(k.s, true) : `<div class="days" aria-hidden="true">${'<span class="skd"></span>'.repeat(7)}</div>`}</li>`).join('') : '<li class="none">No kid profiles yet.</li>'}</ul>`;
-    const dn = $('#week-down'), up = $('#week-up'), uf = $('#week-f260');
-    if (dn) dn.onclick = () => setWeek(w - 1);
-    if (up) up.onclick = () => setWeek(w + 1);
+    g.innerHTML = offer + (noWeek ? stepper + kidsBlock : kidsBlock + stepper);
+    const dn = $('#week-down'), up = $('#week-up'), uf = $('#week-f260'), pk = $('#week-pick'), my = $('#move-yes'), mn = $('#move-no');
+    if (noWeek && isAdult && !p.isGuest) {
+      if (dn) dn.onclick = () => { pickWeek = cand - 1; render(); };
+      if (up) up.onclick = () => { pickWeek = cand + 1; render(); };
+      if (pk) pk.onclick = () => { pickWeek = 0; setWeek(cand); };
+    } else {
+      if (dn) dn.onclick = () => setWeek(w - 1);
+      if (up) up.onclick = () => setWeek(w + 1);
+    }
     if (uf) uf.onclick = () => setWeek(f260);
+    if (my) my.onclick = () => moveOfferAccept();
+    if (mn) mn.onclick = () => moveOfferDismiss();
   }
 
   // ══ item 20 — stars & badges ═══════════════════════════════════════════════════════════════════════════
@@ -488,8 +747,24 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     { id: 'prayer', name: 'Prayer warrior', hint: 'prayed on 5 days',      glyph: 'heart', test: s => creditedCount(s, 'prayed') >= 5 },
     { id: 'fifty',  name: 'Fifty stars',    hint: '50 stars earned',       glyph: '50',   test: s => s.earned >= 50 },
   ];
-  const GLYPH = { star: STAR, book: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5V5.5M8 7h8M8 10.5h6"/></svg>', heart: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 7.5 2.9c0 5.4-7.5 10-7.5 10z"/></svg>' };
+  const GLYPH = { star: STAR, book: SYM('book-open'), heart: SYM('hands') };   // the Story lover and Prayer warrior badges use the same drawings as the day marks (one picture per meaning); the numerals 7, 10 and 50 stay numbers on their discs
   const isDate = k => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k);
+  // P3-KIDVERSE-09: the derived stars object and its family mirror must not grow for ever. Every date map (days, credited.*,
+  // earnedAt) keeps KEEP_DAYS days — the 14-day look-back reconcile() credits over, plus 16 days of margin so a Reset week a
+  // parent made up to two weeks ago, and applied late by a device that was switched off, still finds its stars here — and an
+  // older entry is folded into a counter that keeps every total identical: credited.* into creditedBase (the badges count
+  // 5 stories / 5 prayed days over ALL of them; creditedCount adds the two), applied into appliedBefore (below). The rows
+  // under the object (star:, reset:, applied:, heard:, badge:) are never pruned: deriveStars(false) is the exact derivation
+  // and reconcile() uses it, so nothing is ever decided from a folded copy.
+  const KEEP_DAYS = 30, APPLIED_KEEP_MS = 90 * 86400000;
+  // A ledger row's time: its own `at`, else the base-36 clock the shell puts in its key (ledger:<kid>:<time>-<random>).
+  const ledgerTime = (key, e) => { const t = Number(e && e.at); if (t > 0) return t; const m = /^ledger:[^:]+:([0-9a-z]+)-/.exec(String(key)); const n = m ? parseInt(m[1], 36) : 0; return n > 1e11 && n < 1e14 ? n : 0; };
+  // appliedBefore (ms): a ledger row at or before it has been taken in — its `applied` entry was folded away once the row was
+  // more than APPLIED_KEEP_MS old (90 days: the 30-day window plus 60 for a parent's phone that stays off for weeks). Only
+  // the SHELL's and the grown-ups panel's display of "not yet applied" rows reads it; the kid's own app decides from the
+  // applied: rows, so the worst a folded copy can do (a ledger row older than the newest folded one that is still unapplied)
+  // is show a stale balance until the kid's device next opens and applies it.
+  const wasApplied = (s, key, e) => !!s.applied[key] || (s.appliedBefore > 0 && (t => t > 0 && t <= s.appliedBefore)(ledgerTime(key, e)));
   function rewardsExtra(v) {
     const o = v && typeof v === 'object' ? v : {};
     const cred = o.credited && typeof o.credited === 'object' ? o.credited : {};
@@ -498,10 +773,11 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     const payouts = Array.isArray(o.payouts) ? o.payouts.filter(p => p && typeof p === 'object').map(p => ({ date: String(p.date || ''), amount: Math.max(0, Math.floor(Number(p.amount) || 0)), by: p.by ? String(p.by) : undefined })).slice(-50) : [];
     const total = Math.max(0, Math.floor(Number(o.total) || 0));
     const applied = {}; if (o.applied && typeof o.applied === 'object') for (const k of Object.keys(o.applied)) if (o.applied[k]) applied[k] = true;
-    const earnedAt = {}, keep = lastDays(30)[29]; if (o.earnedAt && typeof o.earnedAt === 'object') for (const k of Object.keys(o.earnedAt)) { const m = /^(verse|story|prayed):(\d{4}-\d{2}-\d{2})$/.exec(k); const t = Math.floor(Number(o.earnedAt[k]) || 0); if (m && t > 0 && m[2] >= keep) earnedAt[k] = t; }
-    return { earned: Math.max(total, Math.floor(Number(o.earned) || 0)), credited: { story: pick(cred.story), prayed: pick(cred.prayed) }, badges, payouts, applied, earnedAt };
+    const earnedAt = {}, keep = lastDays(KEEP_DAYS)[KEEP_DAYS - 1]; if (o.earnedAt && typeof o.earnedAt === 'object') for (const k of Object.keys(o.earnedAt)) { const m = /^(verse|story|prayed):(\d{4}-\d{2}-\d{2})$/.exec(k); const t = Math.floor(Number(o.earnedAt[k]) || 0); if (m && t > 0 && m[2] >= keep) earnedAt[k] = t; }
+    const cnt = x => Math.max(0, Math.floor(Number(x) || 0)), base = o.creditedBase && typeof o.creditedBase === 'object' ? o.creditedBase : {};
+    return { earned: Math.max(total, Math.floor(Number(o.earned) || 0)), credited: { story: pick(cred.story), prayed: pick(cred.prayed) }, creditedBase: { story: cnt(base.story), prayed: cnt(base.prayed) }, appliedBefore: cnt(o.appliedBefore), badges, payouts, applied, earnedAt };
   }
-  const creditedCount = (s, kind) => Object.values(s.credited[kind]).filter(x => x === true).length;
+  const creditedCount = (s, kind) => Object.values(s.credited[kind]).filter(x => x === true).length + ((s.creditedBase && s.creditedBase[kind]) || 0);
   function weekCount(s) { let n = 0; for (const d of weekDays()) { if (s.days[d] === true) n++; if (s.credited.story[d] === true) n++; if (s.credited.prayed[d] === true) n++; } return n; }
   function lastDays(n) { const t = hub.today(); return Array.from({ length: n }, (_, i) => hub.addDays(t, -i)); }   // the household's last n days, today first
   const stamp = (s, kind, d) => { s.earnedAt[kind + ':' + d] = Date.now() + (Number(hub.skew) || 0); };   // when a star was earned, on the server's clock
@@ -540,11 +816,14 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // not credited again), one star off the balance for each — but only stars earned BEFORE the reset (earnedAt ≤ the row's at;
   // a star with no stamp came from an older app and counts as before) and only days up to the reset's own date, so a star the
   // kid earns while the parent's reset is in flight stays. Badges and earned never move.
+  // (This applyLedger is the DISPLAY copy — the mirror plus the rows the kid has not taken in yet, for the grown-ups' panel and
+  // the shell. It sees only credited stars, so a story / prayed day a reset spent before it was credited is reconcile()'s
+  // job: it writes the reset marker from the kid's own events, and the mirror then carries it as 'reset'.)
   const ledgerRows = id => hub.list('ledger:' + id + ':', { scope: 'family' }).filter(r => r.value && typeof r.value === 'object').sort((a, b) => (Number(a.value.at) || 0) - (Number(b.value.at) || 0) || (a.key < b.key ? -1 : 1));
   function applyLedger(s, rows) {
     const done = [];
     for (const r of rows) {
-      if (s.applied[r.key]) continue;
+      if (wasApplied(s, r.key, r.value)) continue;
       const e = r.value;
       if (e.kind === 'cashin') {
         const amount = Math.max(0, Math.floor(Number(e.amount) || 0));
@@ -569,27 +848,40 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   const healStoryMirror = () => { try { if (window.kidverse && typeof window.kidverse.healStory === 'function') window.kidverse.healStory(); } catch (e) { console.error(e); } };
   const serverNow = () => Date.now() + (Number(hub.skew) || 0);
   const K_STAR = /^star:(verse|story|prayed):(\d{4}-\d{2}-\d{2})$/, K_RESET = /^reset:(verse|story|prayed):(\d{4}-\d{2}-\d{2})$/;
-  // Every star this kid has, from the rows (and the pre-0f whole row): Map 'kind:date' → { at, reset, legacy }.
+  // Every star this kid has, from the rows (and the pre-0f whole row): Map 'kind:date' → { at, reset, legacy, spent? }.
+  // `spent` is a day a reset took before any star was credited for it: it adds nothing (no total, no earned, no event) and
+  // keeps reconcile() from ever crediting that day — it reads as 'reset' in credited.*.
   function starMap(old) {
     const has = new Map(), ox = rewardsExtra(old);
     const oDays = old && typeof old === 'object' && old.days && typeof old.days === 'object' ? old.days : {};
     for (const d of Object.keys(oDays)) if (isDate(d) && oDays[d]) has.set('verse:' + d, { at: ox.earnedAt['verse:' + d] || 0, reset: oDays[d] === 'reset' ? 'legacy' : null, legacy: true });
     for (const kind of ['story', 'prayed']) for (const d of Object.keys(ox.credited[kind])) has.set(kind + ':' + d, { at: ox.earnedAt[kind + ':' + d] || 0, reset: ox.credited[kind][d] === 'reset' ? 'legacy' : null, legacy: true });
     for (const r of hub.list('star:', P)) { const m = K_STAR.exec(r.key); if (!m || !r.value || has.has(m[1] + ':' + m[2])) continue; has.set(m[1] + ':' + m[2], { at: Math.floor(Number(r.value.at)) || 0, reset: null, legacy: false }); }
-    for (const r of hub.list('reset:', P)) { const m = K_RESET.exec(r.key); const st = m && r.value && has.get(m[1] + ':' + m[2]); if (st && !st.reset) st.reset = String(r.value.by || 'reset'); }
+    for (const r of hub.list('reset:', P)) {
+      const m = K_RESET.exec(r.key); if (!m || !r.value) continue;
+      const k = m[1] + ':' + m[2], st = has.get(k), by = String(r.value.by || 'reset');
+      // a marker carries the `at` of the ledger row that wrote it (batch 7): a star stamped AFTER that — earned on another
+      // device that had not seen the reset yet — is never taken by it (the in-flight rule); a marker without `at` (older) keeps taking it
+      const mat = Math.floor(Number(r.value.at)) || 0;
+      if (st) { if (!st.reset && !(mat > 0 && st.at > mat)) st.reset = by; }
+      else has.set(k, { at: 0, reset: by, legacy: false, spent: true });   // P3-KIDVERSE-13: a reset marker with no star behind it — a story / prayed day a parent's reset spent before it was credited
+    }
     return { has, ox };
   }
-  function deriveStars() {
+  // deriveStars(prune = true): the stars object. prune:false is the exact derivation from every row (what reconcile() decides
+  // from, and the proof that the folded one keeps every total); the default folds what is older than KEEP_DAYS (see above)
+  // and is what the mirror carries and the kid's screens show.
+  function deriveStars(prune = true) {
     const wk = isoWeek(), old = hub.get('stars', P);
     const { has, ox } = starMap(old);
     const o = old && typeof old === 'object' ? old : null;
     let total = o ? Math.max(0, Math.floor(Number(o.total) || 0)) : 0;   // the pre-0f balance already holds its own stars
-    const applied = { ...ox.applied }, payouts = [...ox.payouts], events = [];
+    const applied = { ...ox.applied }, payouts = [...ox.payouts], events = [], appliedAt = {};
     // a new star a parent's reset took adds nothing (so the order of the star and the reset cannot matter)
     for (const [k, st] of has) if (!st.legacy && !st.reset) events.push({ t: st.at, star: k });
     for (const r of hub.list('applied:', P)) {
       const key = r.key.slice(8), e = r.value; if (!e || typeof e !== 'object' || ox.applied[key]) continue;
-      applied[key] = true;
+      applied[key] = true; appliedAt[key] = ledgerTime(key, e);
       if (e.kind === 'cashin') { const amount = Math.max(0, Math.floor(Number(e.amount) || 0)); events.push({ t: Number(e.at) || 0, cashin: amount, e: { date: isDate(e.date) ? e.date : dayKey(), amount, by: e.by ? String(e.by) : undefined } }); }
       else if (e.kind === 'reset') events.push({ t: Number(e.at) || 0, reset: key });
     }
@@ -600,17 +892,21 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       else if (ev.cashin !== undefined) { total = Math.max(0, total - ev.cashin); payouts.push(ev.e); }
       else if (ev.reset) { let n = 0; for (const st of has.values()) if (st.legacy && st.reset === ev.reset) n++; total = Math.max(0, total - n); }   // the pre-0f stars it took (already in the base total)
     }
-    const days = {}, credited = { story: {}, prayed: {} }, earnedAt = {}, keep = lastDays(30)[29], week = new Set(weekDays());
+    const days = {}, credited = { story: {}, prayed: {} }, creditedBase = { story: 0, prayed: 0 }, earnedAt = {}, keep = lastDays(KEEP_DAYS)[KEEP_DAYS - 1];
     for (const [k, st] of has) {
       const [kind, d] = k.split(':'); const v = st.reset ? 'reset' : true;
-      if (kind === 'verse') { if (week.has(d)) days[d] = v; } else credited[kind][d] = v;
-      if (!(st.reset && kind === 'verse') && st.at > 0 && d >= keep) earnedAt[k] = st.at;   // as before 0f: a reset verse day loses its stamp, a reset story / prayed day keeps it
+      if (prune && d < keep) { if (kind !== 'verse' && v === true) creditedBase[kind]++; continue; }   // older than the window: only the count of credited story / prayed days is kept (the badges)
+      if (kind === 'verse') days[d] = v; else credited[kind][d] = v;      // days: the last KEEP_DAYS (it was only this week's seven before batch 7: a Reset week that reaches into last week needs the rest)
+      if (!(st.reset && kind === 'verse') && st.at > 0) earnedAt[k] = st.at;   // as before 0f: a reset verse day loses its stamp, a reset story / prayed day keeps it
     }
     const badges = { ...ox.badges };
     for (const r of hub.list('badge:', P)) { const id = r.key.slice(6); if (BADGES.some(b => b.id === id) && isDate(r.value) && !badges[id]) badges[id] = r.value; }
     let earned = ox.earned;                                              // the pre-0f row's earned (never below its own total)
-    for (const st of has.values()) if (!st.legacy) earned++;
-    const s = { week: wk, count: 0, days, total, earned, credited, badges, payouts: payouts.slice(-50), applied, earnedAt };
+    for (const st of has.values()) if (!st.legacy && !st.spent) earned++;
+    // applied: fold the entries of ledger rows older than APPLIED_KEEP_MS into appliedBefore (the newest folded row's time)
+    let appliedBefore = ox.appliedBefore;
+    if (prune) { const cut = serverNow() - APPLIED_KEEP_MS; for (const key of Object.keys(applied)) { const t = appliedAt[key] || ledgerTime(key); if (t > 0 && t < cut) { delete applied[key]; appliedBefore = Math.max(appliedBefore, t); } } }
+    const s = { week: wk, count: 0, days, total, earned, credited, creditedBase, appliedBefore, badges, payouts: payouts.slice(-50), applied, earnedAt };
     s.count = weekCount(s);
     return s;
   }
@@ -628,7 +924,12 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // second device doing the same work writes the same rows (a star, a badge and a parent's action count once).
   function reconcile(celebrate = true, withConfetti = true) {
     const p = hub.profile; if (!p || p.kind !== 'kid' || !hub.canWrite || !allReady()) return false;
-    const s0 = deriveStars(), { has, ox } = starMap(hub.get('stars', P)), writes = [], led = [];
+    const s0 = deriveStars(false), { has, ox } = starMap(hub.get('stars', P)), writes = [], led = [];   // the EXACT derivation: never decide from a folded copy
+    const recent = new Set(lastDays(14)), storyEv = storyDays(p.id), prayEv = prayedDays(p);
+    // One reset marker per kind and day, whichever ledger row asks first (it is remembered, so a later row listing the same day
+    // does not rewrite it with its own key). `has` is updated at once so the credit loop below sees the day as spent.
+    const marked = new Set();
+    const spend = (kind, d, by, at) => { const k = kind + ':' + d; if (marked.has(k)) return; marked.add(k); writes.push(['reset:' + k, { by, at }]); const st = has.get(k); if (st) st.reset = st.reset || by; else has.set(k, { at: 0, reset: by, legacy: false, spent: true }); };
     for (const r of ledgerRows(p.id)) {                                  // a parent cashed in or reset the week
       const e = r.value; if (e.kind !== 'cashin' && e.kind !== 'reset') continue;   // an unknown kind is left for a newer app version
       const at = Number(e.at) || 0, fresh = !s0.applied[r.key];
@@ -636,17 +937,30 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       // a reset already taken in is gone over again: a star earned before it on another device may have arrived since
       if (fresh) writes.push(['applied:' + r.key, { kind: e.kind, amount: e.kind === 'cashin' ? Math.max(0, Math.floor(Number(e.amount) || 0)) : undefined, date: isDate(e.date) ? e.date : dayKey(), by: e.by ? String(e.by) : undefined, at }]);
       if (e.kind === 'reset') {
+        // A reset clears every day it lists, for ALL THREE kinds, in whatever ISO week this device applies it (P3-KIDVERSE-12:
+        // the verse days are read from the per-fact rows star:verse:<date>, not from a this-week map, so a reset made on Sunday and
+        // applied on Monday still takes Sunday's stars). Three cases per listed day:
+        //  - a star exists, earned before the reset (stamp <= the row's `at`, or no stamp: an older app's) -> a reset marker;
+        //  - a star exists, earned AFTER it (stamp > `at`: it landed while the parent's action was in flight) -> it stays (CLAUDE.md);
+        //  - no star yet but the story / prayed EVENT is there (a heard: row, a prayedBy entry) -> the day is spent with its marker,
+        //    so the credit loop below can never credit it afterwards (P3-KIDVERSE-13). The event itself has no time, so it is
+        //    treated as BEFORE the reset, including on the reset's OWN date: a story heard an hour after the reset, the same
+        //    day, is spent too (the in-flight rule can only be told for a star that has its own stamp). No event, nothing to spend:
+        //    the verse ★ is never spent ahead of the kid's own tap, and a story not heard yet stays earnable.
         const upto = isDate(e.date) ? e.date : null;
         for (const d of (Array.isArray(e.days) ? e.days : []).filter(isDate)) {
           if (upto && d > upto) continue;                                // a reset never reaches past its own day
-          for (const kind of ['verse', 'story', 'prayed']) { const st = has.get(kind + ':' + d); if (st && !st.reset && !(st.at > at) && !(st.legacy && ox.applied[r.key])) writes.push(['reset:' + kind + ':' + d, { by: r.key }]); }   // only stars earned before it (or unstamped); a reset the pre-0f app applied left its own stars as they are (their times are gone after 30 days), but still takes a new star earned before it
+          for (const kind of ['verse', 'story', 'prayed']) {
+            const st = has.get(kind + ':' + d);
+            if (st) { if (!st.reset && !(st.at > at) && !(st.legacy && ox.applied[r.key])) spend(kind, d, r.key, at); }   // a reset the pre-0f app applied left its own stars as they are (their times are gone after 30 days), but still takes a new star earned before it
+            else if (kind !== 'verse' && recent.has(d) && (kind === 'story' ? storyEv : prayEv).has(d)) spend(kind, d, r.key, at);   // (outside the 14-day look-back nothing would credit it anyway)
+          }
         }
       }
       if (fresh) led.push(e);
     }
-    const recent = new Set(lastDays(14));
-    for (const d of storyDays(p.id)) if (recent.has(d) && !has.has('story:' + d)) writes.push(['star:story:' + d, { at: serverNow() }]);
-    for (const d of prayedDays(p)) if (recent.has(d) && !has.has('prayed:' + d)) writes.push(['star:prayed:' + d, { at: serverNow() }]);
+    for (const d of storyEv) if (recent.has(d) && !has.has('story:' + d)) writes.push(['star:story:' + d, { at: serverNow() }]);
+    for (const d of prayEv) if (recent.has(d) && !has.has('prayed:' + d)) writes.push(['star:prayed:' + d, { at: serverNow() }]);
     let fresh = [];
     try {
       for (const [k, v] of writes) hub.set(k, v, P);
@@ -666,38 +980,43 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     renderRewards();
     return changed;
   }
-  const fmtDay = k => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(k); if (!m) return k; try { return new Date(+m[1], m[2] - 1, +m[3]).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); } catch { return k; } };
+  // UX-KIDVERSE-9: a date from an earlier year shows its year ("Jul 28, 2025"); this year's stays "Jul 28" (the household's year)
+  const fmtDay = k => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(k); if (!m) return k; try { return new Date(+m[1], m[2] - 1, +m[3]).toLocaleDateString(undefined, m[1] === hub.today().slice(0, 4) ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return k; } };
   function renderRewards() {
     const p = hub.profile, el = $('#rewards'); if (!el) return;
     if (!p || p.kind !== 'kid' || !allReady()) { el.hidden = true; return; }   // 0b: no "0 to cash in" before the row has pulled (it sits last: nothing below it jumps)
     const s = myStars(); const n = Object.keys(s.badges).length; const last = s.payouts[s.payouts.length - 1];
     el.hidden = false;
+    // the summary: separate items in a wrapping row, no dot between them (VIS-KIDVERSE-11); the balance is "to cash in", the all-time number "ever"
     el.innerHTML = `<h2>${STAR}My rewards</h2>
-      <div class="bank" id="rw-bank">${STAR}<b id="rw-total">${s.total}</b><span>${s.total === 1 ? 'star' : 'stars'} to cash in</span><span aria-hidden="true">·</span><span id="rw-week">${s.count} this week</span>${s.earned > s.total ? `<span aria-hidden="true">·</span><span id="rw-earned">${s.earned} ever</span>` : ''}</div>
+      <div class="bank" id="rw-bank"><span class="bi">${STAR}<b id="rw-total">${s.total}</b><span>${s.total === 1 ? 'star' : 'stars'} to cash in</span></span><span class="bi" id="rw-week">${s.count} this week</span>${s.earned > s.total ? `<span class="bi" id="rw-earned">${s.earned} ever</span>` : ''}</div>
       <ul class="badges" id="rw-badges" aria-label="${n} of ${BADGES.length} badges">${BADGES.map(b => `<li class="${s.badges[b.id] ? 'on' : ''}" data-badge="${b.id}" title="${esc(b.hint)}${s.badges[b.id] ? ' · earned ' + esc(fmtDay(s.badges[b.id])) : ''}"><span class="bicon">${GLYPH[b.glyph] || esc(b.glyph)}</span><span class="bname">${esc(b.name)}</span><small>${esc(s.badges[b.id] ? fmtDay(s.badges[b.id]) : b.hint)}</small></li>`).join('')}</ul>
       ${last ? `<p class="paid" id="rw-paid">Last cashed in: ${last.amount} ${last.amount === 1 ? 'star' : 'stars'} on ${esc(fmtDay(last.date))}.</p>` : ''}
-      <p class="how">A star each day for the verse ★, for hearing the story, and for praying on the family list.</p>`;
+      <p class="how">A star each day for the verse, for hearing the story, and for praying on the family list.</p>`;
   }
   function rewardsInit() {
     hub.onChange(() => reconcile());                                    // a story day, a prayed day or a parent's cash-in arrived
     let seenPull = 0; hub.onSync(st => { if (st.lastPull && st.lastPull !== seenPull) { seenPull = st.lastPull; reconcile(); } });   // and after every pull
-    $('#done').addEventListener('click', () => reconcile(true, false));  // after award(): the new star may complete a badge (its confetti is already falling)
+    // (award() itself calls reconcile(true, false) now: the star's badge and the mirror are one write — P3-KIDVERSE-09)
     renderRewards(); reconcile();
-    if (window.kidverse) window.kidverse.rewards = { reconcile, renderRewards, BADGES, weekCount, storyDays, prayedDays, ledgerRows, applyLedger, deriveStars, writeMirror };
+    if (window.kidverse) window.kidverse.rewards = { reconcile, renderRewards, BADGES, weekCount, storyDays, prayedDays, ledgerRows, applyLedger, deriveStars, writeMirror, creditedCount, starMap, KEEP_DAYS, APPLIED_KEEP_MS };
   }
   // ══ end item 20 ═══════════════════════════════════════════════════════════════════════════════════════════
 
   (async () => {
     if (hub.profile && hub.profile.kind === 'kid') hub.use('prayer', 'family');   // item 20: prayed days come from the family prayer list
     if (hub.profile && hub.profile.kind === 'adult') hub.use('f260', 'person');   // the adult's own F260 week, for the "use week N" hint
-    window.kidverse = { award, setWeek, VERSES, sceneFor };   // for the test script, and the story below (its art follows the verse's)
+    window.kidverse = { award, setWeek, weekSet, moveOffer, moveOfferFrom, moveOfferAccept, moveOfferDismiss, fmtDay, VERSES, sceneFor, speech: SPEECH, sayRef, look: { daysHtml, dayMarks, speakVerse, paintSay } };   // for the test script, and the story below (its art follows the verse's)
     render();                                                  // 0b: paint now — the cache if it has pulled before, else skeletons (hub.ready can take 6 s)
     hub.loaded('kidverse', 'family').then(() => render());     // the family week landed: the verse, the art, the stepper
     await hub.ready();
-    $('#say').addEventListener('click', () => { if (weekReady()) speak(VERSES[familyWeek() - 1]); });
+    $('#say').addEventListener('click', () => { if (weekReady() && weekSet()) speakVerse(); });
+    $('#no-week-say').addEventListener('click', () => { SPEECH.speak('noweek', $('#no-week-text').textContent); });   // UX-KIDVERSE-5: the placeholder is read aloud on tap
     $('#done').addEventListener('click', award);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} } });
-    window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
+    const hush = () => { SPEECH.stop(); try { const vv = vvoice(); if (vv) vv.stop(); } catch {} };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') hush(); });
+    window.addEventListener('pagehide', hush);
+    window.addEventListener('kidverse:voice', () => paintSay(familyWeek()));   // a recording was added, changed, started or ended: relabel the verse's speaker
     hub.onChange(render);
     render();
     rewardsInit();                                             // item 20
@@ -809,27 +1128,22 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   }
   const heardDays = s => Object.keys(s.days).length;
 
-  // ── read it aloud: the same voice rules as the verse, cancel on Escape / page hide ──
-  const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
-  let speaking = false;
-  function pickVoice() {
-    let vs = []; try { vs = speechSynthesis.getVoices() || []; } catch {}
-    const en = vs.filter(v => /^en([-_]|$)/i.test(v.lang));
-    return en.find(v => /natural|samantha|aria|jenny|google us english/i.test(v.name)) || en.find(v => /^en[-_]US/i.test(v.lang)) || en[0] || vs[0] || null;
+  // ── read it aloud: through the one speech queue of the verse's script (window.kidverse.speech), so the story, the verse,
+  // the shelf and a kid's spoken toasts never talk over each other; the word being spoken is highlighted (IMP-KIDVERSE-F3) ──
+  const kv = () => window.kidverse || {};
+  const SPEECH = { speak: (...a) => (kv().speech ? kv().speech.speak(...a) : false), stop: () => { if (kv().speech) kv().speech.stop(); }, key: () => (kv().speech ? kv().speech.key() : '') };
+  const SYM = (n, cls = '') => `<svg class="sym${cls ? ' ' + cls : ''}" aria-hidden="true"><use href="../icons/sprite.svg#i-${n}"/></svg>`;
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const hasWeek = () => (typeof kv().weekSet === 'function' ? kv().weekSet() : true);
+  function paintStorySay() {
+    const btn = $('#story-say'), on = SPEECH.key() === 'story';
+    btn.classList.toggle('on', on); const span = btn.querySelector('span'), t = on ? 'Reading…' : 'Read it to me'; if (span.textContent !== t) span.textContent = t;
   }
+  const paintStoryText = () => { if (weekReady() && hasWeek() && SPEECH.key() !== 'story') $('#story-text').textContent = STORIES[familyWeek() - 1].s; };
+  let shownStoryWeek = 0;
   function speakStory(st) {
-    const btn = $('#story-say');
-    if (!canSpeak) { hub.toast('This device cannot read aloud.'); return; }
-    if (speaking) { try { speechSynthesis.cancel(); } catch {} return; }
-    try {
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance("This week's story: " + st.t + ". " + st.s);
-      u.rate = 0.85; u.pitch = 1; const vc = pickVoice(); if (vc) { u.voice = vc; u.lang = vc.lang; } else u.lang = 'en-US';
-      const done = () => { speaking = false; btn.classList.remove('on'); btn.querySelector('span').textContent = 'Read it to me'; };
-      u.onend = done; u.onerror = done;
-      speaking = true; btn.classList.add('on'); btn.querySelector('span').textContent = 'Reading…';
-      speechSynthesis.speak(u);
-    } catch { speaking = false; hub.toast('This device cannot read aloud.'); }
+    const text = "This week's story: " + st.t + ". " + st.s;
+    SPEECH.speak('story', text, { hl: { el: $('#story-text'), text: st.s, offset: text.length - st.s.length }, onstart: paintStorySay, onend: () => { paintStorySay(); paintStoryText(); } });
   }
 
   // ── "I heard it": once a day, kids only; person row + family mirror + a feed line. No star here (item 20 owns rewards).
@@ -838,6 +1152,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (!hub.canWrite) { hub.kioskNudge(); return false; }
     if (hub.profile.kind !== 'kid') { hub.toast('The story is for the kids — sign in as one of them to mark it heard.'); return false; }
     if (!allReady()) { renderStory(); return false; }                   // 0b: never from an unpulled row (the button is disabled meanwhile)
+    if (window.kidverse && typeof window.kidverse.weekSet === 'function' && !window.kidverse.weekSet()) { hub.toast('A grown-up needs to pick this week’s verse first.'); return false; }   // UX-KIDVERSE-5: no week, no story to hear, so no story ★
     const s = myStory(), today = dayKey();
     if (s.days[today]) { hub.toast('You already heard today’s story — come back tomorrow!'); return false; }
     s.days[today] = true;
@@ -856,14 +1171,17 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   function renderStory() {
     const p = hub.profile; if (!p) return;
     const wkOk = weekReady(), ok = allReady();
+    const noWeek = wkOk && !hasWeek();                                   // UX-KIDVERSE-5: no family week picked, no story to show
+    $('#story').hidden = noWeek;
     const w = familyWeek(), st = STORIES[w - 1];
-    const art = $('#story-art'), src = wkOk ? '../art/story/' + sceneFor(w) + '.svg' : BLANK;
+    const art = $('#story-art'), src = wkOk && !noWeek ? '../art/story/' + sceneFor(w) + '.svg' : BLANK;
     if (!art.getAttribute('src').endsWith(src)) art.src = src;
-    art.dataset.scene = wkOk ? sceneFor(w) : '';
+    art.dataset.scene = wkOk && !noWeek ? sceneFor(w) : '';
     $('#story-kick').textContent = p.kind === 'kid' ? p.name + "'s story this week" : 'This week’s story';
-    if (wkOk) { $('#story-title').textContent = st.t; $('#story-span').textContent = 'Week ' + w + ' · the grown-ups are reading ' + st.r; $('#story-text').textContent = st.s; }
+    if (wkOk && !noWeek) { if (shownStoryWeek && shownStoryWeek !== w && SPEECH.key() === 'story') SPEECH.stop(); shownStoryWeek = w; }   // a story being read for last week stops when the week changes
+    if (wkOk) { $('#story-title').textContent = st.t; $('#story-span').textContent = 'Week ' + w + ' · the grown-ups are reading ' + st.r; if (SPEECH.key() !== 'story') $('#story-text').textContent = st.s; }
     else { $('#story-title').innerHTML = SK('70%'); $('#story-span').innerHTML = SK('85%'); $('#story-text').innerHTML = SK('100%', ' l').repeat(4) + SK('55%', ' l'); }   // skeletons, never week 1's story
-    const say = $('#story-say'); setBusy(say, !wkOk); say.classList.remove('loading');
+    const say = $('#story-say'); setBusy(say, !wkOk); say.classList.remove('loading'); paintStorySay();
     say.setAttribute('aria-label', wkOk ? 'Read the story to me: ' + st.t : 'Read the story to me');
     const btn = $('#story-heard'), sub = $('#story-sub');
     if (p.kind === 'kid' && !ok) {                                       // "I heard it" waits: its tap rewrites the week's story row
@@ -873,11 +1191,92 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     } else if (p.kind === 'kid') {
       const s = myStory(), today = !!s.days[dayKey()], n = heardDays(s);
       btn.hidden = false; setBusy(btn, false); btn.classList.toggle('today', today); btn.setAttribute('aria-pressed', today ? 'true' : 'false');
-      btn.querySelector('span').textContent = today ? 'Heard it today ✓' : 'I heard it';
+      btn.querySelector('span').textContent = today ? 'Heard it today' : 'I heard it';
       sub.hidden = false;
-      sub.textContent = n ? 'Heard ' + n + (n === 1 ? ' day' : ' days') + ' this week' : 'Tap “I heard it” after someone reads it to you';
+      // UX-KIDVERSE-4: after a parent's Reset week this card and the stars card agree: "Heard 1 day · no stars this week"
+      let stars = -1; try { const rw = kv().rewards; if (rw && typeof rw.deriveStars === 'function') stars = rw.deriveStars().count; } catch {}
+      sub.textContent = n ? 'Heard ' + n + (n === 1 ? ' day' : ' days') + ' this week' + (stars === 0 ? ' · no stars this week' : '') : 'Tap “I heard it” after someone reads it to you';
     } else { btn.hidden = true; sub.hidden = true; }
     $('#story-actions').classList.toggle('solo', btn.hidden);
+    renderShelf();
+  }
+
+  // ══ IMP-KIDVERSE-I1 — the earlier weeks shelf ═══════════════════════════════════════════════════════════════════
+  // Below the story: the weeks before the family week, newest first (the last 6, then "Show all"), each a card with that week's
+  // scene and reference. A tap opens a READ-ONLY sheet: the verse paraphrase and the story, each with its speaker and the word
+  // highlight (or the parent's recording of that week's verse, when there is one). "Just for listening", with an ear: no Done, no
+  // "I heard it", no stars, and nothing here ever writes a row. Kids and grown-ups see it; the TV does not.
+  const SHELF_RECENT = 6;
+  let shelfAll = false, shelfSig = '', sheet = null;
+  const VERSES_ = () => kv().VERSES || [];
+  const refOf = n => { const v = VERSES_()[n - 1]; return v ? v.refs[v.p] : ''; };
+  const earlierWeeks = () => { const out = []; for (let n = familyWeek() - 1; n >= 1; n--) out.push(n); return out; };
+  function renderShelf() {
+    const el = $('#shelf'), p = hub.profile; if (!el || !p) return;
+    const weeks = p.kind === 'kiosk' || !weekReady() || !hasWeek() ? [] : earlierWeeks();
+    if (!weeks.length) { el.hidden = true; shelfSig = ''; return; }
+    const shown = shelfAll ? weeks : weeks.slice(0, SHELF_RECENT);
+    const sig = shown.join(',') + '|' + weeks.length + '|' + shelfAll;
+    el.hidden = false; if (sig === shelfSig) return; shelfSig = sig;
+    el.innerHTML = `<h2 id="shelf-title">${SYM('book-marked')}Earlier weeks</h2>
+      <div class="shelf-grid" id="shelf-grid">${shown.map(n => `<button class="shelf-card" type="button" data-week="${n}" aria-label="Week ${n}: ${esc(refOf(n))}. Just for listening"><img src="../art/story/${esc(kv().sceneFor(n))}.svg" alt="" width="240" height="160" draggable="false" loading="lazy"><span class="wk">Week ${n}</span><span class="rf">${esc(refOf(n))}</span></button>`).join('')}</div>
+      ${weeks.length > SHELF_RECENT && !shelfAll ? `<button class="btn shelf-more" id="shelf-show-all" type="button">Show all ${weeks.length} weeks</button>` : ''}`;
+  }
+  const rec = n => { const vv = window.kidverseVoice; try { return vv && vv.info ? vv.info(n) : null; } catch { return null; } };
+  function closeSheet() {
+    if (!sheet) return; const { el, opener, onKey } = sheet; sheet = null; document.removeEventListener('keydown', onKey, true);
+    SPEECH.stop(); try { if (window.kidverseVoice) window.kidverseVoice.stop(); } catch {}
+    el.remove(); $('.wrap').inert = false; $('.wrap').removeAttribute('aria-hidden');
+    try { if (opener && opener.isConnected) opener.focus(); } catch {}
+  }
+  function openSheet(n, opener) {
+    if (sheet) closeSheet();
+    const v = VERSES_()[n - 1], st = STORIES[n - 1]; if (!v || !st) return;
+    const r = rec(n);
+    const el = document.createElement('div'); el.className = 'sheet-backdrop'; el.id = 'shelf-view';
+    el.innerHTML = `<div class="sheet vsheet" role="dialog" aria-modal="true" aria-labelledby="vs-title"><div class="vsheet-body">
+      <div class="vsheet-head"><span class="listen" id="vs-listen">${SYM('ear')}Just for listening</span><button class="btn close" id="vs-close" type="button" aria-label="Close">${SYM('x')}<span>Close</span></button></div>
+      <img src="../art/story/${esc(kv().sceneFor(n))}.svg" alt="" width="240" height="160" draggable="false">
+      <div class="part" id="vs-verse"><span class="kicker">Week ${n} · the verse</span><h2 id="vs-title">${esc(v.refs[v.p])}</h2>
+        <button class="btn btn-soft say" id="vs-say" type="button">${r ? `<div class="face">${r.faceHtml || ''}</div>` : SYM('scroll-text')}<span>${esc(r ? r.label : 'Read it to me')}</span></button>
+        <p id="vs-words">${esc(v.words)}</p><small>A simple paraphrase for little ears — not the Bible's own words.</small></div>
+      <div class="part" id="vs-story"><span class="kicker">The story</span><h2>${esc(st.t)}</h2>
+        <button class="btn btn-soft story-say" id="vs-story-say" type="button">${SYM('book-open')}<span>Read it to me</span></button>
+        <p id="vs-story-text">${esc(st.s)}</p><small>A short retelling in our own words — not the Bible's own words.</small></div>
+    </div></div>`;
+    document.body.appendChild(el);
+    const wrap = $('.wrap'); wrap.inert = true; wrap.setAttribute('aria-hidden', 'true');
+    // keys are caught on the document while the sheet is open: Safari does not focus a button on a tap, so the focus may be on the page behind
+    const onKey = e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeSheet(); return; }
+      if (e.key === 'Tab') { const f = [...el.querySelectorAll('button')]; if (!f.length) return; const i = f.indexOf(document.activeElement); if (i < 0) { e.preventDefault(); f[e.shiftKey ? f.length - 1 : 0].focus(); } else if (e.shiftKey && i === 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); } }
+    };
+    document.addEventListener('keydown', onKey, true);
+    sheet = { el, opener, week: n, onKey };
+    const lab = (btn, key) => { const on = SPEECH.key() === key, sp = btn.querySelector('span'), t = on ? 'Reading…' : (key === 'shelf-verse' && r && !on ? r.label : 'Read it to me'); btn.classList.toggle('on', on); if (sp.textContent !== t) sp.textContent = t; };
+    const vsay = el.querySelector('#vs-say'), ssay = el.querySelector('#vs-story-say');
+    const paint = () => { lab(vsay, 'shelf-verse'); lab(ssay, 'shelf-story'); };
+    const synth = () => { const text = `A verse from week ${n}. ${kv().sayRef(v.refs[v.p])}. In our own words: ${v.words}`; SPEECH.speak('shelf-verse', text, { hl: { el: el.querySelector('#vs-words'), text: v.words, offset: text.length - v.words.length }, onstart: paint, onend: paint }); };
+    vsay.addEventListener('click', () => {
+      const vv = window.kidverseVoice;
+      if (r && vv && vv.has && vv.has(n)) {                                  // the shelf plays the parent's recording of that week when there is one
+        if (vv.playing && vv.playing() === n) { vv.stop(); return; }
+        SPEECH.stop(); vv.play(n, { onstart: () => vsay.classList.add('on'), onend: () => vsay.classList.remove('on') }).then(ok => { vsay.classList.remove('on'); if (!ok) synth(); }, () => synth());
+        return;
+      }
+      synth();
+    });
+    ssay.addEventListener('click', () => { const text = `A story from week ${n}: ${st.t}. ${st.s}`; SPEECH.speak('shelf-story', text, { hl: { el: el.querySelector('#vs-story-text'), text: st.s, offset: text.length - st.s.length }, onstart: paint, onend: paint }); });
+    el.querySelector('#vs-close').addEventListener('click', closeSheet);
+    el.addEventListener('click', e => { if (e.target === el) closeSheet(); });
+    el.querySelector('#vs-close').focus();
+  }
+  function shelfInit() {
+    const el = $('#shelf'); if (!el) return;
+    el.addEventListener('click', e => {
+      const card = e.target.closest && e.target.closest('.shelf-card'); if (card) { openSheet(Number(card.dataset.week), card); return; }
+      if (e.target.closest && e.target.closest('#shelf-show-all')) { shelfAll = true; renderShelf(); }
+    });
   }
 
   (async () => {
@@ -885,14 +1284,305 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     hub.loaded('kidverse', 'family').then(() => renderStory());
     hub.loaded().then(() => renderStory());                              // the story rows landed: "I heard it" wakes
     await hub.ready();
-    $('#story-say').addEventListener('click', () => { if (weekReady()) speakStory(STORIES[familyWeek() - 1]); });
+    $('#story-say').addEventListener('click', () => { if (weekReady() && hasWeek()) speakStory(STORIES[familyWeek() - 1]); });
     $('#story-heard').addEventListener('click', heard);
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && speaking) { try { speechSynthesis.cancel(); } catch {} } });
-    window.addEventListener('pagehide', () => { if (speaking) { try { speechSynthesis.cancel(); } catch {} } });
+    shelfInit();
     hub.onChange(renderStory);
     hub.onDay(() => renderStory());                                      // past midnight: un-press "Heard it today", new week on Monday
     renderStory();
-    window.kidverse = Object.assign(window.kidverse || {}, { STORIES, heard, renderStory, healStory });   // for the test script
+    window.kidverse = Object.assign(window.kidverse || {}, { STORIES, heard, renderStory, healStory, renderShelf, openSheet, closeSheet, shelfWeeks: earlierWeeks });   // for the test script
+  })();
+})();
+</script>
+<style id="kv-voice-style">
+  /* ── IMP-KIDVERSE-I2 (batch 7): a parent's recorded voice. The grown-ups' recorder card (#voice-panel); every colour a token. ── */
+  .ds .kvv { display: grid; gap: var(--sp-3); }
+  .kvv h2 { margin: 0; font-size: var(--fs-title3); font-weight: var(--fw-bold); display: flex; align-items: center; gap: var(--sp-2); }
+  .kvv .kvv-lead, .kvv .kvv-note { margin: 0; color: var(--text-3); font-size: var(--fs-subheadline); line-height: var(--lh-snug); }
+  .kvv .kvv-note:empty { display: none; }
+  .kvv-now { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+  .kvv-now .kvv-who { flex: 1 1 10em; min-width: 0; display: grid; gap: var(--sp-0-5); font-weight: var(--fw-bold); }
+  .kvv-now .kvv-who small { color: var(--text-3); font-size: var(--fs-caption1); font-weight: var(--fw-semibold); }
+  .kvv-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+  .ds .kvv .btn { min-height: var(--tap-lg); gap: var(--sp-2); }
+  .kvv-live { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+  .kvv-live .kvv-time { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); letter-spacing: var(--ls-numeral); font-size: var(--fs-title1); font-weight: var(--fw-bold); line-height: var(--lh-tight); color: var(--text); }
+  .kvv-live .kvv-of { color: var(--text-3); font-size: var(--fs-subheadline); font-weight: var(--fw-semibold); }
+  /* the recording dot reads the motion tokens, so Reduce Motion stills it like the Read buttons' pulse */
+  .kvv-dot { width: 14px; height: 14px; border-radius: var(--r-full); background: var(--danger-graphic); flex: none; animation: kvv-pulse var(--dur-pulse) var(--ease-standard) infinite; }
+  @keyframes kvv-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(var(--pulse-scale)); } }
+  .kvv .kvv-meter { block-size: 6px; border-radius: var(--r-full); background: var(--surface-2); overflow: hidden; }
+  .kvv .kvv-meter i { display: block; block-size: 100%; inline-size: var(--kvv-fill, 0%); background: var(--danger-graphic); border-radius: var(--r-full); }
+</style>
+<script id="kv-voice">
+// ── IMP-KIDVERSE-I2: a parent's recorded voice for the week's verse ────────────────────────────────────────────────
+// A household adult records the family week's verse paraphrase (MediaRecorder; at most 90 s and 1 MB), the Worker keeps it
+// (POST /api/kidverse/voice/:week, family row voice:<week> written only by the Worker), and "Read it to me" plays it in place
+// of the synthetic voice. The audio is family audio: unlike photos it is fetched with the session header and played from a
+// blob in memory (never a public URL, never stored on the device). Where it cannot play (offline, a decode error, autoplay
+// refused) play() resolves false before any sound, and the caller falls back to the synthetic voice, quietly.
+// window.kidverseVoice: info(week) · has(week) · play(week, { onstart, onend }) · stop() · playing() · the event 'kidverse:voice'.
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const FAM = { scope: 'family' };
+  const MAX_MS = 90000, MAX_BYTES = 1024 * 1024, MIN_MS = 500;
+  const canRecord = !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function' && typeof window.MediaRecorder === 'function');
+  const esc = s => hub.escape(s);
+  const clock = ms => { const s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const SYM = n => `<svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-${n}"/></svg>`;
+  const isVoiceKind = () => !!(hub.profile && hub.profile.kind !== 'kiosk');
+  const famWeek = () => { const v = hub.get('week', FAM); const w = Math.floor(Number(v && typeof v === 'object' ? v.week : v)); return w >= 1 && w <= 52 ? w : 0; };
+  const fire = week => { try { window.dispatchEvent(new CustomEvent('kidverse:voice', { detail: { week, playing: playingWeek } })); } catch {} };
+
+  // ── the rows ──────────────────────────────────────────────────────────────────────────────────────────────────
+  function row(week) {
+    const v = hub.get('voice:' + week, FAM);
+    return v && typeof v === 'object' && typeof v.id === 'string' && v.id ? v : null;
+  }
+  function recorder(v) {
+    const p = (hub.people() || []).find(q => q && q.id === v.by);
+    return p || { id: v.by, name: v.byName, emoji: '🎙️' };
+  }
+  function info(week) {
+    const v = row(week); if (!v) return null;
+    const who = recorder(v);
+    return { id: v.id, by: v.by, byName: v.byName, at: v.at, ms: v.ms, mime: v.mime, bytes: v.bytes, label: (v.byName || who.name || 'Someone') + '’s voice', faceHtml: hub.avatarHtml(who, 'avatar-sm') };
+  }
+
+  // ── playing the saved recording: one Audio element for the page (an iPhone keeps its permission to play once a tap has used it) ──
+  const audio = new Audio(); audio.preload = 'none';
+  const blobs = new Map();                       // 'week:id' -> object URL, in memory only; dropped when the recording is replaced or removed
+  let playingWeek = 0, finish = null;
+  async function fetchBlob(week, v) {
+    const key = week + ':' + v.id;
+    if (blobs.has(key)) return blobs.get(key);
+    const dt = hub.device && hub.device.token, pt = hub.session && hub.session.token;
+    if (!dt || !pt) throw new Error('signed_out');
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 15000);
+    try {
+      const r = await fetch(hub.api.replace(/\/$/, '') + '/api/kidverse/voice/' + week + '/' + encodeURIComponent(v.id), { headers: { 'X-Device-Token': dt, 'X-Profile-Token': pt }, cache: 'no-store', signal: ctl.signal });
+      if (!r.ok) throw new Error('http_' + r.status);
+      const b = await r.blob();
+      const url = URL.createObjectURL(b.type ? b : new Blob([b], { type: v.mime || 'audio/webm' }));
+      blobs.set(key, url);
+      for (const [k, u] of blobs) if (k.startsWith(week + ':') && k !== key) { URL.revokeObjectURL(u); blobs.delete(k); }   // the replaced recording's copy goes
+      return url;
+    } finally { clearTimeout(t); }
+  }
+  function dropBlobs() {                          // a removed or changed recording's copies
+    for (const [k, u] of [...blobs]) { const [w, id] = k.split(':'); const v = row(+w); if (!v || v.id !== id) { URL.revokeObjectURL(u); blobs.delete(k); } }
+  }
+  function endPlayback(ok) { const f = finish; finish = null; const w = playingWeek; playingWeek = 0; if (f) f(ok); if (w) fire(w); }
+  function stop() {
+    if (!finish) return;
+    try { audio.pause(); } catch {}
+    try { audio.removeAttribute('src'); audio.load(); } catch {}
+    endPlayback(true);                           // asked for: handled, so the caller does not fall back to the synthetic voice
+  }
+  function play(week, cb = {}) {
+    week = Math.floor(Number(week));
+    if (!isVoiceKind() || !(week >= 1 && week <= 52)) return Promise.resolve(false);
+    const v = row(week); if (!v) return Promise.resolve(false);
+    if (finish) stop();
+    try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch {}
+    return new Promise(resolve => {
+      let started = false, over = false, wait = 0;
+      const end = ok => { if (over) return; over = true; clearTimeout(wait); audio.onplaying = audio.onended = audio.onerror = null; if (started && cb.onend) { try { cb.onend(); } catch (e) { console.error(e); } } resolve(ok); };
+      finish = ok => end(ok); playingWeek = week;
+      const fail = () => { if (over) return; try { audio.pause(); } catch {} if (started) { endPlayback(true); } else { playingWeek = 0; finish = null; end(false); } };
+      audio.onplaying = () => { if (over || started) return; started = true; clearTimeout(wait); if (cb.onstart) { try { cb.onstart(); } catch (e) { console.error(e); } } fire(week); };
+      audio.onended = () => { try { audio.removeAttribute('src'); audio.load(); } catch {} endPlayback(true); };
+      audio.onerror = fail;
+      wait = setTimeout(fail, 20000);            // never leave a tap hanging
+      const go = url => { if (over) return; audio.src = url; const pr = audio.play(); if (pr && pr.catch) pr.catch(fail); };
+      const key = week + ':' + v.id;
+      if (blobs.has(key)) go(blobs.get(key));    // already on the device: starts inside the tap itself, which an iPhone needs
+      else fetchBlob(week, v).then(go).catch(fail);
+    });
+  }
+  // the family week's recording is fetched ahead, so the first tap is instant and plays inside the tap
+  function prefetch() {
+    if (!isVoiceKind() || hub.profile.kind === 'kiosk' || document.visibilityState === 'hidden') return;
+    const w = famWeek(), v = w && row(w); if (v && !blobs.has(w + ':' + v.id)) fetchBlob(w, v).catch(() => {});
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') stop(); });
+  window.addEventListener('pagehide', () => { stop(); stopRec(true); });
+
+  // ── recording (household adults) ───────────────────────────────────────────────────────────────────────────────
+  let rec = null;                                // { r, stream, week, t0, chunks, bytes, timer, cut }
+  let take = null;                               // { week, blob, ms, url }
+  let busy = false, status = '', takeAudio = null, takePlaying = false;
+  const say = m => { status = m || ''; const s = $('#voice-status'); if (s) s.textContent = status; };
+  const toast = (m, ms) => { try { hub.toast(m, ms || 4200); } catch {} };
+  function pickType() {
+    const want = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/ogg'];
+    try { return want.find(t => MediaRecorder.isTypeSupported(t)) || ''; } catch { return ''; }
+  }
+  function releaseMic(x) { try { x.stream.getTracks().forEach(t => t.stop()); } catch {} }
+  async function startRec() {
+    if (rec || busy || !canRecord) return;
+    const week = famWeek(); if (!week) return;
+    stopTakePlay(); stop();
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) {
+      const n = e && e.name;
+      toast(n === 'NotFoundError' || n === 'OverconstrainedError' ? 'No microphone was found on this device.' : 'The microphone is off for this page. Allow it in your browser’s settings, then try again.');
+      say(''); paint(true); return;
+    }
+    const type = pickType();
+    let r;
+    try { r = new MediaRecorder(stream, { ...(type ? { mimeType: type } : {}), audioBitsPerSecond: 32000 }); }
+    catch { try { r = new MediaRecorder(stream); } catch { releaseMic({ stream }); toast('This device cannot record here.'); return; } }
+    const x = { r, stream, week, t0: performance.now(), chunks: [], bytes: 0, timer: 0, cut: false };
+    r.ondataavailable = e => { if (e.data && e.data.size) { x.chunks.push(e.data); x.bytes += e.data.size; if (x.bytes >= MAX_BYTES * 0.95) { x.full = true; stopRec(); } } };
+    r.onerror = () => { x.cut = true; stopRec(true); toast('The recording stopped. Try again.'); };
+    r.onstop = () => onRecStop(x);
+    rec = x;
+    try { r.start(1000); } catch { rec = null; releaseMic(x); toast('This device cannot record here.'); return; }
+    x.timer = setInterval(() => {
+      const el = performance.now() - x.t0, t = $('#voice-time'), m = $('.kvv-meter');
+      if (t) t.textContent = clock(el); if (m) m.style.setProperty('--kvv-fill', Math.min(100, el / MAX_MS * 100).toFixed(1) + '%');
+      if (el >= MAX_MS) stopRec();
+    }, 200);
+    say('Recording…'); paint(true);
+  }
+  function stopRec(discard) {
+    const x = rec; if (!x) return;
+    if (discard) x.cut = true;
+    clearInterval(x.timer);
+    try { if (x.r.state !== 'inactive') x.r.stop(); else onRecStop(x); } catch { onRecStop(x); }
+  }
+  function onRecStop(x) {
+    if (rec !== x) return;
+    rec = null; clearInterval(x.timer); releaseMic(x);
+    const ms = Math.min(MAX_MS, Math.round(performance.now() - x.t0));
+    if (x.cut) { say(''); paint(true); return; }
+    const blob = new Blob(x.chunks, { type: x.r.mimeType || (x.chunks[0] && x.chunks[0].type) || 'audio/webm' });
+    if (ms < MIN_MS || !blob.size) { say('That was too short. Press Record and try again.'); paint(true); return; }
+    if (blob.size > MAX_BYTES) { say('That take is too big (the limit is 1 MB, about 90 seconds). Try a shorter one.'); paint(true); return; }
+    clearTake(); take = { week: x.week, blob, ms, url: URL.createObjectURL(blob) };
+    say(x.full ? 'That filled the 1 MB limit, so it stopped at ' + clock(ms) + '. Listen to your take, then save it.' : 'Listen to your take, then save it.'); paint(true);
+  }
+  function clearTake() { stopTakePlay(); if (take) { try { URL.revokeObjectURL(take.url); } catch {} take = null; } }
+  function stopTakePlay() { if (takeAudio) { try { takeAudio.pause(); } catch {} takeAudio = null; } if (takePlaying) { takePlaying = false; paint(true); } }
+  function playTake() {
+    if (!take) return;
+    if (takePlaying) { stopTakePlay(); return; }
+    stop();
+    takeAudio = new Audio(take.url); takePlaying = true;
+    const done = () => { if (takePlaying) { takePlaying = false; takeAudio = null; paint(true); } };
+    takeAudio.onended = takeAudio.onerror = done;
+    takeAudio.play().catch(done);
+    paint(true);
+  }
+
+  // ── saving and removing ────────────────────────────────────────────────────────────────────────────────────────
+  const apiErr = (e, st, d) => { const x = new Error((d && d.message) || 'Request failed'); x.status = st; x.error = d && d.error; return x; };
+  async function upload(t) {
+    const dt = hub.device && hub.device.token, pt = hub.session && hub.session.token;
+    if (!dt || !pt) throw apiErr(null, 401, { message: 'Please sign in again.' });
+    const type = (t.blob.type || 'audio/webm');
+    let r; try { r = await fetch(hub.api.replace(/\/$/, '') + '/api/kidverse/voice/' + t.week + '?ms=' + Math.min(MAX_MS, Math.max(1, Math.round(t.ms))), { method: 'POST', headers: { 'Content-Type': type, 'X-Device-Token': dt, 'X-Profile-Token': pt }, body: t.blob, cache: 'no-store' }); }
+    catch { throw apiErr(null, 0, { error: 'network', message: 'No connection.' }); }
+    let d = null; try { d = await r.json(); } catch {}
+    if (!r.ok) throw apiErr(null, r.status, d);
+    return d;
+  }
+  async function save() {
+    if (!take || busy || rec) return;
+    const t = take, v = row(t.week);
+    stopTakePlay();
+    if (v) {
+      const ok = await hub.confirm(`${v.byName || 'Someone'}’s recording of week ${t.week} will be replaced by this one. The old one is deleted for good.`, { title: 'Replace the recording?', ok: 'Replace it', cancel: 'Keep the old one' });
+      if (!ok) { paint(true); return; }
+    }
+    busy = true; say('Saving…'); paint(true);
+    try {
+      await upload(t);
+      clearTake(); say('Saved. The kids will hear you when they tap Read it to me.');
+      toast('Saved. The kids will hear your voice.', 3000);
+      try { await hub.pull(); } catch {}
+    } catch (e) {
+      say('');
+      toast(e.status === 0 ? 'Could not reach the house. Your take is kept here; try Save again when you are online.'
+        : e.error === 'too_large' || e.error === 'too_long' ? 'That recording is too long or too big. The limit is 90 seconds.'
+        : e.status === 403 ? 'Only a household grown-up can record the verse.'
+        : e.status === 401 ? 'Please sign in again, then save.' : 'Could not save the recording. Try again.', 5200);
+    }
+    busy = false; dropBlobs(); prefetch(); paint(true); fire(t.week);
+  }
+  async function remove() {
+    const w = famWeek(), v = w && row(w);
+    if (!v || busy || rec) return;
+    stop();
+    const ok = await hub.confirm(`${v.byName || 'Someone'}’s recording of week ${w} will be deleted for good. The kids will hear the read-aloud voice again.`, { title: 'Remove the recording?', ok: 'Remove it', cancel: 'Keep it', danger: true });
+    if (!ok) return;
+    busy = true; paint(true);
+    try { await hub.request('/api/kidverse/voice/' + w, { method: 'DELETE' }); say('Removed.'); }
+    catch (e) { if (e && e.status === 404) say('Removed.'); else toast('Could not remove the recording. Try again.'); }
+    try { await hub.pull(); } catch {}
+    busy = false; dropBlobs(); paint(true); fire(w);
+  }
+
+  // ── the card ───────────────────────────────────────────────────────────────────────────────────────────────────
+  let sig = '';
+  function paint(force) {
+    let el = $('#voice-panel');
+    const p = hub.profile, w = famWeek();
+    const show = !!(canRecord && p && p.kind === 'adult' && !p.isGuest && hub.canWrite && w && hub.isLoaded('kidverse', 'family'));
+    if (!el) {                                   // the page has no slot for it: it follows the grown-ups' card
+      const g = show && $('#grown'); if (!g || !g.parentNode) return;
+      el = document.createElement('section'); el.id = 'voice-panel'; el.className = 'card voice'; el.hidden = true; g.after(el);
+    }
+    if (!show) { if (!el.hidden || sig) { el.hidden = true; el.innerHTML = ''; el.classList.remove('kvv'); sig = ''; } return; }
+    const v = row(w);
+    const s = JSON.stringify([w, v && v.id, v && v.byName, !!rec, take && take.url, busy, takePlaying, playingWeek === w, status, v && hub.people().length]);
+    if (!force && s === sig && !el.hidden) return;
+    sig = s;
+    const focusId = document.activeElement && el.contains(document.activeElement) ? document.activeElement.id : '';
+    const ref = window.kidverse && window.kidverse.VERSES && window.kidverse.VERSES[w - 1] ? window.kidverse.VERSES[w - 1] : null;
+    const refText = ref ? ' · ' + ref.refs[ref.p] : '';
+    const i = v && info(w);
+    const now = i ? `<div class="kvv-now" id="voice-now">${i.faceHtml}<div class="kvv-who"><span>${esc(i.label)}</span><small>${esc(clock(i.ms))} · saved ${esc(new Date(i.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', ...(new Date(i.at).getFullYear() !== new Date().getFullYear() ? { year: 'numeric' } : {}) }))}</small></div>
+        <button class="btn btn-soft" id="voice-play" type="button"${busy ? ' disabled' : ''}>${SYM(playingWeek === w ? 'square' : 'play')}<span>${playingWeek === w ? 'Stop' : 'Play'}</span></button>
+        <button class="btn btn-danger" id="voice-remove" type="button"${busy || rec ? ' disabled' : ''}>${SYM('x')}<span>Remove</span></button></div>` : '';
+    let rc;
+    if (rec) rc = `<div class="kvv-live" role="timer" aria-label="Recording"><span class="kvv-dot" aria-hidden="true"></span><b class="kvv-time" id="voice-time">${clock(performance.now() - rec.t0)}</b><span class="kvv-of">of ${clock(MAX_MS)}</span></div><div class="kvv-meter" aria-hidden="true"><i></i></div>
+        <div class="kvv-row"><button class="btn btn-danger" id="voice-stop" type="button">${SYM('square')}<span>Stop</span></button></div>`;
+    else if (take) rc = `<div class="kvv-now"><div class="kvv-who"><span>Your take for week ${take.week}</span><small>${esc(clock(take.ms))} · not saved yet</small></div></div>
+        <div class="kvv-row"><button class="btn btn-soft" id="voice-take-play" type="button"${busy ? ' disabled' : ''}>${SYM(takePlaying ? 'square' : 'play')}<span>${takePlaying ? 'Stop' : 'Play my take'}</span></button>
+        <button class="btn btn-primary" id="voice-save" type="button"${busy ? ' disabled aria-disabled="true"' : ''}>${SYM('check')}<span>${busy ? 'Saving…' : 'Save'}</span></button>
+        <button class="btn btn-soft" id="voice-redo" type="button"${busy ? ' disabled' : ''}>${SYM('rotate-ccw')}<span>Record again</span></button></div>`;
+    else rc = `<div class="kvv-row"><button class="btn btn-primary" id="voice-record" type="button"${busy ? ' disabled' : ''}>${SYM('mic')}<span>${v ? 'Record again' : 'Record'}</span></button></div>`;
+    el.classList.add('kvv'); el.hidden = false;
+    el.innerHTML = `<h2 id="voice-title">${SYM('mic')}Your voice for the verse</h2>
+      <p class="kvv-lead">Week ${w}${esc(refText)}. Record the verse in your own voice, up to 90 seconds, and the kids hear you when they tap Read it to me. One recording a week.</p>
+      ${now}${rc}<p class="kvv-note" id="voice-status" role="status" aria-live="polite">${esc(status)}</p>`;
+    const on = (id, fn) => { const b = $('#' + id); if (b) b.addEventListener('click', fn); };
+    on('voice-record', startRec); on('voice-redo', () => { clearTake(); say(''); startRec(); }); on('voice-stop', () => stopRec());
+    on('voice-take-play', playTake); on('voice-save', save); on('voice-remove', remove);
+    on('voice-play', () => { if (playingWeek === w) stop(); else play(w); });
+    if (focusId && $('#' + focusId) && !$('#' + focusId).disabled) $('#' + focusId).focus();
+  }
+
+  // ── wiring ─────────────────────────────────────────────────────────────────────────────────────────────────────
+  let seen = '';
+  const rowsSig = () => hub.list('voice:', FAM).map(r => r.key + ':' + (r.value && r.value.id)).sort().join('|');
+  function changed() {
+    const s = rowsSig();
+    if (s !== seen) { const first = seen === ''; seen = s; dropBlobs(); if (playingWeek && !row(playingWeek)) stop(); if (!first || s) fire(0); prefetch(); }
+    paint();
+  }
+  window.kidverseVoice = { info, has: week => !!row(week), play, stop, playing: () => playingWeek, canRecord };
+  (async () => {
+    try { await hub.ready(); } catch {}
+    changed();
+    hub.onChange(changed);
+    hub.loaded('kidverse', 'family').then(changed);
+    hub.onDay && hub.onDay(changed);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') prefetch(); });
   })();
 })();
 </script>

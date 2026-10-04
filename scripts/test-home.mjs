@@ -653,6 +653,35 @@ async function artSample(page, sel) {
     else { await waitFor(() => A.page.evaluate(() => !document.querySelector('.park-card')), { label: 'park card gone' }); ok(true, '(b) card hidden once every pin is older than 4 h'); }
     await A.ctx.close();
 
+    console.log('\n## batch 7 (UX-KIDVERSE-5): no family week has ever been set');
+    // a new household has no kidverse 'week' row. Home must still paint every card (nothing on Home reads the week), and Kid
+    // Verse itself says so: a grown-up is asked to pick one, a kid sees a picture and one sentence; never a made-up week 1.
+    const wasWeek = (await api('/api/data/kidverse?scope=family&key=week', { profile: dadTok })).item;
+    await api('/api/data/kidverse/week?scope=family', { method: 'DELETE', profile: dadTok });
+    const NA = await newContext(browser, 'no-week-adult');
+    await signIn(NA.page, 'dad', DAD_PIN);
+    await waitFor(() => NA.page.evaluate(() => hub.get('week', { app: 'kidverse', scope: 'family' }) == null && hub.isLoaded('kidverse', 'family')), { label: 'no week on the adult device' });
+    const homeNo = await NA.page.evaluate(() => ({ cards: document.querySelectorAll('#view-home .gcard').length, kids: !!document.querySelector('#view-home .kids-card'), text: document.getElementById('view-home').innerText }));
+    ok(homeNo.cards > 0 && homeNo.kids && !/undefined|NaN/.test(homeNo.text), '(b) no family week: the adult Home still paints its cards (the Kids card included), no "undefined" or "NaN"', JSON.stringify({ cards: homeNo.cards, kids: homeNo.kids }));
+    await NA.page.click('.tab[data-tab=apps]'); await NA.page.waitForSelector('.tile[data-id=kidverse]'); await NA.page.click('.tile[data-id=kidverse]');
+    const fa = await waitFor(() => NA.page.frames().find(f => /apps\/kidverse\.html/.test(f.url())), { label: 'kidverse frame (adult)' });
+    await fa.waitForFunction(() => window.hub && hub.sync && hub.sync.lastPull > 0 && document.querySelector('.wrap') && hub.isLoaded('kidverse', 'family'), null, { timeout: 15000 });
+    await sleep(700);
+    const adultNo = await fa.evaluate(() => ({ text: document.body.innerText, ref: (document.getElementById('ref') || {}).textContent || '', scene: (document.getElementById('art') || { dataset: {} }).dataset.scene || '' }));
+    ok(/pick this week/i.test(adultNo.text) && !/Genesis 1:27/.test(adultNo.text) && !adultNo.scene, '(b) Kid Verse for a grown-up with no week: "Pick this week’s verse", never Genesis 1:27 or the creation art', JSON.stringify({ ref: adultNo.ref, scene: adultNo.scene }));
+    await NA.ctx.close();
+    const NK = await newContext(browser, 'no-week-kid');
+    await signIn(NK.page, 'ezra');
+    ok(await NK.page.$('.stars-card') !== null, '(b) no family week: the kid Home still paints its Stars card');
+    await NK.page.click('.stars-card [data-open="kidverse"]');
+    const fk = await waitFor(() => NK.page.frames().find(f => /apps\/kidverse\.html/.test(f.url())), { label: 'kidverse frame (kid)' });
+    await fk.waitForFunction(() => window.hub && hub.sync && hub.sync.lastPull > 0 && document.querySelector('.wrap') && hub.isLoaded('kidverse', 'family'), null, { timeout: 15000 });
+    await sleep(700);
+    const kidNo = await fk.evaluate(() => { const v = id => { const e = document.getElementById(id); return !!e && !e.hidden && e.getClientRects().length > 0; }; return { placeholder: v('no-week-kid'), text: (document.getElementById('no-week-text') || {}).textContent || '', done: v('done'), body: document.body.innerText }; });
+    ok(kidNo.placeholder && /grown-up will pick/i.test(kidNo.text) && !kidNo.done && !/Genesis 1:27/.test(kidNo.body), '(b) Kid Verse for a kid with no week: a picture and "A grown-up will pick this week’s verse", no Done button (no verse star while no week is set)', JSON.stringify(kidNo).slice(0, 300));
+    await NK.ctx.close();
+    if (wasWeek && wasWeek.value) await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: dadTok, body: { value: wasWeek.value, updated_at: Date.now() } });   // the household's week back
+
     ok(errors.length === 0, 'no page errors', errors.slice(0, 5).join(' | '));
   } catch (e) { fail++; console.log('  ✗ crashed:', e.stack || e.message); }
   finally { if (globalThis.__pfCleanup) await globalThis.__pfCleanup(); if (globalThis.__versesCleanup) await globalThis.__versesCleanup(); await browser.close(); server.close(); }

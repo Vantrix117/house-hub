@@ -94,7 +94,7 @@ async function seed() {
   // a clean slate for Ezra (the local DB is shared with other suites): tombstone his stars, both scopes; the family week → 3
   const now = Date.now();
   await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T.ezra }).catch(() => {}); await clearKidRows(T.ezra).catch(() => {});
-  await api('/api/data/kidverse/stars:ezra?scope=family', { method: 'DELETE', profile: T.eli }).catch(() => {});
+  await api('/api/data/kidverse/stars:ezra?scope=family', { method: 'DELETE', profile: T.ezra }).catch(() => {});   // only the kid may write his own mirror (policy.js): a left-over one from a crashed run is cleared by Ezra
   await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: T.eli, body: { value: { week: 3, by: 'test' }, updated_at: now } });
 }
 
@@ -191,16 +191,20 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
     ok(spoken.length === 1 && Math.abs(spoken[0].rate - 0.85) < 1e-6 && /Romans, chapter 4, verses 20 to 22/.test(spoken[0].text) && /Abraham/.test(spoken[0].text), '"Read it to me" speaks the reference and the paraphrase at rate 0.85', JSON.stringify(spoken));
     await sleep(120);
     ok(await text(F, '#say span') === 'Read it to me', 'the button returns to "Read it to me" when the voice finishes');
+    // batch 7 (IMP-KIDVERSE-I2): with no parent's recording for the week, Read it to me is the synthetic voice and the recording API says so
+    // (the recorded-voice flow itself — record, save, a second device plays it, the fallback on a decode error — is audits/tools/phase6/7/voice-7.mjs)
+    ok(await F.evaluate(() => !!window.kidverseVoice && kidverseVoice.info(3) === null && kidverseVoice.has(3) === false && kidverseVoice.playing() === 0), 'the recorded-voice hook is there and week 3 has no recording, so the synthetic voice above was the one that read');
+    ok(await F.evaluate(() => kidverseVoice.play(3)) === false && await F.evaluate(() => window.__spoken.length) === 1, 'play() for a week with no recording answers false at once and makes no sound');
     await F.click('#done');
     const dots = await F.$$eval('.confetti i', l => l.length);
     ok(dots === 12, 'a dozen confetti dots fall on ★', dots);
     ok(await F.$$eval('.confetti i', l => l.every(i => /^var\(--/.test(i.style.getPropertyValue('--c').trim()))), 'confetti colours are design tokens');
     ok(await text(F, '#star-count') === '1', 'the star count reads 1', await text(F, '#star-count'));
-    ok(await text(F, '#done span') === 'Done today ★' && await F.$eval('#done', b => b.classList.contains('today')), 'Done ★ becomes "Done today ★"');
+    ok(await text(F, '#done span') === 'Done today' && await F.$eval('#done', b => b.classList.contains('today')), 'Done becomes "Done today" (batch 7, VIS-KIDVERSE-9: the star is the button picture, not a glyph in the label)');
     ok(await F.$$eval('#mine .days span.on', l => l.length) === 1, 'one day dot lit');
     await sleep(1700);
     ok(await F.$$eval('.confetti', l => l.length) === 0, 'confetti is gone after ~1.5 s');
-    ok(await F.$$eval('#mine .days span', l => new Set(l.map(e => Math.round(e.getBoundingClientRect().top))).size === 1), 'the seven day dots sit on one row at 390');
+    ok(await F.$$eval('#mine .days .day', l => new Set(l.map(e => Math.round(e.getBoundingClientRect().top))).size === 1), 'the seven day dots sit on one row at 390');
     await F.evaluate(() => window.scrollTo(0, 0)); await sleep(200);
     await K.page.screenshot({ path: path.join(SHOTS, 'rm16-kid-390.png') });
 
@@ -228,7 +232,7 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
     ok(await text(K2.page, '.stars-card .gbig') === '1 star this week', 'Home on the other device: "1 star this week"', await text(K2.page, '.stars-card .gbig'));
     await K2.page.click('.stars-card [data-open="kidverse"]');
     const F2 = await appFrame(K2.page);
-    ok(await text(F2, '#star-count') === '1' && await text(F2, '#done span') === 'Done today ★', 'the app on the other device: ★1 and "Done today ★"', await text(F2, '#done span'));
+    ok(await text(F2, '#star-count') === '1' && await text(F2, '#done span') === 'Done today', 'the app on the other device: 1 star and "Done today"', await text(F2, '#done span'));
     await F2.click('#done'); await sleep(150);
     ok(await text(F2, '#star-count') === '1', 'still one star per day across devices');
 
@@ -243,7 +247,7 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
     ok(await FA.$eval('#done', b => b.hidden) && await FA.$eval('#mine', b => b.hidden), 'no Done ★ for an adult (stars are the kids\')');
     ok(/^Week 3(?!\d)/.test(await text(FA, '#week-now') || ''), 'the stepper shows "Week 3"', await text(FA, '#week-now'));
     const kidLine = await text(FA, '.kids li[data-kid=ezra] .kn');
-    ok(/Ezra\s*★1/.test(kidLine || '') && await FA.$$eval('.kids li[data-kid=ezra] .days span.on', l => l.length) === 1, 'Ezra ★1 with one lit day, read-only', kidLine);
+    ok(/Ezra\s*1/.test(kidLine || '') && await FA.$$eval('.kids li[data-kid=ezra] .days span.on', l => l.length) === 1, 'Ezra ★1 with one lit day, read-only', kidLine);
     ok(!!(await FA.$('.kids li[data-kid=kiara]')), 'Kiara is listed too (★0)');
     const stepBox = await box(FA, '#week-up');
     ok(stepBox && stepBox.h >= 44 && stepBox.w >= 44, 'stepper buttons are ≥ 44 px', JSON.stringify(stepBox));
@@ -265,7 +269,7 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
     await TV.page.waitForFunction(() => window.kidverse && window.hub && hub.sync && hub.sync.lastPull > 0, null, { timeout: 15000 });
     ok(await text(TV.page, '#ref') === '1 John 3:18', 'standalone open works and shows week 4');
     ok(await TV.page.$eval('#done', b => b.hidden) && !(await TV.page.$('#week-up')), 'no Done ★ and no stepper for the kiosk');
-    ok(/Ezra\s*★1/.test(await text(TV.page, '.kids li[data-kid=ezra] .kn') || ''), 'the TV still sees Ezra ★1');
+    ok(/Ezra\s*1/.test(await text(TV.page, '.kids li[data-kid=ezra] .kn') || ''), 'the TV still sees Ezra ★1');
     const tried = await TV.page.evaluate(() => [window.kidverse.award(), (window.kidverse.setWeek(9), true)]);
     ok(tried[0] === false, 'award() refuses for the kiosk');
     ok(/only looks/.test(await text(TV.page, '#hub-toast') || ''), 'and nudges with the kiosk toast', await text(TV.page, '#hub-toast'));
@@ -273,6 +277,68 @@ const sameStars = (a, b) => !!a && !!b && a.week === b.week && a.count === b.cou
     const mine2 = await row(T.ezra, 'family', 'stars:ezra'), wk2 = await row(T.eli, 'family', 'week');
     ok(sameStars(mine2 && mine2.value, mine.value) && !(await row(T.eli, 'family', 'stars:tv')) && wk2.value.week === 4, 'nothing changed on the server: Ezra still ★1, no stars:tv, week still 4');
     await TV.page.screenshot({ path: path.join(SHOTS, 'rm16-kiosk-1440.png') });
+
+    console.log('\n## (g) batch 7 (Worker A): a week change tells the house and repaints the story card; the Sunday offer; no week set');
+    {
+      // (e) stepped the family week to 4 from Eli's open copy: one feed line, and (P3-KIDVERSE-05) the story card followed the verse at once
+      await api('/api/data/kidverse/moveoffer:5?scope=person', { method: 'DELETE', profile: T.eli }).catch(() => {});   // a left-over Not now from a crashed run
+      const feed4 = (await api('/api/activity?limit=60', { profile: T.eli })).activity || [];
+      ok(feed4.filter(a => a.profile_id === 'eli' && a.app_id === 'kidverse' && /^Kid Verse is now week 4: 1 John 3:18$/.test(a.text)).length >= 1, 'the + from (e) posted the feed line "Kid Verse is now week 4: 1 John 3:18"', JSON.stringify(feed4.slice(0, 3).map(a => a.text)));
+      const titles = await FA.evaluate(() => window.kidverse.STORIES.map(s => s.t));
+      ok(await text(FA, '#story-title') === titles[3] && /Week 4 ·/.test(await text(FA, '#story-span') || ''), 'Eli\'s story card shows week 4\'s story straight after the step (no pull, no reload): "' + titles[3] + '"', await text(FA, '#story-title'));
+      await FA.click('#week-up'); await sleep(250);
+      ok(await text(FA, '#story-title') === titles[4] && await text(FA, '#ref') === 'Romans 8:28-30', 'one more +: week 5 — the verse AND the story card ("' + titles[4] + '") move together', await text(FA, '#story-title'));
+      const n0 = await FA.evaluate(() => window.__spoken.length);
+      await FA.click('#story-say'); await sleep(250);
+      const said = await FA.evaluate(n => window.__spoken.slice(n).map(s => s.text), n0);
+      ok(said.some(t => t.includes(titles[4])) && !said.some(t => t.includes(titles[3])), 'and the story speaker reads week 5\'s story', JSON.stringify(said.map(t => t.slice(0, 60))));
+      await synced(FA);
+      const feed5 = (await api('/api/activity?limit=60', { profile: T.eli })).activity || [];
+      ok(feed5.some(a => /^Kid Verse is now week 5: /.test(a.text)), 'a feed line for week 5 too');
+
+      // GAP-KIDVERSE-1: the offer. The week row's `at` is set to a Monday; moveOffer(nowMs) is asked at Sunday 4:59:59 pm and 5:00 pm New York.
+      const MON = Date.parse('2026-09-28T09:00:00-04:00'), SUN_4 = Date.parse('2026-10-04T16:59:59-04:00'), SUN_5 = Date.parse('2026-10-04T17:00:00-04:00');
+      await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: T.eli, body: { value: { week: 5, by: 'eli', at: MON }, updated_at: Date.now() } });
+      await FA.evaluate(() => hub.pull()); await sleep(700);
+      const offer = ms => FA.evaluate(m => window.kidverse.moveOffer(m), ms);
+      const o4 = await offer(SUN_4), o5 = await offer(SUN_5);
+      ok(o4 === null && o5 && o5.from === 5 && o5.to === 6 && /\d/.test(o5.ref), 'Sunday 4:59:59 pm: no offer; 5:00 pm: "Move to week 6?" (' + (o5 && o5.ref) + ')', JSON.stringify([o4, o5]));
+      await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: T.eli, body: { value: { week: 5, by: 'eli', at: Date.parse('2026-10-01T09:00:00-04:00') }, updated_at: Date.now() } });
+      await FA.evaluate(() => hub.pull()); await sleep(700);
+      ok((await offer(SUN_5)) === null, 'a week set three days earlier (Thursday) is not offered on Sunday evening');
+      // review round 1: the offer only ever starts on a Sunday at 5 pm. Set on Sunday 4 pm (Oct 4): not that afternoon, not Friday, not Saturday, not at 4:59 the next Sunday; yes at 5:00
+      await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: T.eli, body: { value: { week: 5, by: 'eli', at: Date.parse('2026-10-04T16:00:00-04:00') }, updated_at: Date.now() } });
+      await FA.evaluate(() => hub.pull()); await sleep(700);
+      const q = [await offer(Date.parse('2026-10-04T16:30:00-04:00')), await offer(Date.parse('2026-10-09T16:15:00-04:00')), await offer(Date.parse('2026-10-10T12:00:00-04:00')), await offer(Date.parse('2026-10-11T16:59:00-04:00')), await offer(Date.parse('2026-10-11T17:00:00-04:00'))];
+      ok(q.slice(0, 4).every(x => x === null) && q[4] && q[4].to === 6, 'a week set Sunday 4 pm is first offered the NEXT Sunday at 5:00 pm — never on a weekday', JSON.stringify(q));
+      // every hour of every day of a summer-time and a winter-time week: the start instant is a Sunday 5:00 pm New York, more than 5 days later
+      const froms = await FA.evaluate(() => { const out = []; for (const mon of ['2026-09-28', '2026-11-30']) for (let i = 0; i < 7; i++) for (let h = 0; h < 24; h++) { const t = Date.parse(mon + 'T12:00:00Z') + i * 86400000 + (h - 12) * 3600000 + 600000; out.push([t, window.kidverse.moveOfferFrom(t)]); } return out; });
+      const NYP = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+      const badFrom = froms.filter(([at, f]) => { const p = Object.fromEntries(NYP.formatToParts(new Date(f)).map(x => [x.type, x.value])); return !(p.weekday === 'Sun' && Number(p.hour) === 17 && Number(p.minute) === 0 && f > at + 5 * 86400000 && f <= at + 12 * 86400000); });
+      ok(froms.length === 336 && badFrom.length === 0, `336 week-set instants (every hour of two weeks, EDT and EST): the offer starts only on a Sunday at 5:00 pm New York, 5 to 12 days later`, JSON.stringify(badFrom.slice(0, 2)));
+      await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: T.eli, body: { value: { week: 5, by: 'eli', at: MON }, updated_at: Date.now() } });
+      await FA.evaluate(() => hub.pull()); await sleep(700);
+      await FA.evaluate(() => window.kidverse.moveOfferDismiss()); await sleep(300); await synced(FA);
+      const dis = (await api('/api/data/kidverse?scope=person', { profile: T.eli })).items.filter(r => r.value != null && r.key.startsWith('moveoffer:')).map(r => r.key);
+      ok(JSON.stringify(dis) === JSON.stringify(['moveoffer:5']) && (await offer(SUN_5)) === null, 'Not now is a person row (moveoffer:5) and hides the offer', JSON.stringify(dis));
+      await api('/api/data/kidverse/moveoffer:5?scope=person', { method: 'DELETE', profile: T.eli }).catch(() => {});
+      await FA.evaluate(() => hub.pull()); await sleep(500);
+      ok((await offer(SUN_5)) !== null, 'forgotten again, the offer is back (checks the row, not a flag)');
+      await FA.evaluate(ms => window.kidverse.moveOfferAccept(ms), SUN_5); await sleep(500); await synced(FA);
+      const wk6 = await row(T.eli, 'family', 'week');
+      ok(wk6.value.week === 6 && wk6.value.by === 'eli' && Math.abs(wk6.value.at - Date.now()) < 120000, 'Move writes week 6 stamped now', JSON.stringify(wk6.value));
+      ok((await offer(SUN_5)) === null, 'and the offer is gone (the week was just set)');
+      await api('/api/data/kidverse/moveoffer:5?scope=person', { method: 'DELETE', profile: T.eli }).catch(() => {});
+
+      // UX-KIDVERSE-5: no family week → no verse star, no story star, nothing crashes
+      await api('/api/data/kidverse/week?scope=family', { method: 'DELETE', profile: T.eli });
+      await F2.evaluate(() => hub.pull()); await FA.evaluate(() => hub.pull()); await sleep(900);
+      const nw = await F2.evaluate(() => ({ set: window.kidverse.weekSet(), award: window.kidverse.award(), heard: window.kidverse.heard() }));
+      ok(nw.set === false && nw.award === false && nw.heard === false, 'no week set: weekSet() false, Done ★ and "I heard it" refuse', JSON.stringify(nw));
+      ok(/grown-up needs to pick/.test(await text(F2, '#hub-toast') || ''), 'with the calm "A grown-up needs to pick this week\'s verse first."', await text(F2, '#hub-toast'));
+      ok(await FA.evaluate(() => window.kidverse.weekSet()) === false && errors.length === 0, 'an adult\'s copy with no week: weekSet() false, no console error', errors.join(' | '));
+      await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: T.eli, body: { value: { week: 4, by: 'eli', at: Date.now() }, updated_at: Date.now() } });   // the week the rest of this suite (and the next) expects
+    }
 
     ok(errors.length === 0, 'no console errors in any context', errors.join(' | '));
     for (const c of [K, K2, A, TV]) await c.ctx.close();

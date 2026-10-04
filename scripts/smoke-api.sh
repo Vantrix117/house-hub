@@ -3,6 +3,7 @@
 #   scripts/smoke-api.sh http://127.0.0.1:8787 <pairing-code> [house-key]
 # Uses a throwaway PIN for the Niece profile and resets it again at the end (admin call). Since batch 0d a reset leaves
 # Niece waiting for a one-time code (printed by the last reset), so run it against a local Worker, not the live one.
+# D1_PERSIST: the local Worker's --persist-to folder; with it the batch 7 voice checks also count the stored recordings in D1 (without it they say so and skip that count).
 # ADMIN_PIN: Eli's PIN when Eli already has one (the kitchen-role checks need it). Reports every expectation, then exits
 # non-zero if any failed.
 set -u
@@ -396,6 +397,130 @@ call "the device has no role now" GET /api/device '' "$DKH"; expect 200
 [ "$(echo "$BODY" | j role)" = null ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected role=null"; }
 call "unpair the test kitchen device" DELETE "/api/admin/devices/$DKID" '' "$D" "$A"; expect 200
 call "tidy the kitchen's row" DELETE "/api/data/leftovers/item:kt1?scope=family" '' "$D" "$N"; expect 200
+
+echo "### batch 7: a parent's recorded voice (IMP-KIDVERSE-I2) — private audio, adults only, bytes deleted with the recording"
+# D1_PERSIST (optional): the --persist-to folder of the local Worker; with it the media table is read to prove the bytes are gone
+VD=$(mktemp -d); trap 'rm -rf "$VD"' EXIT
+{ printf '\x1a\x45\xdf\xa3'; head -c 4000 /dev/zero; } > "$VD/ok.webm"
+{ printf '\x00\x00\x00\x18ftypmp42'; head -c 3000 /dev/zero; } > "$VD/ok.mp4"
+{ printf 'OggS'; head -c 2000 /dev/zero; } > "$VD/ok.ogg"
+{ printf 'ID3'; head -c 2000 /dev/zero; } > "$VD/ok.mp3"
+echo "this is not audio at all" > "$VD/fake.webm"
+{ printf '\x1a\x45\xdf\xa3'; head -c 1048572 /dev/zero; } > "$VD/limit.webm"     # exactly 1 MB (1048576 bytes)
+{ printf '\x1a\x45\xdf\xa3'; head -c 1048573 /dev/zero; } > "$VD/over.webm"      # one byte over
+vcall() { # vcall NAME METHOD PATH CONTENT-TYPE FILE [HEADERS...]
+  local name=$1 method=$2 path=$3 ctype=$4 file=$5; shift 5
+  local out; out=$(curl -s -w '\n%{http_code}' -X "$method" "$BASE$path" -H "Origin: $ORIGIN" -H "Content-Type: $ctype" "${@/#/-H}" --data-binary @"$file")
+  STATUS=${out##*$'\n'}; BODY=${out%$'\n'*}
+  printf '%-44s %s %s\n' "$name" "$STATUS" "$(echo "$BODY" | cut -c1-150)"
+}
+voice_bytes() { # voice_bytes WEEK -> how many stored recordings are left under voice/WEEK/ (needs D1_PERSIST), or "?"
+  [ -n "${D1_PERSIST:-}" ] || { echo '?'; return; }
+  ( cd "$(dirname "$0")/../worker" && npx wrangler d1 execute house-hub --local --persist-to "$D1_PERSIST" --json --command "SELECT COUNT(*) AS n FROM media WHERE key LIKE 'voice/$1/%'" 2>/dev/null | j 0.results.0.n )
+}
+expect_bytes() { local got; got=$(voice_bytes "$1"); if [ "$got" = '?' ]; then echo "   (D1_PERSIST not set: stored bytes not counted)"; elif [ "$got" = "$2" ]; then pass=$((pass+1)); else fail=$((fail+1)); echo "   ^^^ expected $2 stored recording(s) for week $1, found $got"; fi; }
+# a guest, the kitchen device, and the kid and TV tokens from above
+call "a guest to test with" POST /api/profiles '{"name":"Voice Guest"}' "$D" "$N"; expect 200
+VGID=$(echo "$BODY" | j profile.id)
+VG="X-Profile-Token: $(curl -s -X POST "$BASE/api/login" -H "$D" -H 'Content-Type: application/json' --data "{\"profile_id\":\"$VGID\"}" | j profile_token)"
+VDK=$(curl -s -X POST "$BASE/api/pair" -H 'Content-Type: application/json' --data "{\"code\":\"$CODE\",\"name\":\"smoke voice kitchen\"}"); VDKT=$(echo "$VDK" | j device_token); VDKID=$(echo "$VDK" | j device_id); VKH="X-Device-Token: $VDKT"
+call "admin makes a device the kitchen" PUT "/api/admin/devices/$VDKID/role" "{\"role\":\"kitchen\",\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "the kitchen signs in" POST /api/login '{"profile_id":"kitchen"}' "$VKH"; expect 200
+VKT="X-Profile-Token: $(echo "$BODY" | j profile_token)"
+vcall "no profile uploads -> 401" POST "/api/kidverse/voice/38?ms=4000" audio/webm "$VD/ok.webm" "$D"; expect 401
+vcall "a kid uploads -> 403" POST "/api/kidverse/voice/38?ms=4000" audio/webm "$VD/ok.webm" "$D" "$K"; expect 403
+[ "$(echo "$BODY" | j error)" = adults_only ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=adults_only"; }
+vcall "the TV uploads -> 403" POST "/api/kidverse/voice/38?ms=4000" audio/webm "$VD/ok.webm" "$D" "X-Profile-Token: $TV"; expect 403
+vcall "a guest uploads -> 403" POST "/api/kidverse/voice/38?ms=4000" audio/webm "$VD/ok.webm" "$D" "$VG"; expect 403
+[ "$(echo "$BODY" | j error)" = adults_only ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected error=adults_only"; }
+vcall "the kitchen uploads -> 403" POST "/api/kidverse/voice/38?ms=4000" audio/webm "$VD/ok.webm" "$VKH" "$VKT"; expect 403
+expect_bytes 38 0
+vcall "week 0 -> 400" POST "/api/kidverse/voice/0?ms=4000" audio/webm "$VD/ok.webm" "$D" "$N"; expect 400
+vcall "week 53 -> 400" POST "/api/kidverse/voice/53?ms=4000" audio/webm "$VD/ok.webm" "$D" "$N"; expect 400
+vcall "week abc -> 400" POST "/api/kidverse/voice/abc?ms=4000" audio/webm "$VD/ok.webm" "$D" "$N"; expect 400
+vcall "week 038 (not a plain number) -> 400" POST "/api/kidverse/voice/038?ms=4000" audio/webm "$VD/ok.webm" "$D" "$N"; expect 400
+vcall "a text type -> 415" POST "/api/kidverse/voice/38?ms=4000" text/plain "$VD/ok.webm" "$D" "$N"; expect 415
+vcall "audio/wav -> 415" POST "/api/kidverse/voice/38?ms=4000" audio/wav "$VD/ok.webm" "$D" "$N"; expect 415
+vcall "audio/webm that is not audio -> 415" POST "/api/kidverse/voice/38?ms=4000" audio/webm "$VD/fake.webm" "$D" "$N"; expect 415
+vcall "mp4 type over webm bytes -> 415" POST "/api/kidverse/voice/38?ms=4000" audio/mp4 "$VD/ok.webm" "$D" "$N"; expect 415
+vcall "no length -> 400" POST "/api/kidverse/voice/38" audio/webm "$VD/ok.webm" "$D" "$N"; expect 400
+vcall "91 seconds -> 413" POST "/api/kidverse/voice/38?ms=91000" audio/webm "$VD/ok.webm" "$D" "$N"; expect 413
+vcall "one byte over 1 MB -> 413" POST "/api/kidverse/voice/38?ms=60000" audio/webm "$VD/over.webm" "$D" "$N"; expect 413
+expect_bytes 38 0
+vcall "exactly 1 MB and 90 s is fine" POST "/api/kidverse/voice/41?ms=90000" "audio/webm;codecs=opus" "$VD/limit.webm" "$D" "$N"; expect 200
+expect_bytes 41 1
+call "tidy the 1 MB recording" DELETE /api/kidverse/voice/41 '' "$D" "$N"; expect 200
+expect_bytes 41 0
+vcall "an adult records week 38 (codecs allowed)" POST "/api/kidverse/voice/38?ms=4200" "audio/webm;codecs=opus" "$VD/ok.webm" "$D" "$N"; expect 200
+V1=$(echo "$BODY" | j voice.id)
+[ "$(echo "$BODY" | j voice.by)" = niece ] && [ "$(echo "$BODY" | j voice.mime)" = audio/webm ] && [ "$(echo "$BODY" | j voice.ms)" = 4200 ] && [ "$(echo "$BODY" | j voice.bytes)" = 4004 ] && [ "$(echo "$BODY" | j replaced)" = null ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected by=niece mime=audio/webm ms=4200 bytes=4004 replaced=null"; }
+expect_bytes 38 1
+# the family row is the Worker's; it says who recorded it and carries no URL
+call "the row is there for the house" GET "/api/data/kidverse?scope=family&key=voice:38" '' "$D" "$K"; expect 200
+[ "$(echo "$BODY" | j item.value.id)" = "$V1" ] && ! echo "$BODY" | grep -qi 'http\|/api/media' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the row with the id and no URL"; }
+# it is private: a signed-in profile of any kind may hear it, nobody else may
+get_voice() { curl -s -D "$VD/h.txt" -o "$VD/got.bin" -w '%{http_code}' "$BASE/api/kidverse/voice/$1/$2" -H "Origin: $ORIGIN" "${@:3}"; }
+for W in "a kid|$K" "the TV|X-Profile-Token: $TV" "a guest|$VG" "an adult|$N"; do
+  [ "$(get_voice 38 "$V1" -H "$D" -H "${W#*|}")" = 200 ] && cmp -s "$VD/got.bin" "$VD/ok.webm" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected ${W%%|*} to get the 4004 bytes back"; }
+done
+[ "$(get_voice 38 "$V1" -H "$VKH" -H "$VKT")" = 200 ] && cmp -s "$VD/got.bin" "$VD/ok.webm" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the kitchen to hear it"; }
+grep -qi '^content-type: audio/webm' "$VD/h.txt" && grep -qi '^cache-control: private, no-store' "$VD/h.txt" && ! grep -qi '^access-control-allow-origin: \*' "$VD/h.txt" && grep -qi "^access-control-allow-origin: $ORIGIN" "$VD/h.txt" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected audio/webm, private no-store, and CORS only for the caller's origin"; }
+[ "$(get_voice 38 "$V1" -H "$D")" = 401 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ a paired device with no profile must not hear it (expected 401)"; }
+[ "$(get_voice 38 "$V1")" = 401 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ no tokens at all must not hear it (expected 401)"; }
+[ "$(get_voice 38 "$V1" -H "X-Device-Token: $DT2" -H "$N")" = 401 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ a session token on another device must not hear it (expected 401)"; }
+[ "$(get_voice 38 wrongid -H "$D" -H "$K")" = 404 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ a wrong id should be 404"; }
+[ "$(get_voice 39 "$V1" -H "$D" -H "$K")" = 404 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ the id under another week should be 404"; }
+# unlike photos, the public media route never serves it
+[ "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/media/voice/38/$V1")" = 404 ] && [ "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/media/voice/38/$V1.webm")" = 404 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ GET /api/media/voice/… must be 404 with no tokens"; }
+# a client can never write, change or clear the row (policy.js: the Worker alone writes voice:<week>)
+call "an adult writes voice:38 -> 403" PUT "/api/data/kidverse/voice:38?scope=family" '{"value":{"id":"x","by":"niece"}}' "$D" "$N"; expect 403
+echo "$BODY" | grep -q '"rejected":"worker_only"' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected rejected worker_only"; }
+call "the admin writes voice:39 -> 403" PUT "/api/data/kidverse/voice:39?scope=family" '{"value":{"id":"x","by":"eli"}}' "$D" "$A"; expect 403
+call "casing is no way round: VOICE:38 -> 403" PUT "/api/data/kidverse/VOICE:38?scope=family" '{"value":{"id":"x"}}' "$D" "$N"; expect 403
+call "clearing the row through the data API -> 403" DELETE "/api/data/kidverse/voice:38?scope=family" '' "$D" "$N"; expect 403
+call "a batch's voice row comes back refused" POST "/api/data/kidverse/batch?scope=family" '{"items":[{"key":"voice:38","value":null,"updated_at":'$(date +%s000)'}]}' "$D" "$N"; expect 200
+[ "$(echo "$BODY" | j results.0.rejected)" = worker_only ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected results.0.rejected=worker_only"; }
+call "a kid writes a voice row -> 403" PUT "/api/data/kidverse/voice:38?scope=family" '{"value":{"id":"x"}}' "$D" "$K"; expect 403
+call "the row is untouched" GET "/api/data/kidverse?scope=family&key=voice:38" '' "$D" "$K"; expect 200
+[ "$(echo "$BODY" | j item.value.id)" = "$V1" ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the recording to be intact"; }
+# one recording per week: saving over it replaces it, and the old bytes are deleted
+vcall "another adult replaces it (mp4)" POST "/api/kidverse/voice/38?ms=3000" audio/mp4 "$VD/ok.mp4" "$D" "$A"; expect 200
+V2=$(echo "$BODY" | j voice.id)
+[ "$V2" != "$V1" ] && [ "$(echo "$BODY" | j replaced.by)" = niece ] && [ "$(echo "$BODY" | j voice.by)" = eli ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected a new id, by eli, replaced.by niece"; }
+expect_bytes 38 1
+[ "$(get_voice 38 "$V1" -H "$D" -H "$K")" = 404 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ the replaced recording must be gone (404)"; }
+[ "$(get_voice 38 "$V2" -H "$D" -H "$K")" = 200 ] && grep -qi '^content-type: audio/mp4' "$VD/h.txt" && cmp -s "$VD/got.bin" "$VD/ok.mp4" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected the new mp4 recording"; }
+vcall "ogg is accepted (week 39)" POST "/api/kidverse/voice/39?ms=2000" audio/ogg "$VD/ok.ogg" "$D" "$N"; expect 200
+vcall "mp3 is accepted (week 40)" POST "/api/kidverse/voice/40?ms=2000" audio/mpeg "$VD/ok.mp3" "$D" "$N"; expect 200
+call "tidy week 39" DELETE /api/kidverse/voice/39 '' "$D" "$N"; expect 200
+call "tidy week 40" DELETE /api/kidverse/voice/40 '' "$D" "$N"; expect 200
+# removing
+call "a kid removes it -> 403" DELETE /api/kidverse/voice/38 '' "$D" "$K"; expect 403
+call "the TV removes it -> 403" DELETE /api/kidverse/voice/38 '' "$D" "X-Profile-Token: $TV"; expect 403
+call "a guest removes it -> 403" DELETE /api/kidverse/voice/38 '' "$D" "$VG"; expect 403
+call "the kitchen removes it -> 403" DELETE /api/kidverse/voice/38 '' "$VKH" "$VKT"; expect 403
+call "no profile removes it -> 401" DELETE /api/kidverse/voice/38 '' "$D"; expect 401
+expect_bytes 38 1
+call "an adult removes it" DELETE /api/kidverse/voice/38 '' "$D" "$N"; expect 200
+expect_bytes 38 0
+call "removing it again -> 404" DELETE /api/kidverse/voice/38 '' "$D" "$N"; expect 404
+[ "$(get_voice 38 "$V2" -H "$D" -H "$K")" = 404 ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ a removed recording must be gone (404)"; }
+call "the row is a tombstone for every device" GET "/api/data/kidverse?scope=family&prefix=voice:" '' "$D" "$K"; expect 200
+echo "$BODY" | grep -q '"key":"voice:38","value":null' && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected voice:38 with value null"; }
+# a person who is removed takes their recordings with them
+call "admin adds an adult to record" POST /api/admin/profiles "{\"name\":\"Voice Temp\",\"kind\":\"adult\",\"hue\":\"coral\",\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+VTID=$(echo "$BODY" | j profile.id); VTCODE=$(echo "$BODY" | j setup_code)
+call "…creates a PIN with the set-up code" POST "/api/profiles/$VTID/pin" "{\"pin\":\"3579\",\"code\":\"$VTCODE\"}" "$D"; expect 200
+VTT="X-Profile-Token: $(echo "$BODY" | j profile_token)"
+vcall "…and records week 42" POST "/api/kidverse/voice/42?ms=2500" audio/webm "$VD/ok.webm" "$D" "$VTT"; expect 200
+expect_bytes 42 1
+call "admin removes that person" POST "/api/admin/profiles/$VTID/remove" "{\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+expect_bytes 42 0
+call "their recording's row is cleared" GET "/api/data/kidverse?scope=family&key=voice:42" '' "$D" "$K"; expect 200
+[ "$(echo "$BODY" | j item.value)" = null ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected voice:42 cleared with its person"; }
+call "remove the voice guest" DELETE "/api/admin/profiles/$VGID" '' "$D" "$A"; expect 200
+call "admin clears the voice kitchen" PUT "/api/admin/devices/$VDKID/role" "{\"role\":null,\"admin_pin\":\"$AP\"}" "$D" "$A"; expect 200
+call "unpair the voice kitchen device" DELETE "/api/admin/devices/$VDKID" '' "$D" "$A"; expect 200
 
 echo "### batch 2a: Admin → Household (GAP-PROF-a2) and the 18 colour families (GAP-ACCENT-1)"
 call "a non-admin adds a person -> 403" POST /api/admin/profiles '{"name":"Nope","kind":"adult","hue":"mint"}' "$D" "$N"; expect 403

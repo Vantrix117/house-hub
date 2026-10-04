@@ -228,10 +228,10 @@ const sameStory = (a, b) => !!a && !!b && a.week === b.week && JSON.stringify(a.
     const starsBefore = await text(F, '#star-count');
     await F.evaluate(() => document.getElementById('story').scrollIntoView({ block: 'center' }));
     await F.click('#story-heard');
-    ok(await text(F, '#story-heard span') === 'Heard it today ✓' && await F.$eval('#story-heard', b => b.classList.contains('today') && b.getAttribute('aria-pressed') === 'true'), '"I heard it" becomes "Heard it today ✓"', await text(F, '#story-heard span'));
+    ok(await text(F, '#story-heard span') === 'Heard it today' && await F.$eval('#story-heard', b => b.classList.contains('today') && b.getAttribute('aria-pressed') === 'true'), '"I heard it" becomes "Heard it today ✓"', await text(F, '#story-heard span'));
     ok(await text(F, '#story-sub') === 'Heard 1 day this week', 'the sub-line says "Heard 1 day this week"', await text(F, '#story-sub'));
     ok(/Great listening|New badge/.test(await text(F, '#hub-toast') || ''), 'a toast says great listening (or item 20 announces a badge for the story star)', await text(F, '#hub-toast'));
-    ok(await F.$$eval('#mine .days span.on', l => l.length) === 0, 'the verse ★ day dots are untouched (no verse star awarded by the story)');
+    ok(await F.$$eval('#mine .days .day.on', l => l.filter(x => /verse/.test(x.dataset.marks)).length) === 0, 'the verse ★ day dots are untouched (no verse star awarded by the story; since batch 7 the story star shows as a book mark on its day)');
     await F.evaluate(() => window.scrollTo(0, 0)); await sleep(200);
     await K.page.screenshot({ path: path.join(SHOTS, 'rm17-kid-390.png'), fullPage: false });
     await F.evaluate(() => document.getElementById('story').scrollIntoView({ block: 'center' })); await sleep(200);

@@ -182,6 +182,9 @@ export async function writeError(profile, { appId, scope, key, value }, cur, loa
   // reads are exact since batch 0d, but a key's case must never be a way round a rule).
   const lk = key.toLowerCase();
   if (appId === 'kidverse' && scope === 'family') {
+    // a parent's recorded voice (batch 7, IMP-KIDVERSE-I2): voice:<week> is written only by the Worker's own upload route
+    // (POST /api/kidverse/voice/:week), which also stores and deletes the bytes. No client write may make, change or clear one.
+    if (lk.startsWith('voice:')) return 'worker_only';
     const m = /^(stars|story):(.+)$/i.exec(key);
     if (m && m[2] !== self) return 'not_yours';                         // Kid Verse, signed in as that kid, is the only writer
     if ((lk === 'week' || lk.startsWith('ledger:')) && !isHouseholdAdult(profile)) return 'household_only';

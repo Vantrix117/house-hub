@@ -17,6 +17,7 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
 | `src/auth.js` | PBKDF2 hashing, tokens, sessions, rate limits |
 | `src/data.js` | `app_data` last-write-wins upsert, listing, tombstones |
 | `src/policy.js` | Who may read and write which rows (kids, guests, the kitchen, app visibility from `../apps.json`); every data and chat write goes through `guardedPut()` |
+| `src/media.js` | Photo and album bytes (R2 when `MEDIA` is bound, else the D1 `media` table) and, since batch 7, a parent's recorded voice (type and first-byte checks, the 1 MB capped reader, exact and swept deletes) |
 | `src/push.js` | Web Push encryption (RFC 8291) + VAPID, WebCrypto only |
 | `src/reminders.js` | the reminder jobs (morning, evening, behind, prayer, prayedfor, park, praytime, verses), `jobsAt()` (what a 15-min cron firing runs), `timerJob` (the minute cron's only job, batch 6) and `pushTo()` |
 | `src/chat.js` | `/api/chat`: Claude tool loop, guards, streaming |
@@ -46,7 +47,7 @@ Free tier throughout. One Worker serves every app; data is scoped per person or 
      before is held only by its own limits, never by the pause. The admin's reset-pin lifts the pause → `429 too_many_attempts`
    - sessions last a year and are bound to the device that created them
 3. Person-scope reads, every write, and `/api/admin/*` need the profile token. Family-scope reads need only the device token (the kiosk uses this). Kiosk profiles cannot write (`403 read_only`).
-4. **Who may write which rows** (`src/policy.js`, batch 0d). Family rows of an app the profile cannot open (apps.json `visibleTo`; a guest opens what any household adult opens) are refused for reading and writing (`403 app_hidden`); person rows of such an app too, except Verses' `f260.recall` in the F260 scope. A **kid** writes only their own person rows; on the family prayer list a tick under their own profile id (`prayedBy`, `lastPrayedAt`, `updatedAt`, nothing else; since batch 0g an older app's name tick is replaced by the id) and new `prayerDays` dates; their own Kid Verse `stars:<id>` / `story:<id>`; their own park-map `loc:<id>` while `kidshare:<id>` is `true`, and a dot more than a day old. **Only a household adult** (not a guest) writes Kid Verse `week` and `ledger:*` and the park map's `kidshare:*` and `kid:*`. Nobody writes someone else's `stars:`/`story:` or places someone else's `loc:`; clearing another's fresh dot is for household adults. The Timer's one family row (batch 6, GAP-HOME-1) is the read-only mirror `run:<writer>:<id>` of a running timer, which only its own writer writes — a kid and the kitchen too; any other family `timer` row is refused (`not_yours`). The **kitchen** writes family rows of leftovers, prayer and reminders, its own timer mirror, and person rows of its own timer and tally only, and every `by` / new `prayedBy` name it writes must be a household member (never a kid on the Larder). A refused single write answers `403 not_allowed {rejected, key, value, updated_at}`; in a batch the refused row comes back as `{key, rejected, value, updated_at}` (the house's copy, which hub.js puts back) and the others still save.
+4. **Who may write which rows** (`src/policy.js`, batch 0d). Family rows of an app the profile cannot open (apps.json `visibleTo`; a guest opens what any household adult opens) are refused for reading and writing (`403 app_hidden`); person rows of such an app too, except Verses' `f260.recall` in the F260 scope. A **kid** writes only their own person rows; on the family prayer list a tick under their own profile id (`prayedBy`, `lastPrayedAt`, `updatedAt`, nothing else; since batch 0g an older app's name tick is replaced by the id) and new `prayerDays` dates; their own Kid Verse `stars:<id>` / `story:<id>`; their own park-map `loc:<id>` while `kidshare:<id>` is `true`, and a dot more than a day old. **Only a household adult** (not a guest) writes Kid Verse `week` and `ledger:*` and the park map's `kidshare:*` and `kid:*`. A Kid Verse `voice:<week>` row is written only by the Worker's own upload route (batch 7): any client write, change or clear of one, by anyone, is refused (`rejected: worker_only`, whatever the key's case). Nobody writes someone else's `stars:`/`story:` or places someone else's `loc:`; clearing another's fresh dot is for household adults. The Timer's one family row (batch 6, GAP-HOME-1) is the read-only mirror `run:<writer>:<id>` of a running timer, which only its own writer writes — a kid and the kitchen too; any other family `timer` row is refused (`not_yours`). The **kitchen** writes family rows of leftovers, prayer and reminders, its own timer mirror, and person rows of its own timer and tally only, and every `by` / new `prayedBy` name it writes must be a household member (never a kid on the Larder). A refused single write answers `403 not_allowed {rejected, key, value, updated_at}`; in a batch the refused row comes back as `{key, rejected, value, updated_at}` (the house's copy, which hub.js puts back) and the others still save.
 
 ## Endpoints
 
@@ -122,6 +123,23 @@ POST /api/album {sm, lg, caption?, as?} adults, or the kitchen for the household
 DELETE /api/album/:id                   the person who added it, or the admin
 GET  /api/media/photos/:id/<token>-256.jpg | -1024.jpg,  GET /api/media/album/<id>-256.jpg | -1024.jpg
                                         public, immutable, unguessable keys; bytes in R2 when a MEDIA bucket is bound, else the D1 `media` table (src/media.js)
+
+POST /api/kidverse/voice/:week?ms=N     a parent's recorded voice for Kid Verse's week (1-52), batch 7 (IMP-KIDVERSE-I2). Raw body, Content-Type one of
+                                        audio/webm, audio/mp4, audio/ogg, audio/mpeg (a codecs= parameter is fine; the first bytes must match the type, else
+                                        415 bad_audio). At most 1 MB (413 too_large, checked on the declared length and again while reading) and at most
+                                        90 s: the app sends the length it measured as ?ms= (required, 400 bad_length; over 90000 -> 413 too_long; the
+                                        bytes are the hard limit, the length is the recorder's word). Household adults only (a kid, a guest, the TV and the
+                                        kitchen -> 403 adults_only). Stores the bytes under media key voice/<week>/<random> and writes the family row
+                                        app_data(family, 'kidverse', 'voice:<week>') = {id, by, byName, at, mime, ms, bytes} itself; one recording a week,
+                                        so saving over it deletes the old bytes at once (anything a lost race left under the week is swept when it is
+                                        5 minutes old). Answers {voice, row, replaced: {by, byName} | null}
+DELETE /api/kidverse/voice/:week        the same adults: deletes the bytes and tombstones the row (404 no_such_voice when there is none). A removed
+                                        household person's or purged guest's recordings go with them (deleteProfile)
+GET  /api/kidverse/voice/:week/:id      PRIVATE, unlike photos: needs a device token AND a profile session (401 otherwise; an expired guest is already
+                                        refused by auth), then the same read rule as Kid Verse's family rows (any household profile, the kitchen and
+                                        the TV included). 404 when :id is not the week's current recording. `Cache-Control: private, no-store`, CORS only
+                                        for the caller's own origin, never `*`; GET /api/media/* can never reach it (the key is not photos|album, .jpg).
+                                        The app fetches it with its headers and plays a blob URL; nothing about it is stored on the device
 
 POST /api/chat {message}                text/event-stream: text | tool | done | error events (see src/chat.js). The apps the person can use
                                         come from the Worker's copy of apps.json (policy.js), never the request; the kiosk and the kitchen → 403.
@@ -329,6 +347,7 @@ Local state lives in `.wrangler/` (git-ignored). Local-only secrets go in `.dev.
 | `needs_code` / `wrong_code` / `code_expired` | PIN creation after an admin reset: type the one-time code the admin was shown (24 h); the admin can issue a new one |
 | `too_many_attempts` (429) on sign-in | 10 wrong PINs or codes for that profile within the hour (any devices) paused it; the admin was pushed; Reset PIN lifts it |
 | `not_allowed` (403) / `rejected` in a batch | The profile may not write that row (`src/policy.js`): a kid, a guest or the kitchen outside its rows, or an app it cannot open |
+| `adults_only` (403), `bad_week` / `bad_length` (400), `bad_audio_type` / `bad_audio` (415), `too_large` / `too_long` (413), `no_such_voice` (404), `voice_changed` (409) | Kid Verse's recorded voice (batch 7): who may record, which week, what the bytes may be, and a recording that is gone or just replaced by someone else; a client write of a `voice:` row is `worker_only` (see `not_allowed`) |
 | `kitchen_device` / `not_kitchen_device` (403) | Sign-in mixing the kitchen device and a person; the admin sets or clears the role (`PUT /api/admin/devices/:id/role`) |
 | `no such table` | Run `schema.sql` against `--remote` |
 | CORS error in the browser | Origin not in `ALLOWED_ORIGINS` in `wrangler.toml`; redeploy after editing |

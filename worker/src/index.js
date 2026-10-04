@@ -20,7 +20,7 @@ import { householdLoader, checkRead, guardedPut, creditFor, isHouseholdAdult } f
 import registry from '../../apps.json' with { type: 'json' };   // the apps' visibleTo ids are never handed to a new person
 import { runCron, pushTo, prefsFor, vapidFrom, validSubscription, nyParts, jobsAt, JOBS, MINUTE_CRON, timerJob, f260UntickOutlived, f260RecentTicks, pruneRestored } from './reminders.js';
 import { chatHandler, chatHistory, chatUndo, chatClear, chatStop, pruneKidChat, activity } from './chat.js';
-import { decodeImage, putMedia, getMedia, deletePrefix, MAX_SM, MAX_LG } from './media.js';
+import { decodeImage, putMedia, getMedia, deletePrefix, deleteMedia, sweepMedia, readCapped, voiceType, sniffVoice, MAX_SM, MAX_LG, MAX_VOICE_BYTES, MAX_VOICE_MS } from './media.js';
 
 const PIN_RE = /^\d{4,8}$/;
 const MIN = 60000;
@@ -125,9 +125,9 @@ route('GET', '/api/dollywood/waits', async c => {
 // malformed subscription is reported under `skipped`, never a 500: the row is already saved by then.
 const RALLY_APP = 'dollywood-live', RALLY_KEY = 'meet';
 const RALLY_NAME_MAX = 60, RALLY_NOTE_MAX = 140;
-function requireHouseholdAdult(auth) {
+function requireHouseholdAdult(auth, message = 'Only a household grown-up can rally the family.') {
   const p = requireProfile(auth);
-  if (p.kind !== 'adult' || p.is_guest) throw new HttpError(403, 'adults_only', 'Only a household grown-up can rally the family.');
+  if (p.kind !== 'adult' || p.is_guest) throw new HttpError(403, 'adults_only', message);
   return p;
 }
 /** A timestamp that beats whatever the row holds now, so the newest human intent always wins the last-write-wins compare. */
@@ -252,6 +252,7 @@ route('POST', '/api/profiles', async c => {
  *  photos. The callers decide who may be removed (a guest, or a household person with the admin's PIN). */
 async function deleteProfile(env, p) {
   await deletePrefix(env, `photos/${p.id}/`);
+  await dropVoicesBy(env, p.id);   // a recorded voice is that person's family audio: it goes with them (batch 7)
   await env.DB.batch([
     env.DB.prepare("DELETE FROM app_data WHERE scope = 'person' AND profile_id = ?").bind(p.id),
     env.DB.prepare('DELETE FROM sessions WHERE profile_id = ?').bind(p.id),
@@ -532,6 +533,76 @@ async function serveMedia(c, key) {
   if (!m) throw new HttpError(404, 'not_found', 'No such photo.');
   return new Response(m.bytes, { headers: { 'Content-Type': m.mime, 'Cache-Control': 'public, max-age=31536000, immutable', 'Access-Control-Allow-Origin': '*' } });
 }
+
+// ── a parent's recorded voice for Kid Verse (batch 7, IMP-KIDVERSE-I2) ──────────────────────────────────────
+// One recording per week of the memory-verse year: app_data(family, 'kidverse', 'voice:<week>') = { id, by, byName, at, mime,
+// ms, bytes }, written ONLY here (policy.js refuses a client write of a voice: row), the bytes under media key
+// voice/<week>/<id>. Unlike a photo it is family audio: GET needs a signed-in session (any household profile, the kitchen and
+// the TV included; never an expired guest, auth.js), the answer is never public or cacheable, and the app plays a blob it
+// fetched with the session header. Only household adults (kind adult, not a guest) record or remove; a replaced or removed
+// recording's bytes are deleted. The type (header and first bytes), the size and the claimed length are checked here.
+const VOICE_APP = 'kidverse';
+function voiceWeek(c) {
+  const w = +c.params.week;
+  if (!Number.isInteger(w) || w < 1 || w > 52 || String(w) !== c.params.week) throw new HttpError(400, 'bad_week', 'week must be a whole number from 1 to 52.');
+  return w;
+}
+const voiceKey = (w, id) => `voice/${w}/${id}`;
+/** A removed person's recordings go with them: the row is tombstoned and the bytes deleted. */
+async function dropVoicesBy(env, profileId) {
+  const { results } = await env.DB.prepare("SELECT key, value FROM app_data WHERE scope = 'family' AND app_id = ? AND key LIKE 'voice:%' AND value IS NOT NULL").bind(VOICE_APP).all();
+  for (const r of results) {
+    let v = null; try { v = JSON.parse(r.value); } catch {}
+    const w = /^voice:(\d+)$/.exec(r.key);
+    if (!v || v.by !== profileId || !w) continue;
+    await putOne(env, { appId: VOICE_APP, scope: 'family', profile: { id: profileId }, key: r.key, value: null });
+    if (v.id) await deleteMedia(env, voiceKey(+w[1], v.id)).catch(() => {});
+  }
+}
+route('POST', '/api/kidverse/voice/:week', async c => {
+  const me = requireHouseholdAdult(await c.auth(), 'Only a household grown-up can record the verse.');
+  const week = voiceWeek(c);
+  const mime = voiceType(c.request.headers.get('Content-Type'));
+  if (!mime) throw new HttpError(415, 'bad_audio_type', 'The recording must be audio/webm, audio/mp4, audio/ogg or audio/mpeg.');
+  const msRaw = c.url.searchParams.get('ms'), ms = Math.round(+msRaw);
+  if (msRaw === null || !Number.isFinite(ms) || ms < 1) throw new HttpError(400, 'bad_length', 'Say how long the recording is (?ms=, in milliseconds).');
+  if (ms > MAX_VOICE_MS) throw new HttpError(413, 'too_long', 'A recording can be at most 90 seconds.');
+  const bytes = await readCapped(c.request, MAX_VOICE_BYTES);
+  if (!sniffVoice(bytes, mime)) throw new HttpError(415, 'bad_audio', 'That does not look like a recording of the type it says it is.');
+  const key = 'voice:' + week;
+  const cur = await getOne(c.env, { appId: VOICE_APP, scope: 'family', profile: me, key });
+  const prev = cur && cur.value && typeof cur.value === 'object' ? cur.value : null;
+  const id = randomId();
+  await putMedia(c.env, voiceKey(week, id), bytes, mime);
+  const value = { id, by: me.id, byName: me.name, at: Date.now(), mime, ms, bytes: bytes.length };
+  const row = await putOne(c.env, { appId: VOICE_APP, scope: 'family', profile: me, key, value, updated_at: Math.max(Date.now(), cur ? +cur.updated_at + 1 : 0) });
+  if (!row.applied) { await deleteMedia(c.env, voiceKey(week, id)).catch(() => {}); throw new HttpError(409, 'voice_changed', 'Someone else just saved a recording for this week.'); }
+  // the replaced recording's bytes go at once; anything else left under this week (a lost race) is swept once it is a few minutes old
+  if (prev && prev.id) await deleteMedia(c.env, voiceKey(week, prev.id)).catch(() => {});
+  c.exec.waitUntil(sweepMedia(c.env, `voice/${week}/`, voiceKey(week, id), Date.now() - 5 * MIN).catch(() => {}));
+  return { voice: value, row, replaced: prev ? { by: prev.by, byName: prev.byName } : null };
+});
+route('DELETE', '/api/kidverse/voice/:week', async c => {
+  const me = requireHouseholdAdult(await c.auth(), 'Only a household grown-up can remove the recording.');
+  const week = voiceWeek(c), key = 'voice:' + week;
+  const cur = await getOne(c.env, { appId: VOICE_APP, scope: 'family', profile: me, key });
+  if (!cur || !cur.value) throw new HttpError(404, 'no_such_voice', 'There is no recording for that week.');
+  await putOne(c.env, { appId: VOICE_APP, scope: 'family', profile: me, key, value: null, updated_at: Math.max(Date.now(), +cur.updated_at + 1) });
+  if (cur.value.id) await deleteMedia(c.env, voiceKey(week, cur.value.id));
+  c.exec.waitUntil(sweepMedia(c.env, `voice/${week}/`, '', Date.now() - 5 * MIN).catch(() => {}));
+  return { ok: true };
+});
+route('GET', '/api/kidverse/voice/:week/:id', async c => {
+  const p = requireProfile(await c.auth());
+  await checkRead(p, { appId: VOICE_APP, scope: 'family' }, householdLoader(c.env));   // the same people who can read Kid Verse's family rows
+  const week = voiceWeek(c);
+  const cur = await getOne(c.env, { appId: VOICE_APP, scope: 'family', profile: p, key: 'voice:' + week });
+  if (!cur || !cur.value || cur.value.id !== c.params.id) throw new HttpError(404, 'no_such_voice', 'That recording is gone.');
+  const m = await getMedia(c.env, voiceKey(week, cur.value.id));
+  if (!m) throw new HttpError(404, 'no_such_voice', 'That recording is gone.');
+  // private and never stored; CORS is the caller's own origin (c.cors), not *, because the request carries the session header
+  return new Response(m.bytes, { headers: { ...c.cors, 'Content-Type': cur.value.mime || m.mime, 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff' } });
+});
 
 // A prayer line names only a family-list request: "Prayed for …" / "Answered: …" must carry the title of a family
 // prayer row, or the generic "a private request" (P2-PWA-01). A private title never reaches the feed or the TV.

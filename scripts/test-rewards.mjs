@@ -137,8 +137,9 @@ function expected({ verse = 0, story = STORY_DAYS, prayed = [...PRAYED] } = {}) 
 
 // ── browser ──────────────────────────────────────────────────────
 const errors = [];
-async function newContext(browser, name, width = 390) {
+async function newContext(browser, name, width = 390, at = null) {   // `at` (ms): the browser's clock starts there (Kid Verse's "today" and ISO week follow the device clock)
   const ctx = await browser.newContext({ viewport: { width, height: width < 700 ? 844 : 900 }, deviceScaleFactor: 2, hasTouch: width < 700, isMobile: width < 700, colorScheme: 'light' });
+  if (at) await ctx.clock.install({ time: new Date(at) });
   await ctx.addInitScript(api => { try { localStorage.setItem('hub.api', JSON.stringify(api)); } catch {} }, SITE);
   await ctx.addInitScript(() => { const fake = { speak(u) { setTimeout(() => { try { u.onend && u.onend({}); } catch {} }, 40); }, cancel() {}, pause() {}, resume() {}, get speaking() { return false; }, get pending() { return false; }, getVoices() { return []; }, addEventListener() {}, removeEventListener() {} }; try { Object.defineProperty(window, 'speechSynthesis', { value: fake, configurable: true }); } catch {} });
   const page = await ctx.newPage();
@@ -313,7 +314,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     ok(mine.value.earnedAt && !mine.value.earnedAt['verse:' + TODAY] && Object.keys(mine.value.earnedAt).every(k => /^(verse|story|prayed):\d{4}-\d{2}-\d{2}$/.test(k) && mine.value.earnedAt[k] > 0), 'earnedAt stamps every credited star (source:date → ms) and the reset verse day\'s stamp is gone', JSON.stringify(mine.value.earnedAt));
     ok(wkStory.every(d => mine.value.credited.story[d] === 'reset') && STORY_DAYS.filter(d => !WK.has(d)).every(d => mine.value.credited.story[d] === true), 'this week\'s credited story days are marked reset; older ones keep their credit', JSON.stringify(mine.value.credited.story));
     ok(same(badgeIds(mine.value), e1.badges) && mine.value.earned === e1.earned && same(mirror.value, mine.value), 'badges and earned survive a reset; the mirror equals the person row');
-    ok(await text(F2, '#done span') !== 'Done ★', 'Done ★ stays spent after the reset (one ★ a day)');
+    ok(await text(F2, '#done span') !== 'Done', 'Done stays spent after the reset (one ★ a day)');
     await A.page.click('.tab[data-tab=home]');
     await waitFor(() => A.page.$eval('.kids-card .kids-line', e => /Ezra ★0/.test(e.textContent)), { label: 'Home Kids card follows' });
     ok(true, 'adult Home now says "Ezra ★0"');
@@ -387,7 +388,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     await sleep(600); await synced(F4);
     const base4 = (await row(T.ezra, 'family', 'stars:ezra')).value;   // other suites' prayer rows may have credited more prayed days on open
     const want4 = base4.total - base4.count + 1;                   // what stays after the reset: anything banked outside this week + today's new ★
-    ok(base4.total >= 2 && base4.count >= 2 && !base4.days[TODAY] && (await text(F4, '#done span')) === 'Done ★', `Kid Verse open as Ezra: ${base4.total} banked, ${base4.count} this week, no verse ★ today`, JSON.stringify([base4.total, base4.count, base4.days]));
+    ok(base4.total >= 2 && base4.count >= 2 && !base4.days[TODAY] && (await text(F4, '#done span')) === 'Done', `Kid Verse open as Ezra: ${base4.total} banked, ${base4.count} this week, no verse ★ today`, JSON.stringify([base4.total, base4.count, base4.days]));
     await A.page.evaluate(() => hub.pull()); await sleep(800);
     await A.page.click('.tab[data-tab=home]'); await A.page.click('.tab[data-tab=me]');
     await waitFor(() => A.page.$eval('#rewards-body .reward-kid[data-kid=ezra] .reward-total', (e, t) => e.textContent === '★' + t, base4.total), { label: 'Me sees the banked stars' });
@@ -415,9 +416,101 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     ok(p4.credited.story[TODAY] === 'reset' && p4.credited.prayed[TODAY] === 'reset' && Object.keys(p4.credited.prayed).every(d => p4.credited.prayed[d] === 'reset' || !WK.has(d)), 'the story and prayed days credited before the reset are marked reset', JSON.stringify(p4.credited));
     ok(p4.earnedAt['verse:' + TODAY] > led4[0].value.at && p4.earnedAt['story:' + TODAY] > 0 && p4.earnedAt['story:' + TODAY] <= led4[0].value.at, 'today\'s ★ keeps its stamp; the reset story day\'s stamp is older than the reset', JSON.stringify([p4.earnedAt, led4[0].value.at]));
     ok(same(m4b, p4), 'and the mirror equals it');
-    ok((await text(F4, '#done span')) === 'Done today ★' && (await text(F4, '#rw-total')) === String(want4) && (await text(F4, '#star-count')) === '1', `Kid Verse still says Done today ★, ${want4} to cash in, 1 this week`, [await text(F4, '#done span'), await text(F4, '#rw-total'), await text(F4, '#star-count')].join(' | '));
+    ok((await text(F4, '#done span')) === 'Done today' && (await text(F4, '#rw-total')) === String(want4) && (await text(F4, '#star-count')) === '1', `Kid Verse still says Done today ★, ${want4} to cash in, 1 this week`, [await text(F4, '#done span'), await text(F4, '#rw-total'), await text(F4, '#star-count')].join(' | '));
     ok((await F4.evaluate(() => window.kidverse.rewards.reconcile())) === false && (await row(T.ezra, 'family', 'stars:ezra')).value.total === want4, 'reconciling again changes nothing');
     await K4.ctx.close();
+
+    // ── batch 7, Worker A: the reset's reach across ISO weeks, days a reset spent before they were credited, the mirror's size
+    //    over a year, and the years on dates. Each starts from a clean slate for Ezra (his rows, mirror and ledger).
+    const addDay = (d, n) => { const t = new Date(d + 'T12:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+    const NOON = day => Date.parse(day + 'T12:00:00-04:00');   // noon-ish New York on that household day, in either UTC offset
+    const putRow = (who, scope, key, value, app = 'kidverse') => api(`/api/data/${app}/${encodeURIComponent(key)}?scope=${scope}`, { method: 'PUT', profile: who, body: { value, updated_at: Date.now() } });
+    const wipeEzra = async () => { await api('/api/data/kidverse/stars?scope=person', { method: 'DELETE', profile: T.ezra }).catch(() => {}); await clearKidRows(T.ezra); await api('/api/data/kidverse/stars:ezra?scope=family', { method: 'DELETE', profile: T.ezra }).catch(() => {}); await clearLedger(); };
+    const ledgerPut = (kid, v) => { const k = 'ledger:' + kid + ':' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6); return putRow(T.eli, 'family', k, v).then(() => k); };
+    const dropSeeds = async () => { await api('/api/data/kidverse/story:ezra?scope=family', { method: 'DELETE', profile: T.ezra }).catch(() => {}); await api('/api/data/prayer/prayer:rm20-test?scope=family', { method: 'DELETE', profile: T.eli }).catch(() => {}); };
+    const restoreSeeds = async () => { const sd = {}; for (const d of STORY_DAYS) sd[d] = true; await putRow(T.ezra, 'family', 'story:ezra', { days: sd, week: 3 }); await putRow(T.eli, 'family', 'prayer:rm20-test', { id: 'rm20-test', title: 'Grandma', text: 'Grandma', updates: [], prayedBy: { [TODAY]: ['Eli', 'Ezra'] }, by: 'eli', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, 'prayer'); };
+    const mirrorNow = async () => (await row(T.ezra, 'family', 'stars:ezra')).value;
+    const personKeys = async prefix => (await api('/api/data/kidverse?scope=person', { profile: T.ezra })).items.filter(r => r.value != null && r.key.startsWith(prefix)).map(r => r.key).sort();
+
+    console.log('\n## (i) a Reset week made on Sunday and applied on Monday clears the verse stars (P3-KIDVERSE-12)');
+    {
+      await wipeEzra();
+      const wk = weekDays(), sunday = wk[6], nextMon = addDay(wk[0], 7), at0 = Date.now() - 3 * 3600e3;
+      for (let i = 1; i <= 3; i++) await putRow(T.ezra, 'person', 'star:verse:' + wk[i], { at: at0 + i });
+      let X = await newContext(browser, 'KS', 390, NOON(sunday));            // Ezra opens Kid Verse on the Sunday evening
+      await signIn(X.page, 'ezra'); let FX = await openKidverse(X.page); await synced(FX); await sleep(600);
+      const before = await mirrorNow(); await X.ctx.close();
+      const nonWeek = Object.keys(before.credited.story).filter(d => before.credited.story[d] === true && !WK.has(d)).length + Object.keys(before.credited.prayed).filter(d => before.credited.prayed[d] === true && !WK.has(d)).length;
+      ok(wk.slice(1, 4).every(d => before.days[d] === true) && before.total >= 3, `before the reset the mirror holds Tue-Thu's verse stars (total ${before.total}, ${nonWeek} of it from outside this week)`, JSON.stringify([before.total, before.days]));
+      const rk = await ledgerPut('ezra', { kind: 'reset', date: sunday, days: wk, by: 'eli', at: Date.now() });
+      const AM = await newContext(browser, 'AM', 1024, NOON(nextMon));       // a parent reads Me on the Monday, before Ezra's device has opened Kid Verse
+      await signIn(AM.page, 'eli', ELI_PIN); await AM.page.click('.tab[data-tab=me]');
+      await AM.page.waitForSelector('#rewards-body .reward-kid[data-kid=ezra]'); await sleep(700);
+      const meMon = await text(AM.page, '#rewards-body .reward-kid[data-kid=ezra]') || '';
+      ok(new RegExp(`Ezra ★${nonWeek} to cash in · 0 this week`).test(meMon), `Monday: Me already says ★${nonWeek} to cash in · 0 this week (the display applies the reset to last week's days)`, meMon);
+      await AM.ctx.close();
+      X = await newContext(browser, 'KM', 390, NOON(nextMon));               // Ezra opens on the Monday
+      await signIn(X.page, 'ezra'); FX = await openKidverse(X.page); await synced(FX); await sleep(800); await synced(FX);
+      const after = await mirrorNow(), resets = await personKeys('reset:verse:');
+      ok(same(resets, wk.slice(1, 4).map(d => 'reset:verse:' + d)) && after.total === nonWeek && after.count === 0 && wk.slice(1, 4).every(d => after.days[d] === 'reset'), 'Ezra\'s rows: a reset marker per cleared verse day, balance ' + nonWeek + ', the three days read reset', JSON.stringify([resets, after.total, after.days]));
+      ok(after.earned === before.earned, 'earned never moves (' + after.earned + ')');
+      await X.ctx.close(); await wipeEzra();
+    }
+
+    console.log('\n## (j) a story / prayed day not yet credited when the reset is made is spent, never credited afterwards (P3-KIDVERSE-13)');
+    {
+      await wipeEzra(); await restoreSeeds();
+      const wkUp = weekDays().filter(d => d <= TODAY), spentStory = STORY_DAYS.filter(d => WK.has(d) && d <= TODAY), spentPrayed = [...PRAYED].filter(d => WK.has(d) && d <= TODAY);
+      const outStory = STORY_DAYS.filter(d => !WK.has(d)), outPrayed = [...PRAYED].filter(d => !WK.has(d));
+      await ledgerPut('ezra', { kind: 'reset', date: TODAY, days: wkUp, by: 'eli', at: Date.now() });
+      const X = await newContext(browser, 'KJ', 390);                        // the app was not open: nothing is credited yet when it first opens with the reset already there
+      await signIn(X.page, 'ezra'); const FX = await openKidverse(X.page); await synced(FX); await sleep(900); await synced(FX);
+      const stars = await personKeys('star:'), resets = await personKeys('reset:'), m = await mirrorNow();
+      ok(spentStory.every(d => resets.includes('reset:story:' + d) && !stars.includes('star:story:' + d)) && spentPrayed.every(d => resets.includes('reset:prayed:' + d) && !stars.includes('star:prayed:' + d)), `the ${spentStory.length} story and ${spentPrayed.length} prayed days of this week were spent with a reset marker, no star row`, JSON.stringify({ stars, resets }));
+      ok(outStory.every(d => stars.includes('star:story:' + d)) && outPrayed.every(d => stars.includes('star:prayed:' + d)), 'the days the reset does not list (older than this week) are credited as usual');
+      ok(m.count === 0 && m.total === outStory.length + outPrayed.length && spentStory.every(d => m.credited.story[d] === 'reset'), `0 this week, balance ${outStory.length + outPrayed.length} (only the older days), the spent days read reset in the mirror`, JSON.stringify([m.count, m.total]));
+      await FX.evaluate(() => hub.pull()); await sleep(900); await synced(FX);
+      const again = await FX.evaluate(() => window.kidverse.rewards.reconcile()), m2 = await mirrorNow();
+      ok(again === false && m2.total === m.total && (await personKeys('star:')).length === stars.length, 'a second pull and reconcile: nothing is credited afterwards, the balance does not go back up');
+      await X.ctx.close(); await wipeEzra();
+    }
+
+    console.log('\n## (k) a year of facts: the mirror stays small and every total is unchanged (P3-KIDVERSE-09)');
+    {
+      await wipeEzra(); await dropSeeds();
+      const days = Array.from({ length: 400 }, (_, i) => daysAgo(i + 1)), rows = [], ev = []; let nStar = 0, nStory = 0, nPrayed = 0, nCash = 0;
+      days.forEach((d, i) => { const t = NOON(d); if ((i * 7) % 10 < 8) { rows.push(['star:verse:' + d, { at: t }]); ev.push({ t, s: 1 }); nStar++; } if (i % 3 !== 0) { rows.push(['star:story:' + d, { at: t + 1 }]); ev.push({ t: t + 1, s: 1 }); nStar++; nStory++; } if (i % 4 === 0) { rows.push(['star:prayed:' + d, { at: t + 2 }]); ev.push({ t: t + 2, s: 1 }); nStar++; nPrayed++; } });
+      for (let i = 20; i < days.length; i += 28) { const at = NOON(days[i]) + 3600e3, key = 'ledger:ezra:' + at.toString(36) + '-k7' + i; await putRow(T.eli, 'family', key, { kind: 'cashin', date: days[i], amount: 10, by: 'eli', at }); rows.push(['applied:' + key, { kind: 'cashin', amount: 10, date: days[i], by: 'eli', at }]); ev.push({ t: at, c: 10 }); nCash++; }
+      for (let i = 0; i < rows.length; i += 190) await api('/api/data/kidverse/batch?scope=person', { method: 'POST', profile: T.ezra, body: { items: rows.slice(i, i + 190).map(([key, value]) => ({ key, value, updated_at: Date.now() })) } });
+      ev.sort((a, b) => a.t - b.t || (a.s ? -1 : 1)); let total = 0; for (const e of ev) total = e.s ? total + 1 : Math.max(0, total - e.c);
+      const X = await newContext(browser, 'KY', 390); await signIn(X.page, 'ezra'); const FX = await openKidverse(X.page); await synced(FX); await sleep(1500); await synced(FX);
+      const m = await mirrorNow(), size = JSON.stringify(m).length;
+      const dv = await FX.evaluate(() => { const R = window.kidverse.rewards, a = R.deriveStars(), b = R.deriveStars(false); return { same: ['total', 'earned', 'count'].every(f => a[f] === b[f]) && JSON.stringify(a.badges) === JSON.stringify(b.badges) && JSON.stringify(a.payouts) === JSON.stringify(b.payouts) && R.creditedCount(a, 'story') === R.creditedCount(b, 'story') && R.creditedCount(a, 'prayed') === R.creditedCount(b, 'prayed'), story: R.creditedCount(a, 'story'), prayed: R.creditedCount(a, 'prayed'), exact: JSON.stringify(b).length }; });
+      ok(m.total === total && m.earned === nStar && dv.same && dv.story === nStory && dv.prayed === nPrayed, `400 days (${nStar} stars, ${nCash} cash-ins): balance ${total}, earned ${nStar}, ${nStory} stories and ${nPrayed} prayed days — equal to an independent replay and to the exact derivation`, JSON.stringify([m.total, total, m.earned, nStar, dv]));
+      ok(size < 7000 && size * 3 < dv.exact, `the mirror is ${size} bytes (the exact derivation is ${dv.exact})`);
+      const sets = await FX.evaluate(() => { const list = []; const o = hub.set; hub.set = function (k) { list.push(k); return o.apply(this, arguments); }; const r = window.kidverse.award(); hub.set = o; return { r, list }; });
+      ok(sets.r === true && sets.list.filter(k => k === 'stars:ezra').length === 1 && sets.list.includes('star:verse:' + TODAY), 'one Done ★ writes the mirror once (the star, then at most its badge, in one write)', JSON.stringify(sets));
+      await X.ctx.close(); await wipeEzra(); await restoreSeeds();
+    }
+
+    console.log('\n## (l) "to cash in", "N ever" and the year on an earlier date (P3-KIDVERSE-06, UX-KIDVERSE-9)');
+    {
+      await wipeEzra(); await dropSeeds();
+      const lastYear = String(+TODAY.slice(0, 4) - 1), old = lastYear + '-03-01';
+      for (let i = 1; i <= 4; i++) await putRow(T.ezra, 'person', 'star:verse:' + daysAgo(i + 6), { at: Date.now() - i * 3600e3 });
+      await ledgerPut('ezra', { kind: 'cashin', date: old, amount: 2, by: 'eli', at: Date.now() - 600e3 });
+      const X = await newContext(browser, 'KL', 390); await signIn(X.page, 'ezra'); const FX = await openKidverse(X.page); await synced(FX); await sleep(900);
+      await FX.waitForFunction(() => document.getElementById('rw-total'), null, { timeout: 15000 });
+      const sub = await FX.evaluate(() => { const e = document.querySelector('#mine'); return e ? e.textContent.replace(/\s+/g, ' ').trim() : ''; }), bank = await text(FX, '#rw-bank'), paid = await text(FX, '#rw-paid');
+      ok(/to cash in/.test(sub) && !/all time/.test(sub) && /ever/.test(bank || '') && /to cash in/.test(bank || ''), 'the balance reads "to cash in" (never "all time") and the lifetime total "N ever"', JSON.stringify([sub, bank]));
+      ok(new RegExp('Mar 1, ' + lastYear).test(paid || ''), 'Last cashed in names the earlier year: "' + paid + '"');
+      ok((await FX.evaluate(y => window.kidverse.fmtDay(y + '-07-28') + ' | ' + window.kidverse.fmtDay(new Date().getFullYear() + '-01-05'), lastYear)).split(' | ').map((s, i) => i === 0 ? s.includes(lastYear) : !/\d{4}/.test(s)).every(Boolean), 'fmtDay: an earlier year shows it, this year does not');
+      const A = await newContext(browser, 'AL', 1024); await signIn(A.page, 'eli', ELI_PIN); await A.page.click('.tab[data-tab=me]');
+      await A.page.waitForSelector('#rewards-body .reward-kid[data-kid=ezra]'); await sleep(600);
+      const me = await text(A.page, '#rewards-body .reward-kid[data-kid=ezra]') || '';
+      ok(new RegExp('to cash in · \\d+ this week').test(me) && new RegExp('last cash-in 2 on Mar 1, ' + lastYear).test(me), 'Me → Kids\' rewards: "' + me.slice(me.indexOf('★')) + '"');
+      await A.ctx.close(); await X.ctx.close(); await wipeEzra(); await restoreSeeds();
+    }
 
     console.log('\n## (h) a guest never sees the Kids\' rewards card');
     let guest = null;

@@ -43,3 +43,66 @@ export async function deletePrefix(env, prefix) {
 
 /** The two URLs (relative to the API origin) for a profile's photo, or null. */
 export const photoUrls = (id, token) => token ? { sm: `/api/media/photos/${id}/${token}-256.jpg`, lg: `/api/media/photos/${id}/${token}-1024.jpg` } : null;
+
+// ── a parent's recorded voice (batch 7, IMP-KIDVERSE-I2) ─────────────────────────────────────────────────────
+// Stored in the same place as photos but NOT served like them: GET /api/media/* is public, a voice is family audio and
+// is only ever served by GET /api/kidverse/voice/:week/:id, which needs a signed-in session (index.js). The key is
+// voice/<week>/<random>, so the media route's pattern (photos|album, .jpg) can never reach it.
+export const MAX_VOICE_BYTES = 1024 * 1024;   // 1 MB
+export const MAX_VOICE_MS = 90 * 1000;        // 90 seconds
+export const VOICE_TYPES = ['audio/webm', 'audio/mp4', 'audio/ogg', 'audio/mpeg'];
+
+/** The base type of a Content-Type header ("audio/webm;codecs=opus" → "audio/webm"), or null when it is not an allowed one. */
+export function voiceType(header) {
+  const base = String(header || '').split(';')[0].trim().toLowerCase();
+  return VOICE_TYPES.includes(base) ? base : null;
+}
+
+/** Do the first bytes look like the container the Content-Type claims? (a text file called audio/webm is refused) */
+export function sniffVoice(bytes, mime) {
+  const b = bytes, at = (i, s) => s.split('').every((ch, k) => b[i + k] === ch.charCodeAt(0));
+  if (mime === 'audio/webm') return b[0] === 0x1A && b[1] === 0x45 && b[2] === 0xDF && b[3] === 0xA3;   // EBML header
+  if (mime === 'audio/ogg') return at(0, 'OggS');
+  if (mime === 'audio/mpeg') return at(0, 'ID3') || (b[0] === 0xFF && (b[1] & 0xE0) === 0xE0);        // ID3 tag or an MPEG frame sync
+  if (mime === 'audio/mp4') return ['ftyp', 'styp', 'moov', 'moof', 'free', 'skip', 'wide', 'mdat'].some(t => at(4, t));
+  return false;
+}
+
+/** Reads a request body up to `max` bytes; one byte more is a 413 and the rest is never read. */
+export async function readCapped(request, max, what = 'The recording') {
+  const declared = +request.headers.get('Content-Length');
+  if (Number.isFinite(declared) && declared > max) throw new HttpError(413, 'too_large', `${what} is too big (${Math.round(declared / 1024)} KB; the limit is ${Math.round(max / 1024)} KB).`);
+  if (!request.body) throw new HttpError(400, 'empty', `${what} is empty.`);
+  const reader = request.body.getReader(), chunks = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.length;
+    if (total > max) { try { await reader.cancel(); } catch {} throw new HttpError(413, 'too_large', `${what} is too big (the limit is ${Math.round(max / 1024)} KB).`); }
+    chunks.push(value);
+  }
+  if (!total) throw new HttpError(400, 'empty', `${what} is empty.`);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { out.set(c, off); off += c.length; }
+  return out;
+}
+
+/** Deletes one object by its exact key. */
+export async function deleteMedia(env, key) {
+  if (env.MEDIA) { await env.MEDIA.delete(key); return; }
+  await env.DB.prepare('DELETE FROM media WHERE key = ?').bind(key).run();
+}
+
+/** Deletes everything under `prefix` except `keepKey` and anything newer than `olderThan` ms (an upload still finishing). */
+export async function sweepMedia(env, prefix, keepKey, olderThan) {
+  if (env.MEDIA) {
+    const l = await env.MEDIA.list({ prefix });
+    const old = l.objects.filter(o => o.key !== keepKey && o.uploaded && +o.uploaded < olderThan).map(o => o.key);
+    if (old.length) await env.MEDIA.delete(old);
+    return;
+  }
+  await env.DB.prepare("DELETE FROM media WHERE key LIKE ? ESCAPE '\\' AND key != ? AND created_at < ?")
+    .bind(prefix.replace(/[%_\\]/g, ch => '\\' + ch) + '%', keepKey || '', olderThan).run();
+}

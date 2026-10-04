@@ -573,6 +573,25 @@ async function themeShot(page, theme, name) {
     await W.page.evaluate(() => window.__tv.paint());
     const remState = await W.page.evaluate(() => ({ hidden: document.getElementById('tv-rem-card').hidden, left: hub.list('item:', { app: 'reminders', scope: 'family' }).length }));
     ok(remState.hidden === (remState.left === 0), remState.left === 0 ? '(b) no reminders → the reminders card hides' : `(b) ${remState.left} reminder(s) from other suites remain, so the card stays`, JSON.stringify(remState));
+    // batch 7 (UX-KIDVERSE-5): a house where no week was ever picked has no week row. The board says so quietly: never week 1's
+    // verse as if someone had chosen it, never a crash, and the rest of the board (stars, prayer, feed) keeps working.
+    const wkRow = (await api('/api/data/kidverse?scope=family&key=week', { profile: 'eli' })).item;
+    await api('/api/data/kidverse/week?scope=family', { method: 'DELETE', profile: 'eli' });
+    await W.page.evaluate(() => hub.pull());
+    await waitFor(() => W.page.evaluate(() => hub.get('week', { app: 'kidverse', scope: 'family' }) == null), { label: 'the week row gone on the TV' });
+    const errs0 = errors.length;
+    await W.page.evaluate(() => window.__tv.paint());
+    const nw = await W.page.evaluate(() => ({ hd: document.getElementById('tv-verse-hd').textContent.trim(), refs: [...document.querySelectorAll('#tv-refs span')].map(s => s.textContent.trim()), kidline: document.getElementById('tv-kidline').textContent.trim(), kidlabel: document.getElementById('tv-kidlabel').textContent.trim(),
+      stars: document.querySelectorAll('#tv-stars .tv-face').length, fits: document.getElementById('views').scrollHeight <= window.innerHeight + 1 && document.getElementById('views').scrollWidth <= document.getElementById('views').clientWidth + 1, vh: window.innerHeight }));
+    ok(nw.hd === 'Verse of the week' && nw.refs.length === 1 && /pick this week/i.test(nw.refs[0]) && !/Genesis|Hebrews/.test(nw.refs[0]) && nw.kidline === '' && nw.kidlabel === '', '(b) no family week: "Verse of the week", one quiet line "A grown-up will pick this week’s verse." — no week 1 verse, no kid line', JSON.stringify(nw));
+    ok(nw.stars > 0 && nw.fits && errors.length === errs0, '(b) the rest of the board still paints (the stars faces), it still fits one screen, and nothing threw', JSON.stringify(nw));
+    await W.page.screenshot({ path: path.join(SHOTS, 'b7-tv-no-week-1920.png') });
+    // and the week comes back the moment a grown-up picks one
+    await api('/api/data/kidverse/week?scope=family', { method: 'PUT', profile: 'eli', body: { value: (wkRow && wkRow.value) || { week: 3, line: 'God keeps his promises, even when they take a long time.' }, updated_at: Date.now() } });
+    await W.page.evaluate(() => hub.pull());
+    await waitFor(() => W.page.evaluate(() => hub.get('week', { app: 'kidverse', scope: 'family' }) != null), { label: 'the week back on the TV' });
+    await W.page.evaluate(() => window.__tv.paint());
+    ok(await W.page.evaluate(() => /^Verse of the week · Week \d+$/.test(document.getElementById('tv-verse-hd').textContent.trim()) && document.querySelectorAll('#tv-refs span').length === 2), '(b) a picked week brings the two refs and "· Week N" back');
     // Switch is the one thing that does something: it stops the board (P2-STAB-11), ends the display's session and opens the picker
     ok(await W.page.evaluate(() => !document.querySelector('#tv-theme, #ap-contrast, #ap-motion, #ap-solid, #view-me button')), '(c) no look controls anywhere while the Switch sheet is closed');
     // a remote: Enter on the Switch, the arrows, Enter again (review of batch 2c, round 2)

@@ -2140,11 +2140,14 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         t.greet.textContent = 'Good ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening') + ', Anderson house.';
         t.wake.hidden = !wakeHint;
         // verse of the week: the family kidverse week row picks the F260 week; refs from the table, and the kid line
-        const wk = hub.get('week', KV); const n = Math.min(52, Math.max(1, Math.floor(Number(wk && typeof wk === 'object' ? (wk.week || wk.w || wk.n) : wk) || 1)));
-        const weekIn = hub.isLoaded('kidverse', 'family');   // before the family week arrives, never a false "Week 1"
-        const refs = MEMORY[n - 1] || [], kw = weekIn ? KIDWORDS[n - 1] : null, own = wk && typeof wk === 'object' && typeof wk.line === 'string' ? wk.line.trim() : '';
+        const wk = hub.get('week', KV), wkN = Math.floor(Number(wk && typeof wk === 'object' ? (wk.week || wk.w || wk.n) : wk));
+        const loaded = hub.isLoaded('kidverse', 'family');   // before the family week arrives, never a false "Week 1"
+        // batch 7 (UX-KIDVERSE-5): a house where no week was ever picked has no week row. The board says so quietly; it never
+        // shows week 1's verse as if someone had chosen it, and nothing below reads a table cell that is not there.
+        const weekSet = wkN >= 1 && wkN <= 52, n = weekSet ? wkN : 1, weekIn = loaded && weekSet;
+        const refs = weekSet ? MEMORY[n - 1] || [] : [], kw = weekIn ? KIDWORDS[n - 1] : null, own = wk && typeof wk === 'object' && typeof wk.line === 'string' ? wk.line.trim() : '';
         setHtml(t.verseHd, '<span class="tv-h">Verse of the week</span>' + (weekIn ? `<span class="tv-week"> · Week ${n}</span>` : ''));
-        setHtml(t.refs, weekIn ? refs.map(r => `<span>${esc(r)}</span>`).join('') : '<span class="tv-quiet">Loading…</span>');
+        setHtml(t.refs, weekIn ? refs.map(r => `<span>${esc(r)}</span>`).join('') : `<span class="tv-quiet">${loaded ? 'A grown-up will pick this week’s verse.' : 'Loading…'}</span>`);
         t.kidline.textContent = own || (kw ? kw[1] : '');
         t.kidlabel.textContent = own ? 'Kid Verse · a paraphrase' : kw ? 'Kid Verse · a paraphrase of ' + (refs[kw[0]] || refs[0] || '') : '';
         // who prayed today: each family prayer row's prayedBy[today] → faces. Entries are profile ids (batch 0g); an older
@@ -2159,7 +2162,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         setHtml(t.read, adults.length ? adults.map(q => faceHtml(q, readers.has(q.id) ? '' : 'off', readers.has(q.id) ? '<b>✓</b>' : '')).join('') + MORE_FACE : '<div class="tv-quiet">No readers yet.</div>');
         // the kids' stars (family mirror rows) and the latest five feed lines
         const kids = kidStars();
-        const starsIn = hub.isLoaded('kidverse', 'family');
+        const starsIn = loaded;
         setHtml(t.stars, kids.length ? kids.map(k => faceHtml(k, '', starsIn ? `<b class="tv-star">★${k.stars}</b>` : '<b class="tv-star">…</b>')).join('') + MORE_FACE : '<div class="tv-quiet">No stars yet.</div>');
         // IMP-PRAYER-I2: an answered family prayer from this day in an earlier year. fit() shows it in the verse pane when that
         // pane has room, else first in the feed, else not at all; it is always whole
@@ -2869,24 +2872,35 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // (stars.applied[key]); until then the shell shows the mirror with the unapplied rows on top (effectiveStars), so a cash-in
   // is visible at once on Home, in Me and on the TV board, and a star the kid earns meanwhile can never undo it (see CLAUDE.md).
   // A reset lists only this week's dates up to today and undoes only stars earned before its `at` (the row's earnedAt stamps).
+  // Batch 7 (P3-KIDVERSE-12): the mirror's `days` and `credited.*` hold the last 30 days (not only this week's), so a reset made
+  // on Sunday and still unapplied on Monday finds last week's verse stars here too; older entries are folded into counters
+  // (`creditedBase`, `appliedBefore`) by Kid Verse (apps/kidverse.html KEEP_DAYS) — see wasApplied below.
+  // UX-KIDVERSE-9: a date from an earlier year shows its year ("Mar 1, 2025"), this year's stays "Mar 1" (the household's year)
+  const fmtDayY = k => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(k || ''); if (!m) return ''; try { return new Date(+m[1], m[2] - 1, +m[3]).toLocaleDateString(undefined, m[1] === hub.today().slice(0, 4) ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return k; } };
   const BADGE_NAMES = { first: 'First star', week: 'Full week', ten: 'Ten stars', story: 'Story lover', prayer: 'Prayer warrior', fifty: 'Fifty stars' };
   const weekDayKeys = () => { const t = hub.today(), mon = hub.addDays(t, -((new Date(t + 'T12:00:00Z').getUTCDay() + 6) % 7)); return Array.from({ length: 7 }, (_, i) => hub.addDays(mon, i)); };   // this household week, Monday first
   function rewardRow(v) {
     const o = v && typeof v === 'object' ? JSON.parse(JSON.stringify(v)) : {};
     const cur = o.week === isoWeek();
-    return { ...o, week: cur ? o.week : isoWeek(), count: cur ? Math.max(0, Math.floor(Number(o.count) || 0)) : 0, days: cur && o.days && typeof o.days === 'object' ? o.days : {},
+    const days = {}; if (o.days && typeof o.days === 'object') for (const k of Object.keys(o.days)) if (isDay(k) && o.days[k]) days[k] = o.days[k] === 'reset' ? 'reset' : true;   // an earlier week's days stay (a reset can still list them); weekCountOf counts only this week's
+    return { ...o, week: cur ? o.week : isoWeek(), count: cur ? Math.max(0, Math.floor(Number(o.count) || 0)) : 0, days,
+      creditedBase: { story: Math.max(0, Math.floor(Number(o.creditedBase && o.creditedBase.story) || 0)), prayed: Math.max(0, Math.floor(Number(o.creditedBase && o.creditedBase.prayed) || 0)) }, appliedBefore: Math.max(0, Math.floor(Number(o.appliedBefore) || 0)),
       total: Math.max(0, Math.floor(Number(o.total) || 0)), earned: Math.max(0, Math.floor(Number(o.earned) || 0)), credited: { story: {}, prayed: {}, ...(o.credited && typeof o.credited === 'object' ? o.credited : {}) },
       badges: o.badges && typeof o.badges === 'object' ? o.badges : {}, payouts: Array.isArray(o.payouts) ? o.payouts : [], applied: o.applied && typeof o.applied === 'object' ? o.applied : {}, earnedAt: o.earnedAt && typeof o.earnedAt === 'object' ? o.earnedAt : {} };
   }
   const KV = { app: 'kidverse', scope: 'family' };
   const isDay = k => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k);
+  // a ledger row's time: its own `at`, else the base-36 clock in its key (ledger:<kid>:<time>-<random>); a row at or before the
+  // mirror's appliedBefore has been taken in and its applied entry folded away (same rule as apps/kidverse.html wasApplied)
+  const ledgerTime = (key, e) => { const t = Number(e && e.at); if (t > 0) return t; const m = /^ledger:[^:]+:([0-9a-z]+)-/.exec(String(key)); const n = m ? parseInt(m[1], 36) : 0; return n > 1e11 && n < 1e14 ? n : 0; };
+  const wasApplied = (r, key, e) => !!r.applied[key] || (r.appliedBefore > 0 && (t => t > 0 && t <= r.appliedBefore)(ledgerTime(key, e)));
   const ledgerRows = id => hub.list('ledger:' + id + ':', KV).filter(r => r.value && typeof r.value === 'object').sort((a, b) => (Number(a.value.at) || 0) - (Number(b.value.at) || 0) || (a.key < b.key ? -1 : 1));
   const weekCountOf = r => { let n = 0; for (const d of weekDayKeys()) { if (r.days[d] === true) n++; if (r.credited.story && r.credited.story[d] === true) n++; if (r.credited.prayed && r.credited.prayed[d] === true) n++; } return n; };
   // the same rules Kid Verse applies (apps/kidverse.html applyLedger), on a copy, for display
   function applyLedger(r, rows) {
     let n = 0;
     for (const x of rows) {
-      if (r.applied[x.key]) continue;
+      if (wasApplied(r, x.key, x.value)) continue;
       const e = x.value;
       if (e.kind === 'cashin') { const amount = Math.max(0, Math.floor(Number(e.amount) || 0)); r.payouts = [...r.payouts, { date: isDay(e.date) ? e.date : '', amount, by: e.by ? String(e.by) : undefined }].slice(-50); r.total = Math.max(0, r.total - amount); }
       else if (e.kind === 'reset') { const at = Number(e.at) || 0, upto = isDay(e.date) ? e.date : null, before = (kind, d) => !((Number(r.earnedAt[kind + ':' + d]) || 0) > at); for (const d of (Array.isArray(e.days) ? e.days : []).filter(isDay)) { if (upto && d > upto) continue; if (r.days[d] === true && before('verse', d)) { r.days[d] = 'reset'; r.total = Math.max(0, r.total - 1); } for (const kind of ['story', 'prayed']) { const m = r.credited[kind]; if (m && m[d] === true && before(kind, d)) { m[d] = 'reset'; r.total = Math.max(0, r.total - 1); } } } }
@@ -2924,7 +2938,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       const r = effectiveStars(k.id);
       const names = Object.keys(r.badges).filter(b => r.badges[b]).map(b => BADGE_NAMES[b] || b);
       const last = r.payouts[r.payouts.length - 1];
-      return `<div class="hstack reward-kid" data-kid="${esc(k.id)}" data-accent="${esc(hueOf(k))}" style="flex-wrap:wrap;padding:var(--sp-2) 0">${avatar(k, 'avatar-sm')}<div class="grow" style="min-width:160px"><div><b>${esc(k.name)}</b> <span class="reward-total">★${r.total}</span> to cash in · ${r.count} this week${r.earned > r.total ? ' · ' + r.earned + ' ever' : ''}</div><div class="help">${names.length ? names.length + (names.length === 1 ? ' badge: ' : ' badges: ') + esc(names.join(', ')) : 'No badges yet'}${last ? ' · last cash-in ' + last.amount + ' on ' + esc(last.date) : ''}</div></div><div class="hstack"><button class="btn btn-soft" data-cashin="${esc(k.id)}"${r.total ? '' : ' disabled'}>Cash in</button><button class="btn btn-ghost" data-resetweek="${esc(k.id)}"${r.count ? '' : ' disabled'}>Reset week</button></div></div>`;
+      return `<div class="hstack reward-kid" data-kid="${esc(k.id)}" data-accent="${esc(hueOf(k))}" style="flex-wrap:wrap;padding:var(--sp-2) 0">${avatar(k, 'avatar-sm')}<div class="grow" style="min-width:160px"><div><b>${esc(k.name)}</b> <span class="rw-item" style="white-space:nowrap"><span class="reward-total">★${r.total}</span> to cash in</span> <span class="rw-item" style="white-space:nowrap">· ${r.count} this week</span>${r.earned > r.total ? ' <span class="rw-item" style="white-space:nowrap">· ' + r.earned + ' ever</span>' : ''}</div><div class="help">${names.length ? names.length + (names.length === 1 ? ' badge: ' : ' badges: ') + esc(names.join(', ')) : 'No badges yet'}${last ? ' <span class="rw-item" style="white-space:nowrap">· last cash-in ' + last.amount + (last.date ? ' on ' + esc(fmtDayY(last.date)) : '') + '</span>' : ''}</div></div><div class="hstack"><button class="btn btn-soft" data-cashin="${esc(k.id)}"${r.total ? '' : ' disabled'}>Cash in</button><button class="btn btn-ghost" data-resetweek="${esc(k.id)}"${r.count ? '' : ' disabled'}>Reset week</button></div></div>`;
     }).join('');
     body.onclick = async ev => {
       const b = ev.target.closest('[data-cashin],[data-resetweek]'); if (!b || !hub.canWrite || !hub.profile || hub.profile.kind !== 'adult' || isGuest()) return;
