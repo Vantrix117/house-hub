@@ -13,7 +13,7 @@
 // local(opts): variant ('empty'|'typical'|'overflow'|'park'), clock ('demo' = the rig's slowed demo clock; 'real' = real
 //   time, seeds relative to now), engine ('webkit' | 'chromium' — Chromium is the installed Chrome, for heap metrics via
 //   CDP and service-worker tests WebKit cannot do), siteCacheControl, vapid (true = throwaway VAPID pair for push tests),
-//   overlay (a folder under audits/ served over the repo).
+//   overlay (a folder under audits/ served over the repo; default: the OVERLAY environment variable, so an unmodified script can be pointed at a build before its export).
 // L.device(opts): device (lib/devices.mjs name), mode ('light'|'dark'), profile (id | null = signed out | 'unpaired'),
 //   fixedTime (ms: freeze the browser clock there; false = real clock; default: the demo instant + 0.5 s in demo mode),
 //   installClock (ms: a controllable clock — use d.ctx.clock.runFor / fastForward), sw (allow service workers),
@@ -54,7 +54,7 @@ async function vapidPair() {
   return { publicKey: raw, privateKey: jwk.d };
 }
 
-export async function local({ variant = 'typical', clock = 'demo', engine = 'webkit', siteCacheControl, vapid = false, overlay, headless = true, args: browserArgs = [] } = {}) {
+export async function local({ variant = 'typical', clock = 'demo', engine = 'webkit', siteCacheControl, vapid = false, overlay = process.env.OVERLAY, headless = true, args: browserArgs = [] } = {}) {
   const pw = playwright();
   const [sitePort, apiPort] = [await freePort(), await freePort()];
   const env = { ...process.env };

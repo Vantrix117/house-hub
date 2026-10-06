@@ -4,6 +4,11 @@
 // localStorage progress ("dollywood-build-progress-v2") and plot ("dw-plot") migrate on the first signed-in open;
 // the private Light/Dark button is gone and the page's marker colours follow data-scheme (the person's theme);
 // the page still opens standalone with no session; the display profile gets a nudge, not a tick.
+// Batch 9 (the build guide): a tick posts its feed line 60 s later ("Built <step> (<section>)", feedFlush() stands in for the timer);
+// the person's `summary` row (next step, section figures, totals) is written 2 s after a change and only when it differs; a plot cleared
+// on one device clears the other, a bad width (not empty, not 50-2,000 m) is flagged under the field and neither saved nor converted, the
+// step card follows the factor, the old dw-plot key is removed and never read signed in; the display profile has no Mark done, Reset or
+// Import and a read-only plot field. SITE_PORT / OVERLAY: another port, or a folder served over the repo (a build before its export).
 //   cd worker && npx wrangler dev --port 8787     (seeded local D1, pairing code local-test-code)
 //   node scripts/test-dollywood-sync.mjs <pairing-code>
 // Serves the repo on localhost:8982 and proxies /api to the Worker (same origin, so no CORS entry is needed).
@@ -18,7 +23,8 @@ const { chromium } = require('playwright-core');
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CODE = process.argv[2] || 'local-test-code';
 const API = process.env.HUB_API || 'http://127.0.0.1:8787';
-const PORT = 8982;
+const PORT = +(process.env.SITE_PORT || 8982);   // SITE_PORT: another port when 8982 is taken
+const OVERLAY = process.env.OVERLAY ? path.join(ROOT, process.env.OVERLAY) : null;   // a folder (like audits/tools/b-overlay) whose files are served over the repo's, e.g. a build before its export
 const SITE = 'http://localhost:' + PORT;
 const APP = SITE + '/apps/dollywood.html';
 const SHOTS = path.join(ROOT, 'docs', 'screens');
@@ -32,7 +38,8 @@ const server = http.createServer((req, res) => {
     up.on('error', e => { res.writeHead(502); res.end(String(e)); });
     req.pipe(up); return;
   }
-  const p = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]).replace(/\/$/, '/index.html'));
+  const rel = decodeURIComponent(req.url.split('?')[0]).replace(/\/$/, '/index.html');
+  const p = OVERLAY && fs.existsSync(path.join(OVERLAY, rel)) && fs.statSync(path.join(OVERLAY, rel)).isFile() ? path.join(OVERLAY, rel) : path.join(ROOT, rel);
   fs.readFile(p, (err, data) => {
     if (err) { res.writeHead(404, { 'Content-Type': 'text/html' }); return res.end('<!doctype html><title>404</title>not found'); }
     res.writeHead(200, { 'Content-Type': MIME[path.extname(p)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
@@ -79,11 +86,12 @@ const tickState = (page, id) => page.evaluate(id => {
   const item = document.querySelectorAll('#b-list .bitem')[i];
   const cur = st[curIdx] && st[curIdx].id === id;
   const btn = document.getElementById('b-done');
-  return { inMap: !!doneMap[id], listOk: !!item && item.classList.contains('ok'), listTick: !!item && item.querySelector('span').textContent === '✓', btnDone: cur && !!btn && btn.classList.contains('done'), count: (document.getElementById('b-count') || {}).textContent };
+  return { inMap: !!doneMap[id], listOk: !!item && item.classList.contains('ok'), listTick: !!item && !!item.querySelector('span svg use[href$="#i-check"]'),   // a done step shows the sprite's check (audit batch 9, VIS-DOLLYWOOD-1)
+    btnDone: cur && !!btn && btn.classList.contains('done'), count: (document.getElementById('b-count') || {}).textContent };
 }, id);
 
 (async () => {
-  const exe = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(p => fs.existsSync(p));
+  const exe = [process.env.HUB_CHROME, 'C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(p => p && fs.existsSync(p));
   const browser = await chromium.launch({ headless: true, executablePath: exe });
   fs.mkdirSync(SHOTS, { recursive: true });
   try {
@@ -134,14 +142,19 @@ const tickState = (page, id) => page.evaluate(id => {
     const stepTitle = await PC.page.evaluate(() => stepsOf(curSec)[curIdx].title);
     ok(stepId !== ids[0], 'PC landed on the first undone step, not the migrated one', stepId);
     ok((await tickState(IPAD.page, stepId)).inMap === false, 'iPad has that step unticked before the PC ticks it');
+    const feedLines = () => PC.page.evaluate(() => hub.activityFeed(40).then(r => r.filter(a => a.app_id === 'dollywood' && /^(Ticked|Built) /.test(a.text)).map(a => a.text)));
+    const feedBefore = (await feedLines()).length;
     await PC.page.click('#b-done');
     t = await tickState(PC.page, stepId);
     ok(t.inMap && t.listOk, 'PC paints the tick at once', JSON.stringify(t));
     ok((await progressOf(PC.page))[stepId] === true, 'PC wrote the step into hub progress (step:<id> row)');
     ok(await PC.page.evaluate(({ k, id }) => !JSON.parse(localStorage.getItem(k) || '{}')[id], { k: KEY, id: stepId }), 'signed-in save goes through hub.set, not the legacy localStorage key');
     await settled(PC.page);
-    await waitFor(() => PC.page.evaluate(() => hub.activityFeed(20).then(r => r.some(a => a.app_id === 'dollywood' && /^Ticked /.test(a.text)))), { label: 'activity line' });
-    ok(true, 'hub.activity("Ticked <step>") reached the family feed');
+    // batch 9 (UX-DOLLYWOOD-11): a tick posts nothing at once; the net change goes 60 s after the last tick (feedFlush is that timer, called now)
+    ok((await feedLines()).length === feedBefore, 'a tick posts no feed line at once');
+    await PC.page.evaluate(() => feedFlush());
+    await waitFor(() => PC.page.evaluate(() => hub.activityFeed(20).then(r => r.some(a => a.app_id === 'dollywood' && /^Built /.test(a.text)))), { label: 'activity line' });
+    ok(await PC.page.evaluate(t => hub.activityFeed(20).then(r => r.some(a => a.app_id === 'dollywood' && a.text === `Built ${t} (${SEC[curSec].name})`)), stepTitle), 'the flushed line is "Built <step> (<section>)" in the family feed');
     await IPAD.page.evaluate(() => hub.pull());
     await waitFor(() => IPAD.page.evaluate(id => doneMap[id] === true, stepId), { label: 'iPad doneMap after pull' });
     t = await tickState(IPAD.page, stepId);
@@ -160,6 +173,62 @@ const tickState = (page, id) => page.evaluate(id => {
     await PC.page.screenshot({ path: path.join(SHOTS, 'rm22-pc.png') });
     await IPAD.page.screenshot({ path: path.join(SHOTS, 'rm22-ipad.png') });
     console.log('   step:', JSON.stringify(stepTitle));
+
+    console.log('\n## batch 9: the summary row, the plot clearing everywhere, the legacy key, a bad width, the card following the factor');
+    // UX-DOLLYWOOD-1 (the template half): the person's own `summary` row says where they are in the guide (Home's card reads it)
+    await waitFor(() => PC.page.evaluate(() => { const c = hub.get('summary'); return !!c && sameSummary(c, summaryOf()); }), { timeout: 9000, label: 'summary row' });
+    const sm = await PC.page.evaluate(() => hub.get('summary')), exp = await PC.page.evaluate(() => summaryOf());
+    ok(sm && sm.total === 242 && sm.done === exp.done && sm.next && sm.next.id === exp.next.id && typeof sm.at === 'number', 'the summary row: done / total / the next step / a stamp', JSON.stringify(sm));
+    ok(sm.next.i >= 1 && sm.next.i <= sm.next.n && sm.secTotal === sm.next.n && sm.secDone <= sm.secTotal && typeof sm.next.title === 'string' && typeof sm.next.secName === 'string' && typeof sm.next.sec === 'string', 'its next-step section figures agree', JSON.stringify(sm.next));
+    ok(await IPAD.page.evaluate(() => hub.pull().then(() => { const c = hub.get('summary'); return !!c && c.total === 242; })), 'the second device reads the same row');
+    await PC.page.evaluate(() => { window.__sumW = 0; const o = hub.set; hub.set = function (k, ...a) { if (k === 'summary') window.__sumW++; return o.call(this, k, ...a); }; });
+    await PC.page.evaluate(() => { const id = stepsOf('crafts')[0].id; doneMap[id] = true; save([id]); doneMap[id] = false; save([id]); });   // ticked and unticked inside the 2 s window
+    await sleep(2700);
+    ok(await PC.page.evaluate(() => window.__sumW) === 0, 'the summary is written only when it differs (a tick and an untick inside the window write nothing)');
+    await PC.page.evaluate(() => { const st = stepsOf(curSec); const f = st.findIndex(x => !doneMap[x.id]); curIdx = f < 0 ? 0 : f; renderStep(); });
+    await PC.page.click('#b-done');
+    await waitFor(() => PC.page.evaluate(n => hub.get('summary').done === n + 1, exp.done), { timeout: 9000, label: 'summary after a tick' });
+    ok(await PC.page.evaluate(() => window.__sumW) === 1, 'one tick writes the summary once, after about 2 s');
+    ok(await PC.page.evaluate(() => { const c = hub.get('summary'); return sameSummary(c, summaryOf()); }), 'and it matches the guide');
+    await PC.page.keyboard.press('d');   // untick it again (the shortcut), leaving the run as it was
+    await settled(PC.page);
+
+    // P3-DOLLYWOOD-18: a plot cleared on one device clears on the other; the old dw-plot key never brings a width back
+    await PC.page.evaluate(() => showTab('scale'));
+    await IPAD.page.evaluate(() => hub.pull());
+    await PC.page.fill('#sc-plot', '');
+    await settled(PC.page);
+    ok(await PC.page.evaluate(() => hub.get('plot') == null), 'clearing the plot writes a null plot row');
+    await IPAD.page.evaluate(() => hub.pull());
+    await waitFor(() => IPAD.page.$eval('#sc-plot', e => e.value === ''), { label: 'iPad plot field cleared' });
+    ok(await IPAD.page.$eval('#sc-fac', e => e.textContent) === '—', 'iPad: the field is empty and the factor reads — (a null plot is applied)');
+    ok(await PC.page.evaluate(() => localStorage.getItem('dw-plot')) === null, 'the legacy dw-plot key was removed after the migration');
+    await PC.page.evaluate(() => { localStorage.setItem('dw-plot', '999'); hub.set('plot', '640'); });
+    await settled(PC.page);
+    await openApp(PC.page); await readyAndPulled(PC.page);
+    ok(await PC.page.$eval('#sc-plot', e => e.value) === '640', 'signed in, a boot reads the plot row and never the device key (999 ignored)');
+    ok(await PC.page.evaluate(() => localStorage.getItem('dw-plot')) === null, 'and the stale device key is removed once the row is there');
+
+    // UX-DOLLYWOOD-12 + P3-DOLLYWOOD-07: 50-2,000 m or empty; the step card follows the factor
+    const gs = await PC.page.evaluate(() => { const s = D.steps.find(x => x.elev && /\d\s*m\b(?!²)/.test(x.elev) && gameLine(x.elev, SEC[x.section])); return { sec: s.section, i: stepsOf(s.section).indexOf(s) }; });
+    await PC.page.evaluate(g => { curSec = g.sec; curIdx = g.i; renderStep(); showTab('scale'); }, gs);
+    const gameTxt = () => PC.page.evaluate(() => (document.querySelector('#b-now .meas.game') || {}).textContent || '');
+    await PC.page.fill('#sc-plot', '400'); await settled(PC.page);
+    const ext = await PC.page.evaluate(() => EXT), pc400 = Math.round(400 / ext * 100);
+    ok(new RegExp(`at ${pc400}% scale`).test(await gameTxt()), 'a changed plot width re-renders the step card at once (in game · at ' + pc400 + '% scale)', await gameTxt());
+    ok(await PC.page.evaluate(() => hub.get('plot')) === '400', '400 is saved');
+    await PC.page.fill('#sc-plot', '10');
+    ok(await PC.page.$eval('#sc-err', e => e.textContent) === 'Enter a width from 50 to 2,000 m.' && await PC.page.$eval('#sc-err', e => e.getAttribute('role')) === 'alert', 'too small: "Enter a width from 50 to 2,000 m." under the field (role=alert)');
+    ok(await PC.page.$eval('#sc-plot', e => e.getAttribute('aria-invalid')) === 'true', 'the field is aria-invalid');
+    ok(await PC.page.evaluate(() => hub.get('plot')) === '400', 'nothing is saved for 10');
+    ok(/at 1:1/.test(await gameTxt()), 'and nothing is converted (the card reads 1:1)', await gameTxt());
+    await PC.page.fill('#sc-plot', '2500');
+    ok(await PC.page.$eval('#sc-err', e => e.textContent) !== '' && await PC.page.evaluate(() => hub.get('plot')) === '400', 'too large: the same line, nothing saved');
+    await PC.page.fill('#sc-plot', '2000'); ok(await PC.page.$eval('#sc-err', e => e.textContent) === '' && await PC.page.evaluate(() => hub.get('plot')) === '2000', '2,000 is valid and saved');
+    await PC.page.fill('#sc-plot', '50'); ok(await PC.page.$eval('#sc-err', e => e.textContent) === '' && await PC.page.evaluate(() => hub.get('plot')) === '50', '50 is valid and saved');
+    await PC.page.fill('#sc-plot', '1200'); await settled(PC.page);
+    ok(await PC.page.$eval('#sc-err', e => e.textContent) === '' && !(await PC.page.$eval('#sc-plot', e => e.getAttribute('aria-invalid') === 'true')), 'valid again: no message');
+    ok(/Enter the width you can give it in the game, and every measurement on the step card and the listing cards is also shown in game metres\./.test(await PC.page.$eval('#tab-scale', e => e.textContent)) && !/Info tab/.test(await PC.page.$eval('#tab-scale', e => e.textContent)), 'the Scale copy no longer points to an Info tab');
 
     console.log('\n## the page follows data-scheme (the person\'s theme), no private toggle');
     const marker = page => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--attr').trim().toUpperCase());
@@ -183,8 +252,16 @@ const tickState = (page, id) => page.evaluate(id => {
     await openApp(TV.page);
     await TV.page.waitForFunction(() => window.hub && hub.profile && hub.profile.kind === 'kiosk', null, { timeout: LOAD });
     const tvStep = await TV.page.evaluate(() => stepsOf(curSec)[curIdx].id);
-    await TV.page.click('#b-done'); await sleep(300);
-    ok(await TV.page.evaluate(id => !doneMap[id], tvStep), 'kiosk tap does not tick');
+    // batch 9 (UX-DOLLYWOOD-14): the display is offered no Mark done, Reset or Import, and the plot field is read-only; Previous, Next and Show on map stay
+    ok(await TV.page.$('#b-done') === null && await TV.page.$eval('#sb-done', e => e.hidden), 'the display has no Mark done (card or sticky bar)');
+    ok(await TV.page.$eval('#b-reset', e => e.hidden) && await TV.page.$eval('#b-import', e => e.hidden), 'Reset and Import are not offered');
+    ok(await TV.page.$eval('#sc-plot', e => e.readOnly), 'the plot field is read-only');
+    ok(await TV.page.$eval('#b-prev', e => !e.disabled) && await TV.page.$eval('#b-next', e => !e.disabled) && await TV.page.$eval('#b-show', e => !e.disabled), 'Previous, Next and Show on map stay');
+    const tvIdx = await TV.page.evaluate(() => curIdx);
+    await TV.page.click('#b-next'); await sleep(200);
+    ok(await TV.page.evaluate(() => curIdx) === tvIdx + 1, 'Next still moves through the steps');
+    await TV.page.keyboard.press('d'); await sleep(300);   // the D shortcut reaches stepDone, which the display is refused
+    ok(await TV.page.evaluate(id => !doneMap[id], tvStep), 'the shortcut does not tick on the display');
     ok(await TV.page.evaluate(() => { const t = document.getElementById('hub-toast'); return !!t && /only looks/.test(t.textContent); }), 'kiosk gets the "only looks" toast');
     ok(await TV.page.evaluate(() => hub.sync.pending === 0), 'kiosk queued nothing');
 

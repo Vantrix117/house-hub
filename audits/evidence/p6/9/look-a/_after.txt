@@ -1,0 +1,162 @@
+## (1) controls under 44 px
+  ✓ guide 390x844: no control under 44 px (0)
+  ✓ guide 820x1180: no control under 44 px (0)
+## (2) rendered map text at the default fit
+  ✓ guide 390x844: 51 map labels drawn, none under 11 px
+  ✓ park map 390x844: 0 map labels drawn, none under 11 px
+  ✓ guide 820x1180: 55 map labels drawn, none under 11 px
+  ✓ park map 820x1180: 34 map labels drawn, none under 11 px
+## (3) a done step: check in --success-ink, title in --text-2, >= 4.5:1 on the list in every palette
+  ✓ hearth: no strike-through, no dimming (none, opacity 1)
+  ✓ hearth: the check is a sprite icon
+  ✓ hearth: title 9.85:1
+  ✓ hearth: check 8.11:1
+  ✓ parchment: no strike-through, no dimming (none, opacity 1)
+  ✓ parchment: the check is a sprite icon
+  ✓ parchment: title 10.06:1
+  ✓ parchment: check 7.59:1
+  ✓ frost: no strike-through, no dimming (none, opacity 1)
+  ✓ frost: the check is a sprite icon
+  ✓ frost: title 9.08:1
+  ✓ frost: check 8.11:1
+  ✓ midnight: no strike-through, no dimming (none, opacity 1)
+  ✓ midnight: the check is a sprite icon
+  ✓ midnight: title 10.02:1
+  ✓ midnight: check 11.61:1
+  ✓ forest: no strike-through, no dimming (none, opacity 1)
+  ✓ forest: the check is a sprite icon
+  ✓ forest: title 8.72:1
+  ✓ forest: check 11.19:1
+  ✓ graphite: no strike-through, no dimming (none, opacity 1)
+  ✓ graphite: the check is a sprite icon
+  ✓ graphite: title 11.18:1
+  ✓ graphite: check 12.03:1
+## (4) popovers and menus stay inside the viewport
+  ✓ 390x844: "?" panel inside the viewport (20..370 of 390, 554..788 of 796)
+  ✓ 390x844: "..." menu inside the viewport (8..382 of 390, 546..788 of 796)
+  ✓ 820x1180: View menu inside the viewport (180..430 of 820, 450..574 of 1132)
+  ✓ 820x1180: "?" panel inside the viewport (528..778 of 820, 847..1124 of 1132)
+  ✓ 820x1180: "..." menu inside the viewport (595..775 of 820, 934..1124 of 1132)
+## (5) layout shift through the viewer (P4-TELL-05)
+  ✓ 390x844: CLS 0.0333 < 0.05; #chips min-height 52px, 52 px tall
+  ✓ 820x1180: CLS 0 < 0.05; #chips min-height 52px, 54 px tall
+## (6) the phone's first screen: map top and the attraction markers above the sheet
+  ✓ 390x844: the map's top is 126 px from the top (<= 160)
+  ✓ 390x844: 68 of 68 attraction markers visible and above the sheet (>= 40)
+  ✓ 390x844: the phone's map fills its box (xMidYMid slice)
+## (7) cards stay inside the visible viewport, 8 px in; the head stays while the body scrolls
+  ✓ 820x1180, page scrolled 0: the card is inside the viewport, 8 px in (314..704, 578..1124 of 820x1132)
+  ✓ 820x1180: the close button is in the sticky head
+  ✓ 820x1180, page scrolled 320: the card is inside the viewport, 8 px in (314..704, 385..931 of 820x1132)
+  ✓ 820x1180: the close button is in the sticky head
+  ✓ 1440x900, page scrolled 0: the card is inside the viewport, 8 px in (414..804, 375..844 of 1440x852)
+  ✓ 1440x900: the close button is in the sticky head
+  ✓ 1440x900: the head stays while the body scrolls
+  ✓ 1440x900, page scrolled 320: the card is inside the viewport, 8 px in (414..804, 362..844 of 1440x852)
+  ✓ 1440x900: the close button is in the sticky head
+## (8) browser shortcuts are not ours; the arrows pan only the focused or mostly visible map
+  ✓ ctrlKey+d: not handled, the browser keeps it
+  ✓ metaKey+p: not handled, the browser keeps it
+  ✓ ctrlKey+s: not handled, the browser keeps it
+  ✓ metaKey+m: not handled, the browser keeps it
+  ✓ altKey+ArrowLeft: not handled, the browser keeps it
+  ✓ altKey+ArrowRight: not handled, the browser keeps it
+  ✓ ctrlKey+n: not handled, the browser keeps it
+  ✓ ctrlKey+0: not handled, the browser keeps it
+  ✓ ctrlKey++: not handled, the browser keeps it
+  ✓ metaKey+-: not handled, the browser keeps it
+  ✓ the view, the ticks, the tool and the mode are unchanged after every shortcut
+  ✓ no row was written (Ctrl+D did not tick a step)
+  ✓ with the View menu open the arrows do not pan the map
+  ✓ map 4% in view, body focused: ArrowDown is left to the page (not prevented, view unchanged)
+  ✓ map in view, body focused: ArrowRight pans the map
+  ✓ map focused: ArrowLeft pans the map
+  ✓ the map box is focusable (tabindex 0)
+## (9) no horizontal scroll, 375 to 1440, default and XXL
+  ✓ guide 375: scrollWidth 375 <= 375
+  ✓ guide 375 XXL: scrollWidth 375 <= 375
+  ✓ guide 390: scrollWidth 390 <= 390
+  ✓ guide 390 XXL: scrollWidth 390 <= 390
+  ✓ guide 430: scrollWidth 430 <= 430
+  ✓ guide 430 XXL: scrollWidth 430 <= 430
+  ✓ guide 744: scrollWidth 744 <= 744
+  ✓ guide 744 XXL: scrollWidth 744 <= 744
+  ✓ guide 820: scrollWidth 820 <= 820
+  ✓ guide 820 XXL: scrollWidth 820 <= 820
+  ✓ guide 1024: scrollWidth 1024 <= 1024
+  ✓ guide 1024 XXL: scrollWidth 1024 <= 1024
+  ✓ guide 1180: scrollWidth 1180 <= 1180
+  ✓ guide 1180 XXL: scrollWidth 1180 <= 1180
+  ✓ guide 1280: scrollWidth 1280 <= 1280
+  ✓ guide 1280 XXL: scrollWidth 1280 <= 1280
+  ✓ guide 1440: scrollWidth 1440 <= 1440
+  ✓ guide 1440 XXL: scrollWidth 1440 <= 1440
+  ✓ park map 375: scrollWidth 375 <= 375
+  ✓ park map 375 XXL: scrollWidth 375 <= 375
+  ✓ park map 390: scrollWidth 390 <= 390
+  ✓ park map 390 XXL: scrollWidth 390 <= 390
+  ✓ park map 430: scrollWidth 430 <= 430
+  ✓ park map 430 XXL: scrollWidth 430 <= 430
+  ✓ park map 744: scrollWidth 744 <= 744
+  ✓ park map 744 XXL: scrollWidth 744 <= 744
+  ✓ park map 820: scrollWidth 820 <= 820
+  ✓ park map 820 XXL: scrollWidth 820 <= 820
+  ✓ park map 1024: scrollWidth 1024 <= 1024
+  ✓ park map 1024 XXL: scrollWidth 1024 <= 1024
+  ✓ park map 1180: scrollWidth 1180 <= 1180
+  ✓ park map 1180 XXL: scrollWidth 1180 <= 1180
+  ✓ park map 1280: scrollWidth 1280 <= 1280
+  ✓ park map 1280 XXL: scrollWidth 1280 <= 1280
+  ✓ park map 1440: scrollWidth 1440 <= 1440
+  ✓ park map 1440 XXL: scrollWidth 1440 <= 1440
+## (10) backdrop blur only on chrome (toolbar, sheets, floating buttons)
+  ✓ 390x844: 2 live blur layer(s), 0 on content
+  ✓ 820x1180: 2 live blur layer(s), 0 on content
+  ✓ 1440x900: 2 live blur layer(s), 0 on content
+## (11) fonts, aliases, color-mix in the two exports
+  ✓ guide: every font-family reads a --font-* token (23 declarations)
+  ✓ guide: no Fraunces or Archivo in the page's CSS
+  ✓ guide: no old local alias is read (0)
+  ✓ guide: no color-mix in the CSS
+  ✓ guide: no max(var(--fs-floor,0px),calc(..)) size left (0)
+  ✓ park map: every font-family reads a --font-* token (23 declarations)
+  ✓ park map: no Fraunces or Archivo in the page's CSS
+  ✓ park map: no old local alias is read (0)
+  ✓ park map: no color-mix in the CSS
+  ✓ park map: no max(var(--fs-floor,0px),calc(..)) size left (0)
+## (12) drawn controls, icon buttons
+  ✓ the basemap select is drawn (appearance none)
+  ✓ number fields have no spinners
+  ✓ the search field has no native clear glyph and has its own x button
+  ✓ a layer checkbox is the shared switch, 52 x 32 (52x32)
+  ✓ no button is a bare glyph
+  ✓ icons come from the sprite (43 svg.sym)
+## (13) the step highlight pulses three times and rests
+  ✓ the ring animation runs 3 iterations, not forever
+  ✓ after the loop it rests at full stroke (1)
+## (14) CONS-TELL-1: labels and control text are not selectable
+  ✓ guide: every label, button, summary and link-button has user-select: none (0 selectable)
+  ✓ park map: every label, button, summary and link-button has user-select: none (0 selectable)
+## (15) VIS-DOLLYWOOD-4 / UX-DOLLYWOOD-8 / VIS-DOLLYWOOD-14
+  ✓ 390x844: the profile's axis labels render at 11.0 px >= --fs-caption2 (11 px)
+  ✓ 390x844: after a resize they still render at 11.0 px
+  ✓ 390x844: after the second point the pill reads "Profile ready — tap two points for a new cut"
+  ✓ 390x844: the profile is on screen after the cut (top 219 of 796)
+  ✓ 390x844: the measure label is a pill at 11.0 px (278 m · 121 m in game)
+  ✓ 820x1180: the profile's axis labels render at 12.3 px >= --fs-caption2 (12.32 px)
+  ✓ 820x1180: after a resize they still render at 11.0 px
+  ✓ 820x1180: after the second point the pill reads "Profile ready — tap two points for a new cut"
+  ✓ 820x1180: the profile is on screen after the cut (top 773 of 1132)
+  ✓ 820x1180: the measure label is a pill at 11.0 px (322 m · 141 m in game)
+## (16) VIS-DOLLYWOOD-15: listing labels at section zoom
+  ✓ Showstreet: 54 listing labels, none over another label
+## (17) VIS-DOLLYWOOD-10 / UNFILED-1 / CONS-TYPE-1 / VIS-DOLLYWOOD-17
+  ✓ 820x1180: art (96 px), title block and the facts share one row
+  ✓ 820x1180: the h1 is kept for screen readers and not drawn (the viewer bar names the app)
+  ✓ 1180x820: art (96 px), title block and the facts share one row
+  ✓ 1180x820: the header is 130 px tall (<= 150)
+  ✓ 1180x820: the h1 is kept for screen readers and not drawn (the viewer bar names the app)
+  ✓ 1440x900: art (96 px), title block and the facts share one row
+  ✓ 1440x900: the h1 is kept for screen readers and not drawn (the viewer bar names the app)
+  ✓ 1440x900: the Search group flexes (686 px wide)
+144 passed, 0 failed

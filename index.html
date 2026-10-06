@@ -928,6 +928,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // Data the dashboard reads from other apps (each app still owns its own keys).
   hub.use('reminders', 'family').use('f260', 'person').use('leftovers', 'family').use('prayer', 'person').use('hub', 'person').use('timer', 'person')
     .use('dollywood-live', 'family').use('kidverse', 'both')    // park days + kids' stars (kidverse writes; the shell only reads)
+    .use('dollywood', 'person')                                 // the Home build-guide card: the guide's summary row (batch 9, UX-DOLLYWOOD-1; the guide writes)
     .use('verses', 'person')                                    // the Home Verses card: the review days (rev:) and the summary (Verses writes)
     .use('timer', 'family');                                    // the running timers' mirror (batch 6): the kitchen, the TV, and timers kept on this device after a Switch
 
@@ -1597,10 +1598,15 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   }
   // Family map: everyone whose loc:<id> row (dollywood-live, family scope) is fresher than four hours.
   const PARK_FRESH = 4 * 3600e3;
+  // P3-DOLLYWOOD-LIVE-06 (batch 10): a fix counts as "at the park" only on the property: the mapped frame (1535 x 2211 m) plus
+  // 300 m around it. The same box is parkOn() in worker/src/chat.js (where_is_family) and worker/src/reminders.js (parkJob), so a
+  // dot from the house never makes a park day. The park map itself publishes only from the property, so this guards old rows.
+  const parkOn = (x, y) => x >= -300 && x <= 1835 && y >= -300 && y <= 2511;
+  const offPark = v => { const x = Number(v.x), y = Number(v.y); return v.x != null && v.y != null && Number.isFinite(x) && Number.isFinite(y) && !parkOn(x, y); };   // a row with no position is not judged
   function atPark() {
     const now = Date.now(), faces = {}; for (const q of hub.people()) faces[q.id] = q;
     return hub.list('loc:', { app: 'dollywood-live', scope: 'family' })
-      .filter(r => r.value && typeof r.value === 'object' && now - (Number(r.value.t) || 0) < PARK_FRESH)
+      .filter(r => r.value && typeof r.value === 'object' && now - (Number(r.value.t) || 0) < PARK_FRESH && !offPark(r.value))
       .map(r => { const id = r.key.slice(4), q = faces[id] || {}; return { id, t: Number(r.value.t), name: q.name || r.value.name || id, emoji: q.emoji || r.value.emoji, color: q.color || r.value.color, photo: q.photo || null }; })
       .sort((a, b) => b.t - a.t);
   }
@@ -1732,6 +1738,29 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         <div class="gbig one">${line}</div>
         <div class="gsub">${esc(sub)}</div>
       </div></div><div class="gfoot"><button class="btn btn-soft" data-open="verses">${!vs.loading && n ? 'Review now' : 'Open Verses'}</button><img class="spot" src="art/app/verses.svg" alt="" width="200" height="160"></div></div>`;
+  }
+  // Batch 9 (UX-DOLLYWOOD-1): the build guide's Home card. The guide writes one person row, dollywood `summary` = { next: { id,
+  // title, sec, secName, i, n } | null, secDone, secTotal, done, total, at } (secDone / secTotal belong to the NEXT step's section),
+  // debounced 2 s after any tick; the card reads only that row, so it is right before the guide is opened. Adults and guests who
+  // can open the guide; never a kid's Home, the TV or the kitchen. No row (the guide never opened), no card.
+  function guideHome() {
+    const s = hub.get('summary', { app: 'dollywood', scope: 'person' });
+    if (!s || typeof s !== 'object') return null;
+    const total = Math.max(0, Math.floor(+s.total) || 0), done = Math.max(0, Math.floor(+s.done) || 0);
+    if (!total) return null;
+    const n = s.next && typeof s.next === 'object' && typeof s.next.title === 'string' && s.next.title ? s.next : null;
+    return { total, done, next: n, complete: !n || done >= total, secName: n ? String(n.secName || '') : '', secDone: Math.max(0, Math.floor(+s.secDone) || 0), secTotal: Math.max(0, Math.floor(+s.secTotal) || 0) };
+  }
+  function guideCardHtml(g) {
+    const a = appById('dollywood');
+    const line = g.complete ? `All ${g.total} steps built` : `Next: ${g.next.title}`;
+    const sub = g.complete ? 'Every section is done.' : [g.secName, g.secTotal ? `${g.secDone} of ${g.secTotal} done` : ''].filter(Boolean).join(' · ');
+    return `<div class="card gcard guide-card" data-accent="${esc(appHue(a))}">
+      <h2><span class="app-icon"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-ferris-wheel"/></svg></span>Build guide</h2>
+      <div class="gbody"><div class="grow">
+        <div class="gbig">${esc(line)}</div>
+        <div class="gsub">${esc(sub)}</div>
+      </div></div><div class="gfoot"><button class="btn btn-soft" data-open="dollywood">${g.complete ? 'Open the guide' : 'Continue'}</button><img class="spot" src="art/app/dollywood.svg" alt="" width="200" height="160"></div></div>`;
   }
   // ── the family feed: cached for an instant paint, grouped by person, an icon per line, "Show more" in pages of 30 ──
   let clockTimer = null, feed = null, feedLoading = false, feedAgain = false, feedFresh = false, feedLimit = 30, feedSeq = 0;
@@ -2516,6 +2545,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (canSee('verses')) { const vs = versesHome(); if (vs && (vs.loading || vs.total > 0)) cards.push(['verses', versesCardHtml(vs)]); }
     // UX-TIMER-7: start a timer in one tap (the last three lengths), and every running one with Pause and Stop
     if (canSee('timer')) { const tc = timerCardHtml(pulled); if (tc.bit) bits.push(tc.bit); cards.push(['timer', tc.html]); }
+    if (canSee('dollywood')) { const g = guideHome(); if (g) cards.push(['guide', guideCardHtml(g)]); }   // after the Timer card, so batch 4's pairs stay
     if (park.length) { bits.push(park.length + ' at the park'); cards.push(['park', parkCardHtml(park)]); }
     const kids = kidStars(); if (kids.length) cards.push(['kids', kidsCardHtml(kids, hub.isLoaded('kidverse', 'family'))]);
     const remCount = hub.list('item:', { app: 'reminders', scope: 'family' }).filter(r => !remDone.has(r.value && r.value.id)).length;
@@ -2803,6 +2833,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
             ${canSee('verses') ? '<div class="kv"><b>Verses to review, 7 pm</b><button class="switch" data-pref="verses" role="switch" aria-checked="false" aria-label="Verses to review"></button></div>' : ''}
             ${canSee('prayer') ? `<label class="kv"><b>Reminder to pray</b><select class="select notif-time" id="notif-pray" aria-label="Reminder to pray">${PRAY_TIMES.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select></label>` : ''}
             ${p.kind === 'adult' && !isGuest() && canSee('dollywood-live') ? '<div class="kv"><b>Park day: a child\'s spot goes quiet</b><button class="switch" data-pref="park" role="switch" aria-checked="true" aria-label="Park day alerts"></button></div>' : ''}
+            ${p.kind === 'adult' && !isGuest() && canSee('dollywood-live') ? '<div class="kv"><b>Park day: someone reaches the meeting point</b><button class="switch" data-pref="arrive" role="switch" aria-checked="true" aria-label="Park day: someone reaches the meeting point"></button></div>' : ''}
             <button class="btn" id="notif-test" style="margin-top:var(--sp-3)">Send a test notification</button>
           </div></div>` : ''}
         ${p.kind !== 'kiosk' && p.kind !== 'kitchen' ? `<div class="card glass" id="chat-hist"><h2>Chat history</h2><p class="help" style="margin:0 0 var(--sp-3)">${p.kind === 'kid' ? 'Your chats with the helper go away by themselves after 90 days. You can clear them now too.' : 'What you and the assistant said, kept on the house server. Clearing it does not give back today’s messages.'}</p><button class="btn" id="chat-clear">${p.kind === 'kid' ? 'Clear my chats' : 'Clear my chat history'}</button></div>` : ''}
@@ -3305,7 +3336,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // the person's switches: one row per kind (push_pref:<kind>) over the old whole row push_prefs (review of batch 2b)
   const readPrefs = () => {
     const o = { app: 'hub', scope: 'person' };
-    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, timer: true, prayAt: null, readAt: null, ...(hub.get('push_prefs', o) || {}) };   // verses starts off (IMP-VERSES-I2); timer on (PWA-GAP-1)
+    const out = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, timer: true, arrive: true, prayAt: null, readAt: null, ...(hub.get('push_prefs', o) || {}) };   // verses starts off (IMP-VERSES-I2); timer on (PWA-GAP-1); arrive on (GAP-DOLLYWOOD-LIVE-1)
     for (const r of hub.list('push_pref:', o)) out[r.key.slice('push_pref:'.length)] = r.value;
     return out;
   };

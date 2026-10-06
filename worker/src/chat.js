@@ -13,6 +13,7 @@
 import { HttpError, isExpiredGuest } from './auth.js';
 import { listData, getOne, liveItems, rowMap, putOne as rawPut } from './data.js';
 import { nyParts, addRestored, isWrittenBack, timerFmt } from './reminders.js';
+import { offProperty } from './park.js';
 import { appsFor, householdLoader, guardedPut } from './policy.js';
 
 export const MODEL = 'claude-sonnet-5';
@@ -521,7 +522,7 @@ async function runToolInner(env, ctx, name, input, writes) {
     if (name === 'where_is_family') {
       const cutoff = Date.now() - 4 * 3600000;
       const rows = await liveItems(env, { appId: 'dollywood-live', scope: 'family', profile, prefix: 'loc:' });
-      const seen = rows.map(r => ({ id: r.key.slice(4), v: r.value })).filter(x => x.v && typeof x.v === 'object' && +x.v.t > cutoff && x.v.x != null)
+      const seen = rows.map(r => ({ id: r.key.slice(4), v: r.value })).filter(x => x.v && typeof x.v === 'object' && +x.v.t > cutoff && x.v.x != null && !offProperty(x.v))   // a fix from outside the property (the house, the road) is not "at the park" (P3-DOLLYWOOD-LIVE-06)
         .sort((a, b) => +b.v.t - +a.v.t)
         .map(x => ({ id: x.id, name: x.v.name || x.id, x: x.v.x, y: x.v.y, minutesAgo: Math.max(0, Math.round((Date.now() - +x.v.t) / 60000)), at: new Date(+x.v.t).toISOString(), accuracyM: x.v.acc == null ? null : x.v.acc }));
       return { ok: true, result: seen.length ? { people: seen, note: 'x/y are Dollywood map positions from the Dollywood Live app; say who was seen and how long ago.' } : 'Nobody has shared a position on the Dollywood Live map in the last 4 hours.', chip: null };

@@ -671,6 +671,58 @@ async function artSample(page, sel) {
     const left = (await expectedPark(dad)).who;
     if (left.length) ok(true, '(b) (skipped: another suite holds fresh pins for ' + left.map(w => w.name).join(', ') + ')');
     else { await waitFor(() => A.page.evaluate(() => !document.querySelector('.park-card')), { label: 'park card gone' }); ok(true, '(b) card hidden once every pin is older than 4 h'); }
+
+    console.log('\n## batch 10 (P3-DOLLYWOOD-LIVE-06): a fix from outside the property is not "at the park"');
+    {
+      const off = (id, x, y) => ownRow('dollywood-live', 'loc:' + id, id, { x, y, acc: 10, t: Date.now(), name: id }, Date.now());
+      const mae = PEOPLE.christian.name, names = () => A.page.evaluate(() => [...document.querySelectorAll('.park-card .park-list .pn')].map(e => e.textContent.trim()));
+      await off('christian', 1835 + 400, 700);                           // 400 m east of the frame's edge plus its 300 m border: the road, or home
+      await A.page.evaluate(() => hub.pull()); await sleep(900);
+      ok(!(await names()).includes(mae), '(b) a dot 400 m past the property edge is not on the park card', JSON.stringify(await names()));
+      await off('christian', -250, 900);                                 // 250 m west of the frame: still the property (the frame plus 300 m)
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => (await names()).includes(mae), { label: 'Mae on the park card (on the property)' });
+      ok(true, '(b) a dot 250 m outside the frame is still the property: Mae is on the card');
+      await off('christian', 1000, 2511 + 40);                           // 40 m past the north border
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => !(await names()).includes(mae), { label: 'Mae off the park card (past the border)' });
+      ok(true, '(b) a dot 40 m past the north border is off the card');
+      await off('christian', 1000, 700); await off('christian', 5000, 5000);   // an old fix on the property, then a newer one far away: the newest row wins
+      await A.page.evaluate(() => hub.pull()); await sleep(600);
+      ok(!(await names()).includes(mae), '(b) the newest row decides: a far dot replaced the park dot', JSON.stringify(await names()));
+      await ownRow('dollywood-live', 'loc:christian', 'christian', { x: 1000, y: 700, acc: 10, t: Date.now() - 5 * 3600e3, name: 'christian' }, Date.now());
+    }
+
+    console.log('\n## batch 9 (UX-DOLLYWOOD-1): the build guide card on Home (David, 390)');
+    {
+      const t0 = Date.now() + 2000, sum = (o = {}) => ({ next: { id: 'entrance-8', title: 'Blueprint the section', sec: 'entrance', secName: 'Entrance & Plaza', i: 8, n: 9 }, secDone: 7, secTotal: 9, done: 30, total: 242, at: new Date().toISOString(), ...o });
+      const card = () => A.page.$eval('#view-home .guide-card', c => ({ head: c.querySelector('h2').textContent.trim(), big: c.querySelector('.gbig').textContent.trim(), sub: c.querySelector('.gsub').textContent.trim(), btn: c.querySelector('[data-open]').textContent.trim(), open: c.querySelector('[data-open]').dataset.open, accent: c.dataset.accent, art: c.querySelector('.spot').getAttribute('src'), inFoot: !!c.querySelector('.gfoot > .spot'), btnH: Math.round(c.querySelector('[data-open]').getBoundingClientRect().height) })).catch(() => null);
+      await A.page.click('.tab[data-tab=home]');
+      ok(!(await A.page.$('#view-home .guide-card')), '(h) no summary row, no guide card');
+      await api('/api/data/dollywood/summary?scope=person', { method: 'PUT', profile: dadTok, body: { value: sum(), updated_at: t0 } });
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(() => A.page.$('#view-home .guide-card'), { label: 'the guide card' });
+      let c = await card();
+      ok(c && c.head === 'Build guide' && c.big === 'Next: Blueprint the section' && c.sub === 'Entrance & Plaza \u00b7 7 of 9 done' && c.btn === 'Continue' && c.open === 'dollywood', '(h) "Build guide", "Next: Blueprint the section", "Entrance & Plaza \u00b7 7 of 9 done", Continue', JSON.stringify(c));
+      ok(c.accent === 'orchid' && c.art === 'art/app/dollywood.svg' && c.inFoot && c.btnH >= 44, '(h) orchid, its spot art in the footer, a 44 px button', JSON.stringify(c));
+      const keep = await A.page.evaluate(() => { window.__heroKeep = document.querySelector('#view-home [data-part="hero"] > *'); window.__verseKeep = document.querySelector('#view-home .verses-card'); return true; });
+      await api('/api/data/dollywood/summary?scope=person', { method: 'PUT', profile: dadTok, body: { value: sum({ next: { id: 'entrance-9', title: 'Finish the plaza', sec: 'entrance', secName: 'Entrance & Plaza', i: 9, n: 9 }, secDone: 8, done: 31 }), updated_at: t0 + 1 } });
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => (await card() || {}).big === 'Next: Finish the plaza', { label: 'the card follows the summary' });
+      ok(await A.page.evaluate(() => window.__heroKeep === document.querySelector('#view-home [data-part="hero"] > *') && (!window.__verseKeep || window.__verseKeep === document.querySelector('#view-home .verses-card'))), '(h) patched in place: the hero and the Verses card were not replaced');
+      await api('/api/data/dollywood/summary?scope=person', { method: 'PUT', profile: dadTok, body: { value: sum({ next: null, done: 242, secDone: 0, secTotal: 0 }), updated_at: t0 + 2 } });
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => (await card() || {}).big === 'All 242 steps built', { label: 'all built' });
+      c = await card();
+      ok(c.btn === 'Open the guide' && !/undefined|NaN/.test(c.sub), '(h) everything ticked: "All 242 steps built" and "Open the guide"', JSON.stringify(c));
+      await A.page.click('#view-home .guide-card [data-open="dollywood"]');
+      ok(await waitFor(() => A.page.$eval('#frame', f => /apps\/dollywood\.html/.test(f.src))), '(h) the card opens the build guide');
+      await A.page.keyboard.press('Escape'); await sleep(300);
+      const KD = await newContext(browser, 'guide-kid'); await signIn(KD.page, 'ezra');
+      ok(!(await KD.page.$('#view-home .guide-card')), '(h) never on a kid\'s Home');
+      await KD.ctx.close();
+      await api('/api/data/dollywood/summary?scope=person', { method: 'DELETE', profile: dadTok }).catch(() => {});
+    }
     await A.ctx.close();
 
     console.log('\n## batch 7 (UX-KIDVERSE-5): no family week has ever been set');

@@ -18,7 +18,7 @@ import {
 import { listData, getOne, putOne, checkScope, checkKey } from './data.js';
 import { householdLoader, checkRead, guardedPut, creditFor, isHouseholdAdult } from './policy.js';
 import registry from '../../apps.json' with { type: 'json' };   // the apps' visibleTo ids are never handed to a new person
-import { runCron, pushTo, prefsFor, vapidFrom, validSubscription, nyParts, jobsAt, JOBS, MINUTE_CRON, timerJob, f260UntickOutlived, f260RecentTicks, pruneRestored } from './reminders.js';
+import { runCron, pushTo, prefsFor, vapidFrom, validSubscription, nyParts, jobsAt, JOBS, MINUTE_CRON, timerJob, arriveJob, f260UntickOutlived, f260RecentTicks, pruneRestored } from './reminders.js';
 import { chatHandler, chatHistory, chatUndo, chatClear, chatStop, pruneKidChat, activity } from './chat.js';
 import { decodeImage, putMedia, getMedia, deletePrefix, deleteMedia, sweepMedia, readCapped, voiceType, sniffVoice, MAX_SM, MAX_LG, MAX_VOICE_BYTES, MAX_VOICE_MS } from './media.js';
 
@@ -942,7 +942,7 @@ route('POST', '/api/push/test', async c => {
   }
   return { ...(await pushTo(c.env, me.id, 'test', { title: 'Anderson House', body: 'Notifications are working on this device.', url: '#me', tag: 'test' }, { ttl: 600, urgency: 'high' }, { deviceId: auth.device.id })), device: true };
 });
-// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime' | 'verses' | 'timer'}
+// Run a reminder job now (admin), e.g. to demo it. {job: 'morning' | 'evening' | 'behind' | 'prayer' | 'prayedfor' | 'park' | 'praytime' | 'verses' | 'timer' | 'arrive'}
 route('POST', '/api/admin/cron/run', async c => {
   requireAdmin(await c.auth());
   const { job } = await c.body();
@@ -1022,10 +1022,13 @@ export default {
   // moves the 8 am / 8 pm jobs into another slot.
   async scheduled(event, env, ctx) {
     const now = Number.isFinite(+event.scheduledTime) && +event.scheduledTime > 0 ? +event.scheduledTime : Date.now();
-    // the minute trigger (batch 6, PWA-GAP-1) runs only the "Timer done" push; everything else stays on the 15-minute one
+    // the minute trigger runs the "Timer done" push (batch 6, PWA-GAP-1) and the meeting point's arrivals (batch 10,
+    // GAP-DOLLYWOOD-LIVE-1); everything else stays on the 15-minute one
     if (event.cron === MINUTE_CRON) {
       try { const t = await timerJob(env, now); if (t.due.length || t.cleared.length) console.log('cron timer', JSON.stringify(t)); }
       catch (e) { console.error('cron timer', (e && e.stack) || e); }
+      try { const a = await arriveJob(env, now); if (a.arrived.length) console.log('cron arrive', JSON.stringify(a)); }
+      catch (e) { console.error('cron arrive', (e && e.stack) || e); }
       return;
     }
     const { main } = jobsAt(now);

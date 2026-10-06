@@ -73,6 +73,10 @@ try {
   at(40);                                                           // Eli's dot 40 min old: no adult fresh
   r = await park();
   ok(r.stale.length >= 1 && !r.notified.length && !r.skipped.length, 'no fresh adult dot: nothing sent', r);
+  // batch 10 (P3-DOLLYWOOD-LIVE-06): a fresh dot from outside the property (the frame plus 300 m) is not a grown-up at the park
+  ok((await call('eli', 'PUT', '/api/data/dollywood-live/loc:eli?scope=family', { value: { x: 5000, y: 5000, acc: 8, t: NOW, name: 'eli' }, updated_at: NOW })).status === 200, 'Eli\'s phone sends a fix from home (5 km away)');
+  r = await park();
+  ok(!r.notified.length && !r.markers.some(m => m.id === 'eli'), 'a fresh dot off the property is not "an adult at the park": nothing sent, not even a marker', r);
   const g = await call('guest-grandmajo', 'PUT', '/api/data/dollywood-live/loc:guest-grandmajo?scope=family', { value: { x: 1, y: 1, t: NOW, name: 'Jo' }, updated_at: NOW });
   ok(g.status === 200, 'a guest publishes a dot');
   r = await park();

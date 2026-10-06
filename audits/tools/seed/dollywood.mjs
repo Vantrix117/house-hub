@@ -35,6 +35,14 @@ export default function dollywood(h) {
   // (D.layers.allbox, :1051), so 400 m compresses it to 44 %; overflow tries a five-digit width.
   h.person('eli', 'dollywood', 'plot', h.overflow ? '12500' : '400', h.time(-6, '20:05'));
 
+  // 'summary' — batch 9 (UX-DOLLYWOOD-1): the guide writes {next, secDone, secTotal, done, total, at} 2 s after any tick; the Home
+  // card ("Build guide / Next: … / <section> · 7 of 9 done / Continue") reads only this row. next is the first unticked step in section
+  // order; secDone / secTotal are that step's section. Typical: entrance-08 of 9 (7 done); overflow: grove-24 of 26 (23 done).
+  const total = SECTIONS.reduce((a, [, n]) => a + n, 0), doneN = Object.values(done).reduce((a, n) => a + n, 0);
+  h.person('eli', 'dollywood', 'summary', h.overflow
+    ? { next: { id: 'grove-24', title: 'Night lighting pass', sec: 'grove', secName: 'Wildwood Grove', i: 24, n: 26 }, secDone: 23, secTotal: 26, done: doneN, total, at: h.time(-1, '21:12') }
+    : { next: { id: 'entrance-08', title: 'Planting, banners and signage', sec: 'entrance', secName: 'Entrance & Plaza', i: 8, n: 9 }, secDone: 7, secTotal: 9, done: doneN, total, at: h.time(-1, '21:12') }, h.time(-1, '21:12'));
+
   // The feed line a tick posts: hub.activity('Ticked ' + now.title) at :1086 — the last step Eli ticked last night
   // (real step titles: show-13 in typical; crafts-17, the guide's longest title, in overflow).
   if (h.typical) h.activity('eli', 'dollywood', 'Ticked Traditions, Wired Up Names and Gazebo Gifts (#17, #18, #13)', h.time(-1, '21:12'));

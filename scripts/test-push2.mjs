@@ -11,6 +11,8 @@
 // due > 0 only, once a day, never a kid; and its switch in Me.
 // Batch 6 (PWA-GAP-1) adds "Timer done": a timer:<id> row that ended in the last 10 minutes → its owner, once per start, the
 // label only, on unless push_pref:timer is off, never a kid; the 10-minute rule clears older rows; and its switch in Me.
+// Batch 10 (GAP-DOLLYWOOD-LIVE-1) adds "someone reaches the meeting point": the forced arrive job tells the other household grown-ups once per
+// person per meeting point, honours push_pref:arrive, never tells a kid or a guest, and its switch in Me.
 // (The minute trigger itself, the retry and the pruning: audits/tools/phase6/6/cron-check-6.mjs.)
 //   cd worker && npx wrangler dev --port 8787     (a freshly reset, seeded local D1 — push_log must be empty for today)
 //   node scripts/test-push2.mjs <pairing-code>
@@ -321,6 +323,62 @@ async function serveSite() {
       for (const [pid, k] of [['eli', 'timer:p6'], ['eli', 'timer:o6'], ['christian', 'timer:t6'], ['ezra', 'timer:e6']]) await put(pid, 'timer', 'person', k, null);
     }
 
+    console.log('\n## Park day: someone reaches the meeting point (batch 10, GAP-DOLLYWOOD-LIVE-1): the arrive job, forced');
+    {
+      const arrives = pid => pushes.filter(x => x.url === '/push/' + pid && x.payload && /^arrive-/.test(x.payload.tag || ''));
+      const now = Date.now(), at = now - 30000, MX = 1000, MY = 1000;
+      const loc = (pid, x, y, acc = 12) => put(pid, 'dollywood-live', 'family', 'loc:' + pid, { x, y, acc, t: Date.now(), name: pid });
+      // a guest (PIN-less) with a receiver subscription: neither announced nor told
+      let gid = null;
+      { const g = await api('POST', '/api/profiles', { name: 'Arrive Guest', emoji: '🙂' }, 'eli'); gid = g.body && ((g.body.profile && g.body.profile.id) || g.body.id);
+        ok(g.status === 200 && gid, 'a guest was added for the check', g.body);
+        const l = await api('POST', '/api/login', { profile_id: gid }); tokens[gid] = l.body.profile_token;
+        // anyone else signing in on this device ends the others' subscriptions (batch 2b): subscribe everyone again, the guest last
+        for (const pid of ['eli', 'christian', 'mom', gid]) { const sub = await api('POST', '/api/push/subscribe', { subscription: subFor(pid) }, pid); ok(sub.status === 200, `${pid}: receiver subscribed again`, sub.body); } }
+      await put('eli', 'dollywood-live', 'family', 'kidshare:ezra', true);                               // Ezra's beacon is on
+      for (const pid of ['eli', 'christian', 'mom', 'ezra', gid]) await api('PUT', `/api/data/dollywood-live/loc:${pid}?scope=family`, { value: null, updated_at: Date.now() }, pid);
+      await put('eli', 'dollywood-live', 'family', 'meet', { x: MX, y: MY, name: 'Showstreet bench', note: '', by: 'eli', byName: 'Eli', at });
+      await loc('christian', 1500, 1000);                                                                // Mae: 500 m away
+      await loc('mom', 1005, 1010, 10);                                                                   // Mom: already there when the point is set
+      await loc(gid, 1700, 1000);                                                                         // the guest: far
+      await loc('ezra', 1400, 1000);                                                                      // Ezra: far
+      r = await run('arrive');
+      ok(r.status === 200 && r.body.job === 'arrive' && r.body.meet && r.body.meet.name === 'Showstreet bench', 'POST /api/admin/cron/run {job: "arrive"}', r.body);
+      ok(!r.body.arrived.length && !arrives('eli').length && !arrives('christian').length && !arrives('mom').length, 'the first run only records who stands where: Mom was already at the point, nobody is announced', r.body);
+      await loc('mom', 1006, 1012, 10);
+      r = await run('arrive');
+      ok(!r.body.arrived.length, 'Mom stays at the point: still nobody announced', r.body);
+      await loc('christian', 1015, 1010, 20);                                                             // Mae walks up: 18 m away, fix good to 20 m
+      r = await run('arrive');
+      ok(r.body.arrived.join() === 'christian' && r.body.notified.map(n => n.profile).sort().join() === 'eli,mom', 'Mae arrives: Eli and Mom are told (not Mae)', r.body);
+      await waitFor(() => arrives('eli').length, { label: 'arrive push' });
+      { const p = arrives('eli')[0]; ok(p.payload.title === 'Mae reached the meeting point' && p.payload.body === 'Showstreet bench \u00b7 open the park map' && p.payload.url === '#dollywood-live' && p.payload.tag === `arrive-${at}-christian` && p.payload.to === 'eli' && p.vapid === 'valid', 'decrypted payload: "Mae reached the meeting point", "Showstreet bench \u00b7 open the park map", tag arrive-<meetAt>-christian', p); }
+      ok(!arrives('christian').length, 'Mae got nothing about herself');
+      r = await run('arrive');
+      ok(!r.body.arrived.length && !r.body.notified.length, 'a second run: nobody twice', r.body);
+      await loc('christian', 1500, 1000); await run('arrive'); await loc('christian', 1012, 1008, 15); r = await run('arrive');
+      ok(!r.body.notified.length, 'Mae leaves and comes back: once per person per meeting point, nothing again', r.body);
+      // switch off: Eli turns it off; Ezra (a kid, beacon on) arrives and only Mae hears; the guest arrives and nobody does
+      await put('eli', 'hub', 'person', 'push_pref:arrive', false);
+      await loc('ezra', 1010, 1005, 15); await loc(gid, 1004, 1004, 15);
+      r = await run('arrive');
+      ok(r.body.arrived.join() === 'ezra' && r.body.notified.map(n => n.profile).sort().join() === 'christian,mom' && r.body.skipped.some(x => x.profile === 'eli' && x.why === 'pref_off'), 'Ezra arrives: Mae and Mom are told, Eli has the switch off', r.body);
+      await sleep(400);
+      ok(arrives('eli').length === 1 && arrives('christian').length === 1 && arrives('mom').length === 2, 'receiver: Eli 1 (before the switch went off), Mae 1 (Ezra), Mom 2 (Mae, Ezra)', [arrives('eli').length, arrives('christian').length, arrives('mom').length]);
+      ok(!arrives('ezra').length && !arrives(gid).length && !pushes.some(p => p.url === '/push/ezra'), 'a kid and a guest are never told', pushes.filter(p => p.url === '/push/' + gid).length);
+      ok(!r.body.arrived.includes(gid), 'a guest arriving is not announced either', r.body.arrived);
+      // a new meeting point starts fresh; a rough fix (> 60 m) is not a position; an old point ends the job
+      await put('eli', 'dollywood-live', 'family', 'meet', { x: 300, y: 300, name: 'The Village', note: '', by: 'eli', byName: 'Eli', at: Date.now() });
+      await loc('christian', 305, 305, 150);
+      r = await run('arrive'); ok(!r.body.arrived.length, 'a new point records the positions again; a 150 m fix is no position', r.body);
+      await put('eli', 'dollywood-live', 'family', 'meet', { x: 300, y: 300, name: 'The Village', note: '', by: 'eli', byName: 'Eli', at: Date.now() - 3 * 3600000 });
+      r = await run('arrive'); ok(r.body.meet === null, 'a meeting point older than 2 hours ends the job', r.body);
+      await put('eli', 'hub', 'person', 'push_pref:arrive', true);
+      await api('PUT', '/api/data/dollywood-live/meet?scope=family', { value: null, updated_at: Date.now() + 1 }, 'eli');
+      for (const pid of ['eli', 'christian', 'mom', 'ezra', gid]) await api('PUT', `/api/data/dollywood-live/loc:${pid}?scope=family`, { value: null, updated_at: Date.now() }, pid);
+      await put('eli', 'dollywood-live', 'family', 'kidshare:ezra', null);
+    }
+
     console.log('\n## Me → Notifications: the three switches (headless)');
     site = await serveSite();
     if (!site) { ok(false, `port ${SITE_PORT} stayed busy — headless Me check skipped`); }
@@ -383,6 +441,14 @@ async function serveSite() {
       { const r = (await api('GET', '/api/data/hub?scope=person&prefix=push_pref:timer', undefined, 'eli')).body.items || []; ok(r.length === 1 && r[0].value === false, 'tapping it off writes push_pref:timer = false', r); }
       await page.click('#notif-prefs [data-pref=timer]');
       await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush timer on' });
+      // batch 10 (GAP-DOLLYWOOD-LIVE-1): "Park day: someone reaches the meeting point" is on with no row; tapping it writes push_pref:arrive = false
+      { const ar = await page.$eval('#notif-prefs [data-pref=arrive]', e => ({ on: e.getAttribute('aria-checked'), label: e.closest('.kv').querySelector('b').textContent })).catch(() => null);
+        ok(ar && ar.on === 'true' && /Park day: someone reaches the meeting point/.test(ar.label), 'Me: a "Park day: someone reaches the meeting point" switch, on by default', ar); }
+      await page.click('#notif-prefs [data-pref=arrive]');
+      await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush arrive' });
+      { const r = (await api('GET', '/api/data/hub?scope=person&prefix=push_pref:arrive', undefined, 'eli')).body.items || []; ok(r.length === 1 && r[0].value === false, 'tapping it off writes push_pref:arrive = false', r); }
+      await page.click('#notif-prefs [data-pref=arrive]');
+      await waitFor(() => page.evaluate(() => hub.flush().then(() => hub.sync.pending === 0)), { label: 'flush arrive on' });
       await page.evaluate(() => document.getElementById('notif').scrollIntoView());
       fs.mkdirSync(path.join(ROOT, 'docs/screens'), { recursive: true });
       await page.screenshot({ path: path.join(ROOT, 'docs/screens/rm15-me-notifications.png') });

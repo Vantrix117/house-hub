@@ -34,7 +34,7 @@ async function ctx(browser, name) {
     if (navigator.geolocation) { const w = navigator.geolocation.watchPosition.bind(navigator.geolocation); navigator.geolocation.watchPosition = (...a) => { window.__geoCalls++; return w(...a); }; }
   }, API);
   const page = await c.newPage(); errors[name] = [];
-  page.on('pageerror', e => errors[name].push(e.message)); page.on('console', m => { if (m.type() === 'error' && !/40[13]|429|ERR_INTERNET_DISCONNECTED/.test(m.text())) errors[name].push(m.text()); });   // the offline phase makes the API unreachable on purpose
+  page.on('pageerror', e => errors[name].push(e.message)); page.on('console', m => { if (m.type() === 'error' && !/40[13]|429|502|ERR_INTERNET_DISCONNECTED/.test(m.text())) errors[name].push(m.text()); });   // the offline phase makes the API unreachable on purpose
   await page.goto(SITE + '/index.html'); await page.waitForSelector('#paircode'); await page.fill('#paircode', CODE); await page.click('#pairform button[type=submit]'); await page.waitForSelector('.pcard[data-id]');
   return page;
 }
@@ -53,7 +53,7 @@ async function openMap(page) {
 }
 
 (async () => {
-  const exe = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(p => fs.existsSync(p));
+  const exe = process.env.HUB_CHROME || ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find(p => fs.existsSync(p));
   const browser = await chromium.launch({ headless: true, executablePath: exe });
   try {
     console.log('\n## Ezra (kid): view-only');
@@ -96,6 +96,31 @@ async function openMap(page) {
     await sleep(1500);
     ok(await fk.evaluate(() => !hub.list('loc:', { scope: 'family' }).some(r => r.key === 'loc:eli')), 'kid no longer sees Eli after he stopped sharing');
 
+
+    console.log('\n## Batch 10 (park map): the beacon on an open kid map, no publish off the property, the kid\'s Share row, the view-only kid\'s text');
+    // Eli (household adult) switches Ezra\'s beacon on; Ezra\'s already-open map starts locating at once, shows no Share switch, and when the beacon goes off stops and removes his dot
+    await fa.evaluate(() => hub.set('kidshare:ezra', false, { scope: 'family' }));
+    await fa.evaluate(() => hub.flush());
+    await fk.evaluate(() => hub.pull()); await sleep(1500);
+    ok(await fk.evaluate(() => watchId == null && document.getElementById('loc-btn').hidden === true), 'a view-only kid: no watch, no Find me');
+    ok(await fk.evaluate(() => { document.getElementById('loc-near').click(); return /A grown-up can show where you are/.test(document.getElementById('near-list').textContent) && document.getElementById('loc-place').hidden === true; }), 'a view-only kid reads "A grown-up can show where you are." and has no Set my spot');
+    await fa.evaluate(() => { hub.set('kidshare:ezra', true, { scope: 'family' }); return hub.flush(); });
+    await fk.evaluate(() => hub.pull());
+    await waitFor(() => fk.evaluate(() => watchId != null), { label: 'kid locating after the beacon went on' });
+    ok(true, 'beacon on: the kid\'s open map starts locating without a reopen');
+    ok(await fk.evaluate(() => { document.getElementById('lv-family').click(); return !document.getElementById('lv-share') && /Your beacon is on — a grown-up can switch it off/.test(document.getElementById('fam-list').textContent); }), 'a kid never sees the Share switch; the row says the beacon is on');
+    await waitFor(() => fa.evaluate(() => hub.pull().then(() => hub.list('loc:', { scope: 'family' }).some(r => r.key === 'loc:ezra'))), { label: 'kid dot published' });
+    await fa.evaluate(() => { hub.set('kidshare:ezra', false, { scope: 'family' }); hub.remove('loc:ezra', { scope: 'family' }); return hub.flush(); });
+    await fk.evaluate(() => hub.pull());
+    await waitFor(() => fk.evaluate(() => watchId == null), { label: 'kid stopped after the beacon went off' });
+    ok(true, 'beacon off: the kid\'s map stops locating within one pull');
+    await fk.evaluate(() => hub.flush()); await sleep(800);
+    ok(await fa.evaluate(() => hub.pull().then(() => !hub.list('loc:', { scope: 'family' }).some(r => r.key === 'loc:ezra'))), 'and the kid\'s dot is gone for the family');
+    // an adult sharing from far away publishes nothing
+    await fa.evaluate(() => { window.__locSets = 0; const s = hub.set.bind(hub); hub.set = (k, v, o) => { if (/^loc:eli$/.test(k) && v) window.__locSets++; return s(k, v, o); }; hub.set('share', true, { scope: 'person' }); setMe(-4000, -4000, 8, null, 'gps'); lastPub = 0; publish(); });
+    ok(await fa.evaluate(() => window.__locSets === 0), 'a fix 4 km from the park is not published');
+    await fa.evaluate(() => { setMe(762, 842, 8, null, 'gps'); lastPub = 0; publish(); hub.set('share', false, { scope: 'person' }); });
+    ok(await fa.evaluate(() => window.__locSets >= 1), 'a fix in the park is');
     console.log('\n## Item 2: lean file, lazy layers, no 3D remnant');
     const src = fs.readFileSync(path.join(ROOT, 'apps/dollywood-live.html'), 'utf8');
     ok(src.length < 1.6e6, 'park map source under 1.6 MB (was 4.0 MB)', String(src.length));
@@ -122,7 +147,7 @@ async function openMap(page) {
     await waitFor(() => fa.evaluate(() => hub.flush().then(() => hub.sync.pending === 0 && !hub.list('loc:', { scope: 'family' }).some(r => r.key === 'loc:dad'))), { label: 'dad tombstoned' });
     ok(true, "30-hour-old marker (David) tombstoned by an adult's map");
     const famHtml = await fa.evaluate(() => document.getElementById('fam-list').innerHTML);
-    ok(famHtml.includes('Elizabeth') && famHtml.includes('h ago') && famHtml.includes('opacity:.55'), '6-hour-old marker (Elizabeth) listed greyed with last-seen time');
+    ok(famHtml.includes('Elizabeth') && famHtml.includes('h ago') && /class="lv-item old"[^>]*data-f="mom"|data-f="mom"/.test(famHtml) && famHtml.includes('lv-item old'), '6-hour-old marker (Elizabeth) listed greyed with last-seen time');
     ok(await fa.evaluate(() => !document.querySelector('#fam-list [data-f="dad"]')), 'David no longer listed');
 
     console.log('\n## Item 2: offline — the map opens from the service worker cache');

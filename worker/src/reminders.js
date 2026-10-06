@@ -18,6 +18,7 @@
 // — PWA-UX-2. Kids, the display and the kitchen get none.
 import { sendPush, unb64u } from './push.js';
 import { liveItems, getOne, rowMap } from './data.js';
+import { offProperty } from './park.js';
 import { due as larderDue, pushBody as larderPushBody } from './larder.js';
 
 const NY = 'America/New_York';
@@ -37,7 +38,7 @@ export const vapidFrom = env => (env.VAPID_PRIVATE_KEY && env.VAPID_PUBLIC_KEY
  *  a quarter hour, New York time) turns the reminder to pray on — unset, it is off. readAt ("HH:MM", New York) is when the
  *  reading nudge (kind f260) comes — unset, 8 pm (IMP-F260-F4); the f260 switch still turns it off. The evening verse
  *  review (kind verses, IMP-VERSES-I2) is the one switch that starts OFF: only push_pref:verses = true turns it on. */
-export const PREF_DEFAULTS = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, timer: true, prayAt: null, readAt: null };
+export const PREF_DEFAULTS = { leftovers: true, f260: true, behind: true, prayer: true, park: true, prayedfor: true, verses: false, timer: true, arrive: true, prayAt: null, readAt: null };
 export const READ_AT_DEFAULT = '20:00';
 /** "HH:MM" → minutes after midnight, or null for anything else. */
 export const minutesOf = s => { const m = /^(\d{2}):(\d{2})$/.exec(String(s || '')); return m && +m[1] < 24 && +m[2] < 60 ? +m[1] * 60 + +m[2] : null; };
@@ -459,7 +460,10 @@ export async function parkJob(env, now = Date.now()) {
   const out = { job: 'park', date, parkDay: false, markers: [], stale: [], notified: [], skipped: [] };
   // when the house last HEARD from each dot (synced_at, the Worker's own clock), not the writer's t: a kid's phone whose clock
   // runs slow still counts as updating (review of batch 2b)
-  const { results: rows } = await env.DB.prepare("SELECT key, synced_at, updated_at FROM app_data WHERE app_id = 'dollywood-live' AND scope = 'family' AND profile_id IS NULL AND substr(key, 1, 4) = 'loc:' AND value IS NOT NULL").all();
+  const { results: all } = await env.DB.prepare("SELECT key, value, synced_at, updated_at FROM app_data WHERE app_id = 'dollywood-live' AND scope = 'family' AND profile_id IS NULL AND substr(key, 1, 4) = 'loc:' AND value IS NOT NULL").all();
+  // P3-DOLLYWOOD-LIVE-06 (batch 10): a dot outside the property (the frame plus 300 m, park.js) is a fix from home or the road: it
+  // never makes a park day and never counts as a fresh grown-up
+  const rows = all.filter(r => { let v = null; try { v = JSON.parse(r.value); } catch {} return !offProperty(v); });
   const memory = (await readSetting(env, PARK_KEY)) || {};
   const spells = {};
   const save = async () => { if (JSON.stringify(spells) !== JSON.stringify(memory)) await writeSetting(env, PARK_KEY, spells); };
@@ -489,6 +493,67 @@ export async function parkJob(env, now = Date.now()) {
     if (r.ok) for (const m of kids) spells[m.id].told.push(pid);
   }
   await save();
+  return out;
+}
+
+/**
+ * GAP-DOLLYWOOD-LIVE-1 (batch 10), "someone reached the meeting point": the minute trigger's second job. It reads the family
+ * park rows dollywood-live `loc:<id>` that the house heard from in the last 3 minutes (its own clock, as parkJob does) and the
+ * `meet` row (under 2 h old, by its own `at`). When a household person's dot goes from outside to within 40 m of the meeting
+ * point with a fix good to 60 m, the other household grown-ups who have the switch on (push_pref:arrive, on unless off) are told
+ * "Mae reached the meeting point" / "<meeting point> · open the park map" (kind 'arrive', tag arrive-<meetAt>-<id>, url
+ * #dollywood-live). Once per person per meeting point per recipient (a push that failed is tried again the next minute); someone
+ * already within 40 m when the point is set is not announced (the first run after a new point only records who stands where),
+ * nor is a dot first seen inside later (a fix needs to be seen outside first). Household people are grown-ups and kids that are
+ * not guests; recipients are household grown-ups, never guests, kids, the display or the kitchen. State lives in settings
+ * `park_arrive` = { at: <meet.at>, inside: {id: bool}, told: {id: [recipients]} }, replaced by each new meeting point and
+ * emptied when the point is gone. The "left the park" half is deferred: a page cannot read location in the background.
+ */
+const ARRIVE_KEY = 'park_arrive';
+const ARRIVE_FRESH_MS = 3 * 60000, ARRIVE_NEAR_M = 40, ARRIVE_ACC_M = 60, MEET_MAX_MS = 2 * 3600000;
+export async function arriveJob(env, now = Date.now()) {
+  const out = { job: 'arrive', meet: null, arrived: [], notified: [], skipped: [] };
+  const memory = (await readSetting(env, ARRIVE_KEY)) || {};
+  const row = await env.DB.prepare("SELECT value FROM app_data WHERE app_id = 'dollywood-live' AND scope = 'family' AND profile_id IS NULL AND key = 'meet' AND value IS NOT NULL").first('value');
+  let meet = null; try { meet = row ? JSON.parse(row) : null; } catch { meet = null; }
+  const at = meet && +meet.at, x = meet && +meet.x, y = meet && +meet.y;
+  if (!meet || typeof meet !== 'object' || !Number.isFinite(at) || !Number.isFinite(x) || !Number.isFinite(y) || now - Math.min(at, now) >= MEET_MAX_MS) {
+    if (Object.keys(memory).length) await writeSetting(env, ARRIVE_KEY, {});   // the point is gone: nothing to remember
+    return out;
+  }
+  out.meet = { name: String(meet.name || 'the meeting point').slice(0, 80), at };
+  const st = +memory.at === at ? { at, inside: { ...(memory.inside || {}) }, told: { ...(memory.told || {}) } } : { at, inside: {}, told: {} };
+  const { results: rows } = await env.DB.prepare("SELECT key, value, synced_at, updated_at FROM app_data WHERE app_id = 'dollywood-live' AND scope = 'family' AND profile_id IS NULL AND substr(key, 1, 4) = 'loc:' AND value IS NOT NULL").all();
+  const { results: profiles } = await env.DB.prepare('SELECT id, name, kind, is_guest FROM profiles').all();
+  const who = Object.fromEntries(profiles.map(p => [p.id, p]));
+  const household = id => { const p = who[id]; return !!p && !p.is_guest && (p.kind === 'adult' || p.kind === 'kid'); };
+  const grownups = await adultIds(env);
+  const arrivals = [];
+  for (const r of rows) {
+    const id = r.key.slice(4);
+    if (!household(id)) continue;
+    const heard = Math.min(+r.synced_at || +r.updated_at || 0, now);
+    if (now - heard > ARRIVE_FRESH_MS) continue;
+    let v; try { v = JSON.parse(r.value); } catch { continue; }
+    if (!v || typeof v !== 'object' || !Number.isFinite(+v.x) || !Number.isFinite(+v.y) || v.acc == null || !Number.isFinite(+v.acc) || +v.acc > ARRIVE_ACC_M) continue;   // only a good fix says where someone is
+    const near = Math.hypot(+v.x - x, +v.y - y) <= ARRIVE_NEAR_M, was = st.inside[id];
+    st.inside[id] = near;
+    if (was === false && near && !st.told[id]) arrivals.push(id);   // outside -> inside; a dot first seen inside stood there already
+  }
+  for (const id of arrivals) {
+    out.arrived.push(id);
+    const told = st.told[id] = Array.isArray(st.told[id]) ? st.told[id] : [];
+    const payload = { title: `${who[id].name} reached the meeting point`, body: `${out.meet.name} · open the park map`, url: '#dollywood-live', tag: `arrive-${at}-${id}` };
+    for (const pid of grownups) {
+      if (pid === id || told.includes(pid)) continue;
+      if ((await prefsFor(env, pid)).arrive === false) { out.skipped.push({ profile: pid, why: 'pref_off' }); told.push(pid); continue; }
+      const p = await pushTo(env, pid, 'arrive', payload, { ttl: 900, urgency: 'high' });
+      if (p.sent) out.notified.push({ profile: pid, about: id, ...p });
+      if (p.ok || !p.sent) told.push(pid);                  // told, or nowhere to tell them
+      else out.skipped.push({ profile: pid, why: 'delivery_failed_retry' });
+    }
+  }
+  if (JSON.stringify(st) !== JSON.stringify(memory)) await writeSetting(env, ARRIVE_KEY, st);
   return out;
 }
 
@@ -614,8 +679,8 @@ export async function timerJob(env, now = Date.now(), { forced = false } = {}) {
   return out;
 }
 
-export const JOBS = { morning: morningJob, evening: eveningJob, behind: behindJob, prayer: prayerJob, prayedfor: prayedForJob, park: parkJob, praytime: prayTimeJob, verses: versesJob, timer: timerJob };
-/** The minute cron's own job list (wrangler.toml "* * * * *"): only the timer. */
+export const JOBS = { morning: morningJob, evening: eveningJob, behind: behindJob, prayer: prayerJob, prayedfor: prayedForJob, park: parkJob, praytime: prayTimeJob, verses: versesJob, timer: timerJob, arrive: arriveJob };
+/** The minute cron's own job list (wrangler.toml "* * * * *"): the timer and, since batch 10, the meeting point's arrivals. */
 export const MINUTE_CRON = '* * * * *';
 
 /**
