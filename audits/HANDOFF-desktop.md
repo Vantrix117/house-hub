@@ -111,4 +111,7 @@ Not started. See `HANDOFF-cloud.md` Step 4. It also owns the pre-existing `scree
 - **Batch 10 adds no migration and no new cron trigger.** `arriveJob` rides the existing minute trigger and keeps its memory in `settings.park_arrive`.
 
 ## verify.py at hand-over
-Still running when this file was committed; the next commit records its last line here.
+- **Run:** the cloud ran it once more after the restart, on an idle machine (Chromium), against the current template with the patch applied.
+- **What passed:** every reference and hub-flavour section, 3D included (the step outline, Back to map, the render loop), and the park map's first live/family checks: the reload, the auto-fix, share off, hidden/visible.
+- **Where it stopped:** `verify.py` line 308, the kids'-heights check. It still clicks the old stepper (`.lv-kid[data-k=kiara] button[data-d="1"]` is null), which is now a number field (UX-DOLLYWOOD-LIVE-7, worker C).
+- **To do:** update that check to type into the field, then run on to the end.
