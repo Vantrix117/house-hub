@@ -1,0 +1,125 @@
+
+## 1. first open resumes sharing
+  ok   a watch starts without a tap 
+  ok   the pill never says "not sharing" before the person channel lands 
+  ok   the Share row reads on 
+
+## 2. the meeting bar right after a fix
+  ok   no Go before a fix 
+  ok   walk time and Go appear with the fix 
+  ok   and with Set my spot (livePlace) 
+
+## 3. kids' controls with nobody sharing
+  ok   the kids' beacon switches show 
+  ok   and the heights 
+
+## 4. no publish away from the park
+  ok   a fix 4 km away publishes nothing 
+  ok   a fix in the park publishes 
+
+## 5. stale states out of the frame
+  ok   on the property but out of the frame: Last seen 14 h ago + Find me 
+
+## 6. an amenity tap opens its card
+  ok   tapping a marker opens the amenity card 
+
+## 7. the compass keeps the view
+  ok   the first tap rotates (north up) and presses 
+  ok   the scale is kept (never a jump to the Entrance) 
+
+## 8. the denied state, adult and kid
+  ok   eli at 390: designed denied state with its chip in view 
+  ok   an adult sees the steps 
+  ok   eli at 390: the Set my spot chip label reads against its fill (5.95:1) 
+  ok   ezra at 390: designed denied state with its chip in view 
+  ok   a kid sees the picture and the grown-up wording 
+  ok   ezra at 390: the Set my spot chip label reads against its fill (6.08:1) 
+  ok   eli at 430: designed denied state with its chip in view 
+  ok   an adult sees the steps 
+  ok   eli at 430: the Set my spot chip label reads against its fill (5.95:1) 
+  ok   ezra at 430: designed denied state with its chip in view 
+  ok   a kid sees the picture and the grown-up wording 
+  ok   ezra at 430: the Set my spot chip label reads against its fill (6.08:1) 
+
+## 9. a kid's beacon off removes the dot, on starts locating
+  ok   a view-only kid does not locate 
+  ok   beacon on: the open map starts locating at once 
+  ok   and publishes its spot 
+  ok   the kid never sees the Share switch; the row says the beacon is on 
+  ok   beacon off: the watch stops within one pull 
+  ok   and the dot is removed (tombstone) 
+  ok   the view-only kid reads "A grown-up can show where you are." and has no Set my spot 
+
+## 10. family labels without overlap
+  ok   390: six pills; two full names never overlap (initials may crowd) 
+  ok   390: overlapping names collapse to initials (Elizabeth Anderson|M|M|D|E|K) 
+  ok   labels are names or ≤2 letters 
+  ok   820: six pills; two full names never overlap (initials may crowd) 
+  ok   820: overlapping names collapse to initials (EA|M|M|David|E|K) 
+  ok   labels are names or ≤2 letters 
+
+## 11. compass contrast in all palettes
+  ok   hearth: N 8.06:1 (>= 4.5), needle 9.55:1 (>= 3) 
+  ok   parchment: N 7.54:1 (>= 4.5), needle 8.93:1 (>= 3) 
+  ok   frost: N 8.06:1 (>= 4.5), needle 9.55:1 (>= 3) 
+  ok   midnight: N 11.03:1 (>= 4.5), needle 6.23:1 (>= 3) 
+  ok   forest: N 10.63:1 (>= 4.5), needle 6:1 (>= 3) 
+  ok   graphite: N 11.42:1 (>= 4.5), needle 6.45:1 (>= 3) 
+
+## 12. pulses stop after three cycles
+  ok   no ambient loop is infinite 
+  ok   after ~13 s with fixes arriving, the pulses have stopped 
+
+## 13. targets under 44
+  ok   390: no control under 44 px 
+  ok   820: no control under 44 px 
+
+## 14. the heights field writes once
+  ok   a height field for Ezra 
+  ok   Enter then blur: one write 
+  ok   out of range: "28 to 72 inches", no write 
+
+## 15. placing hides the sheet
+  ok   the sheet is hidden entirely and the pill offers Cancel 
+  ok   Cancel brings it back 
+
+## 16. whole park above the sheet
+  ok   the park sits between the pill and the sheet 
+
+## 17. iPad portrait card below the bar
+  ok   the card stays below the meeting bar 
+
+## 18. no emoji or heart glyphs as icons
+  ok   an AED is heart-pulse, ♥ appears nowhere 
+  (emoji left in the DOM at rest: 9 )
+
+## 19. the meeting bar keeps the place name (two lines) and the buttons on their own row on a phone
+  ok   eli: the whole place name shows (at most three lines at the longest name) 
+  ok   eli: the meta line is not cut 
+  ok   eli: the buttons sit under the name, inside the bar 
+  ok   eli XXL: the whole place name shows (at most three lines at the longest name) 
+  ok   eli XXL: the meta line is not cut 
+  ok   eli XXL: the buttons sit under the name, inside the bar 
+  ok   ezra: the whole place name shows (at most three lines at the longest name) 
+  ok   ezra: the meta line is not cut 
+  ok   ezra: the buttons sit under the name, inside the bar 
+
+## 20. the meeting pin label stays on the screen and off the floating controls
+  ok   eli 390 at 760,840: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 390 at 560,600: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 390 at 900,1000: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 430 at 760,840: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 430 at 560,600: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 430 at 900,1000: label inside the screen, off the fabs, compass, scale and bar 
+  ok   ezra 430 at 760,840: label inside the screen, off the fabs, compass, scale and bar 
+  ok   ezra 430 at 560,600: label inside the screen, off the fabs, compass, scale and bar 
+  ok   ezra 430 at 900,1000: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 820 at 760,840: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 820 at 560,600: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 820 at 900,1000: label inside the screen, off the fabs, compass, scale and bar 
+
+## 21. the idle locate pill keeps its second line on a phone
+  ok   the second line is whole (wrapped, not cut): Only you see your dot until you switch on Share my spot 
+
+page errors: 0 []
+PASS 79  FAIL 0

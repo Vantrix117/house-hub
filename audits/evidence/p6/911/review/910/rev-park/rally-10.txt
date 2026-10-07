@@ -1,0 +1,250 @@
+
+== 1. park map open as Eli
+{
+ "typeofRally": "function",
+ "rallySource": "async function rallyMeet(){if(!MEET||!HOUSEHOLD()||!hub.canWrite||Date.now()-RALLY.okAt<60",
+ "kind": "adult",
+ "canWrite": true,
+ "appFrame": {
+  "controls": 87,
+  "rallyControls": [
+   {
+    "tag": "button",
+    "id": "lv-rally",
+    "text": "Rally",
+    "visible": true
+   }
+  ],
+  "textHits": [
+   "Rally"
+  ],
+  "attrHits": [
+   "<button id=\"lv-rally\">Rally</button>"
+  ]
+ },
+ "shell": {
+  "controls": 93,
+  "rallyControls": [],
+  "textHits": [],
+  "attrHits": []
+ },
+ "meetBar": {
+  "hidden": false,
+  "name": "Meet at The Wildwood Tree",
+  "meta": "set by Mae 12 min ago",
+  "buttons": [
+   {
+    "id": "meet-go",
+    "text": "Go",
+    "hidden": true
+   },
+   {
+    "id": "lv-rally",
+    "text": "Rally",
+    "hidden": false
+   },
+   {
+    "id": "meet-done",
+    "text": "Done",
+    "hidden": false
+   }
+  ]
+ },
+ "shot": "audits/evidence/p6/10/PWA/verify3-rally-unreachable-1-10-a-meet-bar-seeded.png"
+}
+
+== 3. ride card → Meet here → OK
+{
+ "card": {
+  "title": "133Frogs & Fireflies",
+  "actions": [
+   "Directions",
+   "Meet here",
+   "Zoom"
+  ]
+ },
+ "cardShot": "audits/evidence/p6/10/PWA/verify3-rally-unreachable-1-10-b-ride-card.png",
+ "dialogs": [],
+ "newRequests": [
+  {
+   "method": "POST",
+   "path": "/api/activity"
+  },
+  {
+   "method": "POST",
+   "path": "/api/data/dollywood-live/batch?scope=family"
+  }
+ ],
+ "meetBar": {
+  "hidden": false,
+  "name": "Meet at Frogs & Fireflies",
+  "meta": "set by you just now",
+  "buttons": [
+   {
+    "id": "meet-go",
+    "text": "Go",
+    "hidden": true
+   },
+   {
+    "id": "lv-rally",
+    "text": "Rally",
+    "hidden": false
+   },
+   {
+    "id": "meet-done",
+    "text": "Done",
+    "hidden": false
+   }
+  ]
+ },
+ "appFrame": {
+  "controls": 126,
+  "rallyControls": [
+   {
+    "tag": "button",
+    "id": "lv-rally",
+    "text": "Rally",
+    "visible": true
+   }
+  ],
+  "textHits": [
+   "Rally"
+  ],
+  "attrHits": [
+   "<button id=\"lv-rally\">Rally</button>"
+  ]
+ },
+ "rallyRequestsSoFar": [],
+ "shot": "audits/evidence/p6/10/PWA/verify3-rally-unreachable-1-10-c-after-meet-here.png"
+}
+
+== 4. long-press on the map → OK
+{
+ "dialogs": [],
+ "newRequests": [
+  {
+   "method": "POST",
+   "path": "/api/activity"
+  },
+  {
+   "method": "POST",
+   "path": "/api/data/dollywood-live/batch?scope=family"
+  }
+ ],
+ "meetBar": {
+  "hidden": false,
+  "name": "Meet at here",
+  "meta": "set by you just now",
+  "buttons": [
+   {
+    "id": "meet-go",
+    "text": "Go",
+    "hidden": true
+   },
+   {
+    "id": "lv-rally",
+    "text": "Rally",
+    "hidden": false
+   },
+   {
+    "id": "meet-done",
+    "text": "Done",
+    "hidden": false
+   }
+  ]
+ },
+ "rallyRequestsSoFar": [],
+ "shot": "audits/evidence/p6/10/PWA/verify3-rally-unreachable-1-10-d-after-long-press.png"
+}
+
+== 6. server state after the UI steps
+{
+ "meetRow": {
+  "value": {
+   "x": 966,
+   "y": 936,
+   "name": "here",
+   "note": "",
+   "by": "eli",
+   "byName": "Eli",
+   "at": 1790080800500
+  },
+  "updated_at": 1790080800009
+ },
+ "feed": [
+  {
+   "who": "eli",
+   "app": "dollywood-live",
+   "text": "Meeting point: here"
+  },
+  {
+   "who": "eli",
+   "app": "dollywood-live",
+   "text": "Meeting point: Frogs & Fireflies"
+  },
+  {
+   "who": "christian",
+   "app": "dollywood-live",
+   "text": "Meeting point: The Wildwood Tree"
+  }
+ ],
+ "allApiRequestsDuringUiSteps": [
+  "GET /api/profiles",
+  "GET /api/admin/usage",
+  "GET /api/data/hub?scope=family&since=…",
+  "GET /api/data/reminders?scope=family&since=…",
+  "GET /api/data/f260?scope=person&since=…",
+  "GET /api/data/leftovers?scope=family&since=…",
+  "GET /api/data/prayer?scope=person&since=…",
+  "GET /api/data/hub?scope=person&since=…",
+  "GET /api/data/timer?scope=person&since=…",
+  "GET /api/data/dollywood-live?scope=family&since=…",
+  "GET /api/data/kidverse?scope=person&since=…",
+  "GET /api/data/kidverse?scope=family&since=…",
+  "GET /api/data/dollywood?scope=person&since=…",
+  "GET /api/data/verses?scope=person&since=…",
+  "GET /api/data/tally?scope=person&since=…",
+  "GET /api/data/timer?scope=family&since=…",
+  "GET /api/me",
+  "GET /api/dollywood/waits",
+  "GET /api/data/dollywood-live?scope=person&since=…",
+  "GET /api/media/photos/christian/rigphotochristian-256.jpg",
+  "POST /api/activity",
+  "POST /api/data/dollywood-live/batch?scope=family"
+ ],
+ "rallyRequestsFromUi": []
+}
+
+== 7. Rally from the meeting bar
+{
+ "bar7": {
+  "hidden": false,
+  "text": "Rally"
+ },
+ "sheet7": {
+  "title": "Rally the family to here?",
+  "body": "The other grown-ups get “Meet at here” on their phones.",
+  "ok": "Rally"
+ },
+ "rallyRequests": [
+  {
+   "method": "POST",
+   "path": "/api/dollywood/rally"
+  }
+ ],
+ "status": 200,
+ "meetMeta": "Nobody else has park alerts on — they will see the pin on the map.",
+ "feedTop": [
+  "Set a meeting point: here",
+  "Meeting point: here"
+ ]
+}
+
+== verdict inputs
+{
+ "rallyControlsInUi": 2,
+ "rallyRequestsFromUi": 0,
+ "rallyRequestsFromConsole": 1
+}
+
+VERDICT: Rally is reachable from the UI (the finding is fixed)

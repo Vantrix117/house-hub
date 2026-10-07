@@ -1,0 +1,432 @@
+{
+ "pass": 42,
+ "fail": 0,
+ "out": {
+  "idle: the last length (Eli's 10 min) is on the dial and pressed": {
+   "pass": true,
+   "got": {
+    "t": "10:00",
+    "pressed": [
+     "600"
+    ]
+   }
+  },
+  "every preset carries aria-pressed; the countdown has an aria-live region (UX-TIMER-10)": {
+   "pass": true,
+   "got": {
+    "n": 6,
+    "live": "polite"
+   }
+  },
+  "the first Start offers \"Notify me when it ends\" inline (permission undecided), below the list: Start/Pause did not move": {
+   "pass": true,
+   "got": {
+    "offer": {
+     "shown": true,
+     "goTop": 385
+    },
+    "goTop0": 385
+   }
+  },
+  "\"Not now\" puts it away (it is offered once per device)": {
+   "pass": true
+  },
+  "Start stores timer:<id> {total 600000 ms, endAt in server ms}": {
+   "pass": true,
+   "got": [
+    {
+     "id": "muy2ielcc7r8s",
+     "label": "",
+     "total": 600000,
+     "startedAt": 1791375148122,
+     "endAt": 1791375748122,
+     "pausedAt": null,
+     "remaining": null,
+     "by": "eli",
+     "ackAt": null
+    }
+   ]
+  },
+  "the family mirror run:eli:<id> follows (for the Kitchen and the TV)": {
+   "pass": true,
+   "got": {
+    "label": "",
+    "total": 600000,
+    "endAt": 1791375748122,
+    "pausedAt": null,
+    "remaining": null,
+    "by": "eli",
+    "startedAt": 1791375148122
+   }
+  },
+  "running: Pause is the primary button (VIS-TIMER-1)": {
+   "pass": true,
+   "got": "Pause"
+  },
+  "running: nothing below the actions but the list; no preset to tap, so none can replace it (below: nothing)": {
+   "pass": true,
+   "got": []
+  },
+  "New timer opens the picker in place; the first keeps running": {
+   "pass": true,
+   "got": [
+    "presets",
+    "say",
+    "tsettings-btn",
+    "lab"
+   ]
+  },
+  "Start runs 3:00 beside 10:00; calm again with both in the list": {
+   "pass": true,
+   "got": [
+    600000,
+    180000
+   ]
+  },
+  "a third, labelled \"pasta\"; at three New timer goes": {
+   "pass": true,
+   "got": {
+    "n": 3,
+    "label": "pasta"
+   }
+  },
+  "+1 min adds a minute to the timer on the dial": {
+   "pass": true,
+   "got": 960000
+  },
+  "recents: the last three distinct lengths, newest first, with labels": {
+   "pass": true,
+   "got": [
+    {
+     "total": 900000,
+     "label": "pasta"
+    },
+    {
+     "total": 180000,
+     "label": ""
+    },
+    {
+     "total": 600000,
+     "label": ""
+    }
+   ]
+  },
+  "Pause stores {pausedAt, remaining, endAt null}; the dial says Paused; Resume": {
+   "pass": true,
+   "got": {
+    "id": "muy2ihrmxtmil",
+    "label": "pasta",
+    "total": 960000,
+    "startedAt": 1791375152229,
+    "endAt": null,
+    "pausedAt": 1791375153550,
+    "remaining": 958679,
+    "by": "eli",
+    "ackAt": null
+   }
+  },
+  "the iPad shows pasta paused, not gone": {
+   "pass": true,
+   "got": {
+    "label": "pasta",
+    "state": "paused",
+    "left": 958679
+   }
+  },
+  "the iPad's clock runs 90 s fast (skew -90 s) and both count the same time left": {
+   "pass": true,
+   "got": {
+    "here": [
+     594151,
+     176529
+    ],
+    "there": [
+     594197,
+     176575
+    ]
+   }
+  },
+  "a device asked to clear the start it saw leaves the newer start alone": {
+   "pass": true,
+   "got": false
+  },
+  "Reset toasts \"pasta timer reset Undo\"; Undo puts the paused pasta timer back as it was (on the server too), focus on Resume": {
+   "pass": true,
+   "got": {
+    "tst": "pasta timer reset Undo",
+    "after": [
+     {
+      "id": "muy2ielcc7r8s",
+      "label": "",
+      "total": 600000,
+      "startedAt": 1791375148122,
+      "endAt": 1791375748122,
+      "pausedAt": null,
+      "remaining": null,
+      "by": "eli",
+      "ackAt": null,
+      "state": "running",
+      "left": 591788
+     },
+     {
+      "id": "muy2ihrmxtmil",
+      "label": "pasta",
+      "total": 960000,
+      "startedAt": 1791375152229,
+      "endAt": null,
+      "pausedAt": 1791375153550,
+      "remaining": 958679,
+      "by": "eli",
+      "ackAt": null,
+      "state": "paused",
+      "left": 958679
+     },
+     {
+      "id": "muy2igfgaedyp",
+      "label": "",
+      "total": 240000,
+      "startedAt": 1791375153976,
+      "endAt": 1791375393976,
+      "pausedAt": null,
+      "remaining": null,
+      "by": "eli",
+      "ackAt": null,
+      "state": "running",
+      "left": 237642
+     }
+    ]
+   }
+  },
+  "custom 125 min 30 s reads 2:05:30 (h:mm:ss)": {
+   "pass": true,
+   "got": "2:05:30"
+  },
+  "Sound and Notify me sit in one closed \"Timer settings\"": {
+   "pass": true
+  },
+  "Notify me when it ends is offered (in Timer settings) while the browser has not been asked": {
+   "pass": true
+  },
+  "one tap asks the browser once, in context; then it goes": {
+   "pass": true
+  },
+  "Say it shows where speech recognition exists": {
+   "pass": true
+  },
+  "\"pasta 12 minutes\" asks \"Start 12:00 for pasta?\" before anything starts": {
+   "pass": true,
+   "got": "Start 12:00 for pasta?"
+  },
+  "Start: 12:00 labelled pasta": {
+   "pass": true,
+   "got": {
+    "id": "muy2ir4pxct2d",
+    "label": "pasta",
+    "total": 720000,
+    "startedAt": 1791375164362,
+    "endAt": 1791375884362,
+    "pausedAt": null,
+    "remaining": null,
+    "by": "eli",
+    "ackAt": null,
+    "state": "running",
+    "left": 719991
+   }
+  },
+  "Say it is not on the calm running screen": {
+   "pass": true
+  },
+  "\"add a minute\" adds one minute (no question)": {
+   "pass": true,
+   "got": 780000
+  },
+  "the parser: ten minutes, 1 hour 5 minutes, 90 seconds, an hour and a half, eggs for 7 minutes, and no time": {
+   "pass": true,
+   "got": [
+    {
+     "kind": "start",
+     "total": 600000,
+     "label": ""
+    },
+    {
+     "kind": "start",
+     "total": 3900000,
+     "label": ""
+    },
+    {
+     "kind": "start",
+     "total": 90000,
+     "label": ""
+    },
+    {
+     "kind": "start",
+     "total": 5400000,
+     "label": ""
+    },
+    {
+     "kind": "start",
+     "total": 420000,
+     "label": "eggs"
+    },
+    null
+   ]
+  },
+  "ended unseen 3 min ago: said once, on the dial (\"Ended 8:09 AM\" with the bell), the main button OK; no separate line, no Reset": {
+   "pass": true,
+   "got": {
+    "t": "0:00",
+    "go": "OK",
+    "goState": "ok",
+    "primary": true,
+    "state": "Ended 8:09 AM",
+    "bell": true,
+    "label": "bread",
+    "done": true,
+    "ask": null,
+    "below": [],
+    "resetVis": false,
+    "ended": null,
+    "list": 0,
+    "live": "bread ended at 8:09 AM",
+    "liveAttr": "polite",
+    "pressed": [],
+    "presetsWithPressed": 6,
+    "rows": [
+     {
+      "id": "bread",
+      "label": "bread",
+      "total": 600000,
+      "startedAt": 1791374386679,
+      "endAt": 1791374986679,
+      "pausedAt": null,
+      "remaining": null,
+      "by": "eli",
+      "ackAt": null,
+      "state": "ended",
+      "left": 0
+     }
+    ],
+    "recents": [
+     {
+      "total": 720000,
+      "label": "pasta"
+     },
+     {
+      "total": 900000,
+      "label": "pasta"
+     },
+     {
+      "total": 180000,
+      "label": ""
+     }
+    ],
+    "audio": null,
+    "wl": 0,
+    "notes": []
+   }
+  },
+  "ringing: nothing below the actions but the list": {
+   "pass": true,
+   "got": []
+  },
+  "the one ended 11 min ago is cleared (10-minute rule); the 3-minute one stays until Stop": {
+   "pass": true,
+   "got": [
+    "timer:bread"
+   ]
+  },
+  "OK clears it in the house": {
+   "pass": true
+  },
+  "the seeded timer.active becomes timer:m<startedAt> (total in ms) and timer.active is removed": {
+   "pass": true,
+   "got": {
+    "before": {
+     "endAt": 1791375500000,
+     "total": 900,
+     "startedAt": 1791374600000
+    },
+    "after": [
+     {
+      "id": "m1791374600000",
+      "label": "",
+      "total": 900000,
+      "startedAt": 1791374600000,
+      "endAt": 1791375500000,
+      "pausedAt": null,
+      "remaining": null,
+      "by": "mom",
+      "ackAt": null
+     }
+    ]
+   }
+  },
+  "a timer.active written beside a running timer: row is still moved (timer:m<startedAt>) and shows": {
+   "pass": true,
+   "got": {
+    "rows": [
+     "m1791374600000",
+     "m1791375060492"
+    ],
+    "shown": [
+     "m1791374600000",
+     "m1791375060492"
+    ]
+   }
+  },
+  "a kid gets no Say it, no Timer settings, no New timer and no inline Notify me": {
+   "pass": true,
+   "got": {
+    "say": false,
+    "settings": false
+   }
+  },
+  "Ezra starts his own timer; its mirror run:ezra:<id> is accepted": {
+   "pass": true,
+   "got": {
+    "rows": 1,
+    "mirror": 1
+   }
+  },
+  "0.6 s after Start it still reads 1:00 (Math.ceil, P3-TIMER-05)": {
+   "pass": true
+  },
+  "the Timer asked for the screen wake lock itself (P2-STAB-09)": {
+   "pass": true,
+   "got": 1
+  },
+  "time's up at or after endAt, never before (430 ms after)": {
+   "pass": true,
+   "got": {
+    "done": true,
+    "at": 1791375189594,
+    "osc": 3,
+    "made": 1,
+    "notes": 1
+   }
+  },
+  "hidden at 0 with the Timer open: one \"Timer done\" notification (P3-TIMER-04)": {
+   "pass": true,
+   "got": {
+    "app": 1,
+    "shell": 0
+   }
+  },
+  "it rings, and again 15 s later, on one AudioContext (notes 3 → 6, contexts 1)": {
+   "pass": true,
+   "got": {
+    "a1": {
+     "made": 1,
+     "osc": 3
+    },
+    "a2": {
+     "made": 1,
+     "osc": 6
+    }
+   }
+  },
+  "Stop: no more rings": {
+   "pass": true
+  }
+ }
+}

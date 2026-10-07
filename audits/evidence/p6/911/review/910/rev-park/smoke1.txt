@@ -1,0 +1,383 @@
+### no auth
+health                                       200 {"ok":true,"time":1791331731508}
+profiles without device token                401 {"error":"device_not_paired","message":"This device is not paired with the house."}
+pair with wrong code                         401 {"error":"bad_pairing_code","message":"That pairing code is not right."}
+pair                                         200 {"device_id":"5enxY0eSy5Hm","device_token":"[redacted]"}
+pair second device                           200 {"device_id":"YMEuX-FZMKDP","device_token":"[redacted]"}
+### profiles + login
+profiles                                     200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":fals
+   [{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":false,"pin_reset":false,"is_guest":false,"expires_at":null,"created_by":null,"photo":null},{"id":"christian","name":"Mae","emoji":"🌸","color":"#BC5A38","kind":"adult","hue":"peach","is_admin":false,"sort_order":2,"has_pin":false,"pin_reset":false,"is_guest":false
+login kid (no pin)                           200 {"profile_token":"[redacted]","profile":{"id":"ezra","name":"Ezra","emoji":"🦖","color":"#137F77","kind":"kid","hue
+login kiosk (no pin)                         200 {"profile_token":"[redacted]","profile":{"id":"tv","name":"Downstairs TV","emoji":"📺","color":"#4C4C58","kind":"ki
+login adult w/o pin -> needs_pin_setup       403 {"error":"needs_pin_setup","message":"Mea has not created a PIN yet.","pin_reset":false}
+set pin for kid -> 400                       400 {"error":"no_pin_for_kind","message":"Only adult profiles have a PIN."}
+set pin bad format                           400 {"error":"bad_pin","message":"PIN must be 4 to 8 digits."}
+set pin (first time)                         200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+set pin again -> 409                         409 {"error":"pin_already_set","message":"A PIN is already set. Ask the admin to reset it."}
+login wrong pin                              401 {"error":"wrong_pin","message":"Wrong PIN."}
+login right pin                              200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+me                                           200 {"profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","hue":"butter","is_admin":false,"sort_order":7,"has_pin":true,"p
+profile token on other device -> 401         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+logout                                       200 {"ok":true}
+me after logout -> 401                       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+### rate limit (5 wrong pins)
+6th wrong pin -> 429                         429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":900}
+right pin still limited -> 429               429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":900}
+### data
+put person                                   200 {"key":"count","value":7,"updated_at":1000,"applied":true}
+put older ts -> not applied                  200 {"key":"count","value":7,"updated_at":1000,"applied":false}
+put newer ts -> applied                      200 {"key":"count","value":9,"updated_at":2000,"applied":true}
+get person                                   200 {"items":[{"key":"count","value":9,"updated_at":2000}],"now":1791331735251}
+get person single key                        200 {"item":{"key":"count","value":9,"updated_at":2000},"now":1791331735326}
+get person w/o profile -> 401                401 {"error":"profile_required","message":"Choose a profile first."}
+kid can't read niece's data (own scope empty) 200 {"items":[],"now":1791331735504}
+put family                                   200 {"key":"item:abc","value":{"id":"abc","name":"Chili","size":"Large","dateLogged":"2026-09-15"},"updated_at":1791331735000,"applied":true}
+get family with device only                  200 {"items":[{"key":"item:abc","value":{"id":"abc","name":"Chili","size":"Large","dateLogged":"2026-09-15"},"updated_at":1791331735000}],"now":1791331735
+   [{"key":"item:abc","value":{"id":"abc","name":"Chili","size":"Large","dateLogged":"2026-09-15"},"updated_at":1791331735000}]
+kiosk write -> 403                           403 {"error":"read_only","message":"This profile can only look, not change things."}
+delete family item (tombstone)               200 {"key":"item:abc","value":null,"updated_at":1791331736135,"applied":true}
+batch                                        200 {"results":[{"key":"done","value":{"1-1":true},"updated_at":5,"applied":true},{"key":"week","value":3,"updated_at":5,"applied":true}],"now":1791331736
+since filter                                 200 {"items":[{"key":"done","value":{"1-1":true},"updated_at":5},{"key":"week","value":3,"updated_at":5}],"now":1791331736396}
+bad scope -> 400                             400 {"error":"bad_scope","message":"scope must be 'person' or 'family'."}
+### activity
+post activity                                200 {"id":1,"profile_id":"niece","app_id":"tally","text":"counted to 9","created_at":1791331736617,"name":"Mea","emoji":"🌻","color":"#5B8143","hue":"bu
+kiosk activity -> 403                        403 {"error":"read_only","message":"This profile can only look, not change things."}
+get activity                                 200 {"activity":[{"id":1,"profile_id":"niece","app_id":"tally","text":"counted to 9","created_at":1791331736617,"name":"Mea","emoji":"🌻","color":"#5B81
+### who read today (the TV's Reading today, batch 2c)
+readers with device only -> 401              401 {"error":"profile_required","message":"Choose a profile first."}
+tick today in F260 (person log row)          200 {"key":"log:2026-10-06","value":true,"updated_at":1791331737039,"applied":true}
+readers as the display                       200 {"date":"2026-10-06","readers":["niece"]}
+untick today (log row false)                 200 {"key":"log:2026-10-06","value":false,"updated_at":1791331737401,"applied":true}
+readers after the untick                     200 {"date":"2026-10-06","readers":[]}
+choose a reading-nudge time (push_pref:readAt) 200 {"key":"push_pref:readAt","value":"06:30","updated_at":1791331737729,"applied":true}
+memorise a verse (F260 mem:1-0)              200 {"key":"mem:1-0","value":true,"updated_at":1791331737885,"applied":true}
+turn the verse review on (push_pref:verses)  200 {"key":"push_pref:verses","value":true,"updated_at":1791331738038,"applied":true}
+### rally the family (park map) — one rally per adult per minute, so wait 60 s between runs
+rally with device only -> 401                401 {"error":"profile_required","message":"Choose a profile first."}
+rally as kid -> 403                          403 {"error":"adults_only","message":"Only a household grown-up can rally the family."}
+rally as kiosk -> 403                        403 {"error":"adults_only","message":"Only a household grown-up can rally the family."}
+rally without a name -> 400                  400 {"error":"bad_name","message":"Give the meeting point a name."}
+rally with x as a string -> 400              400 {"error":"bad_point","message":"x and y must be numbers (map positions)."}
+rally                                        200 {"ok":true,"pushed":0,"meet":{"x":1234.5,"y":678,"name":"The gazebo","note":"bring the stroller","by":"niece","byName":"Mea","at":1791331738714},"upda
+rally again within a minute -> 429           429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 1 min.","retry_after":60}
+family pull (device only) has the meet row   200 {"item":{"key":"meet","value":{"x":1234.5,"y":678,"name":"The gazebo","note":"bring the stroller","by":"niece","byName":"Mea","at":1791331738714},"upd
+feed has the line                            200 {"activity":[{"id":2,"profile_id":"niece","app_id":"dollywood-live","text":"Set a meeting point: The gazebo","created_at":1791331738719,"name":"Mea","
+clear the rally as kid -> 403                403 {"error":"adults_only","message":"Only a household grown-up can rally the family."}
+clear the rally                              200 {"ok":true,"cleared":true,"updated_at":1791331739927}
+clear again (idempotent)                     200 {"ok":true,"cleared":false,"updated_at":1791331740139}
+since-pull carries the tombstone             200 {"items":[{"key":"meet","value":null,"updated_at":1791331740139}],"now":1791331740216}
+### push
+subscribe without keys -> 400                400 {"error":"bad_subscription","message":"subscription needs an endpoint and keys.p256dh / keys.auth."}
+subscribe with keys that are not keys -> 400 400 {"error":"bad_subscription","message":"subscription needs an endpoint and keys.p256dh / keys.auth."}
+subscribe                                    200 {"ok":true}
+my subscription on this device               200 {"subscribed":true,"endpoint":"https://push.example/abc"}
+the display cannot subscribe -> 403          403 {"error":"read_only","message":"The display gets no notifications."}
+a kid cannot subscribe -> 403                403 {"error":"no_push","message":"Notifications are for grown-ups."}
+the display cannot send a test -> 403        403 {"error":"read_only","message":"The display gets no notifications."}
+a kid cannot send a test -> 403              403 {"error":"no_push","message":"Notifications are for grown-ups."}
+test goes to this device's subscription      200 {"sent":1,"ok":0,"details":[{"endpoint":"https://push.example/abc…","status":0,"ok":false,"error":"internal error; reference = ontkr0tg46u570aabavjc
+resubscribe without a device token -> 401    401 {"error":"device_not_paired","message":"This device is not paired with the house."}
+resubscribe from another device moves nothing -> 404 404 {"error":"no_such_subscription","message":"No subscription with that endpoint."}
+resubscribe by the old endpoint (this device's token) 200 {"ok":true,"moved":1}
+the house now has the new endpoint           200 {"subscribed":true,"endpoint":"https://push.example/abc2"}
+resubscribe an unknown endpoint -> 404       404 {"error":"no_such_subscription","message":"No subscription with that endpoint."}
+an http endpoint off this machine -> 400     400 {"error":"bad_subscription","message":"subscription needs an endpoint and keys.p256dh / keys.auth."}
+unsubscribe                                  200 {"ok":true}
+the switch reads off                         200 {"subscribed":false,"endpoint":null}
+### chat history (GAP-CHAT-01)
+clear my chat history                        200 {"ok":true,"deleted":0,"used":0,"cap":60}
+the display cannot clear a chat -> 403       403 {"error":"read_only","message":"This profile can only look, not change things."}
+### admin
+admin usage as non-admin -> 403              403 {"error":"admin_only","message":"Only the admin can do that."}
+admin reset-pin as kid -> 403                403 {"error":"admin_only","message":"Only the admin can do that."}
+admin as device-only -> 401                  401 {"error":"profile_required","message":"Choose a profile first."}
+set eli pin (first time, local only)         200 {"profile_token":"[redacted]","profile":{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue
+admin usage                                  200 {"chat":[],"push":[{"profile_id":"niece","kind":"test","day":"2026-10-06","sends":1,"ok":0}],"devices":[{"id":"YMEuX-FZMKDP","name":"smoke B","paired_
+admin rename tv                              200 {"profile":{"id":"tv","name":"Downstairs TV","emoji":"📺","color":"#4C4C58","kind":"kiosk","hue":"graphite","is_admin":false,"sort_order":8,"has_pin
+admin bad color                              400 {"error":"bad_color","message":"Color must be #rrggbb."}
+admin reset niece pin                        200 {"ok":true,"id":"niece","code":"[redacted]","expires_at":1791418143738}
+niece needs_pin_setup again                  403 {"error":"needs_pin_setup","message":"Mea has not created a PIN yet.","pin_reset":true}
+claim niece without the code -> 403          403 {"error":"needs_code","message":"Enter the code the admin gave you for Mea."}
+claim niece with a wrong code -> 401         401 {"error":"wrong_code","message":"That code is not right."}
+admin unpair device B                        200 {"ok":true}
+device B now unpaired                        401 {"error":"device_not_paired","message":"This device is not paired with the house."}
+admin rotate code (keep same)                200 {"ok":true}
+admin unpair self -> 400                     400 {"error":"cannot_unpair_self","message":"Unpair this device from another one."}
+admin unpair device A (cleanup, from B? no) skip 200 {"ok":true,"time":1791331744638}
+### guests (roadmap 23)
+niece sets a pin again (with the code)       200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+add guest as kid -> 403                      403 {"error":"adults_only","message":"Ask a grown-up to add a guest."}
+add guest as kiosk -> 403                    403 {"error":"read_only","message":"This profile can only look, not change things."}
+add guest w/o name -> 400                    400 {"error":"bad_name","message":"Name is required."}
+add guest bad pin -> 400                     400 {"error":"bad_pin","message":"PIN must be 4 to 8 digits."}
+add guest as adult                           200 {"profile":{"id":"guest-5yHfMoE4CD4a","name":"Aunt Sue","emoji":"🌻","color":"#137F77","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,"
+guest logs in without a pin                  200 {"profile_token":"[redacted]","profile":{"id":"guest-5yHfMoE4CD4a","name":"Aunt Sue","emoji":"🌻","color":"#137F77"
+guest writes person data                     200 {"key":"week","value":2,"updated_at":1791331745000,"applied":true}
+guest cannot add a guest -> 403              403 {"error":"guests_cannot_invite","message":"Guests cannot add other guests."}
+guest cannot rally the family -> 403         403 {"error":"adults_only","message":"Only a household grown-up can rally the family."}
+set a PIN on a guest from a paired device -> 403 403 {"error":"guest_pin_fixed","message":"Aunt Sue is a guest: their PIN was chosen when they were added. Ask the admin to clear it."}
+guest still signs in on tap                  200 {"profile_token":"[redacted]","profile":{"id":"guest-5yHfMoE4CD4a","name":"Aunt Sue","emoji":"🌻","color":"#137F77"
+guest subscribes on a second session         200 {"ok":true}
+guest signs out (Switch)                     200 {"ok":true}
+guest subscribes again, then someone else signs in here 200 {"ok":true}
+the kid signs in on this device              200 {"profile_token":"[redacted]","profile":{"id":"ezra","name":"Ezra","emoji":"🦖","color":"#137F77","kind":"kid","hue
+the guest's subscription here ended with it  200 {"subscribed":false,"endpoint":null}
+stop a reply (unknown id is fine)            200 {"ok":true,"ran":0}
+stop without an id -> 400                    400 {"error":"bad_rid","message":"Nothing to stop."}
+their subscription here is gone              200 {"subscribed":false,"endpoint":null}
+forced prayer job                            200 {"job":"prayer","date":"2026-10-06","new":[],"notified":[],"skipped":[],"seeded":{"live":0}}
+forced prayedfor job (GAP-PRAYER-1)          200 {"job":"prayedfor","date":"2026-10-06","askers":[],"notified":[],"skipped":[]}
+forced praytime job (GAP-PRAYER-1)           200 {"job":"praytime","date":"2026-10-06","slot":"20:00","due":[],"notified":[],"skipped":[]}
+forced evening job (the reading nudge, IMP-F260-F4) 200 {"job":"evening","date":"2026-10-06","checked":[{"profile":"niece","readToday":false,"at":"06:30"}],"notified":[],"skipped":[]}
+forced verses job (IMP-VERSES-I2)            200 {"job":"verses","date":"2026-10-06","checked":[{"profile":"niece","due":1}],"notified":[],"skipped":[{"profile":"eli","why":"pref_off"},{"profile":"ch
+forced timer job (PWA-GAP-1)                 200 {"job":"timer","due":[],"notified":[],"skipped":[],"cleared":[],"purged":0}
+an unknown job names the timer job           400 {"error":"bad_job","message":"job must be one of 'morning', 'evening', 'behind', 'prayer', 'prayedfor', 'park', 'praytime', 'verses', 'timer', 'arrive
+turn the arrival alert off (push_pref:arrive) 200 {"key":"push_pref:arrive","value":false,"updated_at":1791331748353,"applied":true}
+read the arrival switch back                 200 {"item":{"key":"push_pref:arrive","value":false,"updated_at":1791331748353},"now":1791331748500}
+turn the arrival alert back on               200 {"key":"push_pref:arrive","value":true,"updated_at":1791331748675,"applied":true}
+forced arrive job (GAP-DOLLYWOOD-LIVE-1)     200 {"job":"arrive","meet":null,"arrived":[],"notified":[],"skipped":[]}
+the arrive job is admin only                 403 {"error":"admin_only","message":"Only the admin can do that."}
+an unknown job names the arrive job          400 {"error":"bad_job","message":"job must be one of 'morning', 'evening', 'behind', 'prayer', 'prayedfor', 'park', 'praytime', 'verses', 'timer', 'arrive
+admin usage counts New York days             200 {"chat":[],"push":[{"profile_id":"niece","kind":"test","day":"2026-10-06","sends":1,"ok":0}],"devices":[{"id":"5enxY0eSy5Hm","name":"smoke A","paired_
+guest subscribes to push                     200 {"ok":true}
+admin ends the guest's stay                  200 {"profile":{"id":"guest-5yHfMoE4CD4a","name":"Aunt Sue","emoji":"🌻","color":"#137F77","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,"
+expired guest session -> 401                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+admin usage                                  200 {"chat":[],"push":[{"profile_id":"niece","kind":"test","day":"2026-10-06","sends":1,"ok":0}],"devices":[{"id":"5enxY0eSy5Hm","name":"smoke A","paired_
+forced morning job never lists the expired guest 200 {"job":"morning","date":"2026-10-06","due":[],"notified":[],"skipped":[]}
+admin reopens the stay (a week)              200 {"profile":{"id":"guest-5yHfMoE4CD4a","name":"Aunt Sue","emoji":"🌻","color":"#137F77","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,"
+add guest with pin, already expired          200 {"profile":{"id":"guest-y1CoN0cKRN2G","name":"Old Guest","emoji":"🙂","color":"#8A6A4B","kind":"adult","hue":"sky","is_admin":false,"sort_order":11,
+expired guest cannot log in -> 403           403 {"error":"guest_expired","message":"Old Guest's guest pass has ended."}
+profiles (device only) hide the expired guest 200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
+profiles (admin) include the expired guest   200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
+purge a live guest -> 400                    400 {"error":"not_expired","message":"Aunt Sue's stay has not ended yet — use Remove instead."}
+purge the expired guest                      200 {"ok":true,"id":"guest-y1CoN0cKRN2G","purged":true}
+delete a household profile -> 400            400 {"error":"not_a_guest","message":"Only guest profiles can be removed."}
+delete guest as non-admin -> 403             403 {"error":"admin_only","message":"Only the admin can do that."}
+admin extends the guest's stay               200 {"profile":{"id":"guest-5yHfMoE4CD4a","name":"Aunt Sue","emoji":"🌻","color":"#137F77","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,"
+admin cannot make a guest a kid -> 400       400 {"error":"guest_must_be_adult","message":"A guest is always an adult profile; remove the guest instead."}
+delete the guest                             200 {"ok":true,"id":"guest-5yHfMoE4CD4a"}
+guest session gone -> 401                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+guest profile gone -> 404                    404 {"error":"no_such_profile","message":"No profile with that id."}
+guest cleanup runs                           200 {"job":"guests","purged":[],"silenced":{"push_subscriptions":0,"sessions":0}}
+### batch 0d: accounts, kid limits, the kitchen device
+admin resets own pin without pin -> 403      403 {"error":"wrong_admin_pin","message":"That is not your PIN."}
+change my pin, wrong current -> 403          403 {"error":"wrong_pin","message":"That is not your current PIN."}
+change my pin                                200 {"ok":true}
+old pin no longer works                      401 {"error":"wrong_pin","message":"Wrong PIN."}
+new pin works                                200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+change pin back                              200 {"ok":true}
+kid cannot change a pin -> 403               403 {"error":"adults_only","message":"Only a household adult has a PIN to change."}
+guest named with markup -> 400               400 {"error":"bad_name","message":"Names cannot contain < or >."}
+admin renames with markup -> 400             400 {"error":"bad_name","message":"Names cannot contain < or >."}
+admin sets a colour family                   200 {"profile":{"id":"ezra","name":"Ezra","emoji":"🦖","color":"#137F77","kind":"kid","hue":"mint","is_admin":false,"sort_order":3,"has_pin":false,"pin_
+admin sets an unknown colour family -> 400   400 {"error":"bad_hue","message":"hue must be one of: bubblegum, peach, butter, mint, aqua, sky, periwinkle, lavender, graphite, coral, apricot, honey, pi
+admin clears the colour family               200 {"profile":{"id":"ezra","name":"Ezra","emoji":"🦖","color":"#137F77","kind":"kid","hue":null,"is_admin":false,"sort_order":3,"has_pin":false,"pin_re
+kid writes the meeting point -> 403          403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"meet","value":null,"updated_at":1791331740139}
+kid writes a leftovers row -> 403            403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_date","key":"item:kid1","value":null,"updated_at":0}
+kid cash-in ledger vs a sibling -> 403       403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"ledger:kiara:x","value":null,"updated_at":0}
+kid overwrites a sibling's stars -> 403      403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"stars:kiara","value":null,"updated_at":0}
+kid writes own stars mirror                  200 {"key":"stars:ezra","value":{"count":1},"updated_at":1791331752000,"applied":true}
+kid switches own beacon on -> 403            403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"kidshare:ezra","value":null,"updated_at":0}
+kid places own dot, beacon off -> 403        403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"beacon_off","key":"loc:ezra","value":null,"updated_at":0}
+kid reads a hidden app's family rows -> 403  403 {"error":"app_hidden","message":"This profile cannot open that app."}
+kid writes a hidden app's person rows -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"app_hidden","key":"week","value":null,"updated_at":0}
+kid writes its own timer mirror              200 {"key":"run:ezra:smk","value":{"total":60000,"endAt":1791331812000,"startedAt":1791331752000},"updated_at":1791331752000,"applied":true}
+kid writes a sibling's timer mirror -> 403   403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"run:kiara:smk","value":null,"updated_at":0}
+adult writes a kid's timer mirror -> 403     403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"run:ezra:smk2","value":null,"updated_at":0}
+any other family timer row -> 403            403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"active","value":null,"updated_at":0}
+casing is no way round: RUN:kiara by a kid -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"RUN:kiara:x","value":null,"updated_at":0}
+the TV reads the timers' mirror              200 {"items":[{"key":"run:ezra:smk","value":{"total":60000,"endAt":1791331812000,"startedAt":1791331752000},"updated_at":1791331752000}],"now":17913317542
+the TV writes no mirror -> 403               403 {"error":"read_only","message":"This profile can only look, not change things."}
+kid clears its own timer mirror              200 {"key":"run:ezra:smk","value":null,"updated_at":1791331754429,"applied":true}
+key casing is no way round: LOC:kiara by a kid -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"LOC:kiara","value":null,"updated_at":0}
+an adult adds a family prayer Kiara prayed   200 {"key":"prayer:smk1","value":{"id":"smk1","title":"Smoke","status":"active","prayedBy":{"2026-10-07":["Kiara"]}},"updated_at":1791331752000,"applied":
+kid's stale tick (no Kiara, new title, backdated day) is merged 200 {"key":"prayer:smk1","value":{"id":"smk1","title":"Smoke","status":"active","prayedBy":{"2026-10-07":["Kiara","ezra"]},"lastPrayedAt":"2026-10-07"},"u
+the house keeps Kiara and the title, Ezra (by id) today only 200 {"item":{"key":"prayer:smk1","value":{"id":"smk1","title":"Smoke","status":"active","prayedBy":{"2026-10-07":["Kiara","ezra"]},"lastPrayedAt":"2026-10
+tidy the smoke prayer                        200 {"key":"prayer:smk1","value":null,"updated_at":1791331755103,"applied":true}
+kid keeps Verses recall in the F260 scope    200 {"key":"f260.recall","value":{},"updated_at":1791331755201,"applied":true}
+batch: a refused row comes back, the rest saves 200 {"results":[{"key":"stars:ezra","value":{"count":2},"updated_at":1791331752001,"applied":true},{"key":"week","rejected":"household_only","value":null,
+an adult adds a guest to test with           200 {"profile":{"id":"guest-WiFiEZ0bHmAO","name":"Visitor","emoji":"🙂","color":"#8A6A4B","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,"h
+guest steps the family week -> 403           403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"week","value":null,"updated_at":0}
+guest switches a kid's beacon -> 403         403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"kidshare:ezra","value":null,"updated_at":0}
+guest sets a kid's height -> 403             403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"kid:ezra","value":null,"updated_at":0}
+household adult switches the beacon on       200 {"key":"kidshare:ezra","value":true,"updated_at":1791331752000,"applied":true}
+kid places own dot, beacon on                200 {"key":"loc:ezra","value":{"x":1,"y":2,"t":1791331752000},"updated_at":1791331752000,"applied":true}
+guest clears the kid's fresh dot -> 403      403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"loc:ezra","value":{"x":1,"y":2,"t":1791331752000},"u
+household adult switches the beacon off      200 {"key":"kidshare:ezra","value":false,"updated_at":1791331752005,"applied":true}
+household adult clears the kid's dot         200 {"key":"loc:ezra","value":null,"updated_at":1791331756433,"applied":true}
+remove the test guest                        200 {"ok":true,"id":"guest-WiFiEZ0bHmAO"}
+feed line naming a private request -> 400    400 {"error":"private_title","message":"A private request is never named on the family feed."}
+feed line without the title                  200 {"id":7,"profile_id":"niece","app_id":"prayer","text":"Prayed for a private request","created_at":1791331756722,"name":"Mea","emoji":"🌻","color":"#
+a guest with a PIN to test with              200 {"profile":{"id":"guest-8K1ALWvEiWI5","name":"Lock Test","emoji":"🙂","color":"#8A6A4B","kind":"adult","hue":"sky","is_admin":false,"sort_order":10,
+the guest signs in once here (this device is now trusted) 200 {"profile_token":"[redacted]","profile":{"id":"guest-8K1ALWvEiWI5","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
+12 wrong PINs on 4 devices: a 5th device -> 429 429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 60 min.","retry_after":3600}
+…while a device it used before still signs in 200 {"profile_token":"[redacted]","profile":{"id":"guest-8K1ALWvEiWI5","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
+admin reset lifts the pause                  200 {"ok":true,"id":"guest-8K1ALWvEiWI5"}
+the guest signs in on tap again              200 {"profile_token":"[redacted]","profile":{"id":"guest-8K1ALWvEiWI5","name":"Lock Test","emoji":"🙂","color":"#8A6A4B
+remove the lock-test guest                   200 {"ok":true,"id":"guest-8K1ALWvEiWI5"}
+6th wrong code from one device -> 429        429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":900}
+another device can still pair                200 {"device_id":"NNvl1J2MPQR4","device_token":"[redacted]"}
+kitchen sign-in on an ordinary device -> 403 403 {"error":"not_kitchen_device","message":"Only the kitchen device signs in as the kitchen."}
+kitchen is marked in the profile list        200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
+role change by a non-admin -> 403            403 {"error":"admin_only","message":"Only the admin can do that."}
+role change without the admin PIN -> 403     403 {"error":"wrong_admin_pin","message":"That is not your PIN."}
+role change of this device -> 400            400 {"error":"cannot_change_self","message":"Change this device from another one."}
+admin makes it the kitchen                   200 {"ok":true,"id":"VKnJGHUEOo1F","role":"kitchen"}
+the device learns its role                   200 {"id":"VKnJGHUEOo1F","name":"smoke kitchen","role":"kitchen","kitchen_profile":"kitchen"}
+a person on the kitchen device -> 403        403 {"error":"kitchen_device","message":"This device is the kitchen: nobody signs in here."}
+the kitchen signs in, no PIN                 200 {"profile_token":"[redacted]","profile":{"id":"kitchen","name":"Kitchen","emoji":"🍳","color":"#5E7A6E","kind":"kit
+kitchen writes the Larder                    200 {"key":"item:kt1","value":{"id":"kt1","name":"Soup","dateLogged":"2026-10-07","by":"kitchen"},"updated_at":1791331760267,"applied":true}
+kitchen names a kid on a Larder row -> 403   403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_credit","key":"item:kt2","value":null,"updated_at":0}
+a guest for the credit checks                200 {"profile":{"id":"guest-4ZDg-BBawqIN","name":"Smoke Credit","emoji":"??","color":"#4C4C58","kind":"adult","hue":"sky","is_admin":false,"sort_order":10
+kitchen finishes it for ezra -> 403          403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_credit","key":"finished:ktf","value":null,"updated_at":0}
+kitchen finishes it for guest-4ZDg-BBawqIN -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_credit","key":"finished:ktf","value":null,"updated_at":0}
+kitchen finishes it for tv -> 403            403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_credit","key":"finished:ktf","value":null,"updated_at":0}
+kitchen finishes it for an adult (Mea)       200 {"key":"finished:ktf","value":{"id":"ktf","name":"Soup","finishedAt":"2026-10-07","finishedBy":"niece","finishedByName":"Mea"},"updated_at":1791331761
+…under the wrong name -> 403               403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_credit","key":"finished:ktf","value":{"id":"ktf","name":"Soup","fi
+tidy the finished row                        200 {"key":"finished:ktf","value":null,"updated_at":1791331761244,"applied":true}
+remove the credit-check guest                200 {"ok":true,"id":"guest-4ZDg-BBawqIN"}
+a Larder row dated 'yesterday' -> 403        403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_date","key":"item:bd1","value":null,"updated_at":0}
+a Larder row dated 2099-01-01 -> 403         403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_date","key":"item:bd2","value":null,"updated_at":0}
+a Larder row dated today -> 200              200 {"key":"item:bd3","value":{"id":"bd3","name":"Stew","dateLogged":"2026-10-07"},"updated_at":1791331761662,"applied":true}
+tidy the dated row                           200 {"key":"item:bd3","value":null,"updated_at":1791331761754,"applied":true}
+a Larder row with a future use-by -> 200     200 {"key":"item:ub1","value":{"id":"ub1","name":"Stew","dateLogged":"2026-10-07","useBy":"2099-01-01","portion":"some","by":"niece","editedBy":"niece","e
+a Larder row with a past use-by -> 200       200 {"key":"item:ub1","value":{"id":"ub1","name":"Stew","dateLogged":"2026-10-07","useBy":"2026-09-27"},"updated_at":1791331761950,"applied":true}
+a use-by that is not a day -> 403            403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_date","key":"item:ub2","value":null,"updated_at":0}
+a use-by of 2026-02-30 -> 403                403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_date","key":"item:ub2","value":null,"updated_at":0}
+portion 'half' -> 403                        403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_value","key":"item:ub2","value":null,"updated_at":0}
+editedBy someone else -> 403                 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"item:ub2","value":null,"updated_at":0}
+editedAt that is not a time -> 403           403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_value","key":"item:ub2","value":null,"updated_at":0}
+the kitchen edits an item and keeps its logger -> 200 200 {"key":"item:ub1","value":{"id":"ub1","name":"Stew (big)","dateLogged":"2026-10-07","by":"niece","byName":"Mea","portion":"some","editedBy":"kitchen",
+an Undo written as its own editor over someone else's edit -> 200 200 {"key":"item:ub1","value":{"id":"ub1","name":"Stew (big)","dateLogged":"2026-10-07","by":"niece","byName":"Mea","editedBy":"niece","editedByName":"Mea
+a Larder row that still names someone else as editor -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"item:ub1","value":{"id":"ub1","name":"Stew (big)","d
+a kid cannot edit a Larder item -> 403       403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"kid_readonly","key":"item:ub1","value":{"id":"ub1","name":"Stew (big)"
+tidy the edited row                          200 {"key":"item:ub1","value":null,"updated_at":1791331762926,"applied":true}
+kitchen feed line for a kid on the Larder -> 403 403 {"error":"bad_credit","message":"Kids only look at the Larder and the album."}
+kitchen feed line for an adult               200 {"id":10,"profile_id":"niece","app_id":"leftovers","text":"Finished soup","created_at":1791331763117,"name":"Mea","emoji":"🌻","color":"#5B8143","hu
+kitchen credits the TV -> 403                403 {"error":"bad_credit","message":"Only someone in the household can be credited."}
+kitchen writes its own timer                 200 {"key":"timer.active","value":{"endAt":1},"updated_at":1791331763376,"applied":true}
+kitchen writes a person app -> 403           403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"app_hidden","key":"week","value":null,"updated_at":0}
+kitchen writes its own timer mirror (batch 6) 200 {"key":"run:kitchen:k1","value":{"total":60000,"endAt":1,"startedAt":1},"updated_at":1791331763530,"applied":true}
+kitchen writes a person's timer mirror -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"run:niece:k1","value":null,"updated_at":0}
+kitchen clears its own timer mirror          200 {"key":"run:kitchen:k1","value":null,"updated_at":1791331763692,"applied":true}
+kitchen chat -> 403                          403 {"error":"no_chat","message":"The kitchen device has no chat."}
+kitchen push subscription -> 403             403 {"error":"no_push","message":"The kitchen device gets no personal notifications."}
+kitchen admin call -> 403                    403 {"error":"admin_only","message":"Only the admin can do that."}
+reset PIN refuses the kitchen -> 400         400 {"error":"no_pin_for_kind","message":"Only adult profiles have a PIN."}
+admin renames the kitchen -> 400             400 {"error":"kitchen_fixed","message":"Only the kitchen's colour can be changed."}
+admin recolours the kitchen                  200 {"profile":{"id":"kitchen","name":"Kitchen","emoji":"🍳","color":"#5E7A6E","kind":"kitchen","hue":"seafoam","is_admin":false,"sort_order":9,"has_pin
+admin makes a profile the kitchen -> 400     400 {"error":"bad_kind","message":"kind must be adult, kid or kiosk."}
+admin clears the role                        200 {"ok":true,"id":"VKnJGHUEOo1F","role":null}
+the old kitchen session -> 401               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+the device has no role now                   200 {"id":"VKnJGHUEOo1F","name":"smoke kitchen","role":null,"kitchen_profile":null}
+unpair the test kitchen device               200 {"ok":true}
+tidy the kitchen's row                       200 {"key":"item:kt1","value":null,"updated_at":1791331764858,"applied":true}
+### batch 7: a parent's recorded voice (IMP-KIDVERSE-I2) — private audio, adults only, bytes deleted with the recording
+a guest to test with                         200 {"profile":{"id":"guest-BBy8H4_FCOvI","name":"Voice Guest","emoji":"🙂","color":"#8A6A4B","kind":"adult","hue":"sky","is_admin":false,"sort_order":1
+admin makes a device the kitchen             200 {"ok":true,"id":"Ao4EsGv_Zrpq","role":"kitchen"}
+the kitchen signs in                         200 {"profile_token":"[redacted]","profile":{"id":"kitchen","name":"Kitchen","emoji":"🍳","color":"#5E7A6E","kind":"kit
+no profile uploads -> 401                    401 {"error":"profile_required","message":"Choose a profile first."}
+a kid uploads -> 403                         403 {"error":"adults_only","message":"Only a household grown-up can record the verse."}
+the TV uploads -> 403                        403 {"error":"adults_only","message":"Only a household grown-up can record the verse."}
+a guest uploads -> 403                       403 {"error":"adults_only","message":"Only a household grown-up can record the verse."}
+the kitchen uploads -> 403                   403 {"error":"adults_only","message":"Only a household grown-up can record the verse."}
+   (D1_PERSIST not set: stored bytes not counted)
+week 0 -> 400                                400 {"error":"bad_week","message":"week must be a whole number from 1 to 52."}
+week 53 -> 400                               400 {"error":"bad_week","message":"week must be a whole number from 1 to 52."}
+week abc -> 400                              400 {"error":"bad_week","message":"week must be a whole number from 1 to 52."}
+week 038 (not a plain number) -> 400         400 {"error":"bad_week","message":"week must be a whole number from 1 to 52."}
+a text type -> 415                           415 {"error":"bad_audio_type","message":"The recording must be audio/webm, audio/mp4, audio/ogg or audio/mpeg."}
+audio/wav -> 415                             415 {"error":"bad_audio_type","message":"The recording must be audio/webm, audio/mp4, audio/ogg or audio/mpeg."}
+audio/webm that is not audio -> 415          415 {"error":"bad_audio","message":"That does not look like a recording of the type it says it is."}
+mp4 type over webm bytes -> 415              415 {"error":"bad_audio","message":"That does not look like a recording of the type it says it is."}
+no length -> 400                             400 {"error":"bad_length","message":"Say how long the recording is (?ms=, in milliseconds)."}
+91 seconds -> 413                            413 {"error":"too_long","message":"A recording can be at most 90 seconds."}
+one byte over 1 MB -> 413                    413 {"error":"too_large","message":"The recording is too big (1024 KB; the limit is 1024 KB)."}
+   (D1_PERSIST not set: stored bytes not counted)
+exactly 1 MB and 90 s is fine                200 {"voice":{"id":"k0b2O5igxJxs","by":"niece","byName":"Mea","at":1791331768583,"mime":"audio/webm","ms":90000,"bytes":1048576},"row":{"key":"voice:41","
+   (D1_PERSIST not set: stored bytes not counted)
+tidy the 1 MB recording                      200 {"ok":true}
+   (D1_PERSIST not set: stored bytes not counted)
+an adult records week 38 (codecs allowed)    200 {"voice":{"id":"MM2PPsW2ZBkm","by":"niece","byName":"Mea","at":1791331768777,"mime":"audio/webm","ms":4200,"bytes":4004},"row":{"key":"voice:38","valu
+   (D1_PERSIST not set: stored bytes not counted)
+the row is there for the house               200 {"item":{"key":"voice:38","value":{"id":"MM2PPsW2ZBkm","by":"niece","byName":"Mea","at":1791331768777,"mime":"audio/webm","ms":4200,"bytes":4004},"upd
+an adult writes voice:38 -> 403              403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"worker_only","key":"voice:38","value":{"id":"MM2PPsW2ZBkm","by":"niece
+the admin writes voice:39 -> 403             403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"worker_only","key":"voice:39","value":null,"updated_at":0}
+casing is no way round: VOICE:38 -> 403      403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"worker_only","key":"VOICE:38","value":null,"updated_at":0}
+clearing the row through the data API -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"worker_only","key":"voice:38","value":{"id":"MM2PPsW2ZBkm","by":"niece
+a batch's voice row comes back refused       200 {"results":[{"key":"voice:38","rejected":"worker_only","value":{"id":"MM2PPsW2ZBkm","by":"niece","byName":"Mea","at":1791331768777,"mime":"audio/webm"
+a kid writes a voice row -> 403              403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"worker_only","key":"voice:38","value":{"id":"MM2PPsW2ZBkm","by":"niece
+the row is untouched                         200 {"item":{"key":"voice:38","value":{"id":"MM2PPsW2ZBkm","by":"niece","byName":"Mea","at":1791331768777,"mime":"audio/webm","ms":4200,"bytes":4004},"upd
+another adult replaces it (mp4)              200 {"voice":{"id":"pmb48Drs07v6","by":"eli","byName":"Eli","at":1791331771589,"mime":"audio/mp4","ms":3000,"bytes":3012},"row":{"key":"voice:38","value":
+   (D1_PERSIST not set: stored bytes not counted)
+ogg is accepted (week 39)                    200 {"voice":{"id":"9vexOY8XJx4R","by":"niece","byName":"Mea","at":1791331772130,"mime":"audio/ogg","ms":2000,"bytes":2004},"row":{"key":"voice:39","value
+mp3 is accepted (week 40)                    200 {"voice":{"id":"W7O2-LZBN_A5","by":"niece","byName":"Mea","at":1791331772229,"mime":"audio/mpeg","ms":2000,"bytes":2003},"row":{"key":"voice:40","valu
+tidy week 39                                 200 {"ok":true}
+tidy week 40                                 200 {"ok":true}
+a kid removes it -> 403                      403 {"error":"adults_only","message":"Only a household grown-up can remove the recording."}
+the TV removes it -> 403                     403 {"error":"adults_only","message":"Only a household grown-up can remove the recording."}
+a guest removes it -> 403                    403 {"error":"adults_only","message":"Only a household grown-up can remove the recording."}
+the kitchen removes it -> 403                403 {"error":"adults_only","message":"Only a household grown-up can remove the recording."}
+no profile removes it -> 401                 401 {"error":"profile_required","message":"Choose a profile first."}
+   (D1_PERSIST not set: stored bytes not counted)
+an adult removes it                          200 {"ok":true}
+   (D1_PERSIST not set: stored bytes not counted)
+removing it again -> 404                     404 {"error":"no_such_voice","message":"There is no recording for that week."}
+the row is a tombstone for every device      200 {"items":[{"key":"voice:41","value":null,"updated_at":1791331768682},{"key":"voice:39","value":null,"updated_at":1791331772319},{"key":"voice:40","val
+admin adds an adult to record                200 {"profile":{"id":"voice-temp","name":"Voice Temp","emoji":"🙂","color":"#4C4C58","kind":"adult","hue":"coral","is_admin":false,"sort_order":11,"has_
+…creates a PIN with the set-up code        200 {"profile_token":"[redacted]","profile":{"id":"voice-temp","name":"Voice Temp","emoji":"🙂","color":"#4C4C58","kind
+…and records week 42                       200 {"voice":{"id":"rS_cgsQlpUVP","by":"voice-temp","byName":"Voice Temp","at":1791331773869,"mime":"audio/webm","ms":2500,"bytes":4004},"row":{"key":"voi
+   (D1_PERSIST not set: stored bytes not counted)
+admin removes that person                    200 {"ok":true,"id":"voice-temp"}
+   (D1_PERSIST not set: stored bytes not counted)
+their recording's row is cleared             200 {"item":{"key":"voice:42","value":null,"updated_at":1791331773984},"now":1791331774074}
+remove the voice guest                       200 {"ok":true,"id":"guest-BBy8H4_FCOvI"}
+admin clears the voice kitchen               200 {"ok":true,"id":"Ao4EsGv_Zrpq","role":null}
+unpair the voice kitchen device              200 {"ok":true}
+### batch 2a: Admin → Household (GAP-PROF-a2) and the 18 colour families (GAP-ACCENT-1)
+a non-admin adds a person -> 403             403 {"error":"admin_only","message":"Only the admin can do that."}
+add a person with an unknown family -> 400   400 {"error":"bad_hue","message":"hue must be one of: bubblegum, peach, butter, mint, aqua, sky, periwinkle, lavender, graphite, coral, apricot, honey, pi
+add a person as a display -> 400             400 {"error":"bad_kind","message":"A household person is an adult or a kid."}
+add a person with markup -> 400              400 {"error":"bad_name","message":"Names cannot contain < or >."}
+add a person without the admin PIN -> 403    403 {"error":"wrong_admin_pin","message":"That is not your PIN."}
+add a person with a wrong admin PIN -> 403   403 {"error":"wrong_admin_pin","message":"That is not your PIN."}
+admin adds an adult (an app colour)          200 {"profile":{"id":"smoke-person","name":"Smoke Person","emoji":"🙂","color":"#4C4C58","kind":"adult","hue":"coral","is_admin":false,"sort_order":10,"
+the new adult cannot create a PIN without the code -> 403 403 {"error":"needs_code","message":"Enter the code the admin gave you for Smoke Person."}
+admin adds a kid                             200 {"profile":{"id":"smoke-kid","name":"Smoke Kid","emoji":"🧒","color":"#4C4C58","kind":"kid","hue":"honey","is_admin":false,"sort_order":11,"has_pin"
+the new kid signs in on tap                  200 {"profile_token":"[redacted]","profile":{"id":"smoke-kid","name":"Smoke Kid","emoji":"🧒","color":"#4C4C58","kind":
+a kid cannot be an admin -> 400              400 {"error":"admin_must_be_household_adult","message":"Only a household adult can be an admin."}
+an adult with no PIN cannot be an admin -> 400 400 {"error":"needs_pin","message":"Smoke Person needs a PIN of their own first."}
+make Mea an admin, wrong PIN -> 403          403 {"error":"wrong_admin_pin","message":"That is not your PIN."}
+make Mea an admin                            200 {"ok":true,"id":"niece","is_admin":true,"transferred":false}
+Mea now reaches the admin API                200 {"chat":[],"push":[{"profile_id":"niece","kind":"test","day":"2026-10-06","sends":1,"ok":0}],"devices":[{"id":"NNvl1J2MPQR4","name":"smoke C","paired_
+reset a co-admin's PIN without the admin PIN -> 403 403 {"error":"wrong_admin_pin","message":"That is not your PIN."}
+…with a wrong admin PIN -> 403             403 {"error":"wrong_admin_pin","message":"That is not your PIN."}
+Mea still signs in (nothing was reset)       200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+removing an admin -> 400                     400 {"error":"is_admin","message":"Take away Mea's admin first."}
+take Mea's admin away                        200 {"ok":true,"id":"niece","is_admin":false,"transferred":false}
+Mea is refused the admin API again           403 {"error":"admin_only","message":"Only the admin can do that."}
+the last admin cannot drop it -> 400         400 {"error":"last_admin","message":"The house needs at least one admin."}
+Eli hands his admin to Mea                   200 {"ok":true,"id":"niece","is_admin":true,"transferred":true}
+Eli is refused the admin API now             403 {"error":"admin_only","message":"Only the admin can do that."}
+Mea hands it back (her own PIN)              200 {"ok":true,"id":"eli","is_admin":true,"transferred":true}
+Eli is the admin again                       200 {"chat":[],"push":[{"profile_id":"niece","kind":"test","day":"2026-10-06","sends":1,"ok":0}],"devices":[{"id":"NNvl1J2MPQR4","name":"smoke C","paired_
+Mea is not                                   403 {"error":"admin_only","message":"Only the admin can do that."}
+a non-admin removes a person -> 403          403 {"error":"admin_only","message":"Only the admin can do that."}
+the admin removes himself -> 400             400 {"error":"cannot_remove_self","message":"Hand over admin first; the new admin can then remove you."}
+remove the TV -> 400                         400 {"error":"not_a_person","message":"Downstairs TV is a shared screen, not a person."}
+remove the kitchen -> 400                    400 {"error":"not_a_person","message":"Kitchen is a shared screen, not a person."}
+remove the new kid, wrong PIN -> 403         403 {"error":"wrong_admin_pin","message":"That is not your PIN."}
+remove the new kid                           200 {"ok":true,"id":"smoke-kid"}
+add the same name again                      200 {"profile":{"id":"smoke-kid-lxodo","name":"Smoke Kid","emoji":"🧒","color":"#4C4C58","kind":"kid","hue":"honey","is_admin":false,"sort_order":11,"ha
+remove the re-added kid                      200 {"ok":true,"id":"smoke-kid-lxodo"}
+a taken name gets a new id (a second Ezra)   200 {"profile":{"id":"ezra-q6750","name":"Ezra","emoji":"🧒","color":"#4C4C58","kind":"kid","hue":"honey","is_admin":false,"sort_order":11,"has_pin":fal
+remove the second Ezra                       200 {"ok":true,"id":"ezra-q6750"}
+the removed kid's session -> 401             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+remove the new adult                         200 {"ok":true,"id":"smoke-person"}
+both are gone from the list                  200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
+admin reset niece pin (cleanup)              200 {"ok":true,"id":"niece","code":"[redacted]","expires_at":1791418179681}
+### CORS
+preflight allows https://vantrix117.github.io
+preflight blocks evil.example
+
+PASS 445  FAIL 0

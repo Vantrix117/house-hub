@@ -1,0 +1,659 @@
+### no auth
+health                                       200 {"ok":true,"time":1791332781419}
+profiles without device token                401 {"error":"device_not_paired","message":"This device is not paired with the house."}
+pair with wrong code                         401 {"error":"bad_pairing_code","message":"That pairing code is not right."}
+pair                                         200 {"device_id":"-0I48RoDEmNF","device_token":"[redacted]"}
+pair second device                           200 {"device_id":"DZWM-CH_3whH","device_token":"[redacted]"}
+### profiles + login
+profiles                                     200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
+   [{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true,"pin_reset":false,"is_guest":false,"expires_at":null,"created_by":null,"photo":null},{"id":"christian","name":"Mae","emoji":"🌸","color":"#BC5A38","kind":"adult","hue":"peach","is_admin":false,"sort_order":2,"has_pin":false,"pin_reset":false,"is_guest":false,
+login kid (no pin)                           200 {"profile_token":"[redacted]","profile":{"id":"ezra","name":"Ezra","emoji":"🦖","color":"#137F77","kind":"kid","hue
+login kiosk (no pin)                         200 {"profile_token":"[redacted]","profile":{"id":"tv","name":"Downstairs TV","emoji":"📺","color":"#4C4C58","kind":"ki
+login adult w/o pin -> needs_pin_setup       403 {"error":"needs_pin_setup","message":"Mea has not created a PIN yet.","pin_reset":false}
+set pin for kid -> 400                       400 {"error":"no_pin_for_kind","message":"Only adult profiles have a PIN."}
+set pin bad format                           400 {"error":"bad_pin","message":"PIN must be 4 to 8 digits."}
+set pin (first time)                         200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+set pin again -> 409                         409 {"error":"pin_already_set","message":"A PIN is already set. Ask the admin to reset it."}
+login wrong pin                              401 {"error":"wrong_pin","message":"Wrong PIN."}
+login right pin                              200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+me                                           200 {"profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","hue":"butter","is_admin":false,"sort_order":7,"has_pin":true,"p
+profile token on other device -> 401         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+logout                                       200 {"ok":true}
+me after logout -> 401                       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+### rate limit (5 wrong pins)
+6th wrong pin -> 429                         429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":900}
+right pin still limited -> 429               429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":900}
+### data
+put person                                   200 {"key":"count","value":7,"updated_at":1000,"applied":true}
+put older ts -> not applied                  200 {"key":"count","value":7,"updated_at":1000,"applied":false}
+put newer ts -> applied                      200 {"key":"count","value":9,"updated_at":2000,"applied":true}
+get person                                   200 {"items":[{"key":"count","value":9,"updated_at":2000}],"now":1791332784801}
+get person single key                        200 {"item":{"key":"count","value":9,"updated_at":2000},"now":1791332784894}
+get person w/o profile -> 401                401 {"error":"profile_required","message":"Choose a profile first."}
+kid can't read niece's data (own scope empty) 200 {"items":[{"key":"reset","value":{"epoch":"muxd8zn56yazz","at":1791332718449},"updated_at":1791332718449},{"key":"count:chat","value":{"n":3,"epoch":"
+   ^^^ expected empty
+put family                                   200 {"key":"item:abc","value":{"id":"abc","name":"Chili","size":"Large","dateLogged":"2026-09-15"},"updated_at":1791332785000,"applied":true}
+get family with device only                  200 {"items":[{"key":"item:muxd87x7eytwa","value":{"id":"muxd87x7eytwa","name":"Milk","size":"Small","dateLogged":"2026-10-06","by":"eli","byName":"Eli"},
+   [{"key":"item:muxd87x7eytwa","value":{"id":"muxd87x7eytwa","name":"Milk","size":"Small","dateLogged":"2026-10-06","by":"eli","byName":"Eli"},"updated_at":1791332682523},{"key":"item:muxd88ommvm5h","value":null,"updated_at":1791332683961},{"key":"item:muxd89lr5jpoz","value":{"id":"muxd89lr5jpoz","nam
+kiosk write -> 403                           403 {"error":"read_only","message":"This profile can only look, not change things."}
+delete family item (tombstone)               200 {"key":"item:abc","value":null,"updated_at":1791332785629,"applied":true}
+batch                                        200 {"results":[{"key":"done","value":{"1-1":true},"updated_at":5,"applied":true},{"key":"week","value":3,"updated_at":5,"applied":true}],"now":1791332785
+since filter                                 200 {"items":[{"key":"done","value":{"1-1":true},"updated_at":5},{"key":"week","value":3,"updated_at":5}],"now":1791332785827}
+bad scope -> 400                             400 {"error":"bad_scope","message":"scope must be 'person' or 'family'."}
+### activity
+post activity                                200 {"id":25,"profile_id":"niece","app_id":"tally","text":"counted to 9","created_at":1791332786013,"name":"Mea","emoji":"🌻","color":"#5B8143","hue":"b
+kiosk activity -> 403                        403 {"error":"read_only","message":"This profile can only look, not change things."}
+get activity                                 200 {"activity":[{"id":25,"profile_id":"niece","app_id":"tally","text":"counted to 9","created_at":1791332786013,"name":"Mea","emoji":"🌻","color":"#5B8
+### who read today (the TV's Reading today, batch 2c)
+readers with device only -> 401              401 {"error":"profile_required","message":"Choose a profile first."}
+tick today in F260 (person log row)          200 {"key":"log:2026-10-06","value":true,"updated_at":1791332786450,"applied":true}
+readers as the display                       200 {"date":"2026-10-06","readers":["eli","niece"]}
+untick today (log row false)                 200 {"key":"log:2026-10-06","value":false,"updated_at":1791332786786,"applied":true}
+readers after the untick                     200 {"date":"2026-10-06","readers":["eli"]}
+choose a reading-nudge time (push_pref:readAt) 200 {"key":"push_pref:readAt","value":"06:30","updated_at":1791332787054,"applied":true}
+memorise a verse (F260 mem:1-0)              200 {"key":"mem:1-0","value":true,"updated_at":1791332787221,"applied":true}
+turn the verse review on (push_pref:verses)  200 {"key":"push_pref:verses","value":true,"updated_at":1791332787401,"applied":true}
+### rally the family (park map) — one rally per adult per minute, so wait 60 s between runs
+rally with device only -> 401                401 {"error":"profile_required","message":"Choose a profile first."}
+rally as kid -> 403                          403 {"error":"adults_only","message":"Only a household grown-up can rally the family."}
+rally as kiosk -> 403                        403 {"error":"adults_only","message":"Only a household grown-up can rally the family."}
+rally without a name -> 400                  400 {"error":"bad_name","message":"Give the meeting point a name."}
+rally with x as a string -> 400              400 {"error":"bad_point","message":"x and y must be numbers (map positions)."}
+rally                                        200 {"ok":true,"pushed":0,"meet":{"x":1234.5,"y":678,"name":"The gazebo","note":"bring the stroller","by":"niece","byName":"Mea","at":1791332788061},"upda
+rally again within a minute -> 429           429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 1 min.","retry_after":60}
+family pull (device only) has the meet row   200 {"item":{"key":"meet","value":{"x":1234.5,"y":678,"name":"The gazebo","note":"bring the stroller","by":"niece","byName":"Mea","at":1791332788061},"upd
+feed has the line                            200 {"activity":[{"id":26,"profile_id":"niece","app_id":"dollywood-live","text":"Set a meeting point: The gazebo","created_at":1791332788066,"name":"Mea",
+clear the rally as kid -> 403                403 {"error":"adults_only","message":"Only a household grown-up can rally the family."}
+clear the rally                              200 {"ok":true,"cleared":true,"updated_at":1791332789192}
+clear again (idempotent)                     200 {"ok":true,"cleared":false,"updated_at":1791332789361}
+since-pull carries the tombstone             200 {"items":[{"key":"meet","value":null,"updated_at":1791332789361}],"now":1791332789432}
+### push
+subscribe without keys -> 400                400 {"error":"bad_subscription","message":"subscription needs an endpoint and keys.p256dh / keys.auth."}
+subscribe with keys that are not keys -> 400 400 {"error":"bad_subscription","message":"subscription needs an endpoint and keys.p256dh / keys.auth."}
+subscribe                                    200 {"ok":true}
+my subscription on this device               200 {"subscribed":true,"endpoint":"https://push.example/abc"}
+the display cannot subscribe -> 403          403 {"error":"read_only","message":"The display gets no notifications."}
+a kid cannot subscribe -> 403                403 {"error":"no_push","message":"Notifications are for grown-ups."}
+the display cannot send a test -> 403        403 {"error":"read_only","message":"The display gets no notifications."}
+a kid cannot send a test -> 403              403 {"error":"no_push","message":"Notifications are for grown-ups."}
+test goes to this device's subscription      200 {"sent":1,"ok":0,"details":[{"endpoint":"https://push.example/abc…","status":0,"ok":false,"error":"internal error; reference = 2ln67nkb1lq299708ut40
+resubscribe without a device token -> 401    401 {"error":"device_not_paired","message":"This device is not paired with the house."}
+resubscribe from another device moves nothing -> 404 404 {"error":"no_such_subscription","message":"No subscription with that endpoint."}
+resubscribe by the old endpoint (this device's token) 200 {"ok":true,"moved":1}
+the house now has the new endpoint           200 {"subscribed":true,"endpoint":"https://push.example/abc2"}
+resubscribe an unknown endpoint -> 404       404 {"error":"no_such_subscription","message":"No subscription with that endpoint."}
+an http endpoint off this machine -> 400     400 {"error":"bad_subscription","message":"subscription needs an endpoint and keys.p256dh / keys.auth."}
+unsubscribe                                  200 {"ok":true}
+the switch reads off                         200 {"subscribed":false,"endpoint":null}
+### chat history (GAP-CHAT-01)
+clear my chat history                        200 {"ok":true,"deleted":0,"used":0,"cap":60}
+the display cannot clear a chat -> 403       403 {"error":"read_only","message":"This profile can only look, not change things."}
+### admin
+admin usage as non-admin -> 403              403 {"error":"admin_only","message":"Only the admin can do that."}
+admin reset-pin as kid -> 403                403 {"error":"admin_only","message":"Only the admin can do that."}
+admin as device-only -> 401                  401 {"error":"profile_required","message":"Choose a profile first."}
+set eli pin (first time, local only)         409 {"error":"pin_already_set","message":"A PIN is already set. Ask the admin to reset it."}
+   ^^^ EXPECTED 200
+admin usage                                  401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin rename tv                              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin bad color                              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin reset niece pin                        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected a 6-digit one-time code
+niece needs_pin_setup again                  429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":891}
+   ^^^ EXPECTED 403
+claim niece without the code -> 403          409 {"error":"pin_already_set","message":"A PIN is already set. Ask the admin to reset it."}
+   ^^^ EXPECTED 403
+   ^^^ expected error=needs_code
+claim niece with a wrong code -> 401         409 {"error":"pin_already_set","message":"A PIN is already set. Ask the admin to reset it."}
+   ^^^ EXPECTED 401
+admin unpair device B                        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+device B now unpaired                        200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
+   ^^^ EXPECTED 401
+admin rotate code (keep same)                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin unpair self -> 400                     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin unpair device A (cleanup, from B? no) skip 200 {"ok":true,"time":1791332793797}
+### guests (roadmap 23)
+niece sets a pin again (with the code)       409 {"error":"pin_already_set","message":"A PIN is already set. Ask the admin to reset it."}
+   ^^^ EXPECTED 200
+add guest as kid -> 403                      403 {"error":"adults_only","message":"Ask a grown-up to add a guest."}
+add guest as kiosk -> 403                    403 {"error":"read_only","message":"This profile can only look, not change things."}
+add guest w/o name -> 400                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+add guest bad pin -> 400                     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+add guest as adult                           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected is_guest adult, not admin, created_by niece
+guest logs in without a pin                  404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 200
+guest writes person data                     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+guest cannot add a guest -> 403              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+guest cannot rally the family -> 403         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected error=adults_only
+set a PIN on a guest from a paired device -> 403 404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 403
+   ^^^ expected error=guest_pin_fixed
+guest still signs in on tap                  404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 200
+guest subscribes on a second session         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+guest signs out (Switch)                     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+guest subscribes again, then someone else signs in here 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+the kid signs in on this device              200 {"profile_token":"[redacted]","profile":{"id":"ezra","name":"Ezra","emoji":"🦖","color":"#137F77","kind":"kid","hue
+the guest's subscription here ended with it  401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected subscribed=false after another sign-in on the device
+stop a reply (unknown id is fine)            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+stop without an id -> 400                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+their subscription here is gone              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected subscribed=false after sign-out
+forced prayer job                            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+forced prayedfor job (GAP-PRAYER-1)          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+forced praytime job (GAP-PRAYER-1)           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+forced evening job (the reading nudge, IMP-F260-F4) 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected the niece checked at her own time, 06:30
+forced verses job (IMP-VERSES-I2)            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected the niece (switch on) checked with a verse due
+forced timer job (PWA-GAP-1)                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected job=timer
+an unknown job names the timer job           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+   ^^^ expected 'timer' among the jobs
+turn the arrival alert off (push_pref:arrive) 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+read the arrival switch back                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected push_pref:arrive = false
+turn the arrival alert back on               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+forced arrive job (GAP-DOLLYWOOD-LIVE-1)     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected job=arrive
+the arrive job is admin only                 403 {"error":"admin_only","message":"Only the admin can do that."}
+an unknown job names the arrive job          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+   ^^^ expected 'arrive' among the jobs
+admin usage counts New York days             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected tz America/New_York
+guest subscribes to push                     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin ends the guest's stay                  401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+expired guest session -> 401                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+admin usage                                  401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+forced morning job never lists the expired guest 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin reopens the stay (a week)              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+add guest with pin, already expired          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+expired guest cannot log in -> 403           404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 403
+   ^^^ expected error=guest_expired
+profiles (device only) hide the expired guest 200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
+   ^^^ expected undefined listed and undefined hidden
+profiles (admin) include the expired guest   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected undefined listed for the admin
+purge a live guest -> 400                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+purge the expired guest                      401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+delete a household profile -> 400            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+delete guest as non-admin -> 403             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+admin extends the guest's stay               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected expires_at null
+admin cannot make a guest a kid -> 400       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+delete the guest                             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+guest session gone -> 401                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+guest profile gone -> 404                    404 {"error":"no_such_profile","message":"No profile with that id."}
+guest cleanup runs                           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+### batch 0d: accounts, kid limits, the kitchen device
+admin resets own pin without pin -> 403      401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected error=wrong_admin_pin
+change my pin, wrong current -> 403          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+change my pin                                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+old pin no longer works                      429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":883}
+   ^^^ EXPECTED 401
+new pin works                                429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":883}
+   ^^^ EXPECTED 200
+change pin back                              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kid cannot change a pin -> 403               403 {"error":"adults_only","message":"Only a household adult has a PIN to change."}
+guest named with markup -> 400               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin renames with markup -> 400             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin sets a colour family                   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected hue=mint
+admin sets an unknown colour family -> 400   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin clears the colour family               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kid writes the meeting point -> 403          403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"meet","value":null,"updated_at":1791332789361}
+kid writes a leftovers row -> 403            403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"bad_date","key":"item:kid1","value":null,"updated_at":0}
+kid cash-in ledger vs a sibling -> 403       403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"ledger:kiara:x","value":null,"updated_at":0}
+kid overwrites a sibling's stars -> 403      403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"stars:kiara","value":null,"updated_at":0}
+kid writes own stars mirror                  200 {"key":"stars:ezra","value":{"count":1},"updated_at":1791332802000,"applied":true}
+kid switches own beacon on -> 403            403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"household_only","key":"kidshare:ezra","value":null,"updated_at":0}
+kid places own dot, beacon off -> 403        403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"beacon_off","key":"loc:ezra","value":null,"updated_at":0}
+kid reads a hidden app's family rows -> 403  403 {"error":"app_hidden","message":"This profile cannot open that app."}
+kid writes a hidden app's person rows -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"app_hidden","key":"week","value":null,"updated_at":0}
+kid writes its own timer mirror              200 {"key":"run:ezra:smk","value":{"total":60000,"endAt":1791332862000,"startedAt":1791332802000},"updated_at":1791332802000,"applied":true}
+kid writes a sibling's timer mirror -> 403   403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"run:kiara:smk","value":null,"updated_at":0}
+adult writes a kid's timer mirror -> 403     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+any other family timer row -> 403            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+casing is no way round: RUN:kiara by a kid -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"RUN:kiara:x","value":null,"updated_at":0}
+the TV reads the timers' mirror              200 {"items":[{"key":"run:eli:cmuxd8fgmi2iwr","value":{"label":"Pasta","total":720000,"endAt":1791333412292,"pausedAt":null,"remaining":null,"by":"eli","s
+the TV writes no mirror -> 403               403 {"error":"read_only","message":"This profile can only look, not change things."}
+kid clears its own timer mirror              200 {"key":"run:ezra:smk","value":null,"updated_at":1791332803787,"applied":true}
+key casing is no way round: LOC:kiara by a kid -> 403 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"not_yours","key":"LOC:kiara","value":null,"updated_at":0}
+an adult adds a family prayer Kiara prayed   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kid's stale tick (no Kiara, new title, backdated day) is merged 403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"kid_readonly","key":"prayer:smk1","value":null,"updated_at":0}
+   ^^^ EXPECTED 200
+the house keeps Kiara and the title, Ezra (by id) today only 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected title Smoke, today [Kiara, ezra], no backdated day
+tidy the smoke prayer                        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kid keeps Verses recall in the F260 scope    200 {"key":"f260.recall","value":{},"updated_at":1791332804481,"applied":true}
+batch: a refused row comes back, the rest saves 200 {"results":[{"key":"stars:ezra","value":{"count":2},"updated_at":1791332802001,"applied":true},{"key":"week","rejected":"household_only","value":null,
+an adult adds a guest to test with           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+guest steps the family week -> 403           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+guest switches a kid's beacon -> 403         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+guest sets a kid's height -> 403             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+household adult switches the beacon on       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kid places own dot, beacon on                403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"beacon_off","key":"loc:ezra","value":null,"updated_at":0}
+   ^^^ EXPECTED 200
+guest clears the kid's fresh dot -> 403      401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+household adult switches the beacon off      401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+household adult clears the kid's dot         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+remove the test guest                        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+feed line naming a private request -> 400    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+feed line without the title                  401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+a guest with a PIN to test with              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+the guest signs in once here (this device is now trusted) 404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 200
+12 wrong PINs on 4 devices: a 5th device -> 429 404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 429
+…while a device it used before still signs in 404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 200
+admin reset lifts the pause                  401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+the guest signs in on tap again              404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 200
+remove the lock-test guest                   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+6th wrong code from one device -> 429        429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":900}
+another device can still pair                200 {"device_id":"X2FllXJ-Fn0S","device_token":"[redacted]"}
+kitchen sign-in on an ordinary device -> 403 403 {"error":"not_kitchen_device","message":"Only the kitchen device signs in as the kitchen."}
+kitchen is marked in the profile list        200 {"profiles":[{"id":"eli","name":"Eli","emoji":"🧭","color":"#4F5D8C","kind":"adult","hue":"periwinkle","is_admin":true,"sort_order":1,"has_pin":true
+role change by a non-admin -> 403            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+role change without the admin PIN -> 403     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+role change of this device -> 400            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin makes it the kitchen                   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+the device learns its role                   200 {"id":"tL8cTAvwanEd","name":"smoke kitchen","role":null,"kitchen_profile":null}
+   ^^^ expected role=kitchen
+a person on the kitchen device -> 403        200 {"profile_token":"[redacted]","profile":{"id":"niece","name":"Mea","emoji":"🌻","color":"#5B8143","kind":"adult","h
+   ^^^ EXPECTED 403
+the kitchen signs in, no PIN                 403 {"error":"not_kitchen_device","message":"Only the kitchen device signs in as the kitchen."}
+   ^^^ EXPECTED 200
+kitchen writes the Larder                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kitchen names a kid on a Larder row -> 403   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected rejected bad_credit
+a guest for the credit checks                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kitchen finishes it for ezra -> 403          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected rejected bad_credit
+kitchen finishes it for undefined -> 403     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected rejected bad_credit
+kitchen finishes it for tv -> 403            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected rejected bad_credit
+kitchen finishes it for an adult (Mea)       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+…under the wrong name -> 403               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+tidy the finished row                        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+remove the credit-check guest                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+a Larder row dated 'yesterday' -> 403        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected rejected bad_date
+a Larder row dated 2099-01-01 -> 403         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+a Larder row dated today -> 200              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+tidy the dated row                           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+a Larder row with a future use-by -> 200     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+a Larder row with a past use-by -> 200       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+a use-by that is not a day -> 403            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected rejected bad_date
+a use-by of 2026-02-30 -> 403                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+portion 'half' -> 403                        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected rejected bad_value
+editedBy someone else -> 403                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+editedAt that is not a time -> 403           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+the kitchen edits an item and keeps its logger -> 200 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+an Undo written as its own editor over someone else's edit -> 200 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+a Larder row that still names someone else as editor -> 403 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+a kid cannot edit a Larder item -> 403       403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"kid_readonly","key":"item:ub1","value":null,"updated_at":0}
+tidy the edited row                          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kitchen feed line for a kid on the Larder -> 403 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+kitchen feed line for an adult               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected the line filed under niece
+kitchen credits the TV -> 403                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+kitchen writes its own timer                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kitchen writes a person app -> 403           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+kitchen writes its own timer mirror (batch 6) 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kitchen writes a person's timer mirror -> 403 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+kitchen clears its own timer mirror          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+kitchen chat -> 403                          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+kitchen push subscription -> 403             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+kitchen admin call -> 403                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+reset PIN refuses the kitchen -> 400         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin renames the kitchen -> 400             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin recolours the kitchen                  401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin makes a profile the kitchen -> 400     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+admin clears the role                        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+the old kitchen session -> 401               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+the device has no role now                   200 {"id":"tL8cTAvwanEd","name":"smoke kitchen","role":null,"kitchen_profile":null}
+unpair the test kitchen device               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+tidy the kitchen's row                       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+### batch 7: a parent's recorded voice (IMP-KIDVERSE-I2) — private audio, adults only, bytes deleted with the recording
+a guest to test with                         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin makes a device the kitchen             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+the kitchen signs in                         403 {"error":"not_kitchen_device","message":"Only the kitchen device signs in as the kitchen."}
+   ^^^ EXPECTED 200
+no profile uploads -> 401                    401 {"error":"profile_required","message":"Choose a profile first."}
+a kid uploads -> 403                         403 {"error":"adults_only","message":"Only a household grown-up can record the verse."}
+the TV uploads -> 403                        403 {"error":"adults_only","message":"Only a household grown-up can record the verse."}
+a guest uploads -> 403                       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected error=adults_only
+the kitchen uploads -> 403                   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   (D1_PERSIST not set: stored bytes not counted)
+week 0 -> 400                                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+week 53 -> 400                               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+week abc -> 400                              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+week 038 (not a plain number) -> 400         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+a text type -> 415                           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 415
+audio/wav -> 415                             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 415
+audio/webm that is not audio -> 415          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 415
+mp4 type over webm bytes -> 415              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 415
+no length -> 400                             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+91 seconds -> 413                            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 413
+one byte over 1 MB -> 413                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 413
+   (D1_PERSIST not set: stored bytes not counted)
+exactly 1 MB and 90 s is fine                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   (D1_PERSIST not set: stored bytes not counted)
+tidy the 1 MB recording                      401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   (D1_PERSIST not set: stored bytes not counted)
+an adult records week 38 (codecs allowed)    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected by=niece mime=audio/webm ms=4200 bytes=4004 replaced=null
+   (D1_PERSIST not set: stored bytes not counted)
+the row is there for the house               200 {"item":null,"now":1791332818557}
+   ^^^ expected the row with the id and no URL
+   ^^^ expected a kid to get the 4004 bytes back
+   ^^^ expected the TV to get the 4004 bytes back
+   ^^^ expected a guest to get the 4004 bytes back
+   ^^^ expected an adult to get the 4004 bytes back
+   ^^^ expected the kitchen to hear it
+   ^^^ expected audio/webm, private no-store, and CORS only for the caller's origin
+an adult writes voice:38 -> 403              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected rejected worker_only
+the admin writes voice:39 -> 403             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+casing is no way round: VOICE:38 -> 403      401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+clearing the row through the data API -> 403 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+a batch's voice row comes back refused       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected results.0.rejected=worker_only
+a kid writes a voice row -> 403              403 {"error":"not_allowed","message":"This profile cannot change that.","rejected":"worker_only","key":"voice:38","value":null,"updated_at":0}
+the row is untouched                         200 {"item":null,"now":1791332819983}
+   ^^^ expected the recording to be intact
+another adult replaces it (mp4)              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected a new id, by eli, replaced.by niece
+   (D1_PERSIST not set: stored bytes not counted)
+   ^^^ expected the new mp4 recording
+ogg is accepted (week 39)                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+mp3 is accepted (week 40)                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+tidy week 39                                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+tidy week 40                                 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+a kid removes it -> 403                      403 {"error":"adults_only","message":"Only a household grown-up can remove the recording."}
+the TV removes it -> 403                     403 {"error":"adults_only","message":"Only a household grown-up can remove the recording."}
+a guest removes it -> 403                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+the kitchen removes it -> 403                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+no profile removes it -> 401                 401 {"error":"profile_required","message":"Choose a profile first."}
+   (D1_PERSIST not set: stored bytes not counted)
+an adult removes it                          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   (D1_PERSIST not set: stored bytes not counted)
+removing it again -> 404                     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 404
+the row is a tombstone for every device      200 {"items":[],"now":1791332821580}
+   ^^^ expected voice:38 with value null
+admin adds an adult to record                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+…creates a PIN with the set-up code        404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 200
+…and records week 42                       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   (D1_PERSIST not set: stored bytes not counted)
+admin removes that person                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   (D1_PERSIST not set: stored bytes not counted)
+their recording's row is cleared             200 {"item":null,"now":1791332822358}
+remove the voice guest                       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin clears the voice kitchen               401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+unpair the voice kitchen device              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+### batch 2a: Admin → Household (GAP-PROF-a2) and the 18 colour families (GAP-ACCENT-1)
+a non-admin adds a person -> 403             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+add a person with an unknown family -> 400   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+add a person as a display -> 400             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+add a person with markup -> 400              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+add a person without the admin PIN -> 403    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected error=wrong_admin_pin
+add a person with a wrong admin PIN -> 403   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+admin adds an adult (an app colour)          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected id smoke-person, hue coral and a six-digit set-up code
+the new adult cannot create a PIN without the code -> 403 404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 403
+admin adds a kid                             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+the new kid signs in on tap                  404 {"error":"no_such_profile","message":"No profile with that id."}
+   ^^^ EXPECTED 200
+a kid cannot be an admin -> 400              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+an adult with no PIN cannot be an admin -> 400 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+   ^^^ expected error=needs_pin
+make Mea an admin, wrong PIN -> 403          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+make Mea an admin                            401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+Mea now reaches the admin API                401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+reset a co-admin's PIN without the admin PIN -> 403 401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+   ^^^ expected error=wrong_admin_pin
+…with a wrong admin PIN -> 403             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+Mea still signs in (nothing was reset)       429 {"error":"too_many_attempts","message":"Too many attempts. Try again in 15 min.","retry_after":860}
+   ^^^ EXPECTED 200
+removing an admin -> 400                     401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+take Mea's admin away                        401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+Mea is refused the admin API again           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+the last admin cannot drop it -> 400         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+   ^^^ expected error=last_admin
+Eli hands his admin to Mea                   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+Eli is refused the admin API now             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+Mea hands it back (her own PIN)              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+Eli is the admin again                       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+Mea is not                                   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+a non-admin removes a person -> 403          401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+the admin removes himself -> 400             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+remove the TV -> 400                         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+remove the kitchen -> 400                    401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 400
+remove the new kid, wrong PIN -> 403         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 403
+remove the new kid                           401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+add the same name again                      401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+   ^^^ expected a new id, not undefined (a removed person's id is never reused)
+remove the re-added kid                      401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+a taken name gets a new id (a second Ezra)   401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+remove the second Ezra                       401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+the removed kid's session -> 401             401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+remove the new adult                         401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+both are gone from the list                  401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+admin reset niece pin (cleanup)              401 {"error":"profile_session_invalid","message":"Please choose your profile again."}
+   ^^^ EXPECTED 200
+### CORS
+preflight allows https://vantrix117.github.io
+preflight blocks evil.example
+
+PASS 169  FAIL 276

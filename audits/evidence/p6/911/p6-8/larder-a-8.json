@@ -1,0 +1,631 @@
+{
+ "the browser rule and the Worker twin return the same level, days, daysLeft, label, age, when, short and score for all 62 rows": {
+  "pass": true,
+  "got": []
+ },
+ "and both match the household's rule written out independently (fresh 0-3 / eat soon 4-6 / use it up 7+; a use-by: use it up from the day, eat soon in the two days before; an unreadable date: check it)": {
+  "pass": true,
+  "got": []
+ },
+ "the edges: 3 days Fresh, 4 Eat soon, 6 Eat soon, 7 Use it up": {
+  "pass": true,
+  "got": [
+   "fresh:Fresh",
+   "fresh:Fresh",
+   "soon:Eat soon",
+   "soon:Eat soon",
+   "old:Use it up"
+  ]
+ },
+ "an unreadable date is \"Check date\": use it up": {
+  "pass": true,
+  "got": {
+   "level": "old",
+   "days": "inf",
+   "daysLeft": null,
+   "useBy": null,
+   "label": "Check date",
+   "age": "date unknown",
+   "when": "check the date",
+   "short": "date?",
+   "score": "inf"
+  }
+ },
+ "a 9-day-old dish with a use-by: fresh with 3 days left, eat soon at 2 and 1, use it up from the day (the use-by wins over the age)": {
+  "pass": true,
+  "got": [
+   "fresh",
+   "soon",
+   "soon",
+   "old",
+   "old"
+  ]
+ },
+ "the words after a name: \"use by tomorrow\", \"use by today\", \"2 days past use-by\", \"use by in 4 days\"": {
+  "pass": true,
+  "got": [
+   "use by tomorrow",
+   "use by today",
+   "2 days past use-by",
+   "use by in 4 days"
+  ]
+ },
+ "due() lists what needs eating most urgent first, the same order in both copies": {
+  "pass": true,
+  "got": [
+   "N12",
+   "N11",
+   "N10",
+   "N9",
+   "N8",
+   "N7",
+   "N6",
+   "N5",
+   "N4"
+  ]
+ },
+ "seeded seven dishes through the real API (use-by and portion pass the Worker's rules)": {
+  "pass": true,
+  "got": 200
+ },
+ "the Larder groups all seven the same as the rule (Chili: fresh by its use-by; Pie and Rice: eat soon; Curry, Age7: use it up)": {
+  "pass": true,
+  "got": {
+   "got": {
+    "Curry": "old",
+    "Age7 dish": "old",
+    "Pie": "soon",
+    "Rice": "soon",
+    "Age4 dish": "soon",
+    "Age3 dish": "fresh",
+    "Chili": "fresh"
+   },
+   "want": [
+    "Curry:old",
+    "Age7 dish:old",
+    "Pie:soon",
+    "Rice:soon",
+    "Age4 dish:soon",
+    "Age3 dish:fresh",
+    "Chili:fresh"
+   ]
+  }
+ },
+ "the group headings are Use it up / Eat soon / Fresh": {
+  "pass": true,
+  "got": [
+   "Use it up",
+   "Eat soon",
+   "Fresh"
+  ]
+ },
+ "the some-left card keeps its words and counts like any other (Eat soon)": {
+  "pass": true,
+  "got": {
+   "name": "Rice",
+   "tone": "warn",
+   "chip": "Eat soon",
+   "portion": true
+  }
+ },
+ "Home's card lists the three most urgent, the same ones, \"use it up\" ones marked": {
+  "pass": true,
+  "got": [
+   {
+    "name": "Curry",
+    "right": "1d over",
+    "stale": true
+   },
+   {
+    "name": "Age7 dish",
+    "right": "7d",
+    "stale": true
+   },
+   {
+    "name": "Pie",
+    "right": "2d left",
+    "stale": false
+   }
+  ]
+ },
+ "Home says it in the Larder's words (\"use it up\" / \"eat soon\", no \"to eat this week\")": {
+  "pass": true,
+  "got": "2 use it up"
+ },
+ "the Apps badge counts all 5 and says \"to eat soon or use up\"": {
+  "pass": true,
+  "got": {
+   "n": 5,
+   "aria": "5 to eat soon or use up"
+  }
+ },
+ "the 8 am push names the same 5 (the 4-day dish included: the old 5+ rule is gone)": {
+  "pass": true,
+  "got": [
+   "Age4 dish",
+   "Age7 dish",
+   "Curry",
+   "Pie",
+   "Rice"
+  ]
+ },
+ "the push body is \"Use it up: … · Eat soon: …\" in the same words": {
+  "pass": true,
+  "got": "Use it up: Curry (1 day past use-by), Age7 dish (7 days) · Eat soon: Pie (use by in 2 days), Rice (5 days) · +1 more"
+ },
+ "the red banner names the most urgent (\"Curry …\") and counts the rest": {
+  "pass": true,
+  "got": "Curry is past its use-by · and 1 more"
+ },
+ "the red banner is a button that names the oldest: \"Chili is 9 days old · and 1 more\"": {
+  "pass": true,
+  "got": {
+   "tag": "BUTTON",
+   "text": "Chili is 9 days old · and 1 more",
+   "target": "e2"
+  }
+ },
+ "a tap scrolls to that card and highlights it (.hl, for 1.6 s)": {
+  "pass": true,
+  "got": {
+   "hl": true,
+   "inView": true
+  }
+ },
+ "the highlight goes by itself": {
+  "pass": true
+ },
+ "Log with nothing typed says \"Type what it is\" under the field and focuses it": {
+  "pass": true,
+  "got": {
+   "shown": true,
+   "text": "Type what it is",
+   "focus": "name",
+   "inv": "true"
+  }
+ },
+ "typing clears the message": {
+  "pass": true
+ },
+ "after Log a toast says \"Logged Taco soup\"": {
+  "pass": true,
+  "got": "Logged Taco soup"
+ },
+ "and the new card is on screen above the add bar": {
+  "pass": true,
+  "got": {
+   "toast": "Logged Taco soup",
+   "found": true,
+   "bottom": 751,
+   "barTop": 766,
+   "top": 636
+  }
+ },
+ "a long name wraps to two lines on the card (P3-LEFTOVERS-11)": {
+  "pass": true,
+  "got": {
+   "h": 42,
+   "lh": 21,
+   "clamp": "2"
+  }
+ },
+ "tapping the card opens the edit sheet with the full name, the date logged, no use-by, the cursor in the name": {
+  "pass": true,
+  "got": {
+   "open": true,
+   "name": "Church potluck baked ziti with the extra cheese and breadcrumbs",
+   "size": "Medium",
+   "date": "2026-09-29",
+   "useby": "",
+   "focus": "e-name"
+  }
+ },
+ "an empty name in the sheet shows \"Type what it is\" and keeps it open with the field focused": {
+  "pass": true
+ },
+ "Enter saves and closes the sheet": {
+  "pass": true
+ },
+ "the row keeps who logged it (by, byName), takes the new name, size and use-by, and gains editedBy / editedAt": {
+  "pass": true,
+  "got": {
+   "id": "e1",
+   "name": "Baked ziti",
+   "size": "Large",
+   "dateLogged": "2026-09-29",
+   "by": "eli",
+   "byName": "Eli",
+   "editedBy": "eli",
+   "editedByName": "Eli",
+   "editedAt": 1791374448585,
+   "useBy": "2026-10-08"
+  }
+ },
+ "a use-by tomorrow moves it from Use it up (8 days) to Eat soon, and the line says \"use by …\"": {
+  "pass": true,
+  "got": {
+   "level": "soon",
+   "chip": "Eat soon",
+   "group": "warn",
+   "meta": "🧭Large · Tue 29 Sep · 8 days · use by Thu 8 Oct",
+   "nm": "Baked ziti"
+  }
+ },
+ "an edit posts no feed line": {
+  "pass": true,
+  "got": {
+   "before": 1,
+   "after": 1
+  }
+ },
+ "Escape closes the sheet and saves nothing": {
+  "pass": true
+ },
+ "Mom fixes Eli's item: it still says Eli logged it, and Mom edited it": {
+  "pass": true,
+  "got": {
+   "id": "e3",
+   "name": "Tomato soup",
+   "size": "Medium",
+   "dateLogged": "2026-10-02",
+   "by": "eli",
+   "byName": "Eli",
+   "editedBy": "mom",
+   "editedByName": "Elizabeth",
+   "editedAt": 1791374452734
+  }
+ },
+ "a mostly vertical drag opens nothing and finishes nothing (the page's own scroll)": {
+  "pass": true
+ },
+ "a trailing swipe reveals Some left and Finish (card .swipe-open, --sx set, nothing finished)": {
+  "pass": true,
+  "got": {
+   "open": true,
+   "sx": "-156px",
+   "aria": "false",
+   "fin": true,
+   "some": true,
+   "finishing": false,
+   "ev": [
+    "pointermove:340,375",
+    "pointerdown:340,375",
+    "pointermove:325,375",
+    "pointermove:310,375",
+    "pointermove:295,375",
+    "pointermove:280,375",
+    "pointermove:265,375",
+    "pointermove:250,375",
+    "pointermove:235,375",
+    "pointermove:220,375",
+    "pointerup:220,375"
+   ],
+   "geo": "{\"x\":20,\"y\":317.390625,\"width\":390,\"height\":115.390625,\"top\":317.390625,\"right\":410,\"bottom\":432.78125,\"left\":20}"
+  }
+ },
+ "Some left writes portion: \"some\" (and editedBy) on the row, keeping the logger": {
+  "pass": true,
+  "got": {
+   "id": "f1",
+   "name": "Filler 1",
+   "size": "Medium",
+   "dateLogged": "2026-10-04",
+   "by": "eli",
+   "byName": "Eli",
+   "editedBy": "eli",
+   "editedByName": "Eli",
+   "editedAt": 1791374454994,
+   "portion": "some"
+  }
+ },
+ "the card shows the half-filled bar and the words \"Some left\", closed again": {
+  "pass": true
+ },
+ "and a toast says so, with Undo": {
+  "pass": true,
+  "got": "Some left of the Filler 1. Undo"
+ },
+ "Undo takes it back: the row has no portion again and the card is whole": {
+  "pass": true
+ },
+ "the sheet's \"Some left\" switch turns on": {
+  "pass": true
+ },
+ "saving writes portion: \"some\"": {
+  "pass": true
+ },
+ "a full swipe finishes it in place for six seconds with Undo and the same toast as the check button": {
+  "pass": true,
+  "got": {
+   "finishing": true,
+   "undo": true,
+   "status": "Finished",
+   "toast": "Finished the Filler 3. Undo"
+  }
+ },
+ "nothing is removed from the house list until the six seconds are up": {
+  "pass": true
+ },
+ "Undo puts it back, as for the check button": {
+  "pass": true
+ },
+ "the check button still finishes in place": {
+  "pass": true
+ },
+ "a failed pull says \"Couldn't reach the house. Your changes are saved on this device.\" with a Retry, never a raw code": {
+  "pass": true,
+  "got": {
+   "shown": true,
+   "text": "Couldn't reach the house. Your changes are saved on this device.",
+   "retry": true,
+   "state": "error"
+  }
+ },
+ "Retry pulls, and the line goes away once the house answers": {
+  "pass": true
+ },
+ "the copy block is neutral: \"Copy the list\" / \"Paste it into a message, a note or Hearth.\" and does not mention Claude": {
+  "pass": true,
+  "got": {
+   "help": "Paste it into a message, a note or Hearth.",
+   "btn": " Copy the list"
+  }
+ },
+ "the Copy button draws the copy icon from the sprite, not the refresh arrows": {
+  "pass": true
+ },
+ "when the clipboard is refused the list appears, all selected, in a read-only box": {
+  "pass": true,
+  "got": {
+   "shown": true,
+   "ro": true,
+   "sel": 343,
+   "len": 343,
+   "starts": "Leftovers to eat soon or use up:\n",
+   "share": false,
+   "btn": "Select and copy",
+   "label": "Couldn't copy here"
+  }
+ },
+ "with \"Select and copy\", and no Share where the device has none": {
+  "pass": true,
+  "got": {
+   "shown": true,
+   "ro": true,
+   "sel": 343,
+   "len": 343,
+   "starts": "Leftovers to eat soon or use up:\n",
+   "share": false,
+   "btn": "Select and copy",
+   "label": "Couldn't copy here"
+  }
+ },
+ "Share is offered where navigator.share exists": {
+  "pass": true
+ },
+ "and it shares the text": {
+  "pass": true
+ },
+ "a copy that works says Copied! and the box goes away": {
+  "pass": true
+ },
+ "Mom edits Lasagna (editedBy mom)": {
+  "pass": true,
+  "got": 200
+ },
+ "Eli marks it Some left (the row now says Eli edited it)": {
+  "pass": true,
+  "got": {
+   "id": "r1",
+   "name": "Lasagna",
+   "size": "Medium",
+   "dateLogged": "2026-10-06",
+   "by": "eli",
+   "byName": "Eli",
+   "editedBy": "eli",
+   "editedByName": "Eli",
+   "editedAt": 1791374474232,
+   "portion": "some"
+  }
+ },
+ "P1: Undo of Some left works after someone else edited last: the house holds the item whole again, the device agrees (it used to be refused)": {
+  "pass": true,
+  "got": {
+   "s2": {
+    "id": "r1",
+    "name": "Lasagna",
+    "size": "Medium",
+    "dateLogged": "2026-10-06",
+    "by": "eli",
+    "byName": "Eli",
+    "editedBy": "eli",
+    "editedByName": "Eli",
+    "editedAt": 1791374474862
+   },
+   "dev": {
+    "row": {
+     "id": "r1",
+     "name": "Lasagna",
+     "size": "Medium",
+     "dateLogged": "2026-10-06",
+     "by": "eli",
+     "byName": "Eli",
+     "editedBy": "eli",
+     "editedByName": "Eli",
+     "editedAt": 1791374474862
+    },
+    "whole": true
+   }
+  }
+ },
+ "Undo after Mom renamed it takes back only the portion and keeps her name": {
+  "pass": true,
+  "got": {
+   "id": "r1",
+   "name": "Lasagna (big)",
+   "size": "Medium",
+   "dateLogged": "2026-10-06",
+   "by": "eli",
+   "byName": "Eli",
+   "editedBy": "eli",
+   "editedByName": "Eli",
+   "editedAt": 1791374477461
+  }
+ },
+ "P2: an untouched Save after another device renamed it writes nothing (Beta stays, still edited by Mom)": {
+  "pass": true,
+  "got": {
+   "id": "r2",
+   "name": "Beta",
+   "size": "Medium",
+   "dateLogged": "2026-10-06",
+   "by": "eli",
+   "byName": "Eli",
+   "editedBy": "mom",
+   "editedByName": "Elizabeth",
+   "editedAt": 1791374478605
+  }
+ },
+ "P2: changing only the size keeps the other device's new name (Gamma) and writes Small": {
+  "pass": true,
+  "got": {
+   "id": "r2",
+   "name": "Gamma",
+   "size": "Small",
+   "dateLogged": "2026-10-06",
+   "by": "eli",
+   "byName": "Eli",
+   "editedBy": "eli",
+   "editedByName": "Eli",
+   "editedAt": 1791374481590
+  }
+ },
+ "P8: an item finished on another device while the sheet was open is not brought back; a toast says so": {
+  "pass": true,
+  "got": {
+   "toastTxt": "That one was finished on another device, so nothing was saved."
+  }
+ },
+ "Enter on a focused card opens the sheet": {
+  "pass": true
+ },
+ "P6: after a keyboard Save the focus is on that card (its edit target), not lost to the page": {
+  "pass": true,
+  "got": {
+   "inCard": true,
+   "cls": "nm",
+   "role": "button",
+   "sheet": true
+  }
+ },
+ "a swipe opens the card (P7 set-up)": {
+  "pass": true
+ },
+ "P7: tapping the face of an open card closes the swipe and does not open the edit sheet": {
+  "pass": true,
+  "got": {
+   "open": false,
+   "sheet": false
+  }
+ },
+ "and the next tap opens it as usual": {
+  "pass": true
+ },
+ "N1: the \"Use it up\" and \"Eat soon\" subtitles say they include a use-by": {
+  "pass": true,
+  "got": [
+   "2 · 7+ days, or at use-by",
+   "5 · 4-6 days, or near use-by",
+   "12 · up to 3 days old"
+  ]
+ },
+ "N1: a dish logged today with a use-by of today sits in Use it up and its bar is at 7/10 (the rule's score, not its age)": {
+  "pass": true,
+  "got": {
+   "subs": [
+    "2 · 7+ days, or at use-by",
+    "5 · 4-6 days, or near use-by",
+    "12 · up to 3 days old"
+   ],
+   "p": "0.7",
+   "pInline": "0.7",
+   "grp": "urgent"
+  }
+ },
+ "R2 (390, one column): after a remote two-line rename and a remote Some left, no card moved or changed size (19 cards compared)": {
+  "pass": true,
+  "got": {
+   "moved": []
+  }
+ },
+ "R2 (390, one column): the change that would resize a card waits behind the Show pill (\"1 new or changed in the fridge · Show\"; a Some left that keeps the height of its card may land in place)": {
+  "pass": true,
+  "got": {
+   "hidden": false,
+   "text": "1 new or changed in the fridge · Show"
+  }
+ },
+ "R2 (390, one column): Show lays the list out with the new name and the Some left": {
+  "pass": true,
+  "got": {
+   "a": "A very long remote rename that is certain to need two lines on every card width here",
+   "b": true
+  }
+ },
+ "R2 (1440, two columns): after a remote two-line rename and a remote Some left, no card moved or changed size (19 cards compared)": {
+  "pass": true,
+  "got": {
+   "moved": []
+  }
+ },
+ "R2 (1440, two columns): the change that would resize a card waits behind the Show pill (\"2 new or changed in the fridge · Show\"; a Some left that keeps the height of its card may land in place)": {
+  "pass": true,
+  "got": {
+   "hidden": false,
+   "text": "2 new or changed in the fridge · Show"
+  }
+ },
+ "R2 (1440, two columns): Show lays the list out with the new name and the Some left": {
+  "pass": true,
+  "got": {
+   "a": "A very long remote rename that is certain to need two lines on every card width here",
+   "b": true
+  }
+ },
+ "an item finished on another device is marked Finished where it stands and nothing moves (the 0h rule still holds)": {
+  "pass": true,
+  "got": {
+   "id": "f1"
+  }
+ },
+ "a kid: no check button, no swipe layer, no tappable card": {
+  "pass": true,
+  "got": {
+   "done": 0,
+   "act": 0,
+   "info": 0,
+   "touch": "auto"
+  }
+ },
+ "a kid: dragging a card does nothing, and tapping it opens no sheet": {
+  "pass": true
+ },
+ "a kid: no edit sheet": {
+  "pass": true
+ },
+ "the TV: no check button, no swipe layer, no tappable card": {
+  "pass": true,
+  "got": {
+   "done": 0,
+   "act": 0,
+   "info": 0,
+   "touch": "auto"
+  }
+ },
+ "the TV: dragging a card does nothing, and tapping it opens no sheet": {
+  "pass": true
+ },
+ "the TV: no edit sheet": {
+  "pass": true
+ }
+}

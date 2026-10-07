@@ -1,0 +1,685 @@
+  ✓ C: running, the presets are not on screen (nothing can replace the timer); New timer is 
+  ✓ C: New timer opens the picker in place 
+  ✓ C: a preset there adds 3:00 while the 10:00 keeps running: both rows on the server 
+  ✓ D: Pause is stored on the server {pausedAt, remaining, endAt null} 
+  ✓ D: reopened, the 3:00 timer is still paused (TimerPaused · 2:55) 
+  ✓ E: at 0 the dial stays round (353x353, as running) and says "Time's up"; Stop 
+{
+ "checks": [
+  {
+   "pass": true,
+   "name": "C: running, the presets are not on screen (nothing can replace the timer); New timer is",
+   "got": {
+    "before": {
+     "time": "9:58",
+     "go": "Pause",
+     "primary": true,
+     "done": false,
+     "on": [],
+     "audio": {
+      "made": 1,
+      "closed": 0,
+      "osc": 0,
+      "states": [
+       "stub"
+      ],
+      "stub": true
+     }
+    },
+    "presetVisible": false,
+    "addVisible": true
+   }
+  },
+  {
+   "pass": true,
+   "name": "C: New timer opens the picker in place",
+   "got": {
+    "presetVisible": true,
+    "go": "Start"
+   }
+  },
+  {
+   "pass": true,
+   "name": "C: a preset there adds 3:00 while the 10:00 keeps running: both rows on the server",
+   "got": [
+    180000,
+    600000
+   ]
+  },
+  {
+   "pass": true,
+   "name": "D: Pause is stored on the server {pausedAt, remaining, endAt null}",
+   "got": {
+    "id": "muy2hq89keww2",
+    "label": "",
+    "total": 180000,
+    "startedAt": 1791375116540,
+    "endAt": null,
+    "pausedAt": 1791375121803,
+    "remaining": 174737,
+    "by": "eli",
+    "ackAt": null
+   }
+  },
+  {
+   "pass": true,
+   "name": "D: reopened, the 3:00 timer is still paused (TimerPaused · 2:55)",
+   "got": {
+    "state": "paused",
+    "left": 174737,
+    "chip": "TimerPaused · 2:55"
+   }
+  },
+  {
+   "pass": true,
+   "name": "E: at 0 the dial stays round (353x353, as running) and says \"Time's up\"; Stop",
+   "got": {
+    "running": {
+     "w": 353,
+     "h": 353,
+     "padding": "16px"
+    },
+    "done": {
+     "w": 347,
+     "h": 347,
+     "padding": "16px",
+     "classes": "dial at-zero",
+     "text": "Kitchen timer 0:00 Time's up Stop 1 min Timer Time's up Timer 9:38 Timer Paused · 2:55 Time's up"
+    },
+    "go": "Stop"
+   }
+  }
+ ],
+ "homeTimerControls": 1,
+ "A_opened": {
+  "time": "10:00",
+  "go": "Start",
+  "primary": true,
+  "done": false,
+  "on": [
+   "10 min"
+  ],
+  "audio": {
+   "made": 0,
+   "closed": 0,
+   "osc": 0,
+   "states": [],
+   "stub": true
+  }
+ },
+ "B_measure": {
+  "viewport": [
+   430,
+   884
+  ],
+  "time": {
+   "x": 132,
+   "y": 154,
+   "w": 167,
+   "h": 76,
+   "fontSize": "76.462502px",
+   "weight": "300",
+   "family": "ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif"
+  },
+  "h1": {
+   "x": 15,
+   "y": 15,
+   "w": 1,
+   "h": 1,
+   "fontSize": "34px",
+   "family": "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
+   "display": "contents"
+  },
+  "dial": {
+   "x": 39,
+   "y": 16,
+   "w": 353,
+   "h": 353
+  },
+  "ringStroke": "3px",
+  "btns": [
+   {
+    "text": "Start",
+    "x": 16,
+    "y": 385,
+    "w": 398,
+    "h": 60,
+    "fontSize": "20px",
+    "weight": "600"
+   },
+   {
+    "text": "1 min",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "20px",
+    "weight": "600"
+   },
+   {
+    "text": "Reset",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "20px",
+    "weight": "600"
+   },
+   {
+    "text": "New timer",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "400"
+   },
+   {
+    "text": "Notify me when it ends",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "1 min",
+    "x": 16,
+    "y": 537,
+    "w": 94,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "500"
+   },
+   {
+    "text": "3 min",
+    "x": 118,
+    "y": 537,
+    "w": 94,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "500"
+   },
+   {
+    "text": "5 min",
+    "x": 219,
+    "y": 537,
+    "w": 94,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "500"
+   },
+   {
+    "text": "10 min",
+    "x": 321,
+    "y": 537,
+    "w": 94,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "15 min",
+    "x": 16,
+    "y": 589,
+    "w": 94,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "500"
+   },
+   {
+    "text": "30 min",
+    "x": 118,
+    "y": 589,
+    "w": 94,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "500"
+   },
+   {
+    "text": "Custom",
+    "x": 219,
+    "y": 589,
+    "w": 94,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "500"
+   },
+   {
+    "text": "Start",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "Cancel",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "Set",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "Say it",
+    "x": 16,
+    "y": 730,
+    "w": 104,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "Timer settings",
+    "x": 243,
+    "y": 730,
+    "w": 171,
+    "h": 44,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "Chime",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   },
+   {
+    "text": "Bell",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "500"
+   },
+   {
+    "text": "Beep",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "500"
+   },
+   {
+    "text": "Notify me when it ends",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "fontSize": "17px",
+    "weight": "600"
+   }
+  ],
+  "ariaLive": 1,
+  "ariaPressed": 10,
+  "frameTop": 48
+ },
+ "A_tapsToRunningLastPreset": 3,
+ "A_running": {
+  "time": "9:58",
+  "go": "Pause",
+  "primary": true,
+  "done": false,
+  "on": [],
+  "audio": {
+   "made": 1,
+   "closed": 0,
+   "osc": 0,
+   "states": [
+    "stub"
+   ],
+   "stub": true
+  }
+ },
+ "A_server": {
+  "timer:muy2hmv3cml69": {
+   "id": "muy2hmv3cml69",
+   "label": "",
+   "total": 600000,
+   "startedAt": 1791375112174,
+   "endAt": 1791375712174,
+   "pausedAt": null,
+   "remaining": null,
+   "by": "eli",
+   "ackAt": null
+  }
+ },
+ "C_presetsWhileRunning": {
+  "before": {
+   "time": "9:58",
+   "go": "Pause",
+   "primary": true,
+   "done": false,
+   "on": [],
+   "audio": {
+    "made": 1,
+    "closed": 0,
+    "osc": 0,
+    "states": [
+     "stub"
+    ],
+    "stub": true
+   }
+  },
+  "presetVisible": false,
+  "addVisible": true
+ },
+ "C_picker": {
+  "presetVisible": true,
+  "go": "Start"
+ },
+ "C_afterAdd": {
+  "after": {
+   "time": "2:59",
+   "go": "Pause",
+   "primary": true,
+   "done": false,
+   "on": [],
+   "audio": {
+    "made": 1,
+    "closed": 0,
+    "osc": 0,
+    "states": [
+     "stub"
+    ],
+    "stub": true
+   }
+  },
+  "server": {
+   "timer:muy2hmv3cml69": {
+    "id": "muy2hmv3cml69",
+    "label": "",
+    "total": 600000,
+    "startedAt": 1791375112174,
+    "endAt": 1791375712174,
+    "pausedAt": null,
+    "remaining": null,
+    "by": "eli",
+    "ackAt": null
+   },
+   "timer:muy2hq89keww2": {
+    "id": "muy2hq89keww2",
+    "label": "",
+    "total": 180000,
+    "startedAt": 1791375116540,
+    "endAt": 1791375296540,
+    "pausedAt": null,
+    "remaining": null,
+    "by": "eli",
+    "ackAt": null
+   }
+  }
+ },
+ "D_paused": {
+  "time": "2:55",
+  "go": "Resume",
+  "primary": true,
+  "done": false,
+  "on": [],
+  "audio": {
+   "made": 1,
+   "closed": 0,
+   "osc": 0,
+   "states": [
+    "stub"
+   ],
+   "stub": true
+  }
+ },
+ "D_serverAfterPause": {
+  "timer:muy2hmv3cml69": {
+   "id": "muy2hmv3cml69",
+   "label": "",
+   "total": 600000,
+   "startedAt": 1791375112174,
+   "endAt": 1791375712174,
+   "pausedAt": null,
+   "remaining": null,
+   "by": "eli",
+   "ackAt": null
+  },
+  "timer:muy2hq89keww2": {
+   "id": "muy2hq89keww2",
+   "label": "",
+   "total": 180000,
+   "startedAt": 1791375116540,
+   "endAt": null,
+   "pausedAt": 1791375121803,
+   "remaining": 174737,
+   "by": "eli",
+   "ackAt": null
+  }
+ },
+ "D_homePill": {
+  "pill": "9:47",
+  "chip": null,
+  "audio": {
+   "made": 1,
+   "osc": 0,
+   "states": [
+    "stub"
+   ]
+  },
+  "notify": null
+ },
+ "D_reopened": {
+  "time": "9:45",
+  "go": "Pause",
+  "primary": true,
+  "done": false,
+  "on": [],
+  "audio": {
+   "made": 0,
+   "closed": 0,
+   "osc": 0,
+   "states": [],
+   "stub": true
+  }
+ },
+ "D_reopenedPaused": {
+  "state": "paused",
+  "left": 174737,
+  "chip": "TimerPaused · 2:55"
+ },
+ "E_runningDial": {
+  "state": {
+   "time": "9:44",
+   "go": "Pause",
+   "primary": true,
+   "done": false,
+   "on": [],
+   "audio": {
+    "made": 0,
+    "closed": 0,
+    "osc": 0,
+    "states": [],
+    "stub": true
+   }
+  },
+  "dial": {
+   "w": 353,
+   "h": 353,
+   "padding": "16px"
+  }
+ },
+ "E_done": {
+  "state": {
+   "time": "0:00",
+   "go": "Stop",
+   "primary": true,
+   "done": true,
+   "on": [],
+   "audio": {
+    "made": 1,
+    "closed": 0,
+    "osc": 3,
+    "states": [
+     "stub"
+    ],
+    "stub": true
+   }
+  },
+  "dial": {
+   "w": 347,
+   "h": 347,
+   "padding": "16px",
+   "classes": "dial at-zero",
+   "text": "Kitchen timer 0:00 Time's up Stop 1 min Timer Time's up Timer 9:38 Timer Paused · 2:55 Time's up"
+  },
+  "server": {
+   "timer:muy2hmv3cml69": {
+    "id": "muy2hmv3cml69",
+    "label": "",
+    "total": 600000,
+    "startedAt": 1791375112174,
+    "endAt": 1791375712174,
+    "pausedAt": null,
+    "remaining": null,
+    "by": "eli",
+    "ackAt": null
+   },
+   "timer:muy2hq89keww2": {
+    "id": "muy2hq89keww2",
+    "label": "",
+    "total": 180000,
+    "startedAt": 1791375116540,
+    "endAt": null,
+    "pausedAt": 1791375121803,
+    "remaining": 174737,
+    "by": "eli",
+    "ackAt": null
+   },
+   "timer:t6": {
+    "id": "t6",
+    "label": "",
+    "total": 60000,
+    "startedAt": 1791375072921,
+    "endAt": 1791375132921,
+    "pausedAt": null,
+    "remaining": null,
+    "by": "eli",
+    "ackAt": null
+   }
+  },
+  "shellToast": null,
+  "dialLayout": {
+   "w": 353,
+   "h": 353
+  }
+ },
+ "F_accent": {
+  "eli": {
+   "accent": "#4F52D8",
+   "accentStrong": "#4F52D8",
+   "kind": "adult",
+   "timeColor": "rgb(52, 64, 168)",
+   "profile": "Eli",
+   "state": {
+    "time": "0:00",
+    "go": "Stop",
+    "primary": true,
+    "done": true,
+    "on": [],
+    "audio": null
+   }
+  },
+  "mom": {
+   "accent": "#BC1D6F",
+   "accentStrong": "#BC1D6F",
+   "kind": "adult",
+   "timeColor": "rgb(163, 19, 79)",
+   "profile": "Elizabeth",
+   "state": {
+    "time": "5:02",
+    "go": "Pause",
+    "primary": true,
+    "done": false,
+    "on": [],
+    "audio": null
+   }
+  },
+  "ezra": {
+   "accent": "#006B87",
+   "accentStrong": "#006B87",
+   "kind": "kid",
+   "timeColor": "rgb(11, 100, 104)",
+   "profile": "Ezra",
+   "state": {
+    "time": "5:00",
+    "go": "Start",
+    "primary": true,
+    "done": false,
+    "on": [
+     "5 min"
+    ],
+    "audio": null
+   }
+  }
+ }
+}
+saved audits/evidence/p6/6/basics-6.json
+
+6 passed, 0 failed

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 4 (`2a6bd05`), 5 (`2f699c2`), 6 (`1484889`), 7 (`7a77c6b`), 8 (`6688e17`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 4 (`2a6bd05`), 5 (`2f699c2`), 6 (`1484889`), 7 (`7a77c6b`), 8 (`6688e17`), 9 (`b346916`), 10 (`b346916`), 11 (`b346916`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 4 (`2a6bd05`, 2026-10-01), 5 (`2f699c2`, 2026-10-01), 6 (`1484889`, 2026-10-02), 7 (`7a77c6b`, 2026-10-04), 8 (`6688e17`, 2026-10-06), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 473 entries FIXED, 29 PARTIAL, 0 DEFERRED, 15 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 4 (`2a6bd05`, 2026-10-01), 5 (`2f699c2`, 2026-10-01), 6 (`1484889`, 2026-10-02), 7 (`7a77c6b`, 2026-10-04), 8 (`6688e17`, 2026-10-06), 9 (`b346916`, 2026-10-07), 10 (`b346916`, 2026-10-07), 11 (`b346916`, 2026-10-07), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 573 entries FIXED, 32 PARTIAL, 1 DEFERRED, 16 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -47,7 +47,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | 7/7 fixed, `7d9c593` |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | 6/6 fixed, `16926a2` |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | 7/7 fixed, `97c39a0` |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 116/143 fixed, `80af987` |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 119/143 fixed, `80af987` |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | 37/45 fixed, `65009df` |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | 22/23 fixed, `3944d37` |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | 12/12 fixed, `4d46316` |
@@ -57,9 +57,9 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a | 22/24 fixed, `1484889` |
 | 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a | 16/16 fixed, `7a77c6b` |
 | 19 | **8** | Larder Ledger | 16 (0 / 0 / 2 / 14 / 0) | M | 1, 2a | 14/16 fixed, `6688e17` |
-| 20 | **9** | Dollywood build guide | 47 (0 / 0 / 10 / 36 / 1) | L | 1, 2a | open |
-| 21 | **10** | Dollywood park map | 42 (0 / 0 / 13 / 28 / 1) | L | 1, 2a | open |
-| 22 | **11** | Tally counter | 14 (0 / 0 / 1 / 13 / 0) | M | 1, 2a | open |
+| 20 | **9** | Dollywood build guide | 47 (0 / 0 / 10 / 36 / 1) | L | 1, 2a | 44/47 fixed, `b346916` |
+| 21 | **10** | Dollywood park map | 42 (0 / 0 / 13 / 28 / 1) | L | 1, 2a | 37/42 fixed, `b346916` |
+| 22 | **11** | Tally counter | 14 (0 / 0 / 1 / 13 / 0) | M | 1, 2a | 14/14 fixed, `b346916` |
 
 **Why the app batches are in this order.** No app has usage data (every Phase 3 report says so), so daily use is estimated from each report's jobs table (§1): people × sessions a day. Gap is the weight of the app's open findings after the critical batches (critical 8, high 4, medium 2, low 1). The household confirmed this order (`audits/05-decisions.md`, "App batch order"), and the plan keeps it; with the step 3 severities the scores alone would give Prayer → F260 Reading Plan → Kitchen timer → Verses → Kid Verse → Larder Ledger → Dollywood build guide → Dollywood park map → Tally counter.
 
@@ -1675,8 +1675,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-DARK-1 — The illustration set has no dark form, and each area improvises
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`6688e17`)
-- **Phase 6 (PARTIAL).** The Larder's half is the same as VIS-LEFTOVERS-7: the empty-state art sits on --art-plate and has no dark form (make-art.mjs emits fixed fills, gap row DARK-10, no batch named). Still open: the whole art/ set (story scenes, spot art, the other empty states). After: `audits/evidence/p6/8/rescore.md`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Tally's corner art now sits on --art-plate (r-card, padded) like the Larder's, the Timer's and Verses', is draggable=false, and placeArt() hides it only where it would touch something; seen on dark (main-typical-ipad-landscape-dark: the plate shows, the dial and discs read). The art file itself still has fixed fills (make-art.mjs emits them; gap row DARK-10, no batch named), so this stays a stopgap. Still open: the whole art/ set (story scenes, spot art, the other empty states). After: `audits/screens-after/11/tally/main-typical-ipad-landscape-dark.png`, `audits/screens-after/11/tally/main-overflow-iphone-pwa-dark.png`, `audits/evidence/p6/911/rescore/tally.md`.
 - **Evidence.** `audits/04-design-system.md:4913`; `index.html:203`
 - **What happens now.** None of the 38 SVGs in `art/` uses `currentColor`, CSS variables or `prefers-color-scheme`. The re-measure's static scan agrees. Story scenes: 10 of 12 are opaque light panels (mean luminance 0.53-0.77, 55-94% pale pixels), 7.8-12.6:1 against the Midnight card. `03-promise` and `09-nativity` are dark slabs in light mode.
 - **Why it matters.** In the evening the kids' story panel is the brightest thing on the iPad, and empty states look pasted in from the light theme.
@@ -1695,8 +1695,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-GLASS-2 — Five areas put live glass on content in most screens, four keep it on the control layer, and Phase 3 scored both groups the same
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
-- **Phase 6 (PARTIAL).** Kid Verse's two "Read it to me" buttons are solid secondary buttons, the who-chip is solid and the shelf sheet and recorder are solid too. The final measurement: Kid Verse content glass in 0 of 214 jobs (measure/glass.json; batch 1: the two glass buttons in 186 of 186). kidverse-look-7 §12 and §16: no live blur in the page, no glass button. Unchanged: the chat's reply bubbles (the shell, 2a) and the build guide's map controls (9). After: `audits/evidence/p6/7/measure/glass.json`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Batches 9+10 (Dollywood): The build guide's half is done: content glass on 196 of 409 jobs (48 %, up to 2 live layers) → 13 (3 %), all "Back to map", a floating control; the park map stays 0 of 642. look-a-9 section 10: 0 blur layers on content at 390, 820 and 1440. Still unchanged: the chat's reply bubbles (the shell). Batch 11 (Tally): Tally's half is done: Reset and the name pill were the last content glass in the app and are solid now. GLASS/layers, Tally: content-glass jobs 36 of 36 (100 %) → 0, live blur layers median 3, max 3 → 0, 0; measure/glass.json areas.tally on the final run: max visible layers 0, jobsWithContentGlass 0 (batch 7's file listed button#reset; the one element still listed, the shell's pull-to-refresh pill, has area 0); tally-claims-11 "content glass layers: 0". Still open, the others' parts: the chat's reply bubbles (the shell, 2a) and the build guide's map controls (batches 9 and 10, see their note). After: `audits/evidence/p6/911/p4tools/out/GLASS_layers.txt`, `audits/evidence/p6/911/p4tools/before/base910-GLASS_layers.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/p4tools/before/base11-GLASS_layers.txt`, `audits/evidence/p6/911/measure/glass.json`, `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`.
 - **Evidence.** `audits/04-design-system.md:3520`
 - **What happens now.** (Table GLASS-1, share of each area's screens with a visible live blur on content): Tally 100 % (dial, +, −, Reset), Kid Verse 100 % (scene card, Read buttons), Verses 89 % (trainer and done cards), Timer 87 % (the dial), the build guide 48 % (exaggeration control, north button). F260, the Larder, Prayer and the park map: 0 %.
 - **Why it matters.** In four apps glass means "this floats and controls"; in five it means "anything", so it stops telling the family what can be tapped.
@@ -1705,8 +1705,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ICON-1 — Eleven icon families; no app uses the shell's own set
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`6688e17`)
-- **Phase 6 (PARTIAL).** The Larder draws every icon from the shared sprite at --icon-stroke (plus, check, triangle-alert, mic, copy, circle-half, clock; no sprite symbol was added). ICON/static, pre-batch vs final, Larder: hand-drawn stroke widths {2} → none, sprite uses 0 → 4 in the static markup (the rest are built in script); larder-look-8: every <svg> is an svg.sym naming a symbol that exists. The notice in icons/LICENSE-lucide.txt now says the Larder draws its icons from the sprite. Still open: the Dollywood exports (15 widths, 9/10) and the shell's 22 own symbols. After: `audits/evidence/p6/8/p4tools/out/ICON_static.txt`, `audits/evidence/p6/8/p4tools/before/ICON_static.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Batches 9+10 (Dollywood): Both exports draw UI icons from the sprite at --icon-stroke: ICON/static svg tags 20 → 34 with 0 → 27 sprite uses; the 15 stroke widths are down to the map art's (1, 2, 3, 4, 9, 2.2 on a marker ring, 0.7-3.5 for contours and rings). Still open: the shell's 22 own symbols. Batch 11 (Tally): Tally draws every icon from the shared sprite at the one --icon-stroke: -, +, the Reset rotate-ccw and the New counter plus (and Home's card + with the same rule). ICON/static, pre-batch vs final, Tally: svg tags 2 → 4, sprite uses 0 → 4, hand-drawn stroke widths {1.75: 2} → none, glyphs {} → {}; tally-claims-11 (1d): all four draw 1.75 px; icons/LICENSE-lucide.txt names Tally's plus, minus, rotate-ccw and hash (merged with the Dollywood batch's line). No sprite symbol was added for it. The rescore saw the one weight as thin hairlines on the 140-168 px discs (a size-scaled stroke token would fix it, not built). Still open: the Dollywood exports (batches 9 and 10, see their note) and the shell's own symbols. After: `audits/evidence/p6/911/p4tools/out/ICON_static.txt`, `audits/evidence/p6/911/p4tools/before/base910-ICON_static.txt`, `audits/evidence/p6/911/p4tools/before/base11-ICON_static.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/evidence/p6/911/rescore/tally.md`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The count 'eleven icon families' does not match the report's own Table ICON-1: it lists 12 families (F1-F8 plus glyphs, emoji, CSS chevrons and art-as-icon), or 10 distinct recipes if F1-F3 count as the one shell recipe as the item states.
 - **Evidence.** `audits/04-design-system.md:2979`; `index.html:913-916`, `apps/f260.html:617-620`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** The shell (F1-F3) is one custom 1.75 recipe. Each app brings its own: F260: Feather/Lucide-derived paths at 2 on 18 px, a 20-grid tick at 2.6, colour emoji, text glyphs and CSS chevrons.
@@ -1716,8 +1716,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ICON-2 — One drawing, several meanings
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** The Timer draws each meaning once, per Table ICON-6: the tile (icons/timer.svg, redrawn), the pill, the chip, the feed, the kitchen card and the TV line all use Lucide timer; the controls are play, pause and rotate-ccw, Stop a square, OK a check, time's up the bell; i-clock stays Verses' Coming up. timer-look-6: 24 sprite icons and the dial ring, every use names a sprite symbol, no emoji or text glyph. Left: the shell feed's flame (2a's half) and the park map's heart and AED (batch 10). After: `audits/evidence/p6/6/tests/repro-after-rerun/timer-look-6.txt`, `audits/evidence/p6/6/p4tools/out/ICON_static.txt`, `audits/screens-after/6/shell/apps-kid-typical-ipad-portrait-dark.png`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Batches 9+10 (Dollywood): The park map's meanings are one drawing each: an AED is heart-pulse and the ♥ appears nowhere (park-c-10 section 18), the amenities are toilet, cross, baby, droplet, circle-help, a closed ride is ban, close x, zoom out minus, the meeting point flag, the location states locate, crosshair, circle-dot, history, plane, map-pin-off; Rally is a megaphone and clearing the point flag-off (park-c-10 section 29). ICON/static park map: sprite uses 0 → 27, glyphs 52 → 32 (all running text), emoji 7 → 2 (® ™ in a regex). Still open: the shell feed's flame (batch 2a's half). Batch 11 (Tally): Tally's half is done: the tile (icons/tally.svg) is redrawn as a duotone hash (Table ICON-6's counter), so no app uses circle-plus for a second meaning any more (grep of apps/, index.html and icons/*.svg finds it only as a sprite symbol, a stale comment at icons/sprite.svg:11 that still reads "i-circle-plus the Tally", and the style guide's sample). Seen: the Apps grid tile and the kid Home tile before and after. Still open, the others' parts: the shell feed's flame (batch 2a) and the park map's heart and AED (batch 10; the Dollywood note says what it did). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/p4tools/out/ICON_static.txt`, `audits/evidence/p6/911/p4tools/before/base910-ICON_static.txt`, `audits/screens-after/11/shell/apps-kid-typical-iphone-pwa-light.png`, `audits/screens-after/11/shell/home-kid-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/04-design-system.md:3012`; `audits/screens/dollywood-live/amenity-tap-typical-iphone-pwa-light.png`
 - **What happens now.** Several drawings carry more than one meaning (Table ICON-5): Flame = the activity feed in the shell, but a streak in F260.
 - **Why it matters.** grandparents and pre-readers read icons literally.
@@ -1726,8 +1726,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-1 — Press feedback is complete in the `.ds` areas, partial or absent elsewhere, with nine scales and no brightness shift anywhere
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`6688e17`)
-- **Phase 6 (PARTIAL).** The Larder's count corrected: MOTION/press, pre-batch vs final, 9/12 controls → 10/19. Pressing, with the house's 0.97 / 0.94 and a dim: the six checks, Copy, the mic, Log and the new banner. Not pressing: the name field, the size and the date (fields) and, new, the six card names that open the edit sheet (div.nm role button, "Edit …": no feedback). MOTION/cls stays 0 on both devices. Undo, Put back and the "N new" pill are not in the probe but are .pressable in the code. Still open: the build guide 14/16 (9), the shell's Me 26/27 and Chat 6/7, and the press feel on a real iPhone and iPad. After: `audits/evidence/p6/8/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/8/p4tools/before/MOTION_press.txt`, `audits/evidence/p6/8/p4tools/out/MOTION_cls.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** MOTION/press: build guide 14/16 controls → 16/24 (7 press signatures; more controls were added and 8 do not press: not counted as fields by the tool), park map 9/9 → 9/9. Left: the press feel on a real iPhone and iPad, and the shell's Me 26/27 and Chat 6/7. After: `audits/evidence/p6/911/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/911/p4tools/before/base910-MOTION_press.txt`.
 - **Evidence.** `audits/04-design-system.md:4090`; `apps/prayer.html:196`, `apps/dollywood-live.html:409-411`, `apps/design.css:359`, `index.html:45`
 - **What happens now.** Complete in the `.ds` areas: Tally 3/3, Timer 8/8, Kid Verse 2/2, Verses 2/2, the kid Home 6/6, and the shell 65/68 (86-100 % per surface).
 - **Why it matters.** Taps with no visible response invite double taps, as with Prayer's main button and every build-guide control. Several apps punish double taps (P3-LEFTOVERS-01, P3-VERSES-12).
@@ -1746,8 +1746,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-4 — No shared loading state: skeletons only in the shell; a slow first pull shows blanks, false zeros or finished-looking pages
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2f699c2`)
-- **Phase 6 (PARTIAL).** Verses no longer moves as data lands. MOTION/cls at 150 ms, pre-batch vs final: Verses on the iPhone, landmark moves 2 (Read aloud and Show, 27 px) → 0; the iPad stays 0. Home adds no move: on the held arm (the default arm's counts swing by run) iPad 31 moves / 403 px as in batch 4, iPhone 33 / 391 → 29 / 376. Still moving: the shell's Home (2a), its Me (424 px) and the build guide (945 px, batch 9). After: `audits/evidence/p6/5/p4tools/out/MOTION_cls.txt`, `audits/evidence/p6/5/p4tools/before/MOTION_cls.txt`, `audits/evidence/p6/5/p4tools/cls-home-note.md`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** The build guide no longer moves when data lands: MOTION/cls at 150 ms, iPad portrait 37 landmark moves / 945 px → 0, iPhone 18 / 138 px → 0 (and 0 with the first pull held 2.5 s; guide-b-9 8 runs, CLS 0.0004-0.0021). Still moving: the shell's Home and Me, and Home's cold-device Build guide card (TELL/loading shell 403 → 672 px, accepted in review). After: `audits/evidence/p6/911/p4tools/out/MOTION_cls.txt`, `audits/evidence/p6/911/p4tools/before/base910-MOTION_cls.txt`, `audits/evidence/p6/911/tests/repro-after/phase4__TELL__loading.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/04-design-system.md:4144`; `index.html:888-889`, `apps/design.css:539-544`; `audits/screens/prayer/kid-loading-iphone-pwa-light.png`, `audits/screens/verses/trainer-loading-iphone-pwa-light.png`
 - **What happens now.** What shows (Table MOTION-5), 1.2 s into a cold load with the first pull held: Skeletons appear only in the shell: 1 on Home, 1 on Me. There are none in any app or on the TV.
 - **Why it matters.** The false values are the visible face of the data-loss defects on a slow first load (P3-TALLY-02, P3-KIDVERSE-01 and -03, P3-VERSES-03, P2-SYNC-17). The screen invites a tap on wrong data.
@@ -1776,8 +1776,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-3 — The spacing rhythm splits the system in two: `.ds` areas are 98-100 % on the 4 px grid, own-CSS areas 34-84 %
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`6688e17`)
-- **Phase 6 (PARTIAL).** Every Larder spacing is a --sp-* or --pad-* token on the 4 px grid for adults. SHAPE/analyze, pre-batch vs final, Larder macro spacing on the 4 px grid: 45.8 % → 92.6 % (139 jobs; all spacing 41.8 % → 92.2 %); TOK/literals spacing 44 (26 on-scale) → 0. What is still off the grid is plumbing: the visually hidden title's -1 px margin, the banner's 15 px padding and 10 px row gap, a 15 px column gap, and the page's measured margins 102 and 118. Still open: the build guide (83.5 %, batch 9) and the park map (10). After: `audits/evidence/p6/8/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/out/TOK_literals.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** SHAPE/analyze, macro spacing on the 4 px grid: build guide 83.5 % → 96.8 %, park map 65.6 % → 95.1 % (all spacing 52.4 / 48.3 % → 95.1 / 87.7 %). With the Larder in batch 8 these were the last two apps named; Kid Verse reads 48.4 % in the same run (50.7 % before), which no earlier note counts. After: `audits/evidence/p6/911/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/911/p4tools/before/base910-SHAPE_analyze.txt`.
 - **Evidence.** `audits/04-design-system.md:2259`; `apps/prayer.html:50`
 - **What happens now.** Macro spacing on the 4 px grid (rig / re-measure): shell 99.7 / 99.7 %, TV 100 / 100, Tally 100 / 100, Timer 100 / 100, Kid Verse 98.4 / 97.2, Verses 98.6 / 96.9. Against those: build guide 83.6 / 74.9, park map 65.5 / 54.5, Larder 46.9 / 45.5, Prayer 44.3 / 40.9, F260 36.4 / 34.1.
 - **Why it matters.** Uneven gaps make the large apps feel hand-assembled next to the small ones, and literal spacing is out of reach of any future iPad or kid spacing tier.
@@ -1786,8 +1786,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-4 — The main action of a screen has six corner shapes and heights from 44 to 60
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`6688e17`)
-- **Phase 6 (PARTIAL).** The Larder's Log is a capsule at --btn-h-lg: visual.mjs 88 × 52 → 98 × 60, SHAPE/verify V4 Log radius 18 → 999 px on the kid scale; it reads the person's colour (CONS-ACCENT-4). Still open: the build guide's tabs keep r0 (batch 9, not yet audited). After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__visual.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__visual.txt`, `audits/evidence/p6/8/p4tools/out/SHAPE_verify.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The guide's Mark done is a --btn-h-lg capsule (guide-b-9: "a capsule (fully rounded)", in the person's strong tone) and Listings / Layers / Scale are the segmented control instead of r0 underline tabs; the park map's primary stays the round Find me button (kid scale V4: sheet tabs 64 → 72 px, radius 18 → 28). This was the last open part. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/p4tools/out/SHAPE_verify.txt`, `audits/evidence/p6/911/p4tools/before/base910-SHAPE_verify.txt`.
 - **Evidence.** `audits/04-design-system.md:2274`; `apps/design.css:352`, `apps/verses.html:50`, `apps/kidverse.html:50`, `apps/prayer.html:192-194`; `audits/evidence/p4/SHAPE/sheet-buttons.png`
 - **What happens now.** The main actions are (Table SHAPE-6):
 - **Why it matters.** The one control each screen wants tapped looks different in every app, so pre-readers and grandparents get no learned "this is the button" shape.
@@ -1816,8 +1816,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TELL-1 — Selectable chrome and callout suppression follow the `.ds` boundary exactly
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** The Timer's controls stay unselectable and its art can no longer be dragged. TELL/tells-webkit, pre-batch vs final, Timer: controls 8 → 10, all user-select none; in the hub images 1 → 0 and draggable images 1 → 0 (the art mark is hidden there); standalone the mark has draggable=false (timer-look-6). Left: two build-guide labels and a park-map link (batches 9 and 10), and the loupe and callout need a long-press on a real iPad. After: `audits/evidence/p6/6/p4tools/out/TELL_tells-webkit.txt`, `audits/evidence/p6/6/p4tools/before/TELL_tells-webkit.txt`, `audits/evidence/p6/6/tests/repro-after-rerun/timer-look-6.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** TELL/tells-webkit: guide controls 54 → 56, selectable 2 → 0; park map 13 controls, selectable 1 → 0, no double-tap selection ("Dollywood" before → none), no ring after a tap. Left: the loupe and callout need a long-press on a real iPad. After: `audits/evidence/p6/911/p4tools/out/TELL_tells-webkit-dollywood.txt`, `audits/evidence/p6/911/p4tools/before/TELL_tells-webkit-dollywood.txt`, `audits/evidence/p6/911/p4tools/out/TELL_tells-webkit-dollywood-live.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/04-design-system.md:6349`; `apps/design.css:355`, `apps/tally.html:22`, `apps/timer.html:10`
 - **What happens now.** Controls computing `-webkit-user-select: text` on the main screen (WebKit, iPad portrait): F260 all 190 (re-measure 192), Larder all 9 (15), Prayer all 29 (19), build guide all 54 (57), park map all 13 (15). The shell's 4 of 14 are the tab bar.
 - **Why it matters.** On an iPad or iPhone, a long press on a Done, week or chip button can raise the selection loupe or an image callout (needs a device). It happens exactly in the apps that keep their own CSS.
@@ -1836,8 +1836,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-1 — Four local token vocabularies, in which "ink" means four different things
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`6688e17`)
-- **Phase 6 (FIXED).** The Larder's alias set is gone: a grep of apps/leftovers.html finds none of --ledger, --paper, --raised, --sunk, --ink, --ink2, --rule, --lift, --gold, --olive, --muted, --serif and, since this batch, no read of the --r migration alias either (the add bar was the last). TOK/literals, Larder: colours 17 = the bootstrap map every app carries. With the Dollywood template (batch 1) and F260 and Prayer (batch 4), every app's local vocabulary is on the role tokens. After: `audits/evidence/p6/8/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/8/p4tools/before/TOK_literals.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Already FIXED in batch 8 for the Larder; the Dollywood template's alias reads are gone too: var(--dim), --panel, --panel2, --ochre, --moss, --ink read 0 times in either export (were about 180). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/04-design-system.md:841`; `apps/f260.html:16-20`, `apps/prayer.html:24-34`, `apps/dollywood.html:212`, `apps/leftovers.html:14`
 - **What happens now.** The duplicated alias sets. F260 and Prayer each define the same nine aliases for design tokens (apps/f260.html:16-20; apps/prayer.html:24-34).
 - **Why it matters.** The same word points to opposite roles, so a change made by name lands on the wrong surface.
@@ -1846,8 +1846,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-2 — The non-`.ds` apps reuse design.css class names for different components, and the segmented control exists four ways
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
-- **Phase 6 (PARTIAL).** One segmented control: design.css has one recipe (:is(.ds .seg, .segmented)) that wraps when its items cannot fit, and after the rescore an opt-in .seg-grid lays long choices out in even cells on the phone (F260's theme 3 a row, passages 2, auto-lock 4em cells). F260's Plan/Journal switch and settings choices and Prayer's list switches use it (0 clipped labels at 390/430/820, default and XXL, shell included). Prayer renamed .chip, .small, .pill, .sheet, .toast, .hero to p-* names. F260 keeps .switch, .sheet and .seg, which its script and tests use. Left: that F260 part, the build guide (9) and the park map (10). After: `audits/evidence/p6/4/review/workers-and-reviews.md`, `audits/evidence/p6/4/tests/suites/test-prayer.txt`, `audits/evidence/p6/4/tests/suites/test-f260.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** The guide's Listings / Layers / Scale row is the shared segmented control and the exports no longer read a local component vocabulary. Left: the park map's own .lv-tabs row (r 20 in a r 32 sheet) and F260's own .switch, .sheet and .seg. After: `audits/screens-after/910/dollywood/layers-typical-ipad-portrait-light.png`, `audits/evidence/p6/911/rescore/dollywood-guide.md`.
 - **Evidence.** `audits/04-design-system.md:853`; `apps/design.css:465-468`, `apps/f260.html:60`, `apps/prayer.html:66`, `apps/dollywood.html:25`
 - **What happens now.** The names collide. F260 (`.btn` ×35, `.row` ×10, `.seg` ×8, `.switch`, `.sheet`, `.toast`), Prayer (`.chip` ×10, `.small` ×25, `.pill`, `.sheet`, `.toast`, `.switch`) and the Dollywood template (`.btn`, `.badge`, `.pill`, `.stat`) have no `body.ds`.
 - **Why it matters.** It blocks a gradual move to `.ds`, and the same control looks different from app to app.
@@ -1856,8 +1856,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-3 — 168 `color-mix()` recipes, with the person colour mixed at 27 different ratios
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
-- **Phase 6 (PARTIAL).** Kid Verse's last color-mix(), the page wash, is now the --butter-wash token. TOK/literals, pre-batch vs final: color-mix Kid Verse 1 → 0. kidverse-look-7 §12: no color-mix and no hex in the <style>. Still open: each Dollywood export 25 (batches 9/10), the shell 2. After: `audits/evidence/p6/7/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/7/p4tools/before/TOK_literals.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Each Dollywood export: color-mix() 25 → 0 (TOK/literals "mix 0", distinct 13 → 0). Still open: the shell's 2. After: `audits/evidence/p6/911/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/911/p4tools/before/base910-TOK_literals.txt`.
 - **Evidence.** `audits/04-design-system.md:871`; `apps/tally.html:47`
 - **What happens now.** Counts. 168 occurrences and 99 distinct recipes (re-measure): design.css 55;
 - **Why it matters.** Tints drift from app to app and cannot be re-tuned per theme in one place.
@@ -1866,8 +1866,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-1 — Ten areas, eight large-title treatments, none 34 bold with tight tracking; three apps repeat the viewer bar's title
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`6688e17`)
-- **Phase 6 (FIXED).** The Larder no longer repeats the viewer's title: in the hub "The Larder Ledger" is visually hidden (html.framed, set before the first paint; the h1 stays for screen readers) and standalone it takes the large-title role (TYPE/code-scan: --fs-title1 1 → 0, --fs-large-title 1 → 2). SHAPE/verify V2: the left-margin element h1 → p.lede. Seen in main-typical-iphone-pwa-light (audits/screens-after/8/leftovers/, git-ignored): the viewer bar's "Larder Ledger" and no second title. The count holds one place from loading to filled (larder-look-8: 173 frames at 390, 154 at 820). After: `audits/evidence/p6/8/p4tools/out/TYPE_code-scan.txt`, `audits/evidence/p6/8/p4tools/before/TYPE_code-scan.txt`, `audits/evidence/p6/8/p4tools/out/SHAPE_verify.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Already FIXED in batch 8; the build guide now follows: in the hub the h1 is kept for screen readers and not drawn, so the viewer's "Dollywood build guide" is not repeated; standalone it takes the large-title role (look-a-9 section 17). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/04-design-system.md:1422`; `apps/design.css:331-332`, `apps/dollywood.html:223`, `index.html:335`; `audits/evidence/p4/TYPE/titles-ipad-portrait.png`
 - **What happens now.** Titles by area (iPad portrait, re-measured live): shell: view h1 36/400 ui-serif, tracking normal; Home hero 44/400 serif;
 - **Why it matters.** The one element that should identify a screen changes face, weight and size in every app, so moving between apps feels like moving between websites.
@@ -1876,8 +1876,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-2 — The same role is set differently in every area: section headers seven ways, buttons 13-18 px at weights 400-700, body 14.5-22 px
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
-- **Phase 6 (PARTIAL).** Kid Verse's two px sizes (the avatars' 16 and 22 px) are gone and every size is a role. TYPE/code-scan, pre-batch vs final, Kid Verse: px 2 → 0, role tokens 30 → 43 (the migration aliases --fs-xs/-lg/-xl/-2xl/-3xl replaced by roles), none under 11 px. Still open in the same scan: each Dollywood export 143 clamp/calc plus 8 px, 2 under 11 px (batches 9/10). After: `audits/evidence/p6/7/p4tools/out/TYPE_code-scan.txt`, `audits/evidence/p6/7/p4tools/before/TYPE_code-scan.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** TYPE/code-scan, each Dollywood export: role tokens 2 → 158, clamp/calc 143 → 6, px 8 → 2 (map art), under 11 px 2 → 0, no size under 11 px in the measure; the template matches. This was the last app named. After: `audits/evidence/p6/911/p4tools/out/TYPE_code-scan.txt`, `audits/evidence/p6/911/p4tools/before/base910-TYPE_code-scan.txt`.
 - **Evidence.** `audits/04-design-system.md:1440`; `apps/design.css:306-309`, `apps/f260.html:55-125`
 - **What happens now.** Section headers: shell 18/700; F260 15/700; Larder 13/700 caps; Prayer 19/600; Verses and Kid Verse 18/700; build guide 16/400 serif; park map 15/600 generic serif.
 - **Why it matters.** Hierarchy has to be relearned in each app, and a heading of the same kind means something different in each.
@@ -1968,8 +1968,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-ICON-2 — A custom shell set rather than one open-source set; Lucide and Feather paths ship without their licence notice
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** One more custom look-alike is gone: the shell's private i-timer is replaced by the sprite's Lucide timer (ICON/static: the shell's own symbols 23 → 22), the tile icons/timer.svg is redrawn to the same Lucide geometry, and icons/LICENSE-lucide.txt lists the new timer, pause, apple, popcorn, egg-fried, cooking-pot, cookie and pizza. Left: the notice does not yet name the Dollywood template's Lucide/Feather paths (batches 9/10), and the shell's other 22 custom symbols stay. After: `audits/evidence/p6/6/p4tools/out/ICON_static.txt`, `audits/evidence/p6/6/p4tools/before/ICON_static.txt`.
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** icons/LICENSE-lucide.txt now names the symbols Batches 9 and 10 draw (arrow-up, baby, ban, banknote, car, chart-spline, circle-dot, circle-help, compass, crosshair, droplet, ferris-wheel, flag, heart-pulse, history, layers, locate, locate-fixed and the rest of the list, plus megaphone and flag-off) and the hand-copied toolbar paths are sprite uses. Still open: the shell's other 22 custom symbols. After: `icons/LICENSE-lucide.txt`, `audits/evidence/p6/911/p4tools/out/ICON_static.txt`.
 - **Evidence.** `audits/04-design-system.md:3074`; `apps/leftovers.html:148`, `apps/f260.html:531-541`, `apps/dollywood.html:1744-1746`
 - **What happens now.** The shell set is custom. The shell and tile icons are hand drawn, not Lucide or Phosphor.
 - **Why it matters.** Lucide and Feather paths ship without their licence.
@@ -1988,8 +1988,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-MOTION-3 — Press states may never show on iPhone or iPad in most areas: few documents register the touch listener iOS needs for `:active`
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`80af987`)
-- **Phase 6 (NEEDS DEVICE CHECK).** hub.js registers a passive document touchstart listener in every document that loads it (apps/hub.js:1130), so iOS can show :active. The rig cannot prove it (Chromium and desktop WebKit show :active without the listener): check on a real iPhone and iPad that a tap on a Tally button, a Home card button and an F260 week button visibly presses in (scale 0.97 and a dim). After: `audits/evidence/p6/1/p4/MOTION/press.json`.
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`b346916`)
+- **Phase 6 (NEEDS DEVICE CHECK).** Batches 9+10 (Dollywood): Unchanged: iOS paints :active only with a touch listener; hub.js registers one. Add to the one-minute check on a real iPhone and iPad: a build-guide chip, Mark done (sticky bar and card), a park-map FAB and a sheet tab. The rig cannot show it. Batch 11 (Tally): Tally's part, unchanged in kind: the global touchstart listener is in every document that loads hub.js (apps/hub.js:1704) and Tally's four buttons and Home's Tally + (60 px) press in the rig; whether iOS paints :active cannot be shown without a device. On a real iPhone and iPad tap a Tally button and the Home card's + and check that each presses in (scale 0.97 and a dim); the Home card's other buttons and an F260 week button are the same check. After: `audits/evidence/p6/911/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/911/p4tools/before/base11-MOTION_press.txt`.
 - **Evidence.** `audits/04-design-system.md:4215`; `index.html:664`, `apps/f260.html:2040`, `apps/prayer.html:1716`, `index.html:366`
 - **What happens now.** The quirk. iOS Safari applies `:active` on touch only when a touch event listener exists on the element or an ancestor. Each app runs in its own iframe document, so each needs its own listener.
 - **Why it matters.** If the quirk holds, every press scale measured in this audit is invisible on the family's primary devices.
@@ -2030,8 +2030,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-4 — Kid and kiosk scale only the tokenised subset; every literal size escapes them
 
-- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`6688e17`)
-- **Phase 6 (PARTIAL).** The Larder's literals no longer go round the kind scale. TOK/literals, pre-batch vs final, Larder: spacing 44 → 0; what is left is the 17 bootstrap colours every app carries and recorded exceptions with no token (--addbar-h's 150 px default that the script overwrites, the skeleton's two opacities, saturate(0) on a finished card). Worse, not better: shadows 1 → 3 and line heights 0 → 1 (the new edit sheet and swipe layer), none with a token. Still open: the Dollywood exports' spacing 75 and 91, font sizes 38 and 64 (9/10). After: `audits/evidence/p6/8/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/8/p4tools/before/TOK_literals.txt`.
+- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Batches 9+10 (Dollywood): TOK/literals, guide / park map: spacing 75 / 91 → 2 / 18, font sizes 38 / 64 → 6 / 2, colours 15 / 29 → 8 / 5, radius 15 / 8 → 3 / 5, durations 3 / 6 → 0 / 2, targets 29 / 27 → 6 / 5. What is left is recorded plumbing (the peek height, map pin sizes, a few shadows and one z-index); the park map's spacing 18 and weights 12 are not yet tokens. Batch 11 (Tally): Tally's non-colour literals 15 → 11 (TOK/literals, pre-batch vs final): spacing 1 → 0, line height 2 → 0, glass filter 1 → 0, z-index 4 → 2, local literal 2 → 1; worse or equal: font size 1 → 3 (fluid sizes with no fluid token), shadow 3 → 3, opacity 1 → 1, and a new target-size hit (the kid's 64 px min-height equals --tap but does not scale). Five literal breakpoints are listed as information (max-width 600, min-width 744, max-height 560, max-width 359, min-width 768; 744 is a documented one); colours stay 17 (the bootstrap map every app carries), mix 0. These are layout plumbing and bespoke dial and disc shadows with no token. Still open, the others' parts: the Dollywood exports' literals (batches 9 and 10). After: `audits/evidence/p6/911/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/911/p4tools/before/base910-TOK_literals.txt`, `audits/evidence/p6/911/p4tools/before/base11-TOK_literals.txt`, `audits/evidence/p6/911/p4tools/out/TYPE_code-scan.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The shell citations are wrong: index.html:60 is the adult PIN pad, :124 is a kiosk rule, and :188 is an icon size. None of them is a [data-kind=kid] rule restating 64/84px, and the kid CTA already uses var(--tap-lg).
 - **Evidence.** `audits/04-design-system.md:741`; `apps/design.css:280-289`, `index.html:60`
 - **What happens now.** Areas: design.css, the shell, F260, the Larder, Prayer, the park map.
@@ -2062,8 +2062,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-7 — The "every colour is a token" rule fails only on `#hex` in the first `<style>`
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The rule-level colour literals are gone from the shell, F260, the Larder, Tally, Timer, Kid Verse and Verses: what TOK/literals now counts there (17 per file) is the pre-paint bootstrap's palette map, and in design.css the v3 token definitions the script does not know (18 → 437). Not landed: the lint was not extended; scripts/screens-apps.mjs still checks only #hex in <style>, not rgb(), named colours or inline styles. No later batch is named for it. After: `audits/evidence/p6/1/p4/TOK/literals-summary.json`, `audits/evidence/p6/1/tests/repro-after/phase4__TOK__literals.txt`.
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** TOK/literals colour in the Dollywood chrome 15 / 29 → 8 / 5 (guide / park map); what remains is the map palette, now in one MAPCOL object, and a few overlays. The lint was not extended (screens-apps.mjs still checks only #hex in <style>); no batch is named. After: `audits/evidence/p6/911/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/911/p4tools/before/base910-TOK_literals.txt`.
 - **Evidence.** `audits/04-design-system.md:801`; `scripts/screens-apps.mjs:41-49`, `scripts/screens-shell.mjs:114-115`, `apps/dollywood-live.html:496-508`, `apps/prayer.html:1537`
 - **What happens now.** Areas: the shell, design.css, F260, the Larder, Prayer, both Dollywood files.
 - **Why it matters.** CLAUDE.md's "every colour in every app is a token" is enforced for one syntax only.
@@ -2082,8 +2082,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TYPE-3 — The system has no 11 px floor and nothing checks for one: 10 components in 4 areas go below
 
-- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** An 11 px floor sits in every role (--fs-floor, 16 for kids): the rig finds no measured text under 11 px in any area (under-11 groups: build guide 1, park map 3, F260 3, Kid Verse 4 → 0), and code-scan's sub-11 literals 15 → 4 (F260 1 → 0, Kid Verse 2 → 0, each Dollywood export 6 → 2). Left: the template's SVG labels (.clab/.onum, 6.8 px at the far zoom, TYPE/hidden-text), a design choice for the build guide's batch 9, and the lint for sub-floor literals, which did not land. After: `audits/evidence/p6/1/measure/type.json`, `audits/evidence/p6/1/p4/TYPE/code-scan.json`, `audits/evidence/p6/1/p4/TYPE/hidden-text.json`.
+- **Area** design system, all areas · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** The sub-floor map labels are fixed: code-scan under-11 literals 2 → 0 per export, TYPE/hidden-text minimum effective size guide 6.82 px → 11 px and park map 11 px throughout. Left: the lint for sub-floor literals, which no batch has written. After: `audits/evidence/p6/911/tests/repro-after/phase4__TYPE__hidden-text.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase4__TYPE__hidden-text.txt`, `audits/evidence/p6/911/p4tools/out/TYPE_code-scan.txt`.
 - **Evidence.** `audits/04-design-system.md:1490`
 - **What happens now.** Table TYPE-5 lists the components: the compass N in both exports, the park map's MIN, F260's WEEK, Kid Verse's day letters and badge dates, the build guide's toolbar captions, and its four groups of SVG labels.
 - **Why it matters.** Sub-floor text keeps reappearing, app by app, because nothing in the system forbids it.
@@ -2505,8 +2505,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-ICON-1 — Text glyphs and colour emoji stand in for icons in six areas
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`6688e17`)
-- **Phase 6 (PARTIAL).** The Larder's text glyphs are gone: the Back ✓ tag is Back, the chips carry sprite icons (Eat soon a clock, Use it up the warning triangle, Fresh none) instead of CSS glyph text, and the comments no longer spell the glyph. ICON/static, pre-batch vs final, Larder: glyphs {✓ ×7, … ×1} → {… ×1}. The kid picture view's food emoji stay (escapes the tool does not count; the kid view is a food picture by owner decision P5-D2). Still open: the shell's 48 emoji and the Dollywood exports' 52-53 glyphs (9/10). After: `audits/evidence/p6/8/p4tools/out/ICON_static.txt`, `audits/evidence/p6/8/p4tools/before/ICON_static.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Dollywood exports: text glyphs 53 / 52 → 33 / 32 (what is left is running text: × in sizes, ± feet, the key names, "…"), emoji 7 → 2 (® and ™ inside a regex), every chrome glyph (▾ × ⚑ ↗ ✓ − ◎ ⚠ ✈ ♥ ❓) is a sprite icon. Still open: the shell's 48 emoji. After: `audits/evidence/p6/911/p4tools/out/ICON_static.txt`, `audits/evidence/p6/911/p4tools/before/base910-ICON_static.txt`.
 - **Evidence.** `audits/04-design-system.md:3031`; `index.html:916`, `apps/f260.html:603-620`, `apps/tally.html:137-140`, `apps/kidverse.html:160`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** Glyphs render in the OS text font and emoji in the platform's colour set, so they take no token colour, weight or dark variant. Even the split between glyph and emoji depends on the platform: in the rig's WebKit, ⛰ and ✝ render as colour emoji, and repainting them changes 0 px (skeptic 1 of P4-ICON-03).
 - **Why it matters.** Glyphs stand in for icons.
@@ -2666,8 +2666,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-SHAPE-1 — Concentric corners are impossible by construction; at least 58 of 99 container/child pairs are off
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`6688e17`)
-- **Phase 6 (PARTIAL).** The add bar is R 28 with --pad-card around 12 px fields, so its pairs are concentric by construction. SHAPE/analyze, pre-batch vs final, Larder: off-concentric pairs 4 → 0 (487 checked, 6 distinct, all ok); SHAPE/verify V1: R16 inset 13 for r12 (off 9) → R28 inset 21 (want 7, off 5, inside the 7 px tolerance). Still open in this run: the shell 2, the park map 4 (10) and the build guide 1 (9). After: `audits/evidence/p6/8/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/out/SHAPE_verify.txt`.
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Not better: SHAPE/analyze off-concentric pairs, guide 1 → 2 (checked 1,752 → 1,892: the sticky bar's Next, and a phone field or Cancel), park map 4 → 4 (880 checked: the sheet tabs r 20 in r 32, the ride card's Directions). The rescore's concentric fixes (phone Cancel) landed after one pair appeared elsewhere. Still open: shell 2, park map 4, guide 2, TV 8. After: `audits/evidence/p6/911/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/911/p4tools/before/base910-SHAPE_analyze.txt`, `audits/evidence/p6/911/rescore/dollywood-guide.md`.
 - **Evidence.** `audits/04-design-system.md:2208`; `apps/design.css:381-383`; `audits/evidence/p4/SHAPE/sheet-concentric.png`
 - **What happens now.** The root cause is in design.css. `.card` is R22 with 20 px padding and a 1 px border, an inset of 21 (`apps/design.css:381-383`), and `.btn` is r16 (`:352`). Concentric would need r1, so every button in a card is 15 px off.
 - **Why it matters.** Mismatched nested corners are one of the clearest tells between the hub and first-party iPadOS surfaces, and design.css produces them by default.
@@ -2717,8 +2717,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-TALLY-7 — The press states may never show on iPhone or iPad
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`80af987`)
-- **Phase 6 (NEEDS DEVICE CHECK).** The global .pressable press (scale 0.97 plus a dim) and hub.js's document touchstart listener are in: MOTION/press, Tally 3/3 controls at 0.97 with a brightness shift (none before). Only a device can show whether iOS paints :active: on a real iPhone and iPad, tap +, − and Reset and check that each visibly presses in. After: `audits/evidence/p6/1/p4/MOTION/press.json`.
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** NEEDS DEVICE CHECK (`b346916`)
+- **Phase 6 (NEEDS DEVICE CHECK).** The press itself is in the rig: MOTION/press, Tally, 3/3 controls → 4/4 (-, +, Reset, New counter) at 0.97 with a brightness shift, after batch 11 changed the buttons; the touchstart listener is unchanged (hub.js:1704). Only a device shows whether iOS paints :active: on a real iPhone and iPad tap +, - and Reset and check each visibly presses in. Also check: a long press on the count or the art shows no iOS callout (TELL: 4 of 4 controls user-select none, a double-click selects nothing, art draggable=false). After: `audits/evidence/p6/911/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/911/p4tools/before/base11-MOTION_press.txt`, `audits/evidence/p6/911/p4tools/out/TELL_tells-webkit-tally.txt`.
 - **Evidence.** `audits/03-apps/tally.md:550`; `apps/tally.html:82`, `apps/tally.html:80-82`
 - **What happens now.** The only tap feedback is the `:active` scale of .94 and .96 (`apps/tally.html:82, 108`). iOS Safari applies `:active` to a tap only when the page has a `touchstart` listener, and `grep -n "touchstart\|pointerdown" apps/tally.html apps/hub.js` finds none.
 - **Why it matters.** Press states may never show on iPhone or iPad.
@@ -5503,7 +5503,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-03 — On phones the … menu opens out of the sheet: Export and Import cannot be reached, and only a sliver of Reset can
 
-- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** On a phone the … menu is a bottom sheet over the build sheet: Export, Import, Reset, Cancel, every row at least 52 px and inside the screen (guide-b-9 section 03, 12 checks; Escape, backdrop and Cancel close it with focus back on …; Reset asks first). Before: the menu hung 17 of 158 px into view and every row hit another element (verify-progress-menu-clipped-phone-2: visiblePx 17, b-export/-import/-reset all OUT); after 158 of 242 px at peek and 242 of 242 at half, and the pre-batch run of guide-b-9 stopped at this section with 0 checks. The Phase 3 originals verify-progress-menu-clipped-phone-1 and layout-checks now time out (Reset opens the hub's confirm sheet, which the old script never answers; layout-checks clicks the removed #lv-north): their -9 copies pass (Export and Import fire with a download in peek, half and full; Reset opens "Reset progress?" in all three). After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/verify-progress-menu-clipped-phone-1-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-progress-menu-clipped-phone-2.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-progress-menu-clipped-phone-2.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:229`; `apps/dollywood.html:313`, `apps/dollywood.html:371`, `apps/dollywood.html:359`; `audits/evidence/p3/dollywood/phone-progress-menu-clipped.png`, `audits/evidence/p3/dollywood/verify-progress-menu-clipped-phone-1-half.png`
 - **What happens now.** Inside the `@media (max-width:699px)` block that opens at `apps/dollywood.html:313`, the menu is set to open upward (`bottom: calc(100% + 6px)`, `apps/dollywood.html:371`). It hangs off the sheet's top row, and the sheet is `position: fixed` with `overflow: hidden` (`apps/dollywood.html:359`), so almost all of it is clipped.
 - **Why it matters.** On a phone there is no way to make a backup (Export), which is the only recovery from P3-DOLLYWOOD-01 and -02, or to restore one.
@@ -5512,7 +5513,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-04 — On phones the pressed 3D button never returns to 2D, and nothing on screen names the way back
 
-- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The pressed 3D button now toggles back to 2D, and a "Back to map" control (map icon, 147 x 44 px) sits at the top left of the 3D view (guide-b-9: 10 checks each on the iPhone and the iPad; verify-phone-3d-no-exit-2-9: back2d shown, one tap returns mode "2d" with the 3D button unpressed). Before: taps 1 to 3 all left mode "3d", pressed "true", and the only exit-worded control was Reset view. The originals verify-phone-3d-no-exit-1 and -2 now time out because they tap a 2D button that is hidden on the phone and a #z-fit that is 2D-only (stale expectations, not a regression); the -9 copy is the measure. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/verify-phone-3d-no-exit-2-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-phone-3d-no-exit-2.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:259`; `apps/dollywood.html:333`, `apps/dollywood.html:1156`, `apps/dollywood.html:856`, `apps/dollywood.html:821`; `audits/evidence/p3/dollywood/phone-3d-after-second-tap.png`, `audits/evidence/p3/dollywood/verify-phone-3d-no-exit-2-phone.png`
 - **What happens now.** Below 700 px the 2D button is hidden (`apps/dollywood.html:333`, inside the block at `:313`), and the 3D button's handler always calls `setMode('3d')` (`apps/dollywood.html:1156`). The T key toggles (`apps/dollywood.html:856`), but a phone has no keyboard.
 - **Why it matters.** On a phone the 3D view is mostly sky (VIS-DOLLYWOOD-16). The person who opened it has to guess a way out, and the only control worded like one ("Reset view") just resets the camera.
@@ -5521,7 +5523,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-05 — On phones with Upright on, every map jump frames the unrotated box: Fit cuts off half the park and a section chip can miss its section
 
-- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The phone fit rotates the target box when Upright is on. verify-upright-fit-phone-1 (iPhone, 68 markers): with Upright on and Fit, centres inside the visible map 31 → 68 and markers 45 off the right → 0; the top section chip's centre was off screen at (476, 62) and is now on screen at (215, 427). iPad unchanged at 68 of 68. guide-b-9: with Upright on every one of the 6 section chips and Whole park frames the rotated box above the sheet. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-upright-fit-phone-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-upright-fit-phone-1.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-upright-fit-phone-2.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:287`; `apps/dollywood.html:1088`, `apps/dollywood.html:1143-1146`, `apps/dollywood.html:809`; `audits/evidence/p3/dollywood/phone-upright-fit.png`, `audits/evidence/p3/dollywood/verify-upright-fit-phone-2-iphone-pwa-chip.png`
 - **What happens now.** `fitTarget` sends every phone fit to `fitBoxPhone` (`apps/dollywood.html:1088`), which builds the view from the unrotated box (`apps/dollywood.html:1143-1146`). `fitBox`, used on wider screens, first rotates the box corners by `ROT` (`apps/dollywood.html:809`). With `ROT` −98.71°, the phone's Fit produces exactly the north-up view.
 - **Why it matters.** Turning Upright on on a phone shows parking lots and hills, and every jump (a section, a search result, a step) lands somewhere else.
@@ -5530,7 +5533,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-06 — The "up to N″" rider-height filter hides every listing with no height requirement
 
-- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** "Up to N″" keeps listings with no height requirement, in both exports (one template function). layout-checks-9 ipad.heightFilter: up to 36″ 9 → 129, 42″ 18 → 138, 48″ 23 → 143 of 145 (120 listings have no requirement). guide-b-9: counts equal "no height or height <= N" for 36, 39, 42, 48 and 55; a real select choice shows the same count; the park-map export carries the same filter. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-height-filter-drops-no-requirement-2.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-height-filter-drops-no-requirement-2.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:320`; `apps/dollywood-live.html:1007`, `apps/dollywood.html:1007`, `apps/dollywood.html:1671`; `audits/screens/dollywood/listings-height-typical-ipad-portrait-light.png`, `audits/evidence/p3/dollywood/verify-height-filter-drops-no-requirement-2-upto36.png`
 - **What happens now.** `listItems` keeps `hf === 'none' ? !o.height_in : (o.height_in && o.height_in <= +hf)` (`apps/dollywood.html:1007`). So "up to 36″" shows 9 of 145, "up to 42″" 18 and "up to 48″" 23, although 120 listings have no requirement at all. The same file's park-map rule `fits()` treats no requirement as rideable (`apps/dollywood.html:1671`).
 - **Why it matters.** A parent planning for a small child sees 9 rides, and none of the 43 attractions with no requirement, such as the Village Carousel, the Amazing Flying Elephants and Lil' Pilots Playground.
@@ -5539,7 +5543,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-07 — The step card's in-game line ignores the saved plot width after load and after every plot change
 
-- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The step card re-renders when the plot width changes. guide-b-9: after load the card reads the saved 400 m, an edit to 600 re-renders at once, and a change from another device (800) re-renders it. The original verify-plot-card-stale-1/-2 read a gameLine element that is null in both the before and after runs (its selector no longer finds the line), so guide-b-9 is the measure. data-checks.mjs timed out before and after the batch (its arm that aborts the first pull keeps the guide on "Loading your progress"); not proven to be the only cause. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-plot-card-stale-1.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-plot-card-stale-2.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:347`; `apps/dollywood.html:1057`, `apps/dollywood.html:1109`, `apps/dollywood.html:1110`, `apps/dollywood.html:1049-1052`; `audits/screens/dollywood/steps-full-overflow-iphone-pwa-light.png`, `audits/screens/dollywood/scale-overflow-iphone-pwa-light.png`
 - **What happens now.** `adopt()` renders the step (`apps/dollywood.html:1109`) before it applies `plot` (`apps/dollywood.html:1110`), and `updScale()` sets the factor but never re-renders (`apps/dollywood.html:1049-1052`).
 - **Why it matters.** Eli builds to the numbers on the card. Unscaled or stale game metres mean pieces built at the wrong size.
@@ -5548,7 +5553,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-16 — The keyboard shortcuts ignore Ctrl, Cmd and Alt: Ctrl/Cmd+D (bookmark) ticks or silently unticks the current step, and Ctrl/Cmd+P and page zoom are taken over
 
-- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The shortcuts ignore Ctrl, Cmd and Alt. Before (critic-keys-plot): Ctrl+D ticked step 7 (7 of 9 → 8 of 9 done), Cmd+D ticked again, Ctrl+P unticked, Ctrl+= zoomed, Alt+D unticked; after the same keys change nothing (7 → 7, view unchanged, server ticks 24 → 24). look-a-9 section 8: 10 modifier combinations are left to the browser, no row is written, and the arrows pan only a focused or mostly visible map. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-critic-critic-modifier-shortcuts-write-progress-1-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-critic-critic-modifier-shortcuts-write-progress-1-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:544`; `apps/dollywood.html:852`, `apps/dollywood-live.html:852`, `apps/dollywood.html:853-857`, `apps/dollywood.html:1086`; `audits/evidence/p3/dollywood/critic-ctrl-d-desktop.png`, `audits/evidence/p3/dollywood/verify-critic-critic-modifier-shortcuts-write-progress-1-1-webkit.png`
 - **What happens now.** The document keydown handler returns early only for inputs and for keys the 3D view handles (`apps/dollywood.html:852`). It then maps bare `e.key` values (`+` / `=`, `-`, `0`, the arrows, `v`, `s`, `m`, `t`, `n`, `p`, `d`, Escape) to actions, and calls `preventDefault()` for each (`apps/dollywood.html:853-857`).
 - **Why it matters.** Eli builds at the PC beside the game. Pressing Ctrl+D to bookmark the guide, or Ctrl+P to print a step, marks a step done that he has not built and tells the family feed he built it, or quietly unticks one he has built.
@@ -5557,7 +5563,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-2 — On iPad and desktop, the card's Next and Show on map move a map the person cannot see
 
-- **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Next and Show on map bring the map into view at every size. guide-b-9: iPad map visibility 0.00 → 1.00, desktop 0.00 → 0.99, Previous does not scroll when the map is in view; layout-checks-9 ipad.nextFromCard: map bottom 74 (scrolled away) → 722, view moved. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__layout-checks.txt`.
 - **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: The claim is wrong for iPad portrait. At the natural scroll that brings the card's buttons into view, 694 of the 738 px map is on screen together with the card, and the target Next frames is visible. The '261 px' figure is an artefact of centring the card.
 - **Evidence.** `audits/03-apps/dollywood.md:669`; `apps/dollywood.html:1140`; `audits/screens/dollywood/step-on-map-typical-ipad-portrait-light.png`
 - **What happens now.** `mapIntoView` returns early unless on a phone (`apps/dollywood.html:1140`).
@@ -5567,7 +5574,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-4 — Below 1180 px, search results appear about 2,000 px from the search box, and a no-match search says only "0 of 145"
 
-- **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Search results sit right under the field as a popover (up to 8 rows plus "Show all N in Listings", each row 44 px with arrow-key, Enter and Escape support) and a no-match search says "No match for “zipline”" (guide-b-9 UX-DOLLYWOOD-4, 13 checks). Before: results 2,586 px down the page with only "0 of 145". The old layout-checks resultsTop probe still reads the Listings list (2,774 px, no message) because it never looks at the popover, so guide-b-9 is the measure. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__layout-checks.txt`.
 - **Verified (step 3).** was medium; skeptics medium and medium (partly). Correction: The limit is 'at or below 1180 px', not 'below 1180 px'. iPad landscape (exactly 1180 wide) is affected too, with a 2,264 px gap. The visual-check line saying there is no clear button is wrong: the search field is type=search and shows a native clear glyph in every capture.
 - **Evidence.** `audits/03-apps/dollywood.md:676`; `audits/evidence/p3/dollywood/ipad-search-no-match.png`, `audits/screens/dollywood/search-none-typical-ipad-portrait-light.png`
 - **What happens now.** Searching "zipline" on iPad portrait put the results list top at y=2506 (search box bottom 428, viewport 1132), with no empty-state message. A single match does fly to it and open its card ("thunder").
@@ -5577,7 +5585,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-1 — Completed steps are struck through at 2.2:1 (light) and 3.5:1 (dark)
 
-- **Area** dollywood · **Type** visual · **Severity** medium · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** medium · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Done steps keep full ink and a check: no strike-through, no dimming (opacity 1), title 8.72-11.18:1 and check 7.59-12.03:1 in all six palettes (look-a-9 section 3). Before (the finding's rendered numbers): 2.23 Hearth, 2.31 Parchment, 2.26 Frost, 3.62 Midnight, 3.49 Forest; the pre-batch run of look-a-9 section 3 reads 6.66 on the same selector and was not used as the before. After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-9__look-a-9.txt`, `audits/screens-after/910/dollywood/steps-typical-iphone-pwa-light.png`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: 'Barely legible' overstates it. At 2.2:1 in bold the rows are faint but readable in both the iPad capture and my own. The Midnight figure depends on which background is used (3.62 against the card, about 3.75 against the page).
 - **Evidence.** `audits/03-apps/dollywood.md:714`; `apps/dollywood.html:100-101`; `audits/evidence/p3/dollywood/ipad-card-hearth.png`, `audits/evidence/p3/dollywood/ipad-card-midnight.png`
 - **What happens now.** `.bitem.ok` combines the dim colour, opacity .55 and a line-through (`apps/dollywood.html:100-101`). Rendered contrast of the 13 px text: Hearth 2.23, Parchment 2.31, Frost 2.26, Midnight 3.62, Forest 3.49 (AA needs 4.5). The checker confirmed the rows are barely legible.
@@ -5587,7 +5596,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-2 — 35 tap targets under 44 px on the phone, 15 on the iPad
 
-- **Area** dollywood · **Type** visual · **Severity** medium · **Effort** M · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** medium · **Effort** M · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Controls under 44 px: look-a-9 section 1, 390 px: 46 → 0; 820 px: 25 → 0. The rig's measure over 32,207 samples finds 0 small target selectors in the guide (the finding: 35 on the phone, 15 on the iPad). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-9__look-a-9.txt`, `audits/evidence/p6/911/rescore/dollywood-guide.md`.
 - **Verified (step 3).** was medium; skeptics medium and medium (partly). Correction: Minor details only. The phone list in the report adds up to 34 items; the 35th is the Basemap select (42x42), which is counted but not named. The card link buttons measure 35 px tall, not about 33.
 - **Evidence.** `audits/03-apps/dollywood.md:717`; `apps/dollywood.html:1148`, `apps/dollywood.html:300`
 - **What happens now.** Phone: the 13 section chips (36 px tall), six tool and zoom buttons (32 px wide), nine coaster-legend items (17 px tall, tappable, `apps/dollywood.html:1148`), "?" (32×32), the sheet handle (22 px tall), Next unfinished (40 px), … (44×40), Compare (36 px), the exaggeration slider (20 px).
@@ -5597,7 +5607,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### CONS-TYPE-6 — The park map's pane headings fall back to the generic serif (Times on Apple devices), and the Dollywood badges and marker numbers to generic sans, because the template names faces it never loads
 
-- **Area** design system (park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 9
+- **Area** design system (park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Both exports name real faces: look-a-9 section 11: every font-family reads a --font-* token (23 declarations in each), no Fraunces or Archivo, no old local alias, no color-mix. TYPE/code-scan, each export: role tokens 2 → 158, clamp/calc 143 → 6, px 8 → 2, under 11 px 2 → 0. After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/p4tools/out/TYPE_code-scan.txt`, `audits/evidence/p6/911/p4tools/before/base910-TYPE_code-scan.txt`.
 - **Evidence.** `audits/04-design-system.md:1501`; `apps/dollywood.html:223`, `apps/dollywood-live.html:223`, `apps/dollywood.html:281`, `apps/dollywood-live.html:544`; `audits/screens/dollywood-live/search-typical-iphone-pwa-light.png`
 - **What happens now.** The pane headings. The hub flavour remaps `.tabbody h2` to `--font-display` (`apps/dollywood.html:223`). The live flavour remaps only `.pop h2` (`apps/dollywood-live.html:223`).
 - **Why it matters.** One export shows Times headings next to SF Pro Rounded, and the two exports of one template disagree.
@@ -5606,7 +5617,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### GAP-DOLLYWOOD-1 — The 3D view never shows the current step
 
-- **Area** dollywood · **Type** feature gap · **Severity** low · **Effort** L · **Batch** 9
+- **Area** dollywood · **Type** feature gap · **Severity** low · **Effort** L · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The 3D view draws and frames the current step: a line loop 3 m above the ground and a 6 m curtain in the person's accent graphic colour, the camera frames its box on entering 3D; Next, Previous and Mark done stay in 3D and move the outline (the tick reaches the house); Show on map goes to 2D (guide-b-9, 10 checks). Not checked: how it looks and runs on a real iPad. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/screens-after/910/dollywood/view-3d-typical-iphone-pwa-light.png`.
 - **Verified (step 3).** was medium; skeptics low and low. Correction: The code claim is correct. The report misses that Previous, Next, Mark done and Show on map all force the view back to 2D (apps/dollywood.html:1085-1087). The 2D map is therefore the app's designated view for a step, and the 3D view is not simply a place where the step is missing.
 - **Evidence.** `audits/03-apps/dollywood.md:772`; `apps/dollywood.html:1157`, `apps/dollywood.html:1153`; `audits/screens/dollywood/view-3d-typical-ipad-portrait-light.png`
 - **What happens now.** LEGO Builder's core is a step you can zoom and spin. Here the 3D code never reads the current section or step: no `curSec`, `curIdx`, `stepTarget` or `highlight` between `apps/dollywood.html:1157` and `:1290` (NOT FOUND IN CODE), and entering 3D hides the 2D map that carries the step highlight …
@@ -5616,7 +5628,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-08 — Sitting idle in 2D, the step highlight's infinite pulse keeps the main thread busy (15.8-27.7% in Chromium)
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The step highlight pulses three times and rests (look-a-9 section 13: 3 iterations, rests at full stroke). Idle main-thread busy, as shipped: iPad portrait 14.1 % → 3.8 %, desktop 8.6 % → 2.8 %, in the shell 13.9 % → 2.0 % (verify-idle-pulse-cpu-1), style recalculations 60 → 24 a second. The script's window opens at once, so it still includes the three pulses; the resting state itself (0 recalculations) was not re-timed. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__perf-idle.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__perf-idle.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-idle-pulse-cpu-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:381`; `apps/dollywood.html:282-283`, `apps/design.css:611-613`
 - **What happens now.** The current step's target carries `#hl .hl-ring { animation: hlring 2.2s ease-in-out infinite }`, which animates `stroke-opacity` (`apps/dollywood.html:282-283`; the class is set at `:907-913`), on a 2,783-node SVG map. `stroke-opacity` is not a compositor-only property, so the map is repainted every frame.
 - **Why it matters.** An iPad or PC left open on the guide keeps repainting the whole map sixty times a second: battery drain and heat for nothing.
@@ -5625,7 +5638,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-09 — After 3D has been opened once, the render loop keeps requesting 60 frames a second in 2D until the guide is closed
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The 3D render loop is cancelled on leaving 3D. perf-3d: animation frames requested in 2D after 3D 60 a second → 0 on the iPad portrait and desktop runs (raf2dAfter3d 60 → 0); verify-raf-loop-after-3d-1: 7 a second → 0; guide-b-9: 0 frames in 1.8 s after the 3D button and after Back to map, and entering 3D again restarts the loop. 3D itself under software GL in the rig read 60 → 5 fps on the iPad-portrait run (56 on desktop), so 3D smoothness is a device check on a real iPad. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__perf-3d.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__perf-3d.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-raf-loop-after-3d-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:401`; `apps/dollywood.html:1269`, `apps/dollywood.html:1152-1156`, `index.html:729-733`, `index.html:732`
 - **What happens now.** The 3D render loop reschedules `requestAnimationFrame` on every frame and renders only in 3D: `(function loop(){ if (mode==='3d') {…render…} requestAnimationFrame(loop) })()` (`apps/dollywood.html:1269`). Nothing cancels it; `setMode('2d')` does not stop it (`apps/dollywood.html:1152-1156`).
 - **Why it matters.** A small, needless wake-up of the page sixty times a second while the guide sits open in 2D.
@@ -5634,7 +5648,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-10 — A dead "N" compass button sits over the iPad and desktop map, and over 3D
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The dead N button is gone from the guide: verify-dead-north-button-1 on the iPad portrait: display block, 44 x 44 at (43, 551), clickable → display none (0 x 0) in 2D and in 3D, with Upright reached from the View menu (ROT -98.71 and back to 0). layout-checks-9 reads north "shown: false". After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-dead-north-button-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-dead-north-button-1.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:421`; `apps/dollywood.html:352`, `apps/dollywood.html:565`, `apps/dollywood.html:1597`, `apps/dollywood.html:1740`; `audits/evidence/p3/dollywood/verify-dead-north-button-1-ipad-3d.png`, `audits/screens/dollywood/view-3d-typical-ipad-portrait-light.png`
 - **What happens now.** `.lv-northwrap` is hidden only below 700 px (`apps/dollywood.html:352`, inside the block at `:313`). The rule that hides the park map's other chrome outside the live flavour (`apps/dollywood.html:565`) leaves it out.
 - **Why it matters.** A compass that does nothing over the map and over 3D teaches that the controls cannot be trusted.
@@ -5643,7 +5658,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-11 — Turning Upright on or off with "Whole park" pressed zooms to the last-selected section
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** With Whole park pressed, Upright fits the whole park. verify-upright-whole-park-zooms-entrance (iPad): view [897, 1177, 272, 255] (26 % of the park's width, the Entrance) → the whole park [525, 447, 1329, 1245], all 68 markers; guide-b-9: iPad and phone, on and off, secView stays 'all', and with a section pressed Upright rotates in place (same centre and scale). After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-upright-whole-park-zooms-entrance-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-upright-whole-park-zooms-entrance-1.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:441`; `apps/dollywood.html:1029`, `apps/dollywood-live.html:1029`, `apps/dollywood.html:1121`, `apps/dollywood-live.html:1121`; `audits/evidence/p3/dollywood/ipad-upright-whole-park.png`, `audits/evidence/p3/dollywood/verify-upright-whole-park-zooms-entrance-1-A-first-open-upright-on.png`
 - **What happens now.** `curSec` starts as `'entrance'` (`apps/dollywood.html:1062`) and `selectSection('all')` never sets it (`apps/dollywood.html:1121`). The Upright handler fits `SEC[curSec]` unless `curSec === 'all'` (`apps/dollywood.html:1029`), so that guard never fires from the Whole park chip.
 - **Why it matters.** Upright is the way to see the park the way the game shows it; turning it on zooms somewhere unexpected.
@@ -5652,7 +5668,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-12 — On phones the "?" popover opens off the left edge (48 of 267 px visible)
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The "?" popover is clamped inside the screen: x -215..52 of 390 → 20..370 (look-a-9 section 4; before 82 % of the panel was off the left edge), and on an iPad portrait at 820 it is 462..712. After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:462`; `apps/dollywood.html:358`, `apps/dollywood.html:174-176`; `audits/evidence/p3/dollywood/phone-help-popover.png`, `audits/evidence/p3/dollywood/verify-help-popover-offscreen-phone-2-iphone-pwa-chromium.png`
 - **What happens now.** Below 700 px the hint text fills the first line, so the "?" wraps to the start of the next line at x=16. The phone rule `right: 0` (`apps/dollywood.html:358`) then makes the 267 px, no-wrap popover grow leftwards from x=48, so it starts at x=−219 (`apps/dollywood.html:174-176, 640-641`).
 - **Why it matters.** A visible control opens a panel that cannot be read.
@@ -5661,7 +5678,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-13 — On iPad portrait the View ▾ menu runs 26 px past the right edge
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The View menu stays on screen on the iPad portrait: 637..887 of 820 (67 px past the edge by this run's measure, 26 in the finding) → 175..425 (look-a-9 section 4; layout-checks-9 ipad.viewMenu x 175, right 425). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:482`; `apps/dollywood.html:164`, `apps/dollywood.html:1034`, `apps/dollywood.html:343`; `audits/evidence/p3/dollywood/ipad-view-menu.png`, `audits/evidence/p3/dollywood/verify-view-menu-offscreen-ipad-2-webkit.png`
 - **What happens now.** `.vmenu` is `left: 0` with `min-width: 250px` (`apps/dollywood.html:164`), anchored to a View button whose left edge is at x=596, so its right edge lands at 846 in an 820 px viewport. The menu holds the contour-interval select and the Steepness switch (the theme row is removed, `apps/dollywood.html:1034`).
 - **Why it matters.** The contour select and the steepness checkbox are cut at the edge, and the page gains a sideways scroll while the menu is open.
@@ -5670,7 +5688,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-14 — After 3D, touch devices get the mouse hint "Move over the map… scroll to zoom"
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** After 3D a touch device keeps the touch hint. verify-readout-mouse-copy-touch-1: after a chip tap or a map tap the readout read "Move over the map for elevation · scroll to zoom · drag to pan" on the iPhone and iPad → "Tap anything for details · pinch to zoom"; the 3D hint on touch is "Drag to turn · pinch to zoom" (was a keyboard line with arrows or WASD and Q/E). After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-readout-mouse-copy-touch-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-readout-mouse-copy-touch-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:502`; `apps/dollywood.html:1154`, `apps/dollywood.html:607`, `apps/dollywood.html:824`; `audits/evidence/p3/dollywood/verify-readout-mouse-copy-touch-1-iphone-pwa.png`
 - **What happens now.** `setMode` writes the mouse text for 2D with no coarse-pointer check (`apps/dollywood.html:1154`). At boot (`apps/dollywood.html:607`) and in `setTool` (`apps/dollywood.html:824`) the app picks the touch text, "Tap anything for details · pinch to zoom", on coarse pointers.
 - **Why it matters.** The one line of help on the map tells an iPad user to hover and scroll.
@@ -5679,7 +5698,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-15 — The Scale tab refers to an "Info tab" that does not exist (also found by the visual check)
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The Scale copy no longer points to an Info tab: "…and every measurement on the step card and the listing cards is also shown in game metres" (verify-scale-copy-info-tab-1: mentionsInfoTab true → false; guide-b-9 checks it). After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-scale-copy-info-tab-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-scale-copy-info-tab-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:522`; `apps/dollywood.html:672`, `apps/dollywood.html:660`, `apps/dollywood.html:958`, `apps/dollywood.html:973-974`; `audits/screens/dollywood/scale-empty-ipad-portrait-light.png`, `audits/evidence/p3/dollywood/verify-scale-copy-info-tab-2-scale-tab.png`
 - **What happens now.** The Scale tab says every dimension "shown in the Info tab will also be shown in game metres" (`apps/dollywood.html:672`). The tabs are Listings, Layers and Scale (`apps/dollywood.html:660`; `showTab` toggles only those three, `apps/dollywood.html:958`).
 - **Why it matters.** A reader looks for a tab that is not there and cannot tell where the converted numbers show.
@@ -5688,7 +5708,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-17 — The arrow keys never scroll the page: they pan a map that is scrolled away, even while the person reads the step card
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The arrow keys pan only a focused or mostly visible map. critic-arrows: ArrowDown with the map scrolled away panned the hidden map (view y 935 → 1695, page stayed at 1325); now the page scrolls 1359 → 1559 and the view stays [106, 935, 1268, 1187]. verify-critic-arrow-keys-block-page-scroll-3-1: prevented ArrowDown 5 of 5 → 0 of 5, page 1385 → 1585. look-a-9 section 8: with the map focused or in view the arrows still pan, and the map box is focusable. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__critic-arrows.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__critic-arrows.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-critic-critic-arrow-keys-block-page-scroll-3-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:583`; `apps/dollywood.html:854`, `apps/dollywood.html:857`, `apps/dollywood.html:852`, `apps/dollywood.html:641`; `audits/evidence/p3/dollywood/verify-critic-critic-arrow-keys-block-page-scroll-3-1-webkit-after-arrowdown.png`, `audits/evidence/p3/dollywood/verify-critic-critic-arrow-keys-block-page-scroll-3-1-chromium-after-arrowdown.png`
 - **What happens now.** The global handler binds ArrowLeft, ArrowRight, ArrowUp and ArrowDown to panning the map (`apps/dollywood.html:854`) and calls `preventDefault()` (`apps/dollywood.html:857`) wherever focus is, except in an input, select or textarea (`apps/dollywood.html:852`).
 - **Why it matters.** On the PC Eli reads the step card below the map. The standard keyboard way down the page does nothing he can see, and it pans a map he cannot see, which he finds moved when he scrolls back up.
@@ -5697,7 +5718,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-18 — Clearing the plot width does not reach another open device, and a legacy `dw-plot` key brings an old width back on every boot
 
-- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A cleared plot width reaches the other device and the legacy dw-plot key goes. verify-critic-plot-clear-not-synced-2-1: the stale device key "1000" stayed in localStorage after the migration → null; guide-b-9: a plot cleared on the iPad clears the field and the factor on the phone (the card returns to 1:1), the stale dw-plot (999) is removed once signed in, and after a reload with a cleared plot and a stale key the field stays empty. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-critic-critic-plot-clear-not-synced-2-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-critic-critic-plot-clear-not-synced-2-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:615`; `apps/dollywood.html:1055`, `apps/dollywood.html:1110`, `apps/dollywood.html:1057`, `apps/hub.js:392`; `audits/evidence/p3/dollywood/verify-critic-critic-plot-clear-not-synced-2-2-phone-after-pull.png`, `audits/evidence/p3/dollywood/verify-critic-critic-plot-clear-not-synced-2-2-legacy-after-reload.png`
 - **What happens now.** Clearing `#sc-plot` runs `savePlot`, which writes `hub.set('plot', v || null)` (`apps/dollywood.html:1055`), so the server row becomes null. `adopt()` applies a remote plot only when `v != null` (`apps/dollywood.html:1110`).
 - **Why it matters.** The step card and the listing cards convert every measurement by this factor. When two devices disagree about the plot width, Eli builds to different in-game sizes depending on which device he reads.
@@ -5706,7 +5728,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P4-TELL-05 — The build guide first paints an empty section-chip strip, then its map drops 44-48 px when the chips arrive (CLS 0.119-0.128 on a cold open through the hub)
 
-- **Area** design system (build guide) · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** design system (build guide) · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The chip strip keeps its height from the first paint (52 px, then 54 px with the 13 chips) so the map no longer drops. TELL/verify-build-guide-cls-in-viewer-2, cold open through the viewer: CLS 0.448-0.462 → 0.0015-0.0099 (a 44-48 px map drop → none); TELL/loading, build guide: CLS 0.4617 → 0.0099 and the largest landmark move 945 px → 0; MOTION/cls at 150 ms: iPad 37 landmark moves / 945 px → 0, iPhone 18 / 138 px → 0. look-a-9 section 5: CLS 0.0490 at 390 (just under its 0.05 gate) and 0.0084 at 820. Cost elsewhere: see UX-DOLLYWOOD-1 (Home's cold-device card). After: `audits/evidence/p6/911/tests/repro-after/phase4__TELL__verify-build-guide-cls-in-viewer-2.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase4__TELL__verify-build-guide-cls-in-viewer-2.txt`, `audits/evidence/p6/911/tests/repro-after/phase4__TELL__loading.txt`, `audits/evidence/p6/911/p4tools/out/MOTION_cls.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/04-design-system.md:6223`; `apps/dollywood.html:578`, `apps/dollywood.html:684`, `apps/dollywood.html:2`, `index.html:327-329`
 - **What happens now.** The section-chip row is an empty `<div id="chips">` in the exported HTML (`apps/dollywood.html:578` = template `:578`). The main inline script fills it (template `:1120`), and that script runs after the multi-megabyte payload (template `:682`) and the parser-blocking external `hub.js` (`apps/dollywood.html:684`).
 - **Why it matters.** The map, which is the point of the page, jumps as the guide opens. That is a tell the house style bans.
@@ -5715,7 +5738,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P4-TYPE-01 — Build guide map labels render below 11 px at the default whole-park view: section names 6.1 px on the iPhone (5.5 px in Safari), listing numbers 6.8 px on every device, contour heights 9.5 px at every zoom
 
-- **Area** design system (build guide) · **Type** bug · **Severity** low · **Effort** S · **Batch** 9
+- **Area** design system (build guide) · **Type** bug · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Map labels hold 11 px on screen. TYPE/hidden-text, minimum effective size in the build guide: steps on the iPhone 6.82 px → 11 px (77 → 32 SVG texts) and iPad 6.82 → 11 (40 → 3), cross-section 8.81 → 12.32; TYPE/verify-build-guide-svg-labels: profile text on the iPhone 4.37 px → 11 px, listing numbers 6.82 px → 11 px. look-a-9 section 2: 123 labels with 6.8 px listing numbers → 51 labels (390) and 54 (820), none under 11 px. After: `audits/evidence/p6/911/tests/repro-after/phase4__TYPE__hidden-text.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase4__TYPE__hidden-text.txt`, `audits/evidence/p6/911/tests/repro-after/phase4__TYPE__verify-build-guide-svg-labels-under-11-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/04-design-system.md:1330`; `apps/dollywood-live.html:526`, `apps/dollywood.html:802-805`, `apps/dollywood.html:281`, `apps/dollywood.html:111`; `audits/evidence/p4/TYPE/verify-build-guide-svg-labels-under-11-1-iphone-pwa.png`, `audits/screens/dollywood/map-typical-iphone-pwa-light.png`
 - **What happens now.** The cause is the template's `apply()`, which runs after every pan and zoom (`../dollywood-build-project/scripts/template.html:799-802`, exported to `apps/dollywood.html:802-805`). `k` is metres per CSS px (`mpp()`, `template.html:788`), so the map's own drawing scale is 1/k.
 - **Why it matters.** On a phone the section names and listing numbers are how the map is read, and at 5.5-6.8 px they cannot be read.
@@ -5724,7 +5748,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-1 — Ticking the step just built takes 3-4 taps plus a scroll, and Home has no build-guide card
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** M · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** M · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Mark done is one tap: a sticky bar on the iPad and desktop (glass, a --btn-h-lg capsule in the person's strong tone) and a Mark done on the phone sheet's peek row; guide-b-9: one tap ticks and the bar moves to "Step 9 of 9", it hides while the card's own controls are in view; the guide opens at the step summary.next points to; one tick writes the summary once (a tick and untick inside 2 s write none). Before: 4 taps on the iPhone, 3 plus a scroll on the iPad (card at y 1400 of 1132). Home has an orchid Build guide card ("Next: Planting, banners and signage · Entrance & Plaza · 7 of 9 done", Continue; test-home 112 → 132). Cost: on a device with no saved hint the card pops in once, so TELL/loading shell moved 403 → 672 px (CLS 0.0496 → 0.1254) on a cold held pull; accepted in review, unfixed. Device: the sticky bar and phone sheet in Safari. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/repro-after/phase4__TELL__loading.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase4__TELL__loading.txt`, `audits/evidence/p6/911/tests/suites/test-home.txt`, `audits/screens-after/910/dollywood/map-typical-ipad-portrait-light.png`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The report frames it as the cost of every tick ('Ticking the step just built takes 3-4 taps plus a scroll'). In fact it is the cold-start cost per session: within a session each tick is 1 tap, and the card stays in view and advances by itself.
 - **Evidence.** `audits/03-apps/dollywood.md:665`; `index.html:458-459`; `audits/screens/dollywood/map-typical-ipad-portrait-light.png`, `audits/screens/dollywood/map-typical-desktop-light.png`
 - **What happens now.** J1 is 4 taps on the iPhone (the sheet must be raised first) and 3 taps plus a scroll on the iPad and desktop. On iPad portrait the card title sits at y=1400 in a 1132 px viewport; on desktop the card starts at y=1441 in 852.
@@ -5734,7 +5759,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-3 — A phone's first screen is header, chips and parking lots; the park sits under the peeking sheet
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** M · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** M · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A phone opens on the map with the sheet peeking below it and one row of chips: map top y 470 → 126, attraction markers above the sheet 12 → 68 of 68 (verify-upright-fit-phone-1 boot; look-a-9 section 6: 68 of 68 above the sheet, map fills its box), sheet top 766 → 718, chips 2 rows → 1 (52 px). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood__verify-upright-fit-phone-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__verify-upright-fit-phone-1.txt`, `audits/screens-after/910/dollywood/map-typical-iphone-pwa-light.png`.
 - **Verified (step 3).** was medium; skeptics low and low.
 - **Evidence.** `audits/03-apps/dollywood.md:673`; `audits/evidence/p3/dollywood/phone-first-screen.png`, `audits/screens/dollywood/map-typical-iphone-pwa-light.png`
 - **What happens now.** The map starts at y=470 and the sheet at 766 (viewport 884). 56 of 68 markers are under the sheet and 11 are in view. The chips wrap to 2 rows, and only 2 of 13 are fully visible.
@@ -5744,7 +5770,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-7 — On phones, Next unfinished from the peeking sheet leaves the new step hidden
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Next unfinished from the peek raises the sheet to half and the new step shows (guide-b-9 UX-DOLLYWOOD-7, 2 checks); before the new title sat at y 928 of an 884 px viewport. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/screens-after/910/dollywood/next-unfinished-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/dollywood.md:687`; `audits/screens/dollywood/next-unfinished-overflow-iphone-pwa-light.png`
 - **What happens now.** The sheet stays at peek; the new title "Blueprint the section" sits at y=928, below the 884 px viewport. Only the header changes.
 - **Why it matters.** The new step is hidden.
@@ -5753,7 +5780,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-8 — After a cut, the profile is about 1,000 px below and the map still says "Tap two points"
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** After a cut the profile is on screen and the pill reads "Profile ready — tap two points for a new cut": profile top 2,188 → 965 of 1,132 on the iPad (layout-checks-9; 2,101 in the finding), 243 of 796 on the phone and 775 of 1,132 at 820 (look-a-9 section 15). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__layout-checks.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:690`; `apps/dollywood.html:824`; `audits/evidence/p3/dollywood/ipad-cross-section-cut.png`
 - **What happens now.** On iPad portrait the profile top was at y=2101 (viewport 1132). The map pill still read "Tap two points", and the readout repeated the instruction (`apps/dollywood.html:824, 826`).
 - **Why it matters.** The result is 1,000 px away and the hint is stale.
@@ -5762,7 +5790,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-9 — Map cards run off-screen
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Cards stay inside the visible viewport, 8 px in, and the close button stays in a sticky head: iPad card 314..704 x 645..1124 of 820 x 1132 (before it ended at y 1240 and 1176), desktop 401..844 of 852 (before the coaster card ended at 1374), also with the page scrolled 320 (look-a-9 section 7). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__layout-checks.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:693`; `apps/dollywood.html:961-963`; `audits/evidence/p3/dollywood/ipad-listing-card-low-marker.png`, `audits/screens/dollywood/coaster-typical-desktop-light.png`
 - **What happens now.** `openPop` keeps the card inside the map box, not the viewport (`apps/dollywood.html:961-963`). On iPad portrait a listing card opened on a low marker ended at y=1176 in a 1132 px viewport. On desktop the coaster card is 926 px tall in an 852 px viewport (bottom 1331).
 - **Why it matters.** Cards run off screen.
@@ -5771,7 +5800,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-11 — Every tick posts a family-feed line; an untick leaves it, and a re-tick doubles it
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** One feed line per section, 60 s after the last tick: "Built 3 steps in <section>" or "Built <title> (<section>)"; a tick undone inside the window posts nothing; leaving the page flushes at once; no "Ticked …" line is ever posted (guide-b-9 UX-DOLLYWOOD-11, 7 checks). Before: 5 taps (tick, tick, untick, tick, untick) posted 3 lines. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:699`; `apps/dollywood.html:1086`
 - **What happens now.** Five Mark done taps on the last Entrance steps (tick, tick, untick, tick, untick) posted 3 lines to the family feed that Home and the TV read, including "Ticked Blueprint the section" twice, although that step ended unticked (`apps/dollywood.html:1086`).
 - **Why it matters.** The feed fills with ticks and unticks.
@@ -5780,7 +5810,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-12 — The plot width accepts implausible values without comment
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The plot width validates 50-2,000 m: 10, 49, 2001, 0 and -5 show a role=alert line and save nothing; 50, 2000 and 640 save; typing 1200 key by key writes once, as 1200; 2500 never stores 250; "500e" is invalid (guide-b-9, sections UX-DOLLYWOOD-12 and review R1). Before: 12,500 m read "1363% of real size". After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:702`; `apps/dollywood.html:673`; `audits/screens/dollywood/scale-overflow-iphone-pwa-light.png`
 - **What happens now.** 12,500 m reads "1363% of real size (13.631×)". The input has only `min=50`, which typing does not enforce (`apps/dollywood.html:673, 1049-1052`).
 - **Why it matters.** Implausible values are accepted.
@@ -5789,7 +5820,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-13 — The "Unlisted structure" card offers web search with an empty query
 
-- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The unlisted-structure card searches for something: search value "" → "Dollywood building Timber Canyon" (layout-checks ipad.unlistedBuilding before and after; the buttons read Web, Photos, Videos, dollywood.com without glyphs). After: `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__layout-checks.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:705`; `apps/dollywood.html:987`; `audits/screens/dollywood/building-typical-iphone-pwa-light.png`
 - **What happens now.** `srch(t.name || '')` (`apps/dollywood.html:987`) leaves the search box empty next to Web / Photos / Videos / dollywood.com buttons.
 - **Why it matters.** Web search opens empty.
@@ -5798,7 +5830,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-4 — Profile axis labels render at 5.7 px on the phone
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Profile axis labels: 5.7 px → 14.7 px at 430 wide (layout-checks phone.profileAxisLabels) and 11.0 px at 390, still 11.0 after a resize (look-a-9 section 15). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__layout-checks.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:726`; `apps/dollywood.html:936`; `audits/screens/dollywood/cross-section-typical-iphone-pwa-light.png`
 - **What happens now.** `font-size` 12 inside a 1000-wide viewBox (`apps/dollywood.html:936`), drawn 372 px wide. The checker saw illegible smudges.
 - **Why it matters.** 5.7 px labels on the phone.
@@ -5807,7 +5840,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-6 — The glass look sits on content (header, side panel), and cards read through to the map
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Content glass is gone: GLASS/layers, build guide, jobs with content on a live blur 196 of 409 (48 %) → 13 (3 %), all of them "Back to map", a floating button over the 3D view (a control, so allowed); live layers median 2 → 1. look-a-9 section 10: toolbar blur only, 0 on content at 390, 820 and 1440. Not checked: the real backdrop blur (the rig has none). After: `audits/evidence/p6/911/p4tools/out/GLASS_layers.txt`, `audits/evidence/p6/911/p4tools/before/base910-GLASS_layers.txt`, `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:732`; `apps/dollywood.html:234`; `audits/screens/dollywood/listing-typical-ipad-landscape-dark.png`, `audits/screens/dollywood/coaster-typical-desktop-light.png`
 - **What happens now.** The header, toolbar and side panel carry the specular glass gradient (`apps/dollywood.html:234, 245, 249`) with no backdrop blur. On the iPad only the readout and the dead N button have blur; on the phone the sticky toolbar and the sheet do.
 - **Why it matters.** Glass on content.
@@ -5816,7 +5850,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-8 — Default form controls, `confirm()` / `alert()` and text-glyph buttons
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** M · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** M · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Native-looking controls are drawn: the basemap select (appearance none), number fields without spinners, the search field with its own x, layer checkboxes as the 52 x 32 shared switch, no bare glyph button, 47 sprite icons (look-a-9 section 12), and the reset and import confirms are the hub's sheet (guide-b-9 section 03). ICON/static, build guide: sprite uses 0 → 27, text glyphs 53 → 33 (all running text: × in sizes, ±, "…", the key names), emoji 7 → 2 (® and ™ inside a regex). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/p4tools/out/ICON_static.txt`, `audits/evidence/p6/911/p4tools/before/base910-ICON_static.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:739`; `apps/dollywood.html:1098`, `apps/dollywood.html:1101`; `audits/screens/dollywood/layers-typical-ipad-portrait-light.png`, `audits/screens/dollywood/scale-typical-ipad-portrait-dark.png`
 - **What happens now.** Native selects (`#bmap`, `#cint`, `#hf`), checkboxes, range and number inputs with spinners, and a search field with the browser's clear glyph. `confirm()` at `apps/dollywood.html:1098` and `alert()` at `apps/dollywood.html:1101`. Buttons drawn as glyphs: …, ?, ×, ↗, ▾; the iPad and desktop toolbar is all text.
 - **Why it matters.** Default controls and native dialogs.
@@ -5825,7 +5860,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-9 — Flat green bands where a basemap does not fill the frame
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The phone map fills its box (xMidYMid slice, look-a-9 section 6) so the flat green band under the basemap is gone. Not separately checked: the Upright wedges and the aerial and steepness basemaps in the captures. After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/screens-after/910/dollywood/aerial-typical-iphone-pwa-dark.png`, `audits/screens-after/910/dollywood/upright-typical-desktop-light.png`.
 - **Evidence.** `audits/03-apps/dollywood.md:742`; `apps/dollywood.html:284`; `audits/screens/dollywood/aerial-typical-iphone-pwa-dark.png`, `audits/screens/dollywood/upright-typical-desktop-light.png`
 - **What happens now.** The phone map box is taller than the map's aspect ratio, so its `#4F6A48` background (`apps/dollywood.html:284, 348`) shows as a band under the aerial, illustrated and steepness basemaps, and as wedges with Upright on. From the visual check: on the phone, Upright also shows a diagonal raster edge over the band.
 - **Why it matters.** Flat green bands.
@@ -5834,7 +5870,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-10 — The header wraps badly on iPad landscape
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The header is one row on the iPad: art, title block and facts share a row at 820, 1180 and 1440; on iPad landscape the art to title gap 433 px (519 in the finding) → 15 px and the header 227 px → 130 px (layout-checks ipadL.header before and after; look-a-9 section 17). The portrait stat wrap (UNFILED-1) is in the same fix. The h1 is kept for screen readers and not drawn in the hub. After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__layout-checks.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:745`; `audits/evidence/p3/dollywood/ipad-landscape-header.png`, `audits/screens/dollywood/map-loading-ipad-landscape-light.png`
 - **What happens now.** The hero art ends at x=171 and the title starts at x=690, a 519 px gap; the stats wrap below; the header is 213 px tall.
 - **Why it matters.** A 519 px gap and a wrapped header.
@@ -5843,7 +5880,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-11 — The 3D gesture hint is truncated on phones and lists keyboard keys
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The 3D hint on touch is "Drag to turn · pinch to zoom" and wraps: the readout was 570 px of text in 266 px (truncated, listing arrows, WASD and Q/E) → whole (guide-b-9: no keys, wraps instead of scrolling, iPhone and iPad). After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood__layout-checks.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:748`; `audits/screens/dollywood/view-3d-typical-iphone-pwa-light.png`
 - **What happens now.** The readout has a scroll width of 570 in 274 px on a coarse pointer, and it mentions "arrows or WASD" and "Q/E".
 - **Why it matters.** A truncated hint that lists WASD.
@@ -5852,7 +5890,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-13 — Layer legend swatches vanish on the light panel
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Not fixed visibly. The template draws the legend swatches as 16 x 4 px bars with a ring, but in layers-typical-ipad-portrait-light the pale swatches (Contours, Dollywood Express, Guest paths, Official listings, Section names) still nearly vanish on the white panel; no check measures them (the rig's graphics-below-3:1 count for the guide is 0 because it does not see these spans). Left: a visible ring or a darker swatch for the pale ones. After: `audits/screens-after/910/dollywood/layers-typical-ipad-portrait-light.png`.
 - **Evidence.** `audits/03-apps/dollywood.md:754`; `apps/dollywood.html:664`; `audits/screens/dollywood/layers-typical-ipad-portrait-light.png`, `audits/screens/dollywood/about-typical-ipad-portrait-light.png`
 - **What happens now.** In Layers, the Section names swatch is an inline `#FFF8E6` (`apps/dollywood.html:664`) on a cream panel, about 1:1. Official listings looks the same, and the Contours, Dollywood Express and Guest paths swatches are pale yellow. Below the 3:1 floor for non-text.
 - **Why it matters.** Swatches vanish.
@@ -5861,7 +5900,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-14 — The measure label is thin, small and unhaloed over the map
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The measure label is a haloed pill at 11.0 px ("277 m · 121 m in game" at 390, "322 m · 141 m in game" at 820), look-a-9 section 15. After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/screens-after/910/dollywood/measure-typical-ipad-landscape-light.png`.
 - **Evidence.** `audits/03-apps/dollywood.md:757`; `audits/screens/dollywood/measure-typical-ipad-landscape-light.png`
 - **What happens now.** "555 m · 242 m in game" is small regular text straight on the terrain, with no pill or halo; the section labels get heavy haloed caps.
 - **Why it matters.** Thin, small, unhaloed text on the map.
@@ -5870,7 +5910,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-15 — Listing labels collide with markers and each other at section zoom
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Listing labels go through a collision pass: at Showstreet 56 labels, none over another label (look-a-9 section 16). 2 labels still sit over a foreign marker, and the rescore saw labels crossing boundary lines at section zoom (pairs/section-typical-ipad-landscape-light). Left: halo every label and drop the colliding ones. After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/evidence/p6/911/rescore/dollywood-guide.md`.
 - **Evidence.** `audits/03-apps/dollywood.md:760`; `audits/screens/dollywood/section-typical-ipad-landscape-light.png`
 - **What happens now.** In the Showstreet view, "Ride Accessibility Center" is drawn over marker 8, "TimeSaver & Special Experiences Reservation Center" runs across two buildings, and "126 Dreamsong Theater" overlaps its neighbour.
 - **Why it matters.** Labels collide at section zoom.
@@ -5879,7 +5920,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-16 — The phone 3D view is mostly sky
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The phone 3D camera frames the terrain above the sheet: sky 0 % of the view (limit 15 %; cover 0.015) at sheet top 718 (guide-b-9); before about 40 % was empty sky. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/screens-after/910/dollywood/view-3d-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/dollywood.md:763`; `audits/screens/dollywood/view-3d-typical-iphone-pwa-light.png`, `audits/evidence/p3/dollywood/phone-3d-after-second-tap.png`
 - **What happens now.** The camera frames the park in the lower third; about 40% is empty sky, and the nearest terrain disappears under the sheet. It is also the screen P3-DOLLYWOOD-04 leaves the person on.
 - **Why it matters.** Mostly sky.
@@ -5888,7 +5930,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-17 — The desktop toolbar wraps Search onto a near-empty second row
 
-- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** At 1440 the toolbar's Search group flexes into the first row (712 px wide, look-a-9 section 17). After: `audits/evidence/p6/911/tests/repro-after/p6-9__look-a-9.txt`, `audits/screens-after/910/dollywood/map-typical-desktop-light.png`.
 - **Evidence.** `audits/03-apps/dollywood.md:766`; `audits/screens/dollywood/map-typical-desktop-light.png`, `audits/screens/dollywood/search-none-typical-desktop-dark.png`
 - **What happens now.** At 1440 px the first row ends with about 100 px of space after Terrain, and Search sits alone on a second row with about 800 px of space. Its "SEARCH" label touches the field's focus ring when focused.
 - **Why it matters.** Search alone on a second row.
@@ -5897,7 +5940,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-SHAPE-3 — The build guide's Listings / Layers / Scale switcher is square underline tabs
 
-- **Area** design system (build guide) · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** design system (build guide) · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Listings / Layers / Scale is the shared segmented control (look-a-9 and the captures: "aside.side > div.tabs.segmented", a visible track with a capsule selection; before 262 x 52 square underline tabs, radius 0). SHAPE/analyze: large radii on tokens 94.1 % → 94.6 %. After: `audits/screens-after/910/dollywood/layers-typical-ipad-portrait-light.png`, `audits/evidence/p6/911/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/911/rescore/dollywood-guide.md`.
 - **Evidence.** `audits/04-design-system.md:2335`; `apps/design.css:465-468`; `audits/evidence/p4/SHAPE/sheet-buttons.png`
 - **What happens now.** The side-panel tabs are 262×52 buttons with `border-radius: 0` and a 2 px underline, a Material and web idiom, inside an R20 panel (`template.html:55-57, 250`). The shell uses a rounded `.seg` segmented control (`apps/design.css:465-468`), and F260 a glass pill switch, for the same job.
 - **Why it matters.** A web tell, on the app that already scores lowest for layout.
@@ -5906,7 +5950,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-TELL-1 — Light themes open the build guide on a near-black frame
 
-- **Area** design system (build guide) · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** design system (build guide) · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A light house opens the guide without a dark frame: TELL/flash scenario C (light OS, System theme, hub.js immediate): palette flash true → false; the brightest frame 95 % light (meanL 0.858) then a settle to 0.608 → a flat 0.53-0.52 / 0.58 from the first frame. The same scenario for the park map still flashes (flash true before and after: a bright first frame, settling to 0.25), outside this entry and left. After: `audits/evidence/p6/911/tests/repro-after/phase4__TELL__flash.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase4__TELL__flash.txt`.
 - **Evidence.** `audits/04-design-system.md:6384`; `apps.json:9-10`, `index.html:722`, `index.html:331`, `apps/dollywood.html:2`
 - **What happens now.** With a light OS and the System theme, and `hub.js` immediate (scenario C), the build guide shows about 240 ms of dark frames (mean luminance 0.23-0.30) before it settles light (0.545).
 - **Why it matters.** It is a flash in the other direction: a black frame in a light house.
@@ -5915,7 +5960,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-TYPE-2 — The Dollywood template tells labels from values by ink alone (dt and dd both 13/400; profile stats 12.5/700), and the difference shrinks to 1.62:1 in Midnight
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 9
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 9 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Labels and values are told apart by more than ink in the key/value lists (dl.kv dt uses --text-label, dd uses --text-value; stat labels --fs-caption1 against a --fs-title1 bold value). TYPE/colour-only.mjs crashes before and after (a tool bug), so the finding's 14 pairs in the guide and 1 in the park map were not re-counted. After: `audits/evidence/p6/911/tests/repro-after/phase4__TYPE__colour-only.txt`, `audits/evidence/p6/911/rescore/dollywood-guide.md`.
 - **Evidence.** `audits/04-design-system.md:1526`; `audits/screens/dollywood/cross-section-typical-ipad-portrait-light.png`
 - **What happens now.** Sibling texts with the same family, size, weight and transform differ only in ink: 14 pairs in the build guide and 1 in the park map (Table TYPE-8). The clearest is the key/value list: `dl.kv dt` and `dd` are both 13/400 ui-rounded, with ink `--dim` against `--text`.
 - **Why it matters.** Low-vision readers, and anyone in bright park sunlight, lose a distinction carried only by grey levels. In dark palettes it nearly disappears.
@@ -5924,7 +5970,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-14 — If the display profile loads the file by URL, it is offered Mark done, Reset and Import
 
-- **Area** dollywood · **Type** usability · **Severity** info · **Effort** S · **Batch** 9
+- **Area** dollywood · **Type** usability · **Severity** info · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The display profile loading the file by URL gets no Mark done (card or bar), no Reset, no Import and a read-only plot; Previous, Next and Show on map stay (guide-b-9 UX-DOLLYWOOD-14, 2 checks). After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood.md:708`
 - **What happens now.** A tap gives the toast "This screen only looks — sign in on a phone to change things." and writes 0 rows. The kiosk has no tile, and `#dollywood` gives a toast, so it cannot normally get here.
 - **Why it matters.** The kiosk is offered actions it cannot take.
@@ -5933,7 +5980,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-14 — Search's "rider height: up to N" filter hides every listing with no height requirement (carousel, train, playgrounds) (from the completeness critic) (pointer to P3-DOLLYWOOD-06)
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 9
+- **Area** dollywood-live · **Type** bug · **Severity** medium (pointer) · **Effort** S · **Batch** 9 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Pointer to P3-DOLLYWOOD-06: the park-map export carries the same fixed rider-height filter (guide-b-9: "the park map export carries the same fixed listItems filter"); layout-checks-9 up to 36″ 9 → 129. After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`, `audits/evidence/p6/911/tests/old-scripts-9/layout-checks-9.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:480`; `apps/dollywood-live.html:1541`, `apps/dollywood.html:1007`, `apps/dollywood-live.html:1007`, `apps/dollywood-live.html:1012`; `audits/evidence/p3/dollywood-live/critic-search-height-36-iphone.png`, `audits/evidence/p3/dollywood-live/verify-critic-search-height-filter-hides-no-requirement-3-1-36-iphone.png`
 - **Proposed fix.** Pointer to P3-DOLLYWOOD-06 (one template fix, both exports). (Phase 3: IMP-DOLLYWOOD-LIVE-P11)
 
@@ -5943,13 +5991,16 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 | ID | Improvement | Kind | Delight | Effort | Source | Status |
 |---|---|---|---|---|---|---|
-| IMP-DOLLYWOOD-I1 | A section-complete moment: a calm check and "Showstreet done — 21 steps" when a section fills (a completion cue for the builder, not a reward system) | idea | 3 | S | `audits/03-apps/dollywood.md:964` | open |
+| IMP-DOLLYWOOD-I1 | A section-complete moment: a calm check and "Showstreet done — 21 steps" when a section fills (a completion cue for the builder, not a reward system) | idea | 3 | S | `audits/03-apps/dollywood.md:964` | FIXED (`b346916`) |
+
+- **IMP-DOLLYWOOD-I1 — Phase 6 (FIXED).** A section-complete moment: the last step of a section toasts "<Section> done — 26 steps" once, its chip shows a check that settles in (off under Reduce Motion), nothing on load (11 finished sections carry the check with no toast or settle) and no extra feed line (guide-b-9 IMP-DOLLYWOOD-I1, 8 checks). After: `audits/evidence/p6/911/tests/repro-after/p6-9__guide-b-9.txt`.
 
 ### Batch 10 — Dollywood park map (42)
 
 #### GAP-DOLLYWOOD-LIVE-1 — No Find-My-style arrival or leave alerts
 
-- **Area** dollywood-live · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 10
+- **Area** dollywood-live · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 10 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** The arrival half is built; the "left the park" half is deferred by the plan (a web page cannot read location in the background). A minute job tells the other household adults "<name> reached the meeting point" once per person per meeting point (within 40 m, accuracy 60 m or better), on by default as push_pref:arrive in Me → Notifications; a failed delivery is retried for 15 minutes and at most 5 times. test-push2 97 → 124 (arrive once, not twice; none with the switch off, for a guest, a kid or someone already there; the retry limits), test-park now 24, smoke-api 436 → 445. Device: the push arriving on a second iPhone as someone walks to the pin. After: `audits/evidence/p6/911/tests/suites/test-push2.txt`, `audits/evidence/p6/911/tests/suites/test-park.txt`, `audits/evidence/p6/911/tests/smoke-api.txt`.
 - **Verified (step 3).** was medium; skeptics low and medium; tie-break medium. Correction: The claims are accurate. Only the rating is too high: medium should be low, since checking the live map or Family pane is a reasonable workaround and the related defects are filed and rated on their own.
 - **Evidence.** `audits/03-apps/dollywood-live.md:687`
 - **What happens now.** No Find-My-style arrival or leave alerts (medium). Nothing tells a parent "Mae reached the meeting point" or "Ezra's phone left the park". The only proximity signal is the server's stale-kid push, which barely fires (P2-PWA-02), and the "Meet at <name>" push cannot be sent (P2-PWA-18).
@@ -5959,7 +6010,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P2-PWA-18 — "Rally the family" (the "Meet at <name>" push) cannot be triggered from any UI
 
-- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** shell / platform · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Rally is on the meeting bar for household adults (a 44 px button; asks "Rally the family to <name>?"; posts name, x, y and note; the result line reads "Rallied 3 · set by you just now", the 0-sent, 429 and error wordings; rests 60 s). verify3-rally-unreachable-1-10: Rally controls in the UI 0 → 2, "Rally is reachable from the UI (the finding is fixed)"; park-d-10 section 1 16 checks (before 18 failed or crashed). The original script crashes on a renamed function. Not checked: the "Meet at" push arriving on a second iPhone. After: `audits/evidence/p6/911/tests/repro-after/p6-10__verify3-rally-unreachable-1-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__verify3-rally-unreachable-1-10.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`.
 - **Evidence.** `audits/02-shell.md:4738`; `apps/dollywood-live.html:1589`, `apps/dollywood.html:1719`, `apps/dollywood-live.html:1440`, `worker/src/index.js:132-139`
 - **What happens now.** `rally()` is defined at apps/dollywood-live.html:1589 and apps/dollywood.html:1719. It posts to `POST /api/dollywood/rally`, but nothing calls it. The other "rally" matches in each file are a comment (:1577 / :1707) and the confirm text (:1591 / :1721).
 - **Why it matters.** CLAUDE.md ("Rally the family"; Push: "on demand 'Meet at <name>' when an adult rallies the family from the park map") documents the push as working. So does the map repo's README.md:182.
@@ -5968,7 +6020,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-03 — On a device's first open, the map says you are not sharing though Share my spot is on, and never locates you
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** On first open a watch starts without a tap and the pill never says "not sharing" while Share is on (park-c-10 section 1, 3 checks, after 08:07 New York). The before run of that section was skipped (its seed row was dated ahead of the clock), so there is no claims-script before; the Phase 3 originals read the same in this rig (the pre-pull state is hard to hold) and were not used as a measure. Device: GPS in the park. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-first-open-gps-not-resumed-2.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:206`; `apps/dollywood-live.html:1486`, `index.html:459`, `apps/hub.js:334`, `apps/hub.js:334-337`; `audits/evidence/p3/dollywood-live/geo-first-open-iphone.png`, `audits/evidence/p3/dollywood-live/verify-first-open-gps-not-resumed-1-A-first-open.png`
 - **What happens now.** `hub.ready` resolves at once because another channel has already been pulled (`apps/hub.js:334-337`). `liveInit` then runs `if(shareOn())startGps()` (`apps/dollywood-live.html:1486`) before the person-scope `share` row arrives, so `shareOn()` is false.
 - **Why it matters.** A parent who switched on sharing is told, on the phone they just opened at the park, that only they can see their dot, and the family cannot see them until they tap Find me.
@@ -5977,7 +6030,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-04 — After you locate yourself, the meeting-point bar has no walk time and no Go, and does not heal on its own
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** After a fix the meeting bar shows the walk time and Go at once: meta "set by Mae 12 min ago" with Go hidden → "2 min walk · set by Mae 12 min ago" with Go shown; the bar healed after 8 s → 0 s (verify-meet-bar-stale-after-place-1); park-c-10 section 2. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-meet-bar-stale-after-place-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-meet-bar-stale-after-place-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:231`; `apps/dollywood-live.html:1484`, `apps/dollywood-live.html:1245`, `apps/dollywood-live.html:1579`, `apps/dollywood-live.html:1256`; `audits/evidence/p3/dollywood-live/verify-meet-bar-stale-after-place-1-A-after-place.png`, `audits/evidence/p3/dollywood-live/verify-meet-bar-stale-after-place-1-B-after-45s-idle.png`
 - **What happens now.** `setMe()` calls `drawMe`, `updLoc`, `renderNear`, `renderFam` and `publish`, but not `renderMeet` (`apps/dollywood-live.html:1245`). `renderMeet` is called only from `loadMeet`, `setMeet` and `clearMeet` (`apps/dollywood-live.html:1579, 1587, 1588`).
 - **Why it matters.** The moment after "where am I?" is when a parent wants "how far to the meeting point, and Go". The bar gives neither, with no hint why.
@@ -5986,7 +6040,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-05 — An adult cannot switch on a kid's beacon or set heights until someone else is already sharing
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** An adult sees the kids' beacon switches and height fields with nobody sharing: beacon switches 0 → 2, height steppers 0 → 2 (number fields), kid list 0 → 752 characters (verify-beacon-height-controls-missing-when-nobody-sharing-1); the -10 copy of -2 and park-c-10 section 3 pass. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-beacon-height-controls-missing-when-nobody-sharing-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-beacon-height-controls-missing-when-nobody-sharing-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__verify-beacon-height-controls-missing-when-nobody-sharing-2-10.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:256`; `apps/dollywood-live.html:1254`, `apps/dollywood-live.html:1304`, `apps/dollywood-live.html:1307`, `apps/dollywood-live.html:1309`; `audits/screens/dollywood-live/family-kids-empty-ipad-portrait-light.png`, `audits/evidence/p3/dollywood-live/verify-beacon-height-controls-missing-when-nobody-sharing-1-A-eli-family-ipad.png`
 - **What happens now.** `renderFam()` returns right after the "No one else is sharing right now…" line when there are no other rows (`apps/dollywood-live.html:1304`), before the Kids' beacons block (`apps/dollywood-live.html:1307`) and before `renderKids()` (`apps/dollywood-live.html:1309`), which is its only call site.
 - **Why it matters.** The natural time to set up a child's beacon and enter heights is before the family sets off, exactly when nobody is sharing yet. On an ordinary day the seeded heights (43" and 40") cannot be seen or corrected from the map.
@@ -5995,7 +6050,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-06 — With Share my spot left on, opening the map away from the park publishes a home position, and Home says "At the park"
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A fix away from the park publishes nothing and Home does not say "At the park": verify-publish-off-site-1 with a fix at (-9000, 10000): 1 loc post, a loc:eli row, Mom's Home card "At the park · Eli · 1 at the park" and a map marker → 0 posts, no row, no card, no marker. The property box (frame + 300 m widened to hold the lots: -300..2500, -300..3510) is one test in the client, Home, chat's where_is_family and parkJob; test-park now 24 (a kid quiet in a lot still alerts), test-home 112 → 132, park-c-10 section 4. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-publish-off-site-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-publish-off-site-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/suites/test-park.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:280`; `apps/dollywood-live.html:1486`, `apps/dollywood-live.html:1475`, `apps/dollywood-live.html:1250`, `apps/dollywood-live.html:1170`; `audits/evidence/p3/dollywood-live/geo-far-mom-home-ipad.png`, `audits/evidence/p3/dollywood-live/verify-publish-off-site-1-mom-home-ipad.png`
 - **What happens now.** `publish()` writes `loc:<id>` for any GPS fix under 150 m accuracy and never checks `onProperty()` (`apps/dollywood-live.html:1250`, `onProperty` at `apps/dollywood-live.html:1170`). Home's `atPark()` counts every `loc:` row under 4 h old, with no position test (`index.html:872-877`).
 - **Why it matters.** For up to 4 hours every Home in the house, the Kitchen iPad included, says a person is "At Dollywood · last seen just now" while they are at home.
@@ -6004,7 +6060,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-07 — An old fix outside the map frame reads as a live position, with no "Last seen" and no Find me chip
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** An old fix outside the frame is no longer "live": park-c-10 section 5: on the property but out of the frame it reads "Last seen 14 h ago" with a Find me chip; the pre-batch run read "At Dollywood — beyond the mapped park" with no age. The Phase 3 originals now see the rig's denied-location state instead (states arriving, far and stale → denied with a Set my spot chip), so they no longer exercise the old branch. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-out-of-frame-stale-reads-live-1.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__states.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:304`; `apps/dollywood-live.html:1250`, `apps/dollywood-live.html:1478`, `apps/dollywood-live.html:1270-1274`, `apps/dollywood-live.html:1264`; `audits/evidence/p3/dollywood-live/states-arriving.png`, `audits/evidence/p3/dollywood-live/states-far.png`
 - **What happens now.** In `updLoc()`, the "arriving" and "far" branches (`apps/dollywood-live.html:1270-1274`) never consult the computed `stale` flag (`apps/dollywood-live.html:1264`); only the in-frame branch does (`apps/dollywood-live.html:1279`).
 - **Why it matters.** Reopening the map the next morning, a parent sees "At Dollywood — the parking lots" with a precise "± 30 ft", as if they were arriving now.
@@ -6013,7 +6070,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-08 — Tapping a restroom, first-aid, AED or other amenity marker does nothing
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Amenity markers open their card: verify-amenity-tap-dead-1: popShow false → true ("Restrooms", "AED", "AED · survey"); park-c-10 section 6. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-amenity-tap-dead-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-amenity-tap-dead-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:328`; `apps/dollywood-live.html:1571-1573`, `apps/dollywood-live.html:1566`, `apps/dollywood-live.html:844`, `apps/dollywood-live.html:1574`; `audits/evidence/p3/dollywood-live/verify-amenity-tap-dead-1-after-tap.png`, `audits/evidence/p3/dollywood-live/verify-amenity-tap-dead-1-control-showAmen.png`
 - **What happens now.** `drawAmen` writes `data-pick="a:<kind>:<x>:<y>"`. `pick()` splits it with a two-part destructure, `const [k,v]=elm.dataset.pick.split(':')` (`apps/dollywood-live.html:844`), so `v` is only the kind and x and y come out undefined; no amenity matches, and `showAmen` (`apps/dollywood-live.html:1574`) is never reached.
 - **Why it matters.** A parent tapping the restroom or first-aid marker nearest a child gets nothing, and an AED location can only be seen, not opened.
@@ -6022,7 +6080,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-09 — Every tap of the compass jumps the view to the Entrance, and the first tap does not rotate anything
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The compass rotates the current view in place: the first tap presses and rotates (ROT 0 → -98.71) and the view no longer jumps to the Entrance (scale ratio 1.92 → kept; verify-compass-jumps-to-entrance-2: "same as the Entrance view" true → false); park-c-10 section 7. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-compass-jumps-to-entrance-2.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-compass-jumps-to-entrance-2.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:352`; `apps/dollywood-live.html:1246`, `apps/dollywood-live.html:1398`, `apps/dollywood-live.html:1029`, `apps/dollywood.html:1029`; `audits/evidence/p3/dollywood-live/functional-compass-after.png`, `audits/evidence/p3/dollywood-live/measure-after-compass-ipad.png`
 - **What happens now.** `#lv-north` toggles the hidden `#l-upright` checkbox and fires its change handler (`apps/dollywood-live.html:1467`), which sets the rotation and then fits `SEC[curSec]` (`apps/dollywood-live.html:1029`).
 - **Why it matters.** A parent tapping the compass to get their bearings is thrown to the entrance and parking area, away from where they were looking and from the family's markers.
@@ -6031,7 +6090,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-10 — On iPhone the pill cuts off the location-denied instructions before "or use Set my spot" (from the visual check)
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The denied pill wraps and shows its action: the second line was 311 px of text in 173 (56 % visible) → 177 of 177 (100 %), with "Set my spot" beside it (verify-vis-pill-and-meeting-bar-ellipsis-1-2; park-c-10 sections 8 and 21 at 390 and 430, adult and kid; the chip reads 5.95:1 and 6.08:1 on its fill). After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-vis-pill-and-meeting-bar-ellipsis-cuts-off-the-locat-1-2.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-vis-pill-and-meeting-bar-ellipsis-cuts-off-the-locat-1-2.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:377`; `apps/dollywood-live.html:399`, `apps/dollywood-live.html:516-517`, `apps/dollywood-live.html:613`, `apps/dollywood-live.html:1404-1405`; `audits/evidence/p3/dollywood-live/denied-adult-iphone.png`, `audits/screens/dollywood-live/kid-typical-iphone-pwa-light.png`
 - **What happens now.** The pill title and subtitle are single lines with an ellipsis (`apps/dollywood-live.html:399`), and so are the meeting bar's name and meta (`apps/dollywood-live.html:516-517`). There is no title attribute and no way to expand either (`apps/dollywood-live.html:613, 621`). On a 430 px iPhone:
 - **Why it matters.** At the moment location fails in the park, a parent reads half an instruction and sees no way forward, and the "or use Set my spot" escape route is never shown.
@@ -6040,7 +6100,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-12 — Switching a kid's beacon off while the kid's map is open does not hide the kid: the kid's phone republishes its spot and the last position stays (from the completeness critic)
 
-- **Area** dollywood-live · **Type** bug (security) · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug (security) · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Switching a kid's beacon off stops the kid's open map: the kid's watch true → false, pill "good" → "idle", the loc row is a tombstone and the parent's marker drops (verify-critic-kid-beacon-off-republished-1-2; park-c-10 section 9 "the watch stops within one pull"). The script's own republish counter reads 1 s after the switch (before the pull reaches the kid), then the tombstone stands. After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-critic-kid-beacon-off-republished-1-2.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-critic-kid-beacon-off-republished-1-2.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:429`; `apps/hub.js:342`, `apps/dollywood-live.html:1308`, `apps/dollywood-live.html:694`, `apps/dollywood-live.html:1483`; `audits/evidence/p3/dollywood-live/verify-critic-kid-beacon-off-republished-1-2-A-mom-family-ipad.png`
 - **What happens now.** The parent's switch writes `kidshare:<kid> = false` and tombstones `loc:<kid>` (`apps/dollywood-live.html:1308`). The kid's page still has `kidshare` true in its cache until its next pull, so `publish()`, which checks only `shareOn()` (`apps/dollywood-live.html:694, 1250-1253`), writes a fresh `loc:<kid>` on the next fix, and that later …
 - **Why it matters.** A parent's deliberate choice to stop showing a 4- or 5-year-old's position is undone without any sign: the switch reads off while the child's last spot stays on every phone, the Kitchen iPad's Home card and chat for hours.
@@ -6049,7 +6110,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-13 — Switching a kid's beacon on does nothing on the kid's open map until it is closed and reopened, while the parent's switch says it is sharing (from the completeness critic)
 
-- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** medium · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Switching a kid's beacon on starts the open map locating at once: watching false → true, position source none → gps, pill "idle" ("Kiara · just looking") → "good" ("You're in Wildwood Grove"), server loc absent → present (verify-critic-kid-beacon-on-needs-reopen-2-1 and -2-2; park-c-10 section 9). After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-critic-kid-beacon-on-needs-reopen-2-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-critic-kid-beacon-on-needs-reopen-2-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:455`; `apps/dollywood-live.html:1307`, `apps/dollywood-live.html:693-694`, `apps/dollywood-live.html:1486`, `apps/dollywood-live.html:1485`; `audits/evidence/p3/dollywood-live/verify-critic-kid-beacon-on-needs-reopen-2-1-kiara-open.png`, `audits/evidence/p3/dollywood-live/verify-critic-kid-beacon-on-needs-reopen-2-1-kiara-reopened.png`
 - **What happens now.** `VIEW_ONLY()` and `shareOn()` read `kidshare` live (`apps/dollywood-live.html:693-694`), so after the pull the kid's page is no longer view-only and `shareOn()` is true.
 - **Why it matters.** At the park, a parent switches the beacon on for a child who already has the map open and expects the child's dot; nothing appears, and both switches say it is sharing.
@@ -6058,7 +6120,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-1 — Family marker labels pile into an unreadable stack with long names
 
-- **Area** dollywood-live · **Type** visual · **Severity** medium · **Effort** M · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** medium · **Effort** M · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Family labels collide-avoid and fall back to initials: park-c-10 section 10: six pills with 3 full-name overlaps at 390 and 2 at 820 → 0; two people sharing an initial read differently ("El" and "E", section 24). Final pair views: map-overflow at iPhone and iPad. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`, `audits/screens-after/910/dollywood-live/map-overflow-iphone-pwa-light.png`.
 - **Verified (step 3).** was medium; skeptics medium (partly) and medium (partly). Correction: The title and text blame long names, but the collision also happens with the real short names. In the park seed Ezra's marker hides Elizabeth's label and marker on iPad and iPhone, so exposure is wider than stated.
 - **Evidence.** `audits/03-apps/dollywood-live.md:644`; `apps/dollywood-live.html:1219-1221`; `audits/screens/dollywood-live/map-overflow-ipad-portrait-light.png`, `audits/screens/dollywood-live/meet-overflow-iphone-pwa-light.png`
 - **What happens now.** `drawFam` draws each name pill with no collision handling (`apps/dollywood-live.html:1219-1221`), unlike the ride labels. In the overflow seed 4-5 long-name pills stack around Thunderhead and the Great Tree Swing ("Kiara Seraphina Josephine" covers "Ezra Bartholomew Anderson"), and a guest's label is clipped at the …
@@ -6068,7 +6131,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### GAP-DOLLYWOOD-LIVE-2 — No wait-time history or trend
 
-- **Area** dollywood-live · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A rise or fall of 5 minutes or more against this device's own history (one sample per ride per 5 min, 90 min kept in localStorage, nothing on the Worker) shows a trend arrow, the card says "Rising · was 20 min at <time>" (park-d-10 section 6, 7 checks). Device: live waits against queue-times.com. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-d-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:688`; `apps/dollywood-live.html:1502`
 - **What happens now.** No wait-time history or trend (low). Thrill-Data shows whether a line is growing; here each wait is a single number (`apps/dollywood-live.html:1502`).
 - **Why it matters.** Whether a line is growing decides where to go next.
@@ -6077,7 +6141,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### GAP-DOLLYWOOD-LIVE-4 — Offline is the precached page and rasters plus the last pull
 
-- **Area** dollywood-live · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** feature gap · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The Style pane says what works offline ("Offline, the illustrated map, your dot and the last waits still work. Satellite and live waits need signal.") (park-d-10 section 8). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-d-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:690`; `sw.js:16`, `apps/dollywood-live.html:696`, `sw.js:15`, `scripts/bump-sw.mjs:18`
 - **What happens now.** Offline is the precached page and rasters plus the last pull (low). The page and four rasters (relief, relief_soft, slope, illustrated_lo) are precached (`sw.js:16`); the Satellite style's `aerial.jpg` (`apps/dollywood-live.html:696`) is not, by design (`sw.js:15`, `scripts/bump-sw.mjs:18`), so Satellite has no image offline unless it was opened online earlier (not tested). Family positions are whatever the last pull brought, and there are no wider tiles.
 - **Why it matters.** Signal is patchy in the park.
@@ -6086,7 +6151,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-11 — A waits-feed ride whose name differs from the listing (the Dollywood Express) silently shows no wait
 
-- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The Dollywood Express attaches to "Dollywood Express Train Depot": rides with a posted wait 33 → 34, WALIAS {} → one alias, the Express row in the Waits list; a feed name with no listing is logged once (verify-waits-name-match-drops-1 and -2; park-d-10 section 3). After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-waits-name-match-drops-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-waits-name-match-drops-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:405`; `apps/dollywood-live.html:1493`, `apps/dollywood-live.html:1501-1502`, `apps/dollywood-live.html:1494`, `apps/dollywood-live.html:1493-1494`; `audits/evidence/p3/dollywood-live/waits-normal-iphone.png`, `audits/evidence/p3/dollywood-live/verify-waits-name-match-drops-1-seeded-waits-iphone.png`
 - **What happens now.** `loadWaits` attaches a feed ride only when its normalised name (`wnorm`, `apps/dollywood-live.html:1493`) equals an attraction listing's exactly (`apps/dollywood-live.html:1501-1502`), and the alias table `WALIAS` is empty (`apps/dollywood-live.html:1494`).
 - **Why it matters.** The family's train ride shows no posted wait, with no sign that one exists.
@@ -6095,7 +6161,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-15 — After the waits feed fails, a map left open keeps showing the last waits as current, past the app's own 6 h limit (from the completeness critic)
 
-- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Waits older than 6 h are dropped everywhere through one gate: park-d-10 section 4 (7 checks: no chip on the 7 h old ride, not in Waits, Nearby, its card, the directions bar or the search chip; a fresh post brings it back); the pre-batch run failed the chip, list, card and search checks. The two Phase 3 originals throw on clock.fastForward in WebKit before and after. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-critic-waits-stale-while-open-4-2.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:507`; `apps/dollywood-live.html:1400`, `apps/dollywood-live.html:1504`, `apps/dollywood-live.html:1507-1510`, `apps/dollywood-live.html:1554-1560`; `audits/evidence/p3/dollywood-live/critic-waits-stale-7h-iphone.png`, `audits/evidence/p3/dollywood-live/verify-critic-waits-stale-while-open-4-1-A-fresh.png`
 - **What happens now.** `loadWaits` applies the 6 h cache limit only inside `if(!WAITS.at)` (`apps/dollywood-live.html:1504`), that is, only when nothing has loaded since the map opened. After one success, each failure sets `WAITS.err` and keeps `WAITS.by`, however old.
 - **Why it matters.** On a patchy park network, the Next-ride hero can steer the family to a ride using the morning's waits.
@@ -6104,7 +6171,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-16 — A kid with his beacon on gets a "Share my spot" switch that cannot be switched off: it snaps back on and his spot is republished (from the completeness critic)
 
-- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A kid with the beacon on never sees the Share switch ("Your beacon is on — a grown-up can switch it off"): switchShown true → false and no republish after an untick (verify-critic-kid-share-switch-noop-5-1/-5-2 and their -10 copies; park-c-10 section 9). After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-critic-kid-share-switch-noop-5-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-critic-kid-share-switch-noop-5-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__verify-critic-kid-share-switch-noop-5-1-10.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:532`; `apps/dollywood-live.html:1300-1301`, `apps/dollywood-live.html:693`, `apps/dollywood-live.html:1310-1313`, `apps/dollywood-live.html:694`; `audits/evidence/p3/dollywood-live/critic-kid-share-switch-ezra-iphone.png`, `audits/evidence/p3/dollywood-live/verify-critic-kid-share-switch-noop-5-1-b-after-untick.png`
 - **What happens now.** `renderFam` shows the Share switch to any writer who is not view-only (`canShare`, `apps/dollywood-live.html:1300-1301`), and a kid whose beacon is on is not view-only (`apps/dollywood-live.html:693`). Unticking runs `setShare(false)`: it writes person `share=false` and tombstones `loc:<kid>` (`apps/dollywood-live.html:1310-1313`).
 - **Why it matters.** The switch looks as if the child can stop sharing, briefly deletes his marker for the parents, then quietly republishes it.
@@ -6113,7 +6181,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-17 — On a location denial the error handler bypasses the app's designed "denied" state, so no Set my spot chip appears until the app is backgrounded (from the completeness critic)
 
-- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A denied location shows the designed state at once: state "searching" → "denied", glyph 🧭 → none, Set my spot chip hidden → shown, wording "Allow Location for the Hub in Settings › Safari, or use Set my spot" (verify-critic-denied-designed-state-bypassed-6-1; park-c-10 section 8). After: `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-critic-denied-designed-state-bypassed-6-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__verify-critic-denied-designed-state-bypassed-6-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:557`; `apps/dollywood-live.html:1404-1405`, `apps/dollywood-live.html:1408`, `apps/dollywood-live.html:1267`, `apps/dollywood-live.html:1257-1258`; `audits/evidence/p3/dollywood-live/verify-critic-denied-designed-state-bypassed-6-1-eli-iphone-pwa-denied.png`, `audits/evidence/p3/dollywood-live/verify-critic-denied-designed-state-bypassed-6-1-eli-iphone-pwa-after-visibility.png`
 - **What happens now.** For error code 1 the `watchPosition` handler writes "Location is off for this site" and the long Settings hint into `#loc-sec` and `#loc-acc`, then returns without calling `updLoc()` (`apps/dollywood-live.html:1404-1405`).
 - **Why it matters.** At the moment location fails in the park, the pill offers no action, although the app has a designed state for exactly this. On an iPhone the Nearby pane's Set my spot button sits just below the fold of the peek sheet.
@@ -6122,7 +6191,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-DOLLYWOOD-LIVE-18 — While the map stays open, the meeting point never expires and its "set by … N min ago" age never updates (from the completeness critic)
 
-- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The meeting pin drops at 2 h with the map open and its age updates (loadMeet every 30 s while visible): park-d-10 section 2 (still there at 1 h 59 m 48 s; pin, bar and route end gone after 2 h); before the pin, the bar (pins: 1) stayed. The two Phase 3 originals throw on clock.fastForward in WebKit before and after. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__verify-critic-meet-point-never-expires-while-open-7-2.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:582`; `apps/hub.js:292-298`, `apps/dollywood-live.html:1475-1476`, `apps/dollywood-live.html:1579`, `apps/dollywood-live.html:1256`; `audits/evidence/p3/dollywood-live/critic-meet-expiry-iphone.png`, `audits/evidence/p3/dollywood-live/verify-critic-meet-point-never-expires-while-open-7-1-C-plus2h10.png`
 - **What happens now.** `loadMeet` applies the 2 h expiry and calls `renderMeet`, which computes the age with `agoOf` (`apps/dollywood-live.html:1579, 1583-1584`). Both run only at start and from `loadFam` when another device changes a family row (`apps/dollywood-live.html:1256, 1483`).
 - **Why it matters.** "12 min ago" on a 2-hour-old meeting point can send a parent to a place the family left long ago.
@@ -6131,7 +6201,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P4-ACCENT-06 — With north-up pressed, the compass fills with the person's `--accent-deep`: its 9 px red "N" drops to 1.0-2.45:1 for every profile, and its red needle to 1.0-1.5:1 in dark
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The pressed compass keeps readable glyphs: ACCENT/verify-park-north-n-on-accent-2 across 42 profile x palette cases: "N" under 4.5:1 21 → 0, minimum 3.67 → 5.68:1, token contrast 6.0-9.55 → 6.0-11.03; park-c-10 section 11: N 7.54-11.42:1 and needle 6.0-9.55:1 in all six palettes. After: `audits/evidence/p6/911/tests/repro-after/phase4__ACCENT__verify-park-north-n-on-accent-2.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase4__ACCENT__verify-park-north-n-on-accent-2.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/04-design-system.md:5591`
 - **What happens now.** The fill wins on specificity. `[data-flavor=live] button[aria-pressed=true]{background:var(--accent-deep)}` (template `:225`, specificity 0,2,1) beats `.lv-north`'s glass (`:417`, 0,1,0) once the button is pressed (`:1595`). The glyphs are fixed red.
 - **Why it matters.** North-up is the orientation aid on a rotated park map. When it is switched on, its own label all but vanishes.
@@ -6140,7 +6211,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P4-ICON-04 — The map compass's north needle is a fixed `#FF6B4A`: 2.24-2.75:1 in the three light palettes
 
-- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** design system, all areas · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The compass needle reads a map-north token; park-c-10 section 11 gives needle 9.55, 8.93, 9.55, 6.23, 6.0 and 6.45:1 in Hearth, Parchment, Frost, Midnight, Forest and Graphite (the fixed #FF6B4A was 2.24-2.75:1 in the three light palettes). The ICON measure tool does not list the needle, so its summary is not the evidence. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-after/phase4__ICON__report.txt`.
 - **Evidence.** `audits/04-design-system.md:2878`; `apps/dollywood-live.html:620`, `apps/dollywood.html:620`, `apps/dollywood.html:313`; `audits/screens/dollywood-live/amenity-tap-typical-iphone-pwa-light.png`
 - **What happens now.** The markup. The north half of `#lv-north` is `fill="#FF6B4A"` as a literal attribute (`apps/dollywood-live.html:620`; identical at `apps/dollywood.html:620`, from `template.html:620`). It sits on the cream glass button (`var(--lv-glass-soft)`, `:417`). Measured:
 - **Why it matters.** It is the colour cue for north on a rotated map, and it fails in the normal daylight themes. CLAUDE.md allows hex only for map colours, and this is control chrome.
@@ -6149,7 +6221,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P4-MOTION-03 — Park map on a park day: four infinite pulses keep the main thread 17-28 % busy while the map sits open; the two `box-shadow` rings drive it
 
-- **Area** design system (park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** design system (park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Pulses stop after three cycles on fill-opacity: MOTION/park-live: infinite animations running 2 ("mepulse" x2) → 0, main-thread busy 2.6 % → 1.5 % (the finding's 17-28 % was Chromium; WebKit read 2.6 %); park-c-10 section 12: no ambient loop is infinite and the pulses have stopped after about 13 s. Style recalculations a second 10.7 → 17.3 (the first three cycles fall in the window). After: `audits/evidence/p6/911/tests/repro-after/phase4__MOTION__park-live.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase4__MOTION__park-live.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/04-design-system.md:3994`; `apps/dollywood-live.html:1475`, `apps/dollywood-live.html:400-401`, `apps/design.css:611-613`
 - **What happens now.** Four infinite animations run while the person is located and sharing:
 - **Why it matters.** On a park day the map is open on phones for hours, with the screen held on. A constant 17-28 % main-thread load drains batteries when the family most needs them.
@@ -6158,7 +6231,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P4-SHAPE-03 — Park map: five control rules under 44 px beyond the five P3 recorded, namely the sheet handle (22), About the data (29), the layer-toggle rows (29), the kids' height stepper (40×40) and the directions-bar buttons (40)
 
-- **Area** design system (park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 10
+- **Area** design system (park map) · **Type** bug · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The five named controls are at the tap size: sheet handle 22 → 44, About 29 → 44, layer rows 29 → 44, height stepper → a number field, directions buttons 40 → 44 (park-c-10 section 13: none under 44 at 390 and 820). verify-parkmap-targets-18-1: selectors under 44 px 13 → 4, effective 11 → 2: #meet-go 43.2 x 44 on a fine-pointer desktop, and the switches 52 x 32 inside 398 x 44 labels. After: `audits/evidence/p6/911/tests/repro-after/phase4__SHAPE__verify-parkmap-targets-18-1.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase4__SHAPE__verify-parkmap-targets-18-1.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/04-design-system.md:2107`; `apps/dollywood-live.html:1473`, `apps/dollywood-live.html:1301`; `audits/screens/dollywood-live/meet-overflow-iphone-pwa-light.png`
 - **What happens now.** The investigator's count. The rig found 18 interactive selectors under 44 in the park map's own document, 19 with an inline link, measured by element box.
 - **Why it matters.** The park map is used one-handed while walking, and the small controls are the ones most often missed. The handle is how the sheet is opened.
@@ -6167,7 +6241,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-LIVE-1 — The location-denied state is incomplete, and a kid gets adult "Settings › Safari" wording
 
-- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A kid sees a picture (map-pin-off) and "Ask a grown-up to turn on location", an adult the steps (park-c-10 section 8, Ezra and Eli at 390 and 430, 4 checks each). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`.
 - **Verified (step 3).** was medium; skeptics low and low. Correction: The facts are right, but medium is inflated. The wording is correct and actionable for the adult who is always with a 5-year-old at the park. A pre-reader is not helped by any wording, and nothing is broken or misleading, so the rating should be low.
 - **Evidence.** `audits/03-apps/dollywood-live.md:613`; `apps/dollywood-live.html:1404-1405`, `apps/dollywood-live.html:1267`; `audits/evidence/p3/dollywood-live/denied-adult-iphone.png`, `audits/evidence/p3/dollywood-live/denied-kid-iphone.png`
 - **What happens now.** The missing designed state and its Set my spot chip were filed here first; the completeness critic reclassified that part as a bug against the code's own design, and it is now P3-DOLLYWOOD-LIVE-17 (confirmed 2/2). What stays here is the wording.
@@ -6177,7 +6252,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-LIVE-2 — A view-only kid is told to tap a button that is hidden for her
 
-- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A view-only kid reads "A grown-up can show where you are." and has no Set my spot (park-c-10 section 9); before "Find yourself first: tap ◎, or use Set my spot." (verify-... states D_kidNearbyText → ""). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__dollywood-live__states.txt`, `audits/evidence/p6/911/tests/repro-before/dollywood/phase3__dollywood-live__states.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:618`; `apps/dollywood-live.html:1290`, `apps/dollywood-live.html:1485`, `apps/dollywood-live.html:1250`; `audits/evidence/p3/dollywood-live/states-kid-nearby.png`, `audits/screens/dollywood-live/kid-nearby-typical-desktop-light.png`
 - **What happens now.** Nearby's empty text reads "Find yourself first: tap ◎, or use Set my spot." (`apps/dollywood-live.html:1290`), but ◎ is hidden for view-only users (`apps/dollywood-live.html:1485`). Set my spot is still offered to her;
 - **Why it matters.** The kid is told to tap a hidden button.
@@ -6186,7 +6262,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-LIVE-4 — The build guide's engineering panels leak into the family park map
 
-- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** M · **Batch** 10
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** M · **Batch** 10 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** The Style pane no longer lists the guide's engineering layers (contours, steepness, guest paths, service roads; park-c-10 section 29) and the ride card is a family card (the Thunderhead card: Directions, "Show the track", wait, "48″ to ride", who is too short). Not checked: the card that "Show the track" opens (the template still has "Mapped track" survey markup in the live export). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/screens-after/910/dollywood-live/coaster-card-typical-ipad-portrait-light.png`.
 - **Verified (step 3).** was medium; skeptics low and low. Correction: The facts are right, but the severity is inflated. The only misleading element, the height select, is P3-DOLLYWOOD-LIVE-14. What remains is clutter in an optional card and in secondary panes, so it is low.
 - **Evidence.** `audits/03-apps/dollywood-live.md:625`; `apps/dollywood-live.html:1464`, `apps/dollywood-live.html:936`; `audits/screens/dollywood-live/coaster-card-typical-ipad-portrait-light.png`, `audits/screens/dollywood-live/search-query-typical-iphone-safari-dark.png`
 - **What happens now.** The ride card's Track button opens the guide's coaster survey card: "Mapped track 936 m" (metric beside feet elsewhere), "Ground under track 1053–1098 ft", "In Planet Coaster 2: Wooden coaster; keep the station fly-through", an OpenStreetMap disclaimer and an elevation chart.
@@ -6196,7 +6273,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-LIVE-5 — Kid mode needs reading
 
-- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** M · **Batch** 10
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** M · **Batch** 10 · **Status** PARTIAL (`b346916`)
+- **Phase 6 (PARTIAL).** Part done: a kid's pill is a picture with a grown-up line, kids see a "too short" badge with the ruler icon, switches and numbers are not read. The plan kept "ride art for kid mode" for later, so a pre-reader still gets no ride pictures in Waits. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/screens-after/910/dollywood-live/kid-typical-iphone-pwa-light.png`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: Waits rows are not left without a reason: each one prints the ride's height requirement in its subline ('55"', '48"'). What is missing is only the 'needs N"' chip that Nearby and Search show. The fade is not kid mode either.
 - **Evidence.** `audits/03-apps/dollywood-live.md:630`; `apps/dollywood-live.html:1532`; `audits/screens/dollywood-live/kid-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/kid-typical-ipad-portrait-dark.png`
 - **What happens now.** A pre-reader's pill shows "Location is off for this site / Allow Location …" (beacon on) or "Rides and the family, live / Kiara · just looking".
@@ -6206,7 +6284,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-LIVE-6 — The waits error state says the same thing twice
 
-- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** One waits error line: "Can't reach wait times · last updated 7:49 am · retrying every minute" (or "…right now · retrying…" with no earlier success), the three older wordings gone (park-d-10 section 5; before the line count was 0 and the checks failed). Later "No waits to show yet." was removed under it (park-c-10 section 27). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:635`; `apps/dollywood-live.html:1526`, `apps/dollywood-live.html:1522`; `audits/screens/dollywood-live/waits-error-iphone-pwa-light.png`, `audits/evidence/p3/dollywood-live/waits-error-iphone.png`
 - **What happens now.** Under the illustrated pin the pane says "Could not reach the wait-time feed. It retries every minute." (`apps/dollywood-live.html:1526`) and further down "Wait times are not available right now." (`apps/dollywood-live.html:1522`).
 - **Why it matters.** The same message twice.
@@ -6215,7 +6294,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-DOLLYWOOD-LIVE-7 — Kids' heights take one tap per inch from 36
 
-- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** usability · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Heights are a number field that writes once on Enter or blur and says "28 to 72 inches" out of range (park-c-10 section 14); before 7 taps and 7 writes for 43″. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:638`; `apps/dollywood-live.html:1547-1548`
 - **What happens now.** With no stored height the stepper starts from 36 and moves one inch per tap, with one family write per tap (`apps/dollywood-live.html:1547-1548`). Entering Ezra's measured 43" is 7 taps and 7 writes; 48" is 12. At the park that is a parent holding a child with one hand. A number field or a picker would take one entry.
 - **Why it matters.** Seven taps and seven writes for one height.
@@ -6224,7 +6304,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-2 — The meeting-point label collides with pucks and is clipped
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The meeting label is a haloed pill (at most 180 px, ellipsis) on a side with no puck within 40 px and clear of the floating controls: park-c-10 section 20: label inside the screen and off the fabs, compass, scale and bar at 12 tested positions (390, 430, 820; adult, kid) and section 22 at XXL (no face on the label); park-d-10 section 9. Before: label 18-39 px off the screen and under controls. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:647`; `audits/evidence/p3/dollywood-live/waits-normal-iphone.png`, `audits/screens/dollywood-live/kid-typical-iphone-pwa-light.png`
 - **What happens now.** "Meet · The Wildwood Tree" is overdrawn by the Ezra, Elizabeth and Mae pucks and cut to "Meet · The Wildw…ree" on iPhone; a long name runs off the right edge under the buttons ("Meet · TimeSaver & Special Experiences Res").
 - **Why it matters.** The label is overdrawn and clipped.
@@ -6233,7 +6314,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-3 — The ride card's ABOUT is often empty, and Track opens the raw survey card
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A family ride card: Directions and "Show the track" (sticky head with the close at the top right), the wait and the height line, no empty ABOUT; see coaster-card-typical-ipad-portrait-light. The close button is top right on amenity cards too (park-c-10 section 27). After: `audits/screens-after/910/dollywood-live/coaster-card-typical-ipad-portrait-light.png`, `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:650`; `apps/dollywood-live.html:1447`, `apps/dollywood-live.html:936`, `apps/dollywood-live.html:113-114`, `apps/dollywood-live.html:984`; `audits/screens/dollywood-live/ride-card-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/coaster-card-typical-desktop-dark.png`
 - **What happens now.** The park-day ride card folds bookkeeping into an About section (`apps/dollywood-live.html:1447`) that often holds only the dollywood.com link. Track reuses the build guide's coaster card with no sticky head or action row; on phones the ride card covers the lower map, including Whole park and Find me.
 - **Why it matters.** Empty sections and a raw survey card.
@@ -6242,7 +6324,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-4 — On iPad portrait the coaster card covers the meeting bar and runs over the search field
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** On the iPad portrait the card is a sheet below the meeting bar and clear of the search field (park-c-10 section 17; the coaster-card capture shows the bar and its Rally and Done buttons uncovered). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/screens-after/910/dollywood-live/coaster-card-typical-ipad-portrait-light.png`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:654`; `audits/screens/dollywood-live/coaster-card-typical-ipad-portrait-light.png`
 - **What happens now.** The card's top edge hides "set by Mae 12 min ago" and half of Done; its "Zoom to it" area runs into the Search input behind it.
 - **Why it matters.** The card covers the meeting bar.
@@ -6251,7 +6334,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-5 — Five control rules are under the 44 px minimum
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The listed controls are at 44 px: park-c-10 section 13 no control under 44 at 390 and 820 (before 13 selectors at 22-36 px); verify-parkmap-targets-18-1 13 → 4 selectors (see P4-SHAPE-03). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-after/phase4__SHAPE__verify-parkmap-targets-18-1.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:657`; `apps/dollywood-live.html:432`, `apps/dollywood-live.html:517`, `apps/dollywood-live.html:522`, `apps/dollywood-live.html:503`; `audits/evidence/p3/dollywood-live/waits-normal-iphone.png`, `audits/screens/dollywood-live/meet-overflow-iphone-pwa-light.png`
 - **What happens now.** Measured: Set my spot 96×36 (`measure.json` `B_targets`). The checker estimated from 1× captures the meeting bar's Done at about 33 px, the Nearby / Waits segment at about 32 and the filter chips at about 36.
 - **Why it matters.** Small targets outdoors, one-handed, in the sun.
@@ -6260,7 +6344,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-6 — Seven :hover rules are not behind a fine-pointer query
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Every :hover rule is behind (hover: hover) and (pointer: fine): 10 :hover rules in each export, 0 outside the media query (counted from the final export; the finding had 7 unguarded). After: `audits/screens-after/910/dollywood-live/map-typical-ipad-portrait-light.png`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:661`; `apps/dollywood-live.html:25`
 - **What happens now.** `button`, `.oi`, `.info a.btn`, `.bitem`, `.pop a.btn`, `.offm` and `.used a` hover rules at `apps/dollywood-live.html:25, 65, 77, 100, 124, 134, 192`; `hoverGuarded 0`. On touch a tapped button can keep its hover look.
 - **Why it matters.** Tapped buttons keep a hover look on touch.
@@ -6269,7 +6354,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-8 — The wait tiles' "MIN" label is 9.5 px white on saturated bands, failing 4.5:1 on green and amber
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The wait tiles' MIN label is 11 px or more and 4.5:1 or better on all four bands (short, medium, long, closed) in all six palettes (park-d-10 section 7, 12 checks); before it was 9.5 px white at 4.38:1 on green and 3.38:1 on amber. The original vischeck-contrast.mjs reads fixed source line numbers and no longer finds the rule, so it is not the evidence. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-d-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:667`; `apps/dollywood-live.html:500`, `apps/dollywood-live.html:501`; `audits/evidence/p3/dollywood-live/waits-normal-iphone.png`, `audits/screens/dollywood-live/waits-typical-desktop-dark.png`
 - **What happens now.** `.wtile small` is 9.5 px (`apps/dollywood-live.html:500`), below the 11 px floor. White on the short band `#1E8A4C` is 4.38:1 and on the mid band `#C77A00` 3.38:1 (`apps/dollywood-live.html:501`); the 20 px numerals pass 3:1 on every band. The bands are saturated literals, not house pastels with a deep ink.
 - **Why it matters.** The label fails contrast in the sun.
@@ -6278,7 +6364,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-9 — An underlined text link on the ride card
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The ride card's link is a 44 px capsule with the external-link icon and no underline (park-d-10 section 8: "an adult sees Park hours, shows and dining · dollywood.com with the external-link icon, 44 px"; the ride card uses the same control). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/screens-after/910/dollywood-live/ride-card-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:670`; `apps/dollywood-live.html:491`; `audits/screens/dollywood-live/ride-card-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/ride-card-typical-ipad-landscape-dark.png`
 - **What happens now.** "dollywood.com ↗" is underlined in light and dark; `.lv-link` sets no `text-decoration` (`apps/dollywood-live.html:491`).
 - **Why it matters.** A web-style link.
@@ -6287,7 +6374,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-10 — Desktop and iPad-landscape layout: 1,400 px rows and a visible edge to the map art
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** On a wide screen the tab bar is a 560 px column (park-c-10 section 29; the rescore's pass saw 1,416 px) and the map art fills the map with no hard edge or flat band (whole park fills at least 80 % of the map width). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/screens-after/910/dollywood-live/map-typical-desktop-light.png`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:673`; `audits/screens/dollywood-live/waits-typical-desktop-dark.png`, `audits/screens/dollywood-live/map-typical-desktop-light.png`
 - **What happens now.** At 1440 px the Waits rows and the meeting bar span the full width, with the facts at opposite edges. The illustrated art ends in a hard vertical edge at about x 160 on desktop and x 82 on iPad landscape, with flat green beyond.
 - **Why it matters.** Stretched rows and a hard edge to the art.
@@ -6296,7 +6384,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-11 — Placing mode shows a cut-off sliver of sheet buttons under the tabs
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Placing hides the sheet completely and offers Cancel; Cancel brings it back; the placing line takes at most two lines (park-c-10 sections 15 and 27). After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-c-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:676`; `audits/screens/dollywood-live/placing-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/placing-typical-iphone-safari-dark.png`
 - **What happens now.** Evidence: `audits/screens/dollywood-live/placing-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/placing-typical-iphone-safari-dark.png`, `audits/screens/dollywood-live/placing-typical-ipad-portrait-light.png`.
 - **Why it matters.** A cut-off row of buttons.
@@ -6305,7 +6394,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-12 — The illustrated map is one low-resolution raster that goes soft at ride zoom
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** M · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** M · **Batch** 10 · **Status** DEFERRED (`b346916`)
+- **Phase 6 (DEFERRED).** Deferred by the plan: the park map already uses the full 4000 x 5763 warp of the 2559 x 2094 official sheet, so a larger export would only upscale and no better source exists. Nothing built. After: `audits/evidence/p6/911/rescore/dollywood-park.md`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:678`; `audits/screens/dollywood-live/ride-card-typical-ipad-landscape-dark.png`, `audits/screens/dollywood-live/coaster-card-typical-ipad-portrait-light.png`
 - **What happens now.** The only illustrated asset is `apps/dollywood/illustrated_lo.jpg` (403,725 bytes; no higher-resolution illustrated file in `apps/dollywood/`). Zoomed on a ride on iPad landscape, the art is visibly blurred beside the crisp vector chips.
 - **Why it matters.** The art goes soft when zoomed.
@@ -6314,7 +6404,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-DOLLYWOOD-LIVE-13 — Whole park on iPhone leaves the park small, and the full-height sheet ghosts over the meeting bar
 
-- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** visual · **Severity** low · **Effort** S · **Batch** 10 · **Status** NEEDS DEVICE CHECK (`b346916`)
+- **Phase 6 (NEEDS DEVICE CHECK).** Whole park fits the park to the area above the sheet: park-c-10 sections 16 and 29: the park sits between the pill and the sheet, fills at least 80 % of the map width, and the art fills the map (the rescore's earlier inset is gone). Not proven: whether the full-height sheet still ghosts over the meeting bar, which depends on the real backdrop blur the rig does not have. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-c-10.txt`, `audits/screens-after/910/dollywood-live/whole-park-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:681`; `audits/screens/dollywood-live/whole-park-typical-iphone-pwa-light.png`, `audits/screens/dollywood-live/map-loading-iphone-pwa-light.png`
 - **What happens now.** Whole park leaves empty green bands above and below the park (about 150 px under the meeting bar, per the checker). At full height, the sheet slides over the meeting bar, which shows through.
 - **Why it matters.** The park is small and the bar ghosts through.
@@ -6323,7 +6414,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### GAP-DOLLYWOOD-LIVE-3 — No park hours, showtimes or dining
 
-- **Area** dollywood-live · **Type** feature gap · **Severity** info · **Effort** S · **Batch** 10
+- **Area** dollywood-live · **Type** feature gap · **Severity** info · **Effort** S · **Batch** 10 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The Style pane has a 44 px link row "Park hours, shows and dining · dollywood.com" with the external-link icon for adults and guests, hidden for kids and the display (park-d-10 section 8, 4 checks); the proposed fix was the link. The hours and shows data itself stays out of scope. After: `audits/evidence/p6/911/tests/repro-after/p6-10__park-d-10.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-10__park-d-10.txt`.
 - **Evidence.** `audits/03-apps/dollywood-live.md:689`
 - **What happens now.** No park hours, showtimes or dining (info). NOT FOUND IN CODE; reasonably out of scope for a family hub.
 - **Why it matters.** Info only.
@@ -6334,7 +6426,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-TALLY-1 — Reset to zero wipes the count in one tap, with no confirm and no undo, and pre-readers are shown it
 
-- **Area** tally · **Type** usability · **Severity** medium · **Effort** S · **Batch** 11
+- **Area** tally · **Type** usability · **Severity** medium · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Reset is one tap on a smaller soft pill (the rotate-ccw icon and the word Reset) below the - and + pair, and it now offers "Reset from 13 · Undo" for 10 s; a kid gets the same toast with a 64 px Undo (design.css). audiences-11, Ezra: 13 → 0 with dialogs [] and toast null → the same reset with toast "Reset from 13 Undo" and a live region (false → true). SHAPE/verify V4, kid iPad portrait: Reset 197 × 64 with words only → 133 × 64 with the icon. Undo pulls first and writes a new epoch holding the old total plus the taps made since (review round 1, item 2: another device's +2 between Reset and Undo left 37, now 39; a second reset before Undo → Undo refused "That count changed on another device"). test-tally: Reset + Undo 12 checks, two devices 12, Home and kid 20. Not verified: the toast and the 64 px Undo on a real iPad. After: `audits/evidence/p6/911/tests/repro-after/p6-11__audiences-11.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-11__audiences-11.txt`, `audits/evidence/p6/911/tests/suites/test-tally.txt`, `audits/evidence/p6/911/p4tools/out/SHAPE_verify.txt`, `audits/evidence/p6/911/review/11/review-r1.md`, `audits/evidence/p6/911/review/11/rev/p2-undo-race.mjs`, `audits/screens-after/11/tally/kid-typical-ipad-portrait-light.png`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: Minor: "three identical-material buttons" is not exact. Only + and Reset share the glass-strong fill. The minus button uses the lighter --glass and reads darker, and Reset is a pill, not a disc. The substance still holds: nothing about Reset (no icon, no colour) signals that it destroys the count.
 - **Evidence.** `audits/03-apps/tally.md:486`; `apps/tally.html:155`, `apps/tally.html:140`; `audits/evidence/p3/tally/kid-after-reset-ipad-portrait.png`, `audits/screens/tally/kid-typical-iphone-pwa-light.png`
 - **What happens now.** Reset calls `set(0)` at once (`apps/tally.html:155`). As Ezra the count went 13 → 0 with no dialog, no toast and no undo (`audiences.json` kid: `dialogs:[]`, `toast:null`).
@@ -6344,7 +6437,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### GAP-TALLY-1 — One counter per person, with no history, step size or feedback sound
 
-- **Area** tally · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 11
+- **Area** tally · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Up to six named counters beside the default "Count" (counter:<cid> {name, at}, each with its own c:<cid>:count:<device> and c:<cid>:reset rows on the same epoch rule, so chat and older devices keep working on the default), switched with the shared segmented control, or one "Counters · N" button that opens a list sheet past three or whenever the chips would not fit; rename; remove with Undo (the counter's rows are purged once Undo has gone); the last 5 resets of the last 30 days as "Recent resets" (resetlog:<at>). Decided and not built: no step size, no feedback sound. test-tally "named counters" 36 checks; tally-claims-11 (1b): with 2 and with 6 named counters, long names, 5 resets, adult and kid, default and XXL, 320-1440 px (112 checks): + and Reset on the screen, nothing overlapping, the sheet lists all 7 on rows of at least 44 px. Before: one count key and no history. Not verified: the sheet with VoiceOver or a Tab walk. After: `audits/evidence/p6/911/tests/suites/test-tally.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/evidence/p6/911/review/11/rev/p7-sheet-room.mjs`, `audits/screens-after/11/tally/main-typical-ipad-landscape-dark.png`.
 - **Evidence.** `audits/03-apps/tally.md:574`; `apps/tally.html:150`, `apps/tally.html:150-155`
 - **What happens now.** There is a single `count` key (`apps/tally.html:150`), and no record of past counts or resets.
 - **Why it matters.** Counter apps offer more than one counter.
@@ -6353,7 +6447,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-TALLY-04 — − at 0 is not disabled and gives no feedback, yet every tap writes and re-stamps the row
 
-- **Area** tally · **Type** bug · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** bug · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** - at 0, + at 999 999 and Reset at 0 are off: aria-disabled, dimmed to 0.4, and no write. rapid-11: Reset at 0 posted 1 write → 0, the - button aria-disabled null → "true"; verify-minus-at-zero-silent-write-2-11: the - button aria-disabled null, opacity 1 → "true", 0.4, still 0 posts and the server row unrestamped (updated_at 1790036100000 before and after). test-tally: "- at 0 writes nothing and does not re-stamp the row", "Reset at 0 is off: no toast, no reset row, no log line". The Phase 3 script already counted 0 posts for - at 0 on the pre-batch tree in this run (its three "3 POSTs" did not reproduce); what changed is the cue and Reset at 0. The -11 copies force their clicks (Playwright will not click an aria-disabled button) to prove that a forced tap writes nothing. After: `audits/evidence/p6/911/tests/repro-after/p6-11__rapid-11.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-11__rapid-11.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__verify-minus-at-zero-silent-write-2-11.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__verify-minus-at-zero-silent-write-1-11.txt`, `audits/evidence/p6/911/tests/suites/test-tally.txt`.
 - **Evidence.** `audits/03-apps/tally.md:285`; `apps/tally.html:152`, `apps/hub.js:236-241`, `apps/tally.html:155`, `worker/src/data.js:60`; `audits/evidence/p3/tally/verify-minus-at-zero-silent-write-1.png`
 - **What happens now.** `set(Math.max(0, -1))` writes 0 (`apps/tally.html:152`). `hub.set` always queues and re-stamps, and never compares with the current value (`apps/hub.js:236-241`). Three taps sent 3 batch POSTs of value 0. The button stays enabled, and nothing tells a child why nothing happened. Reset at 0 behaves the same way (`apps/tally.html:155`;
 - **Why it matters.** A child pressing − at 0 gets no response. On a device that has not pulled yet, a − that visibly did nothing can wipe the count someone just made on another device.
@@ -6362,7 +6457,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-TALLY-08 — Tally shows and counts from any value chat writes: −13, 12.5 and 1e21 are shown as-is
 
-- **Area** tally · **Type** bug · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** bug · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Every device row is read as an integer within ±999 999 (fractional floored, non-numeric 0, huge clamped), the total is clamped to 0 … 999 999 and shown grouped, and chat's set_data for the count refuses anything but a whole number 0 … 999 999 (a plain digit string is read as one). critic-chat-values, Ezra, before → after: -13 "✓ Tally set to 0" and shown 0 → refused (no chip), count stays 12; 12.5 → "set to 12" → refused; 1e+21 "✓ Tally set to 1e+21" and shown "1e+21" → refused; "twelve" → set to 0 → refused; "15" still accepted. verify-critic-count-not-sanitised-3-2-11: a raw 1e+21 row shows "999,999" (was "1e+21"). smoke-chat 76 → 84 (-13, 12.5 and 1000000 refused with "The tally must be a whole number from 0 to 999999"). Review round 1, item 1: a pre-batch device that pressed - more than + holds a negative n; it is read signed again (10 + -3 = 7, the first rewrite read 10), and only the total is clamped. After: `audits/evidence/p6/911/tests/repro-after/phase3__tally__critic-chat-values.txt`, `audits/evidence/p6/911/tests/repro-before/tally/phase3__tally__critic-chat-values.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__verify-critic-count-not-sanitised-3-2-11.txt`, `audits/evidence/p6/911/tests/repro-after/phase3__tally__verify-critic-count-not-sanitised-3-1.txt`, `audits/evidence/p6/911/tests/smoke-chat.txt`, `audits/evidence/p6/911/review/11/rev/p1-old-rows.mjs`, `audits/evidence/p6/911/tests/suites/test-tally.txt`.
 - **Evidence.** `audits/03-apps/tally.md:423`; `worker/src/chat.js:52`, `apps/tally.html:150`, `worker/src/chat.js:29-30`, `apps/tally.html:150-152`; `audits/evidence/p3/tally/critic-chat-values-minus13-after-plus-ipad.png`, `audits/evidence/p3/tally/verify-critic-count-not-sanitised-3-2-minus13-ipad.png`
 - **What happens now.** `n()` is `Number(value) || 0`, with no rounding, clamping or finite check (`apps/tally.html:150`). `show()` prints it raw (`:151`), and `set()` clamps only on write with `Math.max(0, v)` (`:152`). `set_data`'s value schema is `{}`, and the handler stores `input.value` unchecked (`worker/src/chat.js:29-30, 173-179`).
 - **Why it matters.** A kid who asks chat to "take 50 off my tally" could end up with a negative count, and pressing + then wipes it to 0. It is odd and confusing rather than destructive.
@@ -6371,7 +6467,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-TALLY-09 — Opened on the TV, Tally offers live-looking +, − and Reset
 
-- **Area** tally · **Type** bug · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** bug · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** On the display profile (!hub.canWrite) Tally draws no +, - or Reset and says "View only" under the count shown large in the dial. verify-critic-kiosk-offers-edit-controls-4-1-11: anyViewOnlyText false → true; -4-2-11: viewOnlyHint false → true, the three buttons 140 / 96 / 265 px wide and live → 0 × 0, and a DOM click writes nothing (posts []; the server's TV row has no items). test-tally "display profile" 5 checks (no controls, no counter controls either, nothing queued). One leftover: a DOM click on the 0 × 0 + still raises hub's own "This screen only looks" toast; no one can reach it. The shell still sends a kiosk to Home on a #tally link (unchanged). After: `audits/evidence/p6/911/tests/repro-after/p6-11__verify-critic-kiosk-offers-edit-controls-4-1-11.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__verify-critic-kiosk-offers-edit-controls-4-2-11.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-11__verify-critic-kiosk-offers-edit-controls-4-2-11.txt`, `audits/evidence/p6/911/tests/suites/test-tally.txt`.
 - **Evidence.** `audits/03-apps/tally.md:455`; `apps/tally.html:152`, `apps/hub.js:234`, `index.html:626`, `index.html:642`; `audits/evidence/p3/tally/kiosk-standalone-tv.png`, `audits/evidence/p3/tally/verify-critic-kiosk-offers-edit-controls-4-2-tv-after-tap.png`
 - **What happens now.** The shell does not open Tally for the kiosk. On boot a kiosk always goes to Home (`index.html:626`), and `showTab` rewrites the hash to `#home` (`index.html:642`) with no toast.
 - **Why it matters.** On the 10-foot TV a family member sees tappable-looking buttons that answer only with a toast.
@@ -6380,7 +6477,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P4-GLASS-05 — Tally's five content-glass layers add 8-31 % to a burst of + taps, for a blur nobody can see
 
-- **Area** design system (Tally) · **Type** bug · **Severity** low · **Effort** S · **Batch** 11
+- **Area** design system (Tally) · **Type** bug · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** No backdrop-filter is left in apps/tally.html: the dial, the name pill, - + and Reset are solid. GLASS/layers, Tally, before → after: live blur layers median 3, max 3 → 0, 0; content-glass jobs 36 of 36 (100 %) → 0; own-glass jobs 36 → 0. verify-tally-taps-glass-cost-2, the blurred layers over the kid page: the shell's tab bar, #who and #reset (3, all blur(20px) saturate(1.8)) → the tab bar only; the pixel difference between blur on and off (mean channel 0.39, 0.8 % of pixels over 5) → 0. tally-claims-11 "content glass layers: 0". The entry proposed keeping glass on + and -; they had none since batch 1 and stay solid. The burst CPU of that script (median 0.182 s → 0.073 s) is not like for like (10-11 taps per window before, 3-10 after), so it is not cited as a gain. After: `audits/evidence/p6/911/p4tools/out/GLASS_layers.txt`, `audits/evidence/p6/911/p4tools/before/base11-GLASS_layers.txt`, `audits/evidence/p6/911/tests/repro-after/phase4__GLASS__verify-tally-taps-glass-cost-2.txt`, `audits/evidence/p6/911/tests/repro-before/tally/phase4__GLASS__verify-tally-taps-glass-cost-2.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/evidence/p6/911/measure/glass.json`.
 - **Evidence.** `audits/04-design-system.md:3478`; `apps/tally.html:45-51`
 - **What happens now.** The layers. Tally's dial, +, −, Reset and the who kicker are all live glass (`apps/tally.html:45-51, 73-79, 98-104`), plus the shell's viewer bar: 6 visible layers, all `blur(18px) saturate(1.4) brightness(1.02)`. The author accepted it on purpose: "Not inside a scroller, so backdrop-filter is fine" (`:95-97`). The backdrop.
 - **Why it matters.** Kids tap + fast. On the iPad each tap pays to re-blur a flat wash that looks the same with or without the blur.
@@ -6389,7 +6487,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-TALLY-3 — Counting takes 3 taps from Home, and Home never shows the count
 
-- **Area** tally · **Type** usability · **Severity** low · **Effort** M · **Batch** 11
+- **Area** tally · **Type** usability · **Severity** low · **Effort** M · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** An adult's or guest's Home has a Tally card: the default count filled in place, a 60 px + beside the number and Open Tally, patched in place and never rebuilt under a finger; one tap counts (test-tally Home block: 12 → 13, it wrote this device's count:<device> row, a + from another device shows without a rebuild). A kid's Tally tile wears the count as a badge ("Open Tally, 9"), clear of the tile art; a kid's Home has no card (test-tally). audiences-11: homeHasTallyButton false → true for Eli; its "3 taps" still read 3 because the script walks Home → Apps → tile, not the card. Eli's Home carousel 6 → 7 dots (shell pixel diff, home-typical-iphone-pwa-light). home-art-5: art overlaps 0 over 2256 cards. Not claimed (EOU-1): the card is not on a first screen, on the iPhone it is a carousel page and on an iPad it sits below the first screen (rescore). After: `audits/evidence/p6/911/tests/suites/test-tally.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__audiences-11.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-11__audiences-11.txt`, `audits/evidence/p6/911/tests/repro-after/p6-5__home-art-5.txt`, `audits/evidence/p6/911/capture/pxdiff-shell-vs-8.txt`, `audits/screens-after/11/shell/home-typical-ipad-portrait-light.png`, `audits/screens-after/11/shell/home-kid-typical-iphone-pwa-light.png`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The item says counting 'misses the brief's target' as if this were a defect. EOU-1 (04-design-system.md:193) is a +1 bonus criterion, and the penalty rule EOU-5 only fires at 4 or more taps, so 3 taps is neutral under the house rubric.
 - **Evidence.** `audits/03-apps/tally.md:501`; `apps.json:7`; `audits/evidence/p3/tally/kid-apps-grid-ipad-portrait.png`
 - **What happens now.** Home → Apps → Tally tile → + is 3 taps for Eli on iPhone and Ezra on iPad. Home has no Tally card or button.
@@ -6399,7 +6498,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-TALLY-4 — VoiceOver hears "Add one" but never the new count
 
-- **Area** tally · **Type** usability · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** usability · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A polite live region (role=status, #live) says the new count after +, -, Reset and Undo (test-tally: "3" after +, "2" after -, "0" after Reset, "37" after Undo), and Reset carries aria-label "Reset to zero". Home's card has its own status line that holds only what your own tap made (a count arriving from another device is not read out; review round 1). audiences-11, Ezra: liveRegion false → true, Reset aria null → "Reset to zero". Not verified: what VoiceOver says on a real iPhone or iPad. After: `audits/evidence/p6/911/tests/suites/test-tally.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__audiences-11.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-11__audiences-11.txt`.
 - **Evidence.** `audits/03-apps/tally.md:506`; `apps/tally.html:134-140`
 - **What happens now.** VoiceOver hears "Add one" but never the new count (low). `#n` has no `aria-live` and no `role=status`. Reset has no `aria-label` and relies on its text. Evidence: `apps/tally.html:134-140`; `audiences.json` `kid.ui.liveRegion: false`.
 - **Why it matters.** VoiceOver never hears the count.
@@ -6408,7 +6508,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-TALLY-5 — On a phone turned sideways, + is below the fold and the pill overlaps the dial
 
-- **Area** tally · **Type** usability · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** usability · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The dial is sized from the frame's width and height, and on a short landscape phone the dial and the controls sit side by side. landscape-phone, Eli (frame 382 px tall): dial 360 → 306 px, + bottom 556 → 273 and Reset bottom 624 → 235 (both inside 382; before + was below the fold), pill 16-51 over a dial starting at 24 → pill 8-52 above a dial at 60. Ezra (frame 358): dial 400 → 258, + bottom 638 → 277, Reset 732 → 245. tally-claims-11 layout (adult and kid, default and XXL, 320 × 568 to 1440 × 900, 112 checks): 28 failed on the pre-batch code (9 adult, 19 kid) → 0 failed; + above the fold everywhere (Reset too, except on a 320 px XXL phone where it takes its own row). After: `audits/evidence/p6/911/tests/repro-after/phase3__tally__landscape-phone.txt`, `audits/evidence/p6/911/tests/repro-before/tally/phase3__tally__landscape-phone.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-11__tally-claims-11.txt`, `audits/screens-after/11/tally/main-typical-iphone-safari-light.png`.
 - **Evidence.** `audits/03-apps/tally.md:507`; `apps/tally.html:40`; `audits/evidence/p3/tally/landscape-phone-eli.png`
 - **What happens now.** At 932×430 the frame is 382 px tall, but the dial stays 360 px (Eli) or 400 px (Ezra), because its size depends on width only (`apps/tally.html:40, 124`).
 - **Why it matters.** + is below the fold sideways.
@@ -6417,7 +6518,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-TALLY-2 — In kid mode the name pill overlaps the top of the dial on iPad landscape and iPhone Safari
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The name pill is in the flow above the dial instead of fixed over it, and the kid dial follows the same width-and-height sizing. tally-claims-11, Ezra: "pill clear of the dial" and the other layout checks 19 of 56 failed on the pre-batch code (every size from 320 × 568 up to 1180 × 820, default and XXL) → 0 of 56; the 24-character unbroken name and 40-character names wrap whole inside the pill (44 checks). Seen: kid-typical-ipad-landscape-light and kid-typical-iphone-safari-light, pill clear of the dial in both (the pre-batch pill sat on its top edge). Not verified: a real iPhone Safari bar and notch. After: `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/evidence/p6/911/tests/repro-before-phase6/p6-11__tally-claims-11.txt`, `audits/screens-after/11/tally/kid-typical-iphone-safari-light.png`, `audits/screens-after/11/tally/kid-typical-ipad-landscape-light.png`.
 - **Evidence.** `audits/03-apps/tally.md:527`; `apps/tally.html:124`; `audits/evidence/p3/tally/layout-typical-ezra-ipad-landscape-light.png`, `audits/evidence/p3/tally/layout-typical-ezra-iphone-safari-light.png`
 - **What happens now.** The kid dial is sized from the width only (`clamp(260px, 80vw, 400px)`, `apps/tally.html:124`), and the pill is fixed at the top (`:117`).
 - **Why it matters.** The pill overlaps the dial.
@@ -6426,7 +6528,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-TALLY-4 — The − disc is lighter glass than +, so it reads as secondary or disabled
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** - and + share one material: the same background, border, shadow and ink (tally-claims-11 "- and + share background, border, shadow and ink"); before, - used --glass and + used --glass-strong, so it read as secondary or disabled. - stays the smaller disc by design (kid iPad portrait 116 px against 168, SHAPE/verify V4 unchanged) and is told apart by its glyph. measure/nontext shows both discs on the same fill (#4F52D8 light, #ACB8FF dark). MOTION/press: 3/3 controls → 4/4 (-, +, Reset, New counter) at 0.97 with a brightness shift. After: `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/evidence/p6/911/p4tools/out/SHAPE_verify.txt`, `audits/evidence/p6/911/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/911/p4tools/before/base11-MOTION_press.txt`, `audits/evidence/p6/911/measure/nontext/tally.json`.
 - **Evidence.** `audits/03-apps/tally.md:536`; `apps/tally.html:69`; `audits/screens/tally/main-typical-ipad-portrait-light.png`, `audits/screens/tally/kid-typical-iphone-pwa-light.png`
 - **What happens now.** − uses `--glass` and + uses `--glass-strong` (`apps/tally.html:69, 84`).
 - **Why it matters.** − looks disabled.
@@ -6435,7 +6538,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-TALLY-6 — Large counts are not grouped
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** Counts are grouped with toLocaleString and clamped to 999 999, so the dial never holds more than "999,999" and the number's font scales with the dial. Before: "1284750" and "250000" printed raw. tally-claims-11: 987,654 stays inside the tick ring in room mode across 12 size and text-size combinations (number 98 → 134 px with the dial 508 → 722 on an iPad portrait), 999,999 inside the dial on a 844 × 390 XXL kid phone (dial 161 px, text 103 px) and at 1440 × 900 (the reviewer's p9 probe); test-tally "bad rows" and layout; a raw 1e+21 row shows "999,999" (verify-critic-count-not-sanitised-3-2-11). Seen: main-overflow-iphone-pwa-dark and main-overflow-ipad-portrait-light. After: `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/evidence/p6/911/tests/suites/test-tally.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__verify-critic-count-not-sanitised-3-2-11.txt`, `audits/evidence/p6/911/review/11/rev/p9.txt`, `audits/screens-after/11/tally/main-overflow-iphone-pwa-dark.png`, `audits/screens-after/11/tally/main-overflow-ipad-portrait-light.png`.
 - **Evidence.** `audits/03-apps/tally.md:546`; `apps/tally.html:151`; `audits/screens/tally/main-overflow-iphone-pwa-dark.png`, `audits/screens/tally/main-overflow-ipad-portrait-light.png`
 - **What happens now.** `textContent = v` (`apps/tally.html:151`) shows "1284750" and "250000".
 - **Why it matters.** Large counts are hard to read.
@@ -6444,7 +6548,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-TALLY-8 — Whose counter it is shows only as the wash hue and a 12 px caps pill, with no avatar
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The pill is the person's own face (hub.avatarHtml, 32 px, in their colour family) and "Eli's counter" in sentence case at --fs-sm semibold, where it was a 12 px bold caps pill with no face; with a named counter it reads "Eli · Glasses of water today". Kid mode scales it with the kid roles. tally-claims-11 (5) "the pill carries the person's own face in their own colour family"; (1e) 44 checks: no counter name is cut (24-character unbroken, 40-character names, a long person name, default and XXL), no chip runs past its track; (1c) the room-mode pill stays in view clear of the dial ("Eli's counter", 17-40 px for the adult and the kid). Seen: viewer pairs for Elizabeth (tulip face), Eli (photo face) and Ezra (dino face). After: `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/screens-after/11/tally/kid-typical-iphone-safari-light.png`, `audits/screens-after/11/shell/viewer-timer-typical-ipad-portrait-light.png`, `audits/screens-after/11/shell/switch-app-typical-iphone-pwa-light.png`.
 - **Evidence.** `audits/03-apps/tally.md:555`; `apps/design.css:333`, `apps/design.css:280-283`, `apps/hub.js:459-462`, `apps/tally.html:130`; `audits/screens/tally/main-typical-ipad-portrait-light.png`
 - **What happens now.** The pill is "ELI'S COUNTER": 12 px, weight 700, uppercase (`.kicker`, `apps/design.css:333`).
 - **Why it matters.** Whose counter it is shows only as a hue.
@@ -6453,7 +6558,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-TALLY-10 — The dial's tick ring shows in some themes only
 
-- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11
+- **Area** tally · **Type** visual · **Severity** low · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** The tick ring reads --track-info, the palette's own 3:1 mark, so it shows in every theme (it was nearly invisible on the white dial in light Hearth and Frost). tally-claims-11 (2), ring against the dial: Hearth 3.68, Parchment 3.89, Frost 3.67, Midnight 3.67, Forest 3.95, Graphite 4.09 (all at least 3:1; the pre-batch run did not measure it). Seen: main-typical-ipad-landscape-dark and kid-typical-iphone-safari-light, a dashed ring in both. After: `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/screens-after/11/tally/main-typical-ipad-landscape-dark.png`, `audits/screens-after/11/tally/kid-typical-iphone-safari-light.png`.
 - **Evidence.** `audits/03-apps/tally.md:565`; `apps/tally.html:54`; `audits/screens/tally/main-typical-iphone-pwa-light.png`, `audits/evidence/p3/tally/theme-parchment-lightos-eli.png`
 - **What happens now.** The dashed ring (`apps/tally.html:54`) is nearly invisible on the white dial in light Hearth and Frost, and clearly drawn in dark and in Parchment.
 - **Why it matters.** The ring shows in some themes only.
@@ -6462,7 +6568,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-TALLY-6 — Moved to P3-TALLY-09
 
-- **Area** tally · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 11
+- **Area** tally · **Type** usability · **Severity** low (pointer) · **Effort** S · **Batch** 11 · **Status** FIXED (`b346916`)
+- **Phase 6 (FIXED).** A pointer to P3-TALLY-09, fixed with it: the display profile draws no controls and says "View only" (anyViewOnlyText false → true, viewOnlyHint false → true; the three buttons live 140 / 96 / 265 px → 0 × 0), and no write goes out from a forced click. After: `audits/evidence/p6/911/tests/repro-after/p6-11__verify-critic-kiosk-offers-edit-controls-4-1-11.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__verify-critic-kiosk-offers-edit-controls-4-2-11.txt`, `audits/evidence/p6/911/tests/suites/test-tally.txt`.
 - **Evidence.** `audits/03-apps/tally.md:513`
 - **Proposed fix.** Pointer to P3-TALLY-09.
 
@@ -6472,7 +6579,9 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 | ID | Improvement | Kind | Delight | Effort | Source | Status |
 |---|---|---|---|---|---|---|
-| IMP-TALLY-I1 | Across-the-room mode on the iPad: when idle, hide Reset and enlarge the count (for example a kids' game score on the Kitchen iPad) | idea | 3 | M | `audits/03-apps/tally.md:762` | open |
+| IMP-TALLY-I1 | Across-the-room mode on the iPad: when idle, hide Reset and enlarge the count (for example a kids' game score on the Kitchen iPad) | idea | 3 | M | `audits/03-apps/tally.md:762` | NEEDS DEVICE CHECK (`b346916`) |
+
+- **IMP-TALLY-I1 — Phase 6 (NEEDS DEVICE CHECK).** Across the room: on a screen 768 px wide or more, after 20 s idle the dial and count grow and Reset, the switcher and the forms go; any tap wakes it and that tap counts nothing; instant under Reduce Motion. test-tally 12 checks: 1180 × 820 dial 543 → 755 px, 1366 × 1024 544 → 874 px, the waking tap on + only wakes, the next tap counts. tally-claims-11 (1c), adult and kid, default and XXL, 820 × 1180, 1180 × 820 and 1366 × 1024 (37 checks): dial 508 → 722, 543 → 732, 544 → 874; the number 98 → 134 px and 105 → 162 px, 987,654 inside the dial; the name pill stays in view; the kid rule does not beat the room rule (review round 1, item 4). Not verified: the idle wait, the waking tap and reading it from across a real kitchen on an iPad. After: `audits/evidence/p6/911/tests/suites/test-tally.txt`, `audits/evidence/p6/911/tests/repro-after/p6-11__tally-claims-11.txt`, `audits/evidence/p6/911/review/11/rev/p9-room.mjs`.
 
 ## The design preview
 

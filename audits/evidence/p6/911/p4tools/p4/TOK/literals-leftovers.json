@@ -1,0 +1,427 @@
+{
+ "area": "leftovers",
+ "file": "apps/leftovers.html",
+ "rules": {
+  "notLiteral": "0, 0px, auto, inherit, initial, unset, none, normal, currentColor, transparent, 100%, 1 (opacity), 0/1 z-index 0 are not literals",
+  "varOnly": "values built only from var(--token), calc() of tokens and color-mix() of tokens are not literals; the percentages inside a token color-mix are counted separately as \"mixRatio\" (ad-hoc derived colours)",
+  "fallback": "a literal inside var(--x, <literal>) is a fallback, counted as status \"fallback\", not a violation",
+  "print": "@media print declarations are exempt",
+  "keyframes": "declarations inside @keyframes are motion frames: counted only for colour",
+  "hairline": "1px and 2px in spacing/borders are sub-grid hairlines: status \"subgrid\", not counted as violations",
+  "circle": "border-radius 50% is a circle: status \"acceptable\"",
+  "relative": "em/%/vw/ch/dvh/cqw values are relative: status \"relative\" (they scale with their parent, unlike px), not violations",
+  "dollywood": "Dollywood template: selectors are split by flavour ([data-flavor=hub] = build guide only, [data-flavor=live] = park map only, html:not([data-flavor=live]) = build guide/standalone); lines 259-308 and 525-565 and SVG-shape selectors are cartography (colour exempt, as scripts/screens-apps.mjs allows); the :where(:root) / :where([data-theme=light]) palette blocks (lines 7-12) are standalone-only (overridden by the hub flavour block at line 212) except the map category colours",
+  "designCss": "apps/design.css: only declarations outside the token/theme/kind blocks are scanned (the component layer, resets, print)",
+  "meta": "<meta name=\"theme-color\"> hex is counted in category colour with status \"meta\" (a token cannot reach a meta tag; hub.js/index.html set it from JS)"
+ },
+ "summary": {
+  "file": "apps/leftovers.html",
+  "byCategoryStatus": {
+   "localLiteral": {
+    "violation": 1
+   },
+   "spacing": {
+    "subgrid": 1
+   },
+   "shadow": {
+    "violation": 3
+   },
+   "opacity": {
+    "violation": 2
+   },
+   "radius": {
+    "acceptable": 1
+   },
+   "lineHeight": {
+    "violation": 1
+   },
+   "glassFilter": {
+    "violation": 1
+   },
+   "colour": {
+    "violation": 17
+   },
+   "breakpoint": {
+    "info": 2
+   }
+  },
+  "violations": {
+   "localLiteral": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "shadow": {
+    "total": 3,
+    "exactToken": 0,
+    "noToken": 3
+   },
+   "opacity": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "lineHeight": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "glassFilter": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "colour": {
+    "total": 17,
+    "exactToken": 0,
+    "noToken": 17
+   }
+  },
+  "distinctViolationValues": {
+   "localLiteral": 1,
+   "shadow": 3,
+   "opacity": 2,
+   "lineHeight": 1,
+   "glassFilter": 1,
+   "colour": 17
+  },
+  "mixRatios": {
+   "count": 0,
+   "distinct": 0
+  },
+  "breakpoints": [
+   "min-width 1024",
+   "min-width 768"
+  ]
+ },
+ "hits": [
+  {
+   "cat": "localLiteral",
+   "prop": "--addbar-h",
+   "value": "150px",
+   "literal": "150px",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 29,
+   "selector": ":root",
+   "src": "css"
+  },
+  {
+   "cat": "spacing",
+   "prop": "margin",
+   "value": "-1px",
+   "literal": "1",
+   "status": "subgrid",
+   "token": null,
+   "why": "sub-grid hairline",
+   "line": 43,
+   "selector": ".framed h1",
+   "src": "css",
+   "offGrid": [],
+   "onGrid": [],
+   "sub": [
+    1
+   ]
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 var(--focus-ring-w, 3px) var(--danger-graphic), var(--elev-card)",
+   "literal": "0 0 0 TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 66,
+   "selector": ".item.hl",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 2px var(--shade-1)",
+   "literal": "inset 0 1px 2px TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 85,
+   "selector": "#name, form[id=\"add\"] select, #date",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".75",
+   "literal": ".75",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 123,
+   "selector": ".skel:nth-child(2)",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".5",
+   "literal": ".5",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 123,
+   "selector": ".skel:nth-child(3)",
+   "src": "css"
+  },
+  {
+   "cat": "radius",
+   "prop": "border-radius",
+   "value": "50%",
+   "literal": "50%",
+   "status": "acceptable",
+   "token": "--r-full",
+   "why": "circle",
+   "line": 155,
+   "selector": ".avatar",
+   "src": "css"
+  },
+  {
+   "cat": "lineHeight",
+   "prop": "line-height",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no 1 step (tokens 1.1/1.25/1.45)",
+   "line": 156,
+   "selector": ".avatar",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 var(--sp-1) var(--material-solid-bg), 0 0 0 calc(var(--sp-1) + 1px) var(--accent-graphic)",
+   "literal": "0 0 0 TOKEN TOKEN , 0 0 0 calc( TOKEN + 1px) TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 157,
+   "selector": ".avatar",
+   "src": "css"
+  },
+  {
+   "cat": "glassFilter",
+   "prop": "filter",
+   "value": "saturate(0)",
+   "literal": "saturate(0)",
+   "status": "violation",
+   "token": null,
+   "why": "glass filter constants are not tokens (the recipe repeats saturate(1.4) brightness(1.02))",
+   "line": 195,
+   "selector": ".item.finishing .pic, .item.gone .pic, .item.gone .status",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F4F1EC",
+   "value": ":'dark',forest:'dark',graphite:'dark'}, B={hearth:'#F4F1EC',pa",
+   "status": "violation",
+   "token": "--tv-text",
+   "why": "nearest Hearth token --tv-text (ΔE 4.2)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#ECE2CD",
+   "value": "',graphite:'dark'}, B={hearth:'#F4F1EC',parchment:'#ECE2CD',fr",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@parchment",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F2F2F7",
+   "value": "'}, B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',mi",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@frost, --surface-2@frost",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#0B0A09",
+   "value": "1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',fo",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@midnight",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#070F0D",
+   "value": "ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',gr",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 72.4)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#000000",
+   "value": "2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'}, ",
+   "status": "violation",
+   "token": null,
+   "why": "pure black: no --black / shade token (gap)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4f5d8c",
+   "value": "#0B0A09',forest:'#070F0D',graphite:'#000000'}, H={'#4f5d8c':'p",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 40.3)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#bc5a38",
+   "value": "D',graphite:'#000000'}, H={'#4f5d8c':'periwinkle','#bc5a38':'p",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#137f77",
+   "value": "00'}, H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'a",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 35.6)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#b4861b",
+   "value": "':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'l",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 26.9)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8a6a4b",
+   "value": "38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'b",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.1)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#3d5a3d",
+   "value": "'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'m",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 45.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5b8143",
+   "value": "'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'b",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4c4c58",
+   "value": "':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 46.3)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8c4f7a",
+   "value": "d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'s",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 38.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4c7b6a",
+   "value": "43':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'s",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.5)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5e7a6e",
+   "value": "c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 10
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 1024",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 268
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 768",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 274
+  }
+ ]
+}

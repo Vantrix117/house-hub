@@ -1,0 +1,60 @@
+
+## Ezra (kid): view-only
+  ✓ kid sees the park map but not the build guide
+  ✓ VIEW_ONLY for a kid
+  ✓ Find-me button hidden
+  ✓ no web-search box in ride popups
+  ✓ geolocation never started for a kid
+  ✓ no Share toggle for a kid
+  ✓ status says "just looking"
+
+## Eli (adult): explicit sharing
+  ✓ no GPS on load before sharing is switched on
+  ✓ Share toggle present and off by default
+  ✓ adult keeps the web-search box
+  ✓ toggle on → GPS starts and preference saved (person scope)
+  ✓ own location published to family scope
+  ✓ toggle off → own marker removed (tombstone) and preference off
+  ✓ status reflects not sharing
+
+## Kid pull: Eli's marker gone from the family list
+  ✓ kid no longer sees Eli after he stopped sharing
+
+## Batch 10 (park map): the beacon on an open kid map, no publish off the property, the kid's Share row, the view-only kid's text
+  ✓ a view-only kid: no watch, no Find me
+  ✓ a view-only kid reads "A grown-up can show where you are." and has no Set my spot
+  ✓ beacon on: the kid's open map starts locating without a reopen
+  ✓ a kid never sees the Share switch; the row says the beacon is on
+  ✓ beacon off: the kid's map stops locating within one pull
+  ✓ and the kid's dot is gone for the family
+  ✓ a fix 4 km from the park is not published
+  ✓ a fix in the park is
+
+## Item 2: lean file, lazy layers, no 3D remnant
+  ✓ park map source under 1.6 MB (was 4.0 MB)
+  ✓ no Three.js / 3D mode remnant
+  ✓ layer file apps/dollywood/relief.jpg
+  ✓ layer file apps/dollywood/slope.png
+  ✓ layer file apps/dollywood/aerial.jpg
+  ✓ aerial + slope not fetched until chosen; relief is the default
+  ✓ choosing Satellite loads the aerial layer
+  ✓ labels settle after the pan/zoom tween instead of every frame
+  ✓ setMode(3d) is a harmless no-op
+
+## Item 2: where's everyone — stale rows greyed, day-old rows tombstoned
+  ✓ 30-hour-old marker (David) tombstoned by an adult's map
+  ✓ 6-hour-old marker (Elizabeth) listed greyed with last-seen time
+  ✓ David no longer listed
+
+## Item 2: offline — the map opens from the service worker cache
+  ✓ service worker precached the park map and its relief layer
+  ✓ hub shell loads offline
+  ✓ park map renders offline (145 listings drawn)
+  ✓ relief layer served from cache offline
+  ✓ family positions available offline from the local cache
+
+## Console
+  ✓ no errors in K
+  ✓ no errors in A
+
+PASS 42  FAIL 0

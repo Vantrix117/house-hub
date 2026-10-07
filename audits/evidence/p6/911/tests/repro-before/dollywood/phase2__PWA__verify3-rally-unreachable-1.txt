@@ -1,0 +1,172 @@
+
+== 1. park map open as Eli
+{
+ "typeofRally": "function",
+ "rallySource": "async function rally(name,x,y){if(!HOUSEHOLD()||!hub.canWrite)return;/* POST /api/dollywoo",
+ "kind": "adult",
+ "canWrite": true,
+ "appFrame": {
+  "controls": 80,
+  "rallyControls": [],
+  "textHits": [],
+  "attrHits": []
+ },
+ "shell": {
+  "controls": 92,
+  "rallyControls": [],
+  "textHits": [],
+  "attrHits": []
+ },
+ "meetBar": {
+  "hidden": false,
+  "name": "Meet at The Wildwood Tree",
+  "meta": "set by Mae 12 min ago",
+  "buttons": [
+   {
+    "id": "meet-go",
+    "text": "Go",
+    "hidden": true
+   },
+   {
+    "id": "meet-done",
+    "text": "Done",
+    "hidden": false
+   }
+  ]
+ },
+ "shot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-a-meet-bar-seeded.png"
+}
+
+== 3. ride card → Meet here → OK
+{
+ "card": {
+  "title": "133Frogs & Fireflies",
+  "actions": [
+   "Directions",
+   "Meet here",
+   "Zoom"
+  ]
+ },
+ "cardShot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-b-ride-card.png",
+ "dialogs": [],
+ "newRequests": [],
+ "meetBar": {
+  "hidden": false,
+  "name": "Meet at The Wildwood Tree",
+  "meta": "set by Mae 12 min ago",
+  "buttons": [
+   {
+    "id": "meet-go",
+    "text": "Go",
+    "hidden": true
+   },
+   {
+    "id": "meet-done",
+    "text": "Done",
+    "hidden": false
+   }
+  ]
+ },
+ "appFrame": {
+  "controls": 125,
+  "rallyControls": [],
+  "textHits": [
+   "This sets the pin for everyone. Tap Rally afterwards to buzz the other adults."
+  ],
+  "attrHits": []
+ },
+ "rallyRequestsSoFar": [],
+ "shot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-c-after-meet-here.png"
+}
+
+== 4. long-press on the map → OK
+{
+ "dialogs": [],
+ "newRequests": [],
+ "meetBar": {
+  "hidden": false,
+  "name": "Meet at The Wildwood Tree",
+  "meta": "set by Mae 12 min ago",
+  "buttons": [
+   {
+    "id": "meet-go",
+    "text": "Go",
+    "hidden": true
+   },
+   {
+    "id": "meet-done",
+    "text": "Done",
+    "hidden": false
+   }
+  ]
+ },
+ "rallyRequestsSoFar": [],
+ "shot": "audits/evidence/p2/PWA/verify3-rally-unreachable-1-d-after-long-press.png"
+}
+
+== 6. server state after the UI steps
+{
+ "meetRow": {
+  "value": {
+   "x": 855,
+   "y": 921,
+   "name": "The Wildwood Tree",
+   "note": "",
+   "by": "christian",
+   "byName": "Mae",
+   "at": 1790080080000
+  },
+  "updated_at": 1790080080000
+ },
+ "feed": [
+  {
+   "who": "christian",
+   "app": "dollywood-live",
+   "text": "Meeting point: The Wildwood Tree"
+  }
+ ],
+ "allApiRequestsDuringUiSteps": [
+  "GET /api/profiles",
+  "GET /api/admin/usage",
+  "GET /api/data/hub?scope=family&since=…",
+  "GET /api/data/reminders?scope=family&since=…",
+  "GET /api/data/f260?scope=person&since=…",
+  "GET /api/data/leftovers?scope=family&since=…",
+  "GET /api/data/prayer?scope=person&since=…",
+  "GET /api/data/hub?scope=person&since=…",
+  "GET /api/data/timer?scope=person&since=…",
+  "GET /api/data/dollywood-live?scope=family&since=…",
+  "GET /api/data/kidverse?scope=person&since=…",
+  "GET /api/data/kidverse?scope=family&since=…",
+  "GET /api/data/verses?scope=person&since=…",
+  "GET /api/data/timer?scope=family&since=…",
+  "GET /api/me",
+  "GET /api/dollywood/waits",
+  "GET /api/data/dollywood-live?scope=person&since=…",
+  "GET /api/media/photos/christian/rigphotochristian-256.jpg"
+ ],
+ "rallyRequestsFromUi": []
+}
+
+== 7. positive control: rally() from the console
+{
+ "rallyRequests": [
+  {
+   "method": "POST",
+   "path": "/api/dollywood/rally"
+  }
+ ],
+ "status": 200,
+ "meetMeta": "set by Eli just now",
+ "feedTop": [
+  "Set a meeting point: Positive control (console)",
+  "Meeting point: Positive control (console)"
+ ]
+}
+
+== verdict inputs
+{
+ "rallyControlsInUi": 0,
+ "rallyRequestsFromUi": 0,
+ "rallyRequestsFromConsole": 1
+}

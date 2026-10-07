@@ -1,0 +1,46 @@
+
+## theme follows the person
+  ✓ A: Midnight applies at once (data-scheme=dark)
+  ✓ A: theme written to person scope
+  ✓ B: Eli is Midnight on the second device after one pull
+  ✓ B: Mae on the same device is back to System
+  ✓ B: back to Eli → Midnight again (from the cache, no flash of the wrong theme)
+  ✓ A: Me shows Midnight selected
+  ✓ B: follows A's change to Parchment on the next pull (tan paper, light scheme)
+  ✓ Parchment on a dark-mode device still renders tan with data-scheme=light
+
+## text size, contrast, glass and motion follow the person (batch 1a, D8, D11)
+  ✓ A: text size L applies at once and is written to person scope
+  ✓ A: body text grows with the size (above 17 px)
+  ✓ A: Solid glass, Increase Contrast and Reduce Motion apply at once ({"textSize":"l","contrast":"more","transparency":"reduce","motion":"reduce","glass":null})
+  ✓ A: each is its own person-scope hub row
+  ✓ B: Eli's text size, contrast, Solid glass and motion follow on the next pull
+  ✓ B: under Solid (Reduce Transparency) the tab bar is opaque with no blur (rgb(255, 251, 243) / none)
+  ✓ B: Mae on the same device gets none of Eli's preferences
+  ✓ B: back to Eli, his preferences return
+  ✓ B: a stale mirror (XS) loses to the row (L) after the first pull, and the mirror is corrected
+  ✓ A: back to the defaults (the rows are cleared)
+
+## F260 text size is the hub text size (D17); autolock follows the person
+  ✓ A: Large in F260 sets the hub text size L (one hub row, no zoom); 5 min autolock stored in F260 person scope
+  ✓ A: F260 text grows through --ts (body above 18.5 px), not a page zoom
+  ✓ B: F260 opens with Large for Eli (the hub size), Large selected
+  ✓ B: autolock 5 min selected
+  ✓ B: the old f260.big moved once to the hub size L (f260.bigMoved recorded, no zoom)
+  ✓ B: Normal chosen in Me afterwards stays Normal when F260 opens again (the move ran once)
+
+## the display profile only looks
+  ✓ kiosk session
+  ✓ display: the setters write no row, show no toast and do not throw ({"threw":null,"toast":"","pending":0,"rows":[],"mirror":{"textSize":"xl","contrast":"more","transparency":"reduce","motion":"reduce"}})
+  ✓ display: the device mirror holds the settings
+  ✓ display: the attributes apply at once ({"textSize":"xl","contrast":"more","transparency":"reduce","motion":"reduce","glass":null})
+  ✓ display: the CSS ignores the text size on the TV
+  ✓ display: a reload keeps them (the bootstrap reads the mirror), and no person's rows adopt onto it ({"textSize":"xl","contrast":"more","transparency":"reduce","motion":"reduce","glass":null})
+  ✓ tap leaves the reading unchecked
+  ✓ toast says this screen only looks ("This screen only looks — sign in on a phone to change things.")
+  ✓ tally shows no + to the display
+  ✓ tally says View only on the display
+  ✓ tally stays at 0 for the display, even on a dispatched click
+  ✓ no console/page errors
+
+36 passed, 0 failed

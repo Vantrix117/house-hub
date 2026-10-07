@@ -1,0 +1,74 @@
+
+## seed
+  ✓ week 38 is the family week and has no recording yet
+  ✓ the voice card's CSS block has no hex and no prefers-color-scheme
+
+## who sees the recorder
+  ✓ a kid has no recorder card
+  ✓ a grown-up where MediaRecorder is missing: the card stays hidden
+  ✓ the TV has no recorder card
+  ✓ and its play() answers false at once (the TV does not play)
+
+## a refused microphone is a calm toast
+  ✓ a refused microphone: "The microphone is off for this page. Allow it in your browser’s settings, then try again."
+  ✓ and the card is still usable (Record shows, nothing is stuck recording)
+
+## Eli records the verse
+  ✓ the card names the week and offers Record
+  ✓ it sits in the grown-ups' area, after the kids' stars and the week stepper
+  ✓ Record starts: a running time and "Recording…"
+  ✓ the clock counts the take (about 0:02)
+  ✓ Stop shows the take (not saved yet) with Play my take, Save and Record again
+  ✓ Play my take plays the take
+  ✓ saved: one family row voice:38 = { id, by: eli, byName, at, mime: audio/webm, ms, bytes <= 1 MB }
+  ✓ the card now shows "Eli’s voice" with the recorder's face, Play and Remove
+  ✓ one stored recording for the week
+  ✓ not public: /api/media/voice/… is 404 and the audio route without a session is 401
+  ✓ a signed-in kid fetches the exact recorded bytes (a webm)
+  ✓ Play on the card plays the saved recording
+  ✓ and a second tap stops it
+
+## a kid hears it on another device
+  ✓ the kid's verse speaker is "Eli’s voice" with Eli's face
+  ✓ and it reads that way to a screen reader
+  ✓ the kid's speaker button stays >= 64 px tall
+  ✓ tapping Read it to me plays a blob: URL (the audio was fetched with the session, not linked)
+  ✓ and the synthetic voice stays silent
+  ✓ the audio request carries the device and session headers
+  ✓ when it ends the speaker is back to "Eli’s voice"
+  ✓ a second tap while it plays stops it, and does not fall back to the synthetic voice
+  ✓ no toast at all while it plays
+
+## where it cannot play, the synthetic voice reads (quietly)
+  ✓ a recording that will not decode: the synthetic voice reads the verse at rate 0.85
+  ✓ and nothing is said about it (no toast)
+  ✓ the recording is not left "playing"
+  ✓ the audio cannot be fetched: the synthetic voice reads, quietly
+
+## saving over it asks first
+  ✓ the sheet names whose recording it replaces
+  ✓ Keep the old one: the recording on the Worker is unchanged and the take is still there
+  ✓ Replace it: a new recording
+  ✓ the replaced recording is gone (404)
+  ✓ and its bytes are deleted: still exactly one stored recording
+
+## the 90-second limit
+  ✓ a take that runs past 90 s is stopped at 1:30
+
+## the shelf plays a past week's recording
+  ✓ on week 39 (no recording) the verse speaker is the synthetic "Read it to me"
+  ✓ Earlier weeks, week 38: its speaker is labelled "Eli’s voice"
+  ✓ the shelf plays week 38's recording
+  ✓ closing the sheet stops it
+
+## Remove
+  ✓ Remove asks, naming whose recording it is
+  ✓ Keep it: the recording stays
+  ✓ Remove it: the family row is a tombstone
+  ✓ the audio is gone for everyone and its bytes are deleted
+  ✓ the card is back to a plain Record
+  ✓ the kid is back on "Read it to me"
+  ✓ and it reads with the synthetic voice again
+  ✓ no console errors in any context
+
+52 passed, 0 failed

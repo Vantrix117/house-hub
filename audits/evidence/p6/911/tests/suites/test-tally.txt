@@ -1,0 +1,166 @@
+
+## one device: +, -, off states, one row per device, the live region
+  ✓ a new counter shows 0 (never a skeleton once pulled)
+  ✓ - and Reset are off at 0, + is on
+  ✓ aria-busy cleared once live
+  ✓ a polite live region (role=status)
+  ✓ + three times shows 3
+  ✓ the live region says "3" after +
+  ✓ - shows 2 and the live region says "2"
+  ✓ one row per device: count:<device> = { n: 2, epoch: null }
+  ✓ + and - draw the shared sprite icons
+  ✓ two more - reach 0 and - turns off (aria-disabled)
+  ✓ - at 0 writes nothing and does not re-stamp the row
+  ✓ the off - looks off (dimmed)
+  ✓ Reset at 0 is off: no toast, no reset row, no log line
+  ✓ Reset carries the rotate-ccw icon and the word "Reset"
+
+## Reset + Undo
+  ✓ seeded 37
+  ✓ Reset is a smaller secondary control, away from +
+  ✓ one tap on Reset shows 0 at once (no confirm sheet)
+  ✓ toast: "Reset from 37" with Undo
+  ✓ the live region says "0" after Reset
+  ✓ a reset line is kept: from 37
+  ✓ Recent resets lists 37
+  ✓ the toast is up (10 s)
+  ✓ Undo brings 37 back
+  ✓ Undo takes the reset line away
+  ✓ the live region says "37" after Undo
+  ✓ Undo is a NEW epoch row, not a clock trick
+
+## two devices add up; Undo by value with another device's + kept
+  ✓ A +3 and B +4 add up to 7 on both
+  ✓ the two contexts are two devices
+  ✓ B sees A's 5 and its - is on
+  ✓ a - on B (which has no taps of its own) takes one off for both: 4
+  ✓ B's row is a signed net { n: -1 } (what 0f devices wrote too)
+  ✓ a + on B brings its row back to 0: total 5
+  ✓ B sees A's Reset (0)
+  ✓ Undo on A (no pull before it) restores 5 and keeps B's 2: 7
+  ✓ B shows 7 too (Undo seen on the other device)
+  ✓ a + on B after the Undo counts on the new epoch
+  ✓ Reset from 8 on A
+  ✓ Undo after another device reset again is refused with a plain message and changes nothing
+
+## bad rows read safely and are never written back
+  ✓ a negative device row (-13) alone reads as a total of 0
+  ✓ an old device row of -3 beside +10 is the 0f sum: 7
+  ✓ and a + on top counts 8
+  ✓ a fractional row (12.5) reads as 12
+  ✓ a huge row (1e21) reads as 999,999 (grouped) and + turns off at the top
+  ✓ a non-numeric row reads as 0
+  ✓ large counts are grouped: 250,000
+  ✓ a negative legacy count reads as 0
+  ✓ the legacy absolute count is still the base before a reset
+  ✓ rendering a bad row never rewrites it (it stays as it was until the person taps)
+  ✓ + on top of a bad row counts 41 and leaves the other device's row alone
+
+## named counters
+  ✓ with one counter: no switcher, a New counter button
+  ✓ New counter opens the name field with focus
+  ✓ the segmented control lists Count and Laps, Laps selected
+  ✓ two or three counters use the shared segmented control
+  ✓ counter:<id> = { name, at }
+  ✓ Laps counts in its own c:<id>:count:<device> row
+  ✓ the default counter is untouched
+  ✓ switching to Count shows its own count (0)
+  ✓ switching back shows Laps (2)
+  ✓ Reset on Laps: "Reset Laps from 2"
+  ✓ a named reset writes c:<id>:reset only
+  ✓ the reset line names the counter
+  ✓ Recent resets names Laps once there is more than one counter
+  ✓ Undo on a named counter restores 2
+  ✓ Rename opens the field with the current name
+  ✓ rename shows at once
+  ✓ an empty name is refused
+  ✓ Remove takes the counter off the list
+  ✓ toast: "Removed Laps today" with Undo
+  ✓ the dial goes back to Count (1)
+  ✓ Undo puts the counter back
+  ✓ with its count (2)
+  ✓ once Undo has gone a removed counter's own rows are cleared
+  ✓ at six extra counters the New counter button goes
+  ✓ more than three counters: one "Counters · 7" button (the current name beside it) instead of a row that hides the rest
+  ✓ it opens a list sheet with every counter on its own row
+  ✓ every row is a 44 px or taller target
+  ✓ focus trap: Tab from the last row wraps to the first
+  ✓ focus trap: Shift+Tab from the first row wraps to the last
+  ✓ focus trap: with focus nowhere, Tab lands inside the sheet
+  ✓ Escape closes the sheet
+  ✓ a row picks that counter and closes the sheet
+  ✓ a seventh is refused with a plain message
+  ✓ names are cleaned (no < >, one line, 24 characters)
+  ✓ five recent resets shown of eight rows
+  ✓ a reset older than 30 days is ignored
+
+## display profile: view only
+  ✓ kiosk session
+  ✓ no +, - or Reset are drawn
+  ✓ a "View only" line instead
+  ✓ no counter controls either
+  ✓ nothing queued; the count shows large in its dial
+
+## Home: the Tally card and a kid's tile
+  ✓ Eli's Home has a Tally card with the count (12)
+  ✓ it has Open Tally in the footer with the spot art
+  ✓ its + is 60 px or more
+  ✓ one tap on + counts: 13
+  ✓ the tap wrote this device's count:<device> row
+  ✓ a + from another device shows on Home (14)
+  ✓ the card and its number are the same nodes (never rebuilt under a finger)
+  ✓ the card announces through its own status line, not the number (a count arriving from elsewhere is not read out)
+  ✓ the status line holds what the person's own tap made: 13
+  ✓ Open Tally opens the app
+  ✓ Ezra's Tally app has the controls
+  ✓ a kid's +, - and Reset are 64 px or more
+  ✓ a kid's Undo is 64 px high
+  ✓ a kid gets the same Reset toast with Undo, no confirm sheet
+  ✓ a kid's Undo restores 9
+  ✓ a kid's Tally tile wears the count (9)
+  ✓ the tile says the count too: "Open Tally, 9"
+  ✓ the badge does not cover the tile art
+  ✓ a kid's Home has no Tally card
+  ✓ the tile is the same node and shows 10
+
+## layout: sizes, no overlap, + on the screen, no sideways scroll
+  ✓ adult 390x844: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ adult 390x844: + and - targets
+  ✓ adult 844x390: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ adult 844x390: + and - targets
+  ✓ adult 375x667: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ adult 375x667: + and - targets
+  ✓ adult 820x1180: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ adult 820x1180: + and - targets
+  ✓ adult 1180x820: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ adult 1180x820: + and - targets
+  ✓ adult 1440x900: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ adult 1440x900: + and - targets
+  ✓ kid 390x844: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ kid 390x844: + and - targets
+  ✓ kid 844x390: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ kid 844x390: + and - targets
+  ✓ kid 375x667: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ kid 375x667: + and - targets
+  ✓ kid 820x1180: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ kid 820x1180: + and - targets
+  ✓ kid 1180x820: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ kid 1180x820: + and - targets
+  ✓ kid 1440x900: name pill clear of the dial, + and - on the screen, no sideways scroll
+  ✓ kid 1440x900: + and - targets
+
+## across the room (IMP-TALLY-I1)
+  ✓ awake at first
+  ✓ after 20 s idle on an iPad-sized screen the room mode comes on
+  ✓ the count grows (the dial is much larger)
+  ✓ Reset is put away
+  ✓ any tap brings everything back
+  ✓ the waking tap counts nothing
+  ✓ a tap on + while the room mode is on only wakes the screen
+  ✓ the next tap counts
+  ✓ room mode in landscape 1180x820: the dial grows 543 -> 755 px (x1.3 at least) and stays on the screen
+  ✓ room mode in landscape 1366x1024: the dial grows 544 -> 874 px (x1.3 at least) and stays on the screen
+  ✓ under Reduce Motion the dial does not animate its size (the change is instant)
+  ✓ no console errors or page errors
+
+PASS 146 · FAIL 0

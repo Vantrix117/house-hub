@@ -1,0 +1,464 @@
+{
+ "area": "tally",
+ "file": "apps/tally.html",
+ "rules": {
+  "notLiteral": "0, 0px, auto, inherit, initial, unset, none, normal, currentColor, transparent, 100%, 1 (opacity), 0/1 z-index 0 are not literals",
+  "varOnly": "values built only from var(--token), calc() of tokens and color-mix() of tokens are not literals; the percentages inside a token color-mix are counted separately as \"mixRatio\" (ad-hoc derived colours)",
+  "fallback": "a literal inside var(--x, <literal>) is a fallback, counted as status \"fallback\", not a violation",
+  "print": "@media print declarations are exempt",
+  "keyframes": "declarations inside @keyframes are motion frames: counted only for colour",
+  "hairline": "1px and 2px in spacing/borders are sub-grid hairlines: status \"subgrid\", not counted as violations",
+  "circle": "border-radius 50% is a circle: status \"acceptable\"",
+  "relative": "em/%/vw/ch/dvh/cqw values are relative: status \"relative\" (they scale with their parent, unlike px), not violations",
+  "dollywood": "Dollywood template: selectors are split by flavour ([data-flavor=hub] = build guide only, [data-flavor=live] = park map only, html:not([data-flavor=live]) = build guide/standalone); lines 259-308 and 525-565 and SVG-shape selectors are cartography (colour exempt, as scripts/screens-apps.mjs allows); the :where(:root) / :where([data-theme=light]) palette blocks (lines 7-12) are standalone-only (overridden by the hub flavour block at line 212) except the map category colours",
+  "designCss": "apps/design.css: only declarations outside the token/theme/kind blocks are scanned (the component layer, resets, print)",
+  "meta": "<meta name=\"theme-color\"> hex is counted in category colour with status \"meta\" (a token cannot reach a meta tag; hub.js/index.html set it from JS)"
+ },
+ "summary": {
+  "file": "apps/tally.html",
+  "byCategoryStatus": {
+   "zIndex": {
+    "violation": 2
+   },
+   "opacity": {
+    "violation": 1
+   },
+   "shadow": {
+    "violation": 3
+   },
+   "fontSize": {
+    "violation": 3
+   },
+   "targetSize": {
+    "violation": 1
+   },
+   "localLiteral": {
+    "violation": 1
+   },
+   "colour": {
+    "violation": 17
+   },
+   "breakpoint": {
+    "info": 5
+   }
+  },
+  "violations": {
+   "zIndex": {
+    "total": 2,
+    "exactToken": 0,
+    "noToken": 2
+   },
+   "opacity": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "shadow": {
+    "total": 3,
+    "exactToken": 0,
+    "noToken": 3
+   },
+   "fontSize": {
+    "total": 3,
+    "exactToken": 0,
+    "noToken": 3
+   },
+   "targetSize": {
+    "total": 1,
+    "exactToken": 1,
+    "noToken": 0
+   },
+   "localLiteral": {
+    "total": 1,
+    "exactToken": 0,
+    "noToken": 1
+   },
+   "colour": {
+    "total": 17,
+    "exactToken": 0,
+    "noToken": 17
+   }
+  },
+  "distinctViolationValues": {
+   "zIndex": 2,
+   "opacity": 1,
+   "shadow": 3,
+   "fontSize": 2,
+   "targetSize": 1,
+   "localLiteral": 1,
+   "colour": 17
+  },
+  "mixRatios": {
+   "count": 0,
+   "distinct": 0
+  },
+  "breakpoints": [
+   "max-width 600",
+   "min-width 744",
+   "max-height 560",
+   "max-width 359",
+   "min-width 768"
+  ]
+ },
+ "hits": [
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "1",
+   "literal": "1",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 41,
+   "selector": "main",
+   "src": "css"
+  },
+  {
+   "cat": "opacity",
+   "prop": "opacity",
+   "value": ".5",
+   "literal": ".5",
+   "status": "violation",
+   "token": null,
+   "why": "no opacity/emphasis tokens (gap)",
+   "line": 47,
+   "selector": ".art",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "0 0 0 var(--border-w-strong) var(--accent-graphic)",
+   "literal": "0 0 0 TOKEN TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 53,
+   "selector": ".who .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hairline), var(--elev-float), var(--glow-accent-lg)",
+   "literal": "inset 0 1px 0 TOKEN , TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 91,
+   "selector": ".dial",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "calc(var(--disc) * 1.35 / max(var(--digits), 3))",
+   "literal": "max( TOKEN , 3)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 101,
+   "selector": ".count",
+   "src": "css"
+  },
+  {
+   "cat": "shadow",
+   "prop": "box-shadow",
+   "value": "inset 0 1px 0 var(--hi-3), inset 0 -12px 28px -18px var(--glass-inner), var(--elev-control), var(--glow-accent)",
+   "literal": "inset 0 1px 0 TOKEN , inset 0 -12px 28px -18px TOKEN , TOKEN",
+   "status": "violation",
+   "token": null,
+   "why": "bespoke shadow geometry: not one of --e1..--e4 (gap: an inset/pressed and a coloured-glow elevation)",
+   "line": 115,
+   "selector": ".tbtn",
+   "src": "css"
+  },
+  {
+   "cat": "targetSize",
+   "prop": "min-height",
+   "value": "64px",
+   "literal": "64px",
+   "status": "violation",
+   "token": "--tap (kid)",
+   "why": "equals a target token value but does not scale with kid mode",
+   "line": 168,
+   "selector": "main.compact #cpick",
+   "src": "css"
+  },
+  {
+   "cat": "zIndex",
+   "prop": "z-index",
+   "value": "2",
+   "literal": "2",
+   "status": "violation",
+   "token": null,
+   "why": "no z-index tokens exist (gap: --z-base/-bar/-sheet/-toast)",
+   "line": 177,
+   "selector": "main.far .who",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "max(var(--fs-lg), 3.2dvh)",
+   "literal": "max( TOKEN , 3.2dvh)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 177,
+   "selector": "main.far .who .who-name",
+   "src": "css"
+  },
+  {
+   "cat": "localLiteral",
+   "prop": "--size",
+   "value": "max(40px, 4.6dvh)",
+   "literal": "max(40px, 4.6dvh)",
+   "status": "violation",
+   "token": null,
+   "why": "local custom property holding a literal length",
+   "line": 177,
+   "selector": "main.far .who .avatar",
+   "src": "css"
+  },
+  {
+   "cat": "fontSize",
+   "prop": "font-size",
+   "value": "calc(var(--disc) * 1.3 / max(var(--digits), 3))",
+   "literal": "max( TOKEN , 3)",
+   "status": "violation",
+   "token": "--fs-hero (only fluid token) / none",
+   "why": "fluid size: no fluid type scale beyond --fs-hero (gap)",
+   "line": 178,
+   "selector": "main.far .count",
+   "src": "css"
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F4F1EC",
+   "value": ":'dark',forest:'dark',graphite:'dark'}, B={hearth:'#F4F1EC',pa",
+   "status": "violation",
+   "token": "--tv-text",
+   "why": "nearest Hearth token --tv-text (ΔE 4.2)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#ECE2CD",
+   "value": "',graphite:'dark'}, B={hearth:'#F4F1EC',parchment:'#ECE2CD',fr",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@parchment",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#F2F2F7",
+   "value": "'}, B={hearth:'#F4F1EC',parchment:'#ECE2CD',frost:'#F2F2F7',mi",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@frost, --surface-2@frost",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#0B0A09",
+   "value": "1EC',parchment:'#ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',fo",
+   "status": "violation",
+   "token": "--bg",
+   "why": "exact value of --bg@midnight",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#070F0D",
+   "value": "ECE2CD',frost:'#F2F2F7',midnight:'#0B0A09',forest:'#070F0D',gr",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 72.4)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#000000",
+   "value": "2F7',midnight:'#0B0A09',forest:'#070F0D',graphite:'#000000'}, ",
+   "status": "violation",
+   "token": null,
+   "why": "pure black: no --black / shade token (gap)",
+   "line": 9
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4f5d8c",
+   "value": "#0B0A09',forest:'#070F0D',graphite:'#000000'}, H={'#4f5d8c':'p",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 40.3)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#bc5a38",
+   "value": "D',graphite:'#000000'}, H={'#4f5d8c':'periwinkle','#bc5a38':'p",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#137f77",
+   "value": "00'}, H={'#4f5d8c':'periwinkle','#bc5a38':'peach','#137f77':'a",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 35.6)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#b4861b",
+   "value": "':'periwinkle','#bc5a38':'peach','#137f77':'aqua','#b4861b':'l",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 26.9)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8a6a4b",
+   "value": "38':'peach','#137f77':'aqua','#b4861b':'lavender','#8a6a4b':'b",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.1)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#3d5a3d",
+   "value": "'aqua','#b4861b':'lavender','#8a6a4b':'bubblegum','#3d5a3d':'m",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 45.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5b8143",
+   "value": "'lavender','#8a6a4b':'bubblegum','#3d5a3d':'mint','#5b8143':'b",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4c4c58",
+   "value": "':'bubblegum','#3d5a3d':'mint','#5b8143':'butter','#4c4c58':'g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 46.3)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#8c4f7a",
+   "value": "d':'mint','#5b8143':'butter','#4c4c58':'graphite','#8c4f7a':'s",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 38.2)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#4c7b6a",
+   "value": "43':'butter','#4c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'s",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 34.5)",
+   "line": 10
+  },
+  {
+   "cat": "colour",
+   "src": "js",
+   "prop": "js-string",
+   "literal": "#5e7a6e",
+   "value": "c4c58':'graphite','#8c4f7a':'sky','#4c7b6a':'sky','#5e7a6e':'g",
+   "status": "violation",
+   "token": null,
+   "why": "nearest Hearth token --tv-text-2 (ΔE 33.2)",
+   "line": 10
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-width 600",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 69
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 744",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 142
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-height 560",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 153
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "max-width 359",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 170
+  },
+  {
+   "cat": "breakpoint",
+   "literal": "min-width 768",
+   "status": "info",
+   "token": null,
+   "why": "no breakpoint scale is defined (CSS cannot var() in @media; a documented scale is the gap)",
+   "line": 174
+  }
+ ]
+}

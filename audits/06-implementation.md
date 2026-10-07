@@ -2529,3 +2529,320 @@ SHAPE/analyze's "large radii on the scale" uses a hard-coded list older than the
   - `CLAUDE.md`'s Larder bullet does not yet name the same-height-or-wait rule and the "N new or changed in the fridge · Show" wording;
   - the three original threshold scripts and `entry.mjs`'s empty-name line read an element that no longer exists.
 - **Production.** Nothing deployed. Batch 8 adds no migration; it ships with the Worker (`npx wrangler deploy`: the rule, the item fields, the 8 am push) and the site, in the order already set: migrations 006, 007, 008-timer-live, then the Worker, then the site.
+
+## Batches 9 and 10 — the Dollywood build guide and park map: one template, a guide you can tick from Home and a park map that tells the truth
+
+| | |
+|---|---|
+| **Findings** | 90 entries (48 build guide, 42 park map) and the kept improvement IMP-DOLLYWOOD-I1. **82 FIXED, 6 PARTIAL, 1 NEEDS DEVICE CHECK, 1 DEFERRED; IMP-DOLLYWOOD-I1 FIXED.** Batch 9: 45 FIXED, 3 PARTIAL (VIS-DOLLYWOOD-13, VIS-DOLLYWOOD-15, VIS-TYPE-2). Batch 10: 37 FIXED, 3 PARTIAL (GAP-DOLLYWOOD-LIVE-1: the arrival half only, UX-DOLLYWOOD-LIVE-4, UX-DOLLYWOOD-LIVE-5), 1 NEEDS DEVICE CHECK (VIS-DOLLYWOOD-LIVE-13), 1 DEFERRED by the plan (VIS-DOLLYWOOD-LIVE-12). Of the 20 earlier carry-overs and 2 unfiled findings with a Dollywood part, **7 go FIXED** (CONS-TYPE-1 and CONS-TOK-1 were already FIXED in batch 8; CONS-TYPE-2, CONS-SHAPE-3, CONS-SHAPE-4, UNFILED-1, UNFILED-2), **14 stay PARTIAL** (other apps or the lint still owe, or the figure did not improve: VIS-SHAPE-1) and **GAP-MOTION-3 stays NEEDS DEVICE CHECK**. Status per entry in `audits/05-findings.md`. |
+| **Code commit** | `b346916` (2026-10-07), template repo `1260483` |
+| **Files** | <ul><li>the template (`../dollywood-build-project/scripts/template.html`, `build_html.py`, `verify.py`, `export_hub.py`, its README) and its exports `apps/dollywood.html`, `apps/dollywood-live.html` (generated; never edited here)</li><li>`index.html`: Home's Build guide card (`guideHome()` / `guideCardHtml()`), the property box in `parkOn()`</li><li>`worker/src`: `park.js` (the shared property box), `reminders.js` (`arriveJob`, `parkJob`), `chat.js` (`where_is_family`), `policy.js`, `index.js` (the minute trigger)</li><li>`icons/sprite.svg`, `icons/LICENSE-lucide.txt` (the symbols the template draws, megaphone and flag-off last), `sw.js`, `CLAUDE.md`, `worker/README.md`</li><li>tests: `smoke-api.sh` (436 → 445), `test-home.mjs` (112 → 132), `test-push2.mjs` (97 → 124), `test-park.mjs` (24 checks, arrival and a parking-lot case added), new `test-dollywood.mjs` (42) and `test-dollywood-themes.mjs`, `test-dollywood-sync.mjs` (60)</li><li>the batch's checks in `audits/tools/phase6/9/` (`guide-b-9`, `look-a-9`, and `-9` copies of three Phase 3 scripts) and `audits/tools/phase6/10/` (`park-c-10`, `park-d-10`, and the `-10` copies of four Phase 3 scripts)</li></ul> |
+| **Schema / data** | **No migration.** One new person row, `dollywood` `summary` = `{next, secDone, secTotal, done, total, at}` (written 2 s after a tick, only when it differs), one new push kind `arrive` (`push_pref:arrive`, on by default for household adults) and the minute trigger now also runs `arriveJob`. The park map's phone-local wait history is `localStorage` only. Nothing was deployed. |
+| **How it was built** | <ul><li>The cloud run of the batch ran out of allowance and was finished on the owner's PC (WebKit).</li><li>Four workers on one template: A (the shared look: tokens, sprite, shape, type), B (the build guide), C (the park map), D (the Worker, the shell, waits, the meeting point, the build and its checks).</li><li>Two independent reviews with five and six rounds, an independent rescore of both rows on a re-priced template base, a second worker pass on the rescore's list, then one final run on the PC.</li><li>Status entries, the 05 rebuild, the pixel and contrast accounting and this section were written afterwards.</li></ul> |
+
+### The change
+
+**The guide is one tap from Home (UX-DOLLYWOOD-1, UX-DOLLYWOOD-3, P3-DOLLYWOOD-18).**
+- Home has an orchid Build guide card ("Next: Planting, banners and signage · Entrance & Plaza · 7 of 9 done", Continue; "All 242 steps built" at the end) from the person's `dollywood` `summary` row; the guide opens at the step it points to.
+- On the iPad and desktop a glass sticky bar carries Previous, **Mark done** (a 60 px capsule) and Next; on a phone Mark done is on the sheet's peek row. One tap ticks and moves on (it was 4 taps on the iPhone, 3 plus a scroll on the iPad).
+- A phone opens on the map above the sheet (map top y 470 → 126, markers above the sheet 12 → 68 of 68), with one row of chips.
+- The plot width saves only valid values (50-2,000 m, 900 ms after the last key, on change, blur or leaving), a cleared width reaches the other device, and the old `dw-plot` key is removed.
+
+**Fewer feed lines and a finished-section moment (UX-DOLLYWOOD-11, IMP-DOLLYWOOD-I1).** A tick posts nothing at once; 60 s after the last tick one line per section ("Built 3 steps in Entrance & Plaza"); ticked then unticked posts nothing; leaving the page flushes. Completing a section toasts "Showstreet done — 21 steps" once and settles a check into its chip (off under Reduce Motion).
+
+**The guide works on a phone (P3-DOLLYWOOD-03, -04, -05, -12, -13, VIS-DOLLYWOOD-16).** The … menu is a bottom sheet (Export and Import were unreachable), the 3D button toggles and a "Back to map" control returns, Upright frames the rotated box, the "?" and View menus stay on screen, the phone 3D camera frames the terrain (sky 0 % against about 40 %), and the 3D view outlines and frames the current step (GAP-DOLLYWOOD-1).
+
+**Right answers and quiet controls (P3-DOLLYWOOD-06, -07, -11, -14, -15, -16, -17).** "Up to 36″" lists 129 of 145 (it listed 9); the step card follows the plot width; Ctrl, Cmd and Alt shortcuts belong to the browser (Ctrl+D no longer ticks a step); arrow keys pan only a visible map; touch devices keep the touch hint; the Scale copy points to the step card; a done step keeps full ink with a check.
+
+**Quiet pages (P3-DOLLYWOOD-08, -09, VIS-TELL-1, P4-TELL-05, CONS-MOTION-4).** The highlight pulses three times and rests (idle main thread 14.1 % → 3.8 % on the iPad), 3D stops its loop when you leave it (60 frames a second → 0), the chip strip keeps its height (cold-open CLS 0.46 → 0.01, 37 landmark moves of up to 945 px → 0), and a light house no longer opens the guide on a dark frame.
+
+**One look for both exports (CONS-TYPE-2, CONS-TOK-3, GAP-TOK-4, CONS-SHAPE-3, -4, VIS-DOLLYWOOD-2, -6, -8, VIS-SHAPE-3).** Role tokens 2 → 158, clamp/calc 143 → 6, color-mix 25 → 0, spacing literals 75 / 91 → 2 / 18, the 4 px grid 83.5 % / 65.6 % → 96.8 % / 95.1 %, no control under 44 px, one sprite for the UI icons (0 → 27 uses), content glass 48 % → 3 %, the segmented switcher for Listings / Layers / Scale, drawn selects and switches, the hub's confirm sheet instead of `confirm()`.
+
+**The park map you can trust (P3-DOLLYWOOD-LIVE-03 to -10, -12, -13, -16, -17).**
+- A first open resumes sharing; a fix away from the park publishes nothing and Home no longer says "At the park" (the property box is one test in the map, Home, chat and the 15-minute job, and holds the parking lots); an old fix outside the frame says "Last seen 14 h ago" with Find me.
+- Amenity markers open their card; the compass turns the view in place; the denied state shows its Set my spot chip at once (a kid is told "Ask a grown-up to turn on location").
+- A kid's beacon switched off stops the kid's open map and removes the dot, switched on starts it; a kid never sees a Share switch; an adult sees the kids' beacons and heights before anyone shares.
+
+**Rally and arrivals (P2-PWA-18, GAP-DOLLYWOOD-LIVE-1).** Household adults get a Rally button on the meeting bar ("Rally the family to <name>?", the result line, a 60 s rest); the Worker's minute job tells the other adults when someone reaches the pin (once per person per pin, retried for 15 minutes, never for guests or kids, a switch in Me). The "left the park" half is deferred: a web page cannot read location in the background.
+
+**Waits and the meeting pin (P3-DOLLYWOOD-LIVE-11, -15, -18, UX-DOLLYWOOD-LIVE-6, GAP-DOLLYWOOD-LIVE-2, -4, VIS-DOLLYWOOD-LIVE-2, -8).** The Dollywood Express shows its wait (33 → 34 rides); waits older than 6 h go everywhere; the pin drops at 2 h with the map open; one error line with when it last worked; a trend arrow from this device's own history; a pill label for the pin that avoids pucks and controls; the MIN label at 11 px and 4.5:1 on all four bands.
+
+**Smaller park fixes.** Family labels collapse to initials, the compass keeps a readable N in every palette (21 of 42 under 4.5:1 → 0), the pulses stop after three cycles, the top controls take about 21 % of the phone map, ride and amenity cards are family cards, `:hover` is behind a fine pointer.
+
+**Decisions.**
+- The park map's primary stays the round Find me button; tabs are navigation (CONS-SHAPE-4).
+- The map colours stay a documented cartography exemption (D12), now one `MAPCOL` object.
+- Not built, by the plan: "left the park" alerts, park hours data, a sharper illustrated raster (VIS-DOLLYWOOD-LIVE-12), ride art for kids.
+- A new device with no saved Home hint sees the Build guide card pop in once (the cost of not reserving room for a card most people may not have): accepted in review, recorded below.
+
+**What the review changed.**
+- **Guide round 1** (Opus, 10 items): the Home card had no placeholder (a 672 px move against 403); the plot field saved keystrokes ("2500" stored 250, backspacing cleared the plot everywhere); the section toast covered the sticky bar; the step card did not keep one height; the reference build lost its sprite icons from a file; the README and licence wording; the phone map hint cut; a seed line; opacity in the map SVG; the "…" button wrapping. All fixed.
+- **Park round 1** (11 items): parking lots fell outside the Worker's park box so a kid's quiet alert went silent there (a regression against the pre-batch alert; now one box that holds the whole property polygon, `test-park` +1 case); a failed arrival push was never retried (now retried for 15 minutes, at most 5 tries, probe: 118 extra attempts → 4); the meeting bar hid the place name on phones; the pin label sat off screen; "Meet at here"; two feed lines per action; a misleading "nobody reached" line; a cut pill line; a resting opacity. All fixed.
+- **Later rounds:** guide rounds 2 to 5 found a Home skeleton for people without a card, the cost of re-measuring the card on every keystroke, a step card not re-measured on a text-size change, a cold-open card growing when the next step is in another section, a peek count line below the viewport and two Mark done buttons in the half and full sheet (all fixed; guide-b-9 grew 138 → 220 checks); park rounds 2 to 6 closed the retry window, the pin label at 430 px and XXL, and a test that failed before 08:07 New York because the seed rows were future-dated (the check now skips loudly).
+- **Rescore follow-ups** (after the figures below): the phone step list drew over the step text, the Rally and clear-the-point buttons borrowed other drawings (now a megaphone and a flag-off), the phone chrome covered a third of the map, the whole park showed as a small inset, the Style pane listed engineering layers, the desktop tab bar was a 1,416 px row, the denied pill and the placing line wrapped badly. Fixed and held by park-c-10 sections 23-29 and guide-b-9's review section.
+
+### Each finding's reproduction, rerun
+
+**How the scripts were run.**
+- Every Phase 2, 3 and 4 script the entries name ran on the unchanged tree (`git archive` of the pre-batch code) and on `b346916`, Windows WebKit. Outputs: `audits/evidence/p6/911/tests/repro-before/dollywood/` and `repro-after/`; the batch's own checks also ran on the pre-batch code (`repro-before-phase6/`).
+- **Four originals fail or time out after the batch for stale expectations, not regressions:**
+  - `layout-checks` clicks the removed `#lv-north`;
+  - `verify-phone-3d-no-exit-1/-2` tap a hidden 2D button and a 2D-only `#z-fit`;
+  - `verify-progress-menu-clipped-phone-1` never answers the hub's confirm sheet;
+  - `verify3-rally-unreachable-1` calls a renamed function.
+  Their `-9` and `-10` copies are the measure (`tests/old-scripts-9/`, `audits/tools/phase6/9/`, `10/`). The before columns of the three `-9` copies were not run on the pre-batch code: the originals' passes there are the before.
+- **Not measures:** `data-checks.mjs` times out before and after (its first-pull-abort arm keeps the guide on "Loading your progress"); `vischeck-contrast.mjs` reads fixed source line numbers; `phase4/TYPE/colour-only.mjs` crashes before and after; `verify-critic-waits-stale-while-open-4-*` and `-meet-point-never-expires-7-*` throw on `clock.fastForward` in WebKit before and after (the claims checks cover them).
+
+| Finding | Before | After |
+|---|---|---|
+| P3-DOLLYWOOD-03 (progress-menu-clipped-phone-2, guide-b-9) | menu 17 of 158 px visible, every row hit another element; guide-b-9 stopped at this section | a bottom sheet, rows at least 52 px, 12 checks pass; Export and Import fire, Reset asks |
+| P3-DOLLYWOOD-05 (upright-fit-phone-1) | with Upright and Fit, 31 of 68 centres inside the map; the section chip off screen | 68 of 68; the chip on screen |
+| P3-DOLLYWOOD-06 (layout-checks ipad.heightFilter) | up to 36″ 9 of 145, 42″ 18, 48″ 23 | 129, 138, 143 |
+| P3-DOLLYWOOD-08 (perf-idle) | idle busy 14.1 % iPad, 8.6 % desktop | 3.8 %, 2.8 % |
+| P3-DOLLYWOOD-09 (perf-3d) | 60 frames a second in 2D after 3D | 0 |
+| P3-DOLLYWOOD-12, -13 (look-a-9 section 4) | "?" at -215..52 of 390; View menu 637..887 of 820 | 20..370; 175..425 |
+| P3-DOLLYWOOD-16 (modifier-shortcuts-1-1) | Ctrl+D ticked step 7 (7 → 8 of 9 done) | unchanged |
+| P3-DOLLYWOOD-17 (critic-arrows) | ArrowDown panned a hidden map, page stayed | page 1359 → 1559, map unchanged |
+| P4-TELL-05 (cls-in-viewer-2, loading) | CLS 0.46, map drops 44-48 px, 945 px landmark move | CLS 0.0015-0.0099, 0 px |
+| P4-TYPE-01 (hidden-text) | steps iPhone 6.82 px minimum | 11 px |
+| VIS-DOLLYWOOD-2 (look-a-9 section 1) | 46 controls under 44 at 390; 25 at 820 | 0; 0 |
+| P3-DOLLYWOOD-LIVE-04 (meet-bar-stale-1) | no walk time, no Go, healed after 8 s | "2 min walk", Go shown, 0 s |
+| P3-DOLLYWOOD-LIVE-05 (beacon-height-1) | beacon switches 0, height steppers 0 | 2, 2 |
+| P3-DOLLYWOOD-LIVE-06 (publish-off-site-1) | a loc row, Mom's Home "At the park · Eli" | no post, no row, no card |
+| P3-DOLLYWOOD-LIVE-08 (amenity-tap-dead-1) | card never opens | opens ("Restrooms", "AED") |
+| P3-DOLLYWOOD-LIVE-10 (vis-pill -1-2) | second line 311 px in 173 (56 % visible) | 177 in 177 |
+| P3-DOLLYWOOD-LIVE-11 (waits-name-match-1) | 33 rides with a wait, no alias | 34, one alias |
+| P3-DOLLYWOOD-LIVE-13 (kid-beacon-on-2-1) | kid watching false, pill idle | true, pill good |
+| P4-ACCENT-06 (north-n-on-accent-2) | 21 of 42 under 4.5:1, minimum 3.67 | 0, minimum 5.68 |
+| P4-SHAPE-03 (parkmap-targets-18-1) | 13 selectors under 44 (11 effective) | 4 (2 effective) |
+| P4-MOTION-03 (park-live) | 2 infinite pulses, 2.6 % busy | 0, 1.5 % |
+
+**The batch's own checks** (final run, `b346916`):
+- **guide-b-9: 220/0** (138/9 on the earlier run, then 147, 161, 173, 198, 220 as the review rounds added sections).
+- **look-a-9: 143/0.** (the pre-batch tree fails section 1 with 46 controls under 44 px, section 2 with 123 labels at 6.8 px, section 4 with four popovers off screen, section 5 with CLS 0.39-0.46, and crashes at section 6).
+- **park-c-10: 114/0** across 29 sections (28/25 failed and 6 skipped on the pre-batch tree; the run needs to be after 08:07 New York, or four sections skip loudly).
+- **park-d-10: 61/0** (19/18 failed on the pre-batch tree).
+- **`verify.py` ends "step checks: all sections OK"**, including the park map's kids' heights (now typed into a number field).
+
+### Repo tests
+
+| Suite | Before (batch 8's final run) | After |
+|---|---|---|
+| test-home | 112 / 0 | 132 / 0 (the Build guide card: skeleton height equals the settled card, hint cleared, no card for a person without a row) |
+| test-push2 | 97 / 0 | 124 / 0 (arrive: once, not twice; switch off, guest, kid, already there; failed-delivery retry limits) |
+| test-park | (not in the batch 8 table) | 24 / 0 (a kid quiet in a parking lot still alerts) |
+| smoke-api.sh | 436 / 0 | 445 / 0 (the arrive block, wiring only; test-push2 holds the logic) |
+| smoke-chat (mock) | 76 / 0 | 84 / 0 |
+| test-dollywood-sync | not in the table | 60 / 0 |
+| test-dollywood | not in the table | 42 / 0; `test-dollywood-themes` all checks passed |
+| every other suite | pass | pass: test-hub 47, test-apps 48, test-design 60, test-kitchen 64, test-leftovers 43, test-timer 115, test-tv 100, test-verses 184, test-f260 58, test-prayer 36, test-prayer-faces 42, test-kidverse 69, test-kidstory 50, test-rewards 88, test-guests 56, test-photos 28, screens-shell 18, screens-apps 91 |
+| `test-prefs` | pass | failed only because it tapped Tally's + on the TV, which batch 11 removed on purpose; updated, 36/0 |
+| Earlier batches' checks | pass | pass; `handoff/prayer/check.js` 47/2 as since 0g (do-not-touch); `phase4/TYPE/colour-only.mjs` crashes before and after |
+
+- **Service worker:** `bump-sw --check` finds 75 precached files present and 70 shipped files accounted for. 35 inline scripts parse, 0 failed.
+- **Measurement rig:** build guide 409 of 409 jobs and park map 642 of 642 ran with 0 failed (the 4 device and 14 theme failures in the aggregate are the Timer's and the shell's, not Dollywood's).
+
+**The Phase 4 measuring tools**, on the pre-batch archive and `b346916` (`audits/evidence/p6/911/p4tools/before/` and `out/`), guide / park map:
+
+| Tool | Before → after |
+|---|---|
+| TOK/literals | spacing 75 / 91 → 2 / 18; font sizes 38 / 64 → 6 / 2; colour 15 / 29 → 8 / 5; radius 15 / 8 → 3 / 5; color-mix 25 → 0 |
+| TYPE/code-scan | role tokens 2 → 158; clamp/calc 143 → 6; px 8 → 2; under 11 px 2 → 0 |
+| ICON/static | sprite uses 0 → 27; text glyphs 53 / 52 → 33 / 32; emoji 7 → 2 (® ™ in a regex) |
+| MOTION/press | guide 14/16 → 16/24 (the tool now sees 8 more controls that do not press); park 9/9 → 9/9 |
+| MOTION/cls (150 ms) | guide iPad 37 moves / 945 px → 0; iPhone 18 / 138 px → 0; park 0 → 0 |
+| SHAPE/analyze | macro 4 px grid guide 83.5 → 96.8 %, park 65.6 → 95.1 %; off-concentric pairs guide 1 → 2, park 4 → 4 |
+| GLASS/layers | guide content glass 196 of 409 jobs (48 %) → 13 (3 %); park 0 → 0; the park's live layers median 7 → 6, area share 0.561 → 0.425 |
+| TELL/tells-webkit | guide 54 controls, 2 selectable → 56, 0; park 13, 1 → 13, 0 |
+
+### Measurement, captures and the rescore
+
+**Contrast** (`audits/evidence/p6/911/accounting.md` has every group). Failing text samples (system light / dark): guide **143 / 142 → 54 / 59**, park map **184 / 182 → 35 / 38** (Frost 37 → 4, Midnight and Forest 1 each); named palettes in the guide 27-53 → 0. 48 of the guide's samples in each scheme are the dimmed, disabled steps of the loading screens; 34 of the park map's light and 34 of its dark samples are the visually hidden "Rally" label on a phone (a 1 px clipped span the rig reads at 1.1:1); the rest are p10-only samples over map art or glass the rig draws without blur.
+
+**Captures** (Windows, 0 failed): the build guide 432, the park map 722, Tally 60, the shell 979. Pixel diffs (`capture/`):
+- **Build guide 432 of 432 and park map 722 of 722 changed against the pre-batch captures:** that is the batch; every screen was redrawn.
+- **The shell: 293 of 979 changed against batch 8.** Accounted for in `accounting.md`: 125 are adult Home (the Build guide card and the Tally card inserted, everything below re-flowed, the At the park card moved), 58 the kid Home (a count badge on the Tally tile), 72 the Apps grid and blocked-app screen (the Tally tile's new icon and badge), 38 the viewer and app switcher showing the redesigned Tally. None is noise; I did not call any noise.
+
+**Rescore** (`rescore/dollywood-guide.md`, `rescore/dollywood-park.md`; an independent judge, the Phase 4 method; the shared `dollywood-template` base re-priced once, by the batch 1 test, and applied to both rows): **the build guide 4.1 → 5.5** (range 5.2-5.5), **the park map 4.9 → 5.7** (range 4.9-5.3 on the first pass, 5.1 with the batch 1 base held). With the batch 1 base held the guide is 4.9 and the park map 5.1.
+- Guide: Typography 4 → 6, Layout 3 → 4, Shape 5 → 6.5, Icons 3 → 6.5, Motion 3.5 → 5.5, Ease 3.5 → 6, Delight 5.5 → 6.5; Colour 5, Dark 5, Native 5.5, Glance 3.5 held.
+- Park map: Typography 5 → 6, Colour 4 → 5, Layout 3.5 → 4.5, Shape 6 → 6.5, Icons 3.5 → 6, Motion 4.5 → 5, Ease 4.5 → 6; Dark, Native, Glance and Delight held.
+- **The scores were taken on code snapshots (guide `dfdeb304`, park `95a0f50b`) older than the final export (`cb1fc79d` / `a6acd17e` after LF conversion).** Fixes made after the snapshots, which the figures do not credit: the phone step list overlapping the step text (the rescore's one regression, LAY-4), Mark done on the phone peek row, one card height per section, a megaphone and flag-off for Rally and clearing the pin, the whole-park fit and the wide tab bar, the Style pane. **The figures of record are 5.5 and 5.7; no one re-scored.**
+
+### Not verified
+
+- **On a real iPhone and iPad:**
+  - the press feel of a guide chip and Mark done and of a park FAB and a sheet tab (GAP-MOTION-3, CONS-MOTION-1);
+  - the sticky step bar and the phone sheet's drag and detents in Safari;
+  - 3D smoothness on an iPad (software GL in the rig read 5 fps on the iPad-portrait run);
+  - GPS and the wake lock in the park, the first-open resume, and the kid's open map starting and stopping on a beacon change;
+  - the Rally push ("Meet at <name>") and the arrival push arriving on a second phone;
+  - live waits and trend arrows against queue-times.com, and the Express naming;
+  - real backdrop blur on the toolbar, sticky bar, sheet and meeting bar (the rig has none; VIS-DOLLYWOOD-LIVE-13's ghosting depends on it), and the sheet-over-bar look;
+  - kid speech (`#lv-speak`), VoiceOver reading the icon-only Go, Rally and Clear, a Tab walk, and arm's-length reading in sunlight;
+  - the loupe and callout long-press (CONS-TELL-1);
+  - every household profile's accent on Rally, Set my spot and the selected tab (the rig uses Eli and the kids).
+- **Left partly done:** VIS-DOLLYWOOD-13 (the pale legend swatches), VIS-DOLLYWOOD-15 (2 labels over a foreign marker), VIS-TYPE-2 (the pair count cannot be re-run), GAP-DOLLYWOOD-LIVE-1 (the leave half), UX-DOLLYWOOD-LIVE-4 (the card "Show the track" opens), UX-DOLLYWOOD-LIVE-5 (no ride art for kids); 14 carry-overs stay PARTIAL.
+- **Found, not fixed:**
+  - **A cold device's Home moves more:** TELL/loading shell, 403 → 672 px and CLS 0.0496 → 0.1254, because a device with no saved hint gets the Build guide card at the first pull. A skeleton for people who may never have a card moved the problem elsewhere; accepted in review.
+  - The park map's TELL/flash scenario C (light house, hub.js immediate) still flashes (a bright frame settling to a darker one, true before and after).
+  - Off-concentric pairs did not improve (guide 1 → 2, park 4 → 4); the sheet tabs sit r 20 in r 32 with a 24 px inset (8 would be concentric).
+  - The guide's press count is 16 of 24 controls; the park compass shows a brightness press only.
+  - The step-tile arrows in directions read 1.25-1.33:1 against their row (the words and the arrow carry the turn).
+  - Kid Verse's macro grid reads 48.4 % in the same SHAPE run (50.7 % before), which no earlier note counts.
+  - The guide-b-9 timing gate (a card measured in under 900 ms at 4x CPU) failed once under about 80 % PC load (1,114 ms) and passed on reruns; park-c-10 must run after 08:07 New York.
+  - `CLAUDE.md`'s test-home row text says the skeleton hides below 1024 px in one place and shows at every width in the code; check it.
+- **Production.** Nothing deployed. Batches 9 and 10 add no migration; they ship with the Worker (`npx wrangler deploy`: the property box, `arriveJob`, the minute trigger) and the site (the exports, `index.html`, `sw.js`), in the order already set: migrations 006, 007, 008-timer-live, then the Worker, then the site.
+
+
+## Batch 11 — the Tally counter: a Reset you can undo, several named counters, a Home card, no content glass and a layout that fits every screen
+
+| | |
+|---|---|
+| **Findings** | 15 Tally entries (1 medium, 14 low) and the kept improvement IMP-TALLY-I1. **15 FIXED; IMP-TALLY-I1 NEEDS DEVICE CHECK (across the room on a real iPad).** Of the 7 earlier carry-overs with a Tally part, **5 stay PARTIAL** because other apps or the art pipeline still owe the rest (CONS-ICON-1, CONS-ICON-2, CONS-GLASS-2, GAP-TOK-4, CONS-DARK-1) and **2 stay NEEDS DEVICE CHECK** (VIS-TALLY-7 and GAP-MOTION-3, the press feel on iOS). None of the 7 goes FIXED on this batch's evidence alone. Status per entry in `audits/05-findings.md`. |
+| **Code commit** | `b346916` (one commit with the Dollywood batches 9 and 10; the Tally files are listed below) |
+| **Files** | <ul><li>`apps/tally.html` (189 → 452 lines; the batch)</li><li>`apps/hub.js`: `hub.tally` (about 110 lines), the one copy of the counting rules that the app and Home's card share</li><li>`index.html`: Home's Tally card, the kid tile's count badge, `hub.use('tally')`</li><li>`worker/src/chat.js`: the count's clamp and the refusal in `set_data`, a reset line when chat sets the count</li><li>`apps/design.css` (a kid's Undo is `--tap` high), `icons/tally.svg` (the hash tile), `icons/LICENSE-lucide.txt`, `sw.js`, `CLAUDE.md` (the Tally bullet and the test row)</li><li>tests: new `scripts/test-tally.mjs` (146), `scripts/smoke-chat.sh` and `scripts/mock-anthropic.mjs` (76 → 84), `scripts/test-prefs.mjs` (see Repo tests)</li><li>the batch's checks in `audits/tools/phase6/11/`: `tally-claims-11` and seven `-11` copies of Phase 3 scripts</li></ul> |
+| **Schema / data** | **No migration.** The default counter keeps batch 0f's rows (`count:<device>` {n, epoch}, `reset` {epoch, at}), so an older cached build keeps working beside the new one. New person-scope rows: `counter:<cid>` {name, at}, `c:<cid>:count:<device>`, `c:<cid>:reset`, `resetlog:<at>` {cid, from, at}. The Worker's policy needed no change (a kid writes only their own person rows). Nothing was deployed. |
+| **How it was built** | <ul><li>Before the batch, an agent sorted the earlier batches' unfinished entries with a Tally part (7, in 6 items) and found one more thing to fix: `scripts/screens-apps.mjs` had failed 90/1 since batch 1 on Tally's page background.</li><li>One worker built it; an independent combined review (round 1) found 5 findings and 5 minor ones; then **eight confirmation rounds** (2 to 9), each a reviewer's probe against the last code; an independent rescore, then **two fix rounds driven by the rescore's lists** (the first-load jump, the empty iPad and desktop frame, the kid's Reset below the fold, the two icon weights, the missing art on phones); a second rescore.</li><li>One final run on the owner's PC (Windows, WebKit) on `b346916`, shared with batches 9 and 10.</li><li>The status entries, this section and the accounting were written afterwards.</li></ul> |
+
+### The change
+
+**Reset you can take back (UX-TALLY-1).**
+- Reset is one tap on a smaller soft pill (the rotate icon and the word) under the − / + pair, not a third big button; it resets at once and offers "Reset from 37 · Undo" for 10 s. A kid gets the same, with a 64 px Undo.
+- Undo first sends and pulls, then writes a **new epoch** holding the old total plus the taps made since, by value, on any device. It is refused plainly ("That count changed on another device, so it was not put back") if another reset came meanwhile. Reset at 0 is off.
+
+**Values it can show (P3-TALLY-04, -08, VIS-TALLY-6).**
+- A device row is read as an integer within ±999 999, the **total** is clamped to 0 … 999 999 and shown grouped ("987,654"); old rows from a device that pressed − more than + still read as they did (round 1 caught the first rewrite reading them as 0).
+- − at 0, + at 999 999 and Reset at 0 are off (aria-disabled, dimmed, no write, no re-stamp). Chat's "set my tally to N" refuses anything but a whole number 0 … 999 999 and, when it sets a count, adds its line to the recent resets.
+
+**Several counters and a short history (GAP-TALLY-1).**
+- The default "Count" plus up to six named counters (rename, remove with Undo), switched with the shared segmented control or, past three or when the chips do not fit, one "Counters · N" button that opens a list sheet; "Recent resets" lists the last 5 of 30 days.
+- No step size and no sound: decided, not built.
+
+**The page.**
+- The dial is sized from the frame's width and height and the controls stay on the screen: on a short landscape phone the dial and controls sit side by side, on an iPad or desktop in landscape the controls are a second column and the dial is about 543 px (it was 360).
+- The name pill is in the flow above the dial with the person's face and "Eli's counter", wraps a long name whole and never touches the dial.
+- − and + are one material, the dial, pill and Reset are solid (no `backdrop-filter` left), the tick ring reads `--track-info` so it shows in every palette, icons are the shared sprite at one stroke, the corner art sits on `--art-plate`, and nothing moves while the first count arrives.
+- A polite live region says the new count after each tap, Reset and Undo.
+- On the display profile there are no controls at all, only the count and "View only".
+
+**Across the room (IMP-TALLY-I1).** On a screen 768 px wide or more, after 20 s idle the dial and count grow and Reset goes; the tap that wakes it only wakes it; instant under Reduce Motion.
+
+**Home (UX-TALLY-3).** An adult's or guest's Home has a Tally card: the count filled in place, a 60 px + beside it, Open Tally; never rebuilt under a finger, and it announces only what your own tap made. A kid's Tally tile wears the count as a badge ("Open Tally, 9"). The tile icon is the hash glyph.
+
+**The carry-overs.** Tally draws every icon from the sprite (ICON/static uses 0 → 4), no content glass is left (100 % → 0 % of jobs), the tile's circle-plus collision is gone, the art sits on its plate, four of fifteen non-colour literals went; the press feel stays a device check.
+
+**Decisions.**
+- Reset is one tap with Undo, no confirm sheet; Undo restores by writing a new epoch, never by clock.
+- The default counter keeps its rows, so chat and older devices keep working on it.
+- No step size and no feedback sound. The display profile draws no controls.
+- The Home card is the answer to UX-TALLY-3; the kid keeps a picture tile with a badge rather than a card.
+- The dial's size follows the frame (not the width alone); a small stacked screen (a kid at the largest text on a phone) goes **compact**: smaller controls with Reset beside them, so the dial keeps its size.
+- The corner art disappears only where it would touch something (the iPhone, and a kid's phone in Safari, often).
+
+### What the review changed
+
+The reviewers' messages are not kept in the evidence folder; round 1's list is (`review/11/review-r1.md`), and each later round is recorded here from its probe in `review/11/rev/` and the claims script's growth. I did not read the reviewers' own words for rounds 2 to 9, so the headings below are what each probe was written to check, not a quotation of what was found.
+
+- **Round 1** (2 high, 2 medium, 1 low, 5 minor), all fixed:
+  - old device rows with a negative `n` read as 0 (10 + -3 gave 10, not 7; now 7 in the app, Home and chat; probe `p1-old-rows.mjs`);
+  - Undo of a Reset never pulled first (another device's +2 between Reset and Undo gave 37, now 39; a second reset before Undo had Undo overwrite it, now refused; probe `p2-undo-race.mjs`);
+  - + below the fold with several counters (24 of 32 size and profile combinations failed with 6 counters; probes `p3-layout-many.mjs`, `p3b-layout-modest.mjs`);
+  - room mode did not grow a kid's dial (a CSS specificity tie; `p4-far.mjs`);
+  - the kid tile's badge covered the tile art, and "Open Tally" hid the count (now "Open Tally, 9");
+  - minor: Home's card announced counts arriving from other devices, chat's set wrote no reset line, a 7th counter was hidden by a slice of 6, the `-11` copies forced clicks on enabled buttons, CLAUDE.md's wording.
+- **Round 2** (`p5-offline-undo.mjs`): Undo while offline (does it hang on the pull, does the count come back at once) and the cost of the layout fit (writes of `--room` and long tasks over a 40-tap burst, and whether it keeps changing when nothing does).
+- **Round 3** (`p7-sheet-room.mjs`, `p7b-sheet.mjs`, `p7c-room.mjs`): the counter list sheet past three (keyboard, Escape, focus back, a kid's row heights, a landscape phone at the largest text) and room mode with 999,999, 999, 7 and 1,000 staying inside the dial's tick ring. Claims 196 checks, 0 failed.
+- **Round 4** (`p8-xxl-race.mjs`): one claims check failed once (a kid, 2 counters, the largest text set after load, 1440 × 900: + 24 px below the frame); repeated 6 times, read at 400 ms and at 3 s, then after a resize. Claims 195 passed, 1 failed on that run.
+- **Round 5** (`p9-cold.mjs`, `p9-room.mjs`): cold loads, with a recorder logging the dial's size and the + position every frame for 4 s from the start of the document (hub and standalone, adult and kid, default and largest text, Reduce Motion), and 999,999 at the resting size. Claims 239 checks, 0 failed.
+- **Round 6** (`p10-compact-far.mjs`): the compact layout for a kid or an adult at the largest text on small screens (dial size, Reset's accessible name and box, all in view) and room mode in landscape. Claims 247, 0 failed.
+- **Round 7** (`p11-pill.mjs`, `p12-chip.mjs`): the name pill in room mode on a landscape iPad and with a long named counter, and on phones with a 24-character counter name and a long person name (cut? one line?). Claims 292, 0 failed.
+- **Rounds 8 and 9** (`p12r-pill.mjs`, `p13-plus.mjs`, `p13-orch.txt`): where + is in the failing cases (a kid at the largest text on 320 × 568, with and without a named counter, and 844 × 390 with an unbroken name), the pill against the counters button, and whether the fit recovers after a resize. Claims 336, 0 failed, then 344, 0 failed.
+- **Rescore-driven fix rounds** (the first verdict's list, `rescore/tally.md`): the first pull moved −, + and Reset 30 px up on the iPad and iPhone (landmark moves 0 → 3 in the first pass; now 0 on both, CLS 0, with the loading row kept in place); the iPad and desktop frame was mostly empty (the dial 360 → 543 px in landscape, 508 in portrait; V2 span 360 → 831 and 832 px); a kid's Reset sat below the fold on a landscape iPad and on iPhone Safari (now beside the controls, and on the first screen in Safari); + and − drew at two weights (one sprite weight now); the art was hidden below 900 px (now placed wherever it touches nothing).
+- **Four changes came after the second rescore** (tally.html 429 → 452 lines, so the 6.2 below was judged on code that predates them): the name pill wraps a long counter name inside itself and sits fixed top-right in room mode; a compact stacked layout for small screens at the largest text; the "Counters · N" button also when the chips would not fit; and the kid's counters row at 64 px. The final run's measurements and the claims script (344) cover the final code; the score was not re-judged on it.
+
+### Each finding's reproduction, rerun
+
+**How the scripts were run.**
+- The scripts the entries name ran on the unchanged code (`git archive` of the pre-batch tree) and on the final code (`b346916`, Windows WebKit); outputs in `audits/evidence/p6/911/tests/repro-before/tally/` and `repro-after/`.
+- Seven of them held assumptions the batch broke on purpose (a visible + to click, a drawn control on the TV, controls that are not aria-disabled). Their `-11` copies in `audits/tools/phase6/11/` say why in their first line and click through the DOM or with `force` only on the buttons that are now off, which is how they prove that a forced tap writes nothing. The batch's own pre-batch run is in `tests/repro-before-phase6/`.
+- **Exit codes mislead here.** The originals of `audiences`, `rapid`, `verify-critic-count-not-sanitised-3-2`, `verify-critic-kiosk-offers-edit-controls-4-1` and `-4-2` and `verify-minus-at-zero-silent-write-1` exit 1 after the batch (a TimeoutError waiting for a + that is aria-disabled or not drawn), and the original `-write-2` exits 0 with the same timeout in its output. Read the `-11` copies. `critic-chat-values`, `…count-not-sanitised-3-1`, `landscape-phone` and the glass-cost script exit 0 before and after and their outputs show the change.
+
+| Finding | Before | After |
+|---|---|---|
+| UX-TALLY-1 (audiences-11) | Ezra's Reset: 13 → 0, dialogs [], toast null, live region false | toast "Reset from 13 Undo", live region true; Undo restores (test-tally) |
+| P3-TALLY-04 (rapid-11, silent-write-1-11, -2-11) | − at 0 enabled (aria null, opacity 1); Reset at 0 posted 1 write | − aria-disabled "true", opacity 0.4; Reset at 0: 0 writes; the row's updated_at unchanged |
+| P3-TALLY-08 (critic-chat-values, 3-2-11, smoke-chat) | chat -13 → "set to 0", 12.5 → 12, 1e+21 shown "1e+21" | all refused, the count stays 12; a raw 1e+21 row shows "999,999"; smoke-chat 76 → 84 |
+| P3-TALLY-09 (4-1-11, 4-2-11) | +, − and Reset drawn at 140, 96, 265 px, each answered by a toast; no "View only" | 0 × 0, anyViewOnlyText true, viewOnlyHint true, no write from a DOM click |
+| UX-TALLY-5 (landscape-phone) | Eli, frame 382: dial 360, + bottom 556, Reset 624; Ezra, frame 358: dial 400, + 638 | dial 306 and 258; + bottom 273 and 277; Reset 235 and 245; all inside the frame |
+| P4-GLASS-05 (glass-cost-2) | 3 blurred layers over the kid page (tab bar, #who, #reset); blur on/off pixel difference 0.39 mean | 1 (the tab bar); 0 |
+| UX-TALLY-3 (audiences-11) | Home has no Tally button for Eli | homeHasTallyButton true (its own "3 taps" count still walks Home → Apps → tile) |
+
+**The batch's own checks** (final run on `b346916`):
+- **tally-claims-11: 344/0**, against **85 passed, 28 failed** on the pre-batch code (the pre-batch run covers the layout block and one line of the next, then stops, and I did not trace why: 28 of the 112 layout checks fail on it, 9 adult and 19 kid). Blocks: layout 112 (7 sizes, default and XXL, adult and kid), no first-load jump and one icon weight 19, several counters 112, across the room 37, the name pill 44, a kid at the largest text 8, ring contrast, one material, no content glass, icons and face, no hex and a real page background 12. It grew 84 (the worker's first run) → 196 → 195/1 → 239 → 247 → 292 → 336 → 344 through the review rounds.
+- **test-tally: 146/0** (new): one device 14, Reset + Undo 12, two devices add up 12, bad rows 11, named counters 36, display profile 5, Home card and kid tile 20, layout at six sizes 24, across the room 12. It grew 133 → 144 → 146 in the review.
+- **home-art-5**: 384 page loads, 2256 cards, art overlaps 0, names or numbers cut 0 (as before the batch).
+- **screens-apps: 90/1 → 91/0.** The one failure since batch 1 was Tally's page background reading transparent in every theme (the shorthand had no colour layer); Tally now has a real background colour that follows the palette (a claims check holds it too).
+
+**The Phase 4 measuring tools**, on the pre-batch archive and the final code (`p4tools/before/base11-*` and `out/`), Tally:
+
+| Tool | Tally before → after |
+|---|---|
+| TOK/literals | non-colour literals 15 → 11 (spacing 1 → 0, line height 2 → 0, glass filter 1 → 0, z-index 4 → 2; font size 1 → 3, shadow 3 → 3, opacity 1, local literal 2 → 1, target size 0 → 1); breakpoints none → 5 literal ones (600, 744, 560, 359, 768); colours 17 → 17 |
+| TYPE/code-scan | one clamp, no tokens → 5 role tokens (`--fs-sm`, `--fs-lg`, `--fs-md`) and 3 clamps; none under 11 px |
+| ICON/static | 2 hand-drawn SVGs, stroke {1.75: 2}, 0 sprite uses → 4 SVGs, 4 sprite uses, no stroke width; glyphs and emoji none |
+| MOTION/press | 3 of 3 controls → 4 of 4 (0.97 with a brightness shift) |
+| MOTION/cls | 0 → 0 on the iPad and the iPhone (0 landmark moves) |
+| SHAPE/analyze | macro 4 px grid 74.0 % → 75.1 % (the kid ×1.25 scale gives 25 and 30 px; an analyzer artefact, not a fix); spacing occurrences 288 → 996 |
+| SHAPE/verify | V2 span 318 (iPhone), 360 → 508 (iPad portrait), 360 → 831 (iPad landscape), 360 → 832 (desktop); V4 kid: + 168 and − 116 unchanged, Reset 197 × 64 → 133 × 64, all capsules |
+| TELL/tells-webkit | 3 controls → 4, all `user-select: none`; a double-click selects nothing; zoom 0 |
+| GLASS/layers | live blur median 3, max 3 → 0, 0; content glass 36 of 36 jobs (100 %) → 0; area share median 0.062 → 0 |
+
+### Repo tests
+
+| Suite | Before (batch 8's final run) | After |
+|---|---|---|
+| test-tally | (new) | 146 / 0 |
+| test-home | 112 / 0 | 132 / 0 (batches 9, 10 and 11 together) |
+| test-kitchen | 64 / 0 | 64 / 0 |
+| test-prefs | pass | **36 / 0 on its rerun.** The first final-run pass timed out: it clicked Tally's + on the display, which the batch removed on purpose. `scripts/test-prefs.mjs` now asserts that the display draws no + and says "View only" and that a dispatched click writes nothing. **That edit is in the worktree but not in commit `b346916`.** |
+| smoke-api.sh | 436 / 0 | 445 / 0 (batches 9 and 10 add most of it; none of it is a Tally check) |
+| smoke-chat (mock) | 76 / 0 | 84 / 0 (the count's refusals and the reset line) |
+| every other suite | pass | pass, identical counts (test-hub 47, test-apps 48, test-design 60, test-tv 100, test-timer 115, test-verses 184, test-kidverse 69, screens-shell 18, screens-apps 91) |
+| Earlier batches' checks | pass | pass. `handoff/prayer/check.js` 47/2 (as since 0g; do-not-touch) |
+
+- Service worker: `bump-sw --check` finds 75 precached files present and 70 shipped files accounted for; 35 inline scripts parse, 0 failed.
+- `phase4/TYPE/colour-only.mjs` crashes before and after (a pre-existing tool bug, not this batch).
+
+### Measurement, captures and the rescore
+
+**Contrast** (`accounting.md`). Tally: 4 text samples below AA, all "Reset" while it is off (count 0 or loading; 1.90:1 light and 2.58:1 dark at 0.4 opacity, 5.86:1 and 7.02:1 at full strength). The shell: 750 samples, 13 more than batch 8, all the same Reset label in the viewer jobs. The non-text groups are the same off states and an emoji avatar. Nothing resting is below AA.
+
+**Captures** on the final code (0 failed): Tally 60, the shell 979. Pixel diffs (`capture/`; accounted in `accounting.md`):
+- **Tally: 60 of 60 changed** (5.6 % to 28.6 % of the pixels), the batch.
+- **The shell: 293 of 979 changed against batch 8.** All the groups I opened are Tally's: the tile icon (72), Tally in the viewer (20) and behind the Switch-app sheet (18), the new Tally card on an adult's Home and what it moves (125, Eli's carousel 6 → 7 dots), a kid tile's count badge (58). 57 more are the tool's "noise" class. No shot shows the Dollywood Build guide card, so its pixels are not in this diff.
+- No capture shows the Undo toast, the counter list sheet, a multi-counter page or room mode.
+
+**Rescore** (`rescore/tally.md`; an independent judge, the Phase 4 method, bases held): **Tally 5.7 → 6.0 → 6.2** (68/11 = 6.18; range 6.1-6.2; the first pass on `cap2` was 6.0).
+- Final cells: Typography 7, Colour 6, Layout 7 (LAY-2 lifted, LAY-5 earned, LAY-4 stays lifted), Shape 6.5, Icons 6.5 (ICO-1 earned), Motion 5, Dark 6.5, Native 6.5, Glance 6.5, Ease 6, Delight 4.5.
+- Policy calls: Shape rests on code and the worker's check (without it 6.14), Colour is held without a fresh contrast run (6.09), no second Motion half (6.23). **The final run has since measured two of those:** GLASS/layers ran (content glass 0 of 36 jobs, so SHP-2 now has a measurement under it) and the contrast run found no resting Tally sample below AA.
+- **The figure of record is 6.2**, judged on `tally.html` of 429 lines; the committed file is 452 lines (four late changes, listed above) and was not re-scored.
+
+### Not verified
+- **On a real iPhone and iPad:**
+  - the press feel of −, + and Reset and of the Home card's + (VIS-TALLY-7, GAP-MOTION-3); a long press on the count or the art showing no iOS callout;
+  - VoiceOver saying the new count after a tap, Reset and Undo (UX-TALLY-4), and the Home card's own status line;
+  - room mode (IMP-TALLY-I1): the idle wait, the waking tap, instant under Reduce Motion, and reading it from across a kitchen;
+  - the Undo toast and its 64 px button for a kid on screen, and the counter list sheet with VoiceOver and a Tab walk (NAT-6 is not claimed);
+  - the real backdrop blur on the viewer bar and the sheets, and the SF fonts (Typography and Shape stay provisional on the rig's fallback fonts).
+- **Left partly done:** 5 carry-overs stay PARTIAL: CONS-ICON-1 (the Dollywood exports and the shell's own symbols), CONS-ICON-2 (the shell feed's flame, the park map's heart and AED), CONS-GLASS-2 (the chat bubbles, the build guide's map controls), GAP-TOK-4 (the Dollywood exports' literals, and Tally's own 11 left) and CONS-DARK-1 (the art set has no dark form).
+- **Found, not fixed** (measured in the final run or the rescore, for a later polish pass):
+  - + and − are hairlines on the 140-168 px discs: one 1.75 px stroke earns ICO-1 but reads weaker than before and weaker than the Home card's + (a size-scaled `--icon-stroke` token would fix it, hub-wide);
+  - a + tap changes only the number: no count bump, no sound, no haptic (DEL-3); the brief chose no sound;
+  - in landscape the name pill and "New counter" centre on the dial plus controls, not on the dial, so the pill floats right of the dial's axis; the controls column sits a little above the dial's centre;
+  - the Home card is not on a first screen: on the iPhone it is a carousel page (Eli's carousel is now 7), on an iPad below the first screen, and its + floats mid-card on a wide card (EOU-1 not earned);
+  - TOK/literals: 11 non-colour literals and 5 literal breakpoints, and the kid's `min-height: 64px` equals `--tap` without scaling;
+  - `icons/sprite.svg` line 11's comment still says "i-circle-plus the Tally";
+  - `audiences.mjs`'s "3 taps" still counts the Apps route, not the Home card;
+  - a DOM click on the display's hidden + still raises hub's own read-only toast (nobody can reach it);
+  - the reviewer's p1 and p2 outputs (the old-rows and Undo-race numbers quoted above) are in `C:/Users/ex_bo/b11/runs3/`, not in the repo evidence folder; only their scripts are in `review/11/rev/`.
+- **Production.** Nothing deployed. Batch 11 adds no migration; it ships with the Worker (`npx wrangler deploy`: the count's refusal and the reset line in chat) and the site, in the order already set: migrations 006, 007, 008-timer-live, then the Worker, then the site (with batches 9 and 10, which add the Dollywood Worker changes).

@@ -1,0 +1,318 @@
+{
+ "steps": [
+  {
+   "s": 3,
+   "k": "slate: server timers",
+   "v": []
+  },
+  {
+   "s": 4,
+   "k": "P1 timer (1 min) started on A; ends",
+   "v": "2026-10-07T12:26:46.984Z"
+  },
+  {
+   "s": 4,
+   "k": "P1 B before sleep",
+   "v": {
+    "rings": 0,
+    "pill": true,
+    "ringing": false,
+    "label": "P1",
+    "rows": [
+     {
+      "id": "muy2zj000nju4",
+      "label": "P1",
+      "state": "running",
+      "startedAt": 1791375946984
+     }
+    ]
+   }
+  },
+  {
+   "s": 67,
+   "k": "P1 A at end+4 s",
+   "v": {
+    "rings": 1,
+    "pill": true,
+    "ringing": true,
+    "label": "Time's up · P1",
+    "rows": [
+     {
+      "id": "muy2zj000nju4",
+      "label": "P1",
+      "state": "ended",
+      "startedAt": 1791375946984
+     }
+    ]
+   }
+  },
+  {
+   "s": 67,
+   "k": "P1 server at end+4 s",
+   "v": [
+    {
+     "id": "muy2zj000nju4",
+     "label": "P1",
+     "startedAt": 1791375946984,
+     "endAt": 1791376006984
+    }
+   ]
+  },
+  {
+   "s": 136,
+   "k": "P1 B 3 s after waking at end+70 s",
+   "v": {
+    "rings": 1,
+    "pill": true,
+    "ringing": true,
+    "label": "Ended at 8:26 AM · P1",
+    "rows": [
+     {
+      "id": "muy2zj000nju4",
+      "label": "P1",
+      "state": "ended",
+      "startedAt": 1791375946984
+     }
+    ]
+   }
+  },
+  {
+   "s": 140,
+   "k": "P1 after A's Stop: B",
+   "v": {
+    "rings": 1,
+    "pill": false,
+    "ringing": true,
+    "label": "Ended at 8:26 AM · P1",
+    "rows": []
+   }
+  },
+  {
+   "s": 207,
+   "k": "P2 A stopped P2a and started P2b (10 min); server",
+   "v": [
+    {
+     "id": "muy33w3echs1g",
+     "label": "P2b",
+     "startedAt": 1791376150574,
+     "endAt": 1791376750574
+    }
+   ]
+  },
+  {
+   "s": 274,
+   "k": "P2 server 4 s after B woke",
+   "v": [
+    {
+     "id": "muy33w3echs1g",
+     "label": "P2b",
+     "startedAt": 1791376150574,
+     "endAt": 1791376750574
+    }
+   ]
+  },
+  {
+   "s": 340,
+   "k": "P3 A restarted the same row (samerow) with a new start",
+   "v": "2026-10-07T12:31:23.453Z"
+  },
+  {
+   "s": 406,
+   "k": "P3 B on waking (before any pull) holds the start",
+   "v": 1791376219455
+  },
+  {
+   "s": 410,
+   "k": "P3 server 4 s after B's Stop",
+   "v": [
+    {
+     "id": "samerow",
+     "label": "P3",
+     "startedAt": 1791376283453,
+     "endAt": 1791376883453
+    }
+   ]
+  },
+  {
+   "s": 546,
+   "k": "P4 server 4 s after C reopened",
+   "v": [
+    {
+     "id": "muy39p9nbw13i",
+     "label": "P4b",
+     "startedAt": 1791376421662,
+     "endAt": 1791377021662
+    }
+   ]
+  }
+ ],
+ "checks": [
+  {
+   "ok": true,
+   "name": "P1: A rang at 0 and its pill says time is up",
+   "v": {
+    "rings": 1,
+    "pill": true,
+    "ringing": true,
+    "label": "Time's up · P1",
+    "rows": [
+     {
+      "id": "muy2zj000nju4",
+      "label": "P1",
+      "state": "ended",
+      "startedAt": 1791375946984
+     }
+    ]
+   }
+  },
+  {
+   "ok": true,
+   "name": "P1: no device cleared the row at 0 (it stays until Stop)",
+   "v": [
+    {
+     "id": "muy2zj000nju4",
+     "label": "P1",
+     "startedAt": 1791375946984,
+     "endAt": 1791376006984
+    }
+   ]
+  },
+  {
+   "ok": true,
+   "name": "P1: B, woken 70 s after the end, rings and reads \"Ended at …\" (UX-TIMER-3: not \"no trace\")",
+   "v": {
+    "rings": 1,
+    "pill": true,
+    "ringing": true,
+    "label": "Ended at 8:26 AM · P1",
+    "rows": [
+     {
+      "id": "muy2zj000nju4",
+      "label": "P1",
+      "state": "ended",
+      "startedAt": 1791375946984
+     }
+    ]
+   }
+  },
+  {
+   "ok": true,
+   "name": "P1: B's wake cleared nothing",
+   "v": [
+    {
+     "id": "muy2zj000nju4",
+     "label": "P1",
+     "startedAt": 1791375946984,
+     "endAt": 1791376006984
+    }
+   ]
+  },
+  {
+   "ok": true,
+   "name": "P1: Stop on A removes the row; B stops ringing on its next pull",
+   "v": {
+    "server": [],
+    "b1b": {
+     "rings": 1,
+     "pill": false,
+     "ringing": true,
+     "label": "Ended at 8:26 AM · P1",
+     "rows": []
+    }
+   }
+  },
+  {
+   "ok": true,
+   "name": "P2: the new 10-minute timer survives B's wake (and the stopped one stays stopped)",
+   "v": [
+    {
+     "id": "muy33w3echs1g",
+     "label": "P2b",
+     "startedAt": 1791376150574,
+     "endAt": 1791376750574
+    }
+   ]
+  },
+  {
+   "ok": true,
+   "name": "P2: A still shows it running",
+   "v": {
+    "rings": 6,
+    "pill": true,
+    "ringing": false,
+    "label": "P2b",
+    "rows": [
+     {
+      "id": "muy33w3echs1g",
+      "label": "P2b",
+      "state": "running",
+      "startedAt": 1791376150574
+     }
+    ]
+   }
+  },
+  {
+   "ok": true,
+   "name": "P2: B shows the new timer after its wake",
+   "v": {
+    "rings": 2,
+    "pill": true,
+    "ringing": false,
+    "label": "P2b",
+    "rows": [
+     {
+      "id": "muy33w3echs1g",
+      "label": "P2b",
+      "state": "running",
+      "startedAt": 1791376150574
+     }
+    ]
+   }
+  },
+  {
+   "ok": true,
+   "name": "P3: B's Stop of the start it saw end never removes the newer start of the same row (P2-STAB-13)",
+   "v": {
+    "seen": 1791376219455,
+    "s3": [
+     {
+      "id": "samerow",
+      "label": "P3",
+      "startedAt": 1791376283453,
+      "endAt": 1791376883453
+     }
+    ]
+   }
+  },
+  {
+   "ok": true,
+   "name": "P4: the new timer survives C's cold reopen",
+   "v": [
+    {
+     "id": "muy39p9nbw13i",
+     "label": "P4b",
+     "startedAt": 1791376421662,
+     "endAt": 1791377021662
+    }
+   ]
+  },
+  {
+   "ok": true,
+   "name": "P4: C shows it running",
+   "v": {
+    "rings": 0,
+    "pill": true,
+    "ringing": false,
+    "label": "P4b",
+    "rows": [
+     {
+      "id": "muy39p9nbw13i",
+      "label": "P4b",
+      "state": "running",
+      "startedAt": 1791376421662
+     }
+    ]
+   }
+  }
+ ]
+}

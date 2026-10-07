@@ -1,0 +1,112 @@
+shot C:\Users\ex_bo\hub-audit\audits\evidence\p3\dollywood-live\verify-meet-bar-stale-after-place-2-A1-after-place.png
+shot C:\Users\ex_bo\hub-audit\audits\evidence\p3\dollywood-live\verify-meet-bar-stale-after-place-2-A2-after-40s-no-remote.png
+shot C:\Users\ex_bo\hub-audit\audits\evidence\p3\dollywood-live\verify-meet-bar-stale-after-place-2-A3-after-remote-write.png
+shot C:\Users\ex_bo\hub-audit\audits\evidence\p3\dollywood-live\verify-meet-bar-stale-after-place-2-B2-gps-after-40s.png
+{
+  "A0_beforePlace": {
+    "hidden": false,
+    "name": "Meet at The Wildwood Tree",
+    "meta": "set by Mae 12 min ago",
+    "goHidden": true,
+    "me": null,
+    "sync": "synced"
+  },
+  "A1_pillAfterPlace": {
+    "state": "good",
+    "title": "You're in Timber Canyon",
+    "sub": "At Whistle Punk Chaser · placed by hand",
+    "act": null
+  },
+  "A1_barAfterPlace": {
+    "hidden": false,
+    "name": "Meet at The Wildwood Tree",
+    "meta": "2 min walk · set by Mae 12 min ago",
+    "goHidden": false,
+    "me": {
+      "src": "place",
+      "x": 780,
+      "y": 820
+    },
+    "sync": "synced"
+  },
+  "A2_barAfter40sNoRemote": {
+    "hidden": false,
+    "name": "Meet at The Wildwood Tree",
+    "meta": "2 min walk · set by Mae 13 min ago",
+    "goHidden": false,
+    "me": {
+      "src": "place",
+      "x": 780,
+      "y": 820
+    },
+    "sync": "synced"
+  },
+  "A3_momWrite": {
+    "status": 200,
+    "applied": [
+      true
+    ]
+  },
+  "A3_barAfterRemoteWrite": {
+    "hidden": false,
+    "name": "Meet at The Wildwood Tree",
+    "meta": "2 min walk · set by Mae 13 min ago",
+    "goHidden": false,
+    "me": {
+      "src": "place",
+      "x": 780,
+      "y": 820
+    },
+    "sync": "synced",
+    "healedAfterSeconds": 1
+  },
+  "B0_barBeforeLocate": {
+    "hidden": false,
+    "name": "Meet at The Wildwood Tree",
+    "meta": "2 min walk · set by Mae 13 min ago",
+    "goHidden": false,
+    "me": {
+      "src": "gps",
+      "x": 762,
+      "y": 842
+    },
+    "sync": "pending"
+  },
+  "B1_pill": {
+    "state": "good",
+    "title": "You're in Timber Canyon",
+    "sub": "At Thunderhead · ± 20 ft · sharing",
+    "act": null
+  },
+  "B1_barAfterGpsFix": {
+    "hidden": false,
+    "name": "Meet at The Wildwood Tree",
+    "meta": "2 min walk · set by Mae 13 min ago",
+    "goHidden": false,
+    "me": {
+      "src": "gps",
+      "x": 762,
+      "y": 842
+    },
+    "sync": "synced"
+  },
+  "B2_barAfter40sWalking": {
+    "hidden": false,
+    "name": "Meet at The Wildwood Tree",
+    "meta": "1 min walk · set by Mae 14 min ago",
+    "goHidden": false,
+    "me": {
+      "src": "gps",
+      "x": 789,
+      "y": 869
+    },
+    "sync": "synced"
+  },
+  "code": {
+    "setMe_1245": "drawMe();updLoc();renderNear();renderFam();publish(); -- no renderMeet",
+    "renderMeet_callers": "only loadMeet :1579, setMeet :1587, clearMeet :1588",
+    "loadMeet_callers": "liveInit :1483 and loadFam :1256 (loadFam runs on hub.onChange for family loc:/meet/kid rows, :1483)",
+    "onChange": "hub.js emit :206 fires only for rows another device changed (pullScope :286-300)",
+    "interval_1484": "setInterval(()=>{drawFam();renderFam()},30000) -- no loadMeet"
+  }
+}

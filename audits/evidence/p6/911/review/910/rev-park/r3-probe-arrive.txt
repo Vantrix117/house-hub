@@ -1,0 +1,21 @@
+eli subscribe 200
+christian subscribe 200
+mom subscribe 200
+
+## A: arrive retry after a failed delivery (comment: "a push that failed is tried again the next minute")
+meet put 200
+run1 {"job":"arrive","meet":{"name":"Bench","at":1790431200000},"arrived":[],"notified":[],"skipped":[]}
+run2 (eli fails) {"arrived":["christian"],"notified":[["eli",0],["mom",1]],"skipped":[{"profile":"eli","why":"delivery_failed_retry"}]}
+retry run 1 {"arrived":[],"notified":[["eli",1]],"skipped":[]}
+retry run 2 {"arrived":[],"notified":[],"skipped":[]}
+retry run 3 {"arrived":[],"notified":[],"skipped":[]}
+received [ 'mom', 'eli' ]
+push_log [{"profile_id":"eli","kind":"arrive","ok":0},{"profile_id":"mom","kind":"arrive","ok":1},{"profile_id":"eli","kind":"arrive","ok":1}]
+setting [Object: null prototype] {
+  value: '{"at":1790431200000,"inside":{"christian":true,"mom":false},"told":{"christian":["mom","dad","niece","eli"]},"owed":{"christian":{"at":1790431260000,"n":2,"to":["eli","mom","dad","niece"]}}}'
+}
+
+## B: a fix in the far parking lot (inside the map PROPERTY polygon at x=1500,y=3000, which the map publishes) vs the Worker box
+park run (both in the lot, fresh) {"parkDay":true,"markers":[{"id":"eli","kind":"adult","ageMin":0},{"id":"ezra","kind":"kid","ageMin":0}],"stale":[]}
+park run (Ezra quiet 25 min in the lot, Eli fresh in the lot) {"parkDay":true,"stale":[{"id":"ezra","ageMin":25}],"notified":["eli","christian","mom"]}
+park run (Eli back in the park, Ezra quiet 25 min in the lot) {"parkDay":true,"stale":[{"id":"ezra","ageMin":25}],"notified":[]}

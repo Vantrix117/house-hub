@@ -1,0 +1,16 @@
+
+## B taps +2 between reset and Undo
+start A=37 B=37
+after reset on A: A= 0 B= 0
+server before Undo: count=37  reset={"epoch":"muxebmxat9jky","at":1791334521543}  resetlog:1791334521543={"cid":null,"from":37,"at":1791334521543}  count:rigdev-9b490ded={"n":2,"epoch":"muxebmxat9jky"}
+A last pulled 2993 ms before Undo; toast after Undo: "Reset from 37 Undo"
+after Undo + sync: A= 39 B= 39
+server after: count=37  count:rigdev-9b490ded={"n":2,"epoch":"muxebmxat9jky"}  reset={"epoch":"muxebo5zzttpj","at":1791334523147}  resetlog:1791334521543=null  count:rig-kitchen-ipad={"n":39,"epoch":"muxebo5zzttpj"}
+
+## B resets again before Undo
+start A=39 B=39
+after reset on A: A= 0 B= 0
+server before Undo: count=37  resetlog:1791334521543=null  count:rig-kitchen-ipad={"n":39,"epoch":"muxebo5zzttpj"}  resetlog:1791334525626={"cid":null,"from":39,"at":1791334525626}  count:rigdev-9b490ded={"n":1,"epoch":"muxebq2yaw1qg"}  reset={"epoch":"muxebqyg5xioi","at":1791334526763}  resetlog:1791334526763={"cid":null,"from":1,"at":1791334526763}
+A last pulled 2929 ms before Undo; toast after Undo: "That count changed on another device, so it was not put back."
+after Undo + sync: A= 0 B= 0
+server after: count=37  resetlog:1791334521543=null  count:rig-kitchen-ipad={"n":39,"epoch":"muxebo5zzttpj"}  resetlog:1791334525626={"cid":null,"from":39,"at":1791334525626}  count:rigdev-9b490ded={"n":1,"epoch":"muxebq2yaw1qg"}  reset={"epoch":"muxebqyg5xioi","at":1791334526763}  resetlog:1791334526763={"cid":null,"from":1,"at":1791334526763}

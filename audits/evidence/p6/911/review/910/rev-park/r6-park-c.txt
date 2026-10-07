@@ -1,0 +1,177 @@
+
+## 1. first open resumes sharing
+  ok   a watch starts without a tap 
+  ok   the pill never says "not sharing" before the person channel lands 
+  ok   the Share row reads on 
+
+## 2. the meeting bar right after a fix
+  ok   no Go before a fix 
+  ok   walk time and Go appear with the fix 
+  ok   and with Set my spot (livePlace) 
+
+## 3. kids' controls with nobody sharing
+  ok   the kids' beacon switches show 
+  ok   and the heights 
+
+## 4. no publish away from the park
+  ok   a fix 4 km away publishes nothing 
+  ok   a fix in the park publishes 
+
+## 5. stale states out of the frame
+  ok   on the property but out of the frame: Last seen 14 h ago + Find me 
+
+## 6. an amenity tap opens its card
+  ok   tapping a marker opens the amenity card 
+
+## 7. the compass keeps the view
+  ok   the first tap rotates (north up) and presses 
+  ok   the scale is kept (never a jump to the Entrance) 
+
+## 8. the denied state, adult and kid
+  ok   eli at 390: designed denied state with its chip in view 
+  ok   an adult sees the steps 
+  ok   eli at 390: the Set my spot chip label reads against its fill (5.95:1) 
+  ok   ezra at 390: designed denied state with its chip in view 
+  ok   a kid sees the picture and the grown-up wording 
+  ok   ezra at 390: the Set my spot chip label reads against its fill (6.08:1) 
+  ok   eli at 430: designed denied state with its chip in view 
+  ok   an adult sees the steps 
+  ok   eli at 430: the Set my spot chip label reads against its fill (5.95:1) 
+  ok   ezra at 430: designed denied state with its chip in view 
+  ok   a kid sees the picture and the grown-up wording 
+  ok   ezra at 430: the Set my spot chip label reads against its fill (6.08:1) 
+
+## 9. a kid's beacon off removes the dot, on starts locating
+  ok   a view-only kid does not locate 
+  ok   beacon on: the open map starts locating at once 
+  ok   and publishes its spot 
+  ok   the kid never sees the Share switch; the row says the beacon is on 
+  ok   beacon off: the watch stops within one pull 
+  ok   and the dot is removed (tombstone) 
+  ok   the view-only kid reads "A grown-up can show where you are." and has no Set my spot 
+
+## 10. family labels without overlap
+  ok   390: six pills; two full names never overlap (initials may crowd) 
+  ok   390: overlapping names collapse to initials (Elizabeth Anderson|Mae|Maev|D|E|K) 
+  ok   labels are names or ≤2 letters 
+  ok   820: six pills; two full names never overlap (initials may crowd) 
+  ok   820: overlapping names collapse to initials (EA|Mae|Maev|David|E|K) 
+  ok   labels are names or ≤2 letters 
+
+## 11. compass contrast in all palettes
+  ok   hearth: N 8.06:1 (>= 4.5), needle 9.55:1 (>= 3) 
+  ok   parchment: N 7.54:1 (>= 4.5), needle 8.93:1 (>= 3) 
+  ok   frost: N 8.06:1 (>= 4.5), needle 9.55:1 (>= 3) 
+  ok   midnight: N 11.03:1 (>= 4.5), needle 6.23:1 (>= 3) 
+  ok   forest: N 10.63:1 (>= 4.5), needle 6:1 (>= 3) 
+  ok   graphite: N 11.42:1 (>= 4.5), needle 6.45:1 (>= 3) 
+
+## 12. pulses stop after three cycles
+  ok   no ambient loop is infinite 
+  ok   after ~13 s with fixes arriving, the pulses have stopped 
+
+## 13. targets under 44
+  ok   390: no control under 44 px 
+  ok   820: no control under 44 px 
+
+## 14. the heights field writes once
+  ok   a height field for Ezra 
+  ok   Enter then blur: one write 
+  ok   out of range: "28 to 72 inches", no write 
+
+## 15. placing hides the sheet
+  ok   the sheet is hidden entirely and the pill offers Cancel 
+  ok   Cancel brings it back 
+
+## 16. whole park above the sheet
+  ok   the park sits between the pill and the sheet 
+
+## 17. iPad portrait card below the bar
+  ok   the card stays below the meeting bar 
+
+## 18. no emoji or heart glyphs as icons
+  ok   an AED is heart-pulse, ♥ appears nowhere 
+  (emoji left in the DOM at rest: 9 )
+
+## 19. the meeting bar keeps the place name (two lines) and the buttons on their own row on a phone
+  ok   eli: the whole place name shows (at most three lines at the longest name) 
+  ok   eli: the meta line is not cut 
+  ok   eli: the buttons sit under the name, inside the bar 
+  ok   eli XXL: the whole place name shows (at most three lines at the longest name) 
+  ok   eli XXL: the meta line is not cut 
+  ok   eli XXL: the buttons sit under the name, inside the bar 
+  ok   ezra: the whole place name shows (at most three lines at the longest name) 
+  ok   ezra: the meta line is not cut 
+  ok   ezra: the buttons sit under the name, inside the bar 
+
+## 20. the meeting pin label stays on the screen and off the floating controls
+  ok   eli 390 at 760,840: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 390 at 560,600: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 390 at 900,1000: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 430 at 760,840: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 430 at 560,600: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 430 at 900,1000: label inside the screen, off the fabs, compass, scale and bar 
+  ok   ezra 430 at 760,840: label inside the screen, off the fabs, compass, scale and bar 
+  ok   ezra 430 at 560,600: label inside the screen, off the fabs, compass, scale and bar 
+  ok   ezra 430 at 900,1000: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 820 at 760,840: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 820 at 560,600: label inside the screen, off the fabs, compass, scale and bar 
+  ok   eli 820 at 900,1000: label inside the screen, off the fabs, compass, scale and bar 
+
+## 21. the idle locate pill keeps its second line on a phone
+  ok   the second line is whole (wrapped, not cut): Only you see your dot until you switch on Share my spot 
+
+## 22. at XXL on a phone the meeting label is not covered by family faces
+  ok   no family face or name sits on the label 
+
+## 23. the directions arrows: the current turn reads on its tile in every palette; one stroke weight
+  ok   hearth: the current turn arrow on its tile 5.95:1 (>= 3) 
+  ok   parchment: the current turn arrow on its tile 5.95:1 (>= 3) 
+  ok   frost: the current turn arrow on its tile 5.95:1 (>= 3) 
+  ok   midnight: the current turn arrow on its tile 8.84:1 (>= 3) 
+  ok   forest: the current turn arrow on its tile 8.84:1 (>= 3) 
+  ok   graphite: the current turn arrow on its tile 8.84:1 (>= 3) 
+  ok   one stroke weight across the turn arrows and the other icons 
+
+## 24. two people who share an initial are told apart on the map
+  ok   the three E-names read differently 
+
+## 25. the meeting label stays off the wait chips; the compass and scale stay off family labels
+  ok   iphone-pwa: the meeting label covers no wait chip 
+  ok   iphone-pwa: no family name pill sits under the compass or the scale 
+  ok   ipad-portrait: the meeting label covers no wait chip 
+  ok   ipad-portrait: no family name pill sits under the compass or the scale 
+  ok   desktop: the meeting label covers no wait chip 
+  ok   desktop: no family name pill sits under the compass or the scale 
+
+## 26. the top controls leave the phone map to the map (<= 25 % of the visible map at default text)
+  ok   eli: notice + meeting bar take 21 % of the visible map 
+  ok   eli: a tap on the meeting name opens and closes the full bar 
+  ok   ezra: notice + meeting bar take 41 % of the visible map 
+  ok   ezra: a tap on the meeting name opens and closes the full bar 
+
+## 27. the small ones: amenity close, placing notice, waits error, loading switches
+  ok   the amenity card closes from its top right 
+  ok   the placing line takes at most two lines 
+  ok   an unreachable wait feed says it is not available, not "yet" 
+  ok   a switch that is still loading shows an empty track, no knob 
+
+## 28. the folded meeting bar: a Rally result is seen, the name is a real target, the toggle only below 600 px, Done reads as clearing
+  ok   ok: a Rally from the folded bar opens it so the result line shows (and is announced) 
+  ok   429: a Rally from the folded bar opens it so the result line shows (and is announced) 
+  ok   the folded name is a 44 px target 
+  ok   below 600 px the name is a button 
+  ok   Done is the flag-off icon named "Clear the meeting point" 
+  ok   from 600 px up the name carries no button role, tabindex or aria-expanded 
+
+## 29. one drawing per meaning; the panel-open label; the Style pane; the wide tab bar; the whole-park fit
+  ok   Rally is the megaphone, clearing the point is flag-off, and both are in the sprite 
+  ok   panel half open: no family marker covers the meeting label, no family name sits under the compass or the scale 
+  ok   the Style pane lists no engineering layers 
+  ok   whole park: the map art fills the map, no edge or flat grass band 
+  ok   whole park: the park fills at least 80 % of the map width 
+  ok   the tab bar is not a full-width row on a wide screen (560 px) 
+
+page errors: 0 []
+PASS 114  FAIL 0  SKIPPED sections 0
+exit 0

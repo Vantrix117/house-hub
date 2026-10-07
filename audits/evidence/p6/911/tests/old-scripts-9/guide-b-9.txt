@@ -1,0 +1,181 @@
+
+## P3-DOLLYWOOD-03  the … menu
+  ✓ on a phone the … menu is a bottom sheet: Export, Import, Reset, Cancel, every row >= 52 px and inside the screen
+  ✓ with a backdrop, focus on the first row, a dialog for assistive tech
+  ✓ Reset reads in the danger ink
+  ✓ the sheet is on top of the build sheet (nothing clips it)
+  ✓ Escape closes it and focus is back on …
+  ✓ a tap on the backdrop closes it
+  ✓ Cancel closes it, focus back on …
+  ✓ Reset asks first (the confirm sheet), the menu has closed
+  ✓ Cancel on the confirm returns focus to …
+  ✓ nothing was reset (24 steps still done)
+  ✓ from 700 px it stays a popover (no backdrop, no Cancel), inside the viewport
+  ✓ Escape closes the popover
+
+## P3-DOLLYWOOD-04 / -09 / -14, VIS-DOLLYWOOD-11  3D: the way back, the loop, the hint
+  ✓ phone: the boot hint is the touch hint
+  ✓ phone: 3D is on and its button is pressed
+  ✓ phone: "Back to map" (the map icon, >= 44 px) sits at the 3D view's top left
+  ✓ phone: the 3D hint on a touch screen has no keys and wraps instead of scrolling
+  ✓ phone: the render loop runs in 3D
+  ✓ phone: the pressed 3D button takes you back to 2D
+  ✓ phone: back in 2D the hint is the touch hint, not the mouse one
+  ✓ phone: no animation frame is requested in 2D after 3D (0 in 1.8 s)
+  ✓ phone: nor after Back to map (0)
+  ✓ phone: entering 3D again restarts the loop
+  ✓ ipad: the boot hint is the touch hint
+  ✓ ipad: 3D is on and its button is pressed
+  ✓ ipad: "Back to map" (the map icon, >= 44 px) sits at the 3D view's top left
+  ✓ ipad: the 3D hint on a touch screen has no keys and wraps instead of scrolling
+  ✓ ipad: the render loop runs in 3D
+  ✓ ipad: the pressed 3D button takes you back to 2D
+  ✓ ipad: back in 2D the hint is the touch hint, not the mouse one
+  ✓ ipad: no animation frame is requested in 2D after 3D (0 in 1.8 s)
+  ✓ ipad: nor after Back to map (0)
+  ✓ ipad: entering 3D again restarts the loop
+
+## GAP-DOLLYWOOD-1, VIS-DOLLYWOOD-16  the step in 3D, the phone camera
+  ✓ the current step is drawn in 3D: a line loop 3 m above the ground and a 6 m curtain
+  ✓ in the person's accent graphic colour
+  ✓ and the camera frames it on entering 3D (its box inside the view, centred)
+  ✓ Next stays in 3D and moves the outline
+  ✓ and the camera
+  ✓ Previous stays in 3D too (back on step 8)
+  ✓ Mark done stays in 3D, ticks the step and moves to the next outline
+  ✓ and the tick reached the house
+  ✓ Show on map goes to 2D
+  ✓ the phone 3D view: sky is at most 15 % of the view above the sheet's peek
+  · phone camera {"sky":0,"cover":0.014754098360655738,"fov":60,"sheetTop":728,"mapBottom":738,"mapTop":126}
+  ✓ and when framing a step
+
+## P3-DOLLYWOOD-11, P3-DOLLYWOOD-05  Upright
+  ✓ ipad: the Whole park chip is the pressed one (secView 'all')
+  ✓ ipad: Upright on with Whole park pressed fits the whole park
+  ✓ ipad: and fits no section
+  ✓ ipad: turned off, the whole park again
+  ✗ ipad: Upright with a section pressed rotates in place (same centre, same scale) {"a":{"c":[739.5,683],"k":1.6631089803221992},"b":{"c":[412.9557189941406,1382.0689086914062],"k":0.4095013892384976}}
+  ✗ ipad: and back off again {"a":{"c":[739.5,683],"k":1.6631089803221992},"c2":{"c":[412.9556579589844,1382.0689697265625],"k":0.4095013892384976}}
+  ✓ ipad: neither fit a section (secView unchanged)
+  ✓ ipad: window.setUpright(on) exists for the park map's compass
+  ✓ phone: the Whole park chip is the pressed one (secView 'all')
+  ✓ phone: Upright on with Whole park pressed fits the whole park
+  ✓ phone: and fits no section
+  ✓ phone: turned off, the whole park again
+  ✓ phone: Upright with a section pressed rotates in place (same centre, same scale)
+  ✓ phone: and back off again
+  ✓ phone: neither fit a section (secView unchanged)
+  ✓ phone: window.setUpright(on) exists for the park map's compass
+  ✓ phone + Upright: a section chip frames the whole rotated section above the sheet (6 sections)
+  ✓ phone + Upright: Whole park frames the rotated park
+
+## P3-DOLLYWOOD-06, P3-DOLLYWOOD-LIVE-14  rider height
+  ✓ the guide: "up to N″" keeps every ride with no minimum (counts equal !h || h <= N for 36 / 39 / 42 / 48 / 55)
+  ✓ up to 36″ lists all 120 no-minimum rides and nothing taller
+  ✓ the option words are unchanged
+  ✓ through a real <select> choice the list says the same count
+  ✓ the park map export carries the same fixed listItems filter
+
+## P3-DOLLYWOOD-07 / -15 / -18, UX-DOLLYWOOD-12  the plot width
+  ✓ signed in, the plot is the person's row (400), not the device's old dw-plot (999)
+  ✓ and the stale device key is removed after the migration check
+  ✓ after load the step card reads the saved plot (400 m)
+  ✓ an edit re-renders the card at once (600 m)
+  ✓ a change from another device re-renders it (800 m)
+  ✓ a plot cleared on one device clears the field and the factor on the other
+  ✓ and the card goes back to 1:1
+  ✓ 10: a role=alert line, aria-invalid, nothing saved, nothing converted
+  ✓ 49: a role=alert line, aria-invalid, nothing saved, nothing converted
+  ✓ 2001: a role=alert line, aria-invalid, nothing saved, nothing converted
+  ✓ 0: a role=alert line, aria-invalid, nothing saved, nothing converted
+  ✓ -5: a role=alert line, aria-invalid, nothing saved, nothing converted
+  ✓ 50: valid, saved and converted
+  ✓ 2000: valid, saved and converted
+  ✓ 640: valid, saved and converted
+  ✓ the message is role="alert"
+  ✓ the Scale copy no longer points to an Info tab
+  ✓ after a reload with a cleared plot and a stale dw-plot, the field stays empty
+
+## UX-DOLLYWOOD-1 / CONS-SHAPE-4  the sticky Mark done, the summary row
+  ✓ iPad: the sticky bar is pinned to the bottom while the card's controls are off screen: "Step 8 of 9 · <title>"
+  ✓ and it is glass, because it floats
+  ✓ Mark done (bar and card) is the --btn-h-lg capsule; Previous and Next are >= 44 px
+  ✓ in the person's strong tone
+  ✓ a capsule (fully rounded)
+  ✓ a finger on the bar's Mark done hits it
+  ✓ ONE tap ticks the step (no scroll, no second tap)
+  ✓ and the bar moves on to the next step ("Step 9 of 9")
+  ✓ the summary row says: next step entrance-09 (9 of 9), 8 of 9 done in its section, 25 of 242 done
+  ✓ one tick wrote the summary once
+  ✓ a tick and an untick inside the 2 s window write no summary
+  ✓ with the section done, next is show-14 (14 of 21), 13 of 21 done
+  ✓ the guide opens at the step the summary points to (Showstreet 14 of 21), without scrolling
+  ✓ it hides while the card's own controls are in view
+  ✓ and comes back when they are off screen (below the viewport)
+  ✗ and stays out of the way once the person has scrolled past the card (no cover over the cross-section or the side tabs) 
+  ✓ phone: no sticky bar (the sheet has the controls)
+
+## UX-DOLLYWOOD-11  the feed
+  ✓ a step ticked and unticked inside the window
+  ✓ posts nothing, then nothing after 60 s
+  ✓ three ticks post nothing at once
+  ✓ three ticks in a section, one line 60 s after the last: "Built 3 steps in <section>"
+  ✓ one line per section: a single step "Built <title> (<section>)", several "Built 2 steps in <section>"
+  ✓ leaving the page flushes a waiting line at once (and the ticked-then-unticked step is not in it)
+  ✓ no "Ticked …" line is ever posted
+
+## IMP-DOLLYWOOD-I1  a section is finished
+  ✓ on load: 11 finished sections carry their check, no toast, no settle animation
+  ✓ Wildwood Grove has three steps left
+  ✓ two of three: no toast yet
+  ✓ the last step: ONE toast "<Section> done — 26 steps"
+  ✓ and the chip shows its check, settling once
+  ✓ the settle class is gone after it ran (once)
+  ✓ under Reduce Motion the check does not animate
+  ✓ and no extra feed line is posted for it
+
+## UX-DOLLYWOOD-4  search
+  ✓ typing lists matches right under the field (<= 8 rows + Show all), inside the screen
+  ✓ each row is 44 px with a number badge, the name and the area
+  ✓ every row is what a finger hits (the toolbar does not clip or cover the list)
+  ✓ the last row is "Show all N in Listings"
+  ✓ Arrow keys move through the rows (aria-activedescendant follows)
+  ✓ Enter opens the highlighted listing's card and closes the list
+  ✓ Escape closes the list (the field keeps focus)
+  ✓ typing opens it again
+  ✓ leaving the field closes it
+  ✓ no match says so: No match for “zipline”
+  · mountain {"n":8,"hidden":false,"pop":"26Lumberjack Jam Band"}
+  ✓ a single match still flies to it and opens its card
+  ✗ "Show all N in Listings" selects the Listings tab and scrolls to it {"tab":"list","top":2809,"vh":1132,"n":"4"}
+
+## UX-DOLLYWOOD-7  Next unfinished on a phone
+  ✓ the sheet starts at its peek
+  ✗ it raises the sheet to half and the new step is visible {"state":"half","sheetTop":728,"h3Top":919,"h3Bottom":941,"vh":884,"title":"DP's Celebrity Theater (#1)","cur":"show:14"}
+
+## UX-DOLLYWOOD-2  the map comes into view
+  ✓ ipad: Next with the map scrolled away brings it into view (0.00 → 1.00)
+  ✓ ipad: with the map in view, Previous does not scroll
+  ✓ ipad: Show on map does the same
+  ✓ ipad: and a tap on the step list
+  ✓ desk: Next with the map scrolled away brings it into view (0.00 → 0.99)
+  ✓ desk: with the map in view, Previous does not scroll
+  ✓ desk: Show on map does the same
+  ✓ desk: and a tap on the step list
+
+## UX-DOLLYWOOD-14  the display profile
+  ✓ no Mark done (card or bar), no Reset, no Import, a read-only plot; Previous, Next and Show on map stay
+  ✓ Next still works
+
+## CONS-MOTION-4  landmark moves on a cold open (requests 150 ms late; and the first pull held 2.5 s)
+  ✗ lat150 ipad: landmark moves 24 (34 px), CLS 0.0014 ["button:Next unfinished 1347→1313","button:Progress: export, import, reset 1347→1313","button:Show on map 1818→1784","h2:Whole park — west to east 2334→2300","button:Compare 2324→2290"]
+  ✗ lat150 phone: landmark moves 4 (93 px), CLS 0.0014 ["button:Previous 1087→1180","button:Mark done 1079→1172","button:Next 1087→1180","button:Show on map 1147→1240"]
+  ✗ held ipad: landmark moves 24 (34 px), CLS 0.0014 ["button:Next unfinished 1347→1313","button:Progress: export, import, reset 1347→1313","button:Show on map 1818→1784","h2:Whole park — west to east 2334→2300","button:Compare 2324→2290"]
+  ✗ held phone: landmark moves 4 (93 px), CLS 0.0014 ["button:Previous 1087→1180","button:Mark done 1079→1172","button:Next 1087→1180","button:Show on map 1147→1240"]
+
+## UNFILED-2  the park map does not run the guide's migration
+  ✓ the park map with a legacy guide on the device: 0 `step:` rows and no `plot` row in dollywood-live
+  ✓ and never waits behind "Loading your progress"
+  ✓ control: the guide itself moves the legacy progress (2 step rows in dollywood)
+
+138 passed, 9 failed

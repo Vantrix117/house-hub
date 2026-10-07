@@ -1,0 +1,82 @@
+
+## 1. Rally from the meeting bar
+  ok   the bar has a Rally button (a household adult), at least 44 px tall 
+  ok   it asks first: title, body and OK "Rally" 
+  ok   Cancel sends nothing 
+  ok   one POST with the pin's name, x, y and note 
+  ok   the meta line reads "Rallied 3 · set by you just now" 
+  ok   the button is disabled after a success 
+  ok   the client wrote no "Meeting point:" line (the Worker writes its own) 
+  ok   ok0: the meta line reads "Nobody else has park alerts on — they will see the pin on the map." 
+  ok   a send that reached nobody still rests the button 
+  ok   429: the meta line reads "You rallied a minute ago — try again shortly." 
+  ok   429: the button stays usable 
+  ok   err: the meta line reads "Couldn’t send the rally — they will see the pin on their next sync." 
+  ok   err: the button stays usable 
+  ok   the button is back 60 s after a success 
+  ok   a kid has no Rally button 
+  ok   Meet here's confirm says "Then tap Rally on the meeting bar to buzz the other grown-ups." 
+
+## 2. the meeting pin drops at 2 h while the map is open
+  ok   the pin is drawn 
+  ok   at 1 h 59 m 48 s the pin still stands 
+  ok   the pin, the bar and the route end are gone after 2 h without a reload 
+
+## 3. Dollywood Express attaches; an unmatched name is logged once
+  ok   the posted "Dollywood Express" wait (25) attaches to "Dollywood Express Train Depot" and its chip is drawn 
+  ok   a feed name with no listing is logged once, not on every poll 
+
+## 4. waits older than 6 h are gone everywhere
+  ok   no chip on the 7 h old ride, the fresh one keeps its chip 
+  ok   the Waits list leaves it out 
+  ok   Nearby shows no wait on it 
+  ok   its card has no wait line 
+  ok   the directions bar names no wait 
+  ok   the search chip is empty too 
+  ok   a fresh post brings the wait back on the next poll 
+
+## 5. one error line
+  ok   Nearby: one line, "Can't reach wait times right now · retrying every minute" 
+  ok   Waits: the same one line, once 
+  ok   Nearby: "Can't reach wait times · last updated 3:17 am · retrying every minute" 
+  ok   Waits: the same, once 
+  ok   the three older wordings are gone 
+
+## 6. the trend arrow from this device's own history
+  ok   Thunderhead: rising, aria-label "Rising — 20 min half an hour ago" 
+  ok   Wild Eagle: falling against the sample at least 15 min old 
+  ok   a change under 5 min, a sample younger than 15 min and no history show nothing 
+  ok   the Waits row carries the up arrow icon beside the ride 
+  ok   the card says "Rising · was 20 min at <time>" 
+  ok   the history is kept in localStorage dollywood.live.waithist 
+  ok   a sample 2 min old blocks a new one; 200 min old is dropped, 60 min kept 
+
+## 7. the MIN label: >= 11 px and >= 4.5:1 on all four bands, in all six palettes
+  ok   hearth: MIN at >= 11 px and >= 4.5:1 on short, mid and long 
+  ok   hearth: the closed band is drawn 
+  ok   parchment: MIN at >= 11 px and >= 4.5:1 on short, mid and long 
+  ok   parchment: the closed band is drawn 
+  ok   frost: MIN at >= 11 px and >= 4.5:1 on short, mid and long 
+  ok   frost: the closed band is drawn 
+  ok   midnight: MIN at >= 11 px and >= 4.5:1 on short, mid and long 
+  ok   midnight: the closed band is drawn 
+  ok   forest: MIN at >= 11 px and >= 4.5:1 on short, mid and long 
+  ok   forest: the closed band is drawn 
+  ok   graphite: MIN at >= 11 px and >= 4.5:1 on short, mid and long 
+  ok   graphite: the closed band is drawn 
+
+## 8. the Style pane: the offline line and the hours link
+  ok   the offline line reads as written 
+  ok   an adult sees "Park hours, shows and dining · dollywood.com" with the external-link icon, 44 px 
+  ok   a kid does not see the hours link 
+  ok   and the display (kind kiosk) does not either 
+
+## 9. the meeting label: a pill on the side with no family puck within 40 px
+  ok   with no puck near, the label sits on a side of the flag that fits the screen 
+  ok   a puck on the right side of the flag moves the label to the left or above 
+  ok   the pill is at most 180 px wide and a long name ends in an ellipsis 
+  ok   the label is at least 11 px on screen 
+  ok   no page errors 
+
+61 passed, 0 failed
+ALLDONE

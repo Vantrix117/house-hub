@@ -218,9 +218,12 @@ const switchTo = async (page, id, pin) => { await page.click('.tab[data-tab=me]'
     ok(/only looks/.test(kiosk.toast) && !kiosk.hidden, `toast says this screen only looks (${JSON.stringify(kiosk.toast)})`);
     await C.page.goto(SITE + '/apps/tally.html');
     await C.page.waitForFunction(() => window.hub && hub.profile && document.getElementById('n').textContent !== '', null, { timeout: 15000 });
-    await C.page.click('#plus'); await sleep(300);
-    ok(await C.page.evaluate(() => document.getElementById('n').textContent === '0'), 'tally stays at 0 for the display');
-    ok(await C.page.evaluate(() => /only looks/.test((document.getElementById('hub-toast') || {}).textContent || '')), 'tally shows the toast, no crash');
+    // since batch 11 (P3-TALLY-09) the display draws no +, - or Reset at all and says "View only"; a click that still
+    // reaches the hidden button (dispatched in the DOM) must write nothing and must not crash
+    ok(await C.page.evaluate(() => { const b = document.getElementById('plus'); return !b || !b.getClientRects().length || getComputedStyle(b).visibility === 'hidden'; }), 'tally shows no + to the display');
+    ok(await C.page.evaluate(() => /view only/i.test(document.body.innerText)), 'tally says View only on the display');
+    await C.page.evaluate(() => { const b = document.getElementById('plus'); if (b) b.click(); }); await sleep(300);
+    ok(await C.page.evaluate(() => document.getElementById('n').textContent === '0'), 'tally stays at 0 for the display, even on a dispatched click');
     await C.ctx.close(); await B.ctx.close(); await A.ctx.close();
     ok(errors.length === 0, 'no console/page errors', errors.slice(0, 5).join(' | '));
   } finally { await browser.close(); server.close(); }

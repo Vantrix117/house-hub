@@ -1,0 +1,18 @@
+
+## P3-DOLLYWOOD-03  the … menu
+  ✗ on a phone the … menu is a bottom sheet: Export, Import, Reset, Cancel, every row >= 52 px and inside the screen {"hidden":true,"pos":"absolute","rows":[{"id":"b-export","h":0,"vis":true,"in":true},{"id":"b-import","h":0,"vis":true,"in":true},{"id":"b-reset","h":0,"vis":true,"in":true},{"id":"b-cancel","h":0,"vis":true,"in":true}],"bd":false,"focus":"","role":null,"danger":"rgb(155, 30, 37)","reset":"rgb(155, 30, 37)","expanded":"false","over":false}
+  ✗ with a backdrop, focus on the first row, a dialog for assistive tech {"hidden":true,"pos":"absolute","rows":[{"id":"b-export","h":0,"vis":true,"in":true},{"id":"b-import","h":0,"vis":true,"in":true},{"id":"b-reset","h":0,"vis":true,"in":true},{"id":"b-cancel","h":0,"vis":true,"in":true}],"bd":false,"focus":"","role":null,"danger":"rgb(155, 30, 37)","reset":"rgb(155, 30, 37)","expanded":"false","over":false}
+  ✓ Reset reads in the danger ink
+  ✗ the sheet is on top of the build sheet (nothing clips it) 
+  ✗ Escape closes it and focus is back on … 
+
+1 passed, 4 failed
+file:///C:/Users/ex_bo/hub-audit/audits/tools/phase6/9/guide-b-9.mjs:68
+  const b = await fbox(f); await d.page.mouse.click(b.x + hit.cx, b.y + hit.cy); return hit;
+                                                      ^
+
+TypeError: Cannot read properties of null (reading 'x')
+    at tap (file:///C:/Users/ex_bo/hub-audit/audits/tools/phase6/9/guide-b-9.mjs:68:55)
+    at async file:///C:/Users/ex_bo/hub-audit/audits/tools/phase6/9/guide-b-9.mjs:102:5
+
+Node.js v24.19.0

@@ -1,0 +1,75 @@
+
+## standalone: no session, localStorage only, no crash
+  ✓ hub.js loaded, no profile
+  ✓ <script src="hub.js" data-app="dollywood" data-scope="person"> is in the page
+  ✓ entrance section has build steps
+  ✓ no private Light/Dark button (#theme)
+  ✓ no dw-theme read left in the page
+  ✓ unsigned tick is saved to localStorage
+  ✓ no page errors standalone
+
+## legacy progress + plot migrate on the first signed-in open (Eli, adult)
+  ✓ legacy doneMap migrated into hub progress (step rows)
+  ✓ legacy dw-plot migrated into hub key "plot"
+  ✓ plot input shows the migrated value
+  ✓ migrated step is painted ticked in the list
+  ✓ migration marked done for this device
+
+## tick on the PC → ticked on the iPad after hub.pull()
+  ✓ iPad already shows the migrated tick from the server
+  ✓ PC landed on the first undone step, not the migrated one
+  ✓ iPad has that step unticked before the PC ticks it
+  ✓ PC paints the tick at once
+  ✓ PC wrote the step into hub progress (step:<id> row)
+  ✓ signed-in save goes through hub.set, not the legacy localStorage key
+  ✓ a tick posts no feed line at once
+  ✓ the flushed line is "Built <step> (<section>)" in the family feed
+  ✓ iPad: same step is ticked after hub.pull() — repainted in place
+  ✓ iPad: the section count repainted
+  ✓ iPad: plot followed Eli too
+  ✓ iPad unticks it
+  ✓ PC: untick arrived and the list repainted
+   step: "Bank the sides of the approach"
+
+## batch 9: the summary row, the plot clearing everywhere, the legacy key, a bad width, the card following the factor
+  ✓ the summary row: done / total / the next step / a stamp
+  ✓ its next-step section figures agree
+  ✓ the second device reads the same row
+  ✓ the summary is written only when it differs (a tick and an untick inside the window write nothing)
+  ✓ one tick writes the summary once, after about 2 s
+  ✓ and it matches the guide
+  ✓ clearing the plot writes a null plot row
+  ✓ iPad: the field is empty and the factor reads — (a null plot is applied)
+  ✓ the legacy dw-plot key was removed after the migration
+  ✓ signed in, a boot reads the plot row and never the device key (999 ignored)
+  ✓ and the stale device key is removed once the row is there
+  ✓ a changed plot width re-renders the step card at once (in game · at 44% scale)
+  ✓ 400 is saved
+  ✓ too small: "Enter a width from 50 to 2,000 m." under the field (role=alert)
+  ✓ the field is aria-invalid
+  ✓ nothing is saved for 10
+  ✓ and nothing is converted (the card reads 1:1)
+  ✓ too large: the same line, nothing saved
+  ✓ 2,000 is valid and saved
+  ✓ 50 is valid and saved
+  ✓ valid again: no message
+  ✓ the Scale copy no longer points to an Info tab
+
+## the page follows data-scheme (the person's theme), no private toggle
+  ✓ Midnight → data-theme=midnight, data-scheme=dark
+  ✓ Parchment → data-theme=parchment, data-scheme=light
+  ✓ marker colours key off data-scheme (light ink on Parchment, cream on Midnight)
+  ✓ body background comes from the theme tokens
+
+## the display profile can look but not tick
+  ✓ the display has no Mark done (card or sticky bar)
+  ✓ Reset and Import are not offered
+  ✓ the plot field is read-only
+  ✓ Previous, Next and Show on map stay
+  ✓ Next still moves through the steps
+  ✓ the shortcut does not tick on the display
+  ✓ kiosk gets the "only looks" toast
+  ✓ kiosk queued nothing
+  ✓ no page errors across all contexts
+
+60 passed, 0 failed

@@ -1,0 +1,160 @@
+
+## seed
+  ✓ seeded prayers, two park pins (+ a stale one), stars and 40 feed entries
+
+## adult Home (David, 390)
+  ✓ (a) Prayer card: "4 to pray · 1 done" from the person rows (3 daily, 1 weekly today, 1 rotation; 1 prayed)
+  ✓ (a) Prayer secondary: "2-day streak · keep it going"
+  ✓ (a) hero line mentions 4 to pray
+  ✓ (f) GAP-HOME-2: nothing memorised → no Verses card
+  ✓ (b) "At the park" card shows on a park day
+  ✓ (b) the API agrees: Ezra + Kiara fresh, Mae (5 h) not
+  ✓ (b) headline names the fresh pins (most recent first), never Mae; counts past two people
+  ✓ (b) secondary line: where, and the most recent sighting
+  ✓ (b) one row per person at the park, most recent first, Mae not listed
+  ✓ (b) every row carries that person's own last-seen time (Kiara 3m, Ezra 5m)
+  ✓ (b) at 390 no name or time is ellipsised or pushed off the card
+  ✓ (b) faces from hub.people() via hub.avatarHtml, one per row
+  ✓ (b) the card opens the park map
+  ✓ (c) adults: "Ezra ★3 · Kiara ★0" from the family stars:<kid> rows (last week counts as 0)
+  ✓ (c) kids card secondary line
+  ✓ (c) Kids card: the gold wash is applied (beats .ds .card) and play.svg is loaded
+  ✓ (c) Kids card: the paper-white art is actually visible on the light palette
+  ✓ (d) first page shows 30 lines
+  ✓ (d) consecutive lines by one person are grouped under one face
+  ✓ (d) an app icon on every line
+  ✓ (d) relative time on every line
+  ✓ (d) every group names its person
+  ✓ (d) "Show more" offered after a full page
+  ✓ (d) a failed "Show more" keeps the 30 lines and re-offers the button
+  ✓ (d) Show more loads the next 30 (now ≥ 40 lines)
+  ✓ (d) "Show more" hides once the last page is short
+  ✓ AC: every card's secondary text is one line at 390
+  ✓ no horizontal scroll at 390
+
+## cache-first: second load with /api blocked
+  ✓ AC: no pull has happened (API blocked)
+  ✓ AC: no skeleton anywhere on Home
+  ✓ AC: prayer, park and kids cards populated from the cache
+  ✓ AC: F260 + fridge cards populated from the cache (not "loading")
+  ✓ AC: the feed paints from its cache too
+  ✓ AC: hero line from the cache
+
+## adult Home at 1024
+  ✓ no horizontal scroll at 1024
+
+## P3-LEFTOVERS-02 (batch 8): the Home fridge card and the Apps badge in the Larder one rule and words
+  ✓ (h) the fridge card says it in the Larder words: "N use it up · N eat soon" (no "to eat this week")
+  ✓ (h) most urgent first by the shared rule: Chili 8d (use it up), Pie 1d left (use-by tomorrow), Soup 4d; Beans (9 days, use-by in 5) and Salad are fresh and not listed
+  ✓ (h) the Apps badge counts what needs eating (Chili, Pie, Soup and anything else due) and says "eat soon or use up"
+
+## IMP-PRAYER-I3: the asker hears who prayed (David, 390)
+  ✓ (e) David's Home: "Ezra and Elizabeth prayed today for Grandma Jo's visit" — his own tick, yesterday's and Mae's request left out
+  ✓ (e) the line shows the two faces, opens Prayer, is a 44 px target and is whole at 390
+  ✓ (e) quiet: nothing added to the hero line
+  ✓ (e) a second request prayed → a second line (most people first), names joined "A, B and C"
+  ✓ (e) patched in place: the hero and the first line keep their nodes (batch 2a)
+  ✓ (e) tapping the line opens Prayer
+  ✓ (e) Mae's Home: only her own request ("Ezra prayed today for …"), never David's
+
+## (f) GAP-HOME-2 / UX-VERSES-3: the Verses card (David, 390)
+  ✓ (f) the card counts from the rows: "3 verses to review" (overdue, never reviewed, due today), "Review now" opens Verses — not the stale summary's 0
+  ✓ (f) the stale summary's 9-day streak is not shown
+  ✓ (f) pistachio, the Verses spot art, after Prayer (batch 4's pairs kept), a 44 px button
+  ✓ (f) its lines are one line and unclipped at 390
+  ✓ (f) Verses itself counts 3 due on these rows
+  ✓ (f) the card's streak is Verses' own day streak: 3 (a day with nothing due keeps it; today is pending) — Verses says 3
+  ✓ (f) patched in place: only the Verses card was replaced
+  ✓ (f) no layout shift: the card keeps its height
+  ✓ (f) nothing due: "Nothing due today", "reviewed today", "Open Verses"
+  ✓ (f) and still one line each, unclipped, at 390
+  ✓ (f) one tap opens the trainer
+  ✓ (f) a day missed two reviews back still breaks the streak: Verses 3, the card 3 (E2b)
+  ✓ (f) a rating the row lost never counts against the streak: Verses 3, the card 3 (H1)
+
+## (g) the Home timer card (UX-TIMER-7, batch 6; David, 390)
+  ✓ (g) no recents yet: "Start a timer" with 3, 5 and 10 minutes
+  ✓ (g) Open Timer in the card's footer
+  ✓ (g) one tap starts a 5-minute timer: one timer:<id> row on the house
+  ✓ (g) …and its family mirror run:dad:<id> (the kitchen and the TV read it)
+  ✓ (g) the card shows it counting, in place
+  ✓ (g) the unlabelled row reads its time only, and its clear is "Reset timer" (rotate-ccw), no Stop
+  ✓ (g) the pill stays while it runs
+  ✓ (g) no horizontal scroll with a timer running at 390
+  ✓ (g) Pause is stored on the house (pausedAt, remaining, no endAt)
+  ✓ (g) the card says Paused
+  ✓ (g) Reset removes the row from the house
+  ✓ (g) …with a "Timer reset" toast and Undo
+  ✓ (g) Undo puts the timer back on the house as it was (same start, still paused, same time left)
+  ✓ (g) …and the card shows it again
+  ✓ (g) Reset again (no Undo) and it is gone
+  ✓ (g) Pause on a legacy timer.active writes its migrated row timer:m<startedAt>, paused, and removes timer.active
+  ✓ (g) 5 minutes is now the first recent length
+  ✓ (g) at 390 the Reset toast and the ringing pill (its Stop) do not overlap
+  ✓ (g) Reset then Switch within 6 s: the "Roast timer reset · Undo" toast is gone at the picker and after Ezra signs in
+  ✓ (g) …and an Undo then (hub.timers.restore with Dad's row) writes nothing into Ezra's rows
+  ✓ (g) dad at XXL on 375, in Tally with a timer running: Back, the chip (83 px) and Reload (right edge 367) are on screen
+  ✓ (g) dad: the title keeps 126 px (at least 120)
+  ✓ (g) ezra at XXL on 375, in Tally with a timer running: Back, the chip (108 px) and Reload (right edge 365) are on screen
+  ✓ (g) ezra: the title keeps 74 px (at least 70)
+
+## kid Home (Ezra, 390)
+  ✓ (c) Stars card: 3 stars this week from app_data(kidverse, person, stars)
+  ✓ (c) kid hero mentions the stars
+  ✓ (c) play.svg art on the Stars card
+  ✓ (c) Stars card: gold wash applied under the art on Hearth
+  ✓ (c) Stars card: the art is visible on Hearth (circle pixel differs from the wash)
+  ✓ (c) Stars card on Midnight: art at ≤ .2 opacity, a faint ghost (pixel diff 10–90 of 765)
+  ✓ (b) kids see the park card too
+  ✓ (b) kid scale: every row with its time, nothing clipped
+  ✓ kid Home stays simple: no feed, no adult cards
+  ✓ (e) the kid Home never has the asker's line (Ezra prayed on two of them)
+  ✓ (f) the kid Home keeps its picture tiles: no Verses card
+  ✓ (g) the kid Home has no Timer card; its Timer picture tile stays
+  ✓ kid cards: secondary text is one line at 390 (kid type scale)
+  ✓ no horizontal scroll (kid)
+  ✓ AC: kid Stars card from the cache before any pull
+  ✓ (c) no stars row → 0 with an inviting line
+  ✓ (c) the inviting empty line
+
+## park card with four people, then the pins go stale
+  ✓ (b) four+ people: the headline counts instead of clipping names
+  ✓ (b) four+ rows, most recent first, each with its own time
+  ✓ (b) four people at 390: every time still fully visible
+  ✓ (b) four people: secondary text still one line and unclipped
+  ✓ (b) Ezra drops off the card once his pin is older than 4 h
+  ✓ (b) card stays for the other fresh pins (Kiara)
+  ✓ (b) card hidden once every pin is older than 4 h
+
+## batch 10 (P3-DOLLYWOOD-LIVE-06): a fix from outside the property is not "at the park"
+  ✓ (b) a dot 400 m past the property edge is not on the park card
+  ✓ (b) a dot 250 m outside the frame is still the property: Mae is on the card
+  ✓ (b) a dot in the far parking lot (1500, 3000) is on the card
+  ✓ (b) a dot 40 m past the north border is off the card
+  ✓ (b) the newest row decides: a far dot replaced the park dot
+
+## batch 9 (UX-DOLLYWOOD-1): the build guide card on Home (David, 390)
+  ✓ (h) no summary row, no guide card
+  ✓ (h) "Build guide", "Next: Blueprint the section", "Entrance & Plaza · 7 of 9 done", Continue
+  ✓ (h) orchid, its spot art in the footer, a 44 px button
+  ✓ (h) patched in place: the hero and the Verses card were not replaced
+  ✓ (h) everything ticked: "All 242 steps built" and "Open the guide"
+  ✓ (h) the card opens the build guide
+  ✓ (h) at 390 the loading skeleton is the settled card height (302 vs 302)
+  ✓ (h) the real card keeps that height when the summary arrives (390)
+  ✓ (h) at 820 the loading skeleton is the settled card height (200 vs 200)
+  ✓ (h) the real card keeps that height when the summary arrives (820)
+  ✓ (h) at 1180 the loading skeleton is the settled card height (200 vs 200)
+  ✓ (h) the real card keeps that height when the summary arrives (1180)
+  ✓ (h) the hint is cleared once a pull shows no row
+  ✓ (h) a person with no row never shows a skeleton while Home loads (nothing to jump)
+  ✓ (h) never on a kid's Home
+
+## batch 7 (UX-KIDVERSE-5): no family week has ever been set
+  ✓ (b) no family week: the adult Home still paints its cards (the Kids card included), no "undefined" or "NaN"
+  ✓ (b) Kid Verse for a grown-up with no week: "Pick this week’s verse", never Genesis 1:27 or the creation art
+  ✓ (b) no family week: the kid Home still paints its Stars card
+  ✓ (b) Kid Verse for a kid with no week: a picture and "A grown-up will pick this week’s verse", no Done button (no verse star while no week is set)
+  ✓ no page errors
+
+132 passed, 0 failed
