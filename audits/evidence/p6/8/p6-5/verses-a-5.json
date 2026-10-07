@@ -1,0 +1,279 @@
+{
+ "the due count: the pill, and the list header (final rescore E: the pill scrolls away when the list is in view); no \"due today\" stat (UX-VERSES-8)": {
+  "pass": true,
+  "got": {
+   "ref": "Luke 14:26-27",
+   "who": "Eli · 3 to go",
+   "chip": "Reviewed 4 days ago",
+   "queueSub": "3 due · tap one to practise it",
+   "dueStat": false,
+   "today": "0"
+  }
+ },
+ "no box numbers anywhere on the screen (UX-VERSES-9)": {
+  "pass": true,
+  "got": "Reviewed 4 days ago"
+ },
+ "each rating shows its next review (box 3 today)": {
+  "pass": true,
+  "got": {
+   "not": "tomorrow",
+   "almost": "in 4 days",
+   "got": "in 7 days"
+  }
+ },
+ "Read aloud stays after Show (P3-VERSES-06)": {
+  "pass": true
+ },
+ "the Not yet line states the real next review with Undo, at the top of the card; no toast, and it covers no pill, reference, label or button (rescore 5, UX-VERSES-6)": {
+  "pass": true,
+  "got": {
+   "text": "Not yet — Luke 14:26-27. Next review tomorrow.",
+   "host": "trainer",
+   "undo": true,
+   "undoH": 44,
+   "toast": false,
+   "pillCovered": false,
+   "covers": []
+  }
+ },
+ "Not yet sends the verse back to box 1, due the next day": {
+  "pass": true,
+  "got": {
+   "s": "not",
+   "t": 1790080800500,
+   "box": 1,
+   "due": "2026-09-23",
+   "last": "2026-09-22",
+   "streak": 0,
+   "hist": [
+    {
+     "due": "2026-09-22",
+     "last": "2026-09-18"
+    }
+   ]
+  }
+ },
+ "Undo: the card is back on the same verse, revealed": {
+  "pass": true
+ },
+ "Undo: the server row is the one from before, by value": {
+  "pass": true,
+  "got": {
+   "before": null,
+   "after": null
+  }
+ },
+ "a Coming up row is a 44 px button named \"Practise <ref>\", reachable by keyboard": {
+  "pass": true,
+  "got": {
+   "tag": "BUTTON",
+   "label": "Practise Exodus 20:1-3",
+   "h": 58,
+   "tab": 0
+  }
+ },
+ "the tapped verse is on the card as extra practice; the pill and the due list keep the real due set": {
+  "pass": true,
+  "got": {
+   "cur": "8-0",
+   "kick": "Week 8 · verse 1 · extra practice",
+   "who": "Eli · 3 to go",
+   "due": 3
+  }
+ },
+ "Eli has a memorised verse with no text yet": {
+  "pass": true,
+  "got": "1-1"
+ },
+ "\"Add the verse text\" on a card that has none": {
+  "pass": true
+ },
+ "saved; the card shows it veiled and hidden from screen readers; the editor said once that the house shares it": {
+  "pass": true,
+  "got": {
+   "note": "Everyone in the house who learns this verse sees the text you add here.",
+   "veil": {
+    "hidden": false,
+    "veiled": true,
+    "aria": "true",
+    "inert": true,
+    "text": "Placeholder words typed into Verses by the audit rig - test text, not Scripture."
+   }
+  }
+ },
+ "the family row text:1-1 = { text, by: eli, at }": {
+  "pass": true,
+  "got": {
+   "text": "Placeholder words typed into Verses by the audit rig - test text, not Scripture.",
+   "by": "eli",
+   "at": 1790080800500
+  }
+ },
+ "Eli's iPad has the household text after its pull": {
+  "pass": true,
+  "got": "Placeholder words typed into Verses by the audit rig - test text, not Scripture."
+ },
+ "Mae's Verses reads the same household text": {
+  "pass": true
+ },
+ "a kid cannot write the household text (403)": {
+  "pass": true,
+  "got": "403 {\"error\":\"not_allowed\",\"message\":\"This profile cannot change that.\",\"rejected\":\"household_only\",\"key\":\"text:1-1\",\"value\""
+ },
+ "the streak on screen is the new rule (never below the old consecutive-days count); today is pending": {
+  "pass": true,
+  "got": {
+   "shown": "13",
+   "rule": 13,
+   "oldRule": 13,
+   "pending": 1,
+   "gap": 2,
+   "summary": 13
+  }
+ },
+ "streak": {
+  "shown": "13",
+  "rule": 13,
+  "oldRule": 13,
+  "pending": 1,
+  "gap": 2,
+  "summary": 13
+ },
+ "a kid practises one verse, the one Kid Verse teaches: its card shows the paraphrase, labelled, and Read aloud reads it": {
+  "pass": true,
+  "got": {
+   "para": "In our own words — a paraphraseThe first believers kept learning, sharing meals and praying together.A simple paraphrase for little ears — not the Bible's own words.",
+   "cur": "38-0",
+   "expected": "The first believers kept learning, sharing meals and praying together.",
+   "said": "Acts, chapter 2, verse 42. The first believers kept learning, sharing meals and praying together.",
+   "pics": [
+    {
+     "href": "i-rotate-ccw",
+     "shown": true,
+     "w": 40
+    },
+    {
+     "href": "i-circle-dashed",
+     "shown": true,
+     "w": 40
+    },
+    {
+     "href": "i-check",
+     "shown": true,
+     "w": 40
+    }
+   ],
+   "sizes": [
+    105,
+    105,
+    105
+   ],
+   "trained": [
+    "38-0"
+   ]
+  }
+ },
+ "picture buttons: try-again, dashed circle, check (B, rescore 5 and final C), each ≥ 64 px": {
+  "pass": true,
+  "got": {
+   "para": "In our own words — a paraphraseThe first believers kept learning, sharing meals and praying together.A simple paraphrase for little ears — not the Bible's own words.",
+   "cur": "38-0",
+   "expected": "The first believers kept learning, sharing meals and praying together.",
+   "said": "Acts, chapter 2, verse 42. The first believers kept learning, sharing meals and praying together.",
+   "pics": [
+    {
+     "href": "i-rotate-ccw",
+     "shown": true,
+     "w": 40
+    },
+    {
+     "href": "i-circle-dashed",
+     "shown": true,
+     "w": 40
+    },
+    {
+     "href": "i-check",
+     "shown": true,
+     "w": 40
+    }
+   ],
+   "sizes": [
+    105,
+    105,
+    105
+   ],
+   "trained": [
+    "38-0"
+   ]
+  }
+ },
+ "the chapter:verse part of the reference is one unbroken piece in the line, no horizontal scroll": {
+  "pass": true,
+  "got": [
+   {
+    "w": 375,
+    "xxl": false,
+    "size": null,
+    "cv": "14:26-27",
+    "lines": 1,
+    "text": "Not yet — Luke 14:26-27. Next review tomorrow.",
+    "sw": 375,
+    "vw": 375
+   },
+   {
+    "w": 375,
+    "xxl": true,
+    "size": "xxl",
+    "cv": "14:26-27",
+    "lines": 1,
+    "text": "Not yet — Luke 14:26-27. Next review tomorrow.",
+    "sw": 375,
+    "vw": 375
+   },
+   {
+    "w": 390,
+    "xxl": false,
+    "size": null,
+    "cv": "14:26-27",
+    "lines": 1,
+    "text": "Not yet — Luke 14:26-27. Next review tomorrow.",
+    "sw": 390,
+    "vw": 390
+   },
+   {
+    "w": 390,
+    "xxl": true,
+    "size": "xxl",
+    "cv": "14:26-27",
+    "lines": 1,
+    "text": "Not yet — Luke 14:26-27. Next review tomorrow.",
+    "sw": 390,
+    "vw": 390
+   }
+  ]
+ },
+ "Elizabeth: \"Nothing due today\" with no star, the pill says \"nothing due\", the streak is kept and said once; no empty Due today list": {
+  "pass": true,
+  "got": {
+   "big": "Nothing due today",
+   "who": "🌷Elizabeth · nothing due",
+   "star": "none",
+   "sub": "Next up Exodus 20:1-3 tomorrow. A day with nothing due keeps your streak.",
+   "statsSub": "streak safe",
+   "dueList": false
+  }
+ },
+ "the empty card: \"…straight away\", an Open F260 button, and a pill that celebrates nothing": {
+  "pass": true,
+  "got": {
+   "shown": true,
+   "copy": "Mark a memory verse as memorised in F260 and you can review it here straight away.",
+   "who": "🌻Mea",
+   "button": true
+  }
+ },
+ "Open F260 opens F260 in the hub": {
+  "pass": true
+ }
+}

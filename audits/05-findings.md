@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 4 (`2a6bd05`), 5 (`2f699c2`), 6 (`1484889`), 7 (`7a77c6b`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
+| **App code audited** | `fe6041d`, unchanged since the Phase 0 baseline. Phase 5 changed no app code; it wrote only under `audits/`. Phase 6 has since changed app code in batches 1 (`80af987`), 3 (`da1dcbd`), 4 (`2a6bd05`), 5 (`2f699c2`), 6 (`1484889`), 7 (`7a77c6b`), 8 (`6688e17`), 0a (`ae274a6`), 0b (`d968db8`), 0c (`e9e5f59`), 0d (`d5e46b6`), 0e (`e72f6d0`), 0f (`48e7b60`), 0g (`7d9c593`), 0h (`16926a2`), 0i (`97c39a0`), 2a (`65009df`), 2b (`3944d37`), 2c (`4d46316`); each entry's Status line says what closed, and `audits/06-implementation.md` holds each batch's record. |
 | **Date** | 2026-09-25; rebuilt 2026-09-26 with the household's answers (`audits/05-decisions.md`), the step 3 severities and the step 4 plan changes (the Kitchen device, the cut) |
 | **Inputs** | Every file in `audits/`: the constitution (`audits/HUB-AUDIT-PROMPT.md`), `00-inventory.md`, `01-capture.md`, `01-leads.md`, `02-shell.md`, `03-apps.md` and `03-apps/*.md`, `04-design-system.md`, and the tools and evidence behind them. |
 | **Outputs** | This file; `audits/design-preview.html` (the design preview) and its captures in `audits/screens-preview/` (contact sheets in `audits/screens-preview/_sheets/`). |
@@ -30,7 +30,7 @@
 - **The Kitchen device** (P5-D5 as answered) is new work: KITCHEN-1 in batch 0d, KITCHEN-2 in batch 2a. It closes P2-PROF-09. Three points the answer left open are settled in the plan and go to the owner with the preview (`audits/05-decisions.md`, "Plan notes from step 4"): widening the profile kinds needs a rebuild of the `profiles` table, the plan's one non-additive schema step (`worker/schema.sql:9`); Timer and Tally store per person today, so the kitchen keeps its own Timer and Tally rows until batch 6; and the face sheet for finishing a food or adding a photo shows the adults only, while Prayed shows everyone.
 - **Cut by the household:** GAP-DOLLYWOOD-2 (`audits/05-decisions.md`, "Features kept or cut"). It is not planned.
 - **The preview is approved** (2026-09-26), with one change: Forest's text is gold, token revision 6e (`audits/05-decisions.md`, "Preview approved"). Phase 6 begins with batch 0a. The owner's device checks (item 6 of "Before Phase 6 can start") are still to do; they need no batch.
-- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 4 (`2a6bd05`, 2026-10-01), 5 (`2f699c2`, 2026-10-01), 6 (`1484889`, 2026-10-02), 7 (`7a77c6b`, 2026-10-04), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 455 entries FIXED, 32 PARTIAL, 0 DEFERRED, 14 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
+- **Phase 6 so far:** batches 1 (`80af987`, 2026-09-29), 3 (`da1dcbd`, 2026-09-30), 4 (`2a6bd05`, 2026-10-01), 5 (`2f699c2`, 2026-10-01), 6 (`1484889`, 2026-10-02), 7 (`7a77c6b`, 2026-10-04), 8 (`6688e17`, 2026-10-06), 0a (`ae274a6`, 2026-09-26), 0b (`d968db8`, 2026-09-26), 0c (`e9e5f59`, 2026-09-26), 0d (`d5e46b6`, 2026-09-28), 0e (`e72f6d0`, 2026-09-29), 0f (`48e7b60`, 2026-09-29), 0g (`7d9c593`, 2026-09-29), 0h (`16926a2`, 2026-09-29), 0i (`97c39a0`, 2026-09-29), 2a (`65009df`, 2026-09-29), 2b (`3944d37`, 2026-09-29), 2c (`4d46316`, 2026-09-30) done; 473 entries FIXED, 29 PARTIAL, 0 DEFERRED, 15 NEEDS DEVICE CHECK (pointers included). The "Status" column of the plan and each entry's Status line track it; `audits/06-implementation.md` has each batch's reruns, captures, tests and what was not verified.
 
 ## The plan
 
@@ -47,7 +47,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 7 | **0g** | Prayer: no lost requests, notes or prayed days | 7 (4 / 1 / 0 / 2 / 0) | M | 0b | 7/7 fixed, `7d9c593` |
 | 8 | **0h** | Larder and build guide: no one-tap loss | 6 (4 / 0 / 2 / 0 / 0) | M | 0b | 6/6 fixed, `16926a2` |
 | 9 | **0i** | Chat: writes that do what was asked, and say when they did not | 7 (2 / 0 / 4 / 1 / 0) | M | — | 7/7 fixed, `97c39a0` |
-| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 112/143 fixed, `80af987` |
+| 10 | **1** | Design tokens, design.css and shared components | 143 (0 / 1 / 14 / 121 / 7) | L | — | 116/143 fixed, `80af987` |
 | 11 | **2a** | Hub shell: Home, Apps, Me, Chat, profiles; the Kitchen device | 45 (0 / 1 / 7 / 36 / 1) + KITCHEN-2 | L | 1, 0d (KITCHEN-1) | 37/45 fixed, `65009df` |
 | 12 | **2b** | Worker: push, reminders, chat and PWA | 23 (0 / 1 / 5 / 16 / 1) | M | 0c | 22/23 fixed, `3944d37` |
 | 13 | **2c** | The TV board | 12 (0 / 0 / 3 / 9 / 0) | M | 1 | 12/12 fixed, `4d46316` |
@@ -56,7 +56,7 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 | 16 | **5** | Verses | 19 (0 / 0 / 5 / 13 / 1) | M | 1, 2a | 19/19 fixed, `2f699c2` |
 | 17 | **6** | Kitchen timer | 24 (0 / 0 / 9 / 15 / 0) | M | 1, 2a | 22/24 fixed, `1484889` |
 | 18 | **7** | Kid Verse | 16 (0 / 0 / 5 / 11 / 0) | M | 1, 2a | 16/16 fixed, `7a77c6b` |
-| 19 | **8** | Larder Ledger | 16 (0 / 0 / 2 / 14 / 0) | M | 1, 2a | open |
+| 19 | **8** | Larder Ledger | 16 (0 / 0 / 2 / 14 / 0) | M | 1, 2a | 14/16 fixed, `6688e17` |
 | 20 | **9** | Dollywood build guide | 47 (0 / 0 / 10 / 36 / 1) | L | 1, 2a | open |
 | 21 | **10** | Dollywood park map | 42 (0 / 0 / 13 / 28 / 1) | L | 1, 2a | open |
 | 22 | **11** | Tally counter | 14 (0 / 0 / 1 / 13 / 0) | M | 1, 2a | open |
@@ -1625,8 +1625,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ACCENT-4 — Three apps never put the person's colour on their content and Tally uses it only as a wash, while Prayer, Timer, Verses and the park map carry it on primaries and selection
 
-- **Area** design system (Prayer, Tally, Timer, Verses, park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The person's colour now reaches F260 (Done, ring and progress: Done #5B8143 → Eli's #4F52D8, SHAPE/crops), Tally (the + disc is the person's strong tone) and the Dollywood pair. The Larder still carries none: its Log button and ✓ read the success family (apps/leftovers.html:68; the ✓ on --success-fill was an accepted deviation), so it moves to the Larder's batch 8. ACCENT/recount.mjs reads committed data (identical output), stale. After: `audits/evidence/p6/1/p4/SHAPE/crops.json`, `audits/evidence/p6/1/p3/tally/theme-hearth-darkos-eli.png`, `audits/evidence/p6/1/tests/repro-after/phase4__ACCENT__recount.txt`.
+- **Area** design system (Prayer, Tally, Timer, Verses, park map) · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The person's colour reaches the Larder's main action: Log reads the person's strong tone and the mic their ink. accent.mjs: elements that differ by person 2 → 7; larder-look-8: Log is Eli's periwinkle rgb(79, 82, 216) and Mae's peach rgb(170, 68, 0), about 5.9:1 under white (rescore, logColours). The check stays in the success family: "used up" is a state action (the accepted deviation batch 1 recorded). Not looked at: the colour on a Kitchen device (the admin picks it). After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__accent.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__accent.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
 - **Evidence.** `audits/04-design-system.md:5669`; `apps/f260.html:208`, `apps/leftovers.html:39`
 - **What happens now.** The runtime pass covered every profile.
 - **Why it matters.** Some apps never show the person's colour.
@@ -1675,8 +1675,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-DARK-1 — The illustration set has no dark form, and each area improvises
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** The Timer's title art now sits on --art-plate with a radius and only standalone (the hub hides it), as the Larder's and Verses' art does; checked by reading apps/timer.html, with no standalone dark capture. timer-look-6: standalone the mark is --tap high and not draggable. The art itself still has no dark form: make-art.mjs still emits fixed fills (gap row DARK-10), and no batch is named for that. After: `audits/evidence/p6/6/tests/repro-after-rerun/timer-look-6.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** The Larder's half is the same as VIS-LEFTOVERS-7: the empty-state art sits on --art-plate and has no dark form (make-art.mjs emits fixed fills, gap row DARK-10, no batch named). Still open: the whole art/ set (story scenes, spot art, the other empty states). After: `audits/evidence/p6/8/rescore.md`.
 - **Evidence.** `audits/04-design-system.md:4913`; `index.html:203`
 - **What happens now.** None of the 38 SVGs in `art/` uses `currentColor`, CSS variables or `prefers-color-scheme`. The re-measure's static scan agrees. Story scenes: 10 of 12 are opaque light panels (mean luminance 0.53-0.77, 55-94% pale pixels), 7.8-12.6:1 against the Midnight card. `03-promise` and `09-nativity` are dark slabs in light mode.
 - **Why it matters.** In the evening the kids' story panel is the brightest thing on the iPad, and empty states look pasted in from the light theme.
@@ -1705,8 +1705,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-ICON-1 — Eleven icon families; no app uses the shell's own set
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
-- **Phase 6 (PARTIAL).** Kid Verse now draws every icon from the shared sprite at --icon-stroke. ICON/static, pre-batch vs final, Kid Verse: hand-drawn SVGs 7 → 0, sprite uses 0 → 8, stroke widths {1.5} → none. The sprite went 60 → 62 symbols (scroll-text, ear; named in the Lucide notice). kidverse-look-7 §9: every <svg> is a svg.sym naming a sprite symbol. Still open: the Larder (2, batch 8), the Dollywood exports (15 widths, 9/10) and the shell's 22 own symbols. After: `audits/evidence/p6/7/p4tools/out/ICON_static.txt`, `audits/evidence/p6/7/p4tools/before/ICON_static.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** L · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** The Larder draws every icon from the shared sprite at --icon-stroke (plus, check, triangle-alert, mic, copy, circle-half, clock; no sprite symbol was added). ICON/static, pre-batch vs final, Larder: hand-drawn stroke widths {2} → none, sprite uses 0 → 4 in the static markup (the rest are built in script); larder-look-8: every <svg> is an svg.sym naming a symbol that exists. The notice in icons/LICENSE-lucide.txt now says the Larder draws its icons from the sprite. Still open: the Dollywood exports (15 widths, 9/10) and the shell's 22 own symbols. After: `audits/evidence/p6/8/p4tools/out/ICON_static.txt`, `audits/evidence/p6/8/p4tools/before/ICON_static.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low. Correction: The count 'eleven icon families' does not match the report's own Table ICON-1: it lists 12 families (F1-F8 plus glyphs, emoji, CSS chevrons and art-as-icon), or 10 distinct recipes if F1-F3 count as the one shell recipe as the item states.
 - **Evidence.** `audits/04-design-system.md:2979`; `index.html:913-916`, `apps/f260.html:617-620`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** The shell (F1-F3) is one custom 1.75 recipe. Each app brings its own: F260: Feather/Lucide-derived paths at 2 on 18 px, a 20-grid tick at 2.6, colour emoji, text glyphs and CSS chevrons.
@@ -1726,8 +1726,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-MOTION-1 — Press feedback is complete in the `.ds` areas, partial or absent elsewhere, with nine scales and no brightness shift anywhere
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** The shell's timer pill now presses with --press-scale (0.97, 1 under Reduce Motion) and --press-dim instead of a fixed scale(.96): timer-look-6, Ezra at 390 and 820. MOTION/press, Timer: 8/8 → 10/11 controls at 0.97 with a dim; the 11th is the label text field, which does not press. Unchanged and still open: the Larder 9/12 (batch 8), the build guide 14/16 (batch 9), the shell's Me 26/27 and Chat 6/7. The press feel needs a real iPhone and iPad. After: `audits/evidence/p6/6/tests/repro-after-rerun/timer-look-6.txt`, `audits/evidence/p6/6/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/6/p4tools/before/MOTION_press.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** The Larder's count corrected: MOTION/press, pre-batch vs final, 9/12 controls → 10/19. Pressing, with the house's 0.97 / 0.94 and a dim: the six checks, Copy, the mic, Log and the new banner. Not pressing: the name field, the size and the date (fields) and, new, the six card names that open the edit sheet (div.nm role button, "Edit …": no feedback). MOTION/cls stays 0 on both devices. Undo, Put back and the "N new" pill are not in the probe but are .pressable in the code. Still open: the build guide 14/16 (9), the shell's Me 26/27 and Chat 6/7, and the press feel on a real iPhone and iPad. After: `audits/evidence/p6/8/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/8/p4tools/before/MOTION_press.txt`, `audits/evidence/p6/8/p4tools/out/MOTION_cls.txt`.
 - **Evidence.** `audits/04-design-system.md:4090`; `apps/prayer.html:196`, `apps/dollywood-live.html:409-411`, `apps/design.css:359`, `index.html:45`
 - **What happens now.** Complete in the `.ds` areas: Tally 3/3, Timer 8/8, Kid Verse 2/2, Verses 2/2, the kid Home 6/6, and the shell 65/68 (86-100 % per surface).
 - **Why it matters.** Taps with no visible response invite double taps, as with Prayer's main button and every build-guide control. Several apps punish double taps (P3-LEFTOVERS-01, P3-VERSES-12).
@@ -1756,8 +1756,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-1 — The content card is built six ways: radii from 12 to 36, five paddings, three border widths, three elevations
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
-- **Phase 6 (PARTIAL).** F260's .hero, .today, .reflect, the sheets, journal rows and .jcard, and Prayer's ledger, prompt, .ask and kid cards are now the one content card: --material-solid-bg, a --separator hairline, --r-card, --pad-card and --elev-card (.ask inside the sheet takes --r-control, concentric). The re-measure shows F260's cards at 28 px (--r-card). Left: the Larder's row radius 12 (batch 8). After: `audits/evidence/p6/4/measure/radii.json`, `audits/evidence/p6/4/review/workers-and-reviews.md`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The Larder's content card is the house card: --r-card 28, --pad-card, solid material, the stripe inset inside the padding. SHAPE/analyze, pre-batch vs final, Larder radii {12: 2664, 16: 126, 28: 15} → {12: 1663, 28: 1044}; the 12s left are the controls (the check, the banner, Copy, the name field, the mic, the size select: measure/radii.json). The shell, Kid Verse, Verses, the build guide, F260 and Prayer were set to the card in batches 1, 3 and 4 (their notes); this closes the Larder, the one place the note still named. After: `audits/evidence/p6/8/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/8/measure/radii.json`.
 - **Evidence.** `audits/04-design-system.md:2189`; `apps/design.css:381-383`, `apps/kidverse.html:41`, `apps/verses.html:72`, `apps/leftovers.html:71`; `audits/evidence/p4/SHAPE/sheet-cards.png`
 - **What happens now.** The same role, a solid content card, is drawn as follows (Table SHAPE-4):
 - **Why it matters.** Moving between apps, the same kind of surface changes its corner, weight and depth. The hub reads as separate web pages rather than one system.
@@ -1776,8 +1776,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-3 — The spacing rhythm splits the system in two: `.ds` areas are 98-100 % on the 4 px grid, own-CSS areas 34-84 %
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
-- **Phase 6 (PARTIAL).** F260 and Prayer moved their spacing to --sp-*. SHAPE/analyze, pre-batch vs final, macro spacing on the 4 px grid: F260 36.8 → 93.3 %, Prayer 44.6 → 92.3 %. TOK/literals spacing: F260 211 → 0, Prayer 170 → 1; Prayer's 22 px phone margin is --margin. Unchanged and still open: the Larder 45.8 % (batch 8), the build guide 83.5 % (9) and the park map (10). After: `audits/evidence/p6/4/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/4/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/4/p4tools/out/TOK_literals.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** Every Larder spacing is a --sp-* or --pad-* token on the 4 px grid for adults. SHAPE/analyze, pre-batch vs final, Larder macro spacing on the 4 px grid: 45.8 % → 92.6 % (139 jobs; all spacing 41.8 % → 92.2 %); TOK/literals spacing 44 (26 on-scale) → 0. What is still off the grid is plumbing: the visually hidden title's -1 px margin, the banner's 15 px padding and 10 px row gap, a 15 px column gap, and the page's measured margins 102 and 118. Still open: the build guide (83.5 %, batch 9) and the park map (10). After: `audits/evidence/p6/8/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/out/TOK_literals.txt`.
 - **Evidence.** `audits/04-design-system.md:2259`; `apps/prayer.html:50`
 - **What happens now.** Macro spacing on the 4 px grid (rig / re-measure): shell 99.7 / 99.7 %, TV 100 / 100, Tally 100 / 100, Timer 100 / 100, Kid Verse 98.4 / 97.2, Verses 98.6 / 96.9. Against those: build guide 83.6 / 74.9, park map 65.5 / 54.5, Larder 46.9 / 45.5, Prayer 44.3 / 40.9, F260 36.4 / 34.1.
 - **Why it matters.** Uneven gaps make the large apps feel hand-assembled next to the small ones, and literal spacing is out of reach of any future iPad or kid spacing tier.
@@ -1786,8 +1786,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-SHAPE-4 — The main action of a screen has six corner shapes and heights from 44 to 60
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
-- **Phase 6 (PARTIAL).** F260's Done reads --btn-h-lg instead of a literal 60 px (still a capsule, 60 px tall in test-f260), and Prayer's Pray now and Pray mode's controls are capsules at --btn-h-lg, every button.act --r-button (was --r-sm, 12 px). Left: the Larder's Log (batch 8) and the build guide's tabs (batch 9). After: `audits/evidence/p6/4/tests/suites/test-f260.txt`, `audits/evidence/p6/4/measure/radii.json`, `audits/evidence/p6/4/review/workers-and-reviews.md`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** The Larder's Log is a capsule at --btn-h-lg: visual.mjs 88 × 52 → 98 × 60, SHAPE/verify V4 Log radius 18 → 999 px on the kid scale; it reads the person's colour (CONS-ACCENT-4). Still open: the build guide's tabs keep r0 (batch 9, not yet audited). After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__visual.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__visual.txt`, `audits/evidence/p6/8/p4tools/out/SHAPE_verify.txt`.
 - **Evidence.** `audits/04-design-system.md:2274`; `apps/design.css:352`, `apps/verses.html:50`, `apps/kidverse.html:50`, `apps/prayer.html:192-194`; `audits/evidence/p4/SHAPE/sheet-buttons.png`
 - **What happens now.** The main actions are (Table SHAPE-6):
 - **Why it matters.** The one control each screen wants tapped looks different in every app, so pre-readers and grandparents get no learned "this is the button" shape.
@@ -1836,8 +1836,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TOK-1 — Four local token vocabularies, in which "ink" means four different things
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`2a6bd05`)
-- **Phase 6 (PARTIAL).** F260 and Prayer dropped their alias blocks: no local --paper, --raised, --sunk, --ink, --ink2, --rule, --rule-soft, --lift, --lift-lg or --serif is defined or read in either file now (a grep of both; batch 4's carry-over check had counted about 123 reads in F260 and 63 in Prayer), each retargeted to the role tokens (--lift became --elev-card / --elev-float). Contrast stays 0 failing (contrast.mjs) and every app suite passes. Left: the Larder's alias set (batch 8). After: `audits/evidence/p6/4/checks/contrast.txt`, `audits/evidence/p6/4/tests/suites/test-f260.txt`, `audits/evidence/p6/4/tests/suites/test-prayer.txt`, `audits/evidence/p6/4/review/carry-overs.md`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** M · **Batch** 1 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The Larder's alias set is gone: a grep of apps/leftovers.html finds none of --ledger, --paper, --raised, --sunk, --ink, --ink2, --rule, --lift, --gold, --olive, --muted, --serif and, since this batch, no read of the --r migration alias either (the add bar was the last). TOK/literals, Larder: colours 17 = the bootstrap map every app carries. With the Dollywood template (batch 1) and F260 and Prayer (batch 4), every app's local vocabulary is on the role tokens. After: `audits/evidence/p6/8/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/8/p4tools/before/TOK_literals.txt`.
 - **Evidence.** `audits/04-design-system.md:841`; `apps/f260.html:16-20`, `apps/prayer.html:24-34`, `apps/dollywood.html:212`, `apps/leftovers.html:14`
 - **What happens now.** The duplicated alias sets. F260 and Prayer each define the same nine aliases for design tokens (apps/f260.html:16-20; apps/prayer.html:24-34).
 - **Why it matters.** The same word points to opposite roles, so a change made by name lands on the wrong surface.
@@ -1866,8 +1866,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### CONS-TYPE-1 — Ten areas, eight large-title treatments, none 34 bold with tight tracking; three apps repeat the viewer bar's title
 
-- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`1484889`)
-- **Phase 6 (PARTIAL).** The Timer no longer repeats the viewer's title: in the hub its h1 "Kitchen timer" is visually hidden (html.framed, set before the first paint) and its art mark is gone; standalone it takes the large-title role. visual, iPad: the title 134×28 px at 22.4 px → 1×1; timer-look-6: in the hub at 390, 820 and 1280 no visible title, standalone 34 px bold (38 px at 820). Left: "The Larder Ledger" (batch 8). After: `audits/evidence/p6/6/tests/repro-after-rerun/timer-look-6.txt`, `audits/evidence/p6/6/tests/repro-after/phase3__timer__visual.txt`, `audits/evidence/p6/6/tests/repro-before/phase3__timer__visual.txt`.
+- **Area** design system, all areas · **Type** visual (consistency) · **Severity** low · **Effort** S · **Batch** 1 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The Larder no longer repeats the viewer's title: in the hub "The Larder Ledger" is visually hidden (html.framed, set before the first paint; the h1 stays for screen readers) and standalone it takes the large-title role (TYPE/code-scan: --fs-title1 1 → 0, --fs-large-title 1 → 2). SHAPE/verify V2: the left-margin element h1 → p.lede. Seen in main-typical-iphone-pwa-light (audits/screens-after/8/leftovers/, git-ignored): the viewer bar's "Larder Ledger" and no second title. The count holds one place from loading to filled (larder-look-8: 173 frames at 390, 154 at 820). After: `audits/evidence/p6/8/p4tools/out/TYPE_code-scan.txt`, `audits/evidence/p6/8/p4tools/before/TYPE_code-scan.txt`, `audits/evidence/p6/8/p4tools/out/SHAPE_verify.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
 - **Evidence.** `audits/04-design-system.md:1422`; `apps/design.css:331-332`, `apps/dollywood.html:223`, `index.html:335`; `audits/evidence/p4/TYPE/titles-ipad-portrait.png`
 - **What happens now.** Titles by area (iPad portrait, re-measured live): shell: view h1 36/400 ui-serif, tracking normal; Home hero 44/400 serif;
 - **Why it matters.** The one element that should identify a screen changes face, weight and size in every app, so moving between apps feels like moving between websites.
@@ -2030,8 +2030,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### GAP-TOK-4 — Kid and kiosk scale only the tokenised subset; every literal size escapes them
 
-- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
-- **Phase 6 (PARTIAL).** Kid Verse's literal sizes moved to tokens that scale by kind. TOK/literals, pre-batch vs final, Kid Verse: 41 → 18 (font sizes 2 → 0, line heights 8 → 0, targets 7 → 0, local literals 2 → 0, opacity 1 → 0); the 18 left are the 17 bootstrap colours every app carries and the dark art dim brightness(.82), a recorded exception with no token. Left, unchanged: the Dollywood exports' spacing 75 and 91, font sizes 38 and 64 (9/10). After: `audits/evidence/p6/7/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/7/p4tools/before/TOK_literals.txt`.
+- **Area** design system (TV) · **Type** feature gap · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** The Larder's literals no longer go round the kind scale. TOK/literals, pre-batch vs final, Larder: spacing 44 → 0; what is left is the 17 bootstrap colours every app carries and recorded exceptions with no token (--addbar-h's 150 px default that the script overwrites, the skeleton's two opacities, saturate(0) on a finished card). Worse, not better: shadows 1 → 3 and line heights 0 → 1 (the new edit sheet and swipe layer), none with a token. Still open: the Dollywood exports' spacing 75 and 91, font sizes 38 and 64 (9/10). After: `audits/evidence/p6/8/p4tools/out/TOK_literals.txt`, `audits/evidence/p6/8/p4tools/before/TOK_literals.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: The shell citations are wrong: index.html:60 is the adult PIN pad, :124 is a kiosk rule, and :188 is an icon size. None of them is a [data-kind=kid] rule restating 64/84px, and the kid CTA already uses var(--tap-lg).
 - **Evidence.** `audits/04-design-system.md:741`; `apps/design.css:280-289`, `index.html:60`
 - **What happens now.** Areas: design.css, the shell, F260, the Larder, Prayer, the park map.
@@ -2505,8 +2505,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-ICON-1 — Text glyphs and colour emoji stand in for icons in six areas
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
-- **Phase 6 (PARTIAL).** Kid Verse's labels lost their glyphs. ICON/static, pre-batch vs final, Kid Verse: glyphs 26 → 17 (★ 18 → 12, ✓ 1 → 0, − 2 → 0); the 12 ★ left are code comments, the speech text and the feed line "Read the verse ★", which Home and the TV show and the tests match; one emoji, a fallback face for a recording whose author is missing. Still open: the Larder ✓ ×7 (8), the shell's 48 emoji, the Dollywood exports' 52-53 glyphs (9/10). After: `audits/evidence/p6/7/p4tools/out/ICON_static.txt`, `audits/evidence/p6/7/p4tools/before/ICON_static.txt`.
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** M · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** The Larder's text glyphs are gone: the Back ✓ tag is Back, the chips carry sprite icons (Eat soon a clock, Use it up the warning triangle, Fresh none) instead of CSS glyph text, and the comments no longer spell the glyph. ICON/static, pre-batch vs final, Larder: glyphs {✓ ×7, … ×1} → {… ×1}. The kid picture view's food emoji stay (escapes the tool does not count; the kid view is a food picture by owner decision P5-D2). Still open: the shell's 48 emoji and the Dollywood exports' 52-53 glyphs (9/10). After: `audits/evidence/p6/8/p4tools/out/ICON_static.txt`, `audits/evidence/p6/8/p4tools/before/ICON_static.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
 - **Evidence.** `audits/04-design-system.md:3031`; `index.html:916`, `apps/f260.html:603-620`, `apps/tally.html:137-140`, `apps/kidverse.html:160`; `audits/screens/f260/milestones-typical-iphone-pwa-light.png`
 - **What happens now.** Glyphs render in the OS text font and emoji in the platform's colour set, so they take no token colour, weight or dark variant. Even the split between glyph and emoji depends on the platform: in the rig's WebKit, ⛰ and ✝ render as colour emoji, and repainting them changes 0 px (skeptic 1 of P4-ICON-03).
 - **Why it matters.** Glyphs stand in for icons.
@@ -2606,8 +2606,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-LEFTOVERS-7 — The empty-state fridge art is a pale hard-coded SVG that stands out in dark mode
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`80af987`)
-- **Phase 6 (PARTIAL).** The stopgap landed: the empty-state fridge art sits on --art-plate, so it no longer glares in dark. The SVG keeps its own pale fills, because scripts/make-art.mjs does not yet emit token-friendly fills (DARK/art-dark unchanged); gap row DARK-10 names no batch for it. After: `audits/evidence/p6/1/measure/nontext/leftovers.json`, `audits/evidence/p6/1/tests/repro-after/phase4__DARK__art-dark.txt`.
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** The stopgap stays, recorded again with the owner's call open: the fridge art sits on --art-plate (dimmed in dark) and is now draggable=false; the art file still has fixed fills because make-art.mjs emits them and an img cannot read tokens (gap row DARK-10, no batch named). Not changed: art/empty/fridge.svg. After: `audits/evidence/p6/8/rescore.md`.
 - **Evidence.** `audits/03-apps/leftovers.md:838`; `apps/leftovers.html:224`; `audits/screens/leftovers/main-empty-ipad-portrait-dark.png`
 - **What happens now.** `art/empty/fridge.svg` is loaded as an `<img>` (`apps/leftovers.html:224`), so tokens cannot reach its pale fills (`art/empty/fridge.svg:2, 6`).
 - **Why it matters.** Pale art glares in dark.
@@ -2666,8 +2666,8 @@ One batch per commit (constitution). Critical defects are pulled forward into th
 
 #### VIS-SHAPE-1 — Concentric corners are impossible by construction; at least 58 of 99 container/child pairs are off
 
-- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`7a77c6b`)
-- **Phase 6 (PARTIAL).** Kid Verse's story picture sits at the card's padding corner with a concentric radius (R 38, inset 20, r 18). SHAPE/analyze, pre-batch vs final, Kid Verse: off-concentric pairs 1 → 0 (the story picture in 66 jobs). Still open: shell 4 (2a), park map 4 (10), the Larder 4 (8), build guide 1 (9), the TV board 8 (2c). After: `audits/evidence/p6/7/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/7/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/7/tests/repro-after/p6-7__kidverse-look-7.txt`.
+- **Area** design system, all areas · **Type** visual · **Severity** low · **Effort** S · **Batch** 1 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** The add bar is R 28 with --pad-card around 12 px fields, so its pairs are concentric by construction. SHAPE/analyze, pre-batch vs final, Larder: off-concentric pairs 4 → 0 (487 checked, 6 distinct, all ok); SHAPE/verify V1: R16 inset 13 for r12 (off 9) → R28 inset 21 (want 7, off 5, inside the 7 px tolerance). Still open in this run: the shell 2, the park map 4 (10) and the build guide 1 (9). After: `audits/evidence/p6/8/p4tools/out/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/before/SHAPE_analyze.txt`, `audits/evidence/p6/8/p4tools/out/SHAPE_verify.txt`.
 - **Evidence.** `audits/04-design-system.md:2208`; `apps/design.css:381-383`; `audits/evidence/p4/SHAPE/sheet-concentric.png`
 - **What happens now.** The root cause is in design.css. `.card` is R22 with 20 px padding and a 1 px border, an inset of 21 (`apps/design.css:381-383`), and `.btn` is r16 (`:352`). Concentric would need r1, so every button in a card is 15 px off.
 - **Why it matters.** Mismatched nested corners are one of the clearest tells between the hub and first-party iPadOS surfaces, and design.css produces them by default.
@@ -5328,7 +5328,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### GAP-LEFTOVERS-1 — No way to fix a mistake or give a food its own use-by: no edit and no per-item expiry
 
-- **Area** leftovers · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 8
+- **Area** leftovers · **Type** feature gap · **Severity** medium · **Effort** M · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** Tap a card to edit its name, size, date and an optional use-by (a sheet: Enter saves, Escape and the backdrop close, Tab stays inside); the freshness rule uses the use-by when there is one. larder-a-8 C2: the sheet opens on the full name, a use-by tomorrow moves an 8-day dish from Use it up to Eat soon, the row keeps who logged it (by, byName) and gains editedBy / editedAt, an edit posts no feed line, and Mom fixing Eli's item still says Eli logged it. Review fixes (C6): an unchanged Save writes nothing and a changed one writes only its own fields (another device's rename survives), and an item finished elsewhere is not brought back. smoke-api 422 → 436 (the useBy, portion and editedBy rules). After: `audits/evidence/p6/8/tests/repro-after/p6-8__larder-a-8.fixed.txt`, `audits/evidence/p6/8/tests/smoke-api.txt`, `audits/evidence/p6/8/tests/suites/test-leftovers.txt`.
 - **Verified (step 3).** was medium; skeptics medium and medium. Correction: "Loses logged by" is true only when someone other than the original logger fixes the item; the same person re-logging keeps their own name. The report leaves out two things. The ✓-and-re-log fix also posts a false "Finished the <item>" line to the family feed, which strengthens the item.
 - **Evidence.** `audits/03-apps/leftovers.md:862`; `apps/leftovers.html:137`, `apps/leftovers.html:249-311`
 - **What happens now.** Items can only be added or removed. A wrong date or size needs delete and re-add, which loses "logged by".
@@ -5338,7 +5339,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-LEFTOVERS-02 — Home, the Apps badge and the 8 am push word the fridge differently from the Larder
 
-- **Area** leftovers · **Type** bug · **Severity** medium · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** bug · **Severity** medium · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** One rule, hub.larder.fresh (apps/hub.js, twinned in worker/src/larder.js): fresh 0-3 days, eat soon 4-6, use it up 7+, or by the use-by; the Larder, Home, the Apps badge, the Kitchen and the 8 am push all read it. The -8 copies of the three threshold scripts (the originals crash on the removed #alert, before and after): thresholds-8 4/10 → 10/10, disagree-1-8 4/10 → 10/10, disagree-2-8 5/11 → 11/11 (the before counts are the pre-batch tree, review/workers-and-reviews.md). The 8 am push names 3 items from 4 days (it was 2, from 5) as "Use it up: … · Eat soon: …"; Home "3 to eat" → "1 use it up" (entry.mjs). larder-a-8 A: both rule copies agree on 62 rows. test-push2 90 → 97, test-home 109 → 112, test-kitchen 62 → 64. After: `audits/evidence/p6/8/tests/repro-after/p6-8__thresholds-8.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__verify-thresholds-disagree-2-8.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-a-8.fixed.txt`, `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__entry.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:212`; `apps/leftovers.html:137`, `apps/leftovers.html:146`, `index.html:679-681`, `index.html:1175`; `audits/evidence/p3/leftovers/thresholds-home-ipad.png`, `audits/evidence/p3/leftovers/verify-thresholds-disagree-1-home-iphone.png`
 - **What happens now.** As filed, the investigator found three rules:
 - **Why it matters.** The lock screen says a 5-day chili must be used up, the app calls it "eat soon", and Home calls an 8-day dish "to eat this week" while the app says "a week or older". People learn to ignore one of the three.
@@ -5347,7 +5349,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-LEFTOVERS-10 — "Copy failed — select manually" leaves nothing to select (from the visual check)
 
-- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** When the clipboard is refused the list appears in a read-only box with everything selected, "Select and copy" and, where the device has navigator.share, Share; a copy that works says Copied!. verify-vis-copy-failed-2-1: no box and nothing selected (textareaCount 0, selection empty) → the whole list in a box and selected. -2-2: the label "Copy failed — select manually" → "Couldn't copy here" with the list in the box. larder-a-8 C4 and larder-look-8: the box ends 16 px above the add bar at 390-1440 and XXL. Not verified: navigator.share and a refused clipboard on a real iPhone (the rig fakes both). After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__verify-vis-copy-failed-select-manually-leaves-nothing-to-se-2-2.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__verify-vis-copy-failed-select-manually-leaves-nothing-to-se-2-2.txt`, `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__verify-vis-copy-failed-select-manually-leaves-nothing-to-se-2-1.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:536`; `apps/leftovers.html:341`, `apps/leftovers.html:339-347`, `apps/leftovers.html:350-358`, `apps/leftovers.html:114`; `audits/screens/leftovers/copy-error-iphone-safari-dark.png`, `audits/evidence/p3/leftovers/verify-vis-copy-failed-select-manually-leaves-nothing-to-se-2-1-failed.png`
 - **What happens now.** `copyText` tries the async clipboard and then a selection copy from a textarea that is invisible (`opacity:0`) and removed straight after `execCommand` (`apps/leftovers.html:339-347`). On failure the label reads "Copy failed — select manually" for 2 s and then reverts (`apps/leftovers.html:350-358`).
 - **Why it matters.** The one fallback the app offers tells the person to do something the page makes impossible.
@@ -5356,7 +5359,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### P3-LEFTOVERS-11 — Long item names are cut to one line and cannot be read in the Larder (from the visual check)
 
-- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** bug · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** Names wrap to two lines (a clamp of 2, never nowrap) and a tap opens the edit sheet with the whole name. verify-vis-long-item-names-3-1: cards with a cut name 16 / 15 / 15 (iPhone, iPad portrait, desktop) → 0 / 0 / 0 of 32; -3-2: nowrap with an ellipsis → normal wrapping, the Chicken alfredo name column 205 → 240 px. larder-look-8: 32 names at 375, 390, 820 and 1440, none over two lines; the sheet shows a 79-character name whole; a kid's name breaks at words, never cut (a one-name kid card 157 → 120 px high at 430). After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__verify-vis-long-item-names-are-cut-off-with-no-way-to-read--3-1.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__verify-vis-long-item-names-are-cut-off-with-no-way-to-read--3-1.txt`, `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__verify-vis-long-item-names-are-cut-off-with-no-way-to-read--3-2.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:564`; `apps/leftovers.html:75`, `apps/leftovers.html:254-286`, `apps/leftovers.html:122`, `index.html:1175`; `audits/screens/leftovers/main-overflow-iphone-pwa-light.png`, `audits/screens/leftovers/main-overflow-ipad-portrait-dark.png`
 - **What happens now.** `.nm` is one line with `nowrap`, `overflow: hidden` and an ellipsis (`apps/leftovers.html:75`). The card has no title, no tap handler and no detail view; its only control is the ✓, which deletes (`apps/leftovers.html:254-286`). On iPhone "Forgotten jar of homemade c…" keeps 37% of its name.
 - **Why it matters.** "Church potluck baked ziti (th…" and "Vegetable fried rice with scra…" hide the part that says which dish it is.
@@ -5365,7 +5369,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-LEFTOVERS-3 — Nothing in the Larder can be read from 2 m on the Kitchen iPad
 
-- **Area** leftovers · **Type** usability · **Severity** low · **Effort** M · **Batch** 8
+- **Area** leftovers · **Type** usability · **Severity** low · **Effort** M · **Batch** 8 · **Status** NEEDS DEVICE CHECK (`6688e17`)
+- **Phase 6 (NEEDS DEVICE CHECK).** On the Kitchen iPad the oldest item's name and age are --fs-glance-3 (44 px), every card name is at the glance role, the column is 840 px and the check and Undo are 60 px. larder-look-8: the name's cap height is 5.96 mm on the 11-inch iPad, portrait and landscape (before: the 28 px title 3.85 mm, item names about 2.2 mm), over H2's 5.8 mm at 2 m, so readable to about 2.05 m; H1's 10 mm is not met. The rig has no kitchen profile, so the kitchen attribute is set in the frame and no capture shows it. Needs a person standing 2 m from the Kitchen iPad. After: `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`, `audits/evidence/p6/8/rescore.md`, `audits/evidence/p6/8/tests/suites/test-kitchen.txt`.
 - **Verified (step 3).** was medium; skeptics low (partly) and low (partly). Correction: Cap millimetres come from WebKit's integer-rounded actualBoundingBoxAscent, so they overstate slightly (item names about 2.2 mm, not 2.31; chips about 1.6 mm, not 1.73).
 - **Evidence.** `audits/03-apps/leftovers.md:753`; `apps/leftovers.html:213`, `apps/leftovers.html:23`; `audits/screens/leftovers/main-typical-ipad-portrait-light.png`
 - **What happens now.** Cap heights on the 11" iPad (0.1924 mm per CSS px, canvas `measureText('H')`), against Phase 2's H1 (cap ≥ distance/200: 10 mm at 2 m) and H2 (≥ distance/344: 5.8 mm at 2 m), `audits/02-shell.md:519-520`: the 28 px title: 3.85 mm;
@@ -5375,7 +5380,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-LEFTOVERS-4 — "Copy list for Hearth" tells people to ask Claude for something the hub's Claude cannot do
 
-- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The block is "Copy the list" with the copy icon and neutral text ("Paste it into a message, a note or Hearth."); nothing tells anyone to ask an assistant for something it cannot do. roles.mjs: the label "Copy list for Hearth" → "Copy the list", the copied text "Push these to the Hearth Calendar:" → "Leftovers to eat soon or use up:" with "use it up, logged 8 days ago"; -2-2: the hint that said to tell Claude "push my leftovers to Hearth" → "Paste it into a message, a note or Hearth.". larder-a-8 C4: the copy block does not mention Claude. Hearth is still named as a place to paste, with no Hearth path behind it. After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__roles.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__roles.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-a-8.fixed.txt`.
 - **Verified (step 3).** was medium; skeptics medium and low (partly); tie-break low (partly). Correction: The report says "The hub's Chat tab is Claude". That is true only in the code, not in anything a household member sees, so the "tell Claude" instruction does not clearly point at the hub assistant.
 - **Evidence.** `audits/03-apps/leftovers.md:764`; `apps/leftovers.html:114-115`, `apps/leftovers.html:152`, `apps/leftovers.html:331`, `apps/leftovers.html:113-117`; `audits/evidence/p3/leftovers/roles-hearth-copied-iphone.png`, `audits/screens/leftovers/copy-typical-iphone-pwa-light.png`
 - **What happens now.** The block says to copy, then tell Claude "push my leftovers to Hearth", and that "it'll add them straight to the Hearth Calendar" (`apps/leftovers.html:114-115`). The hub's Chat tab is Claude, but the Worker has no Hearth tool: 0 occurrences of "hearth" in `worker/src`.
@@ -5385,7 +5391,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-LEFTOVERS-5 — Log with an empty name does nothing, with no message and no focus
 
-- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** Log with nothing typed says "Type what it is" under the field, focuses it, and the message goes when typing starts; the edit sheet does the same. entry.mjs 2: focus after an empty Log "" → on the name field (the script's errShown still reads an old element, so larder-a-8 C is the measure). larder-a-8 C: the message, the focus, and typing clearing it. After: `audits/evidence/p6/8/tests/repro-after/p6-8__larder-a-8.fixed.txt`, `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__entry.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__entry.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:773`; `apps/leftovers.html:291-292`
 - **What happens now.** `if (!name) return;` (`apps/leftovers.html:291-292`), and the input has no `required`.
 - **Why it matters.** Nothing happens.
@@ -5394,7 +5401,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-LEFTOVERS-6 — After Log there is no confirmation, and the new card can land under the add bar
 
-- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** After Log a toast says "Logged <name>" and the new card is scrolled into view above the add bar. critic-followups, the new card visible above the bar: 1 of 5 sizes → 5 of 5 (iPhone PWA: card bottom 1020 under a bar at 742 → card 587-703 over a bar at 718, scrollY 0 → 410). larder-a-8 C: the toast "Logged Taco soup" and the card on screen. larder-look-8: the toast never covers a finishing card's Undo or "Select and copy" at 390, 820 and 1440. After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__critic-followups.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__critic-followups.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-a-8.fixed.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:776`; `apps/leftovers.html:298-303`; `audits/screens/leftovers/queued-offline-ipad-landscape-light.png`, `audits/evidence/p3/leftovers/taps-logged-iphone-pwa.png`
 - **What happens now.** The field clears and the count changes, but there is no toast and no scroll (`apps/leftovers.html:298-303`).
 - **Why it matters.** The new card lands under the bar.
@@ -5403,7 +5411,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-LEFTOVERS-8 — The sync error line shows a raw server code ("internal.") with no retry
 
-- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** A failed pull says "Couldn't reach the house. Your changes are saved on this device." with a Retry, in plain words and never a raw code; Retry pulls and the line goes when the house answers (larder-a-8 C4, both). No original script covers it, so larder-a-8 is the measure; the rescore opened the new amber line with Retry in main-error-iphone-pwa-light (audits/screens-after/8/leftovers/, git-ignored). After: `audits/evidence/p6/8/tests/repro-after/p6-8__larder-a-8.fixed.txt`, `audits/evidence/p6/8/rescore.md`.
 - **Evidence.** `audits/03-apps/leftovers.md:794`; `apps/leftovers.html:185`; `audits/screens/leftovers/main-error-iphone-pwa-light.png`
 - **What happens now.** `'The house list had a problem: ' + lastError` (`apps/leftovers.html:185`) renders "The house list had a problem: internal." in 12 px amber, quieter than the red banner below it.
 - **Why it matters.** A raw server code.
@@ -5412,7 +5421,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### UX-LEFTOVERS-9 — The red banner names no item and cannot be tapped
 
-- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** usability · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The red banner is a button of 44 px or more with a triangle icon that names the oldest item ("Chicken alfredo is 8 days old", "· and 1 more"); a tap scrolls to that card and highlights it for 1.6 s. larder-a-8 C: "Chili is 9 days old · and 1 more", the scroll, the highlight and its going. larder-look-8: from 768 px the banner is on --fs-title2 (15 px at 390 → 24.6 px at 820 and 1180). visual.mjs lists it as a 560 × 60 control. After: `audits/evidence/p6/8/tests/repro-after/p6-8__larder-a-8.fixed.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`, `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__visual.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:798`; `apps/leftovers.html:207-215`; `audits/screens/leftovers/main-overflow-iphone-pwa-light.png`
 - **What happens now.** It is plain text, "N items at a week or older" (`apps/leftovers.html:207-215`). A 63-day-old jar and an 8-day-old dish get the same line.
 - **Why it matters.** The banner says nothing useful.
@@ -5421,7 +5431,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-LEFTOVERS-4 — The person's colour reaches only the add bar's glass tint; a card shows who logged it only as a name
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** Each card shows who logged it as that person's face (hub.avatarHtml, "Logged by <name>"), and the Log button and the mic wear the person's colour. accent.mjs, elements whose paint differs by person (Eli #4F52D8, Mae #AA4400): 2 (the pill and the bar's glass) → 7 (also the mic, Log, the edit sheet, its Save and its clear button). larder-look-8: every card has a face in its own family (bubblegum, mint, peach, periwinkle), light and dark; Log is Eli's periwinkle rgb(79, 82, 216) and Mae's peach rgb(170, 68, 0). The check stays in the success family (a state). After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__accent.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__accent.txt`, `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:821`; `apps/leftovers.html:39`, `apps/leftovers.html:265`; `audits/evidence/p3/leftovers/accent-eli-ipad.png`, `audits/evidence/p3/leftovers/accent-mae-ipad.png`
 - **What happens now.** `--accent` differs by profile (Eli #4F5D8C, Mae #BC5A38), but `form#add` is the only element whose paint differs: the glass pickup (`apps/leftovers.html:39`).
 - **Why it matters.** The person's colour barely appears.
@@ -5430,7 +5441,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-LEFTOVERS-5 — Default form controls in the glass bar: a native grey select and raw ISO dates
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The size select is a styled control (appearance none, a drawn caret, the fields' height 44 → 52 px) and dates read "Mon 21 Sep · 1 day" (a year only when it is not this year) instead of "2026-09-21 · 1d ago". accent.mjs: select appearance auto → none; entry.mjs 4: meta "Medium · logged 2026-09-21 · 1d ago" → "Medium · Mon 21 Sep · 1 day". The add bar's date field is still the browser's own control (ISO text in Windows WebKit; iOS shows its localized date and picker), which no rig can show: a device check. After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__accent.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__accent.txt`, `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__entry.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:826`; `apps/leftovers.html:52-53`, `apps/leftovers.html:265`; `audits/screens/leftovers/add-typical-iphone-pwa-light.png`, `audits/screens/leftovers/main-typical-ipad-portrait-dark.png`
 - **What happens now.** The select keeps `appearance: auto` (`apps/leftovers.html:52-53`), so it shows a native grey control that does not match its siblings, and is lighter in dark mode.
 - **Why it matters.** Native controls and raw ISO dates.
@@ -5439,7 +5451,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-LEFTOVERS-6 — The fixed add bar covers cards and the Hearth block, and the list is read through it
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The page pads to the measured add bar plus a gap, so the last block ends 16 px above the bar at every width and at XXL, and the bar is still glass over the list. larder-look-8: the last block ends above the bar at 375, 390, 430, 820, 1180, 1440 and 390 XXL, typical and overflow (614 <= 630 at 390; padding-bottom 182 = bar 154 + offset 12 + a gap, 312 at XXL); Solid glass makes the bar opaque. critic-followups: a new card landed under the bar at 4 of 5 sizes → above it at 5 of 5. After: `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`, `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__critic-followups.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__critic-followups.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:831`; `apps/leftovers.html:33-45`, `apps/leftovers.html:19`; `audits/screens/leftovers/main-typical-ipad-landscape-light.png`, `audits/screens/leftovers/add-typical-ipad-landscape-dark.png`
 - **What happens now.** The bar is about 130 px of fixed `glass-strong` (`apps/leftovers.html:33-45`).
 - **Why it matters.** The bar covers cards.
@@ -5448,7 +5461,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-LEFTOVERS-8 — No press scale, spring, toast or sheet: every action is an instant re-render
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8 · **Status** PARTIAL (`6688e17`)
+- **Phase 6 (PARTIAL).** Partly. Log, the check, Copy, the mic and the new banner press (0.97 / 0.94 with the house dim; MOTION/press 9/12 → 10/19 controls: the check and Log already pressed after batch 1, while the six card names, the name field, the size and the date do not); a finish settles on a gentle fade, an opacity fade under Reduce Motion; the swipe tracks the finger on a spring (see IMP-LEFTOVERS-I1). Not done, by design: a finished card does not collapse away, because the 0h rule keeps it in place so nothing under a finger moves (larder-check A and F). The press and swipe feel is a device check. After: `audits/evidence/p6/8/p4tools/out/MOTION_press.txt`, `audits/evidence/p6/8/p4tools/before/MOTION_press.txt`, `audits/evidence/p6/8/checks/larder-check.txt`, `audits/evidence/p6/8/rescore.md`.
 - **Evidence.** `audits/03-apps/leftovers.md:843`; `apps/leftovers.html:57`, `apps/leftovers.html:80`, `apps/leftovers.html:203-246`, `apps/leftovers.html:61`
 - **What happens now.** The `:active` rules change the background only (`apps/leftovers.html:57, 85, 95`). The ✓ has transition 0s and transform none.
 - **Why it matters.** No press feedback or motion.
@@ -5457,7 +5471,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-LEFTOVERS-9 — Two identical refresh glyphs on one screen do different things
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** Copy draws the sprite's copy icon, not the circular arrows the shell's reload uses. larder-look-8: Copy uses i-copy, never the refresh glyph; roles.mjs: the Copy icon markup (the refresh arrows' path M3 12a9 9 0 0 1 9-9 …) → <use href="../icons/sprite.svg#i-copy">. ICON/static, Larder: svg tags 2 → 4, all 4 sprite <use>. After: `audits/evidence/p6/8/tests/repro-after/phase3__leftovers__roles.txt`, `audits/evidence/p6/8/tests/repro-before/phase3__leftovers__roles.txt`, `audits/evidence/p6/8/p4tools/out/ICON_static.txt`.
 - **Evidence.** `audits/03-apps/leftovers.md:849`; `apps/leftovers.html:152`; `audits/screens/leftovers/main-typical-ipad-portrait-light.png`, `audits/screens/leftovers/main-empty-iphone-pwa-light.png`
 - **What happens now.** The shell top bar's reload and the Larder's Copy button both use the circular-arrows glyph (`apps/leftovers.html:152, 352`).
 - **Why it matters.** Two identical glyphs do different things.
@@ -5466,7 +5481,8 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 #### VIS-LEFTOVERS-11 — The name field shrinks by 60 px when the mic appears after ready
 
-- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8
+- **Area** leftovers · **Type** visual · **Severity** low · **Effort** S · **Batch** 8 · **Status** FIXED (`6688e17`)
+- **Phase 6 (FIXED).** The mic's space is reserved from the first paint (visibility hidden, then shown; html.nomic, set before the first paint, removes it where there is no speech support) and the placeholder reads "What is it?", so the name field no longer shrinks or cuts its text on the iPhone. larder-look-8: the field is 169 px wide in all 174 sampled frames from loading to ready; the mic slot has width in every frame; after ready the mic shows; without speech it is not laid out. After: `audits/evidence/p6/8/tests/repro-after/p6-8__larder-look-8.fixed.txt`, `audits/evidence/p6/8/rescore.md`.
 - **Evidence.** `audits/03-apps/leftovers.md:855`; `apps/leftovers.html:123`, `apps/leftovers.html:315-316`; `audits/screens/leftovers/main-loading-iphone-pwa-light.png`, `audits/screens/leftovers/main-typical-iphone-pwa-light.png`
 - **What happens now.** While loading the mic is hidden (`apps/leftovers.html:123`). After ready it appears (`apps/leftovers.html:315-316`), the name field narrows, and the iPhone placeholder is cut to "Chicken alf".
 - **Why it matters.** The field shrinks after load.
@@ -5479,7 +5495,9 @@ These are Phase 3 improvements that fix no filed finding (type *improvement*; de
 
 | ID | Improvement | Kind | Delight | Effort | Source | Status |
 |---|---|---|---|---|---|---|
-| IMP-LEFTOVERS-I1 | Swipe to finish, plus "someone ate some": an iOS-style trailing swipe (keeping the ✓ for grandparents) and a "half left" state instead of all-or-nothing | idea | 3 | M | `audits/03-apps/leftovers.md:1046` | open |
+| IMP-LEFTOVERS-I1 | Swipe to finish, plus "someone ate some": an iOS-style trailing swipe (keeping the ✓ for grandparents) and a "half left" state instead of all-or-nothing | idea | 3 | M | `audits/03-apps/leftovers.md:1046` | NEEDS DEVICE CHECK (`6688e17`) |
+
+- **IMP-LEFTOVERS-I1 — Phase 6 (NEEDS DEVICE CHECK).** Swipe to finish and "Some left": a trailing swipe (a 10 px intent, vertical scroll left to the page) shows Some left and Finish; a full swipe finishes through the same 6 s Undo as the check, which stays for grandparents; Some left writes portion "some" (the card says so, Undo takes it back, the edit sheet has the switch) and counts like any other item wherever the rule is read. larder-a-8 C3 (12 checks) and C6: the drag, both actions, both Undos, Undo after someone else edited, a tap on an open card's face closing it only; C5: kids and the TV have no swipe. Not verified: the feel of a real swipe and iOS's edge back-swipe against it. After: `audits/evidence/p6/8/tests/repro-after/p6-8__larder-a-8.fixed.txt`, `audits/evidence/p6/8/rescore.md`.
 
 ### Batch 9 — Dollywood build guide (48)
 

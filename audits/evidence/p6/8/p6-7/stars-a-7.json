@@ -1,0 +1,854 @@
+{
+ "pass": 81,
+ "fail": 0,
+ "out": {
+  "before the reset: 4 verse stars, balance 4": {
+   "pass": true,
+   "got": {
+    "total": 4,
+    "days": [
+     "2026-10-06",
+     "2026-10-07",
+     "2026-10-08",
+     "2026-10-09"
+    ]
+   }
+  },
+  "the mirror holds the days": {
+   "pass": true,
+   "got": {
+    "2026-10-06": true,
+    "2026-10-07": true,
+    "2026-10-08": true,
+    "2026-10-09": true
+   }
+  },
+  "Monday, before Ezra opens Kid Verse: Me already shows ★0 to cash in (the display applies the reset to last week's days)": {
+   "pass": true,
+   "got": "🦖Ezra ★0 to cash in · 0 this week · 4 ever1 badge: First starCash inReset week"
+  },
+  "Ezra's own derivation: balance 0, earned 4 (nothing is un-earned)": {
+   "pass": true,
+   "got": {
+    "total": 0,
+    "earned": 4
+   }
+  },
+  "one reset marker per cleared verse day and the reset applied once": {
+   "pass": true,
+   "got": {
+    "resets": [
+     "reset:verse:2026-10-06",
+     "reset:verse:2026-10-07",
+     "reset:verse:2026-10-08",
+     "reset:verse:2026-10-09"
+    ],
+    "applied": [
+     "applied:ledger:ezra:mux6os3j-u8te"
+    ]
+   }
+  },
+  "the reset marker carries the ledger row's own time (at) and key (by)": {
+   "pass": true,
+   "got": {
+    "by": "ledger:ezra:mux6os3j-u8te",
+    "at": 1791321697855
+   }
+  },
+  "the mirror agrees: total 0, the four days read reset, 0 this week": {
+   "pass": true,
+   "got": {
+    "total": 0,
+    "days": {
+     "2026-10-06": "reset",
+     "2026-10-07": "reset",
+     "2026-10-08": "reset",
+     "2026-10-09": "reset"
+    }
+   }
+  },
+  "the heard day and the prayed day (listed, uncredited) are spent with reset markers": {
+   "pass": true,
+   "got": {
+    "resets": [
+     "reset:prayed:2026-10-06",
+     "reset:story:2026-10-06"
+    ]
+   }
+  },
+  "and no star row was written for them": {
+   "pass": true,
+   "got": {
+    "stars": [
+     "star:prayed:2026-10-04"
+    ]
+   }
+  },
+  "a prayed day the reset does not list (last Sunday) is credited as usual": {
+   "pass": true,
+   "got": {
+    "stars": [
+     "star:prayed:2026-10-04"
+    ],
+    "lastSun": "2026-10-04"
+   }
+  },
+  "the stars object shows both days as reset, 0 this week": {
+   "pass": true,
+   "got": {
+    "story": {
+     "2026-10-06": "reset"
+    },
+    "prayed": {
+     "2026-10-04": true,
+     "2026-10-06": "reset"
+    },
+    "count": 0
+   }
+  },
+  "reopened: still no story / prayed star for today, balance and earned unchanged": {
+   "pass": true,
+   "got": {
+    "total": 1,
+    "total1": 1
+   }
+  },
+  "the mirror carries the spent days as reset": {
+   "pass": true,
+   "got": {
+    "prayed": {
+     "2026-10-04": true,
+     "2026-10-06": "reset"
+    },
+    "story": {
+     "2026-10-06": "reset"
+    }
+   }
+  },
+  "badgeStoryHint": 0,
+  "(a) yesterday's star was earned before the reset: taken (balance 0)": {
+   "pass": true,
+   "got": {
+    "days": {
+     "2026-10-05": "reset"
+    },
+    "total": 0
+   }
+  },
+  "(a) today's star, earned after the reset's `at`, stays: balance 1": {
+   "pass": true,
+   "got": {
+    "okA": true,
+    "days": {
+     "2026-10-05": "reset",
+     "2026-10-06": true
+    },
+    "total": 1
+   }
+  },
+  "(a) a second tap is the usual \"already have today's star\"": {
+   "pass": true,
+   "got": [
+    "You already have today’s star — come back tomorrow!"
+   ]
+  },
+  "(a) the mirror: total 1, today lit, yesterday reset": {
+   "pass": true,
+   "got": {
+    "total": 1,
+    "days": {
+     "2026-10-05": "reset",
+     "2026-10-06": true
+    }
+   }
+  },
+  "(b) a reset stamped before today's star arrives later: the star stays (balance 1, one marker only)": {
+   "pass": true,
+   "got": {
+    "days": {
+     "2026-10-05": "reset",
+     "2026-10-06": true
+    },
+    "total": 1
+   }
+  },
+  "(c) a reset stamped after the star takes it: today reads reset, balance 0": {
+   "pass": true,
+   "got": {
+    "days": {
+     "2026-10-05": "reset",
+     "2026-10-06": "reset"
+    },
+    "total": 0
+   }
+  },
+  "(c) Done again says \"Your star for today was reset\", never a second star": {
+   "pass": true,
+   "got": "Your star for today was reset — come back tomorrow!"
+  },
+  "(c) no new star row was written": {
+   "pass": true,
+   "got": [
+    "star:verse:2026-10-05",
+    "star:verse:2026-10-06"
+   ]
+  },
+  "both devices derive the identical stars object": {
+   "pass": true,
+   "got": {
+    "a": 0,
+    "b": 0
+   }
+  },
+  "one applied row, the markers written once each, no story / prayed star for the spent day": {
+   "pass": true,
+   "got": {
+    "reset": [
+     "reset:prayed:2026-10-06",
+     "reset:story:2026-10-06",
+     "reset:verse:2026-10-04",
+     "reset:verse:2026-10-05"
+    ],
+    "applied": [
+     "applied:ledger:ezra:mux6p079-4esu"
+    ],
+    "star": [
+     "star:verse:2026-10-04",
+     "star:verse:2026-10-05"
+    ]
+   }
+  },
+  "the mirror is not rewritten by either device after settling (same updated_at)": {
+   "pass": true,
+   "got": {
+    "u1": 1791321708662,
+    "u2": 1791321708662
+   }
+  },
+  "1 y: the balance 497 equals an independent replay (folded, exact and the mirror)": {
+   "pass": true,
+   "got": {
+    "mirror": 497,
+    "folded": 497,
+    "exact": 497,
+    "total": 497
+   }
+  },
+  "1 y: earned 627 = every star ever": {
+   "pass": true,
+   "got": {
+    "mirror": 627,
+    "want": 627
+   }
+  },
+  "1 y: the story (243) and prayed (92) badge counts survive the folding": {
+   "pass": true,
+   "got": {
+    "folded": {
+     "story": 243,
+     "prayed": 92
+    },
+    "exact": {
+     "story": 243,
+     "prayed": 92
+    }
+   }
+  },
+  "1 y: badges, payouts (13) and this week's count are equal folded vs exact": {
+   "pass": true,
+   "got": {
+    "b": {
+     "first": "2025-10-06",
+     "ten": "2025-10-06",
+     "story": "2025-10-06",
+     "prayer": "2025-10-06",
+     "fifty": "2025-10-06"
+    },
+    "p": 13
+   }
+  },
+  "1 y: the mirror is 3562 bytes (< 7000; the exact derivation is 33388)": {
+   "pass": true,
+   "got": {
+    "size": 3562,
+    "unp": 33388
+   }
+  },
+  "shape1": {
+   "days": 23,
+   "story": 19,
+   "prayed": 8,
+   "applied": 3,
+   "earnedAt": 50,
+   "base": {
+    "story": 224,
+    "prayed": 84
+   },
+   "appliedBefore": 1782259200000
+  },
+  "2 y: the balance 993 equals an independent replay (folded, exact and the mirror)": {
+   "pass": true,
+   "got": {
+    "mirror": 993,
+    "folded": 993,
+    "exact": 993,
+    "total": 993
+   }
+  },
+  "2 y: earned 1253 = every star ever": {
+   "pass": true,
+   "got": {
+    "mirror": 1253,
+    "want": 1253
+   }
+  },
+  "2 y: the story (486) and prayed (183) badge counts survive the folding": {
+   "pass": true,
+   "got": {
+    "folded": {
+     "story": 486,
+     "prayed": 183
+    },
+    "exact": {
+     "story": 486,
+     "prayed": 183
+    }
+   }
+  },
+  "2 y: badges, payouts (26) and this week's count are equal folded vs exact": {
+   "pass": true,
+   "got": {
+    "b": {
+     "first": "2024-10-06",
+     "ten": "2024-10-06",
+     "story": "2024-10-06",
+     "prayer": "2024-10-06",
+     "fifty": "2024-10-06"
+    },
+    "p": 26
+   }
+  },
+  "2 y: the mirror is 4149 bytes (< 7000; the exact derivation is 66420)": {
+   "pass": true,
+   "got": {
+    "size": 4149,
+    "unp": 66420
+   }
+  },
+  "shape2": {
+   "days": 23,
+   "story": 19,
+   "prayed": 8,
+   "applied": 3,
+   "earnedAt": 50,
+   "base": {
+    "story": 467,
+    "prayed": 175
+   },
+   "appliedBefore": 1782259200000
+  },
+  "the size does not grow with time (payouts, capped at 50, left out): 1 y 2976 B, 2 y 2978 B": {
+   "pass": true,
+   "got": {
+    "1": 2976,
+    "2": 2978
+   }
+  },
+  "a year with 7 resets and 13 cash-ins: folded = exact (total 350, earned 505)": {
+   "pass": true,
+   "got": {
+    "s": [
+     350,
+     505,
+     1
+    ],
+    "x": [
+     350,
+     505,
+     1
+    ],
+    "mirror": [
+     350,
+     505
+    ]
+   }
+  },
+  "…and the mirror is 2935 bytes": {
+   "pass": true,
+   "got": 2935
+  },
+  "Done ★ on a first star: the star row, the badge row and the mirror ONCE": {
+   "pass": true,
+   "got": [
+    "star:verse:2026-10-06",
+    "badge:first",
+    "stars:ezra"
+   ]
+  },
+  "reconcile again changes nothing and writes nothing": {
+   "pass": true,
+   "got": []
+  },
+  "the derived week count 6 = the marks per day (verse + story + prayed) 6; last week's star is not in it": {
+   "pass": true,
+   "got": {
+    "count": 6,
+    "n": 6
+   }
+  },
+  "the dots on screen carry the same 6 marks (data-marks)": {
+   "pass": true,
+   "got": {
+    "dom": 6,
+    "n": 6
+   }
+  },
+  "the grown-ups' copy (the mirror the panel and the shell read) carries the same 6 marks": {
+   "pass": true,
+   "got": 6
+  },
+  "EDT: Sunday 4:59:59 pm New York -> no offer": {
+   "pass": true,
+   "got": {
+    "o1": null,
+    "o3": null
+   }
+  },
+  "EDT: Sunday 5:00 pm -> \"Move to week 39?\" (James 1:2-4)": {
+   "pass": true,
+   "got": {
+    "from": 38,
+    "to": 39,
+    "ref": "James 1:2-4"
+   }
+  },
+  "EDT: Saturday evening -> no offer": {
+   "pass": true,
+   "got": null
+  },
+  "EST: Sunday 4:59:59 pm New York -> no offer": {
+   "pass": true,
+   "got": {
+    "o1": null,
+    "o3": null
+   }
+  },
+  "EST: Sunday 5:00 pm -> \"Move to week 39?\" (James 1:2-4)": {
+   "pass": true,
+   "got": {
+    "from": 38,
+    "to": 39,
+    "ref": "James 1:2-4"
+   }
+  },
+  "EST: Saturday evening -> no offer": {
+   "pass": true,
+   "got": null
+  },
+  "the week was set 3 days ago (Thursday) -> no offer on Sunday evening": {
+   "pass": true,
+   "got": null
+  },
+  "set on Sunday 6 pm: the next offer is the NEXT Sunday 5 pm (4:59 no, 5:00 yes)": {
+   "pass": true,
+   "got": null
+  },
+  "224 week-set instants (every day x 8 hours, EDT, EST and both clock-change weeks): the offer starts only on a Sunday at 5:00 pm, more than 5 days after, and it is the first such Sunday": {
+   "pass": true,
+   "got": []
+  },
+  "week set Sunday 4 pm: not offered that afternoon, not on Friday, not on Saturday, not at 4:59 the next Sunday; offered at 5:00": {
+   "pass": true,
+   "got": [
+    null,
+    null,
+    null,
+    null,
+    {
+     "from": 38,
+     "to": 39,
+     "ref": "James 1:2-4"
+    }
+   ]
+  },
+  "Not now writes the person row moveoffer:38 and hides the offer": {
+   "pass": true,
+   "got": [
+    "moveoffer:38"
+   ]
+  },
+  "after a reload (a new page) Not now is still remembered": {
+   "pass": true,
+   "got": null
+  },
+  "it is per adult: Mom (who has not said Not now) is still offered it": {
+   "pass": true,
+   "got": null
+  },
+  "a kid is never offered it": {
+   "pass": true,
+   "got": null
+  },
+  "Move writes week 39 with `at` now": {
+   "pass": true,
+   "got": {
+    "week": 39,
+    "by": "mom",
+    "at": 1791321736026
+   }
+  },
+  "and the feed says \"Kid Verse is now week 39: <ref>\"": {
+   "pass": true,
+   "got": [
+    "mom: Kid Verse is now week 39: James 1:2-4"
+   ]
+  },
+  "right after, no new offer (the week was just set)": {
+   "pass": true,
+   "got": null
+  },
+  "week 52 offers nothing": {
+   "pass": true,
+   "got": null
+  },
+  "week 38: the story card is \"Wind, fire and a bright light\"": {
+   "pass": true,
+   "got": {
+    "week": 38,
+    "verse": "Acts 2:42",
+    "title": "Wind, fire and a bright light",
+    "span": "Week 38 · the grown-ups are reading Acts 2–9",
+    "label": "Read the story to me: Wind, fire and a bright light",
+    "STORIES": [
+     "Creation and the flood",
+     "Job listens, Abram goes",
+     "Isaac, the promised boy",
+     "Jacob’s ladder, Joseph’s coat",
+     "Joseph in Egypt",
+     "Baby Moses and the burning bush",
+     "Out of Egypt",
+     "Ten rules on a mountain",
+     "The gold cow and the cloud",
+     "Grumbling in the desert",
+     "Love God with all your heart",
+     "Be strong and brave",
+     "The walls fall down",
+     "Gideon, Samson and Ruth",
+     "Samuel hears, David is chosen",
+     "David and the giant",
+     "King David",
+     "Songs to God",
+     "Solomon asks for wisdom",
+     "Wise words, a split kingdom",
+     "Elijah and the fire",
+     "Jonah and the big fish",
+     "Isaiah’s promise",
+     "The lost book is found",
+     "Far from home",
+     "Daniel and the lions",
+     "Ezra teaches, Esther is queen",
+     "Brave Esther, busy Nehemiah",
+     "Reading the book together",
+     "Someone is coming",
+     "Jesus is born",
+     "Jesus teaches on the hill",
+     "Bread for five thousand",
+     "The lost sheep and the runaway son",
+     "Palm branches and washed feet",
+     "The cross",
+     "He is alive!",
+     "Wind, fire and a bright light",
+     "Good news for everyone",
+     "Singing in prison",
+     "Jesus is coming back",
+     "One body, and love",
+     "The most important news",
+     "Peace with God",
+     "Nothing can separate us",
+     "Shipwreck!",
+     "A gift and some armour",
+     "Rejoice, and look at Jesus",
+     "Heroes of faith",
+     "Be an example",
+     "God is love",
+     "Everything new"
+    ]
+   }
+  },
+  "one + later: the verse (James 1:2-4) AND the story card (\"Good news for everyone\") and its speaker label are week 39": {
+   "pass": true,
+   "got": {
+    "week": 39,
+    "verse": "James 1:2-4",
+    "title": "Good news for everyone",
+    "span": "Week 39 · the grown-ups are reading Acts 10–14 · James 1–5",
+    "label": "Read the story to me: Good news for everyone",
+    "STORIES": [
+     "Creation and the flood",
+     "Job listens, Abram goes",
+     "Isaac, the promised boy",
+     "Jacob’s ladder, Joseph’s coat",
+     "Joseph in Egypt",
+     "Baby Moses and the burning bush",
+     "Out of Egypt",
+     "Ten rules on a mountain",
+     "The gold cow and the cloud",
+     "Grumbling in the desert",
+     "Love God with all your heart",
+     "Be strong and brave",
+     "The walls fall down",
+     "Gideon, Samson and Ruth",
+     "Samuel hears, David is chosen",
+     "David and the giant",
+     "King David",
+     "Songs to God",
+     "Solomon asks for wisdom",
+     "Wise words, a split kingdom",
+     "Elijah and the fire",
+     "Jonah and the big fish",
+     "Isaiah’s promise",
+     "The lost book is found",
+     "Far from home",
+     "Daniel and the lions",
+     "Ezra teaches, Esther is queen",
+     "Brave Esther, busy Nehemiah",
+     "Reading the book together",
+     "Someone is coming",
+     "Jesus is born",
+     "Jesus teaches on the hill",
+     "Bread for five thousand",
+     "The lost sheep and the runaway son",
+     "Palm branches and washed feet",
+     "The cross",
+     "He is alive!",
+     "Wind, fire and a bright light",
+     "Good news for everyone",
+     "Singing in prison",
+     "Jesus is coming back",
+     "One body, and love",
+     "The most important news",
+     "Peace with God",
+     "Nothing can separate us",
+     "Shipwreck!",
+     "A gift and some armour",
+     "Rejoice, and look at Jesus",
+     "Heroes of faith",
+     "Be an example",
+     "God is love",
+     "Everything new"
+    ]
+   }
+  },
+  "the story speaker speaks week 39's story": {
+   "pass": true,
+   "got": [
+    "This week's story: Good news for everyone. Peter learned that God’s go"
+   ]
+  },
+  "and back down: the card follows the minus too": {
+   "pass": true,
+   "got": {
+    "week": 38,
+    "verse": "Acts 2:42",
+    "title": "Wind, fire and a bright light",
+    "span": "Week 38 · the grown-ups are reading Acts 2–9",
+    "label": "Read the story to me: Wind, fire and a bright light",
+    "STORIES": [
+     "Creation and the flood",
+     "Job listens, Abram goes",
+     "Isaac, the promised boy",
+     "Jacob’s ladder, Joseph’s coat",
+     "Joseph in Egypt",
+     "Baby Moses and the burning bush",
+     "Out of Egypt",
+     "Ten rules on a mountain",
+     "The gold cow and the cloud",
+     "Grumbling in the desert",
+     "Love God with all your heart",
+     "Be strong and brave",
+     "The walls fall down",
+     "Gideon, Samson and Ruth",
+     "Samuel hears, David is chosen",
+     "David and the giant",
+     "King David",
+     "Songs to God",
+     "Solomon asks for wisdom",
+     "Wise words, a split kingdom",
+     "Elijah and the fire",
+     "Jonah and the big fish",
+     "Isaiah’s promise",
+     "The lost book is found",
+     "Far from home",
+     "Daniel and the lions",
+     "Ezra teaches, Esther is queen",
+     "Brave Esther, busy Nehemiah",
+     "Reading the book together",
+     "Someone is coming",
+     "Jesus is born",
+     "Jesus teaches on the hill",
+     "Bread for five thousand",
+     "The lost sheep and the runaway son",
+     "Palm branches and washed feet",
+     "The cross",
+     "He is alive!",
+     "Wind, fire and a bright light",
+     "Good news for everyone",
+     "Singing in prison",
+     "Jesus is coming back",
+     "One body, and love",
+     "The most important news",
+     "Peace with God",
+     "Nothing can separate us",
+     "Shipwreck!",
+     "A gift and some armour",
+     "Rejoice, and look at Jesus",
+     "Heroes of faith",
+     "Be an example",
+     "God is love",
+     "Everything new"
+    ]
+   }
+  },
+  "each real change posted one feed line (2 lines for 2 steps)": {
+   "pass": true,
+   "got": [
+    "Kid Verse is now week 38: Acts 2:42",
+    "Kid Verse is now week 39: James 1:2-4"
+   ]
+  },
+  "a kid with no week: weekSet() false, award() false, heard() false": {
+   "pass": true,
+   "got": {
+    "set": false,
+    "award": false,
+    "heard": false,
+    "toasts": [
+     "A grown-up needs to pick this week’s verse first.",
+     "A grown-up needs to pick this week’s verse first."
+    ]
+   }
+  },
+  "each refusal is the calm \"A grown-up needs to pick this week's verse first.\"": {
+   "pass": true,
+   "got": [
+    "A grown-up needs to pick this week’s verse first.",
+    "A grown-up needs to pick this week’s verse first."
+   ]
+  },
+  "no verse star, no story star and no heard row — but the star for praying on the family list (not tied to the verse week) is still credited": {
+   "pass": true,
+   "got": [
+    "star:prayed:2026-10-06"
+   ]
+  },
+  "the mirror: 1 prayed star this week, no verse day, no story day": {
+   "pass": true,
+   "got": {
+    "applied": {},
+    "appliedBefore": 0,
+    "badges": {
+     "first": "2026-10-06"
+    },
+    "count": 1,
+    "credited": {
+     "prayed": {
+      "2026-10-06": true
+     },
+     "story": {}
+    },
+    "creditedBase": {
+     "prayed": 0,
+     "story": 0
+    },
+    "days": {},
+    "earned": 1,
+    "earnedAt": {
+     "prayed:2026-10-06": 1791321740360
+    },
+    "payouts": [],
+    "total": 1,
+    "week": "2026-W41"
+   }
+  },
+  "Kid Verse as a kid, no week: no page error": {
+   "pass": true,
+   "got": []
+  },
+  "an adult with no week: weekSet() false, no Move offer, no page error": {
+   "pass": true,
+   "got": {
+    "a": {
+     "set": false,
+     "offer": null
+    },
+    "logs": []
+   }
+  },
+  "setWeek(14) from \"no week\" writes the family week": {
+   "pass": true,
+   "got": {
+    "week": 14,
+    "by": "eli",
+    "at": 1791321742704
+   }
+  },
+  "and posts the feed line": {
+   "pass": true,
+   "got": [
+    "Kid Verse is now week 14: Psalm 19:14",
+    "Earned the First star badge"
+   ]
+  },
+  "the TV board, an adult's Home and a kid's Home with no week: no page error": {
+   "pass": true,
+   "got": {
+    "tv": [],
+    "mom": [],
+    "ezra": []
+   }
+  },
+  "a marker {by, at} on a star stamped after its `at`: the star stays (credited, balance 1)": {
+   "pass": true,
+   "got": {
+    "prayed": true,
+    "total": 1,
+    "earned": 1,
+    "count": 1
+   }
+  },
+  "an older marker without `at` still takes it (balance 0, earned stays 1)": {
+   "pass": true,
+   "got": {
+    "prayed": "reset",
+    "total": 0,
+    "earned": 1
+   }
+  },
+  "a star stamped before the reset is taken by its marker": {
+   "pass": true,
+   "got": {
+    "story": "reset",
+    "total": 0
+   }
+  },
+  "Kid Verse: 2025-07-28 reads \"Jul 28, 2025\", 2026-01-05 reads \"Jan 5\"": {
+   "pass": true,
+   "got": {
+    "old": "Jul 28, 2025",
+    "cur": "Jan 5"
+   }
+  },
+  "My rewards: \"Last cashed in: 3 stars on Mar 1, 2025.\"": {
+   "pass": true,
+   "got": "Last cashed in: 3 stars on Mar 1, 2025."
+  },
+  "Me → Kids' rewards: \"last cash-in 3 on Mar 1, 2025Cash inReset week\"": {
+   "pass": true,
+   "got": "🦖Ezra ★1 to cash in · 1 this week1 badge: First star · last cash-in 3 on Mar 1, 2025Cash inReset week"
+  },
+  "a payout from this year has no year: \"last cash-in 1 on Oct 6Cash inReset week\"": {
+   "pass": true,
+   "got": "🦖Ezra ★0 to cash in · 1 this week · 1 ever1 badge: First star · last cash-in 1 on Oct 6Cash inReset week"
+  }
+ }
+}

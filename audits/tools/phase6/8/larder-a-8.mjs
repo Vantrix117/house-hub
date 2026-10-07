@@ -317,8 +317,9 @@ try {
     const ids = await P.evaluate(() => [...document.querySelectorAll('.item:not(.finishing):not(.gone)')].map(c => c.dataset.id).filter(i => /^f\d/.test(i)));
     const [a, b] = ids.slice(2, 4);
     const before = await boxes();
+    // a card's height is its tallest column: at 390 on WebKit the check/chip column (89 px) already out-tops a one-line name plus a two-line name, so a bare rename lands in place legitimately. The change to card a therefore also adds a use-by and a Some left (two more lines of text) so it certainly outgrows the card and must wait behind the pill.
     const sa = await serverRow(L, a), sb = await serverRow(L, b);
-    await mom(a, { ...sa, name: 'A very long remote rename that is certain to need two lines on every card width here', editedBy: 'mom', editedByName: 'Elizabeth', editedAt: Date.now() });
+    await mom(a, { ...sa, useBy: addDays(today, 25), portion: 'some', name: 'A very long remote rename that is certain to need two lines on every card width here', editedBy: 'mom', editedByName: 'Elizabeth', editedAt: Date.now() });
     await mom(b, { ...sb, portion: 'some', editedBy: 'mom', editedByName: 'Elizabeth', editedAt: Date.now() });
     await P.evaluate(() => hub.pull()); await sleep(1200);
     const after = await boxes();

@@ -1,0 +1,87 @@
+
+## seed
+  ✓ paired, signed in Eli/Ezra/Kiara/TV, cleared Ezra's stars, family week → 3
+  ✓ apps.json: kidverse registered (both, small, gold, kids first then the adults)
+  ✓ icon (duotone) + spot art exist
+  ✓ no hex and no prefers-color-scheme in the app's CSS
+  ✓ no text input anywhere in the app
+
+## (a) kid flow — Ezra, 390
+  ✓ kid Home starts with "No stars yet"
+  ✓ the app runs in kid mode (data-kind="kid")
+  ✓ week 3 from the family row → Romans 4:20-22 in big type
+  ✓ week 3 → art/story/03-promise.svg, loaded
+  ✓ the second memory verse is named too
+  ✓ a one-sentence paraphrase, labelled as a paraphrase
+  ✓ the reference is big type for a kid (≥ 40 px)
+  ✓ no text input in the running page
+  ✓ Read it to me and Done ★ are both ≥ 64 px tall
+  ✓ every visible control on the kid screen is a ≥ 64 px button
+  ✓ no horizontal scroll at 390
+  ✓ "Read it to me" speaks the reference and the paraphrase at rate 0.85
+  ✓ the button returns to "Read it to me" when the voice finishes
+  ✓ the recorded-voice hook is there and week 3 has no recording, so the synthetic voice above was the one that read
+  ✓ play() for a week with no recording answers false at once and makes no sound
+  ✓ a dozen confetti dots fall on ★
+  ✓ confetti colours are design tokens
+  ✓ the star count reads 1
+  ✓ Done becomes "Done today" (batch 7, VIS-KIDVERSE-9: the star is the button picture, not a glyph in the label)
+  ✓ one day dot lit
+  ✓ confetti is gone after ~1.5 s
+  ✓ the seven day dots sit on one row at 390
+
+## (b) one star per day
+  ✓ a second tap keeps the count at 1
+  ✓ and says so in a toast
+  ✓ no second confetti
+
+## (c) storage: person row + family mirror + feed line
+  ✓ app_data(kidverse, person, stars) = { week: this ISO week, count: 1, days: { today: true } }
+  ✓ app_data(kidverse, family, stars:ezra) mirrors the same value
+  ✓ the feed has "Read the verse ★" under Ezra (the name is the byline, never in the text: P2-HOME-06)
+  ✓ kid Home Stars card: "1 star this week"
+
+## (d) a second device as Ezra
+  ✓ Home on the other device: "1 star this week"
+  ✓ the app on the other device: 1 star and "Done today"
+  ✓ still one star per day across devices
+
+## (e) adults — Eli, 1024
+  ✓ adult Home: "Ezra ★1" from the family mirror
+  ✓ no Done ★ for an adult (stars are the kids')
+  ✓ the stepper shows "Week 3"
+  ✓ Ezra ★1 with one lit day, read-only
+  ✓ Kiara is listed too (★0)
+  ✓ stepper buttons are ≥ 44 px
+  ✓ + steps to week 4: 1 John 3:18, still the promise scene
+  ✓ app_data(kidverse, family, week) = { week: 4, by: eli }
+  ✓ the kid's open copy follows the new week (hub.onChange)
+
+## (f) the kiosk cannot award — Downstairs TV, 1440
+  ✓ standalone open works and shows week 4
+  ✓ no Done ★ and no stepper for the kiosk
+  ✓ the TV still sees Ezra ★1
+  ✓ award() refuses for the kiosk
+  ✓ and nudges with the kiosk toast
+  ✓ nothing changed on the server: Ezra still ★1, no stars:tv, week still 4
+
+## (g) batch 7 (Worker A): a week change tells the house and repaints the story card; the Sunday offer; no week set
+  ✓ the + from (e) posted the feed line "Kid Verse is now week 4: 1 John 3:18"
+  ✓ Eli's story card shows week 4's story straight after the step (no pull, no reload): "Jacob’s ladder, Joseph’s coat"
+  ✓ one more +: week 5 — the verse AND the story card ("Joseph in Egypt") move together
+  ✓ and the story speaker reads week 5's story
+  ✓ a feed line for week 5 too
+  ✓ Sunday 4:59:59 pm: no offer; 5:00 pm: "Move to week 6?" (Genesis 50:20)
+  ✓ a week set three days earlier (Thursday) is not offered on Sunday evening
+  ✓ a week set Sunday 4 pm is first offered the NEXT Sunday at 5:00 pm — never on a weekday
+  ✓ 336 week-set instants (every hour of two weeks, EDT and EST): the offer starts only on a Sunday at 5:00 pm New York, 5 to 12 days later
+  ✓ Not now is a person row (moveoffer:5) and hides the offer
+  ✓ forgotten again, the offer is back (checks the row, not a flag)
+  ✓ Move writes week 6 stamped now
+  ✓ and the offer is gone (the week was just set)
+  ✓ no week set: weekSet() false, Done ★ and "I heard it" refuse
+  ✓ with the calm "A grown-up needs to pick this week's verse first."
+  ✓ an adult's copy with no week: weekSet() false, no console error
+  ✓ no console errors in any context
+
+69 passed, 0 failed

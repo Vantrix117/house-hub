@@ -1,0 +1,105 @@
+
+## 1 · a Reset week made Sunday, applied Monday: the verse stars go (P3-KIDVERSE-12)
+  ✓ before the reset: 4 verse stars, balance 4
+  ✓ the mirror holds the days
+  ✓ Monday, before Ezra opens Kid Verse: Me already shows ★0 to cash in (the display applies the reset to last week's days)
+  ✓ Ezra's own derivation: balance 0, earned 4 (nothing is un-earned)
+  ✓ one reset marker per cleared verse day and the reset applied once
+  ✓ the reset marker carries the ledger row's own time (at) and key (by)
+  ✓ the mirror agrees: total 0, the four days read reset, 0 this week
+
+## 2 · a story / prayed day not yet credited when the reset is made is spent, never credited afterwards (P3-KIDVERSE-13)
+  ✓ the heard day and the prayed day (listed, uncredited) are spent with reset markers
+  ✓ and no star row was written for them
+  ✓ a prayed day the reset does not list (last Sunday) is credited as usual
+  ✓ the stars object shows both days as reset, 0 this week
+  ✓ reopened: still no story / prayed star for today, balance and earned unchanged
+  ✓ the mirror carries the spent days as reset
+
+## 3 · a star earned while the reset is in flight stays; one earned before it goes (both arrival orders)
+  ✓ (a) yesterday's star was earned before the reset: taken (balance 0)
+  ✓ (a) today's star, earned after the reset's `at`, stays: balance 1
+  ✓ (a) a second tap is the usual "already have today's star"
+  ✓ (a) the mirror: total 1, today lit, yesterday reset
+  ✓ (b) a reset stamped before today's star arrives later: the star stays (balance 1, one marker only)
+  ✓ (c) a reset stamped after the star takes it: today reads reset, balance 0
+  ✓ (c) Done again says "Your star for today was reset", never a second star
+  ✓ (c) no new star row was written
+
+## 4 · two devices apply the same reset: the same rows, the same mirror, no rewrite war
+  ✓ both devices derive the identical stars object
+  ✓ one applied row, the markers written once each, no story / prayed star for the spent day
+  ✓ the mirror is not rewritten by either device after settling (same updated_at)
+
+## 5 · a year and two years of facts: the mirror is bounded and every total equals the exact derivation (P3-KIDVERSE-09)
+  ✓ 1 y: the balance 497 equals an independent replay (folded, exact and the mirror)
+  ✓ 1 y: earned 627 = every star ever
+  ✓ 1 y: the story (243) and prayed (92) badge counts survive the folding
+  ✓ 1 y: badges, payouts (13) and this week's count are equal folded vs exact
+  ✓ 1 y: the mirror is 3562 bytes (< 7000; the exact derivation is 33388)
+  ✓ 2 y: the balance 993 equals an independent replay (folded, exact and the mirror)
+  ✓ 2 y: earned 1253 = every star ever
+  ✓ 2 y: the story (486) and prayed (183) badge counts survive the folding
+  ✓ 2 y: badges, payouts (26) and this week's count are equal folded vs exact
+  ✓ 2 y: the mirror is 4149 bytes (< 7000; the exact derivation is 66420)
+  ✓ the size does not grow with time (payouts, capped at 50, left out): 1 y 2976 B, 2 y 2978 B
+  ✓ a year with 7 resets and 13 cash-ins: folded = exact (total 350, earned 505)
+  ✓ …and the mirror is 2935 bytes
+  ✓ Done ★ on a first star: the star row, the badge row and the mirror ONCE
+  ✓ reconcile again changes nothing and writes nothing
+
+## 6 · the week's day marks add up to the count (P3-KIDVERSE-04)
+  ✓ the derived week count 6 = the marks per day (verse + story + prayed) 6; last week's star is not in it
+  ✓ the dots on screen carry the same 6 marks (data-marks)
+  ✓ the grown-ups' copy (the mirror the panel and the shell read) carries the same 6 marks
+
+## 7 · the Move-to-next-week offer: its window and who it is for (GAP-KIDVERSE-1)
+  ✓ EDT: Sunday 4:59:59 pm New York -> no offer
+  ✓ EDT: Sunday 5:00 pm -> "Move to week 39?" (James 1:2-4)
+  ✓ EDT: Saturday evening -> no offer
+  ✓ EST: Sunday 4:59:59 pm New York -> no offer
+  ✓ EST: Sunday 5:00 pm -> "Move to week 39?" (James 1:2-4)
+  ✓ EST: Saturday evening -> no offer
+  ✓ the week was set 3 days ago (Thursday) -> no offer on Sunday evening
+  ✓ set on Sunday 6 pm: the next offer is the NEXT Sunday 5 pm (4:59 no, 5:00 yes)
+  ✓ 224 week-set instants (every day x 8 hours, EDT, EST and both clock-change weeks): the offer starts only on a Sunday at 5:00 pm, more than 5 days after, and it is the first such Sunday
+  ✓ week set Sunday 4 pm: not offered that afternoon, not on Friday, not on Saturday, not at 4:59 the next Sunday; offered at 5:00
+  ✓ Not now writes the person row moveoffer:38 and hides the offer
+  ✓ after a reload (a new page) Not now is still remembered
+  ✓ it is per adult: Mom (who has not said Not now) is still offered it
+  ✓ a kid is never offered it
+  ✓ Move writes week 39 with `at` now
+  ✓ and the feed says "Kid Verse is now week 39: <ref>"
+  ✓ right after, no new offer (the week was just set)
+  ✓ week 52 offers nothing
+
+## 8 · a week change repaints the story card and its speaker at once (P3-KIDVERSE-05)
+  ✓ week 38: the story card is "Wind, fire and a bright light"
+  ✓ one + later: the verse (James 1:2-4) AND the story card ("Good news for everyone") and its speaker label are week 39
+  ✓ the story speaker speaks week 39's story
+  ✓ and back down: the card follows the minus too
+  ✓ each real change posted one feed line (2 lines for 2 steps)
+
+## 9 · no family week set: no verse star, no story star, no crash, an adult can pick one (UX-KIDVERSE-5)
+  ✓ a kid with no week: weekSet() false, award() false, heard() false
+  ✓ each refusal is the calm "A grown-up needs to pick this week's verse first."
+  ✓ no verse star, no story star and no heard row — but the star for praying on the family list (not tied to the verse week) is still credited
+  ✓ the mirror: 1 prayed star this week, no verse day, no story day
+  ✓ Kid Verse as a kid, no week: no page error
+  ✓ an adult with no week: weekSet() false, no Move offer, no page error
+  ✓ setWeek(14) from "no week" writes the family week
+  ✓ and posts the feed line
+  ✓ the TV board, an adult's Home and a kid's Home with no week: no page error
+
+## 11 · a reset marker never takes a star another device stamped AFTER the reset (review round 1, item 4)
+  ✓ a marker {by, at} on a star stamped after its `at`: the star stays (credited, balance 1)
+  ✓ an older marker without `at` still takes it (balance 0, earned stays 1)
+  ✓ a star stamped before the reset is taken by its marker
+
+## 10 · an earlier year shows its year (UX-KIDVERSE-9)
+  ✓ Kid Verse: 2025-07-28 reads "Jul 28, 2025", 2026-01-05 reads "Jan 5"
+  ✓ My rewards: "Last cashed in: 3 stars on Mar 1, 2025."
+  ✓ Me → Kids' rewards: "last cash-in 3 on Mar 1, 2025Cash inReset week"
+  ✓ a payout from this year has no year: "last cash-in 1 on Oct 6Cash inReset week"
+
+81 passed, 0 failed

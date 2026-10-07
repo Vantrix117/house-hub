@@ -1,0 +1,102 @@
+
+## A. one rule: hub.larder.fresh (browser) and worker/src/larder.js agree over one table
+  ✓ the browser rule and the Worker twin return the same level, days, daysLeft, label, age, when, short and score for all 62 rows
+  ✓ and both match the household's rule written out independently (fresh 0-3 / eat soon 4-6 / use it up 7+; a use-by: use it up from the day, eat soon in the two days before; an unreadable date: check it)
+  ✓ the edges: 3 days Fresh, 4 Eat soon, 6 Eat soon, 7 Use it up
+  ✓ an unreadable date is "Check date": use it up
+  ✓ a 9-day-old dish with a use-by: fresh with 3 days left, eat soon at 2 and 1, use it up from the day (the use-by wins over the age)
+  ✓ the words after a name: "use by tomorrow", "use by today", "2 days past use-by", "use by in 4 days"
+  ✓ due() lists what needs eating most urgent first, the same order in both copies
+
+## B. four places: the Larder, Home, the Apps badge and the 8 am push, one fridge with a use-by and a "some left" item
+  ✓ seeded seven dishes through the real API (use-by and portion pass the Worker's rules)
+  ✓ the Larder groups all seven the same as the rule (Chili: fresh by its use-by; Pie and Rice: eat soon; Curry, Age7: use it up)
+  ✓ the group headings are Use it up / Eat soon / Fresh
+  ✓ the some-left card keeps its words and counts like any other (Eat soon)
+  ✓ Home's card lists the three most urgent, the same ones, "use it up" ones marked
+  ✓ Home says it in the Larder's words ("use it up" / "eat soon", no "to eat this week")
+  ✓ the Apps badge counts all 5 and says "to eat soon or use up"
+  ✓ the 8 am push names the same 5 (the 4-day dish included: the old 5+ rule is gone)
+  ✓ the push body is "Use it up: … · Eat soon: …" in the same words
+  ✓ the red banner names the most urgent ("Curry …") and counts the rest
+
+## C. the app (iPhone, Eli)
+  ✓ the red banner is a button that names the oldest: "Chili is 9 days old · and 1 more"
+  ✓ a tap scrolls to that card and highlights it (.hl, for 1.6 s)
+  ✓ the highlight goes by itself
+  ✓ Log with nothing typed says "Type what it is" under the field and focuses it
+  ✓ typing clears the message
+  ✓ after Log a toast says "Logged Taco soup"
+  ✓ and the new card is on screen above the add bar
+
+## C2. edit
+  ✓ a long name wraps to two lines on the card (P3-LEFTOVERS-11)
+  ✓ tapping the card opens the edit sheet with the full name, the date logged, no use-by, the cursor in the name
+  ✓ an empty name in the sheet shows "Type what it is" and keeps it open with the field focused
+  ✓ Enter saves and closes the sheet
+  ✓ the row keeps who logged it (by, byName), takes the new name, size and use-by, and gains editedBy / editedAt
+  ✓ a use-by tomorrow moves it from Use it up (8 days) to Eat soon, and the line says "use by …"
+  ✓ an edit posts no feed line
+  ✓ Escape closes the sheet and saves nothing
+  ✓ Mom fixes Eli's item: it still says Eli logged it, and Mom edited it
+
+## C3. swipe and some left
+  ✓ a mostly vertical drag opens nothing and finishes nothing (the page's own scroll)
+   at .done pressable is-small <BUTTON in f1 anc list txt  editwrap.hidden true scrollY 721 vh 932 sw 430
+  ✓ a trailing swipe reveals Some left and Finish (card .swipe-open, --sx set, nothing finished)
+  ✓ Some left writes portion: "some" (and editedBy) on the row, keeping the logger
+  ✓ the card shows the half-filled bar and the words "Some left", closed again
+  ✓ and a toast says so, with Undo
+  ✓ Undo takes it back: the row has no portion again and the card is whole
+  ✓ the sheet's "Some left" switch turns on
+  ✓ saving writes portion: "some"
+  ✓ a full swipe finishes it in place for six seconds with Undo and the same toast as the check button
+  ✓ nothing is removed from the house list until the six seconds are up
+  ✓ Undo puts it back, as for the check button
+  ✓ the check button still finishes in place
+
+## C4. sync error, copy
+  ✓ a failed pull says "Couldn't reach the house. Your changes are saved on this device." with a Retry, never a raw code
+  ✓ Retry pulls, and the line goes away once the house answers
+  ✓ the copy block is neutral: "Copy the list" / "Paste it into a message, a note or Hearth." and does not mention Claude
+  ✓ the Copy button draws the copy icon from the sprite, not the refresh arrows
+  ✓ when the clipboard is refused the list appears, all selected, in a read-only box
+  ✓ with "Select and copy", and no Share where the device has none
+  ✓ Share is offered where navigator.share exists
+  ✓ and it shares the text
+  ✓ a copy that works says Copied! and the box goes away
+
+## C6. review round 1
+  ✓ Mom edits Lasagna (editedBy mom)
+  ✓ Eli marks it Some left (the row now says Eli edited it)
+  ✓ P1: Undo of Some left works after someone else edited last: the house holds the item whole again, the device agrees (it used to be refused)
+  ✓ Undo after Mom renamed it takes back only the portion and keeps her name
+  ✓ P2: an untouched Save after another device renamed it writes nothing (Beta stays, still edited by Mom)
+  ✓ P2: changing only the size keeps the other device's new name (Gamma) and writes Small
+  ✓ P8: an item finished on another device while the sheet was open is not brought back; a toast says so
+  ✓ Enter on a focused card opens the sheet
+  ✓ P6: after a keyboard Save the focus is on that card (its edit target), not lost to the page
+  ✓ a swipe opens the card (P7 set-up)
+  ✓ P7: tapping the face of an open card closes the swipe and does not open the edit sheet
+  ✓ and the next tap opens it as usual
+  ✓ N1: the "Use it up" and "Eat soon" subtitles say they include a use-by
+  ✓ N1: a dish logged today with a use-by of today sits in Use it up and its bar is at 7/10 (the rule's score, not its age)
+
+## C7. a remote change never moves a card
+  ✓ R2 (390, one column): after a remote two-line rename and a remote Some left, no card moved or changed size (19 cards compared)
+  ✓ R2 (390, one column): the change that would resize a card waits behind the Show pill ("1 new or changed in the fridge · Show"; a Some left that keeps the height of its card may land in place)
+  ✓ R2 (390, one column): Show lays the list out with the new name and the Some left
+  ✓ R2 (1440, two columns): after a remote two-line rename and a remote Some left, no card moved or changed size (19 cards compared)
+  ✓ R2 (1440, two columns): the change that would resize a card waits behind the Show pill ("2 new or changed in the fridge · Show"; a Some left that keeps the height of its card may land in place)
+  ✓ R2 (1440, two columns): Show lays the list out with the new name and the Some left
+  ✓ an item finished on another device is marked Finished where it stands and nothing moves (the 0h rule still holds)
+
+## C5. a kid and the TV
+  ✓ a kid: no check button, no swipe layer, no tappable card
+  ✓ a kid: dragging a card does nothing, and tapping it opens no sheet
+  ✓ a kid: no edit sheet
+  ✓ the TV: no check button, no swipe layer, no tappable card
+  ✓ the TV: dragging a card does nothing, and tapping it opens no sheet
+  ✓ the TV: no edit sheet
+
+81 passed, 0 failed -> audits/evidence/p6/8/larder-a-8.json

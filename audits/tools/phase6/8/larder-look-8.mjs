@@ -317,7 +317,13 @@ try {
     { const sampler = () => { window.__sub = []; const tick = () => { const s = document.querySelector('.sub'), l = document.getElementById('list'), t = document.getElementById('tally'); if (s && l && t) { const a = s.getBoundingClientRect(), b = l.getBoundingClientRect(), c = t.getBoundingClientRect(); window.__sub.push([Math.round(a.top), Math.round(a.height), Math.round(b.top), Math.round(c.top), Math.round(c.height), !!t.textContent]); } requestAnimationFrame(tick); }; requestAnimationFrame(tick); };
       for (const [w, h] of [[390, 844], [820, 1180]]) {
         // the run must see both states (an empty count while loading, then the filled one), or the check proves nothing
-        const { d, f } = await open(LT, { size: [w, h], init: sampler }); await sleep(2500);
+        const { d, f } = await open(LT, { size: [w, h], init: sampler });
+        // open() lands on a Larder that is already filled: the shell has pulled the house list and the app paints that cache at its first frame, so a
+        // sampler started with the page sees no empty state (WebKit; a slower pull in other runs only hid this). Make the cold open real and
+        // repeatable: drop this app's cache, hold the list's request for 700 ms, reload the frame, and sample from the empty count to the filled one.
+        await d.page.route(u => u.pathname.includes('/api/data/leftovers'), async r => { await sleep(700); r.continue().catch(() => {}); });
+        await f.evaluate(() => { for (const k of Object.keys(localStorage)) if (k.startsWith('hub.cache.leftovers.')) localStorage.removeItem(k); location.reload(); });
+        await sleep(300); await f.waitForSelector('.item', { timeout: 20000 }); await sleep(2500);
         const s = await f.evaluate(() => window.__sub);
         const uniq = k => [...new Set(s.map(x => x[k]))];
         out['sub' + w] = { n: s.length, sub: uniq(0), subH: uniq(1), list: uniq(2), tally: uniq(3), tallyH: uniq(4), filled: s.some(x => x[5]) && s.some(x => !x[5]) };

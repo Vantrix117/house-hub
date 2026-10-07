@@ -1,0 +1,6055 @@
+{
+ "note": "Icons: p90 contrast of the icon pixels (those that change when the icon is hidden) against the pixels under them; below 3:1 listed. Emoji and photos are listed by kind (their contrast is informational). Controls: boundary = max(fill vs surround, border vs surround), sampled 2-4 px inside and 3 px outside each edge; a boundary is needed (WCAG 1.4.11) for fields and toggles, and for buttons/chips with no text label AND no icon inside them that reaches 3:1 (controlNeedsBoundary). Icon-only controls identified by a passing icon are counted in iconIdentified (their low boundaries are listed apart, not as failures). Graphics (rig v2): information-bearing shapes that are not icons or controls: ring = a solid spread box-shadow/outline state cue (vs 3 px outside it; ratioInside = vs the shape it rings); bar = a fill in a track (vs the visible track; trackVsSurround = track vs 3 px outside it); dot = a small painted state shape (day dots, grid cells, heat squares, stripes, --p columns) vs 3 px outside each side; stroke = an svg circle/path of a ring/dial/progress graphic vs 3 px outside and inside the stroke (vsTrack = an arc vs the track under it; drawn = share of the arc drawn). ratio = the best adjacent side (the shape is told apart from at least one neighbour), paint = computed colour alpha-composited (gradients: median of the paint pixels; ratioBest = its most contrasting pixel). This file keeps the 20 worst svg-icon, control and graphic groups per area; every group (img and emoji too, and iconIdentified) is in nontext/<area>.json.",
+ "areas": {
+  "dollywood": {
+   "counts": {
+    "icons": 23706,
+    "iconFail": 0,
+    "controls": 21296,
+    "controlNeedsBoundary": 2312,
+    "controlFail": 1634,
+    "iconIdentified": 409,
+    "graphics": 1471,
+    "graphicFail": 0,
+    "graphicsByKind": {
+     "bar": 1401,
+     "stroke": 70
+    },
+    "graphicFailByKind": {}
+   },
+   "iconGroups": 0,
+   "controlGroups": 81,
+   "graphicGroups": 0,
+   "iconIdentifiedGroups": 7,
+   "svgIcons": [],
+   "controls": [
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "input#vx",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#1E1E1E",
+     "inside": "#211F1D",
+     "outside": "#211F1D",
+     "n": 126,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-dark-system",
+      "devices/dollywood/about-typical-ipad-landscape-dark-system",
+      "devices/dollywood/about-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 12,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-light-system",
+      "devices/dollywood/about-typical-ipad-landscape-light-system",
+      "devices/dollywood/about-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "toggle",
+     "sel": "input#l-upright",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 12,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-light-system",
+      "devices/dollywood/about-typical-ipad-landscape-light-system",
+      "devices/dollywood/about-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "input#vx",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 126,
+     "jobs": [
+      "devices/dollywood/about-typical-desktop-light-system",
+      "devices/dollywood/about-typical-ipad-landscape-light-system",
+      "devices/dollywood/about-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "button#bh-handle.bh-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 428,
+     "h": 22,
+     "minBoundary": 1,
+     "fillRatio": 1.2,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#211F1D",
+     "outside": "#211F1D",
+     "n": 30,
+     "jobs": [
+      "devices/dollywood/about-typical-iphone-pwa-dark-system",
+      "devices/dollywood/aerial-mix-typical-iphone-pwa-dark-system",
+      "devices/dollywood/aerial-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "button#bh-handle.bh-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 428,
+     "h": 22,
+     "minBoundary": 1,
+     "fillRatio": 1.15,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F3EFEA",
+     "outside": "#F2EFEA",
+     "n": 30,
+     "jobs": [
+      "devices/dollywood/about-typical-iphone-pwa-light-system",
+      "devices/dollywood/aerial-mix-typical-iphone-pwa-light-system",
+      "devices/dollywood/aerial-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "input#exag-r",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#1E1E1E",
+     "inside": "#383B3F",
+     "outside": "#373B3F",
+     "n": 4,
+     "jobs": [
+      "devices/dollywood/view-3d-typical-desktop-dark-system",
+      "devices/dollywood/view-3d-typical-ipad-landscape-dark-system",
+      "devices/dollywood/view-3d-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "input#exag-r",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#FFFFFF",
+     "inside": "#E8EDF3",
+     "outside": "#E8EDF3",
+     "n": 4,
+     "jobs": [
+      "devices/dollywood/view-3d-typical-desktop-light-system",
+      "devices/dollywood/view-3d-typical-ipad-landscape-light-system",
+      "devices/dollywood/view-3d-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 3,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood/layers-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood/upright-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "toggle",
+     "sel": "input#l-upright",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 3,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood/layers-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood/steepness-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "field",
+     "sel": "input#vx",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 28,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood/aerial-mix-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood/aerial-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "field",
+     "sel": "input#vx",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#1E1E1E",
+     "inside": "#182522",
+     "outside": "#182522",
+     "n": 28,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-light-forest",
+      "themes/dollywood/aerial-mix-typical-ipad-portrait-light-forest",
+      "themes/dollywood/aerial-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 3,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-light-frost",
+      "themes/dollywood/layers-typical-ipad-portrait-light-frost",
+      "themes/dollywood/upright-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "toggle",
+     "sel": "input#l-upright",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 3,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-light-frost",
+      "themes/dollywood/layers-typical-ipad-portrait-light-frost",
+      "themes/dollywood/steepness-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "input#vx",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 28,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-light-frost",
+      "themes/dollywood/aerial-mix-typical-ipad-portrait-light-frost",
+      "themes/dollywood/aerial-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "field",
+     "sel": "input#vx",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#1E1E1E",
+     "inside": "#211F1D",
+     "outside": "#211F1D",
+     "n": 28,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-light-midnight",
+      "themes/dollywood/aerial-mix-typical-ipad-portrait-light-midnight",
+      "themes/dollywood/aerial-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "parchment",
+     "kind": "field",
+     "sel": "input#vx",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#FFFFFF",
+     "inside": "#FBF7EE",
+     "outside": "#FBF7EE",
+     "n": 28,
+     "jobs": [
+      "themes/dollywood/about-typical-ipad-portrait-light-parchment",
+      "themes/dollywood/aerial-mix-typical-ipad-portrait-light-parchment",
+      "themes/dollywood/aerial-typical-ipad-portrait-light-parchment"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "field",
+     "sel": "input#exag-r",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#1E1E1E",
+     "inside": "#324143",
+     "outside": "#324143",
+     "n": 1,
+     "jobs": [
+      "themes/dollywood/view-3d-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "field",
+     "sel": "input#exag-r",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#1E1E1E",
+     "inside": "#393C3F",
+     "outside": "#393C3F",
+     "n": 1,
+     "jobs": [
+      "themes/dollywood/view-3d-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "field",
+     "sel": "input#exag-r",
+     "hasText": false,
+     "icon": null,
+     "w": 120,
+     "h": 20,
+     "minBoundary": 1.01,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#FFFFFF",
+     "inside": "#E9EEF3",
+     "outside": "#E8EDF3",
+     "n": 1,
+     "jobs": [
+      "themes/dollywood/view-3d-typical-ipad-portrait-dark-hearth"
+     ]
+    }
+   ],
+   "graphics": []
+  },
+  "dollywood-live": {
+   "counts": {
+    "icons": 8811,
+    "iconFail": 359,
+    "controls": 12923,
+    "controlNeedsBoundary": 1199,
+    "controlFail": 602,
+    "iconIdentified": 1629,
+    "graphics": 104,
+    "graphicFail": 91,
+    "graphicsByKind": {
+     "dot": 104
+    },
+    "graphicFailByKind": {
+     "dot": 91
+    }
+   },
+   "iconGroups": 10,
+   "controlGroups": 57,
+   "graphicGroups": 14,
+   "iconIdentifiedGroups": 19,
+   "svgIcons": [],
+   "controls": [
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "button#lv-handle.lv-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 1440,
+     "h": 22,
+     "minBoundary": 1,
+     "fillRatio": 1.04,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#697E40",
+     "outside": "#5E8047",
+     "n": 182,
+     "jobs": [
+      "devices/dollywood-live/coaster-card-typical-desktop-dark-system",
+      "devices/dollywood-live/coaster-card-typical-ipad-landscape-dark-system",
+      "devices/dollywood-live/coaster-card-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "button",
+     "sel": "button#lv-handle.lv-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 820,
+     "h": 22,
+     "minBoundary": 1.01,
+     "fillRatio": 1.02,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#6C924A",
+     "outside": "#6A9248",
+     "n": 40,
+     "jobs": [
+      "themes/dollywood-live/coaster-card-typical-ipad-portrait-light-forest",
+      "themes/dollywood-live/dining-card-typical-ipad-portrait-light-forest",
+      "themes/dollywood-live/directions-amenity-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "button",
+     "sel": "button#lv-handle.lv-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 820,
+     "h": 22,
+     "minBoundary": 1.01,
+     "fillRatio": 1.02,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#6C924A",
+     "outside": "#6A9248",
+     "n": 40,
+     "jobs": [
+      "themes/dollywood-live/coaster-card-typical-ipad-portrait-light-midnight",
+      "themes/dollywood-live/dining-card-typical-ipad-portrait-light-midnight",
+      "themes/dollywood-live/directions-amenity-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "field",
+     "sel": "select#hf",
+     "hasText": true,
+     "icon": null,
+     "w": 166,
+     "h": 49,
+     "minBoundary": 1.01,
+     "fillRatio": 1,
+     "borderRatio": 1.01,
+     "border": "1px #2A3833",
+     "fill": "#182522",
+     "inside": "#343434",
+     "outside": "#293733",
+     "n": 4,
+     "jobs": [
+      "themes/dollywood-live/search-full-typical-ipad-portrait-light-forest",
+      "themes/dollywood-live/search-none-typical-ipad-portrait-light-forest",
+      "themes/dollywood-live/search-query-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1.01,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#2D2D2D",
+     "outside": "#213027",
+     "n": 2,
+     "jobs": [
+      "themes/dollywood-live/style-scrolled-typical-ipad-portrait-light-forest",
+      "themes/dollywood-live/style-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "button#lv-handle.lv-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 1440,
+     "h": 22,
+     "minBoundary": 1.02,
+     "fillRatio": 2.81,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F3F5F1",
+     "outside": "#F0F3ED",
+     "n": 92,
+     "jobs": [
+      "devices/dollywood-live/coaster-card-typical-desktop-light-system",
+      "devices/dollywood-live/coaster-card-typical-ipad-landscape-light-system",
+      "devices/dollywood-live/coaster-card-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "button#lv-handle.lv-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 820,
+     "h": 22,
+     "minBoundary": 1.02,
+     "fillRatio": 2.87,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F3F5F1",
+     "outside": "#F0F3ED",
+     "n": 17,
+     "jobs": [
+      "themes/dollywood-live/coaster-card-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood-live/directions-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "button",
+     "sel": "button#lv-handle.lv-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 820,
+     "h": 22,
+     "minBoundary": 1.02,
+     "fillRatio": 2.88,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F3F5F1",
+     "outside": "#F0F3ED",
+     "n": 17,
+     "jobs": [
+      "themes/dollywood-live/coaster-card-typical-ipad-portrait-light-frost",
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-frost",
+      "themes/dollywood-live/directions-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "parchment",
+     "kind": "button",
+     "sel": "button#lv-handle.lv-handle",
+     "hasText": false,
+     "icon": null,
+     "w": 820,
+     "h": 22,
+     "minBoundary": 1.02,
+     "fillRatio": 2.7,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#EFEEE2",
+     "outside": "#ECECDE",
+     "n": 34,
+     "jobs": [
+      "themes/dollywood-live/coaster-card-typical-ipad-portrait-light-parchment",
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-parchment",
+      "themes/dollywood-live/directions-typical-ipad-portrait-light-parchment"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "select#hf",
+     "hasText": true,
+     "icon": null,
+     "w": 166,
+     "h": 49,
+     "minBoundary": 1.04,
+     "fillRatio": 1.09,
+     "borderRatio": 1.08,
+     "border": "1px #37332F",
+     "fill": "#211F1D",
+     "inside": "#343434",
+     "outside": "#30322E",
+     "n": 17,
+     "jobs": [
+      "devices/dollywood-live/search-full-typical-desktop-dark-system",
+      "devices/dollywood-live/search-full-typical-ipad-landscape-dark-system",
+      "devices/dollywood-live/search-full-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1.04,
+     "fillRatio": 1.05,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#2D2D2D",
+     "outside": "#292B22",
+     "n": 8,
+     "jobs": [
+      "devices/dollywood-live/style-scrolled-typical-desktop-dark-system",
+      "devices/dollywood-live/style-scrolled-typical-ipad-landscape-dark-system",
+      "devices/dollywood-live/style-scrolled-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "field",
+     "sel": "select#hf",
+     "hasText": true,
+     "icon": null,
+     "w": 166,
+     "h": 49,
+     "minBoundary": 1.04,
+     "fillRatio": 1.04,
+     "borderRatio": 1.03,
+     "border": "1px #37332F",
+     "fill": "#211F1D",
+     "inside": "#343434",
+     "outside": "#30322E",
+     "n": 4,
+     "jobs": [
+      "themes/dollywood-live/search-full-typical-ipad-portrait-light-midnight",
+      "themes/dollywood-live/search-none-typical-ipad-portrait-light-midnight",
+      "themes/dollywood-live/search-query-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1.04,
+     "fillRatio": 1.04,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#2D2D2D",
+     "outside": "#292B22",
+     "n": 2,
+     "jobs": [
+      "themes/dollywood-live/style-scrolled-typical-ipad-portrait-light-midnight",
+      "themes/dollywood-live/style-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "toggle",
+     "sel": "div#fam-list > label.lv-item.lv-share > input",
+     "hasText": false,
+     "icon": null,
+     "w": 50,
+     "h": 30,
+     "minBoundary": 1.07,
+     "fillRatio": 1.07,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#2D3C36",
+     "inside": "#2D3C36",
+     "outside": "#2D3633",
+     "n": 2,
+     "jobs": [
+      "themes/dollywood-live/family-kids-typical-ipad-portrait-light-forest",
+      "themes/dollywood-live/family-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "toggle",
+     "sel": "input#lv-share",
+     "hasText": false,
+     "icon": null,
+     "w": 50,
+     "h": 30,
+     "minBoundary": 1.08,
+     "fillRatio": 1.18,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#3A3633",
+     "inside": "#32312B",
+     "outside": "#2C2C25",
+     "n": 7,
+     "jobs": [
+      "devices/dollywood-live/family-guest-typical-desktop-dark-system",
+      "devices/dollywood-live/family-guest-typical-ipad-landscape-dark-system",
+      "devices/dollywood-live/family-guest-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "toggle",
+     "sel": "div#fam-list > label.lv-item.lv-share > input",
+     "hasText": false,
+     "icon": null,
+     "w": 50,
+     "h": 30,
+     "minBoundary": 1.08,
+     "fillRatio": 1.2,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#3A3633",
+     "inside": "#3A3633",
+     "outside": "#35312E",
+     "n": 9,
+     "jobs": [
+      "devices/dollywood-live/family-kids-typical-desktop-dark-system",
+      "devices/dollywood-live/family-kids-typical-ipad-landscape-dark-system",
+      "devices/dollywood-live/family-kids-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "toggle",
+     "sel": "div#fam-list > label.lv-item.lv-share > input",
+     "hasText": false,
+     "icon": null,
+     "w": 50,
+     "h": 30,
+     "minBoundary": 1.08,
+     "fillRatio": 1.08,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#3A3633",
+     "inside": "#3A3633",
+     "outside": "#35312E",
+     "n": 2,
+     "jobs": [
+      "themes/dollywood-live/family-kids-typical-ipad-portrait-light-midnight",
+      "themes/dollywood-live/family-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1.1,
+     "fillRatio": 1.11,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#F1F5EE",
+     "n": 8,
+     "jobs": [
+      "devices/dollywood-live/style-scrolled-typical-desktop-light-system",
+      "devices/dollywood-live/style-scrolled-typical-ipad-landscape-light-system",
+      "devices/dollywood-live/style-scrolled-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1.1,
+     "fillRatio": 1.1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#F1F5EE",
+     "n": 2,
+     "jobs": [
+      "themes/dollywood-live/style-scrolled-typical-ipad-portrait-dark-hearth",
+      "themes/dollywood-live/style-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "toggle",
+     "sel": "input#l-slope",
+     "hasText": false,
+     "icon": null,
+     "w": 15,
+     "h": 15,
+     "minBoundary": 1.1,
+     "fillRatio": 1.1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#F1F5EE",
+     "n": 2,
+     "jobs": [
+      "themes/dollywood-live/style-scrolled-typical-ipad-portrait-light-frost",
+      "themes/dollywood-live/style-typical-ipad-portrait-light-frost"
+     ]
+    }
+   ],
+   "graphics": [
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.25,
+     "maxRatio": 1.36,
+     "adjacentAtMin": "top #EDEEE2 1.25, right #ECEDE1 1.24, bottom #EBE6DC 1.18, left #ECEAE0 1.22",
+     "n": 6,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-parchment"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.32,
+     "maxRatio": 1.46,
+     "adjacentAtMin": "top #F1F4F0 1.32, right #EEF1EF 1.29, bottom #F0F1EF 1.29, left #EFF2EF 1.3",
+     "n": 24,
+     "jobs": [
+      "devices/dollywood-live/directions-steps-typical-desktop-light-system",
+      "devices/dollywood-live/directions-steps-typical-ipad-landscape-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#373D69",
+     "alpha": 1,
+     "minRatio": 1.33,
+     "maxRatio": 1.59,
+     "adjacentAtMin": "top #2F2D2B 1.33, right #2E2D2A 1.33, bottom #34322E 1.24, left #343431 1.21",
+     "n": 24,
+     "jobs": [
+      "devices/dollywood-live/directions-steps-typical-desktop-dark-system",
+      "devices/dollywood-live/directions-steps-typical-ipad-landscape-dark-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.33,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "top #F2F5F1 1.33, right #F0ECEC 1.25, bottom #F2F3F1 1.32, left #F2F5F1 1.33",
+     "n": 6,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-dark-hearth"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.33,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "top #F1F5F1 1.33, right #F0F4F0 1.32, bottom #EFEDEB 1.26, left #F0F1EF 1.29",
+     "n": 6,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-frost"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#373D69",
+     "alpha": 1,
+     "minRatio": 1.34,
+     "maxRatio": 1.49,
+     "adjacentAtMin": "top #213029 1.34, right #223028 1.34, bottom #213027 1.34, left #213027 1.34",
+     "n": 6,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-forest"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step.arrive > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.35,
+     "maxRatio": 1.35,
+     "adjacentAtMin": "top #F9F5ED 1.35, right #EBE8E0 1.2, bottom #E2DFD7 1.1, left #F2EFE7 1.28",
+     "n": 1,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-parchment"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "midnight",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#373D69",
+     "alpha": 1,
+     "minRatio": 1.39,
+     "maxRatio": 1.54,
+     "adjacentAtMin": "top #292B24 1.39, right #2A2B23 1.39, bottom #292B22 1.39, left #292B22 1.39",
+     "n": 6,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-midnight"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step.arrive > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.43,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "top #FCFCFB 1.43, right #F2F3EB 1.31, bottom #EBEEEA 1.25, left #EFF4EC 1.31",
+     "n": 4,
+     "jobs": [
+      "devices/dollywood-live/directions-steps-typical-desktop-light-system",
+      "devices/dollywood-live/directions-steps-typical-ipad-landscape-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step.arrive > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "top #FDFDFD 1.44, right #EFEFEF 1.27, bottom #E9E7E7 1.19, left #F7F7F7 1.37",
+     "n": 1,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-dark-hearth"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step.arrive > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "top #FDFDFD 1.44, right #EFEFEF 1.27, bottom #E7E7E7 1.19, left #F7F7F7 1.37",
+     "n": 1,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-frost"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step.arrive > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#373D69",
+     "alpha": 1,
+     "minRatio": 1.54,
+     "maxRatio": 1.58,
+     "adjacentAtMin": "top #23221E 1.54, right #2B2920 1.41, bottom #24241E 1.51, left #24251E 1.5",
+     "n": 4,
+     "jobs": [
+      "devices/dollywood-live/directions-steps-typical-desktop-dark-system",
+      "devices/dollywood-live/directions-steps-typical-ipad-landscape-dark-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step.arrive > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#373D69",
+     "alpha": 1,
+     "minRatio": 1.54,
+     "maxRatio": 1.54,
+     "adjacentAtMin": "top #1C2825 1.47, right #202B29 1.41, bottom #1A2422 1.54, left #27312F 1.3",
+     "n": 1,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-forest"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "midnight",
+     "kind": "dot",
+     "sel": "div#route-steps.lv-steps > div.lv-step.arrive > span.g",
+     "doc": "frame:dollywood-live",
+     "w": 30,
+     "h": 30,
+     "paint": "#373D69",
+     "alpha": 1,
+     "minRatio": 1.58,
+     "maxRatio": 1.58,
+     "adjacentAtMin": "top #242220 1.54, right #282624 1.46, bottom #21201E 1.58, left #2F2D2B 1.33",
+     "n": 1,
+     "jobs": [
+      "themes/dollywood-live/directions-steps-typical-ipad-portrait-light-midnight"
+     ],
+     "ia": false
+    }
+   ]
+  },
+  "f260": {
+   "counts": {
+    "icons": 35017,
+    "iconFail": 30,
+    "controls": 53169,
+    "controlNeedsBoundary": 23677,
+    "controlFail": 10195,
+    "iconIdentified": 5138,
+    "graphics": 75380,
+    "graphicFail": 25784,
+    "graphicsByKind": {
+     "bar": 10106,
+     "ring": 894,
+     "dot": 43540,
+     "stroke": 20840
+    },
+    "graphicFailByKind": {
+     "bar": 4158,
+     "dot": 16170,
+     "stroke": 5423,
+     "ring": 33
+    }
+   },
+   "iconGroups": 11,
+   "controlGroups": 166,
+   "graphicGroups": 78,
+   "iconIdentifiedGroups": 71,
+   "svgIcons": [
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button.wk-head > span.ring > svg",
+     "inControl": true,
+     "label": "Week 33Luke0",
+     "w": 32,
+     "h": 32,
+     "minRatio": 1.17,
+     "n": 6,
+     "ink": "#B9F2D0",
+     "bg": "#E4FBFC",
+     "jobs": [
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system",
+      "devices/f260/guest-typical-desktop-light-system",
+      "devices/f260/guest-typical-ipad-landscape-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "button.wk-head > span.ring > svg",
+     "inControl": true,
+     "label": "Week 33Luke0",
+     "w": 32,
+     "h": 32,
+     "minRatio": 1.37,
+     "n": 6,
+     "ink": "#373D69",
+     "bg": "#003134",
+     "jobs": [
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system",
+      "devices/f260/guest-typical-desktop-dark-system",
+      "devices/f260/guest-typical-ipad-landscape-dark-system"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "svg",
+     "sel": "div.jtop > label.search > svg.sym",
+     "inControl": false,
+     "label": null,
+     "w": 20,
+     "h": 20,
+     "minRatio": 1.84,
+     "n": 1,
+     "ink": "#AFBDC0",
+     "bg": "#EEFCFD",
+     "jobs": [
+      "themes/f260/journal-locked-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "div.jtop > label.search > svg.sym",
+     "inControl": false,
+     "label": null,
+     "w": 20,
+     "h": 20,
+     "minRatio": 1.89,
+     "n": 5,
+     "ink": "#B0BAB8",
+     "bg": "#EEFCFD",
+     "jobs": [
+      "devices/f260/journal-locked-typical-desktop-light-system",
+      "devices/f260/journal-locked-typical-ipad-landscape-light-system",
+      "devices/f260/journal-locked-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "svg",
+     "sel": "div.jtop > label.search > svg.sym",
+     "inControl": false,
+     "label": null,
+     "w": 20,
+     "h": 20,
+     "minRatio": 1.89,
+     "n": 1,
+     "ink": "#B0BAB8",
+     "bg": "#EEFCFD",
+     "jobs": [
+      "themes/f260/journal-locked-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "parchment",
+     "kind": "svg",
+     "sel": "div.jtop > label.search > svg.sym",
+     "inControl": false,
+     "label": null,
+     "w": 20,
+     "h": 20,
+     "minRatio": 1.95,
+     "n": 1,
+     "ink": "#AEB5AD",
+     "bg": "#EDF9F6",
+     "jobs": [
+      "themes/f260/journal-locked-typical-ipad-portrait-light-parchment"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "div.jtop > label.search > svg.sym",
+     "inControl": false,
+     "label": null,
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.13,
+     "n": 5,
+     "ink": "#4E4A46",
+     "bg": "#131211",
+     "jobs": [
+      "devices/f260/journal-locked-typical-desktop-dark-system",
+      "devices/f260/journal-locked-typical-ipad-landscape-dark-system",
+      "devices/f260/journal-locked-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "svg",
+     "sel": "div.jtop > label.search > svg.sym",
+     "inControl": false,
+     "label": null,
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.29,
+     "n": 1,
+     "ink": "#50634C",
+     "bg": "#092C2C",
+     "jobs": [
+      "themes/f260/journal-locked-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "svg",
+     "sel": "div.jtop > label.search > svg.sym",
+     "inControl": false,
+     "label": null,
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.3,
+     "n": 1,
+     "ink": "#47615F",
+     "bg": "#0D292A",
+     "jobs": [
+      "themes/f260/journal-locked-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#readPrev.btn > svg.sym",
+     "inControl": true,
+     "label": "Previous week",
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.49,
+     "n": 1,
+     "ink": "#A5A3A0",
+     "bg": "#FEFEFD",
+     "jobs": [
+      "states/f260/reading-mode-empty-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#readNext.btn > svg.sym",
+     "inControl": true,
+     "label": "Next week",
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.51,
+     "n": 2,
+     "ink": "#A4A3A1",
+     "bg": "#FDFFFF",
+     "jobs": [
+      "states/f260/reading-mode-overflow-ipad-portrait-light-system",
+      "states/f260/reading-mode-week-overflow-ipad-portrait-light-system"
+     ]
+    }
+   ],
+   "controls": [
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "div#jbar.jbar > button",
+     "hasText": false,
+     "icon": null,
+     "w": 15.5,
+     "h": 14,
+     "minBoundary": 1,
+     "fillRatio": 2.78,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#2E2B28",
+     "inside": "#EE842C",
+     "outside": "#EE842C",
+     "n": 1437,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "div#ygrid.ygrid > button.part.cur",
+     "hasText": false,
+     "icon": null,
+     "w": 10.5,
+     "h": 18,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#2E2B28",
+     "outside": "#003134",
+     "n": 63,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "div#ygrid.ygrid > button",
+     "hasText": false,
+     "icon": null,
+     "w": 10.5,
+     "h": 18,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#2E2B28",
+     "inside": "#2E2B28",
+     "outside": "#003134",
+     "n": 1586,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "select#wkSel",
+     "hasText": true,
+     "icon": null,
+     "w": 24,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1.08,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#211F1D",
+     "outside": "#211F1D",
+     "n": 87,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "div#jbar.jbar > button.cur",
+     "hasText": false,
+     "icon": null,
+     "w": 8.2,
+     "h": 14,
+     "minBoundary": 1,
+     "fillRatio": 1.05,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#F4F1EC",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 82,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "div#jbar.jbar > button",
+     "hasText": false,
+     "icon": null,
+     "w": 11.8,
+     "h": 14,
+     "minBoundary": 1,
+     "fillRatio": 1.05,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#F4F1EC",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 357,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "div#ygrid.ygrid > button.part.cur",
+     "hasText": false,
+     "icon": null,
+     "w": 10.5,
+     "h": 18,
+     "minBoundary": 1,
+     "fillRatio": 1.05,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 64,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "div#ygrid.ygrid > button",
+     "hasText": false,
+     "icon": null,
+     "w": 10.5,
+     "h": 18,
+     "minBoundary": 1,
+     "fillRatio": 1.05,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#F4F1EC",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 1586,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "select#wkSel",
+     "hasText": true,
+     "icon": null,
+     "w": 24,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 87,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system",
+      "devices/f260/behind-pace-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "div#ygrid.ygrid > button.cur",
+     "hasText": false,
+     "icon": null,
+     "w": 10.5,
+     "h": 18,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#F4F1EC",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 7,
+     "jobs": [
+      "devices/f260/guest-typical-desktop-light-system",
+      "devices/f260/guest-typical-ipad-landscape-light-system",
+      "states/f260/hear-open-empty-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "textarea#jf-38-1-a",
+     "hasText": false,
+     "icon": null,
+     "w": 623,
+     "h": 67,
+     "minBoundary": 1,
+     "fillRatio": 1.17,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#2E2B28",
+     "inside": "#003134",
+     "outside": "#003134",
+     "n": 8,
+     "jobs": [
+      "devices/f260/hear-open-typical-desktop-dark-system",
+      "devices/f260/hear-open-typical-ipad-landscape-dark-system",
+      "devices/f260/hear-open-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "textarea#jf-38-1-a",
+     "hasText": false,
+     "icon": null,
+     "w": 623,
+     "h": 67,
+     "minBoundary": 1,
+     "fillRatio": 1.19,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#EFEBE5",
+     "inside": "#E4FBFC",
+     "outside": "#E4FBFC",
+     "n": 8,
+     "jobs": [
+      "devices/f260/hear-open-typical-desktop-light-system",
+      "devices/f260/hear-open-typical-ipad-landscape-light-system",
+      "devices/f260/hear-open-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "textarea#jf-38-1-r",
+     "hasText": false,
+     "icon": null,
+     "w": 623,
+     "h": 67,
+     "minBoundary": 1,
+     "fillRatio": 1.19,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#EFEBE5",
+     "inside": "#E4FBFC",
+     "outside": "#E4FBFC",
+     "n": 8,
+     "jobs": [
+      "devices/f260/hear-open-typical-desktop-light-system",
+      "devices/f260/hear-open-typical-ipad-landscape-light-system",
+      "devices/f260/hear-open-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "input#jSearch",
+     "hasText": false,
+     "icon": null,
+     "w": 860.8,
+     "h": 42,
+     "minBoundary": 1,
+     "fillRatio": 1.08,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#131211",
+     "outside": "#131211",
+     "n": 18,
+     "jobs": [
+      "devices/f260/journal-entries-typical-desktop-dark-system",
+      "devices/f260/journal-entries-typical-ipad-landscape-dark-system",
+      "devices/f260/journal-entries-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "input#jSearch",
+     "hasText": false,
+     "icon": null,
+     "w": 860.8,
+     "h": 42,
+     "minBoundary": 1,
+     "fillRatio": 1.08,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 17,
+     "jobs": [
+      "devices/f260/journal-entries-typical-desktop-light-system",
+      "devices/f260/journal-entries-typical-ipad-landscape-light-system",
+      "devices/f260/journal-entries-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "textarea#jf-38-0-e",
+     "hasText": false,
+     "icon": null,
+     "w": 623,
+     "h": 67,
+     "minBoundary": 1,
+     "fillRatio": 1.17,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#2E2B28",
+     "inside": "#003134",
+     "outside": "#003134",
+     "n": 4,
+     "jobs": [
+      "devices/f260/reflections-typical-desktop-dark-system",
+      "devices/f260/reflections-typical-ipad-landscape-dark-system",
+      "devices/f260/reflections-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "textarea#jf-38-0-e",
+     "hasText": false,
+     "icon": null,
+     "w": 623,
+     "h": 67,
+     "minBoundary": 1,
+     "fillRatio": 1.19,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#EFEBE5",
+     "inside": "#E4FBFC",
+     "outside": "#E4FBFC",
+     "n": 4,
+     "jobs": [
+      "devices/f260/reflections-typical-desktop-light-system",
+      "devices/f260/reflections-typical-ipad-landscape-light-system",
+      "devices/f260/reflections-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "div#jbar.jbar > button.cur",
+     "hasText": false,
+     "icon": null,
+     "w": 20.5,
+     "h": 14,
+     "minBoundary": 1,
+     "fillRatio": 1.05,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#F4F1EC",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 19,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-dark-hearth",
+      "themes/f260/behind-typical-ipad-portrait-dark-hearth",
+      "themes/f260/done-toast-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "div#jbar.jbar > button",
+     "hasText": false,
+     "icon": null,
+     "w": 29.6,
+     "h": 14,
+     "minBoundary": 1,
+     "fillRatio": 1.05,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#F4F1EC",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 127,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-dark-hearth",
+      "themes/f260/behind-typical-ipad-portrait-dark-hearth",
+      "themes/f260/done-toast-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "div#ygrid.ygrid > button",
+     "hasText": false,
+     "icon": null,
+     "w": 23.8,
+     "h": 18,
+     "minBoundary": 1,
+     "fillRatio": 1.05,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#F4F1EC",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 313,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-dark-hearth",
+      "themes/f260/behind-typical-ipad-portrait-dark-hearth",
+      "themes/f260/done-toast-typical-ipad-portrait-dark-hearth"
+     ]
+    }
+   ],
+   "graphics": [
+    {
+     "theme": "system-dark",
+     "kind": "bar",
+     "sel": "div#jbar.jbar > button > i",
+     "doc": "frame:f260",
+     "w": 3,
+     "h": 14,
+     "paint": "#FFDB7E",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.97,
+     "adjacentAtMin": "trackOut #FFDB7E 1",
+     "n": 3002,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system"
+     ],
+     "fillShare": 1,
+     "trackSel": "button"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#ygrid.ygrid > button.part.cur",
+     "doc": "frame:f260",
+     "w": 10.5,
+     "h": 18,
+     "paint": "gradient #2E2B28..#63D99B",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.47,
+     "adjacentAtMin": "top #003134 1, right #003134 1, bottom #003134 1, left #003134 1",
+     "n": 63,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system"
+     ],
+     "ratioBest": 8.01,
+     "ia": true,
+     "shadow": "rgb(125, 118, 111) 0px 0px 0px 1.5px inset, rgb(0, 151, 107) 0px 0px 0px 2px"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#ygrid.ygrid > button",
+     "doc": "frame:f260",
+     "w": 10.5,
+     "h": 18,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.78,
+     "adjacentAtMin": "top #003134 1, right #003134 1, bottom #003134 1, left #003134 1",
+     "n": 1554,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system"
+     ],
+     "ia": true,
+     "shadow": "rgb(125, 118, 111) 0px 0px 0px 1.5px inset"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#heat.heat > span",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.97,
+     "adjacentAtMin": "top #003134 1, right #003134 1, bottom #003134 1, left #003134 1",
+     "n": 2534,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system"
+     ],
+     "ia": false,
+     "shadow": "rgb(125, 118, 111) 0px 0px 0px 1px inset"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#heat.heat > span.is-today",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1.95,
+     "adjacentAtMin": "top #003134 1, right #003134 1, bottom #003134 1, left #003134 1",
+     "n": 79,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-dark-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-dark-system"
+     ],
+     "ia": false,
+     "shadow": "rgb(125, 118, 111) 0px 0px 0px 1px inset, rgb(0, 151, 107) 0px 0px 0px 2px"
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#ygrid.ygrid > button.part.cur",
+     "doc": "frame:f260",
+     "w": 10.5,
+     "h": 18,
+     "paint": "gradient #F4F1EC..#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.11,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 64,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system"
+     ],
+     "ratioBest": 5.51,
+     "ia": true,
+     "shadow": "rgb(140, 132, 123) 0px 0px 0px 1.5px inset, rgb(0, 111, 70) 0px 0px 0px 2px"
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#ygrid.ygrid > button",
+     "doc": "frame:f260",
+     "w": 10.5,
+     "h": 18,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.82,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 1567,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system"
+     ],
+     "ia": true,
+     "shadow": "rgb(140, 132, 123) 0px 0px 0px 1.5px inset"
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#heat.heat > span",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.91,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 2534,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system"
+     ],
+     "ia": false,
+     "shadow": "rgb(140, 132, 123) 0px 0px 0px 1px inset"
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#heat.heat > span.is-today",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1.82,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 79,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system"
+     ],
+     "ia": false,
+     "shadow": "rgb(140, 132, 123) 0px 0px 0px 1px inset, rgb(0, 111, 70) 0px 0px 0px 2px"
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#heat.heat > span.future",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#F4F1EC",
+     "alpha": 0.35,
+     "minRatio": 1,
+     "maxRatio": 1.97,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 500,
+     "jobs": [
+      "devices/f260/behind-pace-typical-desktop-light-system",
+      "devices/f260/behind-pace-typical-ipad-landscape-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#ygrid.ygrid > button.cur",
+     "doc": "frame:f260",
+     "w": 10.5,
+     "h": 18,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.07,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 8,
+     "jobs": [
+      "devices/f260/guest-typical-desktop-light-system",
+      "devices/f260/guest-typical-ipad-landscape-light-system"
+     ],
+     "ia": true,
+     "shadow": "rgb(140, 132, 123) 0px 0px 0px 1.5px inset, rgb(0, 113, 171) 0px 0px 0px 2px"
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#ygrid.ygrid > button",
+     "doc": "frame:f260",
+     "w": 23.9,
+     "h": 18,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.07,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 300,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-dark-hearth",
+      "themes/f260/behind-typical-ipad-portrait-dark-hearth"
+     ],
+     "ia": true,
+     "shadow": "rgb(140, 132, 123) 0px 0px 0px 1.5px inset"
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#heat.heat > span",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1.05,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 475,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-dark-hearth",
+      "themes/f260/behind-typical-ipad-portrait-dark-hearth"
+     ],
+     "ia": false,
+     "shadow": "rgb(140, 132, 123) 0px 0px 0px 1px inset"
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#heat.heat > span.is-today",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1.05,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 15,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-dark-hearth",
+      "themes/f260/behind-typical-ipad-portrait-dark-hearth"
+     ],
+     "ia": false,
+     "shadow": "rgb(140, 132, 123) 0px 0px 0px 1px inset, rgb(0, 111, 70) 0px 0px 0px 2px"
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#heat.heat > span.future",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#F4F1EC",
+     "alpha": 0.35,
+     "minRatio": 1,
+     "maxRatio": 1.61,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 95,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-dark-hearth",
+      "themes/f260/behind-typical-ipad-portrait-dark-hearth"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "forest",
+     "kind": "bar",
+     "sel": "div#jbar.jbar > button > i",
+     "doc": "frame:f260",
+     "w": 6.8,
+     "h": 14,
+     "paint": "#FFDB7E",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.8,
+     "adjacentAtMin": "trackOut #FFDB7E 1",
+     "n": 577,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-light-forest",
+      "themes/f260/behind-typical-ipad-portrait-light-forest"
+     ],
+     "fillShare": 1,
+     "trackSel": "button"
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "div#heat.heat > span.future",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#213029",
+     "alpha": 0.35,
+     "minRatio": 1,
+     "maxRatio": 1.72,
+     "adjacentAtMin": "top #003134 1, right #003134 1, bottom #003134 1, left #003134 1",
+     "n": 100,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-light-forest",
+      "themes/f260/behind-typical-ipad-portrait-light-forest"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#ygrid.ygrid > button",
+     "doc": "frame:f260",
+     "w": 23.9,
+     "h": 18,
+     "paint": "#F2F2F7",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 2.07,
+     "adjacentAtMin": "top #F2F2F7 1, right #F2F2F7 1, bottom #F2F2F7 1, left #F2F2F7 1",
+     "n": 300,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-light-frost",
+      "themes/f260/behind-typical-ipad-portrait-light-frost"
+     ],
+     "ia": true,
+     "shadow": "rgb(133, 133, 139) 0px 0px 0px 1.5px inset"
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#heat.heat > span",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#F2F2F7",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1.04,
+     "adjacentAtMin": "top #F2F2F7 1, right #F2F2F7 1, bottom #F2F2F7 1, left #F2F2F7 1",
+     "n": 475,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-light-frost",
+      "themes/f260/behind-typical-ipad-portrait-light-frost"
+     ],
+     "ia": false,
+     "shadow": "rgb(133, 133, 139) 0px 0px 0px 1px inset"
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#heat.heat > span.is-today",
+     "doc": "frame:f260",
+     "w": 24.7,
+     "h": 12,
+     "paint": "#F2F2F7",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1.04,
+     "adjacentAtMin": "top #F2F2F7 1, right #F2F2F7 1, bottom #F2F2F7 1, left #F2F2F7 1",
+     "n": 15,
+     "jobs": [
+      "themes/f260/behind-pace-typical-ipad-portrait-light-frost",
+      "themes/f260/behind-typical-ipad-portrait-light-frost"
+     ],
+     "ia": false,
+     "shadow": "rgb(133, 133, 139) 0px 0px 0px 1px inset, rgb(0, 111, 70) 0px 0px 0px 2px"
+    }
+   ]
+  },
+  "kidverse": {
+   "counts": {
+    "icons": 3315,
+    "iconFail": 158,
+    "controls": 2457,
+    "controlNeedsBoundary": 3,
+    "controlFail": 3,
+    "iconIdentified": 273,
+    "graphics": 1755,
+    "graphicFail": 1248,
+    "graphicsByKind": {
+     "dot": 1519,
+     "ring": 236
+    },
+    "graphicFailByKind": {
+     "dot": 1248
+    }
+   },
+   "iconGroups": 14,
+   "controlGroups": 2,
+   "graphicGroups": 28,
+   "iconIdentifiedGroups": 21,
+   "svgIcons": [
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#story-say.btn.btn-soft.story-say > svg.sym",
+     "inControl": true,
+     "label": "Read the story to me",
+     "w": 32,
+     "h": 32,
+     "minRatio": 1.92,
+     "n": 3,
+     "ink": "#90B8BA",
+     "bg": "#DDF7F8",
+     "jobs": [
+      "states/kidverse/adult-stalled-loading-ipad-portrait-light-system",
+      "states/kidverse/kid-loading-ipad-portrait-light-system",
+      "states/kidverse/kid-stalled-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "svg#say-ico.sym",
+     "inControl": true,
+     "label": "Read it to me",
+     "w": 32,
+     "h": 32,
+     "minRatio": 1.94,
+     "n": 3,
+     "ink": "#8AB1B0",
+     "bg": "#D7EFED",
+     "jobs": [
+      "states/kidverse/adult-stalled-loading-ipad-portrait-light-system",
+      "states/kidverse/kid-loading-ipad-portrait-light-system",
+      "states/kidverse/kid-stalled-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "svg#say-ico.sym",
+     "inControl": true,
+     "label": "Read it to me",
+     "w": 32,
+     "h": 32,
+     "minRatio": 2.75,
+     "n": 3,
+     "ink": "#616578",
+     "bg": "#1E2134",
+     "jobs": [
+      "states/kidverse/adult-stalled-loading-ipad-portrait-dark-system",
+      "states/kidverse/kid-loading-ipad-portrait-dark-system",
+      "states/kidverse/kid-stalled-loading-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "button#story-say.btn.btn-soft.story-say > svg.sym",
+     "inControl": true,
+     "label": "Read the story to me",
+     "w": 32,
+     "h": 32,
+     "minRatio": 2.81,
+     "n": 3,
+     "ink": "#6D7083",
+     "bg": "#2A2C3F",
+     "jobs": [
+      "states/kidverse/adult-stalled-loading-ipad-portrait-dark-system",
+      "states/kidverse/kid-loading-ipad-portrait-dark-system",
+      "states/kidverse/kid-stalled-loading-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#week-down.btn.btn-round > svg.sym",
+     "inControl": true,
+     "label": "Previous week",
+     "w": 28,
+     "h": 28,
+     "minRatio": 2.88,
+     "n": 2,
+     "ink": "#9A9895",
+     "bg": "#FFFFFF",
+     "jobs": [
+      "states/kidverse/adult-empty-ipad-portrait-light-system",
+      "states/kidverse/adult-stalled-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#week-up.btn.btn-round > svg.sym",
+     "inControl": true,
+     "label": "Next week",
+     "w": 28,
+     "h": 28,
+     "minRatio": 2.88,
+     "n": 1,
+     "ink": "#9A9895",
+     "bg": "#FFFFFF",
+     "jobs": [
+      "states/kidverse/adult-stalled-loading-ipad-portrait-light-system"
+     ]
+    }
+   ],
+   "controls": [
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "button#week-down.btn.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 2.88
+     },
+     "w": 60,
+     "h": 60,
+     "minBoundary": 1.13,
+     "fillRatio": 1.06,
+     "borderRatio": 1.13,
+     "border": "1px #E6E0D7",
+     "fill": "#FFFFFF",
+     "inside": "#FAF8F7",
+     "outside": "#FFFFFF",
+     "n": 2,
+     "jobs": [
+      "states/kidverse/adult-empty-ipad-portrait-light-system",
+      "states/kidverse/adult-stalled-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "button#week-up.btn.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 2.88
+     },
+     "w": 60,
+     "h": 60,
+     "minBoundary": 1.13,
+     "fillRatio": 1.03,
+     "borderRatio": 1.13,
+     "border": "1px #E6E0D7",
+     "fill": "#FFFFFF",
+     "inside": "#FCFCFB",
+     "outside": "#FFFFFF",
+     "n": 1,
+     "jobs": [
+      "states/kidverse/adult-stalled-loading-ipad-portrait-light-system"
+     ]
+    }
+   ],
+   "graphics": [
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "li > div.days > span.day.on",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#FFF1A8",
+     "alpha": 1,
+     "minRatio": 1.07,
+     "maxRatio": 1.07,
+     "adjacentAtMin": "top #FBF7EE 1.07, right #FBF7EE 1.07, bottom #FBF7EE 1.07, left #FBF7EE 1.07",
+     "n": 8,
+     "jobs": [
+      "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-parchment",
+      "themes/kidverse/adult-guest-typical-ipad-portrait-light-parchment"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "li > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#F2F2F7",
+     "alpha": 1,
+     "minRatio": 1.12,
+     "maxRatio": 1.12,
+     "adjacentAtMin": "top #FFFFFF 1.12, right #FFFFFF 1.12, bottom #FFFFFF 1.12, left #FFFFFF 1.12",
+     "n": 40,
+     "jobs": [
+      "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-frost",
+      "themes/kidverse/adult-guest-typical-ipad-portrait-light-frost"
+     ],
+     "text": "W",
+     "ia": false
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#mine.card.stars > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 48,
+     "h": 48,
+     "paint": "#F2F2F7",
+     "alpha": 1,
+     "minRatio": 1.12,
+     "maxRatio": 1.12,
+     "adjacentAtMin": "top #FFFFFF 1.12, right #FFFFFF 1.12, bottom #FFFFFF 1.12, left #FFFFFF 1.12",
+     "n": 32,
+     "jobs": [
+      "themes/kidverse/kid-cashed-in-typical-ipad-portrait-light-frost",
+      "themes/kidverse/kid-kiara-typical-ipad-portrait-light-frost"
+     ],
+     "text": "T",
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "li > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 36.9,
+     "h": 36.9,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #FFFFFF 1.13, right #FFFFFF 1.13, bottom #FFFFFF 1.13, left #FFFFFF 1.13",
+     "n": 182,
+     "jobs": [
+      "devices/kidverse/adult-f260-hint-typical-desktop-light-system",
+      "devices/kidverse/adult-f260-hint-typical-ipad-landscape-light-system"
+     ],
+     "text": "W",
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#mine.card.stars > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 48,
+     "h": 48,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 2.58,
+     "adjacentAtMin": "top #FFFFFF 1.13, right #FFFFFF 1.13, bottom #FFFFFF 1.13, left #FFFFFF 1.13",
+     "n": 178,
+     "jobs": [
+      "devices/kidverse/kid-cashed-in-typical-desktop-light-system",
+      "devices/kidverse/kid-cashed-in-typical-ipad-landscape-light-system"
+     ],
+     "text": "W",
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "li > div.days > span.day.skd",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #FFFFFF 1.13, right #FFFFFF 1.13, bottom #FFFFFF 1.13, left #FFFFFF 1.13",
+     "n": 14,
+     "jobs": [
+      "states/kidverse/adult-stalled-loading-ipad-portrait-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#mine.card.stars > div.days > span.day.skd",
+     "doc": "frame:kidverse",
+     "w": 48,
+     "h": 48,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #FFFFFF 1.13, right #FFFFFF 1.13, bottom #FFFFFF 1.13, left #FFFFFF 1.13",
+     "n": 14,
+     "jobs": [
+      "states/kidverse/kid-loading-ipad-portrait-light-system",
+      "states/kidverse/kid-stalled-loading-ipad-portrait-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "li > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #FFFFFF 1.13, right #FFFFFF 1.13, bottom #FFFFFF 1.13, left #FFFFFF 1.13",
+     "n": 40,
+     "jobs": [
+      "themes/kidverse/adult-f260-hint-typical-ipad-portrait-dark-hearth",
+      "themes/kidverse/adult-guest-typical-ipad-portrait-dark-hearth"
+     ],
+     "text": "W",
+     "ia": false
+    },
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "li > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#F1E9D8",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #FBF7EE 1.13, right #FBF7EE 1.13, bottom #FBF7EE 1.13, left #FBF7EE 1.13",
+     "n": 40,
+     "jobs": [
+      "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-parchment",
+      "themes/kidverse/adult-guest-typical-ipad-portrait-light-parchment"
+     ],
+     "text": "W",
+     "ia": false
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#mine.card.stars > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 48,
+     "h": 48,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #FFFFFF 1.13, right #FFFFFF 1.13, bottom #FFFFFF 1.13, left #FFFFFF 1.13",
+     "n": 32,
+     "jobs": [
+      "themes/kidverse/kid-cashed-in-typical-ipad-portrait-dark-hearth",
+      "themes/kidverse/kid-kiara-typical-ipad-portrait-dark-hearth"
+     ],
+     "text": "T",
+     "ia": false
+    },
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "div#mine.card.stars > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 48,
+     "h": 48,
+     "paint": "#F1E9D8",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #FBF7EE 1.13, right #FBF7EE 1.13, bottom #FBF7EE 1.13, left #FBF7EE 1.13",
+     "n": 32,
+     "jobs": [
+      "themes/kidverse/kid-cashed-in-typical-ipad-portrait-light-parchment",
+      "themes/kidverse/kid-kiara-typical-ipad-portrait-light-parchment"
+     ],
+     "text": "T",
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "li > div.days > span.day.on",
+     "doc": "frame:kidverse",
+     "w": 36.9,
+     "h": 36.9,
+     "paint": "#FFF1A8",
+     "alpha": 1,
+     "minRatio": 1.14,
+     "maxRatio": 1.14,
+     "adjacentAtMin": "top #FFFFFF 1.14, right #FFFFFF 1.14, bottom #FFFFFF 1.14, left #FFFFFF 1.14",
+     "n": 34,
+     "jobs": [
+      "devices/kidverse/adult-f260-hint-typical-desktop-light-system",
+      "devices/kidverse/adult-f260-hint-typical-ipad-landscape-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "li > div.days > span.day.on",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#FFF1A8",
+     "alpha": 1,
+     "minRatio": 1.14,
+     "maxRatio": 1.14,
+     "adjacentAtMin": "top #FFFFFF 1.14, right #FFFFFF 1.14, bottom #FFFFFF 1.14, left #FFFFFF 1.14",
+     "n": 8,
+     "jobs": [
+      "themes/kidverse/adult-f260-hint-typical-ipad-portrait-dark-hearth",
+      "themes/kidverse/adult-guest-typical-ipad-portrait-dark-hearth"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "li > div.days > span.day.on",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#FFF1A8",
+     "alpha": 1,
+     "minRatio": 1.14,
+     "maxRatio": 1.14,
+     "adjacentAtMin": "top #FFFFFF 1.14, right #FFFFFF 1.14, bottom #FFFFFF 1.14, left #FFFFFF 1.14",
+     "n": 8,
+     "jobs": [
+      "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-frost",
+      "themes/kidverse/adult-guest-typical-ipad-portrait-light-frost"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "li > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#213029",
+     "alpha": 1,
+     "minRatio": 1.15,
+     "maxRatio": 1.15,
+     "adjacentAtMin": "top #182522 1.15, right #182522 1.15, bottom #182522 1.15, left #182522 1.15",
+     "n": 40,
+     "jobs": [
+      "themes/kidverse/adult-f260-hint-typical-ipad-portrait-light-forest",
+      "themes/kidverse/adult-guest-typical-ipad-portrait-light-forest"
+     ],
+     "text": "W",
+     "ia": false
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "div#mine.card.stars > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 48,
+     "h": 48,
+     "paint": "#213029",
+     "alpha": 1,
+     "minRatio": 1.15,
+     "maxRatio": 1.16,
+     "adjacentAtMin": "top #182522 1.15, right #182522 1.15, bottom #182522 1.15, left #182522 1.15",
+     "n": 32,
+     "jobs": [
+      "themes/kidverse/kid-cashed-in-typical-ipad-portrait-light-forest",
+      "themes/kidverse/kid-kiara-typical-ipad-portrait-light-forest"
+     ],
+     "text": "T",
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "li > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 36.9,
+     "h": 36.9,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.17,
+     "maxRatio": 1.17,
+     "adjacentAtMin": "top #211F1D 1.17, right #211F1D 1.17, bottom #211F1D 1.17, left #211F1D 1.17",
+     "n": 182,
+     "jobs": [
+      "devices/kidverse/adult-f260-hint-typical-desktop-dark-system",
+      "devices/kidverse/adult-f260-hint-typical-ipad-landscape-dark-system"
+     ],
+     "text": "W",
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#mine.card.stars > div.days > span.day",
+     "doc": "frame:kidverse",
+     "w": 48,
+     "h": 48,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.17,
+     "maxRatio": 2.61,
+     "adjacentAtMin": "top #211F1D 1.17, right #211F1D 1.17, bottom #211F1D 1.17, left #211F1D 1.17",
+     "n": 177,
+     "jobs": [
+      "devices/kidverse/kid-cashed-in-typical-desktop-dark-system",
+      "devices/kidverse/kid-cashed-in-typical-ipad-landscape-dark-system"
+     ],
+     "text": "W",
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "li > div.days > span.day.skd",
+     "doc": "frame:kidverse",
+     "w": 38.4,
+     "h": 38.4,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.17,
+     "maxRatio": 1.17,
+     "adjacentAtMin": "top #211F1D 1.17, right #211F1D 1.17, bottom #211F1D 1.17, left #211F1D 1.17",
+     "n": 14,
+     "jobs": [
+      "states/kidverse/adult-stalled-loading-ipad-portrait-dark-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#mine.card.stars > div.days > span.day.skd",
+     "doc": "frame:kidverse",
+     "w": 48,
+     "h": 48,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.17,
+     "maxRatio": 1.17,
+     "adjacentAtMin": "top #211F1D 1.17, right #211F1D 1.17, bottom #211F1D 1.17, left #211F1D 1.17",
+     "n": 14,
+     "jobs": [
+      "states/kidverse/kid-loading-ipad-portrait-dark-system",
+      "states/kidverse/kid-stalled-loading-ipad-portrait-dark-system"
+     ],
+     "ia": false
+    }
+   ]
+  },
+  "leftovers": {
+   "counts": {
+    "icons": 2744,
+    "iconFail": 171,
+    "controls": 3082,
+    "controlNeedsBoundary": 368,
+    "controlFail": 14,
+    "iconIdentified": 1139,
+    "graphics": 1806,
+    "graphicFail": 24,
+    "graphicsByKind": {
+     "dot": 997,
+     "bar": 809
+    },
+    "graphicFailByKind": {
+     "dot": 24
+    }
+   },
+   "iconGroups": 7,
+   "controlGroups": 4,
+   "graphicGroups": 4,
+   "iconIdentifiedGroups": 14,
+   "svgIcons": [],
+   "controls": [
+    {
+     "theme": "system-dark",
+     "kind": "chip",
+     "sel": "div.body > div.right > i.chipph",
+     "hasText": false,
+     "icon": null,
+     "w": 142.8,
+     "h": 29.4,
+     "minBoundary": 1.06,
+     "fillRatio": 1.17,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#2E2B28",
+     "inside": "#1C1A18",
+     "outside": "#161413",
+     "n": 6,
+     "jobs": [
+      "states/leftovers/main-loading-ipad-portrait-dark-system",
+      "states/leftovers/stalled-loading-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "chip",
+     "sel": "div.body > div.right > i.chipph",
+     "hasText": false,
+     "icon": null,
+     "w": 142.8,
+     "h": 29.4,
+     "minBoundary": 1.06,
+     "fillRatio": 1.13,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#F4F1EC",
+     "inside": "#F4F1EC",
+     "outside": "#F9F8F5",
+     "n": 6,
+     "jobs": [
+      "states/leftovers/main-loading-ipad-portrait-light-system",
+      "states/leftovers/stalled-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "div.body > div.right > button.done.pressable.is-small",
+     "hasText": false,
+     "icon": null,
+     "w": 48,
+     "h": 48,
+     "minBoundary": 1.2,
+     "fillRatio": 1.2,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#C4F7CA",
+     "inside": "#C4F7CA",
+     "outside": "#FFFFFF",
+     "n": 1,
+     "jobs": [
+      "states/leftovers/copy-error-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "div.body > div.right > button.done.pressable.is-small",
+     "hasText": false,
+     "icon": null,
+     "w": 48,
+     "h": 48,
+     "minBoundary": 1.65,
+     "fillRatio": 1.65,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#214B29",
+     "inside": "#214B29",
+     "outside": "#211F1D",
+     "n": 1,
+     "jobs": [
+      "states/leftovers/copy-error-ipad-portrait-dark-system"
+     ]
+    }
+   ],
+   "graphics": [
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div.skel > div.swipe-face > div.stripe",
+     "doc": "frame:leftovers",
+     "w": 4,
+     "h": 64.6,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.03,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #F9F8F5 1.03, right #F9F8F5 1.03, bottom #F9F8F5 1.03, left #F9F8F5 1.03",
+     "n": 6,
+     "jobs": [
+      "states/leftovers/main-loading-ipad-portrait-light-system",
+      "states/leftovers/stalled-loading-ipad-portrait-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div.body > div.info > div.bar",
+     "doc": "frame:leftovers",
+     "w": 192,
+     "h": 8,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.03,
+     "maxRatio": 1.13,
+     "adjacentAtMin": "top #F9F8F5 1.03, right #F9F8F5 1.03, bottom #F9F8F5 1.03, left #F9F8F5 1.03",
+     "n": 6,
+     "jobs": [
+      "states/leftovers/main-loading-ipad-portrait-light-system",
+      "states/leftovers/stalled-loading-ipad-portrait-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div.skel > div.swipe-face > div.stripe",
+     "doc": "frame:leftovers",
+     "w": 4,
+     "h": 64.6,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.17,
+     "adjacentAtMin": "top #161413 1.13, right #161413 1.13, bottom #161413 1.13, left #161413 1.13",
+     "n": 6,
+     "jobs": [
+      "states/leftovers/main-loading-ipad-portrait-dark-system",
+      "states/leftovers/stalled-loading-ipad-portrait-dark-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div.body > div.info > div.bar",
+     "doc": "frame:leftovers",
+     "w": 192,
+     "h": 8,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.17,
+     "adjacentAtMin": "top #161413 1.13, right #161413 1.13, bottom #161413 1.13, left #161413 1.13",
+     "n": 6,
+     "jobs": [
+      "states/leftovers/main-loading-ipad-portrait-dark-system",
+      "states/leftovers/stalled-loading-ipad-portrait-dark-system"
+     ],
+     "ia": false
+    }
+   ]
+  },
+  "prayer": {
+   "counts": {
+    "icons": 7103,
+    "iconFail": 521,
+    "controls": 16748,
+    "controlNeedsBoundary": 1536,
+    "controlFail": 1508,
+    "iconIdentified": 1442,
+    "graphics": 5947,
+    "graphicFail": 2136,
+    "graphicsByKind": {
+     "dot": 5562,
+     "ring": 295,
+     "bar": 90
+    },
+    "graphicFailByKind": {
+     "dot": 2020,
+     "ring": 116
+    }
+   },
+   "iconGroups": 32,
+   "controlGroups": 147,
+   "graphicGroups": 95,
+   "iconIdentifiedGroups": 28,
+   "svgIcons": [
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "div.inner > button > svg.sym",
+     "inControl": true,
+     "label": "Today",
+     "w": 20,
+     "h": 20,
+     "minRatio": 1.72,
+     "n": 30,
+     "ink": "#FEFEFD",
+     "bg": "#C0C1EF",
+     "jobs": [
+      "states/prayer/list-loading-ipad-portrait-light-system",
+      "states/prayer/record-loading-ipad-portrait-light-system",
+      "states/prayer/settings-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "div.inner > button > svg.sym",
+     "inControl": true,
+     "label": "Today",
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.04,
+     "n": 30,
+     "ink": "#55514D",
+     "bg": "#1F1D1B",
+     "jobs": [
+      "states/prayer/list-loading-ipad-portrait-dark-system",
+      "states/prayer/record-loading-ipad-portrait-dark-system",
+      "states/prayer/settings-loading-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#moreBtn.act.ghost.more > svg.sym",
+     "inControl": true,
+     "label": "Share and print",
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.15,
+     "n": 6,
+     "ink": "#AAA6A1",
+     "bg": "#F4F1EC",
+     "jobs": [
+      "states/prayer/list-loading-ipad-portrait-light-system",
+      "states/prayer/record-loading-ipad-portrait-light-system",
+      "states/prayer/settings-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "button#moreBtn.act.ghost.more > svg.sym",
+     "inControl": true,
+     "label": "Share and print",
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.93,
+     "n": 6,
+     "ink": "#5D5B59",
+     "bg": "#0B0A09",
+     "jobs": [
+      "states/prayer/list-loading-ipad-portrait-dark-system",
+      "states/prayer/record-loading-ipad-portrait-dark-system",
+      "states/prayer/settings-loading-ipad-portrait-dark-system"
+     ]
+    }
+   ],
+   "controls": [
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "ul.list > li.row > button.mark",
+     "hasText": false,
+     "icon": null,
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#0B0A09",
+     "outside": "#0B0A09",
+     "n": 272,
+     "jobs": [
+      "devices/prayer/family-reset-typical-desktop-dark-system",
+      "devices/prayer/family-reset-typical-ipad-landscape-dark-system",
+      "devices/prayer/family-reset-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "ul.list > li.row > button.mark",
+     "hasText": false,
+     "icon": null,
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 272,
+     "jobs": [
+      "devices/prayer/family-reset-typical-desktop-light-system",
+      "devices/prayer/family-reset-typical-ipad-landscape-light-system",
+      "devices/prayer/family-reset-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "ul.list > li.row > button.mark",
+     "hasText": false,
+     "icon": null,
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 42,
+     "jobs": [
+      "themes/prayer/family-reset-typical-ipad-portrait-dark-hearth",
+      "themes/prayer/list-open-typical-ipad-portrait-dark-hearth",
+      "themes/prayer/more-copy-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "button",
+     "sel": "ul.list > li.row > button.mark",
+     "hasText": false,
+     "icon": null,
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#070F0D",
+     "outside": "#070F0D",
+     "n": 42,
+     "jobs": [
+      "themes/prayer/family-reset-typical-ipad-portrait-light-forest",
+      "themes/prayer/list-open-typical-ipad-portrait-light-forest",
+      "themes/prayer/more-copy-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "button",
+     "sel": "ul.list > li.row > button.mark",
+     "hasText": false,
+     "icon": null,
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F2F2F7",
+     "outside": "#F2F2F7",
+     "n": 42,
+     "jobs": [
+      "themes/prayer/family-reset-typical-ipad-portrait-light-frost",
+      "themes/prayer/list-open-typical-ipad-portrait-light-frost",
+      "themes/prayer/more-copy-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "button",
+     "sel": "ul.list > li.row > button.mark",
+     "hasText": false,
+     "icon": null,
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#0B0A09",
+     "outside": "#0B0A09",
+     "n": 42,
+     "jobs": [
+      "themes/prayer/family-reset-typical-ipad-portrait-light-midnight",
+      "themes/prayer/list-open-typical-ipad-portrait-light-midnight",
+      "themes/prayer/more-copy-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "parchment",
+     "kind": "button",
+     "sel": "ul.list > li.row > button.mark",
+     "hasText": false,
+     "icon": null,
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#ECE2CD",
+     "outside": "#ECE2CD",
+     "n": 42,
+     "jobs": [
+      "themes/prayer/family-reset-typical-ipad-portrait-light-parchment",
+      "themes/prayer/list-open-typical-ipad-portrait-light-parchment",
+      "themes/prayer/more-copy-typical-ipad-portrait-light-parchment"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "input#e-title",
+     "hasText": false,
+     "icon": null,
+     "w": 518,
+     "h": 51.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.14,
+     "borderRatio": 1.15,
+     "border": "1px #37332F",
+     "fill": "#211F1D",
+     "inside": "#211F1D",
+     "outside": "#2B292E",
+     "n": 5,
+     "jobs": [
+      "devices/prayer/edit-typical-desktop-dark-system",
+      "devices/prayer/edit-typical-ipad-landscape-dark-system",
+      "devices/prayer/edit-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "input#f-ansSearch",
+     "hasText": false,
+     "icon": null,
+     "w": 560,
+     "h": 51.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.13,
+     "borderRatio": 1.16,
+     "border": "1px #E6E0D7",
+     "fill": "#FFFFFF",
+     "inside": "#FEFEFE",
+     "outside": "#F3F0EB",
+     "n": 24,
+     "jobs": [
+      "devices/prayer/mark-answered-typical-desktop-light-system",
+      "devices/prayer/mark-answered-typical-ipad-landscape-light-system",
+      "devices/prayer/record-answered-typical-desktop-light-system"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "input#f-title",
+     "hasText": false,
+     "icon": null,
+     "w": 500,
+     "h": 55.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.12,
+     "borderRatio": 1.15,
+     "border": "1.5px #E3E3E8",
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#F2F2F7",
+     "n": 2,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-light-frost",
+      "themes/prayer/add-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "input#f-for",
+     "hasText": false,
+     "icon": null,
+     "w": 560,
+     "h": 55.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.12,
+     "borderRatio": 1.15,
+     "border": "1.5px #E3E3E8",
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#F2F2F7",
+     "n": 2,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-light-frost",
+      "themes/prayer/add-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "textarea#f-detail",
+     "hasText": false,
+     "icon": null,
+     "w": 560,
+     "h": 120,
+     "minBoundary": 1.15,
+     "fillRatio": 1.12,
+     "borderRatio": 1.15,
+     "border": "1.5px #E3E3E8",
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#F2F2F7",
+     "n": 2,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-light-frost",
+      "themes/prayer/add-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "input#f-phone",
+     "hasText": false,
+     "icon": null,
+     "w": 560,
+     "h": 55.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.12,
+     "borderRatio": 1.15,
+     "border": "1.5px #E3E3E8",
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#F2F2F7",
+     "n": 2,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-light-frost",
+      "themes/prayer/add-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "select#f-cat",
+     "hasText": true,
+     "icon": null,
+     "w": 560,
+     "h": 55.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.12,
+     "borderRatio": 1.15,
+     "border": "1.5px #E3E3E8",
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#F2F2F7",
+     "n": 2,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-light-frost",
+      "themes/prayer/add-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "textarea#askIn",
+     "hasText": false,
+     "icon": null,
+     "w": 486,
+     "h": 96,
+     "minBoundary": 1.15,
+     "fillRatio": 1.47,
+     "borderRatio": 2.75,
+     "border": "1.5px #606FFE",
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#F2F2F7",
+     "n": 4,
+     "jobs": [
+      "themes/prayer/ask-answer-typical-ipad-portrait-light-frost",
+      "themes/prayer/ask-tell-typical-ipad-portrait-light-frost",
+      "themes/prayer/ask-update-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "field",
+     "sel": "select#askIn",
+     "hasText": true,
+     "icon": null,
+     "w": 486,
+     "h": 55.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.15,
+     "borderRatio": 1.13,
+     "border": "1.5px #2A3833",
+     "fill": "#182522",
+     "inside": "#182522",
+     "outside": "#213029",
+     "n": 1,
+     "jobs": [
+      "themes/prayer/ask-recat-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "select#askIn",
+     "hasText": true,
+     "icon": null,
+     "w": 486,
+     "h": 55.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.12,
+     "borderRatio": 1.15,
+     "border": "1.5px #E3E3E8",
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#F2F2F7",
+     "n": 1,
+     "jobs": [
+      "themes/prayer/ask-recat-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "field",
+     "sel": "input#askIn",
+     "hasText": false,
+     "icon": null,
+     "w": 486,
+     "h": 55.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.15,
+     "borderRatio": 1.13,
+     "border": "1.5px #2A3833",
+     "fill": "#182522",
+     "inside": "#182522",
+     "outside": "#213029",
+     "n": 1,
+     "jobs": [
+      "themes/prayer/ask-share-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "input#askIn",
+     "hasText": false,
+     "icon": null,
+     "w": 486,
+     "h": 55.5,
+     "minBoundary": 1.15,
+     "fillRatio": 1.12,
+     "borderRatio": 1.15,
+     "border": "1.5px #E3E3E8",
+     "fill": "#FFFFFF",
+     "inside": "#FFFFFF",
+     "outside": "#F2F2F7",
+     "n": 1,
+     "jobs": [
+      "themes/prayer/ask-share-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "field",
+     "sel": "textarea#askIn",
+     "hasText": true,
+     "icon": null,
+     "w": 486,
+     "h": 96,
+     "minBoundary": 1.15,
+     "fillRatio": 1.15,
+     "borderRatio": 1.13,
+     "border": "1.5px #2A3833",
+     "fill": "#182522",
+     "inside": "#182522",
+     "outside": "#213029",
+     "n": 1,
+     "jobs": [
+      "themes/prayer/ask-tell-typical-ipad-portrait-light-forest"
+     ]
+    }
+   ],
+   "graphics": [
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#fday.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 59.2,
+     "h": 44,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 12,
+     "jobs": [
+      "devices/prayer/add-filled-typical-desktop-light-system",
+      "devices/prayer/add-filled-typical-ipad-landscape-light-system"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#p-day.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 59.2,
+     "h": 44,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 16,
+     "jobs": [
+      "devices/prayer/settings-byday-typical-desktop-light-system",
+      "devices/prayer/settings-byday-typical-ipad-landscape-light-system"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#p-rot.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 42.2,
+     "h": 44,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 125,
+     "jobs": [
+      "devices/prayer/settings-categories-typical-desktop-light-system",
+      "devices/prayer/settings-categories-typical-ipad-landscape-light-system"
+     ],
+     "text": "2",
+     "ia": true
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#fday.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 63.3,
+     "h": 45,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 3,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-dark-hearth"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#fday.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 63.3,
+     "h": 45,
+     "paint": "#F2F2F7",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F2F2F7 1, right #F2F2F7 1, bottom #F2F2F7 1, left #F2F2F7 1",
+     "n": 3,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-light-frost"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#p-day.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 63.3,
+     "h": 45,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 4,
+     "jobs": [
+      "themes/prayer/settings-byday-typical-ipad-portrait-dark-hearth"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#p-day.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 63.3,
+     "h": 45,
+     "paint": "#F2F2F7",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F2F2F7 1, right #F2F2F7 1, bottom #F2F2F7 1, left #F2F2F7 1",
+     "n": 4,
+     "jobs": [
+      "themes/prayer/settings-byday-typical-ipad-portrait-light-frost"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div#p-rot.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 44.2,
+     "h": 45,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F4F1EC 1, right #F4F1EC 1, bottom #F4F1EC 1, left #F4F1EC 1",
+     "n": 25,
+     "jobs": [
+      "themes/prayer/settings-categories-typical-ipad-portrait-dark-hearth",
+      "themes/prayer/settings-delcat-typical-ipad-portrait-dark-hearth"
+     ],
+     "text": "2",
+     "ia": true
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div#p-rot.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 44.2,
+     "h": 45,
+     "paint": "#F2F2F7",
+     "alpha": 1,
+     "minRatio": 1,
+     "maxRatio": 1,
+     "adjacentAtMin": "top #F2F2F7 1, right #F2F2F7 1, bottom #F2F2F7 1, left #F2F2F7 1",
+     "n": 25,
+     "jobs": [
+      "themes/prayer/settings-categories-typical-ipad-portrait-light-frost",
+      "themes/prayer/settings-delcat-typical-ipad-portrait-light-frost"
+     ],
+     "text": "2",
+     "ia": true
+    },
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "div#fday.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 63.3,
+     "h": 45,
+     "paint": "#F1E9D8",
+     "alpha": 1,
+     "minRatio": 1.06,
+     "maxRatio": 1.06,
+     "adjacentAtMin": "top #ECE2CD 1.06, right #ECE2CD 1.06, bottom #ECE2CD 1.06, left #ECE2CD 1.06",
+     "n": 3,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-light-parchment"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "div#p-day.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 63.3,
+     "h": 45,
+     "paint": "#F1E9D8",
+     "alpha": 1,
+     "minRatio": 1.06,
+     "maxRatio": 1.06,
+     "adjacentAtMin": "top #ECE2CD 1.06, right #ECE2CD 1.06, bottom #ECE2CD 1.06, left #ECE2CD 1.06",
+     "n": 4,
+     "jobs": [
+      "themes/prayer/settings-byday-typical-ipad-portrait-light-parchment"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "div#p-rot.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 44.2,
+     "h": 45,
+     "paint": "#F1E9D8",
+     "alpha": 1,
+     "minRatio": 1.06,
+     "maxRatio": 1.06,
+     "adjacentAtMin": "top #ECE2CD 1.06, right #ECE2CD 1.06, bottom #ECE2CD 1.06, left #ECE2CD 1.06",
+     "n": 25,
+     "jobs": [
+      "themes/prayer/settings-categories-typical-ipad-portrait-light-parchment",
+      "themes/prayer/settings-delcat-typical-ipad-portrait-light-parchment"
+     ],
+     "text": "2",
+     "ia": true
+    },
+    {
+     "theme": "system-light",
+     "kind": "ring",
+     "sel": "div.title > span.who > span.avatar",
+     "doc": "frame:prayer",
+     "w": 32,
+     "h": 32,
+     "paint": "#FFFFFF",
+     "alpha": 1,
+     "minRatio": 1.21,
+     "maxRatio": 2.44,
+     "adjacentAtMin": "top #F4F1EC 1.13, right #F4F1EC 1.13, bottom #F4F1EC 1.13, left #E9E8F5 1.21",
+     "n": 40,
+     "jobs": [
+      "states/prayer/today-family-faces-overflow-ipad-portrait-light-system",
+      "states/prayer/today-family-overflow-ipad-portrait-light-system"
+     ],
+     "ratioInside": 1.54,
+     "spread": 2
+    },
+    {
+     "theme": "system-light",
+     "kind": "ring",
+     "sel": "div.kwho > span.who > span.avatar",
+     "doc": "frame:prayer",
+     "w": 36,
+     "h": 36,
+     "paint": "#FFFFFF",
+     "alpha": 1,
+     "minRatio": 1.24,
+     "maxRatio": 2.97,
+     "adjacentAtMin": "top #FFFFFF 1, right #F4F1EC 1.13, bottom #FFFFFF 1, left #E9E5F3 1.24",
+     "n": 28,
+     "jobs": [
+      "states/prayer/kid-faces-overflow-ipad-portrait-light-system",
+      "states/prayer/kid-overflow-ipad-portrait-light-system"
+     ],
+     "ratioInside": 1.53,
+     "spread": 2
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div.title > span.who > span.avatar",
+     "doc": "frame:prayer",
+     "w": 28,
+     "h": 28,
+     "paint": "gradient #755456..#FFFFFF",
+     "alpha": 1,
+     "minRatio": 1.29,
+     "maxRatio": 2.18,
+     "adjacentAtMin": "top #F4F1EC 1.29, right #EDE9E0 1.21, bottom #F4F1EC 1.29, left #FCAECF 1.21",
+     "n": 42,
+     "jobs": [
+      "states/prayer/today-family-faces-overflow-ipad-portrait-light-system",
+      "states/prayer/today-family-overflow-ipad-portrait-light-system"
+     ],
+     "ratioBest": 3.96,
+     "text": "🌷",
+     "ia": true,
+     "shadow": "rgb(255, 255, 255) 0px 0px 0px 2px"
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "div#fday.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 63.3,
+     "h": 45,
+     "paint": "#213029",
+     "alpha": 1,
+     "minRatio": 1.4,
+     "maxRatio": 1.4,
+     "adjacentAtMin": "top #070F0D 1.4, right #070F0D 1.4, bottom #070F0D 1.4, left #070F0D 1.4",
+     "n": 3,
+     "jobs": [
+      "themes/prayer/add-filled-typical-ipad-portrait-light-forest"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "div#p-day.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 63.3,
+     "h": 45,
+     "paint": "#213029",
+     "alpha": 1,
+     "minRatio": 1.4,
+     "maxRatio": 1.4,
+     "adjacentAtMin": "top #070F0D 1.4, right #070F0D 1.4, bottom #070F0D 1.4, left #070F0D 1.4",
+     "n": 4,
+     "jobs": [
+      "themes/prayer/settings-byday-typical-ipad-portrait-light-forest"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "div#p-rot.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 44.2,
+     "h": 45,
+     "paint": "#213029",
+     "alpha": 1,
+     "minRatio": 1.4,
+     "maxRatio": 1.4,
+     "adjacentAtMin": "top #070F0D 1.4, right #070F0D 1.4, bottom #070F0D 1.4, left #070F0D 1.4",
+     "n": 25,
+     "jobs": [
+      "themes/prayer/settings-categories-typical-ipad-portrait-light-forest",
+      "themes/prayer/settings-delcat-typical-ipad-portrait-light-forest"
+     ],
+     "text": "2",
+     "ia": true
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#fday.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 59.2,
+     "h": 44,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.41,
+     "maxRatio": 1.41,
+     "adjacentAtMin": "top #0B0A09 1.41, right #0B0A09 1.41, bottom #0B0A09 1.41, left #0B0A09 1.41",
+     "n": 12,
+     "jobs": [
+      "devices/prayer/add-filled-typical-desktop-dark-system",
+      "devices/prayer/add-filled-typical-ipad-landscape-dark-system"
+     ],
+     "text": "Sun",
+     "ia": true
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#p-day.chips > button.p-chip",
+     "doc": "frame:prayer",
+     "w": 59.2,
+     "h": 44,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.41,
+     "maxRatio": 1.41,
+     "adjacentAtMin": "top #0B0A09 1.41, right #0B0A09 1.41, bottom #0B0A09 1.41, left #0B0A09 1.41",
+     "n": 16,
+     "jobs": [
+      "devices/prayer/settings-byday-typical-desktop-dark-system",
+      "devices/prayer/settings-byday-typical-ipad-landscape-dark-system"
+     ],
+     "text": "Sun",
+     "ia": true
+    }
+   ]
+  },
+  "shell": {
+   "counts": {
+    "icons": 15449,
+    "iconFail": 1299,
+    "controls": 19169,
+    "controlNeedsBoundary": 976,
+    "controlFail": 724,
+    "iconIdentified": 2562,
+    "graphics": 4414,
+    "graphicFail": 1415,
+    "graphicsByKind": {
+     "dot": 3550,
+     "stroke": 567,
+     "ring": 15,
+     "bar": 282
+    },
+    "graphicFailByKind": {
+     "stroke": 177,
+     "dot": 1238
+    }
+   },
+   "iconGroups": 62,
+   "controlGroups": 57,
+   "graphicGroups": 39,
+   "iconIdentifiedGroups": 92,
+   "svgIcons": [
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "div#pad.pin-pad.locked > button.btn.btn-ghost > svg.icon",
+     "inControl": true,
+     "label": "Back",
+     "w": 30.8,
+     "h": 30.8,
+     "minRatio": 1.54,
+     "n": 2,
+     "ink": "#D2D0CF",
+     "bg": "#FFFFFF",
+     "jobs": [
+      "states/shell/pin-locked-error-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "div#pad.pin-pad.locked > button.btn.btn-ghost > svg.icon",
+     "inControl": true,
+     "label": "Delete",
+     "w": 30.8,
+     "h": 30.8,
+     "minRatio": 1.86,
+     "n": 1,
+     "ink": "#4C4A47",
+     "bg": "#211F1D",
+     "jobs": [
+      "states/shell/pin-locked-error-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "div.tm-recents > button.btn.btn-soft.tm-go > svg.sym",
+     "inControl": true,
+     "label": "Start 3 minutes",
+     "w": 20,
+     "h": 20,
+     "minRatio": 1.99,
+     "n": 6,
+     "ink": "#D59AA5",
+     "bg": "#FFE7E9",
+     "jobs": [
+      "states/shell/home-loading-ipad-portrait-light-system",
+      "states/shell/home-lower-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#chat-send.btn.btn-primary.btn-round > svg.icon",
+     "inControl": true,
+     "label": "Send",
+     "w": 23.8,
+     "h": 23.8,
+     "minRatio": 2.04,
+     "n": 2,
+     "ink": "#FEFEFD",
+     "bg": "#AEB0EC",
+     "jobs": [
+      "states/shell/chat-overflow-ipad-portrait-light-system",
+      "states/shell/chat-top-overflow-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "div.star-row > span > svg.icon",
+     "inControl": false,
+     "label": null,
+     "w": 40,
+     "h": 40,
+     "minRatio": 2.31,
+     "n": 27,
+     "ink": "#7D766F",
+     "bg": "#4D3F02",
+     "jobs": [
+      "devices/shell/home-kid-lower-typical-ipad-landscape-dark-system",
+      "devices/shell/home-kid-lower-typical-iphone-pwa-dark-system",
+      "devices/shell/home-kid-park-typical-ipad-landscape-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "div.tm-recents > button.btn.btn-soft.tm-go > svg.sym",
+     "inControl": true,
+     "label": "Start 3 minutes",
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.76,
+     "n": 6,
+     "ink": "#85696A",
+     "bg": "#3F2729",
+     "jobs": [
+      "states/shell/home-loading-ipad-portrait-dark-system",
+      "states/shell/home-lower-loading-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "svg",
+     "sel": "div.star-row > span > svg.icon",
+     "inControl": false,
+     "label": null,
+     "w": 40,
+     "h": 40,
+     "minRatio": 2.77,
+     "n": 6,
+     "ink": "#7D766F",
+     "bg": "#3E340B",
+     "jobs": [
+      "themes/shell/home-kid-lower-typical-ipad-portrait-light-midnight",
+      "themes/shell/home-kid-park-typical-ipad-portrait-light-midnight",
+      "themes/shell/home-kid-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "button#chat-send.btn.btn-primary.btn-round > svg.icon",
+     "inControl": true,
+     "label": "Send",
+     "w": 23.8,
+     "h": 23.8,
+     "minRatio": 2.88,
+     "n": 2,
+     "ink": "#1B1C28",
+     "bg": "#5E6382",
+     "jobs": [
+      "states/shell/chat-overflow-ipad-portrait-dark-system",
+      "states/shell/chat-top-overflow-ipad-portrait-dark-system"
+     ]
+    }
+   ],
+   "controls": [
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 1034,
+     "h": 48.6,
+     "minBoundary": 1,
+     "fillRatio": 1.02,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#1F1D1B",
+     "outside": "#1F1D1B",
+     "n": 28,
+     "jobs": [
+      "devices/shell/chat-guest-typical-desktop-dark-system",
+      "devices/shell/chat-guest-typical-ipad-landscape-dark-system",
+      "devices/shell/chat-guest-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 1034,
+     "h": 48.6,
+     "minBoundary": 1,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FAFBFB",
+     "outside": "#F8FBFE",
+     "n": 28,
+     "jobs": [
+      "devices/shell/chat-guest-typical-desktop-light-system",
+      "devices/shell/chat-guest-typical-ipad-landscape-light-system",
+      "devices/shell/chat-guest-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "div#gemoji.emoji-grid > button",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 2.58
+     },
+     "w": 79.7,
+     "h": 48,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "2px #000000/0.00",
+     "fill": "#F4F1EC",
+     "inside": "#FEFEFE",
+     "outside": "#FEFEFE",
+     "n": 25,
+     "jobs": [
+      "devices/shell/guest-add-typical-desktop-light-system",
+      "devices/shell/guest-add-typical-ipad-landscape-light-system",
+      "devices/shell/guest-add-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "button#photo-btn.photo-btn",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 1.62
+     },
+     "w": 84,
+     "h": 84,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#DCF9FA",
+     "outside": "#DCF9FA",
+     "n": 5,
+     "jobs": [
+      "devices/shell/me-kid-typical-desktop-light-system",
+      "devices/shell/me-kid-typical-ipad-landscape-light-system",
+      "devices/shell/me-kid-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "div#pad.pin-pad.locked > button.btn.btn-ghost",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 1.86
+     },
+     "w": 107.3,
+     "h": 64,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#211F1D",
+     "outside": "#211F1D",
+     "n": 1,
+     "jobs": [
+      "states/shell/pin-locked-error-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "div#pad.pin-pad.locked > button.btn.btn-ghost",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 2.88
+     },
+     "w": 107.3,
+     "h": 64,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#FFFFFF",
+     "outside": "#FFFFFF",
+     "n": 2,
+     "jobs": [
+      "states/shell/pin-locked-error-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FAFBFB",
+     "outside": "#F8FBFE",
+     "n": 5,
+     "jobs": [
+      "themes/shell/chat-guest-typical-ipad-portrait-dark-hearth",
+      "themes/shell/chat-kid-listening-typical-ipad-portrait-dark-hearth",
+      "themes/shell/chat-kid-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#182421",
+     "outside": "#182421",
+     "n": 5,
+     "jobs": [
+      "themes/shell/chat-guest-typical-ipad-portrait-light-forest",
+      "themes/shell/chat-kid-listening-typical-ipad-portrait-light-forest",
+      "themes/shell/chat-kid-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FAFCFF",
+     "outside": "#FAFCFF",
+     "n": 5,
+     "jobs": [
+      "themes/shell/chat-guest-typical-ipad-portrait-light-frost",
+      "themes/shell/chat-kid-listening-typical-ipad-portrait-light-frost",
+      "themes/shell/chat-kid-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1,
+     "fillRatio": 1.02,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#1F1D1B",
+     "outside": "#1F1D1B",
+     "n": 5,
+     "jobs": [
+      "themes/shell/chat-guest-typical-ipad-portrait-light-midnight",
+      "themes/shell/chat-kid-listening-typical-ipad-portrait-light-midnight",
+      "themes/shell/chat-kid-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "parchment",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#F8F4EA",
+     "outside": "#F7F4EF",
+     "n": 5,
+     "jobs": [
+      "themes/shell/chat-guest-typical-ipad-portrait-light-parchment",
+      "themes/shell/chat-kid-listening-typical-ipad-portrait-light-parchment",
+      "themes/shell/chat-kid-typical-ipad-portrait-light-parchment"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "div#gemoji.emoji-grid > button",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 2.55
+     },
+     "w": 79.7,
+     "h": 48,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "2px #000000/0.00",
+     "fill": "#F4F1EC",
+     "inside": "#FEFEFE",
+     "outside": "#FEFEFE",
+     "n": 5,
+     "jobs": [
+      "themes/shell/guest-add-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "button",
+     "sel": "div#gemoji.emoji-grid > button",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 2.55
+     },
+     "w": 79.7,
+     "h": 48,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "2px #000000/0.00",
+     "fill": "#F2F2F7",
+     "inside": "#FEFEFE",
+     "outside": "#FEFEFE",
+     "n": 5,
+     "jobs": [
+      "themes/shell/guest-add-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "parchment",
+     "kind": "button",
+     "sel": "div#gemoji.emoji-grid > button",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 1.5
+     },
+     "w": 79.7,
+     "h": 48,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "2px #000000/0.00",
+     "fill": "#F1E9D8",
+     "inside": "#FCF9F2",
+     "outside": "#FDF8F2",
+     "n": 20,
+     "jobs": [
+      "themes/shell/guest-add-typical-ipad-portrait-light-parchment"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "div.tm-row.bare > span.tm-acts > button.btn.btn-soft.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#FFCBD0",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 1,
+     "jobs": [
+      "themes/shell/home-timer-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 1,
+     "jobs": [
+      "themes/shell/home-timer-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "div.tm-row.bare > span.tm-acts > button.btn.btn-soft.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#653138",
+     "inside": "#0B0A09",
+     "outside": "#0B0A09",
+     "n": 1,
+     "jobs": [
+      "themes/shell/home-timer-typical-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#0B0A09",
+     "outside": "#0B0A09",
+     "n": 1,
+     "jobs": [
+      "themes/shell/home-timer-typical-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#151A13",
+     "outside": "#151A13",
+     "n": 1,
+     "jobs": [
+      "themes/shell/home-timer-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "button",
+     "sel": "div.tm-row.bare > span.tm-acts > button.btn.btn-soft.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#FFCBD0",
+     "inside": "#F2F2F7",
+     "outside": "#F2F2F7",
+     "n": 1,
+     "jobs": [
+      "themes/shell/home-timer-typical-ipad-portrait-light-frost"
+     ]
+    }
+   ],
+   "graphics": [
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#gemoji.emoji-grid > button",
+     "doc": "page",
+     "w": 58,
+     "h": 48,
+     "paint": "#2E2B28",
+     "alpha": 1,
+     "minRatio": 1.03,
+     "maxRatio": 1.05,
+     "adjacentAtMin": "top #2F2C2D 1.02, right #2E2B2C 1, bottom #2C2928 1.03, left #2D2A29 1.01",
+     "n": 23,
+     "jobs": [
+      "devices/shell/guest-add-typical-iphone-pwa-dark-system"
+     ],
+     "text": "😀",
+     "ia": true
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#gemoji.emoji-grid > button",
+     "doc": "page",
+     "w": 58,
+     "h": 48,
+     "paint": "#F4F1EC",
+     "alpha": 1,
+     "minRatio": 1.11,
+     "maxRatio": 1.12,
+     "adjacentAtMin": "top #FBFCFE 1.1, right #FCFDFE 1.11, bottom #FCFDFE 1.11, left #FDFDFE 1.11",
+     "n": 23,
+     "jobs": [
+      "devices/shell/guest-add-typical-iphone-pwa-light-system"
+     ],
+     "text": "😀",
+     "ia": true
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "button.theme-card > span.theme-swatch > i.tp-card",
+     "doc": "page",
+     "w": 56,
+     "h": 30,
+     "paint": "#FFFFFF",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.23,
+     "adjacentAtMin": "top #F2F2F7 1.12, right #F2F2F7 1.12, bottom #F1F1F6 1.13, left #F2F2F7 1.12",
+     "n": 264,
+     "jobs": [
+      "devices/shell/me-admin-typical-desktop-dark-system",
+      "devices/shell/me-admin-typical-ipad-landscape-dark-system"
+     ],
+     "ia": true,
+     "shadow": "rgba(58, 46, 36, 0.06) 0px 1px 2px 0px, rgba(58, 46, 36, 0.04) 0px 0px 0px 0.5px"
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "button.theme-card.on > span.theme-swatch > i.tp-card",
+     "doc": "page",
+     "w": 56,
+     "h": 30,
+     "paint": "#FFFFFF",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.23,
+     "adjacentAtMin": "top #F2F2F7 1.12, right #F2F2F7 1.12, bottom #F1F1F6 1.13, left #F2F2F7 1.12",
+     "n": 33,
+     "jobs": [
+      "devices/shell/me-admin-typical-desktop-light-system",
+      "devices/shell/me-admin-typical-ipad-landscape-light-system"
+     ],
+     "ia": true,
+     "shadow": "rgba(58, 46, 36, 0.06) 0px 1px 2px 0px, rgba(58, 46, 36, 0.04) 0px 0px 0px 0.5px"
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "button.theme-card > span.theme-swatch > i.tp-card",
+     "doc": "page",
+     "w": 56,
+     "h": 30,
+     "paint": "#FFFFFF",
+     "alpha": 1,
+     "minRatio": 1.13,
+     "maxRatio": 1.23,
+     "adjacentAtMin": "top #F2F2F7 1.12, right #F2F2F7 1.12, bottom #F1F1F6 1.13, left #F2F2F7 1.12",
+     "n": 330,
+     "jobs": [
+      "devices/shell/me-admin-typical-desktop-light-system",
+      "devices/shell/me-admin-typical-ipad-landscape-light-system"
+     ],
+     "ia": true,
+     "shadow": "rgba(58, 46, 36, 0.06) 0px 1px 2px 0px, rgba(58, 46, 36, 0.04) 0px 0px 0px 0.5px"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "button.theme-card.on > span.theme-swatch > i.tp-card",
+     "doc": "page",
+     "w": 56,
+     "h": 30,
+     "paint": "#FFFFFF",
+     "alpha": 1,
+     "minRatio": 1.14,
+     "maxRatio": 1.15,
+     "adjacentAtMin": "top #F4F1EC 1.13, right #F4F1EC 1.13, bottom #F3F0EB 1.14, left #F4F1EC 1.13",
+     "n": 21,
+     "jobs": [
+      "devices/shell/me-admin-typical-desktop-dark-system",
+      "devices/shell/me-admin-typical-ipad-landscape-dark-system"
+     ],
+     "ia": true,
+     "shadow": "rgba(58, 46, 36, 0.06) 0px 1px 2px 0px, rgba(58, 46, 36, 0.04) 0px 0px 0px 0.5px"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div#gemoji.emoji-grid > button.on",
+     "doc": "page",
+     "w": 61.5,
+     "h": 50.9,
+     "paint": "#373D69",
+     "alpha": 1,
+     "minRatio": 1.4,
+     "maxRatio": 1.4,
+     "adjacentAtMin": "top #2E2B29 1.36, right #2D2A28 1.38, bottom #2C2927 1.4, left #2D2A28 1.38",
+     "n": 1,
+     "jobs": [
+      "devices/shell/guest-add-typical-iphone-pwa-dark-system"
+     ],
+     "text": "🙂",
+     "ia": true
+    },
+    {
+     "theme": "system-light",
+     "kind": "stroke",
+     "sel": "span.ringwrap > svg.ring > circle.bg",
+     "doc": "page",
+     "w": 47.4,
+     "h": 47.4,
+     "paint": "#D1D7E6",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 12,
+     "jobs": [
+      "devices/shell/apps-guest-typical-desktop-light-system",
+      "devices/shell/apps-guest-typical-ipad-landscape-light-system"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap > svg.ring"
+    },
+    {
+     "theme": "system-light",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#D1D7E6",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 38,
+     "jobs": [
+      "devices/shell/first-visit-typical-iphone-pwa-light-system",
+      "devices/shell/home-bottom-typical-desktop-light-system"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "stroke",
+     "sel": "span.ringwrap > svg.ring > circle.bg",
+     "doc": "page",
+     "w": 47.4,
+     "h": 47.4,
+     "paint": "#D1D7E6",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 2,
+     "jobs": [
+      "themes/shell/apps-guest-typical-ipad-portrait-dark-hearth",
+      "themes/shell/apps-typical-ipad-portrait-dark-hearth"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap > svg.ring"
+    },
+    {
+     "theme": "frost",
+     "kind": "stroke",
+     "sel": "span.ringwrap > svg.ring > circle.bg",
+     "doc": "page",
+     "w": 47.4,
+     "h": 47.4,
+     "paint": "#CFD7EF",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 2,
+     "jobs": [
+      "themes/shell/apps-guest-typical-ipad-portrait-light-frost",
+      "themes/shell/apps-typical-ipad-portrait-light-frost"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap > svg.ring"
+    },
+    {
+     "theme": "parchment",
+     "kind": "stroke",
+     "sel": "span.ringwrap > svg.ring > circle.bg",
+     "doc": "page",
+     "w": 47.4,
+     "h": 47.4,
+     "paint": "#CED0D5",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "outer #FBF7EE 1.44, inner #FBF7EE 1.44",
+     "n": 2,
+     "jobs": [
+      "themes/shell/apps-guest-typical-ipad-portrait-light-parchment",
+      "themes/shell/apps-typical-ipad-portrait-light-parchment"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap > svg.ring"
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#D1D7E6",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 8,
+     "jobs": [
+      "themes/shell/first-visit-typical-ipad-portrait-dark-hearth",
+      "themes/shell/home-bottom-typical-ipad-portrait-dark-hearth"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "frost",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#CFD7EF",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 8,
+     "jobs": [
+      "themes/shell/first-visit-typical-ipad-portrait-light-frost",
+      "themes/shell/home-bottom-typical-ipad-portrait-light-frost"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "parchment",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#CED0D5",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.44,
+     "adjacentAtMin": "outer #FBF7EE 1.44, inner #FBF7EE 1.44",
+     "n": 8,
+     "jobs": [
+      "themes/shell/first-visit-typical-ipad-portrait-light-parchment",
+      "themes/shell/home-bottom-typical-ipad-portrait-light-parchment"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div#gemoji.emoji-grid > button.on",
+     "doc": "page",
+     "w": 61.5,
+     "h": 50.9,
+     "paint": "#CCD3FF",
+     "alpha": 1,
+     "minRatio": 1.45,
+     "maxRatio": 1.45,
+     "adjacentAtMin": "top #FEFEFE 1.45, right #FEFEFE 1.45, bottom #FEFEFE 1.45, left #FEFEFE 1.45",
+     "n": 1,
+     "jobs": [
+      "devices/shell/guest-add-typical-iphone-pwa-light-system"
+     ],
+     "text": "🙂",
+     "ia": true
+    },
+    {
+     "theme": "forest",
+     "kind": "stroke",
+     "sel": "span.ringwrap > svg.ring > circle.bg",
+     "doc": "page",
+     "w": 47.4,
+     "h": 47.4,
+     "paint": "#374A50",
+     "alpha": 1,
+     "minRatio": 1.7,
+     "maxRatio": 1.7,
+     "adjacentAtMin": "outer #182522 1.7, inner #182522 1.7",
+     "n": 2,
+     "jobs": [
+      "themes/shell/apps-guest-typical-ipad-portrait-light-forest",
+      "themes/shell/apps-typical-ipad-portrait-light-forest"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap > svg.ring"
+    },
+    {
+     "theme": "forest",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#374A50",
+     "alpha": 1,
+     "minRatio": 1.7,
+     "maxRatio": 1.7,
+     "adjacentAtMin": "outer #182522 1.7, inner #182522 1.7",
+     "n": 8,
+     "jobs": [
+      "themes/shell/first-visit-typical-ipad-portrait-light-forest",
+      "themes/shell/home-bottom-typical-ipad-portrait-light-forest"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "stroke",
+     "sel": "span.ringwrap > svg.ring > circle.bg",
+     "doc": "page",
+     "w": 47.4,
+     "h": 47.4,
+     "paint": "#42464F",
+     "alpha": 1,
+     "minRatio": 1.74,
+     "maxRatio": 1.74,
+     "adjacentAtMin": "outer #211F1D 1.74, inner #211F1D 1.74",
+     "n": 12,
+     "jobs": [
+      "devices/shell/apps-guest-typical-desktop-dark-system",
+      "devices/shell/apps-guest-typical-ipad-landscape-dark-system"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap > svg.ring"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#42464F",
+     "alpha": 1,
+     "minRatio": 1.74,
+     "maxRatio": 1.74,
+     "adjacentAtMin": "outer #211F1D 1.74, inner #211F1D 1.74",
+     "n": 38,
+     "jobs": [
+      "devices/shell/first-visit-typical-iphone-pwa-dark-system",
+      "devices/shell/home-bottom-typical-desktop-dark-system"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    }
+   ]
+  },
+  "tally": {
+   "counts": {
+    "icons": 180,
+    "iconFail": 4,
+    "controls": 216,
+    "controlNeedsBoundary": 4,
+    "controlFail": 4,
+    "iconIdentified": 104,
+    "graphics": 0,
+    "graphicFail": 0,
+    "graphicsByKind": {},
+    "graphicFailByKind": {}
+   },
+   "iconGroups": 4,
+   "controlGroups": 4,
+   "graphicGroups": 0,
+   "iconIdentifiedGroups": 21,
+   "svgIcons": [
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#minus.tbtn.pressable > svg.icon",
+     "inControl": true,
+     "label": "Subtract one",
+     "w": 37.6,
+     "h": 37.6,
+     "minRatio": 1.92,
+     "n": 1,
+     "ink": "#EEF1FF",
+     "bg": "#A8ABEF",
+     "jobs": [
+      "states/tally/main-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#plus.tbtn.big.pressable > svg.icon",
+     "inControl": true,
+     "label": "Add one",
+     "w": 55.2,
+     "h": 55.2,
+     "minRatio": 1.92,
+     "n": 1,
+     "ink": "#EEF1FF",
+     "bg": "#A7ABEF",
+     "jobs": [
+      "states/tally/main-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "button#minus.tbtn.pressable > svg.icon",
+     "inControl": true,
+     "label": "Subtract one",
+     "w": 37.6,
+     "h": 37.6,
+     "minRatio": 2.64,
+     "n": 1,
+     "ink": "#222746",
+     "bg": "#5E6697",
+     "jobs": [
+      "states/tally/main-loading-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "button#plus.tbtn.big.pressable > svg.icon",
+     "inControl": true,
+     "label": "Add one",
+     "w": 55.2,
+     "h": 55.2,
+     "minRatio": 2.64,
+     "n": 1,
+     "ink": "#222847",
+     "bg": "#5E6798",
+     "jobs": [
+      "states/tally/main-loading-ipad-portrait-dark-system"
+     ]
+    }
+   ],
+   "controls": [
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "button#plus.tbtn.big.pressable",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 1.92
+     },
+     "w": 140,
+     "h": 140,
+     "minBoundary": 1.07,
+     "fillRatio": 1.05,
+     "borderRatio": 1.07,
+     "border": "1px #3A2E24/0.10",
+     "fill": "#4F52D8",
+     "inside": "#D8DCF8",
+     "outside": "#DEE1F9",
+     "n": 1,
+     "jobs": [
+      "states/tally/main-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "button#minus.tbtn.pressable",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 1.92
+     },
+     "w": 96,
+     "h": 96,
+     "minBoundary": 1.12,
+     "fillRatio": 1.12,
+     "borderRatio": 1.07,
+     "border": "1px #3A2E24/0.10",
+     "fill": "#4F52D8",
+     "inside": "#D4D8F8",
+     "outside": "#E1E4FE",
+     "n": 1,
+     "jobs": [
+      "states/tally/main-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "button#plus.tbtn.big.pressable",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 2.64
+     },
+     "w": 140,
+     "h": 140,
+     "minBoundary": 1.14,
+     "fillRatio": 1.03,
+     "borderRatio": 1.14,
+     "border": "1px #000000/0.45",
+     "fill": "#ACB8FF",
+     "inside": "#2E3355",
+     "outside": "#2D3153",
+     "n": 1,
+     "jobs": [
+      "states/tally/main-loading-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "button#minus.tbtn.pressable",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 2.64
+     },
+     "w": 96,
+     "h": 96,
+     "minBoundary": 1.15,
+     "fillRatio": 1.13,
+     "borderRatio": 1.15,
+     "border": "1px #000000/0.45",
+     "fill": "#ACB8FF",
+     "inside": "#353B5F",
+     "outside": "#2E3356",
+     "n": 1,
+     "jobs": [
+      "states/tally/main-loading-ipad-portrait-dark-system"
+     ]
+    }
+   ],
+   "graphics": []
+  },
+  "timer": {
+   "counts": {
+    "icons": 2300,
+    "iconFail": 82,
+    "controls": 2196,
+    "controlNeedsBoundary": 90,
+    "controlFail": 30,
+    "iconIdentified": 321,
+    "graphics": 348,
+    "graphicFail": 118,
+    "graphicsByKind": {
+     "stroke": 263,
+     "bar": 39,
+     "dot": 46
+    },
+    "graphicFailByKind": {
+     "stroke": 118
+    }
+   },
+   "iconGroups": 19,
+   "controlGroups": 16,
+   "graphicGroups": 14,
+   "iconIdentifiedGroups": 45,
+   "svgIcons": [
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#go.btn.btn-primary.btn-lg > svg.sym.ic-play",
+     "inControl": true,
+     "label": "Loading…",
+     "w": 25.8,
+     "h": 25.8,
+     "minRatio": 2.09,
+     "n": 2,
+     "ink": "#F8F7F4",
+     "bg": "#A9A8E2",
+     "jobs": [
+      "states/timer/idle-loading-ipad-portrait-light-system",
+      "states/timer/running-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "button#go.btn.btn-primary.btn-lg > svg.sym.ic-play",
+     "inControl": true,
+     "label": "Loading…",
+     "w": 25.8,
+     "h": 25.8,
+     "minRatio": 2.67,
+     "n": 2,
+     "ink": "#1C0D13",
+     "bg": "#794B5D",
+     "jobs": [
+      "states/timer/idle-loading-ipad-portrait-dark-system",
+      "states/timer/running-loading-ipad-portrait-dark-system"
+     ]
+    }
+   ],
+   "controls": [
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 1034,
+     "h": 48.6,
+     "minBoundary": 1,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FCFAFA",
+     "outside": "#FEF9FB",
+     "n": 5,
+     "jobs": [
+      "devices/timer/pill-chat-typical-desktop-light-system",
+      "devices/timer/pill-chat-typical-ipad-landscape-light-system",
+      "devices/timer/pill-chat-typical-iphone-pwa-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#0B0A09",
+     "outside": "#0B0A09",
+     "n": 3,
+     "jobs": [
+      "states/timer/pill-overflow-ipad-portrait-dark-system",
+      "themes/timer/done-toast-typical-ipad-portrait-dark-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#F3F0EB",
+     "outside": "#F3F0EB",
+     "n": 3,
+     "jobs": [
+      "states/timer/pill-overflow-ipad-portrait-light-system",
+      "themes/timer/done-toast-typical-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#F4F1EC",
+     "outside": "#F4F1EC",
+     "n": 1,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#151A13",
+     "outside": "#151A13",
+     "n": 1,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#F2F2F7",
+     "outside": "#F2F2F7",
+     "n": 1,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#0B0A09",
+     "outside": "#0B0A09",
+     "n": 1,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "parchment",
+     "kind": "button",
+     "sel": "ul#remlist.list > li.row.rem-row > button.btn.btn-ghost.btn-round",
+     "hasText": false,
+     "icon": {
+      "n": 1,
+      "bestRatio": 0
+     },
+     "w": 44,
+     "h": 44,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": "1px #000000/0.00",
+     "fill": "#000000/0.00",
+     "inside": "#ECE2CD",
+     "outside": "#ECE2CD",
+     "n": 1,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-light-parchment"
+     ]
+    },
+    {
+     "theme": "frost",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FEFBFD",
+     "outside": "#FFFAFC",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-light-frost"
+     ]
+    },
+    {
+     "theme": "parchment",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1,
+     "fillRatio": 1,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FBF2EB",
+     "outside": "#FCF2EB",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-light-parchment"
+     ]
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1.01,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#FEFAFB",
+     "outside": "#FEF9FC",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-dark-hearth"
+     ]
+    },
+    {
+     "theme": "forest",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1.01,
+     "fillRatio": 1.01,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#192522",
+     "outside": "#1C2523",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-light-forest"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 1034,
+     "h": 48.6,
+     "minBoundary": 1.02,
+     "fillRatio": 1.02,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#201E1C",
+     "outside": "#231F1E",
+     "n": 5,
+     "jobs": [
+      "devices/timer/pill-chat-typical-desktop-dark-system",
+      "devices/timer/pill-chat-typical-ipad-landscape-dark-system",
+      "devices/timer/pill-chat-typical-iphone-pwa-dark-system"
+     ]
+    },
+    {
+     "theme": "midnight",
+     "kind": "field",
+     "sel": "input#chat-in.input",
+     "hasText": false,
+     "icon": null,
+     "w": 666,
+     "h": 51.6,
+     "minBoundary": 1.02,
+     "fillRatio": 1.02,
+     "borderRatio": null,
+     "border": null,
+     "fill": "#000000/0.00",
+     "inside": "#201E1C",
+     "outside": "#231F1E",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-light-midnight"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "field",
+     "sel": "input#label",
+     "hasText": false,
+     "icon": null,
+     "w": 560,
+     "h": 44,
+     "minBoundary": 1.52,
+     "fillRatio": 1.03,
+     "borderRatio": 1.52,
+     "border": "1px #8C847B",
+     "fill": "#EFEBE5",
+     "inside": "#F1EEE9",
+     "outside": "#F4F1EC",
+     "n": 2,
+     "jobs": [
+      "states/timer/idle-loading-ipad-portrait-light-system",
+      "states/timer/running-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "field",
+     "sel": "input#label",
+     "hasText": false,
+     "icon": null,
+     "w": 560,
+     "h": 44,
+     "minBoundary": 1.63,
+     "fillRatio": 1.11,
+     "borderRatio": 1.63,
+     "border": "1px #7D766F",
+     "fill": "#2E2B28",
+     "inside": "#191715",
+     "outside": "#0B0A09",
+     "n": 2,
+     "jobs": [
+      "states/timer/idle-loading-ipad-portrait-dark-system",
+      "states/timer/running-loading-ipad-portrait-dark-system"
+     ]
+    }
+   ],
+   "graphics": [
+    {
+     "theme": "system-light",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#D1D7E6",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.78,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 30,
+     "jobs": [
+      "devices/timer/done-toast-typical-desktop-light-system",
+      "devices/timer/done-toast-typical-ipad-landscape-light-system"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#D1D7E6",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.76,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 9,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-dark-hearth",
+      "themes/timer/idle-typical-ipad-portrait-dark-hearth"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "frost",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#CFD7EF",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.76,
+     "adjacentAtMin": "outer #FFFFFF 1.44, inner #FFFFFF 1.44",
+     "n": 9,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-light-frost",
+      "themes/timer/idle-typical-ipad-portrait-light-frost"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "parchment",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#CED0D5",
+     "alpha": 1,
+     "minRatio": 1.44,
+     "maxRatio": 1.65,
+     "adjacentAtMin": "outer #FBF7EE 1.44, inner #FBF7EE 1.44",
+     "n": 9,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-light-parchment",
+      "themes/timer/idle-typical-ipad-portrait-light-parchment"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "forest",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#7F3858",
+     "alpha": 1,
+     "minRatio": 1.59,
+     "maxRatio": 1.71,
+     "adjacentAtMin": "outer #323234 1.59, inner #323335 1.57",
+     "n": 9,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-light-forest",
+      "themes/timer/idle-typical-ipad-portrait-light-forest"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#7F3858",
+     "alpha": 1,
+     "minRatio": 1.64,
+     "maxRatio": 1.86,
+     "adjacentAtMin": "outer #392D2F 1.64, inner #3B2D31 1.62",
+     "n": 30,
+     "jobs": [
+      "devices/timer/done-toast-typical-desktop-dark-system",
+      "devices/timer/done-toast-typical-ipad-landscape-dark-system"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "midnight",
+     "kind": "stroke",
+     "sel": "span.ringwrap.lg > svg.ring.ring-lg > circle.bg",
+     "doc": "page",
+     "w": 81.2,
+     "h": 81.2,
+     "paint": "#7F3858",
+     "alpha": 1,
+     "minRatio": 1.65,
+     "maxRatio": 1.82,
+     "adjacentAtMin": "outer #3A2C30 1.65, inner #3A2D31 1.63",
+     "n": 9,
+     "jobs": [
+      "themes/timer/done-toast-typical-ipad-portrait-light-midnight",
+      "themes/timer/idle-typical-ipad-portrait-light-midnight"
+     ],
+     "drawn": 1,
+     "svgSel": "span.ringwrap.lg > svg.ring.ring-lg"
+    },
+    {
+     "theme": "parchment",
+     "kind": "stroke",
+     "sel": "svg#timer-pill-ring.ring > circle.bg",
+     "doc": "page",
+     "w": 27.1,
+     "h": 27.1,
+     "paint": "#FF97BF",
+     "alpha": 1,
+     "minRatio": 1.82,
+     "maxRatio": 1.82,
+     "adjacentAtMin": "outer #F8F3E7 1.82, inner #F8F3E7 1.82",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-light-parchment"
+     ],
+     "drawn": 1,
+     "svgSel": "svg#timer-pill-ring.ring"
+    },
+    {
+     "theme": "system-light",
+     "kind": "stroke",
+     "sel": "svg#timer-pill-ring.ring > circle.bg",
+     "doc": "page",
+     "w": 20.3,
+     "h": 20.3,
+     "paint": "#FF97BF",
+     "alpha": 1,
+     "minRatio": 1.95,
+     "maxRatio": 1.96,
+     "adjacentAtMin": "outer #FCFBFA 1.95, inner #FCFBFA 1.95",
+     "n": 4,
+     "jobs": [
+      "devices/timer/pill-chat-typical-iphone-pwa-light-system",
+      "states/timer/pill-chat-overflow-ipad-portrait-light-system"
+     ],
+     "drawn": 1,
+     "svgSel": "svg#timer-pill-ring.ring"
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "stroke",
+     "sel": "svg#timer-pill-ring.ring > circle.bg",
+     "doc": "page",
+     "w": 27.1,
+     "h": 27.1,
+     "paint": "#FF97BF",
+     "alpha": 1,
+     "minRatio": 1.96,
+     "maxRatio": 1.96,
+     "adjacentAtMin": "outer #FDFCFB 1.96, inner #FDFCFB 1.96",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-dark-hearth"
+     ],
+     "drawn": 1,
+     "svgSel": "svg#timer-pill-ring.ring"
+    },
+    {
+     "theme": "frost",
+     "kind": "stroke",
+     "sel": "svg#timer-pill-ring.ring > circle.bg",
+     "doc": "page",
+     "w": 27.1,
+     "h": 27.1,
+     "paint": "#FF97BF",
+     "alpha": 1,
+     "minRatio": 1.96,
+     "maxRatio": 1.96,
+     "adjacentAtMin": "outer #FCFCFD 1.96, inner #FCFCFD 1.96",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-light-frost"
+     ],
+     "drawn": 1,
+     "svgSel": "svg#timer-pill-ring.ring"
+    },
+    {
+     "theme": "forest",
+     "kind": "stroke",
+     "sel": "svg#timer-pill-ring.ring > circle.bg",
+     "doc": "page",
+     "w": 27.1,
+     "h": 27.1,
+     "paint": "#7F3858",
+     "alpha": 1,
+     "minRatio": 2.06,
+     "maxRatio": 2.06,
+     "adjacentAtMin": "outer #15211E 2.06, inner #15211E 2.06",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-light-forest"
+     ],
+     "drawn": 1,
+     "svgSel": "svg#timer-pill-ring.ring"
+    },
+    {
+     "theme": "system-dark",
+     "kind": "stroke",
+     "sel": "svg#timer-pill-ring.ring > circle.bg",
+     "doc": "page",
+     "w": 20.3,
+     "h": 20.3,
+     "paint": "#7F3858",
+     "alpha": 1,
+     "minRatio": 2.14,
+     "maxRatio": 2.14,
+     "adjacentAtMin": "outer #1C1B19 2.14, inner #1C1B19 2.14",
+     "n": 4,
+     "jobs": [
+      "devices/timer/pill-chat-typical-iphone-pwa-dark-system",
+      "states/timer/pill-chat-overflow-ipad-portrait-dark-system"
+     ],
+     "drawn": 1,
+     "svgSel": "svg#timer-pill-ring.ring"
+    },
+    {
+     "theme": "midnight",
+     "kind": "stroke",
+     "sel": "svg#timer-pill-ring.ring > circle.bg",
+     "doc": "page",
+     "w": 27.1,
+     "h": 27.1,
+     "paint": "#7F3858",
+     "alpha": 1,
+     "minRatio": 2.14,
+     "maxRatio": 2.14,
+     "adjacentAtMin": "outer #1C1B19 2.14, inner #1C1B19 2.14",
+     "n": 1,
+     "jobs": [
+      "themes/timer/pill-chat-typical-ipad-portrait-light-midnight"
+     ],
+     "drawn": 1,
+     "svgSel": "svg#timer-pill-ring.ring"
+    }
+   ]
+  },
+  "tv": {
+   "counts": {
+    "icons": 853,
+    "iconFail": 260,
+    "controls": 123,
+    "controlNeedsBoundary": 0,
+    "controlFail": 0,
+    "iconIdentified": 0,
+    "graphics": 0,
+    "graphicFail": 0,
+    "graphicsByKind": {},
+    "graphicFailByKind": {}
+   },
+   "iconGroups": 23,
+   "controlGroups": 0,
+   "graphicGroups": 0,
+   "iconIdentifiedGroups": 0,
+   "svgIcons": [],
+   "controls": [],
+   "graphics": []
+  },
+  "verses": {
+   "counts": {
+    "icons": 3675,
+    "iconFail": 33,
+    "controls": 5356,
+    "controlNeedsBoundary": 0,
+    "controlFail": 0,
+    "iconIdentified": 178,
+    "graphics": 271,
+    "graphicFail": 159,
+    "graphicsByKind": {
+     "dot": 271
+    },
+    "graphicFailByKind": {
+     "dot": 159
+    }
+   },
+   "iconGroups": 8,
+   "controlGroups": 0,
+   "graphicGroups": 7,
+   "iconIdentifiedGroups": 7,
+   "svgIcons": [
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#show.btn.btn-primary > svg.sym.ico",
+     "inControl": true,
+     "label": "Show",
+     "w": 24,
+     "h": 24,
+     "minRatio": 2.05,
+     "n": 2,
+     "ink": "#FFFFFF",
+     "bg": "#AFB0ED",
+     "jobs": [
+      "states/verses/trainer-loading-ipad-portrait-light-system",
+      "states/verses/trainer-stalled-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#say.btn.say > svg.sym.ico",
+     "inControl": true,
+     "label": "Read aloud",
+     "w": 24,
+     "h": 24,
+     "minRatio": 2.88,
+     "n": 2,
+     "ink": "#9A9895",
+     "bg": "#FFFFFF",
+     "jobs": [
+      "states/verses/trainer-loading-ipad-portrait-light-system",
+      "states/verses/trainer-stalled-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-light",
+     "kind": "svg",
+     "sel": "button#rec-btn.btn > svg.sym",
+     "inControl": true,
+     "label": "Record",
+     "w": 20,
+     "h": 20,
+     "minRatio": 2.88,
+     "n": 2,
+     "ink": "#9A9895",
+     "bg": "#FFFFFF",
+     "jobs": [
+      "states/verses/trainer-loading-ipad-portrait-light-system",
+      "states/verses/trainer-stalled-loading-ipad-portrait-light-system"
+     ]
+    },
+    {
+     "theme": "system-dark",
+     "kind": "svg",
+     "sel": "button#show.btn.btn-primary > svg.sym.ico",
+     "inControl": true,
+     "label": "Show",
+     "w": 24,
+     "h": 24,
+     "minRatio": 2.89,
+     "n": 2,
+     "ink": "#1C1D29",
+     "bg": "#5F6483",
+     "jobs": [
+      "states/verses/trainer-loading-ipad-portrait-dark-system",
+      "states/verses/trainer-stalled-loading-ipad-portrait-dark-system"
+     ]
+    }
+   ],
+   "controls": [],
+   "graphics": [
+    {
+     "theme": "parchment",
+     "kind": "dot",
+     "sel": "div.bx > div.col > i",
+     "doc": "frame:verses",
+     "w": 119.6,
+     "h": 7.4,
+     "paint": "#E9FBF0",
+     "alpha": 1,
+     "minRatio": 1.01,
+     "maxRatio": 1.18,
+     "adjacentAtMin": "top #FBF7EE 1.01, right #FBF7EE 1.01, bottom #FBF7EE 1.01, left #FBF7EE 1.01",
+     "n": 12,
+     "jobs": [
+      "themes/verses/overdue-typical-ipad-portrait-light-parchment",
+      "themes/verses/rated-typical-ipad-portrait-light-parchment"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-light",
+     "kind": "dot",
+     "sel": "div.bx > div.col > i",
+     "doc": "frame:verses",
+     "w": 118,
+     "h": 7.4,
+     "paint": "#E9FBF0",
+     "alpha": 1,
+     "minRatio": 1.08,
+     "maxRatio": 1.26,
+     "adjacentAtMin": "top #FFFFFF 1.08, right #FFFFFF 1.08, bottom #FFFFFF 1.08, left #FFFFFF 1.08",
+     "n": 50,
+     "jobs": [
+      "devices/verses/overdue-typical-desktop-light-system",
+      "devices/verses/overdue-typical-ipad-landscape-light-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "hearth-dark",
+     "kind": "dot",
+     "sel": "div.bx > div.col > i",
+     "doc": "frame:verses",
+     "w": 119.6,
+     "h": 7.4,
+     "paint": "#E9FBF0",
+     "alpha": 1,
+     "minRatio": 1.08,
+     "maxRatio": 1.26,
+     "adjacentAtMin": "top #FFFFFF 1.08, right #FFFFFF 1.08, bottom #FFFFFF 1.08, left #FFFFFF 1.08",
+     "n": 12,
+     "jobs": [
+      "themes/verses/overdue-typical-ipad-portrait-dark-hearth",
+      "themes/verses/rated-typical-ipad-portrait-dark-hearth"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "frost",
+     "kind": "dot",
+     "sel": "div.bx > div.col > i",
+     "doc": "frame:verses",
+     "w": 119.6,
+     "h": 7.4,
+     "paint": "#E9FBF0",
+     "alpha": 1,
+     "minRatio": 1.08,
+     "maxRatio": 1.26,
+     "adjacentAtMin": "top #FFFFFF 1.08, right #FFFFFF 1.08, bottom #FFFFFF 1.08, left #FFFFFF 1.08",
+     "n": 12,
+     "jobs": [
+      "themes/verses/overdue-typical-ipad-portrait-light-frost",
+      "themes/verses/rated-typical-ipad-portrait-light-frost"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "forest",
+     "kind": "dot",
+     "sel": "div.bx > div.col > i",
+     "doc": "frame:verses",
+     "w": 119.6,
+     "h": 7.4,
+     "paint": "#144C31",
+     "alpha": 1,
+     "minRatio": 1.59,
+     "maxRatio": 2.21,
+     "adjacentAtMin": "top #182522 1.59, right #182522 1.59, bottom #182522 1.59, left #182522 1.59",
+     "n": 12,
+     "jobs": [
+      "themes/verses/overdue-typical-ipad-portrait-light-forest",
+      "themes/verses/rated-typical-ipad-portrait-light-forest"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "system-dark",
+     "kind": "dot",
+     "sel": "div.bx > div.col > i",
+     "doc": "frame:verses",
+     "w": 118,
+     "h": 7.4,
+     "paint": "#144C31",
+     "alpha": 1,
+     "minRatio": 1.65,
+     "maxRatio": 2.29,
+     "adjacentAtMin": "top #211F1D 1.65, right #211F1D 1.65, bottom #211F1D 1.65, left #211F1D 1.65",
+     "n": 49,
+     "jobs": [
+      "devices/verses/overdue-typical-desktop-dark-system",
+      "devices/verses/overdue-typical-ipad-landscape-dark-system"
+     ],
+     "ia": false
+    },
+    {
+     "theme": "midnight",
+     "kind": "dot",
+     "sel": "div.bx > div.col > i",
+     "doc": "frame:verses",
+     "w": 119.6,
+     "h": 7.4,
+     "paint": "#144C31",
+     "alpha": 1,
+     "minRatio": 1.65,
+     "maxRatio": 2.29,
+     "adjacentAtMin": "top #211F1D 1.65, right #211F1D 1.65, bottom #211F1D 1.65, left #211F1D 1.65",
+     "n": 12,
+     "jobs": [
+      "themes/verses/overdue-typical-ipad-portrait-light-midnight",
+      "themes/verses/rated-typical-ipad-portrait-light-midnight"
+     ],
+     "ia": false
+    }
+   ]
+  }
+ }
+}

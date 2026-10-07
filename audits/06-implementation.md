@@ -2371,3 +2371,161 @@ SHAPE/analyze's "large radii on the scale" uses a hard-coded list older than the
   - Accepted: a kid no longer sees ★N change after Done (the cost of UX-KIDVERSE-2).
   - `icons/LICENSE-lucide.txt` lists "ear" twice.
 - **Production.** Nothing deployed. Batch 7 adds no migration; it ships with the Worker (`npx wrangler deploy`: the voice routes and the `voice:` rule) and the site, in the order already set: migrations 006, 007, 008-timer-live, then the Worker, then the site.
+
+## Batch 8 — the Larder: one freshness rule, use-by dates and an edit sheet, swipe to finish, a calm add bar and a Kitchen you can read
+
+| | |
+|---|---|
+| **Findings** | 16 Larder entries (1 medium, 15 low) and the kept improvement IMP-LEFTOVERS-I1. **14 FIXED, 1 PARTIAL (VIS-LEFTOVERS-8), 1 NEEDS DEVICE CHECK (UX-LEFTOVERS-3: the Kitchen from 2 m); IMP-LEFTOVERS-I1 NEEDS DEVICE CHECK (the swipe).** Of the 13 earlier carry-overs with a Larder part, **4 go FIXED** (CONS-ACCENT-4, CONS-SHAPE-1, CONS-TOK-1, CONS-TYPE-1) and **9 stay PARTIAL** because other apps still owe the rest (CONS-ICON-1, VIS-ICON-1, CONS-SHAPE-3, GAP-TOK-4, VIS-SHAPE-1, CONS-SHAPE-4, CONS-MOTION-1) or because the art pipeline is open (VIS-LEFTOVERS-7, CONS-DARK-1). Status per entry in `audits/05-findings.md`. |
+| **Code commit** | `6688e17` (2026-10-06; the batch's code is `bcc5981`, merged after batch 7) |
+| **Files** | <ul><li>`apps/leftovers.html` (the batch)</li><li>`apps/hub.js`: `hub.larder` (the one freshness rule, `fresh` and `due`)</li><li>`worker/src/larder.js` (new: the Worker's twin of the rule), `worker/src/reminders.js` (the 8 am push), `worker/src/policy.js` (an item's `useBy`, `portion` and `editedBy` / `editedAt` rules), `worker/src/chat.js` (one line: a finished item keeps `useBy` and `portion`)</li><li>`index.html`: Home's fridge card, its hero line, the Kitchen's Eat soon and the Apps badge, all from the rule</li><li>`icons/LICENSE-lucide.txt`, `sw.js` (`hub-v48`), `CLAUDE.md`, `worker/README.md`</li><li>tests: `smoke-api.sh` (422 → 436), `test-kitchen.mjs` (62 → 64), `test-home.mjs` (109 → 112), `test-push2.mjs` (90 → 97), `test-leftovers.mjs` (42 → 43), `test-apps.mjs` (labels)</li><li>the batch's checks in `audits/tools/phase6/8/` (`larder-a-8`, `larder-look-8`, and the `-8` copies of the three threshold scripts)</li></ul> |
+| **Schema / data** | **No migration.** An item row may now carry `useBy` (a real YYYY-MM-DD, any day), `portion: 'some'` and `editedBy` / `editedByName` / `editedAt`; the Worker's policy accepts only those shapes, and a `finished:<id>` row keeps `useBy` and `portion` (so Put back restores them). Old rows are read as before. Nothing was deployed. |
+| **How it was built** | <ul><li>Before the batch, an agent sorted the earlier batches' unfinished entries with a Larder part (13).</li><li>Two workers: D (the shared rule, the shell, the Worker, the edit sheet, the swipe, the copy box, the errors) and E (the look: faces, the bar, the Kitchen glance, sprite icons, spacing and shape tokens).</li><li>One combined independent reviewer (round 1, then a confirmation round); an independent rescore, then a second worker pass on the rescore's list.</li><li>A cloud Opus confirmation of the last three review items (P6, R1, R2), then one final run on the owner's PC.</li><li>The status entries, the 05 rebuild, the accounting of the pixel diffs and the contrast samples, and this section were written afterwards.</li></ul> |
+
+### The change
+
+**One rule everywhere (P3-LEFTOVERS-02).**
+- Fresh is 0-3 days old, **eat soon** 4-6, **use it up** 7 or more; with a use-by, "eat soon" is the two days before it and "use it up" is the day and after (the use-by wins over the age); a date that is not a real day is "Check date" and counts as use it up.
+- It is one function, `hub.larder.fresh` / `due` in `apps/hub.js`, with a twin in `worker/src/larder.js`; `larder-a-8` runs both over one 62-row table and asserts they agree.
+- The Larder, Home's fridge card and hero line, the Apps badge, the Kitchen's Eat soon and the 8 am push read it. Home now says "1 use it up · 2 eat soon" (it said "3 to eat"), nothing says "Aging", and the push names the 4-day dish it used to miss ("Use it up: … · Eat soon: …", four names, then "+N more").
+
+**Editing (GAP-LEFTOVERS-1, P3-LEFTOVERS-11, UX-LEFTOVERS-5).**
+- Tap a card for a sheet: name, size, date and an optional use-by, "Some left", Save and Escape. The row keeps who logged it and records who edited it; an edit posts no feed line.
+- Review made it safe on two devices: an untouched Save writes nothing, a changed one writes only its own fields (another device's rename survives), an item finished elsewhere is not brought back (a toast says so), and Undo of "Some left" works after someone else edited.
+- Names wrap to two lines; the sheet shows the whole name. Log with nothing typed says "Type what it is" and focuses the field.
+
+**Swipe and "Some left" (IMP-LEFTOVERS-I1).** A trailing swipe shows Some left and Finish; a full swipe finishes through the same 6 s Undo as the check, which stays for grandparents. Some left writes `portion: 'some'`, the card says so, and it counts like any other item. Kids and the TV have no swipe and no sheet.
+
+**The add bar and the list (VIS-LEFTOVERS-4, -5, -6, -9, -11, UX-LEFTOVERS-6).**
+- Each card shows who logged it as their face; Log (a 60 px capsule) and the mic wear the person's colour; the size select is styled and dates read "Mon 21 Sep · 1 day".
+- The page pads to the measured bar, so the last block ends 16 px above it at every width and at XXL; after Log a toast says "Logged <name>" and the new card is scrolled above the bar.
+- The mic's space is reserved from the first paint and the placeholder is "What is it?", so the field never shrinks. The count sits on the subtitle row and holds its place from loading to filled.
+- From 1024 px an adult sees two columns; from 480 px a card puts its chip beside the check; the banner is bigger from 768 px.
+
+**Words (UX-LEFTOVERS-4, -8, -9, P3-LEFTOVERS-10).**
+- "Copy the list" with the copy icon, neutral text, and when the clipboard is refused a read-only box with everything selected, "Select and copy" and Share where the device has it.
+- A failed pull says "Couldn't reach the house. Your changes are saved on this device." with Retry. The red banner names the oldest item and scrolls to it.
+
+**The Kitchen (UX-LEFTOVERS-3).** The oldest item's name and age are at the glance role (44 px), the column is 840 px and the check is 60 px: the name's cap height is 5.96 mm on the 11-inch iPad, over the 5.8 mm H2 needs at 2 m.
+
+**Motion (VIS-LEFTOVERS-8, partly).** Log, the check, Copy and the mic press; a finish settles on a gentle fade; the swipe follows the finger on a spring. A finished card does not collapse away: the 0h rule keeps it in place so nothing under a finger moves.
+
+**A remote change never moves a card (review item R2, kept from batch 0h).** An edit from another device replaces a card in place only when the new card measures the same height; otherwise it waits behind the pill "N new or changed in the fridge · Show". A card you changed yourself shows at once; finishing and finished still replace at once.
+
+**The carry-overs.** The Larder's icons are the shared sprite and its glyphs are gone; every spacing is a token (macro 4 px grid 45.8 % → 92.6 %); the card is the house card (R28) and the add bar concentric (off-concentric pairs 4 → 0); Log is a capsule in the person's colour; the viewer's title is not repeated; its alias vocabulary is gone.
+
+**Decisions.**
+- The kid picture view stays as it was (P5-D2): food pictures, no check, no sheet, no swipe.
+- "Some left" is a stored state (`portion`), not a half-eaten percentage; the household's words are "Some left".
+- A use-by beats the age, in the Larder and in the push.
+- Copy keeps Hearth as a place to paste into; no assistant is told to do anything.
+- The empty-state fridge art stays on its `--art-plate` stopgap (the owner's call on a dark art file is still open).
+
+**What the review changed.**
+- **Round 1** (3 medium, 5 low, 6 nits), all fixed: Undo of Some left refused after someone else edited; an unchanged Save wiping another device's edit; the copy box opening under the add bar; the card's whole info area being the button (now only the name, so a screen reader reads the size and date); the kid card changing shape; focus lost after a keyboard Save; a tap on an open card opening the sheet; finish on one device while another edits; the subtitles, Home's "N to eat" and "Nothing aging", the date format, the licence line, the Kitchen's age shown twice.
+- **Rescore follow-ups:** one drawing per meaning (the check only for finishing, a clock for eat soon, the warning triangle for use it up, the existing half-circle for Some left, no mini switch bar), two columns from 1024 px, the chip beside the check from 480 px, the count on the subtitle row, the bigger banner, the toast above the bar.
+- **Confirmation:** P6 (focus after a keyboard Save went to the page) still open, then fixed; R1 (the toast moved above the bar covered the bottom card's Undo; the shared position restored); R2 (the same-height-or-wait rule above).
+
+### Each finding's reproduction, rerun
+
+**How the scripts were run.**
+- The scripts the entries name ran on the unchanged code (`git archive` of the pre-batch tree) and on the final code (`6688e17`, Windows WebKit).
+- Outputs are in `audits/evidence/p6/8/tests/repro-before/` and `repro-after/`.
+
+**Exit codes.**
+- The three original threshold scripts (`thresholds`, `verify-thresholds-disagree-1`, `-2`) crash before and after on an id removed long ago (`#alert`). Their `-8` copies are the measure; their before is the pre-batch tree, from the workers' record (`review/workers-and-reviews.md`).
+- Every other script exits 0 before and after. Their outputs, not their exit codes, show the change.
+
+| Finding | Before | After |
+|---|---|---|
+| P3-LEFTOVERS-02 (thresholds-8, verify-thresholds-disagree-1-8 / -2-8; entry) | Larder, Home, the badge and the push agreed on 4/10, 4/10 and 5/11 checks; Home "3 to eat"; the push named 2 items from 5 days | 10/10, 10/10, 11/11; Home "1 use it up"; the push names 3 from 4 days |
+| P3-LEFTOVERS-10 (verify-vis-copy-failed … 2-1, 2-2) | no box, nothing selected; "Copy failed — select manually"; a hint telling people to ask Claude | the whole list in a box, selected; "Couldn't copy here"; "Paste it into a message, a note or Hearth." |
+| P3-LEFTOVERS-11 (verify-vis-long-item-names … 3-1, 3-2) | cut names 16 / 15 / 15 of 32; nowrap with an ellipsis; name column 205 px | 0 / 0 / 0; normal wrapping; 240 px |
+| UX-LEFTOVERS-4 (roles) | "Copy list for Hearth", text "Push these to the Hearth Calendar:" | "Copy the list", "Leftovers to eat soon or use up:" |
+| UX-LEFTOVERS-5 (entry) | empty Log: no focus | focus on the name field |
+| UX-LEFTOVERS-6 (critic-followups) | the new card above the bar at 1 of 5 sizes (iPhone PWA: bottom 1020 under a bar at 742) | 5 of 5 (587-703 over a bar at 718) |
+| VIS-LEFTOVERS-4 (accent) | 2 elements differ by person | 7 (the mic, Log, the sheet, Save, its clear button added) |
+| VIS-LEFTOVERS-5 (accent, entry) | select appearance auto; "logged 2026-09-21 · 1d ago" | none, with a drawn caret; "Mon 21 Sep · 1 day" |
+| VIS-LEFTOVERS-9 (roles, ICON/static) | Copy drew the refresh arrows; 2 hand-drawn svgs | the sprite's copy icon; 4 sprite uses |
+| VIS-LEFTOVERS-5, -6, -11, UX-LEFTOVERS-9 (visual, larder-look-8) | Log 88 × 52; fields 44 high; the bar over the last cards | Log 98 × 60, fields 52; the last block 16 px above the bar; 169 px name field in 174 frames; the banner a 560 × 60 button |
+| VIS-LEFTOVERS-8 (critic-bar-motion) | bar growth 0 at open, render and done | the same (the script measures the freshness bar, which did not change; the press and settle are measured by MOTION/press and larder-a-8) |
+
+**The batch's own checks** (final run on `6688e17`):
+- **larder-a-8: 81/0.** The rule in both copies (62 rows), the four places, edit, swipe and Some left, the copy box, plain-word errors, round 1's fixes, a remote change never moving a card (390 and 1440), a kid and the TV.
+- **larder-look-8: 170/0.** The bar and the last block at six widths and XXL, names, the mic's space, the Kitchen glance, faces, no horizontal scroll 375-1440, the kid view, the sprite, round 1's geometry, the rescore's list.
+- **The first run of both failed on two of their own claims and was fixed, with the app unchanged.**
+  - larder-a-8 R2: under WebKit's fonts a plain rename did not make the card taller, so it correctly landed in place and the check expected a pill. The check now also sets a use-by and "Some left" so the card must grow (a 21 px growth in the review's rig).
+  - larder-look-8 section 5: the cached list painted at the first frame, so "empty" never occurred. The check now opens cold with the pull held for 700 ms.
+  - The first run and its rerun failed larder-a-8 on R2 and larder-look-8 on section 5 (168 passed, 2 failed); the fixed runs are 170/0 and 81/0 (`tests/repro-after/p6-8__larder-look-8.fixed.txt`, `p6-8__larder-a-8.fixed.txt`; diagnosis in `review/windows-final/`).
+- **larder-check A-H** (0h's rules: finish in place, Undo, Put back, the pill, the kid view): all pass.
+
+**The Phase 4 measuring tools**, on the pre-batch archive and on the final code (`audits/evidence/p6/8/p4tools/before/` and `out/`), Larder:
+
+| Tool | Larder before → after |
+|---|---|
+| TOK/literals | spacing 44 (26 on-scale) → 0; colours 17 → 17 (the bootstrap map); shadows 1 → 3 and line heights 0 → 1 (the sheet, the swipe layer); local literal 1 → 1 (`--addbar-h`), opacity 2, glass filter 1 |
+| TYPE/code-scan | 26 role tokens, 3 keyword → 39, 10, 1 calc; none under 11 px |
+| ICON/static | 2 hand-drawn SVGs, 0 sprite uses, stroke {2}, glyphs {✓ ×7, …} → 4 svgs, 4 sprite uses, no stroke, glyphs {…} |
+| MOTION/press | 9 of 12 controls → 10 of 19 (the six card names that open the sheet, and the fields, do not press) |
+| MOTION/cls | 0 → 0, iPhone and iPad portrait |
+| SHAPE/analyze | macro 4 px grid 45.8 % → 92.6 %; off-concentric pairs 4 → 0; radii {12: 2664, 16: 126, 28: 15} → {12: 1663, 28: 1044} (the 12s are controls) |
+| SHAPE/verify | V1 R16 inset 13 (off 9) → R28 inset 21 (off 5, inside the 7 px tolerance); V2 left edge h1 → p.lede, the column 560 → 1116 at 1180 and 1200 at 1440 (two columns); V4 the kid's Log r18 → 999 |
+| TELL/tells-webkit | 9 controls → 16, all `user-select: none`; a double-click selects "The" → nothing |
+| GLASS/layers | live blur layers median 2, max 3 → 1, 2; content glass 0 of 139 jobs → 0 of 139; area share median 0.116 → 0.089 |
+
+### Repo tests
+
+| Suite | Before (batch 7's final run) | After |
+|---|---|---|
+| test-leftovers | 42 / 0 | 43 / 0 |
+| test-home | 109 / 0 | 112 / 0 (the fridge words) |
+| test-kitchen | 62 / 0 | 64 / 0 (a swipe finish and Some left on the Kitchen) |
+| test-push2 | 90 / 0 | 97 / 0 (the 8 am fridge push) |
+| smoke-api.sh | 422 / 0 | 436 / 0 (`useBy`, `portion` and `editedBy` rules, an Undo by its own editor) |
+| smoke-chat (mock) | 76 / 0 | 76 / 0 (after the one-line change to `finish_leftover`) |
+| every other suite | pass | pass, identical counts (test-hub 47, test-apps 48, test-design 60, test-timer 115, test-tv 100, test-verses 184, screens-shell 18) |
+| Earlier batches' checks | pass | pass. `handoff/prayer/check.js` 47/2 (as since 0g; do-not-touch), `0g/check-ids.js` 49/49 |
+
+- **Two checks first crashed on a CRLF checkout** (`contrast.mjs` and `browser-check.mjs`): the test checkout had Windows line endings, a checkout artefact. Re-run on an LF checkout both pass (`checks/contrast.txt`, `checks/browser-check.txt`, JSON in `checks/p4/tokens/`).
+- **The final run ran in two parts:** the session ended mid-run and the rest was resumed (`tests/final-run-summary.txt`). `voice-7` exited 4 in the first part (the interrupted run); its resumed run is 52/0.
+- **Service worker:** `hub-v48`; `bump-sw --check` finds 75 precached files present and 70 shipped files accounted for.
+- **Scripts:** 32 inline scripts parse, 0 failed (batch 7 printed 33; the counter is a session script run on a different checkout and I did not trace the difference).
+
+### Measurement, captures and the rescore
+
+**Contrast** (`audits/evidence/p6/8/measure/contrast-accounting.md`). The Larder and the shell were re-measured.
+- **The Larder: 0 samples below AA** in 139 jobs (batch 1's after-run had none either).
+- **The shell: 737 samples, the same groups as batch 7** (117 disabled on purpose, 578 album captions over photos, 27 offline picker edge samples, 1 "Kind", 14 on the kid Home hero in dark). Nothing batch 8 changed in the shell is among them.
+- **Glass:** the Larder has no content glass (0 of 139 jobs).
+
+**Captures** on the final code (Windows, 0 failed): the Larder 184, the shell 979. Pixel diffs (`audits/evidence/p6/8/capture/`; accounted in `capture/pixel-diff-accounting.md`):
+- **The Larder:** 184 of 184 changed, the batch.
+- **The shell: 74 of 979 changed against batch 7.**
+  - 62 are Home's fridge wording: the hero line ("3 to eat" → "1 use it up") and the fridge card's head ("Nothing aging" → "Nothing to eat soon" on the empty Home), identical boxes across each group, looked at as pairs.
+  - 12 are noise: the chat thread (9, at most 24 px each) and the "Kitchen timer" tile label (3, 60 px), the same boxes batch 7 proved to be run-to-run noise; there is no second Windows capture of this tree to prove it again.
+- No shot covers the Kitchen Home (the rig has no kitchen profile).
+
+**Rescore** (`audits/evidence/p6/8/rescore.md`; an independent judge, the Phase 4 method, bases held): **the Larder 5.5 → 6.0** (range 5.9-6.1).
+- Layout 4.5 → 6, Icons 5 → 6, Motion 5 → 5.5, Native 5.5 → 6.5, Glance 3.5 → 4, Ease 6 → 7; Typography, Colour, Shape, Dark and Delight held.
+- Colour, Layout, Shape, Motion, Dark and Native were provisional on the final run. It confirms them: contrast has no Larder sample, off-concentric pairs are 0, the grid is 92.6 %, CLS is 0 and content glass is 0.
+- **The figure of record is 6.0.** The judge's own list of what holds the score down was then worked (issues 1-6 and 8: the sprite icons, the column, the chip, the count, the banner, the toast); by its own arithmetic that would earn more, and no one re-scored it.
+
+### Not verified
+- **On a real iPhone and iPad:**
+  - the feel of the swipe and iOS's edge back-swipe against it (IMP-LEFTOVERS-I1);
+  - the Kitchen iPad read from 2 m (UX-LEFTOVERS-3: 5.96 mm is a calculation from the rendered size, not a person at 2 m; H1's 10 mm is not met);
+  - the press feel (VIS-LEFTOVERS-8), including the Larder's Log and check, which ride the same touch listener as the open device checks GAP-MOTION-3 and VIS-TALLY-7;
+  - the iOS date control and the blur on the bar and the sheet (VIS-LEFTOVERS-5);
+  - `navigator.share` and a refused clipboard (P3-LEFTOVERS-10);
+  - real dictation into the name field.
+- **Left partly done:** 9 carry-overs stay PARTIAL: CONS-ICON-1, VIS-ICON-1, CONS-SHAPE-3, GAP-TOK-4, VIS-SHAPE-1, CONS-SHAPE-4 and CONS-MOTION-1 (other apps owe the rest, mostly the Dollywood exports, the build guide and the shell) and VIS-LEFTOVERS-7 and CONS-DARK-1 (the art pipeline, no batch named).
+- **Found, not fixed** (measured in the final run or the rescore, for a later polish pass):
+  - the six card names that open the edit sheet have no press feedback, and the target scan lists one adult target under 44 px, the name (`div.nm`, 240 × 21): the tap area is larger than the name, which I have not measured;
+  - TOK/literals shadows 1 → 3 and line heights 0 → 1, none with a token;
+  - the toast, now at the shared position, covers the Size and Date fields briefly;
+  - no Tab walk was recorded (NAT-6 is not claimed);
+  - the empty-state fridge art has no dark form;
+  - the capture rig has no Kitchen screen, so the Kitchen glance is checked by measurement only;
+  - `CLAUDE.md`'s Larder bullet does not yet name the same-height-or-wait rule and the "N new or changed in the fridge · Show" wording;
+  - the three original threshold scripts and `entry.mjs`'s empty-name line read an element that no longer exists.
+- **Production.** Nothing deployed. Batch 8 adds no migration; it ships with the Worker (`npx wrangler deploy`: the rule, the item fields, the 8 am push) and the site, in the order already set: migrations 006, 007, 008-timer-live, then the Worker, then the site.

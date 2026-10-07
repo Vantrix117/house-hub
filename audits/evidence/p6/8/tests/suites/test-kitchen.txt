@@ -1,0 +1,84 @@
+
+## The kitchen iPad starts as an ordinary device with Eli signed in
+  ✓ the picker on an ordinary device has no Kitchen face
+  ✓ Eli is signed in on the iPad
+
+## The admin makes it the kitchen from his phone: Me → Admin → Devices, with his PIN
+  ✓ Admin → Devices offers "Make it the kitchen" for the iPad
+  ✓ …but not for the device the admin is holding
+  ✓ a wrong admin PIN is refused in the sheet
+  ✓ …and the iPad is not the kitchen
+  ✓ with the right PIN the iPad is the kitchen (its row now offers "Not the kitchen")
+  ✓ on its next request the iPad is the kitchen, with no picker in between
+  ✓ no profile picker on screen
+  ✓ the kitchen Home: timer, food to eat soon, family prayers, reminders, the album
+  ✓ at 390: only Home and Apps, no picker, no sideways scroll, a 94 px clock
+  ✓ at 820: only Home and Apps, no picker, no sideways scroll, a 96 px clock
+  ✓ at 1280: only Home and Apps, no picker, no sideways scroll, a 96 px clock
+  ✓ #me on the kitchen lands on Home
+  ✓ the kitchen's apps are the Larder, Prayer, Timer and Tally
+
+## What the kitchen may do (P2-PROF-09: nobody's chat, private prayers or admin)
+  ✓ the kitchen adds to the Larder through hub.js
+  ✓ another device sees the kitchen's Larder row
+  ✓ the kitchen reads no one's person rows (its own F260 scope is empty; Eli's stays his)
+  ✓ the kitchen cannot write person rows of F260 or a private prayer list
+  ✓ the kitchen has no admin
+  ✓ the kitchen keeps its own timer row
+  ✓ the running timer shows on the kitchen Home in glance-size numbers
+  ✓ Eli's phone keeps the family mirror of his roast timer
+  ✓ Eli's running timer shows on the kitchen with his face and name, read-only
+  ✓ the kitchen's own timer has Pause and Reset
+  ✓ …Reset is the app's word and drawing (rotate-ccw), with a name
+  ✓ its time counts down in place
+  ✓ Reset on the kitchen's own timer removes its row from the house
+  ✓ …and Eli's stays (the kitchen never clears someone else's)
+  ✓ nobody signs in as a person on the kitchen device (niece)
+  ✓ nobody signs in as a person on the kitchen device (eli)
+  ✓ …and the kitchen stays signed in
+  ✓ no other device signs in as the kitchen
+  ✓ the profile list marks the kitchen (kind kitchen), which every picker leaves out
+  ✓ hub.people() leaves the kitchen out
+  ✓ the kitchen has no chat
+
+## Prayed on the kitchen: the face sheet (everyone in the household), then the tapped person's tick
+  ✓ the kitchen Home lists today's family prayers
+  ✓ Prayed opens the face sheet with everyone in the household, kids included (never the kitchen or the TV)
+  ✓ another device sees Ezra (not the kitchen) on today's list
+  ✓ the feed line is filed under Ezra, not the kitchen
+  ✓ a second tap for Ezra says he already prayed and changes nothing
+  ✓ Cancel closes the face sheet with nothing credited
+  ✓ a name outside the household is refused
+  ✓ a refused row is put back on the device (the kitchen cannot credit itself)
+
+## The Larder's finish: the face sheet has the adults only
+  ✓ finishing opens the face sheet with the household adults and no kids
+  ✓ another device sees the Chili finished by David
+  ✓ the feed line is filed under David
+  ✓ a full swipe on the Kitchen iPad opens the same face sheet (household adults, no kids)
+  ✓ the swiped card then finishes in place with Undo, like the check button
+  ✓ the kitchen cannot credit a finish to a kid, a guest or the TV (403 bad_credit)
+  ✓ …and can credit it to a household adult
+
+## A guest's reminder on the kitchen Home: ✓, Undo, then ✓ for good (review of batch 2a)
+  ✓ ✓ takes the reminder off the kitchen Home at once
+  ✓ Undo within 6 s: the guest's reminder is back on the kitchen and was never removed from the house
+  ✓ without Undo it is removed for everyone after 6 s
+  ✓ no refused write on the way
+
+## The album's Add on the kitchen Home: adults only, filed under the tapped face
+  ✓ Add a photo opens the face sheet with the household adults and no kids
+  ✓ another device sees the photo added by Mae
+  ✓ the photo shows in the kitchen Home's album card
+
+## Ezra's prayer star, on his own tablet
+  ✓ Ezra's picker has no Kitchen face
+  ✓ Ezra's prayer star for today appears once Kid Verse opens
+
+## The admin clears the role from Admin → Devices
+  ✓ a wrong admin PIN leaves the kitchen as it is
+  ✓ the role is cleared
+  ✓ on its next request the iPad shows the picker, signed out
+  ✓ it can no longer act as the kitchen
+
+64 passed, 0 failed

@@ -1,0 +1,92 @@
+{
+ "larder": {
+  "banner": "Chicken alfredo is 8 days old",
+  "headings": [
+   "Use it up1 · 7+ days, or at use-by",
+   "Eat soon2 · 4-6 days, or near use-by",
+   "Fresh3 · up to 3 days old"
+  ],
+  "cards": [
+   {
+    "name": "Chicken alfredo",
+    "days": 8,
+    "tone": "urgent",
+    "chip": "Use it up"
+   },
+   {
+    "name": "Beef and bean chili",
+    "days": 5,
+    "tone": "warn",
+    "chip": "Eat soon"
+   },
+   {
+    "name": "Roasted sweet potatoes",
+    "days": 4,
+    "tone": "warn",
+    "chip": "Eat soon"
+   },
+   {
+    "name": "Sunday pot roast",
+    "days": 2,
+    "tone": "fresh",
+    "chip": "Fresh"
+   },
+   {
+    "name": "Spaghetti and meatballs",
+    "days": 1,
+    "tone": "fresh",
+    "chip": "Fresh"
+   },
+   {
+    "name": "Blueberry pancakes",
+    "days": 0,
+    "tone": "fresh",
+    "chip": "Fresh"
+   }
+  ]
+ },
+ "home": {
+  "big": "1 use it up",
+  "rows": [
+   {
+    "name": "Chicken alfredo",
+    "right": "8d",
+    "stale": true
+   },
+   {
+    "name": "Beef and bean chili",
+    "right": "5d",
+    "stale": false
+   },
+   {
+    "name": "Roasted sweet potatoes",
+    "right": "4d",
+    "stale": false
+   }
+  ]
+ },
+ "badge": {
+  "n": 3,
+  "aria": "3 to eat soon or use up"
+ },
+ "push": {
+  "due": [
+   "Chicken alfredo (8 days)",
+   "Beef and bean chili (5 days)",
+   "Roasted sweet potatoes (4 days)"
+  ],
+  "body": "Use it up: Chicken alfredo (8 days) · Eat soon: Beef and bean chili (5 days), Roasted sweet potatoes (4 days)"
+ }
+}
+  ✓ typical fridge: the Larder groups every item by the rule (fresh 0-3, eat soon 4-6, use it up 7+)
+  ✓ typical fridge: Home lists the most urgent items needing food eaten (up to 3), the same ones
+  ✓ typical fridge: Home marks exactly the "use it up" ones
+  ✓ typical fridge: the Apps badge counts what needs eating (3)
+  ✓ typical fridge: the 8 am push names the same items (eat soon from 4 days, not 5)
+  ✓ typical fridge: the red banner appears only with a "use it up" item and names the oldest
+  ✓ typical fridge: the Larder's group headings are "Use it up" / "Eat soon" (not "Aging")
+  ✓ typical fridge: Home says "use it up" for the old ones
+  ✓ typical fridge: the push body says "Use it up: <name> (N days)"
+  ✓ typical fridge: the push body says "Eat soon: ..." for the 4-6 day ones
+
+10 passed, 0 failed -> audits/evidence/p6/8/thresholds-8.json
