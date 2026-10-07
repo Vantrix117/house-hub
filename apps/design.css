@@ -1159,6 +1159,8 @@ body.ds { background: var(--wash), var(--bg); background-attachment: fixed; }
   -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); animation: hub-toast var(--dur-gentle) var(--spring-gentle); }
 .ds .toast .toast-act { margin-left: var(--sp-3); min-height: 44px; padding: 0 var(--sp-3); border: 0; border-radius: var(--r-full); background: transparent;
   color: inherit; font: inherit; font-weight: var(--fw-heavy); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+/* a kid's Undo is as big as every kid target (batch 11: Tally's Reset and counter Undo) */
+:root[data-kind="kid"] .ds .toast .toast-act { min-height: var(--tap); }
 @keyframes hub-fade { from { opacity: 0; } }
 @keyframes hub-rise { from { opacity: 0; transform: translateY(var(--enter-distance)); } }
 @keyframes hub-toast { from { opacity: 0; transform: translate(-50%, var(--enter-distance)); } }

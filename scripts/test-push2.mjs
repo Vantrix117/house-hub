@@ -371,6 +371,36 @@ async function serveSite() {
       await put('eli', 'dollywood-live', 'family', 'meet', { x: 300, y: 300, name: 'The Village', note: '', by: 'eli', byName: 'Eli', at: Date.now() });
       await loc('christian', 305, 305, 150);
       r = await run('arrive'); ok(!r.body.arrived.length, 'a new point records the positions again; a 150 m fix is no position', r.body);
+      // a failed delivery is retried (review R-park 2): Mom's push service is down when Mae arrives, Eli is told at once, and each
+      // minute after, while Mom is still owed it, the job tries Mom again (and only Mom: Eli is never told twice)
+      await put('eli', 'hub', 'person', 'push_pref:arrive', true);
+      await api('POST', '/api/push/subscribe', { subscription: { ...subFor('mom'), endpoint: 'http://127.0.0.1:9/push/mom' } }, 'mom');   // nothing listens on port 9: the push fails
+      await put('eli', 'dollywood-live', 'family', 'meet', { x: 500, y: 500, name: 'The Carousel', note: '', by: 'eli', byName: 'Eli', at: Date.now() });
+      await loc('christian', 1500, 1000); await run('arrive'); const eli0 = arrives('eli').length, mom0 = arrives('mom').length;
+      await loc('christian', 505, 505, 10);
+      r = await run('arrive');
+      ok(r.body.arrived.join() === 'christian' && r.body.skipped.some(x => x.profile === 'mom' && x.why === 'delivery_failed_retry'), 'Mae arrives while Mom push service is down: Mom is marked for a retry', r.body);
+      await sleep(400);
+      ok(arrives('eli').length === eli0 + 1, 'Eli was told at once', arrives('eli').length - eli0);
+      await api('POST', '/api/push/subscribe', { subscription: subFor('mom') }, 'mom');                       // Mom's push service is back
+      r = await run('arrive');                                                                              // Mae has not moved: nobody 'arrives' again, Mom is still owed
+      ok(!r.body.arrived.length && r.body.notified.map(n => n.profile).join() === 'mom', 'the next minute the job tries Mom again, and only Mom', r.body);
+      await waitFor(() => arrives('mom').length > mom0, { label: 'retried arrive push' });
+      r = await run('arrive'); await sleep(300);
+      ok(!r.body.notified.length && arrives('mom').length === mom0 + 1 && arrives('eli').length === eli0 + 1, 'then nobody is told twice', [r.body, arrives('mom').length - mom0, arrives('eli').length - eli0]);
+      // the retry has limits (R-park round 2): at most 5 tries, and only for who was a recipient at the arrival (a switch turned on
+      // afterwards is not owed an old arrival). The 15-minute limit is proved in process by rev-park/probe-spam.mjs (a forced run cannot move the clock).
+      await put('eli', 'hub', 'person', 'push_pref:arrive', false);                                       // Eli has the switch off when Mae arrives at the next point
+      await api('POST', '/api/push/subscribe', { subscription: { ...subFor('mom'), endpoint: 'http://127.0.0.1:9/push/mom' } }, 'mom');   // Mom's push service is down for good
+      await put('eli', 'dollywood-live', 'family', 'meet', { x: 700, y: 700, name: 'The Pier', note: '', by: 'eli', byName: 'Eli', at: Date.now() });
+      await loc('christian', 1500, 1000); await run('arrive'); await loc('christian', 705, 705, 10);
+      let tries = 0; const mom1 = arrives('mom').length;
+      for (let i = 0; i < 9; i++) { r = await run('arrive'); tries += (r.body.skipped || []).filter(x => x.profile === 'mom' && x.why === 'delivery_failed_retry').length; }
+      ok(tries === 5, 'a push that keeps failing is tried 5 times and then dropped, not every minute', tries);
+      await put('eli', 'hub', 'person', 'push_pref:arrive', true);                                        // Eli turns the switch on after the arrival
+      await api('POST', '/api/push/subscribe', { subscription: subFor('mom') }, 'mom');                       // and Mom's service recovers
+      r = await run('arrive'); await sleep(400);
+      ok(!r.body.notified.length && arrives('mom').length === mom1 && !arrives('eli').some(p => /The Pier/.test((p.payload || {}).body || '')), 'after the cap nothing is retried, and Eli (switch off at the arrival) is not owed it', r.body);
       await put('eli', 'dollywood-live', 'family', 'meet', { x: 300, y: 300, name: 'The Village', note: '', by: 'eli', byName: 'Eli', at: Date.now() - 3 * 3600000 });
       r = await run('arrive'); ok(r.body.meet === null, 'a meeting point older than 2 hours ends the job', r.body);
       await put('eli', 'hub', 'person', 'push_pref:arrive', true);

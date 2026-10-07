@@ -119,6 +119,11 @@ chat "$P" "What's today's verse?";                                              
 
 echo; echo "### Ezra (kid): adult-only app blocked, reminders blocked, kid-safe prompt"
 chat ezra "Set my tally to 3";                      expect "kid may write own tally" 'Tally set to 3'
+# batch 11 (P3-TALLY-08): only a whole number from 0 to 999999 is set; anything else is refused and the count stays 3
+for V in -13 12.5 1000000 1e21 twelve; do chat ezra "Set my tally to $V";  expect "tally value $V is refused" 'whole number from 0 to 999999'; done
+chat ezra "What's my tally?";                 expect "a refused value changed nothing" 'Done — 3'
+chat ezra "Set my tally to 999999";           expect "999999 is the largest tally" 'Tally set to 999999'
+chat ezra "Set my tally to 3";                expect "back to 3" 'Tally set to 3'
 cleartimers ezra
 chat ezra "Set a timer for 3 minutes";              expect "a kid may start their own timer (batch 6)" 'Timer set: 3:00'
 curl -s "$BASE/api/data/timer?scope=family" -H "X-Device-Token: $DT" -H "X-Profile-Token: $K" > "$OUT"

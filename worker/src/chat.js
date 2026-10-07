@@ -235,6 +235,17 @@ async function runTool(env, ctx, name, input) {
   } catch { return r; }                                                 // no Undo offered, the write itself stands
 }
 class Lost extends Error {}
+// The Tally count from its person rows, the app's rule (hub.tally): the sum of the current epoch's device rows (each an integer within
+// ±999 999, an old row's sub subtracted), the pre-0f base before any reset, the total clamped to 0 … 999 999.
+function tallyTotal(all) {
+  const reset = all.find(r => r.key === 'reset'), ep = reset && reset.value && reset.value.epoch ? String(reset.value.epoch) : null;
+  const base = all.find(r => r.key === 'count');
+  const cl = v => typeof v === 'number' && isFinite(v) ? Math.min(999999, Math.max(0, Math.floor(v))) : 0;
+  const sg = v => typeof v === 'number' && isFinite(v) ? Math.min(999999, Math.max(-999999, Math.trunc(v))) : 0;
+  let n = ep ? 0 : cl(base && base.value);
+  for (const r of all) if (r.key.startsWith('count:') && r.value && typeof r.value === 'object' && (r.value.epoch || null) === ep) n += sg(r.value.n) - cl(r.value.sub);
+  return Math.min(999999, Math.max(0, n));
+}
 /**
  * Puts back the rows an action wrote, all or nothing: every row must still be as the action left it (and a tally reset
  * must have had no taps on its new count since), else nothing is touched. Rows go back in the order they were written, and
@@ -328,11 +339,8 @@ async function runToolInner(env, ctx, name, input, writes) {
       // Tally since batch 0f: the count is the sum of every device's count:<device> row on the current reset epoch
       if (input.app_id === 'tally' && input.scope === 'person' && (!input.key || input.key === 'count')) {
         const all = (await listData(env, args)).filter(r => r.value != null);
-        const reset = all.find(r => r.key === 'reset'), ep = reset && reset.value && reset.value.epoch ? String(reset.value.epoch) : null;
-        const base = all.find(r => r.key === 'count');
-        let n = ep ? 0 : Math.max(0, Number(base && base.value) || 0);
-        for (const r of all) if (r.key.startsWith('count:') && r.value && typeof r.value === 'object' && (r.value.epoch || null) === ep) n += Math.floor(Number(r.value.n) || 0);
-        return { ok: true, result: input.key ? Math.max(0, n) : [{ key: 'count', value: Math.max(0, n) }], chip: null };
+        const n = tallyTotal(all);
+        return { ok: true, result: input.key ? n : [{ key: 'count', value: n }], chip: null };
       }
       if (input.key) { const r = await getOne(env, { ...args, key: input.key }); return { ok: true, result: r && r.value != null ? shrink(r.value) : null, chip: null }; }
       const rows = (await listData(env, args)).filter(r => r.value != null && !/\.vault$/.test(r.key) && !(input.app_id === 'leftovers' && /^finished:/.test(r.key))).slice(0, 60);   // finished food is not in the fridge
@@ -347,7 +355,12 @@ async function runToolInner(env, ctx, name, input, writes) {
       if (input.key === 'theme' && !['system', 'hearth', 'parchment', 'frost', 'midnight', 'forest', 'graphite'].includes(input.value)) return { ok: false, result: 'theme must be one of system, hearth, parchment, frost, midnight, forest, graphite', chip: null };
       // Tally keeps one row per device on a reset epoch since batch 0f: "set my tally to N" starts a new epoch at N
       if (input.app_id === 'tally' && input.key === 'count' && input.scope === 'person') {
-        const n = Math.max(0, Math.floor(Number(input.value) || 0)), epoch = rid(), now = Date.now();
+        // P3-TALLY-08 (batch 11): a whole number from 0 to 999 999 (a plain digit string is read as that number); anything else is refused
+        const raw = typeof input.value === 'string' && /^\d{1,6}$/.test(input.value.trim()) ? Number(input.value.trim()) : input.value;
+        if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0 || raw > 999999) return { ok: false, result: 'The tally must be a whole number from 0 to 999999.', chip: null };
+        const n = raw, epoch = rid(), now = Date.now();
+        const was = tallyTotal((await listData(env, { appId: 'tally', scope: 'person', profile })).filter(r => r.value != null));
+        if (was > 0) await putOne(env, { appId: 'tally', scope: 'person', profile, key: 'resetlog:' + now, value: { cid: null, from: was, at: now }, updated_at: now });   // the app's "Recent resets" list
         await putOne(env, { appId: 'tally', scope: 'person', profile, key: 'reset', value: { epoch, at: now }, updated_at: now });
         await putOne(env, { appId: 'tally', scope: 'person', profile, key: 'count:chat', value: { n, epoch }, updated_at: now });
         await activity(env, profile, 'tally', `Set the tally to ${n} (via chat)`);

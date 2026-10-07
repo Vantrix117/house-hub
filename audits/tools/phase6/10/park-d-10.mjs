@@ -47,7 +47,7 @@ await run(1, 'Rally from the meeting bar', async () => {
   const rally = r => { const rq = r.request(); reqs.push({ method: rq.method(), body: rq.postData() });
     if (mode === '429') return r.fulfill({ status: 429, contentType: 'application/json', body: '{"error":"too_many_attempts","retry_after":50}' });
     if (mode === 'err') return r.fulfill({ status: 500, contentType: 'application/json', body: '{"error":"boom"}' });
-    const m = JSON.parse(rq.postData()); return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, pushed: mode === 'ok3' ? 3 : 0, meet: { ...m, by: 'eli', byName: 'Eli', at: Date.now() }, updated_at: Date.now(), notified: [], skipped: [] }) }); };
+    const m = JSON.parse(rq.postData()); return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, pushed: mode === 'ok3' ? 3 : 0, meet: { ...m, by: 'eli', byName: 'Eli', at: Date.now() }, updated_at: Date.now(), notified: [], skipped: mode === 'ok0' ? [{ profile: 'mom', why: 'pref_off' }] : [] }) }); };
   const { d, f } = await open({ rally });
   await f.waitForFunction(() => MEET && !document.getElementById('lv-meet').hidden, null, { timeout: 10000 });
   const bar = await f.evaluate(() => { const b = document.getElementById('lv-rally'); const r = b.getBoundingClientRect(); return { hidden: b.hidden, text: b.textContent.trim(), h: Math.round(r.height), name: MEET.name }; });
@@ -146,7 +146,7 @@ await run(5, 'one error line', async () => {
   // never succeeded: the short wording
   const a = await open({ waits: 'fail', init: () => { try { localStorage.removeItem('dollywood.live.waits'); } catch (e) {} } });
   await waitsReady(a.f); await sleep(500);
-  const one = async (f, mode) => f.evaluate(m => { document.getElementById(m === 'waits' ? 'near-mode-waits' : 'near-mode-near').click(); const t = document.getElementById('lv-near').innerText; return { n: (t.match(/Can.t reach wait times/g) || []).length, t: (t.match(/Can.t reach wait times[^\n]*/) || [''])[0] }; }, mode);
+  const one = async (f, mode) => f.evaluate(m => { document.getElementById(m === 'waits' ? 'near-mode-waits' : 'near-mode-near').click(); const els = [...document.querySelectorAll('#lv-src, #near-list .lv-stamp span')].map(e => e.textContent.trim()).filter(x => /Can.t reach wait times/.test(x)); return { n: els.length, t: els[0] || '' }; }, mode);
   let r1 = await one(a.f, 'near'), r2 = await one(a.f, 'waits');
   const std = t => t.replace(/[\u2018\u2019]/g, "'");
   ok(r1.n === 1 && std(r1.t) === "Can't reach wait times right now \u00b7 retrying every minute", 'Nearby: one line, "Can\'t reach wait times right now \u00b7 retrying every minute"', JSON.stringify(r1));
@@ -161,7 +161,7 @@ await run(5, 'one error line', async () => {
   const want_ = t => t.replace(/[‘’']/, '\'') === `Can't reach wait times · last updated ${at} · retrying every minute`;
   ok(r1.n === 1 && want_(r1.t), `Nearby: "Can't reach wait times · last updated ${at} · retrying every minute"`, JSON.stringify(r1));
   ok(r2.n === 1 && want_(r2.t), 'Waits: the same, once', JSON.stringify(r2));
-  ok(await b.f.evaluate(() => !/Waits as of|not available right now|Could not reach/.test(document.getElementById('lv-near').innerText)), 'the three older wordings are gone');
+  ok(await b.f.evaluate(() => !/Waits as of|not available right now|Could not reach/.test(document.getElementById('lv-near').textContent)), 'the three older wordings are gone');
   await b.d.close();
 });
 
@@ -257,7 +257,8 @@ await run(9, 'the meeting label: a pill on the side with no family puck within 4
     const pr = pill.getBoundingClientRect(), fs = parseFloat(getComputedStyle(tx).fontSize), scr = svg.getScreenCTM().a || 1;
     return { side0, side: g.dataset.side, w: Math.round(pr.width), h: Math.round(pr.height), fsPx: Math.round(fs * scr * 10) / 10, text: tx.textContent };
   });
-  ok(r.side0 === 'right', 'with no puck near, the label sits to the right of the flag', JSON.stringify(r));
+  // R-park 4 (C): the label may no longer sit on a side that leaves the screen or lands on a control, so at a pin near the right edge it is left/above/below
+  ok(['right', 'left', 'above', 'below'].includes(r.side0), 'with no puck near, the label sits on a side of the flag that fits the screen', JSON.stringify(r));
   ok(r.side !== 'right', 'a puck on the right side of the flag moves the label to the left or above', JSON.stringify(r));
   ok(r.w <= 181 && r.w >= 60 && /…$/.test(r.text), 'the pill is at most 180 px wide and a long name ends in an ellipsis', JSON.stringify(r));
   ok(r.fsPx >= 10.9 && r.h >= 20, 'the label is at least 11 px on screen', JSON.stringify(r));

@@ -196,7 +196,7 @@ const tickState = (page, id) => page.evaluate(id => {
     // P3-DOLLYWOOD-18: a plot cleared on one device clears on the other; the old dw-plot key never brings a width back
     await PC.page.evaluate(() => showTab('scale'));
     await IPAD.page.evaluate(() => hub.pull());
-    await PC.page.fill('#sc-plot', '');
+    await PC.page.fill('#sc-plot', ''); await PC.page.dispatchEvent('#sc-plot', 'change');
     await settled(PC.page);
     ok(await PC.page.evaluate(() => hub.get('plot') == null), 'clearing the plot writes a null plot row');
     await IPAD.page.evaluate(() => hub.pull());
@@ -213,20 +213,20 @@ const tickState = (page, id) => page.evaluate(id => {
     const gs = await PC.page.evaluate(() => { const s = D.steps.find(x => x.elev && /\d\s*m\b(?!²)/.test(x.elev) && gameLine(x.elev, SEC[x.section])); return { sec: s.section, i: stepsOf(s.section).indexOf(s) }; });
     await PC.page.evaluate(g => { curSec = g.sec; curIdx = g.i; renderStep(); showTab('scale'); }, gs);
     const gameTxt = () => PC.page.evaluate(() => (document.querySelector('#b-now .meas.game') || {}).textContent || '');
-    await PC.page.fill('#sc-plot', '400'); await settled(PC.page);
+    await PC.page.fill('#sc-plot', '400'); await PC.page.dispatchEvent('#sc-plot', 'change'); await settled(PC.page);
     const ext = await PC.page.evaluate(() => EXT), pc400 = Math.round(400 / ext * 100);
     ok(new RegExp(`at ${pc400}% scale`).test(await gameTxt()), 'a changed plot width re-renders the step card at once (in game · at ' + pc400 + '% scale)', await gameTxt());
     ok(await PC.page.evaluate(() => hub.get('plot')) === '400', '400 is saved');
-    await PC.page.fill('#sc-plot', '10');
+    await PC.page.fill('#sc-plot', '10'); await PC.page.dispatchEvent('#sc-plot', 'change');
     ok(await PC.page.$eval('#sc-err', e => e.textContent) === 'Enter a width from 50 to 2,000 m.' && await PC.page.$eval('#sc-err', e => e.getAttribute('role')) === 'alert', 'too small: "Enter a width from 50 to 2,000 m." under the field (role=alert)');
     ok(await PC.page.$eval('#sc-plot', e => e.getAttribute('aria-invalid')) === 'true', 'the field is aria-invalid');
     ok(await PC.page.evaluate(() => hub.get('plot')) === '400', 'nothing is saved for 10');
     ok(/at 1:1/.test(await gameTxt()), 'and nothing is converted (the card reads 1:1)', await gameTxt());
-    await PC.page.fill('#sc-plot', '2500');
+    await PC.page.fill('#sc-plot', '2500'); await PC.page.dispatchEvent('#sc-plot', 'change');
     ok(await PC.page.$eval('#sc-err', e => e.textContent) !== '' && await PC.page.evaluate(() => hub.get('plot')) === '400', 'too large: the same line, nothing saved');
-    await PC.page.fill('#sc-plot', '2000'); ok(await PC.page.$eval('#sc-err', e => e.textContent) === '' && await PC.page.evaluate(() => hub.get('plot')) === '2000', '2,000 is valid and saved');
-    await PC.page.fill('#sc-plot', '50'); ok(await PC.page.$eval('#sc-err', e => e.textContent) === '' && await PC.page.evaluate(() => hub.get('plot')) === '50', '50 is valid and saved');
-    await PC.page.fill('#sc-plot', '1200'); await settled(PC.page);
+    await PC.page.fill('#sc-plot', '2000'); await PC.page.dispatchEvent('#sc-plot', 'change'); ok(await PC.page.$eval('#sc-err', e => e.textContent) === '' && await PC.page.evaluate(() => hub.get('plot')) === '2000', '2,000 is valid and saved');
+    await PC.page.fill('#sc-plot', '50'); await PC.page.dispatchEvent('#sc-plot', 'change'); ok(await PC.page.$eval('#sc-err', e => e.textContent) === '' && await PC.page.evaluate(() => hub.get('plot')) === '50', '50 is valid and saved');
+    await PC.page.fill('#sc-plot', '1200'); await PC.page.dispatchEvent('#sc-plot', 'change'); await settled(PC.page);
     ok(await PC.page.$eval('#sc-err', e => e.textContent) === '' && !(await PC.page.$eval('#sc-plot', e => e.getAttribute('aria-invalid') === 'true')), 'valid again: no message');
     ok(/Enter the width you can give it in the game, and every measurement on the step card and the listing cards is also shown in game metres\./.test(await PC.page.$eval('#tab-scale', e => e.textContent)) && !/Info tab/.test(await PC.page.$eval('#tab-scale', e => e.textContent)), 'the Scale copy no longer points to an Info tab');
 

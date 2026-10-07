@@ -676,14 +676,18 @@ async function artSample(page, sel) {
     {
       const off = (id, x, y) => ownRow('dollywood-live', 'loc:' + id, id, { x, y, acc: 10, t: Date.now(), name: id }, Date.now());
       const mae = PEOPLE.christian.name, names = () => A.page.evaluate(() => [...document.querySelectorAll('.park-card .park-list .pn')].map(e => e.textContent.trim()));
-      await off('christian', 1835 + 400, 700);                           // 400 m east of the frame's edge plus its 300 m border: the road, or home
+      await off('christian', 2500 + 400, 700);                           // 400 m east of the property box (the frame plus 300 m, widened to hold the parking lots): the road, or home
       await A.page.evaluate(() => hub.pull()); await sleep(900);
       ok(!(await names()).includes(mae), '(b) a dot 400 m past the property edge is not on the park card', JSON.stringify(await names()));
-      await off('christian', -250, 900);                                 // 250 m west of the frame: still the property (the frame plus 300 m)
+      await off('christian', -250, 900);                                 // 250 m west of the frame: still the property
       await A.page.evaluate(() => hub.pull());
       await waitFor(async () => (await names()).includes(mae), { label: 'Mae on the park card (on the property)' });
       ok(true, '(b) a dot 250 m outside the frame is still the property: Mae is on the card');
-      await off('christian', 1000, 2511 + 40);                           // 40 m past the north border
+      await off('christian', 1500, 3000);                               // the far parking lot (R-park 1): inside the map's property polygon, so on the card
+      await A.page.evaluate(() => hub.pull());
+      await waitFor(async () => (await names()).includes(mae), { label: 'Mae on the park card (in the parking lot)' });
+      ok(true, '(b) a dot in the far parking lot (1500, 3000) is on the card');
+      await off('christian', 1000, 3510 + 40);                           // 40 m past the north border
       await A.page.evaluate(() => hub.pull());
       await waitFor(async () => !(await names()).includes(mae), { label: 'Mae off the park card (past the border)' });
       ok(true, '(b) a dot 40 m past the north border is off the card');
@@ -718,6 +722,34 @@ async function artSample(page, sel) {
       await A.page.click('#view-home .guide-card [data-open="dollywood"]');
       ok(await waitFor(() => A.page.$eval('#frame', f => /apps\/dollywood\.html/.test(f.src))), '(h) the card opens the build guide');
       await A.page.keyboard.press('Escape'); await sleep(300);
+      // review R-guide 1 and round 2: while Home's first pull is on its way the card keeps its place as a skeleton, but only for
+      // someone this device saw with a summary row (the hint hub.guideHint.<id>), and it is the settled card's own text in skeleton
+      // paint, so its height is the settled card's at every width; someone with no row takes no place at all
+      const cardH = () => A.page.evaluate(() => { const c = document.querySelector('#view-home .guide-card'); return c ? { h: Math.round(c.getBoundingClientRect().height), loading: c.classList.contains('is-loading'), skel: !!c.querySelector('.gbig .skeleton'), lastPull: hub.sync.lastPull } : null; });
+      const clearCache = () => A.page.evaluate(() => { for (const k of Object.keys(localStorage)) if (/^hub\.cache\.dollywood\./.test(k)) localStorage.removeItem(k); });
+      const hold = async r => { await sleep(3500); r.continue().catch(() => {}); };
+      for (const [w, hgt] of [[390, 844], [820, 1180], [1180, 820]]) {
+        await A.page.setViewportSize({ width: w, height: hgt }); await sleep(400);
+        await waitFor(async () => (await cardH() || {}).loading === false, { label: 'the settled guide card at ' + w });
+        const settled = await cardH();
+        await clearCache(); await A.page.route('**/api/data/**', hold);
+        await A.page.reload(); await A.page.waitForSelector('#view-home .gcard', { timeout: 15000 });
+        const ld = await cardH();
+        ok(ld && ld.loading && ld.skel && ld.lastPull === 0 && ld.h === settled.h, '(h) at ' + w + ' the loading skeleton is the settled card height (' + (ld && ld.h) + ' vs ' + settled.h + ')', JSON.stringify({ ld, settled }));
+        await A.page.unroute('**/api/data/**', hold);
+        await waitFor(async () => (await cardH() || {}).loading === false, { label: 'the real guide card after the pull', timeout: 20000 });
+        ok((await cardH()).h === settled.h, '(h) the real card keeps that height when the summary arrives (' + w + ')');
+      }
+      await A.page.setViewportSize({ width: 390, height: 844 });
+      // no row: no skeleton, no card, no place taken (the hint is cleared by a pull that shows none)
+      await api('/api/data/dollywood/summary?scope=person', { method: 'DELETE', profile: dadTok }).catch(() => {});
+      await A.page.evaluate(() => hub.pull()); await sleep(800);
+      await waitFor(async () => !(await cardH()), { label: 'the card gone with its row' });
+      ok(await A.page.evaluate(() => localStorage.getItem('hub.guideHint.' + hub.profile.id) === null), '(h) the hint is cleared once a pull shows no row');
+      await clearCache(); await A.page.route('**/api/data/**', hold);
+      await A.page.reload(); await A.page.waitForSelector('#view-home .gcard', { timeout: 15000 }); await sleep(600);
+      ok(!(await cardH()), '(h) a person with no row never shows a skeleton while Home loads (nothing to jump)');
+      await A.page.unroute('**/api/data/**', hold);
       const KD = await newContext(browser, 'guide-kid'); await signIn(KD.page, 'ezra');
       ok(!(await KD.page.$('#view-home .guide-card')), '(h) never on a kid\'s Home');
       await KD.ctx.close();

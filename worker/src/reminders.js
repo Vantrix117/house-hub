@@ -461,7 +461,7 @@ export async function parkJob(env, now = Date.now()) {
   // when the house last HEARD from each dot (synced_at, the Worker's own clock), not the writer's t: a kid's phone whose clock
   // runs slow still counts as updating (review of batch 2b)
   const { results: all } = await env.DB.prepare("SELECT key, value, synced_at, updated_at FROM app_data WHERE app_id = 'dollywood-live' AND scope = 'family' AND profile_id IS NULL AND substr(key, 1, 4) = 'loc:' AND value IS NOT NULL").all();
-  // P3-DOLLYWOOD-LIVE-06 (batch 10): a dot outside the property (the frame plus 300 m, park.js) is a fix from home or the road: it
+  // P3-DOLLYWOOD-LIVE-06 (batch 10): a dot outside the property (the property box in park.js: the mapped frame, the parking lots and the tram road) is a fix from home or the road: it
   // never makes a park day and never counts as a fresh grown-up
   const rows = all.filter(r => { let v = null; try { v = JSON.parse(r.value); } catch {} return !offProperty(v); });
   const memory = (await readSetting(env, PARK_KEY)) || {};
@@ -502,7 +502,7 @@ export async function parkJob(env, now = Date.now()) {
  * `meet` row (under 2 h old, by its own `at`). When a household person's dot goes from outside to within 40 m of the meeting
  * point with a fix good to 60 m, the other household grown-ups who have the switch on (push_pref:arrive, on unless off) are told
  * "Mae reached the meeting point" / "<meeting point> · open the park map" (kind 'arrive', tag arrive-<meetAt>-<id>, url
- * #dollywood-live). Once per person per meeting point per recipient (a push that failed is tried again the next minute); someone
+ * #dollywood-live). Once per person per meeting point per recipient (a push that failed is tried again each minute for 15 minutes after the arrival, 5 tries at most, only for those who were recipients then); someone
  * already within 40 m when the point is set is not announced (the first run after a new point only records who stands where),
  * nor is a dot first seen inside later (a fix needs to be seen outside first). Household people are grown-ups and kids that are
  * not guests; recipients are household grown-ups, never guests, kids, the display or the kitchen. State lives in settings
@@ -510,7 +510,7 @@ export async function parkJob(env, now = Date.now()) {
  * emptied when the point is gone. The "left the park" half is deferred: a page cannot read location in the background.
  */
 const ARRIVE_KEY = 'park_arrive';
-const ARRIVE_FRESH_MS = 3 * 60000, ARRIVE_NEAR_M = 40, ARRIVE_ACC_M = 60, MEET_MAX_MS = 2 * 3600000;
+const ARRIVE_RETRY_MS = 15 * 60000, ARRIVE_TRIES = 5, ARRIVE_FRESH_MS = 3 * 60000, ARRIVE_NEAR_M = 40, ARRIVE_ACC_M = 60, MEET_MAX_MS = 2 * 3600000;
 export async function arriveJob(env, now = Date.now()) {
   const out = { job: 'arrive', meet: null, arrived: [], notified: [], skipped: [] };
   const memory = (await readSetting(env, ARRIVE_KEY)) || {};
@@ -522,7 +522,7 @@ export async function arriveJob(env, now = Date.now()) {
     return out;
   }
   out.meet = { name: String(meet.name || 'the meeting point').slice(0, 80), at };
-  const st = +memory.at === at ? { at, inside: { ...(memory.inside || {}) }, told: { ...(memory.told || {}) } } : { at, inside: {}, told: {} };
+  const st = +memory.at === at ? { at, inside: { ...(memory.inside || {}) }, told: Object.fromEntries(Object.entries(memory.told || {}).map(([k, v]) => [k, Array.isArray(v) ? [...v] : v])), owed: JSON.parse(JSON.stringify(memory.owed || {})) } : { at, inside: {}, told: {}, owed: {} };   // told is a copy, so a push told later differs from what was stored and is saved
   const { results: rows } = await env.DB.prepare("SELECT key, value, synced_at, updated_at FROM app_data WHERE app_id = 'dollywood-live' AND scope = 'family' AND profile_id IS NULL AND substr(key, 1, 4) = 'loc:' AND value IS NOT NULL").all();
   const { results: profiles } = await env.DB.prepare('SELECT id, name, kind, is_guest FROM profiles').all();
   const who = Object.fromEntries(profiles.map(p => [p.id, p]));
@@ -540,13 +540,22 @@ export async function arriveJob(env, now = Date.now()) {
     st.inside[id] = near;
     if (was === false && near && !st.told[id]) arrivals.push(id);   // outside -> inside; a dot first seen inside stood there already
   }
-  for (const id of arrivals) {
-    out.arrived.push(id);
+  // a push that failed is retried each minute, but only for RETRY_MS after the arrival (the push's own TTL: later it would be news
+  // from the past), at most RETRY_TRIES attempts in all, and only for the grown-ups who were recipients with the switch on at the
+  // arrival (owed[id].to): a grown-up added later is not owed an old arrival
+  const owing = Object.keys(st.owed).filter(id => !arrivals.includes(id) && household(id) && now - st.owed[id].at < ARRIVE_RETRY_MS && st.owed[id].n < ARRIVE_TRIES);
+  for (const id of [...arrivals, ...owing]) {
+    if (arrivals.includes(id)) out.arrived.push(id);
     const told = st.told[id] = Array.isArray(st.told[id]) ? st.told[id] : [];
+    const owe = st.owed[id] = arrivals.includes(id) ? { at: now, n: 0, to: [] } : st.owed[id];
+    if (arrivals.includes(id)) {
+      for (const pid of grownups) if (pid !== id && (await prefsFor(env, pid)).arrive !== false) owe.to.push(pid);
+    }
+    if (arrivals.includes(id) || owe.to.some(pid => !told.includes(pid))) owe.n++;   // a try is counted only while someone is still owed
     const payload = { title: `${who[id].name} reached the meeting point`, body: `${out.meet.name} · open the park map`, url: '#dollywood-live', tag: `arrive-${at}-${id}` };
     for (const pid of grownups) {
       if (pid === id || told.includes(pid)) continue;
-      if ((await prefsFor(env, pid)).arrive === false) { out.skipped.push({ profile: pid, why: 'pref_off' }); told.push(pid); continue; }
+      if (!owe.to.includes(pid)) { if (arrivals.includes(id)) { out.skipped.push({ profile: pid, why: 'pref_off' }); told.push(pid); } continue; }
       const p = await pushTo(env, pid, 'arrive', payload, { ttl: 900, urgency: 'high' });
       if (p.sent) out.notified.push({ profile: pid, about: id, ...p });
       if (p.ok || !p.sent) told.push(pid);                  // told, or nowhere to tell them

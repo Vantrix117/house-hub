@@ -266,6 +266,18 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   .timer-card .tm-row.bare .tm-what { flex: none; }
   .timer-card .tm-row.bare .tm-left { flex: 1 1 auto; }
   :root[data-glance]:not([data-kind="kiosk"]) .timer-card .tm-left { font-size: var(--fs-glance-3); }
+  /* the Home tally card (UX-TALLY-3, batch 11): the default count in place and one + to count; a kid's Tally tile wears the count as a badge */
+  .tally-card .gbody { gap: var(--sp-4); }
+  .tally-card .tl-n { font-family: var(--font-numeral); font-size: var(--fs-numeral-m); font-weight: var(--fw-regular); line-height: var(--lh-tight); letter-spacing: var(--ls-numeral); font-variant-numeric: var(--numeral-features); color: var(--accent-ink); overflow-wrap: anywhere; }
+  .tally-card .tl-n.skeleton { display: inline-block; width: 1.3em; height: .6em; min-height: 0; border-radius: var(--r-full); }
+  .tally-card .gbody { justify-content: flex-start; }
+  .tally-card .gbody .grow { flex: 0 1 auto; }   /* the + sits right beside the number, not at the far edge of a wide card */
+  .tally-card .gbody .tl-plus { margin: 0 0 0 var(--sp-5); flex: none; width: var(--tap-lg); height: var(--tap-lg); }
+  .tally-card .tl-plus[aria-disabled="true"] { opacity: var(--op-disabled); cursor: default; }
+  .tally-card .tl-plus svg.sym { width: calc(var(--tap-lg) * .5); height: calc(var(--tap-lg) * .5); }
+  .kid-tile .kt-n { display: inline-block; box-sizing: border-box; min-width: 2em; padding: 0 var(--sp-3); margin-left: var(--sp-1); line-height: 1.6; text-align: center; border-radius: var(--r-full);
+    background: var(--accent-strong); color: var(--accent-on); font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-size: var(--fs-md); font-weight: var(--fw-bold); vertical-align: middle; }
+  .kid-tile .kt-n[hidden] { display: none; }
   .fresh { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-2); }
   .fresh .bar { --tint: var(--aging); }
   .fresh .stale .bar { --tint: var(--use-soon); }   /* the Larder ramp: graphics, not inks */
@@ -930,6 +942,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     .use('dollywood-live', 'family').use('kidverse', 'both')    // park days + kids' stars (kidverse writes; the shell only reads)
     .use('dollywood', 'person')                                 // the Home build-guide card: the guide's summary row (batch 9, UX-DOLLYWOOD-1; the guide writes)
     .use('verses', 'person')                                    // the Home Verses card: the review days (rev:) and the summary (Verses writes)
+    .use('tally', 'person')                                     // the Home Tally card and a kid's tile badge: the count's rows (hub.tally, batch 11)
     .use('timer', 'family');                                    // the running timers' mirror (batch 6): the kitchen, the TV, and timers kept on this device after a Switch
 
   // ── registry ──────────────────────────────────────────────────
@@ -1598,10 +1611,10 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   }
   // Family map: everyone whose loc:<id> row (dollywood-live, family scope) is fresher than four hours.
   const PARK_FRESH = 4 * 3600e3;
-  // P3-DOLLYWOOD-LIVE-06 (batch 10): a fix counts as "at the park" only on the property: the mapped frame (1535 x 2211 m) plus
-  // 300 m around it. The same box is parkOn() in worker/src/chat.js (where_is_family) and worker/src/reminders.js (parkJob), so a
+  // P3-DOLLYWOOD-LIVE-06 (batch 10): a fix counts as "at the park" only on the property: a box holding the map's whole property polygon, parking lots included (x -300..2500, y -300..3510 m): the frame plus
+  // 300 m, widened to the polygon. The same box is parkOn() in worker/src/chat.js (where_is_family) and worker/src/reminders.js (parkJob), so a
   // dot from the house never makes a park day. The park map itself publishes only from the property, so this guards old rows.
-  const parkOn = (x, y) => x >= -300 && x <= 1835 && y >= -300 && y <= 2511;
+  const parkOn = (x, y) => x >= -300 && x <= 2500 && y >= -300 && y <= 3510;
   const offPark = v => { const x = Number(v.x), y = Number(v.y); return v.x != null && v.y != null && Number.isFinite(x) && Number.isFinite(y) && !parkOn(x, y); };   // a row with no position is not judged
   function atPark() {
     const now = Date.now(), faces = {}; for (const q of hub.people()) faces[q.id] = q;
@@ -1745,21 +1758,33 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
   // can open the guide; never a kid's Home, the TV or the kitchen. No row (the guide never opened), no card.
   function guideHome() {
     const s = hub.get('summary', { app: 'dollywood', scope: 'person' });
-    if (!s || typeof s !== 'object') return null;
+    // Loading (the Verses card's idea, with a stricter rule): while nothing has arrived here yet (no pull, no cache) the card keeps
+    // its place as a skeleton ONLY when this device last saw this person with a summary row (the hint below, set whenever a row is
+    // seen, cleared when a pull shows none): someone who has no row takes no place and nothing jumps. The skeleton is the real card's
+    // own text from that last time, drawn with the skeleton paint, so its height is the settled card's (it shows at every width).
+    const HK = 'hub.guideHint.' + hub.profile.id;
+    if ((!s || typeof s !== 'object') && !hub.sync.lastPull && !cached('dollywood', 'person')) {
+      try { const h = JSON.parse(localStorage.getItem(HK) || 'null'); if (h && typeof h === 'object' && h.total > 0) return { ...h, loading: true }; } catch {}
+      return null;
+    }
+    if (!s || typeof s !== 'object') { try { localStorage.removeItem(HK); } catch {} return null; }
     const total = Math.max(0, Math.floor(+s.total) || 0), done = Math.max(0, Math.floor(+s.done) || 0);
     if (!total) return null;
     const n = s.next && typeof s.next === 'object' && typeof s.next.title === 'string' && s.next.title ? s.next : null;
-    return { total, done, next: n, complete: !n || done >= total, secName: n ? String(n.secName || '') : '', secDone: Math.max(0, Math.floor(+s.secDone) || 0), secTotal: Math.max(0, Math.floor(+s.secTotal) || 0) };
+    const g = { total, done, next: n, complete: !n || done >= total, secName: n ? String(n.secName || '') : '', secDone: Math.max(0, Math.floor(+s.secDone) || 0), secTotal: Math.max(0, Math.floor(+s.secTotal) || 0) };
+    try { localStorage.setItem(HK, JSON.stringify(g)); } catch {}
+    return g;
   }
   function guideCardHtml(g) {
     const a = appById('dollywood');
     const line = g.complete ? `All ${g.total} steps built` : `Next: ${g.next.title}`;
     const sub = g.complete ? 'Every section is done.' : [g.secName, g.secTotal ? `${g.secDone} of ${g.secTotal} done` : ''].filter(Boolean).join(' · ');
-    return `<div class="card gcard guide-card" data-accent="${esc(appHue(a))}">
+    const sk = t => g.loading ? `<span class="skeleton">${t}</span>` : t;
+    return `<div class="card gcard guide-card${g.loading ? ' is-loading' : ''}" data-accent="${esc(appHue(a))}">
       <h2><span class="app-icon"><svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-ferris-wheel"/></svg></span>Build guide</h2>
       <div class="gbody"><div class="grow">
-        <div class="gbig">${esc(line)}</div>
-        <div class="gsub">${esc(sub)}</div>
+        <div class="gbig">${sk(esc(line))}</div>
+        <div class="gsub">${sk(esc(sub))}</div>
       </div></div><div class="gfoot"><button class="btn btn-soft" data-open="dollywood">${g.complete ? 'Open the guide' : 'Continue'}</button><img class="spot" src="art/app/dollywood.svg" alt="" width="200" height="160"></div></div>`;
   }
   // ── the family feed: cached for an instant paint, grouped by person, an icon per line, "Show more" in pages of 30 ──
@@ -2495,9 +2520,9 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
       const stars = starsOf(hub.get('stars:' + p.id, { app: 'kidverse', scope: 'family' }) || hub.get('stars', { app: 'kidverse', scope: 'person' }));
       patchKids(part('hero'), [['hero', heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: stars ? `${stars} ${stars === 1 ? 'star' : 'stars'} this week — ready to play?` : 'Ready to play?', art: 'play' })]]);
       // UX-HOME-7: picture-first — a big tile with its picture for each of the kid's own apps, then every app
-      const tiles = KID_TILES.filter(canSee).map(id => { const a = appById(id); return [id, `<button class="kid-tile" data-open="${esc(id)}" data-accent="${esc(appHue(a))}" aria-label="Open ${esc(a.name)}"><img src="art/app/${esc(id)}.svg" alt="" width="200" height="160"><span>${esc(KID_NAMES[id] || a.name)}</span></button>`]; });
+      const tiles = KID_TILES.filter(canSee).map(id => { const a = appById(id); return [id, `<button class="kid-tile" data-open="${esc(id)}" data-accent="${esc(appHue(a))}" aria-label="Open ${esc(a.name)}"><img src="art/app/${esc(id)}.svg" alt="" width="200" height="160"><span>${esc(KID_NAMES[id] || a.name)}${id === 'tally' ? ' <b class="kt-n" data-tally-n hidden></b>' : ''}</span></button>`]; });
       tiles.push(['all', `<button class="kid-tile kid-all" id="kid-apps" aria-label="Open all my apps"><span class="app-icon"><svg class="icon"><use href="#i-apps"/></svg></span><span>All my apps</span></button>`]);
-      patchKids(part('tiles'), tiles);
+      patchKids(part('tiles'), tiles); fillTally();                  // UX-TALLY-3: a kid's Tally tile wears the count, filled in place
       const kcards = [['stars', starsCardHtml(stars, hub.isLoaded('kidverse', 'family'))]]; if (park.length) kcards.push(['park', parkCardHtml(park)]);
       patchKids(part('glance'), kcards); part('glance').classList.toggle('two', kcards.length === 2); watchSpots(part('glance'));
       return;
@@ -2545,6 +2570,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (canSee('verses')) { const vs = versesHome(); if (vs && (vs.loading || vs.total > 0)) cards.push(['verses', versesCardHtml(vs)]); }
     // UX-TIMER-7: start a timer in one tap (the last three lengths), and every running one with Pause and Stop
     if (canSee('timer')) { const tc = timerCardHtml(pulled); if (tc.bit) bits.push(tc.bit); cards.push(['timer', tc.html]); }
+    if (canSee('tally')) cards.push(['tally', tallyCardHtml()]);   // UX-TALLY-3 (batch 11): the count and one +, filled in place
     if (canSee('dollywood')) { const g = guideHome(); if (g) cards.push(['guide', guideCardHtml(g)]); }   // after the Timer card, so batch 4's pairs stay
     if (park.length) { bits.push(park.length + ' at the park'); cards.push(['park', parkCardHtml(park)]); }
     const kids = kidStars(); if (kids.length) cards.push(['kids', kidsCardHtml(kids, hub.isLoaded('kidverse', 'family'))]);
@@ -2555,6 +2581,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     patchKids(part('hero'), [['hero', heroHtml(p, { title: `${greeting()}, ${esc(p.name)}.`, sub: sub ? esc(sub) : '<span class="skeleton">loading</span>' })]]);
     patchKids(part('glance'), cards); part('glance').classList.toggle('two', cards.length === 2); watchSpots(part('glance'));
     fillTimes();                                                   // the timer card's numbers (kept out of its markup, so a tick never rebuilds it)
+    fillTally();                                                   // the tally card's count, likewise
     paintDots();
     { const pf = part('prayedfor'); if (pf) patchKids(pf, prayedForMe(p)); }   // IMP-PRAYER-I3, patched in place like the cards
     renderReminders(); renderFeed(); loadFeed();
@@ -2590,6 +2617,36 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
         <h2><span class="app-icon">${sym('timer')}</span>Timer</h2>
         <div class="gbody"><div class="grow">${body}</div></div><div class="gfoot"><button class="btn btn-soft" data-open="timer" id="home-timer-open">Open Timer</button><img class="spot" src="art/app/timer.svg" alt="" width="200" height="160"></div></div>` };
   }
+  // UX-TALLY-3 (batch 11): the Home tally card. The default counter's count (hub.tally, the Tally app's own rules) and a 60 px +:
+  // one tap counts. The markup never holds the number: fillTally() puts it in place, so a count arriving from another device
+  // never rebuilds the card under a finger (the Timer card's rule). Adults and guests; a kid's Tally tile wears the count as a
+  // badge instead; the TV and the kitchen never build this Home.
+  function tallyCardHtml() {
+    const a = appById('tally'), sym = n => `<svg class="sym" aria-hidden="true"><use href="icons/sprite.svg#i-${n}"/></svg>`;
+    return `<div class="card gcard tally-card" id="home-tally" data-accent="${esc(appHue(a))}">
+        <h2><span class="app-icon">${sym('hash')}</span>Tally</h2>
+        <div class="gbody"><div class="grow"><div class="tl-n skeleton" data-tally-n></div><span class="sr-only" role="status" aria-live="polite" data-tally-say></span><div class="gsub">Your count</div></div>
+          <button class="btn btn-primary btn-round btn-lg tl-plus pressable" data-tally-add aria-label="Add one to your count" aria-disabled="true">${sym('plus')}</button></div>
+        <div class="gfoot"><button class="btn btn-soft" data-open="tally" id="home-tally-open">Open Tally</button><img class="spot" src="art/app/tally.svg" alt="" width="200" height="160"></div></div>`;
+  }
+  function fillTally() {
+    let loaded = false, n = 0;
+    try { loaded = hub.isLoaded('tally', 'person'); if (loaded) n = hub.tally.total(null); } catch {}
+    const s = n.toLocaleString();
+    for (const e of document.querySelectorAll('[data-tally-n]')) {
+      if (e.classList.contains('kt-n')) { e.hidden = !loaded; if (loaded && e.textContent !== s) e.textContent = s; const t = e.closest('.kid-tile'); if (t) t.setAttribute('aria-label', loaded ? 'Open Tally, ' + s : 'Open Tally'); continue; }
+      e.classList.toggle('skeleton', !loaded); if (loaded && e.textContent !== s) e.textContent = s; if (!loaded && e.textContent) e.textContent = '';
+    }
+    for (const b of document.querySelectorAll('[data-tally-add]')) { const off = !loaded || n >= hub.tally.MAX; if (off) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled'); }
+  }
+  document.addEventListener('click', ev => {
+    const b = ev.target.closest('#view-home [data-tally-add]'); if (!b || b.getAttribute('aria-disabled') === 'true') return;
+    buzz();
+    let t = null;
+    try { t = hub.tally.add(null, 1); } catch (e) { if (!(e && e.error === 'not_loaded')) hub.toast(e && e.message ? e.message : 'Could not add to the count.', 3200); }
+    fillTally();
+    const say = b.closest('.card') && b.closest('.card').querySelector('[data-tally-say]'); if (say && t != null) { say.textContent = ''; setTimeout(() => { say.textContent = t.toLocaleString(); }, 30); }   // announced after the person's own tap only
+  });
   // the card's buttons: a recent length starts a timer at once (the sound is unlocked by the same tap); Pause, Resume, Stop
   document.addEventListener('click', ev => {
     const go = ev.target.closest('#view-home [data-timer-recent]'), act = ev.target.closest('#view-home [data-timer-act]');
@@ -2732,6 +2789,7 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
     if (ch.app === 'hub' && tab === 'me') renderAlbum();
     if (tab === 'me' && (ch.app === 'kidverse' || ch.bulk)) renderRewards();   // P2-SYNC-13 / P2-VIS-07: Me's rewards follow the rows
     if (ch.app === 'reminders') renderReminders();
+    if (ch.app === 'tally' || ch.bulk) fillTally();               // the Home card and a kid's tile follow the rows at once
     if (tab === 'home') scheduleHome();
     if (tab === 'apps' && (ch.app === 'f260' || ch.app === 'leftovers')) renderGrid();
   });

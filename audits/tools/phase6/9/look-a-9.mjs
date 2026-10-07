@@ -38,7 +38,7 @@ const html = fs.readFileSync(path.join(process.env.OVERLAY ? path.join(ROOT, pro
 const htmlLive = fs.readFileSync(path.join(process.env.OVERLAY ? path.join(ROOT, process.env.OVERLAY) : ROOT, 'apps', 'dollywood-live.html'), 'utf8');
 
 // Layout shifts and the like are watched from the very first frame of the app, in every frame of the page
-const watch = ctx => ctx.addInitScript(() => { try { window.__cls = 0; new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value; }).observe({ type: 'layout-shift', buffered: true }); } catch {} });
+const watch = ctx => ctx.addInitScript(() => { try { window.__cls = 0; new PerformanceObserver(l => { for (const e of l.getEntries()) if (!e.hadRecentInput) { window.__cls += e.value; (window.__ev = window.__ev || []).push(Math.round(e.startTime) + 'ms ' + e.value.toFixed(3) + ' ' + (e.sources || []).map(s => (s.node && (s.node.id || s.node.className || s.node.nodeName)) + JSON.stringify([s.previousRect.y, s.previousRect.height, s.currentRect.y, s.currentRect.height].map(Math.round))).join(';')); } }).observe({ type: 'layout-shift', buffered: true }); } catch {} });
 
 // Every control the Phase 4 rig would count, with its effective size (an absolutely placed ::before / ::after counts as a hit area)
 const TARGETS = () => {
@@ -174,7 +174,7 @@ try {
     console.log('\n## (5) layout shift through the viewer (P4-TELL-05)');
     for (const S of [PHONE, IPAD]) {
       const { d, f } = await open(S, 'dollywood');
-      const m = await f.evaluate(() => ({ cls: window.__cls, minH: getComputedStyle(document.getElementById('chips')).minHeight, h: Math.round(document.getElementById('chips').getBoundingClientRect().height) }));
+      const m = await f.evaluate(() => ({ ev: window.__ev, cls: window.__cls, minH: getComputedStyle(document.getElementById('chips')).minHeight, h: Math.round(document.getElementById('chips').getBoundingClientRect().height) }));
       ok(m.cls < 0.05, `${S.n}: CLS ${m.cls && m.cls.toFixed(4)} < 0.05; #chips min-height ${m.minH}, ${m.h} px tall`, m);
       await d.close();
     }

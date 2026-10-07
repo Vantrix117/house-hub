@@ -169,8 +169,8 @@ export const screens = [
     note: 'The designed "denied" pill: after the GPS denial, Set my spot tapped and tapped again (cancel) re-runs updLoc (:1266), which only now shows "Location is off for this site" with its Set my spot chip. On first open the denial handler (:1404) writes the text but leaves the pill without the chip (see map/typical).',
     async go(t) {
       const f = await open(t);
-      await t.tap(F(t).locator('#loc-place')); await f.waitForSelector(sel('placing'), { timeout: 3000 }).catch(() => {});
-      await t.tap(F(t).locator('#loc-place')); await f.waitForSelector(sel('denied'), { timeout: 3000 }).catch(() => {});
+      // batch 10 (P3-DOLLYWOOD-LIVE-17): a denial shows the designed state and its chip at once; no taps needed (and the sheet is hidden while placing)
+      await f.waitForSelector(sel('denied'), { timeout: 5000 }).catch(() => {});
     },
   },
   {

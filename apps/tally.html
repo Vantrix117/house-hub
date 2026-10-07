@@ -19,166 +19,429 @@ if(p){d.setAttribute('data-kind',p.kind);d.setAttribute('data-accent',p.hue&&A.s
 <title>Tally counter</title>
 <link rel="stylesheet" href="design.css">
 <style>
-  /* Tally v3 (audit batch 1). Every colour is a design.css role token; no hex, no color-mix recipe (CONS-TOK-3).
-     - The page: the person's hero wash (wash into fill) rising out of the palette's own page colour, with the palette's
-       --wash on top, so both the person and the theme reach Tally, Forest's gold radial included (VIS-TALLY-11; migration
-       row "--tally-hi/-mid/-lo to the hero tokens").
-     - The dial is content, so it is SOLID material, not glass (VIS-TALLY-9, CONS-GLASS-2); the count is the person's ink on
-       the rounded numeral face with tabular figures, for adults and kids alike (VIS-TALLY-3, CONS-TYPE-3, CONS-TYPE-5).
-     - Plus and minus are the person's solid with its own -on label (the pairing rule), 4.0-6.0:1 against the wash in every
-       palette (VIS-TALLY-1 dark, VIS-TALLY-5 light), so the person's colour is on the primary action (CONS-ACCENT-4). They
-       press with the shared .pressable (VIS-TALLY-7, CONS-MOTION-1) and focus with the shared outline ring (P4-TELL-01).
-     - The "who" kicker and Reset are the control layer: the shared glass recipe, read from the tokens (CONS-GLASS-1). */
-  html, body { height: 100%; }
+  /* Tally v4 (audit batch 11). Every colour is a design.css role token; no hex, no color-mix recipe (CONS-TOK-3).
+     - The page: the person's hero wash rising out of the palette's own page colour, the palette's --wash on top, and a
+       colour layer last (var(--bg)) so the page has a real background-color in every palette (the screens-apps check).
+     - Everything on the page is CONTENT, so it is solid material: the dial, the name pill, Reset, the counter list
+       (P4-GLASS-05, CONS-GLASS-2). The viewer bar around it is the only glass.
+     - Plus and minus are one material and one weight (VIS-TALLY-4): the person's solid with its own -on label, the
+       same rim, shadow and glow; the + is only bigger. They press with the shared .pressable.
+     - Layout: a column (name, counters, dial, controls, resets). The dial is sized from the width AND the height of the
+       frame, so + is always above the fold (UX-TALLY-5, VIS-TALLY-2); on a short landscape phone the dial and the
+       controls sit side by side. The name pill is in the flow, so it can never overlap the dial. */
+  html, body { min-height: 100%; }
   body.ds {
-    background: var(--wash), linear-gradient(170deg, var(--bg) 0%, var(--accent-wash) 38%, var(--accent-fill) 100%);
+    background: var(--wash), linear-gradient(170deg, var(--bg) 0%, var(--accent-wash) 38%, var(--accent-fill) 100%), var(--bg);
     background-attachment: fixed;
     color: var(--text);
-    display: grid; place-items: center; user-select: none; -webkit-user-select: none;
+    user-select: none; -webkit-user-select: none;
     padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
     overflow-x: hidden;
   }
-  main { position: relative; text-align: center; display: grid; justify-items: center; padding: var(--sp-6) var(--sp-4); }
+  main { position: relative; z-index: 1; min-height: 100dvh; box-sizing: border-box; display: grid; align-content: start; justify-items: center; gap: var(--sp-4); padding: var(--sp-6) var(--sp-4) var(--sp-8); text-align: center; }
+  main > * { min-width: 0; max-width: 100%; }
 
-  /* spot art: a faint watermark in the corner, out of the way of the dial */
+  /* spot art on its plate: a corner mark where there is room for it, never over the controls (CONS-DARK-1) */
   .art { position: fixed; z-index: 0; right: calc(var(--sp-4) + var(--safe-right)); bottom: calc(var(--sp-4) + var(--safe-bottom));
-    width: clamp(110px, 18vw, 200px); opacity: .16; transform: rotate(-6deg); pointer-events: none; user-select: none; -webkit-user-select: none; filter: saturate(.5); }
+    width: clamp(110px, 16vw, 180px); padding: var(--sp-3); box-sizing: border-box; background: var(--art-plate); border-radius: var(--r-card);
+    opacity: .5; transform: rotate(-6deg); pointer-events: none; user-select: none; -webkit-user-select: none; }
+  .art.off { visibility: hidden; }   /* placeArt() hides it only when it would touch something */
 
-  /* the dial: a solid disc floating on the wash (--elev-float, the person's glow) */
+  /* who: the person's face and name on a solid pill, in the flow above the dial */
+  .who { display: inline-flex; align-items: center; gap: var(--sp-2); max-width: 100%; min-height: var(--tap); box-sizing: border-box; padding: var(--sp-1) var(--sp-4) var(--sp-1) var(--sp-1);
+    border-radius: var(--r-full); background: var(--material-solid-bg); border: var(--border-w) solid var(--separator); box-shadow: var(--elev-control); color: var(--text); }
+  .who .avatar { box-shadow: 0 0 0 var(--border-w-strong) var(--accent-graphic); }
+  .who-c { font-weight: var(--fw-regular); color: var(--text-2); }
+  .who-name { font-size: var(--fs-sm); font-weight: var(--fw-semibold); line-height: var(--lh-tight); min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; }   /* wraps: the counter's name is never cut */
+
+  /* the counters: the shared segmented control, a grid of equal cells past three */
+  .switcher { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: var(--sp-2); width: min(100%, 36rem); }
+  .switcher .seg { flex: 1 1 14rem; min-width: 0; }
+  .switcher .seg { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .switcher .seg::-webkit-scrollbar { display: none; }
+  .switcher .seg button { flex: 1 0 auto; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  /* past three counters the row would hide that there are more, so one button names the current counter and the count of them,
+     and opens a list sheet (rows are --tap-row tall: 72 px for a kid) */
+  .switcher #cpick { flex: 1 1 14rem; min-width: 0; justify-content: space-between; gap: var(--sp-3); text-align: left; }
+  .switcher #cpick .cp-n { font-weight: var(--fw-semibold); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .switcher #cpick .cp-c { color: var(--text-2); white-space: nowrap; }
+  /* where the name would be squeezed (a kid, or XXL text, on a phone) the word goes and "· 8" stays, so the name keeps the room */
+  @media (max-width: 600px) { :root[data-text-size="xxl"] #cpick .cp-w, :root[data-kind="kid"] #cpick .cp-w { display: none; } }
+  .csheet h2 { margin: 0 0 var(--sp-3); font-size: var(--fs-lg); }
+  .csheet ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+  .csheet .btn { width: 100%; min-height: var(--tap-row); justify-content: space-between; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+  .csheet .btn svg.sym { flex: none; }
+  .cform { display: flex; flex-wrap: wrap; gap: var(--sp-2); justify-content: center; width: min(100%, 28rem); }
+  main [hidden] { display: none !important; }
+  .cform .input { flex: 1 1 10em; min-width: 0; }
+  .manage { display: flex; flex-wrap: wrap; gap: var(--sp-2); justify-content: center; }
+  .manage.loading { visibility: hidden; }   /* its row is laid out from the first paint, so nothing moves when the count arrives */
+
+  /* the stage: dial, then the controls */
+  .stage { display: grid; justify-items: center; align-items: center; gap: var(--sp-5); }
   .dial {
-    --disc: clamp(240px, 74vw, 360px);
-    position: relative; z-index: 1;
-    width: var(--disc); height: var(--disc); border-radius: var(--r-full);
-    display: grid; place-items: center; overflow: hidden;
+    /* the disc takes what the frame has left: --room is measured by fit() below (the name pill, the counters and the form above
+       it, and the controls under it), so + is on the screen however many counters there are (UX-TALLY-5) */
+    --cap: 22.5rem; --wv: 74vw;
+    --disc: min(var(--wv), var(--room, 100dvh), var(--cap));
+    position: relative; width: var(--disc); height: var(--disc); border-radius: var(--r-full);
+    display: grid; place-items: center; align-content: center; overflow: hidden; box-sizing: border-box;
     background: var(--material-solid-bg);
     border: var(--border-w) solid var(--separator);
     box-shadow: inset 0 1px 0 var(--hairline), var(--elev-float), var(--glow-accent-lg);
   }
-  /* a faint tick ring inside the rim, like a dial face (decoration) */
-  .dial::before { content: ""; position: absolute; inset: 10px; border-radius: inherit; border: var(--border-w) dashed var(--separator); pointer-events: none; }
+  main.settled .dial { transition: width var(--dur-slow) var(--ease-standard), height var(--dur-slow) var(--ease-standard); }   /* not before the first fit: the dial must not grow into place */
+  /* the tick ring inside the rim, like a dial face: --track-info is the palette's own 3:1 mark, so it shows in every theme (VIS-TALLY-10) */
+  .dial::before { content: ""; position: absolute; inset: var(--sp-3); border-radius: inherit; border: var(--border-w-strong) dashed var(--track-info); pointer-events: none; }
   .count {
     --digits: 1;
     position: relative; color: var(--accent-ink);
-    font-family: var(--font-numeral); font-weight: var(--fw-regular); line-height: 1; letter-spacing: var(--ls-numeral);
+    font-family: var(--font-numeral); font-weight: var(--fw-regular); line-height: var(--lh-tight); letter-spacing: var(--ls-numeral);
     font-variant-numeric: var(--numeral-features);
-    font-size: min(var(--fs-numeral-l), calc(var(--disc) * 1.35 / max(var(--digits), 3)));
+    font-size: calc(var(--disc) * 1.35 / max(var(--digits), 3));
     transition: font-size var(--dur-fast) var(--ease-standard);
   }
+  .viewonly { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-semibold); color: var(--text-2); }
 
-  .ds main .row { display: flex; gap: var(--sp-5); justify-content: center; align-items: center; margin-top: var(--sp-8); position: relative; z-index: 1;
-    min-height: 0; padding: 0; border: 0; background: none; box-shadow: none; }
-
-  /* plus and minus: the person's solid and its label, lit like the controls (a soft sheen and rim, nothing blurred behind) */
+  .ctl { display: grid; justify-items: center; gap: var(--sp-5); }
+  .pair { display: flex; gap: var(--sp-5); justify-content: center; align-items: center; }
+  /* plus and minus: one material (the person's solid and its label, lit like the controls, nothing blurred behind) */
   .tbtn {
-    width: 96px; height: 96px; min-width: var(--tap); min-height: var(--tap); border-radius: var(--r-full);
+    --d: 6rem; width: var(--d); height: var(--d); min-width: var(--tap); min-height: var(--tap); border-radius: var(--r-full); box-sizing: border-box;
     display: grid; place-items: center; padding: 0; cursor: pointer;
     color: var(--accent-on);
     background: linear-gradient(to bottom, var(--hi-2) 0, transparent 34%), var(--accent-strong);
     border: var(--border-w) solid var(--glass-edge);
     box-shadow: inset 0 1px 0 var(--hi-3), inset 0 -12px 28px -18px var(--glass-inner), var(--elev-control), var(--glow-accent);
   }
-  .tbtn .icon { width: 40%; height: 40%; }
-  .tbtn.big { width: 140px; height: 140px;
-    box-shadow: inset 0 1px 0 var(--hi-3), inset 0 -12px 28px -18px var(--glass-inner), var(--elev-float), var(--glow-accent-lg); }
+  .tbtn.big { --d: 8.75rem; }
+  .tbtn svg.sym { width: calc(var(--d) * .5); height: calc(var(--d) * .5); }
   @media (hover: hover) and (pointer: fine) {
     .tbtn:hover { background: linear-gradient(var(--hi-1), var(--hi-1)), linear-gradient(to bottom, var(--hi-2) 0, transparent 34%), var(--accent-strong); }
   }
+  /* off: a - at 0, a + at the top, and everything until the count has been pulled (aria-disabled, so focus is never lost) */
+  .tbtn[aria-disabled="true"], .tbtn[aria-disabled="true"]:active, .tbtn[aria-disabled="true"]:hover { opacity: var(--op-disabled); cursor: default; transform: none; filter: none; }
+  .reset { gap: var(--sp-2); }
+  .reset[aria-disabled="true"], .reset[aria-disabled="true"]:active { opacity: var(--op-disabled); cursor: default; transform: none; filter: none; }
 
-  /* Reset + the "who" kicker: small glass-strong pills, so the ink is var(--text) on the glass (the wash under them is a
-     tint, where no label goes: the pairing rule). Not inside a scroller, so the live blur is fine. */
-  .ds .who, .ds .btn.reset {
-    color: var(--text); opacity: 1;
-    background: var(--glass-bg-strong-tinted);
-    border: var(--border-w) solid var(--glass-edge);
-    box-shadow: var(--glass-shadow);
-    -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter);
-    text-shadow: var(--glass-text-shadow);
-  }
-  .ds .btn.reset { margin-top: var(--sp-6); position: relative; z-index: 1; font-weight: var(--fw-semibold); border-radius: var(--r-full); padding: 0 var(--sp-6); }
-  @media (hover: hover) and (pointer: fine) {
-    .ds .btn.reset:hover { background: var(--material-solid-bg); }
-  }
-
-  /* who: kicker at the top, on its pill */
-  .ds .who { position: fixed; top: calc(var(--sp-4) + var(--safe-top)); left: 50%; transform: translateX(-50%); z-index: 2;
-    padding: var(--sp-2) var(--sp-4); border-radius: var(--r-full); line-height: 1.3;
-    white-space: nowrap; max-width: calc(100vw - var(--sp-8)); overflow: hidden; text-overflow: ellipsis; }
+  /* the recent resets: a short solid list */
+  .resets { width: min(100%, 26rem); text-align: left; }
+  .resets h2 { margin: 0 0 var(--sp-2); font-size: var(--fs-md); }
+  .resets ul { list-style: none; margin: 0; padding: 0; }
+  .resets li { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-3); padding: var(--sp-2) 0; font-size: var(--fs-sm); }
+  .resets li + li { border-top: var(--border-w) solid var(--separator); }
+  .resets .rn { font-family: var(--font-numeral); font-variant-numeric: var(--numeral-features); font-weight: var(--fw-bold); color: var(--accent-ink); }
+  .resets .rw { color: var(--text-2); text-align: right; min-width: 0; overflow-wrap: anywhere; }
 
   /* kids: bigger targets */
-  :root[data-kind="kid"] .tbtn { width: 116px; height: 116px; }
-  :root[data-kind="kid"] .tbtn.big { width: 168px; height: 168px; }
-  :root[data-kind="kid"] .dial { --disc: clamp(260px, 80vw, 400px); }
+  :root[data-kind="kid"] .tbtn { --d: 7.25rem; }
+  :root[data-kind="kid"] .tbtn.big { --d: 10.5rem; }
+  :root[data-kind="kid"] .dial { --cap: 25rem; --wv: 80vw; }
+
+  /* big screens: a tablet or desktop dial takes the room it has, bounded (UX-TALLY: iPad and desktop were a 360 px dial in an empty frame) */
+  @media (orientation: portrait) and (min-width: 744px) { .dial, :root[data-kind="kid"] .dial { --cap: 32rem; --wv: 62vw; } }
+  /* landscape (a phone turned, an iPad, a desktop): the dial and the controls side by side, + and Reset on the screen without scrolling */
+  @media (orientation: landscape) {
+    main { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; align-content: flex-start; gap: var(--sp-2) var(--sp-4); }
+    main > .stage, main > .cform, main > .manage, main > .resets { flex: 0 0 100%; justify-items: center; justify-content: center; }
+    .switcher { flex: 1 1 12rem; max-width: 30rem; width: auto; min-width: 0; }
+    main > .who { max-width: 55vw; }   /* an unbroken long name wraps inside the pill instead of taking the whole row from the counters button */
+    .stage { grid-auto-flow: column; gap: var(--sp-8); }
+    .dial, :root[data-kind="kid"] .dial { --cap: 34rem; --wv: 46vw; }
+  }
+  /* a short landscape phone (844 x 390): smaller controls, Reset beside them, everything from the top */
+  @media (orientation: landscape) and (max-height: 560px) {
+    main { align-content: flex-start; padding-top: var(--sp-2); padding-bottom: var(--sp-4); }
+    .dial, :root[data-kind="kid"] .dial { --cap: 22.5rem; --wv: 45vw; }
+    .tbtn { --d: 5rem; }
+    .tbtn.big { --d: 7.5rem; }
+    :root[data-kind="kid"] .tbtn { --d: 5.5rem; }
+    :root[data-kind="kid"] .tbtn.big { --d: 8rem; }
+    .ctl { gap: var(--sp-3); grid-auto-flow: column; align-items: center; }
+  }
+  /* compact (set by fit()): a small stacked screen keeps its dial by putting Reset beside smaller controls */
+  :root main.compact .tbtn { --d: min(4.5rem, 21vw); }
+  :root main.compact .tbtn.big { --d: min(7rem, 33vw); }
+  main.compact .ctl { grid-auto-flow: column; align-items: center; gap: var(--sp-2); }
+  main.compact .reset { width: var(--tap); padding: 0; justify-content: center; }   /* the rotate-ccw alone (its label stays for assistive tech) */
+  main.compact .reset span { display: none; }
+  main.compact #cpick { min-height: 64px; }   /* a kid's minimum: the 96 px XXL row would push + off a small screen */
+  /* narrower than a phone's 360: three big targets will not fit in a row, so Reset takes its own row (nothing scrolls sideways) */
+  @media (max-width: 359px) { :root[data-text-size="xxl"] main.compact .ctl, :root[data-text-size="xl"] main.compact .ctl { grid-auto-flow: row; justify-items: center; } }
+
+  /* across the room (IMP-TALLY-I1): on an iPad-sized screen after 20 s idle the count grows and Reset goes; any tap brings it back.
+     Under Reduce Motion the change is instant (design.css's kill takes the width/height transitions away). */
+  @media (min-width: 768px) {
+    :root main.far .dial { --disc: min(88vw, calc(100dvh - 20rem)); }
+    /* a landscape iPad across the room (the kitchen's): the name pill goes too, and the dial takes nearly the whole frame height */
+    @media (orientation: landscape) { :root main.far .dial { --disc: min(64vw, calc(100dvh - 2.5rem)); } main.far .who { position: fixed; top: var(--sp-3); right: calc(var(--sp-4) + var(--safe-right)); z-index: 2; max-width: 34vw; } main.far .who .who-name { font-size: max(var(--fs-lg), 3.2dvh); } main.far .who .avatar { --size: max(40px, 4.6dvh); } main.far { padding-top: var(--sp-3); padding-bottom: var(--sp-2); } }
+    main.far .count { font-size: calc(var(--disc) * 1.3 / max(var(--digits), 3)); }   /* the number grows with the dial, 999,999 included */
+    main.far .reset, main.far .resets, main.far .switcher, main.far .manage, main.far .cform { display: none; }
+  }
 
   /* loading: until the count has been pulled once the dial holds a skeleton, never a placeholder 0 (a 0 invites the tap
-     that would write over the real count), and the buttons are visibly off (design.css dims the disabled Reset). The
-     shimmer, the press and every transition here stop under Reduce Motion through the design.css tokens and its kill. */
+     that would write over the real count), and the buttons are visibly off. */
   .count.skeleton { width: 1.3em; height: .6em; min-height: 0; border-radius: var(--r-full); }
-  .tbtn:disabled, .tbtn:disabled:active, .tbtn:disabled:hover { opacity: var(--op-disabled); cursor: default; transform: none; filter: none; }
 </style>
 </head>
 <body class="ds">
-<div class="who kicker" id="who"></div>
-<main aria-busy="true">
-  <img class="art" src="../art/app/tally.svg" alt="" aria-hidden="true">
-  <div class="dial">
-    <div class="count skeleton" id="n" role="img" aria-label="Loading your count"></div>
+<h1 class="sr-only">Tally counter</h1>
+<img class="art" src="../art/app/tally.svg" alt="" aria-hidden="true" draggable="false">
+<main id="main" aria-busy="true">
+  <div class="who" id="who"></div>
+  <div class="switcher" id="switcher" hidden>
+    <div class="seg" id="seg" role="group" aria-label="Counters"></div>
+    <button type="button" class="btn btn-soft" id="cpick" aria-haspopup="dialog" hidden><span class="cp-n"></span><span class="cp-c"></span></button>
   </div>
-  <div class="row">
-    <button class="tbtn pressable" id="minus" aria-label="Subtract one" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
-    <button class="tbtn big pressable" id="plus" aria-label="Add one" disabled aria-disabled="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+  <form class="cform" id="cform" hidden autocomplete="off">
+    <input class="input" id="cname" type="text" maxlength="24" aria-label="Counter name" placeholder="Name this counter" enterkeyhint="done">
+    <button type="submit" class="btn btn-primary" id="cok">Add</button>
+    <button type="button" class="btn btn-ghost" id="ccancel">Cancel</button>
+  </form>
+  <div class="stage">
+    <div class="dial">
+      <div class="count skeleton" id="n" role="img" aria-label="Loading your count"></div>
+    </div>
+    <p class="viewonly" id="viewonly" hidden>View only</p>
+    <div class="ctl" id="ctl">
+      <div class="pair">
+        <button type="button" class="tbtn pressable" id="minus" aria-label="Subtract one" aria-disabled="true"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-minus"/></svg></button>
+        <button type="button" class="tbtn big pressable" id="plus" aria-label="Add one" aria-disabled="true"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-plus"/></svg></button>
+      </div>
+      <button type="button" class="btn btn-soft reset" id="reset" aria-label="Reset to zero" aria-disabled="true"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-rotate-ccw"/></svg><span>Reset</span></button>
+    </div>
   </div>
-  <button class="btn btn-ghost reset" id="reset" disabled aria-disabled="true">Reset to zero</button>
+  <div class="manage loading" id="manage">
+    <button type="button" class="btn btn-ghost" id="add-counter"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-plus"/></svg><span>New counter</span></button>
+    <button type="button" class="btn btn-ghost" id="rename" hidden>Rename</button>
+    <button type="button" class="btn btn-ghost" id="remove" hidden>Remove</button>
+  </div>
+  <section class="card resets" id="resets" aria-labelledby="resets-h" hidden>
+    <h2 id="resets-h">Recent resets</h2>
+    <ul id="reset-list"></ul>
+  </section>
+  <div class="sr-only" id="live" role="status" aria-live="polite"></div>
 </main>
+<script>
+(function () {
+  // --room: the height the dial may have. Stacked, it is the frame less everything above and under it down to the + row; side by
+  // side (a short landscape phone), the frame less what is above the dial. Measured without the dial's own height, so no loop.
+  const fit = window.__tallyFit = () => {
+    const dial = document.querySelector('.dial'), pair = document.querySelector('.pair'), stage = document.querySelector('.stage'), ctl = document.getElementById('ctl');
+    if (!dial || !pair) return;
+    if (window.__tallySwitcher) window.__tallySwitcher();   // chips that no longer fit become the Counters button
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, main = document.getElementById('main');
+    const sideBySide = /column/.test(getComputedStyle(stage).gridAutoFlow);
+    const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sp-4')) || 16;
+    const measure = () => { const d = dial.getBoundingClientRect(), h = d.height || 0; const used = sideBySide ? d.top : stage.getBoundingClientRect().bottom - h; return innerHeight - used - pad; };   // stacked: everything down to Reset
+    main.classList.remove('compact');
+    let room = measure();
+    // a small stacked screen (a kid at XXL on a phone): smaller controls with Reset beside them, so the dial keeps a usable size
+    if (!sideBySide && room < 11 * rem) { main.classList.add('compact'); room = measure(); }
+    room = Math.max(5.5 * rem, room);   // below 8 rem only when + would otherwise leave the screen
+    const cur = document.documentElement.style.getPropertyValue('--room');
+    if (cur !== room + 'px') document.documentElement.style.setProperty('--room', room + 'px');
+    placeArt();
+  };
+  // the corner art shows wherever it touches nothing (and is on its plate in dark)
+  const placeArt = window.__tallyPlaceArt = () => {
+    const art = document.querySelector('.art'); if (!art) return;
+    art.classList.remove('off'); const a = art.getBoundingClientRect();
+    const hit = [...document.querySelectorAll('main > *, .stage > *, .dial')].some(e => {
+      if (e.hidden || getComputedStyle(e).display === 'none' || getComputedStyle(e).visibility === 'hidden') return false;
+      const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.left < a.right && r.right > a.left && r.top < a.bottom && r.bottom > a.top && !e.matches('.stage');
+    });
+    art.classList.toggle('off', hit);
+  };
+  fit();   // laid out before the first paint (the next script is a network fetch the browser may paint in front of)
+})();
+</script>
 <script src="hub.js" data-app="tally" data-scope="person"></script>
 <script>
   (async () => {
-    const who = () => { if (hub.profile) document.getElementById('who').textContent = hub.profile.name + "'s counter"; };
-    who();                               // the name is known from the session at once: no empty pill while loading
+    const $ = id => document.getElementById(id);
+    const T = hub.tally, main = $('main'), el = $('n');
+    const num = v => Number(v).toLocaleString();
+    // Who: the face and the name, in the flow. The name is known from the session at once: no empty pill while loading.
+    const who = () => {
+      if (!hub.profile) return;
+      const w = $('who'); const key = hub.profile.id + '|' + hub.profile.name + '|' + hub.profile.emoji + '|' + hub.profile.hue;
+      if (w.dataset.key === key) return; w.dataset.key = key;
+      w.innerHTML = hub.avatarHtml(hub.profile, 'avatar-sm'); const s = document.createElement('span'); s.className = 'who-name'; const pp = document.createElement('span'); pp.className = 'who-p'; pp.textContent = hub.profile.name + "'s counter"; const c = document.createElement('span'); c.className = 'who-c'; s.append(pp, c); w.appendChild(s);
+    };
+    who();
+    const fit = window.__tallyFit, placeArt = window.__tallyPlaceArt;   // defined by the early script after <main>
+    fit();                               // laid out before the first paint, so the dial never changes size when the count arrives
+    requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById('main').classList.add('settled')));
     await hub.ready();
     // Legacy key from before profiles existed. The SDK waits for the load and a fresh pull, skips guests and kids, and
     // writes only if the server has no count; its change event (key null, migrated) re-renders through onChange below.
     hub.migrate([{ from: 'tally.count', to: 'count', parse: raw => Number(raw) || 0 }]).catch(() => {});
-    const el = document.getElementById('n'), main = document.querySelector('main');
-    const btns = ['plus', 'minus', 'reset'].map(id => document.getElementById(id));
     who();
     // Nothing is shown or written until the count has been pulled once on this device: hub.ready gives up after 6 s
     // (or at once when the pull fails), and a tap on an empty cache would replace the real count for good.
     let live = hub.isLoaded();
-    // Batch 0f (P3-TALLY-01): each device keeps its own row, count:<device> = { n, epoch }, n being that device's net taps
-    // since the reset named by epoch; the reset row { epoch, at } starts a new count. The display is the sum of every
-    // device's row on the current epoch, so taps from two devices add up instead of the newer absolute number erasing the
-    // other's. Before the first reset the pre-0f absolute row `count` is the base.
-    const dev = () => 'count:' + ((hub.device && hub.device.id) || 'this-device');
-    const epochNow = () => { const r = hub.get('reset'); return r && typeof r === 'object' && r.epoch ? String(r.epoch) : null; };
-    const n = () => {
-      const ep = epochNow(); let sum = ep ? 0 : Math.max(0, Number(hub.get('count', { default: 0 })) || 0);
-      for (const r of hub.list('count:')) if (r.value && typeof r.value === 'object' && (r.value.epoch || null) === ep) sum += Math.floor(Number(r.value.n) || 0);
-      return Math.max(0, sum);
-    };
-    const mine = () => { const v = hub.get(dev()); const ep = epochNow(); return v && typeof v === 'object' && (v.epoch || null) === ep ? Math.floor(Number(v.n) || 0) : 0; };
+    let cid = null;                                   // the counter on the dial: null is the default one, "Count"
+    const SELKEY = 'hub.tally.sel.' + (hub.profile ? hub.profile.id : '');
+    try { const s = localStorage.getItem(SELKEY); if (s) cid = s; } catch {}
+    const say = t => { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = String(t); }, 30); };   // a polite status line: "14"
+    const nameOf = id => { const c = T.counters().find(x => x.id === id); return c ? c.name : 'Count'; };
+
+    function paintSwitcher(cs) {
+      const sw = $('switcher'), seg = $('seg'), pick = $('cpick'), many = cs.length > 1;
+      sw.hidden = !many || !live;
+      $('add-counter').hidden = cs.length - 1 >= T.MAX_COUNTERS;
+      $('rename').hidden = $('remove').hidden = !cid;
+      const sig = cs.map(c => c.id + ':' + c.name).join('|') + '#' + cid;
+      if (seg.dataset.sig !== sig) {
+        seg.dataset.sig = sig; seg.textContent = '';
+        for (const c of cs) {
+          const b = document.createElement('button'); b.type = 'button'; b.textContent = c.name; b.title = c.name; b.dataset.cid = c.id || '';
+          const on = (c.id || null) === (cid || null); b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.className = on ? 'on' : '';
+          seg.appendChild(b);
+        }
+      }
+      // past three counters, or whenever the chips would not fit their track whole, one "Counters · N" button opens the list sheet
+      seg.hidden = false; pick.hidden = true;
+      const picker = many && live && (cs.length > 3 || seg.scrollWidth > seg.clientWidth + 1);
+      seg.hidden = picker || !many; pick.hidden = !picker;
+      if (picker) { const cur = cs.find(c => (c.id || null) === (cid || null)) || cs[0]; pick.querySelector('.cp-n').textContent = cur.name; pick.querySelector('.cp-c').innerHTML = '<span class="cp-w">Counters </span>· ' + cs.length; pick.setAttribute('aria-label', 'Counters, ' + cs.length + '. Now: ' + cur.name + '. Choose another'); }
+    }
+    window.__tallySwitcher = () => { if (live) paintSwitcher(T.counters()); };
+    function paintResets() {
+      const rs = T.resets(), box = $('resets'), ul = $('reset-list'), many = T.counters().length > 1;
+      box.hidden = !live || !rs.length;
+      const sig = JSON.stringify(rs.map(r => [r.key, r.name, r.from])) + many;
+      if (ul.dataset.sig === sig) return; ul.dataset.sig = sig; ul.textContent = '';
+      for (const r of rs) {
+        const li = document.createElement('li'), a = document.createElement('span'), b = document.createElement('span');
+        a.className = 'rn'; a.textContent = num(r.from); b.className = 'rw';
+        const d = new Date(r.at), today = new Date(), same = d.toDateString() === today.toDateString();
+        const when = same ? 'Today ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        b.textContent = (many ? r.name + ' · ' : '') + when;
+        li.append(a, b); ul.appendChild(li);
+      }
+    }
     const show = () => {
       if (!live) return;
-      const v = n(); el.classList.remove('skeleton'); el.removeAttribute('role'); el.removeAttribute('aria-label');
-      el.textContent = v; el.style.setProperty('--digits', String(v).length);
+      let cs = T.counters(); if (cid && !cs.some(c => c.id === cid)) { cid = null; }   // the counter was removed elsewhere
+      const canW = hub.canWrite, v = T.total(cid), s = v.toLocaleString();
+      el.classList.remove('skeleton'); el.removeAttribute('role'); el.removeAttribute('aria-label');
+      if (el.textContent !== s) { el.textContent = s; el.style.setProperty('--digits', String(s.length)); }
+      $('ctl').hidden = !canW; $('viewonly').hidden = canW;
+      const off = (b, x) => { if (x) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled'); };
+      off($('minus'), v <= 0); off($('plus'), v >= T.MAX); off($('reset'), v <= 0);
+      $('manage').hidden = !canW; $('manage').classList.remove('loading');
+      paintSwitcher(cs); paintResets();
+      { const wc = document.querySelector('#who .who-c'), wp = document.querySelector('#who .who-p'); if (wc && wp) { wp.textContent = hub.profile.name + (cid ? '' : "'s counter"); wc.textContent = cid ? ' · ' + nameOf(cid) : ''; } }   // which counter, beside whose, in the pill (room mode keeps the pill)
+      fit(); requestAnimationFrame(fit);
     };
-    // step: +1 or -1 on this device's own row (never below a shown 0); reset: a new epoch, which starts every device at 0
-    const step = d => {
+    // taps: a button that is off (aria-disabled) does nothing and writes nothing
+    const guard = fn => ev => {
       if (!live) return;
+      if (ev.currentTarget.getAttribute('aria-disabled') === 'true') return;
       if (!hub.canWrite) { hub.kioskNudge(); return; }
-      if (d < 0 && n() <= 0) return;
-      try { hub.set(dev(), { n: mine() + d, epoch: epochNow() }); } catch (e) { if (e && e.error === 'not_loaded') return; throw e; }
+      try { fn(); } catch (e) { if (e && e.error === 'not_loaded') return; hub.toast(e && e.message ? e.message : 'That did not work.', 3200); }
       show();
     };
-    const reset = () => {
-      if (!live) return;
-      if (!hub.canWrite) { hub.kioskNudge(); return; }
-      try { hub.set('reset', { epoch: hub.uid(), at: Date.now() + (Number(hub.skew) || 0) }); } catch (e) { if (e && e.error === 'not_loaded') return; throw e; }
-      show();
+    $('plus').onclick = guard(() => { const t = T.add(cid, 1); if (t != null) say(num(t)); });
+    $('minus').onclick = guard(() => { const t = T.add(cid, -1); if (t != null) say(num(t)); });
+    $('reset').onclick = guard(() => {
+      const snap = T.reset(cid); if (!snap) return;
+      say(num(0));
+      const nm = cid ? nameOf(cid) + ' ' : '';
+      hub.toast('Reset ' + nm + 'from ' + num(snap.from), 10000, { action: 'Undo', onAction: async () => {
+        let n = null; try { n = await T.undoReset(snap); } catch {}
+        if (n == null) hub.toast('That count changed on another device, so it was not put back.', 3600); else say(num(n));
+        show();
+      } });
+    });
+
+    // counters: pick, add, rename, remove (with Undo)
+    $('seg').addEventListener('click', ev => {
+      const b = ev.target.closest('button[data-cid]'); if (!b) return;
+      cid = b.dataset.cid || null; try { localStorage.setItem(SELKEY, cid || ''); } catch {}
+      show(); say(num(T.total(cid)));
+    });
+    // the list sheet past three counters: every counter on its own row (a pre-reader sees them all), Escape or the backdrop closes it
+    $('cpick').onclick = () => {
+      const bd = document.createElement('div'); bd.className = 'sheet-backdrop';
+      const sh = document.createElement('div'); sh.className = 'sheet csheet'; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-label', 'Counters');
+      const h = document.createElement('h2'); h.textContent = 'Counters'; const ul = document.createElement('ul');
+      const close = () => { document.removeEventListener('keydown', onKey, true); bd.remove(); $('cpick').focus(); };
+      const onKey = ev => {
+        if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); close(); return; }
+        if (ev.key !== 'Tab') return;                                   // the focus stays in the sheet (as the Larder's edit sheet)
+        const f = [...sh.querySelectorAll('button')].filter(x => !x.disabled && x.getClientRects().length); if (!f.length) return;
+        const first = f[0], last = f[f.length - 1], at = document.activeElement;
+        if (!sh.contains(at)) { ev.preventDefault(); (ev.shiftKey ? last : first).focus(); }
+        else if (ev.shiftKey && at === first) { ev.preventDefault(); last.focus(); }
+        else if (!ev.shiftKey && at === last) { ev.preventDefault(); first.focus(); }
+      };
+      for (const c of T.counters()) {
+        const li = document.createElement('li'), b = document.createElement('button'), on = (c.id || null) === (cid || null);
+        b.type = 'button'; b.className = 'btn ' + (on ? 'btn-primary' : 'btn-soft'); b.dataset.cid = c.id || ''; b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        const n = document.createElement('span'); n.textContent = c.name; const v = document.createElement('span'); v.textContent = T.total(c.id).toLocaleString();
+        b.append(n, v);
+        b.onclick = () => { cid = c.id || null; try { localStorage.setItem(SELKEY, cid || ''); } catch {} close(); show(); say(num(T.total(cid))); };
+        li.appendChild(b); ul.appendChild(li);
+      }
+      sh.append(h, ul); bd.appendChild(sh); bd.addEventListener('click', ev => { if (ev.target === bd) close(); });
+      document.body.appendChild(bd); document.addEventListener('keydown', onKey, true);
+      const first = ul.querySelector('[aria-pressed="true"]') || ul.querySelector('button'); if (first) first.focus();
     };
-    const wake = () => { live = true; main.removeAttribute('aria-busy'); btns.forEach(b => { b.disabled = false; b.removeAttribute('aria-disabled'); }); show(); };
-    document.getElementById('plus').onclick = () => step(1);
-    document.getElementById('minus').onclick = () => step(-1);
-    document.getElementById('reset').onclick = reset;
+    let editing = null;                                 // null = adding; a counter id = renaming it
+    const form = $('cform'), input = $('cname');
+    const openForm = id => {
+      editing = id; form.hidden = false; $('cok').textContent = id ? 'Save' : 'Add'; input.value = id ? nameOf(id) : ''; fit(); input.focus(); input.select();
+    };
+    const closeForm = () => { form.hidden = true; editing = null; fit(); };
+    $('add-counter').onclick = () => { if (!live) return; if (!hub.canWrite) { hub.kioskNudge(); return; } openForm(null); };
+    $('rename').onclick = () => { if (cid) openForm(cid); };
+    $('ccancel').onclick = closeForm;
+    input.addEventListener('keydown', ev => { if (ev.key === 'Escape') { ev.stopPropagation(); closeForm(); } });
+    form.addEventListener('submit', ev => {
+      ev.preventDefault();
+      try {
+        if (editing) T.rename(editing, input.value);
+        else { const id = T.addCounter(input.value); if (id) { cid = id; try { localStorage.setItem(SELKEY, id); } catch {} } }
+        closeForm(); show();
+      } catch (e) { if (e && e.error === 'not_loaded') return; hub.toast(e && e.message ? e.message : 'That did not work.', 3200); }
+    });
+    const purges = new Map();                           // a removed counter's rows are cleared once its Undo has gone
+    const flushPurges = () => { for (const [id, t] of purges) { clearTimeout(t); try { T.purge(id); } catch {} } purges.clear(); };
+    hub.onLeave(flushPurges);
+    $('remove').onclick = () => {
+      if (!cid || !hub.canWrite) return;
+      const id = cid, name = nameOf(id);
+      let rec = null; try { rec = T.removeCounter(id); } catch {}
+      if (!rec) return;
+      cid = null; try { localStorage.setItem(SELKEY, ''); } catch {}
+      purges.set(id, setTimeout(() => { purges.delete(id); try { T.purge(id); } catch {} }, 10500));
+      show();
+      hub.toast('Removed ' + name, 10000, { action: 'Undo', onAction: () => {
+        clearTimeout(purges.get(id)); purges.delete(id);
+        try { T.restoreCounter(rec); cid = id; try { localStorage.setItem(SELKEY, id); } catch {} } catch {}
+        show();
+      } });
+    };
+
+    // across the room (IMP-TALLY-I1): 20 s without a touch on an iPad-sized screen grows the count and puts Reset away; any
+    // tap brings it back. The tap that wakes the screen only wakes it (the + may have moved while it settled).
+    let idle = 0, swallowUntil = 0;
+    addEventListener('click', ev => { if (swallowUntil) { const hit = Date.now() < swallowUntil; swallowUntil = 0; if (hit) { ev.preventDefault(); ev.stopPropagation(); } } }, true);   // the click of the waking tap only wakes
+    const far = on => main.classList.toggle('far', on);
+    const arm = () => { clearTimeout(idle); idle = setTimeout(() => { if (matchMedia('(min-width: 768px)').matches && live) far(true); }, 20000); };
+    const touched = ev => { if (main.classList.contains('far') && matchMedia('(min-width: 768px)').matches) { far(false); if (ev.type === 'pointerdown') swallowUntil = Date.now() + 1500; } arm(); };
+    addEventListener('pointerdown', touched, true); addEventListener('keydown', touched, true);
+    arm();
+    window.__tally = { show, far, get cid() { return cid; } };
+
+    addEventListener('resize', fit); addEventListener('orientationchange', fit);
+    new MutationObserver(fit).observe(document.documentElement, { attributes: true, attributeFilter: ['data-text-size', 'data-kind', 'data-theme', 'data-glass'] });   // a text size set after load moves the chrome
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    document.querySelector('.dial').addEventListener('transitionend', fit);
+    const wake = () => { live = true; main.removeAttribute('aria-busy'); show(); };
     hub.onChange(show);
     if (live) wake(); else hub.loaded().then(wake);
     let retry = 0;                       // a failed first pull: try again in 5 s rather than waiting for the 30 s poll

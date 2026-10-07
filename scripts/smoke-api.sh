@@ -228,13 +228,14 @@ call "an unknown job names the timer job" POST /api/admin/cron/run '{"job":"nope
 echo "$BODY" | grep -q "'timer'" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected 'timer' among the jobs"; }
 # batch 10 (GAP-DOLLYWOOD-LIVE-1): "someone reached the meeting point" is the minute trigger's second job; its switch is the person row
 # push_pref:arrive (on unless false), and the job can be forced from Admin
-call "turn the arrival alert off (push_pref:arrive)" PUT "/api/data/hub/push_pref:arrive?scope=person" "{\"value\":false,\"updated_at\":$(node -e 'console.log(Date.now())')}" "$D" "$P"; expect 200
-call "read the arrival switch back" GET "/api/data/hub/push_pref:arrive?scope=person" '' "$D" "$P"; expect 200
-[ "$(echo "$BODY" | j value)" = false ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected push_pref:arrive = false"; }
-call "turn the arrival alert back on" PUT "/api/data/hub/push_pref:arrive?scope=person" "{\"value\":true,\"updated_at\":$(node -e 'console.log(Date.now()+1)')}" "$D" "$P"; expect 200
+call "turn the arrival alert off (push_pref:arrive)" PUT "/api/data/hub/push_pref:arrive?scope=person" "{\"value\":false,\"updated_at\":$(node -e 'console.log(Date.now())')}" "$D" "$A"; expect 200
+call "read the arrival switch back" GET "/api/data/hub?scope=person&key=push_pref:arrive" '' "$D" "$A"; expect 200
+[ "$(echo "$BODY" | j item.value)" = false ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected push_pref:arrive = false"; }
+call "turn the arrival alert back on" PUT "/api/data/hub/push_pref:arrive?scope=person" "{\"value\":true,\"updated_at\":$(node -e 'console.log(Date.now()+1)')}" "$D" "$A"; expect 200
+# WIRING ONLY: here no meeting point is set (meet is null), so the forced job proves the route, the admin gate and the job name; the arrivals themselves (a real point, who is told, once, switch off, kid/guest, the retry after a failed delivery) are scripts/test-push2.mjs
 call "forced arrive job (GAP-DOLLYWOOD-LIVE-1)" POST /api/admin/cron/run '{"job":"arrive"}' "$D" "$A"; expect 200
 [ "$(echo "$BODY" | j job)" = arrive ] && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected job=arrive"; }
-call "the arrive job is admin only" POST /api/admin/cron/run '{"job":"arrive"}' "$D" "$P"; expect 403
+call "the arrive job is admin only" POST /api/admin/cron/run '{"job":"arrive"}' "$D" "X-Profile-Token: $KID"; expect 403
 call "an unknown job names the arrive job" POST /api/admin/cron/run '{"job":"nope"}' "$D" "$A"; expect 400
 echo "$BODY" | grep -q "'arrive'" && pass=$((pass+1)) || { fail=$((fail+1)); echo "   ^^^ expected 'arrive' among the jobs"; }
 call "admin usage counts New York days" GET /api/admin/usage '' "$D" "$A"; expect 200

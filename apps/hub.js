@@ -22,6 +22,7 @@
  *   hub.sync.state                          // 'synced' | 'pending' | 'offline' | 'error' ('pending' until the first pull answers)
  *   hub.serverNow()                         // the house's clock (ms): Date.now() + hub.skew
  *   hub.timers                              // the Timer's rows and rules, shared by the Timer app and the shell (batch 6; below)
+ *   hub.tally                               // the counter's rows and rules, shared by the Tally app and Home's card (batch 11; below)
  *   hub.larder.fresh(item, today)            // the Larder's one freshness rule (batch 8): { level: 'fresh'|'soon'|'old', days, daysLeft, label, … }
  *   hub.larder.due(items, today)             // what needs eating, most urgent first: { due, old, soon }
  *
@@ -1131,6 +1132,113 @@
       return { due: all, old: all.filter(x => x.f.level === 'old'), soon: all.filter(x => x.f.level === 'soon') };
     }
     return { fresh, due, isDay, OLD_DAYS, SOON_DAYS, SOON_BEFORE };
+  })();
+
+  // ── tally (batch 11): the one copy of the counter's rules, shared by the Tally app and the shell's Home card ───────
+  /*
+   * Person scope, app 'tally' (the page needs the 'tally' person channel: the app declares it, the shell hub.use()s it).
+   * The default counter ("Count", id null) keeps the rows from batch 0f, so chat and older devices still work:
+   *   count:<device> = { n, epoch }         this device's net taps since the reset named by epoch (signed: a device that pressed -
+   *                                          more than + holds a negative n; an old row's sub, if any, is subtracted)
+   *   reset          = { epoch, at }        starts a new count; the old epoch's rows stop counting
+   *   count          = the pre-0f absolute count, a read-only base until the first reset
+   * Named counters (GAP-TALLY-1, up to 6): counter:<cid> = { name, at }, with c:<cid>:count:<device> and c:<cid>:reset on
+   * the same epoch rule. resetlog:<at> = { cid, from, at } is the short list of recent resets (5 shown, 30 days kept).
+   * The count is the sum of this epoch's device rows, clamped to an integer 0 … 999 999 as a TOTAL; a device row is read as an
+   * integer within ±999 999 (fractional floored, non-numeric or huge clamped / 0), never written back unless the person taps
+   * (P3-TALLY-08). Undo of a Reset first sends and pulls (another device's taps or reset count), then writes a NEW epoch whose
+   * row holds the old total plus the taps made since (by value, never by clock); it is refused if another reset came meanwhile.
+   * Known limit (P3-TALLY-01): a tap made on a device that has not yet pulled a reset lands on the old epoch and is dropped.
+   */
+  hub.tally = (() => {
+    const O = { app: 'tally', scope: 'person' }, MAX = 999999, MAX_COUNTERS = 6, KEEP_MS = 30 * 86400000, SHOWN = 5;
+    const clamp = v => typeof v === 'number' && isFinite(v) ? Math.min(MAX, Math.max(0, Math.floor(v))) : 0;
+    const obj = v => v && typeof v === 'object' && !Array.isArray(v);
+    const P = cid => cid ? 'c:' + cid + ':' : '';
+    const dev = cid => P(cid) + 'count:' + ((hub.device && hub.device.id) || 'this-device');
+    const epochOf = cid => { const r = hub.get(P(cid) + 'reset', O); return obj(r) && r.epoch ? String(r.epoch) : null; };
+    const signed = v => typeof v === 'number' && isFinite(v) ? Math.min(MAX, Math.max(-MAX, Math.trunc(v))) : 0;
+    const net = v => signed(v.n) - clamp(v.sub);
+    function total(cid = null) {
+      const ep = epochOf(cid); let sum = ep || cid ? 0 : clamp(hub.get('count', O));
+      for (const r of hub.list(P(cid) + 'count:', O)) if (obj(r.value) && (r.value.epoch || null) === ep) sum += net(r.value);
+      return Math.min(MAX, Math.max(0, sum));
+    }
+    /** This device's own net on the current epoch (0 when it has no row). */
+    function mine(cid = null) {
+      const v = hub.get(dev(cid), O), ep = epochOf(cid);
+      return obj(v) && (v.epoch || null) === ep ? net(v) : 0;
+    }
+    const clean = s => String(s == null ? '' : s).replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24);
+    /** [{ id, name }]: the default counter first, then the named ones in the order they were made. */
+    function counters() {
+      const named = hub.list('counter:', O).filter(r => obj(r.value) && clean(r.value.name)).map(r => ({ id: r.key.slice(8), name: clean(r.value.name), at: Number(r.value.at) || 0 }))
+        .sort((a, b) => a.at - b.at || (a.id < b.id ? -1 : 1));   // all of them: a 7th added at once on two devices stays visible
+      return [{ id: null, name: 'Count', at: 0 }, ...named];
+    }
+    const exists = cid => !cid || counters().some(c => c.id === cid);
+    const writable = () => { if (!hub.canWrite) { hub.kioskNudge(); return false; } return true; };
+    /** +1 or −1 on this device's own row (a − at 0 and a + at the top write nothing). Returns the new total, or null. */
+    function add(cid, d) {
+      if (!writable() || !exists(cid)) return null;
+      const t = total(cid); if ((d < 0 && t <= 0) || (d > 0 && t >= MAX)) return null;
+      hub.set(dev(cid), { n: mine(cid) + d, epoch: epochOf(cid) }, O);
+      return total(cid);
+    }
+    /** Resets to zero: a new epoch, and a line in the recent resets. Returns what Undo needs, or null at 0. */
+    function reset(cid = null) {
+      if (!writable() || !exists(cid)) return null;
+      const from = total(cid); if (from <= 0) return null;
+      const epoch = hub.uid(), at = Math.round(hub.serverNow()), logKey = 'resetlog:' + at;
+      hub.set(P(cid) + 'reset', { epoch, at }, O);
+      hub.set(logKey, { cid: cid || null, from, at }, O);
+      for (const r of hub.list('resetlog:', O)) if (!(Number(r.value && r.value.at) > at - KEEP_MS)) hub.remove(r.key, O);   // old lines go with the next reset
+      return { cid: cid || null, from, epoch, logKey };
+    }
+    /** Takes a Reset back: sends and pulls first (another device's taps count, and its own reset refuses this), then only while
+     *  that reset is still the current epoch. Resolves to the restored total, or null when the count changed on another device
+     *  meanwhile. Taps made since the reset stay added. A pull that fails (offline) goes on with what this device has. */
+    async function undoReset(snap) {
+      if (!snap || !writable()) return null;
+      try { await hub.flush(); await hub.pull(); } catch {}
+      if (!exists(snap.cid)) return null;
+      if (epochOf(snap.cid) !== snap.epoch) return null;
+      const n = Math.min(MAX, clamp(snap.from) + total(snap.cid)), epoch = hub.uid();
+      hub.set(P(snap.cid) + 'reset', { epoch, at: Math.round(hub.serverNow()) }, O);
+      hub.set(dev(snap.cid), { n, epoch }, O);
+      hub.remove(snap.logKey, O);
+      return n;
+    }
+    /** The recent resets, newest first: [{ key, cid, name, from, at }]; 5 shown, nothing older than 30 days. */
+    function resets(now = hub.serverNow()) {
+      const names = new Map(counters().map(c => [c.id, c.name]));
+      return hub.list('resetlog:', O).map(r => ({ key: r.key, cid: obj(r.value) && r.value.cid ? String(r.value.cid) : null, from: clamp(r.value && r.value.from), at: Number(r.value && r.value.at) || 0 }))
+        .filter(x => x.at > now - KEEP_MS && x.at <= now + 86400000 && x.from > 0 && names.has(x.cid)).map(x => ({ ...x, name: names.get(x.cid) }))
+        .sort((a, b) => b.at - a.at).slice(0, SHOWN);
+    }
+    function addCounter(name) {
+      if (!writable()) return null;
+      const nm = clean(name); if (!nm) throw new Error('Give the counter a name.');
+      if (counters().length - 1 >= MAX_COUNTERS) throw new Error('That is the most counters: ' + MAX_COUNTERS + '.');
+      const cid = hub.uid(); hub.set('counter:' + cid, { name: nm, at: Math.round(hub.serverNow()) }, O); return cid;
+    }
+    function rename(cid, name) {
+      const cur = hub.get('counter:' + cid, O); if (!writable() || !obj(cur)) return false;
+      const nm = clean(name); if (!nm) throw new Error('Give the counter a name.');
+      hub.set('counter:' + cid, { ...cur, name: nm }, O); return true;
+    }
+    /** Takes a counter off the list; returns the row for Undo. Its counts and resets are cleared by purge() once Undo has gone. */
+    function removeCounter(cid) {
+      const cur = hub.get('counter:' + cid, O); if (!writable() || !obj(cur)) return null;
+      hub.remove('counter:' + cid, O); return { cid, row: cur };
+    }
+    function restoreCounter(rec) { if (!rec || !writable()) return false; hub.set('counter:' + rec.cid, rec.row, O); return true; }
+    function purge(cid) {
+      if (!cid || !writable()) return;
+      for (const r of hub.list('c:' + cid + ':', O)) hub.remove(r.key, O);
+      for (const r of hub.list('resetlog:', O)) if (obj(r.value) && r.value.cid === cid) hub.remove(r.key, O);
+    }
+    return { MAX, MAX_COUNTERS, counters, total, mine, add, reset, undoReset, resets, addCounter, rename, removeCounter, restoreCounter, purge, clean, clamp };
   })();
 
   // ── voice input ───────────────────────────────────────────────────────────

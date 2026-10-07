@@ -73,7 +73,11 @@ try {
   at(40);                                                           // Eli's dot 40 min old: no adult fresh
   r = await park();
   ok(r.stale.length >= 1 && !r.notified.length && !r.skipped.length, 'no fresh adult dot: nothing sent', r);
-  // batch 10 (P3-DOLLYWOOD-LIVE-06): a fresh dot from outside the property (the frame plus 300 m) is not a grown-up at the park
+  // R-park 1: the parking lots are the property too: a fix in the far lot (inside the map's property polygon) is a park-day fix, and a kid quiet there is alerted
+  ok((await call('eli', 'PUT', '/api/data/dollywood-live/loc:eli?scope=family', { value: { x: 1500, y: 3000, acc: 8, t: NOW, name: 'eli' }, updated_at: NOW - 1 })).status === 200, 'Eli walks to the far parking lot (1500, 3000)');
+  r = await park();
+  ok(r.markers.some(m => m.id === 'eli') && r.stale.length >= 1 && r.notified.length >= 1, 'a kid quiet 40 min with a grown-up fresh in the parking lot: the alert is sent', r);
+  // batch 10 (P3-DOLLYWOOD-LIVE-06): a fresh dot from outside the property (the frame plus 300 m, widened to the parking lots) is not a grown-up at the park
   ok((await call('eli', 'PUT', '/api/data/dollywood-live/loc:eli?scope=family', { value: { x: 5000, y: 5000, acc: 8, t: NOW, name: 'eli' }, updated_at: NOW })).status === 200, 'Eli\'s phone sends a fix from home (5 km away)');
   r = await park();
   ok(!r.notified.length && !r.markers.some(m => m.id === 'eli'), 'a fresh dot off the property is not "an adult at the park": nothing sent, not even a marker', r);

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" data-theme="dark" data-flavor="live"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-BBvsO3T38xMWtIT/Tavb1rblj7n7ukXMgLY+3m0FQh4=' 'sha256-2YH1FkMBQeD3WKKyp6paqb44vmdrCrILzYiFNbLYmaA=' 'sha256-1zdnUaAqBQJYpejjto1lhPaeI81/GG6kdyUD/gtjNWk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; connect-src 'self' https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-BBvsO3T38xMWtIT/Tavb1rblj7n7ukXMgLY+3m0FQh4=' 'sha256-2YH1FkMBQeD3WKKyp6paqb44vmdrCrILzYiFNbLYmaA=' 'sha256-7dUsPZ1OuJ1Mw79zhzBlVLKTy3S0X4u+KGr2c37wZQM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; connect-src 'self' https://house-hub-api.catalystfarm1.workers.dev http://127.0.0.1:* http://localhost:*; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <script>(function(d){try{var g=function(k,f){try{var v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},
 m=function(q){return !!(window.matchMedia&&matchMedia(q).matches)},c=g('hub.theme','system'),t=c==='light'?'hearth':c==='dark'?'midnight':c,
@@ -361,7 +361,7 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 [data-flavor=hub] #hl .hl-ring{animation:hlring var(--dur-ambient) var(--ease-standard) var(--ambient-iterations)}
 @keyframes hlring{0%,100%{stroke-opacity:1}50%{stroke-opacity:.45}}
 [data-flavor=hub] .mapbox{background:#4F6A48}   /* the basemap's own edge colour (cartography), so a rotated Upright map never shows a flat band; set again from the grass colour below */
-[data-flavor=hub] #secsel path:nth-child(1){stroke-width:9;stroke-opacity:.22}[data-flavor=hub] #secsel path:nth-child(2){stroke-width:2;opacity:.85}[data-flavor=hub] #secsel path:nth-child(3){display:none}
+[data-flavor=hub] #secsel path:nth-child(1){stroke-width:9;stroke-opacity:.22}[data-flavor=hub] #secsel path:nth-child(2){stroke-width:2;stroke-opacity:.85}[data-flavor=hub] #secsel path:nth-child(3){display:none}
 [data-flavor=hub] .mini{border-radius:var(--r-control);width:150px;opacity:.85;border-color:var(--line)}
 /* controls floating over the map: the readout, the exaggeration control and the hint are content, so they are solid; only the toolbar, the sheets and the floating buttons are glass (VIS-DOLLYWOOD-6, CONS-GLASS-2) */
 [data-flavor=hub] .readout,[data-flavor=hub] .exag,[data-flavor=hub] .maphint{background:var(--material-solid-bg);border:1px solid var(--separator);box-shadow:var(--elev-float);-webkit-backdrop-filter:none;backdrop-filter:none}
@@ -409,7 +409,7 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 /* ---- hub on a phone (< 700 px): the header gives its place to the chips, one scrollable row; a compact sticky tool bar (tool, 3D,
    basemap, More; the zoom buttons float on the map), the map filling the viewport under it, and the build steps as a bottom sheet
    (peek / half / full) so the step being read sits over the map it points at. Desktop keeps the layout above. ---- */
-[data-flavor=hub]{--peek:156px;--barh:116px}   /* recorded exceptions, no token: the sheet's peek (a 44 px handle, two rows of controls) and the page above the map (chips + tool bar) */
+[data-flavor=hub]{--peek:calc(var(--tap,44px) + 122px * var(--ts-user,1));--barh:116px}   /* recorded exceptions, no token: the sheet's peek (a 44 px handle, two rows of controls) and the page above the map (chips + tool bar) */
 @media(max-width:699px){
  [data-flavor=hub] .wrap{padding-top:max(var(--sp-2),var(--safe-top));padding-bottom:calc(var(--peek) + var(--sp-8) + env(safe-area-inset-bottom))}
  [data-flavor=hub] header{padding:0;margin:0;border:0;background:none;box-shadow:none;height:0;overflow:visible}   /* one line: the heading is for screen readers, the art, blurb and facts live in Layers > About (UX-DOLLYWOOD-3) */
@@ -495,7 +495,7 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 [data-flavor=live] .workspace{display:block}
 [data-flavor=live] .mapbox{position:fixed;inset:0;border:0;border-radius:0;background:#72964e}
 [data-flavor=live][data-bm=satellite] .mapbox{background:#151a12}
-[data-flavor=live] label:has(#l-upright){display:none}
+[data-flavor=live] label:has(#l-upright),[data-flavor=live] label:has(#l-slope),[data-flavor=live] #about,[data-flavor=live] #lv-lay .lab2,[data-flavor=live] #tab-layers>h2,[data-flavor=live] #tab-layers>h3{display:none}
 [data-flavor=live] svg#map{width:100%;height:100%;display:block}
 .lv-scrim{position:absolute;left:0;right:0;pointer-events:none;z-index:var(--z-raised)}
 /* cartography (D12): the labels' ink and halo over the map, the meeting pin. Map data, so literals are allowed on this line */
@@ -508,7 +508,12 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 .lv-top{position:absolute;left:0;right:0;top:calc(var(--sp-3) + env(safe-area-inset-top));display:flex;justify-content:center;pointer-events:none;z-index:var(--z-bar);padding:0 calc(var(--sp-16) + var(--sp-3)) 0 var(--sp-3)}
 .lv-pill{pointer-events:auto;position:relative;display:flex;align-items:center;gap:var(--sp-3);max-width:100%;min-height:calc(var(--tap) + var(--sp-3));background:var(--glass-bg-strong-tinted);-webkit-backdrop-filter:var(--glass-filter);backdrop-filter:var(--glass-filter);border:1px solid var(--glass-edge);border-radius:var(--r-full);padding:var(--sp-2) var(--sp-4) var(--sp-2) var(--sp-2);box-shadow:var(--glass-shadow)}
 /* the denied pill on a phone: the text wraps and the Set my spot chip drops under it, whole (P3-DOLLYWOOD-LIVE-10) */
-@media(max-width:699px){.lv-pill[data-state=denied]{flex-wrap:wrap;border-radius:var(--r-card);row-gap:var(--sp-2);padding-right:var(--sp-3)}.lv-pill[data-state=denied] .lv-txt{flex:1 1 0}.lv-pill[data-state=denied] .lv-txt b,.lv-pill[data-state=denied] .lv-txt span{white-space:normal;overflow:visible;text-overflow:clip}.lv-pill[data-state=denied] .lv-act{flex:1 0 100%;margin-left:0}}
+@media(max-width:699px){.lv-pill:is([data-state=idle],[data-state=stale],[data-state=weak]){border-radius:var(--r-card)}.lv-pill:is([data-state=idle],[data-state=stale],[data-state=weak]) .lv-txt span{white-space:normal;overflow:visible;text-overflow:clip}
+  /* placing: the line of text takes the first row, I'm here / Cancel share the second */
+  .lv-pill[data-state=placing]{flex-wrap:wrap;border-radius:var(--r-card);row-gap:var(--sp-2);padding-right:var(--sp-3)}.lv-pill[data-state=placing] .lv-txt{flex:1 1 calc(100% - var(--sp-12) - var(--sp-3));min-width:0}.lv-pill[data-state=placing] .lv-txt b,.lv-pill[data-state=placing] .lv-txt span{white-space:normal;overflow:visible;text-overflow:clip}.lv-pill[data-state=placing] .lv-act,.lv-pill[data-state=placing] .lv-act2{flex:1 1 0;margin-left:0}
+  /* denied: one compact row (icon, the line, the chip); the steps open with a tap on the text (R-park 5: the notice must not eat the phone map) */
+  .lv-pill[data-state=denied]{border-radius:var(--r-card);padding-right:var(--sp-2)}.lv-pill[data-state=denied] .lv-txt{flex:1 1 0;min-width:0}.lv-pill[data-state=denied] .lv-txt b{white-space:normal;overflow:visible;text-overflow:clip}.lv-pill[data-state=denied]:not([data-open]) .lv-txt span{display:none}.lv-pill[data-state=denied][data-open] .lv-txt span{white-space:normal;overflow:visible;text-overflow:clip}.lv-pill[data-state=denied] .lv-act{margin-left:0}.lv-pill[data-state=denied] .lv-txt[role=button]{cursor:pointer}}
+:root[data-kind=kid][data-flavor=live] .lv-pill[data-state=denied]{flex-wrap:wrap;row-gap:var(--sp-2)}:root[data-kind=kid][data-flavor=live] .lv-pill[data-state=denied] .lv-txt{flex:1 1 calc(100% - var(--sp-12) - var(--sp-3))}:root[data-kind=kid][data-flavor=live] .lv-pill[data-state=denied] .lv-act{flex:1 0 100%}   /* a kid's targets are 64 px: the chip gets the second row instead of squeezing the words */
 .lv-emoji{width:var(--sp-10);height:var(--sp-10);border-radius:50%;display:grid;place-items:center;font-size:var(--fs-title3);flex:none;background:radial-gradient(circle at 35% 30%,var(--accent-fill),var(--accent-fill-strong) 70%);box-shadow:var(--elev-control)}
 .lv-txt{min-width:0}.lv-txt b{display:block;font-size:var(--fs-subheadline);font-weight:var(--fw-bold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:var(--lh-subheadline);letter-spacing:var(--ls-subheadline)}.lv-txt span{display:block;font-size:var(--fs-caption1);color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:var(--lh-caption1)}
 .lv-live{position:relative;width:var(--sp-2);height:var(--sp-2);border-radius:50%;background:var(--success-graphic);flex:none}
@@ -546,7 +551,7 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 .lv-sheet[data-state=half]{height:calc(48dvh + env(safe-area-inset-bottom))}.lv-sheet[data-state=full]{height:calc(100dvh - var(--sp-16) - var(--sp-5) - env(safe-area-inset-top));background:var(--material-solid-bg);-webkit-backdrop-filter:none;backdrop-filter:none}   /* a full sheet is solid (VIS-DOLLYWOOD-LIVE-13) */
 .lv-sheet.placing{transform:translateY(100%);visibility:hidden;transition:height var(--dur-gentle) var(--spring-gentle),transform var(--dur-gentle) var(--spring-gentle),visibility 0s linear var(--dur-gentle)}   /* placing mode: the sheet is hidden entirely, not left peeking (VIS-DOLLYWOOD-LIVE-11) */
 .lv-handle{height:var(--tap);min-height:var(--tap)!important;flex:none;background:transparent!important;border:0!important;padding:0!important;display:grid;place-items:center;border-radius:0!important}.lv-handle i{width:var(--sp-10);height:var(--sp-1);border-radius:var(--sp-0-5);background:var(--field-border)}
-.lv-tabs{display:flex;gap:var(--sp-1);padding:0 var(--sp-3) var(--sp-2);flex:none}
+.lv-tabs{display:flex;gap:var(--sp-1);padding:0 var(--sp-3) var(--sp-2);flex:none}@media(min-width:700px){.lv-tabs{max-width:var(--col-narrow);width:100%;margin-inline:auto}}   /* four tabs are not a 1,400 px row on a wide screen */
 .lv-tabs button{flex:1;min-height:var(--tap-row);border-radius:calc(var(--r-sheet) - var(--sp-3));background:transparent;border-color:transparent;color:var(--text-3);font-weight:var(--fw-semibold);font-size:var(--fs-caption1);padding:var(--sp-1) var(--sp-1-5);display:flex;flex-direction:column;align-items:center;gap:var(--sp-0-5);line-height:1}
 .lv-tabs button .sym{width:var(--icon-md);height:var(--icon-md)}
 /* the selected pane: the selection fill and ink plus weight, not a hue shift alone (P4-ACCENT-01, P4-COLOR-02) */
@@ -561,7 +566,7 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 .lv-share{cursor:pointer}/* the share switch reads the shared switch roles: >= 3:1 off and on, both schemes (P4-TOK-02) */
 .lv-share input{appearance:none;-webkit-appearance:none;width:52px;height:var(--tap);background:transparent;position:relative;flex:none;margin:0;box-shadow:none;border:0}   /* the shared switch: a 52 x 32 track on a 44 px hit area, the switch tokens (VIS-DOLLYWOOD-8) */
 .lv-share input::before{content:"";position:absolute;left:0;top:50%;width:52px;height:32px;margin-top:-16px;border-radius:var(--r-full);background:var(--switch-off);box-shadow:inset 0 0 0 1px var(--switch-off-ring);transition:background var(--dur-fast) var(--ease-standard)}
-.lv-share input:disabled{opacity:var(--op-disabled)}
+.lv-share input:disabled{opacity:var(--op-disabled)}.lv-share input:disabled::after{visibility:hidden}.lv-share input:disabled::before{background:var(--surface-2)}   /* loading: an empty track, never a finished-looking Off */
 .lv-share input::after{content:"";position:absolute;top:50%;left:var(--sp-0-5);width:28px;height:28px;margin-top:-14px;border-radius:50%;background:var(--switch-knob);box-shadow:var(--elev-control);transition:transform var(--dur-snappy) var(--spring-snappy)}
 .lv-share input:checked::before{background:var(--switch-on);box-shadow:none}.lv-share input:checked::after{transform:translateX(20px)}
 .lv-item .n{width:var(--sp-10);height:var(--sp-10);border-radius:50%;display:grid;place-items:center;font-weight:var(--fw-heavy);font-size:var(--fs-footnote);flex:none;color:var(--cat-ink);box-shadow:inset 0 0 0 var(--ring-w-sm) var(--hi-4),var(--elev-control)}
@@ -587,14 +592,14 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 .lv-route[hidden]{display:none}
 .lv-route-head{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);cursor:pointer;min-height:calc(var(--tap-row) + var(--sp-5))}
 .lv-route-head > svg{display:none}
-.lv-turn{width:var(--sp-12);height:var(--sp-12);border-radius:var(--r-control);flex:none;display:grid;place-items:center;background:var(--accent-strong);color:var(--accent-on);box-shadow:var(--elev-control)}.lv-turn .sym{width:var(--icon-lg);height:var(--icon-lg);stroke-width:2.2}
+.lv-turn{width:var(--sp-12);height:var(--sp-12);border-radius:var(--r-control);flex:none;display:grid;place-items:center;background:var(--accent-strong);color:var(--accent-on);box-shadow:var(--elev-control)}.lv-turn .sym{width:var(--icon-lg);height:var(--icon-lg)}
 .lv-route-t b{font-size:var(--fs-title3);line-height:var(--lh-title3);display:block;white-space:normal}.lv-route-t span{display:block;font-size:var(--fs-caption1);color:var(--text-3);margin-top:var(--sp-0-5)}.lv-route-t .then{display:block;font-size:var(--fs-caption1);color:var(--text-2);font-weight:var(--fw-semibold);margin-top:var(--sp-1)}
 .lv-eta{flex:none;text-align:right;line-height:1.15;margin-right:var(--sp-0-5)}.lv-eta b{display:block;font-size:var(--fs-title3);font-weight:var(--fw-heavy)}.lv-eta small{display:block;font-size:var(--fs-caption1);color:var(--text-3);font-weight:var(--fw-semibold)}
-.lv-step .g{width:var(--sp-8);height:var(--sp-8);border-radius:var(--r-xs);display:grid;place-items:center;flex:none;background:var(--accent-fill)}.lv-step .g .sym{width:var(--icon-sm);height:var(--icon-sm);stroke:var(--text);stroke-width:2.2}
-.lv-step.now .g{background:var(--accent-strong)}.lv-step.now .g .sym{stroke:var(--accent-on)}
+.lv-step .g{width:var(--sp-8);height:var(--sp-8);border-radius:var(--r-xs);display:grid;place-items:center;flex:none;background:var(--accent-fill)}.lv-step .g .sym{width:var(--icon-sm);height:var(--icon-sm);color:var(--text)}   /* the sprite's strokes are currentColor: a symbol is recoloured with color, never stroke */
+.lv-step.now .g{background:var(--accent-strong)}.lv-step.now .g .sym{color:var(--accent-on)}
 .lv-route-in{stroke-dasharray:var(--L);stroke-dashoffset:var(--L);animation:routein var(--dur-gentle) var(--ease-standard) forwards}@keyframes routein{to{stroke-dashoffset:0}}
 /* only the head's own direct icon: the turn glyph inside .lv-turn keeps its -on stroke (P4-COLOR-02) */
-.lv-route-head > .sym{width:var(--icon-lg);height:var(--icon-lg);flex:none;stroke:var(--accent-ink)}
+.lv-route-head > .sym{width:var(--icon-lg);height:var(--icon-lg);flex:none;color:var(--accent-ink)}
 .lv-chev{display:grid;place-items:center;flex:none;color:var(--text-3);transition:transform var(--dur-snappy) var(--spring-snappy)}
 .lv-route.open .lv-chev{transform:rotate(180deg)}
 .lv-steps{display:none;max-height:34dvh;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;border-top:1px solid var(--separator);padding:var(--sp-1) var(--sp-3) var(--sp-3)}
@@ -665,7 +670,7 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 [data-flavor=live] .secpoly{fill-opacity:0;stroke:var(--lv-ink);stroke-opacity:.38;stroke-width:1.4;stroke-dasharray:5 6;transition:fill-opacity var(--dur-gentle),stroke-opacity var(--dur-gentle)}
 [data-flavor=live] .secpoly.lv-here{stroke:none;fill:var(--accent-graphic)!important;fill-opacity:.16!important;filter:url(#lv-here-soft)}
 [data-flavor=live][data-bm=illustrated] .secpoly:not(.lv-here){stroke-opacity:0}[data-flavor=live][data-bm=satellite] .secpoly:not(.lv-here){stroke-opacity:.22}
-[data-flavor=live][data-bm=satellite] #contour > g{display:none!important}[data-flavor=live][data-bm=satellite] #contour > path{stroke:#fff;stroke-opacity:.22}[data-flavor=live][data-bm=satellite] .clab{display:block;fill:#fff;opacity:.8}
+[data-flavor=live][data-bm=satellite] #contour > g{display:none!important}[data-flavor=live][data-bm=satellite] #contour > path{stroke:#fff;stroke-opacity:.22}[data-flavor=live][data-bm=satellite] .clab{display:block;fill:#fff;fill-opacity:.8}
 [data-flavor=live][data-bm=satellite] #wash,[data-flavor=live][data-bm=satellite] #wood,[data-flavor=live][data-bm=satellite] #parking{display:none}
 [data-flavor=live][data-bm=satellite] #contour path{stroke:white;stroke-opacity:.13}[data-flavor=live][data-bm=satellite] .clab{display:none}
 [data-flavor=live][data-bm=satellite] #paths_c path,[data-flavor=live][data-bm=satellite] #service_c path{stroke:rgba(0,0,0,.42)}
@@ -680,7 +685,7 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 [data-flavor=live] .mk [fill="#FFF3D2"]{stroke:var(--cat-attr)}[data-flavor=live] .mk [fill="#A9C1FF"]{stroke:var(--cat-shop)}[data-flavor=live] .mk [fill="#FFB86B"]{stroke:var(--cat-dine)}
 [data-flavor=live] .mk .onum{fill:var(--cat-ink);font-weight:800;font-size:11px}
 .lv-name{font-family:var(--font-ui);font-weight:var(--fw-bold);fill:var(--lv-ink);paint-order:stroke;stroke:var(--lv-halo);stroke-width:3.5px;stroke-linejoin:round;pointer-events:none;letter-spacing:var(--ls-subheadline)}
-.me-pulse{opacity:0;animation:mepulse var(--dur-ambient) var(--ease-standard) var(--ambient-iterations);transform-origin:center;transform-box:fill-box}   /* three cycles, transform + opacity only; drawMe adds it at most once a minute (P4-MOTION-03) */
+.me-pulse{fill-opacity:0;stroke-opacity:0;animation:mepulse var(--dur-ambient) var(--ease-standard) var(--ambient-iterations);transform-origin:center;transform-box:fill-box}   /* three cycles, transform + opacity only; drawMe adds it at most once a minute (P4-MOTION-03) */
 #me.lv-stale .me-pulse,#me.lv-stale .me-pulse2{animation:none;display:none}#me.lv-stale circle{filter:grayscale(1)}#me.lv-stale .me-dot{fill-opacity:.7;stroke-opacity:.7}
 #me[data-q=weak] .me-pulse,#me[data-q=weak] .me-pulse2{animation:none;display:none}#me[data-q=weak] .me-dot{fill:none!important;stroke:var(--warning-graphic);stroke-width:3px}
 #me[data-src=restored] .me-dot,#me[data-src=restored] text{fill-opacity:.3;stroke-opacity:.3}
@@ -690,8 +695,8 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 .lv-emoji[hidden]{display:none}.lv-emoji.st{font-size:var(--fs-title3);background:var(--surface-2);color:var(--text);box-shadow:none}.lv-emoji.st .sym{width:var(--icon-md);height:var(--icon-md)}
 .lv-pill[data-state=good] .lv-emoji.st{background:var(--success-fill)}.lv-pill[data-state=weak] .lv-emoji.st,.lv-pill[data-state=stale] .lv-emoji.st{background:var(--warning-fill)}.lv-pill[data-state=denied] .lv-emoji.st{background:var(--danger-fill)}
 .lv-pill[data-state=searching] .lv-emoji.st::after{content:"";position:absolute;inset:var(--sp-0-5);border-radius:50%;border:var(--ring-w) solid var(--tint-fill-strong);border-top-color:var(--accent-graphic);animation:lvspin 1s linear infinite}.lv-emoji{position:relative}
-.lv-act{pointer-events:auto;flex:none;min-height:var(--tap);padding:var(--sp-1-5) var(--sp-3);border-radius:var(--r-full);border:0;background:var(--accent-strong);color:var(--accent-on);font-weight:var(--fw-bold);font-size:var(--fs-footnote);margin-left:var(--sp-0-5);box-shadow:var(--elev-control)}
-.lv-act.sec{background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--separator)}
+[data-flavor=live] .lv-act{pointer-events:auto;flex:none;min-height:var(--tap);padding:var(--sp-1-5) var(--sp-3);border-radius:var(--r-full);border:0;background:var(--accent-strong);color:var(--accent-on);font-weight:var(--fw-bold);font-size:var(--fs-footnote);margin-left:var(--sp-0-5);box-shadow:var(--elev-control)}
+[data-flavor=live] .lv-act.sec{background:var(--surface-2);color:var(--text);box-shadow:inset 0 0 0 1px var(--separator)}
 [data-flavor=live] button.lv-speak,.lv-speak{pointer-events:auto;flex:none;width:var(--tap);height:var(--tap);border-radius:50%;border:0;padding:0;background:var(--accent-strong);color:var(--accent-on);display:grid;place-items:center;box-shadow:var(--elev-control)}
 .lv-act[hidden]{display:none}
 /* kid mode (UX-DOLLYWOOD-LIVE-5): a face, one short line, a speaker; rows are a wait tile, a category icon and a picture for "too short" */
@@ -703,8 +708,8 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 .lv-cross{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;pointer-events:none;z-index:6;display:none}.lv-cross.on{display:block}
 .lv-cross::before,.lv-cross::after{content:"";position:absolute;background:var(--accent-graphic);box-shadow:0 0 0 var(--border-w-strong) var(--lv-ink)}.lv-cross::before{left:50%;top:0;bottom:0;width:2px;margin-left:-1px}.lv-cross::after{top:50%;left:0;right:0;height:2px;margin-top:-1px}
 .lv-cross i{position:absolute;inset:18px;border-radius:50%;border:2.5px solid var(--accent-graphic);box-shadow:0 0 0 var(--border-w-strong) var(--lv-ink),inset 0 0 0 var(--border-w-strong) var(--lv-ink)}
-.me-pulse2{opacity:0;animation:mepulse var(--dur-ambient) var(--ease-standard) var(--ambient-iterations);animation-delay:calc(var(--dur-ambient) / 2);transform-origin:center;transform-box:fill-box}
-@keyframes mepulse{0%{opacity:.4;transform:scale(.6)}100%{opacity:0;transform:scale(2.8)}}
+.me-pulse2{fill-opacity:0;stroke-opacity:0;animation:mepulse var(--dur-ambient) var(--ease-standard) var(--ambient-iterations);animation-delay:calc(var(--dur-ambient) / 2);transform-origin:center;transform-box:fill-box}
+@keyframes mepulse{0%{fill-opacity:.4;transform:scale(.6)}100%{fill-opacity:0;transform:scale(2.8)}}   /* fill-opacity, never opacity: nothing in the map SVG carries opacity (README) */
 .famk{cursor:pointer}.famk text{pointer-events:none}
 .famlab{font-family:var(--font-ui);font-weight:var(--fw-bold);fill:var(--lv-ink);pointer-events:none}
 .famk.old circle,.famk.old rect{fill-opacity:.5;stroke-opacity:.5}.famk.old text{fill-opacity:.6}.famk.old image{filter:grayscale(.7)}   /* a quiet dot, drawn without the opacity attribute the map forbids */
@@ -717,6 +722,12 @@ label,summary,a.btn,.lv-src a,label.vx,label.tog,.vrow,.sc-label,.toolbar,.chips
 .lv-stamp svg.sym{flex:none}
 .lv-meet #lv-rally{background:var(--accent-strong);color:var(--accent-on);min-width:var(--tap)}.lv-meet #lv-rally:disabled{background:var(--surface-2);color:var(--text-3)}
 .lv-meet .f svg.sym{width:var(--icon-md,24px);height:var(--icon-md,24px)}
+/* R-park 3: on a phone the name gets the whole row (two lines), and Go / Rally / Done share their own row below it */
+[data-flavor=live] .lv-meet .t .chev{display:none}[data-flavor=live] .lv-meet button svg.sym{display:none}
+/* phones: the bar rests as ONE line (flag, name, icon buttons); a tap on the name opens the two-row form (R-park 5) */
+@media(max-width:599px){[data-flavor=live] .lv-meet{flex-wrap:nowrap;gap:var(--sp-2)}[data-flavor=live] .lv-meet .t{position:relative;padding-right:var(--sp-6);cursor:pointer}[data-flavor=live] .lv-meet .t{min-height:var(--tap);display:flex;flex-direction:column;justify-content:center}[data-flavor=live] .lv-meet .t .chev{display:block;position:absolute;right:0;top:50%;margin-top:-8px;width:16px;height:16px}[data-flavor=live] .lv-meet[data-open] .t .chev{transform:rotate(180deg)}
+  [data-flavor=live] .lv-meet:not([data-open]) .t span{display:none}[data-flavor=live] .lv-meet button{flex:none;min-width:var(--tap);padding:0}[data-flavor=live] .lv-meet:not([data-open]) button svg.sym{display:block;margin:0 auto}[data-flavor=live] .lv-meet:not([data-open]) button .bl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  [data-flavor=live] .lv-meet[data-open]{flex-wrap:wrap;row-gap:var(--sp-2)}[data-flavor=live] .lv-meet[data-open] .t{flex:1 1 calc(100% - 36px - var(--sp-3))}[data-flavor=live] .lv-meet[data-open] .t b,[data-flavor=live] .lv-meet[data-open] .t span{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}[data-flavor=live] .lv-meet[data-open] .t b{-webkit-line-clamp:3;line-clamp:3}[data-flavor=live] .lv-meet[data-open] button{flex:1 1 0;min-width:0}}
 .lv-hours{display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);padding:0 var(--sp-3);border-radius:var(--r-control);background:var(--surface-2);color:var(--text);text-decoration:none;font-weight:600}
 .lv-offline{margin:var(--sp-2) 0;font-size:var(--fs-footnote);color:var(--text-2);line-height:1.4}
 .lv-hours{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;justify-content:space-between}:root[data-kind=kid] .lv-hours,:root[data-kind=kiosk] .lv-hours{display:none}
@@ -735,9 +746,22 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
 /* the step card keeps one height whichever step it shows (--bnow-h, measured from the longest cards at this width), and the
    buttons sit at its foot: Previous / Mark done / Next never move under a thumb, and the loaded card is as tall as the one
    drawn while the first pull is on its way (CONS-MOTION-4) */
-.bnow{display:flex;flex-direction:column;min-height:var(--bnow-h,0px)}.bnow .bbody{flex:1 0 auto}.bnow .bctl{margin-top:var(--sp-3,12px)}.bnow .empty{color:var(--text-2);margin:0}.empty3d{padding:var(--sp-5,20px);color:var(--text-2)}
+.bnow{display:flex;flex-direction:column;min-height:var(--bnow-h,0px)}.bnow .bbody{flex:1 0 auto}.bnow .bctl{margin-top:var(--sp-3,12px)}
+.ldx{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}   /* "Loading your progress…" is read in full; only "Loading…" is drawn, so the head keeps the row count it has once loaded */
+@media(min-width:700px){[data-flavor=hub] .bhead h2{order:1;flex:1 1 calc(100% - var(--tap) - var(--sp-4));min-width:0}[data-flavor=hub] .bhead .bmenuwrap{order:2;flex:none}[data-flavor=hub] .bhead .bar,[data-flavor=hub] .bhead #b-count,[data-flavor=hub] .bhead #b-nextun{order:3}}   /* the … button stays on the title's row, whatever the section's name */
+@media(min-width:700px){[data-flavor=hub]:has(#stickbar:not([hidden])) .ds .toast{bottom:calc(var(--btn-h-lg) + var(--sp-12) + var(--safe-bottom))}}   /* a toast sits above the sticky step bar, never on it */
+[data-flavor=hub] .pk-done{display:none}
+@media(max-width:699px){[data-flavor=hub] .bmain{display:block}   /* normal flow: the step list can never be drawn over the step text */
+ [data-flavor=hub] .bhead .pk-done:not([hidden]){display:inline-flex;order:3;flex:1 1 0;min-height:var(--tap);padding:0 var(--sp-4);font-size:var(--fs-subheadline)}
+ [data-flavor=hub] .bhead h2{order:1}[data-flavor=hub] .bhead .bmenuwrap{order:2}[data-flavor=hub] .bhead #b-nextun{order:4}[data-flavor=hub] .bhead .bar{order:5}[data-flavor=hub] .bhead #b-count{order:6}   /* peek: the title and …, then Mark done and Next unfinished; the progress waits for the half sheet */
+ [data-flavor=hub] .bhead h2{flex:1 1 calc(100% - var(--tap) - var(--sp-6));min-width:0}[data-flavor=hub] .bhead .pk-done{white-space:nowrap}
+ [data-flavor=hub] #bmenu button{border-radius:calc(var(--r-sheet) - var(--sp-2))}
+ [data-flavor=hub] .build:not([data-state=peek]) .bhead .pk-done:not([hidden]){display:none}   /* the card's own Mark done is on screen from half up */
+ [data-flavor=hub][data-text-size=xl] .bhead h2,[data-flavor=hub][data-text-size=xxl] .bhead h2{white-space:normal;overflow:visible;text-overflow:clip}}
+[data-flavor=hub][data-text-size=xl]{--peek:calc(var(--tap,44px) + 122px * var(--ts-user,1) + var(--sp-8))}[data-flavor=hub][data-text-size=xxl]{--peek:calc(var(--tap,44px) + 122px * var(--ts-user,1) + var(--sp-12))}   /* a wrapped title (two lines) needs one more row in the peek */
+@media(max-width:699px){[data-flavor=hub] .bnow .bctl{order:-1;margin:0 0 var(--sp-3,12px)}}   /* the controls first: on a phone their place never depends on how long the step's text is (CONS-MOTION-4) */.bnow .empty{color:var(--text-2);margin:0}.empty3d{padding:var(--sp-5,20px);color:var(--text-2)}
 @media print{.stickbar,.back2d,.qlist,.bm-bd{display:none!important}}
-.mdone{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-2,8px)}.mdone[hidden],#bmenu button[hidden]{display:none!important}
+.bmenu button{white-space:nowrap}.mdone{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-2,8px)}.mdone[hidden],#bmenu button[hidden]{display:none!important}
 .bnow.sk .skl{display:block;height:1em;border-radius:var(--r-xs);background:var(--surface-2);margin:0 0 10px}.bnow.sk .skl.t{height:1.4em;width:62%;margin:9px 0 12px}.bnow.sk .skl.s{width:40%}
 [data-flavor=hub] .bnow.sk .skl{background:var(--surface-2)}
 /* Mark done: the one primary of the step card and of the sticky bar, a capsule at --btn-h-lg in the person's strong tone */
@@ -748,7 +772,7 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
 .stickbar[hidden]{display:none}.stickbar{display:none}
 @media(min-width:700px){[data-flavor=hub] .stickbar:not([hidden]){display:flex;position:fixed;left:var(--sb-l,var(--margin-left));bottom:max(var(--sp-3),var(--safe-bottom));z-index:var(--z-bar);width:var(--sb-w,calc(100% - var(--margin-left) - var(--margin-right)));box-sizing:border-box;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4);border-radius:calc(var(--r-control) + var(--sp-2));background:var(--glass-bg-strong);border:1px solid var(--glass-edge);box-shadow:var(--glass-shadow);-webkit-backdrop-filter:var(--glass-filter);backdrop-filter:var(--glass-filter)}
  [data-flavor=hub] .sb-t{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:var(--fs-subheadline);font-weight:var(--fw-semibold);color:var(--text)}
- [data-flavor=hub] .sb-b{display:flex;gap:var(--sp-2);flex:none;align-items:center}[data-flavor=hub] .sb-b button{min-height:var(--tap)}
+ [data-flavor=hub] .sb-b{display:flex;gap:var(--sp-2);flex:none;align-items:center}[data-flavor=hub] .sb-b button:not(.mdone){min-height:var(--tap)}
  [data-flavor=hub] .wrap{padding-bottom:calc(max(40px,var(--safe-bottom)) + var(--btn-h-lg) + var(--sp-6))}}
 /* a section finished: the chip's calm check settles once (no motion under Reduce Motion) */
 .chips .cdone{display:none;vertical-align:-3px;margin-left:6px}.chips button[data-complete="1"] .cdone{display:inline-block}
@@ -766,10 +790,12 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
 .mapbox[data-mode="3d"] .back2d{display:inline-flex}.mapbox[data-mode="3d"] .exag{top:62px}
 [data-flavor=hub] .back2d{left:var(--sp-3);top:var(--sp-3);gap:var(--sp-2);min-height:var(--tap);padding:0 var(--sp-4);border-radius:var(--r-full);background:var(--glass-bg-strong);border:1px solid var(--glass-edge);box-shadow:var(--glass-shadow);-webkit-backdrop-filter:var(--glass-filter);backdrop-filter:var(--glass-filter);color:var(--text);font-weight:var(--fw-semibold);font-size:var(--fs-subheadline)}
 [data-flavor=hub] .mapbox[data-mode="3d"] .exag{top:calc(var(--tap) + var(--sp-4))}
+@media(min-width:700px){[data-flavor=hub] .readout,[data-flavor=hub] .mini{bottom:calc(var(--sp-2) + var(--sb-lift,0px))}}
+[data-flavor=hub] .readout{white-space:normal;overflow:visible;text-overflow:clip;line-height:var(--lh-snug)}   /* the hint wraps at 390 instead of being cut ("…pinch to zo…") */
 [data-flavor=hub] .mapbox[data-mode="3d"] .readout{white-space:normal;max-width:calc(100% - 20px);overflow:visible;text-overflow:clip}
 /* search results right under the field (UX-DOLLYWOOD-4) */
 .grp.srch{position:relative}
-.qlist{position:absolute;left:0;top:calc(100% + 4px);z-index:50;width:max(100%,min(340px,calc(100vw - 16px)));max-height:min(60vh,420px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;box-shadow:var(--elev-overlay)}
+.qlist{position:fixed;z-index:var(--z-popover,60);max-height:min(60vh,420px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;box-shadow:var(--elev-overlay)}
 .qlist[hidden]{display:none}.qrow{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 10px;border-radius:8px;cursor:pointer;-webkit-user-select:none;user-select:none}
 .qrow .n{flex:none;min-width:28px;text-align:center;font-weight:700}.qrow .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.qrow .ar{flex:none;color:var(--text-2);font-size:var(--fs-caption1)}
 .qrow[aria-selected=true]{background:var(--line)}.qrow.qall{font-weight:600;color:var(--butter-ink)}.qrow.qnone{cursor:default;color:var(--text-2)}
@@ -832,7 +858,7 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
   <div class="lv-cross" id="lv-cross"><i></i></div>
   <div class="lv-scale" id="lv-scale"><i></i><span>100 ft</span></div>
   <div class="lv-northwrap"><button class="lv-north" id="lv-north" title="North up / map up" aria-label="North up" aria-pressed="false"><span class="lv-rot"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="nd-n" d="M12 2.5l4.2 10.5L12 10.6 7.8 13z"/><path class="nd-s" d="M12 21.5l-4.2-10.5 4.2 2.4 4.2-2.4z"/></svg></span><b>N</b></button></div>
-  <div class="lv-meet" id="lv-meet" hidden><div class="f"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-flag"/></svg></div><div class="t"><b id="meet-name"></b><span id="meet-meta" aria-live="polite"></span></div><button id="meet-go">Go</button><button id="lv-rally" hidden>Rally</button><button id="meet-done" hidden>Done</button></div>
+  <div class="lv-meet" id="lv-meet" hidden><div class="f"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-flag"/></svg></div><div class="t" id="meet-t"><b id="meet-name"></b><span id="meet-meta" aria-live="polite"></span><svg class="sym chev" aria-hidden="true"><use href="../icons/sprite.svg#i-chevron-down"/></svg></div><button id="meet-go" aria-label="Go to the meeting point"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-navigation-2"/></svg><span class="bl">Go</span></button><button id="lv-rally" hidden aria-label="Rally the family"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-megaphone"/></svg><span class="bl">Rally</span></button><button id="meet-done" hidden aria-label="Clear the meeting point"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-flag-off"/></svg><span class="bl">Done</span></button></div>
   <div class="lv-route" id="lv-route" hidden><div class="lv-route-head" id="route-head"><div class="lv-turn" id="route-glyph"></div><div class="lv-route-t"><b id="route-now"></b><span class="then" id="route-then"></span><span id="route-meta"></span><span id="route-name" hidden></span></div><div class="lv-eta" id="route-eta"></div><span class="lv-chev"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-chevron-up"/></svg></span><button id="route-x" aria-label="End directions">End</button></div><div class="lv-steps" id="route-steps"></div></div>
   <div class="lv-sheet" id="lv-sheet" data-state="peek">
    <button class="lv-handle" id="lv-handle" aria-label="Open or close the panel"><i></i></button>
@@ -858,6 +884,7 @@ html:not([data-flavor=live]) .lv-top,html:not([data-flavor=live]) .lv-fabs,html:
   <button class="bh-handle" id="bh-handle" aria-label="Open or close the build steps"><i></i></button>
   <div class="bhead"><h2 id="b-sec">Build steps</h2><div class="bar"><i id="b-bar"></i></div><span id="b-count" class="bcount">—</span>
    <button id="b-nextun" title="Jump to the next step that is not done yet">Next unfinished</button>
+   <button id="pk-done" type="button" class="mdone pk-done" hidden>Mark done</button>
    <span class="bmenuwrap"><button id="b-menu" aria-haspopup="true" aria-expanded="false" aria-controls="bmenu" aria-label="Progress: export, import, reset" title="Export, import, reset"><svg class="sym" aria-hidden="true"><use href="../icons/sprite.svg#i-ellipsis"/></svg></button>
     <span class="bm-bd" id="bmenu-bd" hidden></span><span class="bmenu" id="bmenu" hidden><button id="b-export" title="Download progress as JSON">Export progress</button><button id="b-import" title="Load progress JSON">Import progress</button><input type="file" id="b-file" accept="application/json" hidden><button id="b-reset">Reset progress</button><button id="b-cancel" class="bm-cancel" type="button">Cancel</button></span></span></div>
   <div class="bmain"><div class="bnow" id="b-now"></div><div class="blist" id="b-list"></div></div>
@@ -1176,12 +1203,12 @@ function bboxOf(t,secId){const sh=shapesFor(t,secId);if(!sh.length)return SEC[cu
 /* drawTarget: 'hl' is the selected step / open card (glow + pulsing ring); 'pv' is the lighter preview while a step in the list is hovered or focused */
 function drawTarget(grp,t,secId,style){grp.innerHTML='';if(!t||FLAVOR==='live')return;const sh=shapesFor(t,secId);if(!sh.length)return;const pv=style==='pv';
   sh.forEach(s=>{if(s.ring){const xs=s.pts.map(p=>p[0]),ys=s.pts.map(p=>p[1]);const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2,r=(Math.max(...xs)-Math.min(...xs))/2*1.1;
-      if(!pv)grp.appendChild(el('circle',Object.assign({cx,cy:Y(cy),r,fill:'none',stroke:'var(--butter-graphic)','stroke-width':10,opacity:.16},NSS)));
-      grp.appendChild(el('circle',Object.assign(pv?{cx,cy:Y(cy),r,fill:'none',stroke:'var(--butter-graphic)','stroke-width':1.8,'stroke-dasharray':'5 4',opacity:.75}:{cx,cy:Y(cy),r,fill:'var(--butter-graphic)','fill-opacity':.07,stroke:'var(--butter-graphic)','stroke-width':2.2,class:'hl-ring'},NSS)))}
-    else if(s.open){if(!pv)grp.appendChild(line(s.pts,{stroke:'var(--butter-graphic)','stroke-width':14,opacity:.18,'stroke-linecap':'round','stroke-linejoin':'round'}));
-      grp.appendChild(line(s.pts,pv?{stroke:'var(--butter-graphic)','stroke-width':2,'stroke-dasharray':'5 4',opacity:.75,'stroke-linecap':'round'}:{stroke:'var(--butter-graphic)','stroke-width':2.6,'stroke-linecap':'round','stroke-linejoin':'round',class:'hl-ring'}))}
-    else{if(!pv)grp.appendChild(poly(s.pts,{fill:'none',stroke:'var(--butter-graphic)','stroke-width':12,opacity:.14,'stroke-linejoin':'round'}));
-      grp.appendChild(poly(s.pts,pv?{fill:'none',stroke:'var(--butter-graphic)','stroke-width':1.8,'stroke-dasharray':'6 5',opacity:.75,'stroke-linejoin':'round'}:{fill:'var(--butter-graphic)','fill-opacity':.08,stroke:'var(--butter-graphic)','stroke-width':2.2,'stroke-linejoin':'round',class:'hl-ring'}))}})}
+      if(!pv)grp.appendChild(el('circle',Object.assign({cx,cy:Y(cy),r,fill:'none',stroke:'var(--butter-graphic)','stroke-width':10,'stroke-opacity':.16},NSS)));
+      grp.appendChild(el('circle',Object.assign(pv?{cx,cy:Y(cy),r,fill:'none',stroke:'var(--butter-graphic)','stroke-width':1.8,'stroke-dasharray':'5 4','stroke-opacity':.75}:{cx,cy:Y(cy),r,fill:'var(--butter-graphic)','fill-opacity':.07,stroke:'var(--butter-graphic)','stroke-width':2.2,class:'hl-ring'},NSS)))}
+    else if(s.open){if(!pv)grp.appendChild(line(s.pts,{stroke:'var(--butter-graphic)','stroke-width':14,'stroke-opacity':.18,'stroke-linecap':'round','stroke-linejoin':'round'}));
+      grp.appendChild(line(s.pts,pv?{stroke:'var(--butter-graphic)','stroke-width':2,'stroke-dasharray':'5 4','stroke-opacity':.75,'stroke-linecap':'round'}:{stroke:'var(--butter-graphic)','stroke-width':2.6,'stroke-linecap':'round','stroke-linejoin':'round',class:'hl-ring'}))}
+    else{if(!pv)grp.appendChild(poly(s.pts,{fill:'none',stroke:'var(--butter-graphic)','stroke-width':12,'stroke-opacity':.14,'stroke-linejoin':'round'}));
+      grp.appendChild(poly(s.pts,pv?{fill:'none',stroke:'var(--butter-graphic)','stroke-width':1.8,'stroke-dasharray':'6 5','stroke-opacity':.75,'stroke-linejoin':'round'}:{fill:'var(--butter-graphic)','fill-opacity':.08,stroke:'var(--butter-graphic)','stroke-width':2.2,'stroke-linejoin':'round',class:'hl-ring'}))}})}
 function highlight(t,secId){G.scrim.innerHTML='';drawTarget(G.hl,t,secId,'hl')}
 /* what a step draws: its target, except that a 'Check the section against the survey' step is about the whole piece, so it
    draws the section's own polygon whatever box its data carries */
@@ -1190,7 +1217,7 @@ function preview(t,secId){drawTarget(G.pv,t,secId,'pv')}
 
 /* ============================ cross-section ============================ */
 let cut=[[300,600],[1100,600]];
-function drawCut(){G.cut.innerHTML='';if(tool!=='section')return;G.cut.appendChild(line(cut,{stroke:MAPCOL.night,'stroke-width':4.5,opacity:.6}));G.cut.appendChild(line(cut,{stroke:MAPCOL.gold,'stroke-width':2,'stroke-dasharray':'7 5'}));
+function drawCut(){G.cut.innerHTML='';if(tool!=='section')return;G.cut.appendChild(line(cut,{stroke:MAPCOL.night,'stroke-width':4.5,'stroke-opacity':.6}));G.cut.appendChild(line(cut,{stroke:MAPCOL.gold,'stroke-width':2,'stroke-dasharray':'7 5'}));
   cut.forEach(p=>G.cut.appendChild(el('circle',{cx:p[0],cy:Y(p[1]),r:5*mpp(),fill:MAPCOL.gold,stroke:MAPCOL.night,'stroke-width':1.2,class:'cut-pt','vector-effect':'non-scaling-stroke'})))}
 const ps=$('prof');
 /* steepest grade: the raw raster carries pixel-to-pixel noise (a 1.3 m DEM read at 2-3 m spacing gives 100%+ "grades"), so
@@ -1212,8 +1239,8 @@ function drawProfile(svgEl,zs,L,title,opts={}){const N=zs.length,ok=zs.filter(v=
   const gid='pg'+Math.random().toString(36).slice(2,7);const grad=el('linearGradient',{id:gid,x1:0,y1:0,x2:0,y2:1});grad.appendChild(el('stop',{offset:'0%','stop-color':opts.hue||MAPCOL.gold,'stop-opacity':.9}));grad.appendChild(el('stop',{offset:'100%','stop-color':MAPCOL.profileLow,'stop-opacity':.35}));
   const df=el('defs');df.appendChild(grad);svgEl.appendChild(df);
   if(gh&&gh.zs.length>1){const gN=gh.zs.length,gsx=i=>gut+(i/(gN-1))*(gh.L/L)*(W-gut-8);let gd='';gh.zs.forEach((v,i)=>{const x=gsx(i);if(x>W-8)return;gd+=(gd?'L':'M')+x.toFixed(1)+' '+(isNaN(v)?H:sy(v)).toFixed(1)});
-    svgEl.appendChild(el('path',{d:gd,fill:'none',stroke:'var(--text-2)','stroke-width':2,'stroke-dasharray':'6 4',opacity:.7,class:'ghost'}))}   // the previous cut, kept for comparison
-  let d='M'+gut+' '+H;zs.forEach((v,i)=>{d+='L'+sx(i).toFixed(1)+' '+(isNaN(v)?H:sy(v)).toFixed(1)});d+='L'+(W-8)+' '+H+'Z';svgEl.appendChild(el('path',{d,fill:`url(#${gid})`,opacity:gh?.8:1}));
+    svgEl.appendChild(el('path',{d:gd,fill:'none',stroke:'var(--text-2)','stroke-width':2,'stroke-dasharray':'6 4','stroke-opacity':.7,class:'ghost'}))}   // the previous cut, kept for comparison
+  let d='M'+gut+' '+H;zs.forEach((v,i)=>{d+='L'+sx(i).toFixed(1)+' '+(isNaN(v)?H:sy(v)).toFixed(1)});d+='L'+(W-8)+' '+H+'Z';svgEl.appendChild(el('path',{d,fill:`url(#${gid})`,'fill-opacity':gh?.8:1}));
   let dl='M';zs.forEach((v,i)=>{dl+=(i?'L':'')+sx(i).toFixed(1)+' '+(isNaN(v)?H:sy(v)).toFixed(1)});svgEl.appendChild(el('path',{d:dl,fill:'none',stroke:opts.hue||'var(--text)','stroke-width':2}));
   return{lo:Math.min(...ok),hi:Math.max(...ok),mx:steepest(zs,L)}}
 /* --fs-caption2 in CSS pixels (the Dynamic Type role, with the text-size preference and the kid floor in it): measured once per call on a hidden probe */
@@ -1237,7 +1264,7 @@ tabs.forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 const pop=$('pop');
 /* a card's title and subtitle form a head that stays put, with its close button, while the body scrolls (UX-DOLLYWOOD-9); a card that brings its own close button keeps its own head */
 function openPop(html){const own=/id="pop-x"/.test(html),m=own||FLAVOR==='live'?null:html.match(/^(<h2[\s\S]*?<\/h2>\s*(?:<div class="meta">[\s\S]*?<\/div>)?)/),xb='<button class="x" id="pop-x" aria-label="Close">'+ic('x')+'</button>';
-  pop.innerHTML=own?html:m?'<div class="phead">'+m[1]+xb+'</div>'+html.slice(m[0].length):html+xb;pop.classList.add('show');$('pop-x').onclick=closePop;if(window.sheetSet&&PHONE())sheetSet('peek');
+  pop.innerHTML=own?html:m?'<div class="phead">'+m[1]+xb+'</div>'+html.slice(m[0].length):html+xb;pop.classList.add('show');$('pop-x').onclick=closePop;try{stickShow()}catch(e){}   /* a card open hides the sticky step bar, so the card is never under it */if(window.sheetSet&&PHONE())sheetSet('peek');
   if(FLAVOR==='live'){const box=pop.parentElement.getBoundingClientRect();let x=lastPt[0]+16,y=lastPt[1]-20;const pw=Math.min(380,box.width-20),ph=Math.min(pop.offsetHeight,box.height-20);
     if(x+pw>box.width-10)x=Math.max(10,lastPt[0]-pw-16);if(y+ph>box.height-10)y=Math.max(10,box.height-ph-10);if(y<10)y=10;pop.style.left=x+'px';pop.style.top=y+'px';return}
   placePop()}
@@ -1249,7 +1276,7 @@ function placePop(){const mb=pop.parentElement,r=mb.getBoundingClientRect(),sr=s
   pop.style.maxHeight=(room-2)+'px';const pw=Math.min(390,vR-vL),ph=Math.min(pop.getBoundingClientRect().height+1,room);
   let x=sr.left+lastPt[0]+16,y=sr.top+lastPt[1]-20;if(x+pw>vR)x=sr.left+lastPt[0]-pw-16;x=Math.min(Math.max(x,vL),Math.max(vL,vR-pw));y=Math.min(Math.max(y,vT),Math.max(vT,vB-ph));
   pop.style.left=(x-r.left)+'px';pop.style.top=(y-r.top)+'px'}
-function closePop(){pop.classList.remove('show','dock');pop.style.maxHeight='';pop.innerHTML='';if(FLAVOR==='live')highlight(null);else{const st=stepsOf(curSec),now=st&&st[curIdx];highlight(now?stepTarget(now):null,now&&now.section)}}
+function closePop(){pop.classList.remove('show','dock');try{stickShow()}catch(e){}pop.style.maxHeight='';pop.innerHTML='';if(FLAVOR==='live')highlight(null);else{const st=stepsOf(curSec),now=st&&st[curIdx];highlight(now?stepTarget(now):null,now&&now.section)}}
 /* which build steps point at this listing or footprint: an official target by number, or a label target sitting on it */
 const ptIn=(p,P)=>{let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])c=!c}return c};
 function stepsUsing(o,b){return D.steps.filter(s=>{const t=s.target;if(o&&t.kind==='official')return t.num===o.num;
@@ -1283,8 +1310,8 @@ function showCoaster(c){const o=OFF.find(x=>x.name===c.n)||OFF.find(x=>x.osm===c
    <div class="gp-cap">Ground elevation along the track</div><svg class="gp" id="gp"></svg>
    <p class="fact">Track length and shape are OpenStreetMap's tracing; the profile is the terrain under it, not the track's own height.</p>
    <div class="btns"><button id="i-zoom">Zoom to it</button></div>${srch(c.n)}`);wireSearch();wireUsed();
-  const t=$('trk'),ci=COAST.indexOf(c),hue=c.hue||'var(--coaster)';t.appendChild(el('image',{x:0,y:0,width:WM,height:HM,preserveAspectRatio:'none',href:IMG,opacity:.85}));
-  c.segs.concat(c.stations).forEach(s=>{t.appendChild(line(s,{stroke:MAPCOL.coasterCasing,'stroke-width':5,opacity:.5}));t.appendChild(line(s,{stroke:hue,'stroke-width':2.4}))});
+  const t=$('trk'),ci=COAST.indexOf(c),hue=c.hue||'var(--coaster)';t.appendChild(el('image',{x:0,y:0,width:WM,height:HM,preserveAspectRatio:'none',href:IMG,style:'filter:opacity(.85)'}));   /* an <image> has no fill-opacity: a CSS filter, not an opacity attribute (README: nothing in the map SVG carries opacity) */
+  c.segs.concat(c.stations).forEach(s=>{t.appendChild(line(s,{stroke:MAPCOL.coasterCasing,'stroke-width':5,'stroke-opacity':.5}));t.appendChild(line(s,{stroke:hue,'stroke-width':2.4}))});
   c.stations.forEach(s=>t.appendChild(line(s,{stroke:MAPCOL.white,"stroke-width":3})));
   drawProfile($('gp'),zs,L,c.n,{vx:2,hue:FLAVOR==='live'?null:hue});
   $('i-zoom').onclick=()=>{if(mode==='3d')setMode('2d');fitBox(bb,true);highlight({kind:'coaster',idx:ci})};
@@ -1310,10 +1337,14 @@ function renderList(){const q=$('q').value.trim().toLowerCase();const hf=$('hf')
 let autoFly=null;
 const QL={el:null,at:-1};
 const qrows=()=>QL.el?[...QL.el.querySelectorAll('.qrow:not(.qnone)')]:[];
-function qlistEl(){if(QL.el)return QL.el;const q=$('q'),host=q.closest('.grp')||q.parentElement,d=document.createElement('div');d.className='qlist';d.id='q-list';d.setAttribute('role','listbox');d.setAttribute('aria-label','Search results');d.hidden=true;
+function qlistPlace(){const b=QL.el;if(!b||b.hidden)return;const q=$('q').getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=window.innerHeight;
+  if(q.bottom<0||q.top>vh){qlistClose();return}
+  const w=Math.min(Math.max(q.width,340),vw-16),left=Math.max(8,Math.min(q.left,vw-8-w)),top=q.bottom+4;
+  b.style.left=Math.round(left)+'px';b.style.top=Math.round(top)+'px';b.style.width=Math.round(w)+'px';b.style.maxHeight=Math.max(120,vh-top-8)+'px'}   // fixed under the field, outside the toolbar (which clips)
+function qlistEl(){if(QL.el)return QL.el;const q=$('q'),d=document.createElement('div');d.className='qlist';d.id='q-list';d.setAttribute('role','listbox');d.setAttribute('aria-label','Search results');d.hidden=true;
   d.addEventListener('pointerdown',e=>e.preventDefault());   // a tap on a row must not blur the field first
   d.addEventListener('click',e=>{const r=e.target.closest('.qrow');if(r&&!r.classList.contains('qnone'))qlistOpen(r)});
-  host.appendChild(d);q.setAttribute('aria-controls','q-list');q.setAttribute('aria-autocomplete','list');q.setAttribute('aria-expanded','false');return QL.el=d}
+  document.body.appendChild(d);window.addEventListener('scroll',qlistPlace,{passive:true,capture:true});window.addEventListener('resize',qlistPlace);q.setAttribute('aria-controls','q-list');q.setAttribute('aria-autocomplete','list');q.setAttribute('aria-expanded','false');return QL.el=d}
 function qlistClose(){if(!QL.el||QL.el.hidden)return;QL.el.hidden=true;QL.at=-1;const q=$('q');q.removeAttribute('aria-activedescendant');q.setAttribute('aria-expanded','false')}
 function qlistMark(i){const r=qrows();QL.at=r.length?i:-1;r.forEach((x,k)=>x.setAttribute('aria-selected',String(k===QL.at)));const q=$('q');if(QL.at>=0){q.setAttribute('aria-activedescendant',r[QL.at].id);r[QL.at].scrollIntoView({block:'nearest'})}else q.removeAttribute('aria-activedescendant')}
 function qlistOpen(row){if(!row)return;qlistClose();if(row.dataset.all){showTab('list');const t=$('tab-list');if(t)t.scrollIntoView({block:'start',behavior:SMOOTH()});return}const o=OFFNUM[+row.dataset.n];if(o&&o.pos){autoFly=o.num;flyTo(o)}}
@@ -1322,7 +1353,7 @@ function qlistRender(){if(FLAVOR==='live')return;const q=$('q').value.trim();if(
   if(!all.length)h=`<div class="qrow qnone" role="option" aria-disabled="true" id="q-r-none">No match for “${esc(q)}”</div>`;
   else{pl.slice(0,8).forEach((o,i)=>{h+=`<div class="qrow" role="option" id="q-r${i}" aria-selected="false" data-n="${o.num}"><span class="n">${o.num}</span><span class="nm">${esc(o.name)}</span><span class="ar">${esc(o.area||'')}</span></div>`});
     h+=`<div class="qrow qall" role="option" id="q-rall" aria-selected="false" data-all="1">Show all ${all.length} in Listings</div>`}
-  box.innerHTML=h;box.hidden=false;QL.at=-1;$('q').setAttribute('aria-expanded','true');$('q').removeAttribute('aria-activedescendant');if(typeof clampPop==='function')clampPop(box)}
+  box.innerHTML=h;box.hidden=false;QL.at=-1;$('q').setAttribute('aria-expanded','true');$('q').removeAttribute('aria-activedescendant');qlistPlace()}
 $('q').addEventListener('input',()=>{showTab('list');renderList();if(FLAVOR==='live')return;const q=$('q').value.trim();if(!q){autoFly=null;qlistClose();return}const m=listItems().filter(o=>o.pos);
   if(m.length===1){qlistClose();if(autoFly!==m[0].num){autoFly=m[0].num;flyTo(m[0])}}else qlistRender()});
 $('q').addEventListener('keydown',e=>{if(FLAVOR==='live')return;const open=!!QL.el&&!QL.el.hidden;
@@ -1342,14 +1373,14 @@ $('l-seclab').addEventListener('change',e=>{G.seclabels.style.display=e.target.c
    so it always rotates in place and never jumps to the Entrance). */
 const rotPt=(p,deg)=>{const r=deg*Math.PI/180,c=Math.cos(r),s=Math.sin(r),cx=WM/2,cy=HM/2,dx=p[0]-cx,dy=p[1]-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]};
 window.setUpright=function(on){on=!!on;const cb=$('l-upright');if(cb&&cb.checked!==on)cb.checked=on;
-  const old=window.ROT||0,nw=on?(D.rot||0):0;if(old===nw)return;
+  const old=window.ROT||0,nw=on?(D.rot||0):0;if(old===nw)return;cancelAnimationFrame(anim);   // a fit still tweening must not overwrite the rotated view with its next frame
   if(secView==='all'){setRotation(nw);fitTarget(D.layers.allbox);return}
   const w=view[2],h=view[3],c=rotPt([view[0]+w/2,view[1]+h/2],0),content=rotPt(c,-old),nc=rotPt(content,nw);
   view=[nc[0]-w/2,nc[1]-h/2,w,h];setRotation(nw)};
 $('l-upright').addEventListener('change',e=>setUpright(e.target.checked));
 $('cint').addEventListener('change',e=>{for(const k in CG)CG[k].style.display=k===e.target.value?'':'none'});
 let basemap='relief';
-$('bmap').addEventListener('change',e=>{basemap=e.target.value;const off=basemap==='official';if((basemap==='aerial'||basemap==='mix')&&!aer.getAttribute('href'))aer.setAttribute('href',AER);if(off&&!ill.getAttribute('href'))ill.setAttribute('href',ILL);ill.style.display=off?'':'none';aer.style.display=(basemap==='relief'||off)?'none':'';img.style.display=(basemap==='aerial'||off)?'none':'';img.style.opacity=basemap==='mix'?.45:1;img.style.mixBlendMode=basemap==='mix'?'multiply':'';mimg.setAttribute('href',off?ILL:basemap==='relief'?IMG:AER);if(three)three.retexture()});
+$('bmap').addEventListener('change',e=>{basemap=e.target.value;const off=basemap==='official';if((basemap==='aerial'||basemap==='mix')&&!aer.getAttribute('href'))aer.setAttribute('href',AER);if(off&&!ill.getAttribute('href'))ill.setAttribute('href',ILL);ill.style.display=off?'':'none';aer.style.display=(basemap==='relief'||off)?'none':'';img.style.display=(basemap==='aerial'||off)?'none':'';img.style.filter=basemap==='mix'?'opacity(.45)':'';   /* an <image> has no fill-opacity: the one fade of the Mix basemap is a CSS filter, not an opacity attribute (README: nothing in the map SVG carries opacity) */img.style.mixBlendMode=basemap==='mix'?'multiply':'';mimg.setAttribute('href',off?ILL:basemap==='relief'?IMG:AER);if(three)three.retexture()});
 /* Light/dark: the reference flavour keeps its own toggle; in the hub, hub.js sets data-theme (the person's palette) and data-scheme (resolved light|dark). */
 {const t=$('theme-row');if(t)t.remove()}
 /* View menu (contour interval, theme, steepness), the More disclosure on phones, the "?" shortcuts popover and the build
@@ -1382,13 +1413,13 @@ if(FLAVOR!=='live'){
 const scale={plot:null,fac:null};const EXT=D.layers.allbox[1]-D.layers.allbox[0];$('sc-ext').textContent=EXT;
 /* The plot width is empty (no conversion) or 50-2,000 m; anything else shows a line under the field, is not saved and converts nothing (UX-DOLLYWOOD-12) */
 const PLOT_MIN=50,PLOT_MAX=2000;
-const plotBad=()=>{const t=$('sc-plot').value.trim();if(t==='')return false;const v=parseFloat(t);return !(v>=PLOT_MIN&&v<=PLOT_MAX)};
+const plotBad=()=>{const f=$('sc-plot');if(f.validity&&f.validity.badInput)return true;const t=f.value.trim();if(t==='')return false;const v=parseFloat(t);return !(v>=PLOT_MIN&&v<=PLOT_MAX)};
 let stepsReady=false;   // true once the build-steps code below has run: renderStep and its state exist, so a changed factor can redraw the card (P3-DOLLYWOOD-07)
 function updScale(){const bad=plotBad(),v=bad?NaN:parseFloat($('sc-plot').value),before=scale.fac;scale.plot=v>0?v:null;scale.fac=v>0?v/EXT:null;
   const er=$('sc-err'),msg=bad?'Enter a width from 50 to 2,000 m.':'';if(er&&er.textContent!==msg)er.textContent=msg;$('sc-plot').setAttribute('aria-invalid',String(bad));
   $('sc-fac').textContent=scale.fac?`${(scale.fac*100).toFixed(0)}% of real size (${scale.fac.toFixed(3)}×)`:'—';$('sc-one').textContent=scale.fac?`${scale.fac.toFixed(2)} m in game`:'—';
   $('sc-vert').textContent=scale.fac?(1/scale.fac).toFixed(2):'—';const i=parseFloat($('sc-in').value);$('sc-out').textContent=(scale.fac&&i>=0)?Math.round(i*scale.fac):'—';
-  if(stepsReady&&before!==scale.fac){sizeCard();renderStep()}   // the card's "In game" line follows the factor: after load, an edit and a synced change
+  if(stepsReady&&before!==scale.fac){renderStep();sizeSoon()}   // the card's "In game" line follows the factor: after load, an edit and a synced change
 }
 const hubOnline=()=>!!(window.hub&&hub.profile);   // signed in through the House Hub SDK (standalone with no session keeps localStorage)
 /* Signed in, the person's rows are not on this device until the first pull lands (hub.loaded): an empty cache reads as a
@@ -1397,7 +1428,10 @@ let HUBWAIT=false;try{HUBWAIT=FLAVOR==='hub'&&hubOnline()&&typeof hub.isLoaded==
 const hubGuard=()=>{if(hubOnline()&&!hub.canWrite){hub.kioskNudge();return false}if(HUBWAIT){try{hub.toast('Still loading your progress — try again in a moment.',2600)}catch(e){}return false}return true};
 const RO=()=>hubOnline()&&!hub.canWrite;   // read-only: Previous, Next, Show on map and the lists stay; nothing that writes is offered
 const savePlot=()=>{const v=$('sc-plot').value;if(hubOnline()){if(hub.canWrite&&!HUBWAIT)try{hub.set('plot',v||null)}catch(e){}}else{try{localStorage.setItem('dw-plot',v)}catch(e){}}};
-$('sc-plot').addEventListener('input',()=>{updScale();if(!plotBad())savePlot()});$('sc-in').addEventListener('input',updScale);
+/* typing only previews the factor; the width is saved once the person pauses (or leaves the field), and only when it is valid, so "250" on the way to "2500" is never stored */
+let plotT=0;const plotFlush=()=>{clearTimeout(plotT);plotT=0;if(!plotBad())savePlot()};
+$('sc-plot').addEventListener('input',()=>{updScale();clearTimeout(plotT);plotT=setTimeout(plotFlush,900)});$('sc-plot').addEventListener('change',plotFlush);$('sc-plot').addEventListener('blur',()=>{if(plotT)plotFlush()});
+$('sc-in').addEventListener('input',updScale);
 /* signed in, the person's own row is the plot (never the device's old dw-plot key, which only the one-time migration reads) */
 try{if(!hubOnline())$('sc-plot').value=localStorage.getItem('dw-plot')||'';else if(!HUBWAIT){const v=hub.get('plot');if(v!=null)$('sc-plot').value=v}}catch(e){}updScale();
 
@@ -1413,6 +1447,10 @@ const hubDone=()=>{const out={},b=hub.get('progress');if(b&&typeof b==='object'&
 let doneMap={};try{doneMap=hubOnline()?(HUBWAIT?{}:hubDone()):JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}   // signed in: the person's pulled rows (never the device's legacy key); standalone: localStorage
 // save(ids): signed in, writes the step:<id> row of each changed step and nothing else; standalone, the whole map to localStorage
 const save=ids=>{if(hubOnline()){if(!hub.canWrite){hub.kioskNudge();return}for(const id of ids||[])if(STEPID.has(id))try{hub.set(SP+id,!!doneMap[id])}catch(e){}scheduleSummary()}else{try{localStorage.setItem(KEY,JSON.stringify(doneMap))}catch(e){}}};let curSec='entrance',curIdx=0;
+/* the section the person was last in is remembered on this device, so a returning person opens on it before the first pull has landed (the card is then measured for the right section the first time) */
+const SECKEY=()=>'dw-sec:'+((window.hub&&hub.profile&&hub.profile.id)||'solo');let secRemembered=false;
+try{if(FLAVOR==='hub'&&window.hub&&hub.profile){const v=localStorage.getItem(SECKEY());if(v&&v!=='all'&&D.sections.some(x=>x.id===v)){curSec=v;secRemembered=true}}}catch(e){}
+
 const stepsOf=id=>D.steps.filter(s=>s.section===id);
 /* the measurement line, in Planet Coaster 2 units: horizontal metres take the Scale tab's factor; feet ranges become metres
    of relief (kept true, as the Scale tab advises); a lone spot height is read against the section's low point */
@@ -1438,28 +1476,37 @@ function stepCard(now,st,sec,i,ro){const done=!!doneMap[now.id];
    <div class="bctl"><button id="b-prev">Previous</button>${mark}<button id="b-next">Next</button><button id="b-show">Show on map</button></div>`}
 const stepSkeleton=ro=>`<div class="bbody"><span class="skl s" aria-hidden="true"></span><span class="skl t" aria-hidden="true"></span><span class="skl" aria-hidden="true"></span><span class="skl" aria-hidden="true"></span><span class="skl s" aria-hidden="true"></span></div>
    <div class="bctl"><button id="b-prev" disabled>Previous</button>${ro?'':'<button id="b-done" class="mdone" disabled>Mark done</button>'}<button id="b-next" disabled>Next</button><button id="b-show" disabled>Show on map</button></div>`;
-let cardW=-1;
+let cardW=-1,cardSec=null,cardAll=HUBWAIT&&!secRemembered,cardTouched=false;   // cardAll: until the person changes section themselves, the card is the tallest of ALL steps (a first open that has no remembered section, or whose first pull moved to another section), so nothing moves when the pull lands
+const cardScope=()=>cardAll?'*':curSec;   // the card has one height for the section it shows (the tallest of its steps), measured again when the section, the width, the text size or the plot factor changes
+
 const cardLen=s=>s.title.length+s.body.length+(s.elev||'').length+(s.conf==='approximate'?120:0);
-const TALLEST=D.steps.slice().sort((a,b)=>cardLen(b)-cardLen(a)).slice(0,10);
-function sizeCard(){const box=$('b-now');if(!box||FLAVOR==='live')return;const w=box.clientWidth,same=w===cardW;cardW=w;
+/* sizeCard measures every step (a card's height is not a function of its text length alone: the in-game line, the pills and the wrapping all differ), so the card has ONE height at a width */
+const CARDH={};let sizeT=0;
+function sizeSoon(){clearTimeout(sizeT);sizeT=setTimeout(()=>{sizeT=0;sizeCard()},450)}   // typing a plot width re-measures once, after the pause, never per key
+function sizeCard(){const box=$('b-now');if(!box||FLAVOR==='live')return;const w=box.clientWidth,same=w===cardW&&cardSec===cardScope();cardW=w;cardSec=cardScope();
   if(PHONE()||!w){box.style.removeProperty('--bnow-h');return}   // the phone's sheet scrolls and floats; only the page layout needs a steady card
+  const key=cardScope()+'|'+w+'|'+(document.documentElement.dataset.textSize||'')+'|'+(scale.fac||0);   // the card's height depends on its width, the text size and the in-game line (the plot factor): measured once per combination
+  let h=CARDH[key];if(h==null){
   const probe=box.cloneNode(false);probe.removeAttribute('id');probe.className='bnow';probe.style.cssText=`position:absolute;visibility:hidden;pointer-events:none;left:-9999px;top:0;width:${w}px;min-height:0`;box.parentNode.appendChild(probe);
-  let h=0;for(const s of TALLEST){probe.innerHTML=stepCard(s,[s],SEC[s.section],0,false).replace(/ id="/g,' data-x="');h=Math.max(h,probe.offsetHeight)}
-  probe.remove();if(same)h=Math.max(h,parseFloat(box.style.getPropertyValue('--bnow-h'))||0);   // at one width the card only ever grows (a plot width arriving must not shrink it under the page)
+  h=0;for(const s of (!cardAll&&stepsOf(curSec).length?stepsOf(curSec):D.steps)){probe.innerHTML=stepCard(s,[s],SEC[s.section],0,false).replace(/ id="/g,' data-x="');h=Math.max(h,probe.offsetHeight)}
+  probe.remove();CARDH[key]=h}
+  if(same)h=Math.max(h,parseFloat(box.style.getPropertyValue('--bnow-h'))||0);   // at one width the card only ever grows (a plot width arriving must not shrink it under the page)
   box.style.setProperty('--bnow-h',h+'px')}
+try{if(FLAVOR!=='live')new MutationObserver(()=>{if(stepsReady){cardW=-1;sizeCard()}}).observe(document.documentElement,{attributes:true,attributeFilter:['data-text-size']})}catch(e){}   // the text size changed while the guide is open: the card is measured again (through the cache), and may shrink
 function renderStep(){if(FLAVOR==='live'){highlight(null);return}const st=stepsOf(curSec),now=st[curIdx],sec=SEC[curSec],ro=RO(),box=$('b-now'),ae=document.activeElement,keep=ae&&ae.id&&box.contains(ae)?ae.id:null;$('b-sec').textContent=sec.name+' — build steps';
-  const nd=st.filter(s=>doneMap[s.id]).length;$('b-count').textContent=HUBWAIT?'Loading your progress…':st.length?`${nd} of ${st.length} done`:'not written yet';$('b-bar').style.width=st.length&&!HUBWAIT?(nd/st.length*100)+'%':'0';
+  const nd=st.filter(s=>doneMap[s.id]).length;{const bc=$('b-count');if(HUBWAIT)bc.innerHTML='Loading<span class="ldx"> your progress</span>…';else bc.textContent=st.length?`${nd} of ${st.length} done`:'not written yet'}$('b-bar').style.width=st.length&&!HUBWAIT?(nd/st.length*100)+'%':'0';
   $('build').setAttribute('aria-busy',String(HUBWAIT));
   for(const id of ['b-reset','b-import']){const e=$(id);if(e){e.hidden=ro;e.disabled=HUBWAIT;e.setAttribute('aria-disabled',String(HUBWAIT))}}   // every control that writes waits for the first pull, and a read-only profile has none
   {const e=$('sc-plot');e.readOnly=ro;e.disabled=HUBWAIT;e.setAttribute('aria-disabled',String(HUBWAIT));if(ro)e.setAttribute('aria-readonly','true');else e.removeAttribute('aria-readonly')}
   chipProgress();const nu=HUBWAIT?null:nextUnfinished();$('b-nextun').disabled=!nu;$('b-nextun').title=HUBWAIT?'Loading your progress…':nu?`Next unfinished: ${nu.s.title}${nu.s.section!==curSec?' ('+SEC[nu.s.section].name+')':''}`:'Every step is done';
-  if(box.clientWidth!==cardW)sizeCard();
+  if(box.clientWidth!==cardW||cardSec!==cardScope())sizeCard();
   if(!now){box.className='bnow';box.innerHTML='<p class="empty">No build steps for this section.</p>';highlight(null);renderStepList();stickSync();return}
   if(HUBWAIT){box.className='bnow sk';box.innerHTML=stepSkeleton(ro);highlight(null)}
   else{box.className='bnow';box.innerHTML=stepCard(now,st,sec,curIdx,ro);highlight(stepTarget(now),now.section)}
   $('b-prev').onclick=()=>stepNav(-1);$('b-next').onclick=()=>stepNav(1);$('b-show').onclick=showOnMap;if($('b-done'))$('b-done').onclick=stepDone;
   if(keep&&$(keep)&&!$(keep).disabled)try{$(keep).focus({preventScroll:true})}catch(e){}
-  renderStepList();stickSync();sync3D(false)}
+  renderStepList();stickSync();sync3D(false);
+  try{if(hubOnline()&&!HUBWAIT)localStorage.setItem(SECKEY(),curSec)}catch(e){}}
 function stepNav(d){const st=stepsOf(curSec);if(!st.length)return;curIdx=Math.max(0,Math.min(st.length-1,curIdx+d));renderStep();go()}
 function stepDone(){if(!hubGuard()||RO())return;const st=stepsOf(curSec),now=st[curIdx];if(!now)return;
   const was=!!doneMap[now.id];doneMap[now.id]=!was;save([now.id]);feedNote(now.id,was);
@@ -1498,16 +1545,19 @@ function scheduleSummary(){if(FLAVOR!=='hub'||!hubOnline()||!hub.canWrite||HUBWA
   sumT=setTimeout(()=>{if(HUBWAIT||!hub.canWrite)return;const n=summaryOf();let cur=null;try{cur=hub.get('summary')}catch(e){}if(sameSummary(cur,n))return;try{hub.set('summary',Object.assign(n,{at:Date.now()}))}catch(e){}},2000)}
 /* The sticky step bar (>= 700 px): pinned to the bottom of the viewport while the card's own controls are off screen, so the step
    just built is one tap from done whatever the map is showing (UX-DOLLYWOOD-1). */
-const SB=$('stickbar');let sbOff=false,sbIO=null;
-try{if(FLAVOR==='hub'&&SB&&'IntersectionObserver' in window)sbIO=new IntersectionObserver(es=>{const e=es[es.length-1],vb=e.rootBounds?e.rootBounds.bottom:window.innerHeight;sbOff=e.intersectionRatio<0.999&&e.boundingClientRect.bottom>vb-1;stickShow()},{threshold:[0,0.5,1]})}catch(e){}
-function stickShow(){if(!SB)return;const st=stepsOf(curSec),on=FLAVOR==='hub'&&!PHONE()&&st[curIdx]&&sbOff;SB.hidden=!on;
-  if(on){const r=document.querySelector('.mapcol').getBoundingClientRect();SB.style.setProperty('--sb-l',Math.round(r.left)+'px');SB.style.setProperty('--sb-w',Math.round(r.width)+'px')}}   // under the map column only: the side tabs stay clear
+const SB=$('stickbar');let sbOff=false;
+function sbCalc(){const c=document.querySelector('#b-now .bctl');if(!c)return;const r=c.getBoundingClientRect(),vb=window.innerHeight;sbOff=r.bottom>vb-1;stickShow()}   // the controls below the fold (scroll, resize and every repaint of the card re-read it; an IntersectionObserver missed a jump from below the viewport to above it)
+if(FLAVOR==='hub')window.addEventListener('scroll',()=>{if(SB)sbCalc()},{passive:true});
+function stickShow(){if(!SB)return;const st=stepsOf(curSec),on=FLAVOR==='hub'&&!PHONE()&&st[curIdx]&&sbOff&&!pop.classList.contains('show');SB.hidden=!on;
+  if(on){const r=document.querySelector('.mapcol').getBoundingClientRect();SB.style.setProperty('--sb-l',Math.round(r.left)+'px');SB.style.setProperty('--sb-w',Math.round(r.width)+'px')}
+  const mb=document.getElementById('mapbox');if(mb){let lift=0;if(on){const m=mb.getBoundingClientRect(),b=SB.getBoundingClientRect();if(m.bottom>b.top&&m.top<b.bottom)lift=Math.round(m.bottom-b.top)}mb.style.setProperty('--sb-lift',lift+'px')}}   // under the map column only: the side tabs stay clear; the hint and the minimap rise out from under the bar (--sb-lift)
 function stickSync(){if(!SB)return;const st=stepsOf(curSec),now=st[curIdx];if(FLAVOR!=='hub'||!now){SB.hidden=true;return}
   const d=$('sb-done'),dn=!!doneMap[now.id];$('sb-t').textContent=HUBWAIT?'Loading your progress…':`Step ${curIdx+1} of ${st.length} · ${now.title}`;
   d.hidden=RO();d.disabled=HUBWAIT;d.className='mdone'+(dn?' done':'');d.innerHTML=dn?ic('check','sym-xs')+'Done':'Mark done';
-  if(sbIO){sbIO.disconnect();const c=document.querySelector('#b-now .bctl');if(c)sbIO.observe(c)}stickShow()}
-if(SB){$('sb-prev').onclick=()=>stepNav(-1);$('sb-next').onclick=()=>stepNav(1);$('sb-done').onclick=stepDone;
-  let rzT=0;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(FLAVOR!=='live'&&$('b-now').clientWidth!==cardW)sizeCard();stickShow()},120)})}
+  {const k=$('pk-done');if(k){k.hidden=RO();k.disabled=HUBWAIT;k.className='mdone pk-done'+(dn?' done':'');k.innerHTML=d.innerHTML}}   // the phone's peek row: the primary action is on the first screen
+  sbCalc()}
+if(SB){$('sb-prev').onclick=()=>stepNav(-1);$('sb-next').onclick=()=>stepNav(1);$('sb-done').onclick=stepDone;if($('pk-done'))$('pk-done').onclick=e=>{e.stopPropagation();stepDone()};
+  let rzT=0;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(FLAVOR!=='live'&&$('b-now').clientWidth!==cardW)sizeCard();sbCalc()},120)})}
 const fitTarget=b=>{if(window.fitBoxPhone&&PHONE())fitBoxPhone(b);else fitBox(b,true)};   // on a phone: into the part of the map the sheet leaves visible
 /* the next step not yet ticked: after the current one in this section, else the first unticked here, else the first in a later section */
 function nextUnfinished(){const st=stepsOf(curSec);let i=st.findIndex((s,k)=>k>curIdx&&!doneMap[s.id]);if(i<0)i=st.findIndex(s=>!doneMap[s.id]);if(i>=0)return{s:st[i],i};
@@ -1550,7 +1600,7 @@ $('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return
 (async()=>{if(FLAVOR!=='hub'||!window.hub||typeof hub.ready!=='function')return;   // only the build guide keeps steps: the park map never migrates or syncs them (UNFILED-2)
   try{await hub.ready({optional:true})}catch(e){return}
   if(!hub.profile)return;
-  if(typeof hub.onLeave==='function')hub.onLeave(feedFlush);   // a tick made on the way out still reaches the feed
+  if(typeof hub.onLeave==='function')hub.onLeave(()=>{feedFlush();if(plotT)plotFlush()});   // a tick made on the way out still reaches the feed
   const adopt=ev=>{const all=!ev||ev.bulk||ev.key==null;
     if(all||ev.key==='progress'||(typeof ev.key==='string'&&ev.key.startsWith(SP))){doneMap=hubDone();
       // a migration lands after the first paint: if it just ticked the step on screen, move on to the first undone one (as a
@@ -1561,7 +1611,7 @@ $('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return
     if(all||ev.key==='plot'){const v=hub.get('plot'),el=$('sc-plot');if(document.activeElement!==el){const s=v==null?'':String(v);if(el.value!==s){el.value=s;updScale()}}}};
   hub.onChange(adopt);
   if(HUBWAIT){try{await hub.loaded()}catch(e){}HUBWAIT=false}   // "Loading your progress…" and no Mark done until the first pull lands
-  doneMap=hubDone();{const nu=firstUndone();if(nu){curSec=nu.s.section;curIdx=nu.i}else curIdx=0}   // the guide opens at the step the summary row points to, without scrolling
+  doneMap=hubDone();{const was=curSec,nu=firstUndone();if(nu){curSec=nu.s.section;curIdx=nu.i}else curIdx=0;if(curSec!==was&&!cardTouched)cardAll=true}   // the guide opens at the step the summary row points to, without scrolling
   adopt(null);
   // the pre-hub localStorage map moves over as step rows, and only to a person with no progress on the server at all (no
   // legacy 'progress' row, no step rows) — as before, when it moved only if 'progress' was absent — so an untick made on
@@ -1573,7 +1623,7 @@ $('b-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return
 /* ============================ sections ============================ */
 const chips=$('chips');
 let secView=null;   // 'all' | a section id: what the chips last showed (the Whole park chip is 'all'); the park map has no chips, so it stays null there (Upright reads it)
-function selectSection(id,zoom){const s=SEC[id];if(FLAVOR!=='live')secView=id;[...chips.children].forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.sec===id)));
+function selectSection(id,zoom){const s=SEC[id];if(id!=='all'){cardTouched=true;cardAll=false}if(FLAVOR!=='live')secView=id;[...chips.children].forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.sec===id)));
   D.sections.forEach(x=>{if(!x.el)return;const on=x.id===id;x.el.setAttribute('fill-opacity',on?.2:(id==='all'?.09:.04));x.el.setAttribute('stroke-width',on?3.2:2.2);x.el.setAttribute('stroke-opacity',on?1:(id==='all'?.85:.45));if(x.lab){const q=(id==='all'||on)?'':'.55';x.lab.style.fillOpacity=q;x.lab.style.strokeOpacity=q}});   // fill / stroke opacity, never opacity: nothing in the map SVG may carry it (README, "Interaction is composited")
   G.secsel.innerHTML='';if(id!=='all'&&s.poly.length){G.secsel.appendChild(poly(s.poly,{fill:'none',stroke:s.color,'stroke-width':16,'stroke-opacity':.5,'stroke-linejoin':'round','pointer-events':'none'}));G.secsel.appendChild(poly(s.poly,{fill:'none',stroke:MAPCOL.white,'stroke-width':3.4,'stroke-linejoin':'round','pointer-events':'none'}));G.secsel.appendChild(poly(s.poly,{fill:'none',stroke:s.color,'stroke-width':1.4,'stroke-linejoin':'round','pointer-events':'none'}))}
   if(zoom){if(mode==='3d')setMode('2d');fitTarget(id==='all'?D.layers.allbox:s.box);closePop()}
@@ -1656,7 +1706,7 @@ const KIDSELF=()=>!!(window.hub&&hub.profile&&hub.profile.kind==='kid');
 function say(t){try{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(t));u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
 /* the strip the pill and the meeting bar take at the top: cards and the whole-park fit stay under it (VIS-DOLLYWOOD-LIVE-4, -13) */
 function layoutTop(){const mb=document.querySelector('.mapbox'),p=$('lv-pill'),m=$('lv-meet');if(!mb||!p)return;const pb=p.getBoundingClientRect().bottom;let b=pb;if(m&&!m.hidden){const r=m.getBoundingClientRect();if(r.height)b=Math.max(b,r.bottom)}
-  mb.style.setProperty('--lv-pill-end',Math.ceil(pb)+'px');mb.style.setProperty('--lv-top-end',Math.ceil(b)+'px')}
+  mb.style.setProperty('--lv-pill-end',Math.ceil(pb)+'px');mb.style.setProperty('--lv-top-end',Math.ceil(b)+'px');if(window.drawAmen){try{drawFam()}catch(e){}drawMeet()}}   /* a panel opening moves the compass, the scale and the sheet's top: the family names and the pin label are placed again (R-park rescore) */
 const FAM={}; const LIVE_KEY='dollywood.live.last';   // ROT/ROOT live on window (engine setRotation) - no local const, or it would shadow them in every flavour
 const toUser=(x,y)=>{const r=ROT*Math.PI/180,cx=WM/2,cy=HM/2,ux=x-cx,uy=Y(y)-cy;return[cx+ux*Math.cos(r)-uy*Math.sin(r),cy+ux*Math.sin(r)+uy*Math.cos(r)]};   // map metres -> SVG user space under the rotation
 const unrot=(x,y)=>`rotate(${-ROT} ${x} ${y})`;
@@ -1722,9 +1772,15 @@ function drawFam(){if(!G.fam)return;G.fam.innerHTML='';const k=mpp();drawTrails(
   list.sort((a,b)=>b.f.t-a.f.t);
   const fs=Math.max(11,FLOOR()),cw=fs*.6,H=Math.round(fs*1.5),rects=list.map(p=>[p.x0-16,p.y0-16,32,32]);
   const hit=r=>rects.some(q=>r[0]<q[0]+q[2]&&r[0]+r[2]>q[0]&&r[1]<q[1]+q[3]&&r[1]+r[3]>q[1]);
-  const initials=n=>String(n).trim().split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'•';
+  const initials0=n=>String(n).trim().split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'•';
+  /* two people who share an initial (Ezra, Elizabeth) get the first two letters of their names, three if that still collides (R-park rescore 3) */
+  const iniOf={};{const nm=p=>String(p.f.name||p.id).trim();const letters=p=>nm(p).replace(/[^\p{L}]/gu,'');
+    list.forEach(p=>iniOf[p.id]=initials0(nm(p)));
+    for(const len of [2,3,4]){const cnt={};list.forEach(p=>cnt[iniOf[p.id]]=(cnt[iniOf[p.id]]||0)+1);
+      list.forEach(p=>{if(cnt[iniOf[p.id]]>1){const t=letters(p).slice(0,len);if(t.length>=len)iniOf[p.id]=t[0].toUpperCase()+t.slice(1).toLowerCase()}})}}
+  const initials=(n,p)=>p&&iniOf[p.id]||initials0(n);
   list.forEach(p=>{const name=p.f.name||p.id;let txt=name,w=txt.length*cw+16,r=[p.x0-w/2,p.y0+21,w,H];
-    if(hit(r)){txt=initials(name);w=txt.length*cw+16;r=[p.x0-w/2,p.y0+21,w,H]}rects.push(r);p.txt=txt;p.w=w});
+    if(hit(r)){txt=initials(name,p);w=txt.length*cw+16;r=[p.x0-w/2,p.y0+21,w,H]}rects.push(r);p.txt=txt;p.w=w});
   famRects=rects.slice(list.length);const sig=famRects.map(r=>r.map(Math.round).join(',')).join(';');if(sig!==famSig){famSig=sig;scheduleNames()}
   list.forEach(({id,f,w,txt})=>{const cx=f.x,cy=Y(f.y),old=Date.now()-f.t>45*60e3,g=el('g',{class:'famk'+(old?' old':''),'data-pick':'f:'+id,transform:unrot(cx,cy)}),col=COL(f.color);
     g.appendChild(el('circle',{cx,cy,r:16*k,fill:col,stroke:MAPCOL.ink,'stroke-width':2.6*k,filter:'url(#lv-shadow)'}));
@@ -1733,7 +1789,13 @@ function drawFam(){if(!G.fam)return;G.fam.innerHTML='';const k=mpp();drawTrails(
     else{const t=el('text',{x:cx,y:cy+6.5*k,'text-anchor':'middle',style:`font-size:${17*k}px`});t.textContent=f.emoji||'•';g.appendChild(t)}
     const W=w*k,Hh=H*k;
     g.appendChild(el('rect',{x:cx-W/2,y:cy+21*k,width:W,height:Hh,rx:Hh/2,fill:col,stroke:MAPCOL.ink,'stroke-width':1.4*k,filter:'url(#lv-shadow)'}));
-    const lab=el('text',{x:cx,y:cy+21*k+Hh/2,'text-anchor':'middle','dominant-baseline':'central',class:'famlab',style:`font-size:${Math.max(11,FLOOR())*k}px;stroke-width:${3*k}px`});lab.textContent=txt;g.appendChild(lab);G.fam.appendChild(g)})}
+    const lab=el('text',{x:cx,y:cy+21*k+Hh/2,'text-anchor':'middle','dominant-baseline':'central',class:'famlab',style:`font-size:${Math.max(11,FLOOR())*k}px;stroke-width:${3*k}px`});lab.textContent=txt;g.appendChild(lab);G.fam.appendChild(g)});
+  /* the compass and the scale bar float over the map: a name pill under them moves above its puck (R-park rescore 4) */
+  try{const obs=['.lv-northwrap','.lv-scale'].map(q=>document.querySelector(q)).filter(e=>e&&e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden').map(e=>{const r=e.getBoundingClientRect();return[r.left-2,r.top-2,r.right+2,r.bottom+2]});
+    const ov=b=>obs.some(o=>b.left<o[2]&&b.right>o[0]&&b.top<o[3]&&b.bottom>o[1]);
+    if(obs.length)G.fam.querySelectorAll('g.famk').forEach(g=>{const rc=g.querySelector('rect:not(.fam-photo)'),tx=g.querySelector('text.famlab');if(!rc||!tx)return;
+      if(!ov(rc.getBoundingClientRect()))return;const h=+rc.getAttribute('height'),cy0=+g.querySelector('circle').getAttribute('cy'),ky=cy0-16*k-4*k-h,oy=rc.getAttribute('y');
+      rc.setAttribute('y',ky);tx.setAttribute('y',ky+h/2);if(ov(rc.getBoundingClientRect())){rc.setAttribute('y',oy);tx.setAttribute('y',+oy+h/2)}})}catch(e){}}
 let namesBuilt=false;
 function drawNames(k){if(!G.names)return;if(!namesBuilt){namesBuilt=true;OFF.forEach(o=>{if(!o.pos)return;const t=el('text',{x:o.pos[0],y:Y(o.pos[1]),class:'lv-name','data-cat':o.cat,'dominant-baseline':'central',transform:unrot(o.pos[0],Y(o.pos[1]))});t.textContent=o.name;G.names.appendChild(t)})}
   const ill=document.documentElement.dataset.bm==='illustrated';
@@ -1791,7 +1853,7 @@ function updLoc(){const sec=$('loc-sec'),acc=$('loc-acc'),live=$('lv-live'),pill
     else if(onProperty([me.x,me.y])){state='arriving';const gate=OFF.find(o=>/^Entrance/i.test(o.name)&&o.pos)||OFFNUM[2];const gd=gate&&gate.pos?Math.hypot(gate.pos[0]-me.x,gate.pos[1]-me.y):null;
       title=`At Dollywood — ${me.y>HM?'the parking lots':'beyond the mapped park'}`;sub=`${ftOf(gap)} ${compassOf(me.x-e[0],me.y-e[1])} of the map${gd?` · gates ${ftOf(gd)}, ${walkOf(gd)}`:''}${accNote}`}
     else if(me.acc&&me.acc>gap){state='weak';title='Rough fix — waiting for GPS';sub=`± ${Math.round(me.acc*3.28)} ft could still be inside the park`}
-    else{state='far';title=`${(gap/1609).toFixed(1)} mi from the park`;sub=`Dollywood is to your ${compassOf(e[0]-me.x,e[1]-me.y)}${accNote}`}}
+    else{state='far';title=`${(gap/1609).toFixed(1)} mi from the park`;{const cp=compassOf(e[0]-me.x,e[1]-me.y);sub=`${cp?`Dollywood is to your ${cp}`:'Dollywood is a long way off'}${accNote}`}}}
   else{const s=(me.sec?SEC[me.sec]:null)||sectionAt(me.x,me.y),nn=nearest(1)[0];if(s&&s.el&&!weak&&!stale)s.el.classList.add('lv-here');
     const arrival=!s&&me.y>D.layers.allbox[3];const where=s?s.name:inParking([me.x,me.y])?'the parking lot':arrival?'the arrival area':'between areas';
     const gate=OFF.find(o=>/^Entrance/i.test(o.name)&&o.pos)||OFFNUM[2];const gd=(!s&&gate&&gate.pos)?Math.hypot(gate.pos[0]-me.x,gate.pos[1]-me.y):null;
@@ -1801,7 +1863,7 @@ function updLoc(){const sec=$('loc-sec'),acc=$('loc-acc'),live=$('lv-live'),pill
     else{state='good';title=s?`You're in ${s.name}`:inParking([me.x,me.y])?'In the parking lot':arrival?'In the arrival area':'In the park, between areas';sub=near+accNote+(me.rough&&me.rough>150?` (rough fix ignored)`:'')+(sharing?' · sharing':'')}}
   if(stale)sec.classList.add('warn');
   const fp=state==='good'?famPill():null;if(fp&&Math.floor(Date.now()/6000)%2===1)sub=fp;
-  pill.dataset.state=state;sec.textContent=title;acc.textContent=sub;
+  pill.dataset.state=state;sec.textContent=title;acc.textContent=sub;{const tx=pill.querySelector('.lv-txt');if(tx){if(state==='denied'){tx.setAttribute('role','button');tx.tabIndex=0;tx.setAttribute('aria-expanded',String(pill.hasAttribute('data-open')))}else{tx.removeAttribute('role');tx.removeAttribute('tabindex');tx.removeAttribute('aria-expanded')}}}
   if(em){const own=hubOn()&&hub.profile.emoji;if(!own||state==='denied'||state==='placing'){em.classList.add('st');em.innerHTML=ic({idle:'locate',placing:'crosshair',searching:'locate',good:'circle-dot',weak:'triangle-alert',stale:'history',arriving:'car',far:'plane',denied:'map-pin-off'}[state]||'locate');em.hidden=false}else{em.classList.remove('st');em.textContent=own;em.hidden=false}}   // CONS-ICON-2: one drawing per state; a face stays a face
   if(act){if(action){act.hidden=false;act.textContent=action[0];act.onclick=action[1]}else act.hidden=true}
   {const a2=$('lv-act2');if(a2){a2.hidden=!placeMode;if(placeMode){a2.textContent='Cancel';a2.onclick=()=>$('loc-place').click()}}   // placing: the sheet is out of the way and the pill offers Cancel (VIS-DOLLYWOOD-LIVE-11)
@@ -1960,6 +2022,8 @@ const sheet=$('lv-sheet');
 function applySheetH(){if(!sheet)return;const s=sheet.dataset.state;document.querySelector('.mapbox').style.setProperty('--sheet-h',placeMode?'0px':s==='peek'?'var(--peek-h)':s==='half'?'48dvh':'0px')}
 function setSheet(s){if(!sheet)return;sheet.dataset.state=s;document.querySelector('.mapbox').dataset.sheet=s;applySheetH();layoutTop()}
 /* the whole park between the pill (and the meeting bar) and the sheet's peek, not under either (VIS-DOLLYWOOD-LIVE-13) */
+/* the park itself: the box around the section polygons, not the whole frame (the frame carries the art's margins and the parking, so a phone got a small inset) */
+let _pbox=null;function parkBox(){if(_pbox)return _pbox;let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;try{for(const s of D.sections){if(s.id==='all'||!s.poly||!s.poly.length)continue;for(const p of s.poly){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])}}}catch(e){}return _pbox=x1>x0&&y1>y0?[x0,x1,y0,y1]:D.layers.allbox}
 function fitBoxIn(b,tween){const r=svg.getBoundingClientRect();if(!r.width||!r.height||!sheet)return fitBox(b,tween);
   const mb=document.querySelector('.mapbox'),topEnd=parseFloat(mb.style.getPropertyValue('--lv-top-end'))||0,top=Math.max(0,topEnd-r.top)+8,bot=Math.min(r.height,sheet.getBoundingClientRect().top-r.top)-8;
   if(bot-top<r.height*.35)return fitBox(b,tween);
@@ -2026,21 +2090,23 @@ function liveInit(){document.title='Dollywood park map';svg.setAttribute('preser
   const _renderList=renderList;renderList=function(){_renderList();const kid=whoKid();document.querySelectorAll('#tab-list .oi').forEach(d=>{const o=OFFNUM[+d.dataset.n];const c=o&&(wchip(o)+needChip(o));if(c)d.querySelector('.k').insertAdjacentHTML('beforeend',' '+c);if(o&&kid&&!fits(o,kid))d.classList.add('noride')});const tl=$('tab-list');if(tl&&KIDS().length){tl.insertAdjacentHTML('afterbegin',whoChips());wireWho(tl)}};
   showCoaster=function(c){rideCard(c)};
   {const _rw=renderWaits;renderWaits=function(box){_rw(box);if(KIDSELF())kidifyWaits(box)}}
-  if(window.ResizeObserver){const ro=new ResizeObserver(layoutTop);ro.observe($('lv-pill'));ro.observe($('lv-meet'))}window.addEventListener('resize',layoutTop);layoutTop();
+  if(window.ResizeObserver){const ro=new ResizeObserver(layoutTop);ro.observe($('lv-pill'));ro.observe($('lv-meet'));for(const q of ['.mapbox','.lv-sheet','.lv-fabs','.lv-scale','.lv-northwrap']){const e=document.querySelector(q);if(e)ro.observe(e)}}[400,1200,2500].forEach(t=>setTimeout(()=>{if(window.drawAmen)drawMeet()},t));   // the fabs settle after the first paint and a text-size change: the pin label is placed again (R-park 4)
+  window.addEventListener('resize',layoutTop);layoutTop();
   $('near-mode-near').onclick=()=>{nearMode='near';$('near-mode-near').setAttribute('aria-pressed','true');$('near-mode-waits').setAttribute('aria-pressed','false');renderNear()};
   $('near-mode-waits').onclick=()=>{nearMode='waits';$('near-mode-waits').setAttribute('aria-pressed','true');$('near-mode-near').setAttribute('aria-pressed','false');renderNear();if(!WAITS.at)loadWaits()};
   loadWaits();setInterval(()=>{if(!document.hidden)loadWaits()},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-WAITS.at>60000)loadWaits()});
   $('route-x').onclick=endRoute;$('route-head').onclick=()=>$('lv-route').classList.toggle('open');
-  $('meet-go').onclick=()=>{if(MEET)routeTo({name:`Meet at ${MEET.name}`,pos:[MEET.x,MEET.y],num:0,cat:'meet',meet:true})};$('lv-rally').onclick=rallyMeet;$('meet-done').onclick=()=>{const was=MEET;clearMeet();if(was&&window.hub&&typeof hub.toast==='function')try{hub.toast('Meeting point cleared for everyone.',8000,{action:'Undo',onAction:()=>{if(!MEET)setMeet(was.x,was.y,was.name,was.note)}})}catch(e){}};
+  $('meet-go').onclick=()=>{if(MEET)routeTo({name:`Meet at ${MEET.name}`,pos:[MEET.x,MEET.y],num:0,cat:'meet',meet:true})};$('lv-rally').onclick=rallyMeet;{const mt=$('meet-t'),mb=$('lv-meet'),tg=()=>{mb.toggleAttribute('data-open');mt.setAttribute('aria-expanded',mb.hasAttribute('data-open'));layoutTop()};const sy=()=>{if(innerWidth<600){mt.setAttribute('role','button');mt.tabIndex=0;mt.setAttribute('aria-expanded',String(mb.hasAttribute('data-open')))}else{mt.removeAttribute('role');mt.removeAttribute('tabindex');mt.removeAttribute('aria-expanded')}};sy();addEventListener('resize',sy);window.meetSync=sy;mt.addEventListener('click',()=>{if(innerWidth<600)tg()});mt.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&innerWidth<600){e.preventDefault();tg()}});const pt=document.querySelector('#lv-pill .lv-txt');if(pt){const pg=()=>{const pl=$('lv-pill');if(pl.dataset.state!=='denied')return;pl.toggleAttribute('data-open');pt.setAttribute('aria-expanded',pl.hasAttribute('data-open'));layoutTop()};pt.addEventListener('click',pg);pt.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pg()}})}}$('meet-done').onclick=()=>{const was=MEET;clearMeet();if(was&&window.hub&&typeof hub.toast==='function')try{hub.toast('Meeting point cleared for everyone.',8000,{action:'Undo',onAction:()=>{if(!MEET)setMeet(was.x,was.y,was.name,was.note)}})}catch(e){}};
   // a long press on the map (half a second, no drag) sets a meeting point for an adult
-  let lp=null;svg.addEventListener('pointerdown',e=>{if(!hubOn()||hub.profile.kind!=='adult'||!hub.canWrite||pts.size>1)return;const p=toMap(e);lp=setTimeout(()=>{lp=null;if(dragged||pts.size>1)return;const nn=OFF.filter(o=>o.pos).map(o=>({o,d:Math.hypot(o.pos[0]-p[0],o.pos[1]-p[1])})).sort((a,b)=>a.d-b.d)[0];const nm=nn&&nn.d<40?`near ${nn.o.name}`:(sectionAt(p[0],p[1])||{name:'here'}).name;
+  let lp=null;svg.addEventListener('pointerdown',e=>{if(!hubOn()||hub.profile.kind!=='adult'||!hub.canWrite||pts.size>1)return;const p=toMap(e);lp=setTimeout(()=>{lp=null;if(dragged||pts.size>1)return;const nn=OFF.filter(o=>o.pos).map(o=>({o,d:Math.hypot(o.pos[0]-p[0],o.pos[1]-p[1])})).sort((a,b)=>a.d-b.d)[0];const sc=sectionAt(p[0],p[1]),nm=nn&&nn.d<40?`a spot near ${nn.o.name}`:sc?sc.name:nn?`a spot near ${nn.o.name}`:'a spot on the map';
     ask({title:'Set the family meeting point?',body:`${nm[0].toUpperCase()+nm.slice(1)}. Everyone in the family sees it on the map.`,ok:'Set meeting point'}).then(yes=>{if(yes)setMeet(p[0],p[1],nm)})},550)});['pointerup','pointercancel','pointermove'].forEach(ev=>svg.addEventListener(ev,e=>{if(lp&&(ev!=='pointermove'||dragged)){clearTimeout(lp);lp=null}}));
   try{WHO=localStorage.getItem('dollywood.live.who')||null}catch(e){}
   // move the listings search and the layer toggles into the sheet; the engine keeps writing to them by id
   $('lv-srch').append($('q'),$('tab-list'));$('tab-list').hidden=false;
-  const lay=$('lv-lay');const mk=(txt,ctl)=>{const l=document.createElement('label');l.className='lab2';l.append(txt,ctl);lay.appendChild(l)};mk('Contour interval (satellite)',$('cint'));lay.appendChild($('tab-layers'));$('tab-layers').hidden=false;
+  const lay=$('lv-lay');const mk=(txt,ctl)=>{const l=document.createElement('label');l.className='lab2';l.append(txt,ctl);lay.appendChild(l)};mk('Contour interval (satellite)',$('cint'));lay.appendChild($('tab-layers'));$('tab-layers').hidden=false;   /* the park map keeps the family-meaningful layers; the guide's engineering ones stay in the DOM (the code reads them) but are not shown */
+  ['Contours','Guest paths','Service roads','Section pieces'].forEach(t=>[...document.querySelectorAll('#toggles > *')].filter(l=>l.textContent.trim().startsWith(t)).forEach(l=>{l.style.display='none'}));
   document.querySelectorAll('#lv-styles button').forEach(b=>b.onclick=()=>setStyle(b.dataset.bm));
-  $('loc-btn').onclick=()=>startGps();$('lv-fit').onclick=()=>{follow=false;liveBtn();layoutTop();fitBoxIn(D.layers.allbox,true)};
+  $('loc-btn').onclick=()=>startGps();$('lv-fit').onclick=()=>{follow=false;liveBtn();layoutTop();fitBoxIn(parkBox(),true)};
   $('lv-north').onclick=()=>{const on=!ROT;if(window.setUpright)setUpright(on);else{const up=$('l-upright');up.checked=on;up.dispatchEvent(new Event('change'))}setNorth()};   // turns the view in place; never a fit (P3-DOLLYWOOD-LIVE-09)
   $('loc-place').onclick=()=>{placeMode=!placeMode;$('loc-place').setAttribute('aria-pressed',String(placeMode));
     if(placeMode){wasGps=watchId!=null;try{localStorage.removeItem(TRACK_KEY())}catch(e){}follow=false;if(watchId!=null){try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null}liveBtn();setSheet('peek')}else if(wasGps){wasGps=false;startGps()}updLoc()};
@@ -2129,7 +2195,7 @@ function renderSrc(){const s=$('lv-src');if(!s)return;const n=wlive().length;   
 let waitSort='wait';
 function renderWaits(box){const rows=OFF.filter(o=>o.pos&&waitOf(o)).map(o=>({o,w:waitOf(o),d:me&&inFrame([me.x,me.y])?Math.hypot(o.pos[0]-me.x,o.pos[1]-me.y):null}));
   const stamp=WAITS.err?`<div class="lv-stamp" role="status">${ic('triangle-alert','sym-xs')}<span>${wErrLine()}</span></div>`:'';
-  if(!rows.length||parkClosed()){box.innerHTML=stamp+`<div class="lv-empty">${parkClosed()?'The park is closed — waits will show here once rides open.':WAITS.err?'No waits to show yet.':WAITS.at?'No rides are posting waits right now.':'Loading wait times…'}</div>`;return}
+  if(!rows.length||parkClosed()){box.innerHTML=stamp+`<div class="lv-empty">${parkClosed()?'The park is closed — waits will show here once rides open.':WAITS.err?'Wait times are not available right now.':WAITS.at?'No rides are posting waits right now.':'Loading wait times…'}</div>`;return}
   const chips=`<div class="lv-chips"><button data-s="wait" aria-pressed="${waitSort==='wait'}">Shortest wait</button><button data-s="near" aria-pressed="${waitSort==='near'}"${me&&inFrame([me.x,me.y])?'':' disabled'}>Near me</button></div>`;
   const bands=[['short','Walk on & under 15',r=>r.w.wait!=null&&r.w.wait<=15],['mid','15–35 min',r=>r.w.wait!=null&&r.w.wait>15&&r.w.wait<=35],['long','35 min and up',r=>r.w.wait!=null&&r.w.wait>35],['closed','Closed',r=>r.w.wait==null]];
   const sortf=waitSort==='near'?(a,b)=>(a.d??1e9)-(b.d??1e9)||a.w.wait-b.w.wait:(a,b)=>a.w.wait-b.w.wait||(a.d??1e9)-(b.d??1e9);
@@ -2190,7 +2256,7 @@ function amenChips(){const kinds=['restroom','first_aid','nursing','stroller'].f
   return `<div class="lv-amen">${kinds.map(kd=>{const [glyph,label]=AMEN[kd];const n=nearestAmen(kd);return `<button data-amen="${kd}"><i style="--amen:${MAPCOL.amen[kd]}">${ic(glyph)}</i><div>${label}<span>${n?`${walkOf(n.len)} · ${ftOf(n.len)}`:'nearest one'}</span></div></button>`}).join('')}</div>`}
 function amenGo(kind){const n=nearestAmen(kind);if(!n)return;const label=AMEN[kind][1];routeTo({name:label,pos:[n.a.x,n.a.y],num:0,cat:'amenity'})}
 function showAmen(a){const [glyph,label]=AMEN[a.kind],col=MAPCOL.amen[a.kind];const d=me&&inFrame([me.x,me.y])?Math.hypot(a.x-me.x,a.y-me.y):null;openPop(`<h2><span class="badge">${ic(glyph)}</span>${esc(a.name||label)}</h2><div class="meta">${(sectionAt(a.x,a.y)||{name:'in the park'}).name} · ${label.toLowerCase()}${a.src?` · ${a.src==='osm'?'survey':'from the official map'}`:''}</div>${d!=null?`<div class="lv-from"><b>${ftOf(d)}</b> from you · ${walkOf(d)}</div>`:''}<div class="btns">${d!=null?`<button id="lv-go" class="lv-gobtn">Directions</button>`:''}</div>`);
-  const go=$('lv-go');if(go)go.onclick=()=>amenGo(a.kind);pop.dataset.cat='amenity';pop.style.setProperty('--pop-cat',col);setSheet('peek')}
+  const go=$('lv-go');if(go)go.onclick=()=>amenGo(a.kind);pop.dataset.cat='amenity';pop.style.setProperty('--pop-cat',col);{const h2=pop.querySelector('h2'),x=$('pop-x');if(h2&&!pop.querySelector('.pop-head')){const hd=document.createElement('div');hd.className='pop-head';hd.append(h2);if(x)hd.append(x);pop.prepend(hd)}}setSheet('peek')}
 
 /* ---- meet here: a family-scope pin every phone sees, with a route from its own spot; Rally pushes the adults ---- */
 let MEET=null;
@@ -2200,17 +2266,36 @@ const _mctx=document.createElement('canvas').getContext('2d');
 /* The meeting point on the map: a flag, and its name in a haloed pill at most 180 screen px wide (ellipsis), set on whichever side
    (right, left, above) has no family puck within 40 px (VIS-DOLLYWOOD-LIVE-2). All sizes are screen px times mpp(). */
 function drawMeet(){if(!G.meet)return;G.meet.innerHTML='';if(!MEET)return;const k=mpp(),cx=MEET.x,cy=Y(MEET.y);const g=el('g',{class:'lv-meetpin',transform:unrot(cx,cy)});
-  g.appendChild(el('path',{d:`M${cx} ${cy}L${cx} ${cy-34*k}L${cx+22*k} ${cy-27*k}L${cx} ${cy-20*k}Z`,filter:'url(#lv-shadow)'}));g.appendChild(el('circle',{cx,cy,r:4*k,'stroke-width':1.5*k}));
+  g.appendChild(el('path',{d:`M${cx} ${cy}L${cx} ${cy-34*k}L${cx+22*k} ${cy-27*k}L${cx} ${cy-20*k}Z`,filter:'url(#lv-shadow)'}));g.appendChild(el('circle',{cx,cy,r:4*k,'stroke-width':1.5*k}));G.meet.appendChild(g);
   const fs=Math.max(11,FLOOR()),h=fs+10;_mctx.font=`600 ${fs}px system-ui, sans-serif`;let t='Meet · '+MEET.name;
   if(_mctx.measureText(t).width>164){while(t.length>8&&_mctx.measureText(t+'…').width>164)t=t.slice(0,-1);t=t.trimEnd()+'…'}
   const w=Math.min(180,Math.ceil(_mctx.measureText(t).width)+16),a=ROT*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);
   const pucks=[];for(const id in FAM){const f=FAM[id];if(!f||Date.now()-(f.t||0)>4*3600e3||!inFrame([f.x,f.y]))continue;const dx=(f.x-MEET.x)/k,dy=(Y(f.y)-cy)/k;pucks.push([dx*ca-dy*sa,dx*sa+dy*ca])}
-  const sides={right:[26,-27-h/2],left:[-w-8,-27-h/2],above:[-w/2,-40-h]};   // [x, y] of the pill's top-left, in screen px from the pin's foot
+  const sides={};{const add=(n,x,y)=>{sides[n]=[x,y]};add('right',26,-27-h/2);add('left',-w-8,-27-h/2);add('above',-w/2,-40-h);add('below',-w/2,12);
+    add('above2',-w/2,-70-h);add('below2',-w/2,42);add('aboveL',-w+20,-40-h);add('aboveR',-20,-40-h);add('belowL',-w+20,12);add('belowR',-20,12);
+    [-30,30,-60,60].forEach((dy,i)=>{add('right'+i,26,-27-h/2+dy);add('left'+i,-w-8,-27-h/2+dy)});
+    [-70,70,-130,130].forEach((dx,i)=>{add('aboveX'+i,-w/2+dx,-40-h);add('belowX'+i,-w/2+dx,12);add('above2X'+i,-w/2+dx,-70-h);add('below2X'+i,-w/2+dx,42)})}   // [x, y] of the pill's top-left, in screen px from the pin's foot
   const clear=r=>pucks.reduce((m,p)=>Math.min(m,Math.hypot(Math.max(r[0]-p[0],0,p[0]-(r[0]+w)),Math.max(r[1]-p[1],0,p[1]-(r[1]+h)))),1e9);
-  let side='right',best=-1;for(const n of ['right','left','above']){const c=clear(sides[n]);if(c>40){side=n;best=c;break}if(c>best){best=c;side=n}}
-  const [px,py]=sides[side];g.dataset.side=side;
+  /* The label stays inside the visible map and off the floating controls (R-park 4): the pin's screen foot, the map's box under the pill/bar
+     and above the sheet, and the rectangles of the fabs, the compass and the scale bar. A side that leaves the screen or lands on one is dropped;
+     with none left the best side is slid into the visible box. */
+  let vb=null,obs=[];try{const mb=document.querySelector('.mapbox'),mr=mb.getBoundingClientRect(),cr=g.querySelector('circle').getBoundingClientRect(),sx=cr.left+cr.width/2,sy=cr.top+cr.height/2;
+    const top=parseFloat(mb.style.getPropertyValue('--lv-top-end'))||mr.top,sh=document.querySelector('.lv-sheet'),shr=sh&&sh.getBoundingClientRect(),bot=shr&&shr.height?Math.min(mr.bottom,shr.top):mr.bottom;
+    for(const q of ['.lv-fabs','.lv-northwrap','.lv-scale']){const e=document.querySelector(q);if(e&&e.getClientRects().length&&getComputedStyle(e).visibility!=='hidden'){const r=e.getBoundingClientRect();obs.push([r.left-4,r.top-4,r.right+4,r.bottom+4])}}
+    vb={sx,sy,l:mr.left+8,r:mr.right-8,t:top+4,b:bot-4}}catch(e){}
+  /* the labels already on the map (wait chips, markers, family pucks and names) are soft obstacles: the side that covers the least of them wins (R-park rescore 4) */
+  const soft=[];try{if(vb)document.querySelectorAll('.lv-wait,.mk,.famk').forEach(e=>{const r=e.getBoundingClientRect();if(r.width&&r.height&&r.bottom>vb.t&&r.top<vb.b&&r.right>vb.l&&r.left<vb.r)soft.push([r.left-1,r.top-1,r.right+1,r.bottom+1])})}catch(e){}
+  const softArea=n=>{const r=rectOf(n);if(!r)return 0;let a=0;for(const o of soft){const w2=Math.min(r[2],o[2])-Math.max(r[0],o[0]),h2=Math.min(r[3],o[3])-Math.max(r[1],o[1]);if(w2>0&&h2>0)a+=w2*h2}return a};
+  const rectOf=n=>{const [x,y]=sides[n];return vb?[vb.sx+x,vb.sy+y,vb.sx+x+w,vb.sy+y+h]:null};
+  const fits=n=>{const r=rectOf(n);if(!r)return true;if(r[0]<vb.l||r[2]>vb.r||r[1]<vb.t||r[3]>vb.b)return false;return !obs.some(o=>r[0]<o[2]&&r[2]>o[0]&&r[1]<o[3]&&r[3]>o[1])};
+  let side=null,best=-1;const order=Object.keys(sides);   // the later ones lift or slide the label clear of family faces when the plain sides are crowded
+  {let bk=null;order.forEach((n,i)=>{if(!fits(n))return;const c=clear(sides[n]),key=[Math.round(softArea(n)),c>40?0:1,i];if(!bk||key[0]<bk[0][0]||(key[0]===bk[0][0]&&(key[1]<bk[0][1]||(key[1]===bk[0][1]&&key[2]<bk[0][2]))))bk=[key,n,c]});if(bk){side=bk[1];best=bk[2]}}
+  let slid=false;if(!side){side='right';let bo=1e9;for(const n of order){const r=rectOf(n);const o=Math.max(0,vb.l-r[0])+Math.max(0,r[2]-vb.r)+Math.max(0,vb.t-r[1])+Math.max(0,r[3]-vb.b);if(o<bo){bo=o;side=n}}slid=true}
+  let [px,py]=sides[side];
+  if(slid&&vb){const r=rectOf(side);px+=Math.min(Math.max(vb.l-r[0],0),1e9)-Math.max(r[2]-vb.r,0);py+=Math.max(vb.t-r[1],0)-Math.max(r[3]-vb.b,0)}
+  g.dataset.side=side.replace(/[0-9X]+$/,'').replace(/[LR]$/,'')||side;
   g.appendChild(el('rect',{class:'mp-pill',x:cx+px*k,y:cy+py*k,width:w*k,height:h*k,rx:h/2*k,'stroke-width':1.2*k}));
-  const tx=el('text',{x:cx+(px+w/2)*k,y:cy+(py+h/2)*k,style:`font-size:${fs*k}px`});tx.textContent=t;g.appendChild(tx);G.meet.appendChild(g)}
+  const tx=el('text',{x:cx+(px+w/2)*k,y:cy+(py+h/2)*k,style:`font-size:${fs*k}px`});tx.textContent=t;g.appendChild(tx)}
 /* Rally the family (P2-PWA-18): the Worker writes the meeting row and its own feed line and pushes the other household adults, so this
    never calls setMeet(). The bar's meta line tells what happened; the button rests for 60 s after a success. */
 const RALLY={okAt:0,forAt:null,line:null,err:'',errUntil:0};
@@ -2221,6 +2306,7 @@ function renderMeet(){const bar=$('lv-meet');if(!bar)return;if(!MEET){bar.hidden
   $('meet-meta').textContent=meta;
   const adult=hubOn()&&hub.profile.kind==='adult'&&hub.canWrite,rb=$('lv-rally');$('meet-done').hidden=!adult;$('meet-go').hidden=!(me&&inFrame([me.x,me.y]));
   if(rb){rb.hidden=!(HOUSEHOLD()&&hub.canWrite);rb.disabled=Date.now()-RALLY.okAt<60000}}
+let _unf=null;function meetUnfold(){const mb=$('lv-meet');if(!mb||innerWidth>=600)return;mb.setAttribute('data-open','');if(window.meetSync)meetSync();layoutTop();clearTimeout(_unf);_unf=setTimeout(()=>{mb.removeAttribute('data-open');if(window.meetSync)meetSync();layoutTop()},20000)}   // a folded bar hides the result line: after a Rally it opens for 20 s so the line is seen and announced
 async function rallyMeet(){if(!MEET||!HOUSEHOLD()||!hub.canWrite||Date.now()-RALLY.okAt<60000)return;const nm=MEET.name.length>40?MEET.name.slice(0,38)+'…':MEET.name;
   const yes=await ask({title:`Rally the family to ${nm}?`,body:`The other grown-ups get “Meet at ${nm}” on their phones.`,ok:'Rally'});if(!yes||!MEET)return;
   const rb=$('lv-rally');if(rb)rb.disabled=true;
@@ -2228,13 +2314,14 @@ async function rallyMeet(){if(!MEET||!HOUSEHOLD()||!hub.canWrite||Date.now()-RAL
     const n=+r.pushed||0,m=r.meet&&typeof r.meet==='object'?r.meet:null;
     if(m&&isFinite(+m.at))MEET=Object.assign({},MEET,{at:+m.at,by:m.by==null?MEET.by:String(m.by),byName:m.byName==null?MEET.byName:String(m.byName).slice(0,60)});
     RALLY.okAt=Date.now();RALLY.forAt=MEET.at;RALLY.errUntil=0;
-    RALLY.line=n>0?()=>`Rallied ${n} · set by you ${agoOf(MEET.at)}`:'Nobody else has park alerts on — they will see the pin on the map.';
-    setTimeout(renderMeet,60500)}
-  catch(e){RALLY.err=e&&e.status===429?'You rallied a minute ago — try again shortly.':'Couldn’t send the rally — they will see the pin on their next sync.';RALLY.errUntil=Date.now()+20000;setTimeout(renderMeet,20100)}
+    const sk=Array.isArray(r.skipped)?r.skipped:[],unreached=sk.some(q=>q&&q.why!=='pref_off'),others=!Array.isArray(r.skipped)||sk.length>0;   /* an older Worker that sends no list: the old wording */
+    RALLY.line=n>0?()=>`Rallied ${n} · set by you ${agoOf(MEET.at)}`:unreached?'No one else’s phone could be reached — they will see the pin on the map.':others?'Nobody else has park alerts on — they will see the pin on the map.':'There are no other grown-ups to tell — the pin is on the map.';
+    setTimeout(renderMeet,60500);renderMeet();meetUnfold()}
+  catch(e){RALLY.err=e&&e.status===429?'You rallied a minute ago — try again shortly.':'Couldn’t send the rally — they will see the pin on their next sync.';RALLY.errUntil=Date.now()+20000;setTimeout(renderMeet,20100);renderMeet();meetUnfold()}
   renderMeet()}
 if(FLAVOR==='live'){setInterval(()=>{if(!document.hidden)loadMeet()},30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadMeet()})}   // the age reads true and the pin drops at 2 h with the map open (P3-DOLLYWOOD-LIVE-18)
-function setMeet(x,y,name,note){if(!hubOn()||hub.profile.kind!=='adult'||!hub.canWrite)return;const v={x:Math.round(x),y:Math.round(y),name:name||'here',note:note||'',by:hub.profile.id,byName:hub.profile.name,at:Date.now()};
-  try{hub.set('meet',v,{scope:'family'});hub.activity&&hub.activity(`Meeting point: ${v.name}`)}catch(e){}MEET=v;drawMeet();renderMeet()}
+function setMeet(x,y,name,note){if(!hubOn()||hub.profile.kind!=='adult'||!hub.canWrite)return;const v={x:Math.round(x),y:Math.round(y),name:name||'a spot on the map',note:note||'',by:hub.profile.id,byName:hub.profile.name,at:Date.now()};
+  try{hub.set('meet',v,{scope:'family'})}catch(e){}   /* no feed line here: the Rally writes the house's one line (R-park 6) */MEET=v;drawMeet();renderMeet()}
 function clearMeet(){if(!hubOn()||hub.profile.kind!=='adult'||!hub.canWrite)return;try{hub.remove('meet',{scope:'family'})}catch(e){}MEET=null;drawMeet();renderMeet();if(ROUTE&&ROUTE.o&&ROUTE.o.meet)endRoute()}
 function meetHere(o){const nm=o.name.length>40?o.name.slice(0,38)+'…':o.name;if(!hubOn()||hub.profile.kind!=='adult'){return}
   ask({title:`Meet at ${nm}?`,body:'Then tap Rally on the meeting bar to buzz the other grown-ups.',ok:'Set meeting point'}).then(yes=>{if(yes){setMeet(o.pos[0],o.pos[1],nm);closePop();setSheet('peek')}})}

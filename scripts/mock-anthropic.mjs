@@ -31,7 +31,7 @@ function pick(text) {
   if (/^i prayed for (.+)/.test(t)) return { name: 'mark_prayed', input: { list: /family/.test(t) ? 'family' : 'private', prayer_id: cap(t.match(/^i prayed for (.+?)( on the family list| today)*$/)[1]) } };
   if (/pray/.test(t)) return { name: 'add_prayer', input: { list: /family/.test(t) ? 'family' : 'private', text: cap(t.replace(/^.*pray(er)? (for |that )?/, '').replace(/ on the family list/, '')) } };
   if (/what'?s my tally/.test(t)) return { name: 'get_data', input: { app_id: 'tally', scope: 'person', key: 'count' } };
-  if (/set my tally to (\d+)/.test(t)) return { name: 'set_data', input: { app_id: 'tally', scope: 'person', key: 'count', value: +t.match(/set my tally to (\d+)/)[1] } };
+  if (/set my tally to (\S+)/.test(t)) { const w = t.match(/set my tally to (\S+)/)[1]; return { name: 'set_data', input: { app_id: 'tally', scope: 'person', key: 'count', value: /^-?[\d.]+(e\+?\d+)?$/.test(w) ? +w : w } }; }   // batch 11: -13, 12.5, 1000000 and "twelve" reach the tool as they are
   return null;
 }
 const cap = s => s.trim().replace(/[.!?]$/, '').replace(/^\w/, c => c.toUpperCase());

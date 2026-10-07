@@ -41,9 +41,9 @@ export default function dollywoodLive(h) {
     h.family(app, 'loc:' + id, { x, y, acc, hdg, t, name: p.name || id, emoji: p.emoji || '•', color: p.color || '#8A6A4B' }, t);
   };
   // share — person scope, boolean: shareOn() at :694, set by the Share my spot switch at :1310. On for each adult sharing.
-  const share = id => h.person(id, app, 'share', true, h.time(0, '08:05'));
+  const share = id => h.person(id, app, 'share', true, Math.min(h.time(0, '08:05'), h.ago(15)));
   // kidshare:<kidId> — family scope, boolean: VIEW_ONLY/kidBeaconOn at :693/:1601, set by an adult's switch at :1308.
-  const beacon = id => h.family(app, 'kidshare:' + id, true, h.time(0, '08:07'));
+  const beacon = id => h.family(app, 'kidshare:' + id, true, Math.min(h.time(0, '08:07'), h.ago(15)));
   // meet — family scope, { x, y, name, note, by, byName, at }: loadMeet() at :1579 (shown under 2 h), setMeet() at :1586
   // (note is '' from the app; only POST /api/dollywood/rally carries one, worker/src/index.js:97-110), activity at :1587.
   const meet = (by, x, y, name, note, mins) => {

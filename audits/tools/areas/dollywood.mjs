@@ -195,6 +195,7 @@ export const screens = [
     async go(t) {
       const f = await open(t);
       await chip(t, f, 'timber');
+      await f.locator('#map [data-pick="o:28"]').evaluate(e => e.scrollIntoView({ block: 'center' })).catch(() => {});   // the sticky step bar (>= 700 px) covers the bottom of the viewport: bring the marker clear of it
       await press(t, f.locator('#map [data-pick="o:28"]'), { force: true });
       await f.waitForSelector('#pop.show #i-coast', { timeout: 3000 }).catch(() => {});
       await press(t, f.locator('#i-coast'));

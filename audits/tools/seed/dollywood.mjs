@@ -43,8 +43,8 @@ export default function dollywood(h) {
     ? { next: { id: 'grove-24', title: 'Night lighting pass', sec: 'grove', secName: 'Wildwood Grove', i: 24, n: 26 }, secDone: 23, secTotal: 26, done: doneN, total, at: h.time(-1, '21:12') }
     : { next: { id: 'entrance-08', title: 'Planting, banners and signage', sec: 'entrance', secName: 'Entrance & Plaza', i: 8, n: 9 }, secDone: 7, secTotal: 9, done: doneN, total, at: h.time(-1, '21:12') }, h.time(-1, '21:12'));
 
-  // The feed line a tick posts: hub.activity('Ticked ' + now.title) at :1086 — the last step Eli ticked last night
+  // The feed line a tick posts: feedFlush() in the template: 'Built <title> (<section>)' or 'Built N steps in <section>' — the last step Eli ticked last night
   // (real step titles: show-13 in typical; crafts-17, the guide's longest title, in overflow).
-  if (h.typical) h.activity('eli', 'dollywood', 'Ticked Traditions, Wired Up Names and Gazebo Gifts (#17, #18, #13)', h.time(-1, '21:12'));
-  if (h.overflow) h.activity('eli', 'dollywood', "Ticked Calico Falls Schoolhouse (#47), Hickory House BBQ (#70), Food Truck Park (#67), Games (#50), Airbrush T-Shirts (#55), Tornado Dippin' Dots (#74)", h.time(-1, '21:12'));
+  if (h.typical) h.activity('eli', 'dollywood', 'Built Traditions, Wired Up Names and Gazebo Gifts (#17, #18, #13) (Showstreet)', h.time(-1, '21:12'));
+  if (h.overflow) h.activity('eli', 'dollywood', "Built Calico Falls Schoolhouse (#47), Hickory House BBQ (#70), Food Truck Park (#67), Games (#50), Airbrush T-Shirts (#55), Tornado Dippin' Dots (#74) (Craftsman's Valley)", h.time(-1, '21:12'));
 }

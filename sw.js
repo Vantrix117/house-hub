@@ -8,7 +8,7 @@
    - A document it has no copy of, offline, gets offline.html (P2-PWA-16) instead of a bare "Offline".
    - push: shows the notification the Worker sent; notificationclick deep-links into the app via the URL hash and says
      whose it was (a shared device). pushsubscriptionchange hands the house the browser's new subscription (PWA-GAP-2). */
-const VERSION = 'hub-v48';
+const VERSION = 'hub-v49';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'icon.svg', 'sw.js', 'offline.html',
   'apps/design.css', 'apps/hub.js',
